@@ -155,3 +155,28 @@ def test_extraction_guard_merge_with_report_describes_accepted_and_rejected_fiel
     assert report["candidate_fields"] == ["summary_text", "student_signals", "confirmed_facts"]
     assert report["accepted_fields"] == ["summary_text", "student_signals"]
     assert report["rejected_fields"] == ["confirmed_facts"]
+
+
+def test_extraction_guard_summary_candidate_does_not_mutate_fact_buckets():
+    guard = ExtractionGuard()
+    rule_patch = {
+        "conversation_summary": {"summary_text": "当前围绕课堂参与度继续分析"},
+        "conversation_memory": {
+            "user_stated_facts": ["前10分钟学生多次走神"],
+            "confirmed_facts": ["前10分钟学生多次走神"],
+        },
+    }
+    candidates = [
+        ExtractionCandidate(
+            field="summary_text",
+            value="前10分钟学生多次走神，后排回应也比较少，当前围绕课堂参与度继续分析",
+            source="llm",
+            operation="replace",
+        )
+    ]
+
+    merged = guard.merge(existing_state={}, rule_patch=rule_patch, candidates=candidates)
+
+    assert merged["conversation_summary"]["summary_text"].startswith("前10分钟学生多次走神")
+    assert merged["conversation_memory"]["user_stated_facts"] == ["前10分钟学生多次走神"]
+    assert merged["conversation_memory"]["confirmed_facts"] == ["前10分钟学生多次走神"]

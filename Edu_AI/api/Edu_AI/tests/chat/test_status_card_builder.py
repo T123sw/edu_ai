@@ -85,3 +85,51 @@ def test_status_card_label_mapper_supports_awaiting_confirm_copy():
     assert mapper.map_status(workflow_type="report", status="awaiting_confirm", phase="confirming", required_slots=[]) == "等待你确认报告大纲"
     assert mapper.map_waiting_label(workflow_type="report", status="awaiting_confirm", phase="confirming", required_slots=[]) == "等待你确认报告大纲"
     assert mapper.map_suggested_actions(workflow_type="report", status="awaiting_confirm", required_slots=[]) == ["确认并继续", "调整要求"]
+
+
+def test_status_card_builder_prefers_explicit_user_goal_for_chat_goal_text():
+    snapshot = ConversationSnapshot(
+        conversation_id="conv-2",
+        summary="",
+        conversation_memory={
+            "current_topics": ["课堂参与度"],
+            "explicit_user_goals": ["分析问题"],
+            "derived_workflow_goal": "生成报告",
+            "user_goals": ["生成报告", "分析问题"],
+            "constraints": {},
+        },
+        active_context={},
+        capability=CapabilityPolicy(),
+    )
+
+    card = StatusCardBuilder().build(
+        snapshot=snapshot,
+        workflow=None,
+        capability=snapshot.capability,
+    )
+
+    assert card.mode == "chat"
+    assert card.goal == "分析问题"
+
+
+def test_status_card_builder_prefers_user_stated_facts_over_legacy_confirmed_bucket():
+    snapshot = ConversationSnapshot(
+        conversation_id="conv-3",
+        summary="前10分钟学生多次走神，后排回应也比较少",
+        conversation_memory={
+            "current_topics": ["课堂参与度"],
+            "user_stated_facts": ["前10分钟学生多次走神"],
+            "confirmed_facts": ["旧兼容事实"],
+            "constraints": {},
+        },
+        active_context={},
+        capability=CapabilityPolicy(),
+    )
+
+    card = StatusCardBuilder().build(
+        snapshot=snapshot,
+        workflow=None,
+        capability=snapshot.capability,
+    )
+
+    assert card.confirmed_facts == ["前10分钟学生多次走神"]

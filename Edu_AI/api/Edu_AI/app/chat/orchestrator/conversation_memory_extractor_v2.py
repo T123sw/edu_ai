@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import re
 
+from app.chat.orchestrator.conversation_memory_compactor import ConversationMemoryCompactor
+
 
 class ConversationMemoryExtractor:
+    def __init__(self, *, compactor: ConversationMemoryCompactor | None = None):
+        self.compactor = compactor or ConversationMemoryCompactor()
+
     _TOPIC_PREFIX_PATTERNS = [
         r"^(请你|请帮我|帮我|麻烦你|可以|能否|能不能|我想|想请你|继续|再)\s*",
         r"^(分析|解释|总结|概括|归纳|整理|生成|撰写|判断|比较|评价|说明|梳理|提炼|讨论|回答|告诉我)\s*",
@@ -96,6 +101,26 @@ class ConversationMemoryExtractor:
         "您想",
         "你想",
         "更关注",
+    ]
+
+    _USER_WORKFLOW_CONTROL_PATTERNS = [
+        r"^请?基于(当前|以上).*(生成|整理).*(报告|教案|练习|测验|ppt|PPT)",
+        r"^根据已确认的?大纲开始生成",
+        r"^确认并继续$",
+        r"^继续生成(报告|正文)?$",
+        r"^开始生成(报告|正文)?$",
+    ]
+    _ASSISTANT_WORKFLOW_CONTROL_PATTERNS = [
+        r"^我将基于.+(生成|整理).+",
+        r"^已识别用户请求生成.+",
+        r"^大纲已生成",
+        r"^请确认或指出要修改的地方",
+    ]
+    _ASSISTANT_META_OPENERS = [
+        "这是一个非常好的问题",
+        "这是一个非常实际的问题",
+        "这个问题很有意思",
+        "这是个很好的问题",
     ]
 
     @staticmethod
@@ -193,6 +218,36 @@ class ConversationMemoryExtractor:
             return "继续对话"
         return None
 
+    def _extract_explicit_user_goal(self, question: str) -> str | None:
+        text = str(question or "")
+        if not text:
+            return None
+        if "分析" in text:
+            return "分析问题"
+        if "解释" in text or "为什么" in text or "原因" in text:
+            return "解释原因"
+        if "总结" in text or "概括" in text or "归纳" in text:
+            return "总结内容"
+        return None
+
+    def _merge_explicit_goals(self, goal: str | None, existing_goals: list[str]) -> list[str]:
+        return self._dedupe_keep_order(([goal] if goal else []) + list(existing_goals or []), limit=5)
+
+    @staticmethod
+    def _layer_constraints(*, explicit_constraints: dict, derived_constraints: dict) -> dict:
+        merged = {
+            **dict(explicit_constraints or {}),
+            **dict(derived_constraints or {}),
+        }
+        explicit_extra = list(explicit_constraints.get("extra_constraints") or []) if explicit_constraints else []
+        derived_extra = list(derived_constraints.get("extra_constraints") or []) if derived_constraints else []
+        if explicit_extra or derived_extra:
+            merged["extra_constraints"] = ConversationMemoryExtractor._dedupe_keep_order(
+                explicit_extra + derived_extra,
+                limit=6,
+            )
+        return merged
+
     def _extract_topics(self, question: str, existing_topics: list[str]) -> list[str]:
         cleaned_question = self._strip_topic_prefix(question)
         clauses = [part for part in self._split_clauses(cleaned_question) if part.strip()]
@@ -218,6 +273,74 @@ class ConversationMemoryExtractor:
         if normalized.endswith("一点") and len(normalized) <= 8:
             return True
         return False
+
+    @staticmethod
+    def _matches_any_pattern(text: str, patterns: list[str]) -> bool:
+        normalized = str(text or "").strip()
+        if not normalized:
+            return False
+        return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+    def _classify_user_text(self, text: str) -> str:
+        normalized = self._clean_clause(text)
+        if not normalized:
+            return "empty"
+        if self._matches_any_pattern(normalized, self._USER_WORKFLOW_CONTROL_PATTERNS):
+            return "workflow_control"
+        return "user_content"
+
+    def _classify_assistant_text(self, text: str) -> str:
+        normalized = self._clean_clause(text)
+        if not normalized:
+            return "empty"
+        if self._matches_any_pattern(normalized, self._ASSISTANT_WORKFLOW_CONTROL_PATTERNS):
+            return "workflow_control"
+        if any(normalized.startswith(prefix) for prefix in self._ASSISTANT_META_OPENERS):
+            return "assistant_meta"
+        return "assistant_content"
+
+    def _strip_assistant_meta_openers(self, text: str) -> str:
+        normalized = str(text or "").strip()
+        for prefix in self._ASSISTANT_META_OPENERS:
+            if normalized.startswith(prefix):
+                normalized = normalized[len(prefix):].lstrip("，。:：!！?？ ")
+                break
+        return normalized
+
+    def _semantic_user_text(self, text: str) -> str:
+        return str(text or "").strip() if self._classify_user_text(text) == "user_content" else ""
+
+    def _semantic_assistant_text(self, text: str) -> str:
+        classification = self._classify_assistant_text(text)
+        if classification in {"assistant_content", "assistant_meta"}:
+            return self._strip_assistant_meta_openers(text)
+        return ""
+
+    def classify_message_kind(
+        self,
+        *,
+        role: str,
+        text: str,
+        workflow_type: str = "",
+        action_name: str = "",
+        artifacts: list[dict] | None = None,
+    ) -> str:
+        normalized_role = str(role or "").strip()
+        if normalized_role == "user":
+            classification = self._classify_user_text(text)
+            return "workflow_control" if classification == "workflow_control" else "user_content"
+
+        if normalized_role == "assistant":
+            classification = self._classify_assistant_text(text)
+            if classification == "workflow_control":
+                return "workflow_control"
+            if classification == "assistant_meta":
+                return "assistant_meta"
+            if workflow_type or str(action_name or "").startswith("generate.") or list(artifacts or []):
+                return "workflow_result"
+            return "assistant_content"
+
+        return "unknown"
 
     def _extract_extra_constraints(self, question: str, existing_extra: list[str]) -> list[str]:
         extras = list(existing_extra or [])
@@ -274,6 +397,18 @@ class ConversationMemoryExtractor:
             list(existing_constraints.get("extra_constraints", [])) if existing_constraints else [],
         )
         return constraints
+
+    def _extract_explicit_constraints(self, question: str, existing_constraints: dict) -> dict:
+        explicit_constraints = self._extract_constraints(question, existing_constraints, request=None)
+        explicit_constraints.pop("course_id", None)
+        return explicit_constraints
+
+    def _extract_derived_workflow_constraints(self, request, existing_constraints: dict) -> dict:
+        derived = dict(existing_constraints or {})
+        course_id = getattr(request, "course_id", None)
+        if course_id:
+            derived["course_id"] = course_id
+        return derived
 
     def _extract_issues(self, *texts: str, existing_issues: list[str]) -> list[str]:
         issues: list[str] = []
@@ -353,7 +488,19 @@ class ConversationMemoryExtractor:
         merged_list = [merged_by_content[content] for content in order]
         return merged_list[:limit]
 
-    def _extract_confirmed_facts(self, answer: str, existing_facts: list[str]) -> list[str]:
+    def _extract_user_stated_facts(self, question: str, existing_facts: list[str]) -> list[str]:
+        facts: list[str] = []
+        for clause in self._split_clauses(question):
+            if len(clause) < 6:
+                continue
+            if any(token in clause for token in self._INTERROGATIVE_TOKENS):
+                continue
+            if any(token in clause for token in ["请", "帮我", "生成", "分析", "总结", "解释", "介绍"]):
+                continue
+            facts.append(clause[:48])
+        return self._dedupe_keep_order(facts + list(existing_facts or []), limit=5)
+
+    def _extract_assistant_fact_candidates(self, answer: str, existing_facts: list[str]) -> list[str]:
         facts: list[str] = []
         for clause in self._split_clauses(answer):
             if len(clause) < 8:
@@ -366,6 +513,12 @@ class ConversationMemoryExtractor:
                 continue
             facts.append(clause[:48])
         return self._dedupe_keep_order(facts + list(existing_facts or []), limit=5)
+
+    @staticmethod
+    def _project_confirmed_facts(*, user_stated_facts: list[str], existing_memory: dict) -> list[str]:
+        if user_stated_facts:
+            return list(user_stated_facts)
+        return list((existing_memory or {}).get("confirmed_facts") or [])
 
     @staticmethod
     def _build_summary(*, topics: list[str], goal: str | None, issues: list[str], answer: str, existing_summary: str) -> str:
@@ -394,56 +547,116 @@ class ConversationMemoryExtractor:
         _ = recent_messages
         question = str(getattr(request, "question", "") or "").strip()
         answer = str(((result.get("message") or {}).get("content")) or "").strip()
+        semantic_question = self._semantic_user_text(question)
+        semantic_answer = self._semantic_assistant_text(answer)
         workflow = result.get("workflow") or {}
         action_name = str(((result.get("action") or {}).get("name")) or "").strip()
 
         existing_summary = str(((existing_state.get("conversation_summary") or {}).get("summary_text")) or "")
         existing_memory = dict(existing_state.get("conversation_memory") or {})
+        existing_memory_meta = dict(existing_state.get("conversation_memory_meta") or {})
 
-        goal = self._extract_goal(
+        explicit_goal = self._extract_explicit_user_goal(semantic_question)
+        derived_goal = self._extract_goal(
             question,
             action_name=action_name,
             workflow_type=str(workflow.get("type") or ""),
         )
-        topics = self._extract_topics(question, list(existing_memory.get("current_topics") or []))
-        constraints = self._extract_constraints(question, dict(existing_memory.get("constraints") or {}), request)
-        issues = self._extract_issues(question, answer, existing_issues=list(existing_memory.get("teaching_issues") or []))
+        explicit_goals = self._merge_explicit_goals(
+            explicit_goal,
+            list(existing_memory.get("explicit_user_goals") or []),
+        )
+        topics = self._extract_topics(semantic_question, list(existing_memory.get("current_topics") or []))
+        explicit_constraints = self._extract_explicit_constraints(
+            semantic_question,
+            dict(
+                existing_memory.get("explicit_user_constraints")
+                or existing_memory.get("constraints")
+                or {}
+            ),
+        )
+        derived_constraints = self._extract_derived_workflow_constraints(
+            request,
+            dict(existing_memory.get("derived_workflow_constraints") or {}),
+        )
+        constraints = self._layer_constraints(
+            explicit_constraints=explicit_constraints,
+            derived_constraints=derived_constraints,
+        )
+        issues = self._extract_issues(
+            semantic_question,
+            semantic_answer,
+            existing_issues=list(existing_memory.get("teaching_issues") or []),
+        )
         student_signals = self._extract_student_signals(
-            question,
-            answer,
+            semantic_question,
+            semantic_answer,
             existing_signals=list(existing_memory.get("student_signals") or []),
         )
         evidence_points = self._extract_evidence_points(
-            answer,
+            semantic_answer,
             existing_points=list(existing_memory.get("evidence_points") or []),
             recent_messages=recent_messages,
         )
-        confirmed_facts = self._extract_confirmed_facts(answer, list(existing_memory.get("confirmed_facts") or []))
-        goals = self._merge_goals(goal, list(existing_memory.get("user_goals") or []))
-        summary = self._build_summary(
-            topics=topics,
-            goal=goal,
-            issues=issues,
-            answer=answer,
-            existing_summary=existing_summary,
+        user_stated_facts = self._extract_user_stated_facts(
+            semantic_question,
+            list(existing_memory.get("user_stated_facts") or []),
         )
+        assistant_fact_candidates = self._extract_assistant_fact_candidates(
+            semantic_answer,
+            list(existing_memory.get("assistant_fact_candidates") or []),
+        )
+        confirmed_facts = self._project_confirmed_facts(
+            user_stated_facts=user_stated_facts,
+            existing_memory=existing_memory,
+        )
+        goals = self._dedupe_keep_order(
+            ([derived_goal] if derived_goal else [])
+            + list(explicit_goals or [])
+            + list(existing_memory.get("user_goals") or []),
+            limit=5,
+        )
+        if not semantic_question and not semantic_answer and existing_summary:
+            summary = existing_summary
+        else:
+            summary = self._build_summary(
+                topics=topics,
+                goal=explicit_goal if semantic_question else None,
+                issues=issues,
+                answer=semantic_answer,
+                existing_summary=existing_summary,
+            )
 
         merged_memory = {
             **existing_memory,
             "current_topics": topics,
+            "explicit_user_goals": explicit_goals,
+            "derived_workflow_goal": derived_goal,
             "user_goals": goals,
+            "user_stated_facts": user_stated_facts,
+            "assistant_fact_candidates": assistant_fact_candidates,
             "confirmed_facts": confirmed_facts,
             "teaching_issues": issues,
             "student_signals": student_signals,
             "evidence_points": evidence_points,
+            "explicit_user_constraints": explicit_constraints,
+            "derived_workflow_constraints": derived_constraints,
             "constraints": constraints,
         }
         if existing_memory.get("referenced_artifact_ids"):
             merged_memory["referenced_artifact_ids"] = list(existing_memory.get("referenced_artifact_ids") or [])
 
+        compacted_memory, memory_meta = self.compactor.compact(
+            memory=merged_memory,
+            existing_meta=existing_memory_meta,
+            action_name=action_name,
+            workflow_type=str(workflow.get("type") or ""),
+        )
+
         return {
             "conversation_summary": {
                 "summary_text": summary,
             },
-            "conversation_memory": merged_memory,
+            "conversation_memory": compacted_memory,
+            "conversation_memory_meta": memory_meta,
         }

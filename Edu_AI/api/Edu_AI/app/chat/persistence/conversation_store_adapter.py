@@ -19,8 +19,8 @@ class ConversationStoreAdapter:
             "state": self.storage.get_state(conversation_id),
         }
 
-    def append_message(self, conversation_id: str, role: str, content: str, *, sources=None):
-        self.storage.append_message(conversation_id, role, content, sources=sources)
+    def append_message(self, conversation_id: str, role: str, content: str, *, sources=None, message_kind: str | None = None):
+        self.storage.append_message(conversation_id, role, content, sources=sources, message_kind=message_kind)
 
     def update_workflow_state(self, conversation_id: str, workflow_state: dict):
         self.storage.update_state(conversation_id, {"workflow_state": workflow_state})
@@ -114,15 +114,36 @@ class ConversationStoreAdapter:
             owner=getattr(request, "owner", None),
         )
         existing_state = self.storage.get_state(conversation_id)
-        self.append_message(conversation_id, "user", request.question)
+        workflow = result.get("workflow") or None
+        action_name = str(((result.get("action") or {}).get("name")) or "").strip()
+        artifacts = result.get("artifacts") or []
+        user_message_kind = self.memory_extractor.classify_message_kind(
+            role="user",
+            text=request.question,
+            workflow_type=str((workflow or {}).get("type") or ""),
+            action_name=action_name,
+            artifacts=artifacts,
+        )
+        self.append_message(conversation_id, "user", request.question, message_kind=user_message_kind)
         answer = str(((result.get("message") or {}).get("content")) or "").strip()
         if answer:
-            self.append_message(conversation_id, "assistant", answer, sources=result.get("sources") or None)
+            assistant_message_kind = self.memory_extractor.classify_message_kind(
+                role="assistant",
+                text=answer,
+                workflow_type=str((workflow or {}).get("type") or ""),
+                action_name=action_name,
+                artifacts=artifacts,
+            )
+            self.append_message(
+                conversation_id,
+                "assistant",
+                answer,
+                sources=result.get("sources") or None,
+                message_kind=assistant_message_kind,
+            )
         recent_messages = self.storage.get_messages(conversation_id, limit=8)
 
         state_patch = {}
-        action_name = str(((result.get("action") or {}).get("name")) or "").strip()
-        workflow = result.get("workflow") or None
         workflow_status = str((workflow or {}).get("status") or "").strip()
         if workflow_status == "interrupted":
             state_patch["active_task"] = ""

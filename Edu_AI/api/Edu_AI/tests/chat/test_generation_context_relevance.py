@@ -131,3 +131,39 @@ def test_report_runtime_uses_relevance_selected_messages_in_gathered_context():
         "先看课堂参与度的问题",
         "后排学生走神比较明显",
     ]
+
+
+def test_generation_context_builder_skips_workflow_control_and_assistant_meta_messages():
+    snapshot = ConversationSnapshot(
+        conversation_id="conv-kind-filter",
+        recent_messages=[
+            {"role": "user", "content": "先看课堂参与度的问题", "message_kind": "user_content"},
+            {"role": "assistant", "content": "这是一个非常好的问题，我们先看后排学生走神。", "message_kind": "assistant_meta"},
+            {"role": "assistant", "content": "后排学生走神比较明显", "message_kind": "assistant_content"},
+            {"role": "user", "content": "请基于当前内容生成一份报告", "message_kind": "workflow_control"},
+            {"role": "assistant", "content": "我将基于当前内容先生成一版报告。可以直接开始吗？", "message_kind": "workflow_control"},
+        ],
+        summary="当前围绕课堂参与度进行分析",
+        conversation_memory={
+            "current_topics": ["课堂参与度"],
+            "user_goals": ["生成报告"],
+            "student_signals": ["后排学生走神"],
+        },
+    )
+    request = ChatRequestV2(
+        question="生成报告",
+        conversation_id="conv-kind-filter",
+        owner="teacher-a",
+        capability={"allow_rag": False, "allow_web": False, "allow_tools": True, "selected_doc_ids": []},
+    )
+
+    context = GenerationContextBuilder().build_for_resource(
+        request=request,
+        snapshot=snapshot,
+        resource_type="report",
+    )
+
+    assert [item["content"] for item in context.recent_relevant_messages] == [
+        "先看课堂参与度的问题",
+        "后排学生走神比较明显",
+    ]

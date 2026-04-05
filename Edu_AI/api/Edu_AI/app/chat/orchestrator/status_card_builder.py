@@ -55,7 +55,11 @@ class StatusCardBuilder:
 
         topics = list(memory.get("current_topics") or [])[:3]
         issues = list(memory.get("teaching_issues") or memory.get("student_signals") or [])[:3]
-        confirmed_facts = list(memory.get("confirmed_facts") or [])[:3]
+        confirmed_facts = list(
+            memory.get("user_stated_facts")
+            or memory.get("confirmed_facts")
+            or []
+        )[:3]
         student_signals = list(memory.get("student_signals") or [])[:4]
         raw_evidence_points = list(memory.get("evidence_points") or [])
         evidence_points = [
@@ -93,6 +97,7 @@ class StatusCardBuilder:
         goal = (
             self.label_mapper.map_workflow_goal(workflow_type)
             or self.label_mapper.map_workflow_goal(active_context.get("active_workflow_type"))
+            or next(iter(memory.get("explicit_user_goals") or []), None)
             or next(iter(memory.get("user_goals") or []), None)
         )
 

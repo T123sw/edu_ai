@@ -70,3 +70,32 @@ def test_memory_extractor_merges_new_goal_and_extra_constraints_without_losing_e
     assert "保留案例" in memory["constraints"]["extra_constraints"]
     assert "提纲形式输出" in memory["constraints"]["extra_constraints"]
     assert "加入可执行建议" in memory["constraints"]["extra_constraints"]
+def test_report_control_turn_updates_goal_without_polluting_topics():
+    extractor = ConversationMemoryExtractor()
+
+    patch = extractor.build_state_patch(
+        request=SimpleNamespace(
+            question="请基于当前内容生成一份报告",
+            course_id="course-1",
+            capability=SimpleNamespace(selected_doc_ids=[], allow_rag=False, allow_web=False),
+        ),
+        result={
+            "message": {
+                "content": "我将基于“关羽水淹七军战役”，重点围绕“战役全过程分析”，结合当前对话内容先生成一版报告。可以直接开始吗？"
+            },
+            "action": {"name": "generate.report"},
+            "workflow": {"type": "report", "status": "awaiting_confirm", "phase": "soft_confirm"},
+        },
+        existing_state={
+            "conversation_summary": {"summary_text": "当前围绕介绍下水淹七军继续对话"},
+            "conversation_memory": {
+                "current_topics": ["介绍下水淹七军"],
+                "user_goals": ["继续对话"],
+                "constraints": {"course_id": "course-1", "extra_constraints": []},
+            },
+        },
+        recent_messages=[],
+    )
+
+    assert patch["conversation_memory"]["user_goals"][0] == "生成报告"
+    assert "请基于当前内容生成一份报告" not in patch["conversation_memory"]["current_topics"]

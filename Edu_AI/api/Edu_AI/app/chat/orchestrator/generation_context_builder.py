@@ -7,6 +7,19 @@ from app.chat.domain.generation_context import GenerationContext
 
 class GenerationContextBuilder:
     @staticmethod
+    def _is_semantic_message(message: dict) -> bool:
+        kind = str((message or {}).get("message_kind") or "").strip()
+        return kind not in {"workflow_control", "assistant_meta"}
+
+    @staticmethod
+    def _project_confirmed_facts(memory: dict) -> list[str]:
+        return list(
+            (memory or {}).get("user_stated_facts")
+            or (memory or {}).get("confirmed_facts")
+            or []
+        )
+
+    @staticmethod
     def _clean_phrase(value) -> str:
         return str(value or "").strip()
 
@@ -52,7 +65,8 @@ class GenerationContextBuilder:
         return score
 
     def _select_relevant_messages(self, *, request, snapshot, memory: dict, limit: int = 6) -> list[dict]:
-        messages = list(getattr(snapshot, "recent_messages", []) or [])
+        raw_messages = list(getattr(snapshot, "recent_messages", []) or [])
+        messages = [message for message in raw_messages if self._is_semantic_message(message)]
         if not messages:
             return []
 
@@ -95,8 +109,12 @@ class GenerationContextBuilder:
             resource_type=resource_type,
             summary_text=getattr(snapshot, "summary", "") or "",
             current_topics=list(memory.get("current_topics") or []),
-            user_goals=list(memory.get("user_goals") or []),
-            confirmed_facts=list(memory.get("confirmed_facts") or []),
+            user_goals=list(
+                memory.get("user_goals")
+                or memory.get("explicit_user_goals")
+                or []
+            ),
+            confirmed_facts=self._project_confirmed_facts(memory),
             constraints=dict(memory.get("constraints") or {}),
             teaching_issues=list(memory.get("teaching_issues") or []),
             student_signals=list(memory.get("student_signals") or []),

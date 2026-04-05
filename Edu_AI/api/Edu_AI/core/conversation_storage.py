@@ -65,6 +65,10 @@ class ConversationStorage:
         normalized = dict(message or {})
         normalized.setdefault("timestamp", _now_iso())
         normalized.setdefault("message_id", f"{conversation_id}:msg:{index + 1}")
+        normalized.setdefault(
+            "message_kind",
+            "user_content" if str(normalized.get("role") or "").strip() == "user" else "assistant_content",
+        )
         return normalized
 
     def _save_locked(self):
@@ -195,6 +199,7 @@ class ConversationStorage:
         *,
         sources: Optional[List[Dict[str, Any]]] = None,
         timestamp: Optional[str] = None,
+        message_kind: Optional[str] = None,
     ):
         with self._lock:
             if conversation_id not in self._conversations:
@@ -205,6 +210,7 @@ class ConversationStorage:
                 "role": role,
                 "content": content,
                 "timestamp": timestamp or _now_iso(),
+                "message_kind": message_kind or ("user_content" if role == "user" else "assistant_content"),
             }
             if sources:
                 message["sources"] = sources
