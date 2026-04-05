@@ -1,0 +1,101 @@
+{
+  "skill": "edu-rag-multimodal",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "M-001",
+      "title": "rag_text_only_should_use_deep_final",
+      "input": {
+        "question": "根据教材解释动量守恒",
+        "rag_enabled": true,
+        "selected_doc_ids": ["doc_math_1"],
+        "tool_sources": [
+          {"type": "text", "content": "..."}
+        ]
+      },
+      "expected": {
+        "sources_images": 0,
+        "injected": 0,
+        "final_answer_role": "deep"
+      },
+      "must_have": [
+        "tool_used contains rag_search_tool"
+      ],
+      "forbidden": [
+        "final_answer_role=vision"
+      ]
+    },
+    {
+      "id": "M-002",
+      "title": "valid_images_should_switch_to_vision",
+      "input": {
+        "question": "根据图示解释实验结果",
+        "rag_enabled": true,
+        "selected_doc_ids": ["doc_phy_2"],
+        "tool_sources": [
+          {"type": "image", "image_path": "tests/assets/fig1.png"},
+          {"type": "image", "image_path": "tests/assets/fig2.png"}
+        ]
+      },
+      "expected": {
+        "sources_images": 2,
+        "injected": 2,
+        "final_answer_role": "vision"
+      },
+      "must_have": [
+        "image_inject_stats exists"
+      ],
+      "forbidden": [
+        "injected=0"
+      ]
+    },
+    {
+      "id": "M-003",
+      "title": "partial_image_failure_should_degrade_gracefully",
+      "input": {
+        "question": "结合图片说明",
+        "rag_enabled": true,
+        "tool_sources": [
+          {"type": "image", "image_path": "tests/assets/missing.png"},
+          {"type": "image", "image_path": "tests/assets/fig2.png"}
+        ]
+      },
+      "expected": {
+        "sources_images": 2,
+        "injected": 1,
+        "degraded": true
+      },
+      "must_have": [
+        "final_answer_role in [vision,deep]",
+        "no crash"
+      ],
+      "forbidden": [
+        "hard error returned to user"
+      ]
+    },
+    {
+      "id": "M-004",
+      "title": "vision_failure_should_fallback_to_deep",
+      "input": {
+        "question": "根据图片总结",
+        "rag_enabled": true,
+        "tool_sources": [
+          {"type": "image", "image_path": "tests/assets/fig1.png"}
+        ],
+        "simulate": {
+          "vision_invoke_error": true
+        }
+      },
+      "expected": {
+        "degraded": true,
+        "final_answer_role": "deep"
+      },
+      "must_have": [
+        "vision_error_logged=true"
+      ],
+      "forbidden": [
+        "empty final answer"
+      ]
+    }
+  ]
+}

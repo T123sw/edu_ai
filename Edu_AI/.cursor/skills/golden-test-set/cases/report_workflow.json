@@ -1,0 +1,92 @@
+{
+  "skill": "edu-report-workflow",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "W-001",
+      "title": "missing_slot_should_ask_single_question",
+      "input": {
+        "question": "帮我写教学总结",
+        "report_slots": {
+          "topic": "教学总结"
+        }
+      },
+      "expected": {
+        "response_type": "ask",
+        "report_missing_first": "period"
+      },
+      "must_have": [
+        "ask contains only one missing-point question"
+      ],
+      "forbidden": [
+        "response_type=generate"
+      ]
+    },
+    {
+      "id": "W-002",
+      "title": "all_slots_ready_should_output_outline",
+      "input": {
+        "question": "信息都在这了",
+        "report_slots": {
+          "topic": "期末教学总结",
+          "period": "2025秋季学期",
+          "outcomes": "课堂参与度提升",
+          "issues": "个别学生基础薄弱",
+          "next_plan": "分层教学",
+          "audience": "教研组",
+          "goal": "复盘与改进",
+          "length": "2000字",
+          "format": "markdown"
+        },
+        "report_outline_pending": false
+      },
+      "expected": {
+        "response_type": "outline",
+        "report_outline_pending": true
+      },
+      "must_have": [
+        "outline section count in [3,6]"
+      ],
+      "forbidden": [
+        "response_type=generate"
+      ]
+    },
+    {
+      "id": "W-003",
+      "title": "confirm_outline_should_generate_final",
+      "input": {
+        "question": "按这个大纲生成",
+        "report_outline_pending": true,
+        "user_intent": "confirm_outline"
+      },
+      "expected": {
+        "response_type": "generate"
+      },
+      "must_have": [
+        "final markdown follows outline order"
+      ],
+      "forbidden": [
+        "response_type=ask"
+      ]
+    },
+    {
+      "id": "W-004",
+      "title": "modify_outline_should_stay_in_outline_stage",
+      "input": {
+        "question": "第一章补充研究背景，第三章删掉",
+        "report_outline_pending": true,
+        "user_intent": "modify"
+      },
+      "expected": {
+        "response_type": "outline"
+      },
+      "must_have": [
+        "requested sections updated",
+        "unrelated sections preserved"
+      ],
+      "forbidden": [
+        "response_type=generate"
+      ]
+    }
+  ]
+}

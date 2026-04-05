@@ -1,0 +1,80 @@
+# 依赖目录
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 构建输出
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# 日志文件
+*.log
+logs/
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE配置
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.venv1/
+
+# 操作系统文件
+Thumbs.db
+.DS_Store
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# 数据目录（包含大文件和敏感数据）
+data/textbooks/*.pdf
+enhanced_documents/
+vector_db/
+chroma/
+chroma_db/
+documents_cache.json
+conversation_history.json
+storage/
+api/Edu_AI/storage/
+
+# 模型文件（如果本地存储）
+models/
+*.bin
+*.safetensors
+
+# 备份目录
+* copy/
+backup/
+
+# 临时Python文件
+1.py
+text1.py
+*.pyc

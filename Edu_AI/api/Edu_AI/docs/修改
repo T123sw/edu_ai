@@ -1,0 +1,2121 @@
+近三年“对话 + 资源”Agent 系统的实践版图与工程权衡研究
+执行摘要
+过去三年（约 2023–2026）“对话 + 资源（documents/知识库/产物）”类 agent 系统的主流做法，越来越呈现出三条清晰主线：其一，用路由/级联（router/cascade）把请求划分为“快路径（单次对话、低工具化、低检索）”与“慢路径（工作流化、多工具/多步、可校验）”，以降低延迟和单位请求成本。其二，将 RAG 从“每次都检索”演化为按需检索 + 检索质量评估/校正，避免无意义检索引入噪声并拖慢响应，Self-RAG/CRAG 等工作给出了系统化机制与实验依据。
+ 其三，在工程侧把“快”从单纯的 prompt 优化扩展为**多层缓存（prompt/response/检索） + 推理服务调度（continuous batching、KV cache 管理、speculative decoding）**的系统工程问题，vLLM/TGI 等推理栈与官方平台的 Prompt Caching/Batch API 共同构成了可落地路径。
+
+从架构选择上，越来越多团队从“自由漂移的多 agent 循环”回归到工作流优先（workflow-first）：把可预测步骤（解析需求→检索→生成→校验→导出）固化为图/状态机，只有在极少数需要探索的场景才使用 agent 的动态工具选择。LangGraph 文档对 workflow（预定义路径）与 agent（动态路径）的区分，以及其提供的持久化、流式与调试能力，是这一趋势的代表性表达。
+
+在商用“教育/知识型对话产品”中，公开信息通常不披露完整系统细节，但可观察到相似的工程共性：围绕“课程内容/题库/标准”做检索或结构化约束；围绕“学生安全/学习效果”引入 guardrails、可见性与问题标记机制；并通过体验设计（流式、分段生成、延迟隐藏）降低用户对慢路径的敏感度。以 Khan Academy 的 Khanmigo、Duolingo 的 Duolingo Max、Quizlet 的 Q-Chat 为例，它们公开强调“教师工具/学习引导/自适应对话”和安全框架或产品定位，但对路由、缓存、RAG 细节往往只给原则信息，因此本报告在涉及其内部实现时会明确标注“公开信息/合理推断”的边界。
+
+调研对象清单与方法
+本报告聚焦“对话 + 资源”场景中能落地的架构与实现细节，并严格优先近三年原始论文/官方文档。调研对象分为六类（括号内为主要参考来源类型）：
+
+多 agent / 编排框架：AutoGen（论文 + 官方文档）。
+工作流/应用框架生态：LangChain（LangGraph、LangSmith、缓存 API 等官方文档）。
+RAG 与文档 agent 框架：LlamaIndex（Router Query Engine、Workflows、Ingestion cache、prompt caching 集成）。
+RAG 触发/校正研究：Self-RAG、CRAG（论文）。
+路由/级联与成本优化研究及实现：FrugalGPT、RouteLLM（论文/博客 + 开源实现）。
+长对话记忆与上下文管理：MemGPT（论文）。
+推理服务与延迟优化工程：vLLM、TGI、continuous batching、speculative sampling（论文 + 官方文档）。
+闭源平台的 agent/tool 实践：OpenAI 与 Anthropic 的工具调用、结构化输出、prompt caching、批处理、agent 指南与数据控制文档。
+商用案例（教育/知识型对话产品）：Khanmigo、Duolingo Max、Q-Chat（产品/官方博客/主流媒体）。
+方法上，本报告对每个系统采用同一“工程审视模板”：架构/路由与级联/RAG 策略/记忆与缓存/编排方式/延迟优化/成本控制/隐私合规/可维护性与生态，并对公开信息与推断做边界说明。
+
+系统与项目深潜：实现细节与权衡
+以下以“系统卡片”方式逐一列出核心系统（每项包含：简介、关键设计点、优缺点、适用场景、工程启示）。为避免冗长，本节重点写“可复用机制”，把更系统化对比放在下一节表格中。
+
+AutoGen（研究 + 框架）
+简介：AutoGen 提出“多 agent 对话编程框架”，允许多个可对话 agent（可由 LLM/人类/工具驱动）协作完成任务，并强调 conversation programming 的可编程性与灵活交互模式。
+
+关键设计点：
+
+“Group chat” 作为设计模式：多 agent 共享同一消息线程，各 agent 专职不同任务（writer/editor 等），并可加入代表人类的 agent 做人类在环。
+“Memory and RAG” 文档明确把“在特定步骤前把相关事实从存储中取出并注入上下文”作为典型用例，等价于面向 agent 的按步 RAG。
+缓存实践：社区讨论显示可在模型 client 层包裹 ChatCompletionCache 作为 agent 级缓存 hook（工程上等价于把缓存从框架上移到“模型调用入口”）。
+
+优点：对“多角色协作”和“人类在环”表达力强，适合复杂、多步、需要不同能力分工的任务；文档也开始覆盖记忆/RAG 与设计模式。
+
+缺点：多 agent 容易引入串行调用与对话轮数膨胀，若缺少工作流化约束与可观测性，调试成本高；同时框架迭代快，版本迁移与兼容性是长期维护点（例如仓库公告提到会维护但也提示迁移到其他框架）。
+
+适用：需要“规划—执行—审校”分工、强人类审核、或多工具协作的“资源生成”慢路径；不建议用于闲聊快路径。
+LangChain / LangGraph / LangSmith（工程生态）
+简介：LangGraph 文档把 workflow 与 agent 做了清晰区分：workflow 是“预定义代码路径按顺序运行”，agent 是“动态决定过程与工具使用”。
+ 其官网与文档强调 LangGraph 的持久化、流式、调试与部署等能力，用于长运行、有状态的图式编排。
+
+关键设计点：
+
+Custom workflow：允许定义顺序、条件分支、循环与并行执行的图结构，适合把“资源生成”拆成稳定步骤。
+可维护性：LangSmith 的 observability 文档强调对 agent 行为需要可见性（工具调用、prompt、决策），并提供 tracing/debugging/evaluation 的平台化支持。
+缓存：LangChain 提供可选缓存层（节省成本、减少 API call），并支持 InMemoryCache 等实现；官方示例展示如何启用缓存以减少重复请求的成本与延迟。
+
+优点：生态成熟，围绕“编排 + 可观测 + 评测”形成闭环；更贴近生产工程。
+
+缺点：抽象层多、组件多，若缺乏架构纪律容易演化为“链式拼装 + 隐式依赖”；缓存与多租户隔离、以及图编排的测试策略需要额外工程投入（社区讨论中也出现多租户缓存隔离的关注点）。
+
+适用：教育场景里高度推荐用于“慢路径资源生成”的工作流化编排与观测；快路径建议仍保持轻量（别把所有对话都接入大图）。
+LlamaIndex（RAG 与文档 agent）
+简介：LlamaIndex 文档明确支持 routers（把 query 路由到不同 query engine/retriever）与 workflows/agent workflows（事件驱动、step-based），面向“文档 agent/知识对话”场景。
+
+关键设计点：
+
+RouterQueryEngine：从多个 query engine 中选择最合适的一个处理 query，本质是“在 RAG 管线内部做路由”。
+Ingestion cache：IngestionPipeline 支持 persist/load，使后续重复运行“因缓存而几乎瞬时”，适合大规模资料入库与重复构建索引。
+Prompt caching 集成：文档展示通过 CachePoint 等机制启用供应商 prompt caching，并能通过 cache_read/creation token 指标验证命中。
+
+优点：离“对话 + 文档资源”非常近，路由、工作流、入库缓存等特性直接对齐生产需求。
+
+缺点：组件选择多，工程上需要明确“谁负责路由、谁负责记忆、谁负责缓存命中”；否则容易出现重复功能（框架内 router + 业务 router + 供应商 tool router）叠加。
+适用：校本资料/题库/标准等“资源驱动生成”的典型教育平台；特别适合把“文档入库”和“按需检索”做成基础设施。
+Self-RAG（按需检索与自反思）
+简介：Self-RAG 指出“无差别检索并拼接固定数量文本”可能削弱模型多任务通用性或导致无帮助生成，并提出通过特殊 reflection tokens 训练 LM 在推理阶段可控地按需检索、生成与自我评估。
+
+关键设计点：
+
+Gating：检索不是默认动作，而是模型在生成中可选择“检索/跳过检索/多次检索”。
+Critique：模型对检索片段与自身生成进行反思/批判，提高事实性与引用质量。
+
+优点：为“RAG 触发逻辑”提供了可学习的方向（从规则走向模型内控）；对长文生成的引用一致性有现实启发。
+
+缺点：训练与推理机制较复杂，落地时常需要用“轻量版”替代（例如独立的 gating 模块或检索评估器），否则工程成本偏高。
+适用：需要高事实性/引用的“政策/标准/教材解释 + 生成”，以及“必须说明出处”的教育问答。
+CRAG（检索校正与鲁棒 RAG）
+简介：CRAG 关注“检索错了怎么办”，提出轻量检索评估器输出置信度，并据此触发不同检索动作（包括扩展到大规模 web search），同时用“decompose-then-recompose”选择性保留关键内容、过滤无关信息，强调 plug-and-play。
+
+关键设计点：
+
+Retrieval evaluator：对整体检索质量打分，作为控制信号。
+动作触发：当静态语料检索不足时扩展到更大搜索域；并对文档做分解重组以提炼关键信息。
+
+优点：比“让大模型自己想”更工程化，能用较小模块提升鲁棒性；非常契合教育场景里“资料错引会致命”的风险约束。
+
+缺点：需要额外维护 evaluator 与 fallback 搜索策略；同时对隐私与合规提出更高要求（是否允许联网搜索、是否允许跨域检索）。
+适用：校本资料/题库质量参差、或多源检索不可避免的系统。
+FrugalGPT（级联与成本约束推理）
+简介：FrugalGPT 系统化总结三类降本策略（prompt adaptation、LLM approximation、LLM cascade），并给出 LLM cascade 的可学习实例：学习对不同 query 选择不同 LLM 组合，在匹配强模型效果的同时显著降低成本。
+
+关键设计点：
+
+Cascade：多模型按序调用，并用停止阈值决定是否升级到更强模型。
+量化收益：论文报告在一些任务上可在匹配强模型性能时获得大幅成本下降（文中给出最高量级示例）。
+
+优点：把“快路径/慢路径”的直觉提升为可评估的系统策略，并强调预算约束下的可学习决策。
+
+缺点：依赖评测分布与线上分布一致性；教育平台若任务分布变化大（新教材、新题型），需要持续再训练/再校准路由策略。
+适用：强烈适合“闲聊/轻量编辑占大头、复杂生成占少数”的教师平台：把大多数请求用廉价模型/单次调用解决，把少数复杂请求升级。
+RouteLLM（训练路由器 + 开源实现）
+简介：RouteLLM 博客与论文提出用偏好数据训练路由器，在强模型与弱模型之间动态选择，以获得更优的 performance–cost 比；同时提供开源实现与替换 OpenAI client 的 quickstart。
+
+关键设计点：
+
+Router 模型：输出“用弱模型够不够/是否升级”。
+工程落地：控制器替换 client，使不改业务逻辑也能进行路由。
+
+优点：比“规则路由”更可持续；比“全量上强模型”更经济。
+
+缺点：需要偏好数据/高质量标签；在教育场景还要额外考虑“错误成本”（一次错误讲解可能比省下的 token 更贵）。
+适用：中高并发或成本敏感的平台；尤其适合将“快路径”稳定下沉。
+MemGPT（多层记忆与上下文像操作系统）
+简介：MemGPT 把 LLM 的有限上下文视为有限“主存”，通过管理不同记忆层级并用 interrupts 控制信息迁移，提供更长程的有效上下文。
+
+关键设计点：
+
+Memory tiers：主上下文之外还维护外部记忆，并在需要时显式搬运。
+
+优点：对“教师画像（学段/风格/班情）+ 课程长期进度”这类长期记忆非常贴合；可与 RAG/产物库结合形成“可追溯的教学资产记忆”。
+
+缺点：需要强工程纪律：什么时候写入、什么时候召回、如何避免记忆污染；否则会带来一致性问题。
+适用：跨学期、跨单元、需要持续积累教学资产的产品。
+vLLM（高吞吐推理服务：PagedAttention 与 KV cache 管理）
+简介：vLLM 论文指出在线服务的 KV cache 会动态增长，传统管理会浪费内存并限制 batch；提出 PagedAttention（类操作系统分页）实现近零浪费 KV cache，并报告相对当时 SOTA 系统实现 2–4× 吞吐提升且保持延迟水平。
+
+关键设计点：
+
+KV cache 分页管理与共享，减少碎片与冗余。
+
+优点：自托管高并发时的“底盘级能力”，对长输出（教案+讲义+解析）吞吐帮助大。
+
+缺点：需要 GPU 运维与推理栈工程经验；对硬件与模型适配有成本。
+适用：中高并发、或出于隐私/成本必须自托管推理的教育平台。
+TGI（Text Generation Inference：连续批处理 + 流式 + 生产特性）
+简介：TGI 官方文档强调 continuous batching + streaming，通过动态组织 in-flight 请求并用 SSE 流式输出；同时列出 KV caching、Paged Attention、Flash Attention、量化、以及可观测性（OpenTelemetry、Prometheus）等生产特性，并说明已用于支持 Hugging Chat 与推理 API/Endpoints。
+
+关键设计点：
+
+Router/队列：管理请求与内存安全，进行连续批处理调度。
+
+优点：比“自己拼推理服务”更产品化；对高并发下的吞吐/延迟折中更友好。
+
+缺点：仍需基础设施与 GPU；对模型结构与特性依赖需验证。
+适用：有自托管需求且追求工程成熟度的团队。
+闭源平台实践：OpenAI（工具调用/结构化输出/缓存/批处理/Agents SDK）
+平台能力要点（与 agent 系统直接相关）：
+
+工具调用（function/tool calling）：模型可生成结构化 tool call（JSON schema 定义工具）；应用执行后再回传结果进入“agentic loop”。
+Structured Outputs：保证输出符合给定 JSON Schema，减少“先生成再抽取”的额外调用与解析失败。
+Prompt Caching：官方说明可将延迟最多降低 80%、输入 token 成本最多降低 90%，并自动应用于 API 请求。
+Batch API：官方说明用于异步批处理请求，提供单独更高限额与成本优惠（文档提到 50% 更低成本与 24 小时周转）。
+Agents（Cookbook + Agents SDK）：Cookbook 将 agent 定义为“用 LLM 做决策并在 guardrails 下调用工具的系统”；Agents SDK 文档提供官方 SDK 入口。
+内置工具：如 web search、file search、computer use 等工具以 tools 数组方式启用，并由模型选择是否调用；file search 支持基于上传文件构建 vector stores 并进行语义/关键词检索。
+
+隐私与数据控制：OpenAI “Your data”文档明确 API 数据默认不用于训练（除非显式 opt-in），并提供数据控制说明。
+闭源平台实践：Anthropic（Tool Use / Prompt Caching / Agent 工程指南）
+
+Tool use：文档明确 Claude 会根据用户请求与工具描述决定是否调用工具，并返回结构化调用；工具可由客户端或服务端执行。
+Prompt caching：通过 cache_control 支持自动缓存与显式断点两种方式，适合多轮对话增长历史的场景。
+工程指南：研究文章“Building effective agents”强调 agent 实现常是“LLM + 工具循环”，关键在工具设计与文档；工程文章“Writing tools for agents”建议用简单 while-loop 进行可控 agentic loop，并强调工具设计与评测自动化。
+数据保留：Anthropic “API and data retention”文档汇总哪些 API/特性可用 ZDR 以及保留策略。
+商用案例一：Khanmigo（教育：导师 + 教师助手）
+公开信息要点：OpenAI 的案例页与 Khan Academy 博客显示 Khanmigo 作为试点探索“负责任地在教育中使用 GPT-4”，并强调在试点中监测错误、尤其是数学错误。
+ Khan Academy 还公开了“Responsible AI framework”，用于识别功能风险与 guardrails。
+ 微软新闻稿提到其 guardrails 与安全机制，包括提示学生聊天可被家长/老师看到，以及系统自动标记“有问题”的内容供老师审阅。
+
+工程推断（基于公开描述）：在此类产品中，通常会把“学习引导策略（不直接给答案）”固化为系统提示/输出结构约束，并结合审核/标记机制降低学习伤害风险；但其内部路由/缓存细节公开信息不足，需谨慎假设。
+
+商用案例二：Duolingo Max（教育：对话练习 + 解释型反馈）
+公开信息要点：Duolingo 官方博客说明 Duolingo Max 提供 Roleplay（与角色进行情境对话）等能力；TechCrunch 报道其由 GPT-4 驱动并包含 Roleplay 与 Explain My Answer。
+
+工程推断：Roleplay 场景天然适合“快路径 + 长输出流式”，而 Explain My Answer 更像“学习反馈生成”，需要把题目、用户答案、标准答案与解释模板结构化输入，减少幻觉与跑题；但其是否用 RAG/缓存等公开信息有限。
+
+商用案例三：Q-Chat（教育：自适应 AI tutor）
+公开信息要点：Quizlet 官方博客称 Q-Chat 是“built on OpenAI’s ChatGPT API”，结合 Quizlet 的教育内容并定位为自适应 tutor。
+
+工程推断：此类“对话 + 题库内容”产品往往会做内容约束（从题库/卡片集取材）与对话策略约束（苏格拉底式引导），并需要对生成内容做安全过滤与一致性校验；但其内部路由/检索校正机制未公开披露。
+
+横向对比：核心维度表格
+为让对比可读，下表用“实现倾向”而非“唯一实现方式”描述各系统（同一系统也可能支持多种策略）。表中术语简写：
+
+架构类型：GA=全局单 agent；SA=子 agent 协作；WF=工作流/图编排；SV=推理服务/引擎；PF=平台能力
+路由策略：Rule=规则；SM=小模型/轻量判别；TR=训练路由器/偏好数据；Cascade=级联
+RAG：Always=默认检索；OnDemand=按需；Eval/Correct=评估/校正
+缓存：P=prompt caching；R=response caching；Q=retrieval cache；KV=KV cache；Ingest=入库缓存
+延迟：Stream=流式；CB=continuous batching；Spec=speculative decoding；Prefill=优化 prefill/输入段
+工程成熟度：从“研究原型/开源实践/平台级”定性
+系统/项目	架构类型	路由策略	RAG 触发与校正	记忆层次与更新	缓存策略	延迟优化抓手	成本控制抓手	隐私合规抓手	工程成熟度与生态
+AutoGen	SA（多 agent 对话）	常见为 Rule/LLM 协调	支持将检索结果注入步骤（框架示例）	有 memory/RAG 模式文档	可在 client 层做缓存 hook	依赖业务并行化/减少轮数	可结合级联/减少调用	取决于底座模型与数据策略	开源 + 研究驱动；模式丰富但易复杂化。
+LangGraph/LangChain	WF/GA/SA（均可）	常见 Rule/SM（业务侧）	RAG 作为可组合管线	建议用状态/持久化维护记忆	LangChain 提供 response cache；可配外部缓存	图内并行 + 流式 + 可观测	缓存减少调用；可接批处理/级联	依赖底座；更强调工程可控	生态成熟（观测/评测/部署）。
+LlamaIndex	WF + RAG 工具链	RouterQueryEngine（SM/LLM selector）	Router + 多种检索器；强调路由选择	Workflows/Agent workflows 支持状态	Ingest cache；支持 prompt caching 集成	通过路由减少不必要检索；可流式	减少检索/入库重复成本	依赖底座；可本地化索引	RAG 场景贴合度高。
+Self-RAG	研究机制（可嵌入 GA/WF）	模型内控（学习式 gating）	OnDemand + 反思/批判	侧重检索与生成过程控制	不强调工程缓存	提升有效检索减少无效步骤	减少无意义检索的“隐性成本”	取决于数据/语料策略	研究强，落地常做轻量化近似。
+CRAG	研究机制（可嵌入 WF）	Eval/Correct 驱动动作	Eval/Correct + fallback 搜索 + 选摘重组	侧重检索质量控制	可结合 retrieval cache	减少“错检索→返工”带来的长尾延迟	提升首次正确率降低返工成本	fallback 搜索需合规评估	工程可插拔性强，但要配 evaluator。
+FrugalGPT	PF/策略（可嵌入 router）	Cascade（学习阈值）	非核心主题	非核心主题	可配 response/prompt cache	通过缩短强模型调用路径降 TTFT	级联核心：在预算约束下用更便宜模型	取决于供应商与日志策略	研究 + 指导性强，需结合业务分布落地。
+RouteLLM	Router 组件（可替换 client）	TR（偏好数据训练）	非核心主题	非核心主题	可结合多层缓存	用路由减少强模型与长输出占用	强/弱模型选择优化成本	取决于模型与数据策略	开源实践强，利于工程集成。
+MemGPT	GA + OS式记忆管理	非核心主题	可与 RAG 结合	明确多层记忆 + interrupts	可叠加 response/prompt cache	通过减少无效历史注入改善 prefill	降低重复上下文带来的 token 成本	记忆持久化需合规与隔离	研究启发强，工程需严控一致性。
+vLLM	SV（推理引擎）	调度/分页内存	非核心主题	KV cache 管理为核心	KV（分页/共享）	Prefill/调度/吞吐优化	单位 token 成本显著下降（资源利用更高）	自托管可增强数据控制	生产级底盘，适合中高并发自托管。
+TGI	SV（推理服务）	Router/队列 + CB	非核心主题	KV caching（实现层）	KV +（可配外部 cache）	Stream + CB + 内核优化	吞吐提升降低单位成本	自托管可增强数据控制	工程成熟（可观测/部署）。
+OpenAI 平台能力	PF	可用 Rule/SM/TR（你实现）	内置 web/file search 工具可按需调用	可用结构化输出稳定记忆抽取	P（自动）+ Batch（离线）	Stream、减少请求、并行化原则	Prompt caching、Batch API 成本优化	数据控制文档与企业隐私承诺	平台级生产能力强，迭代快。
+Anthropic 平台能力	PF	同上（你实现）	Tool use 循环；可按需工具	强调工具设计与 agent loop	prompt caching（cache_control）	与工具循环配合；长期 agent harness 指南	缓存减少重复 prefill	数据保留/ZDR 资格文档	平台级 + 工程指南丰富。
+Khanmigo	产品	未公开；推测有策略路由	未公开；强调安全/引导	未公开；强调教师可见性	未公开	体验与安全优先	未公开	安全框架/标记与可见性机制	教育产品标杆之一（公开讨论多）。
+Duolingo Max	产品	未公开	未公开	未公开	未公开	Roleplay/解释型反馈强调体验	未公开	未公开	大规模教育产品实践。
+Q-Chat	产品	未公开	结合平台内容（公开原则）	未公开	未公开	体验优先	未公开	未公开	教育对话产品实践。
+
+结论性观察（从表格抽取的“跨系统共性”）：
+
+路由/级联已从“优化项”变成多数生产系统的“第一性能力”：FrugalGPT/RouteLLM 把它从经验做法提升到可训练/可评测策略，能直接映射到“快路径/慢路径”的产品架构。
+RAG 的价值不再是“加一层检索”，而是“按需 + 校正 + 可追溯引用”：Self-RAG 强调按需检索，CRAG 强调检索失败时的校正动作与文档重组。
+可维护性正在成为 agent 系统的核心差异化：LangSmith 的 tracing、以及 Anthropic 对工具与 agent loop 的工程建议，都指向“没有可观测与评测闭环，agent 难以迭代”。
+并发上来后瓶颈会从“调用次数”转为“推理服务调度与 KV cache”：vLLM/TGI/continuous batching 的文档与论文集中解决的正是这一层。
+典型实现模式：Mermaid 架构图与延迟/成本/复杂度评估
+下面给出 3 种最常见、也最能映射到“教师辅助平台”的实现模式，并对延迟/成本/复杂度做定性评估（低/中/高）。评估口径：延迟主要看请求次数、检索/工具往返与 prefill；成本主要看强模型占比与 token 重复；复杂度主要看状态管理、可观测性与测试面。
+
+模式一：单体 Agent + RAG（最常见起步形态）
+
+Need knowledge?
+
+Yes
+
+No
+
+User
+
+Single Agent / LLM
+
+RAG gating
+
+Retriever
+
+Vector DB / Index
+
+Answer + Resource Output
+
+
+
+显示代码
+评估：延迟=中（若每次都检索会变高）；成本=中（取决于 prompt 是否膨胀）；复杂度=低到中。
+关键风险：如果 gating 形同虚设导致“无差别检索”，会落入 Self-RAG 指出的通用性下降与无帮助内容注入问题。
+
+适用：低并发/原型阶段；或知识密集且几乎每次都需要引用资料的场景。
+
+模式二：Router + Fast Path / Agentic Path（生产系统主流形态）
+
+Smalltalk / light edit
+
+Uncertain / complex
+
+Confidence high: fast
+
+Need tools/RAG/workflow
+
+On-demand
+
+No
+
+User
+
+Rule gate?
+
+Fast Path: single call\nno tools/no RAG
+
+Router: small model / trained router
+
+Agentic Path: workflow/agents
+
+Need retrieval?
+
+Retrieve + rerank + optional evaluator
+
+Generator LLM
+
+Format & safety checks
+
+Artifacts + logs
+
+
+
+显示代码
+评估：延迟=低到中（快路径显著降 TTFT）；成本=低到中（强模型调用比例下降）；复杂度=中到高（需要路由、回退与观测）。
+该模式的学术/工程支撑：FrugalGPT 的 cascade/预算叙事、RouteLLM 的可训练路由器、以及平台侧的延迟优化原则（减少请求、并行化、不要默认用 LLM）与 prompt caching 都直接指向这类分流设计。
+
+适用：中高并发、对话类型多样（闲聊与复杂生成并存）的教师平台，通常是最推荐的“稳态架构”。
+
+模式三：工作流化子 agent 编排（复杂资源生成的确定性方案）
+
+mermaid
+复制
+flowchart TD
+  S[Start] --> P1[Parse & normalize request\n(structured output)]
+  P1 --> D{Info sufficient?}
+  D -->|No| Q[Ask up to 3 clarifying questions]
+  D -->|Yes| PL[Plan + outline\n(schema)]
+  PL --> G{{Parallel generation}}
+  G --> L[Lesson plan]
+  G --> W[Worksheet]
+  G --> Z[Quiz + answers]
+  L --> M[Merge artifacts]
+  W --> M
+  Z --> M
+  M --> EV{Need citations?}
+  EV -->|Yes| R1[On-demand RAG + evaluator/corrective loop]
+  R1 --> M2[Rewrite with citations]
+  EV -->|No| M2[Finalize]
+  M2 --> QA[Quality gates:\nformat, duplication, safety]
+  QA --> OUT[Export + store versions]
+评估：延迟=中到高（但可控、可并行）；成本=中（并行和重试会增成本，但可用结构化输出减少返工）；复杂度=高（状态机、并行、重试、观测）。
+该模式与 LangGraph 对“workflow 是预定义路径”的定位一致；其好处是把复杂任务从“对话漂移”拉回“可测试的工程流程”。
+
+适用：教案/试卷/讲义/评分量表等“结构化产物 + 高错误成本”的慢路径。
+
+可复用的工程实践清单与示例伪代码
+本节给出“可直接抄作业”的实践清单（按优先级排序），并用 Python 伪代码展示关键模块：路由器、按需 RAG gating、结构化输出 schema、prompt caching 前缀设计、向量检索缓存。
+
+最高优先级实践清单（建议先做这 8 件）
+
+全链路可观测（Tracing & Eval）先于大规模 agent 化：否则你无法回答“慢在哪里、错在哪里”。LangSmith 文档强调 tracing/调试/评测对于 agent 工程是基础能力。
+实现 Router + Fast/Agentic Path：用规则门槛 + 小模型/训练路由器分流，参考 RouteLLM 的路由框架思路与 FrugalGPT 的 cascade 观念。
+RAG 默认关闭，按需开启，并引入检索评估/校正：用 Self-RAG 的“按需检索”原则与 CRAG 的 evaluator/触发动作构建 gating。
+结构化输出替代“生成后再抽取”：OpenAI Structured Outputs 明确保证输出遵循 JSON Schema，可显著减少解析失败与额外调用。
+Prompt 前缀稳定化以榨干 prompt caching：OpenAI Prompt Caching 文档给出明确收益上限与自动机制；把“平台规约/工具 schema/输出 schema”固定在前缀。
+多层缓存策略（prompt/response/retrieval）统一设计：LangChain 文档强调缓存可以减少 API 调用从而省钱与降延迟；LlamaIndex ingestion cache 可显著加速重复入库与索引构建。
+把复杂生成转为工作流图，并尽可能并行：LangGraph custom workflow 支持条件分支/并行/循环，适合资源生成。
+并发上来后升级推理栈（自托管场景）：采用 vLLM/TGI/continuous batching 等成熟组件，避免自研调度与 KV 管理。
+路由器：调用与训练思路（伪代码）
+目标：对每条用户输入输出 {path: fast/agentic, needs_rag, needs_tools, confidence}。RouteLLM 给出了“偏好数据训练路由器”的框架，并提供开源 controller 来替换 client。
+
+在线路由（推理）
+
+python
+复制
+from dataclasses import dataclass
+from typing import Literal, Optional, Dict, Any
+import hashlib
+
+Path = Literal["fast", "agentic"]
+
+@dataclass
+class RouteDecision:
+    path: Path
+    needs_rag: bool
+    needs_tools: bool
+    confidence: float
+    reason: str
+
+def rule_gate(text: str) -> Optional[RouteDecision]:
+    t = text.strip()
+    if len(t) <= 20 and any(k in t for k in ["你好", "谢谢", "哈哈", "在吗"]):
+        return RouteDecision("fast", False, False, 0.95, "smalltalk rule")
+    if any(k in t for k in ["润色", "改写", "纠错"]) and len(t) <= 400:
+        return RouteDecision("fast", False, False, 0.85, "light edit rule")
+    return None
+
+def route_key(user_id: str, text: str) -> str:
+    h = hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+    return f"route:{user_id}:{h}"
+
+def llm_router(text: str, context_brief: Dict[str, Any]) -> RouteDecision:
+    """
+    用小模型/中模型输出结构化字段（建议 JSON Schema）。
+    可用：训练路由器（RouteLLM 思路），或用通用小模型做分类。
+    """
+    # 返回示例
+    return RouteDecision("agentic", True, True, 0.78, "need retrieval + tool")
+
+def router(user_id: str, text: str, context_brief: Dict[str, Any],
+           cache_get, cache_set, ttl_s=60) -> RouteDecision:
+    r = rule_gate(text)
+    if r:
+        return r
+
+    k = route_key(user_id, text)
+    cached = cache_get(k)
+    if cached:
+        return cached
+
+    r = llm_router(text, context_brief)
+
+    # 只缓存高置信快路径，避免“错路由固化”
+    if r.path == "fast" and r.confidence >= 0.9:
+        cache_set(k, r, ttl_s)
+    return r
+离线路由训练（思路，非完整实现）
+用日志回放构造偏好/标签：例如“快路径模型输出被用户接受”视为弱模型可用；“用户点了‘加强/改错/引用资料’或触发教师导出工作流”视为需要强模型/慢路径。然后训练一个轻量分类器（可用 embedding + 线性模型，或小 LLM 微调），并用离线评测校准阈值。这与 RouteLLM 强调的“用偏好数据训练 router”一致。
+
+按需 RAG gating：结合 Self-RAG 原则 + CRAG 校正器（伪代码）
+Self-RAG 的核心警示是：不要无差别检索；CRAG 的核心机制是：加一个轻量 evaluator，对检索质量给置信度，并据此触发不同动作。
+
+python
+复制
+from typing import List, Dict, Any, Tuple
+
+def retrieve(query: str, topk: int = 6) -> List[Dict[str, Any]]:
+    # 返回 [{"doc_id":..., "text":..., "score":...}, ...]
+    ...
+
+def retrieval_evaluator(query: str, passages: List[Dict[str, Any]]) -> float:
+    """
+    轻量评估器：可以是小模型二分类/回归，
+    输出 0-1 表示“检索整体是否足够好”。
+    对应 CRAG 的 retrieval evaluator 思想。
+    """
+    ...
+
+def corrective_action(query: str) -> List[Dict[str, Any]]:
+    """
+    CRAG 提到在静态语料不足时可扩展到更大搜索域；
+    教育场景可替换为：更多语料源、不同检索器、或更大 topk + 重排。
+    """
+    ...
+
+def decompose_recompose(passages: List[Dict[str, Any]]) -> str:
+    """
+    对检索片段做“选摘重组”：抽取关键句/段，过滤无关信息。
+    对应 CRAG 的 decompose-then-recompose 思想。
+    """
+    ...
+
+def rag_gated_context(query: str) -> Tuple[str, Dict[str, Any]]:
+    passages = retrieve(query, topk=6)
+    conf = retrieval_evaluator(query, passages)
+
+    if conf < 0.5:
+        passages = corrective_action(query)
+
+    context = decompose_recompose(passages)
+    meta = {"retrieval_conf": conf, "num_passages": len(passages),
+            "doc_ids": [p["doc_id"] for p in passages]}
+    return context, meta
+结构化输出 Schema：把“计划 + 产物 + 元数据”一次性返回（示意）
+OpenAI Structured Outputs 的目标是“保证模型输出符合你提供的 JSON Schema”，减少丢字段、enum 幻觉等工程问题。
+
+python
+复制
+lesson_schema = {
+  "type": "object",
+  "required": ["need_clarify", "clarify_questions", "artifacts", "quality"],
+  "properties": {
+    "need_clarify": {"type": "boolean"},
+    "clarify_questions": {"type": "array", "items": {"type": "string"}},
+    "artifacts": {
+      "type": "object",
+      "required": ["lesson_plan", "worksheet", "quiz"],
+      "properties": {
+        "lesson_plan": {"type": "object"},
+        "worksheet": {"type": "object"},
+        "quiz": {"type": "object"}
+      }
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "has_citations": {"type": "boolean"},
+        "safety_flags": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}
+
+def call_llm_with_schema(user_text: str, context: str):
+    """
+    伪代码：将 schema 作为结构化输出约束传给模型。
+    """
+    ...
+Prompt caching 前缀设计要点（可执行规则）
+OpenAI Prompt Caching 文档给出明确收益说明，并强调其自动应用于 API 请求。
+ Anthropic prompt caching 文档则给出 cache_control 的自动/显式断点策略，适合多轮增长对话。
+
+可执行规则（与任何供应商缓存实现基本兼容）：
+
+把稳定不变的内容放在最前：平台/教学规范、风格约束、工具定义、输出 schema；不要在这段里塞每轮变化信息。
+把“教师画像”拆为两段：稳定字段（学科/年级/教材/风格）尽量少变；高频变化字段（本节课进度/临时要求）放在后面。
+工具 schema 若很大，尽量版本化并保持顺序稳定；工具描述变化会破坏前缀复用并提升 prefill 成本。
+向量检索缓存策略：Query→TopK 与“精选摘要”双缓存（伪代码）
+框架层证据：LangChain 官方提到缓存可减少 API 调用从而节省成本、降低延迟。
+ LlamaIndex ingestion cache 则展示入库过程可持久化缓存从而让重复管线“几乎立即完成”。
+
+python
+复制
+from cachetools import TTLCache
+import numpy as np
+
+# 1) embedding cache：避免重复算 embedding
+emb_cache = TTLCache(maxsize=50_000, ttl=3600)
+
+# 2) retrieval cache：Query embedding hash -> topK doc ids
+retr_cache = TTLCache(maxsize=200_000, ttl=300)
+
+# 3) snippet cache：doc chunk -> curated summary
+snippet_cache = TTLCache(maxsize=500_000, ttl=86400)
+
+def embed(text: str) -> np.ndarray:
+    if text in emb_cache:
+        return emb_cache[text]
+    v = embedding_model(text)      # 自托管或供应商 embedding
+    emb_cache[text] = v
+    return v
+
+def retrieve_topk(text: str, k=8):
+    v = embed(text)
+    key = hash(v.tobytes())  # 示例：工程上建议用稳定 hash
+    if key in retr_cache:
+        return retr_cache[key]
+
+    doc_ids = vector_db_search(v, topk=k)
+    retr_cache[key] = doc_ids
+    return doc_ids
+
+def curated_snippet(doc_id: str) -> str:
+    if doc_id in snippet_cache:
+        return snippet_cache[doc_id]
+    raw = load_doc_chunk(doc_id)
+    summary = small_model_summarize(raw)  # 也可离线批处理生成
+    snippet_cache[doc_id] = summary
+    return summary
+教育场景风险、并发分档与模型方案差异
+教育场景的关键风险与缓解建议
+教育场景的风险与一般知识助手不同：错误解释会直接影响学习，并且涉及未成年人数据与教育机构合规要求。公开研究也指出“没有足够 guardrails 的生成式 AI 可能伤害学习效果”，并提及教育类 AI tutor 的 guardrails 需求。
+ 结合各系统实践，建议重点关注以下风险：
+
+幻觉与错引资料：对“教材知识点/标准答案/评分细则”，错一次代价极高。缓解：按需 RAG + 引用机制 + 检索评估/校正（Self-RAG 原则 + CRAG evaluator）。
+学习路径伤害（直接给答案、替代思考）：Khanmigo 公开强调“引导而非直接给答案”，并建立负责任 AI 框架与教师可见性/标记机制；这提示教育产品要把“教学策略”固化为系统约束而非可选提示。
+隐私与合规（学生数据、对话内容留存）：OpenAI “Your data”说明 API 数据默认不用于训练并提供数据控制；Anthropic 文档提供 API 数据保留与 ZDR 资格说明。缓解：最小化上送、脱敏、租户隔离、ZDR/数据保留配置、以及禁止在不合规情况下启用联网检索。
+可解释性与可审计：教育机构通常需要“为什么这么给出解释/引用了哪些资料”。缓解：结构化输出（包含引用 doc_id、检索置信度、质量门结果）+ tracing。
+维护成本与漂移：多 agent 系统在提示、工具、数据源变化时容易漂移。Anthropic 的工程建议倾向用简单 agent loop、强调工具文档与可评测性；LangSmith 强调 tracing/eval 形成闭环。
+低/中/高并发下的适配要点（未指定 SLA 的可操作分档）
+这里把“并发”理解为：同时在线对话请求数 + 单请求平均输出长度（长输出会显著占用解码吞吐）。推理与 API 场景的手段不同，但目标一致：降低 TTFT、控制长尾、提升吞吐。
+
+低并发（早期/小规模学校试点）
+优先做“架构分流 + 缓存 + 流式体验”即可：
+
+按 OpenAI 延迟优化原则减少请求、减少 token、并行化、用 streaming 降低首 token 等待。
+启用 prompt caching 并做前缀稳定化。
+复杂生成用工作流，但不必过度多 agent 化（workflow-first）。
+中并发（多校区/多教研组，峰值明显）
+重点转向“路由可控 + RAG 校正 + 可观测闭环”：
+
+采用 FrugalGPT/RouteLLM 风格路由，把简单请求下沉到便宜模型或快路径。
+把 RAG 从“默认”改为“按需”，并用 CRAG evaluator 控制检索失败时的动作，减少返工与长尾。
+建立 tracing + offline replay 评测，持续校准路由阈值与检索策略。
+高并发（大规模 ToB 教育、长输出占比高）
+如果使用闭源 API：
+
+用 Batch API 把“非实时任务”（题库批量生成、日志回放评测）转离线，官方明确其为异步批处理并提供成本优惠。
+强化 prompt caching 命中率（稳定前缀 + 版本化工具与 schema）。
+如果自托管：
+
+采用 vLLM/TGI/continuous batching 这类成熟推理栈，解决 KV cache/调度/吞吐，而不是只盯 prompt。
+对超长输出可评估 speculative sampling 等解码加速方法，论文报告在大模型上可获得 2–2.5× 的解码加速基线。
+闭源 / 开源 / 混合模型方案的工程影响
+仅闭源 API
+优势：平台侧提供工具调用、结构化输出、prompt caching、批处理与 agent SDK 等“现成能力”，能快速搭建生产级系统。
+
+挑战：成本与速率限制、数据出域合规、以及工具调用 loop 带来的“结构性多轮往返”。
+
+仅开源自托管
+优势：数据与部署可控；在高并发/长输出下可通过 vLLM/TGI 的调度与 KV 优化取得更可预测的吞吐。
+
+挑战：需要推理服务工程能力（GPU、调度、可观测、热更新、量化等），并且模型质量与对齐需要自行评估。
+
+混合方案（推荐的“稳态”选择）
+常见组合：小模型/开源模型承担 router、改写、摘要、检索评估；闭源强模型负责少数高难生成；检索与向量库尽量本地化以降低隐私风险。这与 FrugalGPT/RouteLLM 的路由叙事高度一致，也与 CRAG 的“轻量 evaluator”理念匹配。
+
+优先阅读清单
+以下按“读完就能落地”的优先级列出原始论文/官方文档（英文标题 + 中文注释）。均为本报告引用的核心来源。
+
+Latency optimization | OpenAI API：七条延迟优化原则（减少请求、并行化、不要默认用 LLM 等），适合把“慢”拆成可操作项。
+Prompt caching | OpenAI API：明确写出缓存收益上限与自动机制，是做前缀稳定化与成本优化的抓手。
+Structured model outputs | OpenAI API：用 JSON Schema 约束输出，减少抽取与返工。
+Function calling | OpenAI API：理解工具调用 loop 的结构性成本与工程接口。
+Batch API | OpenAI API：非实时任务的成本与吞吐优化通道。
+Tool use with Claude | Anthropic Docs：理解 Claude 的工具调用与结构化 tool call。
+Prompt caching | Anthropic Docs：cache_control 的自动/显式断点机制，适合多轮对话缓存。
+Building effective agents | Anthropic Research：强调 agent 本质是“LLM + 工具循环”，工具设计与文档是关键。
+AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation：多 agent 对话编程框架的代表论文。
+Workflows and agents | LangGraph Docs：workflow-first 的官方阐述与模式对比。
+Router Query Engine | LlamaIndex Docs：在 RAG 管线内部做路由的典型实现。
+Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection：按需检索与自反思的系统化研究。
+Corrective Retrieval Augmented Generation (CRAG)：检索评估器 + 校正动作的鲁棒 RAG 框架。
+FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance：级联与预算约束下的系统化降本策略。
+RouteLLM: Learning to Route LLMs with Preference Data：偏好数据训练路由器的框架与实验。
+MemGPT: Towards LLMs as Operating Systems：多层记忆与上下文管理的“操作系统式”范式。
+Efficient Memory Management for Large Language Model Serving with PagedAttention：vLLM 论文，理解 KV cache/调度为何决定高并发延迟。
+Text Generation Inference (TGI) | Hugging Face Docs：连续批处理 + 流式 + 生产特性，是自托管推理的工程参考。
+
+
+我的判断是：
+
+**生成功能本身，优先做“工作流”；只有在少数高不确定任务里，才引入真正的 agent。**
+
+更直接一点说：
+
+**80% 用工作流，20% 用 agent 能力兜底。**
+不要一上来就把“生成教案/课件/练习”全做成自由规划的 agent。
+
+---
+
+## 为什么我更偏向工作流
+
+因为“生成”在产品里不是科研题，而是**高频、可控、可复用**的生产动作。
+
+像这些请求：
+
+* 帮我生成一份教案
+* 根据上面的内容出一套练习题
+* 再转成PPT提纲
+* 给我一版分层作业
+* 按小学三年级语气重写
+
+本质上都不是开放式探索，而是：
+
+**已有上下文 + 明确目标产物 + 相对稳定的步骤**
+
+这类任务最适合做成工作流，因为它有几个天然优势：
+
+### 1. 可控
+
+你知道它必须经过哪些阶段：
+
+* 取课程上下文
+* 取用户刚才圈定的材料
+* 抽取结构化教学要点
+* 生成目标产物
+* 做格式化与约束检查
+* 输出到右侧产物区
+
+这比“让 agent 自己想怎么做”稳定得多。
+
+### 2. 响应更快
+
+工作流可以把很多东西前置：
+
+* 上下文整理
+* 模板选择
+* 资源预处理
+* 目标产物 schema
+* 变量补全
+
+真正调用大模型时，它只是在一个已经整理好的上下文里生成，不需要每轮重新思考“我要不要搜、要不要拆任务、先做什么”。
+
+### 3. 更容易测试
+
+工作流每个节点都能验收：
+
+* 输入是否齐全
+* 课程目标是否抽对
+* 年级/学科/课时是否继承正确
+* 生成结果是否符合格式
+* 是否遗漏用户指定资源
+
+这对教学产品非常关键。老师容忍“慢一点”，但不容忍“每次风格和逻辑都飘”。
+
+### 4. 更适合沉淀产品能力
+
+你真正想积累的不是“一个会自己乱逛的 agent”，而是：
+
+* 教案生成器
+* 练习题生成器
+* 课件提纲生成器
+* 学情分析生成器
+* 课堂活动生成器
+
+这些都应该是**平台级能力模块**，而不是一次次从零自由规划。
+
+---
+
+## 那什么时候需要真正的 agent
+
+当任务进入下面几类时，agent 才有价值：
+
+### 1. 目标不够明确
+
+例如：
+
+* 帮我围绕这个主题设计一整周教学安排
+* 这个班基础差，怎么调整这节课
+* 我想做一个探究式项目，帮我想方案
+
+这里不是单一产物，而是要先理解问题、再拆分任务、再决定输出路线。
+
+### 2. 需要主动查找和筛选资源
+
+例如：
+
+* 帮我找 3 个适合七年级的引入视频，并生成导学问题
+* 从上传资料里挑最适合本节课的内容，再出活动单
+* 对比两个版本教材，生成差异化教学建议
+
+这时候系统要做：
+
+* 搜索
+* 筛选
+* 比较
+* 归纳
+* 再生成
+
+这已经不是单步生成，而是一个动态任务链。
+
+### 3. 需要根据中间结果改计划
+
+例如：
+
+* 先生成练习，发现偏难，再自动降难度
+* 发现资源不足，转去补搜
+* 发现用户提供的内容缺少教学目标，先反推出目标再继续
+
+这才是 agent 真正擅长的地方：
+**根据执行状态动态调整路径。**
+
+---
+
+## 所以更合适的不是二选一，而是分层
+
+我建议你把系统理解成三层：
+
+### 第一层：产品动作层
+
+这是用户看到的能力按钮或显式意图：
+
+* 生成教案
+* 生成课件提纲
+* 生成练习
+* 生成活动设计
+* 提炼知识点
+* 总结上传资料
+
+这一层最好是**明确、可命名、可复用**的。
+
+### 第二层：工作流编排层
+
+每个动作背后都是一个稳定流程：
+
+* 读当前课程上下文
+* 读本轮对话范围
+* 读用户选中的资源
+* 组装结构化输入
+* 调用对应生成器
+* 做约束校验
+* 存为产物
+
+这是主干。
+
+### 第三层：agent 层
+
+只在必要时介入，做：
+
+* 任务拆解
+* 资源搜索
+* 多步规划
+* 异常补救
+* 跨工具协调
+
+也就是说：
+
+**agent 不是主执行器，而是高阶调度器 / 复杂任务兜底器。**
+
+---
+
+## 对你的场景，我最不建议的方案
+
+### 1. 全系统都做成自由 agent
+
+问题会很明显：
+
+* 慢
+* 贵
+* 不稳定
+* 不好测
+* 很难解释“为什么这次这样做，上次那样做”
+
+老师场景里，这会直接损害信任。
+
+### 2. 完全死板的表单式工作流
+
+这也不够，因为教师很多请求是自然语言触发的：
+
+* “根据上面内容再出一个小测”
+* “把它改成适合公开课的版本”
+* “加一点互动环节”
+* “参考我刚刚传的材料”
+
+如果全靠 rigid workflow，会显得笨。
+
+---
+
+## 我更推荐的实现方式
+
+### 核心原则
+
+**把“生成”做成半结构化工作流，把“理解用户到底想干什么”做成轻量 agent 化。**
+
+也就是：
+
+* **意图识别**：像 agent
+* **执行生成**：像 workflow
+* **复杂资源整合**：再启用 agent
+
+---
+
+## 一个很实用的判断标准
+
+你可以用一句话区分：
+
+### 适合工作流的任务
+
+**“系统其实已经知道该怎么做，只是需要补齐输入。”**
+
+比如：
+
+* 生成教案
+* 生成课件提纲
+* 生成练习题
+* 改写难度
+* 改写风格
+* 从当前内容派生产物
+
+### 适合 agent 的任务
+
+**“系统还不知道该怎么做，需要先想一想路径。”**
+
+比如：
+
+* 要不要先搜资源
+* 搜哪些资源
+* 资料冲突时怎么取舍
+* 先总结还是先分类
+* 是生成活动单还是项目任务书更合适
+
+---
+
+## 对“根据以上内容生成 XXX”这类请求，怎么落地最好
+
+这类请求表面像 agent，实际上更适合**显式引用 + 工作流执行**。
+
+不要只把“以上内容”理解成整段聊天历史，而要把它落成几个对象：
+
+* 当前课程
+* 当前会话主题
+* 用户最近选中的资源
+* 最近一次生成的产物
+* 最近一次被用户确认的文本块
+
+这样当用户说：
+
+* 根据上面内容生成练习
+* 把刚才那个教案改成两课时
+* 用我上传的材料重写导入
+
+系统不是“去猜上面是哪一段”，而是从对象引用里取：
+
+* source_artifact_id
+* selected_resource_ids
+* current_course_id
+* recent_confirmed_block
+
+这一步一旦对象化，后面就非常适合 workflow，而不需要强 agent。
+
+---
+
+## 最后给结论
+
+如果是你们这个“教师辅助平台，通过对话生成教案和资源”的场景：
+
+### 我的结论是
+
+**不要把生成功能做成纯 agent。**
+**应该以工作流为骨架，以 agent 为增强层。**
+
+最合适的形态是：
+
+**对话入口 + 意图识别 + 对象化上下文 + 生成工作流 + 复杂任务 agent 化。**
+
+换句话说：
+
+* 教案、练习、课件、作业、活动设计：**工作流主导**
+* 搜资源、拆复杂任务、跨资料综合、自动补救：**agent 介入**
+* 整个系统不是“一个大 agent”，而是“一个产品化工作台，里面嵌了 agent 能力”
+
+这会比“真正的 agent 一把梭”更适合落地，也更像成熟产品。
+
+如果你愿意，我可以下一步直接把这个判断展开成一份**适合你们当前前端结构的具体架构图**：包括消息层、意图层、工作流层、产物层、资源层怎么接。
+
+可以。
+如果以你们现在这个产品方向来看，“报告生成”最适合被设计成一个**典型的工作流型能力**，而不是一个完全自由发挥的 agent。它应该是：
+
+**对话触发 + 上下文收集 + 结构化生成 + 产物落地 + 迭代编辑**
+
+我按“用户看到的流程”和“系统内部真实流程”两条线，一起梳理。
+
+---
+
+# 一、先给一个总图
+
+用户说一句：
+
+**“根据这个课程的过程数据，帮我生成一份阶段性教学报告。”**
+
+系统内部不应该只是把这句话直接扔给大模型。
+更合理的是走下面这条链路：
+
+**触发生成 → 识别报告类型 → 收集上下文 → 补齐缺失信息 → 生成报告骨架 → 生成正文 → 校验与修正 → 落为右侧产物 → 支持继续改写/导出**
+
+所以它本质上不是“一次问答”，而是一个**有状态的产物生成流程**。
+
+---
+
+# 二、从用户视角看，完整流程是什么
+
+## 1. 用户进入课程
+
+用户先进入某个课程，不是在一个裸聊天页里发起。
+
+这一步很重要，因为报告生成默认要继承课程语境，比如：
+
+* 课程名称
+* 学段/学科
+* 班级
+* 时间范围
+* 当前教学进度
+* 已有资料与历史产物
+
+也就是说，报告不是“无上下文生成”，而是**在课程容器里生成**。
+
+---
+
+## 2. 用户发起“生成报告”
+
+入口可以有两种：
+
+一种是显式按钮：
+
+* 生成学情报告
+* 生成阶段总结
+* 生成听课反馈
+* 生成课程实施报告
+
+另一种是自然语言：
+
+* “帮我写个本周教学总结”
+* “根据上面的内容生成一份家长反馈报告”
+* “把这次活动整理成正式报告”
+
+这时候系统要先做的不是立刻写，而是先判断：
+
+### 用户到底要的是哪一种报告
+
+例如：
+
+* 教学总结报告
+* 学情分析报告
+* 活动复盘报告
+* 课堂观察报告
+* 给校方/教研组的正式汇报
+* 给家长的反馈型报告
+
+这一步其实就是**意图识别 + 报告类型分类**。
+
+---
+
+## 3. 系统收集生成所需材料
+
+报告不能只靠一句话，它要自动去拿上下文。
+
+典型会取这些内容：
+
+* 当前课程基本信息
+* 当前会话里用户刚刚提到的重点
+* 本课程下已沉淀的教案、作业、课堂记录、学生表现数据
+* 用户刚刚上传或选中的材料
+* 已生成过的相关产物
+* 当前时间范围内的教学活动记录
+
+如果信息不足，系统才补问极少数关键问题，比如：
+
+* 报告面向谁？
+* 时间范围是本周、单元阶段还是整学期？
+* 更偏正式汇报还是内部记录？
+
+注意这里补问应当非常少。
+成熟产品不应把用户重新拉回填表地狱，而是**先自动拿到 80% 信息，只问最后 20% 关键缺口**。
+
+---
+
+## 4. 系统先生成“报告骨架”
+
+这一步非常关键。
+
+不要一上来直接出整篇长文，而应该先出一个结构化骨架，例如：
+
+* 报告标题
+* 报告对象/时间范围
+* 背景概述
+* 教学实施情况
+* 学生表现与问题
+* 关键数据/案例
+* 阶段成果
+* 风险与改进建议
+* 下一步计划
+
+也就是先得到一个 **outline / schema**。
+
+这样做有三个好处：
+
+第一，生成质量更稳定。
+第二，后续每一段都能定向生成。
+第三，右侧产物区可以更早出现一个“可编辑的半成品”，而不是一直等一整篇大文本。
+
+---
+
+## 5. 系统按骨架生成正文
+
+拿到骨架后，再逐段生成。
+
+比如：
+
+### 背景概述
+
+从课程基本信息、教学进度、阶段目标中生成。
+
+### 教学实施情况
+
+从教案、课堂活动、实际执行记录中生成。
+
+### 学生表现与问题
+
+从作业表现、测验结果、课堂反馈、老师输入的观察记录中生成。
+
+### 改进建议
+
+结合前文问题点自动生成，但应明确区分：
+
+* 事实性内容
+* 推断性建议
+
+这里最理想的方式不是“一次吐完全文”，而是：
+
+**按 section 分段生成，再合并成一个完整 artifact**
+
+这样后面改写某一段时，不需要整篇重算。
+
+---
+
+## 6. 结果进入右侧“产物区”
+
+生成完以后，它不应该只停留在聊天消息里。
+
+它应该被落成一个真正的产物对象，比如：
+
+* artifact_type = report
+* report_subtype = teaching_summary
+* source_course_id = xxx
+* source_resource_ids = [...]
+* status = draft
+* sections = [...]
+* version = 1
+
+然后在右侧展示为一个正式文档，而不是一条聊天回复。
+
+这一步非常关键，因为这决定了产品是在“做聊天”，还是在“做工作台”。
+
+---
+
+## 7. 用户继续修改
+
+用户接下来一般不会满意第一次结果，而会继续说：
+
+* 再正式一点
+* 更突出问题分析
+* 加入具体案例
+* 把建议部分写得可执行一点
+* 缩短到一页纸
+* 改成适合给家长看的版本
+
+这时候系统不应该重新从零生成。
+而应该变成：
+
+**对已有报告产物做定向编辑**
+
+也就是：
+
+* 修改 tone
+* 修改长度
+* 修改受众
+* 重写某一 section
+* 插入某条数据
+* 切换模板
+
+这样用户会明显感觉这是在“编辑文档”，不是每次都在“重新问 AI”。
+
+---
+
+## 8. 导出与沉淀
+
+当报告成型后，用户会希望：
+
+* 保存到课程
+* 导出 Word / PDF
+* 复制到校内系统
+* 作为下一次周报/月报模板
+* 基于它继续生成别的产物
+
+例如从报告再派生：
+
+* 汇报PPT提纲
+* 家长通知摘要
+* 教研会发言稿
+* 下一阶段行动计划
+
+所以报告不是终点，而是一个**中间产物节点**。
+
+---
+
+# 三、从系统实现角度看，内部应该怎么流转
+
+下面我按系统层来拆。
+
+---
+
+## 1. 触发层
+
+来源有两种：
+
+### A. 显式 UI 触发
+
+比如用户点了“生成报告”。
+
+前端可直接传一个明确 action：
+
+* action = generate_report
+* subtype = teaching_summary
+
+### B. 对话触发
+
+用户在聊天框输入自然语言。
+
+这时先走一层解析：
+
+* intent = generate_artifact
+* artifact_type = report
+* subtype = probable_teaching_summary
+
+这一层其实是“轻 agent 化理解”，但不是自由执行。
+
+---
+
+## 2. 编排层
+
+进入后端编排器后，先不要直接调 LLM，而是先创建一个任务对象：
+
+* task_id
+* course_id
+* session_id
+* user_prompt
+* artifact_type
+* artifact_subtype
+* status = collecting_context
+
+这个任务对象能保证整个流程有状态、可追踪、可恢复。
+
+---
+
+## 3. 上下文收集层
+
+编排器去取多个来源的数据：
+
+### 课程级上下文
+
+* 课程名称
+* 班级
+* 学科
+* 当前单元
+* 时间范围
+
+### 会话级上下文
+
+* 用户最近几轮对话
+* 最近确认过的文本
+* 最近生成过的产物
+
+### 资源级上下文
+
+* 上传文档
+* 课堂记录
+* 成绩数据
+* 作业表现
+* 教案与活动单
+
+### 用户显式选择
+
+* 本次选中的资料
+* 勾选的时间范围
+* 报告受众和用途
+
+这一层做完后，要形成一个**ReportContext**，而不是把零散材料直接扔进 prompt。
+
+例如：
+
+```ts
+type ReportContext = {
+  courseMeta: {...}
+  audience: "teacher" | "parent" | "school"
+  period: {...}
+  sourceMaterials: [...]
+  evidencePoints: [...]
+  preferredStyle: {...}
+  constraints: {...}
+}
+```
+
+这一步非常重要，它决定后面流程是不是可控。
+
+---
+
+## 4. 缺失信息判断层
+
+系统要判断：现在生成是否足够？
+
+比如：
+
+* 没有明确时间范围
+* 没有明确报告对象
+* 数据材料太少
+* 只有聊天内容，没有事实依据
+
+如果只是小缺口，可以默认补全。
+如果是关键缺口，再向用户发一个非常短的追问。
+
+重点是：
+**补问只补关键字段，不要让用户重新描述一遍需求。**
+
+---
+
+## 5. 报告规划层
+
+这一步就是我前面说的“先生成骨架”。
+
+输入是结构化 ReportContext。
+输出是 ReportPlan，例如：
+
+```ts
+type ReportPlan = {
+  title: string
+  sections: [
+    { id: "summary", title: "阶段教学概述", objective: "...", sourceRefs: [...] },
+    { id: "performance", title: "学生表现分析", objective: "...", sourceRefs: [...] },
+    { id: "issues", title: "主要问题", objective: "...", sourceRefs: [...] },
+    { id: "suggestions", title: "后续改进建议", objective: "...", sourceRefs: [...] }
+  ]
+}
+```
+
+注意这里不是最终文本，而是“生成计划”。
+
+---
+
+## 6. 分段生成层
+
+编排器按 section 去生成正文。
+
+每一段都有自己的：
+
+* 目标
+* 可用材料
+* 语气要求
+* 长度约束
+* 禁止事项
+
+比如“学生表现分析”可以明确要求：
+
+* 优先引用测验与课堂观察
+* 不夸大结论
+* 问题描述要有依据
+* 建议要与问题对应
+
+这样每段的 prompt 会更稳，生成质量比一次性全文生成高很多。
+
+---
+
+## 7. 质量校验层
+
+生成完以后，不要直接给用户。
+
+最好经过一层轻校验：
+
+### 结构校验
+
+* 是否缺 section
+* 是否有重复段落
+* 是否长度失衡
+
+### 约束校验
+
+* 是否符合正式/简洁/对家长友好等风格
+* 是否超出字数
+* 是否出现不应出现的绝对化判断
+
+### 事实一致性校验
+
+* 是否与课程信息冲突
+* 是否引用了不存在的数据
+* 是否将推测写成事实
+
+如果有明显问题，可以自动触发一次小修复，而不是返回原始结果。
+
+---
+
+## 8. 产物入库层
+
+校验通过后，把结果落地为 artifact。
+
+建议不是只存一整段 markdown，而是存成结构化对象：
+
+```ts
+type ReportArtifact = {
+  id: string
+  courseId: string
+  type: "report"
+  subtype: "teaching_summary"
+  title: string
+  sections: [...]
+  fullText: string
+  sources: [...]
+  version: 1
+  status: "draft"
+  createdAt: ...
+}
+```
+
+这样你后续才能支持：
+
+* 局部重写
+* 版本管理
+* 派生生成
+* 导出排版
+* 来源追溯
+
+---
+
+## 9. 前端展示层
+
+前端不应只展示“AI 回复了一篇长文”，而应该展示成：
+
+### 中间聊天区
+
+告诉用户：
+
+* 已生成一份阶段性教学报告
+* 使用了哪些来源
+* 现在可以继续修改哪些方向
+
+### 右侧产物区
+
+展示正式报告内容，并支持：
+
+* 选段改写
+* 一键精简
+* 切换风格
+* 导出
+* 保存版本
+
+这一步会极大提升“产品感”。
+
+---
+
+# 四、哪里是工作流，哪里才需要 agent
+
+以报告生成为例，大部分都应该是工作流：
+
+### 工作流负责
+
+* 识别是“报告生成”
+* 拉取课程上下文
+* 收集材料
+* 生成骨架
+* 分段生成
+* 校验
+* 存储为产物
+
+这些都是相对稳定、可预期、可复用的流程。
+
+---
+
+### agent 只在这些地方介入
+
+#### 1. 意图模糊时
+
+比如用户只说：
+
+* “整理一下”
+* “帮我弄成正式一点”
+* “基于这个出个汇报材料”
+
+这时 agent 用来判断他到底要报告、总结、演讲稿还是 PPT 提纲。
+
+#### 2. 材料很散时
+
+比如系统要决定：
+
+* 用哪些资料最 relevant
+* 是否先总结文档再写报告
+* 多份材料冲突时怎么取舍
+
+#### 3. 生成失败或信息不足时
+
+比如：
+
+* 课程数据不够
+* 用户给的是碎片化信息
+* 当前材料不足支撑正式报告
+
+这时 agent 决定是补问、降级生成，还是建议改用“简版总结”。
+
+所以 agent 更像：
+
+**前置理解器 + 复杂情况调度器**
+
+不是主流程本身。
+
+---
+
+# 五、你们前端上最应该体现的几个关键点
+
+如果这个功能要产品化，前端至少要让这几个对象清楚：
+
+## 1. 报告是“产物”，不是聊天气泡
+
+它应该进入右侧产物面板，并可持续编辑。
+
+## 2. 报告有“来源”
+
+用户要知道这份报告依据了什么：
+
+* 当前课程
+* 某几个资料
+* 某时间范围
+* 某些课堂记录
+
+否则会不信任。
+
+## 3. 报告有“状态”
+
+例如：
+
+* collecting
+* drafting
+* reviewing
+* saved
+
+用户会感知到这是一个生成过程，而不是一句话瞬间吐结果。
+
+## 4. 报告可被继续操作
+
+不是“生成完就结束”，而是可以：
+
+* 改长短
+* 改风格
+* 改受众
+* 重写某段
+* 导出
+* 派生其他文档
+
+---
+
+# 六、最后给一个非常落地的简化版流程
+
+如果你要把它落成最小可用版本，我会建议：
+
+## 第一步：用户发起
+
+“生成阶段教学报告”
+
+## 第二步：系统自动拿
+
+* 课程信息
+* 最近资料
+* 最近产物
+* 选定时间范围
+
+## 第三步：系统生成报告提纲
+
+先出 section 结构。
+
+## 第四步：系统分段生成正文
+
+按 section 输出完整报告。
+
+## 第五步：落到右侧产物区
+
+生成一个可编辑报告卡片/文档。
+
+## 第六步：用户继续改
+
+“更正式一些”“压缩到 800 字”“突出问题分析”。
+
+## 第七步：版本保存 / 导出
+
+成为课程内正式产物。
+
+---
+
+# 七、一句话总结
+
+以报告生成功能为例，最合理的整体流程不是：
+
+**用户说一句话 → 大模型直接写完**
+
+而应该是：
+
+**用户触发需求 → 系统识别报告类型 → 自动收集课程与资料上下文 → 先生成结构 → 再分段生成内容 → 经过校验 → 落成可编辑产物 → 支持持续迭代和导出**
+
+这才是一个真正成熟的“报告生成”产品流程。
+
+你要的话，我下一步可以直接继续帮你把这套流程进一步画成：
+
+**前端页面流转 + 后端模块划分 + 数据对象设计** 三张图。
+
+这两个问题其实正好是这类产品的核心。
+
+我先直接给结论：
+
+1. **不要把每一轮对话都存成一个“完整结构化状态”**，也不要等到用户点“生成”时才从零开始总结全部历史。
+   更合理的是：**原始消息持续保存 + 轻量摘要持续沉淀 + 在真正进入任务时动态创建 task state**。
+
+2. **不可能完全不判断意图**，但可以做到“不在每次输入时都做重型意图识别”。
+   核心办法是：**靠当前上下文、页面位置、活跃任务、可执行动作集合来缩小判断范围**，只在必要时做轻量路由。
+
+下面我分开讲。
+
+---
+
+# 1. 上下文历史到底怎么存
+
+你提的两个方案里：
+
+* 方案 A：每次对话都提取并保存一个状态
+* 方案 B：等用户说“生成”时，临时创建状态再回头总结
+
+这两个都不够理想。
+
+更推荐的是 **三层存储**：
+
+---
+
+## 第一层：原始对话日志，永远完整保存
+
+这是最底层事实来源。
+
+存的就是：
+
+* message_id
+* session_id
+* role
+* content
+* timestamp
+* attachments
+* 引用的课程/资源对象
+
+这一层不要做太多语义加工，重点是**可追溯**。
+
+因为你后面任何总结错了、抽取漏了，都还能回原文找。
+
+---
+
+## 第二层：会话级轻量结构化沉淀，按轮或按批次更新
+
+这层不是“完整状态机”，而是**摘要型记忆**。
+
+比如每过几轮，或者在一次用户输入后，抽取一些稳定信息：
+
+* 当前正在讨论什么任务
+* 已确认的目标
+* 已明确的约束
+* 已选中的资料
+* 已确定的输出形式
+* 最近生成过的产物
+
+例如：
+
+```ts
+type SessionMemory = {
+  currentTopic?: "report_generation" | "lesson_plan" | "analysis"
+  confirmedFacts: string[]
+  constraints: string[]
+  selectedResources: string[]
+  activeArtifactId?: string
+  lastUserGoal?: string
+  updatedAt: string
+}
+```
+
+注意，这里不是把整段对话“翻译成最终业务状态”，而是提取少量高价值信息。
+
+所以我建议：
+
+### 每轮都存原始消息
+
+### 但不必每轮都做重度结构化
+
+### 只做轻量抽取或增量摘要
+
+这样成本和稳定性更平衡。
+
+---
+
+## 第三层：任务级 task state，在触发具体工作流时创建
+
+这个才是你说的“生成报告时那个状态”。
+
+比如用户说：
+
+> 帮我生成一份阶段教学报告
+
+这时系统创建一个明确的任务对象：
+
+```ts
+type ReportTaskState = {
+  taskId: string
+  courseId: string
+  sessionId: string
+  intent: "generate_report"
+  subtype?: "teaching_summary"
+  audience?: "teacher" | "parent" | "school"
+  period?: { start?: string; end?: string }
+  sourceResources: string[]
+  sourceMessages: string[]
+  evidencePoints: string[]
+  outline?: SectionPlan[]
+  status: "collecting" | "planning" | "drafting" | "reviewing" | "done"
+}
+```
+
+这个 task state 不是预先给每轮对话都建的，而是**用户进入明确任务时动态生成**。
+
+---
+
+# 最合理的实际做法：不是二选一，而是组合
+
+所以答案不是：
+
+* “每轮都完整保存状态”
+* 或者“直到生成时才总结”
+
+而是：
+
+## 推荐策略
+
+### 平时：
+
+* 保存全部原始消息
+* 维护轻量 session memory
+
+### 真正进入“生成报告”时：
+
+* 创建 report task state
+* 再从以下来源灌进去：
+
+  * 最近几轮相关消息
+  * session memory
+  * 当前课程上下文
+  * 用户选中的资源
+  * 已存在的产物对象
+
+这才是最稳的。
+
+---
+
+# 为什么不能只在“生成”时临时总结全部历史
+
+因为这样有几个问题：
+
+## 1. 成本高
+
+每次生成都要重新回看很多历史消息，token 成本高，速度也慢。
+
+## 2. 不稳定
+
+临时总结容易受最近几轮干扰，前面明确过的条件可能被漏掉。
+
+## 3. 很难做连续编辑
+
+如果用户后面说：
+
+* 再正式一点
+* 加上家长沟通建议
+* 改成 800 字
+
+你如果没有 task state，就很难知道他是在修改“哪一个生成结果”。
+
+---
+
+# 为什么也不建议每轮都维护一个“很重的业务状态”
+
+因为会出另一个问题：
+
+## 1. 过拟合
+
+用户很多话只是探索，不代表最终确认。
+
+比如：
+
+* “要不要做成报告”
+* “也许可以写成周报”
+* “或者做个总结”
+
+这些都不该立刻写死成正式状态。
+
+## 2. 容易脏
+
+每轮都强行提取完整结构，状态会越来越混乱，冲突越来越多。
+
+## 3. 工程负担太大
+
+你会发现大量逻辑都在“修状态”，而不是在“做任务”。
+
+---
+
+# 所以到底哪些东西该“持续沉淀”，哪些该“按需创建”
+
+## 适合持续沉淀的
+
+这些通常是稳定、高复用的信息：
+
+* 当前课程 id
+* 当前会话最近讨论主题
+* 已选资料
+* 已确认受众
+* 已确认时间范围
+* 活跃产物 id
+* 最近一次任务类型
+
+## 适合按需创建的
+
+这些通常是面向具体任务的：
+
+* 本次报告任务的 evidence points
+* 本次生成提纲
+* 本次分段草稿
+* 本次校验结果
+* 本次导出参数
+
+也就是：
+
+**session memory 是长期轻记忆**
+**task state 是短期工作内存**
+
+---
+
+# 2. 怎么避免每次输入都做意图判断
+
+先说清楚一点：
+
+**你没法完全不判断。**
+只要用户输入自然语言，系统总得知道这句话是：
+
+* 新任务
+* 继续当前任务
+* 修改已有产物
+* 普通聊天
+* 选择某个对象
+* 确认/取消
+
+真正要做的不是“取消意图识别”，而是：
+
+## 不要每次都做一次“大而全的全局意图分类”
+
+应该改成 **分层路由**。
+
+---
+
+# 一个更实用的识别框架
+
+我建议你把识别分成 4 层。
+
+---
+
+## 第一层：先看是不是显式入口触发
+
+这是最简单的一层。
+
+如果用户不是在裸聊天输入，而是：
+
+* 点击“生成报告”
+* 点击“改写这份报告”
+* 点击“导出”
+* 点击“基于这份报告生成 PPT”
+
+那其实不用做复杂意图识别。
+
+前端已经明确告诉后端：
+
+* action = generate_report
+* action = revise_report
+* action = export_artifact
+
+这时候用户在输入框里的自然语言只是**参数补充**，不是“从零猜他想干嘛”。
+
+所以产品越成熟，越应该把高频动作做成显式入口，减少纯自然语言猜测。
+
+---
+
+## 第二层：看当前有没有活跃工作流
+
+如果当前右侧已经有一个活跃报告草稿，且用户就在这个工作流里，那很多输入都不需要全局判断。
+
+例如：
+
+* “再正式一点”
+* “缩短一点”
+* “第三段重写”
+* “加上数据分析”
+* “给家长看的版本”
+
+这些话脱离上下文很难判断，但在“当前活跃对象 = 报告草稿”的前提下，就很容易映射成：
+
+* revise_tone
+* shorten
+* rewrite_section
+* add_section
+* transform_audience
+
+也就是说：
+
+**不是先理解句子，再找对象**
+而是先知道对象，再理解句子
+
+这会简单很多。
+
+---
+
+## 第三层：只有在“无活跃任务 + 自然语言自由输入”时，才做轻量意图路由
+
+这时候才需要判断：
+
+* 是聊天
+* 是生成
+* 是分析
+* 是找资料
+* 是改已有内容
+* 是进入新工作流
+
+但这里也不一定非要上大模型做复杂 agent。
+
+你可以先做一个很轻的 router，只输出有限集合：
+
+```ts
+type Intent =
+  | "chat"
+  | "generate_report"
+  | "generate_plan"
+  | "analyze_material"
+  | "edit_artifact"
+  | "select_resource"
+  | "unknown"
+```
+
+重点不是把意图分类做得特别细，而是先把它路由到正确工作流。
+
+---
+
+## 第四层：实在模糊时，再让模型做深一点理解
+
+例如：
+
+* “整理一下这个”
+* “弄正式一点发给领导”
+* “基于上面的东西给我出一版”
+
+这种话很依赖上下文，就让模型在一个很小范围里判断：
+
+* 对象是什么
+* 动作是什么
+* 输出物是什么
+
+而不是让它在无限空间里自由 agent。
+
+---
+
+# 真正降低“每次判断成本”的关键，不是算法，而是产品状态
+
+这点很重要。
+
+很多团队会以为这个问题是 NLP 问题，其实更大程度是**交互设计问题**。
+
+因为一句话“再正式一点”之所以难，是因为系统不知道：
+
+* 你在改什么
+* 你是不是还在刚才那个任务里
+* 你现在页面上焦点在哪个对象
+
+如果这些状态明确了，语义理解就会容易很多。
+
+---
+
+# 一个非常实用的原则：让系统优先读“当前上下文状态”，不是优先读“单句文字”
+
+比如识别顺序可以这样：
+
+## Step 1：当前页面在哪
+
+* 课程页
+* 工作台页
+* 报告编辑页
+
+## Step 2：当前有没有 active object
+
+* 当前活跃报告
+* 当前活跃教案
+* 当前活跃分析结果
+
+## Step 3：当前有没有 active workflow
+
+* 正在生成报告
+* 正在编辑报告
+* 正在选资料
+
+## Step 4：用户这句话像哪类动作
+
+* 创建
+* 修改
+* 确认
+* 补充条件
+* 取消
+
+只有最后一步才看文本本身。
+
+这样比每次只看一句话做意图分类靠谱得多。
+
+---
+
+# 所以，一个成熟系统通常怎么做
+
+我建议你用下面这套：
+
+---
+
+## A. 永远有原始消息流
+
+这是事实层。
+
+---
+
+## B. 维护轻量 session memory
+
+比如最近主题、当前对象、已确认约束。
+
+---
+
+## C. 有明确的 active task / active artifact
+
+这两个特别关键：
+
+* activeTask：当前正在执行的任务
+* activeArtifact：当前正在编辑的产物
+
+用户一句“改一下”，系统首先找 activeArtifact，而不是全局猜。
+
+---
+
+## D. 用有限动作集做路由，不做全能理解
+
+比如在 report 工作流里，只允许出现这些动作：
+
+* set_audience
+* set_period
+* add_material
+* generate_outline
+* draft_report
+* rewrite_section
+* shorten
+* formalize
+* export
+
+这样一句“更正式一点”只需在这个动作集合里匹配，不用跟“生成教案”“分析作业”“查资料”竞争。
+
+---
+
+# 结合“报告生成”举个完整例子
+
+## 阶段 1：用户还没发起任务
+
+用户说：
+
+> 帮我整理一下这节课的情况
+
+系统这时做一次轻量路由，判断可能是：
+
+* generate_report
+* summarize_lesson
+* analyze_class
+
+此时可以先进入一个较宽的“报告/总结工作流”。
+
+---
+
+## 阶段 2：用户确认要生成报告
+
+系统创建：
+
+* activeTask = report_generation_task
+* activeArtifact = null
+
+并从：
+
+* 课程上下文
+* 最近消息
+* session memory
+  中抽取信息填入 task state。
+
+---
+
+## 阶段 3：系统出了报告草稿
+
+这时：
+
+* activeTask = report_editing_task
+* activeArtifact = report_123
+
+接下来用户说：
+
+> 再正式一点
+
+这时不需要重新做全局意图分类。
+因为系统知道当前对象就是 `report_123`，所以直接映射成：
+
+* action = revise_report
+* target = report_123
+* change = tone.formal++
+
+---
+
+## 阶段 4：用户跳出当前任务
+
+用户突然说：
+
+> 顺便帮我出个下周教案
+
+这句话才会触发：
+
+* 是否切换 activeTask
+* 是否创建新任务
+* 是否保留当前 report artifact
+
+---
+
+# 你可以直接落地成这样的工程策略
+
+## 消息到来时，不做重判断，只做三件事
+
+### 1. 存原始消息
+
+### 2. 更新轻量 session memory
+
+### 3. 检查当前是否有 active task
+
+如果有 active task，就优先把新消息解释为该任务下的一个动作。
+只有解释失败，才退回全局意图识别。
+
+这其实就是：
+
+**先局部解释，后全局解释**
+
+而不是每次都从零开始猜。
+
+---
+
+# 最后给你一个明确建议
+
+如果你们现在要做第一版，我会建议：
+
+## 数据层
+
+至少拆出 4 个对象：
+
+* `Message`
+* `SessionMemory`
+* `TaskState`
+* `Artifact`
+
+## 运行逻辑
+
+采用这条链：
+
+**用户输入 → 存 Message → 检查 activeTask → 能在当前任务内解释就直接执行 → 否则走轻量 intent router → 必要时新建 TaskState**
+
+## 报告生成时
+
+不要全量回扫所有历史对话。
+优先使用：
+
+* 最近 N 轮相关消息
+* session memory 摘要
+* 当前课程上下文
+* 当前选中资源
+* 当前活跃 artifact
+
+只有信息不足时，再回查更早消息。
+
+---
+
+# 一句话回答你的两个问题
+
+## 问题 1
+
+不是每轮都维护完整状态，也不是生成时才从零总结。
+而是：
+
+**原始对话持续保存 + 轻量摘要持续沉淀 + 进入“生成报告”时动态创建任务状态并注入上下文。**
+
+## 问题 2
+
+不是不判断意图，而是：
+
+**尽量不做“每轮全局判断”，而是优先依据当前页面、活跃任务、活跃产物，在一个很小的动作集合里解释用户输入；只有脱离当前工作流时，才做轻量全局路由。**
+
+如果你愿意，我下一步可以直接把这套东西画成一张：
+
+**“消息流 / session memory / task state / artifact” 的后端状态流转图**。

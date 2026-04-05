@@ -1,0 +1,9 @@
+{
+  "id": "operating-systems",
+  "title": "操作系统",
+  "description": "理解操作系统原理，学习进程管理、内存管理和文件系统",
+  "icon": "CloudServerOutlined",
+  "color": "#fa8c16",
+  "objectives": null,
+  "knowledgeGraph": null
+}

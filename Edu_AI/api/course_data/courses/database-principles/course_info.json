@@ -1,0 +1,9 @@
+{
+  "id": "database-principles",
+  "title": "数据库原理",
+  "description": "掌握数据库设计、SQL语言、事务处理和数据库管理系统",
+  "icon": "DatabaseOutlined",
+  "color": "#eb2f96",
+  "objectives": null,
+  "knowledgeGraph": null
+}

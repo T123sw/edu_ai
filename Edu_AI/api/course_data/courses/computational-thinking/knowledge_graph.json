@@ -1,0 +1,2118 @@
+{
+  "id": "root",
+  "label": "计算思维与程序设计",
+  "children": [
+    {
+      "id": "C1",
+      "label": "第1章 计算思维与问题求解",
+      "children": [
+        {
+          "id": "C1_1",
+          "label": "1.1 计算、自动计算与计算机",
+          "children": [
+            {
+              "id": "C1_1_1",
+              "label": "计算的发展历程",
+              "children": [
+                {
+                  "id": "C1_1_1_1",
+                  "label": "计算工具",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "计算工具",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_1_1_2",
+                  "label": "计算辅助工具",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "计算辅助工具",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_1_1_3",
+                  "label": "自动计算",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "自动计算",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_1_1_4",
+                  "label": "机械计算装置",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "机械计算装置",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_1_1_5",
+                  "label": "可编程计算装置",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "可编程计算装置",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_1_1_6",
+                  "label": "现代计算机",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "现代计算机",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "计算的发展历程",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_1_2",
+              "label": "计算模式的演化",
+              "children": [
+                {
+                  "id": "C1_1_2_1",
+                  "label": "十五年周期定律",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "十五年周期定律",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "计算模式的演化",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "1.1 计算、自动计算与计算机",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C1_2",
+          "label": "1.2 计算机的组成及工作原理",
+          "children": [
+            {
+              "id": "C1_2_1",
+              "label": "计算机的组成及工作原理",
+              "children": [
+                {
+                  "id": "C1_2_1_1",
+                  "label": "计算机软件和硬件",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "计算机软件和硬件",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_2_1_2",
+                  "label": "冯诺依曼体系",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "冯诺依曼体系",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_2_1_3",
+                  "label": "计算机五大设备",
+                  "children": [
+                    {
+                      "id": "C1_2_1_3_1",
+                      "label": "输入设备",
+                      "children": [],
+                      "data": {
+                        "level": 6,
+                        "summary": "输入设备",
+                        "hasChildren": false,
+                        "type": "concept"
+                      }
+                    },
+                    {
+                      "id": "C1_2_1_3_2",
+                      "label": "输出设备",
+                      "children": [],
+                      "data": {
+                        "level": 6,
+                        "summary": "输出设备",
+                        "hasChildren": false,
+                        "type": "concept"
+                      }
+                    },
+                    {
+                      "id": "C1_2_1_3_3",
+                      "label": "控制器",
+                      "children": [],
+                      "data": {
+                        "level": 6,
+                        "summary": "控制器",
+                        "hasChildren": false,
+                        "type": "concept"
+                      }
+                    },
+                    {
+                      "id": "C1_2_1_3_5",
+                      "label": "运算器",
+                      "children": [],
+                      "data": {
+                        "level": 6,
+                        "summary": "运算器",
+                        "hasChildren": false,
+                        "type": "concept"
+                      }
+                    },
+                    {
+                      "id": "C1_2_1_3_4",
+                      "label": "储存器",
+                      "children": [],
+                      "data": {
+                        "level": 6,
+                        "summary": "储存器",
+                        "hasChildren": false,
+                        "type": "concept"
+                      }
+                    }
+                  ],
+                  "data": {
+                    "level": 5,
+                    "summary": "计算机五大设备",
+                    "hasChildren": true,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "计算机的组成及工作原理",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_2_2",
+              "label": "计算机的大脑CPU",
+              "children": [
+                {
+                  "id": "C1_2_2_1",
+                  "label": "控制器",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "控制器",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_2_2_2",
+                  "label": "运算器",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "运算器",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C1_2_2_3",
+                  "label": "寄存器",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "寄存器",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "计算机的大脑CPU",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_2_3",
+              "label": "计算机的存储器",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "计算机的存储器",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "1.2 计算机的组成及工作原理",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C1_3",
+          "label": "1.3 计算机内部数据表示与01符号化",
+          "children": [
+            {
+              "id": "C1_3_1",
+              "label": "图灵测试",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "图灵测试",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_3_2",
+              "label": "位、字节与字长",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "位、字节与字长",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_3_3",
+              "label": "进位制及其相互转换",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "进位制及其相互转换",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_3_4",
+              "label": "数值信息表示方法",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "数值信息表示方法",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_3_5",
+              "label": "非数值信息表示方法",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "非数值信息表示方法",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "1.3 计算机内部数据表示与01符号化",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C1_4",
+          "label": "1.4 机器指令的表示与自动化执行",
+          "children": [
+            {
+              "id": "C1_4_1",
+              "label": "计算机结构和机器指令",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "计算机结构和机器指令",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_4_2",
+              "label": "机器指令的表示方法",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "机器指令的表示方法",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "1.4 机器指令的表示与自动化执行",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C1_5",
+          "label": "1.5 计算思维与问题求解",
+          "children": [
+            {
+              "id": "C1_5_1",
+              "label": "求解问题的核心——算法",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "求解问题的核心——算法",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_5_2",
+              "label": "算法及其特征",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "算法及其特征",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_5_3",
+              "label": "评价算法原则",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "评价算法原则",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_5_4",
+              "label": "算法评价及表示",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "算法评价及表示",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_5_5",
+              "label": "求解问题的一般步骤",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "求解问题的一般步骤",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "1.5 计算思维与问题求解",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C1_6",
+          "label": "1.6 高级语言程序设计",
+          "children": [
+            {
+              "id": "C1_6_1",
+              "label": "程序语言",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "程序语言",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C1_6_2",
+              "label": "C程序的构成",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "C程序的构成",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "1.6 高级语言程序设计",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "第1章 计算思维与问题求解",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C2",
+      "label": "第2章 C程序设计基础",
+      "children": [
+        {
+          "id": "C2_1",
+          "label": "2.1 常量和变量",
+          "children": [
+            {
+              "id": "C2_1_1",
+              "label": "常量与符号常量",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "常量与符号常量",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_1_2",
+              "label": "变量定义与使用",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "变量定义与使用",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_1_3",
+              "label": "标识符命名规则",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "标识符命名规则",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_1_4",
+              "label": "C语言关键字",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "C语言关键字",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "2.1 常量和变量",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C2_2",
+          "label": "2.2 数据类型",
+          "children": [
+            {
+              "id": "C2_2_1",
+              "label": "整型数据",
+              "children": [
+                {
+                  "id": "C2_2_1_1",
+                  "label": "整型常量表示",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "整型常量表示",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_1_2",
+                  "label": "整型变量分类",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "整型变量分类",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_1_3",
+                  "label": "数据存储形式",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "数据存储形式",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_1_4",
+                  "label": "数据溢出问题",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "数据溢出问题",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "整型数据",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_2_2",
+              "label": "实型数据",
+              "children": [
+                {
+                  "id": "C2_2_2_1",
+                  "label": "实型变量分类",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "实型变量分类",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_2_2",
+                  "label": "实型数据存储",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "实型数据存储",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_2_3",
+                  "label": "实型常量表示",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "实型常量表示",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "实型数据",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_2_3",
+              "label": "字符型数据",
+              "children": [
+                {
+                  "id": "C2_2_3_1",
+                  "label": "字符常量",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "字符常量",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_3_2",
+                  "label": "字符变量",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "字符变量",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_3_3",
+                  "label": "字符串常量",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "字符串常量",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C2_2_3_4",
+                  "label": "字符数组",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "字符数组",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "字符型数据",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "2.2 数据类型",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C2_3",
+          "label": "2.3 运算符",
+          "children": [
+            {
+              "id": "C2_3_1",
+              "label": "赋值运算符",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "赋值运算符",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_3_2",
+              "label": "算术运算符",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "算术运算符",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_3_3",
+              "label": "自增自减运算符",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "自增自减运算符",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_3_4",
+              "label": "逗号运算符",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "逗号运算符",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_3_5",
+              "label": "类型转换规则",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "类型转换规则",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "2.3 运算符",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C2_4",
+          "label": "2.4 标准输入输出",
+          "children": [
+            {
+              "id": "C2_4_1",
+              "label": "格式化输入输出",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "格式化输入输出",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_4_2",
+              "label": "字符输入输出",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "字符输入输出",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_4_3",
+              "label": "字符串输入输出",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "字符串输入输出",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_4_4",
+              "label": "标准输入输出流",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "标准输入输出流",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "2.4 标准输入输出",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C2_5",
+          "label": "2.5 数值算法：线性插值",
+          "children": [
+            {
+              "id": "C2_5_1",
+              "label": "线性插值原理",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "线性插值原理",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C2_5_2",
+              "label": "实际应用案例",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "实际应用案例",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "2.5 数值算法：线性插值",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "第2章 C程序设计基础",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C3",
+      "label": "第3章 结构化程序设计方法",
+      "children": [
+        {
+          "id": "C3_1",
+          "label": "3.1 顺序结构：步骤与次序",
+          "children": [
+            {
+              "id": "C3_1_1",
+              "label": "算法描述方法",
+              "children": [
+                {
+                  "id": "C3_1_1_1",
+                  "label": "自然语言描述",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "自然语言描述",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C3_1_1_2",
+                  "label": "伪代码表示",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "伪代码表示",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C3_1_1_3",
+                  "label": "N-S图表示",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "N-S图表示",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C3_1_1_4",
+                  "label": "流程图表示",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "流程图表示",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "算法描述方法",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_1_2",
+              "label": "流程图符号",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "流程图符号",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_1_3",
+              "label": "执行特点",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "执行特点",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "3.1 顺序结构：步骤与次序",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C3_2",
+          "label": "3.2 选择结构：判断与决策",
+          "children": [
+            {
+              "id": "C3_2_1",
+              "label": "单分支选择",
+              "children": [
+                {
+                  "id": "C3_2_1_1",
+                  "label": "if语句实现",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "if语句实现",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "单分支选择",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_2_2",
+              "label": "双分支选择",
+              "children": [
+                {
+                  "id": "C3_2_2_1",
+                  "label": "if-else语句实现",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "if-else语句实现",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "双分支选择",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_2_3",
+              "label": "多分支选择",
+              "children": [
+                {
+                  "id": "C3_2_3_1",
+                  "label": "if-else if-else实现",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "if-else if-else实现",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "多分支选择",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_2_4",
+              "label": "switch语句",
+              "children": [
+                {
+                  "id": "C3_2_4_1",
+                  "label": "case-break机制",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "case-break机制",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "switch语句",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "3.2 选择结构：判断与决策",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C3_3",
+          "label": "3.3 循环结构：重复与迭代",
+          "children": [
+            {
+              "id": "C3_3_1",
+              "label": "计数循环",
+              "children": [
+                {
+                  "id": "C3_3_1_1",
+                  "label": "for循环结构",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "for循环结构",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "计数循环",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_3_2",
+              "label": "条件循环",
+              "children": [
+                {
+                  "id": "C3_3_2_1",
+                  "label": "while循环结构",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "while循环结构",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C3_3_2_2",
+                  "label": "do-while循环结构",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "do-while循环结构",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "条件循环",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_3_3",
+              "label": "嵌套循环",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "嵌套循环",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_3_4",
+              "label": "跳转控制",
+              "children": [
+                {
+                  "id": "C3_3_4_1",
+                  "label": "break语句",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "break语句",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                },
+                {
+                  "id": "C3_3_4_2",
+                  "label": "continue语句",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "continue语句",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "跳转控制",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "3.3 循环结构：重复与迭代",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C3_4",
+          "label": "3.4 条件表达：关系与逻辑",
+          "children": [
+            {
+              "id": "C3_4_1",
+              "label": "关系运算符",
+              "children": [
+                {
+                  "id": "C3_4_1_1",
+                  "label": "比较运算",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "比较运算",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "关系运算符",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_4_2",
+              "label": "逻辑运算符",
+              "children": [
+                {
+                  "id": "C3_4_2_1",
+                  "label": "与或非运算",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "与或非运算",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "逻辑运算符",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_4_3",
+              "label": "优先级规则",
+              "children": [
+                {
+                  "id": "C3_4_3_1",
+                  "label": "结合性规则",
+                  "children": [],
+                  "data": {
+                    "level": 5,
+                    "summary": "结合性规则",
+                    "hasChildren": false,
+                    "type": "concept"
+                  }
+                }
+              ],
+              "data": {
+                "level": 4,
+                "summary": "优先级规则",
+                "hasChildren": true,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "3.4 条件表达：关系与逻辑",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C3_5",
+          "label": "3.5 数值计算：积分与求解",
+          "children": [
+            {
+              "id": "C3_5_1",
+              "label": "数值积分",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "数值积分",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_5_2",
+              "label": "梯形法实现",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "梯形法实现",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C3_5_3",
+              "label": "综合应用",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "综合应用",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "3.5 数值计算：积分与求解",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "第3章 结构化程序设计方法",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C4",
+      "label": "第4章 模块化程序设计方法",
+      "children": [],
+      "data": {
+        "level": 2,
+        "summary": "第4章 模块化程序设计方法",
+        "hasChildren": false,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C5",
+      "label": "第5章 批量数据处理方法",
+      "children": [],
+      "data": {
+        "level": 2,
+        "summary": "第5章 批量数据处理方法",
+        "hasChildren": false,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C6",
+      "label": "第6章 内存数据深度操控方法",
+      "children": [],
+      "data": {
+        "level": 2,
+        "summary": "第6章 内存数据深度操控方法",
+        "hasChildren": false,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C7",
+      "label": "第7章 数据的结构化封装方法",
+      "children": [
+        {
+          "id": "C7_4",
+          "label": "7.4 结构体指针<br>->操作成员",
+          "children": [
+            {
+              "id": "C7_4_1",
+              "label": "定义：struct 类型名 *指针名;",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "定义：struct 类型名 *指针名;",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C7_4_2",
+              "label": "访问成员：指针名->成员名",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "访问成员：指针名->成员名",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "7.4 结构体指针<br>->操作成员",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C7_5",
+          "label": "7.5 链表<br>动态数据结构",
+          "children": [
+            {
+              "id": "C7_5_1",
+              "label": "核心：结构体包含指针域<br>（next）",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "核心：结构体包含指针域<br>（next）",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C7_5_2",
+              "label": "操作：malloc/free<br>动态内存管理",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "操作：malloc/free<br>动态内存管理",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C7_5_3",
+              "label": "优点：长度可动态增删",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "优点：长度可动态增删",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "7.5 链表<br>动态数据结构",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C7_6",
+          "label": "7.6 综合应用<br>二分法求根",
+          "children": [
+            {
+              "id": "C7_6_1",
+              "label": "结合结构体封装区间参数",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "结合结构体封装区间参数",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C7_6_2",
+              "label": "应用：求解非线性方程根",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "应用：求解非线性方程根",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "7.6 综合应用<br>二分法求根",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "第7章 数据的结构化封装方法",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C8",
+      "label": "第8章 数据持久化储存方法",
+      "children": [
+        {
+          "id": "C8_1",
+          "label": "8.1 文件系统基础<br>概念与分类",
+          "children": [
+            {
+              "id": "C8_1_1",
+              "label": "文本文件 vs 二进制文件",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "文本文件 vs 二进制文件",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_1_2",
+              "label": "顺序存取 vs 随机存取",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "顺序存取 vs 随机存取",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_1_3",
+              "label": "缓冲 vs 非缓冲系统",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "缓冲 vs 非缓冲系统",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.1 文件系统基础<br>概念与分类",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C8_2",
+          "label": "8.2 文件型指针<br>FILE结构体",
+          "children": [
+            {
+              "id": "C8_2_1",
+              "label": "FILE结构体定义",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "FILE结构体定义",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_2_2",
+              "label": "文件指针fp的作用",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "文件指针fp的作用",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.2 文件型指针<br>FILE结构体",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C8_3",
+          "label": "8.3 文件打开与关闭<br>fopen与fclose",
+          "children": [
+            {
+              "id": "C8_3_1",
+              "label": "打开模式：r/w/a/r+/w+/a+",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "打开模式：r/w/a/r+/w+/a+",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_3_2",
+              "label": "返回值判断：NULL或EOF",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "返回值判断：NULL或EOF",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.3 文件打开与关闭<br>fopen与fclose",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C8_4",
+          "label": "8.4 文件读写操作<br>多种读写函数",
+          "children": [
+            {
+              "id": "C8_4_1",
+              "label": "字符读写：fgetc/fputc",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "字符读写：fgetc/fputc",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_4_2",
+              "label": "字符串读写：fgets/fputs",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "字符串读写：fgets/fputs",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_4_3",
+              "label": "数据块读写：fread/fwrite",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "数据块读写：fread/fwrite",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_4_4",
+              "label": "格式化读写：fprintf/fscanf",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "格式化读写：fprintf/fscanf",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.4 文件读写操作<br>多种读写函数",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C8_5",
+          "label": "8.5 文件定位<br>rewind与fseek",
+          "children": [
+            {
+              "id": "C8_5_1",
+              "label": "重置指针：rewind",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "重置指针：rewind",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_5_2",
+              "label": "随机定位：fseek",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "随机定位：fseek",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.5 文件定位<br>rewind与fseek",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C8_6",
+          "label": "8.6 综合应用<br>拉格朗日插值",
+          "children": [
+            {
+              "id": "C8_6_1",
+              "label": "数据文件生成与读取",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "数据文件生成与读取",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_6_2",
+              "label": "拉格朗日插值算法实现",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "拉格朗日插值算法实现",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.6 综合应用<br>拉格朗日插值",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C8_7",
+          "label": "8.7 数据库技术<br>SQLite操作",
+          "children": [
+            {
+              "id": "C8_7_1",
+              "label": "SQL语言：DDL/DML/DCL",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "SQL语言：DDL/DML/DCL",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_7_2",
+              "label": "SQLite轻量级数据库",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "SQLite轻量级数据库",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C8_7_3",
+              "label": "C程序连接与操作数据库",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "C程序连接与操作数据库",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "8.7 数据库技术<br>SQLite操作",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "第8章 数据持久化储存方法",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C9",
+      "label": "问题求解策略和常用算法",
+      "children": [
+        {
+          "id": "C9_2",
+          "label": "9.2 枚举法<br>穷举所有可能解",
+          "children": [
+            {
+              "id": "C9_2_1",
+              "label": "特点：简单但效率低",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "特点：简单但效率低",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C9_2_2",
+              "label": "案例：百钱买百鸡",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "案例：百钱买百鸡",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "9.2 枚举法<br>穷举所有可能解",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C9_3",
+          "label": "9.3 分治法<br>分解-解决-合并",
+          "children": [
+            {
+              "id": "C9_3_1",
+              "label": "特征：最优子结构，子问题独立",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "特征：最优子结构，子问题独立",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C9_3_2",
+              "label": "案例：排序问题",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "案例：排序问题",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "9.3 分治法<br>分解-解决-合并",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C9_4",
+          "label": "9.4 递推与递归<br>递推：迭代公式<br>递归：自我调用",
+          "children": [
+            {
+              "id": "C9_4_1",
+              "label": "递推：斐波那契数列迭代求解",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "递推：斐波那契数列迭代求解",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C9_4_2",
+              "label": "递归：函数调用自身，需终止条件",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "递归：函数调用自身，需终止条件",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "9.4 递推与递归<br>递推：迭代公式<br>递归：自我调用",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C9_5",
+          "label": "9.5 回溯法<br>深度优先搜索+剪枝",
+          "children": [
+            {
+              "id": "C9_5_1",
+              "label": "解空间树",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "解空间树",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C9_5_2",
+              "label": "案例：0-1背包问题",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "案例：0-1背包问题",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "9.5 回溯法<br>深度优先搜索+剪枝",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C9_6",
+          "label": "9.6 贪心算法<br>局部最优选择",
+          "children": [
+            {
+              "id": "C9_6_1",
+              "label": "特点：无后效性",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "特点：无后效性",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C9_6_2",
+              "label": "案例：活动安排问题",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "案例：活动安排问题",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "9.6 贪心算法<br>局部最优选择",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C9_7",
+          "label": "9.7 排序与查找<br>基础算法实现",
+          "children": [
+            {
+              "id": "C9_7_1",
+              "label": "排序：选择/冒泡/插入",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "排序：选择/冒泡/插入",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C9_7_2",
+              "label": "查找：二分查找",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "查找：二分查找",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "9.7 排序与查找<br>基础算法实现",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "问题求解策略和常用算法",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    },
+    {
+      "id": "C10",
+      "label": "复杂问题求解技术",
+      "children": [
+        {
+          "id": "C10_2",
+          "label": "10.2 大数据技术<br>核心：海量数据处理方法",
+          "children": [
+            {
+              "id": "C10_2_1",
+              "label": "核心特征：5V<br>大量、高速、多样、价值、真实",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "核心特征：5V<br>大量、高速、多样、价值、真实",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C10_2_2",
+              "label": "C语言处理技术<br>数据分块、并行计算、压缩索引",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "C语言处理技术<br>数据分块、并行计算、压缩索引",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C10_2_3",
+              "label": "应用：统计大数据文件",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "应用：统计大数据文件",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "10.2 大数据技术<br>核心：海量数据处理方法",
+            "hasChildren": true,
+            "type": "section"
+          }
+        },
+        {
+          "id": "C10_3",
+          "label": "10.3 智能计算<br>核心：经典AI算法",
+          "children": [
+            {
+              "id": "C10_3_1",
+              "label": "K-Means聚类算法<br>无监督学习，按距离分组",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "K-Means聚类算法<br>无监督学习，按距离分组",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C10_3_2",
+              "label": "KNN分类算法<br>监督学习，近邻投票决定类别",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "KNN分类算法<br>监督学习，近邻投票决定类别",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            },
+            {
+              "id": "C10_3_3",
+              "label": "应用：手写数字识别",
+              "children": [],
+              "data": {
+                "level": 4,
+                "summary": "应用：手写数字识别",
+                "hasChildren": false,
+                "type": "topic"
+              }
+            }
+          ],
+          "data": {
+            "level": 3,
+            "summary": "10.3 智能计算<br>核心：经典AI算法",
+            "hasChildren": true,
+            "type": "section"
+          }
+        }
+      ],
+      "data": {
+        "level": 2,
+        "summary": "复杂问题求解技术",
+        "hasChildren": true,
+        "type": "chapter"
+      }
+    }
+  ],
+  "data": {
+    "level": 1,
+    "summary": "计算思维与程序设计",
+    "hasChildren": true,
+    "type": "concept"
+  }
+}

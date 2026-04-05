@@ -1,0 +1,9 @@
+{
+  "id": "computer-networks",
+  "title": "计算机网络",
+  "description": "掌握网络协议、网络架构和网络安全等核心知识",
+  "icon": "FileTextOutlined",
+  "color": "#722ed1",
+  "objectives": null,
+  "knowledgeGraph": null
+}

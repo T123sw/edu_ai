@@ -1,0 +1,39 @@
+.ai-studio-page {
+  height: 100%;
+  background: var(--color-bg-layout);
+  padding: 8px;
+
+  /* NotebookLM：三栏独立卡片并列 */
+  display: grid;
+  gap: 12px;
+
+  /* grid-template-columns 由 AiStudioPage.tsx 动态注入，保证折叠/展开时中间栏自动伸缩 */
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 左右容器保持可滚动/可折叠时不破坏 grid */
+.ai-studio-sider {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.ai-studio-content {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+/* 三个独立卡片 */
+.ai-panel {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  background: var(--color-bg-container);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-light);
+  overflow: hidden;
+}

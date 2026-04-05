@@ -1,0 +1,242 @@
+{
+  "status": "PASS",
+  "step": "done",
+  "results": [
+    {
+      "case": 1,
+      "question": "帮我写个西游记报告",
+      "response_type": "ask",
+      "report": {
+        "is_report": true,
+        "slots": {
+          "core_topic": "",
+          "focus_area": "",
+          "length_requirement": "",
+          "depth_level": "",
+          "format_style": "",
+          "dynamic_constraints": "{}",
+          "topic": "",
+          "audience": "",
+          "goal": "",
+          "length": "",
+          "format": "",
+          "period": "",
+          "outcomes": "",
+          "issues": "",
+          "next_plan": ""
+        },
+        "missing": [
+          "core_topic"
+        ],
+        "ask_counts": {
+          "core_topic": 1
+        },
+        "auto_fill": false,
+        "outline": [],
+        "outline_pending": false,
+        "soft_params_confirmed": false,
+        "reflection": {}
+      },
+      "answer_preview": "请先明确报告的**核心主题**：你想写《西游记》的哪一类报告？因为主题决定选材、分析角度和深度。  \n可选：1. 人物分析 2. 主题思想 3. 情节结构 4. 文化/宗教意涵  \n也可回复“你看着办”直接放行。"
+    },
+    {
+      "case": 2,
+      "question": "孙悟空人物形象",
+      "response_type": "ask",
+      "report": {
+        "is_report": true,
+        "slots": {
+          "core_topic": "",
+          "focus_area": "",
+          "length_requirement": "",
+          "depth_level": "",
+          "format_style": "",
+          "dynamic_constraints": "{}",
+          "topic": "",
+          "audience": "",
+          "goal": "",
+          "length": "",
+          "format": "",
+          "period": "",
+          "outcomes": "",
+          "issues": "",
+          "next_plan": ""
+        },
+        "missing": [
+          "core_topic"
+        ],
+        "ask_counts": {
+          "core_topic": 2
+        },
+        "auto_fill": false,
+        "outline": [],
+        "outline_pending": false,
+        "soft_params_confirmed": false,
+        "reflection": {}
+      },
+      "answer_preview": "想聚焦哪一类“孙悟空人物形象”？这决定报告角度与深度：不同文本/时期/媒介会差很多。可选：1）《西游记》原著 2）影视改编 3）神话文化意象。你也可回“你看着办”直接放行。"
+    },
+    {
+      "case": 3,
+      "question": "按常规写",
+      "response_type": "outline",
+      "report": {
+        "is_report": true,
+        "slots": {
+          "core_topic": "",
+          "focus_area": "",
+          "length_requirement": "",
+          "depth_level": "",
+          "format_style": "",
+          "dynamic_constraints": "{}",
+          "topic": "按常规写",
+          "audience": "相关阅读者",
+          "goal": "全面梳理与深入分析",
+          "length": "中等",
+          "format": "Markdown",
+          "period": "",
+          "outcomes": "",
+          "issues": "",
+          "next_plan": ""
+        },
+        "missing": [],
+        "ask_counts": {
+          "core_topic": 2
+        },
+        "auto_fill": true,
+        "outline": [
+          {
+            "title": "第一部分：背景与概述",
+            "points": [
+              "项目背景与核心目标",
+              "研究范围与关键假设"
+            ]
+          },
+          {
+            "title": "第二部分：现状与问题分析",
+            "points": [
+              "当前市场/业务现状",
+              "面临的核心挑战与机遇"
+            ]
+          },
+          {
+            "title": "第三部分：核心策略与方案设计",
+            "points": [
+              "总体战略框架",
+              "具体实施方案与步骤"
+            ]
+          },
+          {
+            "title": "第四部分：风险评估与应对",
+            "points": [
+              "潜在风险识别",
+              "风险缓解与应对策略"
+            ]
+          },
+          {
+            "title": "第五部分：实施计划与资源需求",
+            "points": [
+              "关键里程碑与时间线",
+              "所需资源与预算概算"
+            ]
+          },
+          {
+            "title": "第六部分：结论与建议",
+            "points": [
+              "主要研究发现总结",
+              "后续行动建议"
+            ]
+          }
+        ],
+        "outline_pending": true,
+        "soft_params_confirmed": true,
+        "reflection": {
+          "outline_review": {
+            "enabled": false,
+            "skipped_reason": "outline_direct_once_no_review_no_rewrite"
+          }
+        }
+      },
+      "answer_preview": "已生成报告大纲，请在右侧面板确认。"
+    },
+    {
+      "case": 4,
+      "question": "别问了直接生成",
+      "response_type": "generate",
+      "report": {
+        "is_report": true,
+        "slots": {
+          "core_topic": "按常规写",
+          "focus_area": "",
+          "length_requirement": "中等",
+          "depth_level": "",
+          "format_style": "Markdown",
+          "dynamic_constraints": "{}",
+          "topic": "按常规写",
+          "audience": "相关阅读者",
+          "goal": "全面梳理与深入分析",
+          "length": "中等",
+          "format": "Markdown",
+          "period": "",
+          "outcomes": "",
+          "issues": "",
+          "next_plan": ""
+        },
+        "missing": [],
+        "ask_counts": {
+          "core_topic": 2,
+          "focus_area": 1
+        },
+        "auto_fill": true,
+        "outline": [
+          {
+            "title": "第一部分：背景与概述",
+            "points": [
+              "项目背景与核心目标",
+              "研究范围与关键假设"
+            ]
+          },
+          {
+            "title": "第二部分：现状与问题分析",
+            "points": [
+              "当前市场/业务现状",
+              "面临的核心挑战与机遇"
+            ]
+          },
+          {
+            "title": "第三部分：核心策略与方案设计",
+            "points": [
+              "总体战略框架",
+              "具体实施方案与步骤"
+            ]
+          },
+          {
+            "title": "第四部分：风险评估与应对",
+            "points": [
+              "潜在风险识别",
+              "风险缓解与应对策略"
+            ]
+          },
+          {
+            "title": "第五部分：实施计划与资源需求",
+            "points": [
+              "关键里程碑与时间线",
+              "所需资源与预算概算"
+            ]
+          },
+          {
+            "title": "第六部分：结论与建议",
+            "points": [
+              "主要研究发现总结",
+              "后续行动建议"
+            ]
+          }
+        ],
+        "outline_pending": false,
+        "soft_params_confirmed": true,
+        "reflection": {}
+      },
+      "answer_preview": "报告已经生成，请在右侧面板预览。"
+    }
+  ]
+}

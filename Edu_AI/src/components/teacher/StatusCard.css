@@ -1,0 +1,371 @@
+.teacher-status-card {
+  --status-ink: #22313b;
+  --status-soft-ink: #5c6d77;
+  --status-accent: #b45a44;
+  --status-accent-soft: rgba(180, 90, 68, 0.14);
+  --status-paper: linear-gradient(145deg, #fcfaf6 0%, #f3ebde 100%);
+  position: relative;
+  overflow: hidden;
+  margin: 0 12px 16px;
+  padding: 18px 18px 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(171, 124, 96, 0.22);
+  background: var(--status-paper);
+  box-shadow: 0 18px 42px rgba(109, 83, 60, 0.1);
+  animation: status-card-enter 220ms ease-out;
+}
+
+.teacher-status-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, #c86a4f 0%, #d8a15c 100%);
+}
+
+.teacher-status-card::after {
+  content: '';
+  position: absolute;
+  top: -48px;
+  right: -24px;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(203, 153, 108, 0.18) 0%, rgba(203, 153, 108, 0) 72%);
+  pointer-events: none;
+}
+
+.teacher-status-card[data-mode='workflow'] {
+  --status-accent: #9d513f;
+  --status-accent-soft: rgba(157, 81, 63, 0.16);
+}
+
+.teacher-status-card[data-mode='chat'] {
+  --status-accent: #45656e;
+  --status-accent-soft: rgba(69, 101, 110, 0.14);
+}
+
+.teacher-status-card__eyebrow {
+  margin-bottom: 8px;
+  color: var(--status-soft-ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.teacher-status-card__header {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.teacher-status-card__title-group {
+  min-width: 0;
+}
+
+.teacher-status-card__title {
+  margin: 0;
+  color: var(--status-ink);
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.teacher-status-card__subtitle {
+  margin-top: 6px;
+  color: var(--status-soft-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.teacher-status-card__header-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.teacher-status-card__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(145, 118, 96, 0.18);
+  color: var(--status-ink);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.teacher-status-card__pill::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status-accent);
+  box-shadow: 0 0 0 4px var(--status-accent-soft);
+}
+
+.teacher-status-card__summary {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px dashed rgba(145, 118, 96, 0.26);
+  color: var(--status-soft-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.teacher-status-card__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+  gap: 14px;
+}
+
+.teacher-status-card__section {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(145, 118, 96, 0.15);
+}
+
+.teacher-status-card__section-title {
+  margin-bottom: 10px;
+  color: var(--status-soft-ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.teacher-status-card__goal {
+  margin-bottom: 10px;
+  color: var(--status-ink);
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.teacher-status-card__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.teacher-status-card__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(239, 227, 213, 0.9);
+  color: var(--status-ink);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.teacher-status-card__chip--issue {
+  background: rgba(180, 90, 68, 0.1);
+  color: #7a3f33;
+}
+
+.teacher-status-card__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teacher-status-card__line {
+  color: var(--status-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.teacher-status-card__line strong {
+  color: #33434b;
+  font-weight: 700;
+}
+
+.teacher-status-card__action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.teacher-status-card__action {
+  border-radius: 999px !important;
+  border-color: rgba(145, 118, 96, 0.22) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: var(--status-ink) !important;
+  box-shadow: none !important;
+}
+
+.teacher-status-card__action:hover {
+  border-color: rgba(157, 81, 63, 0.4) !important;
+  color: #8a4636 !important;
+}
+
+.teacher-status-card__empty {
+  color: var(--status-soft-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.teacher-status-card__details-shell {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(145, 118, 96, 0.16);
+}
+
+.teacher-status-card__details-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--status-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.teacher-status-card__details-caret {
+  display: inline-flex;
+  transition: transform 180ms ease;
+}
+
+.teacher-status-card__details-caret.is-open {
+  transform: rotate(180deg);
+}
+
+.teacher-status-card__details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.teacher-status-card__detail-group {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(145, 118, 96, 0.14);
+}
+
+.teacher-status-card__detail-title {
+  margin-bottom: 8px;
+  color: var(--status-soft-ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.teacher-status-card__detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.teacher-status-card__detail-item {
+  color: var(--status-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.teacher-status-card__detail-item::before {
+  content: '•';
+  margin-right: 8px;
+  color: var(--status-accent);
+}
+
+.teacher-status-card__detail-group--evidence .teacher-status-card__detail-list {
+  gap: 10px;
+}
+
+.teacher-status-card__evidence-item {
+  padding: 10px 11px;
+  border-radius: 12px;
+  background: rgba(246, 241, 232, 0.86);
+}
+
+.teacher-status-card__evidence-content {
+  color: var(--status-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.teacher-status-card__evidence-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.teacher-status-card__meta-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(145, 118, 96, 0.18);
+  color: var(--status-ink);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.teacher-status-card__meta-pill--confidence {
+  background: rgba(180, 90, 68, 0.1);
+  color: #7a3f33;
+}
+
+.teacher-status-card__meta-text {
+  color: var(--status-soft-ink);
+  font-size: 12px;
+}
+
+@keyframes status-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .teacher-status-card {
+    margin: 0 0 14px;
+  }
+
+  .teacher-status-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .teacher-status-card__header-tags {
+    justify-content: flex-start;
+  }
+
+  .teacher-status-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-status-card__details-grid {
+    grid-template-columns: 1fr;
+  }
+}

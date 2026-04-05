@@ -1,0 +1,84 @@
+.global-layout .ant-layout-sider {
+  background: #001529;
+  box-shadow: 2px 0 8px rgba(0, 21, 41, 0.35);
+  transition: width 0.2s;
+}
+
+.global-layout .logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.global-layout .ant-menu-dark {
+  background: #001529;
+  padding: 0 var(--spacing-sm);
+}
+
+.global-layout .ant-menu-dark .ant-menu-item {
+  margin-top: var(--spacing-sm) !important;
+}
+
+.global-layout .ant-menu-dark .ant-menu-item-selected {
+  background-color: var(--color-primary) !important;
+  position: relative;
+}
+
+/* 选中项左侧 indicator */
+.global-layout .ant-menu-dark .ant-menu-item-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--color-primary-hover);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.global-layout .user-profile {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #001529;
+}
+
+.global-layout .user-profile .ant-avatar {
+  background-color: var(--color-primary);
+}
+
+.global-layout .user-profile-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.global-layout .ant-layout-sider-collapsed .user-profile-content .username {
+  display: none;
+}
+
+.global-layout .ant-layout-header {
+  padding: 0 24px;
+  background: var(--color-bg-container);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.global-layout .ant-layout-content {
+  padding: var(--spacing-lg);
+  background: var(--color-bg-layout);
+}
+

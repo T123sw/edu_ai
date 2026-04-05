@@ -1,0 +1,84 @@
+{
+  "skill": "edu-agent-routing",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "R-001",
+      "title": "normal_qa_should_route_chat",
+      "input": {
+        "question": "什么是TCP三次握手？",
+        "conversation_state": {}
+      },
+      "expected": {
+        "intent_category": "chat",
+        "response_type": "chat"
+      },
+      "must_have": [
+        "router_reason exists",
+        "is_report=false"
+      ],
+      "forbidden": [
+        "response_type=generate",
+        "response_type=outline"
+      ]
+    },
+    {
+      "id": "R-002",
+      "title": "report_request_should_enter_generate_content",
+      "input": {
+        "question": "帮我生成一份期末教学总结报告",
+        "conversation_state": {}
+      },
+      "expected": {
+        "intent_category": "generate_content",
+        "is_report": true
+      },
+      "must_have": [
+        "response_type in [ask,outline,generate]"
+      ],
+      "forbidden": [
+        "response_type=chat"
+      ]
+    },
+    {
+      "id": "R-003",
+      "title": "awaiting_override_should_take_priority",
+      "input": {
+        "question": "可以",
+        "conversation_state": {
+          "awaiting_clarification": true
+        }
+      },
+      "expected": {
+        "intent_category": "generate_content",
+        "router_reason": "awaiting_clarification_override"
+      },
+      "must_have": [
+        "awaiting_override_applied=true"
+      ],
+      "forbidden": [
+        "response_type=chat"
+      ]
+    },
+    {
+      "id": "R-004",
+      "title": "fallback_keyword_should_route_generate_content_when_parse_fails",
+      "input": {
+        "question": "给我做个课件",
+        "simulate": {
+          "intent_json_parse_failed": true
+        },
+        "conversation_state": {}
+      },
+      "expected": {
+        "intent_category": "generate_content"
+      },
+      "must_have": [
+        "router_reason startswith fallback_keyword"
+      ],
+      "forbidden": [
+        "intent_category=chat"
+      ]
+    }
+  ]
+}

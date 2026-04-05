@@ -1,0 +1,14 @@
+# SearxNG Bot Detection Limiter 配置
+# 禁用bot detection以允许API访问
+
+[bot_detection]
+enabled = false
+
+[ip_lists]
+# 允许所有IP访问
+blocked_ips = []
+allowed_ips = []
+
+[rate_limiter]
+enabled = false
+

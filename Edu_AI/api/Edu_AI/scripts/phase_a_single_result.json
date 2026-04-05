@@ -1,0 +1,158 @@
+{
+  "conversation_id": "conv_1774259025.77296",
+  "model_id": "deepseek-v3",
+  "title": "帮我写个西游记报告",
+  "sources": [],
+  "meta": {
+    "mode": "langgraph_router",
+    "provider": "openai_compatible",
+    "generate_enabled": false,
+    "response_type": "ask",
+    "tool_calls": [],
+    "dialogue_output_contract": {
+      "answer": "",
+      "skill_used": "dialogue-explainer",
+      "next_action": "direct_answer",
+      "needs_more_context": false,
+      "requested_tool": "none",
+      "tool_auth_required": false,
+      "followup_question": "",
+      "audit": {
+        "reason": "求介绍知识内容",
+        "route_source": "llm",
+        "degraded": false
+      }
+    },
+    "audit": {
+      "router": {
+        "reason": "llm_json",
+        "override_applied": false,
+        "route_source": "llm"
+      },
+      "video_search": {
+        "reason": "",
+        "override_applied": false,
+        "route_source": ""
+      },
+      "extractor": {
+        "reason": "slot_extraction",
+        "override_applied": false,
+        "route_source": "llm"
+      },
+      "outline": {
+        "reason": "",
+        "override_applied": false,
+        "route_source": ""
+      },
+      "generate": {
+        "reason": "",
+        "override_applied": false,
+        "route_source": ""
+      }
+    },
+    "video_hits": [],
+    "final_answer_model": "",
+    "final_answer_role": "",
+    "applied_skills": [
+      "edu-orchestrator",
+      "edu-report-workflow",
+      "edu-dialogue-agent"
+    ],
+    "node_skill_map": {
+      "router": [
+        "edu-orchestrator",
+        "edu-agent-routing"
+      ],
+      "extractor": [
+        "edu-orchestrator",
+        "edu-agent-routing",
+        "edu-report-workflow"
+      ],
+      "ask": [
+        "edu-orchestrator",
+        "edu-report-workflow",
+        "edu-dialogue-agent"
+      ]
+    },
+    "skill_used": "dialogue-explainer",
+    "next_action": "direct_answer",
+    "needs_more_context": false,
+    "tool_auth_requested": false,
+    "tool_auth_granted": false,
+    "tool_auth_type": "none",
+    "tool_auth_reason": "",
+    "tool_auth_source": "",
+    "requested_tool": "none",
+    "tool_auth_required": false,
+    "degraded": false,
+    "requirement_clear": false,
+    "requirement_signal_count": 0,
+    "requirement_signals": [],
+    "need_type": "explain",
+    "user_role_mode": "teacher_learner",
+    "dialogue_skill": "dialogue-explainer",
+    "need_route_reason": "求介绍知识内容",
+    "needs_clarification": true,
+    "clarification_reason": null,
+    "clarification_source": null,
+    "slots": {
+      "topic": "",
+      "audience": "",
+      "objective": ""
+    },
+    "next_missing_slot": "topic",
+    "slot_confidence": {
+      "topic": 0.0,
+      "audience": 0.0,
+      "objective": 0.0
+    },
+    "slot_correction_applied": false,
+    "slot_correction_from": "",
+    "slot_correction_to": "",
+    "missing_info": [
+      "教学目标",
+      "目标受众/年级"
+    ],
+    "ask_counts": {
+      "teaching_target": 1,
+      "target_audience": 1
+    },
+    "answer_mode": "",
+    "planner_source": null,
+    "style_hint": "",
+    "report": {
+      "is_report": true,
+      "slots": {
+        "core_topic": "",
+        "focus_area": "",
+        "length_requirement": "",
+        "depth_level": "",
+        "format_style": "",
+        "dynamic_constraints": "{}",
+        "topic": "",
+        "audience": "",
+        "goal": "",
+        "length": "",
+        "format": "",
+        "period": "",
+        "outcomes": "",
+        "issues": "",
+        "next_plan": ""
+      },
+      "missing": [
+        "core_topic"
+      ],
+      "ask_counts": {
+        "core_topic": 1
+      },
+      "auto_fill": false,
+      "outline": [],
+      "outline_pending": false,
+      "soft_params_confirmed": false,
+      "reflection": {}
+    },
+    "report_generated": null
+  },
+  "intent_category": "generate_content",
+  "answer": "你想把《西游记》报告聚焦在哪个核心主题？  \n因为主题决定论点与材料取舍，避免写成泛泛介绍。  \n可选：A. 取经精神与成长 B. 人物分析 C. 讽刺与社会意义  \n也可回复“你看着办”直接放行。"
+}

@@ -1,0 +1,73 @@
+{
+  "id": "f46bb341ab9245958e0022013d5b4f46",
+  "title": "汉字编码的发展历程",
+  "topic": "汉字编码",
+  "duration": 45,
+  "difficulty": "medium",
+  "knowledge_points": [],
+  "key_points": null,
+  "hard_points": null,
+  "selected_doc_ids": [
+    "user_teacher:D:\\Edu_AI_1\\Edu_AI\\api\\Edu_AI\\storage\\documents\\teacher\\d6b674f9020145debe581ae4227de022_汉字编码.docx",
+    "user_teacher:D:\\Edu_AI_1\\Edu_AI\\api\\Edu_AI\\storage\\documents\\teacher\\0b078da24856491589a57c7f10d6fdc6_汉字编码.pdf",
+    "user_teacher:D:\\Edu_AI_1\\Edu_AI\\api\\Edu_AI\\storage\\documents\\teacher\\e6e90259d6a043c6a9891578293d3e7a_第1章 计算思维与问题求解.pdf",
+    "user_teacher:D:\\Edu_AI_1\\Edu_AI\\api\\Edu_AI\\storage\\documents\\teacher\\da08f7a27fb0489a96301487f51ddac5_第1章 计算思维与问题求解.pdf",
+    "user_teacher:D:\\Edu_AI_1\\Edu_AI\\api\\Edu_AI\\storage\\temp\\2f2d8a7b8b8a425ea4eccecb476a98d8_第1章 计算思维与问题求解.pdf"
+  ],
+  "documents_used": [
+    "d6b674f9020145debe581ae4227de022_汉字编码.docx",
+    "0b078da24856491589a57c7f10d6fdc6_汉字编码.pdf",
+    "e6e90259d6a043c6a9891578293d3e7a_第1章 计算思维与问题求解.pdf",
+    "da08f7a27fb0489a96301487f51ddac5_第1章 计算思维与问题求解.pdf",
+    "第1章 计算思维与问题求解.pdf"
+  ],
+  "plan": {
+    "id": null,
+    "title": "汉字编码的发展历程",
+    "objectives": [
+      "能够解释ASCII码的局限性及汉字编码的必要性",
+      "能够说明GB2312、GBK、Big5等编码的特点与区别",
+      "能够理解Unicode与UTF-8的关系及其优势"
+    ],
+    "keyPoints": [
+      "ASCII码的局限性",
+      "GB2312编码原理",
+      "UTF-8变长编码"
+    ],
+    "hardPoints": [
+      "编码转换原理",
+      "变长编码机制"
+    ],
+    "process": [
+      {
+        "step": "导入",
+        "content": "教师展示'锟斤拷'乱码图片，提问：'大家是否遇到过网页显示乱码？这是什么原因造成的？'引导学生回忆日常经验。教师讲述早期计算机仅支持ASCII码，导致汉字无法存储的问题，引出本节课主题：汉字如何跨越数字鸿沟。学生思考并分享经历，教师总结乱码现象源于编码不兼容，自然过渡到新课内容。",
+        "duration": "5-8分钟"
+      },
+      {
+        "step": "新授",
+        "content": "教师分步讲解：1) ASCII码仅用7位，无法表示数万汉字；2) GB2312采用双字节高位标识策略，划分94区94位；板书要点：ASCII(128字符)、GB2312(6763汉字)、Big5(繁体)、GBK(扩展)。多媒体展示编码对照表。提问：'GB2312如何区分汉字与英文字符？'预期学生回答通过最高位标识。学生讨论不同编码的适用场景，教师通过'5C陷阱'案例解释编码冲突，突破难点。",
+        "duration": "20-30分钟"
+      },
+      {
+        "step": "巩固练习",
+        "content": "练习形式：小组讨论与选择题。题目示例：'下列哪种编码兼容ASCII？A. GB2312 B. UTF-8 C. Big5'。教师巡视指导常见错误，如混淆编码字节长度。学生展示讨论结果，教师点评并总结编码演进逻辑。",
+        "duration": "10-15分钟"
+      },
+      {
+        "step": "小结",
+        "content": "教师提问：'汉字编码经历了哪几个关键阶段？各有什么特点？'引导学生归纳：ASCII(单字节)、GB2312(双字节)、UTF-8(变长)。强调'抽象与自动化'的计算思维。鼓励学生用自己话总结，如'从专用编码到统一编码'。衔接下节课将讲解具体编码实现技术。",
+        "duration": "3-5分钟"
+      },
+      {
+        "step": "作业布置",
+        "content": "作业内容：查找一个乱码实例，分析其可能成因。要求写出200字分析报告，下节课前提交。目的是深化对编码转换原理的理解。教师将通过课堂分享评价作业。",
+        "duration": "2-3分钟"
+      }
+    ],
+    "homework": "分析一个汉字乱码案例，说明其编码转换错误的原因，提交200字分析报告。"
+  },
+  "created_at": "2026-01-14T16:42:59.069662",
+  "created_by": "teacher",
+  "material_type": "lesson_plan"
+}

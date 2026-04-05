@@ -1,0 +1,100 @@
+from types import SimpleNamespace
+
+from app.chat.domain.contracts import ChatRequestV2
+from app.chat.domain.workflow_state import WorkflowState
+from app.chat.orchestrator.route_rules import decide_route
+
+
+def test_plain_chat_uses_fast_path():
+    request = ChatRequestV2(question="帮我解释牛顿第二定律")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=None)
+
+    assert decision.path == "fast"
+    assert decision.action == "chat.reply"
+
+
+def test_report_command_uses_workflow_path():
+    request = ChatRequestV2(question="根据以上内容生成报告", action_hint="generate.report")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=None)
+
+    assert decision.path == "workflow"
+    assert decision.workflow_name == "report"
+
+
+def test_report_keyword_without_action_hint_uses_workflow_path():
+    request = ChatRequestV2(question="帮我整理成报告")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=None)
+
+    assert decision.path == "workflow"
+    assert decision.workflow_name == "report"
+
+
+def test_active_artifact_rewrite_stays_in_fast_path():
+    snapshot = SimpleNamespace(active_artifact={"artifact_id": "a1", "artifact_type": "report"})
+    request = ChatRequestV2(question="再正式一点")
+
+    decision = decide_route(request=request, snapshot=snapshot, workflow_state=None)
+
+    assert decision.path == "fast"
+    assert decision.action == "chat.rewrite"
+
+
+def test_research_action_prefers_workflow_path():
+    request = ChatRequestV2(question="帮我查一下最新课程标准", action_hint="research.lookup")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=None)
+
+    assert decision.path == "workflow"
+    assert decision.workflow_name == "research"
+
+
+def test_existing_workflow_resumes_when_no_interrupt_signal():
+    workflow_state = WorkflowState(
+        workflow_id="wf-1",
+        workflow_type="report",
+        status="running",
+        stage="collecting",
+    )
+    request = ChatRequestV2(question="继续")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=workflow_state)
+
+    assert decision.path == "workflow"
+    assert decision.workflow_name == "report"
+    assert decision.reason == "resume_workflow"
+
+
+def test_interrupt_signal_breaks_existing_workflow_and_starts_new_action():
+    workflow_state = WorkflowState(
+        workflow_id="wf-1",
+        workflow_type="report",
+        status="running",
+        stage="collecting",
+    )
+    request = ChatRequestV2(question="算了，先帮我出一份教案", action_hint="generate.lesson_plan")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=workflow_state)
+
+    assert decision.path == "workflow"
+    assert decision.action == "generate.lesson_plan"
+    assert decision.workflow_name == "lesson_plan"
+    assert decision.reason == "explicit_lesson_plan"
+
+
+def test_interrupt_signal_without_new_action_falls_back_to_chat():
+    workflow_state = WorkflowState(
+        workflow_id="wf-1",
+        workflow_type="report",
+        status="running",
+        stage="collecting",
+    )
+    request = ChatRequestV2(question="重新开始")
+
+    decision = decide_route(request=request, snapshot=None, workflow_state=workflow_state)
+
+    assert decision.path == "fast"
+    assert decision.action == "chat.reply"
+    assert decision.reason == "interrupt_to_chat"

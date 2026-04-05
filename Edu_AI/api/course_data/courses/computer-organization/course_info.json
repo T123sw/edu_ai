@@ -1,0 +1,9 @@
+{
+  "id": "computer-organization",
+  "title": "计算机组成原理",
+  "description": "学习计算机硬件组成、指令系统、存储系统和I/O系统",
+  "icon": "CloudServerOutlined",
+  "color": "#13c2c2",
+  "objectives": null,
+  "knowledgeGraph": null
+}

@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Python caches and virtual environments
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.venv1/
+venv/
+env/
+**/.venv/
+**/.venv1/
+**/venv/
+**/env/
+
+# Test and tool temp files
+tests/.tmp/
+pytest-cache-files-*/
+**/pytest-cache-files-*/
+
+# Build outputs and runtime artifacts
+dist/
+build/
+coverage/
+**/dist/
+**/build/
+**/coverage/
+output/
+/storage/
+storage/temp/
+storage/vector_db/
+EduAgent/crawled_data/
+EduAgent/logs/
+EduAgent/models/
+/models/
+Edu_AI/api/Edu_AI/storage/
+Edu_AI/vector_db/
+
+# Local editor and agent configuration
+.vscode/
+.codex/
+.claude/
+**/.claude/
+.idea/
+**/.idea/
+EduAgent/config.toml
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db

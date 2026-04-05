@@ -1,0 +1,90 @@
+{
+  "skill": "edu-teacher-content-factory",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "T-001",
+      "title": "lesson_plan_should_include_required_fields",
+      "input": {
+        "endpoint": "/teacher/lesson_plan",
+        "selected_doc_ids": ["doc_course_1"]
+      },
+      "expected": {
+        "schema_valid": true,
+        "material_type": "lesson_plan"
+      },
+      "must_have": [
+        "title",
+        "objectives[]",
+        "process[] with step/content/duration",
+        "homework"
+      ],
+      "forbidden": [
+        "empty process"
+      ]
+    },
+    {
+      "id": "T-002",
+      "title": "report_json_recovery_should_work_when_output_dirty",
+      "input": {
+        "endpoint": "/teacher/report",
+        "selected_doc_ids": ["doc_course_2"],
+        "simulate": {
+          "raw_output_contains_think_and_code_fence": true
+        }
+      },
+      "expected": {
+        "schema_valid": true,
+        "parse_strategy": "cleaned"
+      },
+      "must_have": [
+        "title",
+        "summary",
+        "mainContent[]"
+      ],
+      "forbidden": [
+        "unparsed raw text as final"
+      ]
+    },
+    {
+      "id": "T-003",
+      "title": "quiz_choice_questions_should_have_four_options",
+      "input": {
+        "endpoint": "/teacher/quiz",
+        "question_types": ["choice"],
+        "selected_doc_ids": ["doc_course_3"]
+      },
+      "expected": {
+        "schema_valid": true
+      },
+      "must_have": [
+        "each choice question has A/B/C/D options",
+        "answer present",
+        "analysis present"
+      ],
+      "forbidden": [
+        "choice with <4 options"
+      ]
+    },
+    {
+      "id": "T-004",
+      "title": "course_storage_should_persist_when_course_id_exists",
+      "input": {
+        "endpoint": "/teacher/questions",
+        "course_id": "course_1001",
+        "selected_doc_ids": ["doc_course_1"]
+      },
+      "expected": {
+        "storage_write_result": "success"
+      },
+      "must_have": [
+        "documents_used[]",
+        "created_at",
+        "material_type"
+      ],
+      "forbidden": [
+        "generation success but silent storage failure"
+      ]
+    }
+  ]
+}

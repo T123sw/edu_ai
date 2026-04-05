@@ -1,0 +1,249 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "DeepSearch + File Service",
+    "version": "1.0.0",
+    "description": "Auto-written API contract JSON based on current FastAPI routes."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8848",
+      "description": "Local dev"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RootResponse" },
+                "example": { "message": "Hello World" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hello/{name}": {
+      "get": {
+        "summary": "Hello",
+        "operationId": "say_hello_hello__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HelloResponse" },
+                "example": { "message": "Hello Alice" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/deepsearch": {
+      "post": {
+        "summary": "DeepSearch",
+        "operationId": "deepsearch_agent_deepsearch_post",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Search query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeepsearchResponse" },
+                "example": {
+                  "ok": true,
+                  "query": "今日新闻",
+                  "results": [{ "title": "Example", "url": "https://example.com" }]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "DeepSearch failed (output is None)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeepsearchError" },
+                "example": { "ok": false, "message": "DeepSearch failed" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/file/upload": {
+      "post": {
+        "summary": "Upload File",
+        "operationId": "upload_files_file_upload_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Upload file"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UploadResponse" },
+                "example": { "ok": true, "file": "example.pdf" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/file/get_file_list": {
+      "get": {
+        "summary": "Get File List",
+        "operationId": "get_files_file_get_file_list_get",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FileListResponse" },
+                "example": { "ok": true, "file_list": ["a.pptx", "b.pdf", "c.docx"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/summary": {
+      "post": {
+        "summary": "Summary",
+        "operationId": "summary_agent_summary_post",
+        "parameters": [
+          {
+            "name": "file_name",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "File name to summarize (must exist in server dirs)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SummaryResponse" },
+                "example": { "ok": true, "file": "example.pdf", "summary": "..." }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RootResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        },
+        "required": ["message"]
+      },
+      "HelloResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        },
+        "required": ["message"]
+      },
+      "LinkItem": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string" }
+        },
+        "required": ["title", "url"]
+      },
+      "DeepsearchResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "query": { "type": "string" },
+          "results": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LinkItem" }
+          }
+        },
+        "required": ["ok", "query", "results"]
+      },
+      "DeepsearchError": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "message": { "type": "string" }
+        },
+        "required": ["ok", "message"]
+      },
+      "UploadResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "file": { "type": "string" }
+        },
+        "required": ["ok", "file"]
+      },
+      "FileListResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "file_list": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["ok", "file_list"]
+      },
+      "SummaryResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "file": { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "required": ["ok", "file", "summary"]
+      }
+    }
+  }
+}

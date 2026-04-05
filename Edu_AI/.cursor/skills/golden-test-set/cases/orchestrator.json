@@ -1,0 +1,74 @@
+{
+  "skill": "edu-orchestrator",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "O-001",
+      "title": "report_request_should_delegate_to_report_workflow",
+      "input": {
+        "question": "帮我写教学总结报告",
+        "conversation_state": {}
+      },
+      "expected": {
+        "skill_target": "edu-report-workflow"
+      },
+      "must_have": [
+        "response_type in [ask,outline,generate]"
+      ],
+      "forbidden": [
+        "skill_target=edu-rag-multimodal"
+      ]
+    },
+    {
+      "id": "O-002",
+      "title": "kb_qa_should_delegate_to_rag_multimodal",
+      "input": {
+        "question": "根据我上传的教材解释牛顿第二定律",
+        "selected_doc_ids": ["doc_phy_2"]
+      },
+      "expected": {
+        "skill_target": "edu-rag-multimodal"
+      },
+      "must_have": [
+        "handoff_payload contains request_id",
+        "handoff_payload contains selected_doc_ids"
+      ],
+      "forbidden": [
+        "skill_target=edu-report-workflow"
+      ]
+    },
+    {
+      "id": "O-003",
+      "title": "teacher_endpoint_should_delegate_to_teacher_factory",
+      "input": {
+        "endpoint": "/teacher/lesson_plan",
+        "selected_doc_ids": ["doc_course_1"]
+      },
+      "expected": {
+        "skill_target": "edu-teacher-content-factory"
+      },
+      "must_have": [
+        "schema_guardrail_applied=true"
+      ],
+      "forbidden": [
+        "skill_target=edu-rag-multimodal"
+      ]
+    },
+    {
+      "id": "O-004",
+      "title": "ambiguous_request_should_ask_one_clarification",
+      "input": {
+        "question": "帮我整理一下"
+      },
+      "expected": {
+        "response_type": "ask"
+      },
+      "must_have": [
+        "single concise clarification question"
+      ],
+      "forbidden": [
+        "direct long final output"
+      ]
+    }
+  ]
+}

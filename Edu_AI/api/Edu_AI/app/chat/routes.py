@@ -1,0 +1,200 @@
+﻿from __future__ import annotations
+
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+import asyncio
+from types import SimpleNamespace
+
+from app.auth import get_current_user
+from app.chat.domain.capability_policy import CapabilityPolicy
+from app.chat.orchestrator.context_builder import ContextBuilder
+from app.chat.orchestrator.status_card_builder import StatusCardBuilder
+from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
+from core.conversation_storage import conversation_storage
+from core.auth import auth_manager
+
+from .schemas import ChatRequest, ChatResponse, SkillHealthCheckRequest, SkillHealthCheckResponse
+
+router = APIRouter(prefix="/api/chat", tags=["chat"])
+FLAGS = None
+service = None
+_status_card_builder = None
+_context_builder = None
+
+
+def _get_flags():
+    global FLAGS
+    if FLAGS is None:
+        from .application.route_feature_flags import load_route_feature_flags
+
+        FLAGS = load_route_feature_flags()
+    return FLAGS
+
+
+def _get_service():
+    global service
+    if service is None:
+        from .application.route_service_factory import build_default_route_chat_service
+
+        service = build_default_route_chat_service()
+    return service
+
+
+def _get_status_card_builder():
+    global _status_card_builder
+    if _status_card_builder is None:
+        _status_card_builder = StatusCardBuilder()
+    return _status_card_builder
+
+
+def _get_context_builder():
+    global _context_builder
+    if _context_builder is None:
+        _context_builder = ContextBuilder(
+            conversation_store=ConversationStoreAdapter(storage=conversation_storage)
+        )
+    return _context_builder
+
+
+def _build_status_card_for_conversation(conversation_id: str, owner: str | None):
+    state = conversation_storage.get_state(conversation_id)
+    active_context = dict(state.get("active_context") or {})
+    capability_state = dict(state.get("capability_policy") or {})
+    selected_doc_ids = list(
+        capability_state.get("selected_doc_ids")
+        or active_context.get("pinned_doc_ids")
+        or []
+    )
+    capability = CapabilityPolicy(
+        allow_rag=bool(capability_state.get("allow_rag")) or bool(selected_doc_ids),
+        allow_web=bool(capability_state.get("allow_web", False)),
+        selected_doc_ids=selected_doc_ids,
+    )
+    request = SimpleNamespace(
+        conversation_id=conversation_id,
+        owner=owner,
+        capability=capability,
+    )
+    snapshot = _get_context_builder().build(request)
+    card = _get_status_card_builder().build(
+        snapshot=snapshot,
+        workflow=None,
+        capability=capability,
+    )
+    return card.model_dump(exclude_none=True)
+
+
+@router.post("", response_model=ChatResponse)
+async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_user)):
+    try:
+        data = _get_service().chat(
+            question=payload.question,
+            conversation_id=payload.conversation_id,
+            model_id=payload.model_id,
+            use_rag=bool(payload.use_rag),
+            allow_rag=bool(payload.allow_rag),
+            selected_doc_ids=payload.selected_doc_ids,
+            owner=current_user.get("username"),
+            course_id=payload.course_id,
+            allow_web=bool(payload.allow_web),
+            action_hint=payload.action_hint,
+            artifact_id=payload.artifact_id,
+        )
+        return ChatResponse(**data)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"聊天失败: {exc}") from exc
+
+
+@router.get("/stream")
+async def chat_stream(
+    question: str,
+    conversation_id: str | None = None,
+    model_id: str | None = None,
+    use_rag: bool = False,
+    allow_rag: bool | None = None,
+    allow_web: bool = False,
+    action_hint: str | None = None,
+    selected_doc_ids: str | None = None,
+    course_id: str | None = None,
+    token: str | None = None,
+):
+    try:
+        if not token:
+            raise HTTPException(status_code=401, detail="缺少token")
+        current_user = auth_manager.get_current_user(token)
+    except HTTPException as exc:
+        raise exc
+
+    async def event_generator():
+        try:
+            parsed_doc_ids = None
+            if selected_doc_ids:
+                parsed_doc_ids = [doc_id for doc_id in selected_doc_ids.split(",") if doc_id]
+
+            meta, stream = _get_service().chat_stream_with_meta(
+                question=question,
+                conversation_id=conversation_id,
+                model_id=model_id,
+                use_rag=bool(use_rag),
+                allow_rag=allow_rag,
+                selected_doc_ids=parsed_doc_ids,
+                owner=current_user.get("username"),
+                course_id=course_id,
+                allow_web=bool(allow_web),
+                action_hint=action_hint,
+            )
+            from .application.response_builder import build_legacy_sse_frames
+
+            for frame in build_legacy_sse_frames(meta, stream, include_v2=_get_flags().enable_sse_v2_events):
+                yield frame
+                await asyncio.sleep(0)
+        except Exception as exc:
+            yield f"event: error\ndata: {str(exc)}\n\n"
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
+    }
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream; charset=utf-8",
+        headers=headers,
+    )
+
+
+@router.post("/skill-health-check", response_model=SkillHealthCheckResponse)
+async def skill_health_check(payload: SkillHealthCheckRequest, current_user: dict = Depends(get_current_user)):
+    _ = current_user
+    try:
+        result = _get_service().skill_health_check(payload.meta)
+        return SkillHealthCheckResponse(**result)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"技能健康检查失败: {exc}") from exc
+
+
+@router.get("/conversations")
+async def list_conversations(current_user: dict = Depends(get_current_user)):
+    return conversation_storage.list_conversations(owner=current_user.get("username"))
+
+
+@router.get("/conversations/{conversation_id}")
+async def get_conversation(conversation_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        payload = conversation_storage.get_conversation(conversation_id, owner=current_user.get("username"))
+        payload["status_card"] = _build_status_card_for_conversation(
+            conversation_id,
+            current_user.get("username"),
+        )
+        return payload
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="对话不存在") from exc
+
+
+@router.delete("/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        conversation_storage.delete_conversation(conversation_id, owner=current_user.get("username"))
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="对话不存在") from exc
+    return {"message": "对话历史已删除"}

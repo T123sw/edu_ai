@@ -1,0 +1,21 @@
+/* TeacherStudioPage 样式 */
+.teacher-studio-page {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.teacher-studio-layout {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* 确保整体页面不滚动 */
+body {
+  overflow: hidden !important;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
