@@ -18,6 +18,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         model_id=getattr(payload, "model_id", None),
         course_id=getattr(payload, "course_id", None),
         artifact_id=getattr(payload, "artifact_id", None),
+        artifact_reference=getattr(payload, "artifact_reference", None),
         action_hint=getattr(payload, "action_hint", None),
         capability=CapabilityPolicy(
             allow_rag=bool(allow_rag),

@@ -6,6 +6,19 @@ echo    RAG问答API服务启动脚本
 echo ========================================
 echo.
 
+REM 设置工作目录为当前脚本所在目录，确保相对路径稳定
+cd /d %~dp0
+
+REM 优先使用项目本地虚拟环境，避免误用全局 Anaconda / uvicorn
+set "PYTHON_EXE=%~dp0.venv\Scripts\python.exe"
+if exist "%PYTHON_EXE%" (
+    echo 检测到本地虚拟环境: %PYTHON_EXE%
+) else (
+    echo 未检测到本地虚拟环境，回退到系统 Python
+    set "PYTHON_EXE=python"
+)
+echo.
+
 REM 设置端口号
 set PORT=8001
 
@@ -34,10 +47,10 @@ echo.
 
 REM 检查是否安装了uvicorn
 echo [2/3] 检查依赖...
-where uvicorn >nul 2>nul
+%PYTHON_EXE% -c "import uvicorn" >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo 未找到uvicorn，尝试安装...
-    pip install uvicorn fastapi
+    %PYTHON_EXE% -m pip install uvicorn fastapi
 )
 echo.
 
@@ -50,8 +63,6 @@ echo ========================================
 echo.
 
 setlocal enabledelayedexpansion
-REM 设置工作目录为当前目录，确保Python能找到app模块
-cd /d %~dp0
-uvicorn app.main:app --host 0.0.0.0 --port %PORT%
+%PYTHON_EXE% -m uvicorn app.main:app --host 0.0.0.0 --port %PORT%
 
 pause

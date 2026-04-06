@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from app.chat.application.request_normalizer import normalize_chat_request
 from app.chat.agents.report_generation import get_fallback_llm
+from app.chat.application.request_normalizer import normalize_chat_request
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.generation_context_builder import GenerationContextBuilder
 from app.chat.orchestrator.generation_readiness_judge import GenerationReadinessJudge
@@ -14,26 +14,56 @@ from app.chat.persistence.conversation_store_adapter import ConversationStoreAda
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.model_registry import build_default_gateway
 from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
+from app.chat.workflows.report.edit_runtime import ReportEditRuntime
 from app.chat.workflows.report.assembler import ReportAssembler
 from app.chat.workflows.report.runtime import ReportWorkflowRuntime
+from core.course_storage import storage_manager as default_course_storage_manager
 
-from .report_service_v2 import build_default_report_engine
+from .report_service_v2 import build_default_report_engine, finalize_report_result
 
 
 class ReplyServiceV2:
-    def __init__(self, *, orchestrator=None, orchestrator_factory=None, conversation_store, context_builder=None, status_card_builder=None):
+    def __init__(
+        self,
+        *,
+        orchestrator=None,
+        orchestrator_factory=None,
+        conversation_store,
+        context_builder=None,
+        status_card_builder=None,
+        course_storage_manager=None,
+        report_edit_runtime=None,
+    ):
         self.orchestrator = orchestrator
         self.orchestrator_factory = orchestrator_factory
         self.conversation_store = conversation_store
         self.context_builder = context_builder
         self.status_card_builder = status_card_builder or StatusCardBuilder()
+        self.course_storage_manager = course_storage_manager
+        self.report_edit_runtime = report_edit_runtime
 
     def reply(self, payload):
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
-        orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
-        result = orchestrator.dispatch(request)
+
+        snapshot = self.context_builder.build(request) if self.context_builder is not None else None
+        if getattr(request, "artifact_reference", None) is not None and self.report_edit_runtime is not None:
+            result = self.report_edit_runtime.run_from_request(
+                request=request,
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+            )
+        else:
+            orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
+            result = orchestrator.dispatch(request)
+        finalize_report_result(
+            payload=payload,
+            result=result,
+            course_storage_manager=self.course_storage_manager,
+            compact_message=True,
+        )
+
         conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "").strip()
         result.setdefault("conversation", {"conversation_id": conversation_id})
         if conversation_id:
@@ -82,4 +112,6 @@ def build_default_reply_service_v2():
         conversation_store=conversation_store,
         context_builder=context_builder,
         status_card_builder=StatusCardBuilder(),
+        course_storage_manager=default_course_storage_manager,
+        report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
     )

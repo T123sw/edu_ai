@@ -14,6 +14,7 @@ import {
   RightOutlined,
   AudioOutlined,
   BookOutlined,
+  MessageOutlined,
   EditOutlined,
   PlayCircleOutlined,
   VideoCameraOutlined,
@@ -45,6 +46,7 @@ import {
 } from '../../services/teacher/api';
 import { sendReportV2 } from '../../services/teacher/chatV2';
 import { buildReportQuestionFromConfig, extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
+import { toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
 
@@ -216,6 +218,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     selectedDocs,
     currentConversationId,
     setCurrentConversationId,
+    setArtifactReference,
     allowRag,
     allowWeb,
     setAllowRag,
@@ -236,6 +239,34 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [blogResuming, setBlogResuming] = useState(false);
 
   const [blogOutlineForm] = Form.useForm();
+  const refreshCourseMaterials = React.useCallback(async () => {
+    if (!courseId) {
+      return;
+    }
+    const materials = await getCourseMaterials(courseId);
+    const courseMaterials = materials.map((item) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type as GeneratedFile['type'],
+      content: item.content,
+      addedAt: item.addedAt,
+      courseId: item.courseId || courseId,
+      isPinned: item.isPinned,
+      pinnedAt: item.pinnedAt,
+    }));
+    useCourseMaterialsStore.getState().setMaterials(courseMaterials as any);
+    courseMaterials
+      .map((item) => toGeneratedFileFromCourseMaterial(item))
+      .filter((item): item is GeneratedFile => item !== null)
+      .forEach((item) => addGeneratedFile(item));
+  }, [courseId, addGeneratedFile]);
+
+  useEffect(() => {
+    if (!courseId) {
+      return;
+    }
+    void refreshCourseMaterials();
+  }, [courseId, refreshCourseMaterials]);
 
   // 监听 viewingFile 变化，通知父组件预览状态
   useEffect(() => {
@@ -319,16 +350,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
               // 从后端刷新课程资源，确保“教学资源”页面立刻可见且持久化一致
               try {
-                const materials = await getCourseMaterials(courseId);
-                const courseMaterials = materials.map((item) => ({
-                  id: item.id,
-                  name: item.name,
-                  type: item.type as any,
-                  content: item.content,
-                  addedAt: item.addedAt,
-                  courseId: item.courseId || courseId,
-                }));
-                useCourseMaterialsStore.getState().setMaterials(courseMaterials as any);
+                await refreshCourseMaterials();
               } catch (e) {
                 console.warn('[StudioPanel] 刷新课程资源失败:', e);
               }
@@ -346,12 +368,17 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }, 1500);
 
     return () => clearInterval(pollInterval);
-  }, [blogPolling, blogTaskId, courseId, addGeneratedFile, setViewingFile, addMaterial]);
+  }, [blogPolling, blogTaskId, courseId, addGeneratedFile, setViewingFile, addMaterial, refreshCourseMaterials]);
 
   const [configForm] = Form.useForm();
   const [generating, setGenerating] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
+  const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline'>('body');
+
+  useEffect(() => {
+    setReportPreviewMode('body');
+  }, [viewingFile?.id]);
 
   const handleGenerate = async (type: GeneratedFile['type'] | string) => {
     const typeNames: Record<string, string> = {
@@ -487,6 +514,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           };
           console.log('[StudioPanel] 添加到课程资源store:', material);
           addMaterial(material);
+          await refreshCourseMaterials();
           
           message.success('教案生成成功！已自动保存到教学资源');
           setConfigModalVisible(false);
@@ -546,6 +574,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                 addedAt: new Date().toISOString(),
                 courseId,
               });
+              await refreshCourseMaterials();
             }
           }
 
@@ -931,6 +960,9 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
     // 报告预览
     if (viewingFile.type === 'report' && viewingFile.content) {
+      const reportOutlineContent = String((viewingFile as any)?.meta?.outlineContent || '').trim();
+      const canToggleReportOutline =
+        Boolean(reportOutlineContent) && (viewingFile as any)?.meta?.kind !== 'outline';
       if (typeof viewingFile.content === 'string') {
         return (
           <div
@@ -963,8 +995,26 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               {viewingFile.name}
             </Title>
             <Divider style={{ flexShrink: 0 }} />
+            {canToggleReportOutline && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
+                <Space.Compact>
+                  <Button
+                    type={reportPreviewMode === 'body' ? 'primary' : 'default'}
+                    onClick={() => setReportPreviewMode('body')}
+                  >
+                    正文
+                  </Button>
+                  <Button
+                    type={reportPreviewMode === 'outline' ? 'primary' : 'default'}
+                    onClick={() => setReportPreviewMode('outline')}
+                  >
+                    大纲
+                  </Button>
+                </Space.Compact>
+              </div>
+            )}
             <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
-              <MarkdownPreview content={viewingFile.content} />
+              <MarkdownPreview content={reportPreviewMode === 'outline' ? reportOutlineContent : viewingFile.content} />
             </div>
             {(viewingFile as any)?.meta?.kind === 'outline' && (
               <div style={{ position: 'absolute', right: 24, bottom: 24 }}>
@@ -1825,6 +1875,23 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {generatedFiles.map((item) => {
           const menuItems: MenuProps['items'] = [
+            {
+              key: 'add-to-chat',
+              label: '添加到对话',
+              icon: <MessageOutlined />,
+              onClick: (info) => {
+                info.domEvent.stopPropagation();
+                setArtifactReference({
+                  artifact_id: String(item.meta?.originalArtifactId || item.id).trim(),
+                  artifact_type: item.meta?.kind === 'outline' ? 'report_outline' : 'report',
+                  version_id: String(item.meta?.versionId || '').trim() || undefined,
+                  title: item.name,
+                  source_conversation_id: String(item.meta?.conversationId || currentConversationId || '').trim() || undefined,
+                  source_course_id: String(courseId || '').trim() || undefined,
+                });
+                message.success('已添加到对话');
+              },
+            },
             {
               key: 'add-to-course',
               label: '增加至课程资料',

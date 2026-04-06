@@ -166,3 +166,60 @@ def test_conversation_store_adapter_can_apply_llm_enhancement_candidates():
     state = storage.get_state("conv-1")
     assert state["conversation_memory"]["student_signals"][0] == "后排学生多次走神"
     assert any("前10分钟" in item for item in state["conversation_memory"]["student_signals"])
+
+
+def test_conversation_store_adapter_can_apply_semantic_llm_enhancement_candidates():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    storage.ensure_conversation("conv-semantic", "hello")
+
+    def enhancer(*, trigger, existing_state, rule_patch, context):
+        assert trigger.event == "reply.completed"
+        return [
+            ExtractionCandidate(
+                field="current_topics",
+                value=["课堂前10分钟学生参与度下降"],
+                source="llm",
+            ),
+            ExtractionCandidate(
+                field="user_goals",
+                value=["分析问题"],
+                source="llm",
+            ),
+            ExtractionCandidate(
+                field="constraints",
+                value={"audience": "教研组", "extra_constraints": ["突出改进建议"]},
+                source="llm",
+            ),
+        ]
+
+    adapter = ConversationStoreAdapter(
+        storage=storage,
+        enhancement_router=LLMEnhancementRouter(enabled=True, enhancer=enhancer),
+    )
+    request = SimpleNamespace(
+        question="帮我看看这节课前10分钟为什么学生参与度低",
+        owner="teacher-a",
+        course_id=None,
+        capability=SimpleNamespace(selected_doc_ids=[], allow_rag=False, allow_web=False),
+    )
+
+    adapter.write_v2_result(
+        "conv-semantic",
+        request,
+        {
+            "message": {"content": "这说明导入阶段吸引力不足。"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+        },
+    )
+
+    state = storage.get_state("conv-semantic")
+    memory = state["conversation_memory"]
+    assert "课堂前10分钟学生参与度下降" in memory["current_topics"]
+    assert "分析问题" in memory["user_goals"]
+    assert memory["constraints"]["audience"] == "教研组"
+    assert memory["constraints"]["extra_constraints"] == ["突出改进建议"]

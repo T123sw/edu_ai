@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover, Switch } from 'antd';
 import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
+import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
-import { sendChatReplyV2 } from '../../services/teacher/chatV2';
-import { extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
+import { buildChatReplyPayload, sendChatReplyV2 } from '../../services/teacher/chatV2';
+import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
 import ReactMarkdown from 'react-markdown';
 import { type RAGSource } from '../../services/rag';
 import StatusCard from './StatusCardV2';
@@ -39,11 +40,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     setCurrentConversationId,
     queuedMessage,
     setQueuedMessage,
+    artifactReference,
+    setArtifactReference,
+    clearArtifactReference,
     addGeneratedFile,
+    removeGeneratedFilesByConversationId,
     setViewingFile,
     statusCard,
     setStatusCard,
   } = useStore();
+  const { addMaterial } = useCourseMaterialsStore();
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +72,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         const list = result.conversations || [];
         setHistoryList(list);
 
-        if (!currentConversationId && list.length > 0) {
+        const storedConversationId = String(currentConversationId || '').trim();
+        const storedConversationExists = storedConversationId
+          ? list.some((item) => item.conversation_id === storedConversationId)
+          : false;
+
+        if (storedConversationExists) {
+          await loadConversation(storedConversationId, false);
+        } else if (list.length > 0) {
           setCurrentConversationId(list[0].conversation_id);
           await loadConversation(list[0].conversation_id, false);
         }
@@ -102,6 +115,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       setMessages(mapped);
       setCurrentConversationId(detail.conversation_id);
       setStatusCard(detail.status_card || null);
+      const restoredFiles = restoreGeneratedFilesFromConversationDetail(detail);
+      restoredFiles.forEach((file) => addGeneratedFile(file));
+      const stateArtifactReference = detail?.state?.artifact_reference;
+      if (stateArtifactReference && typeof stateArtifactReference === 'object') {
+        setArtifactReference({
+          artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
+          artifact_type: String((stateArtifactReference as any).artifact_type || '').trim() === 'report_outline' ? 'report_outline' : 'report',
+          version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
+          title: String((stateArtifactReference as any).title || '').trim() || undefined,
+          source_conversation_id: String((stateArtifactReference as any).source_conversation_id || detail.conversation_id || '').trim() || undefined,
+          source_course_id: String((stateArtifactReference as any).source_course_id || courseId || '').trim() || undefined,
+        });
+      } else {
+        clearArtifactReference();
+      }
+      setViewingFile(null);
 
       if (showSuccess) {
         message.success('已切换到历史对话');
@@ -119,6 +148,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     setCurrentConversationId(null);
     setInputValue('');
     setStatusCard(null);
+    clearArtifactReference();
     message.success('已新建对话');
   };
 
@@ -128,6 +158,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
 
       const nextHistory = historyList.filter((item) => item.conversation_id !== conversationId);
       setHistoryList(nextHistory);
+      removeGeneratedFilesByConversationId(conversationId);
 
       if (currentConversationId === conversationId) {
         if (nextHistory.length > 0) {
@@ -136,6 +167,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           setMessages([]);
           setCurrentConversationId(null);
           setStatusCard(null);
+          clearArtifactReference();
+          setViewingFile(null);
         }
       }
 
@@ -160,14 +193,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     addMessage(aiResponse);
 
     try {
-      const response = await sendChatReplyV2({
-        question: userMessage.text,
-        conversation_id: currentConversationId || undefined,
-        course_id: courseId,
-        allow_rag: allowRag,
-        allow_web: allowWeb,
-        selected_doc_ids: selectedDocs,
-      });
+      const response = await sendChatReplyV2(
+        buildChatReplyPayload({
+          question: userMessage.text,
+          conversationId: currentConversationId,
+          courseId,
+          allowRag,
+          allowWeb,
+          selectedDocIds: selectedDocs,
+          artifactReference,
+        }),
+      );
 
       const nextConversationId = String(response.conversation?.conversation_id || '').trim();
       if (nextConversationId && nextConversationId !== currentConversationId) {
@@ -185,12 +221,29 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       }));
 
       generatedFiles.forEach((file) => addGeneratedFile(file));
+      if (courseId) {
+        generatedFiles.forEach((file) =>
+          addMaterial({
+            id: file.id,
+            name: file.name,
+            type: file.type,
+            content: file.content,
+            addedAt: String(file.meta?.addedAt || new Date().toISOString()),
+            courseId,
+            isPinned: Boolean(file.meta?.isPinned),
+            pinnedAt: typeof file.meta?.pinnedAt === 'string' ? file.meta.pinnedAt : undefined,
+          } as any),
+        );
+      }
       if (generatedFiles.length > 0) {
         setViewingFile(generatedFiles[generatedFiles.length - 1]);
       }
 
+      const hasFinalReport = generatedFiles.some((file) => file.meta?.kind === 'final_report');
+      const replyText = hasFinalReport ? '已生成，请在右侧查看。' : String(response.message?.content || '');
+
       updateLastMessage({
-        text: String(response.message?.content || ''),
+        text: replyText,
         sources,
         statusText: '',
       });
@@ -498,6 +551,35 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         />
         <div ref={chatEndRef} />
       </div>
+
+      {artifactReference ? (
+        <div
+          style={{
+            marginBottom: 8,
+            padding: '8px 12px',
+            border: '1px solid #d9d9d9',
+            borderRadius: 8,
+            background: '#fafafa',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <Text strong>{artifactReference.title || '已引用产物'}</Text>
+            <div>
+              <Text type="secondary">
+                {artifactReference.artifact_type === 'report_outline' ? '报告大纲' : '报告正文'}
+                {artifactReference.version_id ? ` · ${artifactReference.version_id}` : ''}
+              </Text>
+            </div>
+          </div>
+          <Button size="small" onClick={() => clearArtifactReference()}>
+            移除引用
+          </Button>
+        </div>
+      ) : null}
 
       <Space.Compact style={{ width: '100%' }}>
         <TextArea

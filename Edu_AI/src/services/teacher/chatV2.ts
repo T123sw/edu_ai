@@ -1,4 +1,6 @@
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+const BACKEND_BASE_URL =
+  (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_API_BASE_URL : undefined) ||
+  (typeof window !== 'undefined' ? window.location.origin : '');
 const AUTH_STORAGE_KEY = 'edu-ai-auth';
 
 function getAuthToken(): string | null {
@@ -23,6 +25,16 @@ export interface ChatReplyRequestV2 {
   allow_web?: boolean;
   selected_doc_ids?: string[];
   action_hint?: string;
+  artifact_reference?: ChatArtifactReference;
+}
+
+export interface ChatArtifactReference {
+  artifact_id: string;
+  artifact_type: 'report' | 'report_outline';
+  version_id?: string;
+  title?: string;
+  source_conversation_id?: string;
+  source_course_id?: string;
 }
 
 export interface ChatReportRequestV2 {
@@ -127,4 +139,29 @@ export async function sendChatReplyV2(payload: ChatReplyRequestV2): Promise<Chat
 
 export async function sendReportV2(payload: ChatReportRequestV2): Promise<ChatResponseV2> {
   return postV2('/api/chat/v2/report', payload);
+}
+
+interface BuildChatReplyPayloadOptions {
+  question: string;
+  conversationId?: string | null;
+  courseId?: string;
+  allowRag: boolean;
+  allowWeb: boolean;
+  selectedDocIds: string[];
+  artifactReference?: ChatArtifactReference | null;
+}
+
+export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): ChatReplyRequestV2 {
+  const payload: ChatReplyRequestV2 = {
+    question: options.question,
+    conversation_id: options.conversationId || undefined,
+    course_id: options.courseId,
+    allow_rag: options.allowRag,
+    allow_web: options.allowWeb,
+    selected_doc_ids: options.selectedDocIds,
+  };
+  if (options.artifactReference) {
+    payload.artifact_reference = options.artifactReference;
+  }
+  return payload;
 }

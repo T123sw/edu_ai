@@ -21,6 +21,21 @@ class ExtractionGuard:
         "active_artifact_id",
         "active_artifact_type",
     }
+    _LOW_SIGNAL_VALUES = {
+        "",
+        "继续",
+        "继续分析",
+        "继续对话",
+        "继续生成",
+        "详细一点",
+        "展开一点",
+        "具体一点",
+        "当前内容",
+        "当前上下文",
+        "生成报告",
+        "生成一份报告",
+        "帮我生成一份报告",
+    }
 
     @staticmethod
     def _dedupe_keep_order(values: list[str], *, limit: int = 6) -> list[str]:
@@ -35,6 +50,51 @@ class ExtractionGuard:
             if len(result) >= limit:
                 break
         return result
+
+    @classmethod
+    def _is_low_signal(cls, value: str) -> bool:
+        normalized = str(value or "").strip()
+        if not normalized:
+            return True
+        if normalized in cls._LOW_SIGNAL_VALUES:
+            return True
+        if normalized.startswith("请基于当前内容生成"):
+            return True
+        if normalized.endswith("一点") and len(normalized) <= 8:
+            return True
+        return False
+
+    @classmethod
+    def _sanitize_list_candidate(cls, *, field: str, values: list[str]) -> list[str]:
+        sanitized: list[str] = []
+        for value in list(values or []):
+            normalized = str(value or "").strip()
+            if not normalized:
+                continue
+            if field in {"current_topics", "user_goals"} and cls._is_low_signal(normalized):
+                continue
+            sanitized.append(normalized)
+        return cls._dedupe_keep_order(sanitized, limit=max(len(sanitized), 1))
+
+    @classmethod
+    def _sanitize_constraints_candidate(cls, value: dict) -> dict:
+        if not isinstance(value, dict):
+            return {}
+        normalized: dict = {}
+        for key, raw in value.items():
+            if key == "extra_constraints":
+                continue
+            text = str(raw or "").strip()
+            if text and not cls._is_low_signal(text):
+                normalized[key] = text
+        extra_constraints = cls._sanitize_list_candidate(
+            field="constraints",
+            values=list(value.get("extra_constraints") or []),
+        )
+        extra_constraints = [item for item in extra_constraints if not cls._is_low_signal(item)]
+        if extra_constraints:
+            normalized["extra_constraints"] = extra_constraints
+        return normalized
 
     @staticmethod
     def _merge_source_message_ids(existing_ids: list[str], new_ids: list[str]) -> list[str]:
@@ -143,6 +203,9 @@ class ExtractionGuard:
             if candidate.source == "llm" and candidate.field in self._PROTECTED_LLM_FIELDS:
                 rejected_fields.append(candidate.field)
                 continue
+            if candidate.source == "llm" and candidate.confidence == "low" and candidate.field in {"current_topics", "user_goals", "constraints"}:
+                rejected_fields.append(candidate.field)
+                continue
 
             if candidate.field == "summary_text":
                 summary_patch["summary_text"] = str(candidate.value or "").strip() or summary_patch.get("summary_text") or ""
@@ -150,7 +213,13 @@ class ExtractionGuard:
                 continue
 
             if candidate.field in self._LIST_FIELDS:
-                incoming = [str(item or "").strip() for item in list(candidate.value or [])]
+                incoming = self._sanitize_list_candidate(
+                    field=candidate.field,
+                    values=[str(item or "").strip() for item in list(candidate.value or [])],
+                )
+                if not incoming:
+                    rejected_fields.append(candidate.field)
+                    continue
                 current = list(memory_patch.get(candidate.field) or existing_memory.get(candidate.field) or [])
                 if candidate.operation == "replace":
                     memory_patch[candidate.field] = self._dedupe_keep_order(incoming, limit=max(len(incoming), 1))
@@ -161,7 +230,10 @@ class ExtractionGuard:
 
             if candidate.field == "constraints":
                 current_constraints = dict(memory_patch.get("constraints") or existing_memory.get("constraints") or {})
-                incoming_constraints = dict(candidate.value or {})
+                incoming_constraints = self._sanitize_constraints_candidate(dict(candidate.value or {}))
+                if not incoming_constraints:
+                    rejected_fields.append(candidate.field)
+                    continue
                 extra_constraints = self._dedupe_keep_order(
                     list(incoming_constraints.get("extra_constraints") or [])
                     + list(current_constraints.get("extra_constraints") or []),

@@ -161,6 +161,7 @@ class ConversationStorage:
                 "message_count": len(conv.get("messages", [])),
                 "created_at": conv.get("created_at"),
                 "updated_at": conv.get("updated_at"),
+                "state": conv.get("state") or {},
             }
 
     def get_messages(self, conversation_id: str, limit: Optional[int] = None) -> List[Dict[str, Any]]:

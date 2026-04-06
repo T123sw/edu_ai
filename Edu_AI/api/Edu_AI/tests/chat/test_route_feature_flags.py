@@ -19,3 +19,11 @@ def test_load_route_feature_flags_reads_all_chat_route_switches(monkeypatch):
     assert flags.enable_sse_v2_events is True
     assert flags.enable_llm_enhancement is True
     assert flags.trace_llm_enhancement is True
+
+
+def test_load_route_feature_flags_enables_llm_enhancement_by_default(monkeypatch):
+    monkeypatch.delenv("CHAT_USE_LLM_ENHANCEMENT", raising=False)
+
+    flags = load_route_feature_flags()
+
+    assert flags.enable_llm_enhancement is True

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Layout, Avatar, Dropdown, Space, Menu } from 'antd';
+import { Layout, Avatar, Dropdown, Space } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   SettingOutlined,
   UserOutlined,
@@ -14,26 +15,30 @@ const SharedHeader: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const handleUserMenuClick = ({ key }: { key: string }) => {
+  const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
     if (key === 'logout') {
       logout();
       navigate('/login');
-    } else {
-      navigate(key);
+      return;
     }
+    navigate(String(key));
   };
 
-  const userMenu = (
-    <Menu onClick={handleUserMenuClick}>
-      <Menu.Item key="/settings" icon={<SettingOutlined />}>
-        个人设置
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />}>
-        退出登录
-      </Menu.Item>
-    </Menu>
-  );
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: '/settings',
+      icon: <SettingOutlined />,
+      label: '个人设置',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '退出登录',
+    },
+  ];
 
   return (
     <Header
@@ -48,7 +53,7 @@ const SharedHeader: React.FC = () => {
         lineHeight: '48px',
       }}
     >
-      <Dropdown overlay={userMenu} placement="bottomRight" trigger={['click']}>
+      <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight" trigger={['click']}>
         <a onClick={(e) => e.preventDefault()}>
           <Space>
             <Avatar icon={<UserOutlined />} size="small" />
@@ -61,4 +66,3 @@ const SharedHeader: React.FC = () => {
 };
 
 export default SharedHeader;
-

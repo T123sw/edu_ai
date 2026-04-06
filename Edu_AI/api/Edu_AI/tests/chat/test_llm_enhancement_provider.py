@@ -77,3 +77,68 @@ def test_llm_enhancement_provider_returns_empty_candidates_on_invalid_json():
     )
 
     assert candidates == []
+
+
+def test_llm_enhancement_provider_builds_semantic_candidates_for_topics_goals_and_constraints():
+    gateway = DummyGateway(
+        """
+        {
+          "current_topics": ["课堂前10分钟学生参与度下降"],
+          "user_goals": ["分析问题"],
+          "constraints": {
+            "audience": "教研组",
+            "tone": "正式",
+            "extra_constraints": ["突出改进建议"]
+          }
+        }
+        """
+    )
+    provider = LLMEnhancementProvider(model_gateway=gateway)
+
+    candidates = provider(
+        trigger={"event": "reply.completed", "question": "帮我看看这节课前10分钟为什么学生参与度低"},
+        existing_state={},
+        rule_patch={
+            "conversation_summary": {"summary_text": "当前围绕课堂参与度问题继续分析"},
+            "conversation_memory": {"current_topics": ["课堂参与度"]},
+        },
+        context={"resource_type": "chat", "recent_messages": []},
+    )
+
+    assert [candidate.field for candidate in candidates] == [
+        "current_topics",
+        "user_goals",
+        "constraints",
+    ]
+    assert candidates[0].value == ["课堂前10分钟学生参与度下降"]
+    assert candidates[1].value == ["分析问题"]
+    assert candidates[2].value["audience"] == "教研组"
+    assert candidates[2].value["extra_constraints"] == ["突出改进建议"]
+
+
+def test_llm_enhancement_provider_parses_semantic_field_confidence():
+    gateway = DummyGateway(
+        """
+        {
+          "current_topics": ["课堂前10分钟学生参与度下降"],
+          "current_topics_confidence": "high",
+          "user_goals": ["分析问题"],
+          "user_goals_confidence": "low",
+          "constraints": {"audience": "教研组"},
+          "constraints_confidence": "medium"
+        }
+        """
+    )
+    provider = LLMEnhancementProvider(model_gateway=gateway)
+
+    candidates = provider(
+        trigger={"event": "reply.completed", "question": "帮我看看这节课前10分钟为什么学生参与度低"},
+        existing_state={},
+        rule_patch={},
+        context={},
+    )
+
+    assert [candidate.field for candidate in candidates] == ["current_topics", "user_goals", "constraints"]
+    assert candidates[0].confidence == "high"
+    assert candidates[1].confidence == "low"
+    assert candidates[2].confidence == "medium"

@@ -98,3 +98,45 @@ def test_interrupt_signal_without_new_action_falls_back_to_chat():
     assert decision.path == "fast"
     assert decision.action == "chat.reply"
     assert decision.reason == "interrupt_to_chat"
+
+
+def test_report_followup_from_active_context_uses_workflow_without_explicit_keyword():
+    snapshot = SimpleNamespace(
+        active_artifact=None,
+        active_context={
+            "active_workflow_type": "report",
+            "active_workflow_status": "awaiting_confirm",
+            "active_artifact_type": "report_outline",
+        },
+        conversation_memory={
+            "user_goals": ["生成报告"],
+            "derived_workflow_goal": "生成报告",
+        },
+    )
+    request = ChatRequestV2(question="确认并继续")
+
+    decision = decide_route(request=request, snapshot=snapshot, workflow_state=None)
+
+    assert decision.path == "workflow"
+    assert decision.workflow_name == "report"
+    assert decision.reason == "resume_active_report_context"
+
+
+def test_report_followup_with_outline_phrase_uses_workflow_from_context():
+    snapshot = SimpleNamespace(
+        active_artifact=None,
+        active_context={
+            "active_workflow_type": "report",
+            "active_workflow_status": "awaiting_confirm",
+            "active_artifact_type": "report_outline",
+        },
+        conversation_memory={
+            "user_goals": ["生成报告"],
+        },
+    )
+    request = ChatRequestV2(question="按这个大纲开始写")
+
+    decision = decide_route(request=request, snapshot=snapshot, workflow_state=None)
+
+    assert decision.path == "workflow"
+    assert decision.workflow_name == "report"

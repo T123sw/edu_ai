@@ -53,6 +53,7 @@ export interface ConversationDetailResponse {
   message_count: number;
   created_at?: string;
   updated_at?: string;
+  state?: Record<string, any>;
   status_card?: StatusCardV2 | null;
 }
 
@@ -533,7 +534,59 @@ export interface CourseMaterialItem {
   addedAt: string;
   courseId?: string;
   content?: any;
+  isPinned?: boolean;
+  pinnedAt?: string;
+  version?: Record<string, any>;
+  generationState?: Record<string, any>;
+  outline?: unknown;
 }
+
+export interface PinCourseMaterialRequest {
+  is_pinned: boolean;
+}
+
+const normalizeCourseMaterialItem = (courseId: string, item: Record<string, any>): CourseMaterialItem => {
+  const type = String(item.type || item.material_type || 'unknown');
+  let content = item.content;
+
+  if (content === undefined) {
+    if (type === 'lesson_plan') {
+      content = item.plan;
+    } else if (type === 'report') {
+      content = item.report;
+    } else if (type === 'quiz') {
+      content = item.quiz;
+    } else if (type === 'blog') {
+      content = item.blog ?? item;
+    } else {
+      content = item;
+    }
+  }
+
+  return {
+    id: String(item.id || item.material_id || ''),
+    name: String(item.name || item.title || '未命名'),
+    type,
+    addedAt: String(item.addedAt || item.created_at || item.updated_at || ''),
+    courseId: String(item.courseId || item.course_id || courseId),
+    content,
+    isPinned: Boolean(item.isPinned ?? item.is_pinned),
+    pinnedAt:
+      typeof item.pinnedAt === 'string'
+        ? item.pinnedAt
+        : typeof item.pinned_at === 'string'
+          ? item.pinned_at
+          : undefined,
+    version: item.version && typeof item.version === 'object' ? item.version : undefined,
+    generationState:
+      item.generation_state && typeof item.generation_state === 'object'
+        ? item.generation_state
+        : item.generationState && typeof item.generationState === 'object'
+          ? item.generationState
+          : undefined,
+    outline: item.outline,
+  };
+};
 
 export const getCourseMaterials = async (
   courseId: string,
@@ -558,7 +611,61 @@ export const getCourseMaterials = async (
     throw new Error(`获取课程资源失败: ${resp.status} ${resp.statusText}\n${text}`);
   }
 
-  return (await resp.json()) as CourseMaterialItem[];
+  const data = (await resp.json()) as Array<Record<string, any>>;
+  return Array.isArray(data) ? data.map((item) => normalizeCourseMaterialItem(courseId, item)) : [];
+};
+
+export const deleteCourseMaterial = async (
+  courseId: string,
+  materialType: string,
+  materialId: string,
+): Promise<void> => {
+  const token = getAuthToken();
+
+  const resp = await fetch(
+    `${BACKEND_BASE_URL}/api/courses/${courseId}/materials/${materialType}/${materialId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    },
+  );
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`鍒犻櫎璇剧▼璧勬簮澶辫触: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+};
+
+export const pinCourseMaterial = async (
+  courseId: string,
+  materialType: string,
+  materialId: string,
+  isPinned: boolean,
+): Promise<CourseMaterialItem> => {
+  const token = getAuthToken();
+
+  const resp = await fetch(
+    `${BACKEND_BASE_URL}/api/courses/${courseId}/materials/${materialType}/${materialId}/pin`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        is_pinned: isPinned,
+      } satisfies PinCourseMaterialRequest),
+    },
+  );
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`缃綅璇剧▼璧勬簮澶辫触: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  return normalizeCourseMaterialItem(courseId, (await resp.json()) as Record<string, any>);
 };
 
 // 知识图谱相关接口

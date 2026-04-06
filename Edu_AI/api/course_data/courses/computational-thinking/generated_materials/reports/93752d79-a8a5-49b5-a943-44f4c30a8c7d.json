@@ -85,5 +85,8 @@
     "recommendations": null
   },
   "created_at": "2026-01-04T17:53:46.088406",
-  "created_by": "teacher"
+  "created_by": "teacher",
+  "is_pinned": true,
+  "pinned_at": "2026-04-06T18:21:31.540910",
+  "updated_at": "2026-04-06T18:21:31.540910"
 }

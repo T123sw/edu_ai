@@ -122,6 +122,10 @@ class ConversationMemoryExtractor:
         "这个问题很有意思",
         "这是个很好的问题",
     ]
+    _CORRECTION_PREFIXES = ("不是", "不对", "更准确地说", "刚才说错了", "应改为", "改成")
+    _RETRACTION_PREFIXES = ("不是", "不对")
+    _CLAIM_LEADING_PREFIXES = ("更准确地说", "刚才说错了", "应改为", "改成", "应该是", "其实是", "是")
+    _MEMORY_RECORD_LIMIT = 5
 
     @staticmethod
     def _dedupe_keep_order(values: list[str], *, limit: int) -> list[str]:
@@ -172,6 +176,21 @@ class ConversationMemoryExtractor:
         if count >= 2:
             return "medium"
         return "low"
+
+    @staticmethod
+    def _confidence_rank(value: str) -> int:
+        normalized = str(value or "").strip().lower()
+        if normalized == "high":
+            return 3
+        if normalized == "medium":
+            return 2
+        return 1
+
+    @staticmethod
+    def _is_active_record(item: dict) -> bool:
+        if not isinstance(item, dict):
+            return False
+        return str(item.get("status") or "").strip().lower() != "retracted"
 
     @staticmethod
     def _clean_clause(text: str) -> str:
@@ -488,16 +507,160 @@ class ConversationMemoryExtractor:
         merged_list = [merged_by_content[content] for content in order]
         return merged_list[:limit]
 
+    def _merge_memory_records(self, *, existing_records: list[dict], new_records: list[dict], limit: int | None = None) -> list[dict]:
+        merged_by_content: dict[str, dict] = {}
+        order: list[str] = []
+
+        for item in list(existing_records or []) + list(new_records or []):
+            if not isinstance(item, dict):
+                continue
+            content = str(item.get("content") or "").strip()
+            if not content:
+                continue
+            source_ids = list(item.get("source_message_ids") or [])
+            candidate = {
+                "content": content,
+                "source_type": str(item.get("source_type") or "assistant_message"),
+                "source_message_ids": source_ids,
+                "confidence": str(item.get("confidence") or self._confidence_for_source_count(len(source_ids))),
+                "status": str(item.get("status") or ""),
+            }
+            if item.get("source_ref"):
+                candidate["source_ref"] = str(item.get("source_ref") or "")
+            if item.get("page") is not None:
+                candidate["page"] = item.get("page")
+
+            if content not in merged_by_content:
+                merged_by_content[content] = candidate
+                order.append(content)
+                continue
+
+            current = merged_by_content[content]
+            current_ids = self._merge_source_message_ids(
+                list(current.get("source_message_ids") or []),
+                source_ids,
+            )
+            current["source_message_ids"] = current_ids
+            current["confidence"] = (
+                candidate["confidence"]
+                if self._confidence_rank(candidate["confidence"]) > self._confidence_rank(str(current.get("confidence") or ""))
+                else self._confidence_for_source_count(len(current_ids))
+            )
+            if candidate.get("status"):
+                current["status"] = candidate["status"]
+            if not current.get("source_ref") and candidate.get("source_ref"):
+                current["source_ref"] = candidate["source_ref"]
+            if current.get("page") is None and candidate.get("page") is not None:
+                current["page"] = candidate["page"]
+
+        max_items = limit or self._MEMORY_RECORD_LIMIT
+        return [merged_by_content[content] for content in order][:max_items]
+
+    def _looks_like_correction(self, text: str) -> bool:
+        normalized = self._clean_clause(text)
+        if not normalized:
+            return False
+        if any(normalized.startswith(prefix) for prefix in self._CORRECTION_PREFIXES):
+            return True
+        return "不是" in normalized and "是" in normalized
+
+    def _normalize_user_claim_clause(self, clause: str) -> str:
+        normalized = self._clean_clause(clause)
+        if not normalized:
+            return ""
+        for prefix in self._RETRACTION_PREFIXES:
+            if normalized.startswith(prefix):
+                return ""
+        for prefix in self._CLAIM_LEADING_PREFIXES:
+            if normalized.startswith(prefix):
+                normalized = normalized[len(prefix):].lstrip("，,:： ")
+                break
+        return self._clean_clause(normalized)
+
+    def _extract_retraction_targets(self, question: str) -> list[str]:
+        targets: list[str] = []
+        for clause in self._split_clauses(question):
+            normalized = self._clean_clause(clause)
+            if not normalized:
+                continue
+            for prefix in self._RETRACTION_PREFIXES:
+                if normalized.startswith(prefix):
+                    target = self._clean_clause(normalized[len(prefix):])
+                    if target:
+                        targets.append(target)
+                    break
+        return self._dedupe_keep_order(targets, limit=5)
+
+    @staticmethod
+    def _char_ngrams(text: str, size: int = 2) -> set[str]:
+        normalized = str(text or "").strip()
+        if not normalized:
+            return set()
+        if len(normalized) <= size:
+            return {normalized}
+        return {normalized[index:index + size] for index in range(len(normalized) - size + 1)}
+
+    @classmethod
+    def _claims_overlap_enough(cls, left: str, right: str) -> bool:
+        left_value = str(left or "").strip()
+        right_value = str(right or "").strip()
+        if not left_value or not right_value:
+            return False
+        if left_value in right_value or right_value in left_value:
+            return True
+        left_ngrams = cls._char_ngrams(left_value)
+        right_ngrams = cls._char_ngrams(right_value)
+        if not left_ngrams or not right_ngrams:
+            return False
+        overlap = len(left_ngrams & right_ngrams)
+        return overlap >= max(2, min(len(left_ngrams), len(right_ngrams)) // 2)
+
+    def _apply_claim_retractions(self, *, question: str, existing_claims: list[dict], new_claims: list[dict]) -> list[dict]:
+        if not self._looks_like_correction(question) or not new_claims:
+            return list(existing_claims or [])
+
+        targets = self._extract_retraction_targets(question)
+        new_contents = {
+            str((item or {}).get("content") or "").strip()
+            for item in list(new_claims or [])
+            if isinstance(item, dict) and str((item or {}).get("content") or "").strip()
+        }
+        updated: list[dict] = []
+        for item in list(existing_claims or []):
+            if not isinstance(item, dict):
+                continue
+            content = str(item.get("content") or "").strip()
+            if not content or content in new_contents:
+                updated.append(item)
+                continue
+
+            should_retract = any(
+                target and self._claims_overlap_enough(content, target)
+                for target in targets
+            )
+            if not should_retract and not targets:
+                should_retract = any(
+                    content != candidate and self._claims_overlap_enough(content, candidate)
+                    for candidate in new_contents
+                )
+
+            if should_retract:
+                updated.append({**item, "status": "retracted"})
+                continue
+            updated.append(item)
+        return updated
+
     def _extract_user_stated_facts(self, question: str, existing_facts: list[str]) -> list[str]:
         facts: list[str] = []
         for clause in self._split_clauses(question):
-            if len(clause) < 6:
+            normalized_clause = self._normalize_user_claim_clause(clause)
+            if len(normalized_clause) < 6:
                 continue
-            if any(token in clause for token in self._INTERROGATIVE_TOKENS):
+            if any(token in normalized_clause for token in self._INTERROGATIVE_TOKENS):
                 continue
-            if any(token in clause for token in ["请", "帮我", "生成", "分析", "总结", "解释", "介绍"]):
+            if any(token in normalized_clause for token in ["请", "帮我", "生成", "分析", "总结", "解释", "介绍"]):
                 continue
-            facts.append(clause[:48])
+            facts.append(normalized_clause[:48])
         return self._dedupe_keep_order(facts + list(existing_facts or []), limit=5)
 
     def _extract_assistant_fact_candidates(self, answer: str, existing_facts: list[str]) -> list[str]:
@@ -515,10 +678,114 @@ class ConversationMemoryExtractor:
         return self._dedupe_keep_order(facts + list(existing_facts or []), limit=5)
 
     @staticmethod
-    def _project_confirmed_facts(*, user_stated_facts: list[str], existing_memory: dict) -> list[str]:
+    def _project_confirmed_facts(
+        *,
+        user_stated_facts: list[str],
+        user_claims: list[dict],
+        external_evidence: list[dict],
+        existing_memory: dict,
+    ) -> list[str]:
+        projected_user_claims: list[str] = []
+        for item in list(user_claims or []):
+            if not ConversationMemoryExtractor._is_active_record(item):
+                continue
+            content = str((item or {}).get("content") or "").strip()
+            if content:
+                projected_user_claims.append(content)
+        if projected_user_claims:
+            return ConversationMemoryExtractor._dedupe_keep_order(
+                projected_user_claims + list(user_stated_facts or []),
+                limit=5,
+            )
         if user_stated_facts:
             return list(user_stated_facts)
+        projected_external: list[str] = []
+        for item in list(external_evidence or []):
+            if str((item or {}).get("status") or "").strip() not in {"confirmed", "supported"}:
+                continue
+            content = str((item or {}).get("content") or "").strip()
+            if content:
+                projected_external.append(content)
+        if projected_external:
+            return ConversationMemoryExtractor._dedupe_keep_order(projected_external, limit=5)
         return list((existing_memory or {}).get("confirmed_facts") or [])
+
+    def _extract_user_claims(self, *, question: str, existing_claims: list[dict], recent_messages: list[dict]) -> list[dict]:
+        claims = self._extract_user_stated_facts(question, [])
+        user_message_id = self._find_latest_message_id(recent_messages, "user")
+        new_claims = [
+            {
+                "content": claim,
+                "source_type": "user_message",
+                "source_message_ids": [user_message_id] if user_message_id else [],
+                "confidence": "high",
+                "status": "stated",
+            }
+            for claim in claims
+        ]
+        retracted_existing_claims = self._apply_claim_retractions(
+            question=question,
+            existing_claims=list(existing_claims or []),
+            new_claims=new_claims,
+        )
+        return self._merge_memory_records(
+            existing_records=retracted_existing_claims,
+            new_records=new_claims,
+        )
+
+    def _extract_assistant_hypotheses(self, *, answer: str, existing_hypotheses: list[dict], recent_messages: list[dict]) -> list[dict]:
+        hypotheses = self._extract_assistant_fact_candidates(answer, [])
+        assistant_message_id = self._find_latest_message_id(recent_messages, "assistant")
+        new_hypotheses = [
+            {
+                "content": item,
+                "source_type": "assistant_message",
+                "source_message_ids": [assistant_message_id] if assistant_message_id else [],
+                "confidence": "low",
+                "status": "candidate",
+            }
+            for item in hypotheses
+        ]
+        return self._merge_memory_records(
+            existing_records=list(existing_hypotheses or []),
+            new_records=new_hypotheses,
+        )
+
+    def _extract_external_evidence(self, *, sources: list[dict], existing_evidence: list[dict]) -> list[dict]:
+        new_records: list[dict] = []
+        for source in list(sources or []):
+            if not isinstance(source, dict):
+                continue
+            content = self._clean_clause(
+                source.get("content")
+                or source.get("snippet")
+                or source.get("excerpt")
+                or ""
+            )
+            if not content:
+                continue
+            source_ref = str(
+                source.get("source")
+                or source.get("source_url")
+                or source.get("filename")
+                or source.get("file_name")
+                or ""
+            ).strip()
+            new_records.append(
+                {
+                    "content": content[:80],
+                    "source_type": "external_source",
+                    "source_message_ids": [],
+                    "confidence": "high",
+                    "status": "supported",
+                    "source_ref": source_ref,
+                    "page": source.get("page"),
+                }
+            )
+        return self._merge_memory_records(
+            existing_records=list(existing_evidence or []),
+            new_records=new_records,
+        )
 
     @staticmethod
     def _build_summary(*, topics: list[str], goal: str | None, issues: list[str], answer: str, existing_summary: str) -> str:
@@ -598,16 +865,36 @@ class ConversationMemoryExtractor:
             existing_points=list(existing_memory.get("evidence_points") or []),
             recent_messages=recent_messages,
         )
-        user_stated_facts = self._extract_user_stated_facts(
-            semantic_question,
-            list(existing_memory.get("user_stated_facts") or []),
+        user_claims = self._extract_user_claims(
+            question=semantic_question,
+            existing_claims=list(existing_memory.get("user_claims") or []),
+            recent_messages=recent_messages,
         )
-        assistant_fact_candidates = self._extract_assistant_fact_candidates(
-            semantic_answer,
-            list(existing_memory.get("assistant_fact_candidates") or []),
+        user_stated_facts = self._dedupe_keep_order(
+            [
+                str(item.get("content") or "").strip()
+                for item in user_claims
+                if isinstance(item, dict) and self._is_active_record(item)
+            ],
+            limit=5,
+        )
+        assistant_hypotheses = self._extract_assistant_hypotheses(
+            answer=semantic_answer,
+            existing_hypotheses=list(existing_memory.get("assistant_hypotheses") or []),
+            recent_messages=recent_messages,
+        )
+        assistant_fact_candidates = self._dedupe_keep_order(
+            [str(item.get("content") or "").strip() for item in assistant_hypotheses if isinstance(item, dict)],
+            limit=5,
+        )
+        external_evidence = self._extract_external_evidence(
+            sources=list(result.get("sources") or []),
+            existing_evidence=list(existing_memory.get("external_evidence") or []),
         )
         confirmed_facts = self._project_confirmed_facts(
             user_stated_facts=user_stated_facts,
+            user_claims=user_claims,
+            external_evidence=external_evidence,
             existing_memory=existing_memory,
         )
         goals = self._dedupe_keep_order(
@@ -633,8 +920,11 @@ class ConversationMemoryExtractor:
             "explicit_user_goals": explicit_goals,
             "derived_workflow_goal": derived_goal,
             "user_goals": goals,
+            "user_claims": user_claims,
             "user_stated_facts": user_stated_facts,
+            "assistant_hypotheses": assistant_hypotheses,
             "assistant_fact_candidates": assistant_fact_candidates,
+            "external_evidence": external_evidence,
             "confirmed_facts": confirmed_facts,
             "teaching_issues": issues,
             "student_signals": student_signals,

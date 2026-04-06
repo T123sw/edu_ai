@@ -26,6 +26,6 @@ def load_route_feature_flags() -> RouteFeatureFlags:
         enable_report_workflow=_flag("CHAT_USE_REPORT_WORKFLOW_V2", "0"),
         enforce_capability_policy=_flag("CHAT_CAPABILITY_POLICY_ENFORCED", "0"),
         enable_sse_v2_events=_flag("CHAT_SSE_V2_EVENTS", "0"),
-        enable_llm_enhancement=_flag("CHAT_USE_LLM_ENHANCEMENT", "0"),
+        enable_llm_enhancement=_flag("CHAT_USE_LLM_ENHANCEMENT", "1"),
         trace_llm_enhancement=_flag("CHAT_TRACE_LLM_ENHANCEMENT", "0"),
     )

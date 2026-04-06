@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.chat.domain.artifact_reference import ArtifactReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
 
 TracePath = Literal["fast", "workflow"]
@@ -16,6 +17,7 @@ class ChatReplyRequestV2(BaseModel):
     model_id: Optional[str] = None
     course_id: Optional[str] = None
     artifact_id: Optional[str] = None
+    artifact_reference: Optional[ArtifactReferencePayload] = None
     allow_rag: bool = False
     allow_web: bool = False
     selected_doc_ids: List[str] = Field(default_factory=list)

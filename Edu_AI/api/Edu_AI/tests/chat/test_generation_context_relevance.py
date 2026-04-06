@@ -167,3 +167,45 @@ def test_generation_context_builder_skips_workflow_control_and_assistant_meta_me
         "先看课堂参与度的问题",
         "后排学生走神比较明显",
     ]
+
+
+def test_generation_context_builder_uses_external_evidence_and_constraints_as_relevance_signals():
+    snapshot = ConversationSnapshot(
+        conversation_id="conv-signal",
+        recent_messages=[
+            {"role": "user", "content": "我更关注课堂前10分钟举手响应较少这个现象"},
+            {"role": "assistant", "content": "这个现象更适合面向教研组写成分析报告"},
+            {"role": "user", "content": "今天食堂怎么样"},
+            {"role": "assistant", "content": "食堂菜单还可以"},
+        ],
+        summary="",
+        conversation_memory={
+            "current_topics": [],
+            "user_goals": ["生成报告"],
+            "constraints": {"audience": "教研组", "extra_constraints": ["正式"]},
+            "external_evidence": [
+                {
+                    "content": "课堂前10分钟举手响应较少",
+                    "source_type": "external_source",
+                    "status": "supported",
+                }
+            ],
+        },
+    )
+    request = ChatRequestV2(
+        question="开始生成",
+        conversation_id="conv-signal",
+        owner="teacher-a",
+        capability={"allow_rag": False, "allow_web": False, "allow_tools": True, "selected_doc_ids": []},
+    )
+
+    context = GenerationContextBuilder().build_for_resource(
+        request=request,
+        snapshot=snapshot,
+        resource_type="report",
+    )
+
+    assert [item["content"] for item in context.recent_relevant_messages] == [
+        "我更关注课堂前10分钟举手响应较少这个现象",
+        "这个现象更适合面向教研组写成分析报告",
+    ]

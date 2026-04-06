@@ -14,11 +14,15 @@ def test_generation_context_builder_builds_report_context_from_snapshot():
         conversation_memory={
             "current_topics": ["课堂参与度"],
             "user_goals": ["生成报告"],
+            "user_claims": [
+                {"content": "前10分钟学生分心明显", "source_type": "user_message", "status": "stated"}
+            ],
             "confirmed_facts": ["前10分钟学生分心明显"],
             "constraints": {"audience": "教研组", "style_notes": []},
             "teaching_issues": ["开场吸引力不足"],
             "student_signals": ["前10分钟注意力分散"],
             "evidence_points": [{"type": "observation", "content": "前10分钟学生分心明显"}],
+            "external_evidence": [{"content": "课堂前10分钟举手响应较少", "source_type": "external_source", "status": "supported"}],
         },
         active_context={
             "current_course_id": "course-1",
@@ -49,6 +53,8 @@ def test_generation_context_builder_builds_report_context_from_snapshot():
     assert context.resource_type == "report"
     assert context.summary_text == "课堂问题集中在参与度和开场控制"
     assert context.confirmed_facts == ["前10分钟学生分心明显"]
+    assert context.external_evidence[0]["content"] == "课堂前10分钟举手响应较少"
+    assert context.evidence_points[0]["source_type"] == "external_source"
     assert context.selected_doc_ids == ["doc-1"]
     assert context.current_course_id == "course-1"
     assert context.referenced_artifact_ids == ["artifact-1"]
@@ -91,6 +97,53 @@ def test_generation_context_builder_prefers_user_stated_facts_over_legacy_bucket
     )
 
     assert context.confirmed_facts == ["前10分钟学生多次走神"]
+
+
+def test_generation_context_builder_projects_external_evidence_into_confirmed_facts_when_user_claims_absent():
+    snapshot = ConversationSnapshot(
+        conversation_id="conv-5",
+        recent_messages=[],
+        summary="课堂分析",
+        conversation_memory={
+            "current_topics": ["课堂参与度"],
+            "user_goals": ["生成报告"],
+            "external_evidence": [
+                {
+                    "content": "课堂前10分钟举手响应较少",
+                    "source_type": "external_source",
+                    "status": "supported",
+                    "source_ref": "doc-a",
+                }
+            ],
+            "confirmed_facts": [],
+            "constraints": {},
+            "teaching_issues": [],
+            "student_signals": [],
+            "evidence_points": [],
+        },
+        active_context={},
+        referenced_artifact_ids=[],
+    )
+    request = ChatRequestV2(
+        question="生成报告",
+        conversation_id="conv-5",
+        owner="teacher-a",
+        capability={
+            "allow_rag": False,
+            "allow_web": False,
+            "allow_tools": True,
+            "selected_doc_ids": [],
+        },
+    )
+
+    context = GenerationContextBuilder().build_for_resource(
+        request=request,
+        snapshot=snapshot,
+        resource_type="report",
+    )
+
+    assert context.confirmed_facts == ["课堂前10分钟举手响应较少"]
+    assert context.evidence_points[0]["source_type"] == "external_source"
 
 
 def test_generation_context_builder_keeps_goal_and_constraint_compat_projection():

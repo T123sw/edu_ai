@@ -29,10 +29,11 @@ import {
   EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
+  PushpinOutlined,
 } from '@ant-design/icons';
 import { useCourseMaterialsStore, type CourseMaterial } from '../../store/teacher/useCourseMaterialsStore';
-import type { GeneratedFile } from '../../store/teacher/useStore';
-import { getLessonPlanDetail, deleteLessonPlan, deleteReport, deleteQuiz, getCourseMaterials, type LessonPlanResponse, type ReportResponse, type QuizResponse } from '../../services/teacher/api';
+import { useStore, type GeneratedFile } from '../../store/teacher/useStore';
+import { deleteCourseMaterial, getLessonPlanDetail, getCourseMaterials, pinCourseMaterial, type LessonPlanResponse, type ReportResponse, type QuizResponse } from '../../services/teacher/api';
 import MarkdownPreview from '../../components/shared/MarkdownPreview';
 import './CourseMaterialsPage.css';
 
@@ -105,18 +106,21 @@ const isQuizAnswerCorrect = (q: QuizResponse['questions'][number], userAnswerRaw
 
 export default function CourseMaterialsPage() {
   const { courseId } = useParams<{ courseId: string }>();
-  const { materials, removeMaterial, getMaterialsByType, setMaterials } = useCourseMaterialsStore();
+  const { materials, removeMaterial, getMaterialsByType, setMaterials, pinMaterial } = useCourseMaterialsStore();
+  const { removeGeneratedFile, pinGeneratedFile } = useStore();
   const [activeTab, setActiveTab] = useState<GeneratedFile['type']>('lesson_plan');
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [viewingMaterial, setViewingMaterial] = useState<GeneratedFile | null>(null);
   const [viewingPlan, setViewingPlan] = useState<LessonPlanResponse | null>(null);
   const [viewingReport, setViewingReport] = useState<ReportResponse | null>(null);
+  const [viewingMarkdownReport, setViewingMarkdownReport] = useState<string | null>(null);
   const [viewingBlogContent, setViewingBlogContent] = useState<{ markdown: string; outline: any[] } | null>(null);
   const [viewingQuiz, setViewingQuiz] = useState<QuizResponse | null>(null);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
   const [loadingContent, setLoadingContent] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [pinning, setPinning] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // 从后端加载课程资源（永久化存储）
@@ -137,6 +141,8 @@ export default function CourseMaterialsPage() {
         content: item.content,
         addedAt: item.addedAt,
         courseId: item.courseId || courseId,
+        isPinned: item.isPinned,
+        pinnedAt: item.pinnedAt,
       }));
       setMaterials(courseMaterials);
       console.log(`[CourseMaterials] 已从后端加载 ${courseMaterials.length} 个资料`);
@@ -176,6 +182,7 @@ export default function CourseMaterialsPage() {
     setLoadingContent(true);
     setViewingPlan(null);
     setViewingReport(null);
+    setViewingMarkdownReport(null);
     setViewingBlogContent(null);
     setViewingQuiz(null);
     setQuizAnswers({});
@@ -193,7 +200,13 @@ export default function CourseMaterialsPage() {
       } else if (item.type === 'report') {
         // 报告查看
         if (item.content) {
-          setViewingReport(item.content as ReportResponse);
+          if (typeof item.content === 'string') {
+            setViewingMarkdownReport(item.content);
+          } else if (typeof item.content?.report === 'string') {
+            setViewingMarkdownReport(item.content.report);
+          } else {
+            setViewingReport(item.content as ReportResponse);
+          }
         } else {
           // 如果后端有获取报告详情的API，可以在这里调用
           // 目前报告内容应该已经在content中
@@ -230,29 +243,58 @@ export default function CourseMaterialsPage() {
   };
 
   const handleDelete = async (id: string, type: GeneratedFile['type']) => {
+    if (!courseId) {
+      message.error('课程 ID 缺失');
+      return;
+    }
     setDeleting(id);
     try {
       if (type === 'lesson_plan') {
-        await deleteLessonPlan(id, courseId);
+        await deleteCourseMaterial(courseId, type, id);
         removeMaterial(id);
+        removeGeneratedFile(id);
         message.success('已删除');
       } else if (type === 'report') {
-        await deleteReport(id, courseId);
+        await deleteCourseMaterial(courseId, type, id);
         removeMaterial(id);
+        removeGeneratedFile(id);
         message.success('已删除');
       } else if (type === 'quiz') {
-        await deleteQuiz(id, courseId);
+        await deleteCourseMaterial(courseId, type, id);
         removeMaterial(id);
+        removeGeneratedFile(id);
         message.success('已删除');
       } else {
         // 其他类型暂时只从store删除
+        await deleteCourseMaterial(courseId, type, id);
         removeMaterial(id);
+        removeGeneratedFile(id);
         message.success('已删除');
       }
     } catch (error: any) {
       message.error(`删除失败: ${error.message}`);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handlePin = async (item: CourseMaterial) => {
+    if (!courseId) {
+      message.error('课程 ID 缺失');
+      return;
+    }
+    const nextPinned = !item.isPinned;
+    setPinning(item.id);
+    try {
+      const updated = await pinCourseMaterial(courseId, item.type, item.id, nextPinned);
+      pinMaterial(item.id, nextPinned, updated.pinnedAt);
+      pinGeneratedFile(item.id, nextPinned, updated.pinnedAt);
+      await loadMaterials();
+      message.success(nextPinned ? '已置顶' : '已取消置顶');
+    } catch (error: any) {
+      message.error(`置顶失败: ${error.message}`);
+    } finally {
+      setPinning(null);
     }
   };
 
@@ -325,6 +367,15 @@ export default function CourseMaterialsPage() {
                     },
                   },
                   {
+                    key: 'pin',
+                    label: pinning === item.id ? '处理中...' : item.isPinned ? '取消置顶' : '置顶',
+                    icon: pinning === item.id ? <Spin size="small" /> : <PushpinOutlined />,
+                    disabled: pinning === item.id,
+                    onClick: () => {
+                      handlePin(item);
+                    },
+                  },
+                  {
                     key: 'delete',
                     label: deleting === item.id ? '删除中...' : '删除',
                     icon: deleting === item.id ? <Spin size="small" /> : <DeleteOutlined />,
@@ -350,6 +401,9 @@ export default function CourseMaterialsPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <Text strong style={{ display: 'block', marginBottom: 4 }}>
                           {item.name}
+                          {item.isPinned ? (
+                            <PushpinOutlined style={{ marginLeft: 8, color: '#fa8c16' }} />
+                          ) : null}
                         </Text>
                         <Text type="secondary" style={{ fontSize: 12 }}>
                           添加时间：{new Date(item.addedAt).toLocaleString('zh-CN')}
@@ -381,6 +435,7 @@ export default function CourseMaterialsPage() {
           setViewModalVisible(false);
           setViewingPlan(null);
           setViewingReport(null);
+          setViewingMarkdownReport(null);
           setViewingMaterial(null);
           setViewingBlogContent(null);
           setViewingQuiz(null);
@@ -390,6 +445,7 @@ export default function CourseMaterialsPage() {
             setViewModalVisible(false);
             setViewingPlan(null);
             setViewingReport(null);
+            setViewingMarkdownReport(null);
             setViewingMaterial(null);
             setViewingBlogContent(null);
             setViewingQuiz(null);
@@ -554,6 +610,17 @@ export default function CourseMaterialsPage() {
                 </ul>
               </div>
             )}
+          </div>
+        ) : viewingMarkdownReport ? (
+          <div
+            style={{
+              padding: 16,
+              borderRadius: 8,
+              border: '1px solid #f0f0f0',
+              background: '#fcfcfc',
+            }}
+          >
+            <MarkdownPreview content={viewingMarkdownReport} />
           </div>
         ) : viewingQuiz ? (
           <div>

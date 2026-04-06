@@ -11,6 +11,12 @@ class StatusCardBuilder:
         self.label_mapper = label_mapper or StatusCardLabelMapper()
 
     @staticmethod
+    def _is_active_record(item: dict) -> bool:
+        if not isinstance(item, dict):
+            return False
+        return str(item.get("status") or "").strip().lower() != "retracted"
+
+    @staticmethod
     def _coerce_workflow(snapshot, workflow):
         if workflow:
             return dict(workflow)
@@ -55,13 +61,29 @@ class StatusCardBuilder:
 
         topics = list(memory.get("current_topics") or [])[:3]
         issues = list(memory.get("teaching_issues") or memory.get("student_signals") or [])[:3]
-        confirmed_facts = list(
-            memory.get("user_stated_facts")
-            or memory.get("confirmed_facts")
-            or []
+        confirmed_facts = (
+            [
+                str(item.get("content") or "").strip()
+                for item in list(memory.get("user_claims") or [])
+                if self._is_active_record(item) and str(item.get("content") or "").strip()
+            ]
+            or list(memory.get("user_stated_facts") or memory.get("confirmed_facts") or [])
         )[:3]
         student_signals = list(memory.get("student_signals") or [])[:4]
-        raw_evidence_points = list(memory.get("evidence_points") or [])
+        raw_evidence_points = []
+        seen_evidence_contents: set[str] = set()
+        for bucket in (
+            list(memory.get("external_evidence") or []),
+            list(memory.get("evidence_points") or []),
+        ):
+            for item in bucket:
+                if not isinstance(item, dict):
+                    continue
+                content = str(item.get("content") or "").strip()
+                if not content or content in seen_evidence_contents:
+                    continue
+                seen_evidence_contents.add(content)
+                raw_evidence_points.append(item)
         evidence_points = [
             str(item.get("content") or "").strip()
             for item in raw_evidence_points

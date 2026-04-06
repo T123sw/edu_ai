@@ -26,6 +26,16 @@ class ConversationStoreAdapter:
         self.storage.update_state(conversation_id, {"workflow_state": workflow_state})
 
     @staticmethod
+    def _normalize_artifact_reference(value) -> dict:
+        if value is None:
+            return {}
+        if hasattr(value, "model_dump"):
+            return dict(value.model_dump(exclude_none=True))
+        if isinstance(value, dict):
+            return dict(value)
+        return {}
+
+    @staticmethod
     def _build_extraction_trigger(*, conversation_id: str, request, result: dict) -> ExtractionTrigger:
         workflow_type = str(((result.get("workflow") or {}).get("type")) or "").strip()
         action_name = str(((result.get("action") or {}).get("name")) or "").strip()
@@ -78,12 +88,18 @@ class ConversationStoreAdapter:
     def _build_active_context_patch(*, request, workflow: dict | None, workflow_status: str, artifacts: list[dict]):
         capability = getattr(request, "capability", None)
         selected_doc_ids = list(getattr(capability, "selected_doc_ids", []) or [])
+        artifact_reference = ConversationStoreAdapter._normalize_artifact_reference(
+            getattr(request, "artifact_reference", None)
+        )
         first_artifact = artifacts[0] if artifacts else {}
+        active_artifact_id = str(first_artifact.get("artifact_id") or artifact_reference.get("artifact_id") or "")
+        active_artifact_type = str(first_artifact.get("artifact_type") or artifact_reference.get("artifact_type") or "")
         return {
             "active_workflow_type": (workflow or {}).get("type") or "",
             "active_workflow_status": workflow_status or str((workflow or {}).get("status") or ""),
-            "active_artifact_id": str(first_artifact.get("artifact_id") or ""),
-            "active_artifact_type": str(first_artifact.get("artifact_type") or ""),
+            "active_artifact_id": active_artifact_id,
+            "active_artifact_type": active_artifact_type,
+            "active_reference_mode": "artifact_edit" if artifact_reference else "",
             "current_course_id": getattr(request, "course_id", None),
             "pinned_doc_ids": selected_doc_ids,
         }
@@ -161,6 +177,7 @@ class ConversationStoreAdapter:
             }
 
         artifacts = result.get("artifacts") or []
+        artifact_reference = self._normalize_artifact_reference(getattr(request, "artifact_reference", None))
         if artifacts:
             first = artifacts[0]
             state_patch["active_artifact"] = {
@@ -168,7 +185,20 @@ class ConversationStoreAdapter:
                 "artifact_type": first.get("artifact_type") or "",
                 "title": first.get("title"),
             }
+        elif artifact_reference:
+            state_patch["active_artifact"] = {
+                "artifact_id": artifact_reference.get("artifact_id") or "",
+                "artifact_type": artifact_reference.get("artifact_type") or "",
+                "title": artifact_reference.get("title"),
+            }
         if workflow or artifacts or getattr(request, "course_id", None) or getattr(getattr(request, "capability", None), "selected_doc_ids", None):
+            state_patch["active_context"] = self._build_active_context_patch(
+                request=request,
+                workflow=workflow,
+                workflow_status=workflow_status,
+                artifacts=artifacts,
+            )
+        elif artifact_reference:
             state_patch["active_context"] = self._build_active_context_patch(
                 request=request,
                 workflow=workflow,
@@ -188,6 +218,10 @@ class ConversationStoreAdapter:
                 for artifact in artifacts
                 if artifact.get("artifact_id")
             ]
+        elif artifact_reference.get("artifact_id"):
+            state_patch["referenced_artifact_ids"] = [str(artifact_reference.get("artifact_id") or "")]
+        if artifact_reference:
+            state_patch["artifact_reference"] = dict(artifact_reference)
         extraction_patch, enhancement_observation = self.build_memory_state_patch_with_observation(
             conversation_id=conversation_id,
             request=request,

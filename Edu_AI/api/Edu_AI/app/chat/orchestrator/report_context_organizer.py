@@ -43,6 +43,133 @@ class ReportContextOrganizer:
             return True
         return False
 
+    @staticmethod
+    def _looks_like_report_intent(*, request_question: str, context) -> bool:
+        question = str(request_question or "").strip()
+        if "报告" in question:
+            return True
+        return "生成报告" in "".join(list(getattr(context, "user_goals", []) or []))
+
+    def _extract_subject_from_report_request(self, request_question: str) -> str | None:
+        text = self._clean(request_question)
+        if not text or "报告" not in text:
+            return None
+
+        patterns = (
+            r"(?:围绕|关于|针对|聚焦|就)(?P<subject>.+?)(?:生成|整理|输出|写)(?:一份|一个)?(?:分析)?报告",
+            r"(?:生成|整理|输出|写)(?:一份|一个)?(?:关于|围绕|针对)(?P<subject>.+?)(?:的)?(?:分析)?报告",
+        )
+        for pattern in patterns:
+            match = __import__("re").search(pattern, text)
+            if not match:
+                continue
+            subject = self._clean(match.group("subject"))
+            if subject and not self._is_low_signal(subject):
+                return subject
+        return None
+
+    def _resolve_subject(self, *, context, request_question: str, candidate_subject: str | None = None) -> str | None:
+        candidate = self._clean(candidate_subject or "")
+        if candidate and not self._is_low_signal(candidate):
+            extracted = self._extract_subject_from_report_request(candidate)
+            if extracted:
+                return extracted
+            if "报告" not in candidate:
+                return candidate
+
+        request_subject = self._extract_subject_from_report_request(request_question)
+        if request_subject:
+            return request_subject
+
+        fallback_subject = self._pick_subject(context=context)
+        if fallback_subject and not self._is_low_signal(fallback_subject):
+            return fallback_subject
+        return None
+
+    def _resolve_focus(self, *, context, report_subject: str | None, candidate_focus: str | None = None) -> str | None:
+        candidate = self._clean(candidate_focus or "")
+        if candidate and not self._is_low_signal(candidate):
+            return candidate
+        return self._pick_focus(context=context, report_subject=report_subject)
+
+    def _build_missing_fields(self, *, report_intent: str, report_subject: str | None) -> list[str]:
+        missing: list[str] = []
+        if report_intent != "generate_report":
+            missing.append("report_intent")
+        if not str(report_subject or "").strip():
+            missing.append("report_subject")
+        return missing
+
+    def _build_followups(self, *, missing: list[str]) -> list[str]:
+        if "report_subject" in list(missing or []):
+            return ["你希望这份报告围绕哪个主题来写？"]
+        if "report_intent" in list(missing or []):
+            return ["你是想继续分析，还是现在直接生成报告？"]
+        return []
+
+    def _build_confidence(
+        self,
+        *,
+        report_subject: str | None,
+        report_focus: str | None,
+        key_points: list[str],
+        evidence_points: list[dict],
+    ) -> str:
+        if report_subject and (report_focus or len(key_points) >= 2 or len(evidence_points) >= 2):
+            return "high"
+        if report_subject:
+            return "medium"
+        return "low"
+
+    def _sanitize_result(self, *, context, request_question: str, raw_result: ReportPreparationResult) -> ReportPreparationResult:
+        report_intent = "generate_report" if self._looks_like_report_intent(request_question=request_question, context=context) else str(raw_result.report_intent or "").strip() or "unclear"
+        report_subject = self._resolve_subject(
+            context=context,
+            request_question=request_question,
+            candidate_subject=raw_result.report_subject,
+        )
+        report_focus = self._resolve_focus(
+            context=context,
+            report_subject=report_subject,
+            candidate_focus=raw_result.report_focus,
+        )
+        key_points = list(raw_result.key_points or []) or self._pick_key_points(context=context)
+        evidence_points = list(raw_result.evidence_points or []) or list(getattr(context, "evidence_points", []) or [])[:3]
+        constraints = dict(raw_result.constraints or {}) or dict(getattr(context, "constraints", {}) or {})
+        source_scope, source_labels = self._build_source_scope(context=context)
+        missing = self._build_missing_fields(report_intent=report_intent, report_subject=report_subject)
+        followups = self._build_followups(missing=missing)
+        confidence = self._build_confidence(
+            report_subject=report_subject,
+            report_focus=report_focus,
+            key_points=key_points,
+            evidence_points=evidence_points,
+        )
+        summary = ReportContextSummary(
+            subject_summary=self._clean(getattr(context, "summary_text", "") or report_subject or ""),
+            focus_summary=self._clean(report_focus or ""),
+            key_points=key_points,
+            evidence_points=evidence_points,
+            constraints=constraints,
+            source_scope=source_labels,
+        )
+        return raw_result.model_copy(
+            update={
+                "report_intent": report_intent,
+                "report_subject": report_subject,
+                "report_focus": report_focus,
+                "report_context_summary": summary,
+                "key_points": key_points,
+                "evidence_points": evidence_points,
+                "constraints": constraints,
+                "source_scope": source_scope,
+                "missing_critical_fields": missing,
+                "confidence": confidence,
+                "soft_confirm_message": self._build_soft_confirm_message(subject=report_subject, focus=report_focus),
+                "followup_candidates": followups,
+            }
+        )
+
     def _pick_subject(self, *, context) -> str | None:
         for topic in list(getattr(context, "current_topics", []) or []):
             text = self._clean(topic)
@@ -108,24 +235,15 @@ class ReportContextOrganizer:
         question = self._clean(request_question)
         combined_goals = "".join(list(getattr(context, "user_goals", []) or []))
         report_intent = "generate_report" if ("报告" in question or "生成报告" in combined_goals) else "unclear"
-        report_subject = self._pick_subject(context=context)
-        report_focus = self._pick_focus(context=context, report_subject=report_subject)
+        report_subject = self._resolve_subject(context=context, request_question=request_question)
+        report_focus = self._resolve_focus(context=context, report_subject=report_subject)
         key_points = self._pick_key_points(context=context)
         evidence_points = list(getattr(context, "evidence_points", []) or [])[:3]
         constraints = dict(getattr(context, "constraints", {}) or {})
         source_scope, source_labels = self._build_source_scope(context=context)
 
-        missing: list[str] = []
-        if report_intent != "generate_report":
-            missing.append("report_intent")
-        if not report_subject:
-            missing.append("report_subject")
-
-        followups: list[str] = []
-        if "report_subject" in missing:
-            followups.append("你希望这份报告围绕哪个主题来写？")
-        elif "report_intent" in missing:
-            followups.append("你是想继续分析，还是现在直接生成报告？")
+        missing = self._build_missing_fields(report_intent=report_intent, report_subject=report_subject)
+        followups = self._build_followups(missing=missing)
 
         summary = ReportContextSummary(
             subject_summary=self._clean(getattr(context, "summary_text", "") or report_subject or ""),
@@ -136,11 +254,12 @@ class ReportContextOrganizer:
             source_scope=source_labels,
         )
 
-        confidence = "low"
-        if report_subject and (report_focus or len(key_points) >= 2 or len(evidence_points) >= 2):
-            confidence = "high"
-        elif report_subject:
-            confidence = "medium"
+        confidence = self._build_confidence(
+            report_subject=report_subject,
+            report_focus=report_focus,
+            key_points=key_points,
+            evidence_points=evidence_points,
+        )
 
         return ReportPreparationResult(
             report_intent=report_intent,
@@ -362,6 +481,11 @@ def _report_context_organize_v4(self, *, context, request_question: str) -> Repo
                 source="llm_structured_output",
                 model=model_label,
             )
+            result = self._sanitize_result(
+                context=context,
+                request_question=request_question,
+                raw_result=result,
+            )
             _report_context_trace("llm_mode=structured_output", "status=ok")
             _report_context_trace_result(result)
             return result
@@ -376,6 +500,11 @@ def _report_context_organize_v4(self, *, context, request_question: str) -> Repo
                         source="llm_raw_json",
                         model=model_label,
                     )
+                    result = self._sanitize_result(
+                        context=context,
+                        request_question=request_question,
+                        raw_result=result,
+                    )
                     _report_context_trace("llm_mode=raw_json", "status=ok")
                     _report_context_trace_result(result)
                     return result
@@ -387,6 +516,11 @@ def _report_context_organize_v4(self, *, context, request_question: str) -> Repo
         self._fallback_prepare(context=context, request_question=request_question),
         source="fallback_rule_based",
         model=model_label,
+    )
+    result = self._sanitize_result(
+        context=context,
+        request_question=request_question,
+        raw_result=result,
     )
     _report_context_trace_result(result)
     return result

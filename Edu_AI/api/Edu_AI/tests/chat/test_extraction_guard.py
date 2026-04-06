@@ -180,3 +180,76 @@ def test_extraction_guard_summary_candidate_does_not_mutate_fact_buckets():
     assert merged["conversation_summary"]["summary_text"].startswith("前10分钟学生多次走神")
     assert merged["conversation_memory"]["user_stated_facts"] == ["前10分钟学生多次走神"]
     assert merged["conversation_memory"]["confirmed_facts"] == ["前10分钟学生多次走神"]
+
+
+def test_extraction_guard_rejects_low_signal_semantic_candidates():
+    guard = ExtractionGuard()
+    rule_patch = {
+        "conversation_summary": {"summary_text": "当前围绕课堂参与度继续分析"},
+        "conversation_memory": {
+            "current_topics": ["课堂参与度"],
+            "user_goals": ["分析问题"],
+            "constraints": {"extra_constraints": []},
+        },
+    }
+    candidates = [
+        ExtractionCandidate(field="current_topics", value=["继续分析", "详细一点"], source="llm"),
+        ExtractionCandidate(field="user_goals", value=["继续对话"], source="llm"),
+        ExtractionCandidate(field="constraints", value={"extra_constraints": ["详细一点"]}, source="llm"),
+    ]
+
+    merged, report = guard.merge_with_report(
+        existing_state={},
+        rule_patch=rule_patch,
+        candidates=candidates,
+    )
+
+    assert merged["conversation_memory"]["current_topics"] == ["课堂参与度"]
+    assert merged["conversation_memory"]["user_goals"] == ["分析问题"]
+    assert merged["conversation_memory"]["constraints"]["extra_constraints"] == []
+    assert report["accepted_fields"] == []
+    assert report["rejected_fields"] == ["current_topics", "user_goals", "constraints"]
+
+
+def test_extraction_guard_rejects_low_confidence_semantic_candidates():
+    guard = ExtractionGuard()
+    rule_patch = {
+        "conversation_summary": {"summary_text": "当前围绕课堂参与度继续分析"},
+        "conversation_memory": {
+            "current_topics": ["课堂参与度"],
+            "user_goals": ["分析问题"],
+            "constraints": {"audience": "教研组"},
+        },
+    }
+    candidates = [
+        ExtractionCandidate(
+            field="current_topics",
+            value=["课堂前10分钟学生参与度下降"],
+            source="llm",
+            confidence="low",
+        ),
+        ExtractionCandidate(
+            field="user_goals",
+            value=["分析问题"],
+            source="llm",
+            confidence="low",
+        ),
+        ExtractionCandidate(
+            field="constraints",
+            value={"audience": "备课组"},
+            source="llm",
+            confidence="low",
+        ),
+    ]
+
+    merged, report = guard.merge_with_report(
+        existing_state={},
+        rule_patch=rule_patch,
+        candidates=candidates,
+    )
+
+    assert merged["conversation_memory"]["current_topics"] == ["课堂参与度"]
+    assert merged["conversation_memory"]["user_goals"] == ["分析问题"]
+    assert merged["conversation_memory"]["constraints"]["audience"] == "教研组"
+    assert report["accepted_fields"] == []
+    assert report["rejected_fields"] == ["current_topics", "user_goals", "constraints"]
