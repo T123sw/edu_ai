@@ -16,10 +16,14 @@ const reference: ChatArtifactReference = {
   source_course_id: 'course-1',
 };
 
-const storeFile = readFileSync('d:/github/edu_ai/Edu_AI/src/store/teacher/useStore.ts', 'utf8');
+const storeFile = readFileSync(new URL('../../src/store/teacher/useStore.ts', import.meta.url), 'utf8');
+const chatPanelFile = readFileSync(new URL('../../src/components/teacher/ChatPanel.tsx', import.meta.url), 'utf8');
 assert.match(storeFile, /artifactReference:\s*ArtifactReference \| null;/, 'store should expose artifactReference state');
 assert.match(storeFile, /setArtifactReference:\s*\(reference:\s*ArtifactReference \| null\)\s*=>\s*void;/, 'store should expose setArtifactReference action');
 assert.match(storeFile, /clearArtifactReference:\s*\(\)\s*=>\s*void;/, 'store should expose clearArtifactReference action');
+assert.match(storeFile, /replaceConversationGeneratedFiles:\s*\(files:\s*GeneratedFile\[\]\)\s*=>\s*void;/, 'store should replace conversation-scoped generated files');
+assert.match(storeFile, /clearConversationGeneratedFiles:\s*\(\)\s*=>\s*void;/, 'store should clear conversation-scoped generated files');
+assert.match(chatPanelFile, /artifactReference,[\s\S]*setViewingFile\(generatedFiles\[generatedFiles\.length - 1\]\)/, 'ChatPanel should directly open the newest generated file after artifact-based modification');
 
 const payload = buildChatReplyPayload({
   question: '保留结构，重写结论',

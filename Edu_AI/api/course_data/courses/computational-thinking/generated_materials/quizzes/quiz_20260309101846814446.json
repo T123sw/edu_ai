@@ -92,5 +92,8 @@
   ],
   "created_at": "2026-03-09T10:18:46.814446",
   "created_by": "teacher",
-  "material_type": "quiz"
+  "material_type": "quiz",
+  "is_pinned": true,
+  "pinned_at": "2026-04-07T12:55:30.581823",
+  "updated_at": "2026-04-07T12:55:30.581823"
 }

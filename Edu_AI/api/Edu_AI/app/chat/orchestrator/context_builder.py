@@ -11,6 +11,41 @@ class ContextBuilder:
         self.conversation_store = conversation_store or ConversationStoreAdapter()
         self.memory_reader = memory_reader
 
+    @staticmethod
+    def _normalize_conversation_reference(value) -> dict:
+        if value is None:
+            return {}
+        if hasattr(value, "model_dump"):
+            return dict(value.model_dump(exclude_none=True))
+        if isinstance(value, dict):
+            return dict(value)
+        return {}
+
+    @staticmethod
+    def _extract_summary_from_state(state: dict) -> str:
+        return str(((state.get("conversation_summary") or {}).get("summary_text")) or "").strip()
+
+    @staticmethod
+    def _build_reference_message(*, title: str, summary: str, recent_messages: list[dict]) -> dict | None:
+        parts: list[str] = []
+        label = f"《{title}》" if title else "该历史对话"
+        if summary:
+            parts.append(f"你当前引用了历史对话{label}。参考对话摘要：{summary}")
+
+        excerpt_lines: list[str] = []
+        for message in list(recent_messages or [])[-4:]:
+            role = "用户" if str(message.get("role") or "").strip() == "user" else "助手"
+            content = str(message.get("content") or "").strip()
+            if not content:
+                continue
+            excerpt_lines.append(f"- {role}：{content}")
+        if excerpt_lines:
+            parts.append(f"{label}最近消息摘录：\n" + "\n".join(excerpt_lines))
+
+        if not parts:
+            return None
+        return {"role": "system", "content": "\n\n".join(parts)}
+
     def build(self, request) -> ConversationSnapshot:
         if not request.conversation_id:
             summary = ""
@@ -66,9 +101,42 @@ class ContextBuilder:
                 }
             )
 
+        recent_messages = list(raw_snapshot.get("messages") or [])
+        conversation_reference = self._normalize_conversation_reference(
+            getattr(request, "conversation_reference", None)
+        )
+        referenced_conversation_id = str(conversation_reference.get("conversation_id") or "").strip()
+        if referenced_conversation_id and referenced_conversation_id != (request.conversation_id or ""):
+            referenced_detail = self.conversation_store.load_conversation_detail(
+                referenced_conversation_id,
+                owner=getattr(request, "owner", None),
+            )
+            referenced_state = dict((referenced_detail or {}).get("state") or {})
+            referenced_messages = list((referenced_detail or {}).get("history") or [])
+            referenced_summary = self._extract_summary_from_state(referenced_state)
+            referenced_title = str(conversation_reference.get("title") or (referenced_detail or {}).get("title") or "").strip()
+            reference_message = self._build_reference_message(
+                title=referenced_title,
+                summary=referenced_summary,
+                recent_messages=referenced_messages,
+            )
+            if reference_message is not None:
+                recent_messages = [reference_message, *recent_messages]
+            if referenced_summary:
+                summary = (
+                    f"{summary}\n参考对话摘要：{referenced_summary}"
+                    if summary
+                    else f"参考对话摘要：{referenced_summary}"
+                )
+            active_context = {
+                **active_context,
+                "referenced_conversation_id": referenced_conversation_id,
+                "referenced_conversation_title": referenced_title or None,
+            }
+
         return ConversationSnapshot(
             conversation_id=request.conversation_id or "",
-            recent_messages=list(raw_snapshot.get("messages") or []),
+            recent_messages=recent_messages,
             summary=summary,
             conversation_memory=conversation_memory,
             active_context=active_context,

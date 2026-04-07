@@ -3,7 +3,7 @@ type GeneratedFileLike = {
   name?: string;
   type?: string;
   content?: unknown;
-  meta?: Record<string, unknown>;
+  meta?: Record<string, any>;
 };
 
 type CourseMaterialLike = {
@@ -48,6 +48,29 @@ const sortByPinnedMeta = <T extends { pinned: boolean; pinnedAt?: string; addedA
 
     return left.index - right.index;
   });
+
+const sortByRecentActivityMeta = <T extends { pinnedAt?: string; addedAt?: string; index: number }>(items: T[]): T[] =>
+  [...items].sort((left, right) => {
+    const leftActivityAt = Math.max(toTimestamp(left.addedAt), toTimestamp(left.pinnedAt));
+    const rightActivityAt = Math.max(toTimestamp(right.addedAt), toTimestamp(right.pinnedAt));
+    const activityDiff = rightActivityAt - leftActivityAt;
+    if (activityDiff !== 0) {
+      return activityDiff;
+    }
+
+    const addedAtDiff = toTimestamp(right.addedAt) - toTimestamp(left.addedAt);
+    if (addedAtDiff !== 0) {
+      return addedAtDiff;
+    }
+
+    return left.index - right.index;
+  });
+
+const isCourseMaterialGeneratedFile = (file: GeneratedFileLike): boolean =>
+  String(file.meta?.origin || '').trim() === 'course_material';
+
+const isConversationGeneratedFile = (file: GeneratedFileLike): boolean =>
+  !isCourseMaterialGeneratedFile(file) && Boolean(String(file.meta?.conversationId || '').trim());
 
 export function normalizeGeneratedFileId(id: string): string {
   const normalized = String(id || '').trim();
@@ -104,10 +127,9 @@ export function pinCourseMaterialInList<T extends CourseMaterialLike>(
 }
 
 export function sortGeneratedFiles<T extends GeneratedFileLike>(files: T[]): T[] {
-  return sortByPinnedMeta(
+  return sortByRecentActivityMeta(
     files.map((item, index) => ({
       ...item,
-      pinned: Boolean(item.meta?.isPinned),
       pinnedAt:
         typeof item.meta?.pinnedAt === 'string'
           ? item.meta.pinnedAt
@@ -118,7 +140,22 @@ export function sortGeneratedFiles<T extends GeneratedFileLike>(files: T[]): T[]
           : undefined,
       index,
     })),
-  ).map(({ pinned: _pinned, pinnedAt: _pinnedAt, addedAt: _addedAt, index: _index, ...item }) => item as T);
+  ).map(({ pinnedAt: _pinnedAt, addedAt: _addedAt, index: _index, ...item }) => item as T);
+}
+
+export function isArtifactReferenceEligible(file: GeneratedFileLike | null | undefined): boolean {
+  return String(file?.type || '').trim() === 'report';
+}
+
+export function replaceConversationGeneratedFiles<T extends GeneratedFileLike>(files: T[], nextFiles: T[]): T[] {
+  return sortGeneratedFiles([
+    ...nextFiles,
+    ...files.filter((file) => !isConversationGeneratedFile(file)),
+  ]);
+}
+
+export function clearConversationGeneratedFiles<T extends GeneratedFileLike>(files: T[]): T[] {
+  return sortGeneratedFiles(files.filter((file) => !isConversationGeneratedFile(file)));
 }
 
 export function upsertGeneratedFileInList<T extends GeneratedFileLike>(files: T[], file: T): T[] {
@@ -196,6 +233,7 @@ export function toGeneratedFileFromCourseMaterial<T extends CourseMaterialLike>(
     type,
     content: material.content,
     meta: {
+      origin: 'course_material',
       courseId: material.courseId,
       isPinned: Boolean(material.isPinned),
       pinnedAt: material.pinnedAt,
@@ -242,5 +280,5 @@ export function formatArtifactVersionText(version?: ArtifactVersionLike | null):
     return versionId;
   }
 
-  return `${versionId}（基于 v${versionNumber - 1} 修改）`;
+  return `${versionId}（基于v${versionNumber - 1} 修改）`;
 }

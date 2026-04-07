@@ -19,6 +19,9 @@ class ConversationStoreAdapter:
             "state": self.storage.get_state(conversation_id),
         }
 
+    def load_conversation_detail(self, conversation_id: str, *, owner: str | None = None):
+        return self.storage.get_conversation(conversation_id, owner=owner)
+
     def append_message(self, conversation_id: str, role: str, content: str, *, sources=None, message_kind: str | None = None):
         self.storage.append_message(conversation_id, role, content, sources=sources, message_kind=message_kind)
 
@@ -27,6 +30,16 @@ class ConversationStoreAdapter:
 
     @staticmethod
     def _normalize_artifact_reference(value) -> dict:
+        if value is None:
+            return {}
+        if hasattr(value, "model_dump"):
+            return dict(value.model_dump(exclude_none=True))
+        if isinstance(value, dict):
+            return dict(value)
+        return {}
+
+    @staticmethod
+    def _normalize_conversation_reference(value) -> dict:
         if value is None:
             return {}
         if hasattr(value, "model_dump"):
@@ -91,15 +104,25 @@ class ConversationStoreAdapter:
         artifact_reference = ConversationStoreAdapter._normalize_artifact_reference(
             getattr(request, "artifact_reference", None)
         )
+        conversation_reference = ConversationStoreAdapter._normalize_conversation_reference(
+            getattr(request, "conversation_reference", None)
+        )
         first_artifact = artifacts[0] if artifacts else {}
         active_artifact_id = str(first_artifact.get("artifact_id") or artifact_reference.get("artifact_id") or "")
         active_artifact_type = str(first_artifact.get("artifact_type") or artifact_reference.get("artifact_type") or "")
+        active_reference_mode = ""
+        if artifact_reference:
+            active_reference_mode = "artifact_edit"
+        elif conversation_reference:
+            active_reference_mode = "conversation_reference"
         return {
             "active_workflow_type": (workflow or {}).get("type") or "",
             "active_workflow_status": workflow_status or str((workflow or {}).get("status") or ""),
             "active_artifact_id": active_artifact_id,
             "active_artifact_type": active_artifact_type,
-            "active_reference_mode": "artifact_edit" if artifact_reference else "",
+            "active_reference_mode": active_reference_mode,
+            "referenced_conversation_id": str(conversation_reference.get("conversation_id") or ""),
+            "referenced_conversation_title": conversation_reference.get("title"),
             "current_course_id": getattr(request, "course_id", None),
             "pinned_doc_ids": selected_doc_ids,
         }
@@ -178,6 +201,7 @@ class ConversationStoreAdapter:
 
         artifacts = result.get("artifacts") or []
         artifact_reference = self._normalize_artifact_reference(getattr(request, "artifact_reference", None))
+        conversation_reference = self._normalize_conversation_reference(getattr(request, "conversation_reference", None))
         if artifacts:
             first = artifacts[0]
             state_patch["active_artifact"] = {
@@ -191,14 +215,20 @@ class ConversationStoreAdapter:
                 "artifact_type": artifact_reference.get("artifact_type") or "",
                 "title": artifact_reference.get("title"),
             }
-        if workflow or artifacts or getattr(request, "course_id", None) or getattr(getattr(request, "capability", None), "selected_doc_ids", None):
+        if (
+            workflow
+            or artifacts
+            or getattr(request, "course_id", None)
+            or getattr(getattr(request, "capability", None), "selected_doc_ids", None)
+            or conversation_reference
+        ):
             state_patch["active_context"] = self._build_active_context_patch(
                 request=request,
                 workflow=workflow,
                 workflow_status=workflow_status,
                 artifacts=artifacts,
             )
-        elif artifact_reference:
+        elif artifact_reference or conversation_reference:
             state_patch["active_context"] = self._build_active_context_patch(
                 request=request,
                 workflow=workflow,
@@ -222,6 +252,8 @@ class ConversationStoreAdapter:
             state_patch["referenced_artifact_ids"] = [str(artifact_reference.get("artifact_id") or "")]
         if artifact_reference:
             state_patch["artifact_reference"] = dict(artifact_reference)
+        if conversation_reference:
+            state_patch["conversation_reference"] = dict(conversation_reference)
         extraction_patch, enhancement_observation = self.build_memory_state_patch_with_observation(
             conversation_id=conversation_id,
             request=request,

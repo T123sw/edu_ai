@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { RAGSource } from '../../services/rag';
-import type { ChatArtifactReference, StatusCardV2 } from '../../services/teacher/chatV2';
+import type { ChatArtifactReference, ChatConversationReference, StatusCardV2 } from '../../services/teacher/chatV2';
 import {
+  clearConversationGeneratedFiles,
   pinGeneratedFileInList,
+  replaceConversationGeneratedFiles,
   upsertGeneratedFileInList,
 } from '../../services/teacher/materials.helpers';
 
@@ -36,6 +38,7 @@ export interface HighlightRequest {
 }
 
 type ArtifactReference = ChatArtifactReference;
+type ConversationReference = ChatConversationReference;
 
 interface AppState {
   documents: Document[];
@@ -45,6 +48,7 @@ interface AppState {
   messages: ChatMessage[];
   currentConversationId: string | null;
   artifactReference: ArtifactReference | null;
+  conversationReference: ConversationReference | null;
   generatedFiles: GeneratedFile[];
   viewingFile: GeneratedFile | null;
   highlightRequest: HighlightRequest | null;
@@ -62,8 +66,12 @@ interface AppState {
   setCurrentConversationId: (conversationId: string | null) => void;
   setArtifactReference: (reference: ArtifactReference | null) => void;
   clearArtifactReference: () => void;
+  setConversationReference: (reference: ConversationReference | null) => void;
+  clearConversationReference: () => void;
   addGeneratedFile: (file: GeneratedFile) => void;
   pinGeneratedFile: (id: string, isPinned: boolean, pinnedAt?: string) => void;
+  replaceConversationGeneratedFiles: (files: GeneratedFile[]) => void;
+  clearConversationGeneratedFiles: () => void;
   removeGeneratedFilesByConversationId: (conversationId: string) => void;
   removeGeneratedFile: (id: string) => void;
   setViewingFile: (file: GeneratedFile | null) => void;
@@ -86,6 +94,7 @@ export const useStore = create<AppState>()(
       messages: initialMessages,
       currentConversationId: null,
       artifactReference: null,
+      conversationReference: null,
       generatedFiles: initialGeneratedFiles,
       viewingFile: null,
       highlightRequest: null,
@@ -122,6 +131,8 @@ export const useStore = create<AppState>()(
       setCurrentConversationId: (conversationId) => set({ currentConversationId: conversationId }),
       setArtifactReference: (reference) => set({ artifactReference: reference }),
       clearArtifactReference: () => set({ artifactReference: null }),
+      setConversationReference: (reference) => set({ conversationReference: reference }),
+      clearConversationReference: () => set({ conversationReference: null }),
       addGeneratedFile: (file) =>
         set((state) => {
           const nextFiles = upsertGeneratedFileInList(state.generatedFiles, file);
@@ -142,15 +153,42 @@ export const useStore = create<AppState>()(
             viewingFile: nextViewingFile,
           };
         }),
+      replaceConversationGeneratedFiles: (files) =>
+        set((state) => {
+          const nextFiles = replaceConversationGeneratedFiles(state.generatedFiles, files);
+          const currentViewingId = String(state.viewingFile?.id || '').trim();
+          const nextViewingFile = currentViewingId
+            ? nextFiles.find((file) => file.id === currentViewingId) || null
+            : null;
+          return {
+            generatedFiles: nextFiles,
+            viewingFile: nextViewingFile,
+          };
+        }),
+      clearConversationGeneratedFiles: () =>
+        set((state) => {
+          const nextFiles = clearConversationGeneratedFiles(state.generatedFiles);
+          const nextViewingFile =
+            state.viewingFile && String(state.viewingFile.meta?.origin || '').trim() !== 'course_material'
+              ? null
+              : state.viewingFile;
+          return {
+            generatedFiles: nextFiles,
+            viewingFile: nextViewingFile,
+          };
+        }),
       removeGeneratedFilesByConversationId: (conversationId) =>
         set((state) => {
           const nextFiles = state.generatedFiles.filter(
-            (file) => String(file.meta?.conversationId || '') !== conversationId,
+            (file) =>
+              String(file.meta?.conversationId || '') !== conversationId
+              || String(file.meta?.origin || '').trim() === 'course_material',
           );
           return {
             generatedFiles: nextFiles,
             viewingFile:
               String(state.viewingFile?.meta?.conversationId || '') === conversationId
+              && String(state.viewingFile?.meta?.origin || '').trim() !== 'course_material'
                 ? null
                 : state.viewingFile,
           };

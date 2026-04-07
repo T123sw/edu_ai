@@ -41,9 +41,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     queuedMessage,
     setQueuedMessage,
     artifactReference,
+    conversationReference,
     setArtifactReference,
     clearArtifactReference,
+    setConversationReference,
+    clearConversationReference,
     addGeneratedFile,
+    replaceConversationGeneratedFiles,
+    clearConversationGeneratedFiles,
     removeGeneratedFilesByConversationId,
     setViewingFile,
     statusCard,
@@ -116,7 +121,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       setCurrentConversationId(detail.conversation_id);
       setStatusCard(detail.status_card || null);
       const restoredFiles = restoreGeneratedFilesFromConversationDetail(detail);
-      restoredFiles.forEach((file) => addGeneratedFile(file));
+      replaceConversationGeneratedFiles(restoredFiles);
       const stateArtifactReference = detail?.state?.artifact_reference;
       if (stateArtifactReference && typeof stateArtifactReference === 'object') {
         setArtifactReference({
@@ -129,6 +134,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         });
       } else {
         clearArtifactReference();
+      }
+      const stateConversationReference = detail?.state?.conversation_reference;
+      if (stateConversationReference && typeof stateConversationReference === 'object') {
+        setConversationReference({
+          conversation_id: String((stateConversationReference as any).conversation_id || '').trim(),
+          title: String((stateConversationReference as any).title || '').trim() || undefined,
+          message_count:
+            typeof (stateConversationReference as any).message_count === 'number'
+              ? (stateConversationReference as any).message_count
+              : undefined,
+        });
+      } else {
+        clearConversationReference();
       }
       setViewingFile(null);
 
@@ -149,6 +167,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     setInputValue('');
     setStatusCard(null);
     clearArtifactReference();
+    clearConversationReference();
+    clearConversationGeneratedFiles();
+    setViewingFile(null);
     message.success('已新建对话');
   };
 
@@ -168,6 +189,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           setCurrentConversationId(null);
           setStatusCard(null);
           clearArtifactReference();
+          clearConversationReference();
           setViewingFile(null);
         }
       }
@@ -202,6 +224,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           allowWeb,
           selectedDocIds: selectedDocs,
           artifactReference,
+          conversationReference,
         }),
       );
 
@@ -216,6 +239,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         ...file,
         meta: {
           ...(file.meta || {}),
+          origin: 'conversation',
           conversationId: nextConversationId || currentConversationId,
         },
       }));
@@ -338,6 +362,27 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
               </Button>
 
               {loadingConversationId === item.conversation_id && <Spin size="small" />}
+
+              <Button
+                type="text"
+                size="small"
+                icon={<SnippetsOutlined />}
+                disabled={item.conversation_id === currentConversationId}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setConversationReference({
+                    conversation_id: item.conversation_id,
+                    title: item.title || undefined,
+                    message_count: item.message_count,
+                  });
+                  setHistoryPopoverOpen(false);
+                  setHistoryExpanded(false);
+                  message.success('已引用历史对话');
+                }}
+              >
+                引用
+              </Button>
 
               <Button
                 type="text"
@@ -551,6 +596,37 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         />
         <div ref={chatEndRef} />
       </div>
+
+      {conversationReference ? (
+        <div
+          style={{
+            marginBottom: 8,
+            padding: '8px 12px',
+            border: '1px solid #d9d9d9',
+            borderRadius: 8,
+            background: '#fafafa',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <Text strong>{conversationReference.title || '已引用对话'}</Text>
+            <div>
+              <Text type="secondary">
+                历史对话
+                {typeof conversationReference.message_count === 'number'
+                  ? ` · ${conversationReference.message_count} 条消息`
+                  : ''}
+              </Text>
+            </div>
+          </div>
+          <Button size="small" onClick={() => clearConversationReference()}>
+            移除引用
+          </Button>
+        </div>
+      ) : null}
 
       {artifactReference ? (
         <div

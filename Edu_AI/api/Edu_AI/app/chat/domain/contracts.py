@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from .artifact_reference import ArtifactReferencePayload
 from .capability_policy import CapabilityPolicy
+from .conversation_reference import ConversationReferencePayload
 
 
 class MessagePayload(BaseModel):
@@ -37,6 +38,7 @@ class ChatRequestV2(BaseModel):
     course_id: str | None = None
     artifact_id: str | None = None
     artifact_reference: ArtifactReferencePayload | None = None
+    conversation_reference: ConversationReferencePayload | None = None
     action_hint: str | None = None
     capability: CapabilityPolicy = Field(default_factory=CapabilityPolicy)
 

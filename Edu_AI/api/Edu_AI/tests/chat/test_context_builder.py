@@ -135,3 +135,39 @@ def test_context_builder_exposes_structured_report_context_fields():
     assert snapshot.conversation_memory["current_topics"] == ["课堂参与度"]
     assert snapshot.active_context["current_course_id"] == "course-1"
     assert snapshot.referenced_artifact_ids == ["artifact-1"]
+
+
+def test_context_builder_merges_referenced_conversation_summary_and_excerpt():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    storage.ensure_conversation("conv-current", "当前对话", owner="teacher-a")
+    storage.append_message("conv-current", "user", "请继续")
+    storage.ensure_conversation("conv-ref", "被引用对话", owner="teacher-a")
+    storage.append_message("conv-ref", "user", "学生前 10 分钟注意力不集中")
+    storage.append_message("conv-ref", "assistant", "主要问题集中在导入环节")
+    storage.update_state(
+        "conv-ref",
+        {
+            "conversation_summary": {"summary_text": "该对话聚焦课堂导入与注意力问题"},
+        },
+    )
+    adapter = ConversationStoreAdapter(storage=storage)
+    builder = ContextBuilder(conversation_store=adapter, memory_reader=None)
+
+    snapshot = builder.build(
+        ChatRequestV2(
+            question="结合引用对话继续分析",
+            conversation_id="conv-current",
+            owner="teacher-a",
+            conversation_reference={
+                "conversation_id": "conv-ref",
+                "title": "课堂观察会话",
+            },
+        )
+    )
+
+    assert "参考对话摘要" in snapshot.summary
+    assert snapshot.active_context["referenced_conversation_id"] == "conv-ref"
+    assert "课堂观察会话" in snapshot.recent_messages[0]["content"]
+    assert "学生前 10 分钟注意力不集中" in snapshot.recent_messages[0]["content"]

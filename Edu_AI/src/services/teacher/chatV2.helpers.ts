@@ -198,6 +198,7 @@ export function restoreGeneratedFilesFromConversationDetail(
     ...file,
     meta: {
       ...(file.meta || {}),
+      origin: 'conversation',
       conversationId: conversationId || undefined,
     },
   }));

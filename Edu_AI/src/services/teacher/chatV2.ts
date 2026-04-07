@@ -26,6 +26,7 @@ export interface ChatReplyRequestV2 {
   selected_doc_ids?: string[];
   action_hint?: string;
   artifact_reference?: ChatArtifactReference;
+  conversation_reference?: ChatConversationReference;
 }
 
 export interface ChatArtifactReference {
@@ -35,6 +36,12 @@ export interface ChatArtifactReference {
   title?: string;
   source_conversation_id?: string;
   source_course_id?: string;
+}
+
+export interface ChatConversationReference {
+  conversation_id: string;
+  title?: string;
+  message_count?: number;
 }
 
 export interface ChatReportRequestV2 {
@@ -149,6 +156,7 @@ interface BuildChatReplyPayloadOptions {
   allowWeb: boolean;
   selectedDocIds: string[];
   artifactReference?: ChatArtifactReference | null;
+  conversationReference?: ChatConversationReference | null;
 }
 
 export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): ChatReplyRequestV2 {
@@ -162,6 +170,9 @@ export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): Ch
   };
   if (options.artifactReference) {
     payload.artifact_reference = options.artifactReference;
+  }
+  if (options.conversationReference) {
+    payload.conversation_reference = options.conversationReference;
   }
   return payload;
 }

@@ -46,7 +46,7 @@ import {
 } from '../../services/teacher/api';
 import { sendReportV2 } from '../../services/teacher/chatV2';
 import { buildReportQuestionFromConfig, extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
-import { toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
+import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
 
@@ -558,6 +558,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             ...file,
             meta: {
               ...(file.meta || {}),
+              origin: 'conversation',
               conversationId: nextConversationId || currentConversationId,
             },
           }));
@@ -680,6 +681,22 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   };
 
   // Collapsed view: 显示功能模块logo和文档列表
+  const handleAddToChat = (file: GeneratedFile) => {
+    if (!isArtifactReferenceEligible(file)) {
+      return;
+    }
+
+    setArtifactReference({
+      artifact_id: String(file.meta?.originalArtifactId || file.id).trim(),
+      artifact_type: file.meta?.kind === 'outline' ? 'report_outline' : 'report',
+      version_id: String(file.meta?.versionId || '').trim() || undefined,
+      title: file.name,
+      source_conversation_id: String(file.meta?.conversationId || currentConversationId || '').trim() || undefined,
+      source_course_id: String(courseId || '').trim() || undefined,
+    });
+    message.success('已添加到对话');
+  };
+
   if (collapsed) {
     // 功能类型定义
     const functionTypes = [
@@ -995,6 +1012,13 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               {viewingFile.name}
             </Title>
             <Divider style={{ flexShrink: 0 }} />
+            {isArtifactReferenceEligible(viewingFile) && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
+                <Button type="primary" icon={<MessageOutlined />} onClick={() => handleAddToChat(viewingFile)}>
+                  添加到对话
+                </Button>
+              </div>
+            )}
             {canToggleReportOutline && (
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
                 <Space.Compact>
@@ -1063,6 +1087,13 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             {report.title || viewingFile.name}
           </Title>
           <Divider style={{ flexShrink: 0 }} />
+          {isArtifactReferenceEligible(viewingFile) && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
+              <Button type="primary" icon={<MessageOutlined />} onClick={() => handleAddToChat(viewingFile)}>
+                添加到对话
+              </Button>
+            </div>
+          )}
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
             {/* 执行摘要 */}
             {report.summary && (
@@ -1875,23 +1906,6 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {generatedFiles.map((item) => {
           const menuItems: MenuProps['items'] = [
-            {
-              key: 'add-to-chat',
-              label: '添加到对话',
-              icon: <MessageOutlined />,
-              onClick: (info) => {
-                info.domEvent.stopPropagation();
-                setArtifactReference({
-                  artifact_id: String(item.meta?.originalArtifactId || item.id).trim(),
-                  artifact_type: item.meta?.kind === 'outline' ? 'report_outline' : 'report',
-                  version_id: String(item.meta?.versionId || '').trim() || undefined,
-                  title: item.name,
-                  source_conversation_id: String(item.meta?.conversationId || currentConversationId || '').trim() || undefined,
-                  source_course_id: String(courseId || '').trim() || undefined,
-                });
-                message.success('已添加到对话');
-              },
-            },
             {
               key: 'add-to-course',
               label: '增加至课程资料',
