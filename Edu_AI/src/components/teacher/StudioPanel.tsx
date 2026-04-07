@@ -44,9 +44,12 @@ import {
   type QuizResponse,
   type ReportResponse,
 } from '../../services/teacher/api';
-import { sendReportV2 } from '../../services/teacher/chatV2';
+import { generateKnowledgeBaseReportV2 } from '../../services/teacher/chatV2';
 import { buildReportQuestionFromConfig, extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
+import { buildKnowledgeBaseReportRequest } from '../../services/teacher/reportEntry.helpers';
+import type { ReportEntryCard } from '../../services/teacher/chatV2';
 import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
+import ReportEntryModal from './ReportEntryModal';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
 
@@ -375,12 +378,13 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
   const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline'>('body');
+  const [reportEntryVisible, setReportEntryVisible] = useState(false);
 
   useEffect(() => {
     setReportPreviewMode('body');
   }, [viewingFile?.id]);
 
-  const handleGenerate = async (type: GeneratedFile['type'] | string) => {
+  const handleGenerateLegacy = async (type: GeneratedFile['type'] | string) => {
     const typeNames: Record<string, string> = {
       report: '报告',
       quiz: '测验',
@@ -437,7 +441,20 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     message.info('该功能开发中，敬请期待');
   };
 
-  const handleConfigure = (type: string) => {
+  const handleGenerate = async (type: GeneratedFile['type'] | string) => {
+    if (type === 'report') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先选择至少一份知识库文档');
+        return;
+      }
+      setReportEntryVisible(true);
+      return;
+    }
+
+    return handleGenerateLegacy(type);
+  };
+
+  const handleConfigureLegacy = (type: string) => {
     setConfigType(type);
     setConfigModalVisible(true);
     if (type === 'lesson_plan') {
@@ -455,6 +472,76 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         duration: 45,
         difficulty: 'medium',
       });
+    }
+  };
+
+  const handleConfigure = (type: string) => {
+    if (type === 'report') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先选择至少一份知识库文档');
+        return;
+      }
+      setReportEntryVisible(true);
+      return;
+    }
+
+    handleConfigureLegacy(type);
+  };
+
+  const handleReportEntrySubmit = async ({
+    question,
+    promptDraft,
+    card,
+  }: {
+    question: string;
+    promptDraft: string;
+    card: ReportEntryCard;
+  }) => {
+    setGenerating(true);
+    try {
+      const response = await generateKnowledgeBaseReportV2(
+        buildKnowledgeBaseReportRequest({
+          question,
+          promptDraft,
+          card,
+          courseId,
+          selectedDocIds: selectedDocs,
+          allowRag,
+          allowWeb,
+        }),
+      );
+
+      const generatedReportFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
+        ...file,
+        meta: {
+          ...(file.meta || {}),
+          origin: 'knowledge_base_direct',
+        },
+      }));
+
+      generatedReportFiles.forEach((file) => addGeneratedFile(file));
+
+      if (generatedReportFiles.length > 0) {
+        const latestFile = generatedReportFiles[generatedReportFiles.length - 1];
+        setViewingFile(latestFile);
+
+        if (courseId) {
+          addMaterial({
+            ...latestFile,
+            addedAt: new Date().toISOString(),
+            courseId,
+          });
+          await refreshCourseMaterials();
+        }
+      }
+
+      setReportEntryVisible(false);
+      message.success(generatedReportFiles.length > 0 ? '报告已生成并在右侧打开。' : '报告流程已启动。');
+    } catch (error: any) {
+      message.error(`报告生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -1562,6 +1649,14 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
       <Text type="secondary" style={{ flexShrink: 0, marginBottom: 16, display: 'block' }}>点击生成</Text>
 
+      <ReportEntryModal
+        open={reportEntryVisible}
+        selectedDocIds={selectedDocs}
+        courseId={courseId}
+        submitting={generating}
+        onCancel={() => setReportEntryVisible(false)}
+        onSubmit={handleReportEntrySubmit}
+      />
       <Modal
         title="教学博客大纲审查"
         open={blogReviewModalVisible}

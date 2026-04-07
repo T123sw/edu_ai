@@ -8,6 +8,7 @@ import re
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.agents.universal_report_engine import build_universal_report_graph
 from app.chat.application.request_normalizer import normalize_chat_request
+from app.chat.domain.conversation_snapshot import ConversationSnapshot
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.generation_context_builder import GenerationContextBuilder
 from app.chat.orchestrator.generation_readiness_judge import GenerationReadinessJudge
@@ -165,28 +166,77 @@ class ReportServiceV2:
         self.status_card_builder = status_card_builder or StatusCardBuilder()
         self.course_storage_manager = course_storage_manager
 
+    @staticmethod
+    def _is_knowledge_base_entry(payload) -> bool:
+        return str(getattr(payload, "entry_mode", "") or "").strip() == "knowledge_base_report"
+
+    @staticmethod
+    def _normalize_request_question(*, payload, request) -> None:
+        final_user_prompt = str(getattr(payload, "final_user_prompt", "") or "").strip()
+        if final_user_prompt:
+            request.question = final_user_prompt
+
+    def _build_runtime_snapshot(self, *, payload, request, snapshot):
+        if not self._is_knowledge_base_entry(payload):
+            return snapshot
+        return ConversationSnapshot(
+            conversation_id=str(getattr(request, "conversation_id", "") or ""),
+            recent_messages=[],
+            summary="",
+            conversation_memory={},
+            active_context={},
+            referenced_artifact_ids=[],
+            active_task=None,
+            active_artifact=None,
+            workflow_state=None,
+            capability=getattr(request, "capability", None),
+        )
+
+    @staticmethod
+    def _write_trace_input(*, payload, result: dict) -> None:
+        trace = dict(result.get("trace") or {})
+        trace_input = dict(trace.get("input") or {})
+
+        report_config = getattr(payload, "report_config", None)
+        if report_config is not None:
+            trace_input["report_config"] = report_config
+
+        entry_mode = str(getattr(payload, "entry_mode", "") or "").strip()
+        if entry_mode:
+            trace_input["entry_mode"] = entry_mode
+
+        prompt_draft = str(getattr(payload, "prompt_draft", "") or "").strip()
+        if prompt_draft:
+            trace_input["prompt_draft"] = prompt_draft
+
+        final_user_prompt = str(getattr(payload, "final_user_prompt", "") or "").strip()
+        if final_user_prompt:
+            trace_input["final_user_prompt"] = final_user_prompt
+
+        selected_card = getattr(payload, "selected_card", None)
+        if selected_card is not None:
+            trace_input["selected_card"] = dict(selected_card) if isinstance(selected_card, dict) else dict(selected_card.__dict__)
+
+        trace["input"] = trace_input
+        result["trace"] = trace
+
     def report(self, payload):
         request = normalize_chat_request(payload)
+        self._normalize_request_question(payload=payload, request=request)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
         snapshot = self.context_builder.build(request)
+        runtime_snapshot = self._build_runtime_snapshot(payload=payload, request=request, snapshot=snapshot)
         decision = SimpleNamespace(path="workflow", action="generate.report", workflow_name="report")
-        result = self.report_runtime.run(request=request, snapshot=snapshot, decision=decision)
+        result = self.report_runtime.run(request=request, snapshot=runtime_snapshot, decision=decision)
         finalize_report_result(
             payload=payload,
             result=result,
             course_storage_manager=self.course_storage_manager,
             compact_message=True,
         )
-
-        report_config = getattr(payload, "report_config", None)
-        if report_config is not None:
-            trace = dict(result.get("trace") or {})
-            trace_input = dict(trace.get("input") or {})
-            trace_input["report_config"] = report_config
-            trace["input"] = trace_input
-            result["trace"] = trace
+        self._write_trace_input(payload=payload, result=result)
 
         conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "").strip()
         result.setdefault("conversation", {"conversation_id": conversation_id})

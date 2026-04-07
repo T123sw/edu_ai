@@ -53,6 +53,70 @@ export interface ChatReportRequestV2 {
   allow_web?: boolean;
   selected_doc_ids?: string[];
   report_config?: Record<string, unknown> | null;
+  entry_mode?: 'knowledge_base_report' | 'chat_report';
+  prompt_draft?: string;
+  final_user_prompt?: string;
+  selected_card?: ReportEntryCardSelection | null;
+}
+
+export interface ChatReportCardsRequestV2 {
+  course_id?: string;
+  selected_doc_ids?: string[];
+}
+
+export interface KnowledgeBaseDirectReportRequestV2 {
+  question: string;
+  course_id?: string;
+  selected_doc_ids?: string[];
+  report_config?: Record<string, unknown> | null;
+  prompt_draft?: string;
+  final_user_prompt?: string;
+  selected_card?: ReportEntryCardSelection | null;
+}
+
+export interface ReportEntryCardSelection {
+  card_id: string;
+  card_type: 'preset' | 'recommended';
+  preset_key?: 'brief' | 'detailed' | 'study_plan' | 'custom';
+  recommendation_type?:
+    | 'summary'
+    | 'comparison'
+    | 'risk_analysis'
+    | 'teaching_suggestion'
+    | 'study_focus'
+    | 'theme_outline';
+}
+
+export interface ReportEntryCard {
+  card_id: string;
+  card_type: 'preset' | 'recommended';
+  title: string;
+  description: string;
+  prompt_draft: string;
+  preset_key?: 'brief' | 'detailed' | 'study_plan' | 'custom';
+  recommendation_type?:
+    | 'summary'
+    | 'comparison'
+    | 'risk_analysis'
+    | 'teaching_suggestion'
+    | 'study_focus'
+    | 'theme_outline';
+  recommendation_source?: 'doc_summaries';
+  fit_score?: 'high' | 'medium' | 'low';
+}
+
+export interface ChatReportCardsResponseV2 {
+  entry_mode: 'knowledge_base_report';
+  cards: ReportEntryCard[];
+  trace?: Record<string, unknown>;
+}
+
+export interface ChatDirectReportResponseV2 {
+  action: {
+    name: string;
+  };
+  artifacts: Array<Record<string, unknown>>;
+  trace: Record<string, unknown>;
 }
 
 export interface StatusCardEvidenceDetail {
@@ -114,7 +178,7 @@ export interface ChatErrorResponseV2 {
   };
 }
 
-async function postV2<TPayload>(path: string, payload: TPayload): Promise<ChatResponseV2> {
+async function postV2<TResponse, TPayload>(path: string, payload: TPayload): Promise<TResponse> {
   const token = getAuthToken();
   const resp = await fetch(`${BACKEND_BASE_URL}${path}`, {
     method: 'POST',
@@ -137,15 +201,27 @@ async function postV2<TPayload>(path: string, payload: TPayload): Promise<ChatRe
     throw new Error(detail);
   }
 
-  return (await resp.json()) as ChatResponseV2;
+  return (await resp.json()) as TResponse;
 }
 
 export async function sendChatReplyV2(payload: ChatReplyRequestV2): Promise<ChatResponseV2> {
-  return postV2('/api/chat/v2/reply', payload);
+  return postV2<ChatResponseV2, ChatReplyRequestV2>('/api/chat/v2/reply', payload);
 }
 
 export async function sendReportV2(payload: ChatReportRequestV2): Promise<ChatResponseV2> {
-  return postV2('/api/chat/v2/report', payload);
+  return postV2<ChatResponseV2, ChatReportRequestV2>('/api/chat/v2/report', payload);
+}
+
+export async function fetchReportEntryCardsV2(
+  payload: ChatReportCardsRequestV2,
+): Promise<ChatReportCardsResponseV2> {
+  return postV2<ChatReportCardsResponseV2, ChatReportCardsRequestV2>('/api/chat/v2/report/cards', payload);
+}
+
+export async function generateKnowledgeBaseReportV2(
+  payload: KnowledgeBaseDirectReportRequestV2,
+): Promise<ChatDirectReportResponseV2> {
+  return postV2<ChatDirectReportResponseV2, KnowledgeBaseDirectReportRequestV2>('/api/chat/v2/report/direct', payload);
 }
 
 interface BuildChatReplyPayloadOptions {

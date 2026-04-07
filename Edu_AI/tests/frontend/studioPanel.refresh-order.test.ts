@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const file = readFileSync('d:/github/edu_ai/Edu_AI/src/components/teacher/StudioPanel.tsx', 'utf8');
+const file = readFileSync(new URL('../../src/components/teacher/StudioPanel.tsx', import.meta.url), 'utf8');
 
 const refreshDeclaration = file.indexOf('const refreshCourseMaterials = React.useCallback');
 const effectDependencyUsage = file.indexOf('refreshCourseMaterials]);');

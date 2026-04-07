@@ -184,6 +184,100 @@ def test_report_service_preserves_report_config_in_trace():
     assert result["trace"]["input"]["report_config"]["topic"] == "课堂观察"
 
 
+def test_report_service_uses_final_user_prompt_for_knowledge_base_entry():
+    runtime = DummyRuntime()
+    snapshot = SimpleNamespace(
+        workflow_state=None,
+        active_artifact=None,
+        active_task=None,
+        recent_messages=[{"role": "user", "content": "旧会话消息"}],
+        summary="旧会话摘要",
+        conversation_memory={"summary": "旧记忆"},
+        active_context={"from_recent_messages": True},
+    )
+    service = ReportServiceV2(
+        context_builder=DummyBuilder(snapshot),
+        report_runtime=runtime,
+        conversation_store=DummyStore(),
+        status_card_builder=DummyStatusCardBuilder(),
+    )
+    payload = SimpleNamespace(
+        question="旧问题",
+        final_user_prompt="最终问题",
+        prompt_draft="默认草稿",
+        entry_mode="knowledge_base_report",
+        selected_card={"card_id": "preset-brief", "card_type": "preset", "preset_key": "brief"},
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=["doc-1"],
+        report_config=None,
+        owner="u1",
+    )
+
+    result = service.report(payload)
+
+    assert runtime.calls == [("最终问题", "report")]
+    assert result["trace"]["input"]["entry_mode"] == "knowledge_base_report"
+    assert result["trace"]["input"]["prompt_draft"] == "默认草稿"
+    assert result["trace"]["input"]["final_user_prompt"] == "最终问题"
+
+
+def test_report_service_ignores_conversation_snapshot_when_entry_mode_is_knowledge_base():
+    seen = {}
+
+    class RuntimeCapturingSnapshot:
+        def run(self, *, request, snapshot, decision):
+            seen["summary"] = getattr(snapshot, "summary", "")
+            seen["recent_messages"] = list(getattr(snapshot, "recent_messages", []) or [])
+            seen["conversation_memory"] = dict(getattr(snapshot, "conversation_memory", {}) or {})
+            return {
+                "message": {"role": "assistant", "content": "report"},
+                "conversation": {"conversation_id": request.conversation_id or "conv-1"},
+                "action": {"name": "generate.report"},
+                "workflow": {"type": "report", "status": "running"},
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "workflow", "workflow_name": "report"},
+            }
+
+    snapshot = SimpleNamespace(
+        workflow_state=None,
+        active_artifact=None,
+        active_task=None,
+        recent_messages=[{"role": "user", "content": "旧会话消息"}],
+        summary="旧会话摘要",
+        conversation_memory={"summary": "旧记忆"},
+        active_context={"from_recent_messages": True},
+    )
+    service = ReportServiceV2(
+        context_builder=DummyBuilder(snapshot),
+        report_runtime=RuntimeCapturingSnapshot(),
+        conversation_store=DummyStore(),
+        status_card_builder=DummyStatusCardBuilder(),
+    )
+    payload = SimpleNamespace(
+        question="生成报告",
+        entry_mode="knowledge_base_report",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=["doc-1"],
+        report_config=None,
+        owner="u1",
+    )
+
+    service.report(payload)
+
+    assert seen["summary"] == ""
+    assert seen["recent_messages"] == []
+    assert seen["conversation_memory"] == {}
+
+
 def test_report_service_syncs_report_artifact_titles_from_report_config():
     class RuntimeWithArtifacts:
         def run(self, *, request, snapshot, decision):

@@ -6,7 +6,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.auth import get_current_user
-from app.chat.api.schemas_v2 import ChatReplyRequestV2, ChatReportRequestV2, ChatResponseV2
+from app.chat.api.schemas_v2 import (
+    ChatDirectReportResponseV2,
+    ChatReplyRequestV2,
+    KnowledgeBaseDirectReportRequestV2,
+    ChatReportCardsRequestV2,
+    ChatReportCardsResponseV2,
+    ChatReportRequestV2,
+    ChatResponseV2,
+)
 from app.chat.application.response_builder_v2 import build_v2_error_response
 
 
@@ -23,6 +31,20 @@ def _get_report_service():
     from app.chat.application.report_service_v2 import build_default_report_service_v2
 
     return build_default_report_service_v2()
+
+
+def _get_report_entry_cards_service():
+    from app.chat.application.report_entry_cards_service_v2 import build_default_report_entry_cards_service_v2
+
+    return build_default_report_entry_cards_service_v2()
+
+
+def _get_direct_report_service():
+    from app.chat.application.knowledge_base_direct_report_service_v2 import (
+        build_default_knowledge_base_direct_report_service_v2,
+    )
+
+    return build_default_knowledge_base_direct_report_service_v2()
 
 
 def _with_owner(payload, current_user: dict):
@@ -61,6 +83,36 @@ async def report(payload: ChatReportRequestV2, current_user: dict = Depends(get_
             message=str(exc),
             conversation_id=payload.conversation_id or "",
             trace_path="workflow",
+            retryable=False,
+        )
+        return JSONResponse(status_code=500, content=body)
+
+
+@router.post("/report/cards", response_model=ChatReportCardsResponseV2)
+async def report_cards(payload: ChatReportCardsRequestV2, current_user: dict = Depends(get_current_user)):
+    try:
+        return _get_report_entry_cards_service().get_cards(_with_owner(payload, current_user))
+    except Exception as exc:
+        body = build_v2_error_response(
+            code="workflow_failed",
+            message=str(exc),
+            conversation_id="",
+            trace_path="workflow",
+            retryable=False,
+        )
+        return JSONResponse(status_code=500, content=body)
+
+
+@router.post("/report/direct", response_model=ChatDirectReportResponseV2)
+async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_user: dict = Depends(get_current_user)):
+    try:
+        return _get_direct_report_service().generate(_with_owner(payload, current_user))
+    except Exception as exc:
+        body = build_v2_error_response(
+            code="workflow_failed",
+            message=str(exc),
+            conversation_id="",
+            trace_path="direct",
             retryable=False,
         )
         return JSONResponse(status_code=500, content=body)
