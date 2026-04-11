@@ -46,6 +46,7 @@ Edu_AI/vector_db/
 
 # Local editor and agent configuration
 .vscode/
+.worktrees/
 .codex/
 .claude/
 **/.claude/
