@@ -1,10 +1,18 @@
 from app.chat.api.schemas_v2 import (
+    ChatDirectPptGenerateResponseV2,
+    ChatDirectPptOutlineResponseV2,
+    ChatPptCardsRequestV2,
+    ChatPptCardsResponseV2,
     ChatReportCardsRequestV2,
     ChatReportCardsResponseV2,
     ChatDirectReportResponseV2,
     ChatReportRequestV2,
     ChatResponseV2,
+    DirectPptConfigV2,
     KnowledgeBaseDirectReportRequestV2,
+    KnowledgeBaseDirectPptGenerateRequestV2,
+    KnowledgeBaseDirectPptOutlineRequestV2,
+    PptEntryCardSelectionV2,
     ReportEntryCardSelectionV2,
 )
 from app.chat.schemas import ChatRequest
@@ -35,6 +43,16 @@ def test_chat_response_v2_supports_new_top_level_shape():
 
 def test_chat_report_cards_request_supports_selected_docs():
     payload = ChatReportCardsRequestV2(
+        course_id="course-1",
+        selected_doc_ids=["doc-1", "doc-2"],
+    )
+
+    assert payload.course_id == "course-1"
+    assert payload.selected_doc_ids == ["doc-1", "doc-2"]
+
+
+def test_chat_ppt_cards_request_supports_selected_docs():
+    payload = ChatPptCardsRequestV2(
         course_id="course-1",
         selected_doc_ids=["doc-1", "doc-2"],
     )
@@ -133,3 +151,87 @@ def test_chat_direct_report_response_supports_artifact_only_shape():
     assert payload.action["name"] == "generate.report.direct"
     assert payload.trace.path == "direct"
     assert payload.artifacts[0]["artifact_type"] == "report"
+
+
+def test_direct_ppt_outline_request_supports_selected_docs_and_config():
+    payload = KnowledgeBaseDirectPptOutlineRequestV2(
+        course_id="course-1",
+        selected_doc_ids=["doc-1"],
+        ppt_config=DirectPptConfigV2(
+            deck_title="Agent Basics",
+            audience="Undergraduate students",
+            objective="Classroom presentation",
+            theme_id="heu_academic_elegant",
+            length_option="medium",
+            target_slide_count=16,
+            key_points=["Definition", "Workflow"],
+            general_requirements="Audience is high school students.",
+            selected_card=PptEntryCardSelectionV2(
+                card_id="preset-knowledge-lecture",
+                card_type="preset",
+                preset_key="knowledge_lecture",
+            ),
+        ),
+    )
+
+    assert payload.course_id == "course-1"
+    assert payload.selected_doc_ids == ["doc-1"]
+    assert payload.ppt_config.target_slide_count == 16
+    assert payload.ppt_config.length_option == "medium"
+
+
+def test_direct_ppt_generate_request_uses_draft_id():
+    payload = KnowledgeBaseDirectPptGenerateRequestV2(
+        draft_id="ppt-draft-1",
+        confirm=True,
+        outline={"deck_title": "Agent Basics", "slides": []},
+    )
+
+    assert payload.draft_id == "ppt-draft-1"
+    assert payload.confirm is True
+    assert payload.outline["deck_title"] == "Agent Basics"
+
+
+def test_direct_ppt_outline_response_supports_draft_payload():
+    payload = ChatDirectPptOutlineResponseV2(
+        action={"name": "generate.ppt.outline.direct"},
+        draft={"draft_id": "ppt-draft-1", "status": "outline_ready"},
+        artifacts=[],
+        trace={"path": "direct", "draft_id": "ppt-draft-1"},
+    )
+
+    assert payload.action["name"] == "generate.ppt.outline.direct"
+    assert payload.draft["draft_id"] == "ppt-draft-1"
+
+
+def test_chat_ppt_cards_response_supports_ppt_card_model():
+    payload = ChatPptCardsResponseV2(
+        entry_mode="knowledge_base_ppt",
+        cards=[
+            {
+                "card_id": "preset-knowledge-lecture",
+                "card_type": "preset",
+                "title": "知识讲解型",
+                "description": "适合概念定义与原理讲解。",
+                "objective_hint": "课堂讲解",
+                "length_option": "medium",
+                "preset_key": "knowledge_lecture",
+            }
+        ],
+        trace={"selected_doc_count": 1},
+    )
+
+    assert payload.entry_mode == "knowledge_base_ppt"
+    assert payload.cards[0].preset_key == "knowledge_lecture"
+
+
+def test_direct_ppt_generate_response_supports_run_payload():
+    payload = ChatDirectPptGenerateResponseV2(
+        action={"name": "generate.ppt.direct"},
+        run={"run_id": "ppt-run-1", "status": "running"},
+        artifacts=[],
+        trace={"path": "direct", "draft_id": "ppt-draft-1", "run_id": "ppt-run-1"},
+    )
+
+    assert payload.action["name"] == "generate.ppt.direct"
+    assert payload.run["run_id"] == "ppt-run-1"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from uuid import uuid4
 
 from app.chat.agents.report_generation import get_fallback_llm
@@ -8,12 +9,19 @@ from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.generation_context_builder import GenerationContextBuilder
 from app.chat.orchestrator.generation_readiness_judge import GenerationReadinessJudge
 from app.chat.orchestrator.main_orchestrator import MainOrchestrator
+from app.chat.orchestrator.ppt_context_organizer import PptContextOrganizer
 from app.chat.orchestrator.report_context_organizer import ReportContextOrganizer
 from app.chat.orchestrator.status_card_builder import StatusCardBuilder
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.model_registry import build_default_gateway
 from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
+from app.chat.workflows.ppt.content_validator import PptContentValidator
+from app.chat.workflows.ppt.content_markdown_generator import PptContentMarkdownGenerator
+from app.chat.workflows.ppt.html2ppt_client import Html2PptClient
+from app.chat.workflows.ppt.outline_builder import PptOutlineBuilder
+from app.chat.workflows.ppt.readiness_judge import PptReadinessJudge
+from app.chat.workflows.ppt.runtime import PptWorkflowRuntime
 from app.chat.workflows.report.edit_runtime import ReportEditRuntime
 from app.chat.workflows.report.assembler import ReportAssembler
 from app.chat.workflows.report.runtime import ReportWorkflowRuntime
@@ -102,7 +110,18 @@ def build_default_reply_service_v2():
                     report_assembler=ReportAssembler(),
                     report_context_organizer=ReportContextOrganizer(llm=get_fallback_llm()),
                     generation_readiness_judge=GenerationReadinessJudge(),
-                )
+                ),
+                "ppt": PptWorkflowRuntime(
+                    generation_context_builder=GenerationContextBuilder(),
+                    ppt_context_organizer=PptContextOrganizer(llm=get_fallback_llm()),
+                    readiness_judge=PptReadinessJudge(),
+                    outline_builder=PptOutlineBuilder(llm=get_fallback_llm()),
+                    content_markdown_generator=PptContentMarkdownGenerator(llm=get_fallback_llm()),
+                    content_validator=PptContentValidator(),
+                    html2ppt_client_factory=lambda: Html2PptClient(
+                        base_url=os.getenv("HTML2PPT_BASE_URL", "http://127.0.0.1:46080")
+                    ),
+                ),
             },
             context_builder=context_builder,
         )

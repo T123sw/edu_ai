@@ -12,8 +12,10 @@ TracePath = Literal["fast", "workflow"]
 DirectTracePath = Literal["direct"]
 WorkflowStatus = Literal["running", "awaiting_confirm", "completed", "interrupted", "failed"]
 ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
+PptEntryMode = Literal["knowledge_base_ppt"]
 ReportEntryCardType = Literal["preset", "recommended"]
 PresetKey = Literal["brief", "detailed", "study_plan", "custom"]
+PptPresetKey = Literal["knowledge_lecture", "topic_briefing", "comparison_analysis", "defense_summary"]
 RecommendationType = Literal[
     "summary",
     "comparison",
@@ -22,7 +24,9 @@ RecommendationType = Literal[
     "study_focus",
     "theme_outline",
 ]
+PptRecommendationType = Literal["concept_focus", "process_flow", "comparison_view", "case_application"]
 FitScore = Literal["high", "medium", "low"]
+PptLengthOption = Literal["short", "medium", "long"]
 
 
 class ChatReplyRequestV2(BaseModel):
@@ -59,6 +63,11 @@ class ChatReportCardsRequestV2(BaseModel):
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
+class ChatPptCardsRequestV2(BaseModel):
+    course_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+
+
 class KnowledgeBaseDirectReportRequestV2(BaseModel):
     question: str
     course_id: Optional[str] = None
@@ -67,6 +76,40 @@ class KnowledgeBaseDirectReportRequestV2(BaseModel):
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
     selected_card: Optional["ReportEntryCardSelectionV2"] = None
+
+
+class DirectPptConfigV2(BaseModel):
+    deck_title: str
+    deck_subtitle: Optional[str] = None
+    audience: str = ""
+    objective: str = ""
+    theme_id: str
+    length_option: PptLengthOption = "medium"
+    target_slide_count: int = 0
+    key_points: List[str] = Field(default_factory=list)
+    style_hint: Optional[str] = None
+    special_requirements: Optional[str] = None
+    general_requirements: Optional[str] = None
+    selected_card: Optional["PptEntryCardSelectionV2"] = None
+
+
+class KnowledgeBaseDirectPptOutlineRequestV2(BaseModel):
+    course_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+    ppt_config: DirectPptConfigV2
+
+
+class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
+    draft_id: str
+    confirm: bool = False
+    outline: Optional[Dict[str, Any]] = None
+
+
+class PptEntryCardSelectionV2(BaseModel):
+    card_id: str
+    card_type: ReportEntryCardType
+    preset_key: Optional[PptPresetKey] = None
+    recommendation_type: Optional[PptRecommendationType] = None
 
 
 class ReportEntryCardSelectionV2(BaseModel):
@@ -91,6 +134,29 @@ class ReportEntryCardV2(BaseModel):
 class ChatReportCardsResponseV2(BaseModel):
     entry_mode: ReportEntryMode
     cards: List[ReportEntryCardV2] = Field(default_factory=list)
+    trace: Dict[str, Any] = Field(default_factory=dict)
+
+
+class PptEntryCardV2(BaseModel):
+    card_id: str
+    card_type: ReportEntryCardType
+    title: str
+    description: str
+    objective_hint: str
+    length_option: PptLengthOption
+    preset_key: Optional[PptPresetKey] = None
+    recommendation_type: Optional[PptRecommendationType] = None
+    recommendation_source: Optional[Literal["doc_summaries"]] = None
+    fit_score: Optional[FitScore] = None
+    deck_title_hint: Optional[str] = None
+    audience_hint: Optional[str] = None
+    key_points_hint: List[str] = Field(default_factory=list)
+    style_hint: Optional[str] = None
+
+
+class ChatPptCardsResponseV2(BaseModel):
+    entry_mode: PptEntryMode
+    cards: List[PptEntryCardV2] = Field(default_factory=list)
     trace: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -125,5 +191,19 @@ class ChatErrorResponseV2(BaseModel):
 
 class ChatDirectReportResponseV2(BaseModel):
     action: Dict[str, Any]
+    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
+    trace: DirectTraceMetaV2
+
+
+class ChatDirectPptOutlineResponseV2(BaseModel):
+    action: Dict[str, Any]
+    draft: Dict[str, Any]
+    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
+    trace: DirectTraceMetaV2
+
+
+class ChatDirectPptGenerateResponseV2(BaseModel):
+    action: Dict[str, Any]
+    run: Dict[str, Any]
     artifacts: List[Dict[str, Any]] = Field(default_factory=list)
     trace: DirectTraceMetaV2

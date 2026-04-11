@@ -1,3 +1,5 @@
+import { resolvePptAssetUrl } from './pptAssets.ts';
+
 type GeneratedFileLike = {
   id: string;
   name?: string;
@@ -80,6 +82,136 @@ export function normalizeGeneratedFileId(id: string): string {
   return normalized.replace(/:/g, '__').replace(/[<>"/\\|?*]/g, '_');
 }
 
+function formatPptOutlineContent(content: unknown): string {
+  const deck = content && typeof content === 'object' ? (content as Record<string, unknown>) : {};
+  const deckTitle = String(deck.deck_title || deck.title || '').trim();
+  const deckSubtitle = String(deck.deck_subtitle || deck.subtitle || '').trim();
+  const slides = Array.isArray(deck.slides) ? deck.slides : [];
+
+  const lines: string[] = [];
+  if (deckTitle) {
+    lines.push(`# ${deckTitle}`);
+  }
+  if (deckSubtitle) {
+    lines.push(`> ${deckSubtitle}`);
+  }
+  if (slides.length > 0) {
+    if (lines.length > 0) {
+      lines.push('');
+    }
+    slides.forEach((slide: any, index: number) => {
+      const slideNo = Number(slide?.slide_index) || index + 1;
+      const title = String(slide?.title || `第 ${slideNo} 页`).trim();
+      const role = String(slide?.role || '').trim();
+      const goal = String(slide?.goal || '').trim();
+      const keyPoints = Array.isArray(slide?.key_points)
+        ? slide.key_points.map((item: unknown) => String(item || '').trim()).filter(Boolean)
+        : [];
+
+      lines.push(`## ${slideNo}. ${title}`);
+      if (role) {
+        lines.push(`- 角色：${role}`);
+      }
+      if (goal) {
+        lines.push(`- 目标：${goal}`);
+      }
+      keyPoints.forEach((item) => {
+        lines.push(`- ${item}`);
+      });
+      lines.push('');
+    });
+  }
+
+  return lines.join('\n').trim();
+}
+
+function normalizePptCourseMaterialPreview(material: CourseMaterialLike): {
+  content: unknown;
+  meta: Record<string, unknown>;
+} | null {
+  if (String(material.type || '').trim() !== 'ppt') {
+    return null;
+  }
+
+  const rawContent = material.content;
+  const outlineContent = formatPptOutlineContent(material.outline);
+  const generationState =
+    material.generationState && typeof material.generationState === 'object'
+      ? material.generationState
+      : undefined;
+
+  if (rawContent && typeof rawContent === 'object') {
+    const deckContent = rawContent as Record<string, unknown>;
+    const htmlPreviewUrl = resolvePptAssetUrl(deckContent.html_full_url || deckContent.html_url);
+    const pptxUrl = resolvePptAssetUrl(deckContent.pptx_url);
+    const manifestUrl = resolvePptAssetUrl(deckContent.manifest_url);
+    const markdownContent =
+      typeof deckContent.content_markdown === 'string'
+        ? deckContent.content_markdown.trim()
+        : typeof deckContent.markdown === 'string'
+          ? deckContent.markdown.trim()
+          : '';
+
+    if (htmlPreviewUrl || pptxUrl || manifestUrl) {
+      return {
+        content: deckContent,
+        meta: {
+          kind: 'ppt_deck',
+          outlineContent: outlineContent || undefined,
+          contentMarkdown: markdownContent || undefined,
+          htmlPreviewUrl,
+          pptxUrl,
+          manifestUrl,
+          jobId: String(deckContent.job_id || '').trim() || undefined,
+          revisionId: String(deckContent.revision_id || '').trim() || undefined,
+          generationState,
+        },
+      };
+    }
+
+    const embeddedOutlineContent = formatPptOutlineContent(deckContent);
+    if (embeddedOutlineContent) {
+      return {
+        content: embeddedOutlineContent,
+        meta: {
+          kind: 'ppt_outline',
+          outlineContent: embeddedOutlineContent,
+          generationState,
+        },
+      };
+    }
+  }
+
+  if (typeof rawContent === 'string' && rawContent.trim()) {
+    return {
+      content: rawContent,
+      meta: {
+        kind: 'ppt_content_markdown',
+        outlineContent: outlineContent || undefined,
+        generationState,
+      },
+    };
+  }
+
+  if (outlineContent) {
+    return {
+      content: outlineContent,
+      meta: {
+        kind: 'ppt_outline',
+        outlineContent,
+        generationState,
+      },
+    };
+  }
+
+  return {
+    content: rawContent,
+    meta: {
+      generationState,
+    },
+  };
+}
+
 export function sortCourseMaterials<T extends CourseMaterialLike>(materials: T[]): T[] {
   return sortByPinnedMeta(
     materials.map((item, index) => ({
@@ -151,6 +283,13 @@ export function replaceConversationGeneratedFiles<T extends GeneratedFileLike>(f
   return sortGeneratedFiles([
     ...nextFiles,
     ...files.filter((file) => !isConversationGeneratedFile(file)),
+  ]);
+}
+
+export function replaceCourseMaterialGeneratedFiles<T extends GeneratedFileLike>(files: T[], nextFiles: T[]): T[] {
+  return sortGeneratedFiles([
+    ...nextFiles,
+    ...files.filter((file) => !isCourseMaterialGeneratedFile(file)),
   ]);
 }
 
@@ -227,17 +366,20 @@ export function toGeneratedFileFromCourseMaterial<T extends CourseMaterialLike>(
     return null;
   }
 
+  const normalizedPptPreview = normalizePptCourseMaterialPreview(material);
+
   return {
     id,
     name: String(material.name || '未命名'),
     type,
-    content: material.content,
+    content: normalizedPptPreview?.content ?? material.content,
     meta: {
       origin: 'course_material',
       courseId: material.courseId,
       isPinned: Boolean(material.isPinned),
       pinnedAt: material.pinnedAt,
       addedAt: material.addedAt,
+      ...(normalizedPptPreview?.meta || {}),
       originalArtifactId: id,
       versionId: String(material.version?.version_id || '').trim() || undefined,
       versionNumber:
@@ -250,7 +392,9 @@ export function toGeneratedFileFromCourseMaterial<T extends CourseMaterialLike>(
         material.generationState && typeof material.generationState === 'object'
           ? material.generationState
           : undefined,
-      outlineContent: material.outline,
+      outlineContent:
+        normalizedPptPreview?.meta?.outlineContent
+        ?? material.outline,
     },
   };
 }

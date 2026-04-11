@@ -5,8 +5,8 @@ const file = readFileSync(new URL('../../src/components/teacher/StudioPanel.tsx'
 
 assert.match(
   file,
-  /const refreshCourseMaterials = React\.useCallback[\s\S]*addGeneratedFile\(/,
-  'refreshCourseMaterials should sync persisted course materials back into generatedFiles',
+  /const refreshCourseMaterials = React\.useCallback[\s\S]*replaceCourseMaterialGeneratedFiles\(/,
+  'refreshCourseMaterials should replace course-material scoped generatedFiles from the backend snapshot',
 );
 assert.match(
   file,

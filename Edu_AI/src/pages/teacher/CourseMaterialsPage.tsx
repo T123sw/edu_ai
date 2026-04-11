@@ -22,6 +22,7 @@ import {
   BookOutlined,
   ApartmentOutlined,
   FileTextOutlined,
+  FilePptOutlined,
   EditOutlined,
   QuestionCircleOutlined,
   MoreOutlined,
@@ -34,6 +35,7 @@ import {
 import { useCourseMaterialsStore, type CourseMaterial } from '../../store/teacher/useCourseMaterialsStore';
 import { useStore, type GeneratedFile } from '../../store/teacher/useStore';
 import { deleteCourseMaterial, getLessonPlanDetail, getCourseMaterials, pinCourseMaterial, type LessonPlanResponse, type ReportResponse, type QuizResponse } from '../../services/teacher/api';
+import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
 import MarkdownPreview from '../../components/shared/MarkdownPreview';
 import './CourseMaterialsPage.css';
 
@@ -50,6 +52,7 @@ const materialTypes: Array<{
   { key: 'lesson_plan', label: '教案生成', icon: <BookOutlined />, color: '#52c41a' },
   { key: 'graph', label: '思维导图', icon: <ApartmentOutlined />, color: '#eb2f96' },
   { key: 'report', label: '报告', icon: <FileTextOutlined />, color: '#faad14' },
+  { key: 'ppt', label: 'PPT', icon: <FilePptOutlined />, color: '#d46b08' },
   { key: 'blog', label: '教学博客', icon: <EditOutlined />, color: '#ff7875' },
   { key: 'quiz', label: '测验', icon: <QuestionCircleOutlined />, color: '#1890ff' },
 ];
@@ -229,6 +232,11 @@ export default function CourseMaterialsPage() {
           setViewingQuiz(item.content as QuizResponse);
         } else {
           message.warning('测验内容未找到');
+        }
+      } else if (item.type === 'ppt') {
+        if (!item.content) {
+          message.warning('PPT 内容未找到');
+          setViewModalVisible(false);
         }
       } else {
         message.info('该类型的内容查看功能待实现');
@@ -461,6 +469,45 @@ export default function CourseMaterialsPage() {
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
+        ) : viewingMaterial?.type === 'ppt' ? (
+          (() => {
+            const pptContent = (viewingMaterial.content || {}) as Record<string, any>;
+            const pptPreviewUrl = String(resolvePptAssetUrl(pptContent.html_full_url || pptContent.html_url) || '').trim();
+            const pptExportUrl = String(resolvePptAssetUrl(pptContent.pptx_url) || '').trim();
+            const pptManifestUrl = String(resolvePptAssetUrl(pptContent.manifest_url) || '').trim();
+
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <Space style={{ justifyContent: 'flex-end', width: '100%' }}>
+                  {pptManifestUrl ? (
+                    <Button onClick={() => window.open(pptManifestUrl, '_blank', 'noopener,noreferrer')}>
+                      查看结构
+                    </Button>
+                  ) : null}
+                  {pptExportUrl ? (
+                    <Button
+                      type="primary"
+                      icon={<FilePptOutlined />}
+                      onClick={() => window.open(pptExportUrl, '_blank', 'noopener,noreferrer')}
+                    >
+                      导出 PPT
+                    </Button>
+                  ) : null}
+                </Space>
+                {pptPreviewUrl ? (
+                  <div style={{ height: 'calc(100vh - 320px)', minHeight: 420, border: '1px solid #f0f0f0', borderRadius: 12, overflow: 'hidden' }}>
+                    <iframe
+                      src={pptPreviewUrl}
+                      title={viewingMaterial.name}
+                      style={{ width: '100%', height: '100%', border: 0, background: '#fff' }}
+                    />
+                  </div>
+                ) : (
+                  <Empty description={<Text type="secondary">当前 PPT 暂无可预览内容</Text>} />
+                )}
+              </div>
+            );
+          })()
         ) : viewingReport ? (
           <div>
             {/* 执行摘要 */}

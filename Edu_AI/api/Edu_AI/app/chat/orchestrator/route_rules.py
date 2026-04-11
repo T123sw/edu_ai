@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from app.chat.debug_logging import append_debug_log
 from app.chat.domain.route_decision import RouteDecision
 
-from .workflow_interrupts import interrupt_reason, is_rewrite_command, should_interrupt_workflow
+from .workflow_interrupts import is_rewrite_command, should_interrupt_workflow
 
 
 ACTION_TO_WORKFLOW = {
     "generate.report": "report",
+    "generate.ppt": "ppt",
     "generate.lesson_plan": "lesson_plan",
     "research.lookup": "research",
 }
@@ -23,9 +25,22 @@ _REPORT_CONTINUE_MARKERS = {
     "按已确认的大纲开始生成报告",
 }
 
+_PPT_CONTINUE_MARKERS = {
+    "继续",
+    "开始",
+    "确认",
+    "确认并继续",
+    "确认并生成",
+    "开始生成",
+    "开始生成ppt",
+    "开始生成课件",
+    "按这个大纲生成",
+    "就按这个生成",
+}
+
 
 def _normalized_text(value: str) -> str:
-    return str(value or "").strip().lower().strip("。！？!?.,，；;:：")
+    return str(value or "").strip().lower().strip("。！？?.,，；;:")
 
 
 def _snapshot_active_context(snapshot) -> dict:
@@ -42,7 +57,25 @@ def _snapshot_active_artifact_type(snapshot) -> str:
     if active_artifact_type:
         return active_artifact_type
     active_artifact = getattr(snapshot, "active_artifact", None) if snapshot is not None else None
+    if isinstance(active_artifact, dict):
+        return str(active_artifact.get("artifact_type") or "").strip()
     return str(getattr(active_artifact, "artifact_type", "") or "").strip()
+
+
+def _log_ppt_route(*, request, snapshot, reason: str, workflow_state=None) -> None:
+    append_debug_log(
+        "ppt_workflow",
+        event="route_decision",
+        conversation_id=str(getattr(request, "conversation_id", "") or ""),
+        question=str(getattr(request, "question", "") or ""),
+        action_hint=str(getattr(request, "action_hint", "") or ""),
+        reason=reason,
+        workflow_type=str(getattr(workflow_state, "workflow_type", "") or ""),
+        workflow_stage=str(getattr(workflow_state, "stage", "") or ""),
+        active_workflow_type=str(_snapshot_active_context(snapshot).get("active_workflow_type") or ""),
+        active_workflow_status=str(_snapshot_active_context(snapshot).get("active_workflow_status") or ""),
+        active_artifact_type=_snapshot_active_artifact_type(snapshot),
+    )
 
 
 def _is_report_followup(question: str, snapshot) -> bool:
@@ -78,6 +111,39 @@ def _is_report_followup(question: str, snapshot) -> bool:
     return False
 
 
+def _is_ppt_followup(question: str, snapshot) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+
+    active_context = _snapshot_active_context(snapshot)
+    active_artifact_type = _snapshot_active_artifact_type(snapshot)
+    memory = _snapshot_memory(snapshot)
+
+    ppt_goal = any(
+        any(marker in str(item or "").lower() for marker in ("ppt", "课件"))
+        for item in list(memory.get("user_goals") or [])
+        + list(memory.get("explicit_user_goals") or [])
+        + [memory.get("derived_workflow_goal")]
+    )
+    ppt_context_active = (
+        str(active_context.get("active_workflow_type") or "").strip() == "ppt"
+        and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+    )
+    ppt_artifact_active = active_artifact_type in {"ppt_outline", "ppt_content_markdown", "ppt_deck"}
+
+    if not (ppt_goal or ppt_context_active or ppt_artifact_active):
+        return False
+
+    if normalized in _PPT_CONTINUE_MARKERS:
+        return True
+    if "大纲" in normalized and any(token in normalized for token in ("继续", "开始", "确认", "生成")):
+        return True
+    if any(token in normalized for token in ("生成ppt", "生成课件", "导出ppt", "导出课件")):
+        return True
+    return False
+
+
 def decide_route(*, request, snapshot, workflow_state):
     if snapshot and getattr(snapshot, "active_artifact", None) and is_rewrite_command(request.question):
         return RouteDecision.fast(action="chat.rewrite", reason="active_artifact_rewrite")
@@ -95,6 +161,8 @@ def decide_route(*, request, snapshot, workflow_state):
         return RouteDecision.fast(action="chat.reply", reason="interrupt_to_chat")
 
     if workflow_state and not should_interrupt_workflow(request.question) and not request.action_hint:
+        if str(getattr(workflow_state, "workflow_type", "") or "").strip() == "ppt":
+            _log_ppt_route(request=request, snapshot=snapshot, reason="resume_workflow", workflow_state=workflow_state)
         return RouteDecision(
             path="workflow",
             action=workflow_state.workflow_type,
@@ -117,6 +185,21 @@ def decide_route(*, request, snapshot, workflow_state):
             reason="resume_active_report_context",
         )
 
+    if (
+        not workflow_state
+        and not request.action_hint
+        and str(active_context.get("active_workflow_type") or "").strip() == "ppt"
+        and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+        and _is_ppt_followup(request.question, snapshot)
+    ):
+        _log_ppt_route(request=request, snapshot=snapshot, reason="resume_active_ppt_context", workflow_state=workflow_state)
+        return RouteDecision(
+            path="workflow",
+            action="generate.ppt",
+            workflow_name="ppt",
+            reason="resume_active_ppt_context",
+        )
+
     if request.action_hint == "generate.lesson_plan":
         return RouteDecision(
             path="workflow",
@@ -133,7 +216,7 @@ def decide_route(*, request, snapshot, workflow_state):
             reason="explicit_research",
         )
 
-    if request.action_hint == "generate.report" or "报告" in request.question:
+    if request.action_hint == "generate.report" or "报告" in str(request.question or ""):
         return RouteDecision(
             path="workflow",
             action="generate.report",
@@ -147,6 +230,25 @@ def decide_route(*, request, snapshot, workflow_state):
             action="generate.report",
             workflow_name="report",
             reason="report_followup_from_context",
+        )
+
+    question_text = str(request.question or "")
+    if request.action_hint == "generate.ppt" or any(token in question_text.lower() for token in ("ppt", "课件")):
+        _log_ppt_route(request=request, snapshot=snapshot, reason="explicit_ppt", workflow_state=workflow_state)
+        return RouteDecision(
+            path="workflow",
+            action="generate.ppt",
+            workflow_name="ppt",
+            reason="explicit_ppt",
+        )
+
+    if _is_ppt_followup(request.question, snapshot):
+        _log_ppt_route(request=request, snapshot=snapshot, reason="ppt_followup_from_context", workflow_state=workflow_state)
+        return RouteDecision(
+            path="workflow",
+            action="generate.ppt",
+            workflow_name="ppt",
+            reason="ppt_followup_from_context",
         )
 
     if request.action_hint == "chat.rewrite":

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Divider, Dropdown, Space, Tooltip, Typography, Modal, Form, Input, Select, message, Progress, Spin, Card, InputNumber, Radio, Switch } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -44,16 +44,28 @@ import {
   type QuizResponse,
   type ReportResponse,
 } from '../../services/teacher/api';
-import { generateKnowledgeBaseReportV2 } from '../../services/teacher/chatV2';
+import {
+  generateKnowledgeBasePptOutlineV2,
+  generateKnowledgeBasePptV2,
+  generateKnowledgeBaseReportV2,
+} from '../../services/teacher/chatV2';
 import { buildReportQuestionFromConfig, extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
 import { buildKnowledgeBaseReportRequest } from '../../services/teacher/reportEntry.helpers';
+import {
+  buildDirectPptGenerateRequest,
+  buildDirectPptOutlineRequest,
+  type DirectPptEntryConfigInput,
+} from '../../services/teacher/pptEntry.helpers';
 import type { ReportEntryCard } from '../../services/teacher/chatV2';
 import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
+import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
+import PptEntryPanel from './PptEntryPanel';
 import ReportEntryModal from './ReportEntryModal';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
 
 const { Title, Text, Paragraph } = Typography;
+const PPT_PREVIEW_BASE_WIDTH = 1920;
 
 const getBlogStatusLabel = (status?: string) => {
   switch (status) {
@@ -70,6 +82,38 @@ const getBlogStatusLabel = (status?: string) => {
     default:
       return { text: status || '未知', color: '#8c8c8c' };
   }
+};
+
+const getPptPhaseLabel = (phase?: string) => {
+  switch (String(phase || '').trim()) {
+    case 'preprocessing':
+      return '正在准备生成任务';
+    case 'generating_slides':
+      return '正在生成幻灯片';
+    case 'exporting_pptx':
+      return '正在导出 PPT';
+    case 'completed':
+      return 'PPT 已生成完成';
+    case 'failed':
+      return '生成失败';
+    default:
+      return String(phase || '').trim() || '处理中';
+  }
+};
+
+const getPptStatusText = (status?: string, phase?: string, message?: string) => {
+  const normalizedStatus = String(status || '').trim();
+  const normalizedMessage = String(message || '').trim();
+  if (normalizedStatus === 'running') {
+    return getPptPhaseLabel(phase);
+  }
+  if (normalizedStatus === 'failed') {
+    return '生成失败';
+  }
+  if (normalizedStatus === 'completed') {
+    return 'PPT 已生成完成';
+  }
+  return normalizedMessage || getPptPhaseLabel(phase);
 };
 
 const calcProgressPercent = (current: number, total: number) => {
@@ -129,6 +173,8 @@ const getGeneratedFileIcon = (file: GeneratedFile, size = 20) => {
   switch (file.type) {
     case 'report':
       return <FileMarkdownOutlined style={{ fontSize: size, color: '#555' }} />;
+    case 'ppt':
+      return <FilePptOutlined style={{ fontSize: size, color: '#d46b08' }} />;
     case 'quiz':
       return <QuestionCircleOutlined style={{ fontSize: size, color: '#f7b731' }} />;
     case 'blog':
@@ -216,6 +262,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     generatedFiles,
     viewingFile,
     addGeneratedFile,
+    replaceCourseMaterialGeneratedFiles,
     removeGeneratedFile,
     setViewingFile,
     selectedDocs,
@@ -227,6 +274,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     setAllowRag,
     setAllowWeb,
     setStatusCard,
+    setQueuedMessage,
   } = useStore();
   const { addMaterial } = useCourseMaterialsStore();
   const [configModalVisible, setConfigModalVisible] = useState(false);
@@ -258,11 +306,11 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       pinnedAt: item.pinnedAt,
     }));
     useCourseMaterialsStore.getState().setMaterials(courseMaterials as any);
-    courseMaterials
+    const syncedGeneratedFiles = courseMaterials
       .map((item) => toGeneratedFileFromCourseMaterial(item))
-      .filter((item): item is GeneratedFile => item !== null)
-      .forEach((item) => addGeneratedFile(item));
-  }, [courseId, addGeneratedFile]);
+      .filter((item): item is GeneratedFile => item !== null);
+    replaceCourseMaterialGeneratedFiles(syncedGeneratedFiles);
+  }, [courseId, replaceCourseMaterialGeneratedFiles]);
 
   useEffect(() => {
     if (!courseId) {
@@ -379,6 +427,40 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
   const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline'>('body');
   const [reportEntryVisible, setReportEntryVisible] = useState(false);
+  const [pptEntryVisible, setPptEntryVisible] = useState(false);
+  const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
+  const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
+  const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
+  const [pptFullscreenActive, setPptFullscreenActive] = useState(false);
+
+  useEffect(() => {
+    const element = pptPreviewFrameRef.current;
+    if (!element || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const nextWidth = Math.max(Math.floor(entry?.contentRect?.width || 0), 320);
+      setPptPreviewFrameWidth(nextWidth);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [viewingFile?.id]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const handleFullscreenChange = () => {
+      setPptFullscreenActive(document.fullscreenElement === pptFullscreenRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    handleFullscreenChange();
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [viewingFile?.id]);
 
   useEffect(() => {
     setReportPreviewMode('body');
@@ -451,6 +533,15 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       return;
     }
 
+    if (type === 'ppt') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('璇峰厛閫夋嫨鑷冲皯涓€浠界煡璇嗗簱鏂囨。');
+        return;
+      }
+      setPptEntryVisible(true);
+      return;
+    }
+
     return handleGenerateLegacy(type);
   };
 
@@ -482,6 +573,15 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         return;
       }
       setReportEntryVisible(true);
+      return;
+    }
+
+    if (type === 'ppt') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('璇峰厛閫夋嫨鑷冲皯涓€浠界煡璇嗗簱鏂囨。');
+        return;
+      }
+      setPptEntryVisible(true);
       return;
     }
 
@@ -539,6 +639,69 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       message.success(generatedReportFiles.length > 0 ? '报告已生成并在右侧打开。' : '报告流程已启动。');
     } catch (error: any) {
       message.error(`报告生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleDirectPptOutlineSubmit = async ({
+    config,
+  }: {
+    config: DirectPptEntryConfigInput;
+  }) => {
+    setGenerating(true);
+    try {
+      return await generateKnowledgeBasePptOutlineV2(
+        buildDirectPptOutlineRequest({
+          courseId,
+          selectedDocIds: selectedDocs,
+          config,
+        }),
+      );
+    } catch (error: any) {
+      message.error(`PPT 大纲生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleDirectPptGenerateSubmit = async ({
+    draftId,
+    outline,
+  }: {
+    draftId: string;
+    outline?: Record<string, unknown>;
+  }) => {
+    setGenerating(true);
+    try {
+      const response = await generateKnowledgeBasePptV2(
+        buildDirectPptGenerateRequest({
+          draftId,
+          outline,
+        }),
+      );
+      const generatedFiles = extractGeneratedFilesFromV2Response(response as any).map((file) => ({
+        ...file,
+        meta: {
+          ...(file.meta || {}),
+          origin: 'knowledge_base_direct',
+        },
+      }));
+      generatedFiles.forEach((file) => addGeneratedFile(file as GeneratedFile));
+      if (generatedFiles.length > 0) {
+        const latestFile = generatedFiles[generatedFiles.length - 1] as GeneratedFile;
+        setViewingFile(latestFile);
+      }
+      if (courseId) {
+        await refreshCourseMaterials();
+      }
+      setPptEntryVisible(false);
+      message.success(generatedFiles.length > 0 ? 'PPT 已生成并在右侧打开。' : 'PPT 生成任务已启动。');
+      return response;
+    } catch (error: any) {
+      message.error(`PPT 生成失败: ${error.message || '未知错误'}`);
       throw error;
     } finally {
       setGenerating(false);
@@ -911,6 +1074,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             minHeight: 0,
             overflow: 'hidden',
+            position: 'relative',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -1063,6 +1227,234 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
 
     // 报告预览
+    if (viewingFile.type === 'ppt') {
+      const pptKind = String((viewingFile.meta as any)?.kind || '').trim();
+      const pptPreviewUrl = String(resolvePptAssetUrl((viewingFile.meta as any)?.htmlPreviewUrl) || '').trim();
+      const pptExportUrl = String(resolvePptAssetUrl((viewingFile.meta as any)?.pptxUrl) || '').trim();
+      const pptManifestUrl = String(resolvePptAssetUrl((viewingFile.meta as any)?.manifestUrl) || '').trim();
+      const pptOutlineContent = String((viewingFile.meta as any)?.outlineContent || '').trim();
+      const pptMarkdownContent = String((viewingFile.meta as any)?.contentMarkdown || '').trim();
+      const pptGenerationState = ((viewingFile.meta as any)?.generationState || {}) as Record<string, any>;
+      const pptGenerationStatus = String(pptGenerationState?.status || '').trim();
+      const pptGenerationPhase = String(pptGenerationState?.phase || '').trim();
+      const pptGenerationMessage = String(pptGenerationState?.message || '').trim();
+      const pptGenerationProgress = Number(pptGenerationState?.progress || 0);
+      const pptGenerationPhaseLabel = getPptPhaseLabel(pptGenerationPhase);
+      const pptStatusText = getPptStatusText(pptGenerationStatus, pptGenerationPhase, pptGenerationMessage);
+      const pptPreviewScale = Math.min(1, pptPreviewFrameWidth / PPT_PREVIEW_BASE_WIDTH);
+      const pptTextPreview =
+        pptKind === 'ppt_content_markdown'
+          ? String(viewingFile.content || '').trim()
+          : pptOutlineContent || pptMarkdownContent || String(viewingFile.content || '').trim();
+
+      if (pptKind === 'ppt_deck' && !pptPreviewUrl) {
+        return (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              background: '#ffffff',
+              borderRadius: 12,
+              padding: 24,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              minHeight: 0,
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <Button
+                type="text"
+                icon={<ArrowLeftOutlined />}
+                onClick={() => setViewingFile(null)}
+                style={{ marginLeft: -12 }}
+              >
+                返回
+              </Button>
+              <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作室" />
+            </div>
+
+            <Title level={4} style={{ marginTop: 8, flexShrink: 0 }}>
+              {viewingFile.name}
+            </Title>
+            <Divider style={{ flexShrink: 0 }} />
+            <div
+              style={{
+                border: '1px solid #f0f0f0',
+                borderRadius: 16,
+                background: 'linear-gradient(180deg, #fffaf2 0%, #ffffff 100%)',
+                padding: 20,
+                marginBottom: 16,
+                flexShrink: 0,
+              }}
+            >
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Space align="center">
+                  <Spin size="small" spinning={pptGenerationStatus === 'running'} />
+                  <Text strong style={{ fontSize: 16, color: '#1f1f1f' }}>
+                    {pptStatusText}
+                  </Text>
+                </Space>
+                <Text type="secondary">
+                  当前阶段：{pptGenerationPhaseLabel} {pptGenerationProgress > 0 ? `· ${pptGenerationProgress}%` : ''}
+                </Text>
+                {pptGenerationProgress > 0 && <Progress percent={Math.max(0, Math.min(100, pptGenerationProgress))} showInfo={false} strokeColor="#d48806" />}
+                <Space>
+                  {pptExportUrl && (
+                    <Button icon={<FilePptOutlined />} onClick={() => window.open(pptExportUrl, '_blank', 'noopener,noreferrer')}>
+                      导出 PPT
+                    </Button>
+                  )}
+                </Space>
+              </Space>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
+              <MarkdownPreview content={pptOutlineContent || pptMarkdownContent || '当前 PPT 产物暂时还没有可预览内容。'} />
+            </div>
+          </div>
+        );
+      }
+
+      if (pptKind === 'ppt_deck' && pptPreviewUrl) {
+        return (
+          <div
+            ref={pptFullscreenRef}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              background: '#ffffff',
+              borderRadius: 12,
+              padding: 24,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              minHeight: 0,
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <Button
+                type="text"
+                icon={<ArrowLeftOutlined />}
+                onClick={() => setViewingFile(null)}
+                style={{ marginLeft: -12 }}
+              >
+                返回
+              </Button>
+              <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作室" />
+            </div>
+
+            <Title level={4} style={{ marginTop: 8, flexShrink: 0 }}>
+              {viewingFile.name}
+            </Title>
+            <Divider style={{ flexShrink: 0 }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
+              <Space>
+                <Button
+                  onClick={() => {
+                    if (typeof document === 'undefined') {
+                      return;
+                    }
+                    if (document.fullscreenElement === pptFullscreenRef.current) {
+                      void document.exitFullscreen?.();
+                      return;
+                    }
+                    void pptFullscreenRef.current?.requestFullscreen?.();
+                  }}
+                >
+                  {pptFullscreenActive ? '退出全屏' : '全屏预览'}
+                </Button>
+                {pptManifestUrl && (
+                  <Button onClick={() => window.open(pptManifestUrl, '_blank', 'noopener,noreferrer')}>
+                    查看结构
+                  </Button>
+                )}
+                {pptExportUrl && (
+                  <Button type="primary" icon={<FilePptOutlined />} onClick={() => window.open(pptExportUrl, '_blank', 'noopener,noreferrer')}>
+                    导出 PPT
+                  </Button>
+                )}
+              </Space>
+            </div>
+            <div
+              ref={pptPreviewFrameRef}
+              style={{
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden',
+                borderRadius: 12,
+                border: '1px solid #f0f0f0',
+                background: '#fafafa',
+                position: 'relative',
+              }}
+            >
+              <iframe
+                src={pptPreviewUrl}
+                title={viewingFile.name}
+                style={{
+                  width: `${PPT_PREVIEW_BASE_WIDTH}px`,
+                  height: `calc(100% / ${pptPreviewScale})`,
+                  border: 0,
+                  background: '#fff',
+                  transform: `scale(${pptPreviewScale})`,
+                  transformOrigin: 'top left',
+                }}
+              />
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            background: '#ffffff',
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            minHeight: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => setViewingFile(null)}
+              style={{ marginLeft: -12 }}
+            >
+              返回
+            </Button>
+            <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作室" />
+          </div>
+
+          <Title level={4} style={{ marginTop: 8, flexShrink: 0 }}>
+            {viewingFile.name}
+          </Title>
+          <Divider style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
+            <MarkdownPreview content={pptTextPreview || '当前 PPT 产物暂时还没有可预览内容。'} />
+          </div>
+          {(viewingFile as any)?.meta?.kind === 'ppt_outline' && (
+            <div style={{ position: 'absolute', right: 24, bottom: 24 }}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  const text = `根据已确认的大纲开始生成PPT`;
+                  setViewingFile(null);
+                  setQueuedMessage(text);
+                }}
+              >
+                生成PPT
+              </Button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (viewingFile.type === 'report' && viewingFile.content) {
       const reportOutlineContent = String((viewingFile as any)?.meta?.outlineContent || '').trim();
       const canToggleReportOutline =
@@ -1657,6 +2049,15 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         onCancel={() => setReportEntryVisible(false)}
         onSubmit={handleReportEntrySubmit}
       />
+      <PptEntryPanel
+        open={pptEntryVisible}
+        selectedDocIds={selectedDocs}
+        courseId={courseId}
+        submitting={generating}
+        onCancel={() => setPptEntryVisible(false)}
+        onSubmitOutline={handleDirectPptOutlineSubmit}
+        onSubmitGenerate={handleDirectPptGenerateSubmit}
+      />
       <Modal
         title="教学博客大纲审查"
         open={blogReviewModalVisible}
@@ -1974,6 +2375,13 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         />
         
         {/* 第二行 */}
+        <GenerativeCard
+          icon={<FilePptOutlined />}
+          title="PPT"
+          color="#d46b08"
+          onGenerate={() => handleGenerate('ppt')}
+          onConfigure={() => handleConfigure('ppt')}
+        />
         <GenerativeCard
           icon={<FileTextOutlined />}
           title="报告"

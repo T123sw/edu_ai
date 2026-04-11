@@ -692,3 +692,99 @@ def test_build_default_reply_service_v2_wires_generation_context_dependencies(mo
     assert seen["runtime_kwargs"]["generation_readiness_judge"] is not None
     assert getattr(service, "status_card_builder", None) is not None
     assert getattr(service, "context_builder", None) is not None
+
+
+def test_build_default_reply_service_v2_uses_fallback_llm_for_full_ppt_workflow(monkeypatch):
+    seen = {}
+    fallback_llm_marker = object()
+
+    class DummyStoreImpl:
+        def ensure_conversation(self, conversation_id, question, owner=None):
+            return None
+
+        def get_messages(self, conversation_id, limit=20):
+            return []
+
+        def get_state(self, conversation_id):
+            return {}
+
+        def append_message(self, conversation_id, role, content, sources=None):
+            return None
+
+        def update_state(self, conversation_id, patch):
+            return None
+
+    class DummyGateway:
+        def chat(self, messages):
+            return "ok"
+
+    class DummyReportRuntime:
+        def __init__(self, **kwargs):
+            seen["report_runtime_kwargs"] = kwargs
+
+        def run(self, *, request, snapshot, decision):
+            return {
+                "message": {"role": "assistant", "content": "report"},
+                "conversation": {"conversation_id": request.conversation_id or "conv-1"},
+                "action": {"name": "generate.report"},
+                "workflow": {"type": "report", "status": "running"},
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "workflow", "workflow_name": "report"},
+            }
+
+    class DummyPptRuntime:
+        def __init__(self, **kwargs):
+            seen["ppt_runtime_kwargs"] = kwargs
+
+        def run(self, *, request, snapshot, decision):
+            return {
+                "message": {"role": "assistant", "content": "ppt"},
+                "conversation": {"conversation_id": request.conversation_id or "conv-2"},
+                "action": {"name": "generate.ppt"},
+                "workflow": {"type": "ppt", "status": "running"},
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "workflow", "workflow_name": "ppt"},
+            }
+
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.ConversationStoreAdapter",
+        lambda: SimpleNamespace(
+            storage=DummyStoreImpl(),
+            load_snapshot=lambda conversation_id: {"messages": [], "state": {}},
+            write_v2_result=lambda conversation_id, request, result: None,
+        ),
+    )
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.build_default_gateway",
+        lambda model_id=None: DummyGateway(),
+    )
+    monkeypatch.setattr("app.chat.application.reply_service_v2.ReportWorkflowRuntime", DummyReportRuntime)
+    monkeypatch.setattr("app.chat.application.reply_service_v2.PptWorkflowRuntime", DummyPptRuntime)
+    monkeypatch.setattr("app.chat.application.reply_service_v2.get_fallback_llm", lambda: fallback_llm_marker)
+
+    service = build_default_reply_service_v2()
+    payload = SimpleNamespace(
+        question="生成 PPT",
+        conversation_id="conv-2",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint="generate.ppt",
+        owner="u1",
+    )
+
+    service.reply(payload)
+
+    assert getattr(seen["report_runtime_kwargs"]["report_context_organizer"], "llm", None) is fallback_llm_marker
+    assert getattr(seen["ppt_runtime_kwargs"]["ppt_context_organizer"], "llm", None) is fallback_llm_marker
+    assert getattr(seen["ppt_runtime_kwargs"]["outline_builder"], "llm", None) is fallback_llm_marker
+    assert getattr(seen["ppt_runtime_kwargs"]["content_markdown_generator"], "llm", None) is fallback_llm_marker
+    assert "slide_plan_builder" not in seen["ppt_runtime_kwargs"]
+    assert "content_markdown_assembler" not in seen["ppt_runtime_kwargs"]
+    assert "content_reviewer" not in seen["ppt_runtime_kwargs"]
+    assert "content_optimizer" not in seen["ppt_runtime_kwargs"]

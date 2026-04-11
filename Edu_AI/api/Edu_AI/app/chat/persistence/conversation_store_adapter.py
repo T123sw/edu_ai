@@ -98,6 +98,17 @@ class ConversationStoreAdapter:
         return patch
 
     @staticmethod
+    def _pick_active_artifact(*, artifacts: list[dict], artifact_reference: dict) -> dict:
+        if artifacts:
+            for artifact in reversed(list(artifacts or [])):
+                if not isinstance(artifact, dict):
+                    continue
+                if str(artifact.get("artifact_type") or "").strip() == "ppt_deck":
+                    return artifact
+            return artifacts[0]
+        return artifact_reference
+
+    @staticmethod
     def _build_active_context_patch(*, request, workflow: dict | None, workflow_status: str, artifacts: list[dict]):
         capability = getattr(request, "capability", None)
         selected_doc_ids = list(getattr(capability, "selected_doc_ids", []) or [])
@@ -107,9 +118,12 @@ class ConversationStoreAdapter:
         conversation_reference = ConversationStoreAdapter._normalize_conversation_reference(
             getattr(request, "conversation_reference", None)
         )
-        first_artifact = artifacts[0] if artifacts else {}
-        active_artifact_id = str(first_artifact.get("artifact_id") or artifact_reference.get("artifact_id") or "")
-        active_artifact_type = str(first_artifact.get("artifact_type") or artifact_reference.get("artifact_type") or "")
+        active_artifact = ConversationStoreAdapter._pick_active_artifact(
+            artifacts=list(artifacts or []),
+            artifact_reference=artifact_reference,
+        )
+        active_artifact_id = str(active_artifact.get("artifact_id") or artifact_reference.get("artifact_id") or "")
+        active_artifact_type = str(active_artifact.get("artifact_type") or artifact_reference.get("artifact_type") or "")
         active_reference_mode = ""
         if artifact_reference:
             active_reference_mode = "artifact_edit"
@@ -129,6 +143,11 @@ class ConversationStoreAdapter:
 
     @staticmethod
     def _build_workflow_filled_slots(*, result: dict) -> dict[str, str]:
+        workflow = dict(result.get("workflow") or {})
+        direct_filled_slots = dict(workflow.get("filled_slots") or {})
+        if direct_filled_slots:
+            return direct_filled_slots
+
         trace = dict(result.get("trace") or {})
         preparation = dict(trace.get("report_preparation_result") or {})
         filled_slots: dict[str, str] = {}
@@ -144,6 +163,31 @@ class ConversationStoreAdapter:
             filled_slots["__preparation_source"] = source
         if model:
             filled_slots["__preparation_model"] = model
+        if filled_slots:
+            return filled_slots
+
+        preparation = dict(trace.get("ppt_preparation_result") or {})
+        topic = str(preparation.get("topic") or "").strip()
+        audience = str(preparation.get("audience") or "").strip()
+        objective = str(preparation.get("objective") or "").strip()
+        key_points = [str(item).strip() for item in list(preparation.get("key_points") or []) if str(item).strip()]
+        theme_id = str(preparation.get("theme") or "").strip()
+        page_count = preparation.get("page_count")
+        source_basis = [str(item).strip() for item in list(preparation.get("source_basis") or []) if str(item).strip()]
+        if topic:
+            filled_slots["deck_topic"] = topic
+        if audience:
+            filled_slots["audience"] = audience
+        if objective:
+            filled_slots["objective"] = objective
+        if key_points:
+            filled_slots["key_points"] = " | ".join(key_points)
+        if theme_id:
+            filled_slots["theme_id"] = theme_id
+        if page_count:
+            filled_slots["slide_count"] = str(page_count)
+        if source_basis:
+            filled_slots["__ppt_source_basis"] = " | ".join(source_basis)
         return filled_slots
 
     def write_v2_result(self, conversation_id: str, request, result: dict):
@@ -195,6 +239,7 @@ class ConversationStoreAdapter:
                 "workflow_type": workflow.get("type") or "",
                 "status": workflow.get("status") or "running",
                 "stage": workflow.get("phase") or workflow.get("stage") or "",
+                "required_slots": list(workflow.get("required_slots") or []),
                 "filled_slots": self._build_workflow_filled_slots(result=result),
                 "artifacts": result.get("artifacts") or [],
             }
@@ -203,7 +248,10 @@ class ConversationStoreAdapter:
         artifact_reference = self._normalize_artifact_reference(getattr(request, "artifact_reference", None))
         conversation_reference = self._normalize_conversation_reference(getattr(request, "conversation_reference", None))
         if artifacts:
-            first = artifacts[0]
+            first = self._pick_active_artifact(
+                artifacts=list(artifacts or []),
+                artifact_reference=artifact_reference,
+            )
             state_patch["active_artifact"] = {
                 "artifact_id": first.get("artifact_id") or "",
                 "artifact_type": first.get("artifact_type") or "",

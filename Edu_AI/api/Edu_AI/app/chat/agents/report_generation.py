@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -9,11 +10,20 @@ from core.config import Config
 from ..report_domain import REPORT_DEFAULTS
 
 
+def _normalize_openai_compatible_base_url(base_url: str) -> str:
+    base = str(base_url or "").strip().rstrip("/")
+    if not base:
+        return ""
+    if not base.endswith("/v1"):
+        base = f"{base}/v1"
+    return base
+
+
 def get_fallback_llm() -> Optional[ChatOpenAI]:
     try:
         model_cfg = Config.get_deep_model()
         selected_model = str(model_cfg.get("model_name") or Config.LLM_MODEL_DEEP)
-        selected_base = str(
+        selected_base = _normalize_openai_compatible_base_url(
             model_cfg.get("api_base")
             or Config.DEEPSEEK_BASE_URL
             or Config.REMOTE_MODEL_API_BASE
@@ -35,6 +45,32 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
     except Exception as e:
         print(f"[report_model_debug] stage=fallback_llm error={e}")
         return None
+
+
+def get_ppt_llm() -> Optional[ChatOpenAI]:
+    selected_base = _normalize_openai_compatible_base_url(
+        os.getenv("PPT_LLM_API_BASE") or ""
+    )
+    selected_key = str(os.getenv("PPT_LLM_API_KEY") or "").strip()
+    selected_model = str(os.getenv("PPT_LLM_MODEL") or "").strip()
+
+    if not (selected_base and selected_key and selected_model):
+        return get_fallback_llm()
+
+    try:
+        print(
+            f"[report_model_debug] stage=ppt_llm "
+            f"model={selected_model} base={selected_base}"
+        )
+        return ChatOpenAI(
+            api_key=selected_key,
+            base_url=selected_base,
+            model=selected_model,
+            temperature=0.4,
+        )
+    except Exception as e:
+        print(f"[report_model_debug] stage=ppt_llm error={e}")
+        return get_fallback_llm()
 
 
 def _extract_text_from_response(response: Any) -> str:

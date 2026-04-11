@@ -1,0 +1,839 @@
+/* =========================================
+   layout.css - PPT 全局骨架与版式系统
+   (只写大小、定位、Flex/Grid排版、间距)
+   ========================================= */
+
+/* 幻灯片基础画板 (16:9 标准比例) */
+.slide {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* --- 通用品牌位骨架（是否显示由主题配置决定） --- */
+.slide-brand {
+  position: absolute;
+  top: 36px;
+  right: 96px;
+  z-index: 3;
+  width: 300px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.slide-brand-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* --- 版式1：封面页骨架 --- */
+.layout-cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 80px 100px;
+}
+
+.cover-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-top: 60px;
+  width: 75%; /* 限制文字区域宽度 */
+}
+
+.title-divider {
+  width: 80px;
+  height: 6px;
+  margin: 24px 0;
+}
+
+.cover-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* =====================================================
+   版式 2: 目录页 (Layout TOC)
+   描述: 左侧标题区 (30%) + 右侧自适应条目区 (70%)
+===================================================== */
+
+/* 覆盖默认的 slide 纵向排列，改为左右横向排列 */
+.slide.layout-toc {
+  flex-direction: row;
+  align-items: stretch;
+  padding: 110px 120px 92px;
+}
+
+/* --- 左侧区域：占宽 30%，垂直居中 --- */
+.toc-left {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding-right: 56px;
+}
+
+/* 利用主题中已有的装饰线，只需调整大小 */
+.toc-left .toc-divider,
+.toc-left .title-divider {
+  width: 76px;
+  height: 8px;
+  margin-top: 30px;
+}
+
+/* --- 右侧区域：占宽 70%，高度撑满，弹性自适应 --- */
+.toc-right {
+  width: 70%;
+  padding-left: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* --- 目录条目容器 --- */
+.toc-item {
+  display: flex;
+  align-items: center;
+  padding: 28px 36px;
+  min-height: 152px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+/* 序号排版 */
+.toc-item .tag-number {
+  flex: 0 0 84px;
+  min-width: 84px;
+  margin-right: 34px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 52px;
+  line-height: 1;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* 文本容器排版 */
+.toc-item .toc-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toc-item .toc-title {
+  font-size: 34px;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+.toc-item .toc-subtitle {
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+
+/* =====================================================
+   Layout: 章节过渡页 (Section Break)
+   纯结构：Flexbox、宽高、对齐、边距
+===================================================== */
+.layout-section-break {
+  /* 覆盖默认的全局 padding，实现满版切割 */
+  padding: 0 !important;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.section-left {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 520px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 24px 110px;
+  box-sizing: border-box;
+}
+
+.section-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 520px;
+  padding: 640px 132px 140px 72px;
+  box-sizing: border-box;
+}
+
+.section-right .title-divider {
+  margin-top: 24px;
+  margin-bottom: 34px;
+}
+
+.layout-section-break .title-en {
+  font-size: 30px;
+  letter-spacing: 6px;
+}
+
+.layout-section-break .title-main {
+  font-size: 76px;
+  line-height: 1.14;
+}
+
+.section-number {
+  width: 100%;
+  white-space: nowrap;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 230px;
+  line-height: 0.9;
+  letter-spacing: -8px;
+}
+
+.section-desc {
+  max-width: 980px;
+}
+
+
+/* =====================================================
+   Layout 1: 标准文本页 (Standard Text)
+   职责: 控制尺寸、位置、弹性盒子、网格、间距
+===================================================== */
+
+/* 页面整体布局约束 */
+.layout-standard-text {
+  /* .slide 已经定义了 1920x1080 和 padding，这里补充内部流向 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* 核心内容区：占据剩余空间并垂直居中 */
+.layout-standard-text .content-area {
+  flex: 1;                     /* 撑满头部和底部之间的所有空间 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;     /* 内容在纵向上居中，留出上下呼吸空间 */
+  gap: 34px;                   /* 引言框与下方列表卡片之间的固定间距 */
+  
+  width: 100%;
+  max-width: 1500px;           /* 【排版秘诀】限制最大宽度，防止单行文字过长导致视觉疲劳 */
+  margin: 0 auto;              /* 整体水平居中 */
+  min-height: 0;
+}
+
+/* 引言框布局 */
+.layout-standard-text .quote-box {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 34px;
+  box-sizing: border-box;
+}
+
+.quote-accent {
+  flex: 0 0 6px;
+  width: 6px;
+  min-width: 6px;
+  align-self: stretch;
+}
+
+.quote-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* 列表卡片内部布局 */
+.layout-standard-text .text-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;                   /* 控制各个 .list-item 之间的垂直间距 */
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+  min-height: 320px;
+  position: relative;
+}
+
+.layout-standard-text .content-area > .surface-card.text-details:only-child::before {
+  content: "";
+  display: block;
+  width: 92px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(0, 51, 102, 1) 0%, rgba(0, 102, 204, 1) 100%);
+  margin-bottom: 20px;
+}
+
+.layout-standard-text .content-area > .surface-card.text-details:only-child .list-item:first-child {
+  font-size: 38px;
+  line-height: 1.42;
+  font-weight: 800;
+  margin-bottom: 22px;
+}
+
+.layout-standard-text .content-area > .surface-card.text-details:only-child .list-item:first-child::before {
+  display: none;
+}
+
+/* =====================================================
+   Layout 1B: 标准文本页 - 双栏解释型
+   适合“左侧核心观点 / 右侧展开说明”
+===================================================== */
+.layout-standard-text-dual-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-standard-text-dual-panel .content-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.28fr);
+  gap: 42px;
+  align-items: center;
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+  min-height: 0;
+}
+
+.dual-panel-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+}
+
+.dual-panel-main {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-height: 0;
+}
+
+.insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 34px 36px;
+  box-sizing: border-box;
+}
+
+.mini-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mini-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* =====================================================
+   Layout 1C: 标准文本页 - 侧栏摘要型
+   适合“左侧摘要导航 / 右侧主叙事”
+===================================================== */
+.layout-standard-text-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-standard-text-sidebar .content-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 44px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  min-height: 0;
+}
+
+.sidebar-rail {
+  display: flex;
+  align-items: center;
+  min-height: 0;
+}
+
+.sidebar-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 34px 30px;
+  box-sizing: border-box;
+}
+
+.sidebar-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sidebar-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28px;
+  min-height: 0;
+}
+
+/* =====================================================
+   Layout 1D: 标准文本页 - 对等对比型
+   适合“两种方案 / 两个视角 / 两类机制”的平级比较
+===================================================== */
+.layout-standard-text-comparison {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-standard-text-comparison .content-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  min-height: 0;
+}
+
+.comparison-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px;
+  align-items: stretch;
+}
+
+.comparison-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.comparison-details {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* =====================================================
+   Layout 1E: 标准文本页 - 流程阶段型
+   适合“阶段推进 / 方法流程 / 研究路线 / 时间顺序”
+===================================================== */
+.layout-standard-text-process {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-standard-text-process .content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  min-height: 0;
+}
+
+/* 文本类版式的竖向间距由父容器 gap 统一管理，避免 quote/list 自带 margin
+   在内容略长时轻微压到绝对定位的 footer 区域。 */
+.layout-standard-text > .content-area > .quote-box,
+.layout-standard-text-process > .content-area > .quote-box,
+.layout-standard-text-sidebar .sidebar-main > .quote-box,
+.layout-standard-text-dual-panel .dual-panel-main > .quote-box {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.layout-standard-text .text-details .list-item,
+.layout-standard-text-process .text-details .list-item,
+.layout-standard-text-sidebar .text-details .list-item,
+.layout-standard-text-dual-panel .text-details .list-item {
+  margin-bottom: 0;
+}
+
+.process-track {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+}
+
+.process-step {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  min-height: 0;
+}
+
+.process-index {
+  flex: 0 0 auto;
+}
+
+.process-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.process-divider {
+  flex: 0 0 64px;
+  width: 64px;
+  min-width: 64px;
+  align-self: center;
+  height: 10px;
+  border-radius: 4px;
+  display: block;
+}
+
+
+/* =====================================================
+   Layout: 媒体与文字组合页
+   只包含 Flexbox、Grid、宽高度、内外边距等空间属性
+===================================================== */
+
+/* 确保母版内容垂直排布，撑满高度 */
+.layout-image-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 核心 6:4 容器 */
+.content-split-64 {
+  display: flex;
+  flex-direction: row;
+  flex: 1;              /* 占据标题下方的所有剩余高度 */
+  gap: 40px;            /* 左右两栏的间距 */
+  align-items: stretch; /* 让左右两栏等高 */
+  margin-top: 20px;
+  min-height: 0;        /* 防止 flex 子项溢出 */
+}
+
+/* 左侧 60% 区域 */
+.split-left-image {
+  flex: 6;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 图片占位容器排版 */
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+/* 右侧 40% 区域 */
+.split-right-text {
+  flex: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 让右侧卡片在垂直方向居中 */
+  min-height: 0;
+}
+
+.layout-image-text .split-left-image > .surface-card.media-card,
+.layout-text-media .split-right-media > .surface-card.media-card {
+  flex: 1;
+}
+
+.layout-image-text .split-right-text > .surface-card.text-details,
+.layout-text-media .split-left-text > .surface-card.text-details {
+  flex: 1;
+  justify-content: center;
+}
+
+/* 卡片内部的排版约束 */
+.surface-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-subtitle {
+  margin: 0 0 24px 0;
+  font-size: 32px;
+}
+
+.text-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 列表项之间的间距 */
+}
+
+.media-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+}
+
+.media-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+.media-element {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+.media-caption {
+  margin: 0;
+}
+
+.layout-text-media {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-split-46 {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  gap: 36px;
+  align-items: stretch;
+  margin-top: 20px;
+  min-height: 0;
+}
+
+.split-left-text {
+  flex: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.split-right-media {
+  flex: 5;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.layout-media-focus {
+  display: flex;
+  flex-direction: column;
+}
+
+.media-focus-stage {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  align-items: center;
+  margin-top: 20px;
+  min-height: 0;
+}
+
+.media-card-focus {
+  width: min(100%, 1180px);
+  min-height: 0;
+  gap: 14px;
+}
+
+.media-card-focus .media-stage {
+  width: 100%;
+  min-height: 340px;
+  max-height: 420px;
+}
+
+.media-focus-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+  max-width: 780px;
+  align-self: center;
+}
+
+
+/* =====================================================
+   【Layout】多列卡片阵列页 (版式 6) - 纯骨架
+===================================================== */
+.slide {
+  width: 1920px;
+  height: 1080px;
+  padding: 100px 120px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部标题区布局 */
+.header-area {
+  margin-bottom: 80px;
+}
+.title-en {
+  margin-bottom: 12px;
+}
+.title-divider {
+  width: 100px;
+  height: 8px;
+  margin-top: 24px;
+}
+
+/* 核心：多列网格布局 */
+.cards-grid {
+  display: flex;
+  flex-direction: row;     /* 水平排列 */
+  justify-content: space-between;
+  gap: 60px;               /* 卡片之间的间距，确保不拥挤 */
+  flex: 1;                 /* 撑满剩余高度 */
+  margin-bottom: 60px;
+  counter-reset: feature-card;
+}
+
+/* 单个卡片内部布局 */
+.cards-grid > .surface-card {
+  counter-increment: feature-card;
+  flex: 1;                 /* 仅卡片阵列页中的卡片需要等宽撑开 */
+  display: flex;
+  flex-direction: column;  /* 内部元素垂直流 */
+  justify-content: flex-start;
+  gap: 20px;
+  min-height: 470px;
+  padding: 52px 44px 42px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.cards-grid > .surface-card::before {
+  content: counter(feature-card, decimal-leading-zero);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+/* 卡片内部元素位置与大小 */
+.cards-grid > .surface-card .card-icon {
+  width: auto;
+  max-width: 100%;
+  min-height: 32px;
+  margin-bottom: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  box-sizing: border-box;
+}
+
+.cards-grid > .surface-card .card-title {
+  margin-bottom: 24px;
+}
+
+.cards-grid > .surface-card .card-desc {
+  flex: 0 0 auto;
+}
+
+/* =====================================================
+   Layout: 结尾鸣谢页 (Thank You / Q&A)
+   用途: 绝对居中对齐，底部固定装饰
+===================================================== */
+
+/* 覆盖基类默认的排版，改为垂直居中和水平居中 */
+.layout-thanks {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* 核心内容包裹层，用于整体居中控制 */
+.layout-thanks .thanks-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+/* 强制修饰线居中，并重置间距 */
+.layout-thanks .center-divider {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 32px;
+  margin-bottom: 60px;
+  width: 120px; /* 相比普通页的80px，结尾页的线条稍微拉长更显稳重 */
+}
+
+/* 附加信息使用横向 Flex 布局 */
+.layout-thanks .contact-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 40px; /* 元素之间的安全间距 */
+}
+
+.layout-thanks .info-item {
+  /* 仅控制布局层面的显示 */
+  display: inline-block;
+  opacity: 0.8; /* 轻微透明度降低视觉层级，虽然算视觉属性，但常用于层级排版 */
+}
+
+/* 底部装饰区域绝对定位 */
+.layout-thanks .footer-decoration {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

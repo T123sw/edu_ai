@@ -5,6 +5,7 @@ import type { ChatArtifactReference, ChatConversationReference, StatusCardV2 } f
 import {
   clearConversationGeneratedFiles,
   pinGeneratedFileInList,
+  replaceCourseMaterialGeneratedFiles,
   replaceConversationGeneratedFiles,
   upsertGeneratedFileInList,
 } from '../../services/teacher/materials.helpers';
@@ -26,7 +27,7 @@ interface ChatMessage {
 export interface GeneratedFile {
   id: string;
   name: string;
-  type: 'report' | 'quiz' | 'blog' | 'lesson_plan' | 'audio' | 'graph' | 'video' | 'flashcard';
+  type: 'report' | 'ppt' | 'quiz' | 'blog' | 'lesson_plan' | 'audio' | 'graph' | 'video' | 'flashcard';
   content?: any;
   meta?: Record<string, unknown>;
 }
@@ -71,6 +72,7 @@ interface AppState {
   addGeneratedFile: (file: GeneratedFile) => void;
   pinGeneratedFile: (id: string, isPinned: boolean, pinnedAt?: string) => void;
   replaceConversationGeneratedFiles: (files: GeneratedFile[]) => void;
+  replaceCourseMaterialGeneratedFiles: (files: GeneratedFile[]) => void;
   clearConversationGeneratedFiles: () => void;
   removeGeneratedFilesByConversationId: (conversationId: string) => void;
   removeGeneratedFile: (id: string) => void;
@@ -165,6 +167,18 @@ export const useStore = create<AppState>()(
             viewingFile: nextViewingFile,
           };
         }),
+      replaceCourseMaterialGeneratedFiles: (files) =>
+        set((state) => {
+          const nextFiles = replaceCourseMaterialGeneratedFiles(state.generatedFiles, files);
+          const currentViewingId = String(state.viewingFile?.id || '').trim();
+          const nextViewingFile = currentViewingId
+            ? nextFiles.find((file) => file.id === currentViewingId) || null
+            : null;
+          return {
+            generatedFiles: nextFiles,
+            viewingFile: nextViewingFile,
+          };
+        }),
       clearConversationGeneratedFiles: () =>
         set((state) => {
           const nextFiles = clearConversationGeneratedFiles(state.generatedFiles);
@@ -221,7 +235,12 @@ export const useStore = create<AppState>()(
       storage: createJSONStorage(() => window.localStorage),
       partialize: (state) => ({
         currentConversationId: state.currentConversationId,
-        generatedFiles: state.generatedFiles,
+      }),
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState as Partial<AppState>),
+        generatedFiles: currentState.generatedFiles,
+        viewingFile: currentState.viewingFile,
       }),
     },
   ),

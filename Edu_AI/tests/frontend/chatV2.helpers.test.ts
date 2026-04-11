@@ -135,4 +135,43 @@ const sanitizedArtifactId = extractGeneratedFilesFromV2Response({
 assert.equal(sanitizedArtifactId.length, 1);
 assert.equal(sanitizedArtifactId[0].id, 'conv-887d71fab7b1__content');
 
+const pptDeckFiles = extractGeneratedFilesFromV2Response({
+  action: { name: 'generate.ppt' },
+  artifacts: [
+    {
+      artifact_id: 'conv-ppt:outline',
+      artifact_type: 'ppt_outline',
+      title: 'TCP 三次握手课件-大纲',
+      content: {
+        deck_title: 'TCP 三次握手课件',
+        slides: [
+          { slide_index: 1, title: '封面', role: 'cover' },
+          { slide_index: 2, title: '三次握手过程', role: 'content' },
+        ],
+      },
+    },
+    {
+      artifact_id: 'conv-ppt:deck:job_001',
+      artifact_type: 'ppt_deck',
+      title: 'TCP 三次握手课件.pptx',
+      content: {
+        job_id: 'job_001',
+        revision_id: 'rev_0000',
+        html_full_url: '/ppt/artifacts/job_001/rev_0000/deck.html',
+        pptx_url: '/ppt/artifacts/job_001/rev_0000/deck.pptx',
+        manifest_url: '/ppt/artifacts/job_001/rev_0000/manifest.json',
+      },
+    },
+  ],
+});
+
+assert.equal(pptDeckFiles.length, 1);
+assert.equal(pptDeckFiles[0].id, 'conv-ppt__deck__job_001');
+assert.equal(pptDeckFiles[0].type, 'ppt');
+assert.equal(pptDeckFiles[0].name, 'TCP 三次握手课件.pptx');
+assert.equal(pptDeckFiles[0].meta?.kind, 'ppt_deck');
+assert.equal(pptDeckFiles[0].meta?.htmlPreviewUrl, 'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.html');
+assert.equal(pptDeckFiles[0].meta?.pptxUrl, 'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.pptx');
+assert.match(String(pptDeckFiles[0].meta?.outlineContent), /三次握手过程/);
+
 console.log('chatV2.helpers tests passed');
