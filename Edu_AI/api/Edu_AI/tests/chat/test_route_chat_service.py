@@ -549,6 +549,70 @@ def test_route_chat_service_can_use_report_engine_from_legacy_runtime():
     assert data["intent_category"] == "generate_content"
 
 
+def test_route_chat_service_can_use_lesson_plan_engine_from_legacy_runtime():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    adapter = ConversationStoreAdapter(storage=storage)
+
+    class DummyLessonPlanEngine:
+        @staticmethod
+        def invoke(state):
+            return {
+                "reply": "我先整理了一版教案大纲，你确认后我继续生成完整正文。",
+                "status": "awaiting_human",
+                "phase": "outlining",
+                "lesson_plan_outline": {
+                    "basic_info": {
+                        "topic": "分数的意义",
+                        "audience": "七年级",
+                        "duration": "45分钟",
+                        "lesson_type": "新授课",
+                    },
+                    "lesson_flow": [],
+                },
+                "artifacts": [
+                    {
+                        "artifact_id": "conv-lesson:outline",
+                        "artifact_type": "lesson_plan_outline",
+                        "title": "分数的意义-教案大纲.json",
+                        "content": {"basic_info": {"topic": "分数的意义"}},
+                    }
+                ],
+                "sources": [],
+            }
+
+    class LegacyWithLessonPlanEngine(DummyLegacyService):
+        @staticmethod
+        def get_lesson_plan_engine():
+            return DummyLessonPlanEngine()
+
+    service = RouteChatService(
+        legacy_service=LegacyWithLessonPlanEngine(),
+        gateway_factory=lambda model_id: DummyGateway(),
+        enable_new_chat=True,
+        enable_lesson_plan_workflow=True,
+        conversation_store=adapter,
+    )
+
+    data = service.chat(
+        question="帮我出一份分数的意义教案",
+        conversation_id="conv-lesson",
+        model_id=None,
+        use_rag=False,
+        selected_doc_ids=[],
+        owner="teacher-a",
+        course_id=None,
+        allow_web=False,
+        action_hint="generate.lesson_plan",
+        artifact_id=None,
+    )
+
+    assert data["intent_category"] == "generate_content"
+    assert data["meta"]["workflow"]["type"] == "lesson_plan"
+    assert data["meta"]["artifacts"][0]["artifact_type"] == "lesson_plan_outline"
+
+
 def test_route_chat_service_restores_course_id_from_conversation_state():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)

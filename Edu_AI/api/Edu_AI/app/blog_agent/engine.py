@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple
 
 from core import Config
 from core.course_storage import storage_manager
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
 
 from .langgraph_workflow import run_blog_task_langgraph
 from .storage import load_task_state, save_task_state

@@ -75,6 +75,7 @@ class StubHtml2PptClient:
         return {
             "job_id": job_id,
             "latest_revision_id": "rev_0000",
+            "slide_count": 16,
             "results": {
                 "pptx_url": "/ppt/artifacts/job_001/rev_0000/deck.pptx",
                 "html_full_url": "/ppt/artifacts/job_001/rev_0000/deck.html",
@@ -276,6 +277,7 @@ def test_ppt_runtime_confirms_outline_and_submits_html2ppt_job():
     assert client.calls[0][2] == "heu_academic_elegant"
     assert "## Slide 2" in client.calls[0][1]
     assert any(artifact["artifact_type"] == "ppt_content_markdown" for artifact in resumed["artifacts"])
+    assert resumed["artifacts"][-1]["content"]["slide_count"] == 16
     assert resumed["trace"]["ppt_content_generation_debug"]["generation_mode"] == "direct_content_markdown"
 
 

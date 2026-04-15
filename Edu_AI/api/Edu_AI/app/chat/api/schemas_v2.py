@@ -13,9 +13,11 @@ DirectTracePath = Literal["direct"]
 WorkflowStatus = Literal["running", "awaiting_confirm", "completed", "interrupted", "failed"]
 ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
 PptEntryMode = Literal["knowledge_base_ppt"]
+LessonPlanEntryMode = Literal["knowledge_base_lesson_plan"]
 ReportEntryCardType = Literal["preset", "recommended"]
 PresetKey = Literal["brief", "detailed", "study_plan", "custom"]
 PptPresetKey = Literal["knowledge_lecture", "topic_briefing", "comparison_analysis", "defense_summary"]
+LessonPlanPresetKey = Literal["new_lesson", "review_lesson", "inquiry_lesson", "practice_lesson"]
 RecommendationType = Literal[
     "summary",
     "comparison",
@@ -25,6 +27,13 @@ RecommendationType = Literal[
     "theme_outline",
 ]
 PptRecommendationType = Literal["concept_focus", "process_flow", "comparison_view", "case_application"]
+LessonPlanRecommendationType = Literal[
+    "knowledge_building",
+    "historical_inquiry",
+    "practice_consolidation",
+    "review_summary",
+    "material_analysis",
+]
 FitScore = Literal["high", "medium", "low"]
 PptLengthOption = Literal["short", "medium", "long"]
 PptThemeId = Literal["heu_academic_elegant", "heu_academic_basic"]
@@ -65,6 +74,11 @@ class ChatReportCardsRequestV2(BaseModel):
 
 
 class ChatPptCardsRequestV2(BaseModel):
+    course_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+
+
+class ChatLessonPlanCardsRequestV2(BaseModel):
     course_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
 
@@ -120,6 +134,15 @@ class PptEntryPrefillConfigV2(BaseModel):
     general_requirements: Optional[str] = None
 
 
+class LessonPlanEntryPrefillConfigV2(BaseModel):
+    topic: str
+    audience: str = ""
+    duration: str = ""
+    lesson_type: str = ""
+    objective: str = ""
+    style_hint: Optional[str] = None
+
+
 class PptEntryCardSelectionV2(BaseModel):
     card_id: str
     card_type: ReportEntryCardType
@@ -173,6 +196,26 @@ class PptEntryCardV2(BaseModel):
 class ChatPptCardsResponseV2(BaseModel):
     entry_mode: PptEntryMode
     cards: List[PptEntryCardV2] = Field(default_factory=list)
+    default_selected_card_id: Optional[str] = None
+    trace: Dict[str, Any] = Field(default_factory=dict)
+
+
+class LessonPlanEntryCardV2(BaseModel):
+    card_id: str
+    card_type: ReportEntryCardType
+    title: str
+    description: str
+    prompt_draft: str
+    prefill_config: LessonPlanEntryPrefillConfigV2
+    preset_key: Optional[LessonPlanPresetKey] = None
+    recommendation_type: Optional[LessonPlanRecommendationType] = None
+    recommendation_source: Optional[Literal["doc_summaries"]] = None
+    fit_score: Optional[FitScore] = None
+
+
+class ChatLessonPlanCardsResponseV2(BaseModel):
+    entry_mode: LessonPlanEntryMode
+    cards: List[LessonPlanEntryCardV2] = Field(default_factory=list)
     default_selected_card_id: Optional[str] = None
     trace: Dict[str, Any] = Field(default_factory=dict)
 

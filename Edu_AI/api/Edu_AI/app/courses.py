@@ -12,7 +12,8 @@ from pydantic import BaseModel, Field
 
 from core.auth import auth_manager
 from core.course_storage import CourseStorageManager, storage_manager
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document
 
 
 security = HTTPBearer()
@@ -41,7 +42,7 @@ class KnowledgeBaseDocument(BaseModel):
 
 
 class AddRAGDocumentRequest(BaseModel):
-    rag_file_path: str = Field(..., description="RAG 文档物理路径")
+    rag_file_path: str = Field(..., description="RAG document identifier")
 
 
 class PinMaterialRequest(BaseModel):
@@ -347,21 +348,22 @@ def add_rag_document_to_course_kb(
     request: AddRAGDocumentRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
     mgr = _get_manager()
     rag_system = get_rag_system()
+    owner = current_user.get("username") if current_user else None
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    rag_path = Path(request.rag_file_path)
+    resolved_document = resolve_rag_document(rag_system, request.rag_file_path, owner=owner)
+    if not resolved_document:
+        raise HTTPException(status_code=404, detail="RAG 系统中未找到该文档")
+
+    rag_path = Path(resolved_document.physical_path)
     if not rag_path.exists():
         raise HTTPException(status_code=404, detail="RAG 文档不存在")
 
-    all_docs = rag_system.list_documents()
-    matched = next((doc for doc in all_docs if doc.get("file_path") == request.rag_file_path), None)
-    if not matched:
-        raise HTTPException(status_code=404, detail="RAG 系统中未找到该文档")
+    all_docs = rag_system.list_documents(owner=owner) if owner else rag_system.list_documents()
 
     with open(rag_path, "rb") as f:
         file_data = f.read()

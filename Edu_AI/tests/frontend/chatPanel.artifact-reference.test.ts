@@ -24,6 +24,10 @@ assert.match(storeFile, /clearArtifactReference:\s*\(\)\s*=>\s*void;/, 'store sh
 assert.match(storeFile, /replaceConversationGeneratedFiles:\s*\(files:\s*GeneratedFile\[\]\)\s*=>\s*void;/, 'store should replace conversation-scoped generated files');
 assert.match(storeFile, /clearConversationGeneratedFiles:\s*\(\)\s*=>\s*void;/, 'store should clear conversation-scoped generated files');
 assert.match(chatPanelFile, /artifactReference,[\s\S]*setViewingFile\(generatedFiles\[generatedFiles\.length - 1\]\)/, 'ChatPanel should directly open the newest generated file after artifact-based modification');
+assert.match(chatPanelFile, /const normalizeArtifactReferenceType = \(/, 'ChatPanel should normalize restored artifact reference types from conversation state');
+assert.match(chatPanelFile, /artifact_type:\s*normalizeArtifactReferenceType\(/, 'ChatPanel should preserve ppt artifact references when restoring conversations');
+assert.match(chatPanelFile, /artifactReference\?\.artifact_type === 'ppt_deck' && nextPptArtifact/, 'ChatPanel should refresh an active PPT reference to the newest returned deck');
+assert.match(chatPanelFile, /artifactReference\.artifact_type === 'ppt_deck'[\s\S]*'PPT 文件'/, 'ChatPanel should label active PPT deck references explicitly');
 
 const payload = buildChatReplyPayload({
   question: '保留结构，重写结论',
@@ -63,5 +67,24 @@ const payloadWithoutReference = buildChatReplyPayload({
 });
 
 assert.ok(!('artifact_reference' in payloadWithoutReference));
+
+const pptPayload = buildChatReplyPayload({
+  question: '把第 3 页改成流程图风格',
+  conversationId: 'conv-ppt-1',
+  courseId: 'course-1',
+  allowRag: false,
+  allowWeb: false,
+  selectedDocIds: ['doc-1'],
+  artifactReference: {
+    artifact_id: 'ppt-deck-1',
+    artifact_type: 'ppt_deck',
+    title: 'TCP 三次握手课件.pptx',
+    source_conversation_id: 'conv-ppt-1',
+    source_course_id: 'course-1',
+  },
+});
+
+assert.equal(pptPayload.artifact_reference?.artifact_type, 'ppt_deck');
+assert.equal(pptPayload.artifact_reference?.artifact_id, 'ppt-deck-1');
 
 console.log('chatPanel.artifact-reference tests passed');

@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 
 from langchain_core.tools import tool
 
 from core.config import Config
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document_ids
 
 
 def create_search_tools(
@@ -70,25 +71,7 @@ def create_search_tools(
             selected_paths = [doc.get("file_path") for doc in imported_docs if doc.get("file_path")]
             if selected_paths:
                 rag_system = get_rag_system()
-                selected_doc_ids: List[str] = []
-                for path in selected_paths:
-                    abs_path = str(Path(path).absolute())
-                    selected_doc_ids.append(abs_path)
-                    try:
-                        index_key = rag_system._make_index_key(abs_path, owner)
-                        selected_doc_ids.append(index_key)
-                        source_key = rag_system._make_source_key(abs_path, owner)
-                        if source_key and source_key != index_key:
-                            selected_doc_ids.append(source_key)
-                    except Exception:
-                        pass
-
-                    try:
-                        for key in rag_system.document_index.keys():
-                            if key.endswith(abs_path):
-                                selected_doc_ids.append(key)
-                    except Exception:
-                        pass
+                selected_doc_ids = resolve_rag_document_ids(rag_system, selected_paths, owner=owner)
 
                 rag_context["selected_doc_ids"] = selected_doc_ids
                 rag_result = rag_system.query(

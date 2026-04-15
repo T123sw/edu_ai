@@ -6,17 +6,14 @@ import {
   type ChatDirectPptOutlineResponseV2,
   type PptEntryCard,
 } from '../../services/teacher/chatV2';
-import {
-  buildPptEntryFormValuesFromCard,
-  pickInitialPptEntryCard,
-  type DirectPptEntryConfigInput,
-  type PptEntryFormValues,
-} from '../../services/teacher/pptEntry.helpers';
+import type { DirectPptEntryConfigInput } from '../../services/teacher/pptEntry.helpers';
 
 const { Paragraph, Text, Title } = Typography;
 const { TextArea } = Input;
 
 type EntryState = 'idle' | 'cards_loading' | 'cards_ready' | 'outline_loading' | 'outline_ready' | 'generating' | 'error';
+
+type LengthOption = 'short' | 'medium' | 'long';
 
 const DEFAULT_PPT_CARDS: PptEntryCard[] = [
   {
@@ -61,6 +58,19 @@ const DEFAULT_PPT_CARDS: PptEntryCard[] = [
   },
 ];
 
+export interface DirectPptEntryFormValue {
+  deckTitle: string;
+  deckSubtitle?: string;
+  audience?: string;
+  objective?: string;
+  themeId: 'heu_academic_elegant' | 'heu_academic_basic';
+  lengthOption: LengthOption;
+  keyPointsText?: string;
+  generalRequirements?: string;
+  styleHint?: string;
+  specialRequirements?: string;
+}
+
 type Props = {
   open: boolean;
   selectedDocIds: string[];
@@ -97,7 +107,7 @@ function groupPptCards(cards: PptEntryCard[]): { presets: PptEntryCard[]; recomm
   };
 }
 
-function getInitialFormValues(): PptEntryFormValues {
+function getInitialFormValues(): DirectPptEntryFormValue {
   return {
     deckTitle: '',
     deckSubtitle: '',
@@ -105,11 +115,10 @@ function getInitialFormValues(): PptEntryFormValues {
     objective: '',
     themeId: 'heu_academic_elegant',
     lengthOption: 'medium',
-    targetSlideCount: undefined,
     keyPointsText: '',
+    generalRequirements: '',
     styleHint: '',
     specialRequirements: '',
-    generalRequirements: '',
   };
 }
 
@@ -122,7 +131,7 @@ export default function PptEntryPanel({
   onSubmitOutline,
   onSubmitGenerate,
 }: Props) {
-  const [form] = Form.useForm<PptEntryFormValues>();
+  const [form] = Form.useForm<DirectPptEntryFormValue>();
   const [entryState, setEntryState] = useState<EntryState>('idle');
   const [cards, setCards] = useState<PptEntryCard[]>(DEFAULT_PPT_CARDS);
   const [selectedCard, setSelectedCard] = useState<PptEntryCard | null>(null);
@@ -130,24 +139,19 @@ export default function PptEntryPanel({
   const [outlineText, setOutlineText] = useState('');
   const [errorText, setErrorText] = useState('');
 
-  const clearDraftState = () => {
-    setSelectedCard(null);
-    setDraftId('');
-    setOutlineText('');
-  };
-
   useEffect(() => {
     if (!open) {
       setEntryState('idle');
       setCards(DEFAULT_PPT_CARDS);
-      clearDraftState();
+      setSelectedCard(null);
+      setDraftId('');
+      setOutlineText('');
       setErrorText('');
       form.resetFields();
       return;
     }
 
     form.setFieldsValue(getInitialFormValues());
-    clearDraftState();
 
     if (!selectedDocIds.length) {
       setEntryState('error');
@@ -168,16 +172,11 @@ export default function PptEntryPanel({
         if (cancelled) return;
         const nextCards = Array.isArray(response.cards) && response.cards.length > 0 ? response.cards : DEFAULT_PPT_CARDS;
         setCards(nextCards);
-        const initialCard = pickInitialPptEntryCard(nextCards, response.default_selected_card_id);
-        if (initialCard) {
-          applyCardPrefill(initialCard);
-        }
         setEntryState('cards_ready');
       })
       .catch((error: Error) => {
         if (cancelled) return;
         setCards(DEFAULT_PPT_CARDS);
-        clearDraftState();
         setEntryState('cards_ready');
         setErrorText(error.message || 'PPT 推荐卡片加载失败');
       });
@@ -189,9 +188,13 @@ export default function PptEntryPanel({
 
   const groupedCards = useMemo(() => groupPptCards(cards), [cards]);
 
-  const applyCardPrefill = (card: PptEntryCard) => {
+  const applyCardDefaults = (card: PptEntryCard) => {
     setSelectedCard(card);
-    form.setFieldsValue(buildPptEntryFormValuesFromCard(card));
+    form.setFieldsValue({
+      objective: card.objective_hint || '',
+      lengthOption: card.length_option || 'medium',
+      styleHint: card.style_hint || '',
+    });
   };
 
   const handleBuildOutline = async () => {
@@ -204,20 +207,17 @@ export default function PptEntryPanel({
       const values = await form.validateFields();
       setEntryState('outline_loading');
       setErrorText('');
-      const objective = values.objective?.trim();
-      const styleHint = values.styleHint?.trim();
       const response = await onSubmitOutline({
         config: {
           deckTitle: values.deckTitle,
           deckSubtitle: values.deckSubtitle,
           audience: values.audience?.trim(),
-          objective: objective || undefined,
+          objective: values.objective?.trim() || selectedCard?.objective_hint || '',
           themeId: values.themeId,
-          lengthOption: values.lengthOption,
-          targetSlideCount: values.targetSlideCount,
+          lengthOption: values.lengthOption || selectedCard?.length_option || 'medium',
           keyPoints: normalizeKeyPoints(values.keyPointsText || ''),
           generalRequirements: values.generalRequirements?.trim(),
-          styleHint: styleHint || undefined,
+          styleHint: values.styleHint?.trim() || selectedCard?.style_hint || '',
           specialRequirements: values.specialRequirements?.trim(),
           selectedCard: selectedCard
             ? {
@@ -281,7 +281,7 @@ export default function PptEntryPanel({
             key={card.card_id}
             hoverable
             size="small"
-            onClick={() => applyCardPrefill(card)}
+            onClick={() => applyCardDefaults(card)}
             style={{
               borderRadius: 12,
               borderColor: active ? '#1677ff' : undefined,
@@ -349,11 +349,7 @@ export default function PptEntryPanel({
                 { label: '标准', value: 'medium' },
                 { label: '长篇', value: 'long' },
               ]}
-              />
-          </Form.Item>
-
-          <Form.Item name="targetSlideCount" hidden>
-            <Input type="hidden" />
+            />
           </Form.Item>
 
           <Form.Item name="themeId" label="主题模板">

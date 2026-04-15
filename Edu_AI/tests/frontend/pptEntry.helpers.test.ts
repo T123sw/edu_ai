@@ -22,6 +22,7 @@ const outlinePayload = buildDirectPptOutlineRequest({
 assert.equal(outlinePayload.selected_doc_ids?.[0], 'doc-1');
 assert.equal(outlinePayload.ppt_config.deck_title, 'Agent Basics');
 assert.equal(outlinePayload.ppt_config.length_option, 'medium');
+assert.equal(outlinePayload.ppt_config.target_slide_count, undefined);
 
 const generatePayload = buildDirectPptGenerateRequest({
   draftId: 'ppt-draft-1',

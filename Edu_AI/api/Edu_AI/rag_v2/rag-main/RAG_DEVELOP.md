@@ -17,7 +17,7 @@
 │  chat.ts          │  rag.ts           │  teacher.ts             │
 ├─────────────────────────────────────────────────────────────────┤
 │                    后端API层 (FastAPI)                           │
-│  main.py          │  new_rag/api.py   │  core/config.py         │
+│  main.py          │  rag_v2/api.py    │  core/config.py         │
 ├─────────────────────────────────────────────────────────────────┤
 │                    RAG核心层 (Python)                            │
 │  RAGSystem        │  EmbeddingClient  │  VectorStore            │
@@ -32,7 +32,7 @@
 ### 2. RAG系统核心组件分析
 
 #### 2.1 RAGSystem (主控制器)
-**位置**: `api/Edu_AI/new_rag/system.py`
+**位置**: `api/Edu_AI/rag_v2/rag_main/system.py`
 
 **职责**:
 

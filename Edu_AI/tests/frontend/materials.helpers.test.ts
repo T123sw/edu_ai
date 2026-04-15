@@ -118,6 +118,8 @@ assert.match(String(generatedPptFromMaterial?.meta?.outlineContent), /Skills 与
 
 assert.equal(isArtifactReferenceEligible({ id: 'report-1', type: 'report', meta: { kind: 'final_report' } } as any), true);
 assert.equal(isArtifactReferenceEligible({ id: 'outline-1', type: 'report', meta: { kind: 'outline' } } as any), true);
+assert.equal(isArtifactReferenceEligible({ id: 'ppt-deck-1', type: 'ppt', meta: { kind: 'ppt_deck' } } as any), true);
+assert.equal(isArtifactReferenceEligible({ id: 'ppt-outline-1', type: 'ppt', meta: { kind: 'ppt_outline' } } as any), false);
 assert.equal(isArtifactReferenceEligible({ id: 'quiz-1', type: 'quiz', meta: {} } as any), false);
 
 const replacedConversationFiles = replaceConversationGeneratedFiles(

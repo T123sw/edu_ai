@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document
 
 
 class KnowledgeBaseSummaryProvider:
@@ -12,12 +12,6 @@ class KnowledgeBaseSummaryProvider:
 
     def get_selected_document_summaries(self, *, selected_doc_ids: list[str], owner: str | None) -> dict[str, Any]:
         rag_system = self._rag_system_factory()
-        listed_documents = list(rag_system.list_documents(owner=owner) or [])
-        documents_by_id = {
-            str(item.get("file_path") or "").strip(): item
-            for item in listed_documents
-            if str(item.get("file_path") or "").strip()
-        }
 
         resolved_documents: list[dict[str, Any]] = []
         summary_timestamps: list[str] = []
@@ -27,14 +21,21 @@ class KnowledgeBaseSummaryProvider:
             if not normalized_doc_id:
                 continue
 
-            record = documents_by_id.get(normalized_doc_id)
-            summary_text = str((record or {}).get("summary") or "").strip()
-            summary_updated_at = str((record or {}).get("summary_updated_at") or "").strip()
+            resolved = resolve_rag_document(rag_system, normalized_doc_id, owner=owner)
+            if resolved is None:
+                continue
+
+            public_record = dict(resolved.listed_document or {})
+            index_record = dict(resolved.record or {})
+            summary_text = str(public_record.get("summary") or index_record.get("summary") or "").strip()
+            summary_updated_at = str(
+                public_record.get("summary_updated_at") or index_record.get("summary_updated_at") or ""
+            ).strip()
 
             if not summary_text:
                 try:
                     generated = rag_system.summarize_document(
-                        normalized_doc_id,
+                        resolved.index_key,
                         force_refresh=False,
                         owner=owner,
                     )
@@ -46,7 +47,7 @@ class KnowledgeBaseSummaryProvider:
             if not summary_text:
                 continue
 
-            title = str((record or {}).get("file_name") or Path(normalized_doc_id).name or normalized_doc_id).strip()
+            title = str(public_record.get("file_name") or index_record.get("file_name") or resolved.file_name).strip()
             resolved_documents.append(
                 {
                     "doc_id": normalized_doc_id,

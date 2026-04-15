@@ -81,6 +81,35 @@ assert.equal(restoredPpt[0].meta?.htmlPreviewUrl, 'http://127.0.0.1:46080/ppt/ar
 assert.equal(restoredPpt[0].meta?.pptxUrl, 'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.pptx');
 assert.match(String(restoredPpt[0].meta?.outlineContent), /三次握手过程/);
 
+const restoredLessonPlan = restoreGeneratedFilesFromConversationDetail({
+  conversation_id: 'conv-lesson-1',
+  history: [],
+  message_count: 0,
+  state: {
+    workflow_state: {
+      artifacts: [
+        {
+          artifact_id: 'lesson-outline-1',
+          artifact_type: 'lesson_plan_outline',
+          title: '关羽人物分析-教案大纲.json',
+          content: {
+            basic_info: {
+              topic: '关羽的战绩与形象分析',
+            },
+            teaching_objectives: ['梳理关羽战绩'],
+          },
+        },
+      ],
+    },
+  },
+} as any);
+
+assert.equal(restoredLessonPlan.length, 1);
+assert.equal(restoredLessonPlan[0].type, 'lesson_plan');
+assert.equal(restoredLessonPlan[0].meta?.conversationId, 'conv-lesson-1');
+assert.equal(restoredLessonPlan[0].meta?.kind, 'outline');
+assert.equal((restoredLessonPlan[0].content as any)?.basic_info?.topic, '关羽的战绩与形象分析');
+
 const emptyRestore = restoreGeneratedFilesFromConversationDetail({
   conversation_id: 'conv-2',
   history: [],

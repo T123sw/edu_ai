@@ -1,6 +1,6 @@
 const BACKEND_BASE_URL =
   (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_API_BASE_URL : undefined) ||
-  (typeof window !== 'undefined' ? window.location.origin : '');
+  'http://localhost:8000';
 const AUTH_STORAGE_KEY = 'edu-ai-auth';
 
 function getAuthToken(): string | null {
@@ -69,6 +69,11 @@ export interface ChatPptCardsRequestV2 {
   selected_doc_ids?: string[];
 }
 
+export interface ChatLessonPlanCardsRequestV2 {
+  course_id?: string;
+  selected_doc_ids?: string[];
+}
+
 export interface KnowledgeBaseDirectReportRequestV2 {
   question: string;
   course_id?: string;
@@ -124,18 +129,13 @@ export interface PptEntryCardSelection {
   recommendation_type?: 'concept_focus' | 'process_flow' | 'comparison_view' | 'case_application';
 }
 
-export interface PptEntryCardPrefillConfig {
-  deck_title: string;
-  deck_subtitle?: string;
+export interface LessonPlanEntryCardPrefillConfig {
+  topic: string;
   audience?: string;
+  duration?: string;
+  lesson_type?: string;
   objective?: string;
-  theme_id?: 'heu_academic_elegant' | 'heu_academic_basic';
-  length_option?: 'short' | 'medium' | 'long';
-  target_slide_count?: number;
-  key_points?: string[];
   style_hint?: string;
-  special_requirements?: string;
-  general_requirements?: string;
 }
 
 export interface ReportEntryCard {
@@ -168,7 +168,24 @@ export interface PptEntryCard {
   recommendation_source?: 'doc_summaries';
   fit_score?: 'high' | 'medium' | 'low';
   style_hint?: string;
-  prefill_config?: PptEntryCardPrefillConfig;
+}
+
+export interface LessonPlanEntryCard {
+  card_id: string;
+  card_type: 'preset' | 'recommended';
+  title: string;
+  description: string;
+  prompt_draft: string;
+  prefill_config?: LessonPlanEntryCardPrefillConfig;
+  preset_key?: 'new_lesson' | 'review_lesson' | 'inquiry_lesson' | 'practice_lesson';
+  recommendation_type?:
+    | 'knowledge_building'
+    | 'historical_inquiry'
+    | 'practice_consolidation'
+    | 'review_summary'
+    | 'material_analysis';
+  recommendation_source?: 'doc_summaries';
+  fit_score?: 'high' | 'medium' | 'low';
 }
 
 export interface ChatReportCardsResponseV2 {
@@ -180,6 +197,12 @@ export interface ChatReportCardsResponseV2 {
 export interface ChatPptCardsResponseV2 {
   entry_mode: 'knowledge_base_ppt';
   cards: PptEntryCard[];
+  trace?: Record<string, unknown>;
+}
+
+export interface ChatLessonPlanCardsResponseV2 {
+  entry_mode: 'knowledge_base_lesson_plan';
+  cards: LessonPlanEntryCard[];
   default_selected_card_id?: string;
   trace?: Record<string, unknown>;
 }
@@ -267,11 +290,9 @@ export interface ChatErrorResponseV2 {
     message?: string;
     retryable?: boolean;
   };
-  detail?: string;
 }
 
-export interface SpeechTranscriptionResponse {
-  filename: string;
+export interface SpeechTranscriptResponseV2 {
   text: string;
 }
 
@@ -319,6 +340,15 @@ export async function fetchPptEntryCardsV2(payload: ChatPptCardsRequestV2): Prom
   return postV2<ChatPptCardsResponseV2, ChatPptCardsRequestV2>('/api/chat/v2/ppt/cards', payload);
 }
 
+export async function fetchLessonPlanEntryCardsV2(
+  payload: ChatLessonPlanCardsRequestV2,
+): Promise<ChatLessonPlanCardsResponseV2> {
+  return postV2<ChatLessonPlanCardsResponseV2, ChatLessonPlanCardsRequestV2>(
+    '/api/chat/v2/lesson-plan/cards',
+    payload,
+  );
+}
+
 export async function generateKnowledgeBaseReportV2(
   payload: KnowledgeBaseDirectReportRequestV2,
 ): Promise<ChatDirectReportResponseV2> {
@@ -343,12 +373,12 @@ export async function generateKnowledgeBasePptV2(
   );
 }
 
-export async function transcribeSpeechV2(file: Blob, filename = 'voice.webm'): Promise<SpeechTranscriptionResponse> {
+export async function transcribeSpeechV2(file: Blob, filename: string): Promise<SpeechTranscriptResponseV2> {
   const token = getAuthToken();
   const formData = new FormData();
   formData.append('file', file, filename);
 
-  const resp = await fetch(`${BACKEND_BASE_URL}/api/speech/transcribe`, {
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/v2/speech/transcribe`, {
     method: 'POST',
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -360,7 +390,7 @@ export async function transcribeSpeechV2(file: Blob, filename = 'voice.webm'): P
     let detail = `请求失败: ${resp.status} ${resp.statusText}`;
     try {
       const errorPayload = (await resp.json()) as ChatErrorResponseV2;
-      detail = errorPayload.error?.message || errorPayload.detail || detail;
+      detail = errorPayload.error?.message || detail;
     } catch {
       const text = await resp.text().catch(() => '');
       if (text) detail = text;
@@ -368,7 +398,7 @@ export async function transcribeSpeechV2(file: Blob, filename = 'voice.webm'): P
     throw new Error(detail);
   }
 
-  return (await resp.json()) as SpeechTranscriptionResponse;
+  return (await resp.json()) as SpeechTranscriptResponseV2;
 }
 
 interface BuildChatReplyPayloadOptions {

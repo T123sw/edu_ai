@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document
 
 
 class KnowledgeBaseDocumentContentProvider:
@@ -20,12 +20,6 @@ class KnowledgeBaseDocumentContentProvider:
 
     def get_selected_document_contents(self, *, selected_doc_ids: list[str], owner: str | None) -> dict[str, Any]:
         rag_system = self._rag_system_factory()
-        listed_documents = list(rag_system.list_documents(owner=owner) or [])
-        documents_by_id = {
-            str(item.get("file_path") or "").strip(): item
-            for item in listed_documents
-            if str(item.get("file_path") or "").strip()
-        }
 
         resolved_documents: list[dict[str, Any]] = []
         content_timestamps: list[str] = []
@@ -37,15 +31,13 @@ class KnowledgeBaseDocumentContentProvider:
             if not normalized_doc_id or total_chars >= self.max_total_chars:
                 continue
 
-            listed_record = documents_by_id.get(normalized_doc_id) or {}
-            index_key = rag_system._make_index_key(normalized_doc_id, owner)
-            record = rag_system.document_index.get(index_key)
-            if record is None:
+            resolved = resolve_rag_document(rag_system, normalized_doc_id, owner=owner)
+            if resolved is None:
                 continue
 
-            physical_path = str(record.get("physical_path") or normalized_doc_id).strip()
-            source_key = record.get("source_key") or rag_system._make_source_key(physical_path, owner)
-            documents = list(rag_system.vector_store.get_documents_by_source(source_key) or [])
+            listed_record = dict(resolved.listed_document or {})
+            index_record = dict(resolved.record or {})
+            documents = list(rag_system.vector_store.get_documents_by_source(resolved.source_key) or [])
             if not documents:
                 continue
 
@@ -66,12 +58,12 @@ class KnowledgeBaseDocumentContentProvider:
                 limited_content = limited_content[:remaining_chars].rstrip() + "\n\n...（本次报告上下文已达长度上限，后续内容已截断）"
                 truncated = True
 
-            title = str(listed_record.get("file_name") or Path(physical_path).name or normalized_doc_id).strip()
-            summary = str(listed_record.get("summary") or "").strip()
+            title = str(listed_record.get("file_name") or index_record.get("file_name") or resolved.file_name).strip()
+            summary = str(listed_record.get("summary") or index_record.get("summary") or "").strip()
             content_updated_at = str(
                 listed_record.get("summary_updated_at")
                 or listed_record.get("imported_at")
-                or record.get("imported_at")
+                or index_record.get("imported_at")
                 or ""
             ).strip()
 

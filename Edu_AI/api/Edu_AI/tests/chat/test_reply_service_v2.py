@@ -1,6 +1,7 @@
 ﻿from types import SimpleNamespace
 
 from app.chat.application.reply_service_v2 import ReplyServiceV2, build_default_reply_service_v2
+from app.chat.application.route_chat_service import _persist_lesson_plan_course_material
 
 
 class DummyOrchestrator:
@@ -239,6 +240,35 @@ def test_reply_service_persists_report_version_metadata_and_generation_state():
 
     assert course_storage.saved[0]["material_data"]["version"]["version_id"] == "v2"
     assert course_storage.saved[0]["material_data"]["generation_state"]["generation_mode"] == "revise_report"
+
+
+def test_lesson_plan_persistence_saves_structured_plan_payload():
+    course_storage = DummyCourseStorageManager()
+    result = {
+        "workflow": {"type": "lesson_plan", "status": "completed"},
+        "artifacts": [
+            {
+                "artifact_id": "lesson-plan-1",
+                "artifact_type": "lesson_plan",
+                "title": "七年级数学教案",
+                "content": {
+                    "topic": "分数的意义",
+                    "steps": [{"title": "导入", "minutes": 5}],
+                },
+            }
+        ],
+    }
+
+    _persist_lesson_plan_course_material(
+        payload=SimpleNamespace(course_id="course-1"),
+        result=result,
+        course_storage_manager=course_storage,
+    )
+
+    assert course_storage.saved[0]["course_id"] == "course-1"
+    assert course_storage.saved[0]["material_type"] == "lesson_plan"
+    assert course_storage.saved[0]["material_data"]["plan"]["topic"] == "分数的意义"
+    assert course_storage.saved[0]["material_data"]["plan"]["steps"][0]["title"] == "导入"
 
 
 def test_build_default_reply_service_v2_wires_course_storage_manager(monkeypatch):
@@ -692,6 +722,80 @@ def test_build_default_reply_service_v2_wires_generation_context_dependencies(mo
     assert seen["runtime_kwargs"]["generation_readiness_judge"] is not None
     assert getattr(service, "status_card_builder", None) is not None
     assert getattr(service, "context_builder", None) is not None
+
+
+def test_build_default_reply_service_v2_registers_lesson_plan_workflow(monkeypatch):
+    seen = {}
+
+    class DummyStoreImpl:
+        def ensure_conversation(self, conversation_id, question, owner=None):
+            return None
+
+        def get_messages(self, conversation_id, limit=20):
+            return []
+
+        def get_state(self, conversation_id):
+            return {}
+
+        def append_message(self, conversation_id, role, content, sources=None):
+            return None
+
+        def update_state(self, conversation_id, patch):
+            return None
+
+    class DummyGateway:
+        def chat(self, messages):
+            return "ok"
+
+    class DummyLessonPlanRuntime:
+        def __init__(self, **kwargs):
+            seen["runtime_kwargs"] = kwargs
+
+        def run(self, *, request, snapshot, decision):
+            return {
+                "message": {"role": "assistant", "content": "lesson plan"},
+                "conversation": {"conversation_id": request.conversation_id or "conv-1"},
+                "action": {"name": "generate.lesson_plan"},
+                "workflow": {"type": "lesson_plan", "status": "running"},
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "workflow", "workflow_name": "lesson_plan"},
+            }
+
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.ConversationStoreAdapter",
+        lambda: SimpleNamespace(
+            storage=DummyStoreImpl(),
+            load_snapshot=lambda conversation_id: {"messages": [], "state": {}},
+            write_v2_result=lambda conversation_id, request, result: None,
+        ),
+    )
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.build_default_gateway",
+        lambda model_id=None: DummyGateway(),
+    )
+    monkeypatch.setattr("app.chat.application.reply_service_v2.LessonPlanWorkflowRuntime", DummyLessonPlanRuntime)
+
+    service = build_default_reply_service_v2()
+    payload = SimpleNamespace(
+        question="根据以上内容，总结为教案",
+        conversation_id="conv-lesson-1",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        owner="u1",
+    )
+
+    result = service.reply(payload)
+
+    assert result["workflow"]["type"] == "lesson_plan"
+    assert seen["runtime_kwargs"]["generation_context_builder"] is not None
+    assert seen["runtime_kwargs"]["lesson_plan_context_organizer"] is not None
+    assert seen["runtime_kwargs"]["lesson_plan_readiness_judge"] is not None
 
 
 def test_build_default_reply_service_v2_uses_fallback_llm_for_full_ppt_workflow(monkeypatch):

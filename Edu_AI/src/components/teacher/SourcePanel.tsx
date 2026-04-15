@@ -78,6 +78,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [loading, setLoading] = useState(false);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>(selectedDocs);
   const [searchValue, setSearchValue] = useState('');
+  const [searchDraftValue, setSearchDraftValue] = useState('');
   const [researchModalVisible, setResearchModalVisible] = useState(false);
   const [researchLoading, setResearchLoading] = useState(false);
   const [researchResults, setResearchResults] = useState<CrawlResult[]>([]);
@@ -585,9 +586,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   };
 
   const handleResearch = () => {
-    if (!searchValue.trim()) return;
+    setSearchDraftValue(searchValue);
     setResearchModalVisible(true);
-    console.log('深度研究搜索:', searchValue);
   };
 
   const closeResearchModal = (showCancelMessage = false) => {
@@ -598,6 +598,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     setResearchLoading(false);
     setResearchModalVisible(false);
     setSearchValue('');
+    setSearchDraftValue('');
     setResearchResults([]);
     if (showCancelMessage) {
       message.info('已取消深度研究');
@@ -611,11 +612,14 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       return;
     }
 
-    if (!searchValue.trim()) {
+    const normalizedQuery = searchDraftValue.trim();
+
+    if (!normalizedQuery) {
       message.warning('请输入研究主题');
       return;
     }
 
+    setSearchValue(normalizedQuery);
     setResearchLoading(true);
     setResearchResults([]);
 
@@ -627,11 +631,11 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       const controller = new AbortController();
       researchAbortRef.current = controller;
 
-      console.log('[深度研究] 开始搜索:', searchValue);
+      console.log('[深度研究] 开始搜索:', normalizedQuery);
       message.info('开始深度搜索和爬取，这可能需要几分钟时间...', 10);
       
       const response = await deepSearchAndCrawl({
-        query: searchValue.trim(),
+        query: normalizedQuery,
         max_urls: 5,
         crawl_timeout: 30,
       }, { signal: controller.signal });
@@ -926,10 +930,15 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         <Button type="text" icon={<LeftOutlined />} onClick={onToggleCollapsed} aria-label="折叠知识库" style={{ position: 'absolute', right: 0, top: 0, padding: '4px 8px' }} />
       </div>
 
-      <Space.Compact style={{ width: '100%', marginBottom: 16, flexShrink: 0 }}>
-        <Input placeholder="深度研究：输入研究主题" size="large" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} onPressEnter={handleResearch} />
-        <Button type="primary" icon={<SearchOutlined />} size="large" onClick={handleResearch} />
-      </Space.Compact>
+      <Button
+        type="default"
+        icon={<SearchOutlined />}
+        size="large"
+        onClick={handleResearch}
+        style={{ width: '100%', marginBottom: 16, flexShrink: 0 }}
+      >
+        深度研究搜索
+      </Button>
 
       <div style={{ marginBottom: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 0 }}>
         <span style={{ fontSize: 14 }}>选择所有来源</span>
@@ -996,8 +1005,21 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       >
         <div>
           <Text strong>研究主题：</Text>
-          <Text>{searchValue}</Text>
         </div>
+        <Input
+          style={{ marginTop: 12 }}
+          placeholder="请输入关键词或研究主题"
+          size="large"
+          value={searchDraftValue}
+          onChange={(e) => setSearchDraftValue(e.target.value)}
+          onPressEnter={() => void handleResearchConfirm()}
+        />
+        {searchValue ? (
+          <div style={{ marginTop: 12 }}>
+            <Text type="secondary">当前搜索：</Text>
+            <Text>{searchValue}</Text>
+          </div>
+        ) : null}
         
         <Spin spinning={researchLoading} tip="正在搜索和爬取，请耐心等待...">
           {researchLoading && (

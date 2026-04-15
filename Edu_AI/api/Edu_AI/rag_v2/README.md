@@ -1,12 +1,12 @@
 # rag_v2
 
-`rag_v2` is a parallel backend RAG module workspace.
+`rag_v2` is the active backend RAG runtime module.
 
 Current status:
-- Created as a staging directory for the next RAG implementation.
-- No existing backend imports or routes are switched to this package yet.
-- The current running integration still points to `new_rag`.
+- Backend runtime imports and routes are switched to `rag_v2.api`.
+- `rag_v2/rag_main/` is the import-safe runtime package copied from the uploaded `rag-main` source.
+- Public document identifiers should be RAG v2 index keys. Legacy physical paths are resolved only through `rag_v2.document_resolver`.
+- Business code should not import or call the old RAG module.
 
 Recommended next step:
-- Put the new RAG source code into this directory first.
-- After that, we can plan and execute the integration changes separately.
+- Add image retrieval on top of the active `rag_v2` runtime, reusing the same owner isolation and public identifier rules.

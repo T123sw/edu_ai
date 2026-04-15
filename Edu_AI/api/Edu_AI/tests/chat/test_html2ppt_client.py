@@ -126,3 +126,56 @@ def test_html2ppt_client_normalizes_relative_result_urls_to_absolute_urls():
     assert results["results"]["html_full_url"] == "http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.html"
     assert results["results"]["pptx_url"] == "http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.pptx"
     assert results["results"]["manifest_url"] == "http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/manifest.json"
+
+
+def test_html2ppt_client_builds_revision_requests():
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = request.content.decode("utf-8") if request.content else ""
+        calls.append(
+            {
+                "method": request.method,
+                "path": request.url.path,
+                "json": json.loads(body) if body else None,
+            }
+        )
+        if request.method == "POST" and request.url.path == "/ppt/jobs/job_001/revisions":
+            return httpx.Response(200, json={"revision_id": "rev_0001", "status": "queued"})
+        if request.method == "GET" and request.url.path == "/ppt/jobs/job_001/revisions/rev_0001":
+            return httpx.Response(200, json={"revision_id": "rev_0001", "status": "completed"})
+        return httpx.Response(404)
+
+    client = Html2PptClient(
+        base_url="http://testserver",
+        http_client=httpx.Client(transport=httpx.MockTransport(handler), base_url="http://testserver"),
+    )
+
+    revision = client.create_revision(
+        "job_001",
+        mode="single_slide",
+        target_slides=[3],
+        user_instruction="把第 3 页改成流程图风格",
+        metadata={"source_revision_id": "rev_0000"},
+    )
+    status = client.get_revision_status("job_001", "rev_0001")
+
+    assert revision == {"revision_id": "rev_0001", "status": "queued"}
+    assert status == {"revision_id": "rev_0001", "status": "completed"}
+    assert calls == [
+        {
+            "method": "POST",
+            "path": "/ppt/jobs/job_001/revisions",
+            "json": {
+                "mode": "single_slide",
+                "target_slides": [3],
+                "user_instruction": "把第 3 页改成流程图风格",
+                "metadata": {"source_revision_id": "rev_0000"},
+            },
+        },
+        {
+            "method": "GET",
+            "path": "/ppt/jobs/job_001/revisions/rev_0001",
+            "json": None,
+        },
+    ]

@@ -9,7 +9,8 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 from core import Config
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document
 
 
 # 添加EduAgent到Python路径
@@ -157,10 +158,11 @@ def run_deepsearch_pipeline(
                 import_path = str(dst.absolute())
 
             import_result = rag_system.import_document(import_path, force_reimport=False, owner=owner_name)
+            resolved_document = None
             try:
-                index_key = rag_system._make_index_key(str(Path(import_path).absolute()), owner_name)
-                rec = rag_system.document_index.get(index_key)
-                if rec is not None:
+                resolved_document = resolve_rag_document(rag_system, import_path, owner=owner_name)
+                rec = resolved_document.record if resolved_document is not None else None
+                if isinstance(rec, dict):
                     pretty_name = f"{title}"
                     if domain and domain not in pretty_name:
                         pretty_name = f"{pretty_name} - {domain}"
@@ -169,13 +171,16 @@ def run_deepsearch_pipeline(
                     rec["source_title"] = title
                     rec["source_domain"] = domain
                     rec["doc_kind"] = "web"
-                    rec["source_key"] = rec.get("source_key") or rag_system._make_source_key(
-                        str(Path(import_path).absolute()), owner_name
-                    )
+                    rec["source_key"] = rec.get("source_key") or resolved_document.source_key
             except Exception:
                 pass
 
-            imported_docs.append({"file_path": import_path, "file_name": Path(import_path).name, "url": url})
+            imported_docs.append({
+                "file_path": import_path,
+                "index_key": resolved_document.index_key if resolved_document is not None else None,
+                "file_name": Path(import_path).name,
+                "url": url,
+            })
 
         try:
             rag_system._save_index()

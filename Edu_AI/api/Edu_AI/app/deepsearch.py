@@ -17,7 +17,8 @@ from pydantic import BaseModel, Field
 from app.auth import get_current_user
 from app.deepsearch_loader import load_eduagent_capabilities
 from core import Config
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document
 
 # 添加EduAgent到Python路径
 # 从 D:\Edu_AI_1\Edu_AI\api\Edu_AI\app\deepsearch.py 到 D:\Edu_AI_1\EduAgent
@@ -382,10 +383,11 @@ async def deepsearch_and_crawl(
                     print(f"[API] [入库] 状态: {import_result.get('status')}, chunk_count: {import_result.get('chunk_count', 0)}")
 
                     # 回写 document_index 的展示信息：让前端列表显示更友好
+                    resolved_document = None
                     try:
-                        index_key = rag_system._make_index_key(str(Path(import_path).absolute()), username)
-                        rec = rag_system.document_index.get(index_key)
-                        if rec is not None:
+                        resolved_document = resolve_rag_document(rag_system, import_path, owner=username)
+                        rec = resolved_document.record if resolved_document is not None else None
+                        if isinstance(rec, dict):
                             pretty_name = f"{title}"
                             if domain and domain not in pretty_name:
                                 pretty_name = f"{pretty_name} - {domain}"
@@ -394,13 +396,15 @@ async def deepsearch_and_crawl(
                             rec["source_title"] = title
                             rec["source_domain"] = domain
                             rec["doc_kind"] = "web"
-                            # source_key 也记录一下，便于排查（system内部会用这个查询chunks）
-                            rec["source_key"] = rec.get("source_key") or rag_system._make_source_key(
-                                str(Path(import_path).absolute()), username
-                            )
+                            rec["source_key"] = rec.get("source_key") or resolved_document.source_key
                     except Exception as _e:
                         print(f"[API] [深度搜索] 写入document_index元数据失败: {type(_e).__name__}: {_e}")
-                    imported_docs.append({"file_path": import_path, "file_name": Path(import_path).name, "url": url})
+                    imported_docs.append({
+                        "file_path": import_path,
+                        "index_key": resolved_document.index_key if resolved_document is not None else None,
+                        "file_name": Path(import_path).name,
+                        "url": url,
+                    })
 
                 # 保存 index（无论导入多少，统一保存一次）
                 try:

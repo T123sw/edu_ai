@@ -19,11 +19,12 @@ from app.chat.api.routes_v2 import router as chat_v2_router
 from app.speech.routes import router as speech_router
 from app.video_routes import router as video_router
 from core import Config, conversation_storage, lesson_plan_storage
-from new_rag.api import router as rag_router, get_rag_system
+from rag_v2.api import router as rag_router, get_rag_system
+from rag_v2.document_resolver import load_rag_document_content
 
 
 class ChatRequest(BaseModel):
-    """聊天请求（复用前端接口，内部使用 new_rag 系统）"""
+    """聊天请求（复用前端接口，内部使用 rag_v2 系统）"""
 
     question: str = Field(..., description="用户问题")
     conversation_id: Optional[str] = Field(default=None, description="对话ID")
@@ -193,6 +194,40 @@ class QuestionGenerateResponse(BaseModel):
     questions: List[QuestionItem]
 
 
+def _load_selected_rag_documents(
+    rag_system: Any,
+    selected_doc_ids: List[str],
+    *,
+    owner: str,
+    log_prefix: str,
+) -> List[Dict[str, str]]:
+    documents_content: List[Dict[str, str]] = []
+    print(f"[{log_prefix}] 开始通过 rag_v2 resolver 处理 {len(selected_doc_ids)} 个选中文档")
+
+    for doc_id in selected_doc_ids:
+        try:
+            loaded_document = load_rag_document_content(rag_system, doc_id, owner=owner)
+            if loaded_document is None:
+                print(f"[{log_prefix}] 文档未通过 rag_v2 resolver 加载: {doc_id}")
+                continue
+
+            documents_content.append(
+                {
+                    "file_name": loaded_document.file_name,
+                    "content": loaded_document.content,
+                }
+            )
+            print(
+                f"[{log_prefix}] rag_v2 resolver 已加载文档 {loaded_document.file_name}，"
+                f"内容长度: {len(loaded_document.content)} 字符"
+            )
+        except Exception as exc:
+            print(f"[{log_prefix}] 通过 rag_v2 resolver 获取文档 {doc_id} 内容失败: {exc}")
+            continue
+
+    return documents_content
+
+
 app = FastAPI(title=Config.APP_NAME, version="1.0.0")
 
 # 注册路由
@@ -238,157 +273,12 @@ async def generate_lesson_plan(
                 detail="必须至少选择一个文档才能生成教案"
             )
 
-        # 获取所有选中文档的完整内容（直接从文件系统读取，不从向量库）
-        documents_content = []
-        print(f"[LessonPlan] 开始处理 {len(payload.selected_doc_ids)} 个选中的文档")
-        print(f"[LessonPlan] selected_doc_ids: {payload.selected_doc_ids}")
-        print(f"[LessonPlan] document_index 中的文档数量: {len(rag_system.document_index)}")
-        print(f"[LessonPlan] document_index keys (前5个): {list(rag_system.document_index.keys())[:5]}")
-        
-        for doc_id in payload.selected_doc_ids:
-            try:
-                print(f"[LessonPlan] 处理文档: {doc_id}")
-                
-                # 尝试多种方式匹配文档
-                record = None
-                matched_key = None
-                
-                # 方式1：直接使用doc_id作为index_key（如果doc_id已经是index_key格式）
-                if doc_id in rag_system.document_index:
-                    record = rag_system.document_index.get(doc_id)
-                    matched_key = doc_id
-                    print(f"[LessonPlan] 方式1匹配成功（直接匹配）: {doc_id}")
-                
-                # 方式2：使用_make_index_key生成index_key
-                if not record:
-                    index_key = rag_system._make_index_key(doc_id, username)
-                    print(f"[LessonPlan] 尝试方式2，生成的index_key: {index_key}")
-                    if index_key in rag_system.document_index:
-                        record = rag_system.document_index.get(index_key)
-                        matched_key = index_key
-                        print(f"[LessonPlan] 方式2匹配成功: {index_key}")
-                
-                # 方式3：遍历document_index，通过physical_path匹配
-                if not record:
-                    print(f"[LessonPlan] 尝试方式3，遍历document_index匹配...")
-                    for idx_key, idx_record in rag_system.document_index.items():
-                        idx_physical_path = idx_record.get("physical_path", "")
-                        idx_owner = idx_record.get("owner", "")
-                        
-                        # 检查owner是否匹配
-                        if idx_owner != username:
-                            continue
-                        
-                        # 检查physical_path是否匹配（处理路径格式差异）
-                        if idx_physical_path:
-                            # 规范化路径用于比较
-                            def normalize_path(p):
-                                return str(p).replace('\\', '/').lower().strip()
-                            
-                            doc_id_norm = normalize_path(doc_id)
-                            physical_norm = normalize_path(idx_physical_path)
-                            
-                            # 检查doc_id是否包含physical_path，或physical_path是否包含doc_id
-                            if (doc_id_norm in physical_norm or 
-                                physical_norm in doc_id_norm or
-                                doc_id_norm == physical_norm):
-                                record = idx_record
-                                matched_key = idx_key
-                                print(f"[LessonPlan] 方式3匹配成功: {idx_key} (physical_path: {idx_physical_path})")
-                                break
-                
-                if not record:
-                    print(f"[LessonPlan] 错误：文档 {doc_id} 无法在document_index中找到匹配的记录")
-                    print(f"[LessonPlan] document_index中的所有keys: {list(rag_system.document_index.keys())}")
-                    continue
-                
-                print(f"[LessonPlan] 找到文档记录，matched_key: {matched_key}")
-                print(f"[LessonPlan] record keys: {list(record.keys())}")
-                
-                # 检查权限
-                if record.get("owner") != username:
-                    print(f"[LessonPlan] 警告：无权访问文档 {doc_id}，owner={record.get('owner')}, username={username}")
-                    continue
-                
-                # 获取文档的物理路径
-                physical_path = record.get("physical_path")
-                if not physical_path:
-                    print(f"[LessonPlan] 警告：文档 {doc_id} 没有physical_path，record: {record}")
-                    continue
-                
-                print(f"[LessonPlan] 文档物理路径: {physical_path}")
-                
-                # 检查文件是否存在
-                file_path = Path(physical_path)
-                if not file_path.exists():
-                    print(f"[LessonPlan] 错误：文档文件不存在: {physical_path}")
-                    print(f"[LessonPlan] 当前工作目录: {Path.cwd()}")
-                    print(f"[LessonPlan] 绝对路径: {file_path.resolve()}")
-                    continue
-                
-                print(f"[LessonPlan] 文件存在，开始加载: {file_path}")
-                
-                # 根据文件类型，直接从文件系统加载文档完整内容
-                file_ext = file_path.suffix.lower()
-                file_name = record.get("file_name", file_path.name)
-                
-                print(f"[LessonPlan] 文件扩展名: {file_ext}, 文件名: {file_name}")
-                
-                full_content = ""
-                try:
-                    if file_ext == ".pdf":
-                        # 加载PDF文档
-                        print(f"[LessonPlan] 开始加载PDF文档...")
-                        documents = rag_system.document_processor.load_pdf(str(file_path))
-                        print(f"[LessonPlan] PDF加载完成，共 {len(documents)} 页")
-                        if not documents:
-                            print(f"[LessonPlan] 警告：PDF文档加载后为空")
-                            continue
-                        # 按page排序，拼接完整内容
-                        documents.sort(key=lambda x: int(x.metadata.get("page", 0)))
-                        full_content = "\n\n".join([doc.page_content for doc in documents])
-                    elif file_ext in [".doc", ".docx"]:
-                        # 加载Word文档
-                        print(f"[LessonPlan] 开始加载Word文档...")
-                        documents = rag_system.document_processor.load_doc(str(file_path))
-                        print(f"[LessonPlan] Word加载完成，共 {len(documents)} 个文档块")
-                        if not documents:
-                            print(f"[LessonPlan] 警告：Word文档加载后为空")
-                            continue
-                        full_content = "\n\n".join([doc.page_content for doc in documents])
-                    elif file_ext in [".txt", ".md", ".markdown"]:
-                        # 加载文本文档
-                        print(f"[LessonPlan] 开始加载文本文档...")
-                        documents = rag_system.document_processor.load_text_like(str(file_path))
-                        print(f"[LessonPlan] 文本加载完成，共 {len(documents)} 个文档块")
-                        if not documents:
-                            print(f"[LessonPlan] 警告：文本文档加载后为空")
-                            continue
-                        full_content = "\n\n".join([doc.page_content for doc in documents])
-                    else:
-                        print(f"[LessonPlan] 警告：不支持的文件类型: {file_ext}，跳过")
-                        continue
-                except Exception as load_error:
-                    print(f"[LessonPlan] 加载文档失败: {load_error}")
-                    import traceback
-                    traceback.print_exc()
-                    continue
-                
-                if not full_content or not full_content.strip():
-                    print(f"[LessonPlan] 警告：文档 {file_name} 内容为空，跳过")
-                    continue
-                
-                documents_content.append({
-                    "file_name": file_name,
-                    "content": full_content
-                })
-                
-                print(f"[LessonPlan] ✅ 成功加载文档 {file_name}，内容长度: {len(full_content)} 字符")
-            except Exception as e:
-                print(f"[LessonPlan] 获取文档 {doc_id} 内容失败: {e}")
-                import traceback
-                traceback.print_exc()
-                continue
+        documents_content = _load_selected_rag_documents(
+            rag_system,
+            payload.selected_doc_ids,
+            owner=username,
+            log_prefix="LessonPlan",
+        )
         
         if not documents_content:
             raise HTTPException(
@@ -653,95 +543,12 @@ async def generate_report(
                 detail="必须至少选择一个文档才能生成报告"
             )
 
-        # 获取所有选中文档的完整内容（直接从文件系统读取，不从向量库）
-        documents_content = []
-        print(f"[Report] 开始处理 {len(payload.selected_doc_ids)} 个选中的文档")
-        
-        for doc_id in payload.selected_doc_ids:
-            try:
-                # 尝试多种方式匹配文档（与教案生成相同的逻辑）
-                record = None
-                matched_key = None
-                
-                if doc_id in rag_system.document_index:
-                    record = rag_system.document_index.get(doc_id)
-                    matched_key = doc_id
-                elif not record:
-                    index_key = rag_system._make_index_key(doc_id, username)
-                    if index_key in rag_system.document_index:
-                        record = rag_system.document_index.get(index_key)
-                        matched_key = index_key
-                
-                if not record:
-                    # 方式3：遍历document_index匹配physical_path
-                    for idx_key, idx_record in rag_system.document_index.items():
-                        if idx_record.get("owner") != username:
-                            continue
-                        idx_physical_path = idx_record.get("physical_path")
-                        if idx_physical_path:
-                            import os
-                            doc_id_norm = os.path.normpath(str(doc_id)).lower()
-                            physical_norm = os.path.normpath(str(idx_physical_path)).lower()
-                            if doc_id_norm == physical_norm:
-                                record = idx_record
-                                matched_key = idx_key
-                                break
-                
-                if not record:
-                    print(f"[Report] 错误：文档 {doc_id} 无法在document_index中找到匹配的记录")
-                    continue
-
-                physical_path = record.get("physical_path")
-                if not physical_path:
-                    print(f"[Report] 警告：文档 {matched_key} 没有physical_path")
-                    continue
-
-                file_path = Path(physical_path)
-                if not file_path.exists():
-                    print(f"[Report] 警告：文件不存在: {file_path}")
-                    continue
-
-                file_ext = file_path.suffix.lower()
-                file_name = record.get("file_name", file_path.name)
-                
-                full_content = ""
-                try:
-                    if file_ext == ".pdf":
-                        documents = rag_system.document_processor.load_pdf(str(file_path))
-                        if not documents:
-                            continue
-                        documents.sort(key=lambda x: int(x.metadata.get("page", 0)))
-                        full_content = "\n\n".join([doc.page_content for doc in documents])
-                    elif file_ext in [".doc", ".docx"]:
-                        documents = rag_system.document_processor.load_doc(str(file_path))
-                        if not documents:
-                            continue
-                        full_content = "\n\n".join([doc.page_content for doc in documents])
-                    elif file_ext in [".txt", ".md", ".markdown"]:
-                        documents = rag_system.document_processor.load_text_like(str(file_path))
-                        if not documents:
-                            continue
-                        full_content = "\n\n".join([doc.page_content for doc in documents])
-                    else:
-                        print(f"[Report] 警告：不支持的文件类型: {file_ext}，跳过")
-                        continue
-                except Exception as load_error:
-                    print(f"[Report] 加载文档失败: {load_error}")
-                    continue
-                
-                if not full_content or not full_content.strip():
-                    print(f"[Report] 警告：文档 {file_name} 内容为空，跳过")
-                    continue
-                
-                documents_content.append({
-                    "file_name": file_name,
-                    "content": full_content
-                })
-                
-                print(f"[Report] ✅ 成功加载文档 {file_name}，内容长度: {len(full_content)} 字符")
-            except Exception as e:
-                print(f"[Report] 获取文档 {doc_id} 内容失败: {e}")
-                continue
+        documents_content = _load_selected_rag_documents(
+            rag_system,
+            payload.selected_doc_ids,
+            owner=username,
+            log_prefix="Report",
+        )
         
         if not documents_content:
             raise HTTPException(
@@ -1280,77 +1087,12 @@ async def generate_quiz(
         if payload.difficulty not in difficulty_map:
             raise HTTPException(status_code=400, detail="difficulty 仅支持 easy/medium/hard")
 
-        documents_content = []
-        for doc_id in payload.selected_doc_ids:
-            try:
-                record = None
-                matched_key = None
-
-                if doc_id in rag_system.document_index:
-                    record = rag_system.document_index.get(doc_id)
-                    matched_key = doc_id
-                else:
-                    index_key = rag_system._make_index_key(doc_id, username)
-                    if index_key in rag_system.document_index:
-                        record = rag_system.document_index.get(index_key)
-                        matched_key = index_key
-
-                if not record:
-                    for idx_key, idx_record in rag_system.document_index.items():
-                        if idx_record.get("owner") != username:
-                            continue
-                        idx_physical_path = idx_record.get("physical_path")
-                        if idx_physical_path:
-                            import os
-                            doc_id_norm = os.path.normpath(str(doc_id)).lower()
-                            physical_norm = os.path.normpath(str(idx_physical_path)).lower()
-                            if doc_id_norm == physical_norm:
-                                record = idx_record
-                                matched_key = idx_key
-                                break
-
-                if not record:
-                    print(f"[Quiz] 文档未匹配: {doc_id}")
-                    continue
-
-                if record.get("owner") != username:
-                    continue
-
-                physical_path = record.get("physical_path")
-                if not physical_path:
-                    continue
-
-                file_path = Path(physical_path)
-                if not file_path.exists():
-                    continue
-
-                file_ext = file_path.suffix.lower()
-                file_name = record.get("file_name", file_path.name)
-
-                full_content = ""
-                if file_ext == ".pdf":
-                    documents = rag_system.document_processor.load_pdf(str(file_path))
-                    documents.sort(key=lambda x: int(x.metadata.get("page", 0)))
-                    full_content = "\n\n".join([doc.page_content for doc in documents])
-                elif file_ext in [".doc", ".docx"]:
-                    documents = rag_system.document_processor.load_doc(str(file_path))
-                    full_content = "\n\n".join([doc.page_content for doc in documents])
-                elif file_ext in [".txt", ".md", ".markdown"]:
-                    documents = rag_system.document_processor.load_text_like(str(file_path))
-                    full_content = "\n\n".join([doc.page_content for doc in documents])
-                else:
-                    continue
-
-                if not full_content.strip():
-                    continue
-
-                documents_content.append({
-                    "file_name": file_name,
-                    "content": full_content,
-                })
-            except Exception as e:
-                print(f"[Quiz] 获取文档内容失败 {doc_id}: {e}")
-                continue
+        documents_content = _load_selected_rag_documents(
+            rag_system,
+            payload.selected_doc_ids,
+            owner=username,
+            log_prefix="Quiz",
+        )
 
         if not documents_content:
             raise HTTPException(status_code=400, detail="无法获取选中文档内容，请检查文档状态")

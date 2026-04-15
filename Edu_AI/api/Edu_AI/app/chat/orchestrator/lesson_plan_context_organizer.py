@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from app.chat.domain.generation_context import GenerationContext
@@ -32,11 +33,31 @@ class LessonPlanContextOrganizer:
         text = self._clean(value).lower()
         return not text or text in self._LOW_SIGNAL
 
+    def _extract_explicit_topic_from_question(self, request_question: str) -> str:
+        question = self._clean(request_question)
+        if not question:
+            return ""
+
+        patterns = [
+            r"(?:课题|主题|标题)\s*[：:]\s*(.+?)(?=(?:适用对象|适用学段|课时长度|课时|课型|本课目标|风格要求|补充要求|仅以|请先输出|。|\n|$))",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, question, flags=re.IGNORECASE | re.DOTALL)
+            if not match:
+                continue
+            topic = self._clean(match.group(1))
+            if topic:
+                return topic.strip("《》\"' ")
+        return ""
+
     def _pick_topic(self, *, context: GenerationContext, request_question: str) -> str:
         hints = self.assembler.from_generation_context(context)["slot_hints"]
         topic = self._clean(hints.get("topic"))
         if topic:
             return topic
+        explicit_topic = self._extract_explicit_topic_from_question(request_question)
+        if explicit_topic:
+            return explicit_topic
         question = self._clean(request_question)
         if question and not self._is_low_signal(question):
             return question

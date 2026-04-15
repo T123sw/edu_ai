@@ -9,6 +9,8 @@ assert.match(file, /window\.open\(pptExportUrl,\s*'_blank'/, 'PPT preview should
 assert.match(file, /requestFullscreen/, 'PPT preview should support fullscreen preview via Fullscreen API');
 assert.match(file, /pptFullscreenActive\s*\?\s*'退出全屏'\s*:\s*'全屏预览'/, 'PPT preview should expose a fullscreen preview button');
 assert.match(file, /htmlPreviewUrl|pptxUrl/, 'PPT preview should read preview and export URLs from generated file metadata');
+assert.match(file, /<Button icon={<MessageOutlined \/>} onClick=\{\(\) => handleAddToChat\(viewingFile\)\}>[\s\S]*添加到对话[\s\S]*<\/Button>/, 'PPT deck preview should expose an add-to-chat action in the top button group');
+assert.match(file, /file\.type === 'ppt'[\s\S]*artifactType[\s\S]*'ppt_deck'/, 'StudioPanel should write ppt_deck references when adding a PPT deck to chat');
 assert.match(file, /\(viewingFile as any\)\?\.meta\?\.kind === 'ppt_outline'/, 'StudioPanel should detect PPT outline previews');
 assert.match(file, /setQueuedMessage\(text\)/, 'PPT outline preview should still send a fixed generation follow-up');
 assert.match(file, />\s*生成PPT\s*</, 'PPT outline preview should show a generate button');

@@ -174,4 +174,94 @@ assert.equal(pptDeckFiles[0].meta?.htmlPreviewUrl, 'http://127.0.0.1:46080/ppt/a
 assert.equal(pptDeckFiles[0].meta?.pptxUrl, 'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.pptx');
 assert.match(String(pptDeckFiles[0].meta?.outlineContent), /三次握手过程/);
 
+const lessonPlanOutlineFiles = extractGeneratedFilesFromV2Response({
+  action: { name: 'generate.lesson_plan' },
+  artifacts: [
+    {
+      artifact_id: 'lesson-plan:outline',
+      artifact_type: 'lesson_plan_outline',
+      title: '关羽人物分析-教案大纲.json',
+      content: {
+        basic_info: {
+          topic: '关羽的战绩与形象分析',
+          audience: '初中历史/语文',
+          duration: '45分钟',
+          lesson_type: '新授课',
+        },
+        teaching_objectives: ['梳理关羽主要战役与文学形象'],
+        key_and_hard_points: {
+          key_points: ['历史事实与文学塑造的区别'],
+          hard_points: ['辩证理解历史人物复杂性'],
+          breakthrough_strategy: '通过史料对比引导学生分析',
+        },
+        lesson_flow: [
+          {
+            step: '导入',
+            goal: '激活已有认知',
+            duration: '5分钟',
+            teacher_activities: ['展示关羽形象图片'],
+            student_activities: ['分享已有印象'],
+            assessment: '口头回答',
+          },
+        ],
+        teaching_support: {
+          teaching_methods: ['讲授', '讨论'],
+          teaching_aids: ['课件'],
+          board_plan: ['关羽生平', '战绩', '形象'],
+          assessment_method: '课堂提问',
+          homework_preview: '整理人物评价短文',
+        },
+      },
+    },
+  ],
+});
+
+assert.equal(lessonPlanOutlineFiles.length, 1);
+assert.equal(lessonPlanOutlineFiles[0].id, 'lesson-plan__outline');
+assert.equal(lessonPlanOutlineFiles[0].type, 'lesson_plan');
+assert.equal(lessonPlanOutlineFiles[0].name, '关羽人物分析-教案大纲.json');
+assert.equal(lessonPlanOutlineFiles[0].meta?.kind, 'outline');
+assert.equal((lessonPlanOutlineFiles[0].content as any)?.basic_info?.topic, '关羽的战绩与形象分析');
+
+const lessonPlanFiles = extractGeneratedFilesFromV2Response({
+  action: { name: 'generate.lesson_plan' },
+  artifacts: [
+    {
+      artifact_id: 'lesson-plan:outline',
+      artifact_type: 'lesson_plan_outline',
+      content: {
+        basic_info: {
+          topic: '关羽的战绩与形象分析',
+        },
+      },
+    },
+    {
+      artifact_id: 'lesson-plan:content',
+      artifact_type: 'lesson_plan',
+      title: '关羽人物分析-教案.json',
+      content: {
+        title: '关羽人物专题教案',
+        objectives: ['梳理关羽战绩'],
+        keyPoints: ['区分历史与文学'],
+        hardPoints: ['理解人物复杂性'],
+        process: [
+          {
+            step: '导入',
+            content: '展示关羽形象并导入主题',
+            duration: '5分钟',
+          },
+        ],
+        homework: '完成课后人物评价',
+      },
+    },
+  ],
+});
+
+assert.equal(lessonPlanFiles.length, 1);
+assert.equal(lessonPlanFiles[0].id, 'lesson-plan__content');
+assert.equal(lessonPlanFiles[0].type, 'lesson_plan');
+assert.equal(lessonPlanFiles[0].name, '关羽人物分析-教案.json');
+assert.equal(lessonPlanFiles[0].meta?.kind, 'final_lesson_plan');
+assert.equal((lessonPlanFiles[0].meta?.outlineContent as any)?.basic_info?.topic, '关羽的战绩与形象分析');
+
 console.log('chatV2.helpers tests passed');

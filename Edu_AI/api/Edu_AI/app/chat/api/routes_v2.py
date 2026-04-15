@@ -12,6 +12,8 @@ from app.chat.api.schemas_v2 import (
     ChatPptCardsRequestV2,
     ChatPptCardsResponseV2,
     ChatDirectReportResponseV2,
+    ChatLessonPlanCardsRequestV2,
+    ChatLessonPlanCardsResponseV2,
     ChatReplyRequestV2,
     ChatReportCardsRequestV2,
     ChatReportCardsResponseV2,
@@ -75,6 +77,14 @@ def _get_direct_ppt_generation_service():
     return build_default_knowledge_base_direct_ppt_generation_service_v2()
 
 
+def _get_lesson_plan_entry_cards_service():
+    from app.chat.application.lesson_plan_entry_cards_service_v2 import (
+        build_default_lesson_plan_entry_cards_service_v2,
+    )
+
+    return build_default_lesson_plan_entry_cards_service_v2()
+
+
 def _with_owner(payload, current_user: dict):
     data = payload.model_dump()
     data["owner"] = current_user.get("username")
@@ -135,6 +145,21 @@ async def report_cards(payload: ChatReportCardsRequestV2, current_user: dict = D
 async def ppt_cards(payload: ChatPptCardsRequestV2, current_user: dict = Depends(get_current_user)):
     try:
         return _get_ppt_entry_cards_service().get_cards(_with_owner(payload, current_user))
+    except Exception as exc:
+        body = build_v2_error_response(
+            code="workflow_failed",
+            message=str(exc),
+            conversation_id="",
+            trace_path="direct",
+            retryable=False,
+        )
+        return JSONResponse(status_code=500, content=body)
+
+
+@router.post("/lesson-plan/cards", response_model=ChatLessonPlanCardsResponseV2)
+async def lesson_plan_cards(payload: ChatLessonPlanCardsRequestV2, current_user: dict = Depends(get_current_user)):
+    try:
+        return _get_lesson_plan_entry_cards_service().get_cards(_with_owner(payload, current_user))
     except Exception as exc:
         body = build_v2_error_response(
             code="workflow_failed",

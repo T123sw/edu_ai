@@ -40,16 +40,27 @@ def test_agent_tool_registry_includes_authorized_external_tools():
 def test_web_search_tool_queries_rag_after_import(monkeypatch):
     class DummyRagSystem:
         def __init__(self):
+            self.file_path = "D:/tmp/web-a.md"
             self.document_index = {
-                "index-key": {"source_key": "source-key"},
+                "index-key": {
+                    "physical_path": self.file_path,
+                    "source_key": "source-key",
+                    "file_name": "web-a.md",
+                    "owner": "teacher-a",
+                },
             }
             self.calls = []
 
         def _make_index_key(self, path, owner):
-            return "index-key"
+            return "index-key" if str(path) in {self.file_path, "index-key"} else str(path)
 
         def _make_source_key(self, path, owner):
             return "source-key"
+
+        def list_documents(self, owner=None):
+            if owner != "teacher-a":
+                return []
+            return [{"file_path": "index-key", "file_name": "web-a.md", "owner": owner}]
 
         def query(self, query, top_k=5, use_rag=True, selected_doc_ids=None, owner=None):
             self.calls.append(
@@ -96,7 +107,7 @@ def test_web_search_tool_queries_rag_after_import(monkeypatch):
     assert result["payload"]["trace"] == {
         "web_links_count": 1,
         "web_imported_count": 1,
-        "web_selected_doc_ids_count": 3,
+        "web_selected_doc_ids_count": 1,
         "web_sources_count": 1,
     }
     assert rag_system.calls == [
@@ -104,7 +115,7 @@ def test_web_search_tool_queries_rag_after_import(monkeypatch):
             "query": "帮我在网上查找关羽的战绩",
             "top_k": 5,
             "use_rag": True,
-            "selected_doc_ids": ["D:\\tmp\\web-a.md", "index-key", "source-key"],
+            "selected_doc_ids": ["index-key"],
             "owner": "teacher-a",
         }
     ]

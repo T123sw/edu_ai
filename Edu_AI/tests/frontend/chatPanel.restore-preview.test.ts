@@ -5,13 +5,8 @@ const file = readFileSync(new URL('../../src/components/teacher/ChatPanel.tsx', 
 
 assert.match(
   file,
-  /const restoredFiles = restoreGeneratedFilesFromConversationDetail\(detail\);[\s\S]*replaceConversationGeneratedFiles\(restoredFiles\);[\s\S]*setViewingFile\(null\);/,
-  'restoring generated files should replace conversation-scoped files and keep preview collapsed after refresh',
-);
-assert.doesNotMatch(
-  file,
-  /setViewingFile\(restoredFiles\.length > 0 \? restoredFiles\[restoredFiles\.length - 1\] : null\);/,
-  'restoring generated files must not auto-open the latest file',
+  /const restoredFiles = restoreGeneratedFilesFromConversationDetail\(detail\);[\s\S]*replaceConversationGeneratedFiles\(restoredFiles\);[\s\S]*if \(\s*silent\s*&&\s*nextWorkflowType === 'ppt'\s*&&\s*nextWorkflowStatus === 'completed'\s*&&\s*restoredFiles\.length > 0\s*\)\s*\{[\s\S]*setViewingFile\(restoredFiles\[restoredFiles\.length - 1\]\);[\s\S]*\}\s*else if \(!silent\)\s*\{[\s\S]*setViewingFile\(null\);[\s\S]*\}/,
+  'restoring generated files should auto-open the latest PPT preview after silent polling completes, while normal history loads keep preview collapsed',
 );
 assert.match(
   file,

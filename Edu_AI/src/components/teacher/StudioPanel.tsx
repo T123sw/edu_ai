@@ -28,7 +28,6 @@ import { useStore } from '../../store/teacher/useStore';
 import type { GeneratedFile } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
-  generateLessonPlan,
   generateQuiz,
   getCourseMaterials,
   resumeBlogTaskChapters,
@@ -38,18 +37,20 @@ import {
   type BlogResumeChaptersRequest,
   type BlogResumeOutlineRequest,
   type BlogTaskStatusResponse,
-  type LessonPlanRequest,
   type QuizRequest,
   type QuizResponse,
   type ReportResponse,
 } from '../../services/teacher/api';
 import {
+  sendChatReplyV2,
+  type LessonPlanEntryCard,
   generateKnowledgeBasePptOutlineV2,
   generateKnowledgeBasePptV2,
   generateKnowledgeBaseReportV2,
 } from '../../services/teacher/chatV2';
 import { buildReportQuestionFromConfig, extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
 import { buildKnowledgeBaseReportRequest } from '../../services/teacher/reportEntry.helpers';
+import { buildKnowledgeBaseLessonPlanReplyRequest, type LessonPlanEntryConfigInput } from '../../services/teacher/lessonPlanEntry.helpers';
 import {
   buildDirectPptGenerateRequest,
   buildDirectPptOutlineRequest,
@@ -59,6 +60,7 @@ import type { ReportEntryCard } from '../../services/teacher/chatV2';
 import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
 import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
 import PptEntryPanel from './PptEntryPanel';
+import LessonPlanEntryModal from './LessonPlanEntryModal';
 import ReportEntryModal from './ReportEntryModal';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
@@ -363,7 +365,10 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     selectedDocs,
     currentConversationId,
     setCurrentConversationId,
+    setMessages,
     setArtifactReference,
+    clearArtifactReference,
+    clearConversationReference,
     allowRag,
     allowWeb,
     setAllowRag,
@@ -522,6 +527,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
   const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline'>('body');
   const [reportEntryVisible, setReportEntryVisible] = useState(false);
+  const [lessonPlanEntryVisible, setLessonPlanEntryVisible] = useState(false);
   const [pptEntryVisible, setPptEntryVisible] = useState(false);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
@@ -619,6 +625,14 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   };
 
   const handleGenerate = async (type: GeneratedFile['type'] | string) => {
+    if (type === 'lesson_plan') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先选择至少一份知识库文档。');
+        return;
+      }
+      setLessonPlanEntryVisible(true);
+      return;
+    }
     if (type === 'report') {
       if (!selectedDocs || selectedDocs.length === 0) {
         message.warning('请先选择至少一份知识库文档');
@@ -662,6 +676,14 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   };
 
   const handleConfigure = (type: string) => {
+    if (type === 'lesson_plan') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先选择至少一份知识库文档。');
+        return;
+      }
+      setLessonPlanEntryVisible(true);
+      return;
+    }
     if (type === 'report') {
       if (!selectedDocs || selectedDocs.length === 0) {
         message.warning('请先选择至少一份知识库文档');
@@ -740,6 +762,73 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
   };
 
+  const handleLessonPlanEntrySubmit = async ({
+    card,
+    config,
+  }: {
+    card: LessonPlanEntryCard;
+    config: LessonPlanEntryConfigInput;
+  }) => {
+    setGenerating(true);
+    try {
+      clearArtifactReference();
+      clearConversationReference();
+      setMessages([]);
+
+      const request = {
+        ...buildKnowledgeBaseLessonPlanReplyRequest({
+          card,
+          config,
+          courseId,
+          selectedDocIds: selectedDocs,
+        }),
+        action_hint: 'generate.lesson_plan' as const,
+      };
+
+      const response = await sendChatReplyV2(request);
+
+      const nextConversationId = String(response.conversation?.conversation_id || '').trim();
+      if (nextConversationId) {
+        setCurrentConversationId(nextConversationId);
+      }
+      setStatusCard(response.status_card || null);
+
+      const generatedLessonPlanFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
+        ...file,
+        meta: {
+          ...(file.meta || {}),
+          origin: 'conversation',
+          conversationId: nextConversationId || undefined,
+          entryMode: 'knowledge_base_lesson_plan',
+        },
+      }));
+
+      generatedLessonPlanFiles.forEach((file) => addGeneratedFile(file));
+
+      if (generatedLessonPlanFiles.length > 0) {
+        const latestFile = generatedLessonPlanFiles[generatedLessonPlanFiles.length - 1];
+        setViewingFile(latestFile);
+
+        if (courseId) {
+          addMaterial({
+            ...latestFile,
+            addedAt: new Date().toISOString(),
+            courseId,
+          });
+          await refreshCourseMaterials();
+        }
+      }
+
+      setLessonPlanEntryVisible(false);
+      message.success(generatedLessonPlanFiles.length > 0 ? '教案大纲已生成并在右侧打开。' : '教案流程已启动。');
+    } catch (error: any) {
+      message.error(`教案生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleDirectPptOutlineSubmit = async ({
     config,
   }: {
@@ -809,6 +898,9 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       
       // 如果是教案生成，调用后端API
       if (configType === 'lesson_plan') {
+        setConfigModalVisible(false);
+        setLessonPlanEntryVisible(true);
+        return;
         // 检查是否选择了文档
         if (!selectedDocs || selectedDocs.length === 0) {
           message.warning('请先选择至少一个文档');
@@ -823,7 +915,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             return;
           }
           
-          const request: LessonPlanRequest = {
+          const request = {
             topic: values.topic,
             course_id: courseId,
             selected_doc_ids: selectedDocs,
@@ -835,7 +927,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           };
           
           console.log('[StudioPanel] 生成教案请求:', { course_id: courseId, topic: values.topic });
-          const response = await generateLessonPlan(request);
+          const response = null as any;
           console.log('[StudioPanel] 教案生成响应:', { id: response.id, title: response.title });
           
           // 使用后端返回的ID，如果没有则使用时间戳
@@ -2266,6 +2358,14 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         submitting={generating}
         onCancel={() => setReportEntryVisible(false)}
         onSubmit={handleReportEntrySubmit}
+      />
+      <LessonPlanEntryModal
+        open={lessonPlanEntryVisible}
+        selectedDocIds={selectedDocs}
+        courseId={courseId}
+        submitting={generating}
+        onCancel={() => setLessonPlanEntryVisible(false)}
+        onSubmit={handleLessonPlanEntrySubmit}
       />
       <PptEntryPanel
         open={pptEntryVisible}

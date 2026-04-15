@@ -83,6 +83,36 @@ def _artifact_title(topic: str, *, suffix: str) -> str:
     return f"{base}-{suffix}.json"
 
 
+def _extract_labeled_topic(text: str) -> str:
+    cleaned = _clean(text)
+    if not cleaned:
+        return ""
+    match = re.search(
+        r"(?:课题|主题|标题)\s*[：:]\s*(.+?)(?=(?:适用对象|适用学段|课时长度|课时|课型|本课目标|风格要求|补充要求|仅以|请先输出|。|\n|$))",
+        cleaned,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if not match:
+        return ""
+    return _clean(match.group(1)).strip("《》\"' ")
+
+
+def _sanitize_lesson_plan_title(*, raw_title: Any, outline_topic: Any, slot_topic: Any, preparation_topic: Any) -> str:
+    raw = _clean(raw_title)
+    if raw:
+        explicit = _extract_labeled_topic(raw)
+        if explicit:
+            return explicit
+        if "请基于已选文档" not in raw and "首先生成教案大纲" not in raw and len(raw) <= 40:
+            return raw
+
+    for candidate in (outline_topic, slot_topic, preparation_topic):
+        cleaned = _clean(candidate)
+        if cleaned:
+            return cleaned
+    return "教案"
+
+
 def _normalize_outline_payload(payload: Any, *, topic: str, audience: str, duration: str, lesson_type: str) -> dict[str, Any]:
     if isinstance(payload, dict):
         normalized = dict(payload)
@@ -211,12 +241,12 @@ def _normalize_content_payload(payload: Any, *, outline: Any, slots: dict[str, A
     support = dict(outline_dict.get("teaching_support") or {}) if isinstance(outline_dict, dict) else {}
     key_and_hard = dict(outline_dict.get("key_and_hard_points") or {}) if isinstance(outline_dict, dict) else {}
 
-    topic = _clean(
-        normalized.get("title")
-        or basic_info_from_outline.get("topic")
-        or slots.get("topic")
-        or preparation.get("topic")
-    ) or "教案"
+    topic = _sanitize_lesson_plan_title(
+        raw_title=normalized.get("title"),
+        outline_topic=basic_info_from_outline.get("topic"),
+        slot_topic=slots.get("topic"),
+        preparation_topic=preparation.get("topic"),
+    )
 
     basic_info = dict(normalized.get("basicInfo") or {})
     basic_info.setdefault("audience", _clean(basic_info_from_outline.get("audience") or slots.get("audience") or preparation.get("audience")))
@@ -792,3 +822,400 @@ class LessonPlanGenerationEngine:
 
 def build_default_lesson_plan_engine(*, llm=None):
     return LessonPlanGenerationEngine(llm=llm or get_fallback_llm())
+
+
+def _first_non_empty(mapping: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = _clean(mapping.get(key))
+        if value:
+            return value
+    return ""
+
+
+def _normalize_student_analysis(payload: Any, *, preparation: dict[str, Any]) -> dict[str, list[str]]:
+    source = payload if isinstance(payload, dict) else {}
+    existing = _coerce_list(
+        source.get("已有基础")
+        or source.get("prior_knowledge")
+        or source.get("priorKnowledge")
+    )
+    difficulties = _coerce_list(
+        source.get("认知困难")
+        or source.get("cognitive_difficulties")
+        or source.get("cognitiveDifficulties")
+    )
+    mistakes = _coerce_list(
+        source.get("常见误区")
+        or source.get("common_mistakes")
+        or source.get("commonMistakes")
+    )
+
+    for item in _coerce_list(preparation.get("class_profile")):
+        if ("会" in item or "已有" in item or "基础" in item) and item not in existing:
+            existing.append(item)
+        elif ("误区" in item or "混淆" in item or "当作" in item or "漏" in item) and item not in mistakes:
+            mistakes.append(item)
+        elif item not in difficulties:
+            difficulties.append(item)
+
+    if not existing:
+        existing = ["学生已具备与本课主题相关的基础认知，但需要借助课堂任务进一步激活。"]
+    if not difficulties:
+        difficulties = ["学生容易停留在表层结论，缺少把知识点转化为课堂任务结果的能力。"]
+    if not mistakes:
+        mistakes = ["学生常凭直觉作答，缺少依据材料、定义或步骤进行判断的意识。"]
+
+    return {
+        "已有基础": existing,
+        "认知困难": difficulties,
+        "常见误区": mistakes,
+    }
+
+
+def _normalize_outline_flow_item(item: Any) -> dict[str, Any] | None:
+    if not isinstance(item, dict):
+        return None
+    return {
+        "step": _first_non_empty(item, "step", "title", "chapter_title"),
+        "goal": _first_non_empty(item, "goal", "summary", "chapter_goal"),
+        "duration": _first_non_empty(item, "duration", "minutes"),
+        "teacher_activities": _coerce_list(item.get("teacher_activities") or item.get("teacherActivities")),
+        "student_activities": _coerce_list(item.get("student_activities") or item.get("studentActivities")),
+        "key_questions": _coerce_list(item.get("key_questions") or item.get("keyQuestions")),
+        "expected_answers": _coerce_list(item.get("expected_answers") or item.get("expectedAnswers")),
+        "teacher_followups": _coerce_list(item.get("teacher_followups") or item.get("teacherFollowups")),
+        "outputs": _coerce_list(item.get("outputs") or item.get("output_items") or item.get("outputItems")),
+        "assessment": _clean(item.get("assessment")),
+        "board_points": _coerce_list(item.get("board_points") or item.get("boardPoints")),
+        "transition": _clean(item.get("transition")),
+    }
+
+
+def _build_outline_step_skeleton(*, step: str, duration: str, goal: str, topic: str) -> dict[str, Any]:
+    step_text = _clean(step)
+    goal_text = _clean(goal)
+    topic_text = _clean(topic) or "本课主题"
+
+    if "导入" in step_text:
+        return {
+            "step": step_text,
+            "goal": goal_text or f"通过情境导入引出{topic_text}的核心问题",
+            "duration": duration or "5分钟",
+            "teacher_activities": [
+                f"出示与{topic_text}相关的情境材料、图片或问题，激活学生已有经验",
+                "追问学生第一反应或已有判断，把课堂核心问题显性化",
+            ],
+            "student_activities": [
+                "结合已有知识口头回应教师问题",
+                "记录本节课要重点解决的核心问题",
+            ],
+            "key_questions": [
+                f"围绕{topic_text}，我们这节课最需要解决的关键问题是什么？",
+            ],
+            "expected_answers": [
+                "学生能说出自己已有理解，但理由可能不完整。",
+            ],
+            "teacher_followups": [
+                "把学生的直观回答转化为本节课的学习任务，避免只停留在表态。",
+            ],
+            "outputs": ["学生口头判断或问题清单"],
+            "assessment": "根据学生的回应判断其已有基础是否被有效激活。",
+            "board_points": [topic_text, "核心问题"],
+            "transition": "带着刚才暴露出来的问题进入新授/探究环节。",
+        }
+
+    if "新授" in step_text or "探究" in step_text:
+        return {
+            "step": step_text,
+            "goal": goal_text or f"围绕{topic_text}完成核心概念建构与分析任务",
+            "duration": duration or "25分钟",
+            "teacher_activities": [
+                f"提供与{topic_text}直接相关的关键材料、例题或案例，指导学生提取有效信息",
+                "按问题链分步追问，要求学生用依据解释自己的判断",
+                "同步梳理板书或屏显结构，帮助学生形成知识框架",
+            ],
+            "student_activities": [
+                "圈画材料中的关键信息，完成教师给出的表格或任务单",
+                "结合问题链进行同桌或小组讨论，形成阶段结论",
+                "通过口头汇报、板演或批注展示本组结果",
+            ],
+            "key_questions": [
+                f"哪些信息最能支撑我们对{topic_text}的判断？",
+                "你的结论依据是什么，而不是只给结果？",
+            ],
+            "expected_answers": [
+                "学生能指出部分关键证据，但证据与结论的关系可能说不完整。",
+                "学生可能给出结论，却忽略定义、步骤或材料依据。",
+            ],
+            "teacher_followups": [
+                "追问“依据在哪里”“为什么能这样判断”，逼近完整表达。",
+                "对学生的错误归因或不完整解释进行即时纠偏。",
+            ],
+            "outputs": ["表格整理结果", "小组结论", "板演或批注结果"],
+            "assessment": "根据学生证据提取、结论表达和展示质量判断掌握情况。",
+            "board_points": ["核心概念", "判断依据", "关键结论"],
+            "transition": "在完成核心理解后，进入练习或应用环节检验掌握情况。",
+        }
+
+    if "练习" in step_text or "巩固" in step_text:
+        return {
+            "step": step_text,
+            "goal": goal_text or "通过练习检验学生是否真正掌握本课核心内容",
+            "duration": duration or "10分钟",
+            "teacher_activities": [
+                "布置基础题和变式题，明确每类题目的训练意图",
+                "巡视学生作答过程，收集典型错误用于集中纠偏",
+            ],
+            "student_activities": [
+                "独立完成基础练习并标出疑问点",
+                "与同伴核对答案，修正自己的表达或步骤错误",
+            ],
+            "key_questions": [
+                "这一步或这个判断的依据是什么？",
+                "这道题和刚才的例题相比，变化在哪里？",
+            ],
+            "expected_answers": [
+                "学生能完成基础任务，但在变式题上可能出现遗漏或混淆。",
+            ],
+            "teacher_followups": [
+                "针对共性错误追问其产生原因，不直接给出标准答案。",
+            ],
+            "outputs": ["练习结果", "错因说明", "同伴互查记录"],
+            "assessment": "通过练习正确率和错因说明判断目标是否达成。",
+            "board_points": ["基础方法", "变式提醒", "典型错误"],
+            "transition": "结合练习中暴露的问题回到本课核心结论。",
+        }
+
+    return {
+        "step": step_text or "总结与作业",
+        "goal": goal_text or "回顾本课关键内容并明确课后任务",
+        "duration": duration or "5分钟",
+        "teacher_activities": [
+            "引导学生回顾本课解决了哪些问题、形成了哪些方法",
+            "说明必做与选做任务的要求和完成标准",
+        ],
+        "student_activities": [
+            "用自己的话概括本课核心收获",
+            "记录作业要求并明确课后继续思考的方向",
+        ],
+        "key_questions": [
+            "这节课最关键的结论是什么？",
+            "如果课后继续做题/查资料，最需要注意什么？",
+        ],
+        "expected_answers": [
+            "学生能概括核心结论，但表达可能还不够完整。",
+        ],
+        "teacher_followups": [
+            "引导学生把零散答案上升为完整结论或方法总结。",
+        ],
+        "outputs": ["口头总结", "作业记录"],
+        "assessment": "通过学生复述和作业反馈判断课堂学习效果。",
+        "board_points": ["本课结论", "课后任务"],
+        "transition": "结束本课。",
+    }
+
+
+def _normalize_outline_payload(payload: Any, *, topic: str, audience: str, duration: str, lesson_type: str) -> dict[str, Any]:
+    normalized = dict(payload) if isinstance(payload, dict) else {}
+
+    basic_info = dict(normalized.get("basic_info") or {})
+    basic_info.setdefault("topic", topic)
+    basic_info.setdefault("audience", audience)
+    basic_info.setdefault("duration", duration)
+    basic_info.setdefault("lesson_type", lesson_type)
+
+    student_analysis = _normalize_student_analysis(
+        normalized.get("student_analysis"),
+        preparation=normalized.get("preparation_context") if isinstance(normalized.get("preparation_context"), dict) else {},
+    )
+
+    key_and_hard_points = dict(normalized.get("key_and_hard_points") or {})
+    key_and_hard_points["key_points"] = _coerce_list(key_and_hard_points.get("key_points"))
+    key_and_hard_points["hard_points"] = _coerce_list(key_and_hard_points.get("hard_points"))
+    key_and_hard_points.setdefault("breakthrough_strategy", "")
+
+    lesson_flow: list[dict[str, Any]] = []
+    for raw_item in list(normalized.get("lesson_flow") or []):
+        item = _normalize_outline_flow_item(raw_item)
+        if item is not None:
+            lesson_flow.append(item)
+
+    teaching_support = dict(normalized.get("teaching_support") or {})
+    teaching_support["teaching_methods"] = _coerce_list(teaching_support.get("teaching_methods"))
+    teaching_support["teaching_aids"] = _coerce_list(teaching_support.get("teaching_aids"))
+    teaching_support["board_plan"] = _coerce_list(teaching_support.get("board_plan"))
+    teaching_support.setdefault("assessment_method", "")
+    teaching_support.setdefault("homework_preview", "")
+
+    return {
+        "basic_info": basic_info,
+        "student_analysis": student_analysis,
+        "teaching_objectives": _coerce_list(normalized.get("teaching_objectives")),
+        "key_and_hard_points": key_and_hard_points,
+        "lesson_flow": lesson_flow,
+        "teaching_support": teaching_support,
+    }
+
+
+def _fallback_outline(*, slots: dict[str, Any], preparation: dict[str, Any], gathered_context: dict[str, Any]) -> dict[str, Any]:
+    topic = _clean(slots.get("topic") or preparation.get("topic") or gathered_context.get("summary")) or "本课主题"
+    audience = _clean(slots.get("audience") or preparation.get("audience"))
+    duration = _clean(slots.get("duration") or preparation.get("duration")) or "40分钟"
+    lesson_type = _clean(slots.get("lesson_type") or preparation.get("lesson_type")) or "新授课"
+    objective = _clean(slots.get("objective") or preparation.get("objective")) or f"围绕{topic}完成单课时学习任务"
+    key_points = _coerce_list(preparation.get("key_points") or preparation.get("knowledge_points"))[:3]
+    hard_points = _coerce_list(preparation.get("hard_points"))[:2]
+    teaching_methods = _coerce_list(preparation.get("teaching_methods")) or ["讲授", "提问", "讨论"]
+    board_plan = key_points or [topic]
+
+    student_analysis = _normalize_student_analysis(
+        {
+            "已有基础": [],
+            "认知困难": [],
+            "常见误区": [],
+        },
+        preparation=preparation,
+    )
+
+    lesson_flow = [
+        _build_outline_step_skeleton(step="导入", duration="5分钟", goal=f"通过情境引出{topic}的核心问题", topic=topic),
+        _build_outline_step_skeleton(step="新授/探究", duration="25分钟", goal=f"围绕{topic}完成核心知识建构与辨析", topic=topic),
+        _build_outline_step_skeleton(step="练习巩固", duration="10分钟", goal="通过基础题与变式题检验掌握情况", topic=topic),
+        _build_outline_step_skeleton(step="总结与作业", duration="5分钟", goal="回顾本课结论并明确课后任务", topic=topic),
+    ]
+
+    return {
+        "basic_info": {
+            "topic": topic,
+            "audience": audience,
+            "duration": duration,
+            "lesson_type": lesson_type,
+        },
+        "student_analysis": student_analysis,
+        "teaching_objectives": [objective] + [f"学生能够围绕{point}形成可表达、可检验的课堂结果" for point in key_points[:2]],
+        "key_and_hard_points": {
+            "key_points": key_points,
+            "hard_points": hard_points,
+            "breakthrough_strategy": "通过问题链、材料分析和当堂反馈逐步突破难点，避免只停留在结论灌输。",
+        },
+        "lesson_flow": lesson_flow,
+        "teaching_support": {
+            "teaching_methods": teaching_methods,
+            "teaching_aids": _coerce_list(preparation.get("resource_constraints")) or ["课件", "板书", "任务单"],
+            "board_plan": board_plan,
+            "assessment_method": _clean(preparation.get("assessment_method")) or "通过课堂提问、任务单完成情况和学生展示进行评价。",
+            "homework_preview": _clean(preparation.get("homework_preference")) or "建议设置必做与选做两层作业。",
+        },
+    }
+
+
+def _build_outline_prompt_v2(
+    self,
+    *,
+    slots: dict[str, Any],
+    preparation: dict[str, Any],
+    gathered_context: dict[str, Any],
+    existing_outline: Any = None,
+    human_feedback: str = "",
+) -> str:
+    prompt = (
+        "你是一名资深一线教师教研员，请根据当前上下文输出一份可供教师确认的结构化教案大纲。"
+        "这个大纲不是目录，而是可扩写为正文的活动骨架。必须返回 JSON 对象，不要输出解释。\n\n"
+        "输出 schema：\n"
+        "{\n"
+        '  "basic_info": {"topic": "", "audience": "", "duration": "", "lesson_type": ""},\n'
+        '  "student_analysis": {"已有基础": ["..."], "认知困难": ["..."], "常见误区": ["..."]},\n'
+        '  "teaching_objectives": ["..."],\n'
+        '  "key_and_hard_points": {"key_points": ["..."], "hard_points": ["..."], "breakthrough_strategy": ""},\n'
+        '  "lesson_flow": [{"step": "", "goal": "", "duration": "", "teacher_activities": ["..."], "student_activities": ["..."], "key_questions": ["..."], "expected_answers": ["..."], "teacher_followups": ["..."], "outputs": ["..."], "assessment": "", "board_points": ["..."], "transition": ""}],\n'
+        '  "teaching_support": {"teaching_methods": ["..."], "teaching_aids": ["..."], "board_plan": ["..."], "assessment_method": "", "homework_preview": ""}\n'
+        "}\n\n"
+        "要求：\n"
+        "1. 不要生成只有标题的大纲，要生成活动骨架。lesson_flow 至少包含导入、新授/探究、练习巩固、总结与作业四段。\n"
+        "2. student_analysis 必须写出已有基础、认知困难、常见误区，不能只写“学生基础一般”。\n"
+        "3. 每个环节都要给出 key_questions、expected_answers、teacher_followups、outputs，保证后续正文可扩写。\n"
+        "4. 语言贴近真实备课表达，不写空泛口号，不要只写“激发兴趣、培养能力”。\n"
+        "5. 若信息不足，可以做保守推断，但必须优先保证单课时、时间闭合、环节可执行。\n\n"
+        f"slots={json.dumps(slots, ensure_ascii=False)}\n"
+        f"preparation={json.dumps(preparation, ensure_ascii=False)}\n"
+        f"gathered_context={json.dumps(gathered_context, ensure_ascii=False)}"
+    )
+    if existing_outline is not None:
+        prompt += f"\nexisting_outline={json.dumps(existing_outline, ensure_ascii=False)}"
+    if _clean(human_feedback):
+        prompt += f"\nhuman_feedback={json.dumps(_clean(human_feedback), ensure_ascii=False)}"
+    return prompt
+
+
+def _build_content_prompt_v2(self, *, outline: Any, slots: dict[str, Any], preparation: dict[str, Any]) -> str:
+    return (
+        "你是一名有真实带班经验的一线教师，请基于已确认的大纲，输出一份教师可直接上课使用的单课时结构化教案。"
+        "必须返回 JSON 对象，不要输出解释。\n\n"
+        "输出 schema：\n"
+        "{\n"
+        '  "title": "",\n'
+        '  "basicInfo": {"audience": "", "duration": "", "lessonType": ""},\n'
+        '  "objectives": ["..."],\n'
+        '  "keyPoints": ["..."],\n'
+        '  "hardPoints": ["..."],\n'
+        '  "teachingMethods": ["..."],\n'
+        '  "teachingAids": ["..."],\n'
+        '  "process": [{"step": "", "goal": "", "teacherActivities": ["..."], "studentActivities": ["..."], "duration": "", "assessment": ""}],\n'
+        '  "boardPlan": ["..."],\n'
+        '  "homework": "",\n'
+        '  "reflectionTips": ["..."]\n'
+        "}\n\n"
+        "硬性要求：\n"
+        "1. 不要写假大空的套话，不要只写“培养能力”“激发兴趣”“引导学生思考”这类空泛表达，必须写出教师实际怎么做。\n"
+        "2. process 必须与大纲 lesson_flow 一一对应，且每个环节都要落到课堂动作：教师出示什么、追问什么、组织什么任务、板书落点是什么。\n"
+        "3. teacherActivities 和 studentActivities 必须是短句数组；每个环节至少有 2 条教师动作、2 条学生活动。\n"
+        "4. studentActivities 必须体现可观察的学生产出，例如圈画证据、填写表格、口头汇报、小组结论、板演、批注等。\n"
+        "5. 结合大纲里的 key_questions、expected_answers、teacher_followups、outputs，把正文写成课堂脚本，不要只是把大纲换个说法。\n"
+        "6. assessment 必须贴合该环节，写清教师依据什么判断学生是否学会，不能笼统写“课堂评价”。\n"
+        "7. homework 请尽量写成“必做 + 选做”或“基础 + 提升”，避免一句话带过。\n"
+        "8. reflectionTips 要写真实学情风险、常见误区、课堂易跑偏点，不要写成目标口号。\n\n"
+        f"outline={json.dumps(outline, ensure_ascii=False)}\n"
+        f"slots={json.dumps(slots, ensure_ascii=False)}\n"
+        f"preparation={json.dumps(preparation, ensure_ascii=False)}"
+    )
+
+
+LessonPlanGenerationEngine._build_outline_prompt = _build_outline_prompt_v2
+LessonPlanGenerationEngine._build_content_prompt = _build_content_prompt_v2
+
+
+def _build_content_prompt_v3(self, *, outline: Any, slots: dict[str, Any], preparation: dict[str, Any]) -> str:
+    return (
+        "你是一名有真实带班经验的一线教师，请基于已确认的大纲，输出一份教师可直接上课使用的单课时结构化教案。必须返回 JSON 对象，不要输出解释。\n\n"
+        "输出 schema：\n"
+        "{\n"
+        '  "title": "",\n'
+        '  "basicInfo": {"audience": "", "duration": "", "lessonType": ""},\n'
+        '  "objectives": ["..."],\n'
+        '  "keyPoints": ["..."],\n'
+        '  "hardPoints": ["..."],\n'
+        '  "teachingMethods": ["..."],\n'
+        '  "teachingAids": ["..."],\n'
+        '  "process": [{"step": "", "goal": "", "teacherActivities": ["..."], "studentActivities": ["..."], "duration": "", "assessment": ""}],\n'
+        '  "boardPlan": ["..."],\n'
+        '  "homework": "",\n'
+        '  "reflectionTips": ["..."]\n'
+        "}\n\n"
+        "硬性要求：\n"
+        "1. 不要写假大空的套话，不要只写“培养能力”“激发兴趣”“引导学生思考”这类空泛表述，必须写出教师实际怎么做。\n"
+        "2. process 必须与大纲 lesson_flow 一一对应，且每个环节都要落到课堂动作：教师出示什么、追问什么、组织什么任务、板书落点是什么。\n"
+        "3. teacherActivities 和 studentActivities 必须是短句数组；每个环节至少包含 2 条教师动作、2 条学生活动。\n"
+        "4. studentActivities 必须体现可观察的学生产出，例如圈画证据、填写表格、口头汇报、小组结论、板演、批注等。\n"
+        "5. 结合大纲里的 key_questions、expected_answers、teacher_followups、outputs，按“问题链”推进课堂，把正文写成教师可执行的课堂脚本，不要只是把大纲换个说法。\n"
+        "6. 每个环节都要体现关键提问、预设回答和教师纠偏或追问动作，哪怕最终只体现在 teacherActivities / studentActivities / assessment 中，也要让人看得出这条问题链是怎样推进的。\n"
+        "7. assessment 必须贴合该环节，写清教师依据什么判断学生是否学会，不能笼统写“课堂评价”。\n"
+        "8. homework 请尽量写成“必做 + 选做”或“基础 + 提升”，避免一句话带过。\n"
+        "9. reflectionTips 要写真实学情风险、常见误区、课堂易跑偏点，不要写成目标口号。\n"
+        "10. 整体语言贴近一线教师备课表达，优先写真实课堂中的材料使用、问题链、学生任务、纠错节点和板书设计。\n\n"
+        f"outline={json.dumps(outline, ensure_ascii=False)}\n"
+        f"slots={json.dumps(slots, ensure_ascii=False)}\n"
+        f"preparation={json.dumps(preparation, ensure_ascii=False)}"
+    )
+
+
+LessonPlanGenerationEngine._build_content_prompt = _build_content_prompt_v3

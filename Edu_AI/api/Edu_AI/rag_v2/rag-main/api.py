@@ -1,5 +1,5 @@
 """
-新的RAG API路由（new_rag.api）
+新的 RAG v2 API 路由
 提供知识库增量导入和RAG问答功能
 """
 import os

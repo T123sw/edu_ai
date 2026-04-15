@@ -276,15 +276,7 @@ export function sortGeneratedFiles<T extends GeneratedFileLike>(files: T[]): T[]
 }
 
 export function isArtifactReferenceEligible(file: GeneratedFileLike | null | undefined): boolean {
-  const fileType = String(file?.type || '').trim();
-  const fileKind = String(file?.meta?.kind || '').trim();
-  if (fileType === 'report') {
-    return fileKind === 'outline' || fileKind === 'final_report';
-  }
-  if (fileType === 'ppt') {
-    return fileKind === 'ppt_deck';
-  }
-  return false;
+  return String(file?.type || '').trim() === 'report';
 }
 
 export function replaceConversationGeneratedFiles<T extends GeneratedFileLike>(files: T[], nextFiles: T[]): T[] {

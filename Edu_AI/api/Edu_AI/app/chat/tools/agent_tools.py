@@ -2,12 +2,12 @@
 
 import json
 import os
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from langchain_openai import ChatOpenAI
 
-from new_rag.api import get_rag_system
+from rag_v2.api import get_rag_system
+from rag_v2.document_resolver import resolve_rag_document_ids
 
 from ..agents.report_generation import build_report_markdown
 from ..skill_manager import SkillManager
@@ -98,30 +98,13 @@ def rag_search_tool(*, query: str, top_k: int = 5, selected_doc_ids: Optional[Li
 
 
 def _build_selected_doc_ids(*, imported_docs: List[Dict[str, Any]], owner: Optional[str], rag_system: Any) -> List[str]:
-    selected_doc_ids: List[str] = []
-    seen = set()
+    document_ids: List[str] = []
     for doc in imported_docs:
-        file_path = doc.get("file_path")
-        if not file_path:
-            continue
-        abs_path = str(Path(file_path).absolute())
-        for candidate in (abs_path,):
-            if candidate and candidate not in seen:
-                seen.add(candidate)
-                selected_doc_ids.append(candidate)
-        try:
-            index_key = rag_system._make_index_key(abs_path, owner)
-        except Exception:
-            index_key = None
-        try:
-            source_key = rag_system._make_source_key(abs_path, owner)
-        except Exception:
-            source_key = None
-        for candidate in (index_key, source_key):
-            if candidate and candidate not in seen:
-                seen.add(candidate)
-                selected_doc_ids.append(candidate)
-    return selected_doc_ids
+        for key in ("index_key", "file_path", "source_key"):
+            value = str(doc.get(key) or "").strip()
+            if value:
+                document_ids.append(value)
+    return resolve_rag_document_ids(rag_system, document_ids, owner=owner)
 
 
 

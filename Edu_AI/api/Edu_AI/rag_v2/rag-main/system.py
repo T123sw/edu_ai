@@ -2997,7 +2997,7 @@ class RAGSystem:
         conversation_history: Optional[List[Dict[str, Any]]] = None,
         llm_config: Optional[Dict[str, Any]] = None,
         use_rag: bool = True,  # 新增 RAG 开关参数
-        selected_doc_ids: Optional[List[str]] = None,  # 用户选中的文档 ID 列表（file_path）
+        selected_doc_ids: Optional[List[str]] = None,  # 用户选中的文档 ID 列表（优先传 RAG v2 index_key）
         owner: Optional[str] = None,  # 当前用户，用于过滤文档
         use_enhanced_retrieval: bool = False,  # 是否使用增强检索（HyDE + 多路召回 + RRF）
         hyde_weight: float = 0.5,  # HyDE 权重
