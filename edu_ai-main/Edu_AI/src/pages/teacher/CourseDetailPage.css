@@ -1,0 +1,32 @@
+.course-detail-page {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+}
+
+.course-detail-header {
+  margin-bottom: 24px;
+}
+
+.course-detail-card {
+  border-radius: 8px;
+}
+
+.course-detail-card .ant-card-body {
+  padding: 24px;
+}
+
+.knowledge-base-section {
+  padding: 0;
+}
+
+.knowledge-base-section .ant-tree {
+  background: transparent;
+}
+
+.knowledge-base-section .ant-tree-node-content-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+

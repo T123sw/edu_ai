@@ -1,0 +1,86 @@
+.user-center-page {
+  padding: 0;
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.profile-header {
+  padding: 20px 0;
+}
+
+.profile-name {
+  margin: 16px 0 8px !important;
+  color: #1e293b !important;
+}
+
+.profile-username {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.profile-bio {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #64748b !important;
+}
+
+.stats-card {
+  text-align: center;
+}
+
+.stats-card .ant-card-head-title {
+  text-align: left;
+}
+
+.stats-card .ant-statistic-title {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.stats-card .ant-statistic-content {
+  color: #1e293b;
+}
+
+.user-center-page .ant-tabs-tab {
+  font-size: 15px;
+  padding: 12px 16px;
+}
+
+.user-center-page .ant-form-item-label > label {
+  font-weight: 500;
+  color: #334155;
+}
+
+.user-center-page .ant-input,
+.user-center-page .ant-select-selector {
+  border-radius: 6px;
+}
+
+.user-center-page .ant-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.user-center-page .ant-descriptions-item-label {
+  font-weight: 500;
+  color: #64748b;
+  width: 80px;
+}
+
+.user-center-page .ant-descriptions-item-content {
+  color: #1e293b;
+}
+
+/* 响应式设计 */
+@media (max-width: 992px) {
+  .user-center-page .ant-col {
+    margin-bottom: 24px;
+  }
+}
+

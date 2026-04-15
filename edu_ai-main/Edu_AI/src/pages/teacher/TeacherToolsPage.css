@@ -1,0 +1,258 @@
+.teacher-tools-page {
+  padding: 0;
+}
+
+/* 外层背景与留白优化 */
+.teacher-tools-page {
+  margin: -16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fb 0%, #e8ecf3 50%, #f4f7fb 100%);
+  box-sizing: border-box;
+}
+
+.tools-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.tools-title {
+  margin-bottom: 8px !important;
+  color: #1e293b !important;
+  font-size: 28px !important;
+  font-weight: 600 !important;
+}
+
+.tools-subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Tabs 样式 */
+.tools-tabs {
+  margin-top: 24px;
+}
+
+.tools-tabs .ant-tabs-tab {
+  font-size: 15px;
+  padding: 12px 20px;
+}
+
+.tools-tabs .ant-tabs-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 表单卡片 */
+.form-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.form-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-card .ant-card-head-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.form-card .ant-form-item-label > label {
+  font-weight: 500;
+  color: #334155;
+}
+
+.form-card .ant-input,
+.form-card .ant-select-selector,
+.form-card .ant-input-number {
+  border-radius: 6px;
+}
+
+/* 结果卡片 */
+.result-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.result-card .ant-card-head-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+/* 教案内容 */
+.lesson-plan-content {
+  padding: 8px 0;
+}
+
+.lesson-title {
+  color: #1e293b !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  margin-bottom: 24px !important;
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.lesson-list {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+
+.lesson-list li {
+  margin-bottom: 8px;
+  color: #475569;
+  line-height: 1.8;
+}
+
+.points-container {
+  margin-bottom: 16px;
+}
+
+/* 让长文本的 Tag（如教学难点）支持自动换行，而不是一行撑出容器 */
+.points-container .ant-tag {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.process-step {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #1890ff;
+  transition: all 0.3s ease;
+}
+
+.process-step:hover {
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.homework-content {
+  padding: 16px;
+  background: #fef3c7;
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+  color: #92400e !important;
+  font-weight: 500;
+  margin-bottom: 0 !important;
+}
+
+/* 题目列表 */
+.question-item {
+  padding: 20px 0 !important;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.question-item:hover {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 20px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.question-item:last-child {
+  border-bottom: none;
+}
+
+.question-content {
+  width: 100%;
+}
+
+.question-header {
+  margin-bottom: 12px;
+}
+
+.question-text {
+  font-size: 15px;
+  color: #1e293b !important;
+  line-height: 1.8 !important;
+  margin-bottom: 12px !important;
+  font-weight: 500;
+}
+
+.question-options {
+  margin: 12px 0;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+.option-item {
+  padding: 8px 0;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.question-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.question-answer {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f5faff;
+  border-radius: 6px;
+  border-left: 3px solid #1890ff;
+}
+
+.answer-text,
+.analysis-text {
+  color: #1e293b !important;
+  line-height: 1.7;
+  margin-bottom: 8px !important;
+}
+
+.analysis-text {
+  color: #334155 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 992px) {
+  .teacher-tools-page .ant-col {
+    margin-bottom: 24px;
+  }
+
+  .lesson-title {
+    font-size: 20px !important;
+  }
+
+  .process-step {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tools-title {
+    font-size: 24px !important;
+  }
+
+  .step-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .question-header {
+    flex-wrap: wrap;
+  }
+}
+

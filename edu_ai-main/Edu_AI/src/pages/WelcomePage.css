@@ -1,0 +1,291 @@
+.welcome-page {
+  min-height: calc(100vh - 64px - 32px); /* 减去 header 和 content margin */
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%);
+  padding: 60px 24px;
+  position: relative;
+  overflow: hidden;
+  margin: -16px; /* 抵消 MainLayout content 的 padding */
+  border-radius: 0; /* 移除圆角 */
+}
+
+.welcome-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.welcome-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 255, 255, 0.3) 35px, rgba(255, 255, 255, 0.3) 70px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.welcome-hero {
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.welcome-title {
+  color: #1e293b !important;
+  font-size: 48px !important;
+  font-weight: 700 !important;
+  margin-bottom: 16px !important;
+  text-shadow: none;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.welcome-subtitle {
+  color: #475569 !important;
+  font-size: 24px !important;
+  margin-bottom: 16px !important;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.welcome-description {
+  color: #64748b !important;
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+  max-width: 600px;
+  margin: 0 auto;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.welcome-features {
+  max-width: 1400px;
+  margin: 0 auto 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.courses-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  position: relative;
+}
+
+.courses-row {
+  display: flex;
+  gap: 24px;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex: 1;
+  max-width: 1200px;
+}
+
+.course-col {
+  flex: 0 0 calc(25% - 18px);
+  min-width: 0;
+}
+
+.features-title {
+  color: #1e293b !important;
+  text-align: center;
+  margin-bottom: 40px !important;
+  font-size: 32px !important;
+  font-weight: 600 !important;
+  text-shadow: none;
+}
+
+.course-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.course-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.course-card:hover .course-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.course-title {
+  text-align: center;
+  margin-bottom: 12px !important;
+  color: #111827 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.course-description {
+  text-align: center;
+  color: #6b7280 !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  margin-bottom: 16px !important;
+  flex: 1;
+}
+
+.course-link {
+  text-align: center;
+  display: flex;
+  width: 100%;
+  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: gap 0.3s ease;
+}
+
+.course-card:hover .course-link {
+  gap: 8px;
+}
+
+.page-nav-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-nav-button:hover:not(:disabled) {
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.page-nav-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.welcome-footer {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding-top: 40px;
+}
+
+.welcome-footer .ant-typography {
+  color: #94a3b8 !important;
+  font-size: 14px;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .welcome-title {
+    font-size: 40px !important;
+  }
+  
+  .welcome-subtitle {
+    font-size: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .welcome-page {
+    padding: 40px 16px;
+  }
+
+  .welcome-title {
+    font-size: 32px !important;
+  }
+
+  .welcome-subtitle {
+    font-size: 18px !important;
+  }
+
+  .welcome-description {
+    font-size: 14px !important;
+  }
+
+  .features-title {
+    font-size: 24px !important;
+  }
+
+  .course-title {
+    font-size: 15px !important;
+  }
+
+  .course-card {
+    padding: 20px;
+    min-height: 240px;
+  }
+
+  .courses-row {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .course-col {
+    flex: 0 0 calc(50% - 8px);
+  }
+
+  .page-nav-button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+

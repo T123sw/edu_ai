@@ -1,0 +1,305 @@
+/* CourseIntroPage.css */
+
+:root {
+  --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+  --accent-color: #3b82f6;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.course-intro-page {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle at 10% 10%, rgba(219, 234, 254, 0.5) 0%, rgba(243, 232, 255, 0.5) 90%), #f8fafc;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.main-card {
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  border-radius: 20px;
+  border: var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Left Section */
+.left-section {
+  flex: 1.3;
+  padding: 60px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  overflow: auto;
+}
+
+.course-category {
+  font-size: 16px;
+  color: var(--accent-color);
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-course-title {
+  font-size: 150px !important;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 28px !important;
+  line-height: 1.06;
+  letter-spacing: -1.8px;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.course-tags {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.section-subtitle {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(30, 41, 59, 0.72);
+  margin-bottom: 10px;
+}
+
+.course-description-box {
+  margin-bottom: 28px;
+  padding-left: 24px;
+  border-left: 4px solid var(--accent-color);
+}
+
+.course-description {
+  font-size: 22px;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  max-width: 720px;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.course-objectives {
+  margin-bottom: 34px;
+}
+
+.objectives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.objective-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.objective-num {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.12);
+  color: rgba(37, 99, 235, 0.95);
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.objective-text {
+  color: rgba(15, 23, 42, 0.82);
+  font-size: 19px;
+  line-height: 1.85;
+  letter-spacing: 0.2px;
+}
+
+.action-area {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.start-btn {
+  height: 64px;
+  padding: 0 56px;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border: none;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.start-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.45);
+}
+
+/* Right Section */
+.right-section {
+  flex: 0.9;
+  position: relative;
+  background: linear-gradient(to right, rgba(255,255,255,0.3), rgba(241, 245, 249, 0.5));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  gap: 16px;
+}
+
+.action-area-right {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 24px;
+}
+
+.graph-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 600px;
+  max-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.graph-label {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.node-group {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  animation: float 8s ease-in-out infinite;
+}
+
+.center-node {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 20px 50px rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--accent-color);
+  z-index: 10;
+  border: 6px solid #eff6ff;
+}
+
+.satellite {
+  position: absolute;
+  background: #fff;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  border: 1px solid #f1f5f9;
+  z-index: 5;
+  transition: transform 0.3s;
+}
+
+.satellite:hover {
+  transform: scale(1.1);
+  color: var(--accent-color);
+  cursor: default;
+}
+
+/* Satellite positions */
+.s1 { top: 10%; left: 5%; }
+.s2 { top: 15%; right: 10%; }
+.s3 { bottom: 15%; left: 0%; }
+.s4 { bottom: 20%; right: 5%; }
+.s5 { top: 50%; right: -15%; }
+
+.connections-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .teacher-course-title { font-size: 200px; }
+  .left-section { padding: 40px; }
+}
+
+@media (max-width: 992px) {
+  .course-intro-page {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  .main-card {
+    flex-direction: column;
+    height: auto;
+  }
+  .right-section {
+    height: 400px;
+    width: 100%;
+  }
+}
