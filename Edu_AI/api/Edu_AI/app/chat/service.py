@@ -30,6 +30,7 @@ from .report_domain import (
 from .utils.prompt_utils import strip_trailing_questions, smooth_followup_transition
 from .tools.video_search import should_use_video_search, search_video_segments_for_chat
 from .tools.search_tools import create_search_tools
+from .application.lesson_plan_service_v2 import build_default_lesson_plan_engine
 from .agents.report_utils import (
     init_report_slots,
     merge_report_slots,
@@ -156,6 +157,7 @@ class ChatService:
                 tool_registry=get_default_tool_registry(),
             )
         self._compiled_graph = self._build_graph()
+        self._lesson_plan_engine = None
 
     def _build_report_engine_prompt_from_sections(self, allowlist_sections: List[tuple], fallback: str) -> str:
         blocks: List[str] = []
@@ -211,6 +213,11 @@ class ChatService:
 
     def get_report_engine(self) -> Any:
         return self._universal_report_graph
+
+    def get_lesson_plan_engine(self) -> Any:
+        if self._lesson_plan_engine is None:
+            self._lesson_plan_engine = build_default_lesson_plan_engine()
+        return self._lesson_plan_engine
 
     @staticmethod
     def _detect_report_intent(text: str) -> bool:

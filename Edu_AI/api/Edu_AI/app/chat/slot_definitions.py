@@ -33,19 +33,31 @@ class ReportSlots(BaseSlots):
 
 class LessonPlanSlots(BaseSlots):
     duration: str = ""
-    teaching_method: str = ""
-    key_points: str = ""
+    lesson_type: str = ""
+    knowledge_points: List[str] = Field(default_factory=list)
+    key_points: List[str] = Field(default_factory=list)
+    hard_points: List[str] = Field(default_factory=list)
+    teaching_methods: List[str] = Field(default_factory=list)
+    class_profile: List[str] = Field(default_factory=list)
     assessment_method: str = ""
+    homework_preference: str = ""
+    resource_constraints: List[str] = Field(default_factory=list)
+    style_constraints: List[str] = Field(default_factory=list)
 
     class SlotMeta:
-        core_slots: ClassVar[List[str]] = ["topic", "audience", "objective", "duration"]
-        secondary_slots: ClassVar[List[str]] = ["teaching_method", "key_points", "assessment_method"]
-        defaults: ClassVar[Dict[str, Any]] = {
-            "duration": "45分钟",
-            "teaching_method": "讲练结合",
-            "key_points": "",
-            "assessment_method": "课堂提问+随堂练习",
-        }
+        core_slots: ClassVar[List[str]] = ["topic", "audience", "objective", "duration", "lesson_type"]
+        secondary_slots: ClassVar[List[str]] = [
+            "knowledge_points",
+            "key_points",
+            "hard_points",
+            "teaching_methods",
+            "class_profile",
+            "assessment_method",
+            "homework_preference",
+            "resource_constraints",
+            "style_constraints",
+        ]
+        defaults: ClassVar[Dict[str, Any]] = {}
 
 
 class QuizSlots(BaseSlots):

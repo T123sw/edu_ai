@@ -9,20 +9,31 @@ echo.
 
 cd /d %~dp0
 
-set "PYTHON_EXE=%~dp0.venv\Scripts\python.exe"
-if exist "%PYTHON_EXE%" (
-    echo Detected local virtual environment: %PYTHON_EXE%
-    REM Validate the venv before using it. A copied or stale venv can exist
-    REM even when its base Python installation has been removed.
-    "%PYTHON_EXE%" -c "import ctypes, sys; print(sys.base_prefix)" >nul 2>nul
-    if !ERRORLEVEL! NEQ 0 (
-        echo Local virtual environment is unhealthy. Falling back to system Python.
-        set "PYTHON_EXE=python"
+set "PYTHON_EXE=python"
+set "LOCAL_VENV_FOUND=0"
+for %%P in ("%~dp0.venv\Scripts\python.exe" "%~dp0.venv_local\Scripts\python.exe") do (
+    if exist "%%~fP" (
+        set "LOCAL_VENV_FOUND=1"
+        echo Detected local virtual environment: %%~fP
+        REM Validate the venv before using it. A copied or stale venv can exist
+        REM even when its base Python installation has been removed.
+        "%%~fP" -c "import pip, ctypes, sys; print(sys.base_prefix)" >nul 2>nul
+        if !ERRORLEVEL! EQU 0 (
+            set "PYTHON_EXE=%%~fP"
+            goto :python_ready
+        ) else (
+            echo Local virtual environment is unhealthy. Trying next Python environment.
+        )
     )
+)
+
+if "%LOCAL_VENV_FOUND%"=="1" (
+    echo No healthy local virtual environment found. Falling back to system Python.
 ) else (
     echo Local virtual environment not found. Falling back to system Python.
-    set "PYTHON_EXE=python"
 )
+
+:python_ready
 echo.
 
 set "PORT=8001"

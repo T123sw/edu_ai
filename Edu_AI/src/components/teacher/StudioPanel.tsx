@@ -39,7 +39,6 @@ import {
   type BlogResumeOutlineRequest,
   type BlogTaskStatusResponse,
   type LessonPlanRequest,
-  type LessonPlanResponse,
   type QuizRequest,
   type QuizResponse,
   type ReportResponse,
@@ -120,6 +119,102 @@ const calcProgressPercent = (current: number, total: number) => {
   if (!total || total <= 0) return 0;
   const v = Math.floor((Math.max(0, current) / total) * 100);
   return Math.max(0, Math.min(100, v));
+};
+
+const toTextList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || '').trim()).filter(Boolean);
+  }
+  const text = String(value || '').trim();
+  return text ? [text] : [];
+};
+
+const normalizeLessonPlanPreview = (content: unknown, kind?: string) => {
+  const record = content && typeof content === 'object' ? (content as Record<string, any>) : {};
+  const outlineBasicInfo =
+    record.basic_info && typeof record.basic_info === 'object' ? (record.basic_info as Record<string, any>) : {};
+  const outlineKeyAndHard =
+    record.key_and_hard_points && typeof record.key_and_hard_points === 'object'
+      ? (record.key_and_hard_points as Record<string, any>)
+      : {};
+  const outlineSupport =
+    record.teaching_support && typeof record.teaching_support === 'object'
+      ? (record.teaching_support as Record<string, any>)
+      : {};
+  const isOutline =
+    String(kind || '').trim() === 'outline'
+    || Boolean(record.basic_info)
+    || Boolean(record.lesson_flow)
+    || Boolean(record.teaching_objectives);
+
+  const outlineProcess = Array.isArray(record.lesson_flow)
+    ? record.lesson_flow
+        .map((item: any) => {
+          const goal = String(item?.goal || '').trim();
+          const teacherActivities = toTextList(item?.teacher_activities);
+          const studentActivities = toTextList(item?.student_activities);
+          const assessment = String(item?.assessment || '').trim();
+          return {
+            step: String(item?.step || '').trim(),
+            duration: String(item?.duration || '').trim(),
+            content: [
+              goal ? `目标：${goal}` : '',
+              teacherActivities.length > 0 ? `教师活动：${teacherActivities.join('；')}` : '',
+              studentActivities.length > 0 ? `学生活动：${studentActivities.join('；')}` : '',
+              assessment ? `评价方式：${assessment}` : '',
+            ]
+              .filter(Boolean)
+              .join('\n'),
+          };
+        })
+        .filter((item) => item.step || item.content)
+    : [];
+
+  const finalProcess = Array.isArray(record.process)
+    ? record.process
+        .map((item: any) => {
+          const goal = String(item?.goal || '').trim();
+          const teacherActivities = toTextList(item?.teacherActivities);
+          const studentActivities = toTextList(item?.studentActivities);
+          const assessment = String(item?.assessment || '').trim();
+          const content = String(item?.content || '').trim();
+          return {
+            step: String(item?.step || '').trim(),
+            duration: String(item?.duration || '').trim(),
+            content:
+              content
+              || [
+                goal ? `目标：${goal}` : '',
+                teacherActivities.length > 0 ? `教师活动：${teacherActivities.join('；')}` : '',
+                studentActivities.length > 0 ? `学生活动：${studentActivities.join('；')}` : '',
+                assessment ? `评价方式：${assessment}` : '',
+              ]
+                  .filter(Boolean)
+                  .join('\n'),
+          };
+        })
+        .filter((item) => item.step || item.content)
+    : [];
+
+  return {
+    isOutline,
+    title: String(record.title || outlineBasicInfo.topic || '').trim(),
+    basicInfo: {
+      audience: String(outlineBasicInfo.audience || '').trim(),
+      duration: String(outlineBasicInfo.duration || '').trim(),
+      lessonType: String(outlineBasicInfo.lesson_type || '').trim(),
+    },
+    objectives: isOutline ? toTextList(record.teaching_objectives) : toTextList(record.objectives),
+    keyPoints: isOutline ? toTextList(outlineKeyAndHard.key_points) : toTextList(record.keyPoints),
+    hardPoints: isOutline ? toTextList(outlineKeyAndHard.hard_points) : toTextList(record.hardPoints),
+    process: isOutline ? outlineProcess : finalProcess,
+    homework: isOutline ? String(outlineSupport.homework_preview || '').trim() : String(record.homework || '').trim(),
+    teachingMethods: toTextList(outlineSupport.teaching_methods),
+    teachingAids: toTextList(outlineSupport.teaching_aids),
+    boardPlan: toTextList(outlineSupport.board_plan),
+    assessmentMethod: String(outlineSupport.assessment_method || '').trim(),
+    breakthroughStrategy: String(outlineKeyAndHard.breakthrough_strategy || '').trim(),
+  };
 };
 
 const normalizeAnswer = (value: string) => (value || '').trim().toLowerCase();
@@ -936,9 +1031,16 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       return;
     }
 
+    const artifactType =
+      file.type === 'ppt'
+        ? 'ppt_deck'
+        : file.meta?.kind === 'outline'
+          ? 'report_outline'
+          : 'report';
+
     setArtifactReference({
       artifact_id: String(file.meta?.originalArtifactId || file.id).trim(),
-      artifact_type: file.meta?.kind === 'outline' ? 'report_outline' : 'report',
+      artifact_type: artifactType,
       version_id: String(file.meta?.versionId || '').trim() || undefined,
       title: file.name,
       source_conversation_id: String(file.meta?.conversationId || currentConversationId || '').trim() || undefined,
@@ -1061,7 +1163,8 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   if (viewingFile) {
     // 教案预览
     if (viewingFile.type === 'lesson_plan' && viewingFile.content) {
-      const plan = viewingFile.content as LessonPlanResponse;
+      const lessonPlanKind = String((viewingFile.meta as any)?.kind || '').trim();
+      const plan = normalizeLessonPlanPreview(viewingFile.content, lessonPlanKind);
       return (
         <div
           style={{
@@ -1094,6 +1197,47 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           </Title>
           <Divider style={{ flexShrink: 0 }} />
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
+            {lessonPlanKind === 'outline' && (
+              <div
+                style={{
+                  marginBottom: 20,
+                  padding: 16,
+                  borderRadius: 10,
+                  background: '#f6ffed',
+                  border: '1px solid #b7eb8f',
+                }}
+              >
+                <Text strong style={{ color: '#389e0d' }}>
+                  当前预览的是教案大纲
+                </Text>
+                <Paragraph style={{ margin: '8px 0 0', color: '#595959' }}>
+                  这版用于确认教学目标、重点难点和课堂流程，确认后会继续生成完整正文。
+                </Paragraph>
+              </div>
+            )}
+
+            {(plan.basicInfo.audience || plan.basicInfo.duration || plan.basicInfo.lessonType) && (
+              <div style={{ marginBottom: 24 }}>
+                <Title level={5} style={{ marginBottom: 12 }}>基本信息</Title>
+                <Space size={[8, 8]} wrap>
+                  {plan.basicInfo.audience && (
+                    <span style={{ padding: '4px 12px', background: '#f5f5f5', borderRadius: 999 }}>
+                      适用对象：{plan.basicInfo.audience}
+                    </span>
+                  )}
+                  {plan.basicInfo.duration && (
+                    <span style={{ padding: '4px 12px', background: '#f5f5f5', borderRadius: 999 }}>
+                      课时：{plan.basicInfo.duration}
+                    </span>
+                  )}
+                  {plan.basicInfo.lessonType && (
+                    <span style={{ padding: '4px 12px', background: '#f5f5f5', borderRadius: 999 }}>
+                      课型：{plan.basicInfo.lessonType}
+                    </span>
+                  )}
+                </Space>
+              </div>
+            )}
             {/* 教学目标 */}
             {plan.objectives && plan.objectives.length > 0 && (
               <div style={{ marginBottom: 24 }}>
@@ -1157,6 +1301,32 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             )}
 
             {/* 教学过程 */}
+            {plan.breakthroughStrategy && (
+              <div style={{ marginBottom: 24 }}>
+                <Title level={5} style={{ color: '#13c2c2', marginBottom: 12 }}>难点突破</Title>
+                <div
+                  style={{
+                    padding: 16,
+                    background: '#e6fffb',
+                    borderRadius: 8,
+                    border: '1px solid #87e8de',
+                  }}
+                >
+                  <Paragraph
+                    style={{
+                      margin: 0,
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: 1.8,
+                      fontSize: 14,
+                      color: '#595959',
+                    }}
+                  >
+                    {plan.breakthroughStrategy}
+                  </Paragraph>
+                </div>
+              </div>
+            )}
+
             {plan.process && plan.process.length > 0 && (
               <div style={{ marginBottom: 24 }}>
                 <Title level={5} style={{ color: '#722ed1', marginBottom: 12 }}>📖 教学过程</Title>
@@ -1196,6 +1366,38 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             )}
 
             {/* 作业布置 */}
+            {(plan.teachingMethods.length > 0 || plan.teachingAids.length > 0 || plan.boardPlan.length > 0 || plan.assessmentMethod) && (
+              <div style={{ marginBottom: 24 }}>
+                <Title level={5} style={{ color: '#2f54eb', marginBottom: 12 }}>教学支持</Title>
+                <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                  {plan.teachingMethods.length > 0 && (
+                    <div>
+                      <Text strong>教学方法：</Text>
+                      <Text>{plan.teachingMethods.join('、')}</Text>
+                    </div>
+                  )}
+                  {plan.teachingAids.length > 0 && (
+                    <div>
+                      <Text strong>教学资源：</Text>
+                      <Text>{plan.teachingAids.join('、')}</Text>
+                    </div>
+                  )}
+                  {plan.boardPlan.length > 0 && (
+                    <div>
+                      <Text strong>板书建议：</Text>
+                      <Text>{plan.boardPlan.join('、')}</Text>
+                    </div>
+                  )}
+                  {plan.assessmentMethod && (
+                    <div>
+                      <Text strong>课堂评价：</Text>
+                      <Text>{plan.assessmentMethod}</Text>
+                    </div>
+                  )}
+                </Space>
+              </div>
+            )}
+
             {plan.homework && (
               <div style={{ marginBottom: 24 }}>
                 <Title level={5} style={{ color: '#fa8c16', marginBottom: 12 }}>📝 作业布置</Title>
@@ -1222,6 +1424,19 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               </div>
             )}
           </div>
+          {lessonPlanKind === 'outline' && (
+            <div style={{ position: 'absolute', right: 24, bottom: 24 }}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setViewingFile(null);
+                  setQueuedMessage('确认并继续');
+                }}
+              >
+                继续生成教案
+              </Button>
+            </div>
+          )}
         </div>
       );
     }
@@ -1349,6 +1564,9 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             <Divider style={{ flexShrink: 0 }} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
               <Space>
+                <Button icon={<MessageOutlined />} onClick={() => handleAddToChat(viewingFile)}>
+                  添加到对话
+                </Button>
                 <Button
                   onClick={() => {
                     if (typeof document === 'undefined') {

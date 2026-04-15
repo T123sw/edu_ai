@@ -124,6 +124,20 @@ export interface PptEntryCardSelection {
   recommendation_type?: 'concept_focus' | 'process_flow' | 'comparison_view' | 'case_application';
 }
 
+export interface PptEntryCardPrefillConfig {
+  deck_title: string;
+  deck_subtitle?: string;
+  audience?: string;
+  objective?: string;
+  theme_id?: 'heu_academic_elegant' | 'heu_academic_basic';
+  length_option?: 'short' | 'medium' | 'long';
+  target_slide_count?: number;
+  key_points?: string[];
+  style_hint?: string;
+  special_requirements?: string;
+  general_requirements?: string;
+}
+
 export interface ReportEntryCard {
   card_id: string;
   card_type: 'preset' | 'recommended';
@@ -154,6 +168,7 @@ export interface PptEntryCard {
   recommendation_source?: 'doc_summaries';
   fit_score?: 'high' | 'medium' | 'low';
   style_hint?: string;
+  prefill_config?: PptEntryCardPrefillConfig;
 }
 
 export interface ChatReportCardsResponseV2 {
@@ -165,6 +180,7 @@ export interface ChatReportCardsResponseV2 {
 export interface ChatPptCardsResponseV2 {
   entry_mode: 'knowledge_base_ppt';
   cards: PptEntryCard[];
+  default_selected_card_id?: string;
   trace?: Record<string, unknown>;
 }
 
@@ -251,6 +267,12 @@ export interface ChatErrorResponseV2 {
     message?: string;
     retryable?: boolean;
   };
+  detail?: string;
+}
+
+export interface SpeechTranscriptionResponse {
+  filename: string;
+  text: string;
 }
 
 async function postV2<TResponse, TPayload>(path: string, payload: TPayload): Promise<TResponse> {
@@ -319,6 +341,34 @@ export async function generateKnowledgeBasePptV2(
     '/api/chat/v2/ppt/generate',
     payload,
   );
+}
+
+export async function transcribeSpeechV2(file: Blob, filename = 'voice.webm'): Promise<SpeechTranscriptionResponse> {
+  const token = getAuthToken();
+  const formData = new FormData();
+  formData.append('file', file, filename);
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/speech/transcribe`, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (!resp.ok) {
+    let detail = `请求失败: ${resp.status} ${resp.statusText}`;
+    try {
+      const errorPayload = (await resp.json()) as ChatErrorResponseV2;
+      detail = errorPayload.error?.message || errorPayload.detail || detail;
+    } catch {
+      const text = await resp.text().catch(() => '');
+      if (text) detail = text;
+    }
+    throw new Error(detail);
+  }
+
+  return (await resp.json()) as SpeechTranscriptionResponse;
 }
 
 interface BuildChatReplyPayloadOptions {

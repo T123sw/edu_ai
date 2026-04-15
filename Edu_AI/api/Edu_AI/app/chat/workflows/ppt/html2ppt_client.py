@@ -50,6 +50,21 @@ class Html2PptClient:
         normalized["results"] = normalized_results
         return normalized
 
+    @staticmethod
+    def _build_create_revision_payload(
+        *,
+        mode: str,
+        target_slides: list[int] | None,
+        user_instruction: str,
+        metadata: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        return {
+          "mode": str(mode or "").strip(),
+          "target_slides": [int(item) for item in list(target_slides or [])],
+          "user_instruction": str(user_instruction or ""),
+          "metadata": dict(metadata or {}),
+        }
+
     def create_job(self, *, content_markdown: str, theme_id: str, metadata: dict[str, Any] | None) -> dict[str, Any]:
         response = self.http_client.post(
             "/ppt/jobs",
@@ -71,3 +86,29 @@ class Html2PptClient:
         response = self.http_client.get(f"/ppt/jobs/{job_id}/results")
         response.raise_for_status()
         return self._normalize_results_payload(response.json())
+
+    def create_revision(
+        self,
+        job_id: str,
+        *,
+        mode: str,
+        target_slides: list[int] | None,
+        user_instruction: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        response = self.http_client.post(
+            f"/ppt/jobs/{job_id}/revisions",
+            json=self._build_create_revision_payload(
+                mode=mode,
+                target_slides=target_slides,
+                user_instruction=user_instruction,
+                metadata=metadata,
+            ),
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_revision_status(self, job_id: str, revision_id: str) -> dict[str, Any]:
+        response = self.http_client.get(f"/ppt/jobs/{job_id}/revisions/{revision_id}")
+        response.raise_for_status()
+        return response.json()

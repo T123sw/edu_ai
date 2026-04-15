@@ -16,6 +16,7 @@ from app.blog_agent import router as blog_agent_router
 from app.deepsearch import router as deepsearch_router
 from app.chat import router as chat_router
 from app.chat.api.routes_v2 import router as chat_v2_router
+from app.speech.routes import router as speech_router
 from app.video_routes import router as video_router
 from core import Config, conversation_storage, lesson_plan_storage
 from new_rag.api import router as rag_router, get_rag_system
@@ -200,6 +201,7 @@ app.include_router(courses_router)
 app.include_router(rag_router)
 app.include_router(chat_router)
 app.include_router(chat_v2_router)
+app.include_router(speech_router)
 app.include_router(video_router)
 app.include_router(pipeline_router, prefix="/api/pipeline")
 app.include_router(blog_agent_router, prefix="/api/blog")

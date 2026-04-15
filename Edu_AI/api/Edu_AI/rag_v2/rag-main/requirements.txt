@@ -1,0 +1,42 @@
+# ============================================
+# RAG 系统依赖包列表
+# ============================================
+# 使用方法: pip install -r requirements.txt
+# ============================================
+
+# ---------- 核心框架 ----------
+fastapi>=0.135.1          # Web API 框架
+uvicorn>=0.42.0           # ASGI 服务器
+streamlit>=1.55.0         # 前端 UI 框架
+python-multipart>=0.0.22  # 文件上传支持
+
+# ---------- 向量数据库 ----------
+chromadb>=1.5.5           # 向量数据库
+
+# ---------- 文档处理 ----------
+docling>=2.82.0           # 高级文档解析引擎（PDF/Word等）
+pymupdf>=1.27.2.2         # PDF 解析库（MinerU 备选方案）
+pillow>=10.0.0            # 图片处理库
+
+# ---------- 文本处理 ----------
+langchain-core>=1.2.20                # LangChain 核心
+langchain-text-splitters>=1.1.1       # 文本分割器
+rank-bm25>=0.2.2                      # BM25 关键词检索算法
+jieba>=0.42.1                         # 中文分词工具
+
+# ---------- HTTP 客户端 ----------
+requests>=2.32.5          # HTTP 请求库
+
+# ---------- 环境配置 ----------
+python-dotenv>=1.2.2      # 环境变量管理
+
+openai>=1.0.0           # OpenAI API 客户端（如果使用 OpenAI 模型）
+anthropic>=0.7.0        # Anthropic API 客户端（如果使用 Claude）
+google-generativeai>=0.3.0  # Google Gemini API 客户端
+tiktoken>=0.5.0         # Token 计数器（OpenAI 模型需要）
+
+# ---------- 开发工具（可选）----------
+# pytest>=7.4.0           # 测试框架
+# black>=23.0.0           # 代码格式化
+# flake8>=6.0.0           # 代码检查
+# mypy>=1.5.0             # 类型检查

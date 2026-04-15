@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from types import SimpleNamespace
 
 from app.chat.application.chat_app_service import ChatAppService
@@ -11,12 +12,56 @@ from app.chat.orchestrator.main_orchestrator import MainOrchestrator
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.model_registry import build_default_gateway
+from app.chat.workflows.lesson_plan.runtime import LessonPlanWorkflowRuntime
+from core.course_storage import storage_manager as default_course_storage_manager
 
 
 class _ResponseBuilderAdapter:
     @staticmethod
     def build_http_response(result: dict) -> dict:
         return build_http_response(result)
+
+
+def _persist_lesson_plan_course_material(*, payload, result: dict, course_storage_manager=None) -> None:
+    course_id = str(getattr(payload, "course_id", "") or "").strip()
+    if not course_id or course_storage_manager is None:
+        return
+
+    workflow = result.get("workflow") or {}
+    if str(workflow.get("type") or "").strip() != "lesson_plan":
+        return
+    if str(workflow.get("status") or "").strip() != "completed":
+        return
+
+    artifacts = list(result.get("artifacts") or [])
+    lesson_plan_artifact = next(
+        (
+            artifact
+            for artifact in artifacts
+            if isinstance(artifact, dict) and str(artifact.get("artifact_type") or "").strip() == "lesson_plan"
+        ),
+        None,
+    )
+    if not lesson_plan_artifact:
+        return
+
+    material_id = str(lesson_plan_artifact.get("artifact_id") or "").strip()
+    if not material_id:
+        return
+
+    now = datetime.now().isoformat()
+    course_storage_manager.save_generated_material(
+        course_id=course_id,
+        material_type="lesson_plan",
+        material_id=material_id,
+        material_data={
+            "title": str(lesson_plan_artifact.get("title") or "教案").strip(),
+            "material_type": "lesson_plan",
+            "created_at": now,
+            "updated_at": now,
+            "plan": lesson_plan_artifact.get("content"),
+        },
+    )
 
 
 class RouteChatService:
@@ -29,10 +74,13 @@ class RouteChatService:
         enable_fast_runtime: bool = True,
         report_engine=None,
         enable_report_workflow: bool = True,
+        lesson_plan_engine=None,
+        enable_lesson_plan_workflow: bool = True,
         enforce_capability_policy: bool = False,
         conversation_store=None,
         enhancement_router=None,
         enhancement_trace_enabled: bool = False,
+        course_storage_manager=None,
     ):
         self.legacy_service = legacy_service
         self.gateway_factory = gateway_factory
@@ -40,8 +88,11 @@ class RouteChatService:
         self.enable_fast_runtime = enable_fast_runtime
         self.report_engine = report_engine
         self.enable_report_workflow = enable_report_workflow
+        self.lesson_plan_engine = lesson_plan_engine
+        self.enable_lesson_plan_workflow = enable_lesson_plan_workflow
         self.enforce_capability_policy = enforce_capability_policy
         self.enhancement_trace_enabled = bool(enhancement_trace_enabled)
+        self.course_storage_manager = course_storage_manager or default_course_storage_manager
         if conversation_store is not None:
             self.conversation_store = conversation_store
             if enhancement_router is not None:
@@ -56,6 +107,12 @@ class RouteChatService:
 
     def _resolve_report_engine(self):
         getter = getattr(self.legacy_service, "get_report_engine", None)
+        if callable(getter):
+            return getter()
+        return None
+
+    def _resolve_lesson_plan_engine(self):
+        getter = getattr(self.legacy_service, "get_lesson_plan_engine", None)
         if callable(getter):
             return getter()
         return None
@@ -75,6 +132,16 @@ class RouteChatService:
                 engine_factory=self._resolve_report_engine if self.report_engine is None else None,
                 report_context_organizer=ReportContextOrganizer(llm=get_fallback_llm()),
                 generation_readiness_judge=GenerationReadinessJudge(),
+            )
+        if self.enable_lesson_plan_workflow:
+            from app.chat.orchestrator.lesson_plan_context_organizer import LessonPlanContextOrganizer
+            from app.chat.orchestrator.lesson_plan_readiness_judge import LessonPlanReadinessJudge
+
+            workflow_registry["lesson_plan"] = LessonPlanWorkflowRuntime(
+                engine=self.lesson_plan_engine,
+                engine_factory=self._resolve_lesson_plan_engine if self.lesson_plan_engine is None else None,
+                lesson_plan_context_organizer=LessonPlanContextOrganizer(),
+                lesson_plan_readiness_judge=LessonPlanReadinessJudge(),
             )
         orchestrator = MainOrchestrator(
             fast_runtime=fast_runtime,
@@ -179,6 +246,11 @@ class RouteChatService:
             trace = dict(result.get("trace") or {})
             trace["llm_enhancement"] = enhancement_observation
             result["trace"] = trace
+        _persist_lesson_plan_course_material(
+            payload=payload,
+            result=result,
+            course_storage_manager=self.course_storage_manager,
+        )
         if state_patch:
             self.conversation_store.storage.update_state(conversation_id, state_patch)
 

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover, Switch } from 'antd';
-import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined } from '@ant-design/icons';
+import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
-import { buildChatReplyPayload, sendChatReplyV2 } from '../../services/teacher/chatV2';
+import { buildChatReplyPayload, sendChatReplyV2, transcribeSpeechV2 } from '../../services/teacher/chatV2';
+import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
 import ReactMarkdown from 'react-markdown';
 import { type RAGSource } from '../../services/rag';
@@ -12,6 +13,25 @@ import StatusCard from './StatusCardV2';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
+
+function buildSpeechFileName(mimeType: string): string {
+  if (mimeType.includes('mp4')) return 'voice.mp4';
+  if (mimeType.includes('mpeg')) return 'voice.mp3';
+  if (mimeType.includes('ogg')) return 'voice.ogg';
+  if (mimeType.includes('wav')) return 'voice.wav';
+  return 'voice.webm';
+}
+
+function appendTranscript(previous: string, transcript: string): string {
+  const normalizedTranscript = String(transcript || '').trim();
+  if (!normalizedTranscript) {
+    return previous;
+  }
+  if (!previous.trim()) {
+    return normalizedTranscript;
+  }
+  return `${previous.trimEnd()} ${normalizedTranscript}`;
+}
 
 interface Message {
   user: 'You' | 'AI';
@@ -23,6 +43,21 @@ interface Message {
 interface ChatPanelProps {
   courseId?: string;
 }
+
+const normalizeArtifactReferenceType = (
+  value: unknown,
+): 'report' | 'report_outline' | 'ppt_outline' | 'ppt_content_markdown' | 'ppt_deck' => {
+  const artifactType = String(value || '').trim();
+  if (
+    artifactType === 'report_outline'
+    || artifactType === 'ppt_outline'
+    || artifactType === 'ppt_content_markdown'
+    || artifactType === 'ppt_deck'
+  ) {
+    return artifactType;
+  }
+  return 'report';
+};
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const {
@@ -63,11 +98,28 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const [loadingConversationId, setLoadingConversationId] = useState<string | null>(null);
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverOpen] = useState(false);
+  const [workflowType, setWorkflowType] = useState<string | null>(null);
+  const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    return () => {
+      mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      mediaRecorderRef.current = null;
+      mediaStreamRef.current = null;
+      audioChunksRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -107,8 +159,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     }
   };
 
-  const loadConversation = async (conversationId: string, showSuccess = true) => {
-    setLoadingConversationId(conversationId);
+  const loadConversation = async (conversationId: string, showSuccess = true, silent = false) => {
+    if (!silent) {
+      setLoadingConversationId(conversationId);
+    }
     try {
       const detail = await getChatConversationDetail(conversationId);
       const mapped: Message[] = (detail.history || []).map((msg: any) => ({
@@ -116,17 +170,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         text: msg.content || '',
         sources: (msg.sources || []) as any[],
       }));
+      const detailWorkflowState = detail?.state?.workflow_state;
+      const nextWorkflowType = String((detailWorkflowState as any)?.workflow_type || '').trim();
+      const nextWorkflowStatus = String((detailWorkflowState as any)?.status || '').trim();
 
       setMessages(mapped);
       setCurrentConversationId(detail.conversation_id);
       setStatusCard(detail.status_card || null);
+      setWorkflowType(nextWorkflowType || null);
+      setWorkflowStatus(nextWorkflowStatus || null);
       const restoredFiles = restoreGeneratedFilesFromConversationDetail(detail);
       replaceConversationGeneratedFiles(restoredFiles);
       const stateArtifactReference = detail?.state?.artifact_reference;
       if (stateArtifactReference && typeof stateArtifactReference === 'object') {
         setArtifactReference({
           artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
-          artifact_type: String((stateArtifactReference as any).artifact_type || '').trim() === 'report_outline' ? 'report_outline' : 'report',
+          artifact_type: normalizeArtifactReferenceType((stateArtifactReference as any).artifact_type),
           version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
           title: String((stateArtifactReference as any).title || '').trim() || undefined,
           source_conversation_id: String((stateArtifactReference as any).source_conversation_id || detail.conversation_id || '').trim() || undefined,
@@ -148,16 +207,24 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       } else {
         clearConversationReference();
       }
-      setViewingFile(null);
+      if (silent && nextWorkflowType === 'ppt' && nextWorkflowStatus === 'completed' && restoredFiles.length > 0) {
+        setViewingFile(restoredFiles[restoredFiles.length - 1]);
+      } else if (!silent) {
+        setViewingFile(null);
+      }
 
-      if (showSuccess) {
+      if (showSuccess && !silent) {
         message.success('已切换到历史对话');
       }
     } catch (error: any) {
       console.error('加载对话详情失败:', error);
-      message.error(error?.message || '加载历史对话失败');
+      if (!silent) {
+        message.error(error?.message || '加载历史对话失败');
+      }
     } finally {
-      setLoadingConversationId(null);
+      if (!silent) {
+        setLoadingConversationId(null);
+      }
     }
   };
 
@@ -166,6 +233,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     setCurrentConversationId(null);
     setInputValue('');
     setStatusCard(null);
+    setWorkflowType(null);
+    setWorkflowStatus(null);
     clearArtifactReference();
     clearConversationReference();
     clearConversationGeneratedFiles();
@@ -188,6 +257,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           setMessages([]);
           setCurrentConversationId(null);
           setStatusCard(null);
+          setWorkflowType(null);
+          setWorkflowStatus(null);
           clearArtifactReference();
           clearConversationReference();
           setViewingFile(null);
@@ -198,6 +269,76 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     } catch (error: any) {
       console.error('删除对话失败:', error);
       message.error(error?.message || '删除历史对话失败');
+    }
+  };
+
+  const transcribeAudioFile = async (file: Blob, filename: string) => {
+    try {
+      setIsTranscribing(true);
+      const result = await transcribeSpeechV2(file, filename);
+      setInputValue((previous) => appendTranscript(previous, result.text));
+      message.success('语音已转换为文本');
+    } catch (error: any) {
+      console.error('speech transcription error:', error);
+      message.error(error?.message || '语音识别失败');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const handleVoiceInput = async () => {
+    if (isTranscribing) {
+      return;
+    }
+
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    if (typeof window === 'undefined' || !window.MediaRecorder || !navigator.mediaDevices?.getUserMedia) {
+      message.error('当前浏览器不支持语音输入');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+
+      mediaStreamRef.current = stream;
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const mimeType = mediaRecorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+
+        mediaRecorderRef.current = null;
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+        audioChunksRef.current = [];
+
+        if (audioBlob.size === 0) {
+          message.warning('未录到有效语音内容');
+          return;
+        }
+
+        void transcribeAudioFile(audioBlob, buildSpeechFileName(mimeType));
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error: any) {
+      console.error('start recording error:', error);
+      const resolution = resolveSpeechInputError(error);
+      message.error(resolution.message);
     }
   };
 
@@ -233,6 +374,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         setCurrentConversationId(nextConversationId);
       }
       setStatusCard(response.status_card || null);
+      setWorkflowType(String(response.workflow?.type || '').trim() || null);
+      setWorkflowStatus(String(response.workflow?.status || '').trim() || null);
 
       const sources = Array.isArray(response.sources) ? (response.sources as unknown as RAGSource[]) : [];
       const generatedFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
@@ -245,6 +388,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       }));
 
       generatedFiles.forEach((file) => addGeneratedFile(file));
+      const nextPptArtifact = generatedFiles.find((file) => file.meta?.kind === 'ppt_deck');
+      if (artifactReference?.artifact_type === 'ppt_deck' && nextPptArtifact) {
+        setArtifactReference({
+          artifact_id: String(nextPptArtifact.meta?.originalArtifactId || nextPptArtifact.id).trim(),
+          artifact_type: 'ppt_deck',
+          title: nextPptArtifact.name,
+          source_conversation_id: String(
+            nextPptArtifact.meta?.conversationId || nextConversationId || currentConversationId || '',
+          ).trim() || undefined,
+          source_course_id: String(courseId || '').trim() || undefined,
+        });
+      }
       if (courseId) {
         generatedFiles.forEach((file) =>
           addMaterial({
@@ -288,6 +443,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     if (!queuedMessage || isLoading) return;
     void handleSendMessage(queuedMessage, true);
   }, [queuedMessage, isLoading]);
+
+  useEffect(() => {
+    if (!currentConversationId || workflowType !== 'ppt' || workflowStatus !== 'running') {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      void loadConversation(currentConversationId, false, true);
+    }, 3000);
+
+    return () => window.clearInterval(timer);
+  }, [currentConversationId, workflowStatus, workflowType]);
 
   const handleSuggestedAction = (action: string) => {
     const normalized = String(action || '').trim();
@@ -646,7 +813,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
             <Text strong>{artifactReference.title || '已引用产物'}</Text>
             <div>
               <Text type="secondary">
-                {artifactReference.artifact_type === 'report_outline' ? '报告大纲' : '报告正文'}
+                {artifactReference.artifact_type === 'report_outline'
+                  ? '报告大纲'
+                  : artifactReference.artifact_type === 'ppt_deck'
+                    ? 'PPT 文件'
+                    : artifactReference.artifact_type === 'ppt_outline'
+                      ? 'PPT 大纲'
+                      : artifactReference.artifact_type === 'ppt_content_markdown'
+                        ? 'PPT 文稿'
+                        : '报告正文'}
                 {artifactReference.version_id ? ` · ${artifactReference.version_id}` : ''}
               </Text>
             </div>
@@ -660,7 +835,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       <Space.Compact style={{ width: '100%' }}>
         <TextArea
           autoSize={{ minRows: 1, maxRows: 5 }}
-          placeholder="开始输入... (Shift + Enter 换行)"
+          placeholder={isTranscribing ? '正在识别语音...' : '开始输入... (Shift + Enter 换行)'}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onPressEnter={(e) => {
@@ -673,6 +848,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           size="large"
           style={{ borderRadius: '8px 0 0 8px' }}
         />
+        <Tooltip title={isRecording ? '点击停止录音并转文字' : isTranscribing ? '正在识别语音' : '语音输入'}>
+          <Button
+            icon={<AudioOutlined />}
+            onClick={() => void handleVoiceInput()}
+            disabled={isLoading || isTranscribing}
+            danger={isRecording}
+            size="large"
+            style={{ borderRadius: 0 }}
+          >
+            {isRecording ? '录音中' : '语音输入'}
+          </Button>
+        </Tooltip>
         <Button
           type="primary"
           icon={<SendOutlined />}

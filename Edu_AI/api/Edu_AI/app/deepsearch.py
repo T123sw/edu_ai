@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.auth import get_current_user
+from app.deepsearch_loader import load_eduagent_capabilities
 from core import Config
 from new_rag.api import get_rag_system
 
@@ -94,6 +95,43 @@ except ImportError as e:
 
 router = APIRouter(prefix="/agent", tags=["深度搜索"])
 
+
+_capabilities = load_eduagent_capabilities(__file__)
+EDU_AGENT_PATH = _capabilities.edu_agent_path
+
+
+def _missing_capability(message: str):
+    def _raise(*args, **kwargs):
+        raise NotImplementedError(message)
+
+    return _raise
+
+
+print(f"[DeepSearch] 已添加EduAgent路径: {EDU_AGENT_PATH}")
+
+if _capabilities.deepsearch_error:
+    print(f"警告: 无法导入EduAgent深度搜索模块: {_capabilities.deepsearch_error}")
+    deepsearch_large_llm = _missing_capability(
+        f"EduAgent deepsearch 未配置: {_capabilities.deepsearch_error}"
+    )
+else:
+    deepsearch_large_llm = _capabilities.deepsearch_large_llm
+
+if _capabilities.service_error:
+    print(f"警告: EduAgent 爬取服务未完全可用: {_capabilities.service_error}")
+    get_crawler_service = _missing_capability(
+        f"EduAgent crawler_service 未配置: {_capabilities.service_error}"
+    )
+    ContentCleaner = _missing_capability(
+        f"EduAgent content_cleaner 未配置: {_capabilities.service_error}"
+    )
+    get_storage_service = _missing_capability(
+        f"EduAgent storage_service 未配置: {_capabilities.service_error}"
+    )
+else:
+    get_crawler_service = _capabilities.get_crawler_service
+    ContentCleaner = _capabilities.ContentCleaner
+    get_storage_service = _capabilities.get_storage_service
 
 class DeepSearchAndCrawlRequest(BaseModel):
     """深度搜索并爬取请求"""

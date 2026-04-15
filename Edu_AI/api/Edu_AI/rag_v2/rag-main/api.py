@@ -1,0 +1,1511 @@
+"""
+新的RAG API路由（new_rag.api）
+提供知识库增量导入和RAG问答功能
+"""
+import os
+import time
+import json
+from pathlib import Path
+from typing import Optional, List, Dict, Any
+
+from fastapi import APIRouter, HTTPException, UploadFile, File, status, Query, Depends
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import FileResponse, StreamingResponse
+from pydantic import BaseModel, Field
+from urllib.parse import unquote
+
+from system import RAGSystem
+from core.config import Config
+from app.auth import get_current_user
+
+import base64
+import mimetypes
+import requests
+import subprocess
+import tempfile
+import shutil
+import hashlib
+from datetime import datetime
+
+# 加载.env文件
+try:
+    from dotenv import load_dotenv
+
+    env_paths = [
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"),
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "config_openai.env"),
+        ".env",
+    ]
+    for env_path in env_paths:
+        if os.path.exists(env_path):
+            load_dotenv(env_path, override=True)
+            break
+except ImportError:
+    pass
+except Exception as e:
+    print(f"[WARNING] Failed to load .env file: {e}")
+
+
+router = APIRouter(prefix="/api/rag", tags=["RAG"])
+
+# 全局RAG系统实例（延迟初始化）
+_rag_system: Optional[RAGSystem] = None
+_import_jobs: Dict[str, Dict[str, Any]] = {}
+_video_index: Dict[str, Dict[str, Any]] = {}
+_image_index: Dict[str, Dict[str, Any]] = {}
+
+
+def _load_video_index() -> Dict[str, Dict[str, Any]]:
+    """加载视频索引"""
+    if Config.VIDEO_INDEX_PATH.exists():
+        with open(Config.VIDEO_INDEX_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+def _save_video_index():
+    """保存视频索引"""
+    Config.VIDEO_INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(Config.VIDEO_INDEX_PATH, "w", encoding="utf-8") as f:
+        json.dump(_video_index, f, ensure_ascii=False, indent=2)
+
+
+def _load_image_index() -> Dict[str, Dict[str, Any]]:
+    """加载图片索引"""
+    if Config.IMAGE_INDEX_PATH.exists():
+        with open(Config.IMAGE_INDEX_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+def _save_image_index():
+    """保存图片索引"""
+    Config.IMAGE_INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(Config.IMAGE_INDEX_PATH, "w", encoding="utf-8") as f:
+        json.dump(_image_index, f, ensure_ascii=False, indent=2)
+
+
+def split_video_into_chunks(video_path: str, chunk_duration: int = 80, temp_dir: str = None) -> List[str]:
+    """
+    使用 ffmpeg 将视频按指定时长分割成多个片段
+
+    Args:
+        video_path: 视频文件路径
+        chunk_duration: 每个片段的时长（秒），默认 80 秒
+        temp_dir: 临时目录路径，如果不指定则自动创建
+
+    Returns:
+        分割后的视频文件路径列表
+    """
+    # 获取视频总时长
+    probe_cmd = [
+        "ffprobe", "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        video_path
+    ]
+
+    try:
+        result = subprocess.run(
+            probe_cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            encoding='utf-8',
+            errors='ignore'
+        )
+
+        if result.returncode != 0:
+            raise Exception(f"ffprobe 执行失败: {result.stderr}")
+
+        duration_str = result.stdout.strip()
+        if not duration_str:
+            raise Exception("无法获取视频时长")
+
+        total_seconds = float(duration_str)
+        print(f"[视频分割] 视频总时长: {total_seconds:.2f}秒")
+
+        # 如果视频时长小于等于 chunk_duration，不需要分割
+        if total_seconds <= chunk_duration:
+            print(f"[视频分割] 视频时长 <= {chunk_duration}秒，无需分割")
+            return [video_path]
+
+        # 创建临时目录存放分割后的视频
+        if temp_dir is None:
+            temp_dir = tempfile.mkdtemp(prefix="video_chunks_")
+        else:
+            os.makedirs(temp_dir, exist_ok=True)
+            temp_dir = tempfile.mkdtemp(prefix="video_chunks_", dir=temp_dir)
+
+        chunk_paths = []
+
+        # 计算需要分割的片段数
+        num_chunks = int(total_seconds / chunk_duration) + (1 if total_seconds % chunk_duration > 0 else 0)
+        print(f"[视频分割] 将分割为 {num_chunks} 个片段")
+
+        # 分割视频
+        for i in range(num_chunks):
+            start_time = i * chunk_duration
+            chunk_path = os.path.join(temp_dir, f"chunk_{i:03d}.mp4")
+
+            split_cmd = [
+                "ffmpeg", "-i", video_path,
+                "-ss", str(start_time),
+                "-t", str(chunk_duration),
+                "-c", "copy",  # 使用流复制，不重新编码，速度快
+                "-avoid_negative_ts", "1",
+                chunk_path,
+                "-y",  # 覆盖已存在的文件
+                "-loglevel", "error"
+            ]
+
+            result = subprocess.run(
+                split_cmd,
+                capture_output=True,
+                timeout=120,
+                encoding='utf-8',
+                errors='ignore'
+            )
+
+            if result.returncode != 0:
+                raise Exception(f"ffmpeg 分割失败: {result.stderr}")
+
+            chunk_paths.append(chunk_path)
+            print(f"[视频分割] 已生成片段 {i+1}/{num_chunks}: {chunk_path}")
+
+        return chunk_paths
+
+    except subprocess.TimeoutExpired:
+        raise Exception("ffmpeg 执行超时")
+    except Exception as e:
+        raise Exception(f"视频分割失败: {str(e)}")
+
+
+def get_rag_system() -> RAGSystem:
+    """获取或创建RAG系统实例"""
+    global _rag_system, _video_index, _image_index
+    if _rag_system is None:
+        # LLM 与 Embedding 允许使用不同网关/密钥。
+        # RAGSystem 的 api_base/api_key 主要用于 LLM；EmbeddingClient 会优先读取 EMBEDDING_* 环境变量。
+        llm_api_base = (
+            os.getenv("QWEN_BASE_URL")
+            or os.getenv("REMOTE_MODEL_API_BASE")
+            or os.getenv("DEEPSEEK_BASE_URL")
+            or Config.REMOTE_MODEL_API_BASE
+            or Config.DEEPSEEK_BASE_URL
+            or Config.OLLAMA_BASE_URL
+        )
+        api_base = llm_api_base
+
+        llm_api_key = (
+            os.getenv("QWEN_API_KEY")
+            or os.getenv("REMOTE_MODEL_API_KEY")
+            or os.getenv("DEEPSEEK_API_KEY")
+            or Config.REMOTE_MODEL_API_KEY
+            or Config.DEEPSEEK_API_KEY
+        )
+        api_key = llm_api_key
+
+        embedding_model = os.getenv("EMBEDDING_MODEL") or Config.EMBEDDING_MODEL
+        llm_model = os.getenv("VISION_MODEL_ID") or os.getenv("LLM_MODEL_DEEP") or os.getenv("LLM_MODEL") or Config.LLM_MODEL_DEEP
+        vector_db_path = Config.VECTOR_DB_PATH
+        document_index_path = Config.DOCUMENT_INDEX_PATH
+
+        if not api_base:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="未配置 EMBEDDING_API_BASE 或 DEEPSEEK_BASE_URL 或 OLLAMA_BASE_URL",
+            )
+
+        _rag_system = RAGSystem(
+            api_base=api_base,
+            api_key=api_key,
+            embedding_model=embedding_model,
+            llm_model=llm_model,
+            vector_db_path=vector_db_path,
+            document_index_path=document_index_path,
+        )
+
+        # 加载视频和图片索引
+        _video_index = _load_video_index()
+        _image_index = _load_image_index()
+
+    return _rag_system
+
+
+class QueryRequest(BaseModel):
+    """RAG 问答请求模型"""
+
+    question: str = Field(..., description="问题")
+    top_k: int = Field(default=5, ge=1, le=20, description="检索的文档数量")
+    use_enhanced_retrieval: bool = Field(default=False, description="是否使用增强检索（HyDE + 多路召回 + RRF）")
+    hyde_weight: float = Field(default=0.5, ge=0.0, le=1.0, description="HyDE 权重（0-1）")
+    use_rrf: bool = Field(default=True, description="是否使用 RRF 融合")
+    conversation_history: Optional[List[Dict[str, str]]] = Field(None, description="对话历史记录")
+
+
+class QueryResponse(BaseModel):
+    """RAG 问答响应模型"""
+
+    question: str
+    answer: str
+    sources: list
+    retrieval_metrics: Optional[Dict[str, Any]] = None  # 新增：检索质量指标
+
+
+class ImportResponse(BaseModel):
+    """文档导入响应模型"""
+
+    status: str
+    message: str
+    file: Optional[str] = None
+    chunk_count: Optional[int] = None
+
+
+class StatsResponse(BaseModel):
+    """统计信息响应模型"""
+
+    document_count: int
+    indexed_files: int
+    indexed_files_list: list
+
+
+class DocumentInfo(BaseModel):
+    file_path: str
+    file_name: str
+    include_in_search: bool
+    chunk_count: int
+    image_chunk_count: int = 0
+    imported_at: Optional[str] = None
+    summary: Optional[str] = None
+    summary_updated_at: Optional[str] = None
+    file_size: Optional[int] = None
+    page_count: Optional[int] = None
+    hash: Optional[str] = None
+    owner: Optional[str] = None
+    # 可选：网页来源信息（深度研究/爬取入库时写入 document_index）
+    source_url: Optional[str] = None
+    source_title: Optional[str] = None
+    source_domain: Optional[str] = None
+    doc_kind: Optional[str] = None
+
+
+class DocumentParticipationRequest(BaseModel):
+    file_path: str = Field(..., description="文档路径（绝对路径）")
+    include_in_search: bool = Field(..., description="是否参与检索")
+
+
+class DocumentDetailResponse(DocumentInfo):
+    text_chunk_count: Optional[int] = None
+    image_chunk_count: Optional[int] = None
+    samples: List[Dict[str, Any]]
+
+
+class DocumentSummaryRequest(BaseModel):
+    file_path: str = Field(..., description="文档路径")
+    force_refresh: bool = Field(False, description="是否强制重新生成摘要")
+
+
+class DocumentSummaryResponse(BaseModel):
+    file_path: str
+    summary: str
+    summary_updated_at: Optional[str] = None
+
+
+class ImportFromPathRequest(BaseModel):
+    file_path: str = Field(..., description="文件路径（相对于项目根目录或绝对路径）")
+    force_reimport: bool = Field(False, description="是否强制重新导入")
+    job_id: Optional[str] = Field(None, description="进度跟踪的任务ID")
+
+
+class UploadTempResponse(BaseModel):
+    job_id: str
+    temp_file_path: str
+    filename: str
+
+
+class ImportProgressResponse(BaseModel):
+    job_id: str
+    status: str
+    progress: int
+    stage: str
+    message: Optional[str] = None
+    file: Optional[str] = None
+
+
+class RenameDocumentRequest(BaseModel):
+    file_path: str = Field(..., description="文档路径（绝对路径，前端传 file_path）")
+    new_name: str = Field(..., description="新名称（仅文件名，不含路径）")
+
+
+@router.post(
+    "/upload_temp",
+    response_model=UploadTempResponse,
+    summary="上传文件到临时目录（不解析，仅用于进度展示的第一步）",
+)
+async def upload_temp(
+    file: UploadFile = File(..., description="支持的文件类型：PDF、Word（.doc/.docx）、文本（.txt/.md）"),
+    current_user: dict = Depends(get_current_user),
+):
+    # 支持的文件类型
+    allowed_extensions = [".pdf", ".doc", ".docx", ".txt", ".md", ".markdown"]
+    file_ext = Path(file.filename).suffix.lower() if file.filename else ""
+    
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"不支持的文件类型: {file_ext}，支持的类型: {', '.join(allowed_extensions)}",
+        )
+
+    import shutil
+    import uuid
+
+    temp_dir = Config.TEMP_DIR
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    job_id = uuid.uuid4().hex
+    temp_file_path = temp_dir / f"{job_id}_{file.filename}"
+
+    try:
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        _import_jobs[job_id] = {
+            "job_id": job_id,
+            "status": "uploaded",
+            "progress": 0,
+            "stage": "uploaded",
+            "file": str(temp_file_path),
+        }
+
+        return UploadTempResponse(
+            job_id=job_id,
+            temp_file_path=str(temp_file_path),
+            filename=file.filename,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"上传临时文件失败: {e}",
+        )
+
+
+@router.post("/query", response_model=QueryResponse, summary="RAG 问答")
+async def rag_query(request: QueryRequest):
+    try:
+        rag_system = get_rag_system()
+        result = rag_system.query(
+            request.question,
+            top_k=request.top_k,
+            conversation_history=request.conversation_history,  # 传递对话历史
+            use_enhanced_retrieval=request.use_enhanced_retrieval,
+            hyde_weight=request.hyde_weight,
+            use_rrf=request.use_rrf
+        )
+        return QueryResponse(**result)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"RAG 问答失败：{str(e)}",
+        )
+
+
+@router.post("/query_stream", summary="RAG 问答（流式输出）")
+async def rag_query_stream(request: QueryRequest):
+    """流式 RAG 问答接口，支持实时返回 LLM 生成内容"""
+    try:
+        rag_system = get_rag_system()
+
+        # 先进行检索，获取相关文档
+        from system import RAGSystem
+
+        # 复用 query 方法的检索逻辑，但不调用 LLM
+        # 我们需要手动执行检索部分
+        retrieval_query = rag_system._rewrite_query(request.question, request.conversation_history)
+        query_embedding = rag_system.embedding_client.embed_query(retrieval_query)
+
+        # 执行检索
+        if request.use_enhanced_retrieval:
+            retrieved_docs = rag_system.vector_store.enhanced_hybrid_search_with_hyde(
+                query=retrieval_query,
+                query_embedding=query_embedding,
+                top_k=request.top_k,
+                distance_threshold=1.5,
+                keyword_weight=0.4,
+                vector_weight=0.6,
+                use_hyde=True,
+                hyde_weight=request.hyde_weight,
+                use_rrf=request.use_rrf,
+                allowed_sources=None,
+                rerank_enabled=True,
+                rag_system=rag_system,
+            )
+        else:
+            retrieved_docs = rag_system.vector_store.hybrid_search(
+                query=retrieval_query,
+                query_embedding=query_embedding,
+                top_k=request.top_k,
+                distance_threshold=1.5,
+                keyword_weight=0.4,
+                vector_weight=0.6,
+                allowed_sources=None
+            )
+
+        # 构建上下文（包含多模态资源路径）
+        context_parts = []
+        sources = []
+        has_images = False
+        has_videos = False
+
+        # 获取服务器地址（用于构建完整 URL）
+        server_url = os.getenv("SERVER_URL", "http://localhost:8000")
+
+        for i, doc in enumerate(retrieved_docs[:request.top_k], 1):
+            content = doc.get("content", "")
+            metadata = doc.get("metadata", {})
+            source = metadata.get("source", "未知来源")
+            modality = metadata.get("modality", "text")
+            owner = metadata.get("owner") or metadata.get("owner_username", "")
+
+            # 获取分数
+            rerank_score = doc.get("rerank_score")
+            combined_score = doc.get("combined_score", 0.0)
+            score = rerank_score if rerank_score is not None else combined_score
+
+            # 修复文档内容中的相对路径图片/视频引用
+            import re
+            from urllib.parse import quote
+
+            # 根据文档的 owner 构建正确的图片路径
+            # 替换 ![xxx](images/xxx.jpg) -> ![xxx](http://localhost:8000/storage/images/admin/xxx.jpg)
+            if owner:
+                # 图片替换
+                def replace_image(match):
+                    alt_text = match.group(1)
+                    filename = match.group(2)
+                    encoded_filename = quote(filename, safe='')
+                    return f'![{alt_text}]({server_url}/storage/images/{owner}/{encoded_filename})'
+
+                content = re.sub(
+                    r'!\[([^\]]*)\]\(images/([^)]+)\)',
+                    replace_image,
+                    content
+                )
+
+                # 视频替换（Markdown 格式）
+                def replace_video_markdown(match):
+                    alt_text = match.group(1)
+                    filename = match.group(2)
+                    encoded_filename = quote(filename, safe='')
+                    return f'<video src="{server_url}/storage/videos/{owner}/{encoded_filename}" controls style="max-width: 100%; width: 800px; height: auto;"></video>'
+
+                content = re.sub(
+                    r'!\[([^\]]*)\]\(videos/([^)]+)\)',
+                    replace_video_markdown,
+                    content
+                )
+
+                # 视频替换（已有的 video 标签）
+                def replace_video_tag(match):
+                    filename = match.group(1)
+                    encoded_filename = quote(filename, safe='')
+                    return f'<video src="{server_url}/storage/videos/{owner}/{encoded_filename}" controls style="max-width: 100%; width: 800px; height: auto;">'
+
+                content = re.sub(
+                    r'<video\s+src="videos/([^"]+)"[^>]*>',
+                    replace_video_tag,
+                    content
+                )
+            else:
+                # 兼容没有 owner 的旧数据
+                def replace_image_no_owner(match):
+                    alt_text = match.group(1)
+                    filename = match.group(2)
+                    encoded_filename = quote(filename, safe='')
+                    return f'![{alt_text}]({server_url}/storage/images/{encoded_filename})'
+
+                content = re.sub(
+                    r'!\[([^\]]*)\]\(images/([^)]+)\)',
+                    replace_image_no_owner,
+                    content
+                )
+
+                def replace_video_markdown_no_owner(match):
+                    alt_text = match.group(1)
+                    filename = match.group(2)
+                    encoded_filename = quote(filename, safe='')
+                    return f'<video src="{server_url}/storage/videos/{encoded_filename}" controls style="max-width: 100%; width: 800px; height: auto;"></video>'
+
+                content = re.sub(
+                    r'!\[([^\]]*)\]\(videos/([^)]+)\)',
+                    replace_video_markdown_no_owner,
+                    content
+                )
+
+                def replace_video_tag_no_owner(match):
+                    filename = match.group(1)
+                    encoded_filename = quote(filename, safe='')
+                    return f'<video src="{server_url}/storage/videos/{encoded_filename}" controls style="max-width: 100%; width: 800px; height: auto;">'
+
+                content = re.sub(
+                    r'<video\s+src="videos/([^"]+)"[^>]*>',
+                    replace_video_tag_no_owner,
+                    content
+                )
+
+            # 根据模态类型构建上下文
+            if modality == "image":
+                image_path = metadata.get("image_path", "")
+                # 转换为 HTTP URL
+                if image_path:
+                    # 将本地路径转换为 URL（./storage/images/xxx.jpg -> http://localhost:8000/storage/images/xxx.jpg）
+                    relative_path = str(image_path).replace("\\", "/").replace("./", "")
+                    # 如果路径不是以 storage/ 开头，补全它
+                    if not relative_path.startswith("storage/"):
+                        if relative_path.startswith("images/"):
+                            relative_path = f"storage/{relative_path}"
+                        else:
+                            relative_path = f"storage/images/{relative_path}"
+                    image_url = f"{server_url}/{relative_path}"
+                    context_parts.append(f"[资料 {i}] 类型: 图片\n来源: {source}\n图片URL: {image_url}\n描述: {content}\n")
+                    has_images = True
+            elif modality == "video":
+                video_path = metadata.get("video_path", "")
+                # 转换为 HTTP URL
+                if video_path:
+                    from urllib.parse import quote
+                    relative_path = str(video_path).replace("\\", "/").replace("./", "")
+
+                    # 如果路径不是以 storage/ 开头，补全它
+                    if not relative_path.startswith("storage/"):
+                        if relative_path.startswith("videos/"):
+                            relative_path = f"storage/{relative_path}"
+                        else:
+                            relative_path = f"storage/videos/{relative_path}"
+
+                    # 检查路径格式，如果缺少 owner 子目录则补全
+                    # 格式1: storage/videos/admin/xxx.mp4 (正确)
+                    # 格式2: storage/videos/xxx.mp4 (缺少owner，需要补全)
+                    path_parts = relative_path.split('/')
+                    if len(path_parts) == 3 and path_parts[0] == 'storage' and path_parts[1] == 'videos':
+                        # 缺少 owner 子目录，补全它
+                        if owner:
+                            relative_path = f"storage/videos/{owner}/{path_parts[2]}"
+
+                    # URL 编码文件名（保留路径分隔符）
+                    path_parts = relative_path.split('/')
+                    encoded_parts = [quote(part, safe='') for part in path_parts]
+                    encoded_path = '/'.join(encoded_parts)
+                    video_url = f"{server_url}/{encoded_path}"
+                    context_parts.append(f"[资料 {i}] 类型: 视频\n来源: {source}\n视频URL: {video_url}\n描述: {content}\n")
+                    has_videos = True
+            else:
+                context_parts.append(f"[文档 {i}] 来源: {source}\n内容: {content}\n")
+
+            sources.append({
+                "source": source,
+                "content": content,
+                "combined_score": combined_score,
+                "rerank_score": rerank_score,
+                "metadata": metadata
+            })
+
+        context = "\n".join(context_parts) if context_parts else "未找到相关参考资料"
+
+        # 构建系统提示词（根据是否有多模态内容调整）
+        system_prompt = """你是一名专业的教育知识助手。请基于【参考资料】回答用户问题。
+
+【核心原则】
+1. **优先使用参考资料**：有资料时优先基于资料回答
+2. **降级使用通用知识**：资料不足时使用内部知识，并说明"*知识库中未找到特定记录...*"
+3. **混合使用**：可以结合资料和专业知识
+
+【引用规范】
+使用 <cite source="文件名" score="0.85">简短概括</cite> 标注引用来源。
+"""
+
+        # 检查参考资料中是否包含图片或视频链接
+        has_media_in_content = bool(re.search(r'!\[.*?\]\(http[s]?://.*?\.(jpg|jpeg|png|gif|webp)\)', context)) or \
+                              bool(re.search(r'<video\s+src="http[s]?://.*?"', context))
+
+        # 如果有图片或视频，添加多模态输出指令
+        if has_images or has_videos or has_media_in_content:
+            system_prompt += """
+【多模态内容输出规范】（极其重要！必须严格遵守！）
+
+**关键规则**：参考资料中如果包含图片 Markdown 语法或视频标签，你**必须原样复制**到回答中！
+
+**图片格式**：
+参考资料包含：![二叉树结构图](http://localhost:8000/storage/images/admin/abc123.jpg)
+你的回答：直接原样复制该行
+
+**视频格式**：
+参考资料包含：<video src="http://localhost:8000/storage/videos/admin/xxx.mp4" controls style="max-width: 100%; width: 800px; height: auto;"></video>
+你的回答：直接原样复制该行（包括所有 HTML 属性）
+
+**正确示例**：
+```
+队列是一种先进先出的数据结构，相关视频讲解如下：
+
+<video src="http://localhost:8000/storage/videos/admin/队列讲解.mp4" controls style="max-width: 100%; width: 800px; height: auto;"></video>
+
+从视频中可以看到队列的基本操作...
+```
+
+**错误示例**（禁止）：
+❌ 视频链接：http://...
+❌ [观看视频](http://...)
+❌ 修改 video 标签的任何属性
+
+**核心要求**：
+1. 图片/视频标签必须原样复制，包括所有 HTML 属性
+2. 不要把标签转换成纯文本链接
+3. 不要修改 URL 或样式属性
+"""
+
+        # 构建消息
+        messages = [
+            {
+                "role": "system",
+                "content": system_prompt
+            }
+        ]
+
+        # 添加对话历史
+        if request.conversation_history:
+            for msg in request.conversation_history[-10:]:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+
+        # 添加当前问题
+        user_message = f"【参考资料】\n{context}\n\n【用户问题】\n{request.question}"
+        messages.append({"role": "user", "content": user_message})
+
+        # 流式生成函数
+        def generate():
+            # 先发送元数据（sources）
+            metadata = {
+                "type": "metadata",
+                "sources": sources,
+                "retrieval_metrics": {
+                    "doc_count": len(sources),
+                    "max_score": max([s.get("rerank_score") or s.get("combined_score", 0) for s in sources]) if sources else 0,
+                    "avg_score": sum([s.get("rerank_score") or s.get("combined_score", 0) for s in sources]) / len(sources) if sources else 0,
+                }
+            }
+            yield f"data: {json.dumps(metadata, ensure_ascii=False)}\n\n"
+
+            # 流式调用 LLM
+            stream_generator = rag_system._call_llm(messages=messages, stream=True)
+            for chunk in stream_generator:
+                data = {"type": "content", "content": chunk}
+                yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+            # 发送结束标记
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(generate(), media_type="text/event-stream")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"RAG 流式问答失败：{str(e)}",
+        )
+
+
+@router.post("/import", response_model=ImportResponse, summary="增量导入文档")
+async def import_document(
+    file: UploadFile = File(..., description="支持的文件类型：PDF、Word（.doc/.docx）、文本（.txt/.md）"),
+    force_reimport: bool = False,
+    current_user: dict = Depends(get_current_user),
+):
+    # 支持的文件类型
+    allowed_extensions = [".pdf", ".doc", ".docx", ".txt", ".md", ".markdown"]
+    file_ext = Path(file.filename).suffix.lower() if file.filename else ""
+    
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"不支持的文件类型: {file_ext}，支持的类型: {', '.join(allowed_extensions)}",
+        )
+
+    import shutil
+
+    # 先写入临时目录
+    temp_dir = Config.TEMP_DIR
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    temp_file_path = temp_dir / file.filename
+
+    # 永久目录：storage/documents/<username>/
+    user_dir = Config.DOCUMENTS_ROOT / (current_user.get("username") or "anonymous")
+    user_dir.mkdir(parents=True, exist_ok=True)
+    permanent_path = user_dir / file.filename
+
+    try:
+        # 🚀 终极方案：直接写入目标路径，彻底避开临时文件占用问题
+        with open(permanent_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # 显式关闭 FastAPI 文件对象
+        await file.close()
+
+        rag_system = get_rag_system()
+        result = rag_system.import_document(
+            str(permanent_path),
+            force_reimport=force_reimport,
+            owner=current_user.get("username"),
+        )
+
+        return ImportResponse(**result)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        import traceback
+
+        err_type = type(e).__name__
+        err_msg = str(e)
+        err_trace = traceback.format_exc()
+        print(f"[RAG导入][ERROR][/import/path] type={err_type} msg={err_msg}")
+        print(f"[RAG导入][TRACE][/import/path]\n{err_trace}")
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"导入文档失败: [{err_type}] {err_msg}",
+        )
+
+
+@router.post("/import/path", response_model=ImportResponse, summary="从路径导入文档")
+async def import_document_from_path(
+    request: ImportFromPathRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """从文件路径导入文档到知识库（用于 temp 上传后的第二步）"""
+    try:
+        file_path = request.file_path
+        force_reimport = request.force_reimport
+        job_id = request.job_id
+
+        # import/path 传进来的是 temp 文件路径，这里也需要转存到永久目录
+        src_path = Path(file_path).absolute()
+        if not src_path.exists():
+            raise FileNotFoundError(f"文件不存在: {src_path}")
+
+        user_dir = Config.DOCUMENTS_ROOT / (current_user.get("username") or "anonymous")
+        user_dir.mkdir(parents=True, exist_ok=True)
+        permanent_path = user_dir / src_path.name
+
+        # move to permanent
+        import shutil
+        try:
+            shutil.move(str(src_path), str(permanent_path))
+        except Exception:
+            # 如果 move 失败（跨盘/权限），退化为 copy+delete
+            shutil.copy2(str(src_path), str(permanent_path))
+            try:
+                src_path.unlink()
+            except Exception:
+                pass
+
+        rag_system = get_rag_system()
+
+        def progress_cb(progress: int, stage: str):
+            if not job_id:
+                return
+            _import_jobs.setdefault(job_id, {})
+            _import_jobs[job_id].update(
+                {
+                    "job_id": job_id,
+                    "status": "running",
+                    "progress": max(0, min(100, int(progress))),
+                    "stage": stage,
+                }
+            )
+
+        if job_id:
+            _import_jobs[job_id] = {
+                "job_id": job_id,
+                "status": "running",
+                "progress": 0,
+                "stage": "starting",
+                "file": str(permanent_path),
+            }
+
+        try:
+            result = await run_in_threadpool(
+                rag_system.import_document,
+                str(permanent_path),
+                force_reimport,
+                progress_cb,
+                current_user.get("username"),
+            )
+        except Exception:
+            if job_id and job_id in _import_jobs:
+                _import_jobs[job_id]["status"] = "failed"
+            raise
+
+        if job_id:
+            _import_jobs[job_id].update(
+                {
+                    "status": "completed",
+                    "progress": 100,
+                    "stage": "completed",
+                    "file": result.get("file"),
+                    "message": result.get("message"),
+                }
+            )
+
+        return ImportResponse(**result)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        import traceback
+
+        err_type = type(e).__name__
+        err_msg = str(e)
+        err_trace = traceback.format_exc()
+        print(f"[RAG导入][ERROR][/import/path] type={err_type} msg={err_msg}")
+        print(f"[RAG导入][TRACE][/import/path]\n{err_trace}")
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"导入文档失败: [{err_type}] {err_msg}",
+        )
+
+
+@router.get("/stats", response_model=StatsResponse, summary="获取统计信息")
+async def get_stats():
+    try:
+        rag_system = get_rag_system()
+        stats = rag_system.get_stats()
+        return StatsResponse(**stats)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"获取统计信息失败: {str(e)}",
+        )
+
+
+@router.get(
+    "/import/progress",
+    response_model=ImportProgressResponse,
+    summary="查询文档导入进度",
+)
+async def get_import_progress(job_id: str = Query(..., description="导入任务ID")):
+    job = _import_jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="未找到对应导入任务")
+    return ImportProgressResponse(**job)
+
+
+@router.delete("/document/{file_path:path}", summary="删除文档")
+async def delete_document(
+    file_path: str,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        rag_system = get_rag_system()
+        normalized_index_key = rag_system._make_index_key(file_path, current_user.get("username"))
+        record = rag_system.document_index.get(normalized_index_key)
+
+        physical_path = (record or {}).get("physical_path") or (
+            file_path.split(":", 1)[1] if str(file_path).startswith("user_") and ":" in str(file_path) else file_path
+        )
+        if not record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="未找到指定文档")
+        if record.get("owner") != current_user.get("username"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权删除该文档")
+
+        rag_system.delete_document(physical_path, owner=current_user.get("username"))
+        return {"status": "success", "message": f"已删除文档: {physical_path}"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"删除文档失败: {str(e)}",
+        )
+
+
+@router.post("/document/rename", response_model=DocumentInfo, summary="重命名文档")
+async def rename_document(
+    request: RenameDocumentRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        rag_system = get_rag_system()
+        index_key = rag_system._make_index_key(request.file_path, current_user.get("username"))
+        record = rag_system.document_index.get(index_key)
+        if not record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="未找到指定文档")
+        if record.get("owner") != current_user.get("username"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权重命名该文档")
+
+        new_name = (request.new_name or "").strip()
+        if not new_name:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="新名称不能为空")
+        if "/" in new_name or "\\" in new_name:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="新名称不能包含路径分隔符")
+
+        record["file_name"] = new_name
+        rag_system._save_index()
+
+        return {
+            "file_path": record.get("physical_path") or request.file_path,
+            "file_name": record.get("file_name") or Path(request.file_path).name,
+            "include_in_search": record.get("include_in_search", True),
+            "chunk_count": record.get("chunk_count", 0),
+            "imported_at": record.get("imported_at"),
+            "summary": record.get("summary"),
+            "summary_updated_at": record.get("summary_updated_at"),
+            "file_size": record.get("file_size"),
+            "page_count": record.get("page_count"),
+            "hash": record.get("hash"),
+            "owner": record.get("owner"),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"重命名文档失败: {str(e)}",
+        )
+
+
+@router.get("/documents", response_model=List[DocumentInfo], summary="列出已导入文档")
+async def list_documents(current_user: dict = Depends(get_current_user)):
+    try:
+        rag_system = get_rag_system()
+        return rag_system.list_documents(owner=current_user.get("username"))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"获取文档列表失败: {str(e)}",
+        )
+
+
+@router.get("/image", summary="读取RAG图片上下文")
+async def get_rag_image(path: str = Query(..., description="图片绝对路径"), current_user: dict = Depends(get_current_user)):
+    try:
+        decoded_path = unquote(path)
+        file_path = Path(decoded_path).resolve()
+        storage_root = Config.STORAGE_ROOT.resolve()
+
+        try:
+            file_path.relative_to(storage_root)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权访问该图片")
+
+        if not file_path.exists() or not file_path.is_file():
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="图片不存在")
+
+        owner = current_user.get("username") or ""
+        parts = [p.lower() for p in file_path.parts]
+        if owner and owner.lower() not in parts:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权访问该图片")
+
+        return FileResponse(str(file_path))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"读取图片失败: {str(e)}",
+        )
+
+
+@router.patch(
+    "/document/participation",
+    response_model=DocumentInfo,
+    summary="设置文档是否参与检索",
+)
+async def update_document_participation(
+    request: DocumentParticipationRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        rag_system = get_rag_system()
+        index_key = rag_system._make_index_key(request.file_path, current_user.get("username"))
+        record = rag_system.document_index.get(index_key)
+        if not record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="未找到指定文档")
+        if record.get("owner") != current_user.get("username"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权操作该文档")
+
+        # 传入 index_key 和 owner，确保正确更新
+        rag_system.update_document_participation(
+            index_key,  # 使用 index_key 而不是 physical_path
+            request.include_in_search,
+            owner=current_user.get("username")
+        )
+        all_docs = rag_system.list_documents(owner=current_user.get("username"))
+        for doc in all_docs:
+            if doc["file_path"] == (record.get("physical_path") or request.file_path):
+                return doc
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="未找到指定文档")
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"更新文档状态失败: {str(e)}",
+        )
+
+
+@router.get(
+    "/document/details",
+    response_model=DocumentDetailResponse,
+    summary="查看文档详情",
+)
+async def get_document_details(
+    file_path: str = Query(..., description="文档路径"),
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        rag_system = get_rag_system()
+        index_key = rag_system._make_index_key(file_path, current_user.get("username"))
+        record = rag_system.document_index.get(index_key)
+        if not record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="未找到指定文档")
+        if record.get("owner") != current_user.get("username"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档")
+
+        details = rag_system.get_document_details(record.get("physical_path") or file_path)
+        return details
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"获取文档详情失败: {str(e)}",
+        )
+
+
+@router.post(
+    "/document/summary",
+    response_model=DocumentSummaryResponse,
+    summary="查看或生成文档摘要",
+)
+async def get_document_summary(
+    request: DocumentSummaryRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        rag_system = get_rag_system()
+        username = current_user.get("username")
+        
+        # 前端传入的 file_path 可能是物理路径，也可能是 index_key（user_owner:path）
+        # list_documents 返回的是 index_key 格式（user_owner:physical_path）
+        # 使用 _make_index_key 统一处理，它会识别已经是 index_key 格式的路径
+        index_key = rag_system._make_index_key(request.file_path, username)
+        record = rag_system.document_index.get(index_key)
+        
+        if not record:
+            # 如果没找到，尝试直接使用传入的路径作为 index_key（兼容性处理）
+            if not str(request.file_path).startswith("user_"):
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"未找到指定文档: {request.file_path}",
+                )
+            # 如果传入的路径已经是 index_key 格式，直接使用
+            index_key = str(request.file_path)
+            record = rag_system.document_index.get(index_key)
+            if not record:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"未找到指定文档: {request.file_path}",
+                )
+        
+        # 权限检查
+        if record.get("owner") != username:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档摘要")
+
+        # summarize_document 内部会处理 index_key 格式，直接传入即可
+        # 传入 index_key 确保后端能正确查找文档
+        summary = rag_system.summarize_document(
+            index_key,  # 使用处理后的 index_key，确保一致性
+            force_refresh=request.force_refresh,
+            owner=username,
+        )
+        return summary
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        import traceback
+
+        err_type = type(e).__name__
+        err_msg = str(e)
+        err_trace = traceback.format_exc()
+        print(f"[RAG摘要][ERROR][/document/summary] type={err_type} msg={err_msg}")
+        print(f"[RAG摘要][TRACE][/document/summary]\n{err_trace}")
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"获取文档摘要失败: [{err_type}] {err_msg}",
+        )
+
+
+class DocumentContentResponse(BaseModel):
+    file_path: str
+    file_name: str
+    content: str
+    chunks: List[Dict[str, Any]]
+    total_chunks: int
+
+
+@router.get(
+    "/document/content",
+    response_model=DocumentContentResponse,
+    summary="获取文档完整内容",
+)
+async def get_document_content(
+    file_path: str = Query(..., description="文档路径"),
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        rag_system = get_rag_system()
+        index_key = rag_system._make_index_key(file_path, current_user.get("username"))
+        record = rag_system.document_index.get(index_key)
+        if not record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
+        if record.get("owner") != current_user.get("username"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档内容")
+
+        physical_path = record.get("physical_path") or (
+            file_path.split(":", 1)[1] if str(file_path).startswith("user_") and ":" in str(file_path) else file_path
+        )
+
+        # chunks 按 source_key 取
+        source_key = record.get("source_key") or rag_system._make_source_key(physical_path, current_user.get("username"))
+        documents = rag_system.vector_store.get_documents_by_source(source_key)
+        documents.sort(key=lambda x: int(x["metadata"].get("page", 0)))
+        
+        content_parts = []
+        chunks_info = []
+        for idx, doc in enumerate(documents):
+            chunk_content = doc["content"]
+            page = doc["metadata"].get("page", 0)
+            content_parts.append(chunk_content)
+            chunks_info.append({"id": idx, "content": chunk_content, "page": page, "metadata": doc["metadata"]})
+        
+        full_content = "\n\n".join(content_parts)
+        
+        return DocumentContentResponse(
+            file_path=physical_path,
+            file_name=record.get("file_name", Path(physical_path).name),
+            content=full_content,
+            chunks=chunks_info,
+            total_chunks=len(documents),
+        )
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"获取文档内容失败: {str(e)}",
+        )
+
+
+@router.post(
+    "/import_image",
+    summary="导入单张图片到向量数据库",
+    tags=["RAG多模态"]
+)
+async def import_image_to_db(
+        file: UploadFile = File(..., description="请选择一张本地图片 (jpg/png)"),
+        current_user: dict = Depends(get_current_user),
+):
+    try:
+        # 1. 保存到永久目录 storage/images/<username>/
+        user_dir = Path("./storage/images") / (current_user.get("username") or "anonymous")
+        user_dir.mkdir(parents=True, exist_ok=True)
+        file_path = user_dir / file.filename
+
+        # 2. 将网页上传的图片持久化到本地硬盘
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+
+        # 3. 将图片转为 Base64 编码 (用于大模型传输)
+        mime_type, _ = mimetypes.guess_type(str(file_path))
+        mime_type = mime_type or "image/jpeg"
+        with open(file_path, "rb") as img_file:
+            encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+        base64_data = f"data:{mime_type};base64,{encoded_string}"
+
+        # 4. 获取系统环境变量和 RAG 实例
+        rag_system = get_rag_system()
+        api_key = os.getenv("EMBEDDING_API_KEY")
+        api_base = os.getenv("EMBEDDING_API_BASE")
+        # 自动补全 /v1 容错机制
+        if api_base and not api_base.endswith("/v1"):
+            api_base = f"{api_base}/v1"
+
+        # 优先读取环境变量中的模型名，兜底使用 gemini-embedding-2-preview
+        embed_model = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2-preview")
+
+        # 5. 调用大模型提取多模态图片向量
+        url = f"{api_base.rstrip('/')}/embeddings"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": embed_model,
+            "input": [base64_data]
+        }
+
+        # ================== 核心网络请求区 ==================
+        print(f"[RAG导入] 开始处理多模态图片: {file.filename}")
+        print(f"[Embedding] backend=multimodal_api model={embed_model} size={len(base64_data) / 1024:.2f}KB")
+
+        # 加上 timeout=15 防止请求阻塞
+        resp = requests.post(url, json=payload, headers=headers, timeout=15)
+
+        if resp.status_code != 200:
+            raise Exception(f"大模型 API 响应异常: {resp.text}")
+
+        try:
+            embedding = resp.json()["data"][0]["embedding"]
+        except Exception as e:
+            raise Exception(f"向量数据解析失败，模型可能不支持多模态。原始返回: {resp.text[:100]}")
+        # =======================================================
+
+        # 6. 计算文件哈希值
+        file_hash = hashlib.md5(open(file_path, "rb").read()).hexdigest()
+
+        # 7. 存入底层的 ChromaDB 向量数据库
+        owner = current_user.get("username")
+        source_key = f"{owner}::{file_path}" if owner else str(file_path)
+        image_id = f"image_{Path(file.filename).stem}_{file_hash[:8]}"
+
+        rag_system.vector_store.collection.add(
+            embeddings=[embedding],
+            documents=["[多模态图片节点]"],
+            metadatas={
+                "image_path": str(file_path),
+                "modality": "image",
+                "source": source_key,
+                "owner": owner,
+                "owner_username": owner,
+                "file_name": file.filename,
+                "file_size": file_path.stat().st_size,
+                "hash": file_hash,
+            },
+            ids=[image_id]
+        )
+
+        print(f"[RAG导入][Stage] image_index_save_done id={image_id}")
+
+        # 8. 更新 image_index（记录图片元信息）
+        index_key = f"{owner}::{file_path}" if owner else str(file_path)
+        _image_index[index_key] = {
+            "file_path": str(file_path),
+            "file_name": file.filename,
+            "include_in_search": True,
+            "imported_at": datetime.now().isoformat(),
+            "file_size": int(file_path.stat().st_size),
+            "hash": file_hash,
+            "owner": owner,
+            "modality": "image",
+            "embedding_dim": len(embedding),
+        }
+        _save_image_index()
+        print(f"[RAG导入] 图片元信息已保存到 image_index.json")
+
+        return {
+            "status": "success",
+            "message": f"图片 {file.filename} 已成功转换为 {len(embedding)} 维向量并入库！",
+            "file_path": str(file_path)
+        }
+
+    except Exception as e:
+        print(f"[RAG导入] 图片入库失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"图片入库失败: {str(e)}")
+
+
+@router.post(
+    "/import_video",
+    summary="导入单个视频到向量数据库",
+    tags=["RAG多模态"]
+)
+async def import_video_to_db(
+        file: UploadFile = File(..., description="请选择一个本地视频 (mp4/avi/mov/mkv)"),
+        current_user: dict = Depends(get_current_user),
+):
+    chunk_paths = []
+    temp_dir = None
+
+    try:
+        # 1. 保存到永久目录 storage/videos/<username>/
+        user_dir = Path("./storage/videos") / (current_user.get("username") or "anonymous")
+        user_dir.mkdir(parents=True, exist_ok=True)
+        file_path = user_dir / file.filename
+
+        # 2. 将网页上传的视频持久化到本地硬盘
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+
+        file_size_mb = file_path.stat().st_size / (1024 * 1024)
+        print(f"[RAG导入] 视频文件: {file.filename}, 大小: {file_size_mb:.2f}MB")
+
+        # 3. 使用 ffmpeg 将视频分割成 80 秒的片段（临时文件放在 temp/videos）
+        chunk_duration = int(os.getenv("VIDEO_CHUNK_DURATION", "80"))
+        print(f"[视频分割] 开始分割视频，每段 {chunk_duration} 秒")
+
+        # 创建临时目录用于存放分割片段
+        temp_videos_dir = Path(Config.TEMP_DIR) / "videos"
+        temp_videos_dir.mkdir(parents=True, exist_ok=True)
+
+        chunk_paths = await run_in_threadpool(
+            split_video_into_chunks,
+            str(file_path),
+            chunk_duration,
+            str(temp_videos_dir)
+        )
+
+        if chunk_paths[0] != str(file_path):
+            temp_dir = os.path.dirname(chunk_paths[0])
+
+        print(f"[视频分割] 共生成 {len(chunk_paths)} 个片段")
+
+        # 4. 获取系统环境变量和 RAG 实例
+        rag_system = get_rag_system()
+        api_key = os.getenv("EMBEDDING_API_KEY")
+        api_base = os.getenv("EMBEDDING_API_BASE")
+        if api_base and not api_base.endswith("/v1"):
+            api_base = f"{api_base}/v1"
+
+        embed_model = os.getenv("EMBEDDING_MODEL", "gemini-embedding-preview")
+        url = f"{api_base.rstrip('/')}/embeddings"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+
+        # 5. 对每个视频片段进行 embedding
+        embeddings_data = []
+        failed_chunks = []
+
+        for idx, chunk_path in enumerate(chunk_paths):
+            print(f"[Embedding] 处理片段 {idx+1}/{len(chunk_paths)}: {os.path.basename(chunk_path)}")
+
+            try:
+                # 转为 Base64
+                mime_type, _ = mimetypes.guess_type(chunk_path)
+                if not mime_type or not mime_type.startswith("video/"):
+                    mime_type = "video/mp4"
+
+                with open(chunk_path, "rb") as video_file:
+                    encoded_string = base64.b64encode(video_file.read()).decode('utf-8')
+                base64_data = f"data:{mime_type};base64,{encoded_string}"
+
+                chunk_size_kb = len(base64_data) / 1024
+                print(f"[Embedding] 片段大小: {chunk_size_kb:.2f}KB")
+
+                # 调用 API
+                payload = {
+                    "model": embed_model,
+                    "input": [base64_data]
+                }
+
+                timeout_sec = int(os.getenv("VIDEO_EMBEDDING_TIMEOUT", "120"))
+                resp = requests.post(url, json=payload, headers=headers, timeout=timeout_sec)
+
+                if resp.status_code != 200:
+                    error_msg = f"片段 {idx+1} embedding 失败: {resp.text}"
+                    print(f"[Embedding错误] {error_msg}")
+                    failed_chunks.append({"index": idx, "error": resp.text})
+                    continue
+
+                embedding = resp.json()["data"][0]["embedding"]
+                embeddings_data.append({
+                    "embedding": embedding,
+                    "chunk_index": idx,
+                    "chunk_path": chunk_path
+                })
+                print(f"[Embedding] 片段 {idx+1} 完成，向量维度: {len(embedding)}")
+
+            except Exception as e:
+                error_msg = f"片段 {idx+1} 处理失败: {str(e)}"
+                print(f"[Embedding错误] {error_msg}")
+                failed_chunks.append({"index": idx, "error": str(e)})
+                continue
+
+        # 检查是否有成功的片段
+        if not embeddings_data:
+            raise Exception(f"所有视频片段 embedding 均失败。请检查 EMBEDDING_MODEL 配置是否支持视频/多模态内容。失败详情: {failed_chunks[:3]}")
+
+        # 6. 计算文件哈希值（用于增量导入判断）
+        file_hash = hashlib.md5(open(file_path, "rb").read()).hexdigest()
+
+        # 7. 将所有片段的 embedding 存入向量数据库
+        owner = current_user.get("username")
+        source_key = f"{owner}::{file_path}" if owner else str(file_path)
+
+        for data in embeddings_data:
+            chunk_id = f"video_{Path(file.filename).stem}_{file_hash[:8]}_chunk_{data['chunk_index']:03d}"
+
+            rag_system.vector_store.collection.add(
+                embeddings=[data["embedding"]],
+                documents=[f"[多模态视频节点 - 片段 {data['chunk_index']+1}/{len(chunk_paths)}]"],
+                metadatas={
+                    "video_path": str(file_path),
+                    "chunk_index": data['chunk_index'],
+                    "total_chunks": len(chunk_paths),
+                    "chunk_duration": chunk_duration,
+                    "modality": "video",
+                    "source": source_key,
+                    "owner": owner,
+                    "owner_username": owner,
+                    "file_name": file.filename,
+                    "file_size": file_size_mb,
+                    "hash": file_hash,
+                },
+                ids=[chunk_id]
+            )
+            print(f"[RAG导入] 片段 {data['chunk_index']+1} 已入库，ID: {chunk_id}")
+
+        # 8. 更新 video_index（记录视频元信息）
+        index_key = f"{owner}::{file_path}" if owner else str(file_path)
+        _video_index[index_key] = {
+            "file_path": str(file_path),
+            "file_name": file.filename,
+            "include_in_search": True,
+            "chunk_count": len(embeddings_data),  # 成功入库的片段数
+            "total_chunks": len(chunk_paths),  # 总片段数
+            "failed_chunks": len(failed_chunks),  # 失败的片段数
+            "imported_at": datetime.now().isoformat(),
+            "file_size": int(file_path.stat().st_size),
+            "hash": file_hash,
+            "owner": owner,
+            "modality": "video",
+            "chunk_duration": chunk_duration,
+        }
+        _save_video_index()
+        print(f"[RAG导入] 视频元信息已保存到 video_index.json")
+
+        # 9. 清理临时文件
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+            print(f"[清理] 已删除临时目录: {temp_dir}")
+
+        success_msg = f"视频 {file.filename} 已分割为 {len(chunk_paths)} 个片段，成功入库 {len(embeddings_data)} 个片段"
+        if failed_chunks:
+            success_msg += f"，{len(failed_chunks)} 个片段失败"
+
+        return {
+            "status": "success" if not failed_chunks else "partial_success",
+            "message": success_msg,
+            "file_path": str(file_path),
+            "chunk_count": len(embeddings_data),
+            "total_chunks": len(chunk_paths),
+            "failed_chunks": len(failed_chunks),
+            "chunk_duration": chunk_duration
+        }
+
+    except Exception as e:
+        # 清理临时文件
+        if temp_dir and os.path.exists(temp_dir):
+            try:
+                shutil.rmtree(temp_dir)
+            except:
+                pass
+
+        print(f"[RAG导入] 视频入库失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"视频入库失败: {str(e)}")

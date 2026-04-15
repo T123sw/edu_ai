@@ -39,8 +39,33 @@ _PPT_CONTINUE_MARKERS = {
 }
 
 
+_LESSON_PLAN_CONTINUE_MARKERS = {
+    "继续",
+    "確認",
+    "确认",
+    "确认并继续",
+    "继续并生成",
+    "按这个大纲继续",
+    "按照大纲继续",
+}
+
+
 def _normalized_text(value: str) -> str:
     return str(value or "").strip().lower().strip("。！？?.,，；;:")
+
+
+_LESSON_PLAN_REQUEST_MARKERS = {
+    "教案",
+    "教学设计",
+    "lesson plan",
+}
+
+
+def _is_explicit_lesson_plan_request(question: str) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+    return any(marker in normalized for marker in _LESSON_PLAN_REQUEST_MARKERS)
 
 
 def _snapshot_active_context(snapshot) -> dict:
@@ -144,6 +169,39 @@ def _is_ppt_followup(question: str, snapshot) -> bool:
     return False
 
 
+def _is_lesson_plan_followup(question: str, snapshot) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+
+    active_context = _snapshot_active_context(snapshot)
+    active_artifact_type = _snapshot_active_artifact_type(snapshot)
+    memory = _snapshot_memory(snapshot)
+
+    lesson_plan_goal = any(
+        any(marker in str(item or "").lower() for marker in ("教案", "lesson plan"))
+        for item in list(memory.get("user_goals") or [])
+        + list(memory.get("explicit_user_goals") or [])
+        + [memory.get("derived_workflow_goal")]
+    )
+    lesson_plan_context_active = (
+        str(active_context.get("active_workflow_type") or "").strip() == "lesson_plan"
+        and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+    )
+    lesson_plan_artifact_active = active_artifact_type in {"lesson_plan_outline", "lesson_plan"}
+
+    if not (lesson_plan_goal or lesson_plan_context_active or lesson_plan_artifact_active):
+        return False
+
+    if normalized in _LESSON_PLAN_CONTINUE_MARKERS:
+        return True
+    if "大纲" in normalized and any(token in normalized for token in ("继续", "确认", "开始", "生成")):
+        return True
+    if lesson_plan_artifact_active and any(token in normalized for token in ("继续", "确认", "开始", "生成")):
+        return True
+    return False
+
+
 def decide_route(*, request, snapshot, workflow_state):
     if snapshot and getattr(snapshot, "active_artifact", None) and is_rewrite_command(request.question):
         return RouteDecision.fast(action="chat.rewrite", reason="active_artifact_rewrite")
@@ -200,7 +258,7 @@ def decide_route(*, request, snapshot, workflow_state):
             reason="resume_active_ppt_context",
         )
 
-    if request.action_hint == "generate.lesson_plan":
+    if request.action_hint == "generate.lesson_plan" or _is_explicit_lesson_plan_request(request.question):
         return RouteDecision(
             path="workflow",
             action="generate.lesson_plan",
@@ -249,6 +307,27 @@ def decide_route(*, request, snapshot, workflow_state):
             action="generate.ppt",
             workflow_name="ppt",
             reason="ppt_followup_from_context",
+        )
+
+    if _is_lesson_plan_followup(request.question, snapshot):
+        active_context = _snapshot_active_context(snapshot)
+        if (
+            not workflow_state
+            and not request.action_hint
+            and str(active_context.get("active_workflow_type") or "").strip() == "lesson_plan"
+            and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+        ):
+            return RouteDecision(
+                path="workflow",
+                action="generate.lesson_plan",
+                workflow_name="lesson_plan",
+                reason="resume_active_lesson_plan_context",
+            )
+        return RouteDecision(
+            path="workflow",
+            action="generate.lesson_plan",
+            workflow_name="lesson_plan",
+            reason="lesson_plan_followup_from_context",
         )
 
     if request.action_hint == "chat.rewrite":

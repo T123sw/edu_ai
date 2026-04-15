@@ -36,6 +36,12 @@ class ConversationStoreAdapter:
             return dict(value.model_dump(exclude_none=True))
         if isinstance(value, dict):
             return dict(value)
+        if hasattr(value, "__dict__"):
+            return {
+                key: raw
+                for key, raw in dict(vars(value)).items()
+                if not key.startswith("_") and raw is not None
+            }
         return {}
 
     @staticmethod
@@ -46,6 +52,12 @@ class ConversationStoreAdapter:
             return dict(value.model_dump(exclude_none=True))
         if isinstance(value, dict):
             return dict(value)
+        if hasattr(value, "__dict__"):
+            return {
+                key: raw
+                for key, raw in dict(vars(value)).items()
+                if not key.startswith("_") and raw is not None
+            }
         return {}
 
     @staticmethod
@@ -190,7 +202,7 @@ class ConversationStoreAdapter:
             filled_slots["__ppt_source_basis"] = " | ".join(source_basis)
         return filled_slots
 
-    def write_v2_result(self, conversation_id: str, request, result: dict):
+    def write_v2_result(self, conversation_id: str, request, result: dict, *, append_user_message: bool = True):
         self.storage.ensure_conversation(
             conversation_id,
             request.question,
@@ -200,14 +212,15 @@ class ConversationStoreAdapter:
         workflow = result.get("workflow") or None
         action_name = str(((result.get("action") or {}).get("name")) or "").strip()
         artifacts = result.get("artifacts") or []
-        user_message_kind = self.memory_extractor.classify_message_kind(
-            role="user",
-            text=request.question,
-            workflow_type=str((workflow or {}).get("type") or ""),
-            action_name=action_name,
-            artifacts=artifacts,
-        )
-        self.append_message(conversation_id, "user", request.question, message_kind=user_message_kind)
+        if append_user_message:
+            user_message_kind = self.memory_extractor.classify_message_kind(
+                role="user",
+                text=request.question,
+                workflow_type=str((workflow or {}).get("type") or ""),
+                action_name=action_name,
+                artifacts=artifacts,
+            )
+            self.append_message(conversation_id, "user", request.question, message_kind=user_message_kind)
         answer = str(((result.get("message") or {}).get("content")) or "").strip()
         if answer:
             assistant_message_kind = self.memory_extractor.classify_message_kind(
@@ -299,7 +312,22 @@ class ConversationStoreAdapter:
         elif artifact_reference.get("artifact_id"):
             state_patch["referenced_artifact_ids"] = [str(artifact_reference.get("artifact_id") or "")]
         if artifact_reference:
-            state_patch["artifact_reference"] = dict(artifact_reference)
+            next_reference = dict(artifact_reference)
+            if artifacts:
+                active_reference = self._pick_active_artifact(
+                    artifacts=list(artifacts or []),
+                    artifact_reference=artifact_reference,
+                )
+                next_reference = {
+                    **next_reference,
+                    "artifact_id": str(active_reference.get("artifact_id") or next_reference.get("artifact_id") or ""),
+                    "artifact_type": str(active_reference.get("artifact_type") or next_reference.get("artifact_type") or ""),
+                    "title": active_reference.get("title") or next_reference.get("title"),
+                    "version_id": str((active_reference.get("version") or {}).get("version_id") or next_reference.get("version_id") or "") or None,
+                    "source_conversation_id": str(next_reference.get("source_conversation_id") or conversation_id or "") or None,
+                    "source_course_id": str(next_reference.get("source_course_id") or getattr(request, "course_id", None) or "") or None,
+                }
+            state_patch["artifact_reference"] = next_reference
         if conversation_reference:
             state_patch["conversation_reference"] = dict(conversation_reference)
         extraction_patch, enhancement_observation = self.build_memory_state_patch_with_observation(
@@ -318,3 +346,11 @@ class ConversationStoreAdapter:
 
         if state_patch:
             self.storage.update_state(conversation_id, state_patch)
+
+    def write_v2_poll_result(self, conversation_id: str, request, result: dict):
+        self.write_v2_result(
+            conversation_id,
+            request,
+            result,
+            append_user_message=False,
+        )

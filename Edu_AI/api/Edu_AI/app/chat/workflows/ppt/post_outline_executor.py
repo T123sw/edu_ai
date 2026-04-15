@@ -85,6 +85,10 @@ def build_ppt_deck_artifact(
     results_payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     normalized_status = normalize_ppt_job_status(job_status_payload.get("status"))
+    try:
+        resolved_slide_count = int((results_payload or {}).get("slide_count") or 0) if results_payload else 0
+    except (TypeError, ValueError):
+        resolved_slide_count = 0
     generation_state = {
         "status": normalized_status,
         "phase": str(job_status_payload.get("phase") or ("completed" if normalized_status == "completed" else "polling_ppt_job")),
@@ -94,7 +98,7 @@ def build_ppt_deck_artifact(
     content: dict[str, Any] = {
         "job_id": job_id,
         "theme_id": outline.theme_id,
-        "slide_count": len(list(outline.slides or [])),
+        "slide_count": resolved_slide_count or len(list(outline.slides or [])),
     }
     if results_payload:
         content["revision_id"] = results_payload.get("latest_revision_id")

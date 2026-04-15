@@ -27,6 +27,7 @@ RecommendationType = Literal[
 PptRecommendationType = Literal["concept_focus", "process_flow", "comparison_view", "case_application"]
 FitScore = Literal["high", "medium", "low"]
 PptLengthOption = Literal["short", "medium", "long"]
+PptThemeId = Literal["heu_academic_elegant", "heu_academic_basic"]
 
 
 class ChatReplyRequestV2(BaseModel):
@@ -83,7 +84,7 @@ class DirectPptConfigV2(BaseModel):
     deck_subtitle: Optional[str] = None
     audience: str = ""
     objective: str = ""
-    theme_id: str
+    theme_id: PptThemeId
     length_option: PptLengthOption = "medium"
     target_slide_count: int = 0
     key_points: List[str] = Field(default_factory=list)
@@ -103,6 +104,20 @@ class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
     draft_id: str
     confirm: bool = False
     outline: Optional[Dict[str, Any]] = None
+
+
+class PptEntryPrefillConfigV2(BaseModel):
+    deck_title: str
+    deck_subtitle: Optional[str] = None
+    audience: str = ""
+    objective: str = ""
+    theme_id: PptThemeId = "heu_academic_elegant"
+    length_option: PptLengthOption = "medium"
+    target_slide_count: int = 0
+    key_points: List[str] = Field(default_factory=list)
+    style_hint: Optional[str] = None
+    special_requirements: Optional[str] = None
+    general_requirements: Optional[str] = None
 
 
 class PptEntryCardSelectionV2(BaseModel):
@@ -144,6 +159,7 @@ class PptEntryCardV2(BaseModel):
     description: str
     objective_hint: str
     length_option: PptLengthOption
+    prefill_config: PptEntryPrefillConfigV2
     preset_key: Optional[PptPresetKey] = None
     recommendation_type: Optional[PptRecommendationType] = None
     recommendation_source: Optional[Literal["doc_summaries"]] = None
@@ -157,6 +173,7 @@ class PptEntryCardV2(BaseModel):
 class ChatPptCardsResponseV2(BaseModel):
     entry_mode: PptEntryMode
     cards: List[PptEntryCardV2] = Field(default_factory=list)
+    default_selected_card_id: Optional[str] = None
     trace: Dict[str, Any] = Field(default_factory=dict)
 
 

@@ -41,5 +41,8 @@ class LegacyChatRuntime:
     def get_report_engine(self):
         return self.backend.get_report_engine()
 
+    def get_lesson_plan_engine(self):
+        return self.backend.get_lesson_plan_engine()
+
     def _filter_backend_kwargs(self, kwargs):
         return {key: value for key, value in kwargs.items() if key in self._BACKEND_CHAT_KWARGS}
