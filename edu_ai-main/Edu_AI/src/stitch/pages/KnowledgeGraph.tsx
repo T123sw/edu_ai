@@ -586,7 +586,7 @@ export function KnowledgeGraphPage() {
                     </div>
                   </div>
                   <a
-                    href={routeHref(routes.ai)}
+                    href={`${routeHref(routes.ai)}?node=${encodeURIComponent(activeNode.label.trim() || "当前节点")}`}
                     className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white"
                   >
                     和 AI 聊一聊

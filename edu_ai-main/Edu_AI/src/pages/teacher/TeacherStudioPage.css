@@ -7,6 +7,35 @@
 .teacher-studio-layout {
   height: 100% !important;
   overflow: hidden !important;
+  position: relative;
+  background:
+    radial-gradient(circle at top left, rgba(112, 151, 222, 0.18), transparent 28%),
+    radial-gradient(circle at right center, rgba(71, 110, 187, 0.14), transparent 22%),
+    linear-gradient(180deg, #eef3fb 0%, #e5edf8 100%) !important;
+}
+
+.teacher-studio-layout::before,
+.teacher-studio-layout::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.teacher-studio-layout::before {
+  top: -140px;
+  right: -80px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(60, 103, 182, 0.16) 0%, rgba(60, 103, 182, 0) 72%);
+}
+
+.teacher-studio-layout::after {
+  bottom: -180px;
+  left: -90px;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(122, 162, 234, 0.18) 0%, rgba(122, 162, 234, 0) 74%);
 }
 
 /* 确保整体页面不滚动 */
@@ -18,4 +47,3 @@ html, body, #root {
   height: 100%;
   overflow: hidden;
 }
-

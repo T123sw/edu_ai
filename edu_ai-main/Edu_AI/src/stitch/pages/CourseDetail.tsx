@@ -40,11 +40,11 @@ export function CourseDetailPage() {
                     <MaterialIcon name="arrow_forward" className="text-base" />
                   </a>
                   <a
-                    href={routeHref(routes.resources)}
+                    href={routeHref(routes.video)}
                     className="inline-flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
                   >
-                    打开课程资源
-                    <MaterialIcon name="description" className="text-base" />
+                    打开视频与课程内容
+                    <MaterialIcon name="play_circle" className="text-base" />
                   </a>
                 </div>
               </div>

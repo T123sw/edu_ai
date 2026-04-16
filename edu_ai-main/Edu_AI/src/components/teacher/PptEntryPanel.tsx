@@ -304,7 +304,7 @@ export default function PptEntryPanel({
   );
 
   return (
-    <Modal title="创建 PPT" open={open} onCancel={onCancel} footer={null} width={920} destroyOnClose>
+    <Modal title="创建 PPT" open={open} onCancel={onCancel} footer={null} width={920} destroyOnHidden>
       <Space direction="vertical" size={18} style={{ width: '100%' }}>
         {!selectedDocIds.length ? <Alert type="warning" showIcon message="请先选择至少一份知识库文档。" /> : null}
         {errorText ? <Alert type="warning" showIcon message={errorText} /> : null}

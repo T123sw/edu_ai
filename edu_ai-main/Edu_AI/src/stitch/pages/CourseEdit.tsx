@@ -1,13 +1,91 @@
-import { AppSurface, GlassPanel, MaterialIcon, SidebarBackLink, SidebarDock, SidebarNav, defaultCourse, routes, useAppShell } from "../shared";
+import { useEffect, useMemo, useState } from "react";
+import {
+  AppSurface,
+  GlassPanel,
+  MaterialIcon,
+  SidebarBackLink,
+  SidebarDock,
+  SidebarNav,
+  defaultCourse,
+  routeHref,
+  routes,
+  useAppShell,
+} from "../shared";
+import { useCourseStore } from "../../store/course/useCourseStore";
 
-const milestones = [
-  { title: "第一单元：偏导与梯度", status: "已完成", icon: "check_circle", tone: "bg-emerald-100 text-emerald-700" },
-  { title: "第二单元：多重积分", status: "进行中", icon: "pending", tone: "bg-blue-100 text-blue-700" },
-] as const;
+type CourseFormState = {
+  title: string;
+  description: string;
+  objectives: string;
+  knowledgeGraph: string;
+};
 
 export function CourseEditPage() {
   const { selectedCourse } = useAppShell();
-  const course = selectedCourse ?? defaultCourse;
+  const shellCourse = selectedCourse ?? defaultCourse;
+  const { courses, loadCoursesFromBackend, updateCourse } = useCourseStore();
+
+  const [saving, setSaving] = useState(false);
+  const [formState, setFormState] = useState<CourseFormState>({
+    title: "",
+    description: "",
+    objectives: "",
+    knowledgeGraph: "",
+  });
+
+  useEffect(() => {
+    if (!courses.length) {
+      void loadCoursesFromBackend();
+    }
+  }, [courses.length, loadCoursesFromBackend]);
+
+  const course = useMemo(() => {
+    return (
+      courses.find((item) => item.id === shellCourse.id) ?? {
+        id: shellCourse.id,
+        title: shellCourse.title,
+        description: shellCourse.summary,
+        icon: "book",
+        color: shellCourse.accent,
+        objectives: [],
+        knowledgeGraph: "",
+        masterKnowledgeBase: [],
+      }
+    );
+  }, [courses, shellCourse]);
+
+  useEffect(() => {
+    setFormState({
+      title: course.title || "",
+      description: course.description || "",
+      objectives: Array.isArray(course.objectives) ? course.objectives.join("\n") : "",
+      knowledgeGraph: course.knowledgeGraph || "",
+    });
+  }, [course]);
+  const updateField = (field: keyof CourseFormState, value: string) => {
+    setFormState((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!formState.title.trim()) {
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await updateCourse(course.id, {
+        title: formState.title.trim(),
+        description: formState.description.trim(),
+        objectives: formState.objectives
+          .split("\n")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        knowledgeGraph: formState.knowledgeGraph.trim(),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <AppSurface className="flex min-h-screen">
@@ -17,144 +95,101 @@ export function CourseEditPage() {
           <h1 className="text-xl font-black tracking-tight text-[var(--accent-strong)]">{course.title}</h1>
           <p className="mt-1 text-sm text-[var(--muted-text)]">详情编辑</p>
         </div>
-
         <SidebarNav activeRoute={routes.edit} />
       </SidebarDock>
 
-      <main className="flex flex-1 flex-col xl:flex-row">
-        <div className="flex-1 p-6 sm:p-8">
-          <div className="mx-auto max-w-4xl">
-            <header className="mb-10">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-strong)]">{course.module}</p>
-              <h1 className="mt-2 text-4xl font-black tracking-tight text-[var(--accent-strong)]">编辑课程详情页</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted-text)]">基于主页点击后的课程详情展示信息进行编辑，布局参考你提供的 `detail/edit.html`。</p>
-            </header>
+      <main className="flex flex-1 flex-col">
+        <header className="sticky top-0 z-40 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-6 py-4 backdrop-blur-xl sm:px-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-strong)]">Course Edit</p>
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-[var(--accent-strong)] sm:text-4xl">
+                {course.title}
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--muted-text)]">
+                保留当前 stitch 页面视觉，只将编辑与知识库管理逻辑接入课程详情使用的课程接口。
+              </p>
+            </div>
 
-            <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-6 sm:p-8">
-              <form className="space-y-8">
-                <div>
-                  <label className="mb-3 block text-sm font-semibold text-[var(--app-text)]">课程标题</label>
-                  <input className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none" defaultValue={course.title} />
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-3 block text-sm font-semibold text-[var(--app-text)]">模块编号</label>
-                    <div className="relative">
-                      <input className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none" defaultValue={course.module} />
-                      <MaterialIcon name="layers" className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="mb-3 block text-sm font-semibold text-[var(--app-text)]">预计学时</label>
-                    <div className="relative">
-                      <input className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none" defaultValue="45 学时" />
-                      <MaterialIcon name="schedule" className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-3 block text-sm font-semibold text-[var(--app-text)]">课程摘要</label>
-                  <textarea className="min-h-[180px] w-full rounded-[24px] bg-slate-50 px-4 py-4 text-sm leading-7 outline-none" defaultValue={course.summary} />
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-3 block text-sm font-semibold text-[var(--app-text)]">讲师名称</label>
-                    <input className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none" defaultValue={course.instructor} />
-                  </div>
-                  <div>
-                    <label className="mb-3 block text-sm font-semibold text-[var(--app-text)]">课程封面地址</label>
-                    <input className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none" defaultValue={course.image} />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-4 pt-4">
-                  <button className="rounded-full px-6 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100" type="button">
-                    放弃修改
-                  </button>
-                  <button className="rounded-full bg-[var(--accent)] px-8 py-2.5 text-sm font-semibold text-white" type="submit">
-                    更新详情信息
-                  </button>
-                </div>
-              </form>
-            </GlassPanel>
-
-            <section className="mt-10">
-              <h2 className="text-2xl font-black text-[var(--accent-strong)]">教学里程碑</h2>
-              <div className="mt-6 space-y-4">
-                {milestones.map((item) => (
-                  <GlassPanel key={item.title} className="border border-[var(--shell-border)] bg-white/90 p-5">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`grid h-11 w-11 place-items-center rounded-2xl ${item.tone}`}>
-                          <MaterialIcon name={item.icon} className="text-[20px]" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-[var(--app-text)]">{item.title}</p>
-                          <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted-text)]">{item.status}</p>
-                        </div>
-                      </div>
-                      <button className="rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--muted-text)]">
-                        编辑
-                      </button>
-                    </div>
-                  </GlassPanel>
-                ))}
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <aside className="w-full border-t border-[var(--shell-border)] bg-[var(--panel-surface)] p-6 xl:w-[360px] xl:border-l xl:border-t-0">
-          <div className="space-y-6 xl:sticky xl:top-6">
-            <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted-text)]">课程封面</p>
-              <div className="mt-4 overflow-hidden rounded-[24px] bg-slate-100">
-                <img alt={course.title} className="aspect-video w-full object-cover" src={course.image} />
-              </div>
-              <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="text-[var(--muted-text)]">当前封面预览</span>
-                <button className="font-bold text-[var(--accent-strong)]">替换封面</button>
-              </div>
-            </GlassPanel>
-
-            <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MaterialIcon name="hub" className="text-[var(--accent)]" />
-                  <span className="font-bold text-[var(--app-text)]">知识图谱同步</span>
-                </div>
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              </div>
-              <div className="mt-4 space-y-3 text-sm text-[var(--muted-text)]">
-                <div className="flex items-center justify-between">
-                  <span>同步状态</span>
-                  <span className="font-semibold text-emerald-700">已同步</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-[var(--track-color)]">
-                  <div className="h-full w-full rounded-full bg-emerald-500" />
-                </div>
-                <p>更新课程详情后，可重新索引课程节点和知识摘要。</p>
-              </div>
-              <button className="mt-4 w-full rounded-2xl bg-[var(--accent-soft)] px-4 py-3 text-sm font-bold text-[var(--accent-strong)]">
-                重新索引节点
+            <div className="flex gap-3">
+              <a
+                href={routeHref(routes.course)}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--shell-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--accent-strong)]"
+              >
+                <MaterialIcon name="arrow_back" className="text-sm" />
+                返回课程详情
+              </a>
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+              >
+                <MaterialIcon name="check_circle" className="text-sm" />
+                {saving ? "保存中..." : "保存更改"}
               </button>
-            </GlassPanel>
-
-            <div className="grid grid-cols-2 gap-3">
-              <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-4 text-center">
-                <p className="text-2xl font-black text-[var(--accent-strong)]">84%</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted-text)]">展示完整度</p>
-              </GlassPanel>
-              <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-4 text-center">
-                <p className="text-2xl font-black text-[var(--accent-strong)]">1.2k</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted-text)]">引用量</p>
-              </GlassPanel>
             </div>
           </div>
-        </aside>
+        </header>
+
+        <div className="flex-1 p-6 sm:p-8">
+          <div className="mx-auto max-w-5xl">
+            <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-6 sm:p-7">
+              <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">基本信息</p>
+                  <h2 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">课程内容编辑</h2>
+                </div>
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)]">
+                  <MaterialIcon name="edit_note" className="text-xl" />
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-[var(--app-text)]">课程名称</span>
+                  <input
+                    value={formState.title}
+                    onChange={(event) => updateField("title", event.target.value)}
+                    className="w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm text-[var(--app-text)] outline-none"
+                    placeholder="请输入课程名称"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-[var(--app-text)]">课程简介</span>
+                  <textarea
+                    value={formState.description}
+                    onChange={(event) => updateField("description", event.target.value)}
+                    className="min-h-[112px] w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm leading-7 text-[var(--app-text)] outline-none"
+                    placeholder="请输入课程简介"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-[var(--app-text)]">教学目标</span>
+                  <textarea
+                    value={formState.objectives}
+                    onChange={(event) => updateField("objectives", event.target.value)}
+                    className="min-h-[160px] w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm leading-7 text-[var(--app-text)] outline-none"
+                    placeholder={"请输入教学目标，每行一个\n例如：\n理解计算思维的核心概念和方法\n掌握问题分解和模式识别的技巧"}
+                  />
+                  <p className="mt-2 text-xs text-[var(--muted-text)]">每行一个教学目标，保存时会自动转换为数组。</p>
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-[var(--app-text)]">课程知识图谱</span>
+                  <textarea
+                    value={formState.knowledgeGraph}
+                    onChange={(event) => updateField("knowledgeGraph", event.target.value)}
+                    className="min-h-[180px] w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm leading-7 text-[var(--app-text)] outline-none"
+                    placeholder="请输入课程知识图谱（JSON 格式）或 URL 链接"
+                  />
+                </label>
+              </div>
+            </GlassPanel>
+          </div>
+        </div>
       </main>
     </AppSurface>
   );

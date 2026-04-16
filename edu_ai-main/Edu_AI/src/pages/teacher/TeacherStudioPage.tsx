@@ -30,8 +30,8 @@ export default function TeacherStudioPage({ courseId, courseName }: TeacherStudi
       className="teacher-studio-layout"
       style={{ 
         height: 'calc(100vh - 64px)', 
-        background: '#f0f2f5', 
-        padding: 8, 
+        background: 'transparent', 
+        padding: 12, 
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'row'

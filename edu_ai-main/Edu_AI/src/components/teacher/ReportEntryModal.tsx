@@ -167,7 +167,7 @@ export default function ReportEntryModal({
       onCancel={onCancel}
       footer={null}
       width={860}
-      destroyOnClose
+      destroyOnHidden
     >
       {entryState === 'cards_loading' ? (
         <Space direction="vertical" size={16} style={{ width: '100%' }}>

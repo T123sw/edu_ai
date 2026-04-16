@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover, Switch } from 'antd';
 import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
@@ -58,6 +58,16 @@ const normalizeArtifactReferenceType = (
   }
   return 'report';
 };
+
+function getWorkflowBadgeLabel(workflowType: string | null, workflowStatus: string | null, hasConversation: boolean) {
+  if (workflowStatus === 'running') {
+    return workflowType === 'ppt' ? 'PPT generating' : 'Processing';
+  }
+  if (workflowStatus === 'completed') {
+    return workflowType === 'ppt' ? 'PPT ready' : 'Completed';
+  }
+  return hasConversation ? 'Conversation active' : 'New conversation';
+}
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const {
@@ -490,6 +500,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     return historyExpanded ? historyList : historyList.slice(0, 7);
   }, [historyExpanded, historyList]);
 
+  const headerSummary = useMemo(() => {
+    const segments: string[] = [];
+    segments.push(selectedDocs.length > 0 ? `${selectedDocs.length} docs selected` : 'Using current workspace context');
+    segments.push(allowRag ? 'RAG on' : 'RAG off');
+    segments.push(allowWeb ? 'Web on' : 'Web off');
+    segments.push(currentConversationId ? 'Context preserved' : 'Ready for a new question');
+    return segments.join(' · ');
+  }, [allowRag, allowWeb, currentConversationId, selectedDocs.length]);
+
+  const workflowBadgeLabel = useMemo(
+    () => getWorkflowBadgeLabel(workflowType, workflowStatus, Boolean(currentConversationId)),
+    [currentConversationId, workflowStatus, workflowType],
+  );
+
+  const showStatusCard = Boolean(statusCard);
+
   const historyContent = (
     <div style={{ width: 360, maxHeight: 420, overflowY: 'auto' }}>
       {historyLoading ? (
@@ -599,49 +625,182 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        background: '#ffffff',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+        background: 'linear-gradient(180deg, rgba(249, 251, 255, 0.98) 0%, rgba(241, 246, 253, 0.96) 100%)',
+        border: '1px solid rgba(175, 187, 208, 0.28)',
+        borderRadius: '28px',
+        boxShadow: '0 28px 60px rgba(15, 30, 52, 0.12)',
         minHeight: 0,
         overflow: 'hidden',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexShrink: 0 }}>
-        <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-          对话
-        </Title>
+      <div
+        style={{
+          padding: '20px 24px 14px',
+          borderBottom: '1px solid rgba(181, 194, 215, 0.22)',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 16,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ minWidth: 0, flex: '1 1 320px' }}>
+            <div
+              style={{
+                marginBottom: 8,
+                color: '#6b7b90',
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Teacher Q&amp;A Workspace
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
+              <Title level={4} style={{ margin: 0, fontWeight: 800, color: '#15263b' }}>
+                智能问答
+              </Title>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 32,
+                  padding: '6px 12px',
+                  borderRadius: 999,
+                  border: '1px solid rgba(162, 183, 221, 0.34)',
+                  background: 'rgba(255, 255, 255, 0.78)',
+                  color: '#15263b',
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                {workflowBadgeLabel}
+              </span>
+            </div>
+            <Text type="secondary" style={{ fontSize: 13, lineHeight: 1.55 }}>
+              {headerSummary}
+            </Text>
+          </div>
 
-        <Space>
-          <Space size="small" style={{ marginRight: 8 }}>
-            <Text type="secondary">RAG</Text>
-            <Switch checked={allowRag} onChange={setAllowRag} />
-            <Text type="secondary">Web</Text>
-            <Switch checked={allowWeb} onChange={setAllowWeb} />
+          <Space wrap>
+            <Button onClick={handleNewConversation}>新建对话</Button>
+            <Popover
+              trigger="click"
+              placement="bottomLeft"
+              content={historyContent}
+              open={historyPopoverOpen}
+              onOpenChange={(open) => {
+                setHistoryPopoverOpen(open);
+                if (!open) {
+                  setHistoryExpanded(false);
+                }
+              }}
+            >
+              <Button icon={<HistoryOutlined />}>历史对话</Button>
+            </Popover>
           </Space>
-          <Button onClick={handleNewConversation}>新建对话</Button>
-          <Popover
-            trigger="click"
-            placement="bottomLeft"
-            content={historyContent}
-            open={historyPopoverOpen}
-            onOpenChange={(open) => {
-              setHistoryPopoverOpen(open);
-              if (!open) {
-                setHistoryExpanded(false);
-              }
-            }}
-          >
-            <Button icon={<HistoryOutlined />}>历史对话</Button>
-          </Popover>
-        </Space>
+        </div>
       </div>
 
-      <StatusCard statusCard={statusCard} onActionSelect={handleSuggestedAction} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          flexWrap: 'wrap',
+          padding: '12px 24px 0',
+          flexShrink: 0,
+        }}
+      >
+        <Space
+          size="middle"
+          wrap
+          style={{
+            padding: '10px 14px',
+            borderRadius: 18,
+            border: '1px solid rgba(169, 186, 214, 0.3)',
+            background: 'rgba(255, 255, 255, 0.84)',
+            boxShadow: '0 10px 22px rgba(15, 30, 52, 0.05)',
+          }}
+        >
+          <Text style={{ color: '#163a80', fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            Retrieval
+          </Text>
+          <Space size="small">
+            <Text type="secondary" style={{ fontSize: 12, fontWeight: 700 }}>RAG</Text>
+            <Switch checked={allowRag} onChange={setAllowRag} />
+          </Space>
+          <Space size="small">
+            <Text type="secondary" style={{ fontSize: 12, fontWeight: 700 }}>Web</Text>
+            <Switch checked={allowWeb} onChange={setAllowWeb} />
+          </Space>
+        </Space>
+        <Text type="secondary" style={{ fontSize: 12 }}>
+          Retrieval switches stay visible. Existing chat and backend behavior stay unchanged.
+        </Text>
+      </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px', padding: '0 12px', minHeight: 0 }}>
+      {showStatusCard ? (
+        <div style={{ padding: '12px 24px 0', flexShrink: 0 }}>
+          <div style={{ transform: 'scale(0.96)', transformOrigin: 'top center', margin: '-6px -10px -12px' }}>
+            <StatusCard statusCard={statusCard} onActionSelect={handleSuggestedAction} />
+          </div>
+        </div>
+      ) : null}
+
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '12px 24px 0',
+          minHeight: 0,
+          margin: '0 24px',
+          border: '1px solid rgba(170, 184, 208, 0.26)',
+          borderRadius: 24,
+          background: 'linear-gradient(180deg, rgba(248, 251, 255, 0.86) 0%, rgba(242, 247, 253, 0.92) 100%)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.72)',
+        }}
+      >
         <List
           dataSource={messages}
+          locale={{
+            emptyText: (
+              <div style={{ padding: '16px 8px 8px', textAlign: 'left' }}>
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginBottom: 12,
+                    padding: '8px 14px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(164, 183, 216, 0.34)',
+                    background: 'rgba(255, 255, 255, 0.82)',
+                    color: '#163a80',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Ready
+                </div>
+                <Title level={4} style={{ margin: '0 0 6px', color: '#15263b', fontWeight: 800 }}>
+                  围绕课程资料直接提问
+                </Title>
+                <Text type="secondary" style={{ fontSize: 14, lineHeight: 1.65 }}>
+                  问题、追问和生成指令都从这里进入。输入框固定在底部，当前只压缩布局，不改变已有功能和接口。
+                </Text>
+              </div>
+            ),
+          }}
           renderItem={(item, index) => (
             <List.Item
               key={index}
@@ -650,7 +809,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: item.user === 'You' ? 'flex-end' : 'flex-start',
-                marginBottom: 16,
+                marginBottom: 18,
+                padding: 0,
               }}
             >
               <div
@@ -687,14 +847,20 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                   )}
                   <div
                     style={{
-                      padding: '10px 15px',
-                      borderRadius: '18px',
-                      background: item.user === 'You' ? '#1677ff' : '#f0f0f0',
-                      color: item.user === 'You' ? 'white' : 'black',
+                      padding: '12px 16px',
+                      borderRadius: item.user === 'You' ? '20px 20px 10px 20px' : '20px 20px 20px 10px',
+                      border: item.user === 'You' ? '1px solid rgba(24, 59, 128, 0.12)' : '1px solid rgba(168, 183, 207, 0.24)',
+                      background: item.user === 'You'
+                        ? 'linear-gradient(135deg, #163a80 0%, #2357b8 100%)'
+                        : 'rgba(255, 255, 255, 0.9)',
+                      color: item.user === 'You' ? '#fff' : '#15263b',
                       width: 'fit-content',
                       maxWidth: 'min(80vw, 720px)',
                       wordBreak: 'normal',
                       overflowWrap: 'break-word',
+                      boxShadow: item.user === 'You'
+                        ? '0 24px 34px rgba(35, 87, 184, 0.2)'
+                        : '0 18px 30px rgba(15, 30, 52, 0.06)',
                     }}
                   >
                     {item.user === 'AI' ? (
@@ -767,15 +933,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       {conversationReference ? (
         <div
           style={{
-            marginBottom: 8,
+            margin: '0 24px 8px',
             padding: '8px 12px',
             border: '1px solid #d9d9d9',
-            borderRadius: 8,
-            background: '#fafafa',
+            borderRadius: 16,
+            background: 'rgba(255, 255, 255, 0.78)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 12,
+            flexShrink: 0,
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -798,15 +965,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       {artifactReference ? (
         <div
           style={{
-            marginBottom: 8,
+            margin: '0 24px 8px',
             padding: '8px 12px',
             border: '1px solid #d9d9d9',
-            borderRadius: 8,
-            background: '#fafafa',
+            borderRadius: 16,
+            background: 'rgba(255, 255, 255, 0.78)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 12,
+            flexShrink: 0,
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -832,7 +1000,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         </div>
       ) : null}
 
-      <Space.Compact style={{ width: '100%' }}>
+      <Space.Compact
+        style={{
+          width: 'calc(100% - 48px)',
+          margin: 'auto 24px 20px',
+          paddingTop: 14,
+          borderTop: '1px solid rgba(181, 194, 215, 0.2)',
+          flexShrink: 0,
+        }}
+      >
         <TextArea
           autoSize={{ minRows: 1, maxRows: 5 }}
           placeholder={isTranscribing ? '正在识别语音...' : '开始输入... (Shift + Enter 换行)'}
@@ -846,7 +1022,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           }}
           disabled={isLoading}
           size="large"
-          style={{ borderRadius: '8px 0 0 8px' }}
+          style={{
+            borderRadius: '18px 0 0 18px',
+            background: 'rgba(255, 255, 255, 0.92)',
+            boxShadow: '0 14px 30px rgba(15, 30, 52, 0.08)',
+          }}
         />
         <Tooltip title={isRecording ? '点击停止录音并转文字' : isTranscribing ? '正在识别语音' : '语音输入'}>
           <Button
@@ -855,7 +1035,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
             disabled={isLoading || isTranscribing}
             danger={isRecording}
             size="large"
-            style={{ borderRadius: 0 }}
+            style={{ borderRadius: 0, boxShadow: '0 14px 30px rgba(15, 30, 52, 0.08)' }}
           >
             {isRecording ? '录音中' : '语音输入'}
           </Button>
@@ -866,7 +1046,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           onClick={() => void handleSendMessage()}
           loading={isLoading}
           size="large"
-          style={{ borderRadius: '0 8px 8px 0' }}
+          style={{ borderRadius: '0 18px 18px 0', boxShadow: '0 14px 30px rgba(15, 30, 52, 0.08)' }}
         />
       </Space.Compact>
     </div>
@@ -874,3 +1054,4 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
 };
 
 export default ChatPanel;
+

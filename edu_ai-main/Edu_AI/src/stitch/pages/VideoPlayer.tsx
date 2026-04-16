@@ -11,8 +11,21 @@ import {
   speakAiLecturerSentence,
   stopAiLecturerSpeaking,
 } from "../api/video";
+import { courseMaterialToMarkdown, getCourseMaterials } from "../api/courses";
 import { MarkdownPreview } from "../components/MarkdownPreview";
-import { AppSurface, GlassPanel, MaterialIcon, SidebarBackLink, SidebarDock, SidebarNav, routeHref, routes, useAppShell } from "../shared";
+import type { CourseMaterial } from "../api/types";
+import {
+  AppSurface,
+  GlassPanel,
+  MaterialIcon,
+  SidebarBackLink,
+  SidebarDock,
+  SidebarNav,
+  defaultCourse,
+  routeHref,
+  routes,
+  useAppShell,
+} from "../shared";
 
 type Slide = {
   title: string;
@@ -47,6 +60,7 @@ function fileNameFromUrl(url: string) {
 
 export function VideoPlayerPage() {
   const { selectedCourse } = useAppShell();
+  const course = selectedCourse ?? defaultCourse;
   const [mode, setMode] = useState<"online" | "offline">("online");
   const [rawDocument, setRawDocument] = useState(getDefaultMarkdown(selectedCourse?.title));
   const [courseId, setCourseId] = useState("");
@@ -62,13 +76,53 @@ export function VideoPlayerPage() {
   const [offlineImageRoot, setOfflineImageRoot] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [materialsError, setMaterialsError] = useState<string | null>(null);
+  const [activeMaterialId, setActiveMaterialId] = useState<string | null>(null);
 
   const activeSlide = outline[activeSlideIndex] ?? null;
   const webrtcUrl = getAiLecturerWebRtcUrl();
+  const activeMaterial = materials.find((item) => item.material_id === activeMaterialId) ?? materials[0] ?? null;
+  const activeMaterialMarkdown = activeMaterial ? courseMaterialToMarkdown(activeMaterial) : "";
 
   useEffect(() => {
     setRawDocument(getDefaultMarkdown(selectedCourse?.title));
   }, [selectedCourse?.title]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMaterials() {
+      try {
+        setMaterialsLoading(true);
+        setMaterialsError(null);
+        const data = await getCourseMaterials(course.id);
+        if (!cancelled) {
+          setMaterials(data);
+          setActiveMaterialId((current) => current && data.some((item) => item.material_id === current)
+            ? current
+            : (data[0]?.material_id ?? null));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setMaterials([]);
+          setActiveMaterialId(null);
+          setMaterialsError(err instanceof Error ? err.message : "课程内容加载失败");
+        }
+      } finally {
+        if (!cancelled) {
+          setMaterialsLoading(false);
+        }
+      }
+    }
+
+    void loadMaterials();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [course.id]);
 
   useEffect(() => {
     if (!offlineTaskId || offlineStatus === "success" || offlineStatus === "failed") return;
@@ -110,7 +164,7 @@ export function VideoPlayerPage() {
   async function handleCreateCourse() {
     await withBusy("create-course", async () => {
       const result = await createAiLecturerCourse({
-        course_name: selectedCourse?.title || "智能讲师课程",
+        course_name: course.title || "智能讲师课程",
         raw_document: rawDocument,
       });
       setCourseId(result.course_id);
@@ -130,7 +184,7 @@ export function VideoPlayerPage() {
 
     await withBusy("generate-script", async () => {
       const result = await generateAiLecturerScript({
-        course_title: selectedCourse?.title || "智能讲师课程",
+        course_title: course.title || "智能讲师课程",
         current_slide_content: activeSlide.content,
         page_index: activeSlideIndex,
         total_pages: outline.length,
@@ -183,7 +237,7 @@ export function VideoPlayerPage() {
     await withBusy("offline", async () => {
       const normalizedRoot = offlineImageRoot.replace(/[\\]+/g, "/").replace(/\/$/, "");
       const result = await generateAiLecturerFullVideo({
-        course_title: selectedCourse?.title || "智能讲师课程",
+        course_title: course.title || "智能讲师课程",
         pages: outline.map((item, index) => ({
           ppt_image_path: `${normalizedRoot}/slide${index + 1}.png`,
           content_text: item.content,
@@ -200,7 +254,7 @@ export function VideoPlayerPage() {
       <SidebarDock className="h-screen gap-6 overflow-hidden bg-[linear-gradient(180deg,#fcfdff_0%,#f2f6ff_100%)] p-4">
         <div className="px-2 py-4">
           <SidebarBackLink />
-          <h2 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">{selectedCourse?.title ?? "AI 智能讲师"}</h2>
+          <h2 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">{course.title}</h2>
           <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">视频讲授空间</p>
         </div>
         <SidebarNav activeRoute={routes.video} />
@@ -426,6 +480,104 @@ export function VideoPlayerPage() {
               </section>
             )}
 
+            <section id="course-materials" className="mt-8">
+              <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--shell-border)] pb-5">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">Course Content</p>
+                    <h2 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">视频下方课程内容</h2>
+                    <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--muted-text)]">
+                      原“课程资源”页的内容直接并入这里。后端接口不变，只调整为在视频学习页下方查看与切换。
+                    </p>
+                  </div>
+                  <div className="rounded-[20px] border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
+                    {materialsLoading ? "加载中..." : `共 ${materials.length} 份内容`}
+                  </div>
+                </div>
+
+                <div className="mt-6 grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+                  <div className="space-y-3">
+                    {materialsLoading ? (
+                      <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                        正在加载课程内容...
+                      </div>
+                    ) : materialsError ? (
+                      <div className="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-5 text-sm text-rose-600">
+                        {materialsError}
+                      </div>
+                    ) : materials.length === 0 ? (
+                      <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                        当前课程还没有可展示的内容。
+                      </div>
+                    ) : (
+                      materials.map((item, index) => {
+                        const active = item.material_id === activeMaterial?.material_id;
+
+                        return (
+                          <button
+                            key={item.material_id}
+                            type="button"
+                            onClick={() => setActiveMaterialId(item.material_id)}
+                            className={`w-full rounded-[22px] border px-4 py-4 text-left transition ${
+                              active
+                                ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_14px_28px_var(--accent-shadow)]"
+                                : "border-[var(--shell-border)] bg-[var(--surface-subtle)] hover:border-[var(--accent-border)] hover:bg-white"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--muted-text)]">
+                                  第 {index + 1} 节 · {item.material_type || "content"}
+                                </p>
+                                <h3 className="mt-2 truncate text-sm font-bold text-[var(--app-text)]">
+                                  {item.title || item.topic || item.material_id}
+                                </h3>
+                                <p className="mt-2 line-clamp-3 text-sm leading-6 text-[var(--muted-text)]">
+                                  {item.summary || "点击查看当前内容详情。"}
+                                </p>
+                              </div>
+                              {item.is_pinned ? (
+                                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[var(--accent-strong)]">
+                                  置顶
+                                </span>
+                              ) : null}
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  <div className="min-w-0 rounded-[24px] border border-[var(--shell-border)] bg-white/88 p-5">
+                    {activeMaterial ? (
+                      <>
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] pb-4">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                              {activeMaterial.material_type || "content"}
+                            </p>
+                            <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">
+                              {activeMaterial.title || activeMaterial.topic || activeMaterial.material_id}
+                            </h3>
+                          </div>
+                          <div className="rounded-full border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">
+                            {course.title}
+                          </div>
+                        </div>
+                        <div className="mt-5 max-h-[560px] overflow-y-auto pr-2">
+                          <MarkdownPreview content={activeMaterialMarkdown} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-[20px] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                        选择左侧一项内容后，会在这里显示完整预览。
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </GlassPanel>
+            </section>
+
             {error ? (
               <div className="mt-6 rounded-[22px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-600">
                 {error}
@@ -434,7 +586,7 @@ export function VideoPlayerPage() {
           </div>
         </main>
 
-        <aside className="flex flex-col border-l border-[var(--shell-border)] bg-[var(--surface-subtle)] lg:h-screen lg:overflow-auto">
+        <aside className="flex flex-col border-l border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(246,249,255,0.94)_0%,rgba(239,245,253,0.96)_100%)] lg:h-screen lg:overflow-auto">
           <div className="border-b border-[var(--shell-border)] bg-[var(--surface-elevated)]/95 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--accent)] text-white">
@@ -448,7 +600,7 @@ export function VideoPlayerPage() {
           </div>
 
           <div className="flex flex-1 flex-col gap-6 overflow-hidden p-6">
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5">
+            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">在线课堂概览</p>
               <div className="mt-4 space-y-3 text-sm text-[var(--muted-text)]">
                 <p>{onlineSummary}</p>
@@ -457,20 +609,24 @@ export function VideoPlayerPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5">
+            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">讲义预览</p>
               <div className="mt-4 max-h-[320px] overflow-y-auto rounded-[18px] bg-[var(--surface-subtle)] p-4">
                 <MarkdownPreview content={rawDocument} />
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5">
+            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">快速跳转</p>
               <div className="mt-4 space-y-3">
-                <a href={routeHref(routes.resources)} className="flex items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]">
-                  <span className="text-sm font-semibold text-[var(--app-text)]">课程资源</span>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("course-materials")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  className="flex w-full items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]"
+                >
+                  <span className="text-sm font-semibold text-[var(--app-text)]">课程内容</span>
                   <MaterialIcon name="arrow_forward" className="text-[var(--accent)]" />
-                </a>
+                </button>
                 <a href={routeHref(routes.ai)} className="flex items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]">
                   <span className="text-sm font-semibold text-[var(--app-text)]">问答工作台</span>
                   <MaterialIcon name="arrow_forward" className="text-[var(--accent)]" />

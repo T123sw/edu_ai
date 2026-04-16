@@ -17,6 +17,7 @@ export const routes = {
   video: "video",
   ai: "ai",
   home: "home",
+  profile: "profile",
   graph: "graph",
   ppt: "ppt",
   resources: "resources",
@@ -64,7 +65,6 @@ const sidebarNavItems = [
   { route: routes.ai, label: "问答", icon: "quiz" },
   { route: routes.graph, label: "知识图谱", icon: "hub" },
   { route: routes.video, label: "视频播放", icon: "play_circle" },
-  { route: routes.resources, label: "课程资源", icon: "description" },
   { route: routes.knowledge, label: "课程知识库", icon: "menu_book" },
   { route: routes.edit, label: "详情编辑", icon: "settings_suggest" },
 ] as const;
@@ -320,7 +320,9 @@ export function SidebarNav({
 }) {
   return (
     <nav className={cx("flex flex-1 flex-col gap-2", className)}>
-      {sidebarNavItems.map((item) => (
+      {sidebarNavItems
+        .filter((item) => item.route !== routes.resources)
+        .map((item) => (
         <SidebarLink
           key={item.route}
           label={item.label}

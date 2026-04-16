@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
 import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
@@ -11,12 +11,22 @@ const LEFT_PREVIEW_WIDTH_FORMULA = "clamp(420px, 32vw, 720px)";
 const RIGHT_PREVIEW_WIDTH_FORMULA = "clamp(420px, 32vw, 720px)";
 const CENTER_COLUMN_FORMULA = "minmax(520px, 1fr)";
 
+function readAiNodeTitle() {
+  const hash = window.location.hash.replace(/^#/, "");
+  const query = hash.split("?")[1];
+  if (!query) return "";
+
+  const params = new URLSearchParams(query);
+  return params.get("node")?.trim() ?? "";
+}
+
 export function AIWorkspacePage() {
   const { selectedCourse } = useAppShell();
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
+  const [graphNodeTitle, setGraphNodeTitle] = useState(readAiNodeTitle);
 
   const pageStyle = useMemo<React.CSSProperties>(() => {
     const leftColumn = leftCollapsed
@@ -32,6 +42,12 @@ export function AIWorkspacePage() {
       transition: "grid-template-columns 0.2s ease-in-out",
     };
   }, [kbPreviewOpen, leftCollapsed, rightCollapsed, studioPreviewOpen]);
+
+  useEffect(() => {
+    const syncNodeTitle = () => setGraphNodeTitle(readAiNodeTitle());
+    window.addEventListener("hashchange", syncNodeTitle);
+    return () => window.removeEventListener("hashchange", syncNodeTitle);
+  }, []);
 
   return (
     <AppSurface className="flex min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(234,241,255,0.92),transparent_22%),radial-gradient(circle_at_top_right,rgba(191,211,255,0.36),transparent_18%),linear-gradient(180deg,#f8fbff_0%,#f2f6fb_100%)]">
@@ -57,6 +73,11 @@ export function AIWorkspacePage() {
               <h1 className="mt-3 text-2xl font-black tracking-tight text-[var(--accent-strong)]">
                 {selectedCourse?.title ?? "当前课程"} 教师工作区
               </h1>
+              {graphNodeTitle ? (
+                <p className="mt-2 text-lg font-bold tracking-tight text-[var(--accent)]">
+                  {graphNodeTitle}
+                </p>
+              ) : null}
               <p className="mt-1 text-sm text-[var(--muted-text)]">
                 资料区、对话区、生成工场三栏联动，保留原有全部功能。
               </p>
@@ -72,7 +93,12 @@ export function AIWorkspacePage() {
           <div className="h-full overflow-hidden rounded-[34px] border border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.18)_100%)] p-2 shadow-[0_24px_48px_rgba(15,23,42,0.08)] backdrop-blur-xl">
             <div className="ai-studio-page workspace-ai-studio-page h-full min-h-0" style={pageStyle}>
               <div className="ai-studio-sider">
-                <div className="ai-panel">
+                <div className="workspace-side-shell workspace-side-shell--source">
+                  <div className="workspace-side-meta">
+                    <span className="workspace-side-meta__eyebrow">Knowledge Source</span>
+                    <span className="workspace-side-meta__title">资料侧栏</span>
+                  </div>
+                  <div className="ai-panel workspace-side-panel">
                   <SourcePanel
                     collapsed={leftCollapsed}
                     onToggleCollapsed={() => {
@@ -82,6 +108,7 @@ export function AIWorkspacePage() {
                     courseId={selectedCourse?.id}
                     onPreviewStateChange={(open) => setKbPreviewOpen(open)}
                   />
+                  </div>
                 </div>
               </div>
 
@@ -92,7 +119,12 @@ export function AIWorkspacePage() {
               </div>
 
               <div className="ai-studio-sider">
-                <div className="ai-panel">
+                <div className="workspace-side-shell workspace-side-shell--studio">
+                  <div className="workspace-side-meta">
+                    <span className="workspace-side-meta__eyebrow">Generation Studio</span>
+                    <span className="workspace-side-meta__title">生成侧栏</span>
+                  </div>
+                  <div className="ai-panel workspace-side-panel">
                   <StudioPanel
                     collapsed={rightCollapsed}
                     onToggleCollapsed={() => {
@@ -102,6 +134,7 @@ export function AIWorkspacePage() {
                     courseId={selectedCourse?.id}
                     onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
                   />
+                  </div>
                 </div>
               </div>
             </div>
