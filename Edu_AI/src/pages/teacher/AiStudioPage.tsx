@@ -3,6 +3,12 @@ import { useParams } from 'react-router-dom';
 import SourcePanel from '../../components/teacher/SourcePanel';
 import ChatPanel from '../../components/teacher/ChatPanel';
 import StudioPanel from '../../components/teacher/StudioPanel';
+import { useCourseStore } from '../../store/course/useCourseStore';
+import { useStore } from '../../store/teacher/useStore';
+import {
+  getAiStudioCourseLabel,
+  getAiStudioKnowledgePointLabel,
+} from './aiStudioContext';
 import './AiStudioPage.css';
 
 const COLLAPSED_WIDTH = '72px';
@@ -15,10 +21,14 @@ const CENTER_COLUMN_FORMULA = 'minmax(520px, 1fr)';
 
 export default function AiStudioPage() {
   const { courseId } = useParams();
+  const currentCourse = useCourseStore((state) => state.currentCourse);
+  const statusCard = useStore((state) => state.statusCard);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
+  const courseLabel = getAiStudioCourseLabel(currentCourse, courseId);
+  const knowledgePointLabel = getAiStudioKnowledgePointLabel(statusCard);
 
   // 动态计算 grid 布局，当侧边栏折叠时，中间对话区自动扩大
   const pageStyle = useMemo<React.CSSProperties>(() => {
@@ -39,41 +49,61 @@ export default function AiStudioPage() {
   }, [leftCollapsed, rightCollapsed, kbPreviewOpen, studioPreviewOpen]);
 
   return (
-    <div className="ai-studio-page" style={pageStyle}>
-      {/* Left Panel: SourcePanel */}
-      <div className="ai-studio-sider">
-        <div className="ai-panel">
-          <SourcePanel
-            collapsed={leftCollapsed}
-            onToggleCollapsed={() => {
-              setLeftCollapsed((v) => !v);
-              if (!leftCollapsed) setKbPreviewOpen(false);
-            }}
-            courseId={courseId}
-            onPreviewStateChange={(open) => setKbPreviewOpen(open)}
-          />
+    <div className="ai-studio-shell workspace-ai-studio-page">
+      <section className="ai-studio-context-bar" aria-label="当前问答上下文">
+        <div className="ai-studio-context-bar__item">
+          <span className="ai-studio-context-bar__label">当前课程</span>
+          <span className="ai-studio-context-bar__value" title={courseLabel}>
+            {courseLabel}
+          </span>
         </div>
-      </div>
 
-      {/* Center Panel: ChatPanel */}
-      <div className="ai-studio-content">
-        <div className="ai-panel">
-          <ChatPanel courseId={courseId} />
+        <span className="ai-studio-context-bar__divider" aria-hidden="true" />
+
+        <div className="ai-studio-context-bar__item">
+          <span className="ai-studio-context-bar__label">当前知识点</span>
+          <span className="ai-studio-context-bar__value" title={knowledgePointLabel}>
+            {knowledgePointLabel}
+          </span>
         </div>
-      </div>
+      </section>
 
-      {/* Right Panel: StudioPanel */}
-      <div className="ai-studio-sider">
-        <div className="ai-panel">
-          <StudioPanel
-            collapsed={rightCollapsed}
-            onToggleCollapsed={() => {
-              setRightCollapsed((v) => !v);
-              if (!rightCollapsed) setStudioPreviewOpen(false);
-            }}
-            courseId={courseId}
-            onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
-          />
+      <div className="ai-studio-page" style={pageStyle}>
+        {/* Left Panel: SourcePanel */}
+        <div className="ai-studio-sider">
+          <div className="ai-panel">
+            <SourcePanel
+              collapsed={leftCollapsed}
+              onToggleCollapsed={() => {
+                setLeftCollapsed((v) => !v);
+                if (!leftCollapsed) setKbPreviewOpen(false);
+              }}
+              courseId={courseId}
+              onPreviewStateChange={(open) => setKbPreviewOpen(open)}
+            />
+          </div>
+        </div>
+
+        {/* Center Panel: ChatPanel */}
+        <div className="ai-studio-content">
+          <div className="ai-panel">
+            <ChatPanel courseId={courseId} />
+          </div>
+        </div>
+
+        {/* Right Panel: StudioPanel */}
+        <div className="ai-studio-sider">
+          <div className="ai-panel">
+            <StudioPanel
+              collapsed={rightCollapsed}
+              onToggleCollapsed={() => {
+                setRightCollapsed((v) => !v);
+                if (!rightCollapsed) setStudioPreviewOpen(false);
+              }}
+              courseId={courseId}
+              onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
+            />
+          </div>
         </div>
       </div>
     </div>
