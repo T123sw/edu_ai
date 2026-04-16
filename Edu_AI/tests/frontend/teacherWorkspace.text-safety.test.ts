@@ -79,6 +79,18 @@ assert.match(
 );
 
 assert.match(
+  sourcePanelFile,
+  /资料列表/,
+  'SourcePanel should keep the document-list section label readable',
+);
+
+assert.match(
+  sourcePanelFile,
+  /上传资料/,
+  'SourcePanel should keep the upload section label readable',
+);
+
+assert.match(
   aiStudioPageFile,
   /当前课程/,
   'AiStudioPage should keep the current-course label readable',
