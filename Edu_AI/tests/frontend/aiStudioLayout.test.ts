@@ -85,8 +85,8 @@ assert.match(
 
 assert.match(
   aiStudioCssFile,
-  /border-radius:\s*18px/,
-  'AiStudioPage.css should tighten panel corner radius for a more product-grade shell',
+  /border-radius:\s*20px/,
+  'AiStudioPage.css should use the updated panel corner radius for the beautified workbench shell',
 );
 
 assert.doesNotMatch(
