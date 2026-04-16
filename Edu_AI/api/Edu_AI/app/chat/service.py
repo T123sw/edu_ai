@@ -1591,16 +1591,16 @@ class ChatService:
                 model=str(planner_model_cfg.get("model_name") or Config.LLM_MODEL),
                 temperature=0.0,
             ),
-            # llm_deep: 对话/大纲/报告正文统一使用深度纯文本模型（DeepSeek）
+            # llm_deep: 对话/大纲/报告正文统一使用默认回答模型（现切到 Qwen3.5 Plus）
             "llm_deep": ChatOpenAI(
                 api_key=str(
                     deep_model_cfg.get("api_key")
-                    or Config.DEEPSEEK_API_KEY
+                    or Config.DEEP_MODEL_API_KEY
                     or Config.REMOTE_MODEL_API_KEY
                 ),
                 base_url=str(
                     deep_model_cfg.get("api_base")
-                    or Config.DEEPSEEK_BASE_URL
+                    or Config.DEEP_MODEL_API_BASE
                     or Config.REMOTE_MODEL_API_BASE
                 ),
                 model=str(deep_model_cfg.get("model_name") or Config.LLM_MODEL_DEEP),

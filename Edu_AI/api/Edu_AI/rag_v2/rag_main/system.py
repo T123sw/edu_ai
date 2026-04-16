@@ -39,14 +39,20 @@ except Exception:
 def _resolve_mineru_command() -> List[str]:
     """优先使用项目目录下的 MinerU CLI，其次回退到系统 PATH。"""
     base_dir = Path(Config.BASE_DIR)
+    bundled_runtime_dir = base_dir / "rag_v2" / "rag-main"
 
     if os.name == "nt":
         candidates = [
             base_dir / ".venv" / "Scripts" / "mineru.cmd",
             base_dir / ".venv" / "Scripts" / "mineru.exe",
+            bundled_runtime_dir / ".venv" / "Scripts" / "mineru.cmd",
+            bundled_runtime_dir / ".venv" / "Scripts" / "mineru.exe",
         ]
     else:
-        candidates = [base_dir / ".venv" / "bin" / "mineru"]
+        candidates = [
+            base_dir / ".venv" / "bin" / "mineru",
+            bundled_runtime_dir / ".venv" / "bin" / "mineru",
+        ]
 
     for candidate in candidates:
         if candidate.exists():
@@ -59,14 +65,35 @@ def _resolve_mineru_command() -> List[str]:
     return ["mineru"]
 
 
+def _resolve_mineru_cwd(command: List[str]) -> Optional[str]:
+    if not command:
+        return None
+
+    executable = str(command[0] or "").strip().strip('"')
+    if not executable:
+        return None
+
+    candidate = Path(executable).expanduser()
+    if candidate.exists():
+        return str(candidate.resolve().parent)
+
+    resolved = shutil.which(executable)
+    if resolved:
+        return str(Path(resolved).resolve().parent)
+
+    return None
+
+
 def _check_mineru_available() -> bool:
     """检查 MinerU CLI 是否可用"""
     try:
+        command = _resolve_mineru_command()
         result = subprocess.run(
-            _resolve_mineru_command() + ["--version"],
+            command + ["--version"],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
+            cwd=_resolve_mineru_cwd(command)
         )
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -1733,7 +1760,7 @@ class DocumentProcessor:
                 capture_output=True,
                 text=True,
                 timeout=300,  # 5分钟超时
-                cwd=str(Path(pdf_path).parent)
+                cwd=_resolve_mineru_cwd(cmd) or str(Path(pdf_path).parent)
             )
             
             # 🔍 透视眼：打印 MinerU 的真实输出

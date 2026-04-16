@@ -22,8 +22,26 @@ class ConversationStoreAdapter:
     def load_conversation_detail(self, conversation_id: str, *, owner: str | None = None):
         return self.storage.get_conversation(conversation_id, owner=owner)
 
-    def append_message(self, conversation_id: str, role: str, content: str, *, sources=None, message_kind: str | None = None):
-        self.storage.append_message(conversation_id, role, content, sources=sources, message_kind=message_kind)
+    def append_message(
+        self,
+        conversation_id: str,
+        role: str,
+        content: str,
+        *,
+        sources=None,
+        input_images=None,
+        input_videos=None,
+        message_kind: str | None = None,
+    ):
+        self.storage.append_message(
+            conversation_id,
+            role,
+            content,
+            sources=sources,
+            input_images=input_images,
+            input_videos=input_videos,
+            message_kind=message_kind,
+        )
 
     def update_workflow_state(self, conversation_id: str, workflow_state: dict):
         self.storage.update_state(conversation_id, {"workflow_state": workflow_state})
@@ -59,6 +77,42 @@ class ConversationStoreAdapter:
                 if not key.startswith("_") and raw is not None
             }
         return {}
+
+    @staticmethod
+    def _normalize_input_images(values) -> list[dict]:
+        normalized: list[dict] = []
+        for item in list(values or []):
+            if hasattr(item, "model_dump"):
+                normalized.append(dict(item.model_dump(exclude_none=True)))
+            elif isinstance(item, dict):
+                normalized.append(dict(item))
+            elif hasattr(item, "__dict__"):
+                normalized.append(
+                    {
+                        key: raw
+                        for key, raw in dict(vars(item)).items()
+                        if not key.startswith("_") and raw is not None
+                    }
+                )
+        return normalized
+
+    @staticmethod
+    def _normalize_input_videos(values) -> list[dict]:
+        normalized: list[dict] = []
+        for item in list(values or []):
+            if hasattr(item, "model_dump"):
+                normalized.append(dict(item.model_dump(exclude_none=True)))
+            elif isinstance(item, dict):
+                normalized.append(dict(item))
+            elif hasattr(item, "__dict__"):
+                normalized.append(
+                    {
+                        key: raw
+                        for key, raw in dict(vars(item)).items()
+                        if not key.startswith("_") and raw is not None
+                    }
+                )
+        return normalized
 
     @staticmethod
     def _build_extraction_trigger(*, conversation_id: str, request, result: dict) -> ExtractionTrigger:
@@ -212,6 +266,8 @@ class ConversationStoreAdapter:
         workflow = result.get("workflow") or None
         action_name = str(((result.get("action") or {}).get("name")) or "").strip()
         artifacts = result.get("artifacts") or []
+        normalized_input_images = self._normalize_input_images(getattr(request, "input_images", []) or [])
+        normalized_input_videos = self._normalize_input_videos(getattr(request, "input_videos", []) or [])
         if append_user_message:
             user_message_kind = self.memory_extractor.classify_message_kind(
                 role="user",
@@ -220,7 +276,14 @@ class ConversationStoreAdapter:
                 action_name=action_name,
                 artifacts=artifacts,
             )
-            self.append_message(conversation_id, "user", request.question, message_kind=user_message_kind)
+            self.append_message(
+                conversation_id,
+                "user",
+                request.question,
+                input_images=normalized_input_images or None,
+                input_videos=normalized_input_videos or None,
+                message_kind=user_message_kind,
+            )
         answer = str(((result.get("message") or {}).get("content")) or "").strip()
         if answer:
             assistant_message_kind = self.memory_extractor.classify_message_kind(
@@ -303,6 +366,12 @@ class ConversationStoreAdapter:
                 "allow_web": bool(getattr(capability, "allow_web", False)),
                 "selected_doc_ids": list(getattr(capability, "selected_doc_ids", []) or []),
             }
+        if hasattr(request, "input_images"):
+            state_patch["last_input_images"] = normalized_input_images
+            state_patch["last_input_image_count"] = len(normalized_input_images)
+        if hasattr(request, "input_videos"):
+            state_patch["last_input_videos"] = normalized_input_videos
+            state_patch["last_input_video_count"] = len(normalized_input_videos)
         if artifacts:
             state_patch["referenced_artifact_ids"] = [
                 str(artifact.get("artifact_id") or "")

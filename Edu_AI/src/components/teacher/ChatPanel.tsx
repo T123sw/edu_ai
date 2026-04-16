@@ -1,14 +1,25 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover, Switch } from 'antd';
-import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined } from '@ant-design/icons';
+import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
-import { buildChatReplyPayload, sendChatReplyV2, transcribeSpeechV2 } from '../../services/teacher/chatV2';
+import {
+  buildChatReplyPayload,
+  sendChatReplyV2Stream,
+  transcribeSpeechV2,
+  uploadChatImagesV2,
+  uploadChatVideosV2,
+  type ChatResponseV2,
+  type ChatInputImageV2,
+  type ChatInputVideoV2,
+  type ChatSourceV2,
+} from '../../services/teacher/chatV2';
+import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
 import ReactMarkdown from 'react-markdown';
-import { type RAGSource } from '../../services/rag';
+import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
 import StatusCard from './StatusCardV2';
 
 const { TextArea } = Input;
@@ -33,15 +44,29 @@ function appendTranscript(previous: string, transcript: string): string {
   return `${previous.trimEnd()} ${normalizedTranscript}`;
 }
 
+function getDisplayLabel(value: unknown, fallback: string): string {
+  return decodeDisplayText(value) || fallback;
+}
+
 interface Message {
   user: 'You' | 'AI';
   text: string;
-  sources?: any[];
+  sources?: ChatSourceV2[];
+  inputImages?: ChatInputImageV2[];
+  inputVideos?: ChatInputVideoV2[];
   statusText?: string;
 }
 
 interface ChatPanelProps {
   courseId?: string;
+}
+
+interface PendingChatImage extends ChatInputImageV2 {
+  previewUrl: string;
+}
+
+interface PendingChatVideo extends ChatInputVideoV2 {
+  previewUrl: string;
 }
 
 const normalizeArtifactReferenceType = (
@@ -102,10 +127,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [pendingImages, setPendingImages] = useState<PendingChatImage[]>([]);
+  const [pendingVideos, setPendingVideos] = useState<PendingChatVideo[]>([]);
+  const [messageImageUrls, setMessageImageUrls] = useState<Record<string, string>>({});
+  const [messageVideoUrls, setMessageVideoUrls] = useState<Record<string, string>>({});
+  const [sourceImageUrls, setSourceImageUrls] = useState<Record<string, string>>({});
+  const [sourceVideoUrls, setSourceVideoUrls] = useState<Record<string, string>>({});
   const chatEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -118,8 +151,272 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       mediaRecorderRef.current = null;
       mediaStreamRef.current = null;
       audioChunksRef.current = [];
+      pendingImages.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+      pendingVideos.forEach((video) => URL.revokeObjectURL(video.previewUrl));
     };
-  }, []);
+  }, [pendingImages, pendingVideos]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(messageImageUrls).forEach((url) => revokePreviewMediaUrl(url));
+    };
+  }, [messageImageUrls]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(messageVideoUrls).forEach((url) => revokePreviewMediaUrl(url));
+    };
+  }, [messageVideoUrls]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(sourceImageUrls).forEach((url) => revokePreviewMediaUrl(url));
+    };
+  }, [sourceImageUrls]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(sourceVideoUrls).forEach((url) => revokePreviewMediaUrl(url));
+    };
+  }, [sourceVideoUrls]);
+
+  const persistedMessageImageUrls = useMemo(() => {
+    const urls = new Set<string>();
+    messages.forEach((item) => {
+      (item.inputImages || []).forEach((image) => {
+        const imageUrl = String(image.image_url || '').trim();
+        if (imageUrl) {
+          urls.add(imageUrl);
+        }
+      });
+    });
+    return Array.from(urls);
+  }, [messages]);
+
+  const persistedMessageVideoUrls = useMemo(() => {
+    const urls = new Set<string>();
+    messages.forEach((item) => {
+      (item.inputVideos || []).forEach((video) => {
+        const videoUrl = String(video.video_url || '').trim();
+        if (videoUrl) {
+          urls.add(videoUrl);
+        }
+      });
+    });
+    return Array.from(urls);
+  }, [messages]);
+
+  const persistedSourceVideoUrls = useMemo(() => {
+    const urls = new Set<string>();
+    messages.forEach((item) => {
+      (item.sources || []).forEach((source) => {
+        const modality = String(source?.modality || source?.metadata?.modality || '').toLowerCase();
+        const videoUrl = String(source?.video_url || source?.metadata?.video_url || '').trim();
+        if (modality === 'video' && videoUrl) {
+          urls.add(videoUrl);
+        }
+      });
+    });
+    return Array.from(urls);
+  }, [messages]);
+
+  const persistedSourceImageUrls = useMemo(() => {
+    const urls = new Set<string>();
+    messages.forEach((item) => {
+      (item.sources || []).forEach((source) => {
+        const modality = String(source?.modality || source?.metadata?.modality || '').toLowerCase();
+        const imageUrl = String(source?.image_url || source?.metadata?.image_url || '').trim();
+        if (modality === 'image' && imageUrl) {
+          urls.add(imageUrl);
+        }
+      });
+    });
+    return Array.from(urls);
+  }, [messages]);
+
+  useEffect(() => {
+    if (persistedMessageImageUrls.length === 0) {
+      setMessageImageUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAllMessageImages = async () => {
+      const resolvedEntries = await Promise.all(
+        persistedMessageImageUrls.map(async (imageUrl) => {
+          try {
+            const objectUrl = await loadPreviewMediaUrl(imageUrl);
+            return [imageUrl, objectUrl] as const;
+          } catch (error) {
+            console.error('load chat message image error:', imageUrl, error);
+            return [imageUrl, ''] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        resolvedEntries.forEach(([, objectUrl]) => revokePreviewMediaUrl(objectUrl));
+        return;
+      }
+
+      const nextUrls = Object.fromEntries(
+        resolvedEntries.filter(([, objectUrl]) => Boolean(objectUrl)),
+      );
+
+      setMessageImageUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return nextUrls;
+      });
+    };
+
+    void loadAllMessageImages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistedMessageImageUrls]);
+
+  useEffect(() => {
+    if (persistedMessageVideoUrls.length === 0) {
+      setMessageVideoUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAllMessageVideos = async () => {
+      const resolvedEntries = await Promise.all(
+        persistedMessageVideoUrls.map(async (videoUrl) => {
+          try {
+            const objectUrl = await loadPreviewMediaUrl(videoUrl);
+            return [videoUrl, objectUrl] as const;
+          } catch (error) {
+            console.error('load chat message video error:', videoUrl, error);
+            return [videoUrl, ''] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        resolvedEntries.forEach(([, objectUrl]) => revokePreviewMediaUrl(objectUrl));
+        return;
+      }
+
+      const nextUrls = Object.fromEntries(
+        resolvedEntries.filter(([, objectUrl]) => Boolean(objectUrl)),
+      );
+
+      setMessageVideoUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return nextUrls;
+      });
+    };
+
+    void loadAllMessageVideos();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistedMessageVideoUrls]);
+
+  useEffect(() => {
+    if (persistedSourceImageUrls.length === 0) {
+      setSourceImageUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAllSourceImages = async () => {
+      const resolvedEntries = await Promise.all(
+        persistedSourceImageUrls.map(async (imageUrl) => {
+          try {
+            const objectUrl = await loadPreviewMediaUrl(imageUrl);
+            return [imageUrl, objectUrl] as const;
+          } catch (error) {
+            console.error('load chat source image error:', imageUrl, error);
+            return [imageUrl, ''] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        resolvedEntries.forEach(([, objectUrl]) => revokePreviewMediaUrl(objectUrl));
+        return;
+      }
+
+      const nextUrls = Object.fromEntries(
+        resolvedEntries.filter(([, objectUrl]) => Boolean(objectUrl)),
+      );
+
+      setSourceImageUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return nextUrls;
+      });
+    };
+
+    void loadAllSourceImages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistedSourceImageUrls]);
+
+  useEffect(() => {
+    if (persistedSourceVideoUrls.length === 0) {
+      setSourceVideoUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAllSourceVideos = async () => {
+      const resolvedEntries = await Promise.all(
+        persistedSourceVideoUrls.map(async (videoUrl) => {
+          try {
+            const objectUrl = await loadPreviewMediaUrl(videoUrl);
+            return [videoUrl, objectUrl] as const;
+          } catch (error) {
+            console.error('load chat source video error:', videoUrl, error);
+            return [videoUrl, ''] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        resolvedEntries.forEach(([, objectUrl]) => revokePreviewMediaUrl(objectUrl));
+        return;
+      }
+
+      const nextUrls = Object.fromEntries(
+        resolvedEntries.filter(([, objectUrl]) => Boolean(objectUrl)),
+      );
+
+      setSourceVideoUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return nextUrls;
+      });
+    };
+
+    void loadAllSourceVideos();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistedSourceVideoUrls]);
 
   useEffect(() => {
     const init = async () => {
@@ -169,6 +466,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         user: msg.role === 'assistant' ? 'AI' : 'You',
         text: msg.content || '',
         sources: (msg.sources || []) as any[],
+        inputImages: (msg.input_images || []) as ChatInputImageV2[],
+        inputVideos: (msg.input_videos || []) as ChatInputVideoV2[],
       }));
       const detailWorkflowState = detail?.state?.workflow_state;
       const nextWorkflowType = String((detailWorkflowState as any)?.workflow_type || '').trim();
@@ -342,11 +641,114 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     }
   };
 
+  const clearPendingImages = () => {
+    setPendingImages((current) => {
+      current.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+      return [];
+    });
+  };
+
+  const clearPendingVideos = () => {
+    setPendingVideos((current) => {
+      current.forEach((video) => URL.revokeObjectURL(video.previewUrl));
+      return [];
+    });
+  };
+
+  const handleRemovePendingImage = (imageId: string) => {
+    setPendingImages((current) => current.filter((image) => image.image_id !== imageId));
+  };
+
+  const handleRemovePendingVideo = (videoId: string) => {
+    setPendingVideos((current) => current.filter((video) => video.video_id !== videoId));
+  };
+
+  const handleAddImages = async (files: File[], source: 'upload' | 'paste') => {
+    const imageFiles = files.filter((file) => String(file.type || '').startsWith('image/'));
+    if (imageFiles.length === 0) {
+      return;
+    }
+
+    const previewUrls = imageFiles.map((file) => URL.createObjectURL(file));
+    try {
+      const uploaded = await uploadChatImagesV2(imageFiles, {
+        conversationId: currentConversationId,
+        source,
+      });
+      const nextImages = (uploaded.images || []).map((image, index) => ({
+        ...image,
+        previewUrl: previewUrls[index] || '',
+      }));
+      setPendingImages((current) => [...current, ...nextImages]);
+      message.success(`已添加 ${nextImages.length} 张图片`);
+    } catch (error: any) {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      console.error('upload chat images error:', error);
+      message.error(error?.message || '图片上传失败');
+    }
+  };
+
+  const handleAddVideos = async (files: File[]) => {
+    const videoFiles = files.filter((file) => String(file.type || '').startsWith('video/'));
+    if (videoFiles.length === 0) {
+      return;
+    }
+
+    const previewUrls = videoFiles.map((file) => URL.createObjectURL(file));
+    try {
+      const uploaded = await uploadChatVideosV2(videoFiles, {
+        conversationId: currentConversationId,
+        source: 'upload',
+      });
+      const nextVideos = (uploaded.videos || []).map((video, index) => ({
+        ...video,
+        previewUrl: previewUrls[index] || '',
+      }));
+      setPendingVideos((current) => [...current, ...nextVideos]);
+      message.success('已添加 ' + nextVideos.length + ' 个视频');
+    } catch (error: any) {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      console.error('upload chat videos error:', error);
+      message.error(error?.message || '视频上传失败');
+    }
+  };
+
+  const handleImagePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const imageFiles = Array.from(event.clipboardData?.items || [])
+      .filter((item) => item.kind === 'file' && String(item.type || '').startsWith('image/'))
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => Boolean(file));
+
+    if (imageFiles.length === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    await handleAddImages(imageFiles, 'paste');
+  };
+
+  const handleImagePickerChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    await handleAddImages(files, 'upload');
+  };
+
+  const handleVideoPickerChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    await handleAddVideos(files);
+  };
+
   const handleSendMessage = async (overrideText?: string, forceSend = false) => {
     const draft = (overrideText ?? inputValue).trim();
-    if (draft === '' || (isLoading && !forceSend)) return;
+    if ((draft === '' && pendingImages.length === 0 && pendingVideos.length === 0) || (isLoading && !forceSend)) return;
 
-    const userMessage: Message = { user: 'You', text: draft };
+    const inputImages = pendingImages.map(({ previewUrl: _previewUrl, ...image }) => image);
+    const inputVideos = pendingVideos.map(({ previewUrl: _previewUrl, ...video }) => video);
+
+    const userMessage: Message = { user: 'You', text: draft || '已发送附件' };
+    userMessage.inputImages = inputImages;
+    userMessage.inputVideos = inputVideos;
     addMessage(userMessage);
     setInputValue('');
     setIsLoading(true);
@@ -356,18 +758,63 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     addMessage(aiResponse);
 
     try {
-      const response = await sendChatReplyV2(
-        buildChatReplyPayload({
-          question: userMessage.text,
-          conversationId: currentConversationId,
-          courseId,
-          allowRag,
-          allowWeb,
-          selectedDocIds: selectedDocs,
-          artifactReference,
-          conversationReference,
-        }),
-      );
+      const payload = buildChatReplyPayload({
+        question: userMessage.text,
+        conversationId: currentConversationId,
+        courseId,
+        allowRag,
+        allowWeb,
+        selectedDocIds: selectedDocs,
+        inputImages,
+        inputVideos,
+        artifactReference,
+        conversationReference,
+      });
+      let streamedText = '';
+      let response: ChatResponseV2 | null = null;
+      await sendChatReplyV2Stream(payload, {
+        onMetadata: (payload) => {
+          const nextConversationId = String(payload.conversation_id || '').trim();
+          if (nextConversationId && nextConversationId !== currentConversationId) {
+            setCurrentConversationId(nextConversationId);
+          }
+          if (Array.isArray(payload.sources)) {
+            updateLastMessage({
+              sources: payload.sources as ChatSourceV2[],
+              statusText: '正在生成回复...',
+            });
+          }
+          if (payload.status_card && typeof payload.status_card === 'object') {
+            setStatusCard(payload.status_card as any);
+          }
+        },
+        onStatus: (payload) => {
+          updateLastMessage({
+            statusText: String(payload.label || payload.stage || '正在处理...'),
+          });
+          const workflow = payload.workflow as any;
+          if (workflow) {
+            setWorkflowType(String(workflow.type || '').trim() || null);
+            setWorkflowStatus(String(workflow.status || '').trim() || null);
+          }
+        },
+        onDelta: (content) => {
+          streamedText += content;
+          updateLastMessage({
+            text: streamedText,
+            statusText: '正在生成回复...',
+          });
+        },
+        onResult: (finalResponse) => {
+          response = finalResponse;
+        },
+        onError: (error) => {
+          throw error;
+        },
+      });
+      if (!response) {
+        throw new Error('流式回复未返回最终结果');
+      }
 
       const nextConversationId = String(response.conversation?.conversation_id || '').trim();
       if (nextConversationId && nextConversationId !== currentConversationId) {
@@ -377,7 +824,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       setWorkflowType(String(response.workflow?.type || '').trim() || null);
       setWorkflowStatus(String(response.workflow?.status || '').trim() || null);
 
-      const sources = Array.isArray(response.sources) ? (response.sources as unknown as RAGSource[]) : [];
+      const sources = Array.isArray(response.sources) ? (response.sources as ChatSourceV2[]) : [];
       const generatedFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
         ...file,
         meta: {
@@ -428,6 +875,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       });
 
       await refreshHistoryList();
+      clearPendingImages();
+      clearPendingVideos();
     } catch (error: any) {
       console.error('v2 reply error:', error);
       updateLastMessage({
@@ -442,7 +891,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   useEffect(() => {
     if (!queuedMessage || isLoading) return;
     void handleSendMessage(queuedMessage, true);
-  }, [queuedMessage, isLoading]);
+  }, [queuedMessage, isLoading, pendingImages, pendingVideos]);
 
   useEffect(() => {
     if (!currentConversationId || workflowType !== 'ppt' || workflowStatus !== 'running') {
@@ -459,13 +908,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const handleSuggestedAction = (action: string) => {
     const normalized = String(action || '').trim();
     const actionPromptMap: Record<string, string> = {
-      生成报告: '请基于当前内容生成一份报告。',
-      继续生成: '请继续生成。',
-      确认并继续: '确认并继续。',
-      调整要求: '我想调整要求：',
-      选择资料: '我准备先补充资料。',
-      跳过资料直接生成: '跳过资料，直接继续生成。',
-      继续提问: '',
+      '\u751f\u6210\u62a5\u544a': '\u8bf7\u57fa\u4e8e\u5f53\u524d\u5185\u5bb9\u751f\u6210\u4e00\u4efd\u62a5\u544a\u3002',
+      '\u7ee7\u7eed\u751f\u6210': '\u8bf7\u7ee7\u7eed\u751f\u6210\u3002',
+      '\u786e\u8ba4\u5e76\u7ee7\u7eed': '\u786e\u8ba4\u5e76\u7ee7\u7eed\u3002',
+      '\u8c03\u6574\u8981\u6c42': '\u6211\u60f3\u8c03\u6574\u8981\u6c42\uff1a',
+      '\u9009\u62e9\u8d44\u6599': '\u6211\u51c6\u5907\u5148\u8865\u5145\u8d44\u6599\u3002',
+      '\u8df3\u8fc7\u8d44\u6599\u76f4\u63a5\u751f\u6210': '\u8df3\u8fc7\u8d44\u6599\uff0c\u76f4\u63a5\u7ee7\u7eed\u751f\u6210\u3002',
+      '\u7ee7\u7eed\u63d0\u95ee': '',
     };
     setInputValue(actionPromptMap[normalized] ?? normalized);
   };
@@ -522,7 +971,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
               >
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {item.title || '未命名对话'}
+                    {getDisplayLabel(item.title, '未命名对话')}
                   </div>
                   <div style={{ fontSize: 12, color: '#999' }}>{item.message_count || 0} 条消息</div>
                 </div>
@@ -545,7 +994,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                   });
                   setHistoryPopoverOpen(false);
                   setHistoryExpanded(false);
-                  message.success('已引用历史对话');
+                  message.success('已引用该对话');
                 }}
               >
                 引用
@@ -677,7 +1126,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                     boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                   }}
                 >
-                  {item.user === 'You' ? '我' : 'AI'}
+                    {item.user === 'You' ? '?' : 'AI'}
                 </div>
                 <div style={{ maxWidth: '80%' }}>
                   {item.user === 'AI' && item.statusText && (
@@ -685,50 +1134,175 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                       {item.statusText}
                     </div>
                   )}
-                  <div
-                    style={{
-                      padding: '10px 15px',
-                      borderRadius: '18px',
-                      background: item.user === 'You' ? '#1677ff' : '#f0f0f0',
-                      color: item.user === 'You' ? 'white' : 'black',
-                      width: 'fit-content',
-                      maxWidth: 'min(80vw, 720px)',
-                      wordBreak: 'normal',
-                      overflowWrap: 'break-word',
-                    }}
-                  >
-                    {item.user === 'AI' ? (
-                      <ReactMarkdown
-                        components={{
-                          p: ({ children }) => (
-                            <p style={{ margin: 0, whiteSpace: 'normal', wordBreak: 'normal' }}>
-                              {children}
-                            </p>
-                          ),
-                        }}
-                      >
-                        {item.text}
-                      </ReactMarkdown>
-                    ) : (
-                      <div style={{ whiteSpace: 'pre-wrap' }}>{item.text}</div>
-                    )}
-                  </div>
+                  {item.inputImages && item.inputImages.length > 0 && (
+                    <div style={{ marginBottom: item.text ? 10 : 0 }}>
+                      <Space wrap size={[8, 8]}>
+                        {item.inputImages.map((image) => {
+                          const previewUrl = messageImageUrls[image.image_url];
+                          const imageFileName = getDisplayLabel(image.file_name, '图片');
+                          return (
+                            <div
+                              key={image.image_id}
+                              style={{
+                                width: 144,
+                                borderRadius: 12,
+                                overflow: 'hidden',
+                                border: '1px solid rgba(0, 0, 0, 0.12)',
+                                background: item.user === 'You' ? 'rgba(255,255,255,0.14)' : '#fff',
+                              }}
+                            >
+                              {previewUrl ? (
+                                <img
+                                  src={previewUrl}
+                                  alt={imageFileName}
+                                  style={{ width: '100%', height: 108, objectFit: 'cover', display: 'block' }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: '100%',
+                                    height: 108,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'rgba(0, 0, 0, 0.04)',
+                                    color: item.user === 'You' ? 'rgba(255,255,255,0.92)' : '#666',
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  图片加载中...
+                                </div>
+                              )}
+                              <div
+                                style={{
+                                  padding: '6px 8px',
+                                  fontSize: 12,
+                                  color: item.user === 'You' ? 'rgba(255,255,255,0.92)' : '#666',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                                title={imageFileName}
+                              >
+                                {imageFileName}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </Space>
+                    </div>
+                  )}
+                  {item.inputVideos && item.inputVideos.length > 0 && (
+                    <div style={{ marginBottom: item.text ? 10 : 0 }}>
+                      <Space wrap size={[8, 8]}>
+                        {item.inputVideos.map((video) => {
+                          const previewUrl = messageVideoUrls[video.video_url];
+                          const videoFileName = getDisplayLabel(video.file_name, '视频');
+                          return (
+                            <div
+                              key={video.video_id}
+                              style={{
+                                width: 180,
+                                borderRadius: 12,
+                                overflow: 'hidden',
+                                border: '1px solid rgba(0, 0, 0, 0.12)',
+                                background: item.user === 'You' ? 'rgba(255,255,255,0.14)' : '#fff',
+                              }}
+                            >
+                              {previewUrl ? (
+                                <video
+                                  src={previewUrl}
+                                  controls
+                                  preload="metadata"
+                                  style={{ width: '100%', height: 120, display: 'block', background: '#000' }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: '100%',
+                                    height: 120,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'rgba(0, 0, 0, 0.04)',
+                                    color: item.user === 'You' ? 'rgba(255,255,255,0.92)' : '#666',
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  视频加载中...
+                                </div>
+                              )}
+                              <div
+                                style={{
+                                  padding: '6px 8px',
+                                  fontSize: 12,
+                                  color: item.user === 'You' ? 'rgba(255,255,255,0.92)' : '#666',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                                title={videoFileName}
+                              >
+                                {videoFileName}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </Space>
+                    </div>
+                  )}
+                  {item.text ? (
+                    <div
+                      style={{
+                        padding: '10px 15px',
+                        borderRadius: '18px',
+                        background: item.user === 'You' ? '#1677ff' : '#f0f0f0',
+                        color: item.user === 'You' ? 'white' : 'black',
+                        width: 'fit-content',
+                        maxWidth: 'min(80vw, 720px)',
+                        wordBreak: 'normal',
+                        overflowWrap: 'break-word',
+                      }}
+                    >
+                      {item.user === 'AI' ? (
+                        <ReactMarkdown
+                          components={{
+                            p: ({ children }) => (
+                              <p style={{ margin: 0, whiteSpace: 'normal', wordBreak: 'normal' }}>
+                                {children}
+                              </p>
+                            ),
+                          }}
+                        >
+                          {item.text}
+                        </ReactMarkdown>
+                      ) : (
+                        <div style={{ whiteSpace: 'pre-wrap' }}>{item.text}</div>
+                      )}
+                    </div>
+                  ) : null}
 
                   {item.user === 'AI' && item.sources && item.sources.length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       <Space wrap size={[0, 8]}>
                         {item.sources.map((source, i) => {
-                          const isImage = String((source as any)?.modality || '').toLowerCase() === 'image';
-                          const imageUrl = (source as any)?.image_url as string | undefined;
-                          const imageTitle = (source as any)?.image_name || source?.source || `图片来源 ${i + 1}`;
+                          const isImage = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'image';
+                          const isVideo = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'video';
+                          const imageUrl = ((source as any)?.image_url || (source as any)?.metadata?.image_url) as string | undefined;
+                          const videoUrl = ((source as any)?.video_url || (source as any)?.metadata?.video_url) as string | undefined;
+                          const resolvedImageUrl = imageUrl ? sourceImageUrls[imageUrl] : '';
+                          const resolvedVideoUrl = videoUrl ? sourceVideoUrls[videoUrl] : '';
+                          const sourceName = getDisplayLabel(source?.source, `来源 ${i + 1}`);
+                          const imageTitle = getDisplayLabel((source as any)?.image_name, sourceName);
+                          const videoTitle = getDisplayLabel((source as any)?.metadata?.title, sourceName);
                           return (
                             <Tooltip
                               key={i}
-                              title={source?.content ? `来源片段: ${String(source.content).substring(0, 100)}...` : '无片段'}
+                              title={source?.content ? (`引用片段：${String(source.content).substring(0, 100)}...`) : '暂无引用片段'}
                             >
                               <Tag
                                 icon={<SnippetsOutlined />}
-                                color={isImage ? 'purple' : 'blue'}
+                                color={isVideo ? 'green' : isImage ? 'purple' : 'blue'}
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
@@ -739,15 +1313,77 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                                 }}
                                 style={{ cursor: 'pointer', userSelect: 'none' }}
                               >
-                                {isImage ? `图片 · ${source?.source || `来源 ${i + 1}`}` : (source?.source || `来源 ${i + 1}`)}
+                                {isVideo ? `视频 · ${sourceName}` : isImage ? `图片 · ${sourceName}` : sourceName}
                               </Tag>
                               {isImage && imageUrl && (
                                 <div style={{ marginTop: 8, marginBottom: 4 }}>
-                                  <img
-                                    src={imageUrl}
-                                    alt={String((source as any)?.image_alt || imageTitle || '图片上下文')}
-                                    style={{ maxWidth: 220, maxHeight: 140, borderRadius: 8, border: '1px solid #eee' }}
-                                  />
+                                  {resolvedImageUrl ? (
+                                    <img
+                                      src={resolvedImageUrl}
+                                      alt={String((source as any)?.image_alt || imageTitle || 'image preview')}
+                                      style={{ maxWidth: 220, maxHeight: 140, borderRadius: 8, border: '1px solid #eee' }}
+                                    />
+                                  ) : (
+                                    <div
+                                      style={{
+                                        width: 220,
+                                        height: 140,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'rgba(0, 0, 0, 0.04)',
+                                        color: '#666',
+                                        fontSize: 12,
+                                        borderRadius: 8,
+                                        border: '1px solid #eee',
+                                      }}
+                                    >
+                                      图片加载中...
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              {isVideo && videoUrl && (
+                                <div
+                                  style={{
+                                    marginTop: 8,
+                                    width: 240,
+                                    borderRadius: 10,
+                                    overflow: 'hidden',
+                                    border: '1px solid #eee',
+                                    background: '#fff',
+                                  }}
+                                >
+                                  {resolvedVideoUrl ? (
+                                    <video controls preload="metadata" src={resolvedVideoUrl} style={{ width: '100%', display: 'block' }} />
+                                  ) : (
+                                    <div
+                                      style={{
+                                        height: 140,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'rgba(0, 0, 0, 0.04)',
+                                        color: '#666',
+                                        fontSize: 12,
+                                      }}
+                                    >
+                                      视频加载中...
+                                    </div>
+                                  )}
+                                  <div
+                                    style={{
+                                      padding: '6px 8px',
+                                      fontSize: 12,
+                                      color: '#666',
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}
+                                    title={videoTitle}
+                                  >
+                                    {videoTitle}
+                                  </div>
                                 </div>
                               )}
                             </Tooltip>
@@ -779,7 +1415,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           }}
         >
           <div style={{ minWidth: 0 }}>
-            <Text strong>{conversationReference.title || '已引用对话'}</Text>
+            <Text strong>{getDisplayLabel(conversationReference.title, '未命名对话')}</Text>
             <div>
               <Text type="secondary">
                 历史对话
@@ -789,10 +1425,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
               </Text>
             </div>
           </div>
+
           <Button size="small" onClick={() => clearConversationReference()}>
             移除引用
           </Button>
         </div>
+
       ) : null}
 
       {artifactReference ? (
@@ -810,7 +1448,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           }}
         >
           <div style={{ minWidth: 0 }}>
-            <Text strong>{artifactReference.title || '已引用产物'}</Text>
+            <Text strong>{getDisplayLabel(artifactReference.title, '未命名产物')}</Text>
             <div>
               <Text type="secondary">
                 {artifactReference.artifact_type === 'report_outline'
@@ -822,7 +1460,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                       : artifactReference.artifact_type === 'ppt_content_markdown'
                         ? 'PPT 文稿'
                         : '报告正文'}
-                {artifactReference.version_id ? ` · ${artifactReference.version_id}` : ''}
+                {artifactReference.version_id ? ` · 版本 ${artifactReference.version_id}` : ''}
               </Text>
             </div>
           </div>
@@ -832,12 +1470,122 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         </div>
       ) : null}
 
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/bmp,image/gif"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(event) => {
+          void handleImagePickerChange(event);
+        }}
+      />
+      <input
+        ref={videoInputRef}
+        type="file"
+        accept="video/mp4,video/webm,video/quicktime,video/x-m4v"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(event) => {
+          void handleVideoPickerChange(event);
+        }}
+      />
+
+      {pendingImages.length > 0 ? (
+        <div style={{ marginBottom: 8 }}>
+          <Space wrap size={[8, 8]}>
+            {pendingImages.map((image) => {
+              const imageFileName = getDisplayLabel(image.file_name, '图片');
+              return (
+              <div
+                key={image.image_id}
+                style={{
+                  position: 'relative',
+                  width: 84,
+                  height: 84,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  border: '1px solid #d9d9d9',
+                  background: '#fafafa',
+                }}
+              >
+                <img
+                  src={image.previewUrl}
+                  alt={imageFileName}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <Button
+                  type="text"
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleRemovePendingImage(image.image_id)}
+                  style={{ position: 'absolute', top: 0, right: 0 }}
+                />
+              </div>
+              );
+            })}
+          </Space>
+        </div>
+      ) : null}
+
+      {pendingVideos.length > 0 ? (
+        <div style={{ marginBottom: 8 }}>
+          <Space wrap size={[8, 8]}>
+            {pendingVideos.map((video) => {
+              const videoFileName = getDisplayLabel(video.file_name, '视频');
+              return (
+              <div
+                key={video.video_id}
+                style={{
+                  position: 'relative',
+                  width: 132,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  border: '1px solid #d9d9d9',
+                  background: '#fafafa',
+                }}
+              >
+                <video
+                  src={video.previewUrl}
+                  preload="metadata"
+                  controls
+                  style={{ width: '100%', height: 88, display: 'block', background: '#000' }}
+                />
+                <div
+                  style={{
+                    padding: '6px 8px',
+                    fontSize: 12,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  title={videoFileName}
+                >
+                  {videoFileName}
+                </div>
+                <Button
+                  type="text"
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleRemovePendingVideo(video.video_id)}
+                  style={{ position: 'absolute', top: 0, right: 0 }}
+                />
+              </div>
+              );
+            })}
+          </Space>
+        </div>
+      ) : null}
+
       <Space.Compact style={{ width: '100%' }}>
         <TextArea
           autoSize={{ minRows: 1, maxRows: 5 }}
-          placeholder={isTranscribing ? '正在识别语音...' : '开始输入... (Shift + Enter 换行)'}
+          placeholder={isTranscribing ? '正在识别语音...' : '开始输入问题…（Shift + Enter 换行）'}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onPaste={(event) => { void handleImagePaste(event); }}
           onPressEnter={(e) => {
             if (!e.shiftKey) {
               e.preventDefault();
@@ -848,7 +1596,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           size="large"
           style={{ borderRadius: '8px 0 0 8px' }}
         />
-        <Tooltip title={isRecording ? '点击停止录音并转文字' : isTranscribing ? '正在识别语音' : '语音输入'}>
+        <Tooltip title={isRecording ? '点击停止录音并转成文字' : isTranscribing ? '正在识别语音' : '语音输入'}>
           <Button
             icon={<AudioOutlined />}
             onClick={() => void handleVoiceInput()}
@@ -857,7 +1605,29 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
             size="large"
             style={{ borderRadius: 0 }}
           >
-            {isRecording ? '录音中' : '语音输入'}
+            {isRecording ? '结束录音' : '语音输入'}
+          </Button>
+        </Tooltip>
+        <Tooltip title="上传图片">
+          <Button
+            icon={<PictureOutlined />}
+            onClick={() => imageInputRef.current?.click()}
+            disabled={isLoading || isTranscribing}
+            size="large"
+            style={{ borderRadius: 0 }}
+          >
+            图片
+          </Button>
+        </Tooltip>
+        <Tooltip title="上传视频">
+          <Button
+            icon={<VideoCameraOutlined />}
+            onClick={() => videoInputRef.current?.click()}
+            disabled={isLoading || isTranscribing}
+            size="large"
+            style={{ borderRadius: 0 }}
+          >
+            视频
           </Button>
         </Tooltip>
         <Button
@@ -874,3 +1644,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
 };
 
 export default ChatPanel;
+
+
+
+

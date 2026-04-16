@@ -29,7 +29,7 @@ export interface ConversationDetailLike {
 export interface GeneratedFileLike {
   id: string;
   name: string;
-  type: 'report' | 'ppt';
+  type: 'report' | 'ppt' | 'lesson_plan' | 'quiz';
   content: unknown;
   meta?: Record<string, unknown>;
 }
@@ -308,6 +308,113 @@ function mergeReportArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] 
   return [];
 }
 
+function buildJsonFileName(baseTitle: string, fallbackName: string): string {
+  const normalized = String(baseTitle || '').trim();
+  if (!normalized) {
+    return fallbackName;
+  }
+  return /\.json$/i.test(normalized) ? normalized : `${normalized}.json`;
+}
+
+function mergeLessonPlanArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] {
+  const outlineArtifact = artifacts.find(
+    (artifact) => String(artifact.artifact_type || '').trim() === 'lesson_plan_outline',
+  );
+  const lessonPlanArtifact = artifacts.find(
+    (artifact) => String(artifact.artifact_type || '').trim() === 'lesson_plan',
+  );
+
+  if (lessonPlanArtifact) {
+    const artifactId = normalizeGeneratedFileId(String(lessonPlanArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
+    const content = lessonPlanArtifact.content && typeof lessonPlanArtifact.content === 'object'
+      ? (lessonPlanArtifact.content as Record<string, unknown>)
+      : {};
+    const title = buildJsonFileName(
+      String(lessonPlanArtifact.title || '').trim(),
+      `${String(content.title || '教案').trim() || '教案'}.json`,
+    );
+    return [
+      {
+        id: artifactId,
+        name: title,
+        type: 'lesson_plan',
+        content,
+        meta: {
+          kind: 'final_lesson_plan',
+          outlineContent: outlineArtifact?.content || undefined,
+          outlineArtifactId: outlineArtifact?.artifact_id || undefined,
+          originalArtifactId: String(lessonPlanArtifact.artifact_id || '').trim() || undefined,
+          generationState:
+            lessonPlanArtifact.generation_state && typeof lessonPlanArtifact.generation_state === 'object'
+              ? lessonPlanArtifact.generation_state
+              : undefined,
+        },
+      },
+    ];
+  }
+
+  if (outlineArtifact) {
+    const artifactId = normalizeGeneratedFileId(String(outlineArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
+    const content = outlineArtifact.content && typeof outlineArtifact.content === 'object'
+      ? (outlineArtifact.content as Record<string, unknown>)
+      : {};
+    const title = buildJsonFileName(String(outlineArtifact.title || '').trim(), '教案大纲.json');
+    return [
+      {
+        id: artifactId,
+        name: title,
+        type: 'lesson_plan',
+        content,
+        meta: {
+          kind: 'outline',
+          originalArtifactId: String(outlineArtifact.artifact_id || '').trim() || undefined,
+          generationState:
+            outlineArtifact.generation_state && typeof outlineArtifact.generation_state === 'object'
+              ? outlineArtifact.generation_state
+              : undefined,
+        },
+      },
+    ];
+  }
+
+  return [];
+}
+
+function mergeQuizArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] {
+  const quizArtifact = artifacts.find(
+    (artifact) => String(artifact.artifact_type || '').trim() === 'quiz',
+  );
+  if (!quizArtifact) {
+    return [];
+  }
+
+  const artifactId = normalizeGeneratedFileId(String(quizArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
+  const content = quizArtifact.content && typeof quizArtifact.content === 'object'
+    ? (quizArtifact.content as Record<string, unknown>)
+    : {};
+  const title = buildJsonFileName(
+    String(quizArtifact.title || '').trim(),
+    `${String(content.title || '习题').trim() || '习题'}.json`,
+  );
+
+  return [
+    {
+      id: artifactId,
+      name: title,
+      type: 'quiz',
+      content,
+      meta: {
+        kind: 'quiz',
+        originalArtifactId: String(quizArtifact.artifact_id || '').trim() || undefined,
+        generationState:
+          quizArtifact.generation_state && typeof quizArtifact.generation_state === 'object'
+            ? quizArtifact.generation_state
+            : undefined,
+      },
+    },
+  ];
+}
+
 export function buildReportQuestionFromConfig(config: ReportConfigInput): string {
   const parts: string[] = ['请基于当前会话和我选中的资料生成一份报告。'];
   const title = String(config.title || '').trim();
@@ -327,7 +434,12 @@ export function buildReportQuestionFromConfig(config: ReportConfigInput): string
 
 export function extractGeneratedFilesFromV2Response(response: V2ResponseLike): GeneratedFileLike[] {
   const artifacts = Array.isArray(response.artifacts) ? response.artifacts : [];
-  return [...mergeReportArtifacts(artifacts), ...mergePptArtifacts(artifacts)];
+  return [
+    ...mergeReportArtifacts(artifacts),
+    ...mergePptArtifacts(artifacts),
+    ...mergeLessonPlanArtifacts(artifacts),
+    ...mergeQuizArtifacts(artifacts),
+  ];
 }
 
 export function restoreGeneratedFilesFromConversationDetail(
@@ -337,7 +449,12 @@ export function restoreGeneratedFilesFromConversationDetail(
   const artifacts = Array.isArray(detail.state?.workflow_state?.artifacts)
     ? detail.state?.workflow_state?.artifacts || []
     : [];
-  const files = [...mergeReportArtifacts(artifacts), ...mergePptArtifacts(artifacts)];
+  const files = [
+    ...mergeReportArtifacts(artifacts),
+    ...mergePptArtifacts(artifacts),
+    ...mergeLessonPlanArtifacts(artifacts),
+    ...mergeQuizArtifacts(artifacts),
+  ];
 
   return files.map((file) => ({
     ...file,

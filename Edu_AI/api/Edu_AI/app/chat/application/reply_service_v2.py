@@ -12,12 +12,15 @@ from app.chat.orchestrator.lesson_plan_context_organizer import LessonPlanContex
 from app.chat.orchestrator.lesson_plan_readiness_judge import LessonPlanReadinessJudge
 from app.chat.orchestrator.main_orchestrator import MainOrchestrator
 from app.chat.orchestrator.ppt_context_organizer import PptContextOrganizer
+from app.chat.orchestrator.quiz_context_organizer import QuizContextOrganizer
+from app.chat.orchestrator.quiz_readiness_judge import QuizReadinessJudge
 from app.chat.orchestrator.report_context_organizer import ReportContextOrganizer
 from app.chat.orchestrator.status_card_builder import StatusCardBuilder
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.model_registry import build_default_gateway
 from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
+from app.chat.tools.video_search import video_search_tool
 from app.chat.workflows.ppt.content_validator import PptContentValidator
 from app.chat.workflows.ppt.edit_runtime import PptEditRuntime
 from app.chat.workflows.ppt.content_markdown_generator import PptContentMarkdownGenerator
@@ -25,6 +28,9 @@ from app.chat.workflows.ppt.html2ppt_client import Html2PptClient
 from app.chat.workflows.ppt.outline_builder import PptOutlineBuilder
 from app.chat.workflows.ppt.readiness_judge import PptReadinessJudge
 from app.chat.workflows.ppt.runtime import PptWorkflowRuntime
+from app.chat.workflows.quiz.assembler import QuizAssembler
+from app.chat.workflows.quiz.generator import QuizGenerator
+from app.chat.workflows.quiz.runtime import QuizWorkflowRuntime
 from app.chat.workflows.lesson_plan.runtime import LessonPlanWorkflowRuntime
 from app.chat.workflows.report.edit_runtime import ReportEditRuntime
 from app.chat.workflows.report.assembler import ReportAssembler
@@ -33,6 +39,40 @@ from core.course_storage import storage_manager as default_course_storage_manage
 
 from .lesson_plan_service_v2 import build_default_lesson_plan_engine
 from .report_service_v2 import build_default_report_engine, finalize_report_result
+
+
+def _persist_quiz_course_material(*, payload, result: dict, course_storage_manager=None) -> None:
+    course_id = str(getattr(payload, "course_id", "") or "").strip()
+    if not course_id or course_storage_manager is None:
+        return
+
+    artifacts = list(result.get("artifacts") or [])
+    quiz_artifact = next(
+        (
+            artifact
+            for artifact in artifacts
+            if isinstance(artifact, dict) and str(artifact.get("artifact_type") or "").strip() == "quiz"
+        ),
+        None,
+    )
+    if not quiz_artifact:
+        return
+
+    material_id = str(quiz_artifact.get("artifact_id") or "").strip()
+    if not material_id:
+        return
+
+    course_storage_manager.save_generated_material(
+        course_id=course_id,
+        material_type="quiz",
+        material_id=material_id,
+        material_data={
+            "title": str(quiz_artifact.get("title") or "quiz").strip(),
+            "material_type": "quiz",
+            "content": quiz_artifact.get("content"),
+            "generation_state": dict(quiz_artifact.get("generation_state") or {}),
+        },
+    )
 
 
 class ReplyServiceV2:
@@ -56,6 +96,33 @@ class ReplyServiceV2:
         self.course_storage_manager = course_storage_manager
         self.report_edit_runtime = report_edit_runtime
         self.ppt_edit_runtime = ppt_edit_runtime
+
+    def _finalize_result(self, *, payload, request, result: dict) -> dict:
+        finalize_report_result(
+            payload=payload,
+            result=result,
+            course_storage_manager=self.course_storage_manager,
+            compact_message=True,
+        )
+        _persist_quiz_course_material(
+            payload=payload,
+            result=result,
+            course_storage_manager=self.course_storage_manager,
+        )
+
+        conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "").strip()
+        result.setdefault("conversation", {"conversation_id": conversation_id})
+        if conversation_id:
+            self.conversation_store.write_v2_result(conversation_id, request, result)
+            if self.context_builder is not None:
+                refreshed_snapshot = self.context_builder.build(request)
+                status_card = self.status_card_builder.build(
+                    snapshot=refreshed_snapshot,
+                    workflow=result.get("workflow"),
+                    capability=request.capability,
+                )
+                result["status_card"] = status_card if isinstance(status_card, dict) else status_card.model_dump(exclude_none=True)
+        return result
 
     def reply(self, payload):
         request = normalize_chat_request(payload)
@@ -84,26 +151,28 @@ class ReplyServiceV2:
         else:
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
-        finalize_report_result(
-            payload=payload,
-            result=result,
-            course_storage_manager=self.course_storage_manager,
-            compact_message=True,
-        )
+        return self._finalize_result(payload=payload, request=request, result=result)
 
-        conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "").strip()
-        result.setdefault("conversation", {"conversation_id": conversation_id})
-        if conversation_id:
-            self.conversation_store.write_v2_result(conversation_id, request, result)
-            if self.context_builder is not None:
-                refreshed_snapshot = self.context_builder.build(request)
-                status_card = self.status_card_builder.build(
-                    snapshot=refreshed_snapshot,
-                    workflow=result.get("workflow"),
-                    capability=request.capability,
+    def reply_stream(self, payload):
+        request = normalize_chat_request(payload)
+        if not getattr(request, "conversation_id", None):
+            request.conversation_id = f"conv-{uuid4().hex[:12]}"
+
+        orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
+        final_result = None
+        for event in orchestrator.dispatch_stream(request):
+            if event.get("type") == "result":
+                final_result = self._finalize_result(
+                    payload=payload,
+                    request=request,
+                    result=dict(event.get("payload") or {}),
                 )
-                result["status_card"] = status_card if isinstance(status_card, dict) else status_card.model_dump(exclude_none=True)
-        return result
+                yield {"type": "result", "payload": final_result}
+            else:
+                yield event
+
+        conversation_id = str(((final_result or {}).get("conversation") or {}).get("conversation_id") or request.conversation_id or "")
+        yield {"type": "done", "payload": {"conversation_id": conversation_id}}
 
     def refresh_running_conversation(self, request):
         if self.context_builder is None or self.ppt_edit_runtime is None:
@@ -138,10 +207,20 @@ def build_default_reply_service_v2():
 
     def build_orchestrator(request):
         gateway = build_default_gateway(getattr(request, "model_id", None))
+        def runtime_video_search_tool(*, query, top_k=5, selected_doc_ids=None, owner=None):
+            return video_search_tool(
+                query=query,
+                top_k=top_k,
+                selected_doc_ids=selected_doc_ids,
+                owner=owner,
+                course_id=getattr(request, "course_id", None),
+            )
+
         fast_runtime = FastChatRuntime(
             model_gateway=gateway,
             rag_retriever=rag_search_tool,
             web_retriever=web_search_tool,
+            video_retriever=runtime_video_search_tool,
         )
         return MainOrchestrator(
             fast_runtime=fast_runtime,
@@ -174,6 +253,13 @@ def build_default_reply_service_v2():
                     generation_context_builder=GenerationContextBuilder(),
                     lesson_plan_context_organizer=LessonPlanContextOrganizer(),
                     lesson_plan_readiness_judge=LessonPlanReadinessJudge(),
+                ),
+                "quiz": QuizWorkflowRuntime(
+                    generation_context_builder=GenerationContextBuilder(),
+                    quiz_assembler=QuizAssembler(),
+                    quiz_context_organizer=QuizContextOrganizer(llm=get_fallback_llm()),
+                    quiz_readiness_judge=QuizReadinessJudge(llm=get_fallback_llm()),
+                    quiz_generator=QuizGenerator(llm=get_fallback_llm(), rag_fetcher=rag_search_tool),
                 ),
             },
             context_builder=context_builder,

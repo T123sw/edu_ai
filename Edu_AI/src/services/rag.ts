@@ -43,7 +43,9 @@ export interface RAGImportResponse {
   status: 'success' | 'skipped' | 'error';
   message: string;
   file?: string;
+  file_path?: string;
   chunk_count?: number;
+  image_url?: string;
 }
 
 export interface RAGStats {
@@ -69,6 +71,9 @@ export interface KnowledgeDocument {
   source_url?: string;
   source_title?: string;
   source_domain?: string;
+  doc_kind?: string;
+  modality?: string;
+  image_url?: string;
 }
 
 export interface DocumentSample {
@@ -108,6 +113,60 @@ export interface UploadTempResponse {
   job_id: string;
   temp_file_path: string;
   filename: string;
+}
+
+export const IMAGE_FILE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif'];
+
+export function isImageFileName(fileName: string): boolean {
+  const lower = String(fileName || '').toLowerCase();
+  return IMAGE_FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
+}
+
+function resolvePreviewMediaRequestUrl(mediaUrl: string): string {
+  const raw = String(mediaUrl || '').trim();
+  if (!raw) {
+    throw new Error('媒体地址不能为空');
+  }
+
+  if (raw.startsWith('/api/')) {
+    return `${API_BASE_URL}${raw}`;
+  }
+
+  try {
+    const parsed = new URL(raw);
+    if (parsed.pathname.startsWith('/api/rag/')) {
+      return `${API_BASE_URL}${parsed.pathname}${parsed.search}`;
+    }
+    return parsed.toString();
+  } catch {
+    const normalized = raw.startsWith('/') ? raw : `/${raw}`;
+    return `${API_BASE_URL}${normalized}`;
+  }
+}
+
+export async function loadPreviewMediaUrl(mediaUrl: string): Promise<string> {
+  const requestUrl = resolvePreviewMediaRequestUrl(mediaUrl);
+  const token = getAuthToken();
+  const response = await fetch(requestUrl, {
+    method: 'GET',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(errorText || `加载媒体预览失败: ${response.statusText}`);
+  }
+
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
+export function revokePreviewMediaUrl(objectUrl?: string | null): void {
+  if (objectUrl && objectUrl.startsWith('blob:')) {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 export interface ImportProgress {
@@ -243,6 +302,69 @@ export async function importDocument(
     }
     throw new Error('导入文档失败，请稍后重试');
   }
+}
+
+/**
+ * 上传并导入图片到 RAG v2 图片索引。
+ */
+export async function importImageDocument(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<RAGImportResponse> {
+  if (!file) {
+    throw new Error('请选择图片');
+  }
+  if (!isImageFileName(file.name)) {
+    throw new Error(`不支持的图片类型，支持的类型: ${IMAGE_FILE_EXTENSIONS.join(', ')}`);
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return new Promise<RAGImportResponse>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200 || xhr.status === 201) {
+        try {
+          if (onProgress) {
+            onProgress(100);
+          }
+          resolve(JSON.parse(xhr.responseText) as RAGImportResponse);
+        } catch {
+          reject(new Error('解析图片上传响应失败'));
+        }
+      } else {
+        try {
+          const errorData = JSON.parse(xhr.responseText);
+          reject(new Error(errorData.detail || `图片上传失败: ${xhr.statusText}`));
+        } catch {
+          reject(new Error(`图片上传失败: ${xhr.statusText}`));
+        }
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      reject(new Error('网络错误，请检查连接'));
+    });
+
+    xhr.addEventListener('abort', () => {
+      reject(new Error('图片上传已取消'));
+    });
+
+    const token = getAuthToken();
+    xhr.open('POST', `${API_BASE_URL}/api/rag/import_image`);
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+    xhr.send(formData);
+  });
 }
 
 async function uploadTempWithProgress(

@@ -14,10 +14,11 @@ api/Edu_AI/
 │   ├── user_storage.py       # 用户信息读写
 │   └── config.py             # 统一配置与路径
 │
-├── new_rag/                  # 新版 RAG（requests 实现）
+├── rag_v2/                   # 当前启用的 RAG v2 运行模块
 │   ├── __init__.py
 │   ├── api.py                # FastAPI 路由
-│   └── system.py             # RAG 核心逻辑
+│   ├── document_resolver.py  # 业务层文档标识解析
+│   └── rag_main/             # RAG 核心逻辑
 │
 ├── storage/                  # 向量库 / 临时文件 / 索引
 │   ├── vector_db/
@@ -32,9 +33,9 @@ api/Edu_AI/
 
 ## 📝 模块说明
 
-- `app/main.py`：FastAPI 入口，挂载认证与 `new_rag` 路由，同时提供兼容的 `/chat`、`/health` 等简单接口。
+- `app/main.py`：FastAPI 入口，挂载认证与 `rag_v2` 路由，同时提供兼容的 `/chat`、`/health` 等简单接口。
 - `core/`：只保留当前必须的 `config.py`、`auth.py`、`user_storage.py`，退出所有旧 RAG 相关代码。
-- `new_rag/`：包含 `RAGSystem`、嵌入调用、增量导入、问答 API，全量采用 `requests`。
+- `rag_v2/`：包含 `RAGSystem`、嵌入调用、增量导入、问答 API，并提供统一文档解析器。
 - `storage/`：统一保存向量数据库、临时文件与文档索引，便于备份迁移。
 
 ## 🔧 启动方式
@@ -61,7 +62,7 @@ LLM_MODEL               # 回答生成模型名称
 ## ✅ 当前状态
 
 - 旧版 RAG、脚本、备份目录全部移除。
-- 依赖列表精简，仅保留 `FastAPI + new_rag` 所需库。
+- 依赖列表精简，仅保留 `FastAPI + rag_v2` 所需库。
 - `.env` 中的嵌入/LLM 配置可直接驱动新系统。
 - 前端登录、文档管理、RAG 问答使用统一 API。
 

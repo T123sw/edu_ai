@@ -25,7 +25,7 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
         selected_model = str(model_cfg.get("model_name") or Config.LLM_MODEL_DEEP)
         selected_base = _normalize_openai_compatible_base_url(
             model_cfg.get("api_base")
-            or Config.DEEPSEEK_BASE_URL
+            or Config.DEEP_MODEL_API_BASE
             or Config.REMOTE_MODEL_API_BASE
         )
         print(
@@ -35,7 +35,7 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
         return ChatOpenAI(
             api_key=str(
                 model_cfg.get("api_key")
-                or Config.DEEPSEEK_API_KEY
+                or Config.DEEP_MODEL_API_KEY
                 or Config.REMOTE_MODEL_API_KEY
             ),
             base_url=selected_base,

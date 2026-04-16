@@ -8,6 +8,16 @@ from typing import Any, Dict, List, Optional, Tuple
 from core.config import Config
 from local_video_ingestion import LocalVideoRAGIngester
 
+VIDEO_QUERY_HINTS = (
+    "视频",
+    "片段",
+    "画面",
+    "镜头",
+    "播放",
+    "讲解视频",
+    "这段视频",
+)
+
 
 def should_use_video_search(
     *,
@@ -103,3 +113,74 @@ def search_video_segments_for_chat(
             }
         )
     return hits
+
+
+def should_query_video_for_runtime(question: str) -> bool:
+    text = str(question or "").strip().lower()
+    if not text:
+        return False
+    return any(hint in text for hint in VIDEO_QUERY_HINTS)
+
+
+def video_search_tool(
+    *,
+    query: str,
+    top_k: int = 5,
+    selected_doc_ids: Optional[List[str]] = None,
+    owner: Optional[str] = None,
+    course_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    del selected_doc_ids
+
+    if not should_query_video_for_runtime(query):
+        return {"ok": True, "payload": {"summary": "", "sources": []}}
+
+    hits = search_video_segments_for_chat(
+        query=query,
+        owner=owner,
+        course_id=course_id,
+        top_k=top_k,
+    )
+
+    sources: List[Dict[str, Any]] = []
+    summary_lines: List[str] = []
+    for index, hit in enumerate(hits, start=1):
+        start_time = hit.get("start_time")
+        end_time = hit.get("end_time")
+        transcript = str(hit.get("transcript") or "").strip()
+        stream_url = str(hit.get("playback_url") or hit.get("stream_url") or "").strip()
+        title = Path(str(hit.get("source_original_path") or hit.get("source_chunk_path") or f"视频片段 {index}")).name
+
+        if transcript:
+            summary_lines.append(
+                f"{index}. [{start_time}-{end_time}] {transcript[:180]}"
+            )
+
+        sources.append(
+            {
+                "source": title,
+                "content": transcript,
+                "modality": "video",
+                "video_url": stream_url,
+                "start_time": start_time,
+                "end_time": end_time,
+                "source_path": hit.get("source_original_path") or hit.get("source_chunk_path"),
+                "metadata": {
+                    "modality": "video",
+                    "video_url": stream_url,
+                    "stream_url": str(hit.get("stream_url") or "").strip(),
+                    "playback_url": str(hit.get("playback_url") or "").strip(),
+                    "title": title,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                },
+            }
+        )
+
+    return {
+        "ok": True,
+        "payload": {
+            "summary": "\n".join(summary_lines),
+            "sources": sources,
+        },
+    }

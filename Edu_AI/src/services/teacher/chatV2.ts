@@ -24,9 +24,43 @@ export interface ChatReplyRequestV2 {
   allow_rag?: boolean;
   allow_web?: boolean;
   selected_doc_ids?: string[];
+  input_images?: ChatInputImageV2[];
+  input_videos?: ChatInputVideoV2[];
   action_hint?: string;
   artifact_reference?: ChatArtifactReference;
   conversation_reference?: ChatConversationReference;
+}
+
+export interface ChatInputImageV2 {
+  image_id: string;
+  file_name: string;
+  mime_type: string;
+  storage_path: string;
+  relative_path: string;
+  image_url: string;
+  source: 'upload' | 'paste';
+}
+
+export interface ChatInputVideoV2 {
+  video_id: string;
+  file_name: string;
+  mime_type: string;
+  storage_path: string;
+  relative_path: string;
+  video_url: string;
+  source: 'upload';
+}
+
+export interface ChatImageUploadResponseV2 {
+  conversation_id?: string;
+  session_id: string;
+  images: ChatInputImageV2[];
+}
+
+export interface ChatVideoUploadResponseV2 {
+  conversation_id?: string;
+  session_id: string;
+  videos: ChatInputVideoV2[];
 }
 
 export interface ChatArtifactReference {
@@ -82,6 +116,32 @@ export interface KnowledgeBaseDirectReportRequestV2 {
   prompt_draft?: string;
   final_user_prompt?: string;
   selected_card?: ReportEntryCardSelection | null;
+}
+
+export type QuizQuestionTypeV2 = 'choice' | 'blank' | 'short' | 'judge';
+export type QuizDifficultyV2 = 'easy' | 'medium' | 'hard';
+
+export interface KnowledgeBaseDirectQuizPrefillRequestV2 {
+  course_id?: string;
+  selected_doc_ids?: string[];
+}
+
+export interface DirectQuizConfigV2 {
+  topic: string;
+  hard_points: string[];
+  difficulty: QuizDifficultyV2;
+  question_count: number;
+  question_types: QuizQuestionTypeV2[];
+  include_answers: boolean;
+  include_explanations: boolean;
+}
+
+export interface KnowledgeBaseDirectQuizRequestV2 {
+  course_id?: string;
+  selected_doc_ids?: string[];
+  quiz_config: DirectQuizConfigV2;
+  prompt_draft?: string;
+  final_user_prompt?: string;
 }
 
 export interface KnowledgeBaseDirectPptOutlineRequestV2 {
@@ -215,6 +275,21 @@ export interface ChatDirectReportResponseV2 {
   trace: Record<string, unknown>;
 }
 
+export interface ChatQuizPrefillResponseV2 {
+  entry_mode: 'knowledge_base_quiz';
+  topic: string;
+  hard_points: string[];
+  trace: Record<string, unknown>;
+}
+
+export interface ChatDirectQuizResponseV2 {
+  action: {
+    name: string;
+  };
+  artifacts: Array<Record<string, unknown>>;
+  trace: Record<string, unknown>;
+}
+
 export interface ChatDirectPptOutlineResponseV2 {
   action: {
     name: string;
@@ -266,6 +341,26 @@ export interface StatusCardV2 {
   summary_hint?: string;
 }
 
+export interface ChatSourceV2 {
+  source?: string;
+  content?: string;
+  modality?: string;
+  image_url?: string;
+  video_url?: string;
+  source_path?: string;
+  metadata?: {
+    modality?: string;
+    image_url?: string;
+    video_url?: string;
+    stream_url?: string;
+    playback_url?: string;
+    title?: string;
+    start_time?: number;
+    end_time?: number;
+  };
+  [key: string]: unknown;
+}
+
 export interface ChatResponseV2 {
   message: {
     role: string;
@@ -279,7 +374,7 @@ export interface ChatResponseV2 {
   };
   workflow?: Record<string, unknown> | null;
   artifacts: Array<Record<string, unknown>>;
-  sources: Array<Record<string, unknown>>;
+  sources: ChatSourceV2[];
   trace: Record<string, unknown>;
   status_card?: StatusCardV2 | null;
 }
@@ -290,6 +385,22 @@ export interface ChatErrorResponseV2 {
     message?: string;
     retryable?: boolean;
   };
+}
+
+export type ChatStreamEventTypeV2 = 'metadata' | 'status' | 'delta' | 'result' | 'done' | 'error';
+
+export interface ChatStreamEventV2 {
+  type: ChatStreamEventTypeV2;
+  payload: Record<string, any>;
+}
+
+export interface ChatReplyStreamHandlersV2 {
+  onMetadata?: (payload: Record<string, any>) => void;
+  onStatus?: (payload: Record<string, any>) => void;
+  onDelta?: (content: string, payload: Record<string, any>) => void;
+  onResult?: (response: ChatResponseV2) => void;
+  onDone?: (payload: Record<string, any>) => void;
+  onError?: (error: Error, payload?: Record<string, any>) => void;
 }
 
 export interface SpeechTranscriptResponseV2 {
@@ -326,6 +437,138 @@ export async function sendChatReplyV2(payload: ChatReplyRequestV2): Promise<Chat
   return postV2<ChatResponseV2, ChatReplyRequestV2>('/api/chat/v2/reply', payload);
 }
 
+export function parseChatReplyV2StreamChunk(
+  previousRemainder: string,
+  chunk: string,
+): { events: ChatStreamEventV2[]; remainder: string } {
+  const combined = `${previousRemainder || ''}${chunk || ''}`;
+  const parts = combined.split(/\r?\n\r?\n/);
+  const remainder = parts.pop() || '';
+  const events = parts
+    .map((frame) =>
+      frame
+        .split(/\r?\n/)
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(5).trimStart())
+        .join(''),
+    )
+    .filter(Boolean)
+    .map((data) => JSON.parse(data) as ChatStreamEventV2);
+  return { events, remainder };
+}
+
+export async function sendChatReplyV2Stream(
+  payload: ChatReplyRequestV2,
+  handlers: ChatReplyStreamHandlersV2,
+): Promise<void> {
+  const token = getAuthToken();
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/v2/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok || !resp.body) {
+    throw new Error(`请求失败: ${resp.status} ${resp.statusText}`);
+  }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let remainder = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    const parsed = parseChatReplyV2StreamChunk(remainder, decoder.decode(value, { stream: true }));
+    remainder = parsed.remainder;
+    for (const event of parsed.events) {
+      if (event.type === 'metadata') handlers.onMetadata?.(event.payload);
+      else if (event.type === 'status') handlers.onStatus?.(event.payload);
+      else if (event.type === 'delta') handlers.onDelta?.(String(event.payload?.content || ''), event.payload);
+      else if (event.type === 'result') handlers.onResult?.(event.payload as ChatResponseV2);
+      else if (event.type === 'done') handlers.onDone?.(event.payload);
+      else if (event.type === 'error') handlers.onError?.(new Error(String(event.payload?.message || '流式回复失败')), event.payload);
+    }
+  }
+}
+
+export async function uploadChatImagesV2(
+  files: File[],
+  options?: { conversationId?: string | null; source?: 'upload' | 'paste' },
+): Promise<ChatImageUploadResponseV2> {
+  const token = getAuthToken();
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('files', file, file.name);
+  }
+  if (options?.conversationId) {
+    formData.append('conversation_id', options.conversationId);
+  }
+  formData.append('source', options?.source || 'upload');
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/v2/images/upload`, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (!resp.ok) {
+    let detail = `请求失败: ${resp.status} ${resp.statusText}`;
+    try {
+      const errorPayload = (await resp.json()) as ChatErrorResponseV2;
+      detail = errorPayload.error?.message || detail;
+    } catch {
+      const text = await resp.text().catch(() => '');
+      if (text) detail = text;
+    }
+    throw new Error(detail);
+  }
+
+  return (await resp.json()) as ChatImageUploadResponseV2;
+}
+
+export async function uploadChatVideosV2(
+  files: File[],
+  options?: { conversationId?: string | null; source?: 'upload' },
+): Promise<ChatVideoUploadResponseV2> {
+  const token = getAuthToken();
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('files', file, file.name);
+  }
+  if (options?.conversationId) {
+    formData.append('conversation_id', options.conversationId);
+  }
+  formData.append('source', options?.source || 'upload');
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/v2/videos/upload`, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (!resp.ok) {
+    let detail = `璇锋眰澶辫触: ${resp.status} ${resp.statusText}`;
+    try {
+      const errorPayload = (await resp.json()) as ChatErrorResponseV2;
+      detail = errorPayload.error?.message || detail;
+    } catch {
+      const text = await resp.text().catch(() => '');
+      if (text) detail = text;
+    }
+    throw new Error(detail);
+  }
+
+  return (await resp.json()) as ChatVideoUploadResponseV2;
+}
+
 export async function sendReportV2(payload: ChatReportRequestV2): Promise<ChatResponseV2> {
   return postV2<ChatResponseV2, ChatReportRequestV2>('/api/chat/v2/report', payload);
 }
@@ -353,6 +596,18 @@ export async function generateKnowledgeBaseReportV2(
   payload: KnowledgeBaseDirectReportRequestV2,
 ): Promise<ChatDirectReportResponseV2> {
   return postV2<ChatDirectReportResponseV2, KnowledgeBaseDirectReportRequestV2>('/api/chat/v2/report/direct', payload);
+}
+
+export async function fetchQuizEntryPrefillV2(
+  payload: KnowledgeBaseDirectQuizPrefillRequestV2,
+): Promise<ChatQuizPrefillResponseV2> {
+  return postV2<ChatQuizPrefillResponseV2, KnowledgeBaseDirectQuizPrefillRequestV2>('/api/chat/v2/quiz/prefill', payload);
+}
+
+export async function generateKnowledgeBaseQuizV2(
+  payload: KnowledgeBaseDirectQuizRequestV2,
+): Promise<ChatDirectQuizResponseV2> {
+  return postV2<ChatDirectQuizResponseV2, KnowledgeBaseDirectQuizRequestV2>('/api/chat/v2/quiz/direct', payload);
 }
 
 export async function generateKnowledgeBasePptOutlineV2(
@@ -408,6 +663,8 @@ interface BuildChatReplyPayloadOptions {
   allowRag: boolean;
   allowWeb: boolean;
   selectedDocIds: string[];
+  inputImages?: ChatInputImageV2[];
+  inputVideos?: ChatInputVideoV2[];
   artifactReference?: ChatArtifactReference | null;
   conversationReference?: ChatConversationReference | null;
 }
@@ -426,6 +683,12 @@ export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): Ch
   }
   if (options.conversationReference) {
     payload.conversation_reference = options.conversationReference;
+  }
+  if (options.inputImages?.length) {
+    payload.input_images = options.inputImages;
+  }
+  if (options.inputVideos?.length) {
+    payload.input_videos = options.inputVideos;
   }
   return payload;
 }

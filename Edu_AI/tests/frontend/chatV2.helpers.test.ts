@@ -174,6 +174,43 @@ assert.equal(pptDeckFiles[0].meta?.htmlPreviewUrl, 'http://127.0.0.1:46080/ppt/a
 assert.equal(pptDeckFiles[0].meta?.pptxUrl, 'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.pptx');
 assert.match(String(pptDeckFiles[0].meta?.outlineContent), /三次握手过程/);
 
+const quizFiles = extractGeneratedFilesFromV2Response({
+  action: { name: 'generate.quiz' },
+  artifacts: [
+    {
+      artifact_id: 'conv-quiz-1:quiz',
+      artifact_type: 'quiz',
+      title: '关羽的历史与文学形象辨析-quiz.json',
+      content: {
+        title: '关羽的历史与文学形象辨析 quiz',
+        difficulty: 'medium',
+        question_type: 'mixed',
+        questions: [
+          {
+            id: '1',
+            type: 'choice',
+            stem: '以下哪一项属于关羽的正史核心战绩？',
+            options: ['温酒斩华雄', '白马之战斩颜良', '过五关斩六将', '单刀赴会'],
+            answer: 'B',
+            explanation: '白马之战斩颜良见于正史记载。',
+          },
+        ],
+      },
+      generation_state: {
+        status: 'completed',
+      },
+    },
+  ],
+});
+
+assert.equal(quizFiles.length, 1);
+assert.equal(quizFiles[0].id, 'conv-quiz-1__quiz');
+assert.equal(quizFiles[0].type, 'quiz');
+assert.equal(quizFiles[0].name, '关羽的历史与文学形象辨析-quiz.json');
+assert.equal(quizFiles[0].meta?.kind, 'quiz');
+assert.equal((quizFiles[0].content as any)?.questions?.[0]?.stem, '以下哪一项属于关羽的正史核心战绩？');
+assert.equal((quizFiles[0].meta?.generationState as any)?.status, 'completed');
+
 const lessonPlanOutlineFiles = extractGeneratedFilesFromV2Response({
   action: { name: 'generate.lesson_plan' },
   artifacts: [

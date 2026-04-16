@@ -1,8 +1,12 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.auth import get_current_user
+from app.chat.api import routes_v2 as routes_v2_module
 from app.chat.api.routes_v2 import router as v2_router
+from core.config import Config
 
 
 def test_reply_v2_route_returns_v2_payload(monkeypatch):
@@ -29,6 +33,260 @@ def test_reply_v2_route_returns_v2_payload(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["action"]["name"] == "chat.reply"
+
+
+def test_reply_v2_route_passes_input_images_to_service(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    class DummyService:
+        def reply(self, payload):
+            assert payload.owner == "tester"
+            assert payload.input_images[0]["image_id"] == "img-1"
+            assert payload.input_images[0]["source"] == "paste"
+            return {
+                "message": {"role": "assistant", "content": "ok"},
+                "conversation": {"conversation_id": "conv-1"},
+                "action": {"name": "chat.reply"},
+                "workflow": None,
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "fast"},
+            }
+
+    monkeypatch.setattr("app.chat.api.routes_v2._get_reply_service", lambda: DummyService())
+    client = TestClient(app)
+    response = client.post(
+        "/api/chat/v2/reply",
+        json={
+            "question": "hello",
+            "input_images": [
+                {
+                    "image_id": "img-1",
+                    "file_name": "diagram.png",
+                    "mime_type": "image/png",
+                    "storage_path": "D:/chat_images/diagram.png",
+                    "relative_path": "chat_images/diagram.png",
+                    "image_url": "/api/chat/v2/images/chat_images/diagram.png",
+                    "source": "paste",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["action"]["name"] == "chat.reply"
+
+
+def test_reply_v2_route_passes_input_videos_to_service(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    class DummyService:
+        def reply(self, payload):
+            assert payload.owner == "tester"
+            assert payload.input_videos[0]["video_id"] == "vid-1"
+            assert payload.input_videos[0]["source"] == "upload"
+            return {
+                "message": {"role": "assistant", "content": "ok"},
+                "conversation": {"conversation_id": "conv-1"},
+                "action": {"name": "chat.reply"},
+                "workflow": None,
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "fast"},
+            }
+
+    monkeypatch.setattr("app.chat.api.routes_v2._get_reply_service", lambda: DummyService())
+    client = TestClient(app)
+    response = client.post(
+        "/api/chat/v2/reply",
+        json={
+            "question": "hello",
+            "input_videos": [
+                {
+                    "video_id": "vid-1",
+                    "file_name": "clip.mp4",
+                    "mime_type": "video/mp4",
+                    "storage_path": "D:/chat_videos/clip.mp4",
+                    "relative_path": "chat_videos/clip.mp4",
+                    "video_url": "/api/chat/v2/videos?path=chat_videos%2Fclip.mp4",
+                    "source": "upload",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["action"]["name"] == "chat.reply"
+
+
+def test_chat_image_upload_route_returns_normalized_metadata(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    upload_root = Path(__file__).with_name("_chat_image_upload_storage")
+    upload_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Config, "STORAGE_ROOT", upload_root)
+    client = TestClient(app)
+
+    try:
+        response = client.post(
+            "/api/chat/v2/images/upload",
+            files=[
+                (
+                    "files",
+                    (
+                        "diagram.png",
+                        bytes.fromhex(
+                            "89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000D49444154789C6360000002000154A24F5D0000000049454E44AE426082"
+                        ),
+                        "image/png",
+                    ),
+                )
+            ],
+            data={"conversation_id": "conv-image", "source": "paste"},
+        )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["images"][0]["file_name"] == "diagram.png"
+        assert payload["images"][0]["mime_type"] == "image/png"
+        assert payload["images"][0]["source"] == "paste"
+        assert payload["images"][0]["image_url"].startswith("/api/chat/v2/images?path=")
+    finally:
+        if upload_root.exists():
+            for item in sorted(upload_root.rglob("*"), reverse=True):
+                if item.is_file():
+                    item.unlink()
+                elif item.is_dir():
+                    item.rmdir()
+
+
+def test_chat_image_preview_route_serves_uploaded_image(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    upload_root = Path(__file__).with_name("_chat_image_preview_storage")
+    upload_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Config, "STORAGE_ROOT", upload_root)
+    client = TestClient(app)
+
+    try:
+        upload_response = client.post(
+            "/api/chat/v2/images/upload",
+            files=[
+                (
+                    "files",
+                    (
+                        "diagram.png",
+                        bytes.fromhex(
+                            "89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000D49444154789C6360000002000154A24F5D0000000049454E44AE426082"
+                        ),
+                        "image/png",
+                    ),
+                )
+            ],
+            data={"conversation_id": "conv-image", "source": "upload"},
+        )
+        image_url = upload_response.json()["images"][0]["image_url"]
+
+        preview_response = client.get(image_url)
+
+        assert preview_response.status_code == 200
+        assert preview_response.headers["content-type"].startswith("image/png")
+    finally:
+        if upload_root.exists():
+            for item in sorted(upload_root.rglob("*"), reverse=True):
+                if item.is_file():
+                    item.unlink()
+                elif item.is_dir():
+                    item.rmdir()
+
+
+def test_chat_video_upload_route_returns_normalized_metadata(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    upload_root = Path(__file__).with_name("_chat_video_upload_storage")
+    upload_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Config, "STORAGE_ROOT", upload_root)
+    client = TestClient(app)
+
+    try:
+        response = client.post(
+            "/api/chat/v2/videos/upload",
+            files=[
+                (
+                    "files",
+                    (
+                        "clip.mp4",
+                        b"\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom",
+                        "video/mp4",
+                    ),
+                )
+            ],
+            data={"conversation_id": "conv-video", "source": "upload"},
+        )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["videos"][0]["file_name"] == "clip.mp4"
+        assert payload["videos"][0]["mime_type"] == "video/mp4"
+        assert payload["videos"][0]["source"] == "upload"
+        assert payload["videos"][0]["video_url"].startswith("/api/chat/v2/videos?path=")
+    finally:
+        if upload_root.exists():
+            for item in sorted(upload_root.rglob("*"), reverse=True):
+                if item.is_file():
+                    item.unlink()
+                elif item.is_dir():
+                    item.rmdir()
+
+
+def test_chat_video_preview_route_serves_uploaded_video(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    upload_root = Path(__file__).with_name("_chat_video_preview_storage")
+    upload_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(Config, "STORAGE_ROOT", upload_root)
+    client = TestClient(app)
+
+    try:
+        upload_response = client.post(
+            "/api/chat/v2/videos/upload",
+            files=[
+                (
+                    "files",
+                    (
+                        "clip.mp4",
+                        b"\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom",
+                        "video/mp4",
+                    ),
+                )
+            ],
+            data={"conversation_id": "conv-video", "source": "upload"},
+        )
+        video_url = upload_response.json()["videos"][0]["video_url"]
+
+        preview_response = client.get(video_url)
+
+        assert preview_response.status_code == 200
+        assert preview_response.headers["content-type"].startswith("video/mp4")
+    finally:
+        if upload_root.exists():
+            for item in sorted(upload_root.rglob("*"), reverse=True):
+                if item.is_file():
+                    item.unlink()
+                elif item.is_dir():
+                    item.rmdir()
 
 
 def test_report_v2_route_returns_v2_payload(monkeypatch):

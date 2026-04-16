@@ -55,7 +55,7 @@ CHAT_HISTORY_WINDOW=6
 - `EMBEDDING_API_BASE`: 默认值设置为 `https://llmapi.blsc.cn`
 - 模型注册列表：更新为使用 `deepseek-v3.2-exp` 作为默认模型
 
-### 2. new_rag/system.py
+### 2. rag_v2/rag_main/system.py
 
 `_call_llm` 方法已确保正确处理API调用：
 - 自动添加 `/v1` 后缀（如果API base URL不包含）

@@ -69,6 +69,10 @@ class ConversationStorage:
             "message_kind",
             "user_content" if str(normalized.get("role") or "").strip() == "user" else "assistant_content",
         )
+        if "input_images" in normalized:
+            normalized["input_images"] = list(normalized.get("input_images") or [])
+        if "input_videos" in normalized:
+            normalized["input_videos"] = list(normalized.get("input_videos") or [])
         return normalized
 
     def _save_locked(self):
@@ -199,6 +203,8 @@ class ConversationStorage:
         content: str,
         *,
         sources: Optional[List[Dict[str, Any]]] = None,
+        input_images: Optional[List[Dict[str, Any]]] = None,
+        input_videos: Optional[List[Dict[str, Any]]] = None,
         timestamp: Optional[str] = None,
         message_kind: Optional[str] = None,
     ):
@@ -215,6 +221,10 @@ class ConversationStorage:
             }
             if sources:
                 message["sources"] = sources
+            if input_images:
+                message["input_images"] = list(input_images)
+            if input_videos:
+                message["input_videos"] = list(input_videos)
             conv.setdefault("messages", []).append(message)
             conv["updated_at"] = _now_iso()
             self._save_locked()

@@ -155,6 +155,10 @@ def _build_guarded_media_url(server_url: str, file_path: str | Path, endpoint: s
     return f"{server_url.rstrip('/')}/api/rag/{endpoint}?path={encoded_path}"
 
 
+def _get_server_url() -> str:
+    return os.getenv("SERVER_URL", "").rstrip("/")
+
+
 def _scrub_response_metadata(metadata: Optional[Dict[str, Any]], server_url: str) -> Dict[str, Any]:
     scrubbed = dict(metadata or {})
 
@@ -243,6 +247,82 @@ def _scrub_document_detail_payload(details: Dict[str, Any], server_url: str) -> 
         scrubbed_samples.append(safe_sample)
     safe_details["samples"] = scrubbed_samples
     return safe_details
+
+
+def _image_index_entry_to_document_info(
+    index_key: str,
+    record: Dict[str, Any],
+    *,
+    owner: Optional[str],
+    server_url: str = "",
+) -> Optional[Dict[str, Any]]:
+    if owner is not None and record.get("owner") != owner:
+        return None
+
+    image_path = record.get("file_path") or record.get("image_path")
+    if not image_path:
+        return None
+
+    return {
+        "file_path": index_key,
+        "file_name": record.get("file_name") or Path(str(image_path)).name,
+        "include_in_search": bool(record.get("include_in_search", True)),
+        "chunk_count": int(record.get("chunk_count", 1) or 1),
+        "image_chunk_count": 1,
+        "imported_at": record.get("imported_at"),
+        "summary": record.get("summary"),
+        "summary_updated_at": record.get("summary_updated_at"),
+        "file_size": record.get("file_size"),
+        "page_count": 1,
+        "hash": record.get("hash"),
+        "owner": record.get("owner"),
+        "doc_kind": record.get("doc_kind") or "image",
+        "modality": "image",
+        "image_url": _build_guarded_media_url(server_url, image_path, "image"),
+    }
+
+
+def _list_owner_image_documents(owner: Optional[str], server_url: str = "") -> List[Dict[str, Any]]:
+    documents: List[Dict[str, Any]] = []
+    for index_key, record in _image_index.items():
+        if not isinstance(record, dict):
+            continue
+        document = _image_index_entry_to_document_info(
+            str(index_key),
+            record,
+            owner=owner,
+            server_url=server_url,
+        )
+        if document is not None:
+            documents.append(document)
+    return documents
+
+
+def _resolve_image_index_record(
+    rag_system: RAGSystem,
+    file_path: str,
+    owner: Optional[str],
+) -> tuple[str, Dict[str, Any]] | None:
+    candidate_keys = [str(file_path or "")]
+    try:
+        candidate_keys.append(rag_system._make_index_key(file_path, owner))
+    except Exception:
+        pass
+
+    for candidate in candidate_keys:
+        record = _image_index.get(candidate)
+        if isinstance(record, dict) and (owner is None or record.get("owner") == owner):
+            return candidate, record
+
+    requested = str(file_path or "").replace("\\", "/").lower().strip()
+    for index_key, record in _image_index.items():
+        if not isinstance(record, dict) or (owner is not None and record.get("owner") != owner):
+            continue
+        image_path = str(record.get("file_path") or record.get("image_path") or "")
+        if requested == image_path.replace("\\", "/").lower().strip():
+            return str(index_key), record
+
+    return None
 
 
 def _build_allowed_sources_for_owner(rag_system: RAGSystem, owner: Optional[str]) -> List[str]:
@@ -503,6 +583,8 @@ class DocumentInfo(BaseModel):
     source_title: Optional[str] = None
     source_domain: Optional[str] = None
     doc_kind: Optional[str] = None
+    modality: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class DocumentParticipationRequest(BaseModel):
@@ -625,7 +707,7 @@ async def rag_query(
             use_rrf=request.use_rrf,
             owner=current_user.get("username"),
         )
-        server_url = os.getenv("SERVER_URL", "http://localhost:8000").rstrip("/")
+        server_url = _get_server_url()
         result["sources"] = _scrub_response_sources(result.get("sources"), server_url)
         return QueryResponse(**result)
     except Exception as e:
@@ -690,7 +772,7 @@ async def rag_query_stream(
         has_videos = False
 
         # 获取服务器地址（用于构建完整 URL）
-        server_url = os.getenv("SERVER_URL", "http://localhost:8000").rstrip("/")
+        server_url = _get_server_url()
 
         for i, doc in enumerate(retrieved_docs[:request.top_k], 1):
             content = doc.get("content", "")
@@ -1240,7 +1322,13 @@ async def rename_document(
 async def list_documents(current_user: dict = Depends(get_current_user)):
     try:
         rag_system = get_rag_system()
-        return rag_system.list_documents(owner=current_user.get("username"))
+        owner = current_user.get("username")
+        raw_documents = list(rag_system.list_documents(owner=owner) or [])
+        raw_documents.extend(_list_owner_image_documents(owner))
+        return [
+            document if isinstance(document, DocumentInfo) else DocumentInfo.model_validate(document)
+            for document in raw_documents
+        ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1332,7 +1420,7 @@ async def get_document_details(
         if record.get("owner") != current_user.get("username"):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档")
 
-        server_url = os.getenv("SERVER_URL", "http://localhost:8000").rstrip("/")
+        server_url = _get_server_url()
         details = dict(rag_system.get_document_details(index_key))
         details["file_path"] = index_key
         details["samples"] = [
@@ -1436,11 +1524,41 @@ async def get_document_content(
 ):
     try:
         rag_system = get_rag_system()
-        index_key = rag_system._make_index_key(file_path, current_user.get("username"))
+        username = current_user.get("username")
+        index_key = rag_system._make_index_key(file_path, username)
         record = rag_system.document_index.get(index_key)
         if not record:
+            image_record = _resolve_image_index_record(rag_system, file_path, username)
+            if image_record is not None:
+                image_index_key, image_info = image_record
+                image_doc = _image_index_entry_to_document_info(
+                    image_index_key,
+                    image_info,
+                    owner=username,
+                )
+                if image_doc is None:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
+                content = f"![{image_doc['file_name']}]({image_doc['image_url']})"
+                return DocumentContentResponse(
+                    file_path=image_index_key,
+                    file_name=image_doc["file_name"],
+                    content=content,
+                    chunks=[
+                        {
+                            "id": 0,
+                            "content": content,
+                            "page": 1,
+                            "metadata": {
+                                "modality": "image",
+                                "image_url": image_doc["image_url"],
+                                "image_name": image_doc["file_name"],
+                            },
+                        }
+                    ],
+                    total_chunks=1,
+                )
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
-        if record.get("owner") != current_user.get("username"):
+        if record.get("owner") != username:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档内容")
 
         physical_path = record.get("physical_path") or (
@@ -1448,10 +1566,10 @@ async def get_document_content(
         )
 
         # chunks 按 source_key 取
-        source_key = record.get("source_key") or rag_system._make_source_key(physical_path, current_user.get("username"))
+        source_key = record.get("source_key") or rag_system._make_source_key(physical_path, username)
         documents = rag_system.vector_store.get_documents_by_source(source_key)
         documents.sort(key=lambda x: int(x["metadata"].get("page", 0)))
-        server_url = os.getenv("SERVER_URL", "http://localhost:8000").rstrip("/")
+        server_url = _get_server_url()
         
         content_parts = []
         chunks_info = []
@@ -1561,19 +1679,21 @@ async def import_image_to_db(
         source_key = rag_system._make_source_key(str(file_path), owner)
         image_id = f"image_{Path(filename).stem}_{file_hash[:8]}"
 
+        image_metadata = {
+            "image_path": str(file_path),
+            "modality": "image",
+            "source": source_key,
+            "owner": owner,
+            "owner_username": owner,
+            "file_name": filename,
+            "file_size": file_path.stat().st_size,
+            "hash": file_hash,
+        }
+
         rag_system.vector_store.collection.add(
             embeddings=[embedding],
             documents=["[多模态图片节点]"],
-            metadatas={
-                "image_path": str(file_path),
-                "modality": "image",
-                "source": source_key,
-                "owner": owner,
-                "owner_username": owner,
-                "file_name": filename,
-                "file_size": file_path.stat().st_size,
-                "hash": file_hash,
-            },
+            metadatas=[image_metadata],
             ids=[image_id]
         )
 
@@ -1590,6 +1710,8 @@ async def import_image_to_db(
             "hash": file_hash,
             "owner": owner,
             "modality": "image",
+            "doc_kind": "image",
+            "chunk_count": 1,
             "embedding_dim": len(embedding),
         }
         _save_image_index()
@@ -1598,7 +1720,9 @@ async def import_image_to_db(
         return {
             "status": "success",
             "message": f"图片 {filename} 已成功转换为 {len(embedding)} 维向量并入库！",
-            "file_path": str(file_path)
+            "file": index_key,
+            "file_path": index_key,
+            "image_url": _build_guarded_media_url("", file_path, "image"),
         }
 
     except Exception as e:

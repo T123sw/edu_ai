@@ -39,7 +39,9 @@ class Config:
     # 2. 深度纯文本模型（中脑）
     DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
     DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
-    LLM_MODEL_DEEP = os.getenv("LLM_MODEL_DEEP", "deepseek-chat")
+    DEEP_MODEL_API_BASE = os.getenv("ANSWER_LLM_API_BASE", os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"))
+    DEEP_MODEL_API_KEY = os.getenv("ANSWER_LLM_API_KEY", os.getenv("QWEN_API_KEY", ""))
+    LLM_MODEL_DEEP = os.getenv("ANSWER_LLM_MODEL", os.getenv("VISION_MODEL_ID", "qwen3.5-plus"))
 
     # 3. 视觉多模态模型（右脑）
     QWEN_BASE_URL = os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
@@ -99,12 +101,12 @@ class Config:
         },
         {
             "id": "deepseek-v3",
-            "name": "DeepSeek V3.2",
+            "name": "Qwen3.5 Plus",
             "model_name": LLM_MODEL_DEEP,
-            "api_base": DEEPSEEK_BASE_URL,
-            "api_key": DEEPSEEK_API_KEY,
+            "api_base": DEEP_MODEL_API_BASE,
+            "api_key": DEEP_MODEL_API_KEY,
             "role": "deep",
-            "provider": "deepseek",
+            "provider": "qwen",
         },
         {
             "id": "qwen-vision",
@@ -134,6 +136,7 @@ class Config:
     # === Universal report engine tracing ===
     UNIVERSAL_REPORT_TRACE = os.getenv("UNIVERSAL_REPORT_TRACE", "0")
     UNIVERSAL_REPORT_SKILL_TRACE = os.getenv("UNIVERSAL_REPORT_SKILL_TRACE", "0")
+    QUIZ_WORKFLOW_TRACE = os.getenv("QUIZ_WORKFLOW_TRACE", "1")
 
     @classmethod
     def ensure_directories(cls):

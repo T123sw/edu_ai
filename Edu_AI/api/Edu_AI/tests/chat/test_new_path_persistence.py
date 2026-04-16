@@ -253,7 +253,7 @@ def test_write_v2_result_persists_report_preparation_into_workflow_filled_slots(
                 "report_subject": "Skills 怎么使用",
                 "report_focus": "与 MCP 的差异和使用方式",
                 "preparation_source": "llm_structured_output",
-                "preparation_model": "deepseek-chat",
+                "preparation_model": "qwen3.5-plus",
             }
         },
     }
@@ -265,4 +265,4 @@ def test_write_v2_result_persists_report_preparation_into_workflow_filled_slots(
     assert state["workflow_state"]["filled_slots"]["core_topic"] == "Skills 怎么使用"
     assert state["workflow_state"]["filled_slots"]["focus_area"] == "与 MCP 的差异和使用方式"
     assert state["workflow_state"]["filled_slots"]["__preparation_source"] == "llm_structured_output"
-    assert state["workflow_state"]["filled_slots"]["__preparation_model"] == "deepseek-chat"
+    assert state["workflow_state"]["filled_slots"]["__preparation_model"] == "qwen3.5-plus"

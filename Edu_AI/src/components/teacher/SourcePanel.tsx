@@ -7,6 +7,7 @@ import {
   FileTextOutlined,
   FileMarkdownOutlined,
   GlobalOutlined,
+  PictureOutlined,
   LeftOutlined,
   RightOutlined,
   SearchOutlined,
@@ -20,7 +21,21 @@ import {
 } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useAuth } from '../../context/AuthContext';
-import { listDocuments, importDocument, deleteDocument, renameDocument, getDocumentContent, getDocumentSummary, type DocumentContent, type RAGSource } from '../../services/rag';
+import {
+  listDocuments,
+  importDocument,
+  importImageDocument,
+  isImageFileName,
+  loadPreviewMediaUrl,
+  revokePreviewMediaUrl,
+  deleteDocument,
+  renameDocument,
+  getDocumentContent,
+  getDocumentSummary,
+  type DocumentContent,
+  type RAGSource,
+} from '../../services/rag';
+import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { addRAGDocumentToCourseKB } from '../../services/knowledgeBase';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
 import { uploadVideo, getVideoJobStatus } from '../../services/video';
@@ -37,13 +52,19 @@ type Props = {
 interface FileItem {
   key: string;
   title: string;
-  type: 'file' | 'web';
+  type: 'file' | 'web' | 'image';
   filePath?: string;
+  imageUrl?: string;
 }
 
-const getFileIcon = (type: 'file' | 'web', fileName: string, size = 16) => {
+const imageExts = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif'];
+
+const getFileIcon = (type: 'file' | 'web' | 'image', fileName: string, size = 16) => {
   if (type === 'web') {
     return <GlobalOutlined style={{ fontSize: size, color: '#1890ff' }} />;
+  }
+  if (type === 'image' || isImageFileName(fileName)) {
+    return <PictureOutlined style={{ fontSize: size, color: '#13a8a8' }} />;
   }
   const ext = fileName.split('.').pop()?.toLowerCase();
   if (ext === 'pdf') {
@@ -70,6 +91,53 @@ const normalizeFilePath = (raw: string): string => {
   return raw;
 };
 
+const toFileItem = (doc: any): FileItem => {
+  let displayTitle = decodeDisplayText(doc.file_name);
+  if (doc.source_url) {
+    if (doc.source_title) {
+      displayTitle = decodeDisplayText(doc.source_title);
+    } else if (doc.source_domain) {
+      displayTitle = `${doc.source_domain} - 网页内容`;
+    } else {
+      try {
+        const url = new URL(doc.source_url);
+        displayTitle = `${url.hostname} - 网页内容`;
+      } catch {
+        displayTitle = doc.file_name;
+      }
+    }
+  }
+
+  const isImage = String(doc.modality || '').toLowerCase() === 'image'
+    || String(doc.doc_kind || '').toLowerCase() === 'image'
+    || isImageFileName(displayTitle);
+
+  return {
+    key: doc.file_path,
+    title: displayTitle,
+    type: isImage ? 'image' : 'file',
+    filePath: doc.file_path,
+    imageUrl: doc.image_url,
+  };
+};
+
+const isRenderableImageChunk = (chunk: DocumentContent['chunks'][number] | null | undefined): boolean => {
+  return String(chunk?.metadata?.modality || '').toLowerCase() === 'image' && Boolean(chunk?.metadata?.image_url);
+};
+
+const buildPreviewTextContent = (content: DocumentContent | null): string => {
+  if (!content) {
+    return '';
+  }
+
+  const textChunks = content.chunks.filter((chunk) => !isRenderableImageChunk(chunk));
+  if (textChunks.length === 0) {
+    return '';
+  }
+
+  return textChunks.map((chunk) => chunk.content).join('\n\n').trim();
+};
+
 const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, onPreviewStateChange }) => {
   const { selectedDocs, setSelectedDocs, highlightRequest, setHighlightRequest } = useStore();
   const [videoUploading, setVideoUploading] = useState(false);
@@ -89,6 +157,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [previewContent, setPreviewContent] = useState<DocumentContent | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewMediaUrls, setPreviewMediaUrls] = useState<Record<string, string>>({});
   const [highlightedContent, setHighlightedContent] = useState<React.ReactNode>(null);
   const highlightRef = useRef<HTMLElement | null>(null);
   // 文档摘要
@@ -105,35 +174,79 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const researchAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    return () => {
+      setPreviewMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    const targetUrls = new Set<string>();
+
+    if (previewFile?.type === 'image' && previewFile.imageUrl) {
+      targetUrls.add(previewFile.imageUrl);
+    }
+
+    for (const chunk of previewContent?.chunks ?? []) {
+      const imageUrl = chunk.metadata?.image_url;
+      if (isRenderableImageChunk(chunk) && typeof imageUrl === 'string' && imageUrl) {
+        targetUrls.add(imageUrl);
+      }
+    }
+
+    if (targetUrls.size === 0) {
+      setPreviewMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAllPreviewMedia = async () => {
+      const resolvedEntries = await Promise.all(
+        Array.from(targetUrls).map(async (imageUrl) => {
+          try {
+            const objectUrl = await loadPreviewMediaUrl(imageUrl);
+            return [imageUrl, objectUrl] as const;
+          } catch (error) {
+            console.error('加载预览图片失败:', imageUrl, error);
+            return [imageUrl, ''] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        resolvedEntries.forEach(([, objectUrl]) => revokePreviewMediaUrl(objectUrl));
+        return;
+      }
+
+      const nextMediaUrls = Object.fromEntries(
+        resolvedEntries.filter(([, objectUrl]) => Boolean(objectUrl)),
+      );
+
+      setPreviewMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return nextMediaUrls;
+      });
+    };
+
+    loadAllPreviewMedia();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [previewFile?.imageUrl, previewFile?.type, previewContent]);
+
+  useEffect(() => {
     const loadDocuments = async () => {
       try {
         setLoading(true);
         const documents = await listDocuments();
-        const formattedFiles: FileItem[] = documents.map(doc => {
-          // 如果是网页来源，优先使用 source_title 或 source_domain 作为显示标题
-          let displayTitle = doc.file_name;
-          if (doc.source_url) {
-            if (doc.source_title) {
-              displayTitle = doc.source_title;
-            } else if (doc.source_domain) {
-              displayTitle = `${doc.source_domain} - 网页内容`;
-            } else {
-              // 从 URL 提取域名
-              try {
-                const url = new URL(doc.source_url);
-                displayTitle = `${url.hostname} - 网页内容`;
-              } catch {
-                displayTitle = doc.file_name;
-              }
-            }
-          }
-          return {
-            key: doc.file_path,
-            title: displayTitle,
-            type: 'file' as const,
-            filePath: doc.file_path,
-          };
-        });
+        const formattedFiles: FileItem[] = documents.map(toFileItem);
         setFileList(formattedFiles);
       } catch (error) {
         console.error('获取文档列表失败:', error);
@@ -149,7 +262,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   useEffect(() => {
     setCheckedKeys(selectedDocs);
-    setSelectAllChecked(fileList.length > 0 && fileList.every(file => selectedDocs.includes(file.key)));
+    setSelectAllChecked(
+      fileList.length > 0 && fileList.every((file) => selectedDocs.includes(file.key)),
+    );
   }, [selectedDocs, fileList]);
 
   // 监听高亮请求（依赖 requestId，确保重复点击也触发）
@@ -259,7 +374,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
     // 获取完整的文本块内容（这是要高亮的完整内容）
     const highlightText = String((source as any)?.content || '').trim();
-    const fullText = fullContent.content;
+    const fullText = buildPreviewTextContent(fullContent);
 
     if (!highlightText) {
       setHighlightedContent(fullText);
@@ -484,31 +599,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     setLoading(true);
     try {
       const documents = await listDocuments();
-      const formattedFiles: FileItem[] = documents.map(doc => {
-        // 如果是网页来源，优先使用 source_title 或 source_domain 作为显示标题
-        let displayTitle = doc.file_name;
-        if (doc.source_url) {
-          if (doc.source_title) {
-            displayTitle = doc.source_title;
-          } else if (doc.source_domain) {
-            displayTitle = `${doc.source_domain} - 网页内容`;
-          } else {
-            // 从 URL 提取域名
-            try {
-              const url = new URL(doc.source_url);
-              displayTitle = `${url.hostname} - 网页内容`;
-            } catch {
-              displayTitle = doc.file_name;
-            }
-          }
-        }
-        return {
-          key: doc.file_path,
-          title: displayTitle,
-          type: 'file' as const,
-          filePath: doc.file_path,
-        };
-      });
+      const formattedFiles: FileItem[] = documents.map(toFileItem);
       setFileList(formattedFiles);
     } finally {
       setLoading(false);
@@ -546,7 +637,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       try {
         message.loading({ content: `正在上传 ${file.name}...`, key: `upload-${i}`, duration: 0 });
 
-        if (videoExts.includes(ext)) {
+        if (imageExts.includes(ext)) {
+          await importImageDocument(file, (progress) => {
+            console.log(`图片上传进度: ${progress}%`);
+          });
+          message.success({ content: `${file.name} 图片入库完成`, key: `upload-${i}` });
+        } else if (videoExts.includes(ext)) {
           if (!courseId) {
             throw new Error('请先进入具体课程后再上传视频');
           }
@@ -725,9 +821,18 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       setPreviewOpen(true);
       setPreviewFile(file);
       setPreviewContent(null);
+      setPreviewMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
       setHighlightedContent(null);
       setPreviewSummary(''); // 重置摘要
       onPreviewStateChange?.(true);
+
+      if (file.type === 'image' && file.imageUrl) {
+        setPreviewLoading(false);
+        return;
+      }
 
       setPreviewLoading(true);
       // 并行加载文档内容和摘要
@@ -747,7 +852,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       if (isHighlightTrigger && source) {
         handleHighlight(content, source);
       } else {
-        setHighlightedContent(content.content);
+        setHighlightedContent(buildPreviewTextContent(content));
       }
     } catch (error) {
       console.error('获取文档内容失败:', error);
@@ -767,6 +872,10 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     setPreviewOpen(false);
     setPreviewFile(null);
     setPreviewContent(null);
+    setPreviewMediaUrls((current) => {
+      Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+      return {};
+    });
     setHighlightedContent(null);
     setPreviewSummary('');
     onPreviewStateChange?.(false);
@@ -794,14 +903,18 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     try {
       setRenameSubmitting(true);
       const updated = await renameDocument(renameTarget.filePath || renameTarget.key, newName);
-      setFileList(prev => prev.map(item => (item.key === renameTarget.key ? { ...item, title: updated.file_name } : item)));
+      setFileList(prev => prev.map(item => (
+        item.key === renameTarget.key
+          ? { ...item, title: decodeDisplayText(updated.file_name) }
+          : item
+      )));
       message.success('重命名成功');
       setRenameModalVisible(false);
       setRenameTarget(null);
       setRenameValue('');
 
       if (previewFile?.key === renameTarget.key) {
-        setPreviewFile({ ...previewFile, title: updated.file_name });
+        setPreviewFile({ ...previewFile, title: decodeDisplayText(updated.file_name) });
       }
     } catch (error) {
       console.error('重命名文档失败:', error);
@@ -874,19 +987,44 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   }
 
   if (previewOpen) {
+    const previewImageChunks = previewContent?.chunks.filter((chunk) => isRenderableImageChunk(chunk)) ?? [];
+    const directPreviewImageUrl = previewFile?.imageUrl ? previewMediaUrls[previewFile.imageUrl] : undefined;
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', borderRadius: 12, padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', minHeight: 0, overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Space style={{ minWidth: 0 }}>
             <Button type="text" icon={<ArrowLeftOutlined />} onClick={closePreview} />
-            {previewFile && getFileIcon('file', previewFile.title, 18)}
+            {previewFile && getFileIcon(previewFile.type, previewFile.title, 18)}
             <Text strong ellipsis style={{ maxWidth: 320 }}>{previewFile?.title || '文档预览'}</Text>
           </Space>
         </div>
 
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', paddingRight: 8 }}>
           <Spin spinning={previewLoading}>
-            {previewContent ? (
+            {previewFile?.type === 'image' && previewFile.imageUrl ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <Card size="small" title="图片预览">
+                  {directPreviewImageUrl ? (
+                    <img
+                      src={directPreviewImageUrl}
+                      alt={previewFile.title}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '65vh',
+                        objectFit: 'contain',
+                        display: 'block',
+                        margin: '0 auto',
+                        borderRadius: 8,
+                        background: '#f5f5f5',
+                      }}
+                    />
+                  ) : (
+                    <Text type="secondary">图片加载中...</Text>
+                  )}
+                </Card>
+              </div>
+            ) : previewContent ? (
               <div>
                 {/* 文档摘要：显示在顶部 */}
                 {previewSummary && (
@@ -901,6 +1039,63 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                     </div>
                   </Card>
                 )}
+
+                {previewImageChunks.length > 0 && (
+                  <Card
+                    title={`文档图片 (${previewImageChunks.length})`}
+                    size="small"
+                    style={{ marginBottom: 16 }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      {previewImageChunks.map((chunk) => {
+                        const imageUrl = chunk.metadata?.image_url as string | undefined;
+                        const previewUrl = imageUrl ? previewMediaUrls[imageUrl] : undefined;
+                        const imageTitle = decodeDisplayText(
+                          chunk.metadata?.image_alt || chunk.metadata?.image_name || `文档图片 ${chunk.id + 1}`,
+                        );
+                        const pageLabel = chunk.page || chunk.metadata?.page;
+
+                        if (!imageUrl) {
+                          return null;
+                        }
+
+                        return (
+                          <div
+                            key={`preview-image-${chunk.id}`}
+                            style={{
+                              padding: 12,
+                              border: '1px solid #f0f0f0',
+                              borderRadius: 10,
+                              background: '#fafafa',
+                            }}
+                          >
+                            <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                              <Text strong>{imageTitle}</Text>
+                              {pageLabel ? <Text type="secondary">第 {pageLabel} 页</Text> : null}
+                            </div>
+                            {previewUrl ? (
+                              <img
+                                src={previewUrl}
+                                alt={imageTitle}
+                                style={{
+                                  maxWidth: '100%',
+                                  maxHeight: '50vh',
+                                  objectFit: 'contain',
+                                  display: 'block',
+                                  margin: '0 auto',
+                                  borderRadius: 8,
+                                  background: '#f5f5f5',
+                                }}
+                              />
+                            ) : (
+                              <Text type="secondary">图片加载中...</Text>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </Card>
+                )}
                 
                 <div style={{ marginBottom: 12, padding: '10px', background: '#f5f5f5', borderRadius: 8 }}>
                   <Space wrap>
@@ -908,9 +1103,15 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                     <Text>{previewContent.total_chunks}</Text>
                   </Space>
                 </div>
-                <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333', fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "source-code-pro", monospace' }}>
-                  {highlightedContent}
-                </div>
+                {highlightedContent ? (
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333', fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "source-code-pro", monospace' }}>
+                    {highlightedContent}
+                  </div>
+                ) : (
+                  <div style={{ padding: '12px 0' }}>
+                    <Text type="secondary">该文档当前没有可展示的正文文本，已在上方展示提取出的图片内容。</Text>
+                  </div>
+                )}
               </div>
             ) : (
               <div style={{ padding: 24, textAlign: 'center' }}>
@@ -960,7 +1161,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               ];
 
               return (
-                  <div key={file.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+                  <div key={file.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f0f0f0', gap: 12 }}>
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, cursor: 'pointer' }} onClick={() => openPreview(file.key)} title="点击预览文档">
                     {getFileIcon(file.type, file.title, 16)}
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.title}</span>
@@ -987,10 +1188,10 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           multiple 
           ref={fileInputRef} 
           onChange={handleFileChange} 
-          accept=".pdf,.doc,.docx,.txt,.md,.markdown,.mp4,.mov,.mkv,.avi,.webm"
+          accept=".pdf,.doc,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.bmp,.gif,.mp4,.mov,.mkv,.avi,.webm"
           style={{ display: 'none' }} 
         />
-        <Button icon={<UploadOutlined />} type="default" onClick={handleAddSourceClick} size="large" block loading={videoUploading}>上传文档/视频</Button>
+        <Button icon={<UploadOutlined />} type="default" onClick={handleAddSourceClick} size="large" block loading={videoUploading}>上传文档/图片/视频</Button>
       </Space>
 
       <Modal 

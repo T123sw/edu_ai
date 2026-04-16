@@ -1,5 +1,5 @@
 // src/services/teacher/api.ts
-import type { StatusCardV2 } from './chatV2';
+import type { ChatInputImageV2, ChatInputVideoV2, StatusCardV2 } from './chatV2';
 
 // 优先使用显式配置；未配置时回退到当前访问源，避免同学访问时落回本机 localhost/127.0.0.1
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -44,6 +44,8 @@ export interface ConversationMessage {
   content: string;
   timestamp?: string;
   sources?: Array<Record<string, any>>;
+  input_images?: ChatInputImageV2[];
+  input_videos?: ChatInputVideoV2[];
 }
 
 export interface ConversationDetailResponse {

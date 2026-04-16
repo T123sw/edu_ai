@@ -26,7 +26,7 @@ def test_runtime_resumes_body_generation_after_outline_confirmation():
                 "core_topic": "Water Campaign",
                 "focus_area": "From tactical win to strategic reversal",
                 "__preparation_source": "llm_structured_output",
-                "__preparation_model": "deepseek-chat",
+                "__preparation_model": "qwen3.5-plus",
             },
             "artifacts": [
                 {

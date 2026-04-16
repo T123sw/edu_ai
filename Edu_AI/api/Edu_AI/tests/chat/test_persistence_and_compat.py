@@ -89,6 +89,96 @@ def test_conversation_store_adapter_persists_capability_policy():
     assert state["capability_policy"]["selected_doc_ids"] == ["doc-1", "doc-2"]
 
 
+def test_conversation_store_adapter_persists_user_input_images_in_history_and_state():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    storage.ensure_conversation("conv-image-history", "hello")
+    adapter = ConversationStoreAdapter(storage=storage)
+
+    class Request:
+        question = "继续围绕这张图片讨论"
+        input_images = [
+            {
+                "image_id": "img-1",
+                "file_name": "hero.png",
+                "mime_type": "image/png",
+                "storage_path": "D:/tmp/hero.png",
+                "relative_path": "teacher/conv-image-history/hero.png",
+                "image_url": "/api/chat/v2/images?path=teacher%2Fconv-image-history%2Fhero.png",
+                "source": "paste",
+            }
+        ]
+
+    adapter.write_v2_result(
+        "conv-image-history",
+        Request(),
+        {
+            "message": {"role": "assistant", "content": "ok"},
+            "conversation": {"conversation_id": "conv-image-history"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "fast"},
+        },
+    )
+
+    detail = storage.get_conversation("conv-image-history")
+    state = storage.get_state("conv-image-history")
+
+    assert detail["history"][0]["role"] == "user"
+    assert detail["history"][0]["input_images"][0]["image_id"] == "img-1"
+    assert detail["history"][0]["input_images"][0]["image_url"].startswith("/api/chat/v2/images")
+    assert state["last_input_images"][0]["image_id"] == "img-1"
+    assert state["last_input_image_count"] == 1
+
+
+def test_conversation_store_adapter_persists_user_input_videos_in_history_and_state():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    storage.ensure_conversation("conv-video-history", "hello")
+    adapter = ConversationStoreAdapter(storage=storage)
+
+    class Request:
+        question = "继续围绕这个视频讨论"
+        input_videos = [
+            {
+                "video_id": "vid-1",
+                "file_name": "clip.mp4",
+                "mime_type": "video/mp4",
+                "storage_path": "D:/tmp/clip.mp4",
+                "relative_path": "teacher/conv-video-history/clip.mp4",
+                "video_url": "/api/chat/v2/videos?path=teacher%2Fconv-video-history%2Fclip.mp4",
+                "source": "upload",
+            }
+        ]
+
+    adapter.write_v2_result(
+        "conv-video-history",
+        Request(),
+        {
+            "message": {"role": "assistant", "content": "ok"},
+            "conversation": {"conversation_id": "conv-video-history"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "fast"},
+        },
+    )
+
+    detail = storage.get_conversation("conv-video-history")
+    state = storage.get_state("conv-video-history")
+
+    assert detail["history"][0]["role"] == "user"
+    assert detail["history"][0]["input_videos"][0]["video_id"] == "vid-1"
+    assert detail["history"][0]["input_videos"][0]["video_url"].startswith("/api/chat/v2/videos")
+    assert state["last_input_videos"][0]["video_id"] == "vid-1"
+    assert state["last_input_video_count"] == 1
+
+
 def test_conversation_store_adapter_persists_summary_and_memory_for_normal_reply():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)

@@ -6,7 +6,9 @@ from typing import Any, Callable, Dict, List, Optional
 
 from langchain_openai import ChatOpenAI
 
+from core.config import Config
 from rag_v2.api import get_rag_system
+from rag_v2.rag_main.api import _get_server_url, _scrub_response_sources
 from rag_v2.document_resolver import resolve_rag_document_ids
 
 from ..agents.report_generation import build_report_markdown
@@ -44,6 +46,31 @@ def _err(tool: str, message: str, payload: Optional[Dict[str, Any]] = None) -> T
         "need_human": False,
         "error": str(message or "unknown_error"),
     }
+
+
+def _normalize_rag_sources_for_chat(sources: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    safe_sources = _scrub_response_sources(sources, _get_server_url())
+    normalized: List[Dict[str, Any]] = []
+    for raw_source in safe_sources:
+        source = dict(raw_source or {})
+        metadata = dict(source.get("metadata") or {})
+        modality = str(source.get("modality") or metadata.get("modality") or "").strip().lower()
+        if modality:
+            source["modality"] = modality
+        if modality == "image":
+            image_url = str(source.get("image_url") or metadata.get("image_url") or "").strip()
+            if image_url:
+                source["image_url"] = image_url
+        if modality == "video":
+            video_url = str(source.get("video_url") or metadata.get("video_url") or "").strip()
+            if video_url:
+                source["video_url"] = video_url
+        for key in list(source.keys()):
+            if key.endswith("_path"):
+                source.pop(key, None)
+        source["metadata"] = metadata
+        normalized.append(source)
+    return normalized
 
 
 
@@ -86,7 +113,7 @@ def rag_search_tool(*, query: str, top_k: int = 5, selected_doc_ids: Optional[Li
             owner=owner,
         )
         answer = str(result.get("answer") or "").strip()
-        sources = result.get("sources") or []
+        sources = _normalize_rag_sources_for_chat(list(result.get("sources") or []))
         return _ok(
             "rag_search_tool",
             "RAG 检索完成" if answer or sources else "RAG 检索完成但结果较少",
@@ -173,14 +200,15 @@ def web_search_tool(*, query: str, owner: Optional[str] = None) -> ToolResult:
 
 def revise_outline_with_feedback(*, outline: List[Dict[str, Any]], feedback: str) -> ToolResult:
     try:
-        api_key = os.getenv("DEEPSEEK_API_KEY", "").strip()
+        model_cfg = Config.get_deep_model()
+        api_key = str(model_cfg.get("api_key") or "").strip()
         if not api_key:
-            return _err("revise_outline_with_feedback", "missing_deepseek_api_key")
+            return _err("revise_outline_with_feedback", "missing_answer_llm_api_key")
 
         llm = ChatOpenAI(
-            model="deepseek-chat",
+            model=str(model_cfg.get("model_name") or Config.LLM_MODEL_DEEP),
             openai_api_key=api_key,
-            openai_api_base="https://api.deepseek.com/v1",
+            openai_api_base=str(model_cfg.get("api_base") or Config.DEEP_MODEL_API_BASE),
             temperature=0,
         )
         prompt = (

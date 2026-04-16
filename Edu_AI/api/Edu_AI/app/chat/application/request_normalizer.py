@@ -21,6 +21,8 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         artifact_reference=getattr(payload, "artifact_reference", None),
         conversation_reference=getattr(payload, "conversation_reference", None),
         action_hint=getattr(payload, "action_hint", None),
+        input_images=list(getattr(payload, "input_images", None) or []),
+        input_videos=list(getattr(payload, "input_videos", None) or []),
         capability=CapabilityPolicy(
             allow_rag=bool(allow_rag),
             allow_web=allow_web,

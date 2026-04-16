@@ -88,6 +88,104 @@ def test_reply_service_returns_orchestrator_result_and_writes_back():
     assert result["status_card"]["status_label"] == "普通对话"
 
 
+def test_reply_service_normalizes_input_images_into_chat_request():
+    orchestrator = DummyOrchestrator(
+        {
+            "message": {"role": "assistant", "content": "ok"},
+            "conversation": {"conversation_id": "conv-1"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "fast"},
+        }
+    )
+    store = DummyStore()
+    snapshot = SimpleNamespace(workflow_state=None, active_artifact=None, active_task=None, recent_messages=[])
+    service = ReplyServiceV2(
+        orchestrator=orchestrator,
+        conversation_store=store,
+        context_builder=SimpleNamespace(build=lambda request: snapshot),
+        status_card_builder=DummyStatusCardBuilder(),
+    )
+    payload = SimpleNamespace(
+        question="hello",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        input_images=[
+            {
+                "image_id": "img-1",
+                "file_name": "diagram.png",
+                "mime_type": "image/png",
+                "storage_path": "D:/chat_images/diagram.png",
+                "relative_path": "chat_images/diagram.png",
+                "image_url": "/api/chat/v2/images/chat_images/diagram.png",
+                "source": "upload",
+            }
+        ],
+        action_hint=None,
+        owner="u1",
+    )
+
+    service.reply(payload)
+
+    assert orchestrator.calls[0].input_images[0].image_id == "img-1"
+
+
+def test_reply_service_normalizes_input_videos_into_chat_request():
+    orchestrator = DummyOrchestrator(
+        {
+            "message": {"role": "assistant", "content": "ok"},
+            "conversation": {"conversation_id": "conv-1"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "fast"},
+        }
+    )
+    store = DummyStore()
+    snapshot = SimpleNamespace(workflow_state=None, active_artifact=None, active_task=None, recent_messages=[])
+    service = ReplyServiceV2(
+        orchestrator=orchestrator,
+        conversation_store=store,
+        context_builder=SimpleNamespace(build=lambda request: snapshot),
+        status_card_builder=DummyStatusCardBuilder(),
+    )
+    payload = SimpleNamespace(
+        question="hello",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        input_videos=[
+            {
+                "video_id": "vid-1",
+                "file_name": "clip.mp4",
+                "mime_type": "video/mp4",
+                "storage_path": "D:/chat_videos/clip.mp4",
+                "relative_path": "chat_videos/clip.mp4",
+                "video_url": "/api/chat/v2/videos?path=chat_videos%2Fclip.mp4",
+                "source": "upload",
+            }
+        ],
+        action_hint=None,
+        owner="u1",
+    )
+
+    service.reply(payload)
+
+    assert orchestrator.calls[0].input_videos[0].video_id == "vid-1"
+
+
 def test_reply_service_preserves_report_switch_result():
     orchestrator = DummyOrchestrator(
         {
@@ -643,6 +741,77 @@ def test_build_default_reply_service_v2_uses_web_retriever_for_fast_chat(monkeyp
     }
     assert result["sources"][0]["source"] == "https://example.com"
     assert "web summary" in gateway.last_messages[-1]["content"]
+
+
+def test_build_default_reply_service_v2_wires_video_retriever_for_fast_chat(monkeypatch):
+    seen = {}
+
+    class DummyStoreImpl:
+        def ensure_conversation(self, conversation_id, question):
+            return None
+
+        def get_messages(self, conversation_id, limit=20):
+            return []
+
+        def get_state(self, conversation_id):
+            return {}
+
+        def append_message(self, conversation_id, role, content, sources=None):
+            return None
+
+        def update_state(self, conversation_id, patch):
+            return None
+
+    class DummyGateway:
+        def chat(self, messages):
+            return "ok"
+
+    class DummyFastRuntime:
+        def __init__(self, **kwargs):
+            seen["runtime_kwargs"] = kwargs
+
+        def run(self, *, request, snapshot, decision):
+            return {
+                "message": {"role": "assistant", "content": "ok"},
+                "conversation": {"conversation_id": request.conversation_id or "conv-1"},
+                "action": {"name": "chat.reply"},
+                "workflow": None,
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "fast"},
+            }
+
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.ConversationStoreAdapter",
+        lambda: SimpleNamespace(
+            storage=DummyStoreImpl(),
+            load_snapshot=lambda conversation_id: {"messages": [], "state": {}},
+            write_v2_result=lambda conversation_id, request, result: None,
+        ),
+    )
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.build_default_gateway",
+        lambda model_id=None: DummyGateway(),
+    )
+    monkeypatch.setattr("app.chat.application.reply_service_v2.FastChatRuntime", DummyFastRuntime)
+
+    service = build_default_reply_service_v2()
+    payload = SimpleNamespace(
+        question="根据视频总结关羽生平",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id="course-1",
+        artifact_id=None,
+        allow_rag=True,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        owner="u1",
+    )
+
+    service.reply(payload)
+
+    assert callable(seen["runtime_kwargs"]["video_retriever"])
 
 
 def test_build_default_reply_service_v2_wires_generation_context_dependencies(monkeypatch):

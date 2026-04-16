@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from app.chat.debug_logging import append_debug_log
 from app.chat.domain.route_decision import RouteDecision
 
@@ -10,6 +12,7 @@ ACTION_TO_WORKFLOW = {
     "generate.report": "report",
     "generate.ppt": "ppt",
     "generate.lesson_plan": "lesson_plan",
+    "generate.quiz": "quiz",
     "research.lookup": "research",
 }
 
@@ -38,10 +41,8 @@ _PPT_CONTINUE_MARKERS = {
     "就按这个生成",
 }
 
-
 _LESSON_PLAN_CONTINUE_MARKERS = {
     "继续",
-    "確認",
     "确认",
     "确认并继续",
     "继续并生成",
@@ -49,10 +50,16 @@ _LESSON_PLAN_CONTINUE_MARKERS = {
     "按照大纲继续",
 }
 
-
-def _normalized_text(value: str) -> str:
-    return str(value or "").strip().lower().strip("。！？?.,，；;:")
-
+_QUIZ_CONTINUE_MARKERS = {
+    "continue",
+    "start",
+    "confirm",
+    "yes",
+    "可以",
+    "继续",
+    "开始",
+    "确认",
+}
 
 _LESSON_PLAN_REQUEST_MARKERS = {
     "教案",
@@ -60,12 +67,38 @@ _LESSON_PLAN_REQUEST_MARKERS = {
     "lesson plan",
 }
 
+_QUIZ_REQUEST_MARKERS = {
+    "quiz",
+    "practice",
+    "exercise",
+    "test",
+    "习题",
+    "练习",
+    "练习题",
+    "测试",
+    "测试题",
+    "出题",
+}
 
-def _is_explicit_lesson_plan_request(question: str) -> bool:
-    normalized = _normalized_text(question)
-    if not normalized:
-        return False
-    return any(marker in normalized for marker in _LESSON_PLAN_REQUEST_MARKERS)
+_QUIZ_SLOT_MARKERS = {
+    "选择题",
+    "填空题",
+    "简答题",
+    "判断题",
+    "题量",
+    "题型",
+    "主题",
+    "难度",
+    "基础",
+    "中等",
+    "提高",
+    "简单",
+    "困难",
+}
+
+
+def _normalized_text(value: str) -> str:
+    return str(value or "").strip().lower().strip("。！？?.!,，；;:")
 
 
 def _snapshot_active_context(snapshot) -> dict:
@@ -101,6 +134,29 @@ def _log_ppt_route(*, request, snapshot, reason: str, workflow_state=None) -> No
         active_workflow_status=str(_snapshot_active_context(snapshot).get("active_workflow_status") or ""),
         active_artifact_type=_snapshot_active_artifact_type(snapshot),
     )
+
+
+def _is_explicit_lesson_plan_request(question: str) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+    return any(marker in normalized for marker in _LESSON_PLAN_REQUEST_MARKERS)
+
+
+def _is_explicit_quiz_request(question: str) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+    return any(marker in normalized for marker in _QUIZ_REQUEST_MARKERS)
+
+
+def _looks_like_quiz_slot_answer(question: str) -> bool:
+    text = str(question or "").strip()
+    if not text:
+        return False
+    if bool(re.search(r"\d+", text)):
+        return True
+    return any(marker in text for marker in _QUIZ_SLOT_MARKERS)
 
 
 def _is_report_followup(question: str, snapshot) -> bool:
@@ -202,6 +258,42 @@ def _is_lesson_plan_followup(question: str, snapshot) -> bool:
     return False
 
 
+def _is_quiz_followup(question: str, snapshot) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+
+    active_context = _snapshot_active_context(snapshot)
+    active_artifact_type = _snapshot_active_artifact_type(snapshot)
+    memory = _snapshot_memory(snapshot)
+
+    quiz_goal = any(
+        any(marker in str(item or "").lower() for marker in ("quiz", "practice", "exercise", "test"))
+        or any(marker in str(item or "") for marker in ("习题", "练习", "练习题", "测试", "测试题"))
+        for item in list(memory.get("user_goals") or [])
+        + list(memory.get("explicit_user_goals") or [])
+        + [memory.get("derived_workflow_goal")]
+    )
+    quiz_context_active = (
+        str(active_context.get("active_workflow_type") or "").strip() == "quiz"
+        and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+    )
+    quiz_artifact_active = active_artifact_type == "quiz"
+
+    if not (quiz_goal or quiz_context_active or quiz_artifact_active):
+        return False
+
+    if normalized in _QUIZ_CONTINUE_MARKERS:
+        return True
+    if any(token in normalized for token in ("generate quiz", "start quiz", "生成习题", "生成练习题", "开始出题")):
+        return True
+    if quiz_context_active and _looks_like_quiz_slot_answer(question):
+        return True
+    if quiz_artifact_active and any(token in normalized for token in ("continue", "confirm", "start", "可以", "继续", "开始", "确认")):
+        return True
+    return False
+
+
 def decide_route(*, request, snapshot, workflow_state):
     if snapshot and getattr(snapshot, "active_artifact", None) and is_rewrite_command(request.question):
         return RouteDecision.fast(action="chat.rewrite", reason="active_artifact_rewrite")
@@ -229,11 +321,14 @@ def decide_route(*, request, snapshot, workflow_state):
         )
 
     active_context = _snapshot_active_context(snapshot)
+    active_workflow_type = str(active_context.get("active_workflow_type") or "").strip()
+    active_workflow_status = str(active_context.get("active_workflow_status") or "").strip()
+
     if (
         not workflow_state
         and not request.action_hint
-        and str(active_context.get("active_workflow_type") or "").strip() == "report"
-        and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+        and active_workflow_type == "report"
+        and active_workflow_status in {"running", "awaiting_confirm"}
         and _is_report_followup(request.question, snapshot)
     ):
         return RouteDecision(
@@ -246,8 +341,8 @@ def decide_route(*, request, snapshot, workflow_state):
     if (
         not workflow_state
         and not request.action_hint
-        and str(active_context.get("active_workflow_type") or "").strip() == "ppt"
-        and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+        and active_workflow_type == "ppt"
+        and active_workflow_status in {"running", "awaiting_confirm"}
         and _is_ppt_followup(request.question, snapshot)
     ):
         _log_ppt_route(request=request, snapshot=snapshot, reason="resume_active_ppt_context", workflow_state=workflow_state)
@@ -258,12 +353,34 @@ def decide_route(*, request, snapshot, workflow_state):
             reason="resume_active_ppt_context",
         )
 
+    if (
+        not workflow_state
+        and not request.action_hint
+        and active_workflow_type == "quiz"
+        and active_workflow_status in {"running", "awaiting_confirm"}
+        and _is_quiz_followup(request.question, snapshot)
+    ):
+        return RouteDecision(
+            path="workflow",
+            action="generate.quiz",
+            workflow_name="quiz",
+            reason="resume_active_quiz_context",
+        )
+
     if request.action_hint == "generate.lesson_plan" or _is_explicit_lesson_plan_request(request.question):
         return RouteDecision(
             path="workflow",
             action="generate.lesson_plan",
             workflow_name="lesson_plan",
             reason="explicit_lesson_plan",
+        )
+
+    if request.action_hint == "generate.quiz" or _is_explicit_quiz_request(request.question):
+        return RouteDecision(
+            path="workflow",
+            action="generate.quiz",
+            workflow_name="quiz",
+            reason="explicit_quiz",
         )
 
     if request.action_hint == "research.lookup":
@@ -310,12 +427,11 @@ def decide_route(*, request, snapshot, workflow_state):
         )
 
     if _is_lesson_plan_followup(request.question, snapshot):
-        active_context = _snapshot_active_context(snapshot)
         if (
             not workflow_state
             and not request.action_hint
-            and str(active_context.get("active_workflow_type") or "").strip() == "lesson_plan"
-            and str(active_context.get("active_workflow_status") or "").strip() in {"running", "awaiting_confirm"}
+            and active_workflow_type == "lesson_plan"
+            and active_workflow_status in {"running", "awaiting_confirm"}
         ):
             return RouteDecision(
                 path="workflow",
@@ -328,6 +444,14 @@ def decide_route(*, request, snapshot, workflow_state):
             action="generate.lesson_plan",
             workflow_name="lesson_plan",
             reason="lesson_plan_followup_from_context",
+        )
+
+    if _is_quiz_followup(request.question, snapshot):
+        return RouteDecision(
+            path="workflow",
+            action="generate.quiz",
+            workflow_name="quiz",
+            reason="quiz_followup_from_context",
         )
 
     if request.action_hint == "chat.rewrite":

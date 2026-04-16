@@ -1,6 +1,6 @@
 from app.chat.domain.capability_policy import CapabilityPolicy
 from app.chat.runtime.tool_registry import build_tool_registry
-from app.chat.tools.agent_tools import get_tool_registry_for_capability, web_search_tool
+from app.chat.tools.agent_tools import get_tool_registry_for_capability, rag_search_tool, web_search_tool
 
 
 def test_tool_registry_exposes_no_tools_when_all_capabilities_disabled():

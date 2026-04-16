@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.chat.domain.artifact_reference import ArtifactReferencePayload
+from app.chat.domain.contracts import ChatInputImagePayload, ChatInputVideoPayload
 from app.chat.domain.conversation_reference import ConversationReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
 
@@ -14,6 +15,7 @@ WorkflowStatus = Literal["running", "awaiting_confirm", "completed", "interrupte
 ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
 PptEntryMode = Literal["knowledge_base_ppt"]
 LessonPlanEntryMode = Literal["knowledge_base_lesson_plan"]
+QuizEntryMode = Literal["knowledge_base_quiz"]
 ReportEntryCardType = Literal["preset", "recommended"]
 PresetKey = Literal["brief", "detailed", "study_plan", "custom"]
 PptPresetKey = Literal["knowledge_lecture", "topic_briefing", "comparison_analysis", "defense_summary"]
@@ -37,6 +39,8 @@ LessonPlanRecommendationType = Literal[
 FitScore = Literal["high", "medium", "low"]
 PptLengthOption = Literal["short", "medium", "long"]
 PptThemeId = Literal["heu_academic_elegant", "heu_academic_basic"]
+QuizDifficulty = Literal["easy", "medium", "hard"]
+QuizQuestionType = Literal["choice", "blank", "short", "judge"]
 
 
 class ChatReplyRequestV2(BaseModel):
@@ -50,6 +54,8 @@ class ChatReplyRequestV2(BaseModel):
     allow_rag: bool = False
     allow_web: bool = False
     selected_doc_ids: List[str] = Field(default_factory=list)
+    input_images: List[ChatInputImagePayload] = Field(default_factory=list)
+    input_videos: List[ChatInputVideoPayload] = Field(default_factory=list)
     action_hint: Optional[str] = None
 
 
@@ -91,6 +97,29 @@ class KnowledgeBaseDirectReportRequestV2(BaseModel):
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
     selected_card: Optional["ReportEntryCardSelectionV2"] = None
+
+
+class KnowledgeBaseDirectQuizPrefillRequestV2(BaseModel):
+    course_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+
+
+class DirectQuizConfigV2(BaseModel):
+    topic: str
+    hard_points: List[str] = Field(default_factory=list)
+    difficulty: QuizDifficulty = "medium"
+    question_count: int = 5
+    question_types: List[QuizQuestionType] = Field(default_factory=lambda: ["choice"])
+    include_answers: bool = True
+    include_explanations: bool = True
+
+
+class KnowledgeBaseDirectQuizRequestV2(BaseModel):
+    course_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+    quiz_config: DirectQuizConfigV2
+    prompt_draft: Optional[str] = None
+    final_user_prompt: Optional[str] = None
 
 
 class DirectPptConfigV2(BaseModel):
@@ -220,6 +249,13 @@ class ChatLessonPlanCardsResponseV2(BaseModel):
     trace: Dict[str, Any] = Field(default_factory=dict)
 
 
+class ChatQuizPrefillResponseV2(BaseModel):
+    entry_mode: QuizEntryMode
+    topic: str = ""
+    hard_points: List[str] = Field(default_factory=list)
+    trace: Dict[str, Any] = Field(default_factory=dict)
+
+
 class TraceMetaV2(BaseModel):
     model_config = ConfigDict(extra="allow")
 
@@ -250,6 +286,12 @@ class ChatErrorResponseV2(BaseModel):
 
 
 class ChatDirectReportResponseV2(BaseModel):
+    action: Dict[str, Any]
+    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
+    trace: DirectTraceMetaV2
+
+
+class ChatDirectQuizResponseV2(BaseModel):
     action: Dict[str, Any]
     artifacts: List[Dict[str, Any]] = Field(default_factory=list)
     trace: DirectTraceMetaV2

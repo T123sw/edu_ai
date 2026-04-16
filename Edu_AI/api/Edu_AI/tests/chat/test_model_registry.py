@@ -11,14 +11,13 @@ def test_build_default_gateway_uses_requested_model_id():
 def test_build_default_gateway_prefers_deep_model_by_default():
     gateway = build_default_gateway()
 
-    assert gateway.model_name == "deepseek-chat"
+    assert gateway.model_name == "qwen3.5-plus"
 
 
 def test_build_default_gateway_includes_fallback_candidates():
     gateway = build_default_gateway()
 
     assert [candidate["model_name"] for candidate in gateway.candidates] == [
-        "deepseek-chat",
         "qwen3.5-plus",
         "openai/gpt-5.4-mini",
     ]

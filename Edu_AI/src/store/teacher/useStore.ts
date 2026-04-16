@@ -1,7 +1,13 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { RAGSource } from '../../services/rag';
-import type { ChatArtifactReference, ChatConversationReference, StatusCardV2 } from '../../services/teacher/chatV2';
+import type {
+  ChatArtifactReference,
+  ChatConversationReference,
+  ChatInputImageV2,
+  ChatInputVideoV2,
+  StatusCardV2,
+} from '../../services/teacher/chatV2';
 import {
   clearConversationGeneratedFiles,
   pinGeneratedFileInList,
@@ -20,6 +26,8 @@ interface ChatMessage {
   user: 'You' | 'AI';
   text: string;
   sources?: RAGSource[];
+  inputImages?: ChatInputImageV2[];
+  inputVideos?: ChatInputVideoV2[];
   status?: 'thinking' | 'tool' | 'streaming' | 'done' | 'error';
   statusText?: string;
 }

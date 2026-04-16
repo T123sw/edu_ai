@@ -14,6 +14,7 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from rag_v2.rag_main import api as runtime_api
+from rag_v2.rag_main import system as runtime_system
 from rag_v2.rag_main.system import RAGSystem
 
 
@@ -30,6 +31,52 @@ def test_rag_v2_runtime_package_can_be_imported():
     assert RAGSystem is not None
     assert runtime_api.get_current_user.__module__ == "app.auth"
     assert runtime_api.Config.BASE_DIR == Path(__file__).resolve().parents[2]
+
+
+def test_resolve_mineru_cwd_uses_local_cli_parent(monkeypatch):
+    base_dir = _make_workspace_tmp("mineru_workspace")
+    cli_path = base_dir / ".venv" / "Scripts" / "mineru.cmd"
+    cli_path.parent.mkdir(parents=True, exist_ok=True)
+    cli_path.write_text("@echo off\n", encoding="utf-8")
+
+    monkeypatch.setattr(runtime_system.Config, "BASE_DIR", base_dir)
+
+    command = runtime_system._resolve_mineru_command()
+
+    assert command == [str(cli_path)]
+    assert runtime_system._resolve_mineru_cwd(command) == str(cli_path.parent)
+
+
+def test_resolve_mineru_command_finds_bundled_rag_runtime_cli(monkeypatch):
+    base_dir = _make_workspace_tmp("mineru_bundled")
+    cli_path = base_dir / "rag_v2" / "rag-main" / ".venv" / "Scripts" / "mineru.cmd"
+    cli_path.parent.mkdir(parents=True, exist_ok=True)
+    cli_path.write_text("@echo off\n", encoding="utf-8")
+
+    monkeypatch.setattr(runtime_system.Config, "BASE_DIR", base_dir)
+    monkeypatch.setattr(runtime_system.shutil, "which", lambda _name: None)
+
+    assert runtime_system._resolve_mineru_command() == [str(cli_path)]
+
+
+def test_check_mineru_available_runs_from_cli_directory(monkeypatch):
+    cli_path = _make_workspace_tmp("mineru_cli") / ".venv" / "Scripts" / "mineru.cmd"
+    cli_path.parent.mkdir(parents=True, exist_ok=True)
+    cli_path.write_text("@echo off\n", encoding="utf-8")
+
+    captured = {}
+
+    def fake_run(command, **kwargs):
+        captured["command"] = command
+        captured["cwd"] = kwargs.get("cwd")
+        return type("Result", (), {"returncode": 0})()
+
+    monkeypatch.setattr(runtime_system, "_resolve_mineru_command", lambda: [str(cli_path)])
+    monkeypatch.setattr(runtime_system.subprocess, "run", fake_run)
+
+    assert runtime_system._check_mineru_available() is True
+    assert captured["command"] == [str(cli_path), "--version"]
+    assert captured["cwd"] == str(cli_path.parent)
 
 
 def test_rag_v2_runtime_system_uses_host_storage_and_host_auth(monkeypatch):
@@ -394,6 +441,146 @@ async def test_stats_require_auth_and_are_owner_scoped(monkeypatch):
     assert response.document_count == 2
     assert response.indexed_files == 2
     assert response.indexed_files_list == ["user_alice:/docs/a.md", "user_alice:/docs/b.md"]
+
+
+@pytest.mark.anyio
+async def test_list_documents_includes_owner_scoped_image_entries(monkeypatch):
+    image_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "diagram.png"
+    index_key = f"user_alice:{image_path}"
+
+    class FakeRAGSystem:
+        def list_documents(self, owner=None):
+            return []
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+    monkeypatch.setattr(
+        runtime_api,
+        "_image_index",
+        {
+            index_key: {
+                "file_path": str(image_path),
+                "file_name": "diagram.png",
+                "include_in_search": True,
+                "imported_at": "2026-04-15T00:00:00",
+                "file_size": 123,
+                "hash": "hash-1",
+                "owner": "alice",
+                "modality": "image",
+            },
+            "user_bob:/tmp/secret.png": {
+                "file_path": "/tmp/secret.png",
+                "file_name": "secret.png",
+                "owner": "bob",
+                "modality": "image",
+            },
+        },
+    )
+
+    response = await runtime_api.list_documents(current_user={"username": "alice"})
+
+    assert len(response) == 1
+    image_doc = response[0]
+    assert image_doc.file_path == index_key
+    assert image_doc.file_name == "diagram.png"
+    assert image_doc.modality == "image"
+    assert image_doc.image_url == "/api/rag/image?path=images%2Falice%2Fdiagram.png"
+
+
+@pytest.mark.anyio
+async def test_image_document_content_returns_preview_metadata(monkeypatch):
+    image_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "diagram.png"
+    index_key = f"user_alice:{image_path}"
+
+    class FakeRAGSystem:
+        document_index = {}
+
+        def _make_index_key(self, file_path, owner):
+            return index_key
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+    monkeypatch.setattr(
+        runtime_api,
+        "_image_index",
+        {
+            index_key: {
+                "file_path": str(image_path),
+                "file_name": "diagram.png",
+                "include_in_search": True,
+                "imported_at": "2026-04-15T00:00:00",
+                "file_size": 123,
+                "hash": "hash-1",
+                "owner": "alice",
+                "modality": "image",
+            }
+        },
+    )
+
+    response = await runtime_api.get_document_content(
+        file_path=index_key,
+        current_user={"username": "alice"},
+    )
+
+    assert response.file_path == index_key
+    assert response.file_name == "diagram.png"
+    assert response.total_chunks == 1
+    assert response.chunks[0]["metadata"]["modality"] == "image"
+    assert response.chunks[0]["metadata"]["image_url"] == "/api/rag/image?path=images%2Falice%2Fdiagram.png"
+
+
+@pytest.mark.anyio
+async def test_document_content_scrubs_embedded_image_chunks_to_relative_urls(monkeypatch):
+    physical_path = str(Path("D:/docs/alice/lesson.pdf"))
+    index_key = f"user_alice:{physical_path}"
+    image_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "page1_0000.png"
+
+    class FakeVectorStore:
+        def get_documents_by_source(self, source_key):
+            assert source_key == index_key
+            return [
+                {
+                    "content": "正文段落",
+                    "metadata": {"page": 1, "modality": "text"},
+                },
+                {
+                    "content": "[IMAGE_CHUNK] 文件名: page1_0000.png",
+                    "metadata": {
+                        "page": 1,
+                        "modality": "image",
+                        "image_path": str(image_path),
+                        "image_name": "page1_0000.png",
+                    },
+                },
+            ]
+
+    class FakeRAGSystem:
+        def __init__(self):
+            self.document_index = {
+                index_key: {
+                    "physical_path": physical_path,
+                    "file_name": "lesson.pdf",
+                    "owner": "alice",
+                    "source_key": index_key,
+                }
+            }
+            self.vector_store = FakeVectorStore()
+
+        def _make_index_key(self, file_path, owner):
+            return index_key
+
+        def _make_source_key(self, file_path, owner):
+            return index_key
+
+    monkeypatch.delenv("SERVER_URL", raising=False)
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+
+    response = await runtime_api.get_document_content(
+        file_path=index_key,
+        current_user={"username": "alice"},
+    )
+
+    image_chunks = [chunk for chunk in response.chunks if chunk["metadata"].get("modality") == "image"]
+    assert len(image_chunks) == 1
+    assert image_chunks[0]["metadata"]["image_url"] == "/api/rag/image?path=images%2Falice%2Fpage1_0000.png"
 
 
 @pytest.mark.anyio

@@ -28,12 +28,12 @@ import { useStore } from '../../store/teacher/useStore';
 import type { GeneratedFile } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
-  generateQuiz,
   getCourseMaterials,
   resumeBlogTaskChapters,
   resumeBlogTaskOutline,
   startBlogGenerate,
   getBlogTaskStatus,
+  generateQuiz,
   type BlogResumeChaptersRequest,
   type BlogResumeOutlineRequest,
   type BlogTaskStatusResponse,
@@ -42,13 +42,17 @@ import {
   type ReportResponse,
 } from '../../services/teacher/api';
 import {
+  type DirectQuizConfigV2,
   sendChatReplyV2,
+  sendReportV2,
   type LessonPlanEntryCard,
+  generateKnowledgeBaseQuizV2,
   generateKnowledgeBasePptOutlineV2,
   generateKnowledgeBasePptV2,
   generateKnowledgeBaseReportV2,
 } from '../../services/teacher/chatV2';
-import { buildReportQuestionFromConfig, extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
+import { extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
+import { buildKnowledgeBaseQuizRequest } from '../../services/teacher/quizEntry.helpers';
 import { buildKnowledgeBaseReportRequest } from '../../services/teacher/reportEntry.helpers';
 import { buildKnowledgeBaseLessonPlanReplyRequest, type LessonPlanEntryConfigInput } from '../../services/teacher/lessonPlanEntry.helpers';
 import {
@@ -61,6 +65,7 @@ import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '
 import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
 import PptEntryPanel from './PptEntryPanel';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
+import QuizEntryModal from './QuizEntryModal';
 import ReportEntryModal from './ReportEntryModal';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
@@ -230,8 +235,20 @@ const extractChoiceKey = (value: string) => {
 const isQuizAnswerCorrect = (q: QuizResponse['questions'][number], userAnswerRaw: string) => {
   const userAnswer = normalizeAnswer(userAnswerRaw);
   const standardAnswer = normalizeAnswer(q.answer || '');
+  const questionType = String((q as any).type || '').trim();
 
-  if (q.type === 'choice') {
+  if (questionType === 'judge') {
+    const truthyAnswers = new Set(['正确', '对', 'true', 'yes', '是']);
+    const falsyAnswers = new Set(['错误', '错', 'false', 'no', '否']);
+    if (truthyAnswers.has(userAnswerRaw.trim()) && truthyAnswers.has(String(q.answer || '').trim())) {
+      return true;
+    }
+    if (falsyAnswers.has(userAnswerRaw.trim()) && falsyAnswers.has(String(q.answer || '').trim())) {
+      return true;
+    }
+  }
+
+  if (questionType === 'choice') {
     const userKey = extractChoiceKey(userAnswerRaw || '');
     const answerKey = extractChoiceKey(q.answer || '');
 
@@ -525,10 +542,12 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [generating, setGenerating] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline'>('body');
   const [reportEntryVisible, setReportEntryVisible] = useState(false);
   const [lessonPlanEntryVisible, setLessonPlanEntryVisible] = useState(false);
   const [pptEntryVisible, setPptEntryVisible] = useState(false);
+  const [quizEntryVisible, setQuizEntryVisible] = useState(false);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
@@ -565,6 +584,10 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   useEffect(() => {
     setReportPreviewMode('body');
+  }, [viewingFile?.id]);
+
+  useEffect(() => {
+    setCurrentQuizIndex(0);
   }, [viewingFile?.id]);
 
   const handleGenerateLegacy = async (type: GeneratedFile['type'] | string) => {
@@ -639,6 +662,24 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         return;
       }
       setReportEntryVisible(true);
+      return;
+    }
+
+    if (type === 'quiz') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setQuizEntryVisible(true);
+      return;
+    }
+
+    if (type === 'quiz') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setQuizEntryVisible(true);
       return;
     }
 
@@ -756,6 +797,56 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       message.success(generatedReportFiles.length > 0 ? '报告已生成并在右侧打开。' : '报告流程已启动。');
     } catch (error: any) {
       message.error(`报告生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleQuizEntrySubmit = async ({
+    config,
+  }: {
+    config: DirectQuizConfigV2;
+  }) => {
+    setGenerating(true);
+    try {
+      const response = await generateKnowledgeBaseQuizV2(
+        buildKnowledgeBaseQuizRequest({
+          courseId,
+          selectedDocIds: selectedDocs,
+          config,
+        }),
+      );
+
+      const generatedQuizFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
+        ...file,
+        meta: {
+          ...(file.meta || {}),
+          origin: 'knowledge_base_direct',
+          entryMode: 'knowledge_base_quiz',
+        },
+      }));
+
+      generatedQuizFiles.forEach((file) => addGeneratedFile(file));
+
+      if (generatedQuizFiles.length > 0) {
+        const latestFile = generatedQuizFiles[generatedQuizFiles.length - 1];
+        setViewingFile(latestFile);
+
+        if (courseId) {
+          addMaterial({
+            ...latestFile,
+            addedAt: new Date().toISOString(),
+            courseId,
+          });
+          await refreshCourseMaterials();
+        }
+      }
+
+      setQuizEntryVisible(false);
+      message.success(generatedQuizFiles.length > 0 ? '习题已生成并在右侧打开。' : '习题生成任务已启动。');
+    } catch (error: any) {
+      message.error(`习题生成失败: ${error.message || '未知错误'}`);
       throw error;
     } finally {
       setGenerating(false);
@@ -962,68 +1053,9 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           setGenerating(false);
         }
       } else if (configType === 'report') {
-        setGenerating(true);
-        try {
-          const focusAreas = Array.isArray(values.focus_areas)
-            ? values.focus_areas
-            : values.focus_areas
-              ? [values.focus_areas]
-              : [];
-          const response = await sendReportV2({
-            question: buildReportQuestionFromConfig({
-              title: values.title || undefined,
-              focus_areas: focusAreas,
-            }),
-            conversation_id: currentConversationId || undefined,
-            course_id: courseId,
-            allow_rag: allowRag,
-            allow_web: allowWeb,
-            selected_doc_ids: selectedDocs,
-            report_config: {
-              title: values.title || undefined,
-              focus_areas: focusAreas,
-            },
-          });
-
-          const nextConversationId = String(response.conversation?.conversation_id || '').trim();
-          if (nextConversationId && nextConversationId !== currentConversationId) {
-            setCurrentConversationId(nextConversationId);
-          }
-          setStatusCard(response.status_card || null);
-
-          const generatedReportFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
-            ...file,
-            meta: {
-              ...(file.meta || {}),
-              origin: 'conversation',
-              conversationId: nextConversationId || currentConversationId,
-            },
-          }));
-
-          generatedReportFiles.forEach((file) => addGeneratedFile(file));
-
-          if (generatedReportFiles.length > 0) {
-            const latestFile = generatedReportFiles[generatedReportFiles.length - 1];
-            setViewingFile(latestFile);
-
-            if (courseId) {
-              addMaterial({
-                ...latestFile,
-                addedAt: new Date().toISOString(),
-                courseId,
-              });
-              await refreshCourseMaterials();
-            }
-          }
-
-          message.success(generatedReportFiles.length > 0 ? 'Report is ready in the side panel.' : 'Report workflow started.');
-          setConfigModalVisible(false);
-          configForm.resetFields();
-        } catch (error: any) {
-          message.error(`Report generation failed: ${error.message || 'Unknown error'}`);
-        } finally {
-          setGenerating(false);
-        }
+        setConfigModalVisible(false);
+        setReportEntryVisible(true);
+        configForm.resetFields();
       } else if (configType === 'blog') {
         if (!courseId) {
           message.error('无法生成：课程ID缺失，请确保在课程页面中操作');
@@ -2047,6 +2079,22 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         return isQuizAnswerCorrect(q, quizAnswers[q.id] || '');
       }).length;
       const accuracy = checkedCount > 0 ? Math.round((correctCount / checkedCount) * 100) : 0;
+      const safeQuizIndex = totalCount > 0 ? Math.min(Math.max(currentQuizIndex, 0), totalCount - 1) : 0;
+      const currentQuestion = questions[safeQuizIndex];
+      const currentQuestionId = currentQuestion ? String(currentQuestion.id || safeQuizIndex + 1) : '';
+      const currentQuestionType = String((currentQuestion as any)?.type || '').trim();
+      const isCurrentChoiceQuestion = currentQuestionType === 'choice' && Array.isArray(currentQuestion?.options);
+      const isCurrentJudgeQuestion = currentQuestionType === 'judge';
+      const currentUserAnswer = currentQuestionId ? quizAnswers[currentQuestionId] || '' : '';
+      const currentHasChecked = currentQuestionId ? !!quizChecked[currentQuestionId] : false;
+      const currentIsCorrect = Boolean(
+        currentQuestion && currentHasChecked && isQuizAnswerCorrect(currentQuestion, currentUserAnswer),
+      );
+      const progressPercent = totalCount > 0 ? Math.round(((safeQuizIndex + 1) / totalCount) * 100) : 0;
+      const goToQuizIndex = (nextIndex: number) => {
+        if (totalCount <= 0) return;
+        setCurrentQuizIndex(Math.max(0, Math.min(totalCount - 1, nextIndex)));
+      };
 
       return (
         <div
@@ -2123,74 +2171,155 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             </div>
           </Card>
 
-          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
-            {questions.map((q, idx) => {
-              const userAnswer = quizAnswers[q.id] || '';
-              const hasChecked = !!quizChecked[q.id];
-              const isCorrect = hasChecked && isQuizAnswerCorrect(q, userAnswer);
+          <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+            {currentQuestion ? (
+              <Card
+                key={currentQuestionId}
+                size="small"
+                style={{
+                  height: '100%',
+                  borderRadius: 16,
+                  borderColor: '#d6e4ff',
+                  boxShadow: '0 10px 28px rgba(22, 119, 255, 0.08)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+                bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: 24 }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                  <Space direction="vertical" size={2}>
+                    <Text type="secondary">第 {safeQuizIndex + 1} / {totalCount} 题</Text>
+                    <Text strong style={{ fontSize: 20, lineHeight: 1.5 }}>
+                      {currentQuestion.stem}
+                    </Text>
+                  </Space>
+                  <Text
+                    style={{
+                      flexShrink: 0,
+                      border: '1px solid #d6e4ff',
+                      borderRadius: 999,
+                      padding: '4px 10px',
+                      color: '#1677ff',
+                      background: '#f0f6ff',
+                    }}
+                  >
+                    {isCurrentJudgeQuestion ? '判断题' : isCurrentChoiceQuestion ? '选择题' : '简答题'}
+                  </Text>
+                </div>
 
-              return (
-                <Card key={q.id || idx} size="small" style={{ marginBottom: 12 }}>
-                  <div style={{ marginBottom: 8 }}>
-                    <Text strong>{idx + 1}. {q.stem}</Text>
-                  </div>
+                <Progress percent={progressPercent} showInfo={false} style={{ margin: '18px 0 20px' }} />
 
-                  {q.type === 'choice' && Array.isArray(q.options) ? (
+                <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', paddingRight: 4 }}>
+                  {isCurrentChoiceQuestion ? (
                     <Radio.Group
-                      value={userAnswer || undefined}
+                      value={currentUserAnswer || undefined}
                       onChange={(e) => {
-                        setQuizAnswers((prev) => ({ ...prev, [q.id]: e.target.value }));
-                        setQuizChecked((prev) => ({ ...prev, [q.id]: false }));
+                        setQuizAnswers((prev) => ({ ...prev, [currentQuestionId]: e.target.value }));
+                        setQuizChecked((prev) => ({ ...prev, [currentQuestionId]: false }));
                       }}
+                      style={{ width: '100%' }}
                     >
-                      <Space direction="vertical">
-                        {q.options.map((opt, optIdx) => (
-                          <Radio key={`${q.id}_${optIdx}`} value={opt}>{opt}</Radio>
+                      <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                        {(currentQuestion.options || []).map((opt, optIdx) => (
+                          <Radio
+                            key={`${currentQuestionId}_${optIdx}`}
+                            value={opt}
+                            style={{
+                              width: '100%',
+                              minHeight: 48,
+                              padding: '10px 14px',
+                              border: '1px solid #f0f0f0',
+                              borderRadius: 12,
+                              background: currentUserAnswer === opt ? '#f0f6ff' : '#fff',
+                            }}
+                          >
+                            {opt}
+                          </Radio>
                         ))}
                       </Space>
                     </Radio.Group>
+                  ) : isCurrentJudgeQuestion ? (
+                    <Radio.Group
+                      value={currentUserAnswer || undefined}
+                      onChange={(e) => {
+                        setQuizAnswers((prev) => ({ ...prev, [currentQuestionId]: e.target.value }));
+                        setQuizChecked((prev) => ({ ...prev, [currentQuestionId]: false }));
+                      }}
+                    >
+                      <Space size={12} wrap>
+                        <Radio.Button value="正确" style={{ minWidth: 120, textAlign: 'center' }}>正确</Radio.Button>
+                        <Radio.Button value="错误" style={{ minWidth: 120, textAlign: 'center' }}>错误</Radio.Button>
+                      </Space>
+                    </Radio.Group>
                   ) : (
-                    <Input
-                      value={userAnswer}
+                    <Input.TextArea
+                      value={currentUserAnswer}
+                      rows={5}
                       placeholder="请输入答案"
                       onChange={(e) => {
-                        setQuizAnswers((prev) => ({ ...prev, [q.id]: e.target.value }));
-                        setQuizChecked((prev) => ({ ...prev, [q.id]: false }));
+                        setQuizAnswers((prev) => ({ ...prev, [currentQuestionId]: e.target.value }));
+                        setQuizChecked((prev) => ({ ...prev, [currentQuestionId]: false }));
                       }}
                     />
                   )}
 
-                  <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+                  {currentHasChecked && (
+                    <div style={{ marginTop: 18, padding: 14, borderRadius: 12, background: '#fafafa', border: '1px solid #f0f0f0' }}>
+                      <Text strong style={{ color: currentIsCorrect ? '#52c41a' : '#ff4d4f' }}>
+                        {currentIsCorrect ? '回答正确' : '回答错误'}
+                      </Text>
+                      <div style={{ marginTop: 8 }}><Text strong>正确答案：</Text><Text>{currentQuestion.answer || '-'}</Text></div>
+                      <div style={{ marginTop: 6 }}><Text strong>解析：</Text><Text>{currentQuestion.explanation || '暂无解析'}</Text></div>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ marginTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                  <Button disabled={safeQuizIndex <= 0} onClick={() => goToQuizIndex(safeQuizIndex - 1)}>
+                    上一题
+                  </Button>
+                  <Space size={6} wrap style={{ justifyContent: 'center' }}>
+                    {questions.map((item, idx) => {
+                      const itemId = String(item.id || idx + 1);
+                      const isChecked = !!quizChecked[itemId];
+                      return (
+                        <Button
+                          key={itemId}
+                          size="small"
+                          shape="circle"
+                          type={idx === safeQuizIndex ? 'primary' : 'default'}
+                          onClick={() => goToQuizIndex(idx)}
+                          style={isChecked && idx !== safeQuizIndex ? { borderColor: '#52c41a', color: '#52c41a' } : undefined}
+                        >
+                          {idx + 1}
+                        </Button>
+                      );
+                    })}
+                  </Space>
+                  <Space>
                     <Button
-                      size="small"
                       type="primary"
                       onClick={() => {
-                        if (!quizAnswers[q.id] || !quizAnswers[q.id].trim()) {
+                        if (!currentUserAnswer || !currentUserAnswer.trim()) {
                           message.warning('请先作答后再判题');
                           return;
                         }
-                        setQuizChecked((prev) => ({ ...prev, [q.id]: true }));
+                        setQuizChecked((prev) => ({ ...prev, [currentQuestionId]: true }));
                       }}
                     >
                       提交并判题
                     </Button>
-
-                    {hasChecked && (
-                      <Text style={{ color: isCorrect ? '#52c41a' : '#ff4d4f' }}>
-                        {isCorrect ? '回答正确' : '回答错误'}
-                      </Text>
-                    )}
-                  </div>
-
-                  {hasChecked && (
-                    <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: '#fafafa', border: '1px solid #f0f0f0' }}>
-                      <div><Text strong>正确答案：</Text><Text>{q.answer || '-'}</Text></div>
-                      <div style={{ marginTop: 6 }}><Text strong>解析：</Text><Text>{q.explanation || '暂无解析'}</Text></div>
-                    </div>
-                  )}
-                </Card>
-              );
-            })}
+                    <Button disabled={safeQuizIndex >= totalCount - 1} onClick={() => goToQuizIndex(safeQuizIndex + 1)}>
+                      下一题
+                    </Button>
+                  </Space>
+                </div>
+              </Card>
+            ) : (
+              <Card style={{ borderRadius: 16, textAlign: 'center' }}>
+                <Text type="secondary">暂无题目，请重新生成习题。</Text>
+              </Card>
+            )}
           </div>
         </div>
       );
@@ -2366,6 +2495,14 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         submitting={generating}
         onCancel={() => setLessonPlanEntryVisible(false)}
         onSubmit={handleLessonPlanEntrySubmit}
+      />
+      <QuizEntryModal
+        open={quizEntryVisible}
+        selectedDocIds={selectedDocs}
+        courseId={courseId}
+        submitting={generating}
+        onCancel={() => setQuizEntryVisible(false)}
+        onSubmit={handleQuizEntrySubmit}
       />
       <PptEntryPanel
         open={pptEntryVisible}
