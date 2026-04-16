@@ -49,14 +49,38 @@ assert.match(
 
 assert.match(
   aiStudioCssFile,
+  /\.ai-workspace-shell/,
+  'AiStudioPage.css should define the dedicated workspace shell wrapper',
+);
+
+assert.match(
+  aiStudioCssFile,
   /\.ai-studio-context-bar/,
   'AiStudioPage.css should style the top context bar',
 );
 
 assert.match(
   aiStudioCssFile,
+  /\.ai-workspace-shell__frame/,
+  'AiStudioPage.css should style the layered workbench frame',
+);
+
+assert.match(
+  aiStudioCssFile,
+  /radial-gradient\(circle at top/,
+  'AiStudioPage.css should introduce a subtle layered background for the beautified shell',
+);
+
+assert.match(
+  aiStudioCssFile,
   /background:\s*linear-gradient\(180deg,\s*#f4f6f8 0%,\s*#eef1f4 100%\)/,
   'AiStudioPage.css should use the calmer neutral page background',
+);
+
+assert.match(
+  aiStudioCssFile,
+  /box-shadow:\s*0 24px 60px/,
+  'AiStudioPage.css should give the workbench frame a deeper but still restrained shadow',
 );
 
 assert.match(
