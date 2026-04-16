@@ -135,6 +135,7 @@
 
 .ai-studio-content .ai-panel {
   border-color: rgba(59, 130, 246, 0.14);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(249, 251, 255, 0.99) 100%);
   box-shadow: 0 18px 40px rgba(37, 99, 235, 0.08);
 }
 
@@ -191,6 +192,14 @@
     row-gap: 8px;
     min-height: auto;
     padding: 12px 14px;
+  }
+
+  .ai-studio-context-bar__item {
+    width: 100%;
+  }
+
+  .ai-studio-context-bar__value {
+    max-width: 100%;
   }
 
   .ai-studio-context-bar__divider {
