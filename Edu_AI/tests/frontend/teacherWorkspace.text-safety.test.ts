@@ -13,6 +13,11 @@ const sourcePanelFile = readFileSync(
   'utf8',
 );
 
+const aiStudioPageFile = readFileSync(
+  new URL('../../src/pages/teacher/AiStudioPage.tsx', import.meta.url),
+  'utf8',
+);
+
 assert.equal(
   decodeDisplayText('%E5%85%B3%E7%BE%BD%E7%9A%84%E6%88%98%E7%BB%A9'),
   '关羽的战绩',
@@ -71,6 +76,18 @@ assert.match(
   sourcePanelFile,
   /上传文档\/图片\/视频/,
   'SourcePanel should keep the upload call-to-action readable',
+);
+
+assert.match(
+  aiStudioPageFile,
+  /当前课程/,
+  'AiStudioPage should keep the current-course label readable',
+);
+
+assert.match(
+  aiStudioPageFile,
+  /当前知识点/,
+  'AiStudioPage should keep the current-knowledge-point label readable',
 );
 
 console.log('teacherWorkspace.text-safety tests passed');
