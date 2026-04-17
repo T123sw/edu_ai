@@ -302,7 +302,7 @@ class ConversationStoreAdapter:
             )
         recent_messages = self.storage.get_messages(conversation_id, limit=8)
 
-        state_patch = {}
+        state_patch = dict(result.get("state_patch") or {})
         workflow_status = str((workflow or {}).get("status") or "").strip()
         if workflow_status == "interrupted":
             state_patch["active_task"] = ""
@@ -323,7 +323,18 @@ class ConversationStoreAdapter:
         artifacts = result.get("artifacts") or []
         artifact_reference = self._normalize_artifact_reference(getattr(request, "artifact_reference", None))
         conversation_reference = self._normalize_conversation_reference(getattr(request, "conversation_reference", None))
-        if artifacts:
+        clear_artifact_reference = "artifact_reference" in state_patch and not state_patch.get("artifact_reference")
+        if clear_artifact_reference:
+            state_patch["active_artifact"] = {}
+            existing_active_context = dict(existing_state.get("active_context") or {})
+            state_patch["active_context"] = {
+                **existing_active_context,
+                "active_artifact_id": "",
+                "active_artifact_type": "",
+                "active_reference_mode": "",
+            }
+            state_patch["referenced_artifact_ids"] = []
+        elif artifacts:
             first = self._pick_active_artifact(
                 artifacts=list(artifacts or []),
                 artifact_reference=artifact_reference,
@@ -345,14 +356,14 @@ class ConversationStoreAdapter:
             or getattr(request, "course_id", None)
             or getattr(getattr(request, "capability", None), "selected_doc_ids", None)
             or conversation_reference
-        ):
+        ) and not clear_artifact_reference:
             state_patch["active_context"] = self._build_active_context_patch(
                 request=request,
                 workflow=workflow,
                 workflow_status=workflow_status,
                 artifacts=artifacts,
             )
-        elif artifact_reference or conversation_reference:
+        elif (artifact_reference or conversation_reference) and not clear_artifact_reference:
             state_patch["active_context"] = self._build_active_context_patch(
                 request=request,
                 workflow=workflow,
@@ -372,7 +383,9 @@ class ConversationStoreAdapter:
         if hasattr(request, "input_videos"):
             state_patch["last_input_videos"] = normalized_input_videos
             state_patch["last_input_video_count"] = len(normalized_input_videos)
-        if artifacts:
+        if clear_artifact_reference:
+            state_patch["referenced_artifact_ids"] = []
+        elif artifacts:
             state_patch["referenced_artifact_ids"] = [
                 str(artifact.get("artifact_id") or "")
                 for artifact in artifacts
@@ -380,7 +393,9 @@ class ConversationStoreAdapter:
             ]
         elif artifact_reference.get("artifact_id"):
             state_patch["referenced_artifact_ids"] = [str(artifact_reference.get("artifact_id") or "")]
-        if artifact_reference:
+        if clear_artifact_reference:
+            state_patch["artifact_reference"] = {}
+        elif artifact_reference:
             next_reference = dict(artifact_reference)
             if artifacts:
                 active_reference = self._pick_active_artifact(

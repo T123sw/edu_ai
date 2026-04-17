@@ -84,6 +84,27 @@ const normalizeArtifactReferenceType = (
   return 'report';
 };
 
+function toArtifactReferenceFromState(
+  rawState: any,
+  fallbackConversationId?: string | null,
+  fallbackCourseId?: string,
+) {
+  const stateArtifactReference = rawState?.artifact_reference;
+  if (!stateArtifactReference || typeof stateArtifactReference !== 'object') {
+    return null;
+  }
+  return {
+    artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
+    artifact_type: normalizeArtifactReferenceType((stateArtifactReference as any).artifact_type),
+    version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
+    title: String((stateArtifactReference as any).title || '').trim() || undefined,
+    source_conversation_id: String(
+      (stateArtifactReference as any).source_conversation_id || fallbackConversationId || '',
+    ).trim() || undefined,
+    source_course_id: String((stateArtifactReference as any).source_course_id || fallbackCourseId || '').trim() || undefined,
+  };
+}
+
 const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const {
     messages,
@@ -479,16 +500,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
       setWorkflowStatus(nextWorkflowStatus || null);
       const restoredFiles = restoreGeneratedFilesFromConversationDetail(detail);
       replaceConversationGeneratedFiles(restoredFiles);
-      const stateArtifactReference = detail?.state?.artifact_reference;
-      if (stateArtifactReference && typeof stateArtifactReference === 'object') {
-        setArtifactReference({
-          artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
-          artifact_type: normalizeArtifactReferenceType((stateArtifactReference as any).artifact_type),
-          version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
-          title: String((stateArtifactReference as any).title || '').trim() || undefined,
-          source_conversation_id: String((stateArtifactReference as any).source_conversation_id || detail.conversation_id || '').trim() || undefined,
-          source_course_id: String((stateArtifactReference as any).source_course_id || courseId || '').trim() || undefined,
-        });
+      const restoredArtifactReference = toArtifactReferenceFromState(detail?.state, detail.conversation_id, courseId);
+      if (restoredArtifactReference) {
+        setArtifactReference(restoredArtifactReference);
       } else {
         clearArtifactReference();
       }
@@ -820,6 +834,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         setCurrentConversationId(nextConversationId);
       }
       setStatusCard(response.status_card || null);
+      const responseArtifactReference = (response as any)?.state?.artifact_reference;
+      if (responseArtifactReference && typeof responseArtifactReference === 'object') {
+        const nextArtifactReference = toArtifactReferenceFromState(
+          (response as any)?.state,
+          nextConversationId || currentConversationId,
+          courseId,
+        );
+        if (nextArtifactReference) {
+          setArtifactReference(nextArtifactReference);
+        }
+      } else if (!responseArtifactReference) {
+        clearArtifactReference();
+      }
       setWorkflowType(String(response.workflow?.type || '').trim() || null);
       setWorkflowStatus(String(response.workflow?.status || '').trim() || null);
 

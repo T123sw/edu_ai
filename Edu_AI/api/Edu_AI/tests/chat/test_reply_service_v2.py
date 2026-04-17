@@ -48,6 +48,16 @@ class DummyCourseStorageManager:
         return True
 
 
+class DummyArtifactIntentClassifier:
+    def __init__(self, decision):
+        self.decision = decision
+        self.calls = []
+
+    def classify(self, **kwargs):
+        self.calls.append(kwargs)
+        return self.decision
+
+
 def test_reply_service_returns_orchestrator_result_and_writes_back():
     orchestrator = DummyOrchestrator(
         {
@@ -86,6 +96,119 @@ def test_reply_service_returns_orchestrator_result_and_writes_back():
     assert result["action"]["name"] == "chat.reply"
     assert store.saved == [("conv-1", "hello", "chat.reply")]
     assert result["status_card"]["status_label"] == "普通对话"
+
+
+def test_reply_service_clears_artifact_context_on_explicit_exit():
+    orchestrator = DummyOrchestrator(
+        {
+            "message": {"role": "assistant", "content": "普通对话"},
+            "conversation": {"conversation_id": "conv-1"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "fast"},
+        }
+    )
+    store = DummyStore()
+    snapshot = SimpleNamespace(
+        workflow_state=None,
+        active_artifact={"artifact_id": "report-1", "artifact_type": "report", "title": "报告A"},
+        active_task=None,
+        recent_messages=[],
+    )
+    service = ReplyServiceV2(
+        orchestrator=orchestrator,
+        artifact_intent_classifier=DummyArtifactIntentClassifier(
+            SimpleNamespace(action="exit_artifact_context", confidence="high", clear_reference=True)
+        ),
+        conversation_store=store,
+        context_builder=SimpleNamespace(build=lambda request: snapshot),
+        status_card_builder=DummyStatusCardBuilder(),
+    )
+    payload = SimpleNamespace(
+        question="不要基于这个了，我们聊课程目标",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        artifact_reference={
+            "artifact_id": "report-1",
+            "artifact_type": "report",
+            "title": "报告A",
+        },
+        owner="u1",
+    )
+
+    result = service.reply(payload)
+
+    assert result["action"]["name"] == "chat.reply"
+    assert orchestrator.calls[0].artifact_reference is None
+
+
+def test_reply_service_low_confidence_classifier_falls_back_to_chat():
+    orchestrator = DummyOrchestrator(
+        {
+            "message": {"role": "assistant", "content": "讨论中"},
+            "conversation": {"conversation_id": "conv-1"},
+            "action": {"name": "chat.reply"},
+            "workflow": None,
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "fast"},
+        }
+    )
+    report_calls = []
+
+    class DummyReportEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            report_calls.append(request.question)
+            return {}
+
+    store = DummyStore()
+    snapshot = SimpleNamespace(
+        workflow_state=None,
+        active_artifact={"artifact_id": "report-1", "artifact_type": "report", "title": "报告A"},
+        active_task=None,
+        recent_messages=[],
+    )
+    service = ReplyServiceV2(
+        orchestrator=orchestrator,
+        report_edit_runtime=DummyReportEditRuntime(),
+        artifact_intent_classifier=DummyArtifactIntentClassifier(
+            SimpleNamespace(action="discuss_current_artifact", confidence="low", clear_reference=False)
+        ),
+        conversation_store=store,
+        context_builder=SimpleNamespace(build=lambda request: snapshot),
+        status_card_builder=DummyStatusCardBuilder(),
+    )
+    payload = SimpleNamespace(
+        question="再展开一点",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        artifact_reference={
+            "artifact_id": "report-1",
+            "artifact_type": "report",
+            "title": "报告A",
+        },
+        owner="u1",
+    )
+
+    result = service.reply(payload)
+
+    assert result["action"]["name"] == "chat.reply"
+    assert report_calls == []
+    assert store.saved == [("conv-1", "再展开一点", "chat.reply")]
 
 
 def test_reply_service_normalizes_input_images_into_chat_request():

@@ -4,6 +4,16 @@ from app.chat.application.reply_service_v2 import ReplyServiceV2
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
 
 
+class DummyArtifactIntentClassifier:
+    def __init__(self, decision):
+        self.decision = decision
+        self.calls = []
+
+    def classify(self, **kwargs):
+        self.calls.append(kwargs)
+        return self.decision
+
+
 class DummyStorage:
     def __init__(self):
         self.messages = []
@@ -12,13 +22,24 @@ class DummyStorage:
     def ensure_conversation(self, conversation_id, question=None, owner=None):
         return None
 
-    def append_message(self, conversation_id, role, content, sources=None, message_kind=None):
+    def append_message(
+        self,
+        conversation_id,
+        role,
+        content,
+        sources=None,
+        input_images=None,
+        input_videos=None,
+        message_kind=None,
+    ):
         self.messages.append(
             {
                 "conversation_id": conversation_id,
                 "role": role,
                 "content": content,
                 "sources": sources,
+                "input_images": input_images,
+                "input_videos": input_videos,
                 "message_kind": message_kind,
             }
         )
@@ -114,6 +135,9 @@ def test_reply_service_routes_ppt_artifact_references_to_ppt_edit_runtime():
         orchestrator=SimpleNamespace(dispatch=lambda request: None),
         report_edit_runtime=DummyReportEditRuntime(),
         ppt_edit_runtime=DummyPptEditRuntime(),
+        artifact_intent_classifier=DummyArtifactIntentClassifier(
+            SimpleNamespace(action="edit_current_artifact", confidence="high", clear_reference=False)
+        ),
         conversation_store=SimpleNamespace(write_v2_result=lambda conversation_id, request, result: None),
         context_builder=SimpleNamespace(
             build=lambda request: SimpleNamespace(
@@ -149,6 +173,151 @@ def test_reply_service_routes_ppt_artifact_references_to_ppt_edit_runtime():
     assert result["action"]["name"] == "ppt.edit"
     assert report_calls == []
     assert ppt_calls == [{"question": "make slide 3 simpler", "artifact_id": "ppt-deck-1", "course_id": "course-1"}]
+
+
+def test_reply_service_routes_referenced_ppt_edit_commands_to_ppt_runtime():
+    report_calls = []
+    ppt_calls = []
+
+    class DummyReportEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            report_calls.append(request.question)
+            return {}
+
+    class DummyPptEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            ppt_calls.append(
+                {
+                    "question": request.question,
+                    "artifact_id": request.artifact_reference.artifact_id,
+                    "course_id": request.course_id,
+                }
+            )
+            return {
+                "message": {"role": "assistant", "content": "started"},
+                "conversation": {"conversation_id": request.conversation_id},
+                "action": {"name": "ppt.edit"},
+                "workflow": {"type": "ppt", "status": "running", "phase": "polling_revision"},
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "workflow"},
+            }
+
+    service = ReplyServiceV2(
+        orchestrator=SimpleNamespace(dispatch=lambda request: None),
+        report_edit_runtime=DummyReportEditRuntime(),
+        ppt_edit_runtime=DummyPptEditRuntime(),
+        artifact_intent_classifier=DummyArtifactIntentClassifier(
+            SimpleNamespace(action="edit_current_artifact", confidence="high", clear_reference=False)
+        ),
+        conversation_store=SimpleNamespace(write_v2_result=lambda conversation_id, request, result: None),
+        context_builder=SimpleNamespace(
+            build=lambda request: SimpleNamespace(
+                workflow_state=None,
+                active_artifact={"artifact_id": "ppt-deck-1", "artifact_type": "ppt_deck", "title": "deck.pptx"},
+                active_task=None,
+                recent_messages=[],
+            )
+        ),
+        status_card_builder=SimpleNamespace(build=lambda **kwargs: {"mode": "workflow", "status_label": "running"}),
+        course_storage_manager=SimpleNamespace(),
+    )
+    payload = SimpleNamespace(
+        question="第 2 页标题改短一点",
+        conversation_id="conv-ppt-1",
+        owner="u1",
+        model_id=None,
+        course_id="course-1",
+        artifact_id=None,
+        action_hint=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        artifact_reference={
+            "artifact_id": "ppt-deck-1",
+            "artifact_type": "ppt_deck",
+            "title": "deck.pptx",
+        },
+    )
+
+    result = service.reply(payload)
+
+    assert result["action"]["name"] == "ppt.edit"
+    assert report_calls == []
+    assert ppt_calls == [{"question": "第 2 页标题改短一点", "artifact_id": "ppt-deck-1", "course_id": "course-1"}]
+
+
+def test_reply_service_keeps_referenced_ppt_discussion_on_chat_path():
+    report_calls = []
+    ppt_calls = []
+    orchestrator_calls = []
+
+    class DummyReportEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            report_calls.append(request.question)
+            return {}
+
+    class DummyPptEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            ppt_calls.append(request.question)
+            return {}
+
+    class DummyOrchestrator:
+        def dispatch(self, request):
+            orchestrator_calls.append(request.question)
+            return {
+                "message": {"role": "assistant", "content": "这是 PPT 讨论"},
+                "conversation": {"conversation_id": request.conversation_id},
+                "action": {"name": "chat.reply"},
+                "workflow": None,
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "fast"},
+            }
+
+    service = ReplyServiceV2(
+        orchestrator=DummyOrchestrator(),
+        report_edit_runtime=DummyReportEditRuntime(),
+        ppt_edit_runtime=DummyPptEditRuntime(),
+        artifact_intent_classifier=DummyArtifactIntentClassifier(
+            SimpleNamespace(action="discuss_current_artifact", confidence="high", clear_reference=False)
+        ),
+        conversation_store=SimpleNamespace(write_v2_result=lambda conversation_id, request, result: None),
+        context_builder=SimpleNamespace(
+            build=lambda request: SimpleNamespace(
+                workflow_state=None,
+                active_artifact={"artifact_id": "ppt-deck-1", "artifact_type": "ppt_deck", "title": "deck.pptx"},
+                active_task=None,
+                recent_messages=[],
+            )
+        ),
+        status_card_builder=SimpleNamespace(build=lambda **kwargs: {"mode": "chat", "status_label": "普通对话"}),
+        course_storage_manager=SimpleNamespace(),
+    )
+    payload = SimpleNamespace(
+        question="这一页想表达什么",
+        conversation_id="conv-ppt-1",
+        owner="u1",
+        model_id=None,
+        course_id="course-1",
+        artifact_id=None,
+        action_hint=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        artifact_reference={
+            "artifact_id": "ppt-deck-1",
+            "artifact_type": "ppt_deck",
+            "title": "deck.pptx",
+        },
+    )
+
+    result = service.reply(payload)
+
+    assert result["action"]["name"] == "chat.reply"
+    assert report_calls == []
+    assert ppt_calls == []
+    assert orchestrator_calls == ["这一页想表达什么"]
 
 
 def test_reply_service_refreshes_running_ppt_edit_without_appending_poll_user_message():

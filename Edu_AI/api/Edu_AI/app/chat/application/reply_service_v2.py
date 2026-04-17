@@ -8,6 +8,7 @@ from app.chat.application.request_normalizer import normalize_chat_request
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.generation_context_builder import GenerationContextBuilder
 from app.chat.orchestrator.generation_readiness_judge import GenerationReadinessJudge
+from app.chat.orchestrator.artifact_intent_classifier import classify_artifact_intent
 from app.chat.orchestrator.lesson_plan_context_organizer import LessonPlanContextOrganizer
 from app.chat.orchestrator.lesson_plan_readiness_judge import LessonPlanReadinessJudge
 from app.chat.orchestrator.main_orchestrator import MainOrchestrator
@@ -87,6 +88,7 @@ class ReplyServiceV2:
         course_storage_manager=None,
         report_edit_runtime=None,
         ppt_edit_runtime=None,
+        artifact_intent_classifier=None,
     ):
         self.orchestrator = orchestrator
         self.orchestrator_factory = orchestrator_factory
@@ -96,6 +98,56 @@ class ReplyServiceV2:
         self.course_storage_manager = course_storage_manager
         self.report_edit_runtime = report_edit_runtime
         self.ppt_edit_runtime = ppt_edit_runtime
+        self.artifact_intent_classifier = artifact_intent_classifier
+
+    @staticmethod
+    def _artifact_identity(value) -> tuple[str, str]:
+        if value is None:
+            return "", ""
+        if isinstance(value, dict):
+            artifact_id = str(value.get("artifact_id") or "").strip()
+            artifact_type = str(value.get("artifact_type") or "").strip()
+            return artifact_id, artifact_type
+        artifact_id = str(getattr(value, "artifact_id", "") or "").strip()
+        artifact_type = str(getattr(value, "artifact_type", "") or "").strip()
+        return artifact_id, artifact_type
+
+    def _has_new_reference(self, *, request_reference, snapshot) -> bool:
+        request_identity = self._artifact_identity(request_reference)
+        active_identity = self._artifact_identity(getattr(snapshot, "active_artifact", None)) if snapshot is not None else ("", "")
+        if not any(request_identity):
+            return False
+        if not any(active_identity):
+            return True
+        return request_identity != active_identity
+
+    def _classify_artifact_intent(self, *, request, snapshot):
+        request_reference = getattr(request, "artifact_reference", None)
+        classifier = self.artifact_intent_classifier
+        if classifier is not None and hasattr(classifier, "classify"):
+            return classifier.classify(
+                question=getattr(request, "question", ""),
+                request_reference=request_reference,
+                snapshot=snapshot,
+                has_new_reference=self._has_new_reference(request_reference=request_reference, snapshot=snapshot),
+            )
+        return classify_artifact_intent(
+            question=getattr(request, "question", ""),
+            request_reference=request_reference,
+            snapshot=snapshot,
+            llm=get_fallback_llm(),
+            has_new_reference=self._has_new_reference(request_reference=request_reference, snapshot=snapshot),
+        )
+
+    def _read_conversation_state(self, conversation_id: str) -> dict | None:
+        storage = getattr(self.conversation_store, "storage", None)
+        if storage is None or not hasattr(storage, "get_state"):
+            return None
+        try:
+            state = storage.get_state(conversation_id)
+        except Exception:
+            return None
+        return dict(state or {})
 
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
         finalize_report_result(
@@ -114,6 +166,9 @@ class ReplyServiceV2:
         result.setdefault("conversation", {"conversation_id": conversation_id})
         if conversation_id:
             self.conversation_store.write_v2_result(conversation_id, request, result)
+            persisted_state = self._read_conversation_state(conversation_id)
+            if persisted_state is not None:
+                result["state"] = persisted_state
             if self.context_builder is not None:
                 refreshed_snapshot = self.context_builder.build(request)
                 status_card = self.status_card_builder.build(
@@ -130,9 +185,13 @@ class ReplyServiceV2:
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
+        context_decision = self._classify_artifact_intent(request=request, snapshot=snapshot)
+        if context_decision.clear_reference:
+            request.artifact_reference = None
+
         artifact_reference = getattr(request, "artifact_reference", None)
         artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
-        if artifact_reference is not None:
+        if artifact_reference is not None and context_decision.action == "edit_current_artifact":
             if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
                 result = self.ppt_edit_runtime.run_from_request(
                     request=request,
@@ -151,6 +210,21 @@ class ReplyServiceV2:
         else:
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
+        if context_decision.clear_reference:
+            state_patch = dict(result.get("state_patch") or {})
+            state_patch.update(
+                {
+                    "artifact_reference": {},
+                    "active_artifact": {},
+                    "active_context": {
+                        "active_artifact_id": "",
+                        "active_artifact_type": "",
+                        "active_reference_mode": "",
+                    },
+                    "referenced_artifact_ids": [],
+                }
+            )
+            result["state_patch"] = state_patch
         return self._finalize_result(payload=payload, request=request, result=result)
 
     def reply_stream(self, payload):

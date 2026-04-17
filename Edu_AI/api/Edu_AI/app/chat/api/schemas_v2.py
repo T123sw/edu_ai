@@ -279,6 +279,7 @@ class ChatResponseV2(BaseModel):
     workflow: Optional[Dict[str, Any]] = None
     sources: List[Dict[str, Any]] = Field(default_factory=list)
     trace: TraceMetaV2
+    state: Optional[Dict[str, Any]] = None
     status_card: Optional[StatusCardViewModel] = None
 
 

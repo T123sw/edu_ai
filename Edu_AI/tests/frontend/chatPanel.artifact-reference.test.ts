@@ -88,3 +88,6 @@ assert.equal(pptPayload.artifact_reference?.artifact_type, 'ppt_deck');
 assert.equal(pptPayload.artifact_reference?.artifact_id, 'ppt-deck-1');
 
 console.log('chatPanel.artifact-reference tests passed');
+assert.match(chatPanelFile, /const responseArtifactReference = \(response as any\)\?\.state\?\.artifact_reference;/, 'ChatPanel should read artifact reference state from reply responses');
+assert.match(chatPanelFile, /if \(responseArtifactReference && typeof responseArtifactReference === 'object'\)[\s\S]*setArtifactReference\(/, 'ChatPanel should refresh artifact references from reply state when the backend keeps or switches context');
+assert.match(chatPanelFile, /else if \(!responseArtifactReference\)[\s\S]*clearArtifactReference\(\)/, 'ChatPanel should clear the reference card when reply state removes artifact context');

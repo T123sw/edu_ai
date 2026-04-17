@@ -379,6 +379,7 @@ export interface ChatResponseV2 {
   artifacts: Array<Record<string, unknown>>;
   sources: ChatSourceV2[];
   trace: Record<string, unknown>;
+  state?: Record<string, unknown> | null;
   status_card?: StatusCardV2 | null;
 }
 
