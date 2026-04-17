@@ -26,7 +26,7 @@ assert.match(
 
 assert.match(
   chatPanelFile,
-  /pendingVideos\.map\(\(video\) => \(/,
+  /pendingVideos\.map\(\(video\) =>\s*(\(|\{)/,
   'ChatPanel should render pending video cards before send',
 );
 

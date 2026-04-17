@@ -50,32 +50,44 @@ def test_lesson_plan_entry_cards_service_uses_realtime_generated_recommendations
         result=[
             {
                 "recommendation_type": "historical_inquiry",
+                "topic": "关羽战绩与历史评价",
                 "title": "关羽史料探究教案",
                 "description": "围绕战绩与评价的史料辨析组织课堂探究。",
                 "prompt_draft": "请围绕关羽战绩、历史评价与史料比较生成探究课教案。",
                 "fit_score": "high",
                 "lesson_type": "探究课",
                 "objective": "通过史料比较形成人物评价",
+                "key_points": ["关羽主要战绩", "历史评价的依据"],
+                "difficult_points": ["区分文学形象与历史事实"],
+                "after_class_task": "用两则材料写一段关羽评价。",
                 "style_hint": "突出史料对读、问题链和小组讨论",
             },
             {
                 "recommendation_type": "material_analysis",
+                "topic": "关羽材料证据提取",
                 "title": "关羽材料分析教案",
                 "description": "围绕文本证据和批注任务组织课堂。",
                 "prompt_draft": "请围绕关羽相关材料的证据提取与批注任务生成教案。",
                 "fit_score": "medium",
                 "lesson_type": "探究课",
                 "objective": "通过材料圈点提炼关键信息",
+                "key_points": ["材料中的战绩信息"],
+                "difficult_points": ["评价语言的证据支撑"],
+                "after_class_task": "整理材料证据表。",
                 "style_hint": "突出材料批注和证据表达",
             },
             {
                 "recommendation_type": "review_summary",
+                "topic": "关羽专题复习",
                 "title": "关羽专题复习教案",
                 "description": "围绕知识结构和历史评价回顾组织复习。",
                 "prompt_draft": "请围绕关羽战绩与历史评价生成复习课教案。",
                 "fit_score": "medium",
                 "lesson_type": "复习课",
                 "objective": "梳理战绩并完成人物评价回顾",
+                "key_points": ["知识结构梳理"],
+                "difficult_points": ["评价角度归纳"],
+                "after_class_task": "完成专题复习小结。",
                 "style_hint": "突出结构梳理和课堂检测",
             },
         ]
@@ -88,9 +100,13 @@ def test_lesson_plan_entry_cards_service_uses_realtime_generated_recommendations
     assert result["entry_mode"] == "knowledge_base_lesson_plan"
     assert result["trace"]["recommendation_generation_mode"] == "llm"
     assert recommended_cards[0]["title"] == "关羽史料探究教案"
+    assert recommended_cards[0]["prefill_config"]["topic"] == "关羽战绩与历史评价"
     assert "关羽" in recommended_cards[0]["prompt_draft"]
     assert recommended_cards[0]["prefill_config"]["lesson_type"] == "探究课"
     assert recommended_cards[0]["prefill_config"]["objective"] == "通过史料比较形成人物评价"
+    assert recommended_cards[0]["prefill_config"]["key_points"] == ["关羽主要战绩", "历史评价的依据"]
+    assert recommended_cards[0]["prefill_config"]["difficult_points"] == ["区分文学形象与历史事实"]
+    assert recommended_cards[0]["prefill_config"]["after_class_task"] == "用两则材料写一段关羽评价。"
     assert generator.calls[0]["recommendation_types"] == ["historical_inquiry", "material_analysis", "review_summary"]
 
 

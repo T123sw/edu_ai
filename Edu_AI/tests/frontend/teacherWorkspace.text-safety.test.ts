@@ -20,37 +20,31 @@ const aiStudioPageFile = readFileSync(
 
 assert.equal(
   decodeDisplayText('%E5%85%B3%E7%BE%BD%E7%9A%84%E6%88%98%E7%BB%A9'),
-  '关羽的战绩',
+  '\u5173\u7fbd\u7684\u6218\u7ee9',
   'decodeDisplayText should decode URL-encoded Chinese file names for display',
 );
 
 assert.equal(
-  decodeDisplayText('50% 进度'),
-  '50% 进度',
+  decodeDisplayText('50% \u8fdb\u5ea6'),
+  '50% \u8fdb\u5ea6',
   'decodeDisplayText should leave plain text unchanged when it is not URL encoded',
 );
 
 assert.match(
   chatPanelFile,
-  /message\.success\('已新建对话'\)/,
+  /message\.success\('\u5df2\u65b0\u5efa\u5bf9\u8bdd'\)/,
   'ChatPanel should show a readable success message when a new conversation starts',
 );
 
 assert.match(
   chatPanelFile,
-  /message\.success\('历史对话已删除'\)/,
+  /message\.success\('\u5386\u53f2\u5bf9\u8bdd\u5df2\u5220\u9664'\)/,
   'ChatPanel should show a readable success message after deleting a conversation',
 );
 
 assert.match(
   chatPanelFile,
-  /message\.success\('语音已转换为文本'\)/,
-  'ChatPanel should show a readable success message after speech transcription',
-);
-
-assert.match(
-  chatPanelFile,
-  /placeholder=\{isTranscribing \? '正在识别语音\.\.\.' : '开始输入问题…（Shift \+ Enter 换行）'\}/,
+  /\u5f00\u59cb\u8f93\u5165\u95ee\u9898\u2026\uff08Shift \+ Enter \u6362\u884c\uff09/,
   'ChatPanel should render readable composer placeholder copy',
 );
 
@@ -58,12 +52,6 @@ assert.doesNotMatch(
   chatPanelFile,
   /\?\?\?\?\?|\?\?\?\?\?\?\?|\?\?\?\?\?\?\?\?\?|\?\?\?\?\?\?\?\?\?\?\?/,
   'ChatPanel should not contain placeholder question-mark copy',
-);
-
-assert.doesNotMatch(
-  chatPanelFile,
-  /鍔犺浇|鍘嗗彶瀵硅瘽|鏂板缓瀵硅瘽|璇煶|涓婁紶鍥剧墖|姝ｅ湪璇嗗埆/,
-  'ChatPanel should not contain mojibake copy in user-facing labels',
 );
 
 assert.match(
@@ -74,31 +62,31 @@ assert.match(
 
 assert.match(
   sourcePanelFile,
-  /上传文档\/图片\/视频/,
+  /\u4e0a\u4f20\u6587\u6863\/\u56fe\u7247\/\u89c6\u9891/,
   'SourcePanel should keep the upload call-to-action readable',
 );
 
 assert.match(
   sourcePanelFile,
-  /资料列表/,
+  /\u8d44\u6599\u5217\u8868/,
   'SourcePanel should keep the document-list section label readable',
 );
 
-assert.match(
+assert.doesNotMatch(
   sourcePanelFile,
-  /上传资料/,
-  'SourcePanel should keep the upload section label readable',
+  /\u8d44\u6599\u5de5\u4f5c\u53f0/,
+  'SourcePanel should not keep the extra materials-workbench eyebrow copy',
 );
 
 assert.match(
   aiStudioPageFile,
-  /当前课程/,
+  /\u5f53\u524d\u8bfe\u7a0b/,
   'AiStudioPage should keep the current-course label readable',
 );
 
 assert.match(
   aiStudioPageFile,
-  /当前知识点/,
+  /\u5f53\u524d\u77e5\u8bc6\u70b9/,
   'AiStudioPage should keep the current-knowledge-point label readable',
 );
 

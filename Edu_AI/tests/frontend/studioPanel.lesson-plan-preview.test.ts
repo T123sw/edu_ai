@@ -1,20 +1,51 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const file = readFileSync(new URL('../../src/components/teacher/StudioPanel.tsx', import.meta.url), 'utf8');
+const studioPanel = readFileSync(new URL('../../src/components/teacher/StudioPanel.tsx', import.meta.url), 'utf8');
+const preview = readFileSync(new URL('../../src/components/teacher/LessonPlanArtifactPreview.tsx', import.meta.url), 'utf8');
+const previewCss = readFileSync(new URL('../../src/components/teacher/LessonPlanArtifactPreview.css', import.meta.url), 'utf8');
 
-assert.match(file, /viewingFile\.type === 'lesson_plan'/, 'StudioPanel should render a dedicated lesson plan preview branch');
-assert.match(file, /const lessonPlanKind = String\(\(viewingFile\.meta as any\)\?\.kind \|\| ''\)\.trim\(\);/, 'Lesson plan preview should read artifact kind metadata');
-assert.match(file, /normalizeLessonPlanPreview\(viewingFile\.content,\s*lessonPlanKind\)/, 'Lesson plan preview should normalize outline and final payloads');
-assert.match(file, /lessonPlanKind === 'outline'/, 'Lesson plan preview should detect outline artifacts');
-assert.match(file, /当前预览的是教案大纲/, 'Lesson plan outline preview should explain that the file is still an outline');
-assert.match(file, /教学支持/, 'Lesson plan preview should surface teaching-support metadata');
-assert.match(file, />\s*继续生成教案\s*</, 'Lesson plan outline preview should expose a continue-generation button');
-assert.match(file, /setQueuedMessage\('确认并继续'\)/, 'Lesson plan outline preview should queue the workflow confirmation phrase');
-assert.match(file, /const finalProcess = Array\.isArray\(record\.process\)/, 'Lesson plan preview should normalize final lesson plan process data');
-assert.match(file, /const teacherActivities = toTextList\(item\?\.teacherActivities\)/, 'Lesson plan preview should read final lesson plan teacher activities');
-assert.match(file, /const studentActivities = toTextList\(item\?\.studentActivities\)/, 'Lesson plan preview should read final lesson plan student activities');
-assert.match(file, /goal \? `目标：\$\{goal\}` : ''/, 'Lesson plan preview should compose final lesson plan goal text into process content');
-assert.match(file, /assessment \? `评价方式：\$\{assessment\}` : ''/, 'Lesson plan preview should compose final lesson plan assessment text into process content');
+assert.match(
+  studioPanel,
+  /import\s+LessonPlanArtifactPreview\s+from\s+['"]\.\/LessonPlanArtifactPreview['"]/,
+  'StudioPanel should use the structured lesson plan artifact preview component',
+);
+
+assert.match(
+  studioPanel,
+  /<LessonPlanArtifactPreview[\s\S]*kind=\{lessonPlanKind\}[\s\S]*onContinueFromOutline=/,
+  'Lesson plan artifacts should render through the structured preview surface',
+);
+
+assert.match(
+  preview,
+  /function\s+normalizeLessonPlanContent\(/,
+  'Lesson plan preview should normalize raw generated content before rendering',
+);
+
+assert.match(preview, /teaching_objectives/, 'Lesson plan preview should read outline teaching objectives');
+assert.match(preview, /key_and_hard_points/, 'Lesson plan preview should read outline key and hard points');
+assert.match(preview, /teaching_support/, 'Lesson plan preview should read teaching support metadata');
+assert.match(preview, /teacherActivities/, 'Lesson plan preview should read final teacher activities');
+assert.match(preview, /studentActivities/, 'Lesson plan preview should read final student activities');
+assert.match(preview, /当前预览的是教案大纲/, 'Lesson plan outline preview should explain that the file is still an outline');
+assert.match(preview, /本课目标/, 'Lesson plan preview should expose lesson objectives as a clear section');
+assert.match(preview, /重点与难点/, 'Lesson plan preview should group key and hard points');
+assert.match(preview, /课堂过程/, 'Lesson plan preview should expose a clear classroom process section');
+assert.match(preview, /教学支持/, 'Lesson plan preview should surface teaching support metadata');
+assert.match(preview, /课后安排/, 'Lesson plan preview should expose homework or after-class tasks');
+assert.match(preview, /继续生成教案/, 'Lesson plan outline preview should keep the continue-generation action');
+
+assert.match(
+  previewCss,
+  /\.lesson-plan-artifact-preview__document/,
+  'Lesson plan preview should use a document-style reading layout',
+);
+
+assert.match(
+  previewCss,
+  /\.lesson-plan-artifact-preview__timeline/,
+  'Lesson plan preview should render process steps as a clear timeline',
+);
 
 console.log('studioPanel.lesson-plan-preview tests passed');

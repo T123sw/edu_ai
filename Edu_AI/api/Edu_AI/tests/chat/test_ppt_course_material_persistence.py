@@ -214,6 +214,13 @@ def test_direct_ppt_generation_persists_completed_ppt_course_material():
     result = {
         "artifacts": [
             {
+                "artifact_id": "ppt-run-1:content_markdown",
+                "artifact_type": "ppt_content_markdown",
+                "title": "Agent Basics-content.md",
+                "content": "# Deck\n\n## Slide 1\n- Role: cover\n- Title: Agent Basics\n\n### Blocks\n- Lead: Intro\n",
+                "generation_state": {"status": "completed"},
+            },
+            {
                 "artifact_id": "ppt-run-1:deck",
                 "artifact_type": "ppt_deck",
                 "title": "Agent Basics.pptx",
@@ -236,3 +243,7 @@ def test_direct_ppt_generation_persists_completed_ppt_course_material():
     assert saved["course_id"] == "course-1"
     assert saved["material_type"] == "ppt"
     assert saved["material_id"] == "ppt-run-1:deck"
+    assert (
+        saved["material_data"]["content"]["content_markdown"]
+        == "# Deck\n\n## Slide 1\n- Role: cover\n- Title: Agent Basics\n\n### Blocks\n- Lead: Intro\n"
+    )

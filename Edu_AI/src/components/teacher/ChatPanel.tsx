@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover, Switch } from 'antd';
-import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
+import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
@@ -20,7 +20,7 @@ import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
 import ReactMarkdown from 'react-markdown';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
-import StatusCard from './StatusCardV2';
+import './ChatPanel.css';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -111,7 +111,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     clearConversationGeneratedFiles,
     removeGeneratedFilesByConversationId,
     setViewingFile,
-    statusCard,
     setStatusCard,
   } = useStore();
   const { addMaterial } = useCourseMaterialsStore();
@@ -905,20 +904,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     return () => window.clearInterval(timer);
   }, [currentConversationId, workflowStatus, workflowType]);
 
-  const handleSuggestedAction = (action: string) => {
-    const normalized = String(action || '').trim();
-    const actionPromptMap: Record<string, string> = {
-      '\u751f\u6210\u62a5\u544a': '\u8bf7\u57fa\u4e8e\u5f53\u524d\u5185\u5bb9\u751f\u6210\u4e00\u4efd\u62a5\u544a\u3002',
-      '\u7ee7\u7eed\u751f\u6210': '\u8bf7\u7ee7\u7eed\u751f\u6210\u3002',
-      '\u786e\u8ba4\u5e76\u7ee7\u7eed': '\u786e\u8ba4\u5e76\u7ee7\u7eed\u3002',
-      '\u8c03\u6574\u8981\u6c42': '\u6211\u60f3\u8c03\u6574\u8981\u6c42\uff1a',
-      '\u9009\u62e9\u8d44\u6599': '\u6211\u51c6\u5907\u5148\u8865\u5145\u8d44\u6599\u3002',
-      '\u8df3\u8fc7\u8d44\u6599\u76f4\u63a5\u751f\u6210': '\u8df3\u8fc7\u8d44\u6599\uff0c\u76f4\u63a5\u7ee7\u7eed\u751f\u6210\u3002',
-      '\u7ee7\u7eed\u63d0\u95ee': '',
-    };
-    setInputValue(actionPromptMap[normalized] ?? normalized);
-  };
-
   const handleSourceClick = (source: any) => {
     const path =
       source?.source_path ||
@@ -940,91 +925,69 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   }, [historyExpanded, historyList]);
 
   const historyContent = (
-    <div style={{ width: 360, maxHeight: 420, overflowY: 'auto' }}>
+    <div className="chat-panel__history-popover">
       {historyLoading ? (
-        <div style={{ padding: 16, textAlign: 'center' }}>
+        <div className="chat-panel__history-loading">
           <Spin size="small" /> <Text style={{ marginLeft: 8 }}>加载中...</Text>
         </div>
       ) : historyList.length === 0 ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无历史对话" />
+        <div className="chat-panel__history-empty">
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无历史对话" />
+        </div>
       ) : (
         <>
           {visibleHistoryList.map((item) => (
             <div
               key={item.conversation_id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '8px 4px',
-                borderBottom: '1px solid #f5f5f5',
-              }}
+              className={`chat-panel__history-item ${item.conversation_id === currentConversationId ? 'chat-panel__history-item--current' : ''}`}
             >
-              <Button
-                type="text"
+              <button
+                type="button"
+                className="chat-panel__history-entry"
                 onClick={() => {
                   void loadConversation(item.conversation_id);
                   setHistoryPopoverOpen(false);
                   setHistoryExpanded(false);
                 }}
-                style={{ flex: 1, textAlign: 'left', height: 'auto', padding: '4px 8px' }}
               >
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div className="chat-panel__history-meta">
+                  <div className="chat-panel__history-title">
                     {getDisplayLabel(item.title, '未命名对话')}
                   </div>
-                  <div style={{ fontSize: 12, color: '#999' }}>{item.message_count || 0} 条消息</div>
+                  <div className="chat-panel__history-subtitle">{item.message_count || 0} 条消息</div>
                 </div>
-              </Button>
+              </button>
 
-              {loadingConversationId === item.conversation_id && <Spin size="small" />}
+              <div className="chat-panel__history-actions">
+                {loadingConversationId === item.conversation_id ? <Spin size="small" /> : null}
 
-              <Button
-                type="text"
-                size="small"
-                icon={<SnippetsOutlined />}
-                disabled={item.conversation_id === currentConversationId}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setConversationReference({
-                    conversation_id: item.conversation_id,
-                    title: item.title || undefined,
-                    message_count: item.message_count,
-                  });
-                  setHistoryPopoverOpen(false);
-                  setHistoryExpanded(false);
-                  message.success('已引用该对话');
-                }}
-              >
-                引用
-              </Button>
-
-              <Button
-                type="text"
-                size="small"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  Modal.confirm({
-                    title: '确认删除该历史对话？',
-                    content: '删除后不可恢复。',
-                    okText: '删除',
-                    cancelText: '取消',
-                    okButtonProps: { danger: true },
-                    onOk: async () => {
-                      await handleDeleteConversation(item.conversation_id);
-                    },
-                  });
-                }}
-              />
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  className="chat-panel__history-delete"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    Modal.confirm({
+                      title: '确认删除该历史对话？',
+                      content: '删除后不可恢复。',
+                      okText: '删除',
+                      cancelText: '取消',
+                      okButtonProps: { danger: true },
+                      onOk: async () => {
+                        await handleDeleteConversation(item.conversation_id);
+                      },
+                    });
+                  }}
+                />
+              </div>
             </div>
           ))}
 
           {!historyExpanded && historyList.length > 7 && (
-            <div style={{ paddingTop: 8, textAlign: 'center' }}>
+            <div className="chat-panel__history-more">
               <Button
                 type="text"
                 onClick={(e) => {
@@ -1042,100 +1005,93 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     </div>
   );
 
+  const composerAdditions = (
+    <div className="chat-panel__composer-popover">
+      <button
+        type="button"
+        className="chat-panel__composer-popover-item"
+        onClick={() => imageInputRef.current?.click()}
+      >
+        <PictureOutlined />
+        <span>添加图片</span>
+      </button>
+      <button
+        type="button"
+        className="chat-panel__composer-popover-item"
+        onClick={() => videoInputRef.current?.click()}
+      >
+        <VideoCameraOutlined />
+        <span>添加视频</span>
+      </button>
+    </div>
+  );
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        background: '#ffffff',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexShrink: 0 }}>
-        <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-          对话
-        </Title>
+    <div className="chat-panel">
+      <div className="chat-panel__header">
+        <div className="chat-panel__heading">
+          <Title level={5} className="chat-panel__title">
+            对话
+          </Title>
+          <div className="chat-panel__subtitle">当前知识库：总课程知识库</div>
+        </div>
 
-        <Space>
-          <Space size="small" style={{ marginRight: 8 }}>
-            <Text type="secondary">RAG</Text>
-            <Switch checked={allowRag} onChange={setAllowRag} />
-            <Text type="secondary">Web</Text>
-            <Switch checked={allowWeb} onChange={setAllowWeb} />
-          </Space>
-          <Button onClick={handleNewConversation}>新建对话</Button>
-          <Popover
-            trigger="click"
-            placement="bottomLeft"
-            content={historyContent}
-            open={historyPopoverOpen}
-            onOpenChange={(open) => {
-              setHistoryPopoverOpen(open);
-              if (!open) {
-                setHistoryExpanded(false);
-              }
-            }}
-          >
-            <Button icon={<HistoryOutlined />}>历史对话</Button>
-          </Popover>
-        </Space>
-      </div>
-
-      <StatusCard statusCard={statusCard} onActionSelect={handleSuggestedAction} />
-
-      <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px', padding: '0 12px', minHeight: 0 }}>
-        <List
-          dataSource={messages}
-          renderItem={(item, index) => (
-            <List.Item
-              key={index}
-              style={{
-                border: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: item.user === 'You' ? 'flex-end' : 'flex-start',
-                marginBottom: 16,
+        <div className="chat-panel__controls">
+          <Space className="chat-panel__controls-main">
+            <Button
+              type="text"
+              className="chat-panel__toolbar-button chat-panel__toolbar-button--new"
+              onClick={handleNewConversation}
+            >
+              新建对话
+            </Button>
+            <Popover
+              trigger="click"
+              placement="bottomRight"
+              content={historyContent}
+              overlayClassName="chat-panel__history-popover-shell"
+              open={historyPopoverOpen}
+              onOpenChange={(open) => {
+                setHistoryPopoverOpen(open);
+                if (!open) {
+                  setHistoryExpanded(false);
+                }
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 10,
-                  alignItems: 'flex-start',
-                  flexDirection: item.user === 'You' ? 'row-reverse' : 'row',
-                  maxWidth: '100%',
-                }}
+              <Button
+                type="text"
+                icon={<HistoryOutlined />}
+                className="chat-panel__toolbar-button chat-panel__toolbar-button--history"
               >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: item.user === 'You' ? '#1677ff' : '#6f42c1',
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 14,
-                    flexShrink: 0,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                  }}
-                >
-                    {item.user === 'You' ? '?' : 'AI'}
-                </div>
-                <div style={{ maxWidth: '80%' }}>
-                  {item.user === 'AI' && item.statusText && (
-                    <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 6 }}>
-                      {item.statusText}
-                    </div>
-                  )}
-                  {item.inputImages && item.inputImages.length > 0 && (
-                    <div style={{ marginBottom: item.text ? 10 : 0 }}>
+                历史对话
+              </Button>
+            </Popover>
+          </Space>
+        </div>
+      </div>
+
+      <div className="chat-panel__messages">
+        <div className="chat-panel__messages-scroll">
+          <List
+            className="chat-panel__message-list"
+            dataSource={messages}
+            renderItem={(item, index) => (
+              <List.Item
+                key={index}
+                className={`chat-panel__message-row chat-panel__message-row--${item.user === 'You' ? 'user' : 'ai'}`}
+              >
+                <div className={`chat-panel__message-shell chat-panel__message-shell--${item.user === 'You' ? 'user' : 'ai'}`}>
+                  <div className={`chat-panel__avatar chat-panel__avatar--${item.user === 'You' ? 'user' : 'ai'}`}>
+                    {item.user === 'You' ? '你' : 'AI'}
+                  </div>
+                  <div className="chat-panel__message-content">
+                    {item.user === 'AI' && item.statusText && (
+                      <div className="chat-panel__status-text">
+                        {item.statusText}
+                      </div>
+                    )}
+                    {item.inputImages && item.inputImages.length > 0 && (
+                    <div className="chat-panel__media-strip" style={{ marginBottom: item.text ? 10 : 0 }}>
                       <Space wrap size={[8, 8]}>
                         {item.inputImages.map((image) => {
                           const previewUrl = messageImageUrls[image.image_url];
@@ -1192,8 +1148,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                       </Space>
                     </div>
                   )}
-                  {item.inputVideos && item.inputVideos.length > 0 && (
-                    <div style={{ marginBottom: item.text ? 10 : 0 }}>
+                    {item.inputVideos && item.inputVideos.length > 0 && (
+                    <div className="chat-panel__media-strip" style={{ marginBottom: item.text ? 10 : 0 }}>
                       <Space wrap size={[8, 8]}>
                         {item.inputVideos.map((video) => {
                           const previewUrl = messageVideoUrls[video.video_url];
@@ -1251,24 +1207,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                       </Space>
                     </div>
                   )}
-                  {item.text ? (
-                    <div
-                      style={{
-                        padding: '10px 15px',
-                        borderRadius: '18px',
-                        background: item.user === 'You' ? '#1677ff' : '#f0f0f0',
-                        color: item.user === 'You' ? 'white' : 'black',
-                        width: 'fit-content',
-                        maxWidth: 'min(80vw, 720px)',
-                        wordBreak: 'normal',
-                        overflowWrap: 'break-word',
-                      }}
-                    >
+                    {item.text ? (
+                    <div className={`chat-panel__bubble chat-panel__bubble--${item.user === 'You' ? 'user' : 'ai'}`}>
                       {item.user === 'AI' ? (
                         <ReactMarkdown
                           components={{
                             p: ({ children }) => (
-                              <p style={{ margin: 0, whiteSpace: 'normal', wordBreak: 'normal' }}>
+                              <p className="chat-panel__markdown-paragraph">
                                 {children}
                               </p>
                             ),
@@ -1277,13 +1222,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                           {item.text}
                         </ReactMarkdown>
                       ) : (
-                        <div style={{ whiteSpace: 'pre-wrap' }}>{item.text}</div>
+                        <div className="chat-panel__user-text">{item.text}</div>
                       )}
                     </div>
                   ) : null}
 
-                  {item.user === 'AI' && item.sources && item.sources.length > 0 && (
-                    <div style={{ marginTop: 8 }}>
+                    {item.user === 'AI' && item.sources && item.sources.length > 0 && (
+                    <div className="chat-panel__sources">
                       <Space wrap size={[0, 8]}>
                         {item.sources.map((source, i) => {
                           const isImage = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'image';
@@ -1392,29 +1337,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                       </Space>
                     </div>
                   )}
+                  </div>
                 </div>
-              </div>
-            </List.Item>
-          )}
-        />
-        <div ref={chatEndRef} />
+              </List.Item>
+            )}
+          />
+          <div ref={chatEndRef} />
+        </div>
       </div>
 
-      {conversationReference ? (
-        <div
-          style={{
-            marginBottom: 8,
-            padding: '8px 12px',
-            border: '1px solid #d9d9d9',
-            borderRadius: 8,
-            background: '#fafafa',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
+      <div className="chat-panel__composer">
+        {conversationReference ? (
+          <div className="chat-panel__reference-card">
+            <div className="chat-panel__reference-meta">
             <Text strong>{getDisplayLabel(conversationReference.title, '未命名对话')}</Text>
             <div>
               <Text type="secondary">
@@ -1424,30 +1359,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                   : ''}
               </Text>
             </div>
+            </div>
+
+            <Button size="small" onClick={() => clearConversationReference()}>
+              移除引用
+            </Button>
           </div>
 
-          <Button size="small" onClick={() => clearConversationReference()}>
-            移除引用
-          </Button>
-        </div>
+        ) : null}
 
-      ) : null}
-
-      {artifactReference ? (
-        <div
-          style={{
-            marginBottom: 8,
-            padding: '8px 12px',
-            border: '1px solid #d9d9d9',
-            borderRadius: 8,
-            background: '#fafafa',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
+        {artifactReference ? (
+          <div className="chat-panel__reference-card">
+            <div className="chat-panel__reference-meta">
             <Text strong>{getDisplayLabel(artifactReference.title, '未命名产物')}</Text>
             <div>
               <Text type="secondary">
@@ -1463,12 +1386,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                 {artifactReference.version_id ? ` · 版本 ${artifactReference.version_id}` : ''}
               </Text>
             </div>
+            </div>
+            <Button size="small" onClick={() => clearArtifactReference()}>
+              移除引用
+            </Button>
           </div>
-          <Button size="small" onClick={() => clearArtifactReference()}>
-            移除引用
-          </Button>
-        </div>
-      ) : null}
+        ) : null}
 
       <input
         ref={imageInputRef}
@@ -1491,23 +1414,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         }}
       />
 
-      {pendingImages.length > 0 ? (
-        <div style={{ marginBottom: 8 }}>
+        {pendingImages.length > 0 ? (
+        <div className="chat-panel__pending-media">
           <Space wrap size={[8, 8]}>
             {pendingImages.map((image) => {
               const imageFileName = getDisplayLabel(image.file_name, '图片');
               return (
               <div
                 key={image.image_id}
-                style={{
-                  position: 'relative',
-                  width: 84,
-                  height: 84,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  border: '1px solid #d9d9d9',
-                  background: '#fafafa',
-                }}
+                className="chat-panel__pending-media-card chat-panel__pending-media-card--image"
               >
                 <img
                   src={image.previewUrl}
@@ -1527,24 +1442,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
             })}
           </Space>
         </div>
-      ) : null}
+        ) : null}
 
-      {pendingVideos.length > 0 ? (
-        <div style={{ marginBottom: 8 }}>
+        {pendingVideos.length > 0 ? (
+        <div className="chat-panel__pending-media">
           <Space wrap size={[8, 8]}>
             {pendingVideos.map((video) => {
               const videoFileName = getDisplayLabel(video.file_name, '视频');
               return (
               <div
                 key={video.video_id}
-                style={{
-                  position: 'relative',
-                  width: 132,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  border: '1px solid #d9d9d9',
-                  background: '#fafafa',
-                }}
+                className="chat-panel__pending-media-card chat-panel__pending-media-card--video"
               >
                 <video
                   src={video.previewUrl}
@@ -1577,68 +1485,91 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
             })}
           </Space>
         </div>
-      ) : null}
+        ) : null}
 
-      <Space.Compact style={{ width: '100%' }}>
-        <TextArea
-          autoSize={{ minRows: 1, maxRows: 5 }}
-          placeholder={isTranscribing ? '正在识别语音...' : '开始输入问题…（Shift + Enter 换行）'}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onPaste={(event) => { void handleImagePaste(event); }}
-          onPressEnter={(e) => {
-            if (!e.shiftKey) {
-              e.preventDefault();
-              void handleSendMessage();
-            }
-          }}
-          disabled={isLoading}
-          size="large"
-          style={{ borderRadius: '8px 0 0 8px' }}
-        />
-        <Tooltip title={isRecording ? '点击停止录音并转成文字' : isTranscribing ? '正在识别语音' : '语音输入'}>
-          <Button
-            icon={<AudioOutlined />}
-            onClick={() => void handleVoiceInput()}
-            disabled={isLoading || isTranscribing}
-            danger={isRecording}
-            size="large"
-            style={{ borderRadius: 0 }}
-          >
-            {isRecording ? '结束录音' : '语音输入'}
-          </Button>
-        </Tooltip>
-        <Tooltip title="上传图片">
-          <Button
-            icon={<PictureOutlined />}
-            onClick={() => imageInputRef.current?.click()}
-            disabled={isLoading || isTranscribing}
-            size="large"
-            style={{ borderRadius: 0 }}
-          >
-            图片
-          </Button>
-        </Tooltip>
-        <Tooltip title="上传视频">
-          <Button
-            icon={<VideoCameraOutlined />}
-            onClick={() => videoInputRef.current?.click()}
-            disabled={isLoading || isTranscribing}
-            size="large"
-            style={{ borderRadius: 0 }}
-          >
-            视频
-          </Button>
-        </Tooltip>
-        <Button
-          type="primary"
-          icon={<SendOutlined />}
-          onClick={() => void handleSendMessage()}
-          loading={isLoading}
-          size="large"
-          style={{ borderRadius: '0 8px 8px 0' }}
-        />
-      </Space.Compact>
+        <div className="chat-panel__composer-inner">
+          <div className="chat-panel__composer-editor">
+            <TextArea
+              autoSize={{ minRows: 2, maxRows: 6 }}
+              placeholder={isTranscribing ? '正在识别语音...' : '开始输入问题…（Shift + Enter 换行）'}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onPaste={(event) => { void handleImagePaste(event); }}
+              onPressEnter={(e) => {
+                if (!e.shiftKey) {
+                  e.preventDefault();
+                  void handleSendMessage();
+                }
+              }}
+              disabled={isLoading}
+              size="large"
+              className="chat-panel__composer-input"
+            />
+          </div>
+
+          <div className="chat-panel__composer-actions">
+            <div className="chat-panel__composer-secondary-actions">
+              <Popover
+                trigger="click"
+                placement="topLeft"
+                content={composerAdditions}
+                overlayClassName="chat-panel__composer-popover-shell"
+              >
+                <Button
+                  icon={<PlusOutlined />}
+                  disabled={isLoading || isTranscribing}
+                  size="large"
+                  className="chat-panel__composer-plus-button"
+                />
+              </Popover>
+
+              <div className="chat-panel__composer-toggle-group">
+                <Button
+                  size="large"
+                  className={`chat-panel__composer-mode-button ${allowRag ? 'chat-panel__composer-mode-button--active' : ''}`}
+                  onClick={() => setAllowRag(!allowRag)}
+                  disabled={isLoading}
+                >
+                  RAG检索
+                </Button>
+                <Button
+                  size="large"
+                  className={`chat-panel__composer-mode-button ${allowWeb ? 'chat-panel__composer-mode-button--active' : ''}`}
+                  onClick={() => setAllowWeb(!allowWeb)}
+                  disabled={isLoading}
+                >
+                  Web搜索
+                </Button>
+              </div>
+            </div>
+
+            <div className="chat-panel__composer-primary-actions">
+              <Tooltip title={isRecording ? '点击停止录音并转成文字' : isTranscribing ? '正在识别语音' : '语音输入'}>
+                <Button
+                  shape="circle"
+                  icon={<AudioOutlined />}
+                  onClick={() => void handleVoiceInput()}
+                  disabled={isLoading || isTranscribing}
+                  danger={isRecording}
+                  size="large"
+                  className="chat-panel__voice-button"
+                />
+              </Tooltip>
+              <Tooltip title="发送">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<SendOutlined />}
+                  onClick={() => void handleSendMessage()}
+                  loading={isLoading}
+                  size="large"
+                  className="chat-panel__send-button"
+                />
+              </Tooltip>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

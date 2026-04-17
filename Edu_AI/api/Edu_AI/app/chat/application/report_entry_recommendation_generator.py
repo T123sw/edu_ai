@@ -53,17 +53,12 @@ class ReportEntryRecommendationGenerator:
             recommendation_types=recommendation_types,
         )
 
-        try:
-            structured = self.llm.with_structured_output(RecommendedCardDraftBundle, method="function_calling")
-            bundle = structured.invoke(prompt)
-            return self._normalize_bundle(bundle=bundle, recommendation_types=recommendation_types)
-        except Exception:
-            raw = self.llm.invoke(prompt)
-            payload = extract_json_block(getattr(raw, "content", raw))
-            if not isinstance(payload, dict):
-                raise
-            bundle = RecommendedCardDraftBundle.model_validate(payload)
-            return self._normalize_bundle(bundle=bundle, recommendation_types=recommendation_types)
+        raw = self.llm.invoke(prompt)
+        payload = extract_json_block(getattr(raw, "content", raw))
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_recommendation_json")
+        bundle = RecommendedCardDraftBundle.model_validate(payload)
+        return self._normalize_bundle(bundle=bundle, recommendation_types=recommendation_types)
 
     def _normalize_bundle(
         self,
@@ -125,6 +120,8 @@ class ReportEntryRecommendationGenerator:
             "6. prompt_draft 必须是可直接用于生成报告的中文提示词，要明确围绕哪些主题展开。\n"
             "7. fit_score 只能是 high、medium、low。\n"
             "8. 保持 recommendation_type 原样，不要新增或删除类型。\n"
+            "9. Output only one valid JSON object. Do not use markdown fences or extra explanation.\n"
+            '10. JSON shape: {"cards":[{"recommendation_type":"summary","title":"...","description":"...","prompt_draft":"...","fit_score":"high"}]}\n'
             "\n"
             f"需要输出的 recommendation_type 顺序: {json.dumps(list(recommendation_types), ensure_ascii=False)}\n\n"
             "当前文档摘要:\n"

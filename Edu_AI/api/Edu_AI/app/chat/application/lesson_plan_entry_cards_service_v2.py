@@ -122,6 +122,18 @@ def _clean(value: Any, default: str = "") -> str:
     return text or default
 
 
+def _clean_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        chunks = re.split(r"[,，;；、\n]+", value)
+        return [_clean(item) for item in chunks if _clean(item)]
+    if isinstance(value, list):
+        return [_clean(item) for item in value if _clean(item)]
+    text = _clean(value)
+    return [text] if text else []
+
+
 def _normalize_selected_doc_ids(values: list[Any] | None) -> list[str]:
     normalized: list[str] = []
     for item in list(values or []):
@@ -238,6 +250,9 @@ class LessonPlanEntryCardsServiceV2:
                         "duration": "45分钟",
                         "lesson_type": template["lesson_type"],
                         "objective": f"围绕{topic}完成{template['default_objective']}",
+                        "key_points": [topic],
+                        "difficult_points": [],
+                        "after_class_task": "",
                         "style_hint": template["style_hint"],
                     },
                 }
@@ -295,6 +310,7 @@ class LessonPlanEntryCardsServiceV2:
         cards: list[dict[str, Any]] = []
         for index, item in enumerate(generated):
             recommendation_type = _clean(item.get("recommendation_type"))
+            generated_topic = _clean(item.get("topic"), topic)
             cards.append(
                 {
                     "card_id": f"rec-{recommendation_type}",
@@ -306,11 +322,14 @@ class LessonPlanEntryCardsServiceV2:
                     "recommendation_source": "doc_summaries",
                     "fit_score": _clean(item.get("fit_score"), "medium") or ("high" if index == 0 else "medium"),
                     "prefill_config": {
-                        "topic": topic,
+                        "topic": generated_topic,
                         "audience": "",
                         "duration": "45分钟",
                         "lesson_type": _clean(item.get("lesson_type")),
                         "objective": _clean(item.get("objective")),
+                        "key_points": _clean_list(item.get("key_points")),
+                        "difficult_points": _clean_list(item.get("difficult_points")),
+                        "after_class_task": _clean(item.get("after_class_task")),
                         "style_hint": _clean(item.get("style_hint")),
                     },
                 }
@@ -337,6 +356,9 @@ class LessonPlanEntryCardsServiceV2:
                         "duration": "45分钟",
                         "lesson_type": template["lesson_type"],
                         "objective": f"围绕{topic}组织一节贴近真实课堂的单课时教案",
+                        "key_points": [topic],
+                        "difficult_points": [],
+                        "after_class_task": "",
                         "style_hint": template["style_hint"],
                     },
                 }

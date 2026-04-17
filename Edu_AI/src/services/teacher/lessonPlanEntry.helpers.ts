@@ -6,6 +6,9 @@ export interface LessonPlanEntryConfigInput {
   duration?: string;
   lessonType?: string;
   objective?: string;
+  keyPoints?: string[] | string;
+  difficultPoints?: string[] | string;
+  afterClassTask?: string;
   styleHint?: string;
   extraRequirements?: string;
 }
@@ -45,22 +48,6 @@ export function getDefaultLessonPlanPresetCards(): LessonPlanEntryCard[] {
       },
     },
     {
-      card_id: 'preset-inquiry-lesson',
-      card_type: 'preset',
-      title: '探究课教案',
-      description: '适合围绕材料辨析、观点比较和小组讨论组织课堂。',
-      prompt_draft: '请基于已选文档生成一份探究课教案，突出材料解读、课堂提问和学生讨论。',
-      preset_key: 'inquiry_lesson',
-      prefill_config: {
-        topic: '',
-        audience: '',
-        duration: '45分钟',
-        lesson_type: '探究课',
-        objective: '',
-        style_hint: '强调材料分析、追问纠偏和小组展示',
-      },
-    },
-    {
       card_id: 'preset-practice-lesson',
       card_type: 'preset',
       title: '练习讲评教案',
@@ -93,6 +80,16 @@ function clean(value: unknown): string {
   return String(value || '').trim();
 }
 
+function cleanList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => clean(item)).filter(Boolean);
+  }
+  return clean(value)
+    .split(/[,，;；、\n]+/)
+    .map((item) => clean(item))
+    .filter(Boolean);
+}
+
 export function buildLessonPlanEntryQuestion(options: {
   card: LessonPlanEntryCard;
   config: LessonPlanEntryConfigInput;
@@ -103,6 +100,9 @@ export function buildLessonPlanEntryQuestion(options: {
   const duration = clean(config.duration || card.prefill_config?.duration) || '45分钟';
   const lessonType = clean(config.lessonType || card.prefill_config?.lesson_type) || '单课时教案';
   const objective = clean(config.objective || card.prefill_config?.objective);
+  const keyPoints = cleanList(config.keyPoints || card.prefill_config?.key_points);
+  const difficultPoints = cleanList(config.difficultPoints || card.prefill_config?.difficult_points);
+  const afterClassTask = clean(config.afterClassTask || card.prefill_config?.after_class_task);
   const styleHint = clean(config.styleHint || card.prefill_config?.style_hint);
   const extraRequirements = clean(config.extraRequirements);
 
@@ -113,6 +113,9 @@ export function buildLessonPlanEntryQuestion(options: {
     duration ? `课时长度：${duration}。` : '',
     lessonType ? `课型：${lessonType}。` : '',
     objective ? `本课目标：${objective}。` : '',
+    keyPoints.length ? `教学重点：${keyPoints.join('；')}。` : '',
+    difficultPoints.length ? `教学难点：${difficultPoints.join('；')}。` : '',
+    afterClassTask ? `课后任务：${afterClassTask}。` : '',
     styleHint ? `风格要求：${styleHint}。` : '',
     extraRequirements ? `补充要求：${extraRequirements}。` : '',
     '仅以我当前勾选的文档为依据，不承接历史对话上下文，不使用历史会话内容。',

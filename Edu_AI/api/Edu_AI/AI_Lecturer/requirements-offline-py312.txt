@@ -1,0 +1,28 @@
+# AI_Lecturer offline teaching-video runtime dependencies.
+# Target environment: Windows + Python 3.12.
+#
+# This file intentionally keeps only the dependencies used by:
+# unified_gateway.py -> offline_video_maker.py -> Wav2Lip_Offline/inference.py
+# The original requirements.txt contains duplicate/conflicting pins that are
+# not compatible with the current Python 3.12 backend environment.
+
+edge-tts>=7.2,<8
+torch>=2.5,<2.8
+torchvision>=0.20,<0.23
+numpy>=2.0,<3
+opencv-python>=4.10,<5
+scipy>=1.14,<2
+librosa>=0.10.2,<0.11
+soundfile>=0.12,<0.14
+resampy>=0.4,<0.5
+tqdm>=4.65,<5
+playwright>=1.50,<2
+
+# Gateway/API dependencies used by unified_gateway.py. Most are already present
+# in the main backend environment, but keeping them here makes the video module
+# installable on a clean Python 3.12 virtual environment.
+fastapi>=0.115,<0.136
+uvicorn>=0.30,<0.45
+pydantic>=2.8,<3
+requests>=2.32,<3
+openai>=1.90,<3

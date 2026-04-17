@@ -381,6 +381,43 @@ def test_report_entry_cards_service_falls_back_when_generator_fails():
     assert "课堂观察" in summary_card["title"]
 
 
+def test_report_entry_cards_service_rule_fallback_filters_markdown_noise():
+    provider = FakeSummaryProvider(
+        {
+            "documents": [
+                {
+                    "doc_id": "doc-1",
+                    "title": "## **随机过程与$t$**",
+                    "summary": "材料围绕##、** 随机过程与$t$、马尔可夫链和泊松过程展开。",
+                    "summary_updated_at": "2026-04-07T10:00:00",
+                },
+                {
+                    "doc_id": "doc-2",
+                    "title": "# 随机过程案例",
+                    "summary": "重点比较状态转移、平稳分布与实际建模案例。",
+                    "summary_updated_at": "2026-04-07T11:00:00",
+                },
+            ],
+            "summary_updated_at_snapshot": ["2026-04-07T10:00:00", "2026-04-07T11:00:00"],
+            "fallback_used": False,
+        }
+    )
+    generator = FakeRecommendationGenerator(error=RuntimeError("llm failed"))
+    service = ReportEntryCardsServiceV2(summary_provider=provider, recommendation_generator=generator)
+
+    result = service.get_cards(SimpleNamespace(selected_doc_ids=["doc-1", "doc-2"], owner="tester"))
+    recommended_cards = result["cards"][4:]
+    rendered_text = "\n".join(
+        f"{card['title']}\n{card['description']}\n{card['prompt_draft']}"
+        for card in recommended_cards
+    )
+
+    assert "随机过程" in rendered_text
+    assert "##" not in rendered_text
+    assert "**" not in rendered_text
+    assert "$t$" not in rendered_text
+
+
 def test_report_entry_cards_service_returns_generic_fallback_when_all_summaries_missing():
     provider = FakeSummaryProvider(
         {

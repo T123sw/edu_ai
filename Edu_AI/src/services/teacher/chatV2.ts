@@ -195,6 +195,9 @@ export interface LessonPlanEntryCardPrefillConfig {
   duration?: string;
   lesson_type?: string;
   objective?: string;
+  key_points?: string[];
+  difficult_points?: string[];
+  after_class_task?: string;
   style_hint?: string;
 }
 

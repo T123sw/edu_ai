@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.utils.json_utils import extract_json_block
@@ -20,13 +20,28 @@ FitScore = Literal["high", "medium", "low"]
 
 class LessonPlanRecommendedCardDraft(BaseModel):
     recommendation_type: RecommendationType
+    topic: str
     title: str
     description: str
     prompt_draft: str
     fit_score: FitScore = "medium"
     lesson_type: str
     objective: str
+    key_points: list[str] = Field(default_factory=list)
+    difficult_points: list[str] = Field(default_factory=list)
+    after_class_task: str = ""
     style_hint: str
+
+    @field_validator("key_points", "difficult_points", mode="before")
+    @classmethod
+    def _normalize_text_list(cls, value: Any) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [item.strip() for item in value.replace("；", ";").replace("，", ",").split(",") if item.strip()]
+        if isinstance(value, list):
+            return [str(item or "").strip() for item in value if str(item or "").strip()]
+        return [str(value).strip()] if str(value or "").strip() else []
 
 
 class LessonPlanRecommendedCardDraftBundle(BaseModel):
@@ -55,20 +70,12 @@ class LessonPlanEntryRecommendationGenerator:
             recommendation_types=recommendation_types,
         )
 
-        try:
-            structured = self.llm.with_structured_output(
-                LessonPlanRecommendedCardDraftBundle,
-                method="function_calling",
-            )
-            bundle = structured.invoke(prompt)
-            return self._normalize_bundle(bundle=bundle, recommendation_types=recommendation_types)
-        except Exception:
-            raw = self.llm.invoke(prompt)
-            payload = extract_json_block(getattr(raw, "content", raw))
-            if not isinstance(payload, dict):
-                raise
-            bundle = LessonPlanRecommendedCardDraftBundle.model_validate(payload)
-            return self._normalize_bundle(bundle=bundle, recommendation_types=recommendation_types)
+        raw = self.llm.invoke(prompt)
+        payload = extract_json_block(getattr(raw, "content", raw))
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_lesson_plan_recommendation_json")
+        bundle = LessonPlanRecommendedCardDraftBundle.model_validate(payload)
+        return self._normalize_bundle(bundle=bundle, recommendation_types=recommendation_types)
 
     def _normalize_bundle(
         self,
@@ -88,22 +95,32 @@ class LessonPlanEntryRecommendationGenerator:
             normalized.append(
                 {
                     "recommendation_type": str(card.recommendation_type),
+                    "topic": str(card.topic or "").strip(),
                     "title": str(card.title or "").strip(),
                     "description": str(card.description or "").strip(),
                     "prompt_draft": str(card.prompt_draft or "").strip(),
                     "fit_score": str(card.fit_score or "medium").strip() or "medium",
                     "lesson_type": str(card.lesson_type or "").strip(),
                     "objective": str(card.objective or "").strip(),
+                    "key_points": [str(item or "").strip() for item in list(card.key_points or []) if str(item or "").strip()],
+                    "difficult_points": [
+                        str(item or "").strip() for item in list(card.difficult_points or []) if str(item or "").strip()
+                    ],
+                    "after_class_task": str(card.after_class_task or "").strip(),
                     "style_hint": str(card.style_hint or "").strip(),
                 }
             )
 
         if any(
-            not item["title"]
+            not item["topic"]
+            or not item["title"]
             or not item["description"]
             or not item["prompt_draft"]
             or not item["lesson_type"]
             or not item["objective"]
+            or not item["key_points"]
+            or not item["difficult_points"]
+            or not item["after_class_task"]
             or not item["style_hint"]
             for item in normalized
         ):
@@ -134,15 +151,20 @@ class LessonPlanEntryRecommendationGenerator:
             "输出要求:\n"
             "1. 只能依据给定文档标题和摘要，不要编造不存在的信息。\n"
             "2. 必须严格输出给定的 recommendation_type，每种类型输出一张卡片。\n"
-            "3. 每张卡片必须包含 title、description、prompt_draft、fit_score、lesson_type、objective、style_hint。\n"
+            "3. 每张卡片必须包含 topic、title、description、prompt_draft、fit_score、lesson_type、objective、key_points、difficult_points、after_class_task、style_hint。\n"
             "4. title 要自然、具体、像真实教师会点选的教案名称，不要出现 markdown、占位符或模板变量。\n"
             "5. description 要说明为什么这种教案更适合当前勾选材料。\n"
             "6. prompt_draft 必须是可直接用于后续教案生成的中文提示词，要强调只基于已选文档组织单课时教案，先生成大纲，再生成正文。\n"
-            "7. lesson_type 要写成前端可直接预填的课型，如“新授课”“复习课”“探究课”“讲评课”。\n"
-            "8. objective 要写成这节课的核心目标，贴近真实课堂，不要空泛。\n"
-            "9. style_hint 要写成备课风格提示，例如“突出问题链与史料对读”“强调错因辨析与分层训练”。\n"
-            "10. fit_score 只能是 high、medium、low。\n"
-            "11. 保持 recommendation_type 原样，不要新增或删除类型。\n\n"
+            "7. topic 必须是可直接填入“课题”的中文短语，不要使用 markdown、编号、符号占位或泛泛的“当前主题”。\n"
+            "8. lesson_type 要写成前端可直接预填的课型，如“新授课”“复习课”“探究课”“讲评课”。\n"
+            "9. objective 要写成这节课的核心目标，贴近真实课堂，不要空泛。\n"
+            "10. key_points 写 2-4 个教学重点；difficult_points 写 1-3 个教学难点。\n"
+            "11. after_class_task 写一条课后任务或作业建议，要能直接布置给学生。\n"
+            "12. style_hint 要写成备课风格提示，例如“突出问题链与史料对读”“强调错因辨析与分层训练”。\n"
+            "13. fit_score 只能是 high、medium、low。\n"
+            "14. 保持 recommendation_type 原样，不要新增或删除类型。\n"
+            "15. Output only one valid JSON object. Do not use markdown fences or extra explanation.\n"
+            '16. JSON shape: {"cards":[{"recommendation_type":"knowledge_building","topic":"...","title":"...","description":"...","prompt_draft":"...","fit_score":"high","lesson_type":"...","objective":"...","key_points":["..."],"difficult_points":["..."],"after_class_task":"...","style_hint":"..."}]}\n\n'
             f"需要输出的 recommendation_type 顺序: {json.dumps(list(recommendation_types), ensure_ascii=False)}\n\n"
             "当前文档摘要:\n"
             f"{chr(10).join(doc_lines)}"

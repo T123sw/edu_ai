@@ -39,6 +39,7 @@ import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { addRAGDocumentToCourseKB } from '../../services/knowledgeBase';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
 import { uploadVideo, getVideoJobStatus } from '../../services/video';
+import './SourcePanel.css';
 
 const { Title, Text } = Typography;
 
@@ -681,11 +682,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     event.target.value = '';
   };
 
-  const handleResearch = () => {
-    setSearchDraftValue(searchValue);
-    setResearchModalVisible(true);
-  };
-
   const closeResearchModal = (showCancelMessage = false) => {
     if (researchAbortRef.current) {
       researchAbortRef.current.abort();
@@ -962,24 +958,19 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   if (collapsed) {
     const fileIcons = getAllFileIcons();
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          background: '#ffffff',
-          borderRadius: 12,
-          padding: 12,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-          <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="展开知识库" style={{ padding: '4px 8px' }} />
+      <div className="source-panel source-panel--collapsed">
+        <div className="source-panel__collapsed-top">
+          <Button
+            type="text"
+            icon={<RightOutlined />}
+            onClick={onToggleCollapsed}
+            aria-label="展开知识库"
+            className="source-panel__collapse-trigger"
+          />
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="source-panel__collapsed-list">
           {fileIcons.length > 0 ? fileIcons : (
-            <Text type="secondary" style={{ fontSize: 12, textAlign: 'center' }}>暂无文档</Text>
+            <Text type="secondary" className="source-panel__collapsed-empty">暂无文档</Text>
           )}
         </div>
       </div>
@@ -991,7 +982,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     const directPreviewImageUrl = previewFile?.imageUrl ? previewMediaUrls[previewFile.imageUrl] : undefined;
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', borderRadius: 12, padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', minHeight: 0, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', borderRadius: 12, padding: 24, boxShadow: '0 12px 28px rgba(15,23,42,0.08)', minHeight: 0, overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Space style={{ minWidth: 0 }}>
             <Button type="text" icon={<ArrowLeftOutlined />} onClick={closePreview} />
@@ -1125,74 +1116,126 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', borderRadius: 12, padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0, position: 'relative' }}>
-        <Title level={5} style={{ margin: 0, fontWeight: 600 }}>知识库</Title>
-        <Button type="text" icon={<LeftOutlined />} onClick={onToggleCollapsed} aria-label="折叠知识库" style={{ position: 'absolute', right: 0, top: 0, padding: '4px 8px' }} />
-      </div>
-
-      <Button
-        type="default"
-        icon={<SearchOutlined />}
-        size="large"
-        onClick={handleResearch}
-        style={{ width: '100%', marginBottom: 16, flexShrink: 0 }}
-      >
-        深度研究搜索
-      </Button>
-
-      <div style={{ marginBottom: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 0 }}>
-        <span style={{ fontSize: 14 }}>选择所有来源</span>
-        <Checkbox checked={selectAllChecked} onChange={(e) => handleSelectAll(e.target.checked)} />
-      </div>
-
-      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-        <Spin spinning={loading}>
-          {fileList.length === 0 && !loading ? (
-            <div style={{ textAlign: 'center', padding: 48 }}><Text type="secondary">暂无文档</Text></div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {fileList.map((file) => {
-              const menuItems: MenuProps['items'] = [
-                  { key: 'preview', label: '预览文档', icon: <EyeOutlined />, onClick: () => openPreview(file.key) },
-                  { key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) },
-                  { key: 'add-to-course', label: '增加到课程知识库', icon: <PlusOutlined />, onClick: () => handleAddToCourseKB(file.key) },
-                  { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true, onClick: () => handleDeleteFile(file.key) },
-              ];
-
-              return (
-                  <div key={file.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f0f0f0', gap: 12 }}>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, cursor: 'pointer' }} onClick={() => openPreview(file.key)} title="点击预览文档">
-                    {getFileIcon(file.type, file.title, 16)}
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.title}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                        <Button type="text" icon={<MoreOutlined />} size="small" style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => e.stopPropagation()} />
-                    </Dropdown>
-                      <Checkbox checked={checkedKeys.includes(file.key)} onChange={(e) => { e.stopPropagation(); onCheck(file.key, e.target.checked); }} style={{ marginRight: 0, flexShrink: 0 }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        </Spin>
-      </div>
-
-      <Divider style={{ margin: '16px 0', flexShrink: 0 }} />
-
-      <Space direction="vertical" style={{ width: '100%', flexShrink: 0 }} size="small">
-        <input 
-          type="file" 
-          multiple 
-          ref={fileInputRef} 
-          onChange={handleFileChange} 
-          accept=".pdf,.doc,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.bmp,.gif,.mp4,.mov,.mkv,.avi,.webm"
-          style={{ display: 'none' }} 
+    <div className="source-panel">
+      <div className="source-panel__header">
+        <div className="source-panel__header-main">
+          <Title level={5} className="source-panel__title">知识库</Title>
+          <Text className="source-panel__header-meta">
+            当前已接入 <span className="source-panel__header-count">{fileList.length}</span> 份资料
+          </Text>
+        </div>
+        <Button
+          type="text"
+          icon={<LeftOutlined />}
+          onClick={onToggleCollapsed}
+          aria-label="折叠知识库"
+          className="source-panel__collapse-trigger"
         />
-        <Button icon={<UploadOutlined />} type="default" onClick={handleAddSourceClick} size="large" block loading={videoUploading}>上传文档/图片/视频</Button>
-      </Space>
+      </div>
+
+      <div className="source-panel__tools">
+        <div className="source-panel__search-shell">
+          <Input
+            value={searchDraftValue}
+            onChange={(e) => setSearchDraftValue(e.target.value)}
+            onPressEnter={() => {
+              setResearchModalVisible(true);
+              void handleResearchConfirm();
+            }}
+            placeholder="输入关键词后开始深度研究"
+            size="large"
+            prefix={<SearchOutlined />}
+            className="source-panel__search-input"
+          />
+          <Button
+            type="text"
+            icon={<RightOutlined />}
+            size="large"
+            className="source-panel__search-submit"
+            aria-label="开始深度研究"
+            onClick={() => {
+              setResearchModalVisible(true);
+              void handleResearchConfirm();
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="source-panel__list-section">
+        <div className="source-panel__list-toolbar">
+          <div className="source-panel__section-heading">
+            <span className="source-panel__section-label">资料列表</span>
+            <Text className="source-panel__section-meta">已加载 {fileList.length} 项</Text>
+          </div>
+          <div className="source-panel__select-all">
+            <span className="source-panel__select-all-text">选择所有来源</span>
+            <Checkbox checked={selectAllChecked} onChange={(e) => handleSelectAll(e.target.checked)} />
+          </div>
+        </div>
+
+        <div className="source-panel__list">
+          <Spin spinning={loading}>
+            {fileList.length === 0 && !loading ? (
+              <div className="source-panel__empty"><Text type="secondary">暂无文档</Text></div>
+            ) : (
+              <div className="source-panel__items">
+                {fileList.map((file) => {
+                  const menuItems: MenuProps['items'] = [
+                    { key: 'preview', label: '预览文档', icon: <EyeOutlined />, onClick: () => openPreview(file.key) },
+                    { key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) },
+                    { key: 'add-to-course', label: '增加到课程知识库', icon: <PlusOutlined />, onClick: () => handleAddToCourseKB(file.key) },
+                    { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true, onClick: () => handleDeleteFile(file.key) },
+                  ];
+
+                  return (
+                    <div key={file.key} className="source-panel__item">
+                      <div
+                        className="source-panel__item-main"
+                        onClick={() => openPreview(file.key)}
+                        title="点击预览文档"
+                      >
+                        <span className="source-panel__item-icon">{getFileIcon(file.type, file.title, 16)}</span>
+                        <span className="source-panel__item-title">{file.title}</span>
+                      </div>
+                      <div className="source-panel__item-actions">
+                        <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+                          <Button
+                            type="text"
+                            icon={<MoreOutlined />}
+                            size="small"
+                            className="source-panel__item-more"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </Dropdown>
+                        <Checkbox checked={checkedKeys.includes(file.key)} onChange={(e) => {
+                          e.stopPropagation();
+                          onCheck(file.key, e.target.checked);
+                        }} className="source-panel__item-checkbox" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Spin>
+        </div>
+      </div>
+
+      <div className="source-panel__footer">
+        <Space direction="vertical" className="source-panel__footer-actions" size="small">
+          <input
+            type="file"
+            multiple
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".pdf,.doc,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.bmp,.gif,.mp4,.mov,.mkv,.avi,.webm"
+            style={{ display: 'none' }}
+          />
+          <Button icon={<UploadOutlined />} type="default" onClick={handleAddSourceClick} size="large" block loading={videoUploading}>
+            上传文档/图片/视频
+          </Button>
+        </Space>
+      </div>
 
       <Modal 
         title="深度研究" 

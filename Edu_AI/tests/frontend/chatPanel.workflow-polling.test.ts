@@ -8,7 +8,7 @@ const chatPanelFile = readFileSync(
 
 assert.match(
   chatPanelFile,
-  /workflowType === 'ppt'\s*&&\s*workflowStatus === 'running'/,
+  /if \(!currentConversationId \|\| workflowType !== 'ppt' \|\| workflowStatus !== 'running'\)/,
   'ChatPanel should track running PPT workflows before polling conversation detail',
 );
 

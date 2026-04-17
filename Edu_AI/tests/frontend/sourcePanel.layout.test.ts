@@ -26,6 +26,12 @@ assert.match(
 
 assert.match(
   sourcePanel,
+  /source-panel__search-shell/,
+  'SourcePanel should render an inline deep-research search shell',
+);
+
+assert.match(
+  sourcePanel,
   /source-panel__list/,
   'SourcePanel should render a dedicated document list section',
 );
@@ -38,14 +44,20 @@ assert.match(
 
 assert.match(
   sourcePanel,
-  /资料列表/,
+  /\u8d44\u6599\u5217\u8868/,
   'SourcePanel should expose a readable 资料列表 section label',
 );
 
 assert.match(
   sourcePanel,
-  /上传资料/,
-  'SourcePanel should expose a readable 上传资料 section label',
+  /\u4e0a\u4f20\u6587\u6863\/\u56fe\u7247\/\u89c6\u9891/,
+  'SourcePanel should expose a readable upload call-to-action',
+);
+
+assert.doesNotMatch(
+  sourcePanel,
+  /\u8d44\u6599\u5de5\u4f5c\u53f0/,
+  'SourcePanel should drop the extra materials-workbench eyebrow copy after simplification',
 );
 
 assert.doesNotMatch(

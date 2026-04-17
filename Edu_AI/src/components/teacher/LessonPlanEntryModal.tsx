@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Form, Input, Modal, Skeleton, Space, Typography, message } from 'antd';
+import { Alert, Button, Form, Input, Modal, Skeleton, Space, Typography, message } from 'antd';
 import { fetchLessonPlanEntryCardsV2, type LessonPlanEntryCard } from '../../services/teacher/chatV2';
 import {
   getDefaultLessonPlanPresetCards,
   groupLessonPlanEntryCards,
   type LessonPlanEntryConfigInput,
 } from '../../services/teacher/lessonPlanEntry.helpers';
+import './LessonPlanEntryModal.css';
 
-const { Paragraph, Text, Title } = Typography;
+const { Text, Title } = Typography;
 
 type EntryState = 'idle' | 'cards_loading' | 'cards_ready' | 'editing_config' | 'generating' | 'completed' | 'error';
 
@@ -78,7 +79,11 @@ export default function LessonPlanEntryModal({
     };
   }, [open, selectedDocIds, courseId, configForm]);
 
-  const groupedCards = useMemo(() => groupLessonPlanEntryCards(cards), [cards]);
+  const visibleCards = useMemo(
+    () => cards.filter((card) => card.card_id !== 'preset-inquiry-lesson' && card.preset_key !== 'inquiry_lesson'),
+    [cards],
+  );
+  const groupedCards = useMemo(() => groupLessonPlanEntryCards(visibleCards), [visibleCards]);
 
   const switchToCard = (card: LessonPlanEntryCard) => {
     setSelectedCard(card);
@@ -88,6 +93,11 @@ export default function LessonPlanEntryModal({
       duration: card.prefill_config?.duration || '45分钟',
       lessonType: card.prefill_config?.lesson_type || '',
       objective: card.prefill_config?.objective || '',
+      keyPoints: Array.isArray(card.prefill_config?.key_points) ? card.prefill_config?.key_points.join('；') : '',
+      difficultPoints: Array.isArray(card.prefill_config?.difficult_points)
+        ? card.prefill_config?.difficult_points.join('；')
+        : '',
+      afterClassTask: card.prefill_config?.after_class_task || '',
       styleHint: card.prefill_config?.style_hint || '',
       extraRequirements: '先生成大纲，确认后再生成正文。',
     });
@@ -113,28 +123,17 @@ export default function LessonPlanEntryModal({
   };
 
   const renderCards = (items: LessonPlanEntryCard[]) => (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 12,
-      }}
-    >
+    <div className="lesson-plan-entry-modal__card-grid">
       {items.map((card) => (
-        <Card
+        <button
           key={card.card_id}
-          hoverable
-          size="small"
+          type="button"
+          className="lesson-plan-entry-modal__card"
           onClick={() => switchToCard(card)}
-          style={{ borderRadius: 12 }}
         >
-          <Space direction="vertical" size={6} style={{ width: '100%' }}>
-            <Text strong>{card.title}</Text>
-            <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-              {card.description}
-            </Paragraph>
-          </Space>
-        </Card>
+          <span className="lesson-plan-entry-modal__card-title">{card.title}</span>
+          <span className="lesson-plan-entry-modal__card-description">{card.description}</span>
+        </button>
       ))}
     </div>
   );
@@ -145,8 +144,9 @@ export default function LessonPlanEntryModal({
       open={open}
       onCancel={onCancel}
       footer={null}
-      width={860}
+      width={1040}
       destroyOnClose
+      className="lesson-plan-entry-modal"
     >
       {entryState === 'cards_loading' ? (
         <Space direction="vertical" size={16} style={{ width: '100%' }}>
@@ -156,16 +156,16 @@ export default function LessonPlanEntryModal({
       ) : null}
 
       {(entryState === 'cards_ready' || entryState === 'error') && (
-        <Space direction="vertical" size={20} style={{ width: '100%' }}>
+        <Space className="lesson-plan-entry-modal__body" direction="vertical" size={0} style={{ width: '100%' }}>
           {loadError ? <Alert type="warning" showIcon message={loadError} /> : null}
 
-          <div>
-            <Title level={5}>固定模板</Title>
+          <div className="lesson-plan-entry-modal__section">
+            <Title level={5} className="lesson-plan-entry-modal__section-title">固定模板</Title>
             {renderCards(groupedCards.presets)}
           </div>
 
-          <div>
-            <Title level={5}>系统推荐</Title>
+          <div className="lesson-plan-entry-modal__section">
+            <Title level={5} className="lesson-plan-entry-modal__section-title">系统推荐</Title>
             {renderCards(groupedCards.recommended)}
           </div>
         </Space>
@@ -206,6 +206,25 @@ export default function LessonPlanEntryModal({
 
             <Form.Item label="本课目标" name="objective">
               <Input placeholder="例如：梳理战绩并进行历史评价" />
+            </Form.Item>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Form.Item label="教学重点" name="keyPoints">
+                <Input.TextArea
+                  autoSize={{ minRows: 2, maxRows: 4 }}
+                  placeholder="例如：核心概念；材料证据；方法迁移"
+                />
+              </Form.Item>
+              <Form.Item label="教学难点" name="difficultPoints">
+                <Input.TextArea
+                  autoSize={{ minRows: 2, maxRows: 4 }}
+                  placeholder="例如：概念辨析；证据与结论的对应关系"
+                />
+              </Form.Item>
+            </div>
+
+            <Form.Item label="课后任务" name="afterClassTask">
+              <Input placeholder="例如：完成一段材料分析或一组分层练习" />
             </Form.Item>
 
             <Form.Item label="风格约束" name="styleHint">

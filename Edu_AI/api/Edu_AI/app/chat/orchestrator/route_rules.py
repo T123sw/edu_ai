@@ -96,6 +96,16 @@ _QUIZ_SLOT_MARKERS = {
     "困难",
 }
 
+_CHAT_EXIT_MARKERS = {
+    "回到普通对话",
+    "普通对话",
+    "回普通对话",
+    "退出工作流",
+    "结束工作流",
+    "不做这个了",
+    "先聊天",
+}
+
 
 def _normalized_text(value: str) -> str:
     return str(value or "").strip().lower().strip("。！？?.!,，；;:")
@@ -148,6 +158,13 @@ def _is_explicit_quiz_request(question: str) -> bool:
     if not normalized:
         return False
     return any(marker in normalized for marker in _QUIZ_REQUEST_MARKERS)
+
+
+def _is_explicit_chat_exit(question: str) -> bool:
+    normalized = _normalized_text(question)
+    if not normalized:
+        return False
+    return any(marker in normalized for marker in _CHAT_EXIT_MARKERS)
 
 
 def _looks_like_quiz_slot_answer(question: str) -> bool:
@@ -298,6 +315,43 @@ def decide_route(*, request, snapshot, workflow_state):
     if snapshot and getattr(snapshot, "active_artifact", None) and is_rewrite_command(request.question):
         return RouteDecision.fast(action="chat.rewrite", reason="active_artifact_rewrite")
 
+    question_text = str(request.question or "")
+    if workflow_state and _is_explicit_chat_exit(request.question):
+        return RouteDecision.fast(action="chat.reply", reason="explicit_chat_exit")
+
+    if workflow_state and (request.action_hint == "generate.ppt" or any(token in question_text.lower() for token in ("ppt", "课件"))):
+        _log_ppt_route(request=request, snapshot=snapshot, reason="explicit_ppt", workflow_state=workflow_state)
+        return RouteDecision(
+            path="workflow",
+            action="generate.ppt",
+            workflow_name="ppt",
+            reason="explicit_ppt",
+        )
+
+    if workflow_state and (request.action_hint == "generate.lesson_plan" or _is_explicit_lesson_plan_request(request.question)):
+        return RouteDecision(
+            path="workflow",
+            action="generate.lesson_plan",
+            workflow_name="lesson_plan",
+            reason="explicit_lesson_plan",
+        )
+
+    if workflow_state and (request.action_hint == "generate.quiz" or _is_explicit_quiz_request(request.question)):
+        return RouteDecision(
+            path="workflow",
+            action="generate.quiz",
+            workflow_name="quiz",
+            reason="explicit_quiz",
+        )
+
+    if workflow_state and (request.action_hint == "generate.report" or "报告" in question_text):
+        return RouteDecision(
+            path="workflow",
+            action="generate.report",
+            workflow_name="report",
+            reason="explicit_report",
+        )
+
     interrupted = bool(workflow_state and should_interrupt_workflow(request.question))
     if interrupted and request.action_hint in ACTION_TO_WORKFLOW:
         return RouteDecision(
@@ -407,7 +461,6 @@ def decide_route(*, request, snapshot, workflow_state):
             reason="report_followup_from_context",
         )
 
-    question_text = str(request.question or "")
     if request.action_hint == "generate.ppt" or any(token in question_text.lower() for token in ("ppt", "课件")):
         _log_ppt_route(request=request, snapshot=snapshot, reason="explicit_ppt", workflow_state=workflow_state)
         return RouteDecision(

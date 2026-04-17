@@ -17,6 +17,7 @@ from app.deepsearch import router as deepsearch_router
 from app.chat import router as chat_router
 from app.chat.api.routes_v2 import router as chat_v2_router
 from app.speech.routes import router as speech_router
+from app.teaching_video_bridge import get_ai_lecturer_process_manager
 from app.video_routes import router as video_router
 from core import Config, conversation_storage, lesson_plan_storage
 from rag_v2.api import router as rag_router, get_rag_system
@@ -250,6 +251,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def _startup_ai_lecturer_bridge() -> None:
+    try:
+        get_ai_lecturer_process_manager().ensure_started()
+    except Exception as exc:
+        print(f"[AI Lecturer] startup skipped: {exc}")
+
+
+@app.on_event("shutdown")
+def _shutdown_ai_lecturer_bridge() -> None:
+    try:
+        get_ai_lecturer_process_manager().shutdown()
+    except Exception as exc:
+        print(f"[AI Lecturer] shutdown skipped: {exc}")
 
 
 @app.post("/teacher/lesson_plan", response_model=LessonPlanResponse)

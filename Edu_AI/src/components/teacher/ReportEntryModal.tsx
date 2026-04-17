@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Input, Modal, Skeleton, Space, Typography, message } from 'antd';
+import { Alert, Button, Input, Modal, Skeleton, Space, Typography, message } from 'antd';
 import { fetchReportEntryCardsV2, type ReportEntryCard } from '../../services/teacher/chatV2';
 import { createDraftCacheKey, getDefaultPresetCards, groupReportEntryCards, shouldConfirmCardSwitch } from '../../services/teacher/reportEntry.helpers';
+import './ReportEntryModal.css';
 
 const { Paragraph, Text, Title } = Typography;
 const { TextArea } = Input;
@@ -134,28 +135,17 @@ export default function ReportEntryModal({
   };
 
   const renderCards = (items: ReportEntryCard[]) => (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 12,
-      }}
-    >
+    <div className="report-entry-modal__card-grid">
       {items.map((card) => (
-        <Card
+        <button
           key={card.card_id}
-          hoverable
-          size="small"
+          type="button"
+          className="report-entry-modal__card"
           onClick={() => switchToCard(card)}
-          style={{ borderRadius: 12 }}
         >
-          <Space direction="vertical" size={6} style={{ width: '100%' }}>
-            <Text strong>{card.title}</Text>
-            <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-              {card.description}
-            </Paragraph>
-          </Space>
-        </Card>
+          <span className="report-entry-modal__card-title">{card.title}</span>
+          <span className="report-entry-modal__card-description">{card.description}</span>
+        </button>
       ))}
     </div>
   );
@@ -166,8 +156,9 @@ export default function ReportEntryModal({
       open={open}
       onCancel={onCancel}
       footer={null}
-      width={860}
+      width={1040}
       destroyOnClose
+      className="report-entry-modal"
     >
       {entryState === 'cards_loading' ? (
         <Space direction="vertical" size={16} style={{ width: '100%' }}>
@@ -177,16 +168,16 @@ export default function ReportEntryModal({
       ) : null}
 
       {(entryState === 'cards_ready' || entryState === 'error') && (
-        <Space direction="vertical" size={20} style={{ width: '100%' }}>
+        <Space className="report-entry-modal__body" direction="vertical" size={0} style={{ width: '100%' }}>
           {loadError ? <Alert type="warning" showIcon message={loadError} /> : null}
 
-          <div>
-            <Title level={5}>固定模板</Title>
+          <div className="report-entry-modal__section">
+            <Title level={5} className="report-entry-modal__section-title">固定模板</Title>
             {renderCards(groupedCards.presets)}
           </div>
 
-          <div>
-            <Title level={5}>系统推荐</Title>
+          <div className="report-entry-modal__section">
+            <Title level={5} className="report-entry-modal__section-title">系统推荐</Title>
             {renderCards(groupedCards.recommended)}
           </div>
         </Space>

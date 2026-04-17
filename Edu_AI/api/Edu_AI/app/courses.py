@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
+from app.teaching_video_bridge import get_teaching_video_bridge_service
 from core.auth import auth_manager
 from core.course_storage import CourseStorageManager, storage_manager
 from rag_v2.api import get_rag_system
@@ -51,6 +52,26 @@ class PinMaterialRequest(BaseModel):
 
 class KnowledgeGraphData(BaseModel):
     root: dict = Field(..., description="知识图谱根节点")
+
+
+class TeachingVideoPptItem(BaseModel):
+    material_id: str
+    title: str
+    pptx_url: str
+    html_full_url: Optional[str] = None
+    slide_count: Optional[int] = None
+    updated_at: Optional[str] = None
+
+
+class CreateTeachingVideoTaskRequest(BaseModel):
+    ppt_material_id: str = Field(..., description="璇剧▼ PPT 璧勬簮 ID")
+
+
+class TeachingVideoTaskResponse(BaseModel):
+    task_id: str
+    material_id: Optional[str] = None
+    status: str
+    video_url: Optional[str] = None
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
@@ -253,6 +274,73 @@ def pin_course_material(
     updated["material_id"] = material_id
     updated["material_type"] = updated.get("material_type") or material_type
     return updated
+
+
+@router.get(
+    "/{course_id}/teaching-videos/ppts",
+    response_model=List[TeachingVideoPptItem],
+    summary="获取可用于生成教学视频的 PPT 列表",
+)
+def list_teaching_video_ready_ppts(
+    course_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    return get_teaching_video_bridge_service().list_available_ppts(course_id)
+
+
+@router.post(
+    "/{course_id}/teaching-videos",
+    response_model=TeachingVideoTaskResponse,
+    summary="为指定 PPT 创建教学视频任务",
+)
+def create_teaching_video_task(
+    course_id: str,
+    payload: CreateTeachingVideoTaskRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    mgr = _get_manager()
+
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    try:
+        return get_teaching_video_bridge_service().create_task(
+            course_id=course_id,
+            ppt_material_id=payload.ppt_material_id,
+            owner=str(current_user.get("username") or "").strip(),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.get(
+    "/{course_id}/teaching-videos/tasks/{task_id}",
+    response_model=TeachingVideoTaskResponse,
+    summary="查询教学视频任务状态",
+)
+def get_teaching_video_task_status(
+    course_id: str,
+    task_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    try:
+        return get_teaching_video_bridge_service().get_task_status(course_id=course_id, task_id=task_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get(

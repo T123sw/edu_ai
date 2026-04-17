@@ -1,0 +1,329 @@
+.lesson-plan-artifact-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(214, 223, 236, 0.92);
+  background: #ffffff;
+}
+
+.lesson-plan-artifact-preview__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.lesson-plan-artifact-preview__back.ant-btn {
+  padding-left: 0;
+  color: #334155;
+}
+
+.lesson-plan-artifact-preview__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px 18px 34px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+}
+
+.lesson-plan-artifact-preview__scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lesson-plan-artifact-preview__scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.lesson-plan-artifact-preview__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lesson-plan-artifact-preview__document,
+.lesson-plan-artifact-preview__markdown {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px 0 64px;
+  color: #1f2937;
+}
+
+.lesson-plan-artifact-preview__head {
+  padding: 6px 0 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+}
+
+.lesson-plan-artifact-preview__eyebrow {
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+}
+
+.lesson-plan-artifact-preview__head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 24px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+.lesson-plan-artifact-preview__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.lesson-plan-artifact-preview__meta span + span {
+  position: relative;
+}
+
+.lesson-plan-artifact-preview__meta span + span::before {
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  content: '';
+  transform: translateY(-50%);
+}
+
+.lesson-plan-artifact-preview__notice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  background: rgba(248, 250, 252, 0.95);
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.lesson-plan-artifact-preview__notice strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__section {
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.82);
+}
+
+.lesson-plan-artifact-preview__section:last-child {
+  border-bottom: 0;
+}
+
+.lesson-plan-artifact-preview__section > h3 {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 750;
+}
+
+.lesson-plan-artifact-preview__paragraph {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.lesson-plan-artifact-preview__list {
+  margin: 0;
+  padding-left: 20px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.lesson-plan-artifact-preview__list li + li {
+  margin-top: 6px;
+}
+
+.lesson-plan-artifact-preview__focus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.lesson-plan-artifact-preview__focus-grid h4 {
+  margin: 0 0 10px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__strategy {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(226, 232, 240, 0.82);
+}
+
+.lesson-plan-artifact-preview__strategy > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lesson-plan-artifact-preview__step {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 14px;
+  padding-bottom: 22px;
+}
+
+.lesson-plan-artifact-preview__step:last-child {
+  padding-bottom: 0;
+}
+
+.lesson-plan-artifact-preview__step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__step-body {
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.82);
+}
+
+.lesson-plan-artifact-preview__step:last-child .lesson-plan-artifact-preview__step-body {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.lesson-plan-artifact-preview__step-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.lesson-plan-artifact-preview__step-head h4 {
+  margin: 0;
+  color: #111827;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__step-head span {
+  flex-shrink: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.lesson-plan-artifact-preview__step-details {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 12px 0 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.lesson-plan-artifact-preview__step-details dt {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__step-details dd {
+  margin: 0;
+}
+
+.lesson-plan-artifact-preview__support {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 10px 14px;
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.lesson-plan-artifact-preview__support dt {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.lesson-plan-artifact-preview__support dd {
+  margin: 0;
+}
+
+.lesson-plan-artifact-preview__markdown {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.lesson-plan-artifact-preview__markdown h1,
+.lesson-plan-artifact-preview__markdown h2,
+.lesson-plan-artifact-preview__markdown h3 {
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.lesson-plan-artifact-preview__floating-action {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+}
+
+.lesson-plan-artifact-preview__floating-action .ant-btn {
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+}
+
+@media (max-width: 760px) {
+  .lesson-plan-artifact-preview__focus-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-plan-artifact-preview__step-head {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .lesson-plan-artifact-preview__step-details,
+  .lesson-plan-artifact-preview__support {
+    grid-template-columns: 1fr;
+  }
+}

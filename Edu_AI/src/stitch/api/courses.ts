@@ -77,9 +77,13 @@ export function saveKnowledgeGraph(courseId: string, payload: KnowledgeGraphData
   });
 }
 
+function hasTextContent(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 export function courseMaterialToMarkdown(material: CourseMaterial) {
-  if (material.final_markdown?.trim()) return material.final_markdown;
-  if (material.content?.trim()) return material.content;
+  if (hasTextContent(material.final_markdown)) return material.final_markdown;
+  if (hasTextContent(material.content)) return material.content;
 
   if (material.material_type === "report" && Array.isArray(material.mainContent)) {
     const body = material.mainContent

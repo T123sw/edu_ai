@@ -77,6 +77,15 @@ class Config:
     VIDEO_CHUNKS_ROOT = Path(os.getenv("VIDEO_CHUNKS_ROOT", STORAGE_ROOT / "video_chunks"))
     COURSE_STORAGE_ROOT = Path(os.getenv("COURSE_STORAGE_ROOT", BASE_DIR.parent / "course_data"))
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
+    AI_LECTURER_AUTOSTART = os.getenv("AI_LECTURER_AUTOSTART", "1")
+    AI_LECTURER_GATEWAY_URL = os.getenv("AI_LECTURER_GATEWAY_URL", "http://127.0.0.1:8008")
+    AI_LECTURER_ENTRYPOINT = os.getenv(
+        "AI_LECTURER_ENTRYPOINT",
+        str(BASE_DIR / "AI_Lecturer" / "unified_gateway.py"),
+    )
+    AI_LECTURER_STARTUP_TIMEOUT_SEC = float(os.getenv("AI_LECTURER_STARTUP_TIMEOUT_SEC", "15"))
+    HTML2PPT_JOBS_ROOT = Path(os.getenv("HTML2PPT_JOBS_ROOT", BASE_DIR / "html2ppt" / "data" / "jobs"))
+    POWERPOINT_EXPORT_TIMEOUT_SEC = float(os.getenv("POWERPOINT_EXPORT_TIMEOUT_SEC", "120"))
     CONVERSATIONS_FILE = Path(
         os.getenv("CONVERSATIONS_FILE", STORAGE_ROOT / "conversations.json")
     )

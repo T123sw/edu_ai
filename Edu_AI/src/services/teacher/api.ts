@@ -547,6 +547,23 @@ export interface PinCourseMaterialRequest {
   is_pinned: boolean;
 }
 
+export interface TeachingVideoPptItem {
+  material_id: string;
+  title: string;
+  pptx_url: string;
+  html_full_url?: string | null;
+  slide_count?: number | null;
+  updated_at?: string | null;
+}
+
+export interface TeachingVideoTaskResponse {
+  task_id: string;
+  material_id?: string | null;
+  status: string;
+  video_url?: string | null;
+  error_message?: string | null;
+}
+
 const normalizeCourseMaterialItem = (courseId: string, item: Record<string, any>): CourseMaterialItem => {
   const type = String(item.type || item.material_type || 'unknown');
   let content = item.content;
@@ -853,4 +870,76 @@ export const saveKnowledgeGraph = async (
   }
 
   return (await resp.json()) as KnowledgeGraphData;
+};
+
+export const getTeachingVideoPpts = async (courseId: string): Promise<TeachingVideoPptItem[]> => {
+  const token = getAuthToken();
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/courses/${courseId}/teaching-videos/ppts`, {
+    method: 'GET',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`获取教学视频 PPT 列表失败: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  const data = (await resp.json()) as Array<Record<string, any>>;
+  return Array.isArray(data)
+    ? data.map((item) => ({
+        material_id: String(item.material_id || ''),
+        title: String(item.title || '未命名 PPT'),
+        pptx_url: String(item.pptx_url || ''),
+        html_full_url: typeof item.html_full_url === 'string' ? item.html_full_url : null,
+        slide_count: typeof item.slide_count === 'number' ? item.slide_count : null,
+        updated_at: typeof item.updated_at === 'string' ? item.updated_at : null,
+      }))
+    : [];
+};
+
+export const createTeachingVideoTask = async (
+  courseId: string,
+  payload: { ppt_material_id: string },
+): Promise<TeachingVideoTaskResponse> => {
+  const token = getAuthToken();
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/courses/${courseId}/teaching-videos`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`创建教学视频任务失败: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  return (await resp.json()) as TeachingVideoTaskResponse;
+};
+
+export const getTeachingVideoTaskStatus = async (
+  courseId: string,
+  taskId: string,
+): Promise<TeachingVideoTaskResponse> => {
+  const token = getAuthToken();
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/courses/${courseId}/teaching-videos/tasks/${taskId}`, {
+    method: 'GET',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`查询教学视频任务失败: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  return (await resp.json()) as TeachingVideoTaskResponse;
 };

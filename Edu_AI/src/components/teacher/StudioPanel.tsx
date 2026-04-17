@@ -33,6 +33,8 @@ import {
   resumeBlogTaskOutline,
   startBlogGenerate,
   getBlogTaskStatus,
+  createTeachingVideoTask,
+  getTeachingVideoTaskStatus,
   generateQuiz,
   type BlogResumeChaptersRequest,
   type BlogResumeOutlineRequest,
@@ -65,10 +67,15 @@ import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '
 import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
 import PptEntryPanel from './PptEntryPanel';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
+import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
+import QuizArtifactPreview from './QuizArtifactPreview';
 import QuizEntryModal from './QuizEntryModal';
 import ReportEntryModal from './ReportEntryModal';
+import TeachingVideoEntryModal from './TeachingVideoEntryModal';
+import ReportArtifactPreview from './ReportArtifactPreview';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
+import './StudioPanel.css';
 
 const { Title, Text, Paragraph } = Typography;
 const PPT_PREVIEW_BASE_WIDTH = 1920;
@@ -312,64 +319,126 @@ const getGeneratedFileIcon = (file: GeneratedFile, size = 20) => {
 interface GenerativeCardProps {
   icon: React.ReactNode;
   title: string;
+  description?: string;
   color: string;
   onGenerate: () => void;
   onConfigure: () => void;
+  featured?: boolean;
 }
 
-const GenerativeCard: React.FC<GenerativeCardProps> = ({ icon, title, color, onGenerate, onConfigure }) => {
+const GenerativeCard: React.FC<GenerativeCardProps> = ({
+  icon,
+  title,
+  description = '',
+  color,
+  onGenerate,
+  onConfigure,
+  featured = false,
+}) => {
+  const accentStyles = {
+    ['--studio-accent' as string]: color,
+    ['--studio-accent-soft' as string]: `${color}16`,
+    ['--studio-accent-border' as string]: `${color}28`,
+  } as React.CSSProperties;
+
   return (
     <div
-      style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 16px',
-        background: `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`,
-        borderRadius: '24px',
-        border: `1px solid ${color}30`,
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        minHeight: 56,
-      }}
+      className={`studio-panel__action-card${featured ? ' studio-panel__action-card--featured' : ''}`}
+      style={accentStyles}
       onClick={onGenerate}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = `linear-gradient(135deg, ${color}25 0%, ${color}15 100%)`;
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = `0 4px 12px ${color}30`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`;
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
-      }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-        <div style={{ fontSize: 20, color: color }}>
+      <div className="studio-panel__action-card-head">
+        <div className="studio-panel__action-icon">
           {icon}
         </div>
-        <Text strong style={{ fontSize: 14, color: '#1e293b' }}>
-          {title}
-        </Text>
+        <div className="studio-panel__action-copy">
+          <div className="studio-panel__action-title">{title}</div>
+          <div className="studio-panel__action-description">{description}</div>
+        </div>
       </div>
-      <Button
-        type="text"
-        icon={<EditOutlined />}
-        size="small"
-        onClick={(e) => {
-          e.stopPropagation();
-          onConfigure();
-        }}
-        style={{
-          color: color,
-          padding: '4px 8px',
-          minWidth: 'auto',
-        }}
-      />
+      <div className="studio-panel__action-footer">
+        <Button
+          className="studio-panel__action-generate"
+          type="text"
+          onClick={(e) => {
+            e.stopPropagation();
+            onGenerate();
+          }}
+        >
+          开始生成
+        </Button>
+        <Button
+          className="studio-panel__action-configure"
+          type="text"
+          icon={<EditOutlined />}
+          onClick={(e) => {
+            e.stopPropagation();
+            onConfigure();
+          }}
+        />
+      </div>
     </div>
   );
 };
+
+const STUDIO_ACTIONS = [
+  {
+    type: 'report' as const,
+    icon: <FileTextOutlined />,
+    title: '报告',
+    description: '把资料与课堂重点归纳成可复用的结构化文稿。',
+    color: '#d6a83d',
+    featured: true,
+  },
+  {
+    type: 'lesson_plan' as const,
+    icon: <BookOutlined />,
+    title: '教案生成',
+    description: '围绕当前课时快速整理教学流程与课堂结构。',
+    color: '#7c8cf8',
+    featured: true,
+  },
+  {
+    type: 'blog' as const,
+    icon: <EditOutlined />,
+    title: '教学博客',
+    description: '把课堂内容转成可沉淀、可分享的长文。',
+    color: '#f07d73',
+    featured: true,
+  },
+  {
+    type: 'quiz' as const,
+    icon: <QuestionCircleOutlined />,
+    title: '习题',
+    description: '围绕当前知识点快速生成课堂练习内容。',
+    color: '#4a8df5',
+    featured: true,
+  },
+  {
+    type: 'ppt' as const,
+    icon: <FilePptOutlined />,
+    title: 'PPT',
+    description: '把知识点整理成适合授课呈现的讲授结构。',
+    color: '#f08a33',
+    featured: true,
+  },
+  {
+    type: 'video' as const,
+    icon: <VideoCameraOutlined />,
+    title: '教学视频',
+    description: '复用已经生成完成的 PPT 与内容稿，快速生成授课视频。',
+    color: '#34a853',
+    featured: true,
+  },
+  {
+    type: 'graph' as const,
+    icon: <ApartmentOutlined />,
+    title: '思维导图',
+    description: '抽出主干知识关系，便于课堂讲解与复盘。',
+    color: '#e25aa6',
+    featured: true,
+  },
+] as const;
 
 const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, onPreviewStateChange }) => {
   const {
@@ -538,6 +607,112 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     return () => clearInterval(pollInterval);
   }, [blogPolling, blogTaskId, courseId, addGeneratedFile, setViewingFile, addMaterial, refreshCourseMaterials]);
 
+  const [teachingVideoEntryVisible, setTeachingVideoEntryVisible] = useState(false);
+  const [teachingVideoTaskId, setTeachingVideoTaskId] = useState<string | null>(null);
+  const [teachingVideoPolling, setTeachingVideoPolling] = useState(false);
+
+  useEffect(() => {
+    if (!teachingVideoPolling || !teachingVideoTaskId || !courseId) {
+      return;
+    }
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const status = await getTeachingVideoTaskStatus(courseId, teachingVideoTaskId);
+        const normalizedStatus = String(status.status || '').trim().toLowerCase();
+        const generationStatus =
+          normalizedStatus === 'success' || normalizedStatus === 'succeeded' || normalizedStatus === 'completed'
+            ? 'completed'
+            : normalizedStatus === 'failed'
+              ? 'failed'
+              : 'processing';
+        const fileId = String(status.material_id || `teaching_video__${teachingVideoTaskId}`);
+        const existingFile = generatedFiles.find((item) => item.id === fileId);
+        const nextFile: GeneratedFile = {
+          id: fileId,
+          name: existingFile?.name || '教学视频.mp4',
+          type: 'video',
+          content: {
+            ...(existingFile?.content && typeof existingFile.content === 'object' ? existingFile.content : {}),
+            task_id: teachingVideoTaskId,
+            video_url: status.video_url || undefined,
+            error_message: status.error_message || undefined,
+          },
+          meta: {
+            ...(existingFile?.meta || {}),
+            generationState: {
+              status: generationStatus,
+              phase: generationStatus === 'completed' ? 'completed' : generationStatus === 'failed' ? 'failed' : 'polling',
+              message:
+                generationStatus === 'completed'
+                  ? '教学视频已生成完成'
+                  : generationStatus === 'failed'
+                    ? status.error_message || '教学视频生成失败'
+                    : '教学视频生成中',
+            },
+          },
+        };
+        addGeneratedFile(nextFile);
+
+        if (generationStatus === 'completed') {
+          await refreshCourseMaterials();
+          setViewingFile(nextFile);
+          setTeachingVideoPolling(false);
+          message.success('教学视频已生成完成');
+          return;
+        }
+
+        if (generationStatus === 'failed') {
+          setTeachingVideoPolling(false);
+          message.error(status.error_message || '教学视频生成失败，请稍后重试');
+        }
+      } catch (error) {
+        setTeachingVideoPolling(false);
+        message.error(error instanceof Error ? error.message : '查询教学视频任务失败');
+      }
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [teachingVideoPolling, teachingVideoTaskId, courseId, generatedFiles, addGeneratedFile, refreshCourseMaterials, setViewingFile]);
+
+  useEffect(() => {
+    if (teachingVideoPolling || teachingVideoTaskId || !courseId) {
+      return;
+    }
+
+    const resumableTeachingVideo = generatedFiles.find((item) => {
+      if (item.type !== 'video') {
+        return false;
+      }
+      const generationState =
+        item.meta?.generationState && typeof item.meta.generationState === 'object'
+          ? (item.meta.generationState as Record<string, any>)
+          : {};
+      const status = String(generationState.status || '').trim().toLowerCase();
+      const content = item.content && typeof item.content === 'object' ? (item.content as Record<string, any>) : {};
+      return status === 'processing' && Boolean(String(content.task_id || '').trim());
+    });
+
+    if (!resumableTeachingVideo) {
+      return;
+    }
+
+    const content =
+      resumableTeachingVideo.content && typeof resumableTeachingVideo.content === 'object'
+        ? (resumableTeachingVideo.content as Record<string, any>)
+        : {};
+    const resumableTaskId = String(content.task_id || '').trim();
+    if (!resumableTaskId) {
+      return;
+    }
+
+    setTeachingVideoTaskId(resumableTaskId);
+    setTeachingVideoPolling(true);
+    if (!viewingFile) {
+      setViewingFile(resumableTeachingVideo);
+    }
+  }, [courseId, generatedFiles, teachingVideoPolling, teachingVideoTaskId, viewingFile, setViewingFile]);
+
   const [configForm] = Form.useForm();
   const [generating, setGenerating] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
@@ -692,6 +867,15 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       return;
     }
 
+    if (type === 'video') {
+      if (!courseId) {
+        message.warning('请先进入具体课程后，再创建教学视频。');
+        return;
+      }
+      setTeachingVideoEntryVisible(true);
+      return;
+    }
+
     return handleGenerateLegacy(type);
   };
 
@@ -740,6 +924,15 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         return;
       }
       setPptEntryVisible(true);
+      return;
+    }
+
+    if (type === 'video') {
+      if (!courseId) {
+        message.warning('请先进入具体课程后，再创建教学视频。');
+        return;
+      }
+      setTeachingVideoEntryVisible(true);
       return;
     }
 
@@ -983,6 +1176,58 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
   };
 
+  const handleTeachingVideoSubmit = async ({
+    pptMaterialId,
+    pptTitle,
+  }: {
+    pptMaterialId: string;
+    pptTitle: string;
+  }) => {
+    if (!courseId) {
+      message.warning('请先进入具体课程后，再创建教学视频。');
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const response = await createTeachingVideoTask(courseId, {
+        ppt_material_id: pptMaterialId,
+      });
+      const videoId = String(response.material_id || `teaching_video__${response.task_id}`);
+      const videoName = `${pptTitle.replace(/\.pptx$/i, '')}-教学视频.mp4`;
+      const pendingFile: GeneratedFile = {
+        id: videoId,
+        name: videoName,
+        type: 'video',
+        content: {
+          task_id: response.task_id,
+          video_url: response.video_url || undefined,
+          source_ppt_material_id: pptMaterialId,
+        },
+        meta: {
+          origin: 'course_material',
+          generationState: {
+            status: 'processing',
+            phase: 'queued',
+            message: '教学视频任务已提交',
+          },
+        },
+      };
+      addGeneratedFile(pendingFile);
+      setViewingFile(pendingFile);
+      setTeachingVideoTaskId(response.task_id);
+      setTeachingVideoPolling(true);
+      setTeachingVideoEntryVisible(false);
+      await refreshCourseMaterials();
+      message.success('教学视频任务已提交，正在生成');
+    } catch (error: any) {
+      message.error(`教学视频创建失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleConfigSubmit = async () => {
     try {
       const values = await configForm.validateFields();
@@ -1173,17 +1418,12 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     message.success('已添加到对话');
   };
 
+  const primaryStudioActions = STUDIO_ACTIONS.filter((item) => item.featured);
+  const secondaryStudioActions = STUDIO_ACTIONS.filter((item) => !item.featured);
+  const selectedDocCount = selectedDocs.length;
+
   if (collapsed) {
     // 功能类型定义
-    const functionTypes = [
-      { type: 'audio' as const, icon: <AudioOutlined />, color: '#722ed1' },
-      { type: 'lesson_plan' as const, icon: <BookOutlined />, color: '#52c41a' },
-      { type: 'graph' as const, icon: <ApartmentOutlined />, color: '#eb2f96' },
-      { type: 'report' as const, icon: <FileTextOutlined />, color: '#faad14' },
-      { type: 'blog' as const, icon: <EditOutlined />, color: '#ff7875' },
-      { type: 'quiz' as const, icon: <QuestionCircleOutlined />, color: '#1890ff' },
-    ];
-
     return (
       <div
         style={{
@@ -1217,7 +1457,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           paddingBottom: 16,
           borderBottom: '1px solid #f0f0f0'
         }}>
-          {functionTypes.map((func) => (
+          {STUDIO_ACTIONS.map((func) => (
             <div
               key={func.type}
               style={{
@@ -1285,6 +1525,22 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   // Detail view
   if (viewingFile) {
+    if (viewingFile.type === 'lesson_plan' && viewingFile.content) {
+      const lessonPlanKind = String((viewingFile.meta as any)?.kind || '').trim();
+      return (
+        <LessonPlanArtifactPreview
+          file={viewingFile}
+          kind={lessonPlanKind}
+          onBack={() => setViewingFile(null)}
+          onToggleCollapsed={onToggleCollapsed}
+          onContinueFromOutline={() => {
+            setViewingFile(null);
+            setQueuedMessage('确认并继续');
+          }}
+        />
+      );
+    }
+
     // 教案预览
     if (viewingFile.type === 'lesson_plan' && viewingFile.content) {
       const lessonPlanKind = String((viewingFile.meta as any)?.kind || '').trim();
@@ -1565,6 +1821,143 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       );
     }
 
+    if (viewingFile.type === 'video') {
+      const videoPayload =
+        viewingFile.content && typeof viewingFile.content === 'object'
+          ? (viewingFile.content as Record<string, any>)
+          : {};
+      const videoUrl = String(videoPayload.video_url || '').trim();
+      const videoErrorMessage = String(videoPayload.error_message || '').trim();
+      const videoGenerationState = ((viewingFile.meta as any)?.generationState || {}) as Record<string, any>;
+      const videoStatus = String(videoGenerationState.status || '').trim();
+      const videoPhase = String(videoGenerationState.phase || '').trim();
+      const videoMessage = String(videoGenerationState.message || '').trim();
+      const videoReady = Boolean(videoUrl) && videoStatus !== 'failed';
+      const videoStatusText =
+        videoStatus === 'completed'
+          ? '教学视频已生成完成'
+          : videoStatus === 'failed'
+            ? videoMessage || videoErrorMessage || '教学视频生成失败'
+            : videoMessage || '教学视频生成中';
+
+      return (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            background: '#ffffff',
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            minHeight: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => setViewingFile(null)}
+              style={{ marginLeft: -12 }}
+            >
+              返回
+            </Button>
+            <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作区" />
+          </div>
+
+          <Title level={4} style={{ marginTop: 8, flexShrink: 0 }}>
+            {viewingFile.name}
+          </Title>
+          <Divider style={{ flexShrink: 0 }} />
+
+          <div
+            style={{
+              border: '1px solid #f0f0f0',
+              borderRadius: 16,
+              background: 'linear-gradient(180deg, #f6ffed 0%, #ffffff 100%)',
+              padding: 20,
+              marginBottom: 16,
+              flexShrink: 0,
+            }}
+          >
+            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space align="center">
+                <Spin size="small" spinning={!videoReady && videoStatus !== 'failed'} />
+                <Text strong style={{ fontSize: 16, color: '#1f1f1f' }}>
+                  {videoStatusText}
+                </Text>
+              </Space>
+              {(videoPhase || videoStatus !== 'completed') && (
+                <Text type="secondary">
+                  当前阶段：{videoPhase || 'processing'}
+                </Text>
+              )}
+              <Space wrap>
+                {videoUrl ? (
+                  <Button
+                    type="primary"
+                    icon={<PlayCircleOutlined />}
+                    onClick={() => window.open(videoUrl, '_blank', 'noopener,noreferrer')}
+                  >
+                    新窗口播放
+                  </Button>
+                ) : null}
+                <Button icon={<MessageOutlined />} onClick={() => handleAddToChat(viewingFile)}>
+                  添加到对话
+                </Button>
+              </Space>
+            </Space>
+          </div>
+
+          <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            {videoReady ? (
+              <div
+                style={{
+                  height: '100%',
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  background: '#000',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                }}
+              >
+                <video
+                  controls
+                  preload="metadata"
+                  src={videoUrl}
+                  style={{ width: '100%', height: '100%', display: 'block', background: '#000' }}
+                />
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: '100%',
+                  minHeight: 240,
+                  borderRadius: 16,
+                  border: '1px dashed #b7eb8f',
+                  background: '#fcffe6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 24,
+                }}
+              >
+                <Space direction="vertical" size={12} align="center">
+                  <VideoCameraOutlined style={{ fontSize: 32, color: videoStatus === 'failed' ? '#ff4d4f' : '#52c41a' }} />
+                  <Text strong>{videoStatusText}</Text>
+                  <Text type="secondary" style={{ textAlign: 'center' }}>
+                    {videoStatus === 'failed'
+                      ? videoErrorMessage || videoMessage || '任务执行失败，请重新选择 PPT 后再次发起生成。'
+                      : '视频任务已经提交，系统会继续轮询状态，生成完成后会自动在这里展示播放器。'}
+                  </Text>
+                </Space>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     // 报告预览
     if (viewingFile.type === 'ppt') {
       const pptKind = String((viewingFile.meta as any)?.kind || '').trim();
@@ -1794,6 +2187,30 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             </div>
           )}
         </div>
+      );
+    }
+
+    if (viewingFile.type === 'report' && viewingFile.content) {
+      const rawReportOutlineContent = (viewingFile as any)?.meta?.outlineContent;
+      const canToggleReportOutline = String((viewingFile as any)?.meta?.kind || '').trim() !== 'outline';
+
+      return (
+        <ReportArtifactPreview
+          file={viewingFile}
+          outlineContent={rawReportOutlineContent}
+          previewMode={reportPreviewMode}
+          canToggleOutline={canToggleReportOutline}
+          canAddToChat={isArtifactReferenceEligible(viewingFile)}
+          onPreviewModeChange={setReportPreviewMode}
+          onBack={() => setViewingFile(null)}
+          onToggleCollapsed={onToggleCollapsed}
+          onAddToChat={() => handleAddToChat(viewingFile)}
+          onGenerateFromOutline={() => {
+            setViewingFile(null);
+            const store = useStore.getState();
+            store.setQueuedMessage('根据已确认的大纲开始生成报告');
+          }}
+        />
       );
     }
 
@@ -2069,6 +2486,95 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
 
     // 测验预览
+    if (viewingFile.type === 'quiz' && viewingFile.content) {
+      const quiz = viewingFile.content as QuizResponse;
+      const questions = Array.isArray(quiz.questions) ? quiz.questions : [];
+      const totalCount = questions.length;
+      const checkedCount = questions.filter((q) => !!quizChecked[q.id]).length;
+      const correctCount = questions.filter((q) => {
+        if (!quizChecked[q.id]) return false;
+        return isQuizAnswerCorrect(q, quizAnswers[q.id] || '');
+      }).length;
+      const accuracy = checkedCount > 0 ? Math.round((correctCount / checkedCount) * 100) : 0;
+      const safeQuizIndex = Math.max(0, Math.min(currentQuizIndex, totalCount - 1));
+      const currentQuestion = questions[safeQuizIndex];
+      const currentQuestionId = String(currentQuestion?.id || '');
+      const currentQuestionType = String(currentQuestion?.type || '').trim();
+      const currentUserAnswer = currentQuestionId ? quizAnswers[currentQuestionId] || '' : '';
+      const currentHasChecked = currentQuestionId ? !!quizChecked[currentQuestionId] : false;
+      const currentIsCorrect = currentQuestion ? isQuizAnswerCorrect(currentQuestion, currentUserAnswer || '') : false;
+      const progressPercent = totalCount > 0 ? Math.round(((safeQuizIndex + 1) / totalCount) * 100) : 0;
+
+      const goToQuizIndex = (index: number) => {
+        setCurrentQuizIndex(index);
+      };
+
+      const handleAutoAnswer = (value: string, autoCheck = false) => {
+        if (!currentQuestionId) {
+          return;
+        }
+        setQuizAnswers((prev) => ({ ...prev, [currentQuestionId]: value }));
+        setQuizChecked((prev) => ({ ...prev, [currentQuestionId]: Boolean(autoCheck) }));
+      };
+
+      const handleCheckAllAnswers = () => {
+        const nextChecked: Record<string, boolean> = { ...quizChecked };
+        let answered = 0;
+        questions.forEach((q) => {
+          const val = quizAnswers[q.id];
+          if (val && val.trim()) {
+            answered += 1;
+            nextChecked[q.id] = true;
+          }
+        });
+        if (answered === 0) {
+          message.warning('请至少作答一题后再查看答案');
+          return;
+        }
+        setQuizChecked(nextChecked);
+        message.success(`已判题 ${answered} 题`);
+      };
+
+      const handleSubmitCurrent = () => {
+        if (!currentUserAnswer || !currentUserAnswer.trim()) {
+          message.warning('请先作答后再判题');
+          return;
+        }
+        setQuizChecked((prev) => ({ ...prev, [currentQuestionId]: true }));
+      };
+
+      return (
+        <QuizArtifactPreview
+          file={viewingFile}
+          quiz={quiz}
+          questions={questions}
+          totalCount={totalCount}
+          checkedCount={checkedCount}
+          correctCount={correctCount}
+          accuracy={accuracy}
+          progressPercent={progressPercent}
+          safeQuizIndex={safeQuizIndex}
+          currentQuestion={currentQuestion}
+          currentQuestionId={currentQuestionId}
+          currentQuestionType={currentQuestionType}
+          currentUserAnswer={currentUserAnswer}
+          currentHasChecked={currentHasChecked}
+          currentIsCorrect={currentIsCorrect}
+          quizChecked={quizChecked}
+          onBack={() => setViewingFile(null)}
+          onToggleCollapsed={onToggleCollapsed}
+          onReset={() => {
+            setQuizAnswers({});
+            setQuizChecked({});
+          }}
+          onCheckAll={handleCheckAllAnswers}
+          onGoToIndex={goToQuizIndex}
+          onAnswerChange={handleAutoAnswer}
+          onSubmitCurrent={handleSubmitCurrent}
+        />
+      );
+    }
+
     if (viewingFile.type === 'quiz' && viewingFile.content) {
       const quiz = viewingFile.content as QuizResponse;
       const questions = Array.isArray(quiz.questions) ? quiz.questions : [];
@@ -2420,19 +2926,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
     // 其他类型文件预览
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          background: '#ffffff',
-          borderRadius: 12,
-          padding: 24,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          minHeight: 0,
-          overflow: 'hidden',
-        }}
-      >
+      <div className="studio-panel">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <Button
             type="text"
@@ -2458,27 +2952,26 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   // List view
   return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          background: '#ffffff',
-          borderRadius: 12,
-          padding: 24,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          minHeight: 0,
-          overflow: 'hidden',
-        }}
-      >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
-        <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-          生成式工场
-        </Title>
-        <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作室" />
+      <div className="studio-panel">
+      <div className="studio-panel__header">
+        <div className="studio-panel__heading">
+          <Title level={5} className="studio-panel__title">
+            生成式工厂
+          </Title>
+          <div className="studio-panel__subtitle">
+            已生成 {generatedFiles.length} 份资源
+          </div>
+        </div>
+        <Button
+          className="studio-panel__collapse-button"
+          type="text"
+          icon={<RightOutlined />}
+          onClick={onToggleCollapsed}
+          aria-label="折叠生成式工厂"
+        />
       </div>
 
-      <Text type="secondary" style={{ flexShrink: 0, marginBottom: 16, display: 'block' }}>点击生成</Text>
+      <div className="studio-panel__divider" />
 
       <ReportEntryModal
         open={reportEntryVisible}
@@ -2512,6 +3005,13 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         onCancel={() => setPptEntryVisible(false)}
         onSubmitOutline={handleDirectPptOutlineSubmit}
         onSubmitGenerate={handleDirectPptGenerateSubmit}
+      />
+      <TeachingVideoEntryModal
+        open={teachingVideoEntryVisible}
+        courseId={courseId}
+        submitting={generating}
+        onCancel={() => setTeachingVideoEntryVisible(false)}
+        onSubmit={handleTeachingVideoSubmit}
       />
       <Modal
         title="教学博客大纲审查"
@@ -2778,14 +3278,17 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
       
       {/* 六个功能：两行，每行三个 */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          marginBottom: 12,
-          flexShrink: 0,
-        }}
-      >
+      <div className="studio-panel__summary-card">
+        <div className="studio-panel__summary-copy">
+          <div className="studio-panel__summary-eyebrow">工作摘要</div>
+          <div className="studio-panel__summary-title">从当前知识库快速生成本课时教学产物</div>
+          <div className="studio-panel__summary-hint">
+            已选 {selectedDocCount} 份资料，已生成 {generatedFiles.length} 项内容
+          </div>
+        </div>
+      </div>
+
+      <div className="studio-panel__mode-row">
         <Space size="middle">
           <Space size="small">
             <Text type="secondary">RAG</Text>
@@ -2798,70 +3301,62 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         </Space>
       </div>
 
-
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(3, 1fr)', 
-        gap: 12, 
-        marginBottom: 16,
-        flexShrink: 0 
-      }}>
-        {/* 第一行 */}
-        <GenerativeCard
-          icon={<AudioOutlined />}
-          title="音频概览"
-          color="#722ed1"
-          onGenerate={() => handleGenerate('audio')}
-          onConfigure={() => handleConfigure('audio')}
-        />
-        <GenerativeCard
-          icon={<BookOutlined />}
-          title="教案生成"
-          color="#52c41a"
-          onGenerate={() => handleGenerate('lesson_plan')}
-          onConfigure={() => handleConfigure('lesson_plan')}
-        />
-        <GenerativeCard
-          icon={<ApartmentOutlined />}
-          title="思维导图"
-          color="#eb2f96"
-          onGenerate={() => handleGenerate('graph')}
-          onConfigure={() => handleConfigure('graph')}
-        />
-        
-        {/* 第二行 */}
-        <GenerativeCard
-          icon={<FilePptOutlined />}
-          title="PPT"
-          color="#d46b08"
-          onGenerate={() => handleGenerate('ppt')}
-          onConfigure={() => handleConfigure('ppt')}
-        />
-        <GenerativeCard
-          icon={<FileTextOutlined />}
-          title="报告"
-          color="#faad14"
-          onGenerate={() => handleGenerate('report')}
-          onConfigure={() => handleConfigure('report')}
-        />
-        <GenerativeCard
-          icon={<EditOutlined />}
-          title="教学博客"
-          color="#ff7875"
-          onGenerate={() => handleGenerate('blog')}
-          onConfigure={() => handleConfigure('blog')}
-        />
-        <GenerativeCard
-          icon={<QuestionCircleOutlined />}
-          title="测验"
-          color="#1890ff"
-          onGenerate={() => handleGenerate('quiz')}
-          onConfigure={() => handleConfigure('quiz')}
-        />
+      <div className="studio-panel__section-headline">
+        <div>
+          <div className="studio-panel__section-title">生成入口</div>
+          <div className="studio-panel__section-note">先从高频产物开始，再补充课堂延展内容。</div>
+        </div>
       </div>
-      <Divider style={{ margin: '12px 0', flexShrink: 0 }} />
 
-      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+      <div className="studio-panel__primary-grid">
+        {primaryStudioActions.map((item) => (
+          <GenerativeCard
+            key={item.type}
+            icon={item.icon}
+            title={item.title}
+            description={item.description}
+            color={item.color}
+            featured
+            onGenerate={() => handleGenerate(item.type)}
+            onConfigure={() => handleConfigure(item.type)}
+          />
+        ))}
+      </div>
+
+      <div className="studio-panel__section-headline studio-panel__section-headline--secondary">
+        <div>
+          <div className="studio-panel__section-title">更多生成</div>
+          <div className="studio-panel__section-note">补充延展讲解、沉淀内容与课堂检测。</div>
+        </div>
+      </div>
+
+      {secondaryStudioActions.length > 0 && (
+        <div className="studio-panel__secondary-grid">
+          {secondaryStudioActions.map((item) => (
+            <GenerativeCard
+              key={item.type}
+              icon={item.icon}
+              title={item.title}
+              description={item.description}
+              color={item.color}
+              onGenerate={() => handleGenerate(item.type)}
+              onConfigure={() => handleConfigure(item.type)}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="studio-panel__divider" />
+
+      <div className="studio-panel__artifact-header">
+        <div>
+          <div className="studio-panel__section-title">最近产物</div>
+          <div className="studio-panel__section-note">生成完成后可在这里继续查看、预览或加入课程资源。</div>
+        </div>
+        <div className="studio-panel__artifact-count">{generatedFiles.length}</div>
+      </div>
+
+      <div className="studio-panel__artifact-list">
         {generatedFiles.map((item) => {
           const menuItems: MenuProps['items'] = [
             {
@@ -2886,23 +3381,24 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           ];
 
           return (
-            <div key={item.id} style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '8px 0' }}>
+            <div key={item.id} className="studio-panel__artifact-item">
               <div
-                style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, cursor: 'pointer' }}
+                className="studio-panel__artifact-main"
                 onClick={() => setViewingFile(item)}
               >
                 {getGeneratedFileIcon(item)}
-                <Text ellipsis={{ tooltip: item.name }} style={{ marginLeft: 12 }}>
+                <Text ellipsis={{ tooltip: item.name }} className="studio-panel__artifact-name">
                   {item.name}
                 </Text>
               </div>
 
               <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.stopPropagation()} />
+                <Button className="studio-panel__artifact-action" type="text" icon={<MoreOutlined />} onClick={(e) => e.stopPropagation()} />
               </Dropdown>
 
               <Tooltip title="查看">
                 <Button
+                  className="studio-panel__artifact-action"
                   type="text"
                   icon={<EyeOutlined />}
                   onClick={(e) => {
@@ -2914,6 +3410,12 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             </div>
           );
         })}
+        {generatedFiles.length === 0 && (
+          <div className="studio-panel__empty-state">
+            <div className="studio-panel__empty-title">还没有生成内容</div>
+            <div className="studio-panel__empty-copy">从上方入口开始，生成后的报告、教案、博客、习题、PPT、视频和思维导图会集中出现在这里。</div>
+          </div>
+        )}
       </div>
 
       {/* 配置参数模态框 */}

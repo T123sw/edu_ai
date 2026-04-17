@@ -169,6 +169,9 @@ class LessonPlanEntryPrefillConfigV2(BaseModel):
     duration: str = ""
     lesson_type: str = ""
     objective: str = ""
+    key_points: List[str] = Field(default_factory=list)
+    difficult_points: List[str] = Field(default_factory=list)
+    after_class_task: str = ""
     style_hint: Optional[str] = None
 
 

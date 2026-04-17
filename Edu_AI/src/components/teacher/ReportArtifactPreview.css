@@ -1,0 +1,314 @@
+.report-artifact-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(214, 223, 236, 0.92);
+  background: #ffffff;
+}
+
+.report-artifact-preview__toolbar,
+.report-artifact-preview__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.report-artifact-preview__toolbar {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.report-artifact-preview__back.ant-btn {
+  padding-left: 0;
+  color: #334155;
+}
+
+.report-artifact-preview__actions {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.report-artifact-preview__switch .ant-btn {
+  height: 32px;
+  border-radius: 8px;
+}
+
+.report-artifact-preview__add-chat.ant-btn {
+  height: 34px;
+  border-radius: 8px;
+  border-color: rgba(203, 213, 225, 0.95);
+  background: rgba(248, 250, 252, 0.96);
+  color: #334155;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.report-artifact-preview__add-chat.ant-btn:hover,
+.report-artifact-preview__add-chat.ant-btn:focus {
+  border-color: rgba(148, 163, 184, 0.95);
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.report-artifact-preview__add-chat.ant-btn:active {
+  background: #e2e8f0;
+}
+
+.report-artifact-preview__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px 18px 28px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+}
+
+.report-artifact-preview__scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.report-artifact-preview__scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.report-artifact-preview__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.report-artifact-preview__document {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 14px 0 52px;
+  color: #1f2937;
+}
+
+.report-artifact-preview__document-head {
+  padding: 8px 0 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+}
+
+.report-artifact-preview__eyebrow {
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+}
+
+.report-artifact-preview__document-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 24px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+.report-artifact-preview__lead,
+.report-artifact-preview__plain-block {
+  margin-top: 22px;
+}
+
+.report-artifact-preview__lead {
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.95);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+}
+
+.report-artifact-preview__lead h3,
+.report-artifact-preview__plain-block h3 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.report-artifact-preview__paragraph {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.report-artifact-preview__paragraph + .report-artifact-preview__paragraph {
+  margin-top: 10px;
+}
+
+.report-artifact-preview__sections,
+.report-artifact-preview__outline-sections {
+  margin-top: 20px;
+}
+
+.report-artifact-preview__section {
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.82);
+}
+
+.report-artifact-preview__section:last-child {
+  border-bottom: 0;
+}
+
+.report-artifact-preview__section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.report-artifact-preview__section-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.report-artifact-preview__section-title,
+.report-artifact-preview__subsection-title {
+  margin: 0;
+  color: #111827;
+  font-size: 17px;
+  line-height: 1.42;
+  font-weight: 700;
+}
+
+.report-artifact-preview__subsection-title {
+  font-size: 15px;
+}
+
+.report-artifact-preview__list {
+  margin: 10px 0 0;
+  padding-left: 21px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.report-artifact-preview__list li + li {
+  margin-top: 6px;
+}
+
+.report-artifact-preview__subsections {
+  margin-top: 10px;
+  padding-left: 18px;
+  border-left: 2px solid rgba(226, 232, 240, 0.95);
+}
+
+.report-artifact-preview__timeline {
+  margin-top: 20px;
+}
+
+.report-artifact-preview__chapter {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 0 22px;
+}
+
+.report-artifact-preview__chapter-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-artifact-preview__chapter-body {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.86);
+}
+
+.report-artifact-preview__chapter-body h3 {
+  margin: 2px 0 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.38;
+  font-weight: 750;
+}
+
+.report-artifact-preview__muted {
+  margin: 10px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.report-artifact-preview__markdown {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 8px 0 52px;
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.report-artifact-preview__markdown h1,
+.report-artifact-preview__markdown h2,
+.report-artifact-preview__markdown h3 {
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.report-artifact-preview__markdown h1 {
+  margin-top: 8px;
+  font-size: 25px;
+}
+
+.report-artifact-preview__markdown h2 {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(226, 232, 240, 0.92);
+  font-size: 20px;
+}
+
+.report-artifact-preview__markdown h3 {
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.report-artifact-preview__markdown p {
+  color: #334155;
+}
+
+.report-artifact-preview__markdown ul,
+.report-artifact-preview__markdown ol {
+  padding-left: 22px;
+}
+
+.report-artifact-preview__floating-action {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+}
+
+@media (max-width: 860px) {
+  .report-artifact-preview__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-artifact-preview__actions > * {
+    width: 100%;
+  }
+}

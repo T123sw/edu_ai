@@ -168,6 +168,23 @@ def _persist_ppt_course_material(*, payload, result: dict, course_storage_manage
         ),
         None,
     )
+    markdown_artifact = next(
+        (
+            artifact
+            for artifact in artifacts
+            if isinstance(artifact, dict) and str(artifact.get("artifact_type") or "").strip() == "ppt_content_markdown"
+        ),
+        None,
+    )
+    content_payload = deck_artifact.get("content")
+    if isinstance(content_payload, dict):
+        content_payload = dict(content_payload)
+    else:
+        content_payload = {}
+    content_markdown = str(markdown_artifact.get("content") or "") if isinstance(markdown_artifact, dict) else ""
+    if content_markdown.strip():
+        content_payload["content_markdown"] = content_markdown
+
     now = datetime.now().isoformat()
     course_storage_manager.save_generated_material(
         course_id=course_id,
@@ -178,7 +195,7 @@ def _persist_ppt_course_material(*, payload, result: dict, course_storage_manage
             "material_type": "ppt",
             "created_at": now,
             "updated_at": now,
-            "content": deck_artifact.get("content"),
+            "content": content_payload,
             "outline": outline_artifact.get("content") if isinstance(outline_artifact, dict) else None,
             "generation_state": generation_state,
         },

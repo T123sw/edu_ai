@@ -98,6 +98,8 @@ _GENERIC_FALLBACK_OVERRIDES = {
 }
 
 _FOCUS_TERM_SPLIT_PATTERN = re.compile(r"[，。；：、（）()\[\]【】《》\s,.;:!?！？]+")
+_FOCUS_TERM_MARKDOWN_PATTERN = re.compile(r"[*#`_~>|]+")
+_FOCUS_TERM_INLINE_MATH_PATTERN = re.compile(r"\$[^$]{0,40}\$")
 _FOCUS_TERM_CONNECTOR_PATTERN = re.compile(
     r"(围绕|聚焦|强调|指出|提到|介绍|说明|梳理|提炼|分析|总结|归纳|适合|用于|输出|展开|关注|包括|包含|以及|并且|并|和|与|及)"
 )
@@ -316,7 +318,9 @@ class ReportEntryCardsServiceV2:
         }
 
     def _extract_focus_terms_from_text(self, text: str) -> list[str]:
-        normalized = _FOCUS_TERM_CONNECTOR_PATTERN.sub("|", text or "")
+        normalized = _FOCUS_TERM_INLINE_MATH_PATTERN.sub(" ", text or "")
+        normalized = _FOCUS_TERM_MARKDOWN_PATTERN.sub(" ", normalized)
+        normalized = _FOCUS_TERM_CONNECTOR_PATTERN.sub("|", normalized)
         normalized = _FOCUS_TERM_SPLIT_PATTERN.sub("|", normalized)
 
         terms: list[str] = []
@@ -332,6 +336,9 @@ class ReportEntryCardsServiceV2:
             return None
 
         token = _FOCUS_TERM_PREFIX_PATTERN.sub("", token).strip()
+        token = _FOCUS_TERM_INLINE_MATH_PATTERN.sub("", token).strip()
+        token = _FOCUS_TERM_MARKDOWN_PATTERN.sub("", token).strip()
+        token = re.sub(r"(以及|并且|和|与|及)$", "", token).strip()
         token = token.strip("“”\"' ")
         if token.endswith("展开"):
             token = token[:-2].strip()
