@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from types import SimpleNamespace
-from uuid import uuid4
 import re
+from uuid import uuid4
 
 from app.chat.orchestrator.report_edit_intent_parser import parse_report_edit_intent
 from app.chat.orchestrator.report_structure_parser import parse_report_nodes
@@ -30,7 +29,7 @@ def _extract_main_title(content: str) -> str:
         match = re.match(r"^#\s+(.+)$", line.strip())
         if match:
             return str(match.group(1) or "").strip()
-    return "报告"
+    return "\u62a5\u544a"
 
 
 def _normalize_material_source(material_type: str, material: dict) -> dict:
@@ -89,15 +88,16 @@ class ReportEditRuntime:
             artifact_type="report",
             content=content,
         )
+
         rewritten = []
         for node in nodes:
             body = str(node.get("content") or "")
             if node.get("node_id") == edit_request.get("target_node_id"):
                 prompt = (
-                    f"你正在修改报告《{title}》中的章节《{node.get('title') or ''}》。\n"
-                    f"用户要求：{edit_request.get('instruction') or ''}\n"
-                    f"原内容：\n{body}\n\n"
-                    "请只输出修改后的章节正文，不要额外解释。"
+                    f"\u4f60\u6b63\u5728\u4fee\u6539\u62a5\u544a\u300a{title}\u300b\u4e2d\u7684\u7ae0\u8282\u300a{node.get('title') or ''}\u300b\u3002\n"
+                    f"\u7528\u6237\u8981\u6c42\uff1a{edit_request.get('instruction') or ''}\n"
+                    f"\u539f\u5185\u5bb9\uff1a\n{body}\n\n"
+                    "\u8bf7\u53ea\u8f93\u51fa\u4fee\u6539\u540e\u7684\u7ae0\u8282\u6b63\u6587\uff0c\u4e0d\u8981\u989d\u5916\u89e3\u91ca\u3002"
                 )
                 body = self._invoke_model(prompt).strip() or body
             rewritten.append(f"## {node.get('title')}\n{body}".strip())
@@ -108,6 +108,7 @@ class ReportEditRuntime:
         target_node_id = str(edit_request.get("target_node_id") or "").strip()
         if not target_node_id:
             return outline
+
         for index, chapter in enumerate(outline, start=1):
             current_node_id = f"{source_artifact.get('artifact_id')}:{index}"
             if current_node_id != target_node_id:
@@ -115,10 +116,10 @@ class ReportEditRuntime:
             next_chapter = dict(chapter)
             existing_goal = str(next_chapter.get("chapter_goal") or "").strip()
             prompt = (
-                f"你正在修改报告大纲章节《{next_chapter.get('chapter_title') or ''}》。\n"
-                f"用户要求：{edit_request.get('instruction') or ''}\n"
-                f"现有章节目标：{existing_goal}\n"
-                "请输出修改后的章节目标，一句话即可。"
+                f"\u4f60\u6b63\u5728\u4fee\u6539\u62a5\u544a\u5927\u7eb2\u7ae0\u8282\u300a{next_chapter.get('chapter_title') or ''}\u300b\u3002\n"
+                f"\u7528\u6237\u8981\u6c42\uff1a{edit_request.get('instruction') or ''}\n"
+                f"\u73b0\u6709\u7ae0\u8282\u76ee\u6807\uff1a{existing_goal}\n"
+                "\u8bf7\u8f93\u51fa\u4fee\u6539\u540e\u7684\u7ae0\u8282\u76ee\u6807\uff0c\u4e00\u53e5\u8bdd\u5373\u53ef\u3002"
             )
             rewritten_goal = self._invoke_model(prompt).strip()
             next_chapter["chapter_goal"] = rewritten_goal or existing_goal or str(edit_request.get("instruction") or "")
@@ -132,7 +133,7 @@ class ReportEditRuntime:
             "state_id": f"state-{uuid4().hex[:12]}",
             "artifact_id": "",
             "version_id": version.get("version_id"),
-            "topic": title or "报告",
+            "topic": title or "\u62a5\u544a",
             "focus": question,
             "length_requirement": "",
             "style": "",
@@ -164,10 +165,10 @@ class ReportEditRuntime:
             structure_nodes=nodes,
         )
 
-        if edit_request.get("action_type") == "ask_about_artifact":
-            artifact_label = "报告正文" if source_artifact_type == "report" else "报告大纲"
+        if edit_request.get("intent_type") == "ask_about_artifact" or edit_request.get("action_type") == "ask_about_artifact":
+            artifact_label = "\u62a5\u544a\u6b63\u6587" if source_artifact_type == "report" else "\u62a5\u544a\u5927\u7eb2"
             return self._awaiting_input_result(
-                message=f"当前已引用的是{artifact_label}。如果你是想继续提问，请先移除引用；如果你是想编辑，请明确要修改的结构节点。",
+                message=f"\u5f53\u524d\u5df2\u5f15\u7528\u7684\u662f{artifact_label}\u3002\u5982\u679c\u4f60\u662f\u60f3\u7ee7\u7eed\u63d0\u95ee\uff0c\u8bf7\u5148\u79fb\u9664\u5f15\u7528\uff1b\u5982\u679c\u4f60\u662f\u60f3\u7f16\u8f91\uff0c\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ae0\u8282\u3001\u6807\u9898\u6216\u6b63\u6587\u7247\u6bb5\u3002",
                 edit_request=edit_request,
             )
 
@@ -177,9 +178,15 @@ class ReportEditRuntime:
                 for label in list(edit_request.get("candidate_labels") or [])
                 if str(label).strip()
             ]
-            hint = "、".join(candidate_labels)
+            hint = "\u3001".join(candidate_labels)
             return self._awaiting_input_result(
-                message=f"请明确要修改的结构节点。可选节点：{hint}" if hint else "请明确要修改的结构节点。",
+                message=f"\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ed3\u6784\u8282\u70b9\u3002\u53ef\u9009\u8282\u70b9\uff1a{hint}" if hint else "\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ed3\u6784\u8282\u70b9\u3002",
+                edit_request=edit_request,
+            )
+
+        if edit_request.get("action_type") != "regenerate" and not edit_request.get("target_node_id"):
+            return self._awaiting_input_result(
+                message="\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ae0\u8282\u3001\u6807\u9898\u6216\u6b63\u6587\u7247\u6bb5\u3002",
                 edit_request=edit_request,
             )
 
@@ -189,8 +196,8 @@ class ReportEditRuntime:
             outline_content = list(source_artifact.get("content") or [])
             outline_text = "\n".join(str(item.get("chapter_title") or "") for item in outline_content if isinstance(item, dict))
             prompt = (
-                f"请基于以下报告大纲生成一份完整正式报告 Markdown。\n用户要求：{question}\n"
-                f"大纲：\n{outline_text}\n"
+                f"\u8bf7\u57fa\u4e8e\u4ee5\u4e0b\u62a5\u544a\u5927\u7eb2\u751f\u6210\u4e00\u4efd\u5b8c\u6574\u6b63\u5f0f\u62a5\u544a Markdown\u3002\n\u7528\u6237\u8981\u6c42\uff1a{question}\n"
+                f"\u5927\u7eb2\uff1a\n{outline_text}\n"
             )
             report_content = self._invoke_model(prompt).strip()
             report_artifact_id = f"{source_artifact.get('artifact_id')}-{version['version_id']}-{uuid4().hex[:6]}"
@@ -203,7 +210,7 @@ class ReportEditRuntime:
             )
             generation_state["artifact_id"] = report_artifact_id
             return {
-                "message": {"role": "assistant", "content": "已生成，请在右侧查看。"},
+                "message": {"role": "assistant", "content": "\u5df2\u751f\u6210\uff0c\u8bf7\u5728\u53f3\u4fa7\u67e5\u770b\u3002"},
                 "conversation": {},
                 "action": {"name": "report.edit"},
                 "workflow": {"type": "report", "status": "completed"},
@@ -211,7 +218,7 @@ class ReportEditRuntime:
                     {
                         "artifact_id": report_artifact_id,
                         "artifact_type": "report",
-                        "title": str(source_artifact.get("title") or "报告").replace("-大纲", "").strip(),
+                        "title": str(source_artifact.get("title") or "\u62a5\u544a").replace("-\u5927\u7eb2", "").strip(),
                         "content": report_content,
                         "version": version,
                         "generation_state": generation_state,
@@ -225,7 +232,7 @@ class ReportEditRuntime:
             next_outline = self._rewrite_outline(source_artifact=source_artifact, edit_request=edit_request)
             outline_artifact_id = f"{source_artifact.get('artifact_id')}-{version['version_id']}-{uuid4().hex[:6]}"
             return {
-                "message": {"role": "assistant", "content": "已生成，请在右侧查看。"},
+                "message": {"role": "assistant", "content": "\u5df2\u751f\u6210\uff0c\u8bf7\u5728\u53f3\u4fa7\u67e5\u770b\u3002"},
                 "conversation": {},
                 "action": {"name": "report.edit"},
                 "workflow": {"type": "report", "status": "completed"},
@@ -233,7 +240,7 @@ class ReportEditRuntime:
                     {
                         "artifact_id": outline_artifact_id,
                         "artifact_type": "report_outline",
-                        "title": str(source_artifact.get("title") or "报告大纲").strip(),
+                        "title": str(source_artifact.get("title") or "\u62a5\u544a\u5927\u7eb2").strip(),
                         "content": next_outline,
                         "version": version,
                     }
@@ -252,7 +259,7 @@ class ReportEditRuntime:
         )
         generation_state["artifact_id"] = report_artifact_id
         return {
-            "message": {"role": "assistant", "content": "已生成，请在右侧查看。"},
+            "message": {"role": "assistant", "content": "\u5df2\u751f\u6210\uff0c\u8bf7\u5728\u53f3\u4fa7\u67e5\u770b\u3002"},
             "conversation": {},
             "action": {"name": "report.edit"},
             "workflow": {"type": "report", "status": "completed"},
@@ -260,7 +267,7 @@ class ReportEditRuntime:
                 {
                     "artifact_id": report_artifact_id,
                     "artifact_type": "report",
-                    "title": str(source_artifact.get("title") or "报告").strip(),
+                    "title": str(source_artifact.get("title") or "\u62a5\u544a").strip(),
                     "content": rewritten_content,
                     "version": version,
                     "generation_state": generation_state,
@@ -274,6 +281,7 @@ class ReportEditRuntime:
         artifact_reference = _normalize_reference(getattr(request, "artifact_reference", None))
         if not artifact_reference:
             raise ValueError("artifact_reference is required")
+
         source_artifact = None
         course_id = str(getattr(request, "course_id", "") or "").strip()
         artifact_type = str(artifact_reference.get("artifact_type") or "").strip()
@@ -284,6 +292,7 @@ class ReportEditRuntime:
                 source_artifact["artifact_id"] = artifact_reference.get("artifact_id")
                 source_artifact["artifact_type"] = artifact_type
                 source_artifact.setdefault("title", artifact_reference.get("title"))
+
         if source_artifact is None and snapshot is not None:
             workflow_state = getattr(snapshot, "workflow_state", None)
             artifacts = list(getattr(workflow_state, "artifacts", []) or []) if workflow_state is not None else []
@@ -295,8 +304,10 @@ class ReportEditRuntime:
                 ),
                 None,
             )
+
         if source_artifact is None:
             raise ValueError("referenced artifact not found")
+
         return self.run(
             question=str(getattr(request, "question", "") or ""),
             artifact_reference=artifact_reference,

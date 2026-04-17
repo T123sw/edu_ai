@@ -1371,21 +1371,26 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
         {artifactReference ? (
           <div className="chat-panel__reference-card">
             <div className="chat-panel__reference-meta">
-            <Text strong>{getDisplayLabel(artifactReference.title, '未命名产物')}</Text>
-            <div>
-              <Text type="secondary">
-                {artifactReference.artifact_type === 'report_outline'
-                  ? '报告大纲'
-                  : artifactReference.artifact_type === 'ppt_deck'
-                    ? 'PPT 文件'
-                    : artifactReference.artifact_type === 'ppt_outline'
-                      ? 'PPT 大纲'
-                      : artifactReference.artifact_type === 'ppt_content_markdown'
-                        ? 'PPT 文稿'
-                        : '报告正文'}
-                {artifactReference.version_id ? ` · 版本 ${artifactReference.version_id}` : ''}
-              </Text>
-            </div>
+              <Text strong>{getDisplayLabel(artifactReference.title, '未命名产物')}</Text>
+              <div>
+                <Text type="secondary">
+                  {artifactReference.artifact_type === 'report_outline'
+                    ? '报告大纲'
+                    : artifactReference.artifact_type === 'ppt_deck'
+                      ? 'PPT 文件'
+                      : artifactReference.artifact_type === 'ppt_outline'
+                        ? 'PPT 大纲'
+                        : artifactReference.artifact_type === 'ppt_content_markdown'
+                          ? 'PPT 文稿'
+                          : '报告正文'}
+                  {artifactReference.version_id ? ` · 版本 ${artifactReference.version_id}` : ''}
+                </Text>
+              </div>
+              <div>
+                <Text type="secondary">
+                  可直接围绕这个文件提问，也可以说“修改第 3 页”或“重写结论”。
+                </Text>
+              </div>
             </div>
             <Button size="small" onClick={() => clearArtifactReference()}>
               移除引用

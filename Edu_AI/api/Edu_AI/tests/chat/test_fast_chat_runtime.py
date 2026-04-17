@@ -543,3 +543,25 @@ def test_fast_runtime_exposes_web_trace_details():
     assert result["trace"]["web_imported_count"] == 6
     assert result["trace"]["web_selected_doc_ids_count"] == 12
     assert result["trace"]["web_sources_count"] == 2
+
+
+def test_fast_runtime_appends_artifact_context_block_before_user_question():
+    gateway = DummyGateway()
+    runtime = FastChatRuntime(model_gateway=gateway)
+    request = ChatRequestV2(question="这份报告的核心观点是什么？", conversation_id="conv-artifact")
+
+    runtime.run(
+        request=request,
+        snapshot=SimpleNamespace(recent_messages=[], active_artifact=None),
+        decision=SimpleNamespace(action="chat.reply"),
+        artifact_context={
+            "artifact_type": "report",
+            "title": "李白性格分析.md",
+            "context_text": "## 摘要\n原摘要。\n\n## 结论\n原结论。",
+        },
+    )
+
+    user_message = gateway.last_messages[-1]["content"]
+    assert "Referenced artifact: 李白性格分析.md" in user_message
+    assert "## 摘要" in user_message
+    assert "User question: 这份报告的核心观点是什么？" in user_message

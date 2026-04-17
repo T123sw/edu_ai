@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -62,6 +62,7 @@ class ChatRequestV2(BaseModel):
     artifact_reference: ArtifactReferencePayload | None = None
     conversation_reference: ConversationReferencePayload | None = None
     action_hint: str | None = None
+    artifact_context: dict[str, Any] | None = None
     input_images: list[ChatInputImagePayload] = Field(default_factory=list)
     input_videos: list[ChatInputVideoPayload] = Field(default_factory=list)
     capability: CapabilityPolicy = Field(default_factory=CapabilityPolicy)

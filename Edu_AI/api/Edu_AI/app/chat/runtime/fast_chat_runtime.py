@@ -295,7 +295,7 @@ class FastChatRuntime:
             return None
         return {"role": role, "content": text}
 
-    def _prepare_generation(self, *, request, snapshot, decision):
+    def _prepare_generation(self, *, request, snapshot, decision, artifact_context=None):
         recent_messages = list(getattr(snapshot, "recent_messages", []) or []) if snapshot is not None else []
         capability = getattr(request, "capability", None)
         sources: list[dict[str, Any]] = []
@@ -304,6 +304,7 @@ class FastChatRuntime:
         rag_answer = ""
         video_summary = ""
         web_trace: dict[str, Any] = {}
+        artifact_context = artifact_context or getattr(request, "artifact_context", None)
 
         if self.rag_retriever is not None and bool(getattr(capability, "allow_rag", False)):
             rag_result = self.rag_retriever(
@@ -346,9 +347,34 @@ class FastChatRuntime:
                 context_blocks.append(f"以下是视频检索到的参考信息，请结合这些内容回答：\n{video_summary}")
             sources.extend(video_sources)
 
+        if artifact_context and str(artifact_context.get("context_text") or "").strip():
+            context_blocks.append(
+                "\n".join(
+                    [
+                        f"当前引用文件：{artifact_context.get('title') or '未命名文件'}",
+                        f"文件类型：{artifact_context.get('artifact_type') or 'artifact'}",
+                        "以下是与当前问题直接相关的引用文件上下文，请优先基于这些内容回答：",
+                        str(artifact_context.get("context_text") or "").strip(),
+                    ]
+                )
+            )
+
+        if artifact_context and context_blocks:
+            context_blocks[-1] = "\n".join(
+                [
+                    f"Referenced artifact: {artifact_context.get('title') or 'unnamed artifact'}",
+                    f"Artifact type: {artifact_context.get('artifact_type') or 'artifact'}",
+                    "Use the following artifact context as the primary basis for your answer:",
+                    str(artifact_context.get("context_text") or "").strip(),
+                ]
+            )
+
         user_text = request.question
         if context_blocks:
             user_text = "\n\n".join([*context_blocks, f"用户问题：{request.question}"])
+
+        if context_blocks:
+            user_text = "\n\n".join([*context_blocks, f"User question: {request.question}"])
 
         user_content = self._build_multimodal_user_content(
             question=request.question,
@@ -410,13 +436,23 @@ class FastChatRuntime:
             "trace": prepared["trace"],
         }
 
-    def run(self, *, request, snapshot, decision):
-        prepared = self._prepare_generation(request=request, snapshot=snapshot, decision=decision)
+    def run(self, *, request, snapshot, decision, artifact_context=None):
+        prepared = self._prepare_generation(
+            request=request,
+            snapshot=snapshot,
+            decision=decision,
+            artifact_context=artifact_context,
+        )
         answer = self.model_gateway.chat(prepared["messages"])
         return self._build_result(request=request, prepared=prepared, answer=answer)
 
-    def run_stream(self, *, request, snapshot, decision):
-        prepared = self._prepare_generation(request=request, snapshot=snapshot, decision=decision)
+    def run_stream(self, *, request, snapshot, decision, artifact_context=None):
+        prepared = self._prepare_generation(
+            request=request,
+            snapshot=snapshot,
+            decision=decision,
+            artifact_context=artifact_context,
+        )
         yield {
             "type": "metadata",
             "payload": {

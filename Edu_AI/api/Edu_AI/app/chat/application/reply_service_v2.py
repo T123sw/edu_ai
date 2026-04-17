@@ -5,6 +5,8 @@ from uuid import uuid4
 
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.application.request_normalizer import normalize_chat_request
+from app.chat.application.artifact_reference_intent import classify_artifact_reference_intent
+from app.chat.application.artifact_context_loader import load_artifact_context
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.generation_context_builder import GenerationContextBuilder
 from app.chat.orchestrator.generation_readiness_judge import GenerationReadinessJudge
@@ -132,7 +134,12 @@ class ReplyServiceV2:
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
         artifact_reference = getattr(request, "artifact_reference", None)
         artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
-        if artifact_reference is not None:
+        artifact_intent = (
+            classify_artifact_reference_intent(getattr(request, "question", ""))
+            if artifact_reference is not None
+            else ""
+        )
+        if artifact_reference is not None and artifact_intent == "edit_artifact":
             if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
                 result = self.ppt_edit_runtime.run_from_request(
                     request=request,
@@ -149,6 +156,15 @@ class ReplyServiceV2:
                 orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
                 result = orchestrator.dispatch(request)
         else:
+            if artifact_reference is not None:
+                artifact_context = load_artifact_context(
+                    artifact_reference=artifact_reference.model_dump(exclude_none=True),
+                    snapshot=snapshot,
+                    course_storage_manager=self.course_storage_manager,
+                    course_id=str(getattr(request, "course_id", "") or "").strip(),
+                )
+                if artifact_context is not None:
+                    setattr(request, "artifact_context", artifact_context)
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
         return self._finalize_result(payload=payload, request=request, result=result)
