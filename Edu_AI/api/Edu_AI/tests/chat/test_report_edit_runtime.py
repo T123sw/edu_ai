@@ -104,10 +104,40 @@ def test_report_edit_runtime_loads_source_artifact_from_course_storage():
     assert any(artifact["artifact_type"] == "report" for artifact in result["artifacts"])
 
 
-def test_report_edit_runtime_returns_disambiguation_prompt_instead_of_blind_edit():
+def test_report_edit_runtime_returns_candidate_confirmation_prompt_before_edit():
     runtime = ReportEditRuntime(llm=FakeLLM("\u4e0d\u5e94\u88ab\u8c03\u7528"))
     result = runtime.run(
-        question="\u4fee\u6539\u8fd9\u4e00\u90e8\u5206\uff0c\u66f4\u5f3a\u8c03\u8bfe\u5802\u4e92\u52a8",
+        question="\u628a\u8bfe\u5802\u4e92\u52a8\u90a3\u90e8\u5206\u518d\u5f3a\u5316\u4e00\u70b9",
+        artifact_reference={"artifact_id": "report-1", "artifact_type": "report", "version_id": "v1"},
+        source_artifact={
+            "artifact_id": "report-1",
+            "artifact_type": "report",
+            "title": "\u674e\u767d\u6027\u683c\u5206\u6790.md",
+            "content": """# \u674e\u767d\u6027\u683c\u5206\u6790
+
+## \u6458\u8981
+\u539f\u6458\u8981\u3002
+
+## \u8bfe\u5802\u4e92\u52a8\u95ee\u9898\u5206\u6790
+\u539f\u8bfe\u5802\u4e92\u52a8\u95ee\u9898\u5206\u6790\u3002
+
+## \u8bfe\u5802\u4e92\u52a8\u4f18\u5316\u5efa\u8bae
+\u539f\u8bfe\u5802\u4e92\u52a8\u4f18\u5316\u5efa\u8bae\u3002
+""",
+        },
+    )
+
+    assert result["artifacts"] == []
+    assert result["workflow"]["status"] == "awaiting_input"
+    assert "\u6211\u8fd8\u6ca1\u6709\u5f00\u59cb\u4fee\u6539" in result["message"]["content"]
+    assert "\u8bfe\u5802\u4e92\u52a8\u95ee\u9898\u5206\u6790" in result["message"]["content"]
+    assert "\u8bfe\u5802\u4e92\u52a8\u4f18\u5316\u5efa\u8bae" in result["message"]["content"]
+
+
+def test_report_edit_runtime_returns_clarification_prompt_for_unclear_target():
+    runtime = ReportEditRuntime(llm=FakeLLM("\u4e0d\u5e94\u88ab\u8c03\u7528"))
+    result = runtime.run(
+        question="\u5e2e\u6211\u4f18\u5316\u4e00\u4e0b\u8fd9\u4e2a\u62a5\u544a",
         artifact_reference={"artifact_id": "report-1", "artifact_type": "report", "version_id": "v1"},
         source_artifact={
             "artifact_id": "report-1",
@@ -119,7 +149,7 @@ def test_report_edit_runtime_returns_disambiguation_prompt_instead_of_blind_edit
 
     assert result["artifacts"] == []
     assert result["workflow"]["status"] == "awaiting_input"
-    assert "\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ed3\u6784\u8282\u70b9" in result["message"]["content"]
+    assert "\u8bf7\u544a\u8bc9\u6211\u4f60\u60f3\u4fee\u6539\u54ea\u4e00\u90e8\u5206" in result["message"]["content"]
 
 
 def test_report_edit_runtime_returns_graceful_fallback_for_artifact_question():

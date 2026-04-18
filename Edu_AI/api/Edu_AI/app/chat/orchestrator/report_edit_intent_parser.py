@@ -58,6 +58,7 @@ def _build_base_request(*, artifact_reference: dict[str, Any], question: str, ta
         "artifact_reference": dict(artifact_reference),
         "intent_type": "edit_artifact",
         "target_type": target_type,
+        "target_confidence": "unclear",
         "target_locator_type": None,
         "target_node_id": None,
         "target_node_label": None,
@@ -66,6 +67,7 @@ def _build_base_request(*, artifact_reference: dict[str, Any], question: str, ta
         "instruction": str(question or "").strip(),
         "needs_disambiguation": False,
         "candidate_labels": [],
+        "candidate_nodes": [],
     }
 
 
@@ -138,6 +140,79 @@ def _candidate_labels(nodes: list[dict[str, Any]]) -> list[str]:
     ]
 
 
+def _candidate_nodes(nodes: list[dict[str, Any]]) -> list[dict[str, str]]:
+    return [
+        {
+            "node_id": str(node.get("node_id") or "").strip(),
+            "label": str(node.get("title") or "").strip(),
+        }
+        for node in nodes
+        if str(node.get("node_id") or "").strip() and str(node.get("title") or "").strip()
+    ]
+
+
+def _build_candidate_request(base_request: dict[str, Any], nodes: list[dict[str, Any]], *, matched_snippet: str | None = None) -> dict[str, Any]:
+    return {
+        **base_request,
+        "target_confidence": "candidate",
+        "matched_snippet": matched_snippet,
+        "needs_disambiguation": True,
+        "candidate_labels": _candidate_labels(nodes),
+        "candidate_nodes": _candidate_nodes(nodes),
+    }
+
+
+def _extract_candidate_anchor(text: str) -> str:
+    normalized = str(text or "").strip()
+    noisy_tokens = (
+        "帮我",
+        "请",
+        "把",
+        "将",
+        "修改",
+        "重写",
+        "压缩",
+        "缩到",
+        "精简",
+        "扩写",
+        "调整顺序",
+        "重排",
+        "重新生成",
+        "改写",
+        "润色",
+        "优化",
+        "强化",
+        "改成",
+        "改",
+        "报告",
+        "大纲",
+        "这一部分",
+        "这部分",
+        "那部分",
+        "这一节",
+        "这一段",
+        "一下",
+        "一点",
+        "再",
+        "更",
+    )
+    for token in noisy_tokens:
+        normalized = normalized.replace(token, " ")
+    normalized = re.sub(r"[，。！？、,.!?:：\s]+", "", normalized)
+    return normalized
+
+
+def _find_nodes_by_anchor(nodes: list[dict[str, Any]], anchor: str) -> list[dict[str, Any]]:
+    normalized_anchor = _normalize_text(anchor)
+    if len(normalized_anchor) < 2:
+        return []
+    return [
+        node
+        for node in nodes
+        if normalized_anchor in _normalize_text(str(node.get("title") or ""))
+    ]
+
+
 def _match_precise_locator(*, text: str, nodes: list[dict[str, Any]], base_request: dict[str, Any], action_type: str) -> dict[str, Any] | None:
     quoted = _extract_quoted_snippet(text)
     if quoted:
@@ -145,6 +220,7 @@ def _match_precise_locator(*, text: str, nodes: list[dict[str, Any]], base_reque
         if title_node is not None:
             return {
                 **base_request,
+                "target_confidence": "exact",
                 "target_locator_type": "title",
                 "target_node_id": title_node.get("node_id"),
                 "target_node_label": title_node.get("title"),
@@ -156,6 +232,7 @@ def _match_precise_locator(*, text: str, nodes: list[dict[str, Any]], base_reque
             target_node = snippet_matches[0]
             return {
                 **base_request,
+                "target_confidence": "exact",
                 "target_locator_type": "snippet",
                 "target_node_id": target_node.get("node_id"),
                 "target_node_label": target_node.get("title"),
@@ -164,17 +241,13 @@ def _match_precise_locator(*, text: str, nodes: list[dict[str, Any]], base_reque
             }
 
         if len(snippet_matches) > 1:
-            return {
-                **base_request,
-                "matched_snippet": quoted,
-                "needs_disambiguation": True,
-                "candidate_labels": _candidate_labels(snippet_matches),
-            }
+            return _build_candidate_request(base_request, snippet_matches, matched_snippet=quoted)
 
     mentioned_title_node = _find_node_by_title_mention(nodes, text)
     if mentioned_title_node is not None:
         return {
             **base_request,
+            "target_confidence": "exact",
             "target_locator_type": "title",
             "target_node_id": mentioned_title_node.get("node_id"),
             "target_node_label": mentioned_title_node.get("title"),
@@ -198,6 +271,7 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
         return {
             **base_request,
             "intent_type": "ask_about_artifact",
+            "target_confidence": "unclear",
             "action_type": "ask_about_artifact",
         }
 
@@ -205,6 +279,7 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
     if action_type == "regenerate":
         return {
             **base_request,
+            "target_confidence": "exact",
             "action_type": "regenerate",
         }
 
@@ -222,6 +297,7 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
         if summary_node is not None:
             return {
                 **base_request,
+                "target_confidence": "exact",
                 "target_locator_type": "node_type",
                 "target_node_id": summary_node.get("node_id"),
                 "target_node_label": summary_node.get("title"),
@@ -233,6 +309,7 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
         if conclusion_node is not None:
             return {
                 **base_request,
+                "target_confidence": "exact",
                 "target_locator_type": "node_type",
                 "target_node_id": conclusion_node.get("node_id"),
                 "target_node_label": conclusion_node.get("title"),
@@ -259,19 +336,24 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
         if target_node is not None:
             return {
                 **base_request,
+                "target_confidence": "exact",
                 "target_locator_type": "order",
                 "target_node_id": target_node.get("node_id"),
                 "target_node_label": target_node.get("title"),
                 "action_type": action_type,
             }
 
-    if _is_ambiguous_reference(text) and len(structure_nodes) > 1:
-        return {
-            **base_request,
-            "needs_disambiguation": True,
-            "candidate_labels": _candidate_labels(structure_nodes),
-            "action_type": action_type,
-        }
+    candidate_anchor = _extract_candidate_anchor(text)
+    candidate_matches = _find_nodes_by_anchor(structure_nodes, candidate_anchor)
+    if len(candidate_matches) > 1:
+        request = _build_candidate_request(base_request, candidate_matches)
+        request["action_type"] = action_type
+        return request
+
+    if _is_ambiguous_reference(text) and len(structure_nodes) > 1 and candidate_matches:
+        request = _build_candidate_request(base_request, candidate_matches)
+        request["action_type"] = action_type
+        return request
 
     return {
         **base_request,

@@ -13,6 +13,7 @@ def test_parse_edit_intent_for_summary_compress():
 
     assert request["target_type"] == "report"
     assert request["action_type"] == "compress"
+    assert request["target_confidence"] == "exact"
     assert request["target_node_id"] == "summary-1"
 
 
@@ -27,6 +28,7 @@ def test_parse_edit_intent_for_outline_regenerate():
 
     assert request["target_type"] == "outline"
     assert request["action_type"] == "regenerate"
+    assert request["target_confidence"] == "exact"
     assert request["target_node_id"] is None
 
 
@@ -42,23 +44,29 @@ def test_parse_edit_intent_for_conclusion_rewrite():
 
     assert request["target_type"] == "report"
     assert request["action_type"] == "rewrite"
+    assert request["target_confidence"] == "exact"
     assert request["target_node_id"] == "conclusion-3"
 
 
-def test_parse_edit_intent_marks_ambiguous_reference_for_disambiguation():
+def test_parse_edit_intent_returns_candidate_targets_for_ambiguous_reference():
     request = parse_report_edit_intent(
         artifact_reference={"artifact_id": "report-1", "artifact_type": "report", "version_id": "v1"},
-        question="\u4fee\u6539\u8fd9\u4e00\u90e8\u5206\uff0c\u66f4\u5f3a\u8c03\u8bfe\u5802\u4e92\u52a8",
+        question="\u628a\u8bfe\u5802\u4e92\u52a8\u90a3\u90e8\u5206\u518d\u5f3a\u5316\u4e00\u70b9",
         structure_nodes=[
             {"node_id": "summary-1", "node_type": "summary", "title": "\u6458\u8981", "order_index": 1},
-            {"node_id": "section-2", "node_type": "section", "title": "\u8bfe\u5802\u95ee\u9898\u5206\u6790", "order_index": 2},
+            {"node_id": "section-2", "node_type": "section", "title": "\u8bfe\u5802\u4e92\u52a8\u95ee\u9898\u5206\u6790", "order_index": 2},
+            {"node_id": "section-3", "node_type": "section", "title": "\u8bfe\u5802\u4e92\u52a8\u4f18\u5316\u5efa\u8bae", "order_index": 3},
             {"node_id": "conclusion-3", "node_type": "conclusion", "title": "\u7ed3\u8bba", "order_index": 3},
         ],
     )
 
-    assert request["needs_disambiguation"] is True
+    assert request["target_confidence"] == "candidate"
     assert request["target_node_id"] is None
-    assert request["candidate_labels"] == ["\u6458\u8981", "\u8bfe\u5802\u95ee\u9898\u5206\u6790", "\u7ed3\u8bba"]
+    assert request["candidate_labels"] == ["\u8bfe\u5802\u4e92\u52a8\u95ee\u9898\u5206\u6790", "\u8bfe\u5802\u4e92\u52a8\u4f18\u5316\u5efa\u8bae"]
+    assert request["candidate_nodes"] == [
+        {"node_id": "section-2", "label": "\u8bfe\u5802\u4e92\u52a8\u95ee\u9898\u5206\u6790"},
+        {"node_id": "section-3", "label": "\u8bfe\u5802\u4e92\u52a8\u4f18\u5316\u5efa\u8bae"},
+    ]
 
 
 def test_parse_edit_intent_matches_section_title_before_fallback():
@@ -73,6 +81,7 @@ def test_parse_edit_intent_matches_section_title_before_fallback():
 
     assert request["intent_type"] == "edit_artifact"
     assert request["target_locator_type"] == "title"
+    assert request["target_confidence"] == "exact"
     assert request["target_node_id"] == "section-2"
 
 
@@ -88,5 +97,22 @@ def test_parse_edit_intent_matches_quoted_snippet_to_single_node():
 
     assert request["intent_type"] == "edit_artifact"
     assert request["target_locator_type"] == "snippet"
+    assert request["target_confidence"] == "exact"
     assert request["matched_snippet"] == "\u539f\u7b2c\u4e8c\u90e8\u5206"
     assert request["target_node_id"] == "section-2"
+
+
+def test_parse_edit_intent_returns_unclear_when_no_safe_anchor_exists():
+    request = parse_report_edit_intent(
+        artifact_reference={"artifact_id": "report-1", "artifact_type": "report", "version_id": "v1"},
+        question="\u5e2e\u6211\u4f18\u5316\u4e00\u4e0b\u8fd9\u4e2a\u62a5\u544a",
+        structure_nodes=[
+            {"node_id": "summary-1", "node_type": "summary", "title": "\u6458\u8981", "order_index": 1, "content": "\u539f\u6458\u8981"},
+            {"node_id": "section-2", "node_type": "section", "title": "\u7b2c\u4e8c\u90e8\u5206", "order_index": 2, "content": "\u539f\u7b2c\u4e8c\u90e8\u5206"},
+        ],
+    )
+
+    assert request["intent_type"] == "edit_artifact"
+    assert request["target_confidence"] == "unclear"
+    assert request["target_node_id"] is None
+    assert request["candidate_nodes"] == []

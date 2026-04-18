@@ -175,6 +175,27 @@ class ConversationStoreAdapter:
         return artifact_reference
 
     @staticmethod
+    def _resolve_active_reference_mode(*, request, workflow: dict | None) -> str:
+        artifact_reference = ConversationStoreAdapter._normalize_artifact_reference(
+            getattr(request, "artifact_reference", None)
+        )
+        if artifact_reference:
+            action_name = str(getattr(request, "active_task", "") or "").strip()
+            if not action_name:
+                action_name = str(getattr(request, "_result_action_name", "") or "").strip()
+            workflow_type = str((workflow or {}).get("type") or "").strip()
+            if action_name in {"report.edit", "ppt.edit"} or workflow_type in {"report", "ppt"}:
+                return "artifact_edit"
+            return "artifact_reference"
+
+        conversation_reference = ConversationStoreAdapter._normalize_conversation_reference(
+            getattr(request, "conversation_reference", None)
+        )
+        if conversation_reference:
+            return "conversation_reference"
+        return ""
+
+    @staticmethod
     def _build_active_context_patch(*, request, workflow: dict | None, workflow_status: str, artifacts: list[dict]):
         capability = getattr(request, "capability", None)
         selected_doc_ids = list(getattr(capability, "selected_doc_ids", []) or [])
@@ -190,11 +211,10 @@ class ConversationStoreAdapter:
         )
         active_artifact_id = str(active_artifact.get("artifact_id") or artifact_reference.get("artifact_id") or "")
         active_artifact_type = str(active_artifact.get("artifact_type") or artifact_reference.get("artifact_type") or "")
-        active_reference_mode = ""
-        if artifact_reference:
-            active_reference_mode = "artifact_edit"
-        elif conversation_reference:
-            active_reference_mode = "conversation_reference"
+        active_reference_mode = ConversationStoreAdapter._resolve_active_reference_mode(
+            request=request,
+            workflow=workflow,
+        )
         return {
             "active_workflow_type": (workflow or {}).get("type") or "",
             "active_workflow_status": workflow_status or str((workflow or {}).get("status") or ""),
@@ -265,6 +285,7 @@ class ConversationStoreAdapter:
         existing_state = self.storage.get_state(conversation_id)
         workflow = result.get("workflow") or None
         action_name = str(((result.get("action") or {}).get("name")) or "").strip()
+        setattr(request, "_result_action_name", action_name)
         artifacts = result.get("artifacts") or []
         normalized_input_images = self._normalize_input_images(getattr(request, "input_images", []) or [])
         normalized_input_videos = self._normalize_input_videos(getattr(request, "input_videos", []) or [])

@@ -99,6 +99,61 @@ class ReplyServiceV2:
         self.report_edit_runtime = report_edit_runtime
         self.ppt_edit_runtime = ppt_edit_runtime
 
+    def _build_snapshot(self, request):
+        return self.context_builder.build(request) if self.context_builder is not None else None
+
+    def _prepare_artifact_route(self, *, request, snapshot):
+        artifact_reference = getattr(request, "artifact_reference", None)
+        if artifact_reference is None:
+            return "", {"intent_class": "ask", "reason": "no_artifact_reference", "requires_confirmation": False}
+
+        artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
+        artifact_intent = classify_artifact_reference_intent(
+            getattr(request, "question", ""),
+            artifact_type=artifact_type,
+        )
+        if artifact_intent.get("intent_class") == "ask":
+            artifact_context = load_artifact_context(
+                artifact_reference=artifact_reference.model_dump(exclude_none=True),
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+                course_id=str(getattr(request, "course_id", "") or "").strip(),
+            )
+            if artifact_context is not None:
+                setattr(request, "artifact_context", artifact_context)
+        return artifact_type, artifact_intent
+
+    @staticmethod
+    def _build_artifact_clarification_result(*, request, artifact_type: str) -> dict:
+        if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"}:
+            message = "请先告诉我你想修改哪一页，比如“修改第 3 页”或“把第 2 页改成流程图风格”。"
+        else:
+            message = "请先告诉我你想修改哪一部分，可以直接说标题、引用一句原文，或说第几部分。"
+        return {
+            "message": {"role": "assistant", "content": message},
+            "conversation": {"conversation_id": request.conversation_id},
+            "action": {"name": "chat.reply"},
+            "workflow": {"type": "artifact_reference", "status": "awaiting_input"},
+            "artifacts": [],
+            "sources": [],
+            "trace": {"path": "artifact_reference", "intent": "unclear"},
+        }
+
+    def _run_artifact_edit(self, *, request, snapshot, artifact_type: str):
+        if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
+            return self.ppt_edit_runtime.run_from_request(
+                request=request,
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+            )
+        if self.report_edit_runtime is not None:
+            return self.report_edit_runtime.run_from_request(
+                request=request,
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+            )
+        return None
+
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
         finalize_report_result(
             payload=payload,
@@ -131,40 +186,28 @@ class ReplyServiceV2:
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
-        snapshot = self.context_builder.build(request) if self.context_builder is not None else None
+        snapshot = self._build_snapshot(request)
         artifact_reference = getattr(request, "artifact_reference", None)
-        artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
-        artifact_intent = (
-            classify_artifact_reference_intent(getattr(request, "question", ""))
-            if artifact_reference is not None
-            else ""
+        artifact_type, artifact_intent = self._prepare_artifact_route(
+            request=request,
+            snapshot=snapshot,
         )
-        if artifact_reference is not None and artifact_intent == "edit_artifact":
-            if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
-                result = self.ppt_edit_runtime.run_from_request(
-                    request=request,
-                    snapshot=snapshot,
-                    course_storage_manager=self.course_storage_manager,
-                )
-            elif self.report_edit_runtime is not None:
-                result = self.report_edit_runtime.run_from_request(
-                    request=request,
-                    snapshot=snapshot,
-                    course_storage_manager=self.course_storage_manager,
-                )
-            else:
+        intent_class = str(artifact_intent.get("intent_class") or "")
+        if artifact_reference is not None and intent_class == "unclear":
+            result = self._build_artifact_clarification_result(
+                request=request,
+                artifact_type=artifact_type,
+            )
+        elif artifact_reference is not None and intent_class == "edit":
+            result = self._run_artifact_edit(
+                request=request,
+                snapshot=snapshot,
+                artifact_type=artifact_type,
+            )
+            if result is None:
                 orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
                 result = orchestrator.dispatch(request)
         else:
-            if artifact_reference is not None:
-                artifact_context = load_artifact_context(
-                    artifact_reference=artifact_reference.model_dump(exclude_none=True),
-                    snapshot=snapshot,
-                    course_storage_manager=self.course_storage_manager,
-                    course_id=str(getattr(request, "course_id", "") or "").strip(),
-                )
-                if artifact_context is not None:
-                    setattr(request, "artifact_context", artifact_context)
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
         return self._finalize_result(payload=payload, request=request, result=result)
@@ -173,6 +216,43 @@ class ReplyServiceV2:
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
+
+        snapshot = self._build_snapshot(request)
+        artifact_reference = getattr(request, "artifact_reference", None)
+        artifact_type, artifact_intent = self._prepare_artifact_route(
+            request=request,
+            snapshot=snapshot,
+        )
+        intent_class = str(artifact_intent.get("intent_class") or "")
+        if artifact_reference is not None and intent_class == "unclear":
+            final_result = self._finalize_result(
+                payload=payload,
+                request=request,
+                result=self._build_artifact_clarification_result(
+                    request=request,
+                    artifact_type=artifact_type,
+                ),
+            )
+            yield {"type": "result", "payload": final_result}
+            conversation_id = str(((final_result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "")
+            yield {"type": "done", "payload": {"conversation_id": conversation_id}}
+            return
+        if artifact_reference is not None and intent_class == "edit":
+            result = self._run_artifact_edit(
+                request=request,
+                snapshot=snapshot,
+                artifact_type=artifact_type,
+            )
+            if result is not None:
+                final_result = self._finalize_result(
+                    payload=payload,
+                    request=request,
+                    result=result,
+                )
+                yield {"type": "result", "payload": final_result}
+                conversation_id = str(((final_result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "")
+                yield {"type": "done", "payload": {"conversation_id": conversation_id}}
+                return
 
         orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
         final_result = None

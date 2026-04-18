@@ -112,6 +112,37 @@ def test_write_v2_result_persists_active_artifact_reference():
     assert storage.state["referenced_artifact_ids"] == ["report-1"]
 
 
+def test_write_v2_result_marks_artifact_question_as_reference_mode():
+    storage = DummyStorage()
+    adapter = ConversationStoreAdapter(storage=storage)
+    request = SimpleNamespace(
+        question="\u8fd9\u4efd\u62a5\u544a\u7684\u6838\u5fc3\u89c2\u70b9\u662f\u4ec0\u4e48\uff1f",
+        conversation_id="conv-ask-1",
+        course_id="course-1",
+        capability=SimpleNamespace(allow_rag=False, allow_web=False, selected_doc_ids=[]),
+        artifact_reference={
+            "artifact_id": "report-1",
+            "artifact_type": "report",
+            "version_id": "v1",
+            "title": "\u674e\u767d\u6027\u683c\u5206\u6790.md",
+        },
+    )
+    result = {
+        "message": {"content": "artifact answer"},
+        "conversation": {"conversation_id": "conv-ask-1"},
+        "action": {"name": "chat.reply"},
+        "workflow": None,
+        "artifacts": [],
+        "sources": [],
+        "trace": {"path": "fast"},
+    }
+
+    adapter.write_v2_result("conv-ask-1", request, result)
+
+    assert storage.state["active_context"]["active_artifact_id"] == "report-1"
+    assert storage.state["active_context"]["active_reference_mode"] == "artifact_reference"
+
+
 def test_reply_service_prefers_report_edit_runtime_when_artifact_reference_present():
     calls = []
 
@@ -271,6 +302,50 @@ def test_reply_service_routes_explicit_artifact_edit_to_edit_runtime():
 
     assert result["action"]["name"] == "report.edit"
     assert calls["edit"] == ["\u4fdd\u7559\u7ed3\u6784\uff0c\u91cd\u5199\u7ed3\u8bba"]
+    assert calls["dispatch"] == []
+
+
+def test_reply_service_returns_clarification_for_unclear_artifact_request():
+    calls = {"dispatch": [], "edit": []}
+
+    class DummyEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            calls["edit"].append(request.question)
+            return {"message": {"role": "assistant", "content": "unexpected"}}
+
+    service = ReplyServiceV2(
+        orchestrator=SimpleNamespace(dispatch=lambda request: calls["dispatch"].append(request.question)),
+        report_edit_runtime=DummyEditRuntime(),
+        conversation_store=SimpleNamespace(write_v2_result=lambda *args, **kwargs: None),
+        context_builder=SimpleNamespace(
+            build=lambda request: SimpleNamespace(workflow_state=None, active_artifact=None, active_task=None, recent_messages=[])
+        ),
+        status_card_builder=SimpleNamespace(build=lambda **kwargs: {"mode": "chat"}),
+        course_storage_manager=SimpleNamespace(),
+    )
+    payload = SimpleNamespace(
+        question="\u5e2e\u6211\u4f18\u5316\u4e00\u4e0b\u8fd9\u4e2a\u62a5\u544a",
+        conversation_id="conv-unclear-1",
+        owner="u1",
+        model_id=None,
+        course_id="course-1",
+        artifact_id=None,
+        action_hint=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        artifact_reference={
+            "artifact_id": "report-1",
+            "artifact_type": "report",
+            "title": "report.md",
+        },
+    )
+
+    result = service.reply(payload)
+
+    assert result["action"]["name"] == "chat.reply"
+    assert "\u8bf7\u5148\u544a\u8bc9\u6211\u4f60\u60f3\u4fee\u6539\u54ea\u4e00\u90e8\u5206" in result["message"]["content"]
+    assert calls["edit"] == []
     assert calls["dispatch"] == []
 
 

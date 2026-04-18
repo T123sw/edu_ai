@@ -172,15 +172,21 @@ class ReportEditRuntime:
                 edit_request=edit_request,
             )
 
-        if edit_request.get("needs_disambiguation"):
-            candidate_labels = [
-                str(label).strip()
-                for label in list(edit_request.get("candidate_labels") or [])
-                if str(label).strip()
-            ]
-            hint = "\u3001".join(candidate_labels)
+        if edit_request.get("target_confidence") == "candidate":
+            candidate_labels = [str(label).strip() for label in list(edit_request.get("candidate_labels") or []) if str(label).strip()]
+            hint = " / ".join(candidate_labels)
             return self._awaiting_input_result(
-                message=f"\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ed3\u6784\u8282\u70b9\u3002\u53ef\u9009\u8282\u70b9\uff1a{hint}" if hint else "\u8bf7\u660e\u786e\u8981\u4fee\u6539\u7684\u7ed3\u6784\u8282\u70b9\u3002",
+                message=(
+                    f"\u6211\u8fd8\u6ca1\u6709\u5f00\u59cb\u4fee\u6539\u3002\u4f60\u8981\u6539\u7684\u662f\uff1a{hint}\uff1f\u786e\u8ba4\u540e\u6211\u518d\u4fee\u6539\u3002"
+                    if hint
+                    else "\u6211\u8fd8\u6ca1\u6709\u5f00\u59cb\u4fee\u6539\u3002\u8bf7\u5148\u786e\u8ba4\u8981\u4fee\u6539\u7684\u7ae0\u8282\u3002"
+                ),
+                edit_request=edit_request,
+            )
+
+        if edit_request.get("target_confidence") == "unclear":
+            return self._awaiting_input_result(
+                message="\u8bf7\u544a\u8bc9\u6211\u4f60\u60f3\u4fee\u6539\u54ea\u4e00\u90e8\u5206\uff0c\u53ef\u4ee5\u76f4\u63a5\u8bf4\u6807\u9898\u3001\u5f15\u7528\u4e00\u53e5\u539f\u6587\uff0c\u6216\u8bf4\u7b2c\u51e0\u90e8\u5206\u3002",
                 edit_request=edit_request,
             )
 
