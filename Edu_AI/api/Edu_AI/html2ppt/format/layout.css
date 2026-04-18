@@ -5,11 +5,80 @@
 
 /* 幻灯片基础画板 (16:9 标准比例) */
 .slide {
-  width: 1280px;
-  height: 720px;
+  width: 1920px;
+  height: 1080px;
+  padding: 100px 120px;
+  display: flex;
+  flex-direction: column;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+}
+
+/* --- PPTX-safe 装饰骨架：由服务端确定性注入，避免依赖伪元素和复杂 CSS --- */
+.slide-safe-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.thanks-safe-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.slide > *:not(.slide-safe-decor):not(.thanks-safe-decor) {
+  z-index: 1;
+}
+
+.slide-top-rule {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+}
+
+.slide-header-hairline {
+  position: absolute;
+  top: 44px;
+  left: 230px;
+  width: 520px;
+  height: 2px;
+}
+
+.slide-header-mark {
+  position: absolute;
+  top: 40px;
+  width: 44px;
+  height: 6px;
+}
+
+.slide-header-mark-left {
+  left: 100px;
+}
+
+.slide-header-mark-accent {
+  left: 158px;
+}
+
+.slide-bottom-rule {
+  position: absolute;
+  left: 100px;
+  bottom: 58px;
+  width: 360px;
+  height: 4px;
+}
+
+.content-safe-accent {
+  position: absolute;
+  left: 100px;
+  bottom: 44px;
+  width: 180px;
+  height: 4px;
 }
 
 /* --- 通用品牌位骨架（是否显示由主题配置决定） --- */
@@ -35,11 +104,50 @@
   object-fit: contain;
 }
 
+/* --- 通用标题区骨架 --- */
+.header-area {
+  margin-bottom: 80px;
+}
+
+.title-en {
+  margin-bottom: 12px;
+}
+
+.title-divider {
+  width: 100px;
+  height: 8px;
+  margin-top: 24px;
+}
+
+/* --- 通用页脚骨架：正文页只保留右下角页码，兼容旧模板中的署名节点 --- */
+.footer-area {
+  position: absolute;
+  right: 100px;
+  bottom: 40px;
+  left: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  pointer-events: none;
+}
+
+.footer-logo {
+  display: none;
+}
+
+.footer-page {
+  flex: 0 0 auto;
+}
+
 /* --- 版式1：封面页骨架 --- */
 .layout-cover {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 80px 100px;
 }
 
@@ -47,14 +155,36 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-top: 60px;
-  width: 75%; /* 限制文字区域宽度 */
+  margin-top: 68px;
+  width: 82%; /* 限制文字区域宽度 */
 }
 
-.title-divider {
-  width: 80px;
-  height: 6px;
-  margin: 24px 0;
+.cover-subtitle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  width: 100%;
+  max-width: 1080px;
+  margin-top: 38px;
+  box-sizing: border-box;
+}
+
+.cover-subtitle-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 100%;
+}
+
+.cover-subtitle-kicker {
+  min-width: 0;
+}
+
+.cover-subtitle-text {
+  min-width: 0;
 }
 
 .cover-meta {
@@ -62,13 +192,20 @@
   flex-direction: column;
   gap: 16px;
   align-items: flex-start;
-  margin-bottom: 40px;
+  margin-top: 190px;
+  margin-bottom: 0;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.meta-label,
+.meta-value {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* =====================================================
@@ -93,6 +230,11 @@
   padding-right: 56px;
 }
 
+.toc-summary {
+  max-width: 300px;
+  margin-top: 10px;
+}
+
 /* 利用主题中已有的装饰线，只需调整大小 */
 .toc-left .toc-divider,
 .toc-left .title-divider {
@@ -104,7 +246,7 @@
 /* --- 右侧区域：占宽 70%，高度撑满，弹性自适应 --- */
 .toc-right {
   width: 70%;
-  padding-left: 64px;
+  padding-left: 36px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -195,7 +337,7 @@
 
 .layout-section-break .title-en {
   font-size: 30px;
-  letter-spacing: 6px;
+  letter-spacing: 0;
 }
 
 .layout-section-break .title-main {
@@ -210,7 +352,7 @@
   flex-shrink: 0;
   font-size: 230px;
   line-height: 0.9;
-  letter-spacing: -8px;
+  letter-spacing: 0;
 }
 
 .section-desc {
@@ -285,7 +427,7 @@
   display: block;
   width: 92px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: linear-gradient(135deg, rgba(0, 51, 102, 1) 0%, rgba(0, 102, 204, 1) 100%);
   margin-bottom: 20px;
 }
@@ -381,7 +523,7 @@
 
 .sidebar-rail {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   min-height: 0;
 }
 
@@ -392,6 +534,7 @@
   gap: 20px;
   padding: 34px 30px;
   box-sizing: border-box;
+  justify-content: center;
 }
 
 .sidebar-points {
@@ -415,6 +558,73 @@
 }
 
 /* =====================================================
+   Layout 1C-2: 标准文本页 - 结构化高密度解释型
+   适合“概念解释 + 示例流程 + 价值总结”的高密度页面
+===================================================== */
+.layout-standard-text-structured {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-standard-text-structured .content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 24px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding-top: 52px;
+  min-height: 0;
+}
+
+.structured-lead {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.structured-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.structured-section {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.structured-section-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.structured-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.structured-flow-step {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+/* =====================================================
    Layout 1D: 标准文本页 - 对等对比型
    适合“两种方案 / 两个视角 / 两类机制”的平级比较
 ===================================================== */
@@ -427,10 +637,11 @@
 .layout-standard-text-comparison .content-area {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   max-width: 1560px;
   margin: 0 auto;
+  padding-top: 82px;
   min-height: 0;
 }
 
@@ -469,11 +680,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 30px;
   width: 100%;
   max-width: 1560px;
   margin: 0 auto;
+  padding-top: 80px;
   min-height: 0;
 }
 
@@ -516,7 +728,7 @@
 .process-copy {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -528,6 +740,390 @@
   height: 10px;
   border-radius: 4px;
   display: block;
+}
+
+.process-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+  align-items: stretch;
+}
+
+.process-grid .process-step {
+  min-height: 205px;
+}
+
+.process-grid .process-step-wide {
+  grid-column: 1 / -1;
+  min-height: 150px;
+}
+
+.process-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.process-list-item {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.process-list-item .process-copy {
+  min-width: 0;
+}
+
+
+/* =====================================================
+   Layout: 增强对比页 - VS 双面板
+===================================================== */
+.layout-comparison-vs-panels {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-comparison-vs-panels .content-area {
+  flex: 1;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-top: 30px;
+  min-height: 0;
+}
+
+.vs-comparison-grid {
+  position: relative;
+  width: 100%;
+  min-height: 650px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.vs-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.vs-panel-heading {
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  padding: 0 38px;
+  box-sizing: border-box;
+}
+
+.vs-point-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 40px 38px 26px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.vs-point {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.vs-point-copy {
+  min-width: 0;
+}
+
+.vs-summary {
+  margin: 0 38px 36px;
+  padding: 18px 24px;
+  box-sizing: border-box;
+}
+
+.vs-center {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.layout-comparison-vs-panels .vs-badge {
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================
+   Layout: 执行链路页 - 三阶段 Pipeline
+===================================================== */
+.layout-execution-pipeline {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-execution-pipeline .content-area {
+  flex: 1;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-top: 62px;
+  min-height: 0;
+}
+
+.pipeline-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr) 46px minmax(0, 1fr);
+  gap: 34px;
+  align-items: stretch;
+  min-height: 590px;
+}
+
+.layout-execution-pipeline .pipeline-card {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 44px 32px 34px;
+}
+
+.pipeline-number {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-bottom: 34px;
+}
+
+.pipeline-card-title {
+  margin-bottom: 20px;
+}
+
+.pipeline-card-text {
+  min-height: 120px;
+}
+
+.pipeline-code {
+  margin-top: auto;
+  padding: 20px 22px;
+  box-sizing: border-box;
+}
+
+.pipeline-code-line {
+  display: block;
+}
+
+.pipeline-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pipeline-arrow-svg {
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
+/* =====================================================
+   Layout: 三支柱卡片 + 总结横条
+===================================================== */
+.layout-pillar-cards-banner {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-pillar-cards-banner .content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-top: 28px;
+  min-height: 0;
+}
+
+.pillar-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px;
+  flex: 1;
+  min-height: 0;
+}
+
+.pillar-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 38px;
+}
+
+.pillar-icon-box {
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.pillar-icon-shape {
+  display: block;
+}
+
+.pillar-icon-diamond {
+  width: 24px;
+  height: 24px;
+}
+
+.pillar-icon-line {
+  width: 32px;
+  height: 12px;
+}
+
+.pillar-icon-shield {
+  width: 26px;
+  height: 30px;
+}
+
+.pillar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.pillar-tag {
+  padding: 8px 14px;
+}
+
+.layout-pillar-cards-banner .pillar-summary-bar {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================
+   Layout: 能力图谱 - 左侧主张 + 右侧 6 模块矩阵
+===================================================== */
+.layout-capability-map-grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-capability-map-grid .content-area {
+  flex: 1;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-top: 18px;
+  min-height: 0;
+}
+
+.capability-map {
+  display: grid;
+  grid-template-columns: 520px minmax(0, 1fr);
+  gap: 36px;
+  align-items: stretch;
+  min-height: 720px;
+}
+
+.layout-capability-map-grid .capability-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 50px 42px;
+  display: flex;
+  flex-direction: column;
+}
+
+.capability-kicker {
+  align-self: flex-start;
+  padding: 10px 22px;
+  margin-bottom: 44px;
+}
+
+.capability-hero-title {
+  margin-bottom: 36px;
+}
+
+.capability-hero-text {
+  max-width: 410px;
+}
+
+.capability-hero-number {
+  position: absolute;
+  right: 26px;
+  bottom: -38px;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  min-height: 0;
+}
+
+.capability-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 30px;
+}
+
+.capability-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.capability-index {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.capability-card-title {
+  min-width: 0;
+}
+
+.capability-card-text {
+  min-height: 128px;
+}
+
+.capability-chip {
+  margin-top: auto;
+  padding: 10px 14px;
 }
 
 
@@ -662,106 +1258,139 @@
   min-height: 0;
 }
 
-.layout-media-focus {
-  display: flex;
-  flex-direction: column;
+.slide.layout-media-focus {
+  display: block;
+  padding: 0;
 }
 
-.media-focus-stage {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 auto;
-  align-items: center;
-  margin-top: 20px;
+.media-focus-image-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 60%;
+  height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
-.media-card-focus {
-  width: min(100%, 1180px);
-  min-height: 0;
-  gap: 14px;
-}
-
-.media-card-focus .media-stage {
+.media-focus-image-panel .media-stage {
   width: 100%;
-  min-height: 340px;
-  max-height: 420px;
+  height: 100%;
 }
 
-.media-focus-summary {
+.layout-media-focus .media-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.media-focus-caption {
+  position: absolute;
+  left: 54px;
+  right: 54px;
+  bottom: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  z-index: 2;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+.media-focus-content-panel {
+  position: absolute;
+  left: 60%;
+  top: 0;
+  width: 40%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 18px;
-  max-width: 780px;
-  align-self: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 142px 76px 86px 70px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.media-focus-content-panel .header-area {
+  margin-bottom: 46px;
+}
+
+.media-focus-content-panel .quote-box {
+  margin: 0 0 32px;
+}
+
+.media-focus-content-panel .text-details {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
 
 /* =====================================================
    【Layout】多列卡片阵列页 (版式 6) - 纯骨架
 ===================================================== */
-.slide {
-  width: 1920px;
-  height: 1080px;
-  padding: 100px 120px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-/* 顶部标题区布局 */
-.header-area {
-  margin-bottom: 80px;
-}
-.title-en {
-  margin-bottom: 12px;
-}
-.title-divider {
-  width: 100px;
-  height: 8px;
-  margin-top: 24px;
-}
-
-/* 核心：多列网格布局 */
 .cards-grid {
-  display: flex;
-  flex-direction: row;     /* 水平排列 */
-  justify-content: space-between;
-  gap: 60px;               /* 卡片之间的间距，确保不拥挤 */
-  flex: 1;                 /* 撑满剩余高度 */
-  margin-bottom: 60px;
-  counter-reset: feature-card;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 42px;
+  flex: 1;
+  width: 100%;
+  max-width: 1680px;
+  margin: 36px auto 60px;
+  align-items: stretch;
 }
 
 /* 单个卡片内部布局 */
 .cards-grid > .surface-card {
-  counter-increment: feature-card;
-  flex: 1;                 /* 仅卡片阵列页中的卡片需要等宽撑开 */
   display: flex;
   flex-direction: column;  /* 内部元素垂直流 */
   justify-content: flex-start;
-  gap: 20px;
-  min-height: 470px;
-  padding: 52px 44px 42px;
+  gap: 0;
+  min-height: 560px;
+  padding: 86px 44px 52px;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
 }
 
-.cards-grid > .surface-card::before {
-  content: counter(feature-card, decimal-leading-zero);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  margin-bottom: 8px;
+.cards-grid > .surface-card .card-top-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
 }
 
-/* 卡片内部元素位置与大小 */
+.cards-grid > .surface-card .card-ghost-number {
+  position: absolute;
+  right: 34px;
+  bottom: 24px;
+  display: block;
+  pointer-events: none;
+}
+
+.cards-grid > .surface-card .card-subtitle {
+  margin-bottom: 30px;
+}
+
+.cards-grid > .surface-card .card-title {
+  margin-bottom: 34px;
+  padding-bottom: 24px;
+  border-bottom: 1px dashed rgba(0, 51, 102, 0.14);
+}
+
+.cards-grid > .surface-card .card-desc {
+  flex: 0 0 auto;
+}
+
 .cards-grid > .surface-card .card-icon {
   width: auto;
   max-width: 100%;
@@ -776,14 +1405,6 @@
   box-sizing: border-box;
 }
 
-.cards-grid > .surface-card .card-title {
-  margin-bottom: 24px;
-}
-
-.cards-grid > .surface-card .card-desc {
-  flex: 0 0 auto;
-}
-
 /* =====================================================
    Layout: 结尾鸣谢页 (Thank You / Q&A)
    用途: 绝对居中对齐，底部固定装饰
@@ -794,6 +1415,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+  overflow: hidden;
 }
 
 /* 核心内容包裹层，用于整体居中控制 */
@@ -802,6 +1424,24 @@
   flex-direction: column;
   align-items: center;
   z-index: 10;
+  max-width: 1040px;
+  padding-top: 72px;
+  box-sizing: border-box;
+}
+
+.layout-thanks .title-en {
+  width: 360px;
+  min-width: 360px;
+  white-space: nowrap;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.layout-thanks .title-main {
+  width: 420px;
+  min-width: 420px;
+  white-space: nowrap;
+  text-align: center;
 }
 
 /* 强制修饰线居中，并重置间距 */
@@ -809,31 +1449,50 @@
   margin-left: auto;
   margin-right: auto;
   margin-top: 32px;
-  margin-bottom: 60px;
+  margin-bottom: 26px;
   width: 120px; /* 相比普通页的80px，结尾页的线条稍微拉长更显稳重 */
 }
 
-/* 附加信息使用横向 Flex 布局 */
-.layout-thanks .contact-info {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 40px; /* 元素之间的安全间距 */
+.layout-thanks .thanks-note {
+  max-width: 720px;
+  box-sizing: border-box;
 }
 
-.layout-thanks .info-item {
-  /* 仅控制布局层面的显示 */
-  display: inline-block;
-  opacity: 0.8; /* 轻微透明度降低视觉层级，虽然算视觉属性，但常用于层级排版 */
+.thanks-safe-line {
+  position: absolute;
+}
+
+.thanks-safe-line {
+  height: 6px;
+}
+
+.thanks-safe-line-bottom {
+  width: 420px;
+  bottom: 0;
+  left: 50%;
+  margin-left: -210px;
+}
+
+.thanks-safe-line-accent {
+  width: 120px;
+  bottom: 0;
+  left: 50%;
+  margin-left: -60px;
 }
 
 /* 底部装饰区域绝对定位 */
 .layout-thanks .footer-decoration {
   position: absolute;
-  bottom: 80px;
+  bottom: 72px;
   left: 0;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.layout-thanks .thanks-logo-image {
+  width: 360px;
+  max-height: 112px;
+  object-fit: contain;
 }

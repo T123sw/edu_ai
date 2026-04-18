@@ -31,13 +31,12 @@ function getRevisionPaths(jobId, revisionId) {
   return {
     revisionDir,
     mediaDir: path.join(revisionDir, 'media'),
-    debugLogPath: path.join(revisionDir, 'pipeline.log'),
-    debugSummaryPath: path.join(revisionDir, 'pipeline-summary.json'),
     revisionStatePath: path.join(revisionDir, 'revision.json'),
     fragmentPath: path.join(revisionDir, 'deck.fragment.html'),
     fullHtmlPath: path.join(revisionDir, 'deck.html'),
     pptxPath: path.join(revisionDir, 'deck.pptx'),
     manifestPath: path.join(revisionDir, 'manifest.json'),
+    qualityReportPath: path.join(revisionDir, 'layout-quality-report.json'),
     contentPath: path.join(revisionDir, 'content.md'),
     promptPath: path.join(revisionDir, 'agent-prompt.txt'),
   };
@@ -188,6 +187,7 @@ async function createRevision(jobId, payload) {
       full_html_path: paths.fullHtmlPath,
       pptx_path: paths.pptxPath,
       manifest_path: paths.manifestPath,
+      quality_report_path: paths.qualityReportPath,
       media_dir: paths.mediaDir,
     },
   });

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { repoRoot } = require('../config');
+const { normalizeSlideDecorations } = require('../domain/slide-decor');
 const { resolveThemeCss } = require('../domain/themes');
 
 const defaultLayoutCssPath = path.join(repoRoot, 'format', 'layout.css');
@@ -113,13 +114,15 @@ function buildStandaloneHtmlFromFragment({ fragmentPath, outputPath, title, them
   ensureFileExists(themeCssPath, 'Theme CSS');
 
   const rawInput = fs.readFileSync(resolvedFragmentPath, 'utf8');
-  const fragment = extractBodyFragment(rawInput);
+  const fragment = normalizeSlideDecorations(extractBodyFragment(rawInput));
   if (!fragment) {
     throw new Error('Input fragment is empty after normalization.');
   }
   if (!hasSlideClass(fragment)) {
     throw new Error('Input fragment does not contain any .slide elements.');
   }
+
+  fs.writeFileSync(resolvedFragmentPath, `${fragment}\n`, 'utf8');
 
   const layoutCss = fs.readFileSync(defaultLayoutCssPath, 'utf8');
   const themeCss = fs.readFileSync(themeCssPath, 'utf8');

@@ -65,8 +65,13 @@ function inferLayout(slideHtml) {
   if (classes.has('layout-standard-text')) return 'standard-text';
   if (classes.has('layout-standard-text-dual-panel')) return 'standard-text-dual-panel';
   if (classes.has('layout-standard-text-sidebar')) return 'standard-text-sidebar';
+  if (classes.has('layout-standard-text-structured')) return 'standard-text-structured';
   if (classes.has('layout-standard-text-comparison')) return 'standard-text-comparison';
   if (classes.has('layout-standard-text-process')) return 'standard-text-process';
+  if (classes.has('layout-comparison-vs-panels')) return 'comparison-vs-panels';
+  if (classes.has('layout-execution-pipeline')) return 'execution-pipeline';
+  if (classes.has('layout-pillar-cards-banner')) return 'pillar-cards-banner';
+  if (classes.has('layout-capability-map-grid')) return 'capability-map-grid';
   if (classes.has('layout-image-text')) return 'media-left-text-right';
   if (classes.has('layout-text-media')) return 'text-left-media-right';
   if (classes.has('layout-media-focus')) return 'media-focus';

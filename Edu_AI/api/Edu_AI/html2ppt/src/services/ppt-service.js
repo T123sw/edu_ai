@@ -5,12 +5,14 @@ const { repoRoot } = require('../config');
 const { AppError } = require('../domain/errors');
 const { parseContentProtocol, parseSingleSlideContent } = require('../domain/content-protocol');
 const { buildManifest } = require('../domain/manifest');
+const { buildLayoutQualityReport } = require('../domain/layout-quality');
+const { normalizeSlideDecorations } = require('../domain/slide-decor');
 const { nowIso, withLifecycleFields } = require('../domain/status');
 const { getTheme, resolveThemeCss } = require('../domain/themes');
 const { extractSlides, replaceSlide, inferLayout, inferTitle } = require('../domain/fragment');
 const { buildStandaloneHtmlFromFragment } = require('../lib/build-standalone-html');
 const { exportHtmlToPptx } = require('../lib/export-html-to-pptx');
-const { fileExists, hashRequestForIdempotency, readJson, writeJson } = require('../lib/file-utils');
+const { ensureDir, fileExists, hashRequestForIdempotency, readJson, writeJson } = require('../lib/file-utils');
 const { localizeMediaAssets } = require('../lib/media-assets');
 const {
   createJob,
@@ -28,6 +30,17 @@ const {
 } = require('../store/job-store');
 
 const entryPromptPath = path.join(repoRoot, 'html-generation-entry-prompt.md');
+const promptPaths = {
+  formatDir: path.join(repoRoot, 'format'),
+  layoutCssPath: path.join(repoRoot, 'format', 'layout.css'),
+  brandConfigPath: path.join(repoRoot, 'style', 'theme-brand-config.json'),
+  contentProtocolPath: path.join(repoRoot, 'content-protocol.md'),
+  layoutContractsPath: path.join(repoRoot, 'layout-contracts.md'),
+};
+
+function normalizeRuntimePath(filePath) {
+  return String(filePath || '').replaceAll('\\', '/');
+}
 
 function makeJobId() {
   return `job_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
@@ -103,12 +116,28 @@ async function readEntryPromptTemplate() {
   return fs.readFile(entryPromptPath, 'utf8');
 }
 
+function applyRuntimePromptPaths(template, { contentPath, themeCssPath }) {
+  const replacements = [
+    ['{{CONTENT_PATH}}', contentPath],
+    ['{{THEME_CSS_PATH}}', themeCssPath],
+    ['{{FORMAT_DIR}}', promptPaths.formatDir],
+    ['{{LAYOUT_CSS_PATH}}', promptPaths.layoutCssPath],
+    ['{{BRAND_CONFIG_PATH}}', promptPaths.brandConfigPath],
+    ['{{CONTENT_PROTOCOL_PATH}}', promptPaths.contentProtocolPath],
+    ['{{LAYOUT_CONTRACTS_PATH}}', promptPaths.layoutContractsPath],
+    ['/Users/sun/code/aippt/html2ppt/content.md', contentPath],
+    ['/Users/sun/code/aippt/html2ppt/style/theme-heu-academic-elegant.css', themeCssPath],
+  ];
+
+  return replacements.reduce((output, [search, replacement]) => {
+    return output.replaceAll(search, replacement);
+  }, String(template || ''));
+}
+
 async function buildInitialPrompt({ contentPath, outputPath, themeId }) {
   const template = await readEntryPromptTemplate();
   const themeCssPath = resolveThemeCss(themeId);
-  const normalized = template
-    .replaceAll('/Users/sun/code/aippt/html2ppt/content.md', contentPath)
-    .replaceAll('/Users/sun/code/aippt/html2ppt/style/theme-heu-academic-elegant.css', themeCssPath);
+  const normalized = applyRuntimePromptPaths(template, { contentPath, themeCssPath });
 
   return `${normalized}
 
@@ -120,6 +149,107 @@ async function buildInitialPrompt({ contentPath, outputPath, themeId }) {
 - 请直接把最终 HTML fragment 写入上面的目标文件。
 - 不要修改仓库根目录的 \`content.md\`，也不要写入其他无关文件。
 `;
+}
+
+function buildDeckOutline(slides) {
+  return slides
+    .map((slide, index) => {
+      return `${index + 1}. ${slide.title || `Slide ${slide.slide_number}`} / Role=${slide.role || 'unknown'} / Blocks=${
+        slide.blockTypes.join(', ') || 'none'
+      }`;
+    })
+    .join('\n');
+}
+
+function buildInitialSlidePrompt({ basePrompt, slide, slideIndex, totalSlides, deckOutline, outputPath }) {
+  const slideMarkdown = (slide.rawLines || []).join('\n').trim();
+
+  return `${basePrompt}
+
+## 单页并行生成覆盖规则
+- 现在是并行生成模式：你只生成第 ${slideIndex} / ${totalSlides} 页。
+- 必须只输出一个 slide 根节点，不能输出其它页，不能输出完整 HTML 文档。
+- 仍然使用完整内容文件理解上下文，但本次只能把“目标页源码”填入页面。
+- 目标输出路径：\`${outputPath}\`
+- 请直接把这一页 HTML fragment 写入目标输出路径。
+
+## 全 Deck 页序上下文
+${deckOutline}
+
+## 目标页源码
+\`\`\`md
+${slideMarkdown}
+\`\`\`
+`;
+}
+
+async function runInitialSlideGeneration({ runner, runtimeContent, revisionPaths, themeId }) {
+  const parsed = parseContentProtocol(runtimeContent);
+  const slidesDir = path.join(revisionPaths.revisionDir, 'slides');
+  await ensureDir(slidesDir);
+
+  const deckOutline = buildDeckOutline(parsed.slides);
+  const totalSlides = parsed.slides.length;
+  const tasks = parsed.slides.map(async (slide, index) => {
+    const slideIndex = index + 1;
+    const paddedIndex = String(slideIndex).padStart(2, '0');
+    const promptPath = path.join(slidesDir, `slide-${paddedIndex}.prompt.txt`);
+    const outputPath = path.join(slidesDir, `slide-${paddedIndex}.fragment.html`);
+    const runtimePromptPath = normalizeRuntimePath(promptPath);
+    const runtimeOutputPath = normalizeRuntimePath(outputPath);
+    const basePrompt = await buildInitialPrompt({
+      contentPath: revisionPaths.contentPath,
+      outputPath: runtimeOutputPath,
+      themeId,
+    });
+    const prompt = buildInitialSlidePrompt({
+      basePrompt,
+      slide,
+      slideIndex,
+      totalSlides,
+      deckOutline,
+      outputPath: runtimeOutputPath,
+    });
+
+    await fs.writeFile(promptPath, prompt, 'utf8');
+    await runner.run({
+      promptPath: runtimePromptPath,
+      outputPath: runtimeOutputPath,
+      workspaceDir: revisionPaths.revisionDir,
+      prompt,
+    });
+
+    const slideHtml = await fs.readFile(outputPath, 'utf8');
+    const extracted = extractSlides(slideHtml);
+    if (extracted.length !== 1) {
+      throw new AppError(
+        'AGENT_GENERATION_FAILED',
+        `Parallel slide generation expected exactly one .slide for slide ${slideIndex}, got ${extracted.length}.`,
+        500
+      );
+    }
+    return extracted[0];
+  });
+
+  const slideFragments = await Promise.all(tasks);
+  const mergedFragmentHtml = `${slideFragments.join('\n')}\n`;
+  await fs.writeFile(revisionPaths.fragmentPath, mergedFragmentHtml, 'utf8');
+  await fs.writeFile(
+    revisionPaths.promptPath,
+    [
+      '# Parallel slide generation',
+      `slide_count: ${totalSlides}`,
+      '',
+      ...parsed.slides.map((slide, index) => {
+        const paddedIndex = String(index + 1).padStart(2, '0');
+        return `- slide ${index + 1}: slides/slide-${paddedIndex}.prompt.txt -> slides/slide-${paddedIndex}.fragment.html (${slide.title})`;
+      }),
+      '',
+    ].join('\n'),
+    'utf8'
+  );
+
+  return mergedFragmentHtml;
 }
 
 function buildRevisionPrompt({
@@ -369,25 +499,22 @@ class PptService {
         contentKind: 'deck',
       });
       await fs.writeFile(revisionPaths.contentPath, runtimeContent, 'utf8');
-      const prompt = await buildInitialPrompt({
-        contentPath: revisionPaths.contentPath,
-        outputPath: revisionPaths.fragmentPath,
-        themeId: request.theme_id,
-      });
-      await fs.writeFile(revisionPaths.promptPath, prompt, 'utf8');
 
       await this.markJobRunning(jobId, revisionId, 'generating_slides', '正在生成 slides');
       await this.markRevisionRunning(jobId, revisionId, 'generating_slides', '正在生成 slides');
 
-      await this.runner.run({
-        promptPath: revisionPaths.promptPath,
-        outputPath: revisionPaths.fragmentPath,
-        workspaceDir: revisionPaths.revisionDir,
-        prompt,
+      await runInitialSlideGeneration({
+        runner: this.runner,
+        runtimeContent,
+        revisionPaths,
+        themeId: request.theme_id,
       });
 
       const fragmentHtml = await fs.readFile(revisionPaths.fragmentPath, 'utf8');
-      if (extractSlides(fragmentHtml).length === 0) {
+      const decoratedFragmentHtml = normalizeSlideDecorations(fragmentHtml);
+      await fs.writeFile(revisionPaths.fragmentPath, `${decoratedFragmentHtml}\n`, 'utf8');
+
+      if (extractSlides(decoratedFragmentHtml).length === 0) {
         throw new AppError('AGENT_GENERATION_FAILED', 'Agent did not produce any .slide elements.', 500);
       }
 
@@ -480,7 +607,8 @@ class PptService {
 
       const replacementSlideHtml = await fs.readFile(revisionPaths.fragmentPath, 'utf8');
       const mergedFragmentHtml = replaceSlide(baselineFragmentHtml, targetSlideIndex, replacementSlideHtml);
-      await fs.writeFile(revisionPaths.fragmentPath, `${mergedFragmentHtml}\n`, 'utf8');
+      const decoratedFragmentHtml = normalizeSlideDecorations(mergedFragmentHtml);
+      await fs.writeFile(revisionPaths.fragmentPath, `${decoratedFragmentHtml}\n`, 'utf8');
 
       await this.markJobRunning(jobId, revisionId, 'building_full_html', '正在重建完整 HTML');
       await this.markRevisionRunning(jobId, revisionId, 'building_full_html', '正在重建完整 HTML');
@@ -512,6 +640,9 @@ class PptService {
   async finalizeArtifacts(jobId, revisionId, themeId) {
     const revisionPaths = getRevisionPaths(jobId, revisionId);
     const fragmentHtml = await fs.readFile(revisionPaths.fragmentPath, 'utf8');
+    const contentMarkdown = (await fileExists(revisionPaths.contentPath))
+      ? await fs.readFile(revisionPaths.contentPath, 'utf8')
+      : '';
 
     const manifest = buildManifest({
       jobId,
@@ -519,8 +650,12 @@ class PptService {
       themeId,
       fragmentHtml,
     });
+    const qualityReport = contentMarkdown
+      ? buildLayoutQualityReport({ contentMarkdown, fragmentHtml })
+      : { slide_count: manifest.slide_count, warning_count: 0, warnings: [] };
 
     await writeJson(revisionPaths.manifestPath, manifest);
+    await writeJson(revisionPaths.qualityReportPath, qualityReport);
 
     await this.markRevisionRunning(jobId, revisionId, 'storing_artifacts', '正在写入产物');
     await this.markJobRunning(jobId, revisionId, 'storing_artifacts', '正在写入产物');
@@ -605,7 +740,13 @@ class PptService {
 
   async resolveArtifactPath(jobId, revisionId, fileName) {
     await getRevision(jobId, revisionId);
-    const allowed = new Set(['deck.fragment.html', 'deck.html', 'deck.pptx', 'manifest.json']);
+    const allowed = new Set([
+      'deck.fragment.html',
+      'deck.html',
+      'deck.pptx',
+      'manifest.json',
+      'layout-quality-report.json',
+    ]);
     if (!allowed.has(fileName)) {
       throw new AppError('INVALID_REQUEST', `Unsupported artifact file: ${fileName}`, 400);
     }
@@ -615,6 +756,7 @@ class PptService {
       'deck.html': revisionPaths.fullHtmlPath,
       'deck.pptx': revisionPaths.pptxPath,
       'manifest.json': revisionPaths.manifestPath,
+      'layout-quality-report.json': revisionPaths.qualityReportPath,
     };
     const target = map[fileName];
     if (!(await fileExists(target))) {
@@ -646,5 +788,7 @@ class PptService {
 }
 
 module.exports = {
+  applyRuntimePromptPaths,
   PptService,
+  runInitialSlideGeneration,
 };

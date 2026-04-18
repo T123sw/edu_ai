@@ -77,6 +77,12 @@
 npm install
 ```
 
+建议先复制一份环境变量模板：
+
+```bash
+cp .env.example .env
+```
+
 ---
 
 ## 5. 启动服务
@@ -85,7 +91,7 @@ npm install
 
 ```bash
 PPT_SERVICE_PORT=46080 \
-PPT_CLAUDE_CMD=/Users/sun/.local/bin/claude \
+PPT_CLAUDE_CMD=claude \
 PPT_CLAUDE_ARGS='["-p","--output-format","text","--permission-mode","bypassPermissions"]' \
 node src/server.js
 ```
@@ -101,6 +107,7 @@ npm start
 说明：
 - 服务当前监听在 `127.0.0.1`，默认不对外网卡开放
 - `PPT_CLAUDE_CMD` / `PPT_CLAUDE_ARGS` 是生成链路真正可用的前提
+- 如果项目根目录存在 `.env`，服务会在启动时自动加载其中的环境变量
 
 ---
 
@@ -112,6 +119,7 @@ npm start
 | `PPT_DATA_DIR` | job / revision / 产物目录 | `<repo>/data` |
 | `PPT_WORKER_CONCURRENCY` | 队列并发数 | `1` |
 | `PPT_CHROME_PATH` | Chrome 可执行文件路径 | macOS 默认 Chrome 路径 |
+| `PPT_CHROME_ARGS` | Chrome 额外参数，JSON 数组或类 shell 字符串 | 空 |
 | `PPT_CLAUDE_CMD` | Claude Code 命令 | `claude` |
 | `PPT_CLAUDE_ARGS` | Claude Code 参数，JSON 数组或类 shell 字符串 | 空 |
 | `PPT_DEFAULT_THEME_ID` | 默认主题 ID | `heu_academic_elegant` |
@@ -126,7 +134,7 @@ npm start
 
 `content_markdown` 必须遵守纯 Markdown 固定字段协议，详见：
 
-- [content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
+- [content-protocol.md](content-protocol.md)
 
 核心结构：
 
@@ -198,7 +206,7 @@ npm start
 
 完整接口草案见：
 
-- [ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
+- [ppt-service-api-draft.md](doc/ppt-service-api-draft.md)
 
 主要接口：
 
@@ -393,7 +401,7 @@ v1 当前限制：
 
 ## 14. 相关文档
 
-- [ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
-- [content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
-- [layout-contracts.md](/Users/sun/code/aippt/html2ppt/layout-contracts.md)
-- [html-generation-entry-prompt.md](/Users/sun/code/aippt/html2ppt/html-generation-entry-prompt.md)
+- [ppt-service-api-draft.md](doc/ppt-service-api-draft.md)
+- [content-protocol.md](content-protocol.md)
+- [layout-contracts.md](layout-contracts.md)
+- [html-generation-entry-prompt.md](html-generation-entry-prompt.md)

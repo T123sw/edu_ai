@@ -1,0 +1,55 @@
+<div class="slide layout-execution-pipeline">
+  <div class="header-area">
+    <div class="title-en">EXECUTION PIPELINE</div>
+    <div class="title-main">原理解析：工具调用的完整生命周期</div>
+    <div class="title-divider"></div>
+  </div>
+
+  <div class="content-area">
+    <div class="pipeline-track">
+      <div class="surface-card pipeline-card">
+        <div class="pipeline-number">1</div>
+        <div class="pipeline-card-title">意图解析与规划</div>
+        <div class="pipeline-card-text">用户输入自然语言指令，AI 客户端判断需要调用的外部能力，并提取参数槽位。</div>
+        <div class="pipeline-code">
+          <div class="pipeline-code-line">User: “帮我查最近的 Git 记录”</div>
+          <div class="pipeline-code-line">→ 匹配工具：git_log</div>
+        </div>
+      </div>
+
+      <div class="pipeline-arrow" aria-hidden="true">
+        <svg class="pipeline-arrow-svg" viewBox="0 0 64 64" focusable="false">
+          <path class="pipeline-arrow-shaft" d="M10 30h30v4H10z"></path>
+          <path class="pipeline-arrow-head" d="M38 18l16 14-16 14z"></path>
+        </svg>
+      </div>
+
+      <div class="surface-card pipeline-card">
+        <div class="pipeline-number">2</div>
+        <div class="pipeline-card-title">发起标准 RPC 调用</div>
+        <div class="pipeline-card-text">客户端把参数封装为标准 JSON-RPC 报文，通过本地通道发送给对应服务。</div>
+        <div class="pipeline-code">
+          <div class="pipeline-code-line">{ "method": "tools/call",</div>
+          <div class="pipeline-code-line">  "name": "git_log" }</div>
+        </div>
+      </div>
+
+      <div class="pipeline-arrow" aria-hidden="true">
+        <svg class="pipeline-arrow-svg" viewBox="0 0 64 64" focusable="false">
+          <path class="pipeline-arrow-shaft" d="M10 30h30v4H10z"></path>
+          <path class="pipeline-arrow-head" d="M38 18l16 14-16 14z"></path>
+        </svg>
+      </div>
+
+      <div class="surface-card pipeline-card">
+        <div class="pipeline-number">3</div>
+        <div class="pipeline-card-title">资源访问与上下文回传</div>
+        <div class="pipeline-card-text">服务执行真实命令或查询，把结果整理成模型可读的文本、图片或结构化数据。</div>
+        <div class="pipeline-code">
+          <div class="pipeline-code-line">Result: [Commit 8a2b3]</div>
+          <div class="pipeline-code-line">→ LLM 生成摘要</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

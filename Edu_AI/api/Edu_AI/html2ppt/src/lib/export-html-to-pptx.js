@@ -5,6 +5,12 @@ const { spawn } = require('child_process');
 const { repoRoot, chromePath, chromeArgs } = require('../config');
 
 const HOST = '127.0.0.1';
+const DEFAULT_CHROME_EXPORT_TIMEOUT_MS = 120000;
+
+function parsePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
 function ensureFileExists(filePath, label) {
   if (!fs.existsSync(filePath)) {
@@ -18,6 +24,18 @@ function extractStatusMessage(domDump) {
     return null;
   }
   return match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || null;
+}
+
+function isUnfinishedExportStatus(statusMessage) {
+  return /^(Preparing export|Running export)/i.test(String(statusMessage || '').trim());
+}
+
+function outputIsFresh(outputFile, previousMtimeMs) {
+  if (!fs.existsSync(outputFile)) {
+    return false;
+  }
+  const stats = fs.statSync(outputFile);
+  return stats.mtimeMs > previousMtimeMs && stats.size > 0;
 }
 
 function writeDebugArtifacts(jobWorkspace, chromeResult) {
@@ -37,6 +55,9 @@ function writeDebugArtifacts(jobWorkspace, chromeResult) {
       JSON.stringify(
         {
           code: chromeResult.code,
+          signal: chromeResult.signal,
+          timedOut: Boolean(chromeResult.timedOut),
+          timeoutMs: chromeResult.timeoutMs,
           statusMessage: extractStatusMessage(chromeResult.stdout),
           stderr: chromeResult.stderr || '',
         },
@@ -159,7 +180,7 @@ function ensureScriptTag(html, src) {
 function normalizeRepoAssetPaths(html) {
   let changed = false;
 
-  const attrNormalized = html.replace(
+  const absoluteAssetNormalized = html.replace(
     /\b(src|href)=("|\')(?:file:\/\/)?[^"']*\/assets\/([^"']+)\2/gi,
     (match, attr, quote, assetPath) => {
       changed = true;
@@ -167,7 +188,15 @@ function normalizeRepoAssetPaths(html) {
     }
   );
 
-  const urlNormalized = attrNormalized.replace(
+  const relativeAssetNormalized = absoluteAssetNormalized.replace(
+    /\b(src|href)=("|\')\.?\/?assets\/([^"']+)\2/gi,
+    (match, attr, quote, assetPath) => {
+      changed = true;
+      return `${attr}=${quote}/assets/${assetPath}${quote}`;
+    }
+  );
+
+  const urlNormalized = relativeAssetNormalized.replace(
     /url\((["']?)(?:file:\/\/)?[^)"']*\/assets\/([^)"']+)\1\)/gi,
     (match, quote, assetPath) => {
       changed = true;
@@ -176,6 +205,33 @@ function normalizeRepoAssetPaths(html) {
   );
 
   return { html: urlNormalized, changed };
+}
+
+function getHtmlAttribute(attrs, name) {
+  const pattern = new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i');
+  const match = String(attrs || '').match(pattern);
+  return match ? { quote: match[1], value: match[2] } : null;
+}
+
+function normalizeVideoSourceTags(html) {
+  let changed = false;
+
+  const normalized = html.replace(/<video\b([^>]*)>([\s\S]*?)<\/video>/gi, (match, attrs, body) => {
+    const sourceMatch = String(body || '').match(/<source\b([^>]*)>/i);
+    if (!sourceMatch) return match;
+
+    const sourceSrc = getHtmlAttribute(sourceMatch[1], 'src');
+    if (!sourceSrc) return match;
+
+    const nextAttrs = /\bsrc\s*=/i.test(attrs)
+      ? attrs
+      : `${attrs} src=${sourceSrc.quote}${sourceSrc.value}${sourceSrc.quote}`;
+    const nextBody = String(body || '').replace(/\s*<source\b[^>]*>\s*/gi, '');
+    changed = true;
+    return `<video${nextAttrs}>${nextBody}</video>`;
+  });
+
+  return { html: normalized, changed };
 }
 
 function prepareHtml(htmlFilePath, pptxFileName) {
@@ -217,6 +273,12 @@ function prepareHtml(htmlFilePath, pptxFileName) {
   html = assetResult.html;
   if (assetResult.changed) {
     changes.push('normalized asset URLs');
+  }
+
+  const videoResult = normalizeVideoSourceTags(html);
+  html = videoResult.html;
+  if (videoResult.changed) {
+    changes.push('normalized video source tags');
   }
 
   if (html !== original) {
@@ -342,43 +404,114 @@ function createExportServer({ htmlRootDir, outputDir, port }) {
   });
 }
 
-function runChromeExport(pageUrl) {
+function runChromeExport(pageUrl, options = {}) {
   return new Promise((resolve, reject) => {
-    ensureFileExists(chromePath, 'Chrome executable');
+    const chromeExecutable = options.chromePathOverride || chromePath;
+    const spawnChrome = options.spawnChrome || spawn;
+    const timeoutMs =
+      options.timeoutMs ||
+      parsePositiveInt(process.env.PPT_CHROME_TIMEOUT_MS, DEFAULT_CHROME_EXPORT_TIMEOUT_MS);
+    const virtualTimeBudgetMs = parsePositiveInt(
+      options.virtualTimeBudgetMs || process.env.PPT_CHROME_VIRTUAL_TIME_BUDGET_MS,
+      timeoutMs
+    );
+
+    ensureFileExists(chromeExecutable, 'Chrome executable');
 
     const args = [
       '--headless=new',
       '--disable-gpu',
-      '--virtual-time-budget=60000',
+      `--virtual-time-budget=${virtualTimeBudgetMs}`,
       ...chromeArgs,
       '--dump-dom',
       pageUrl,
     ];
 
-    const chrome = spawn(
-      chromePath,
-      args,
-      {
-        cwd: repoRoot,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }
-    );
+    const chrome = spawnChrome(chromeExecutable, args, {
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
     let stdout = '';
     let stderr = '';
+    let settled = false;
+    let timedOut = false;
+    let forceKillTimer = null;
 
-    chrome.stdout.on('data', (chunk) => {
+    const cleanup = () => {
+      if (timeoutTimer) clearTimeout(timeoutTimer);
+      if (forceKillTimer) clearTimeout(forceKillTimer);
+      chrome.removeListener('error', onError);
+      chrome.removeListener('close', onClose);
+    };
+
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve({
+        stdout,
+        stderr,
+        timedOut,
+        timeoutMs,
+        ...result,
+      });
+    };
+
+    const fail = (error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    };
+
+    const terminateForTimeout = () => {
+      if (settled) return;
+      timedOut = true;
+      stderr += `\n[html2ppt] Chrome export timed out after ${timeoutMs}ms; terminating browser.`;
+      try {
+        chrome.kill('SIGTERM');
+      } catch {
+        // Fall through to the force-kill timer below.
+      }
+
+      forceKillTimer = setTimeout(() => {
+        if (settled) return;
+        try {
+          chrome.kill('SIGKILL');
+        } catch {
+          // If the process cannot be killed, still resolve so the job can fail instead of hanging.
+        }
+        finish({ code: null, signal: 'SIGKILL' });
+      }, 3000);
+      if (typeof forceKillTimer.unref === 'function') forceKillTimer.unref();
+    };
+
+    const timeoutTimer = setTimeout(terminateForTimeout, timeoutMs);
+    if (typeof timeoutTimer.unref === 'function') timeoutTimer.unref();
+
+    if (chrome.stdout) chrome.stdout.on('data', (chunk) => {
       stdout += chunk.toString();
     });
 
-    chrome.stderr.on('data', (chunk) => {
+    if (chrome.stderr) chrome.stderr.on('data', (chunk) => {
       stderr += chunk.toString();
     });
 
-    chrome.on('error', reject);
-    chrome.on('close', (code) => {
-      resolve({ code, stdout, stderr });
-    });
+    function onError(error) {
+      if (timedOut) {
+        finish({ code: null, signal: null, error: error.message });
+        return;
+      }
+      fail(error);
+    }
+
+    function onClose(code, signal) {
+      finish({ code, signal });
+    }
+
+    chrome.on('error', onError);
+    chrome.on('close', onClose);
   });
 }
 
@@ -441,11 +574,37 @@ async function exportHtmlToPptx({ htmlPath, outputPath, jobWorkspace, serverPort
   try {
     const chromeResult = await runChromeExport(pageUrl);
     const debugPaths = writeDebugArtifacts(jobWorkspace, chromeResult);
+    const statusMessage = extractStatusMessage(chromeResult.stdout);
+    if (chromeResult.timedOut) {
+      const suffixParts = [];
+      if (statusMessage) {
+        suffixParts.push(`browser status: ${statusMessage}`);
+      }
+      if (debugPaths.dom) {
+        suffixParts.push(`debug DOM: ${debugPaths.dom}`);
+      }
+      if (debugPaths.log) {
+        suffixParts.push(`debug log: ${debugPaths.log}`);
+      }
+      const suffix = suffixParts.length > 0 ? ` (${suffixParts.join('; ')})` : '';
+      throw new Error(`Chrome export timed out after ${chromeResult.timeoutMs}ms${suffix}`);
+    }
+    if (isUnfinishedExportStatus(statusMessage) && !outputIsFresh(resolvedOutputPath, previousMtimeMs)) {
+      const suffixParts = [`browser status: ${statusMessage}`];
+      if (debugPaths.dom) {
+        suffixParts.push(`debug DOM: ${debugPaths.dom}`);
+      }
+      if (debugPaths.log) {
+        suffixParts.push(`debug log: ${debugPaths.log}`);
+      }
+      throw new Error(
+        `Browser exited before PPTX export completed: ${resolvedOutputPath} (${suffixParts.join('; ')})`
+      );
+    }
     let stats;
     try {
       stats = await waitForOutput(resolvedOutputPath, previousMtimeMs);
     } catch (error) {
-      const statusMessage = extractStatusMessage(chromeResult.stdout);
       const suffixParts = [];
       if (statusMessage) {
         suffixParts.push(`browser status: ${statusMessage}`);
@@ -485,4 +644,7 @@ async function exportHtmlToPptx({ htmlPath, outputPath, jobWorkspace, serverPort
 
 module.exports = {
   exportHtmlToPptx,
+  normalizeRepoAssetPaths,
+  normalizeVideoSourceTags,
+  runChromeExport,
 };

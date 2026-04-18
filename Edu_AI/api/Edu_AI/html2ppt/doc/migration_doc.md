@@ -12,9 +12,9 @@
 如果你是第一次接触这个项目，建议按下面顺序阅读：
 
 1. 先看本文档，完成环境准备与部署
-2. 再看接口文档：[ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
-3. 再看内容协议：[content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
-4. 如果需要理解版式选择，再看：[layout-contracts.md](/Users/sun/code/aippt/html2ppt/layout-contracts.md)
+2. 再看接口文档：[ppt-service-api-draft.md](ppt-service-api-draft.md)
+3. 再看内容协议：[content-protocol.md](../content-protocol.md)
+4. 如果需要理解版式选择，再看：[layout-contracts.md](../layout-contracts.md)
 
 ---
 
@@ -25,13 +25,13 @@
 `主系统 -> PPT 服务 API -> 任务队列 -> Claude Code -> HTML 构建 -> PPTX 导出 -> 本地产物存储`
 
 关键模块：
-- 服务入口：[src/server.js](/Users/sun/code/aippt/html2ppt/src/server.js)
-- 配置加载：[src/config.js](/Users/sun/code/aippt/html2ppt/src/config.js)
-- 任务编排：[src/services/ppt-service.js](/Users/sun/code/aippt/html2ppt/src/services/ppt-service.js)
-- Agent Runner：[src/agents/claude-code-runner.js](/Users/sun/code/aippt/html2ppt/src/agents/claude-code-runner.js)
-- HTML 构建：[src/lib/build-standalone-html.js](/Users/sun/code/aippt/html2ppt/src/lib/build-standalone-html.js)
-- PPTX 导出：[src/lib/export-html-to-pptx.js](/Users/sun/code/aippt/html2ppt/src/lib/export-html-to-pptx.js)
-- 内容协议：[content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
+- 服务入口：[src/server.js](../src/server.js)
+- 配置加载：[src/config.js](../src/config.js)
+- 任务编排：[src/services/ppt-service.js](../src/services/ppt-service.js)
+- Agent Runner：[src/agents/claude-code-runner.js](../src/agents/claude-code-runner.js)
+- HTML 构建：[src/lib/build-standalone-html.js](../src/lib/build-standalone-html.js)
+- PPTX 导出：[src/lib/export-html-to-pptx.js](../src/lib/export-html-to-pptx.js)
+- 内容协议：[content-protocol.md](../content-protocol.md)
 
 ### 1.1 对外如何“使用”这个项目
 
@@ -54,7 +54,7 @@
   查询某次修订任务状态
 
 完整字段、示例和错误码，见：
-- [ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
+- [ppt-service-api-draft.md](ppt-service-api-draft.md)
 
 ---
 
@@ -179,19 +179,19 @@ Linux 服务器上建议显式指定独立数据目录，例如：
 
 目前代码里已经做了这些适配，迁移时可以直接使用：
 
-### 3.1 入口 prompt 已改为相对路径
+### 3.1 入口 prompt 已改为运行时占位符
 
-[html-generation-entry-prompt.md](/Users/sun/code/aippt/html2ppt/html-generation-entry-prompt.md) 现在使用的是：
-- `content.md`
-- `format/`
-- `style/...`
-- `layout-contracts.md`
+[html-generation-entry-prompt.md](../html-generation-entry-prompt.md) 现在使用的是：
+- `{{CONTENT_PATH}}`
+- `{{FORMAT_DIR}}`
+- `{{THEME_CSS_PATH}}`
+- `{{LAYOUT_CONTRACTS_PATH}}`
 
-不再依赖 `/Users/...` 这种 macOS 绝对路径。
+服务启动任务时会把这些占位符替换为当前 revision 的真实路径；旧版 prompt 中的 macOS 绝对路径仍会被兼容替换。
 
 ### 3.2 增加了 `.env` 自动加载
 
-[src/config.js](/Users/sun/code/aippt/html2ppt/src/config.js) 现在会在服务启动时自动读取项目根目录下的 `.env`。
+[src/config.js](../src/config.js) 现在会在服务启动时自动读取项目根目录下的 `.env`。
 
 优先级规则：
 - 如果某个环境变量已经在 shell 中设置，优先使用 shell 值
@@ -199,14 +199,14 @@ Linux 服务器上建议显式指定独立数据目录，例如：
 
 ### 3.3 增加了 `PPT_CHROME_ARGS`
 
-[src/lib/export-html-to-pptx.js](/Users/sun/code/aippt/html2ppt/src/lib/export-html-to-pptx.js) 已经支持额外传入 Chrome 参数。
+[src/lib/export-html-to-pptx.js](../src/lib/export-html-to-pptx.js) 已经支持额外传入 Chrome 参数。
 
 这对 Linux / Docker 环境非常重要。
 
 ### 3.4 提供了 `.env.example`
 
 模板文件：
-- [\.env.example](/Users/sun/code/aippt/html2ppt/.env.example)
+- [\.env.example](../.env.example)
 
 建议迁移时先复制：
 
@@ -219,9 +219,9 @@ cp .env.example .env
 ### 3.5 Prompt 不再依赖 macOS 绝对路径
 
 入口 prompt：
-- [html-generation-entry-prompt.md](/Users/sun/code/aippt/html2ppt/html-generation-entry-prompt.md)
+- [html-generation-entry-prompt.md](../html-generation-entry-prompt.md)
 
-现在已经全部改成了相对路径写法，所以 Linux 上不需要再把 `/Users/...` 替换成别的目录。
+现在已经改成运行时占位符写法，所以 Linux 上不需要手工把 `/Users/...` 替换成别的目录。
 
 ---
 
@@ -531,7 +531,7 @@ curl -I http://127.0.0.1:46080/assets/HEU/heu-logo.png
 
 ### 8.3 检查内容协议联调
 
-可以直接使用仓库里的 [content.md](/Users/sun/code/aippt/html2ppt/content.md) 发一个任务。
+可以直接使用仓库里的 `content.md` 发一个任务。
 
 示例：
 
@@ -548,9 +548,9 @@ curl -s -X POST http://127.0.0.1:46080/ppt/jobs \
 ### 8.3.1 为什么这里直接用 `content.md`
 
 因为当前项目要求 `content_markdown` 必须符合：
-- [content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
+- [content-protocol.md](../content-protocol.md)
 
-所以直接拿仓库里当前可用的 [content.md](/Users/sun/code/aippt/html2ppt/content.md) 来发请求，是最快的服务器自测方法。
+所以直接拿仓库里当前可用的 `content.md` 来发请求，是最快的服务器自测方法。
 
 ### 8.4 轮询状态
 
@@ -615,7 +615,7 @@ http://127.0.0.1:46080/ppt/artifacts/<job_id>/<revision_id>/deck.html
   当前 deck 的结构清单，便于调试和单页 revision
 
 如果你不确定怎么用它们，优先看：
-- [ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
+- [ppt-service-api-draft.md](ppt-service-api-draft.md)
 
 ---
 
@@ -803,13 +803,13 @@ PPT_CHROME_ARGS=["--no-sandbox","--disable-dev-shm-usage"]
 这时建议按下面顺序看文档：
 
 1. 接口定义：
-   - [ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
+   - [ppt-service-api-draft.md](ppt-service-api-draft.md)
 
 2. 请求体里的 `content_markdown` 应该怎么写：
-   - [content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
+   - [content-protocol.md](../content-protocol.md)
 
 3. 如果想理解为什么某页会选某种版式：
-   - [layout-contracts.md](/Users/sun/code/aippt/html2ppt/layout-contracts.md)
+   - [layout-contracts.md](../layout-contracts.md)
 
 ---
 
@@ -852,7 +852,7 @@ PPT_CHROME_ARGS=["--no-sandbox","--disable-dev-shm-usage"]
 
 如果一个对项目不熟的人第一次拿到仓库，建议直接照下面做：
 
-1. 阅读本文档：[migration_doc.md](/Users/sun/code/aippt/html2ppt/migration_doc.md)
+1. 阅读本文档：[migration_doc.md](migration_doc.md)
 2. 复制配置模板：
 
 ```bash
@@ -879,10 +879,10 @@ npm start
 ```
 
 6. 阅读接口文档：
-   - [ppt-service-api-draft.md](/Users/sun/code/aippt/html2ppt/ppt-service-api-draft.md)
+   - [ppt-service-api-draft.md](ppt-service-api-draft.md)
 
 7. 阅读内容协议：
-   - [content-protocol.md](/Users/sun/code/aippt/html2ppt/content-protocol.md)
+   - [content-protocol.md](../content-protocol.md)
 
 8. 用仓库里的 `content.md` 发一个任务，确认：
    - HTML 能生成

@@ -80,7 +80,6 @@ module.exports = {
   servicePort: parseInteger(process.env.PPT_SERVICE_PORT, 4300),
   dataDir: path.resolve(process.env.PPT_DATA_DIR || path.join(repoRoot, 'data')),
   workerConcurrency: parseInteger(process.env.PPT_WORKER_CONCURRENCY, 1),
-  claudeTimeoutMs: parseInteger(process.env.PPT_CLAUDE_TIMEOUT_MS, 1800000),
   chromePath:
     process.env.PPT_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   chromeArgs: parseArgsString(process.env.PPT_CHROME_ARGS || ''),

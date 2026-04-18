@@ -185,35 +185,6 @@ function parseSingleSlideContent(markdown) {
   return parsed;
 }
 
-function previewLine(value, maxLength = 160) {
-  const text = String(value || '').replace(/\s+/g, ' ').trim();
-  if (text.length <= maxLength) {
-    return text;
-  }
-  return `${text.slice(0, maxLength)}...(+${text.length - maxLength} chars)`;
-}
-
-function summarizeContentProtocol(input, { previewChars = 160 } = {}) {
-  const parsed = typeof input === 'string' ? parseContentProtocol(input) : input;
-  const slides = Array.isArray(parsed?.slides) ? parsed.slides : [];
-  return {
-    deck: {
-      title: trimValue(parsed?.deck?.title),
-      subtitle: trimValue(parsed?.deck?.subtitle),
-      theme: trimValue(parsed?.deck?.theme),
-    },
-    slideCount: slides.length,
-    slides: slides.map((slide) => ({
-      slide_number: slide.slide_number,
-      role: trimValue(slide.role),
-      title: trimValue(slide.title),
-      blockTypes: Array.isArray(slide.blockTypes) ? [...slide.blockTypes] : [],
-      hasNotes: slide.rawLines.some((line) => String(line || '').trim() === '### Notes'),
-      preview: previewLine(slide.rawLines.join('\n'), previewChars),
-    })),
-  };
-}
-
 function getExtensionFromUrl(url) {
   const input = trimValue(url);
   if (!input) return '';
@@ -326,6 +297,5 @@ module.exports = {
   injectLocalizedMediaPaths,
   parseContentProtocol,
   parseSingleSlideContent,
-  summarizeContentProtocol,
   validateMediaBlocks,
 };

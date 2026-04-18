@@ -1,38 +1,39 @@
 # 版式约束合同（Layout Contracts）
-本文件用于定义当前项目里“允许被生成”的版式骨架、容器层级与可变范围。
 
-目标不是把每一页都变成固定模板，而是给模型一个清晰的“合法边界”：
-- 根节点和主要骨架必须稳定
-- 组件层级必须稳定
-- 内容组合可以在合同允许的范围内灵活变化
-- 模板中的示例文案只是占位示意，不是必须保留的内容。
+本文件定义模型生成 slide HTML 时可以使用的版式、组件层级和选择边界。它不是模板全文复制指南，而是“合法结构 + 版式选择”的规则源。
 
-## Agent 使用方式
+目标：
+- 保持每页根节点、主要骨架和关键组件稳定。
+- 允许模型在合同范围内组织内容。
+- 避免因为重复规则、相似禁令或模板示例差异导致生成不稳定。
 
-在生成任务中，按下面顺序使用本文件：
+## 使用顺序
 
-1. 先根据 `content.md` 判断当前页的内容形态。
-2. 再选择最匹配的版式合同，而不是先自由写 HTML。
-3. 只在该合同允许的根节点、容器层级和组件范围内组合内容。
-4. 如果某页同时适配多种版式，再结合上一页避免重复。
-5. 如果模板示例与合同不一致，始终以合同为准。
+1. 根据 `content.md` 解析每页 `Role` 与 `Blocks`。
+2. 按“版式选择表”决定候选版式。
+3. 读取对应模板，只复用合同允许的 class 和层级。
+4. 填入内容，并检查共享组件规则。
+5. 相邻普通内容页尽量避免连续使用同一种文本版式。
 
-本文件负责回答三个问题：
-- 这页应该用哪类骨架
-- 该骨架的必需结构是什么
-- 该骨架内部允许有多少灵活性
+如果模板示例和本合同冲突，始终以本合同为准。
 
-## 全局规则
+## 教学表达
 
-### 1. 根节点规则
-- 每一页都必须以 `<div class="slide ...">...</div>` 作为根节点。
-- 除卡片页外，推荐为根节点显式添加对应的 `layout-*` class。
-- 不允许在 slide 外层再包新的业务容器。
+- 显示文案优先短句、标签、短动作和关键词；完整解释留给 Notes/讲稿，不直接塞进 slide。
+- 每个输入 Block 至少有一个可见承载点，不能因为选择 comparison 或 process 版式而丢掉定义、对比标题或步骤标题。
+- 常用表达 primitives：Definition（定义）、Compare（对比）、Process（流程）、Analogy（类比）、Takeaway（结论）。
 
-### 2. 品牌位规则
-- 品牌位是否启用，只能由 `style/theme-brand-config.json` 决定。
-- 如果当前主题 `brand.enabled` 为 `true`，则品牌位必须作为每一页 slide 根节点打开后的第一个子元素。
-- 品牌位结构必须严格复用 `format/brand-slot-fragment.html`：
+## 共享组件规则
+
+### Slide 根节点
+- 每页必须以 `<div class="slide ...">...</div>` 作为根节点。
+- 除 `card-layout` 外，推荐显式添加对应 `layout-*` class。
+- 不允许在 slide 外再包业务容器。
+
+### Brand Slot
+品牌位由 `style/theme-brand-config.json` 决定：
+- `brand.enabled = true` 时，非 thanks 页必须把品牌位放在 slide 根节点后的第一个业务子元素位置。
+- 结构必须复用 `format/brand-slot-fragment.html`：
 
 ```html
 <div class="slide-brand">
@@ -40,16 +41,29 @@
 </div>
 ```
 
-- `src` 必须替换为主题配置中的 `brand.asset`。
-- `alt` 必须替换为主题配置中的 `brand.alt`。
-- 如果品牌关闭，则整块省略，不输出空节点。
+- `src` 使用主题配置中的 `brand.asset`。
+- `alt` 使用主题配置中的 `brand.alt`。
+- `layout-thanks` 不插入右上角 `slide-brand`，因为底部已经有放大的真实 logo。
+- 品牌关闭时整块省略，不输出空节点。
 
-### 3. 标题规则
-- 只要页面中出现页标题区域，就必须使用 `title-en`、`title-main`、`title-divider` 这一组现有结构。
-- `title-divider` 必须作为独立元素存在，不能被替换成边框、伪元素或别的修饰结构。
+### Header
+凡是带标题区的版式，统一使用：
 
-### 4. 引言框规则
-- 只要页面使用引言框，就必须严格使用以下结构：
+```html
+<div class="header-area">
+  <div class="title-en">...</div>
+  <div class="title-main">...</div>
+  <div class="title-divider"></div>
+</div>
+```
+
+规则：
+- `title-divider` 必须是独立真实节点，不能换成边框、伪元素或背景。
+- `title-en` 可以是英文 kicker、主题标签或简短栏目名。
+- `title-main` 保持原页标题含义，不要为版式强行改题。
+
+### Quote Box
+只要使用引言框，必须使用：
 
 ```html
 <div class="quote-box">
@@ -58,618 +72,521 @@
 </div>
 ```
 
-- 不允许改回 `border-left`、伪元素装饰条或其它变体。
+不要把强调条写成 `border-left`、伪元素或其他装饰变体。
 
-### 5. 页脚规则
-- 只有标准文本类页面默认带 `footer-area`。
-- 卡片页、目录页、章节过渡页、封面页、致谢页不要求使用 `footer-area`，除非未来模板明确加入该结构。
-- 如果使用 `footer-area`，内部应保持：
-  - `footer-logo`
-  - `footer-page`
+### Footer
+标准文本类和媒体图文类页面可带页脚，但页脚只保留右下角页码：
 
-### 6. 内容数量建议
-- 合同中的“推荐数量”不是死规则，但若明显超出，页面很容易溢出或视觉失衡。
-- 在不确定时，优先遵守结构稳定，其次再追求信息量。
+```html
+<div class="footer-area">
+  <div class="footer-page">...</div>
+</div>
+```
 
-### 7. 媒体骨架规则
-- `layout.css` 中的 `layout-image-text`、`content-split-64`、`split-left-image`、`split-right-text`、`image-placeholder`、`text-list` 现已作为正式开放的媒体页骨架使用。
-- 当前媒体页统一复用 `media-card`、`media-stage`、`media-element`、`media-caption` 作为媒体容器结构。
-- 媒体内容可以是 `<img>` 或 `<video>`，但必须使用真实媒体标签。
-- 媒体默认保持比例，必须使用自适应展示，不允许强制拉伸填满内容。
+不要输出 `footer-logo`、学校/学院署名或底部分隔线。
 
-## 版式合同
+封面、目录、章节过渡、卡片、thanks 页默认不使用 `footer-area`。
 
-### Contract A：Brand Slot Fragment
+### Media
+媒体统一使用以下容器：
+- `media-card`
+- `media-stage`
+- `media-element`
+- `media-caption`
 
-用途：
-- 主题驱动的可选品牌位组件。
+规则：
+- 媒体内容必须是真实 `<img>` 或 `<video>`。
+- 运行时内容中有 `Local-Path` / `Local-Poster-Path` 时优先使用本地路径。
+- 媒体默认保持比例，使用居中自适应展示，不要强制拉伸。
+- 每页最多一个主媒体。
 
-根节点签名：
-- 不是独立 slide。
+### 系统后处理装饰
+以下装饰由 PPT 服务后处理注入，模型不要手写：
+- `slide-safe-decor`
+- `thanks-safe-decor`
+- `slide-top-rule`
+- `slide-header-hairline`
+- `slide-header-mark`
+- `slide-header-mark-accent`
+- `content-safe-accent`
+- `thanks-safe-line`
 
-必须结构：
-- `div.slide-brand`
-- 其内部必须只有一个 `img.slide-brand-image`
+不要依赖 `.slide::before`、`.slide::after`、径向渐变、滤镜或复杂阴影来承载必须出现在 PPTX 中的视觉元素。
 
-禁止：
-- 不允许改成背景图
-- 不允许改成 SVG 内联占位
-- 不允许加额外包裹层
+## 版式选择表
 
-### Contract B：Cover
+| 内容形态 | 推荐版式 |
+|---|---|
+| `Role = cover` | `cover` |
+| `Role = toc` | `toc` |
+| `Role = section` | `section` |
+| `Role = thanks` | `thanks` |
+| `Cards`，且是三点并列 / 三种特征 / 三类方案 | `card-layout` |
+| `Comparison`，两个平级对象或视角 | `standard-text-comparison` |
+| 强正反对比、旧架构 vs 新方案、痛点 vs 优势 | `comparison-vs-panels` |
+| `Process` 3 步 | `standard-text-process` + `process-track` |
+| 3 步工具调用、RPC、执行链路，且每步需要输入/代码/结果片段 | `execution-pipeline` |
+| `Process` 4 步 | `standard-text-process` + `process-grid` |
+| `Process` 5 步或更多 | `standard-text-process` + `process-list` |
+| 高密度 bullets、嵌套说明、编号步骤、示例流程 | `standard-text-structured` |
+| 左侧有 1 到 2 个完整 insight card，右侧有 quote + 3 条以上论证 | `standard-text-dual-panel` |
+| 三大基石、三条原则、三项核心能力，并需要底部一句总结 | `pillar-cards-banner` |
+| 一个总论点 + 5 到 6 个模块、能力、组件或支撑机制 | `capability-map-grid` |
+| 媒体为主、文字辅助 | `media-left-text-right` 或 `media-focus` |
+| 文字结论为主、媒体作例证 | `text-left-media-right` |
+| 2 到 3 条低密度短要点 | `standard-text` |
 
-对应来源：
+## 合同 A：Cover
+
+来源：
 - `format/cover-body.html`
-- `format/layout.css` 中的 `.layout-cover`、`.cover-hero`、`.cover-meta`
 
-适用场景：
-- 封面页
-- 报告首页
-- 主题引入页
-
-根节点签名：
+根节点：
 - `div.slide.layout-cover`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `cover-hero`
 3. `cover-meta`
 
-`cover-hero` 必须包含：
-- `header-area`
+结构：
+- `cover-hero` 必须包含 `header-area`。
+- `cover-hero` 可包含一个 `cover-subtitle`。
+- `cover-subtitle` 包含 `cover-subtitle-accent`、`cover-subtitle-kicker`、`cover-subtitle-text`。
+- `cover-meta` 包含 2 到 4 个 `meta-item`。
 
-`header-area` 必须包含：
-- `title-en`
-- `title-main`
-- `title-divider`
+边界：
+- 不加入 `content-area`。
+- 不加入 `footer-area`。
+- 不使用 `surface-card + quote-box` 充当封面副标题。
 
-`cover-hero` 允许的可选内容：
-- 一个 `surface-card`
-- 该 `surface-card` 内允许放一个 `quote-box` 作为副标题、引导句或摘要语
+## 合同 B：TOC
 
-`cover-meta` 必须包含：
-- 2 到 4 个 `meta-item`
-
-推荐内容承载方式：
-- `title-main`：主标题
-- `title-en`：英文副标题或主题标签
-- `quote-box`：副标题、研究范围或一句导语
-- `meta-item`：汇报人、导师、时间、单位等元信息
-
-禁止：
-- 不要把封面写成标准文本页
-- 不要在封面中引入 `content-area`
-- 不要在封面中使用 `footer-area`
-
-说明：
-- 当前 `format/cover-body.html` 更像示例片段，不足以单独表达完整封面骨架。
-- 生成时应以本合同和 `layout.css` 中的 `layout-cover / cover-hero / cover-meta` 为准。
-
-### Contract C：TOC
-
-对应来源：
+来源：
 - `format/toc-body.html`
-- `format/layout.css` 中 `.layout-toc`、`.toc-left`、`.toc-right`
 
-适用场景：
-- 目录页
-- 全局结构总览页
-
-根节点签名：
+根节点：
 - `div.slide.layout-toc`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `toc-left`
 3. `toc-right`
 
-`toc-left` 必须包含：
-- `toc-title-en`
-- `toc-title-zh`
-- `toc-divider`
+结构：
+- `toc-left` 包含 `toc-title-en`、`toc-title-zh`、可选 `toc-summary`、`toc-divider`。
+- `toc-summary` 只放一句很短的结构提示。
+- `toc-right` 包含 3 到 5 个 `toc-item`。
+- 每个 `toc-item` 包含 `tag-number` 和 `toc-content`。
+- 每个 `toc-content` 包含 `toc-title` 和 `toc-subtitle`。
 
-`toc-right` 必须包含：
-- 3 到 5 个 `toc-item`
+边界：
+- 不把目录页写成普通卡片页。
+- 不在 `toc-right` 直接堆段落。
+- 不省略 `tag-number`。
 
-每个 `toc-item` 必须包含：
-- `tag-number`
-- `toc-content`
+## 合同 C：Section Break
 
-每个 `toc-content` 必须包含：
-- `toc-title`
-- `toc-subtitle`
-
-禁止：
-- 不要把目录页写成普通卡片页
-- 不要在 `toc-right` 中直接堆纯文本段落
-- 不要省略 `tag-number`
-
-### Contract D：Section Break
-
-对应来源：
+来源：
 - `format/section-body.html`
-- `format/layout.css` 中 `.layout-section-break`、`.section-left`、`.section-right`
 
-适用场景：
-- 章节过渡页
-- Part 分隔页
-- 大章节切换页
-
-根节点签名：
+根节点：
 - `div.slide.layout-section-break`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `section-left`
 3. `section-right`
 
-`section-left` 必须包含：
-- 一个 `section-number`
+结构：
+- `section-left` 包含一个 `section-number`。
+- `section-right` 包含 `header-area` 等价标题结构，也可直接放 `title-en / title-main / title-divider`。
+- `section-right` 可包含一个 `section-desc`。
 
-`section-right` 必须包含：
-- `title-en`
-- `title-main`
-- `title-divider`
+边界：
+- `section-number` 推荐两位数，如 `01`。
+- `section-desc` 控制在 1 到 2 句。
+- 不加入页脚、卡片阵列、流程或长列表。
 
-`section-right` 可选包含：
-- 一个 `section-desc`
+## 合同 D：Standard Text / Classic
 
-推荐：
-- `section-number` 使用两位数，例如 `01`、`02`
-- `section-desc` 控制在 1 到 2 句内
-
-禁止：
-- 不要加入 `footer-area`
-- 不要在章节过渡页中塞入大段列表、卡片阵列或流程结构
-
-### Contract E：Standard Text / Classic
-
-对应来源：
+来源：
 - `format/standard-text-body.html`
-- `format/layout.css` 中 `.layout-standard-text`
 
-适用场景：
-- 一个核心判断 + 多条解释
-- 概念定义页
-- 结论摘要页
-
-根节点签名：
+根节点：
 - `div.slide.layout-standard-text`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-area`
 4. `footer-area`
 
-`header-area` 必须包含：
-- `title-en`
-- `title-main`
-- `title-divider`
+结构：
+- `content-area` 使用一个 `quote-box` 加一个 `surface-card text-details`，或只使用一个 `surface-card text-details`。
+- `text-details` 内放 2 到 3 个扁平 `list-item`。
 
-`content-area` 允许的直接子元素：
-- 一个 `quote-box`
-- 一个或两个 `surface-card text-details`
+适用：
+- 一个核心判断 + 2 到 3 条短解释。
+- 概念定义、低密度结论、轻量摘要。
 
-推荐组合：
-- 方案 A：`quote-box` + 1 个 `surface-card text-details`
-- 方案 B：仅 1 个 `surface-card text-details`
+边界：
+- 4 条以上要点、长解释、嵌套列表、编号步骤、示例流程不要用 classic。
+- 不加入 `comparison-grid`、`process-track`、`process-grid`、`dual-panel-aside`、`sidebar-rail`。
 
-低内容密度优先策略：
-- 当 classic 只有 2 到 4 条 bullets、没有天然的双栏/流程/对比结构时，优先使用方案 A
-- 不要让页面退化成“一个很大的白色卡片 + 3 条很短的字”而缺少层次
+## 合同 E：Standard Text / Dual Panel
 
-`surface-card text-details` 内部应包含：
-- 2 到 4 个 `list-item`
-
-低密度呈现建议：
-- 如果只有一个 `surface-card text-details`，其第一条 `list-item` 应尽量承担“主陈述”角色，后续条目再做支撑
-- 不要让 3 条并列短句在视觉上完全同权，否则会放大页面空白感
-
-`footer-area` 必须包含：
-- `footer-logo`
-- `footer-page`
-
-禁止：
-- 不要在 classic 中加入 `comparison-grid`
-- 不要在 classic 中加入 `process-track`
-- 不要在 classic 中用 `dual-panel-aside` 或 `sidebar-rail`
-
-### Contract F：Standard Text / Dual Panel
-
-对应来源：
+来源：
 - `format/standard-text-dual-panel-body.html`
-- `format/layout.css` 中 `.layout-standard-text-dual-panel`
 
-适用场景：
-- 左侧核心判断，右侧详细论证
-- 原因分析
-- 方法解读
-- 优缺点说明
-
-根节点签名：
+根节点：
 - `div.slide.layout-standard-text-dual-panel`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-area`
 4. `footer-area`
 
-`content-area` 必须且只能包含两个直接子元素：
-- `dual-panel-aside`
-- `dual-panel-main`
+结构：
+- `content-area` 必须且只能包含 `dual-panel-aside` 和 `dual-panel-main`。
+- `dual-panel-aside` 包含 1 到 2 个 `surface-card insight-card`。
+- `dual-panel-main` 可包含一个 `quote-box` 和一个 `surface-card text-details`。
 
-`dual-panel-aside` 允许包含：
-- 1 到 2 个 `surface-card insight-card`
+适用：
+- 左侧有 1 到 2 个完整 insight card，右侧有 quote + 3 条以上论证。
+- 原因分析、方法解读、优缺点说明。
 
-每个 `insight-card` 必须包含：
-- 一个 `insight-kicker`
-- 并且至少包含以下之一：
-  - `insight-copy`
-  - `mini-points`
+边界：
+- 对等比较应改用 comparison。
+- 一个核心判断 + 3 到 4 条标签解释、短 bullets 或低密度概念拆解，应改用 `standard-text-structured` 或 `standard-text`。
+- 不省略 `dual-panel-aside` 或 `dual-panel-main`。
 
-`mini-points` 内应包含：
-- 2 到 4 个 `mini-point`
+## 合同 G：Standard Text / Structured
 
-`dual-panel-main` 允许包含：
-- 0 到 1 个 `quote-box`
-- 1 个 `surface-card text-details`
+来源：
+- `format/standard-text-structured-body.html`
 
-`text-details` 内推荐：
-- 2 到 4 个 `list-item`
+根节点：
+- `div.slide.layout-standard-text-structured`
 
-禁止：
-- 不要把左右两栏做成对等比较；对等比较应改用 comparison
-- 不要省略 `dual-panel-aside` 或 `dual-panel-main`
-
-### Contract G：Standard Text / Sidebar
-
-对应来源：
-- `format/standard-text-sidebar-body.html`
-- `format/layout.css` 中 `.layout-standard-text-sidebar`
-
-适用场景：
-- 左侧摘要导航，右侧主体说明
-- 研究计划页
-- 问题拆解页
-- 阶段总结页
-
-根节点签名：
-- `div.slide.layout-standard-text-sidebar`
-
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-area`
 4. `footer-area`
 
-`content-area` 必须且只能包含两个直接子元素：
-- `sidebar-rail`
-- `sidebar-main`
+结构：
+- `content-area` 包含 `structured-lead` 和一个 `surface-card structured-panel`。
+- `structured-lead` 包含 `structured-kicker` 和 `structured-lead-text`。
+- `structured-panel` 默认包含 3 到 4 个 `structured-section`；只有短内容才使用 5 个。
+- 含 `structured-flow` 时最多 3 个 section。
+- `structured-section` 包含 `structured-section-index` 与 `structured-section-body`。
+- 示例流程使用 `structured-flow / structured-flow-step`，`structured-flow-step` 只写短动作短语。
 
-`sidebar-rail` 必须包含：
-- 一个 `sidebar-card`
+适用：
+- 高密度 bullets。
+- 概念解释 + 示例流程 + 价值总结。
+- 编号步骤、实践步骤、工作流说明。
 
-`sidebar-card` 推荐包含：
-- 一个 `title-en`
-- 一个 `sidebar-title`
-- 一个 `sidebar-points`
+边界：
+- 不加入 `sidebar-card`、`sidebar-points`。
+- 不使用 `structured-grid` 或多张 `structured-card`。
+- 不嵌套原生 `ol` / `ul`。
+- 不把 3 个或 5 个信息块做成独立卡片网格。
 
-`sidebar-points` 内应包含：
-- 2 到 4 个 `sidebar-point`
+## 合同 H：Standard Text / Comparison
 
-`sidebar-main` 允许包含：
-- 0 到 1 个 `quote-box`
-- 1 个 `surface-card text-details`
-
-`text-details` 内推荐：
-- 2 到 4 个 `list-item`
-
-禁止：
-- 不要把左栏写成普通段落堆叠
-- 不要在 sidebar 中改用 `dual-panel-aside`
-- 不要把 sidebar 做成平级双对象对比
-
-### Contract H：Standard Text / Comparison
-
-对应来源：
+来源：
 - `format/standard-text-comparison-body.html`
-- `format/layout.css` 中 `.layout-standard-text-comparison`
 
-适用场景：
-- 两种方案对比
-- 两类机制对照
-- 现象 vs 机理
-- A / B 分析
-
-根节点签名：
+根节点：
 - `div.slide.layout-standard-text-comparison`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-area`
 4. `footer-area`
 
-`content-area` 必须包含：
-- 一个 `comparison-grid`
+结构：
+- `content-area` 包含一个 `comparison-grid`。
+- `comparison-grid` 必须且只能包含两个 `surface-card comparison-card`。
+- 每个 comparison card 包含 `insight-kicker`、`card-title`、`card-subtitle`、`comparison-details`。
 
-`comparison-grid` 必须且只能包含：
-- 2 个 `surface-card comparison-card`
+适用：
+- 两个平级对象、机制、方案或视角对照。
 
-每个 `comparison-card` 应包含：
-- 一个 `insight-kicker`
-- 一个 `card-title`
-- 0 到 1 个 `card-subtitle`
-- 一个 `comparison-details`
+边界：
+- 不承载三列或更多列内容。
+- 上下级关系、流程关系不要误写成 comparison。
 
-`comparison-details` 内推荐：
-- 2 到 4 个 `list-item`
+## 合同 I：Standard Text / Process
 
-禁止：
-- 不要把三列甚至更多列内容塞进 comparison
-- 不要把上下级关系页面误写成 comparison
-- 不要省略任意一侧卡片
-
-### Contract I：Standard Text / Process
-
-对应来源：
+来源：
 - `format/standard-text-process-body.html`
-- `format/layout.css` 中 `.layout-standard-text-process`
+- `format/standard-text-process-grid-body.html`
+- `format/standard-text-process-list-body.html`
 
-适用场景：
-- 阶段推进
-- 方法流程
-- 研究路线
-- 时间顺序
-- 三阶段训练
-
-根节点签名：
+根节点：
 - `div.slide.layout-standard-text-process`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-area`
 4. `footer-area`
 
-`content-area` 推荐包含以下顺序：
-1. `process-track`
-2. `quote-box`（可选）
-3. `surface-card text-details`（可选但强烈推荐）
+三种结构：
+- 3 步：`process-track`，相邻 `process-step` 之间插入 `process-divider`。
+- 4 步：`process-grid`，必须有 4 个 `surface-card process-step`，不要插入 `process-divider`。
+- 5 步或更多：`surface-card process-list`，每一步使用 `process-list-item`。
 
-`process-track` 必须由以下结构组成：
-- 3 到 5 个 `surface-card process-step`
-- 相邻 `process-step` 之间必须插入一个 `process-divider`
-- `process-divider` 不能出现在开头或结尾
+共同结构：
+- 每个 `process-step` 或 `process-list-item` 包含 `process-index` 和 `process-copy`。
+- `process-copy` 包含 `card-title` 与 `card-subtitle`。
 
-每个 `process-step` 必须包含：
-- `process-index`
-- `process-copy`
+边界：
+- `process-index` 已经承担序号，`card-title` 不要重复写 `Step 1`、`01`。
+- 5 步不要使用 `process-grid` 或 `process-step-wide`。
+- 不要把流程页退化成普通 bullet 列表。
+- 不要把 5 步 Process 改成普通三卡或低密度文本页。
 
-每个 `process-copy` 必须包含：
-- `card-title`
-- 0 到 1 个 `card-subtitle`
+## 合同 J：Card Layout
 
-`text-details` 内推荐：
-- 2 到 4 个 `list-item`
-
-禁止：
-- 不要把流程页退化成普通项目符号列表
-- 不要让 `process-track` 只剩 2 个步骤
-- 不要在流程轨道中混入 comparison 或 sidebar 容器
-
-### Contract J：Card Layout
-
-对应来源：
+来源：
 - `format/card-layout-body.html`
-- `format/layout.css` 中 `.cards-grid`
 
-适用场景：
-- 三点并列
-- 三种特征
-- 三类方案
-- 多列并列信息页
-
-根节点签名：
+根节点：
 - `div.slide`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `cards-grid`
 
-`header-area` 必须包含：
-- `title-en`
-- `title-main`
-- `title-divider`
+结构：
+- `cards-grid` 包含 3 个左右 `surface-card`。
+- 每张卡片至少包含 `card-title` 和 `card-desc`。
+- 推荐加入 `card-subtitle` 增强层次；旧内容里的 `card-icon` 仍可保留。
+- 每张卡片必须包含真实 `card-top-accent` 和 `card-ghost-number` 节点；`card-ghost-number` 使用 `01`、`02`、`03` 这类两位序号。
+- 标题分隔线由 CSS 提供，顶部色条和右下角淡色序号不要依赖 CSS 伪元素或 counter。
 
-`cards-grid` 必须包含：
-- 2 到 4 个 `surface-card`
+适用：
+- 三点并列、三种特征、三类方案、三类画像、三个关键词与标签解释。
 
-每个 `surface-card` 推荐包含：
-- 0 到 1 个 `card-icon`
-- 1 个 `card-title`
-- 0 到 1 个 `card-subtitle`
-- 1 个 `card-desc`
+边界：
+- 不加入 `footer-area`。
+- 不把流程或对比误写成卡片阵列。
+- 短卡片不要只保留“标题 + 一句短句”。
 
-低内容密度优先策略：
-- 如果单张卡片只有一句短描述，优先补足层次，例如加入 `card-subtitle`、`card-icon`，或让 `card-desc` 形成两层表达
-- 不要把 card-layout 做成“每张卡都只有标题 + 一句很短的句子”且留出大面积无意义空白
-- 卡片之间可以共享统一的轻量层次，例如序号、英文 kicker 或同构副标题，以增强结构感
+## 合同 J2：Comparison VS Panels
 
-说明：
-- 当前模板示例展示的是 3 列，但从结构上允许 2 到 4 列。
-- 所有卡片字段不必完全一致，但整体层级应尽量统一。
+来源：
+- `format/comparison-vs-panels-body.html`
 
-禁止：
-- 不要在 card-layout 中加入 `footer-area`
-- 不要把卡片页写成流程页或对比页
-- 不要把 `cards-grid` 内元素换成非 `surface-card`
+根节点：
+- `div.slide.layout-comparison-vs-panels`
 
-### Contract K：Thanks / Q&A
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
+2. `header-area`
+3. `content-area`
 
-对应来源：
-- `format/thanks-body.html`
-- `format/layout.css` 中 `.layout-thanks`
+结构：
+- `content-area` 包含一个 `vs-comparison-grid`。
+- `vs-comparison-grid` 必须包含左侧 `surface-card vs-panel vs-panel-negative`、中间 `vs-center`、右侧 `surface-card vs-panel vs-panel-positive`。
+- `vs-center` 只包含真实节点 `vs-badge`。
+- 每侧 `vs-panel` 包含 `vs-panel-heading`、2 到 3 个 `vs-point`、1 个 `vs-summary`。
 
-适用场景：
-- Q&A
-- 致谢页
-- 汇报结束页
+适用：
+- 旧架构 vs 新方案、痛点 vs 优势、风险路径 vs 推荐路径。
 
-根节点签名：
-- `div.slide.layout-thanks`
+边界：
+- 普通平级比较用 `standard-text-comparison`。
+- 不要连续使用 `comparison-vs-panels`。
+- 不加入页脚、流程轨道或第三列。
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
-2. `thanks-content`
-3. `footer-decoration`
+## 合同 J3：Execution Pipeline
 
-`thanks-content` 必须包含：
-- `title-en`
-- `title-main`
-- `title-divider center-divider`
-- `contact-info`
+来源：
+- `format/execution-pipeline-body.html`
 
-`contact-info` 必须包含：
-- 2 到 4 个 `info-item`
+根节点：
+- `div.slide.layout-execution-pipeline`
 
-`footer-decoration` 必须包含：
-- 一个 `logo-placeholder`
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
+2. `header-area`
+3. `content-area`
 
-禁止：
-- 不要在致谢页加入 `header-area`
-- 不要加入 `footer-area`
-- 不要把结束页改写成普通文本页
+结构：
+- `content-area` 包含 `pipeline-track`。
+- `pipeline-track` 必须包含 3 个 `surface-card pipeline-card`，相邻卡片之间使用真实 `pipeline-arrow` 节点。
+- `pipeline-arrow` 必须包含 `pipeline-arrow-svg`，不要使用 `▶` 等 emoji 或纯文本箭头。
+- 每张卡片包含 `pipeline-number`、`pipeline-card-title`、`pipeline-card-text`，可选 `pipeline-code`。
 
-### Contract L：Media / Left Media Right Text
+适用：
+- 3 步工具调用、RPC、执行链路、上下文回传。
 
-对应来源：
+边界：
+- 普通 3 步短流程用 `standard-text-process` + `process-track`。
+- `pipeline-code` 只放短输入、短 JSON、命令结果或模型输出摘要。
+- 不要连续使用 `execution-pipeline`。
+
+## 合同 J4：Pillar Cards Banner
+
+来源：
+- `format/pillar-cards-banner-body.html`
+
+根节点：
+- `div.slide.layout-pillar-cards-banner`
+
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
+2. `header-area`
+3. `content-area`
+
+结构：
+- `content-area` 包含 `pillar-card-grid` 和 `pillar-summary-bar`。
+- `pillar-card-grid` 必须包含 3 个 `surface-card pillar-card`。
+- 每张卡片包含 `pillar-icon-box`、`card-title`、`card-desc` 和 1 到 3 个 `pillar-tag`。
+
+适用：
+- 三大原则、三大基石、三类优势、三项能力。
+
+边界：
+- 4 个以上模块不要用本版式。
+- 强对比不用本版式。
+- 不要连续使用 `pillar-cards-banner`。
+
+## 合同 J5：Capability Map Grid
+
+来源：
+- `format/capability-map-grid-body.html`
+
+根节点：
+- `div.slide.layout-capability-map-grid`
+
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
+2. `header-area`
+3. `content-area`
+
+结构：
+- `content-area` 包含 `capability-map`。
+- `capability-map` 包含左侧 `capability-hero` 和右侧 `capability-grid`。
+- `capability-grid` 推荐 6 个 `surface-card capability-card`；内容天然为 5 项时允许 5 个。
+- 每张小卡包含 `capability-index`、`capability-card-title`、`capability-card-text`，可选 `capability-chip`。
+
+适用：
+- 一个核心论点拆解为 5 到 6 个模块、能力、组件或支撑机制。
+
+边界：
+- 每个模块说明控制在 1 到 2 行。
+- 3 项并列用 `pillar-cards-banner` 或 `card-layout`。
+- 不要连续使用 `capability-map-grid`。
+
+## 合同 K：Media Left / Text Right
+
+来源：
 - `format/media-left-text-right-body.html`
-- `format/layout.css` 中 `.layout-image-text`、`.content-split-64`
 
-适用场景：
-- 左侧放图片，右侧放解释
-- 左侧放视频，右侧放要点
-- 图示解读页
-
-根节点签名：
+根节点：
 - `div.slide.layout-image-text`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-split-64`
 4. `footer-area`
 
-`content-split-64` 必须且只能包含：
-- `split-left-image`
-- `split-right-text`
+结构：
+- `content-split-64` 包含 `split-left-image` 和 `split-right-text`。
+- `split-left-image` 包含一个 `surface-card media-card`。
+- `split-right-text` 放 `quote-box` 和 `surface-card text-details text-list`。
 
-`split-left-image` 必须包含：
-- 一个 `surface-card media-card`
+适用：
+- 媒体为主，右侧放解释、结论或阅读提示。
 
-`media-card` 必须包含：
-- 一个 `image-placeholder media-stage`
-- 0 到 1 个 `media-caption`
+边界：
+- 不裸放媒体标签。
+- 不让右侧正文变成 comparison 或 process。
 
-`media-stage` 内必须包含以下之一：
-- 一个 `img.media-element`
-- 一个 `video.media-element`
+## 合同 L：Text Left / Media Right
 
-`split-right-text` 推荐包含：
-- 0 到 1 个 `quote-box`
-- 1 个 `surface-card text-details`
-
-禁止：
-- 不要省略媒体容器直接裸放媒体标签
-- 不要让媒体脱离 `media-stage`
-- 不要把右侧正文写成 comparison 或 process 结构
-
-### Contract M：Media / Left Text Right Media
-
-对应来源：
+来源：
 - `format/text-left-media-right-body.html`
-- `format/layout.css` 中 `.layout-text-media`、`.content-split-46`
 
-适用场景：
-- 左侧结论，右侧媒体
-- 左侧分析，右侧案例
-- 文本结论 + 视觉证据
-
-根节点签名：
+根节点：
 - `div.slide.layout-text-media`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
 2. `header-area`
 3. `content-split-46`
 4. `footer-area`
 
-`content-split-46` 必须且只能包含：
-- `split-left-text`
-- `split-right-media`
+结构：
+- `content-split-46` 包含 `split-left-text` 和 `split-right-media`。
+- `split-left-text` 放 `quote-box` 和 `surface-card text-details text-list`。
+- `split-right-media` 包含一个 `surface-card media-card`。
 
-`split-left-text` 推荐包含：
-- 0 到 1 个 `quote-box`
-- 1 个 `surface-card text-details`
+适用：
+- 先给结论，再用右侧媒体展示案例或证据。
 
-`split-right-media` 必须包含：
-- 一个 `surface-card media-card`
+边界：
+- 不在右侧放多个主媒体。
+- 左侧不要改成流程轨道或卡片阵列。
 
-`media-card` 必须包含：
-- 一个 `image-placeholder media-stage`
-- 0 到 1 个 `media-caption`
+## 合同 M：Media Focus
 
-`media-stage` 内必须包含以下之一：
-- 一个 `img.media-element`
-- 一个 `video.media-element`
-
-禁止：
-- 不要把左侧写成流程轨道或卡片阵列
-- 不要在右侧放多个主媒体
-
-### Contract N：Media / Focus
-
-对应来源：
+来源：
 - `format/media-focus-body.html`
-- `format/layout.css` 中 `.layout-media-focus`
 
-适用场景：
-- 大图重点展示
-- 视频演示页
-- 视觉焦点页
-
-根节点签名：
+根节点：
 - `div.slide.layout-media-focus`
 
-根节点允许的直接子元素顺序：
-1. `slide-brand`（仅在品牌开启时）
-2. `header-area`
-3. `media-focus-stage`
-4. `media-focus-summary`
+直接子元素顺序：
+1. `slide-brand`（按主题配置，可选）
+2. `media-focus-image-panel`
+3. `media-focus-content-panel`
 
-`media-focus-stage` 必须包含：
-- 一个 `surface-card media-card media-card-focus`
+结构：
+- `media-focus-image-panel` 包含 `media-stage`、`media-element` 和可选 `media-focus-caption`。
+- `media-focus-content-panel` 包含 `header-area`、一个重点说明 `quote-box` 和一个短 `text-details text-list`。
+- 左侧图片使用 cover 裁切语义：保持原比例填满左侧区域，超出部分允许裁掉。
+- 版式必须是绝对定位左右分栏，左侧约 60% 全高媒体，右侧约 40% 短文本说明；根节点必须无 padding，避免主题 `.slide` padding 影响 full-bleed 图片。
 
-`media-card-focus` 必须包含：
-- 一个 `image-placeholder media-stage`
-- 0 到 1 个 `media-caption`
+适用：
+- 关键架构图、实验效果、视频演示等视觉主角页面。
 
-`media-stage` 内必须包含以下之一：
-- 一个 `img.media-element`
-- 一个 `video.media-element`
+边界：
+- 禁止横幅式媒体结构或 banner 图；不要生成上方长条媒体 + 下方文本的旧结构。
+- 不再输出下方总结区。
+- 右侧文字控制在 2 到 3 条短要点。
+- 不在一页放多个主媒体。
 
-`media-focus-summary` 推荐包含：
-- 0 到 1 个 `quote-box`
-- 0 到 1 个 `surface-card text-details`
+## 合同 N：Thanks
 
-说明：
-- 该版式不是“纯媒体页”，下方应保留少量总结文字。
-- 总结文字推荐压缩为 1 条结论句，或最多 1 到 2 条极短要点。
+来源：
+- `format/thanks-body.html`
 
-禁止：
-- 不要把 `media-focus-summary` 堆成大段正文或大文本卡片
-- 不要在一页里放多个主媒体
+根节点：
+- `div.slide.layout-thanks`
+
+直接子元素顺序：
+1. `thanks-content`
+2. `footer-decoration`
+
+结构：
+- `thanks-content` 包含 `title-en`、`title-main`、`title-divider center-divider`、`thanks-note`。
+- `title-main` 推荐 `Q&A`，必须单行。
+- `footer-decoration` 包含真实 `<img class="thanks-logo-image" src="/assets/HEU/heu-logo.png" ...>`。
+
+边界：
+- 不加入 `slide-brand`。
+- 不加入 `header-area` 或 `footer-area`。
+- 不输出 `thanks-orbit`、`thanks-accent-line`、`thanks-safe-decor`。
+- 不输出 `logo-placeholder`、`HEU LOGO`、`contact-info`、`info-item`。
+- 不承载总结卡片、核心回顾或未来展望。
