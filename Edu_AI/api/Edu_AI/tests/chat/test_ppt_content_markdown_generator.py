@@ -45,7 +45,7 @@ def _preparation() -> PptPreparationResult:
     )
 
 
-def test_content_markdown_generator_prompt_includes_direct_content_instructions_soft_constraint_and_protocol_text():
+def test_content_markdown_generator_prompt_includes_new_teaching_constraints_and_protocol_text():
     prompts: list[str] = []
 
     class DummyLLM:
@@ -66,16 +66,22 @@ def test_content_markdown_generator_prompt_includes_direct_content_instructions_
     assert prompts
 
     prompt = prompts[0]
-    assert "直接生成完整的最终 content_markdown" in prompt
-    assert "15+" in prompt
+    assert "请直接生成完整的最终 content_markdown" in prompt
+    assert "整体建议不少于 18 页" in prompt
+    assert "每一页都要写出真实内容，不要只重复标题" in prompt
+    assert "大多数内容页应尽量同时包含以下要素中的至少 3 种" in prompt
+    assert "不要只回答“是什么”" in prompt
+    assert "如果是方法型内容，不要只给流程，要补充适用条件、关键步骤、优缺点和常见错误" in prompt
+    assert "请根据大纲自动补全合理的教学链路" in prompt
+    assert "整套内容必须像认真备课后的教学型 PPT 文稿" in prompt
+    assert "大多数内容页都应形成“一个明确小主题 + 一段展开解释 + 必要例子/比较/结论”的结构" in prompt
+    assert "不要输出“下面开始生成”“以下是最终结果”“第 X 页”等额外提示语" in prompt
+    assert "如果协议允许使用 summary、quote、case、columns 等 block，请优先用于承载真实教学内容" in prompt
+    assert "结束页只保留简洁收尾信息，不再展开知识点，不写大段总结" in prompt
     assert protocol_text in prompt
     assert "Agent Systems" in prompt
     assert "大学生" in prompt
     assert "讲清核心流程" in prompt
-    assert "不要使用 *、** 这类 Markdown 强调或列表符号" in prompt
-    assert "模板里如果已经有 01/02/03 或 1/2/3 这类视觉序号" in prompt
-    assert "不要输出字面量 \\n" in prompt
-    assert "结束页（thanks）不要写成回顾总结页" in prompt
     assert "general learners" not in prompt
     assert "classroom teaching" not in prompt
 
