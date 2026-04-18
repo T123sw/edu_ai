@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { backendCourseToSummary, listCourses } from "../api/courses";
 import type { BackendCourse } from "../api/types";
 import { AppSurface, Badge, GlassPanel, MaterialIcon, ProgressBar, routeHref, routes, useAppShell, type CourseSummary } from "../shared";
@@ -8,6 +8,12 @@ const exploreCourses = [
   { title: "知识图谱编辑", author: "Knowledge Graph", type: "课程工具", price: "已接入", rating: "API" },
   { title: "视频语义检索", author: "Video Search", type: "学习助手", price: "已接入", rating: "API" },
 ];
+
+const staticProfile = {
+  username: "林知夏",
+  role: "课程主理人",
+  email: "lin.zhixia@edu-ai.local",
+};
 
 export function HomeDashboardPage() {
   const { setSelectedCourse } = useAppShell();
@@ -74,7 +80,18 @@ export function HomeDashboardPage() {
             <button className="text-[var(--muted-text)]">
               <MaterialIcon name="manage_accounts" />
             </button>
-            <div className="h-10 w-10 rounded-full border-2 border-[var(--accent-border)] bg-gradient-to-br from-blue-100 to-blue-300" />
+            <a
+              href={routeHref(routes.profile)}
+              className="flex items-center gap-3 rounded-full border border-[#163a80] bg-[linear-gradient(135deg,#163a80_0%,#2357b8_100%)] px-2 py-2 text-white shadow-[0_14px_28px_rgba(22,58,128,0.28)] transition hover:-translate-y-px"
+            >
+              <div className="grid h-10 w-10 place-items-center rounded-full border-2 border-white/35 bg-gradient-to-br from-[#f8fbff] via-[#dbeafe] to-[#93c5fd] text-sm font-black text-[#163a80]">
+                LX
+              </div>
+              <div className="hidden pr-2 sm:block">
+                <div className="text-sm font-bold leading-none text-white">{staticProfile.username}</div>
+                <div className="mt-1 text-[11px] leading-none text-white/78">{staticProfile.role}</div>
+              </div>
+            </a>
           </div>
         </div>
       </nav>

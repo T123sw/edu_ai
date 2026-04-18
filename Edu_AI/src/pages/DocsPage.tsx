@@ -719,7 +719,7 @@ export default function DocsPage() {
       title="文档详情"
       footer={null}
       width={720}
-      destroyOnClose
+      destroyOnHidden
     >
       {detailModal.loading ? (
         <div style={{ textAlign: 'center', padding: 24 }}>
@@ -772,7 +772,7 @@ export default function DocsPage() {
       onCancel={() => setSummaryModal({ visible: false, loading: false })}
       title={summaryModal.title || '文档摘要'}
       width={640}
-      destroyOnClose
+      destroyOnHidden
       footer={
         <Space>
           <Button onClick={() => setSummaryModal({ visible: false, loading: false })}>关闭</Button>

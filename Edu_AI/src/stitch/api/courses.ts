@@ -81,9 +81,34 @@ function hasTextContent(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-export function courseMaterialToMarkdown(material: CourseMaterial) {
+function extractDirectMaterialMarkdown(material: CourseMaterial): string {
   if (hasTextContent(material.final_markdown)) return material.final_markdown;
   if (hasTextContent(material.content)) return material.content;
+
+  if (material.content && typeof material.content === "object" && !Array.isArray(material.content)) {
+    const record = material.content as Record<string, unknown>;
+    const candidates = [
+      record.content_markdown,
+      record.markdown,
+      record.report,
+      record.report_content,
+      record.content,
+      record.text,
+    ];
+
+    for (const candidate of candidates) {
+      if (hasTextContent(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  return "";
+}
+
+export function courseMaterialToMarkdown(material: CourseMaterial) {
+  const directMarkdown = extractDirectMaterialMarkdown(material);
+  if (directMarkdown) return directMarkdown;
 
   if (material.material_type === "report" && Array.isArray(material.mainContent)) {
     const body = material.mainContent

@@ -5,10 +5,10 @@ import { AIWorkspacePage } from "./pages/AIWorkspace";
 import { HomeDashboardPage } from "./pages/HomeDashboard";
 import { KnowledgeGraphPage } from "./pages/KnowledgeGraph";
 import { PptStudioPage } from "./pages/PptStudio";
-import { CourseResourcesPage } from "./pages/CourseResources";
 import { CourseKnowledgeBasePage } from "./pages/CourseKnowledgeBase";
 import { CourseDetailPage } from "./pages/CourseDetail";
 import { CourseEditPage } from "./pages/CourseEdit";
+import { ProfilePage } from "./pages/Profile";
 import {
   AppShellProvider,
   ThemeCustomizer,
@@ -22,6 +22,7 @@ import {
 import { login, verifyToken, type User } from "../services/auth";
 
 const pages = [
+  [routes.profile, "Profile", ProfilePage],
   [routes.home, "首页", HomeDashboardPage],
   [routes.course, "课程详情", CourseDetailPage],
   [routes.workspace, "课程工作台", WorkspaceOverviewPage],
@@ -29,7 +30,6 @@ const pages = [
   [routes.ai, "AI 问答", AIWorkspacePage],
   [routes.graph, "知识图谱", KnowledgeGraphPage],
   [routes.ppt, "PPT 工作室", PptStudioPage],
-  [routes.resources, "课程资源", CourseResourcesPage],
   [routes.knowledge, "课程知识库", CourseKnowledgeBasePage],
   [routes.edit, "详情编辑", CourseEditPage],
 ] as const;
@@ -37,8 +37,13 @@ const pages = [
 const AUTH_STORAGE_KEY = "edu-ai-auth";
 
 function getCurrentRoute(): RouteKey {
-  const hash = window.location.hash.replace(/^#/, "") as RouteKey;
-  return pages.some(([id]) => id === hash) ? hash : routes.home;
+  const hash = window.location.hash.replace(/^#/, "");
+  const route = hash.split("?")[0] as RouteKey;
+  if (route === routes.resources) {
+    window.location.hash = routeHref(routes.video);
+    return routes.video;
+  }
+  return pages.some(([id]) => id === route) ? route : routes.home;
 }
 
 function getStoredTheme(): ThemeName {
