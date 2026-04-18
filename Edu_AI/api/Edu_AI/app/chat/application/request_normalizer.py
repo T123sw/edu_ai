@@ -5,9 +5,12 @@ from app.chat.domain.contracts import ChatRequestV2
 
 
 def normalize_chat_request(payload) -> ChatRequestV2:
+    selected_doc_ids = list(getattr(payload, "selected_doc_ids", None) or [])
     allow_rag = getattr(payload, "allow_rag", None)
     if allow_rag is None:
         allow_rag = bool(getattr(payload, "use_rag", False))
+    if not allow_rag and selected_doc_ids:
+        allow_rag = True
 
     allow_web = bool(getattr(payload, "allow_web", False))
 
@@ -27,6 +30,6 @@ def normalize_chat_request(payload) -> ChatRequestV2:
             allow_rag=bool(allow_rag),
             allow_web=allow_web,
             allow_tools=bool(allow_rag or allow_web),
-            selected_doc_ids=list(getattr(payload, "selected_doc_ids", None) or []),
+            selected_doc_ids=selected_doc_ids,
         ),
     )

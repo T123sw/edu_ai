@@ -49,3 +49,25 @@ def test_normalize_v1_use_rag_is_supported_when_allow_rag_missing():
     assert result.capability.allow_rag is True
     assert result.capability.selected_doc_ids == ["doc-1"]
     assert result.action_hint == "research.lookup"
+
+
+def test_normalize_request_enables_rag_when_selected_docs_exist():
+    payload = SimpleNamespace(
+        question="查资料",
+        conversation_id="conv-1",
+        model_id=None,
+        owner="teacher-a",
+        course_id=None,
+        artifact_id=None,
+        use_rag=False,
+        allow_rag=False,
+        allow_web=False,
+        action_hint=None,
+        selected_doc_ids=["doc-1"],
+    )
+
+    result = normalize_chat_request(payload)
+
+    assert result.capability.allow_rag is True
+    assert result.capability.allow_tools is True
+    assert result.capability.selected_doc_ids == ["doc-1"]

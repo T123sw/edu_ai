@@ -1,10 +1,51 @@
 import os
 import requests
 import base64
-from urllib.parse import urlparse, parse_qs, unquote
+from urllib.parse import urlparse, parse_qs, unquote, urljoin
 import concurrent.futures
 import re
 import time
+from bs4 import BeautifulSoup
+
+IMAGE_URL_ATTRS = (
+    'data-src',
+    'data-original',
+    'data-actualsrc',
+    'data-lazy-src',
+    'data-original-src',
+    'data-fallback-src',
+    'data-srcset',
+    'srcset',
+    'src',
+)
+
+SITE_ICON_REL_MARKERS = (
+    'icon',
+    'shortcut icon',
+    'apple-touch-icon',
+    'apple-touch-icon-precomposed',
+    'mask-icon',
+)
+
+SOCIAL_IMAGE_META_KEYS = (
+    ('property', 'og:image'),
+    ('name', 'og:image'),
+    ('property', 'twitter:image'),
+    ('name', 'twitter:image'),
+)
+
+IMAGE_SUFFIXES = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.ico', '.avif'}
+CONTENT_TYPE_SUFFIX_MAP = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'image/gif': '.gif',
+    'image/bmp': '.bmp',
+    'image/x-icon': '.ico',
+    'image/vnd.microsoft.icon': '.ico',
+    'image/avif': '.avif',
+}
 
 def safe_b64decode(encoded_str):
     """安全的Base64解码函数，自动处理填充和URL安全编码"""
@@ -28,6 +69,208 @@ def safe_b64decode(encoded_str):
         except Exception as e2:
             print(f"标准Base64解码也失败: {e2}")
             return None
+
+
+def _extract_first_srcset_url(srcset_value):
+    if not srcset_value:
+        return None
+
+    for candidate in srcset_value.split(','):
+        candidate = candidate.strip()
+        if not candidate:
+            continue
+        return candidate.split()[0]
+    return None
+
+
+def _normalize_image_url(raw_url, page_url):
+    if not raw_url:
+        return None
+
+    raw_url = raw_url.strip()
+    if not raw_url:
+        return None
+
+    if raw_url.startswith(('data:', 'blob:', 'javascript:')):
+        return None
+
+    if raw_url.startswith('//'):
+        raw_url = 'https:' + raw_url
+    elif page_url:
+        raw_url = urljoin(page_url, raw_url)
+
+    if not raw_url.startswith(('http://', 'https://')):
+        return None
+
+    lowered_url = raw_url.lower()
+    if lowered_url.endswith('.svg') or '.svg?' in lowered_url:
+        return None
+
+    return raw_url
+
+
+def _sanitize_image_name(name):
+    cleaned = re.sub(r'[\\/:*?"<>|]', '_', name or '')
+    cleaned = re.sub(r'\s+', '_', cleaned).strip('._ ')
+    return cleaned[:80] or 'image'
+
+
+def guess_image_suffix(url, content_type=''):
+    parsed_path = urlparse(url).path if url else ''
+    suffix = os.path.splitext(parsed_path)[1].lower()
+    if suffix in IMAGE_SUFFIXES:
+        return suffix
+
+    normalized_content_type = (content_type or '').split(';', 1)[0].strip().lower()
+    return CONTENT_TYPE_SUFFIX_MAP.get(normalized_content_type, '.jpg')
+
+
+def extract_image_urls_from_html(html, page_url):
+    if not html:
+        return []
+
+    soup = BeautifulSoup(html, 'lxml')
+    image_urls = []
+    seen = set()
+
+    for tag in soup.find_all(['img', 'source']):
+        normalized_url = None
+
+        for attr in IMAGE_URL_ATTRS:
+            raw_value = tag.get(attr)
+            if not raw_value:
+                continue
+
+            if 'srcset' in attr:
+                raw_value = _extract_first_srcset_url(raw_value)
+
+            normalized_url = _normalize_image_url(raw_value, page_url)
+            if normalized_url:
+                break
+
+        if normalized_url and normalized_url not in seen:
+            seen.add(normalized_url)
+            image_urls.append(normalized_url)
+
+    return image_urls
+
+
+def _download_image_urls(output_dir, image_urls, page_url, page_name='image', limit=None):
+    if not image_urls:
+        return []
+    os.makedirs(output_dir, exist_ok=True)
+    safe_page_name = _sanitize_image_name(page_name)
+    saved_files = []
+    counter = len(os.listdir(output_dir)) + 1
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': page_url,
+        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+    }
+
+    for image_url in image_urls[:limit] if limit else image_urls:
+        try:
+            response = requests.get(image_url, headers=headers, timeout=10)
+            response.raise_for_status()
+
+            content_type = (response.headers.get('Content-Type') or '').lower()
+            if content_type and not content_type.startswith('image/'):
+                continue
+            if 'svg' in content_type:
+                continue
+
+            suffix = guess_image_suffix(image_url, content_type)
+            if suffix == '.svg':
+                continue
+
+            filepath = os.path.join(output_dir, f"{safe_page_name}_{counter:03d}{suffix}")
+            while os.path.exists(filepath):
+                counter += 1
+                filepath = os.path.join(output_dir, f"{safe_page_name}_{counter:03d}{suffix}")
+
+            with open(filepath, 'wb') as image_file:
+                image_file.write(response.content)
+
+            if os.path.getsize(filepath) == 0:
+                os.unlink(filepath)
+                continue
+
+            saved_files.append({
+                'source_url': image_url,
+                'file_path': filepath,
+            })
+            counter += 1
+        except Exception as e:
+            print(f"涓嬭浇缃戦〉鍥剧墖澶辫触 {image_url}: {e}")
+            continue
+
+    return saved_files
+
+
+def extract_site_icon_urls_from_html(html, page_url):
+    if not html:
+        return []
+
+    soup = BeautifulSoup(html, 'lxml')
+    icon_urls = []
+    seen = set()
+
+    for link in soup.find_all('link'):
+        rel_values = [str(value).lower().strip() for value in (link.get('rel') or []) if value]
+        rel_text = ' '.join(rel_values)
+        if not rel_text:
+            rel_text = str(link.get('rel') or '').lower()
+        if not any(marker in rel_text for marker in SITE_ICON_REL_MARKERS):
+            continue
+
+        normalized_url = _normalize_image_url(link.get('href'), page_url)
+        if normalized_url and normalized_url not in seen:
+            seen.add(normalized_url)
+            icon_urls.append(normalized_url)
+
+    for attr_name, attr_value in SOCIAL_IMAGE_META_KEYS:
+        for meta in soup.find_all('meta'):
+            if str(meta.get(attr_name, '')).strip().lower() != attr_value:
+                continue
+            normalized_url = _normalize_image_url(meta.get('content'), page_url)
+            if normalized_url and normalized_url not in seen:
+                seen.add(normalized_url)
+                icon_urls.append(normalized_url)
+
+    if page_url:
+        parsed_url = urlparse(page_url)
+        fallback_url = f"{parsed_url.scheme or 'https'}://{parsed_url.netloc}/favicon.ico" if parsed_url.netloc else None
+        normalized_fallback = _normalize_image_url(fallback_url, page_url)
+        if normalized_fallback and normalized_fallback not in seen:
+            icon_urls.append(normalized_fallback)
+
+    return icon_urls
+
+
+def download_images_from_page(output_dir, html, page_url, page_name='image'):
+    image_urls = extract_image_urls_from_html(html, page_url)
+    return [
+        record['file_path']
+        for record in _download_image_urls(output_dir, image_urls, page_url, page_name=page_name)
+    ]
+
+
+def download_image_records_from_page(output_dir, html, page_url, page_name='image'):
+    image_urls = extract_image_urls_from_html(html, page_url)
+    return _download_image_urls(output_dir, image_urls, page_url, page_name=page_name)
+
+
+def download_site_icon_from_page(output_dir, html, page_url, page_name='site-icon'):
+    icon_urls = extract_site_icon_urls_from_html(html, page_url)
+    saved_files = _download_image_urls(
+        output_dir,
+        icon_urls,
+        page_url,
+        page_name=page_name,
+        limit=1,
+    )
+    return saved_files[0]['file_path'] if saved_files else None
 
 
 def extract_real_url(bing_url):

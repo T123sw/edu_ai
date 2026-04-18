@@ -15,10 +15,10 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.auth import get_current_user
+from app.deepsearch_importer import import_crawl_results_to_rag
 from app.deepsearch_loader import load_eduagent_capabilities
 from core import Config
 from rag_v2.api import get_rag_system
-from rag_v2.document_resolver import resolve_rag_document
 
 # 添加EduAgent到Python路径
 # 从 D:\Edu_AI_1\Edu_AI\api\Edu_AI\app\deepsearch.py 到 D:\Edu_AI_1\EduAgent
@@ -289,6 +289,13 @@ async def deepsearch_and_crawl(
             try:
                 print(f"[API] [深度搜索] 开始入库到知识库（RAG）... user={username}")
                 rag_system = get_rag_system()
+                imported_docs = import_crawl_results_to_rag(
+                    results=crawl_batch.results,
+                    owner=username,
+                    rag_system=rag_system,
+                    documents_root=Config.DOCUMENTS_ROOT,
+                )
+                crawl_batch.results = []
                 dest_dir = (Config.DOCUMENTS_ROOT / "web" / username)
                 dest_dir.mkdir(parents=True, exist_ok=True)
 

@@ -257,6 +257,8 @@ class RouteChatService:
     @staticmethod
     def _resolve_rag_flags(*, use_rag=False, allow_rag=None, selected_doc_ids=None):
         resolved_allow_rag = bool(use_rag) if allow_rag is None else bool(allow_rag)
+        if not resolved_allow_rag and selected_doc_ids:
+            resolved_allow_rag = True
         resolved_use_rag = bool(use_rag) or bool(selected_doc_ids) or resolved_allow_rag
         return resolved_use_rag, resolved_allow_rag
 
@@ -345,12 +347,17 @@ class RouteChatService:
             course_id=course_id,
             question=question,
         )
+        resolved_use_rag, resolved_allow_rag = self._resolve_rag_flags(
+            use_rag=use_rag,
+            allow_rag=allow_rag,
+            selected_doc_ids=selected_doc_ids,
+        )
         return self._compat.chat(
             question=question,
             conversation_id=conversation_id,
             model_id=model_id,
-            use_rag=use_rag,
-            allow_rag=allow_rag,
+            use_rag=resolved_use_rag,
+            allow_rag=resolved_allow_rag,
             selected_doc_ids=selected_doc_ids,
             owner=owner,
             course_id=course_id,
@@ -394,11 +401,16 @@ class RouteChatService:
         )
         result = self._run_new_path(payload)
         if "answer" in result and "intent_category" in result:
+            resolved_use_rag, _resolved_allow_rag = self._resolve_rag_flags(
+                use_rag=use_rag,
+                allow_rag=allow_rag,
+                selected_doc_ids=selected_doc_ids,
+            )
             return self.legacy_service.chat_stream_with_meta(
                 question=question,
                 conversation_id=conversation_id,
                 model_id=model_id,
-                use_rag=use_rag,
+                use_rag=resolved_use_rag,
                 selected_doc_ids=selected_doc_ids,
                 owner=owner,
                 course_id=course_id,

@@ -315,6 +315,64 @@
   margin-top: 2px;
 }
 
+.chat-panel__inline-answer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-panel__inline-answer-block {
+  min-width: 0;
+}
+
+.chat-panel__inline-sources {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.chat-panel__source-dot {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: #d1d5db;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: inset 0 0 0 1px rgba(107, 114, 128, 0.22);
+  transition: background-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+}
+
+.chat-panel__source-dot:hover {
+  background: #9ca3af;
+  color: #111827;
+  transform: translateY(-1px);
+}
+
+.chat-panel__source-dot:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.chat-panel__source-dot--inline {
+  margin: 0;
+}
+
+.chat-panel__source-dot--floating {
+  margin-inline-end: 8px;
+  margin-bottom: 8px;
+}
+
 .chat-panel__composer {
   flex-shrink: 0;
   display: flex;

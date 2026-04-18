@@ -74,6 +74,7 @@ export interface KnowledgeDocument {
   doc_kind?: string;
   modality?: string;
   image_url?: string;
+  source_icon_url?: string;
 }
 
 export interface DocumentSample {

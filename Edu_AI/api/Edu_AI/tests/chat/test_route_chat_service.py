@@ -309,7 +309,7 @@ def test_route_chat_service_enforces_capability_policy_on_legacy_fallback():
     assert legacy.calls[-1]["allow_web"] is False
 
 
-def test_route_chat_service_blocks_inferred_rag_when_policy_enforced_and_frontend_disables_it():
+def test_route_chat_service_enables_rag_when_selected_docs_exist_under_policy_enforcement():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)
     storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
@@ -336,10 +336,10 @@ def test_route_chat_service_blocks_inferred_rag_when_policy_enforced_and_fronten
         artifact_id=None,
     )
 
-    assert legacy.calls[-1]["use_rag"] is False
+    assert legacy.calls[-1]["use_rag"] is True
 
 
-def test_route_chat_service_preserves_explicit_allow_rag_false_when_selected_docs_exist():
+def test_route_chat_service_enables_rag_when_selected_docs_exist():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)
     storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
@@ -367,7 +367,7 @@ def test_route_chat_service_preserves_explicit_allow_rag_false_when_selected_doc
         artifact_id=None,
     )
 
-    assert legacy.calls[-1]["use_rag"] is False
+    assert legacy.calls[-1]["use_rag"] is True
 
 
 def test_route_chat_service_stream_uses_new_fast_path():
@@ -454,7 +454,7 @@ def test_route_chat_service_stream_falls_back_when_fast_runtime_disabled():
     assert legacy.stream_calls[-1]["use_rag"] is False
 
 
-def test_route_chat_service_stream_enforces_capability_policy_on_legacy_fallback():
+def test_route_chat_service_stream_enables_rag_when_selected_docs_exist_on_legacy_fallback():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)
     storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
@@ -480,7 +480,7 @@ def test_route_chat_service_stream_enforces_capability_policy_on_legacy_fallback
 
     assert meta["conversation_id"] == "legacy-conv"
     assert list(stream) == []
-    assert legacy.stream_calls[-1]["use_rag"] is False
+    assert legacy.stream_calls[-1]["use_rag"] is True
 
 
 def test_route_chat_service_forwards_extended_runtime_fields_to_legacy_fallback():

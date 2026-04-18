@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from core import Config
 from rag_v2.api import get_rag_system
-from rag_v2.document_resolver import resolve_rag_document
+from app.deepsearch_importer import import_crawl_results_to_rag
 
 
 # 添加EduAgent到Python路径
@@ -104,88 +104,12 @@ def run_deepsearch_pipeline(
     imported_docs: List[Dict[str, str]] = []
     if save_to_kb:
         rag_system = get_rag_system()
-        dest_dir = (Config.DOCUMENTS_ROOT / "web" / owner_name)
-        dest_dir.mkdir(parents=True, exist_ok=True)
-
-        for r in crawl_batch.results:
-            if r.status != "success":
-                continue
-
-            url = r.url or ""
-            if not url:
-                continue
-
-            title = (r.title or "").strip() or url
-            domain = ""
-            try:
-                domain = (urlparse(url).netloc or "").replace(":", "_")
-            except Exception:
-                domain = ""
-            h = _url_hash(url)
-
-            if r.content_type == "pdf" and r.file_path and Path(r.file_path).exists():
-                filename = f"web_{domain or 'pdf'}_{_safe_slug(title, 30)}_{h}.pdf"
-                dst = dest_dir / filename
-                if not dst.exists():
-                    dst.write_bytes(Path(r.file_path).read_bytes())
-                import_path = str(dst.absolute())
-            else:
-                filename = f"web_{domain or 'page'}_{_safe_slug(title, 30)}_{h}.md"
-                dst = dest_dir / filename
-                full_content = r.content or ""
-                if not full_content and r.file_path and Path(r.file_path).exists():
-                    try:
-                        full_content = Path(r.file_path).read_text(encoding="utf-8")
-                    except Exception:
-                        full_content = ""
-                if not full_content:
-                    continue
-                min_content_length = int(os.getenv("DEEPSEARCH_MIN_CONTENT_LENGTH", "200"))
-                if len(full_content.strip()) < min_content_length:
-                    print(
-                        f"[API] [入库] 跳过内容过短的页面: {url} "
-                        f"(长度={len(full_content.strip())}, 阈值={min_content_length})"
-                    )
-                    continue
-                if not dst.exists():
-                    md = (
-                        f"# {title}\n\n"
-                        f"- 来源: {url}\n"
-                        f"- 抓取方式: deepsearch+crawl\n\n"
-                        f"## 正文\n\n{full_content}\n"
-                    )
-                    dst.write_text(md, encoding="utf-8")
-                import_path = str(dst.absolute())
-
-            import_result = rag_system.import_document(import_path, force_reimport=False, owner=owner_name)
-            resolved_document = None
-            try:
-                resolved_document = resolve_rag_document(rag_system, import_path, owner=owner_name)
-                rec = resolved_document.record if resolved_document is not None else None
-                if isinstance(rec, dict):
-                    pretty_name = f"{title}"
-                    if domain and domain not in pretty_name:
-                        pretty_name = f"{pretty_name} - {domain}"
-                    rec["file_name"] = _safe_slug(pretty_name, 120)
-                    rec["source_url"] = url
-                    rec["source_title"] = title
-                    rec["source_domain"] = domain
-                    rec["doc_kind"] = "web"
-                    rec["source_key"] = rec.get("source_key") or resolved_document.source_key
-            except Exception:
-                pass
-
-            imported_docs.append({
-                "file_path": import_path,
-                "index_key": resolved_document.index_key if resolved_document is not None else None,
-                "file_name": Path(import_path).name,
-                "url": url,
-            })
-
-        try:
-            rag_system._save_index()
-        except Exception:
-            pass
+        imported_docs = import_crawl_results_to_rag(
+            results=crawl_batch.results,
+            owner=owner_name,
+            rag_system=rag_system,
+            documents_root=Config.DOCUMENTS_ROOT,
+        )
 
     return {
         "ok": True,

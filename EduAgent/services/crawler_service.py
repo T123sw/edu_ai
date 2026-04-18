@@ -3,6 +3,7 @@
 封装自动化爬虫模块的调用，提供批量爬取URL的功能
 """
 import sys
+import json
 from pathlib import Path
 from typing import List, Dict, Optional
 from datetime import datetime
@@ -249,6 +250,34 @@ class CrawlerService:
                                 # 保存完整内容（不截断）
                                 result.content = content
                                 result.title = text_file.stem
+
+                                image_dir = output_path / "output" / "urls" / "images" / text_file.stem
+                                if image_dir.exists():
+                                    manifest_path = image_dir / "_manifest.json"
+                                    if manifest_path.exists():
+                                        try:
+                                            with open(manifest_path, "r", encoding="utf-8") as manifest_file:
+                                                image_assets = json.load(manifest_file)
+                                            result.metadata["image_assets"] = image_assets
+                                            result.metadata["image_paths"] = [
+                                                asset["file_path"]
+                                                for asset in image_assets
+                                                if isinstance(asset, dict) and asset.get("file_path")
+                                            ]
+                                        except Exception as manifest_error:
+                                            print(f"[爬取] 读取图片清单失败: {manifest_error}")
+                                    else:
+                                        result.metadata["image_paths"] = [
+                                            str(path)
+                                            for path in sorted(image_dir.iterdir())
+                                            if path.is_file()
+                                        ]
+
+                                site_icon_dir = output_path / "output" / "urls" / "site_icons"
+                                if site_icon_dir.exists():
+                                    matching_icons = sorted(site_icon_dir.glob(f"{text_file.stem}_*"))
+                                    if matching_icons:
+                                        result.metadata["site_icon_path"] = str(matching_icons[0])
                                 
                                 print(f"[爬取] 保存到result.content的长度: {len(result.content)} 字符")
                                 print(f"[爬取] 前100字符预览: {result.content[:100]}...")
@@ -290,4 +319,3 @@ def get_crawler_service() -> CrawlerService:
     if _crawler_service_instance is None:
         _crawler_service_instance = CrawlerService()
     return _crawler_service_instance
-

@@ -258,6 +258,8 @@ def _image_index_entry_to_document_info(
 ) -> Optional[Dict[str, Any]]:
     if owner is not None and record.get("owner") != owner:
         return None
+    if bool(record.get("hidden_in_list")):
+        return None
 
     image_path = record.get("file_path") or record.get("image_path")
     if not image_path:
@@ -296,6 +298,168 @@ def _list_owner_image_documents(owner: Optional[str], server_url: str = "") -> L
         if document is not None:
             documents.append(document)
     return documents
+
+
+def _copy_local_image_into_owner_dir(
+    source_path: str | Path,
+    *,
+    owner: str,
+    preferred_name: Optional[str] = None,
+) -> Path:
+    source = Path(source_path)
+    if not source.exists() or not source.is_file():
+        raise FileNotFoundError(str(source))
+
+    user_dir = _get_user_media_dir("images", owner)
+    user_dir.mkdir(parents=True, exist_ok=True)
+
+    safe_name = _sanitize_upload_filename(preferred_name or source.name)
+    destination = user_dir / safe_name
+    if destination.resolve() != source.resolve():
+        if destination.exists():
+            suffix = hashlib.md5(str(source).encode("utf-8")).hexdigest()[:8]
+            destination = user_dir / f"{destination.stem}_{suffix}{destination.suffix}"
+        shutil.copy2(source, destination)
+    return destination
+
+
+def _index_owner_image_file(
+    file_path: str | Path,
+    *,
+    owner: str,
+    include_in_search: bool = True,
+    hidden_in_list: bool = False,
+    doc_kind: str = "image",
+    extra_metadata: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    target_path = Path(file_path)
+    if not target_path.exists() or not target_path.is_file():
+        raise FileNotFoundError(str(target_path))
+
+    mime_type, _ = mimetypes.guess_type(str(target_path))
+    mime_type = mime_type or "image/jpeg"
+    with open(target_path, "rb") as img_file:
+        encoded_string = base64.b64encode(img_file.read()).decode("utf-8")
+    base64_data = f"data:{mime_type};base64,{encoded_string}"
+
+    rag_system = get_rag_system()
+    api_key = os.getenv("EMBEDDING_API_KEY")
+    api_base = os.getenv("EMBEDDING_API_BASE")
+    if api_base and not api_base.endswith("/v1"):
+        api_base = f"{api_base}/v1"
+
+    embed_model = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2-preview")
+    url = f"{api_base.rstrip('/')}/embeddings"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": embed_model,
+        "input": [base64_data],
+    }
+
+    resp = requests.post(url, json=payload, headers=headers, timeout=15)
+    if resp.status_code != 200:
+        raise Exception(f"大模型 API 响应异常: {resp.text}")
+
+    try:
+        embedding = resp.json()["data"][0]["embedding"]
+    except Exception as exc:
+        raise Exception(f"向量数据解析失败，模型可能不支持多模态。原始返回: {resp.text[:100]}") from exc
+
+    with open(target_path, "rb") as image_file:
+        file_hash = hashlib.md5(image_file.read()).hexdigest()
+
+    index_key = rag_system._make_index_key(str(target_path), owner)
+    existing_record = _image_index.get(index_key)
+    if isinstance(existing_record, dict) and existing_record.get("hash") == file_hash:
+        return {
+            "status": "success",
+            "message": f"图片 {target_path.name} 已存在，复用已有索引",
+            "file": index_key,
+            "file_path": index_key,
+            "image_path": str(target_path),
+            "image_url": _build_guarded_media_url("", target_path, "image"),
+            "doc_kind": existing_record.get("doc_kind") or doc_kind or "image",
+        }
+
+    source_key = rag_system._make_source_key(str(target_path), owner)
+    image_id = f"image_{target_path.stem}_{file_hash[:8]}"
+    image_metadata = {
+        "image_path": str(target_path),
+        "modality": "image",
+        "source": source_key,
+        "owner": owner,
+        "owner_username": owner,
+        "file_name": target_path.name,
+        "file_size": target_path.stat().st_size,
+        "hash": file_hash,
+    }
+    if extra_metadata:
+        image_metadata.update(extra_metadata)
+
+    rag_system.vector_store.collection.add(
+        embeddings=[embedding],
+        documents=["[多模态图片节点]"],
+        metadatas=[image_metadata],
+        ids=[image_id],
+    )
+
+    index_record = {
+        "file_path": str(target_path),
+        "file_name": target_path.name,
+        "include_in_search": bool(include_in_search),
+        "imported_at": datetime.now().isoformat(),
+        "file_size": int(target_path.stat().st_size),
+        "hash": file_hash,
+        "owner": owner,
+        "modality": "image",
+        "doc_kind": doc_kind or "image",
+        "chunk_count": 1,
+        "embedding_dim": len(embedding),
+        "hidden_in_list": bool(hidden_in_list),
+    }
+    if extra_metadata:
+        index_record.update(extra_metadata)
+    _image_index[index_key] = index_record
+    _save_image_index()
+
+    return {
+        "status": "success",
+        "message": f"图片 {target_path.name} 已成功向量化并入库",
+        "file": index_key,
+        "file_path": index_key,
+        "image_path": str(target_path),
+        "image_url": _build_guarded_media_url("", target_path, "image"),
+        "doc_kind": doc_kind or "image",
+    }
+
+
+def import_local_image_file(
+    source_path: str | Path,
+    *,
+    owner: str,
+    preferred_name: Optional[str] = None,
+    include_in_search: bool = False,
+    hidden_in_list: bool = True,
+    doc_kind: str = "image",
+    extra_metadata: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    normalized_owner = _normalize_owner(owner)
+    stored_path = _copy_local_image_into_owner_dir(
+        source_path,
+        owner=normalized_owner,
+        preferred_name=preferred_name,
+    )
+    return _index_owner_image_file(
+        stored_path,
+        owner=normalized_owner,
+        include_in_search=include_in_search,
+        hidden_in_list=hidden_in_list,
+        doc_kind=doc_kind,
+        extra_metadata=extra_metadata,
+    )
 
 
 def _resolve_image_index_record(
@@ -585,6 +749,7 @@ class DocumentInfo(BaseModel):
     doc_kind: Optional[str] = None
     modality: Optional[str] = None
     image_url: Optional[str] = None
+    source_icon_url: Optional[str] = None
 
 
 class DocumentParticipationRequest(BaseModel):
@@ -1323,11 +1488,19 @@ async def list_documents(current_user: dict = Depends(get_current_user)):
     try:
         rag_system = get_rag_system()
         owner = current_user.get("username")
+        server_url = _get_server_url()
         raw_documents = list(rag_system.list_documents(owner=owner) or [])
         raw_documents.extend(_list_owner_image_documents(owner))
+        scrubbed_documents = []
+        for document in raw_documents:
+            safe_document = dict(document or {})
+            source_icon_path = safe_document.pop("source_icon_path", None)
+            if source_icon_path:
+                safe_document["source_icon_url"] = _build_guarded_media_url(server_url, source_icon_path, "image")
+            scrubbed_documents.append(safe_document)
         return [
             document if isinstance(document, DocumentInfo) else DocumentInfo.model_validate(document)
-            for document in raw_documents
+            for document in scrubbed_documents
         ]
     except Exception as e:
         raise HTTPException(
@@ -1585,7 +1758,41 @@ async def get_document_content(
                     "metadata": _scrub_response_metadata(doc["metadata"], server_url),
                 }
             )
-        
+
+        seen_linked_images = {
+            str(chunk.get("metadata", {}).get("image_url") or "").strip()
+            for chunk in chunks_info
+            if str(chunk.get("metadata", {}).get("modality") or "").lower() == "image"
+        }
+        next_chunk_id = len(chunks_info)
+        for linked_image in record.get("linked_images") or []:
+            image_path = linked_image.get("image_path")
+            if not image_path:
+                continue
+            image_url = linked_image.get("image_url") or _build_guarded_media_url(server_url, image_path, "image")
+            if image_url in seen_linked_images:
+                continue
+
+            image_name = linked_image.get("image_name") or Path(str(image_path)).name
+            chunk_content = f"![{image_name}]({image_url})"
+            content_parts.append(chunk_content)
+            chunks_info.append(
+                {
+                    "id": next_chunk_id,
+                    "content": chunk_content,
+                    "page": linked_image.get("page", 1),
+                    "metadata": {
+                        "modality": "image",
+                        "image_url": image_url,
+                        "image_name": image_name,
+                        "image_alt": linked_image.get("image_alt"),
+                        "source": linked_image.get("source"),
+                    },
+                }
+            )
+            seen_linked_images.add(image_url)
+            next_chunk_id += 1
+
         full_content = "\n\n".join(content_parts)
         
         return DocumentContentResponse(
@@ -1593,7 +1800,7 @@ async def get_document_content(
             file_name=record.get("file_name", Path(physical_path).name),
             content=full_content,
             chunks=chunks_info,
-            total_chunks=len(documents),
+            total_chunks=len(chunks_info),
         )
     except HTTPException:
         raise

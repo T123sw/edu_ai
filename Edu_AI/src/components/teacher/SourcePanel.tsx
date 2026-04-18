@@ -56,11 +56,32 @@ interface FileItem {
   type: 'file' | 'web' | 'image';
   filePath?: string;
   imageUrl?: string;
+  sourceIconUrl?: string;
 }
 
 const imageExts = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif'];
 
-const getFileIcon = (type: 'file' | 'web' | 'image', fileName: string, size = 16) => {
+const getFileIcon = (
+  type: 'file' | 'web' | 'image',
+  fileName: string,
+  size = 16,
+  sourceIconObjectUrl?: string,
+) => {
+  if (type === 'web' && sourceIconObjectUrl) {
+    return (
+      <img
+        src={sourceIconObjectUrl}
+        alt=""
+        style={{
+          width: size,
+          height: size,
+          borderRadius: 4,
+          objectFit: 'cover',
+          display: 'block',
+        }}
+      />
+    );
+  }
   if (type === 'web') {
     return <GlobalOutlined style={{ fontSize: size, color: '#1890ff' }} />;
   }
@@ -112,13 +133,15 @@ const toFileItem = (doc: any): FileItem => {
   const isImage = String(doc.modality || '').toLowerCase() === 'image'
     || String(doc.doc_kind || '').toLowerCase() === 'image'
     || isImageFileName(displayTitle);
+  const isWeb = Boolean(doc.source_url) || String(doc.doc_kind || '').toLowerCase() === 'web';
 
   return {
     key: doc.file_path,
     title: displayTitle,
-    type: isImage ? 'image' : 'file',
+    type: isImage ? 'image' : (isWeb ? 'web' : 'file'),
     filePath: doc.file_path,
     imageUrl: doc.image_url,
+    sourceIconUrl: doc.source_icon_url,
   };
 };
 
@@ -137,6 +160,19 @@ const buildPreviewTextContent = (content: DocumentContent | null): string => {
   }
 
   return textChunks.map((chunk) => chunk.content).join('\n\n').trim();
+};
+
+const extractMarkdownImageUrls = (markdownContent: string): string[] => {
+  if (!markdownContent) {
+    return [];
+  }
+
+  const matches = Array.from(markdownContent.matchAll(/!\[[^\]]*]\(([^)]+)\)/g));
+  const urls = matches
+    .map((match) => (match[1] || '').trim().split(/\s+/)[0]?.replace(/^<|>$/g, ''))
+    .filter((value): value is string => Boolean(value));
+
+  return Array.from(new Set(urls));
 };
 
 const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, onPreviewStateChange }) => {
@@ -159,6 +195,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [previewContent, setPreviewContent] = useState<DocumentContent | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewMediaUrls, setPreviewMediaUrls] = useState<Record<string, string>>({});
+  const [listMediaUrls, setListMediaUrls] = useState<Record<string, string>>({});
   const [highlightedContent, setHighlightedContent] = useState<React.ReactNode>(null);
   const highlightRef = useRef<HTMLElement | null>(null);
   // 文档摘要
@@ -180,14 +217,76 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
         return {};
       });
+      setListMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
     };
   }, []);
 
   useEffect(() => {
     const targetUrls = new Set<string>();
+    for (const file of fileList) {
+      if (file.sourceIconUrl) {
+        targetUrls.add(file.sourceIconUrl);
+      }
+    }
+
+    if (targetUrls.size === 0) {
+      setListMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return {};
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAllListMedia = async () => {
+      const resolvedEntries = await Promise.all(
+        Array.from(targetUrls).map(async (iconUrl) => {
+          try {
+            const objectUrl = await loadPreviewMediaUrl(iconUrl);
+            return [iconUrl, objectUrl] as const;
+          } catch (error) {
+            console.error('加载站点图标失败:', iconUrl, error);
+            return [iconUrl, ''] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        resolvedEntries.forEach(([, objectUrl]) => revokePreviewMediaUrl(objectUrl));
+        return;
+      }
+
+      const nextMediaUrls = Object.fromEntries(
+        resolvedEntries.filter(([, objectUrl]) => Boolean(objectUrl)),
+      );
+
+      setListMediaUrls((current) => {
+        Object.values(current).forEach((url) => revokePreviewMediaUrl(url));
+        return nextMediaUrls;
+      });
+    };
+
+    loadAllListMedia();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fileList]);
+
+  useEffect(() => {
+    const targetUrls = new Set<string>();
+    const previewTextContent = buildPreviewTextContent(previewContent);
 
     if (previewFile?.type === 'image' && previewFile.imageUrl) {
       targetUrls.add(previewFile.imageUrl);
+    }
+
+    for (const imageUrl of extractMarkdownImageUrls(previewTextContent)) {
+      targetUrls.add(imageUrl);
     }
 
     for (const chunk of previewContent?.chunks ?? []) {
@@ -848,7 +947,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       if (isHighlightTrigger && source) {
         handleHighlight(content, source);
       } else {
-        setHighlightedContent(buildPreviewTextContent(content));
+        setHighlightedContent(null);
       }
     } catch (error) {
       console.error('获取文档内容失败:', error);
@@ -950,7 +1049,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const getAllFileIcons = (): React.ReactNode[] => {
     return fileList.map(node => (
       <div key={node.key} style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}>
-        {getFileIcon(node.type, node.title, 20)}
+        {getFileIcon(node.type, node.title, 20, node.sourceIconUrl ? listMediaUrls[node.sourceIconUrl] : undefined)}
       </div>
     ));
   };
@@ -979,14 +1078,52 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   if (previewOpen) {
     const previewImageChunks = previewContent?.chunks.filter((chunk) => isRenderableImageChunk(chunk)) ?? [];
+    const previewTextContent = buildPreviewTextContent(previewContent);
+    const inlineMarkdownImageUrls = extractMarkdownImageUrls(previewTextContent);
+    const hasInlineMarkdownImages = inlineMarkdownImageUrls.length > 0;
     const directPreviewImageUrl = previewFile?.imageUrl ? previewMediaUrls[previewFile.imageUrl] : undefined;
+    const previewMarkdownComponents = {
+      img: ({ src, alt }: any) => {
+        const rawSrc = typeof src === 'string' ? src : '';
+        const resolvedSrc = rawSrc ? previewMediaUrls[rawSrc] || rawSrc : '';
+        if (!resolvedSrc) {
+          return <Text type="secondary">图片加载中...</Text>;
+        }
+
+        return (
+          <img
+            src={resolvedSrc}
+            alt={alt || ''}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '50vh',
+              objectFit: 'contain',
+              display: 'block',
+              margin: '16px auto',
+              borderRadius: 8,
+              background: '#f5f5f5',
+            }}
+          />
+        );
+      },
+      a: ({ href, children }: any) => (
+        <a href={href} target="_blank" rel="noreferrer">
+          {children}
+        </a>
+      ),
+    };
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', borderRadius: 12, padding: 24, boxShadow: '0 12px 28px rgba(15,23,42,0.08)', minHeight: 0, overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Space style={{ minWidth: 0 }}>
             <Button type="text" icon={<ArrowLeftOutlined />} onClick={closePreview} />
-            {previewFile && getFileIcon(previewFile.type, previewFile.title, 18)}
+            {previewFile && getFileIcon(
+              previewFile.type,
+              previewFile.title,
+              18,
+              previewFile.sourceIconUrl ? listMediaUrls[previewFile.sourceIconUrl] : undefined,
+            )}
             <Text strong ellipsis style={{ maxWidth: 320 }}>{previewFile?.title || '文档预览'}</Text>
           </Space>
         </div>
@@ -1031,7 +1168,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   </Card>
                 )}
 
-                {previewImageChunks.length > 0 && (
+                {previewImageChunks.length > 0 && !hasInlineMarkdownImages && (
                   <Card
                     title={`文档图片 (${previewImageChunks.length})`}
                     size="small"
@@ -1097,6 +1234,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                 {highlightedContent ? (
                   <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333', fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "source-code-pro", monospace' }}>
                     {highlightedContent}
+                  </div>
+                ) : previewTextContent ? (
+                  <div style={{ padding: '12px 0', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333' }}>
+                    <ReactMarkdown components={previewMarkdownComponents}>
+                      {previewTextContent}
+                    </ReactMarkdown>
                   </div>
                 ) : (
                   <div style={{ padding: '12px 0' }}>
@@ -1194,7 +1337,14 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                         onClick={() => openPreview(file.key)}
                         title="点击预览文档"
                       >
-                        <span className="source-panel__item-icon">{getFileIcon(file.type, file.title, 16)}</span>
+                        <span className="source-panel__item-icon">
+                          {getFileIcon(
+                            file.type,
+                            file.title,
+                            16,
+                            file.sourceIconUrl ? listMediaUrls[file.sourceIconUrl] : undefined,
+                          )}
+                        </span>
                         <span className="source-panel__item-title">{file.title}</span>
                       </div>
                       <div className="source-panel__item-actions">

@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Input, Button, List, Space, Typography, Tag, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
-import { SendOutlined, SnippetsOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
+import { Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
+import { SendOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
@@ -83,6 +83,179 @@ const normalizeArtifactReferenceType = (
   }
   return 'report';
 };
+
+type InlineSourceBlock = {
+  markdown: string;
+  normalizedText: string;
+  sources: InlineSourceEntry[];
+};
+
+type InlineSourcePlan = {
+  blocks: InlineSourceBlock[];
+  unmatchedSources: InlineSourceEntry[];
+};
+
+type InlineSourceEntry = {
+  source: ChatSourceV2;
+  order: number;
+};
+
+const FENCE_PATTERN = /^(```|~~~)/;
+
+function normalizeSourceComparableText(value: unknown): string {
+  return String(value || '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*]\(([^)]+)\)/g, ' ')
+    .replace(/\[[^\]]*]\(([^)]+)\)/g, ' ')
+    .replace(/[*_>#-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .toLowerCase()
+    .trim();
+}
+
+function buildCharacterBigrams(value: string): string[] {
+  const compact = value.replace(/\s+/g, '');
+  if (compact.length <= 2) {
+    return compact ? [compact] : [];
+  }
+
+  const result: string[] = [];
+  for (let index = 0; index < compact.length - 1; index += 1) {
+    result.push(compact.slice(index, index + 2));
+  }
+  return result;
+}
+
+function scoreSourceBlockMatch(blockText: string, sourceText: string): number {
+  const normalizedBlock = normalizeSourceComparableText(blockText);
+  const normalizedSource = normalizeSourceComparableText(sourceText);
+
+  if (!normalizedBlock || !normalizedSource) {
+    return 0;
+  }
+
+  const sourceProbe = normalizedSource.slice(0, Math.min(normalizedSource.length, 36));
+  if (sourceProbe && normalizedBlock.includes(sourceProbe)) {
+    return 1;
+  }
+
+  const sourceBigrams = Array.from(new Set(buildCharacterBigrams(normalizedSource.slice(0, 240))));
+  if (sourceBigrams.length === 0) {
+    return 0;
+  }
+
+  const blockBigramSet = new Set(buildCharacterBigrams(normalizedBlock));
+  let overlapCount = 0;
+  for (const token of sourceBigrams) {
+    if (blockBigramSet.has(token)) {
+      overlapCount += 1;
+    }
+  }
+
+  return overlapCount / sourceBigrams.length;
+}
+
+function splitMarkdownIntoSourceBlocks(markdown: string): InlineSourceBlock[] {
+  const normalized = String(markdown || '').replace(/\r\n/g, '\n');
+  const lines = normalized.split('\n');
+  const blocks: InlineSourceBlock[] = [];
+  let inFence = false;
+  let currentLines: string[] = [];
+
+  const flushCurrentLines = () => {
+    const markdownBlock = currentLines.join('\n').trim();
+    currentLines = [];
+    if (!markdownBlock) {
+      return;
+    }
+    blocks.push({
+      markdown: markdownBlock,
+      normalizedText: normalizeSourceComparableText(markdownBlock),
+      sources: [],
+    });
+  };
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (FENCE_PATTERN.test(trimmedLine)) {
+      if (inFence) {
+        currentLines.push(line);
+        flushCurrentLines();
+        inFence = false;
+      } else {
+        flushCurrentLines();
+        inFence = true;
+        currentLines.push(line);
+      }
+      continue;
+    }
+
+    if (inFence) {
+      currentLines.push(line);
+      continue;
+    }
+
+    if (!trimmedLine) {
+      flushCurrentLines();
+      continue;
+    }
+
+    currentLines.push(line);
+  }
+
+  flushCurrentLines();
+  return blocks;
+}
+
+function buildInlineSourcePlan(markdown: string, sources: ChatSourceV2[]): InlineSourcePlan {
+  const blocks = splitMarkdownIntoSourceBlocks(markdown);
+  if (blocks.length === 0 || sources.length === 0) {
+    return {
+      blocks,
+      unmatchedSources: sources.map((source, index) => ({ source, order: index + 1 })),
+    };
+  }
+
+  const unmatchedSources: InlineSourceEntry[] = [];
+
+  sources.forEach((source, sourceIndex) => {
+    const sourceContent = String(source?.content || '').trim();
+    const entry: InlineSourceEntry = {
+      source,
+      order: sourceIndex + 1,
+    };
+    if (!sourceContent) {
+      unmatchedSources.push(entry);
+      return;
+    }
+
+    let bestBlockIndex = -1;
+    let bestScore = 0;
+
+    blocks.forEach((block, index) => {
+      if (!block.normalizedText || FENCE_PATTERN.test(block.markdown.trim())) {
+        return;
+      }
+      const score = scoreSourceBlockMatch(block.markdown, sourceContent);
+      if (score > bestScore) {
+        bestScore = score;
+        bestBlockIndex = index;
+      }
+    });
+
+    if (bestBlockIndex >= 0 && bestScore >= 0.16) {
+      blocks[bestBlockIndex].sources.push(entry);
+    } else {
+      unmatchedSources.push(entry);
+    }
+  });
+
+  return {
+    blocks,
+    unmatchedSources,
+  };
+}
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const {
@@ -920,6 +1093,50 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     });
   };
 
+  const renderSourceTag = (entry: InlineSourceEntry, index: number, keyPrefix: string, compact = false) => {
+    const { source, order } = entry;
+    const isImage = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'image';
+    const isVideo = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'video';
+    const sourceName = getDisplayLabel(source?.source, `来源 ${order}`);
+    const dotLabel = String(order);
+    const kindLabel = isVideo ? '视频来源' : isImage ? '图片来源' : '文本来源';
+
+    return (
+      <Tooltip
+        key={`${keyPrefix}-${index}`}
+        title={source?.content ? (`${kindLabel} ${dotLabel} · ${sourceName}\n引用片段：${String(source.content).substring(0, 100)}...`) : `${kindLabel} ${dotLabel} · ${sourceName}`}
+      >
+        <button
+          type="button"
+          className={`chat-panel__source-dot chat-panel__source-dot--${compact ? 'inline' : 'floating'}`}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleSourceClick(source);
+          }}
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          aria-label={`${kindLabel} ${dotLabel}：${sourceName}`}
+        >
+          {dotLabel}
+        </button>
+      </Tooltip>
+    );
+  };
+
+  const renderInlineSourceTags = (sources: InlineSourceEntry[], keyPrefix: string) => {
+    if (!sources.length) {
+      return null;
+    }
+
+    return (
+      <span className="chat-panel__inline-sources">
+        {sources.map((source, index) => renderSourceTag(source, index, keyPrefix, true))}
+      </span>
+    );
+  };
+
   const visibleHistoryList = useMemo(() => {
     return historyExpanded ? historyList : historyList.slice(0, 7);
   }, [historyExpanded, historyList]);
@@ -1075,16 +1292,21 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           <List
             className="chat-panel__message-list"
             dataSource={messages}
-            renderItem={(item, index) => (
-              <List.Item
-                key={index}
-                className={`chat-panel__message-row chat-panel__message-row--${item.user === 'You' ? 'user' : 'ai'}`}
-              >
-                <div className={`chat-panel__message-shell chat-panel__message-shell--${item.user === 'You' ? 'user' : 'ai'}`}>
-                  <div className={`chat-panel__avatar chat-panel__avatar--${item.user === 'You' ? 'user' : 'ai'}`}>
-                    {item.user === 'You' ? '你' : 'AI'}
-                  </div>
-                  <div className="chat-panel__message-content">
+            renderItem={(item, index) => {
+              const inlineSourcePlan = item.user === 'AI'
+                ? buildInlineSourcePlan(item.text, item.sources || [])
+                : null;
+
+              return (
+                <List.Item
+                  key={index}
+                  className={`chat-panel__message-row chat-panel__message-row--${item.user === 'You' ? 'user' : 'ai'}`}
+                >
+                  <div className={`chat-panel__message-shell chat-panel__message-shell--${item.user === 'You' ? 'user' : 'ai'}`}>
+                    <div className={`chat-panel__avatar chat-panel__avatar--${item.user === 'You' ? 'user' : 'ai'}`}>
+                      {item.user === 'You' ? '你' : 'AI'}
+                    </div>
+                    <div className="chat-panel__message-content">
                     {item.user === 'AI' && item.statusText && (
                       <div className="chat-panel__status-text">
                         {item.statusText}
@@ -1208,139 +1430,58 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
                     </div>
                   )}
                     {item.text ? (
-                    <div className={`chat-panel__bubble chat-panel__bubble--${item.user === 'You' ? 'user' : 'ai'}`}>
-                      {item.user === 'AI' ? (
-                        <ReactMarkdown
-                          components={{
-                            p: ({ children }) => (
-                              <p className="chat-panel__markdown-paragraph">
-                                {children}
-                              </p>
-                            ),
-                          }}
-                        >
-                          {item.text}
-                        </ReactMarkdown>
-                      ) : (
-                        <div className="chat-panel__user-text">{item.text}</div>
-                      )}
-                    </div>
-                  ) : null}
-
-                    {item.user === 'AI' && item.sources && item.sources.length > 0 && (
-                    <div className="chat-panel__sources">
-                      <Space wrap size={[0, 8]}>
-                        {item.sources.map((source, i) => {
-                          const isImage = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'image';
-                          const isVideo = String((source as any)?.modality || (source as any)?.metadata?.modality || '').toLowerCase() === 'video';
-                          const imageUrl = ((source as any)?.image_url || (source as any)?.metadata?.image_url) as string | undefined;
-                          const videoUrl = ((source as any)?.video_url || (source as any)?.metadata?.video_url) as string | undefined;
-                          const resolvedImageUrl = imageUrl ? sourceImageUrls[imageUrl] : '';
-                          const resolvedVideoUrl = videoUrl ? sourceVideoUrls[videoUrl] : '';
-                          const sourceName = getDisplayLabel(source?.source, `来源 ${i + 1}`);
-                          const imageTitle = getDisplayLabel((source as any)?.image_name, sourceName);
-                          const videoTitle = getDisplayLabel((source as any)?.metadata?.title, sourceName);
-                          return (
-                            <Tooltip
-                              key={i}
-                              title={source?.content ? (`引用片段：${String(source.content).substring(0, 100)}...`) : '暂无引用片段'}
-                            >
-                              <Tag
-                                icon={<SnippetsOutlined />}
-                                color={isVideo ? 'green' : isImage ? 'purple' : 'blue'}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleSourceClick(source);
-                                }}
-                                onMouseDown={(e) => {
-                                  e.preventDefault();
-                                }}
-                                style={{ cursor: 'pointer', userSelect: 'none' }}
-                              >
-                                {isVideo ? `视频 · ${sourceName}` : isImage ? `图片 · ${sourceName}` : sourceName}
-                              </Tag>
-                              {isImage && imageUrl && (
-                                <div style={{ marginTop: 8, marginBottom: 4 }}>
-                                  {resolvedImageUrl ? (
-                                    <img
-                                      src={resolvedImageUrl}
-                                      alt={String((source as any)?.image_alt || imageTitle || 'image preview')}
-                                      style={{ maxWidth: 220, maxHeight: 140, borderRadius: 8, border: '1px solid #eee' }}
-                                    />
-                                  ) : (
-                                    <div
-                                      style={{
-                                        width: 220,
-                                        height: 140,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: 'rgba(0, 0, 0, 0.04)',
-                                        color: '#666',
-                                        fontSize: 12,
-                                        borderRadius: 8,
-                                        border: '1px solid #eee',
-                                      }}
-                                    >
-                                      图片加载中...
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              {isVideo && videoUrl && (
-                                <div
-                                  style={{
-                                    marginTop: 8,
-                                    width: 240,
-                                    borderRadius: 10,
-                                    overflow: 'hidden',
-                                    border: '1px solid #eee',
-                                    background: '#fff',
+                      <div className={`chat-panel__bubble chat-panel__bubble--${item.user === 'You' ? 'user' : 'ai'}`}>
+                        {item.user === 'AI' && inlineSourcePlan ? (
+                          <div className="chat-panel__inline-answer">
+                            {inlineSourcePlan.blocks.map((block, blockIndex) => (
+                              <div key={`message-${index}-block-${blockIndex}`} className="chat-panel__inline-answer-block">
+                                <ReactMarkdown
+                                  components={{
+                                    p: ({ children }) => (
+                                      <p className="chat-panel__markdown-paragraph">
+                                        {children}
+                                      </p>
+                                    ),
                                   }}
                                 >
-                                  {resolvedVideoUrl ? (
-                                    <video controls preload="metadata" src={resolvedVideoUrl} style={{ width: '100%', display: 'block' }} />
-                                  ) : (
-                                    <div
-                                      style={{
-                                        height: 140,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: 'rgba(0, 0, 0, 0.04)',
-                                        color: '#666',
-                                        fontSize: 12,
-                                      }}
-                                    >
-                                      视频加载中...
-                                    </div>
-                                  )}
-                                  <div
-                                    style={{
-                                      padding: '6px 8px',
-                                      fontSize: 12,
-                                      color: '#666',
-                                      whiteSpace: 'nowrap',
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                    }}
-                                    title={videoTitle}
-                                  >
-                                    {videoTitle}
-                                  </div>
-                                </div>
-                              )}
-                            </Tooltip>
-                          );
-                        })}
-                      </Space>
+                                  {block.markdown}
+                                </ReactMarkdown>
+                                {renderInlineSourceTags(block.sources, `message-${index}-block-${blockIndex}`)}
+                              </div>
+                            ))}
+                          </div>
+                        ) : item.user === 'AI' ? (
+                          <ReactMarkdown
+                            components={{
+                              p: ({ children }) => (
+                                <p className="chat-panel__markdown-paragraph">
+                                  {children}
+                                </p>
+                              ),
+                            }}
+                          >
+                            {item.text}
+                          </ReactMarkdown>
+                        ) : (
+                          <div className="chat-panel__user-text">{item.text}</div>
+                        )}
+                      </div>
+                    ) : null}
+
+                    {item.user === 'AI' && inlineSourcePlan && inlineSourcePlan.unmatchedSources.length > 0 && (
+                      <div className="chat-panel__sources">
+                        <Space wrap size={[0, 8]}>
+                          {inlineSourcePlan.unmatchedSources.map((source, sourceIndex) =>
+                            renderSourceTag(source, sourceIndex, `message-${index}-unmatched`),
+                          )}
+                        </Space>
+                      </div>
+                    )}
                     </div>
-                  )}
                   </div>
-                </div>
-              </List.Item>
-            )}
+                </List.Item>
+              );
+            }}
           />
           <div ref={chatEndRef} />
         </div>

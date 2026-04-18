@@ -487,6 +487,39 @@ async def test_list_documents_includes_owner_scoped_image_entries(monkeypatch):
 
 
 @pytest.mark.anyio
+async def test_list_documents_exposes_source_icon_url_for_web_documents(monkeypatch):
+    icon_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "site-icon.png"
+    index_key = "user_alice:D:/docs/alice/web.md"
+
+    class FakeRAGSystem:
+        def list_documents(self, owner=None):
+            assert owner == "alice"
+            return [
+                {
+                    "file_path": index_key,
+                    "file_name": "Example Site",
+                    "include_in_search": True,
+                    "chunk_count": 3,
+                    "owner": owner,
+                    "doc_kind": "web",
+                    "source_url": "https://example.com/article",
+                    "source_domain": "example.com",
+                    "source_title": "Example Site",
+                    "source_icon_path": str(icon_path),
+                }
+            ]
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+
+    response = await runtime_api.list_documents(current_user={"username": "alice"})
+
+    assert len(response) == 1
+    assert response[0].file_path == index_key
+    assert response[0].doc_kind == "web"
+    assert response[0].source_icon_url == "/api/rag/image?path=images%2Falice%2Fsite-icon.png"
+
+
+@pytest.mark.anyio
 async def test_image_document_content_returns_preview_metadata(monkeypatch):
     image_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "diagram.png"
     index_key = f"user_alice:{image_path}"
@@ -581,6 +614,60 @@ async def test_document_content_scrubs_embedded_image_chunks_to_relative_urls(mo
     image_chunks = [chunk for chunk in response.chunks if chunk["metadata"].get("modality") == "image"]
     assert len(image_chunks) == 1
     assert image_chunks[0]["metadata"]["image_url"] == "/api/rag/image?path=images%2Falice%2Fpage1_0000.png"
+
+
+@pytest.mark.anyio
+async def test_document_content_appends_linked_web_images(monkeypatch):
+    physical_path = str(Path("D:/docs/alice/example.md"))
+    index_key = f"user_alice:{physical_path}"
+    linked_image_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "example_001.png"
+
+    class FakeVectorStore:
+        def get_documents_by_source(self, source_key):
+            assert source_key == index_key
+            return [
+                {
+                    "content": "网页正文",
+                    "metadata": {"page": 1, "modality": "text"},
+                }
+            ]
+
+    class FakeRAGSystem:
+        def __init__(self):
+            self.document_index = {
+                index_key: {
+                    "physical_path": physical_path,
+                    "file_name": "example.md",
+                    "owner": "alice",
+                    "source_key": index_key,
+                    "linked_images": [
+                        {
+                            "image_path": str(linked_image_path),
+                            "image_name": "网页配图 1",
+                            "source": "crawl",
+                        }
+                    ],
+                }
+            }
+            self.vector_store = FakeVectorStore()
+
+        def _make_index_key(self, file_path, owner):
+            return index_key
+
+        def _make_source_key(self, file_path, owner):
+            return index_key
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+
+    response = await runtime_api.get_document_content(
+        file_path=index_key,
+        current_user={"username": "alice"},
+    )
+
+    image_chunks = [chunk for chunk in response.chunks if chunk["metadata"].get("modality") == "image"]
+    assert len(image_chunks) == 1
+    assert image_chunks[0]["metadata"]["image_url"] == "/api/rag/image?path=images%2Falice%2Fexample_001.png"
+    assert image_chunks[0]["metadata"]["image_name"] == "网页配图 1"
 
 
 @pytest.mark.anyio

@@ -2,6 +2,7 @@
 当用户有指定url时，用这个文件
 """
 import os
+import json
 import trafilatura  #自动处理文本
 import undetected_chromedriver as uc
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -11,7 +12,8 @@ import time
 import random
 import re
 from bs4 import BeautifulSoup
-from methods import download_one,download_txt
+from markdownify import markdownify as html_to_markdown
+from methods import download_one, download_txt, download_image_records_from_page, download_site_icon_from_page
 from setup import *
 
 
@@ -251,6 +253,36 @@ class crawle_url(object):
         enhanced = re.sub(pattern, replace_code_block, markdown_text, flags=re.DOTALL)
         return enhanced
 
+    @staticmethod
+    def _build_markdown_with_inline_images(html, url=""):
+        soup = BeautifulSoup(html, "lxml")
+        for tag in soup(["script", "style", "noscript", "iframe", "svg", "canvas"]):
+            tag.decompose()
+
+        content_root = soup.find("article") or soup.find("main") or soup.body or soup
+        markdown_text = html_to_markdown(
+            str(content_root),
+            heading_style="ATX",
+            bullets="-",
+            strong_em_symbol="*",
+        )
+        markdown_text = re.sub(r"\n{3,}", "\n\n", markdown_text or "").strip()
+
+        if len(markdown_text) < 100:
+            fallback_text = trafilatura.extract(
+                html,
+                include_comments=False,
+                include_tables=False,
+                include_images=True,
+                include_formatting=True,
+                include_links=True,
+                output_format="markdown",
+            )
+            if fallback_text and len(fallback_text) > len(markdown_text):
+                markdown_text = fallback_text
+
+        return markdown_text
+
     def txt_url(self,url):
         if not self.is_driver_alive():
             self.restart_driver()
@@ -266,14 +298,7 @@ class crawle_url(object):
             html = html.encode('utf-8', errors='replace').decode('utf-8')
 
             # 优先输出 markdown，尽量保留段落/列表/标题（以及可能的代码块）
-            text = trafilatura.extract(
-                html,
-                include_comments=False,
-                include_tables=False,
-                include_formatting=True,
-                include_links=True,
-                output_format="markdown",
-            )
+            text = crawle_url._build_markdown_with_inline_images(html, url)
 
             # 兜底：如果 trafilatura 没提取到代码块，尝试从 HTML 的 <pre>/<code> 中补充
             try:
@@ -336,6 +361,26 @@ class crawle_url(object):
             filename = self.extract_filename_from_url(url)
             arg = (output_path, text, filename)
             download_txt(arg)
+
+            image_output_path = os.path.join(self.output_path, "output", "urls", "images", filename)
+            image_records = download_image_records_from_page(
+                image_output_path,
+                html,
+                url,
+                page_name=filename,
+            )
+            if image_records:
+                manifest_path = os.path.join(image_output_path, "_manifest.json")
+                with open(manifest_path, "w", encoding="utf-8") as manifest_file:
+                    json.dump(image_records, manifest_file, ensure_ascii=False, indent=2)
+
+            site_icon_output_path = os.path.join(self.output_path, "output", "urls", "site_icons")
+            download_site_icon_from_page(
+                site_icon_output_path,
+                html,
+                url,
+                page_name=filename,
+            )
             return True
         except Exception as e:
             print("[ERROR] 抓取正文失败：", e)

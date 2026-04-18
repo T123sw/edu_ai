@@ -3722,6 +3722,7 @@ class RAGSystem:
                     "source_url": metadata.get("source_url"),
                     "source_title": metadata.get("source_title"),
                     "source_domain": metadata.get("source_domain"),
+                    "source_icon_path": metadata.get("source_icon_path"),
                 }
             )
         documents.sort(key=lambda item: item.get("imported_at") or "", reverse=True)
