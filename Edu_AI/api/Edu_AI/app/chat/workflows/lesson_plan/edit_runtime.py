@@ -9,6 +9,9 @@ from app.chat.orchestrator.lesson_plan_edit_intent_parser import parse_lesson_pl
 from app.chat.orchestrator.lesson_plan_structure_parser import parse_lesson_plan_nodes
 
 
+_OUTLINE_BASIC_INFO_KEYS = {"topic", "audience", "duration", "objective"}
+
+
 def _normalize_reference(value) -> dict:
     if value is None:
         return {}
@@ -70,56 +73,104 @@ class LessonPlanEditRuntime:
         }
 
     @staticmethod
-    def _parse_json_response(text: str, *, fallback: Any) -> Any:
-        try:
-            return json.loads(str(text or "").strip())
-        except Exception:
+    def _parse_model_value(text: str, *, fallback: Any) -> Any:
+        raw = str(text or "").strip()
+        if not raw:
             return fallback
 
-    def _rewrite_lesson_plan_content(self, *, source_content: dict[str, Any], edit_request: dict[str, Any]) -> dict[str, Any]:
+        try:
+            return json.loads(raw)
+        except Exception:
+            return raw if isinstance(fallback, str) else fallback
+
+    def _rewrite_field_value(self, *, label: str, current_value: Any, instruction: str) -> Any:
+        prompt = (
+            f"请根据这个要求改写教案字段《{label}》：{instruction}\n"
+            f"原字段内容：{json.dumps(current_value, ensure_ascii=False)}\n"
+        )
+        if isinstance(current_value, list):
+            prompt += "只输出 JSON 数组。"
+        elif isinstance(current_value, dict):
+            prompt += "只输出 JSON 对象。"
+        else:
+            prompt += '只输出 JSON 字符串字面量；如果做不到，就只输出最终文本。'
+        return self._parse_model_value(self._invoke_model(prompt), fallback=current_value)
+
+    def _rewrite_step_value(self, *, scope_label: str, current_value: dict[str, Any], instruction: str) -> dict[str, Any]:
+        prompt = (
+            f"请根据这个要求改写教案里的{scope_label}：{instruction}\n"
+            f"原环节：{json.dumps(current_value, ensure_ascii=False)}\n"
+            "只输出 JSON 对象。"
+        )
+        rewritten = self._parse_model_value(self._invoke_model(prompt), fallback=current_value)
+        return rewritten if isinstance(rewritten, dict) else current_value
+
+    def _rewrite_lesson_plan_content(
+        self,
+        *,
+        artifact_type: str,
+        source_content: dict[str, Any],
+        edit_request: dict[str, Any],
+        structure_nodes: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         next_content = deepcopy(dict(source_content or {}))
         target_node_id = str(edit_request.get("target_node_id") or "").strip()
-
-        if target_node_id.endswith(":objectives"):
-            prompt = (
-                f"请根据这个要求改写教案里的教学目标：{edit_request.get('instruction') or ''}\n"
-                f"原目标：{json.dumps(next_content.get('objectives') or [], ensure_ascii=False)}\n"
-                "只输出 JSON 数组。"
-            )
-            next_content["objectives"] = self._parse_json_response(
-                self._invoke_model(prompt),
-                fallback=next_content.get("objectives") or [],
-            )
+        target_node = next(
+            (node for node in structure_nodes if str(node.get("node_id") or "").strip() == target_node_id),
+            None,
+        )
+        if target_node is None:
             return next_content
 
-        if ":process:" in target_node_id:
+        instruction = str(edit_request.get("instruction") or "").strip()
+        node_type = str(target_node.get("node_type") or "").strip()
+        node_key = str(target_node.get("node_key") or "").strip()
+        node_label = str(target_node.get("node_label") or node_key or "目标字段").strip()
+
+        if node_type == "field":
+            if artifact_type == "lesson_plan":
+                current_value = next_content.get(node_key)
+                next_content[node_key] = self._rewrite_field_value(
+                    label=node_label,
+                    current_value=current_value,
+                    instruction=instruction,
+                )
+                return next_content
+
+            basic_info = dict(next_content.get("basic_info") or {})
+            current_value = basic_info.get(node_key) if node_key in basic_info or node_key in _OUTLINE_BASIC_INFO_KEYS else next_content.get(node_key)
+            rewritten_value = self._rewrite_field_value(
+                label=node_label,
+                current_value=current_value,
+                instruction=instruction,
+            )
+            if node_key in basic_info or node_key in _OUTLINE_BASIC_INFO_KEYS:
+                basic_info[node_key] = rewritten_value
+                next_content["basic_info"] = basic_info
+            else:
+                next_content[node_key] = rewritten_value
+            return next_content
+
+        if target_node_id.startswith(f"{edit_request['artifact_reference'].get('artifact_id', '')}:process:") or node_key == "process":
             step_index = int(target_node_id.rsplit(":", 1)[-1]) - 1
             process = list(next_content.get("process") or [])
             if 0 <= step_index < len(process):
-                prompt = (
-                    f"请根据这个要求改写教案里的教学环节：{edit_request.get('instruction') or ''}\n"
-                    f"原环节：{json.dumps(process[step_index], ensure_ascii=False)}\n"
-                    "只输出 JSON 对象。"
-                )
-                process[step_index] = self._parse_json_response(
-                    self._invoke_model(prompt),
-                    fallback=process[step_index],
+                process[step_index] = self._rewrite_step_value(
+                    scope_label=f"教学环节《{node_label}》",
+                    current_value=process[step_index],
+                    instruction=instruction,
                 )
                 next_content["process"] = process
             return next_content
 
-        if ":lesson_flow:" in target_node_id:
+        if target_node_id.startswith(f"{edit_request['artifact_reference'].get('artifact_id', '')}:lesson_flow:") or node_key == "lesson_flow":
             step_index = int(target_node_id.rsplit(":", 1)[-1]) - 1
             lesson_flow = list(next_content.get("lesson_flow") or [])
             if 0 <= step_index < len(lesson_flow):
-                prompt = (
-                    f"请根据这个要求改写教案大纲里的教学环节：{edit_request.get('instruction') or ''}\n"
-                    f"原环节：{json.dumps(lesson_flow[step_index], ensure_ascii=False)}\n"
-                    "只输出 JSON 对象。"
-                )
-                lesson_flow[step_index] = self._parse_json_response(
-                    self._invoke_model(prompt),
-                    fallback=lesson_flow[step_index],
+                lesson_flow[step_index] = self._rewrite_step_value(
+                    scope_label=f"教案大纲环节《{node_label}》",
+                    current_value=lesson_flow[step_index],
+                    instruction=instruction,
                 )
                 next_content["lesson_flow"] = lesson_flow
             return next_content
@@ -146,7 +197,7 @@ class LessonPlanEditRuntime:
 
         if edit_request.get("intent_type") == "ask_about_artifact":
             return self._awaiting_input_result(
-                "当前引用的是教案内容。如需编辑，请明确字段、环节名或引用原文。",
+                "当前引用的是教案内容。如需编辑，请明确字段名、环节名或引用原文。",
                 edit_request,
             )
         if edit_request.get("target_confidence") == "candidate":
@@ -162,8 +213,10 @@ class LessonPlanEditRuntime:
             )
 
         next_content = self._rewrite_lesson_plan_content(
+            artifact_type=artifact_type,
             source_content=source_content,
             edit_request=edit_request,
+            structure_nodes=nodes,
         )
         version = self._build_version_metadata(source_artifact)
         artifact_id = f"{source_artifact.get('artifact_id')}-{version['version_id']}-{uuid4().hex[:6]}"

@@ -38,6 +38,28 @@ def test_lesson_plan_edit_runtime_rewrites_only_the_target_field():
     assert lesson_plan_artifact["content"]["process"][0]["goal"] == "联系生活经验"
 
 
+def test_lesson_plan_edit_runtime_rewrites_generic_plan_field():
+    runtime = LessonPlanEditRuntime(llm=FakeLLM('["掌握分数大小比较的判断方法"]'))
+    result = runtime.run(
+        question="重写教学重点",
+        artifact_reference={"artifact_id": "lp-1", "artifact_type": "lesson_plan", "version_id": "v1"},
+        source_artifact={
+            "artifact_id": "lp-1",
+            "artifact_type": "lesson_plan",
+            "title": "分数的意义教案.json",
+            "content": {
+                "title": "分数的意义",
+                "keyPoints": ["理解分数的意义和比较"],
+                "process": [{"step": "导入", "goal": "联系生活经验"}],
+            },
+        },
+    )
+
+    lesson_plan_artifact = result["artifacts"][0]
+    assert lesson_plan_artifact["content"]["keyPoints"] == ["掌握分数大小比较的判断方法"]
+    assert lesson_plan_artifact["content"]["process"][0]["goal"] == "联系生活经验"
+
+
 def test_lesson_plan_edit_runtime_returns_candidate_confirmation_before_edit():
     runtime = LessonPlanEditRuntime(llm=FakeLLM('{"unexpected": true}'))
     result = runtime.run(
@@ -126,3 +148,27 @@ def test_lesson_plan_edit_runtime_rewrites_only_the_target_outline_step():
     outline_artifact = result["artifacts"][0]
     assert outline_artifact["content"]["lesson_flow"][0]["goal"] == "联系旧知"
     assert outline_artifact["content"]["lesson_flow"][1]["goal"] == "强化分数比较"
+
+
+def test_lesson_plan_edit_runtime_rewrites_outline_basic_info_field():
+    runtime = LessonPlanEditRuntime(llm=FakeLLM('"40分钟"'))
+    result = runtime.run(
+        question="修改duration",
+        artifact_reference={"artifact_id": "outline-1", "artifact_type": "lesson_plan_outline", "version_id": "v1"},
+        source_artifact={
+            "artifact_id": "outline-1",
+            "artifact_type": "lesson_plan_outline",
+            "title": "分数的意义教案大纲.json",
+            "content": {
+                "basic_info": {"topic": "分数的意义", "duration": "35分钟"},
+                "lesson_flow": [
+                    {"step": "导入", "goal": "联系旧知"},
+                    {"step": "合作探究", "goal": "比较分数大小"},
+                ],
+            },
+        },
+    )
+
+    outline_artifact = result["artifacts"][0]
+    assert outline_artifact["content"]["basic_info"]["duration"] == "40分钟"
+    assert outline_artifact["content"]["lesson_flow"][1]["goal"] == "比较分数大小"
