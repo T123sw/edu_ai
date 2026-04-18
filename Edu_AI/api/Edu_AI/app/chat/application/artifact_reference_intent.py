@@ -67,6 +67,21 @@ _AMBIGUOUS_TARGET_MARKERS = (
     "那一段",
 )
 
+_LESSON_PLAN_EXACT_ANCHORS = (
+    "教学目标",
+    "教学重点",
+    "教学难点",
+    "教学准备",
+    "板书设计",
+    "作业",
+    "反思提示",
+    "导入",
+    "练习",
+    "总结",
+    "环节",
+    "步骤",
+)
+
 _REPORT_EXACT_ANCHOR_PATTERN = re.compile(
     r"[\"'\u201c\u201d\u2018\u2019\u300c\u300d\u300e\u300f].+?[\"'\u201c\u201d\u2018\u2019\u300c\u300d\u300e\u300f]"
     r"|摘要|结论|总结|第\s*[0-9\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+\s*部分"
@@ -172,6 +187,43 @@ def _classify_ppt_intent(text: str) -> dict[str, Any]:
     }
 
 
+def _classify_lesson_plan_intent(text: str) -> dict[str, Any]:
+    if not _contains_edit_keyword(text):
+        return {
+            "intent_class": "ask",
+            "reason": "no_explicit_edit_verb",
+            "requires_confirmation": False,
+        }
+
+    if any(anchor in text for anchor in _LESSON_PLAN_EXACT_ANCHORS):
+        return {
+            "intent_class": "edit",
+            "reason": "explicit_edit_with_lesson_plan_anchor",
+            "requires_confirmation": False,
+        }
+
+    if any(marker in text for marker in _AMBIGUOUS_TARGET_MARKERS):
+        return {
+            "intent_class": "unclear",
+            "reason": "ambiguous_target_marker",
+            "requires_confirmation": True,
+        }
+
+    anchor = _extract_freeform_anchor(text)
+    if not anchor or anchor in {"这个教案", "这份教案", "教案", "这个大纲", "这份大纲", "大纲"}:
+        return {
+            "intent_class": "unclear",
+            "reason": "lesson_plan_edit_without_safe_target",
+            "requires_confirmation": True,
+        }
+
+    return {
+        "intent_class": "edit",
+        "reason": "explicit_edit_with_freeform_anchor",
+        "requires_confirmation": False,
+    }
+
+
 def classify_artifact_reference_intent(question: str, *, artifact_type: str = "") -> dict[str, Any]:
     text = str(question or "").strip()
     kind = str(artifact_type or "").strip()
@@ -182,6 +234,8 @@ def classify_artifact_reference_intent(question: str, *, artifact_type: str = ""
             "requires_confirmation": False,
         }
 
+    if kind in {"lesson_plan", "lesson_plan_outline"}:
+        return _classify_lesson_plan_intent(text)
     if kind in {"ppt_deck", "ppt_outline", "ppt_content_markdown"}:
         return _classify_ppt_intent(text)
     return _classify_report_intent(text)

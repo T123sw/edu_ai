@@ -34,6 +34,7 @@ from app.chat.workflows.quiz.assembler import QuizAssembler
 from app.chat.workflows.quiz.generator import QuizGenerator
 from app.chat.workflows.quiz.runtime import QuizWorkflowRuntime
 from app.chat.workflows.lesson_plan.runtime import LessonPlanWorkflowRuntime
+from app.chat.workflows.lesson_plan.edit_runtime import LessonPlanEditRuntime
 from app.chat.workflows.report.edit_runtime import ReportEditRuntime
 from app.chat.workflows.report.assembler import ReportAssembler
 from app.chat.workflows.report.runtime import ReportWorkflowRuntime
@@ -88,6 +89,7 @@ class ReplyServiceV2:
         status_card_builder=None,
         course_storage_manager=None,
         report_edit_runtime=None,
+        lesson_plan_edit_runtime=None,
         ppt_edit_runtime=None,
     ):
         self.orchestrator = orchestrator
@@ -97,6 +99,7 @@ class ReplyServiceV2:
         self.status_card_builder = status_card_builder or StatusCardBuilder()
         self.course_storage_manager = course_storage_manager
         self.report_edit_runtime = report_edit_runtime
+        self.lesson_plan_edit_runtime = lesson_plan_edit_runtime
         self.ppt_edit_runtime = ppt_edit_runtime
 
     def _build_snapshot(self, request):
@@ -142,6 +145,12 @@ class ReplyServiceV2:
     def _run_artifact_edit(self, *, request, snapshot, artifact_type: str):
         if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
             return self.ppt_edit_runtime.run_from_request(
+                request=request,
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+            )
+        if artifact_type in {"lesson_plan", "lesson_plan_outline"} and self.lesson_plan_edit_runtime is not None:
+            return self.lesson_plan_edit_runtime.run_from_request(
                 request=request,
                 snapshot=snapshot,
                 course_storage_manager=self.course_storage_manager,
@@ -368,6 +377,7 @@ def build_default_reply_service_v2():
         status_card_builder=StatusCardBuilder(),
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
+        lesson_plan_edit_runtime=LessonPlanEditRuntime(llm=get_fallback_llm()),
         ppt_edit_runtime=PptEditRuntime(
             html2ppt_client_factory=lambda: Html2PptClient(
                 base_url=os.getenv("HTML2PPT_BASE_URL", "http://127.0.0.1:46080")

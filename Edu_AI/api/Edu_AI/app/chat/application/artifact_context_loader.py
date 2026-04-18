@@ -12,7 +12,12 @@ def _load_source_artifact(*, artifact_type: str, artifact_id: str, snapshot, cou
         and course_id
         and artifact_id
     ):
-        material_type = "ppt" if artifact_type.startswith("ppt_") else "report"
+        if artifact_type.startswith("ppt_"):
+            material_type = "ppt"
+        elif artifact_type.startswith("lesson_plan"):
+            material_type = "lesson_plan"
+        else:
+            material_type = "report"
         material = course_storage_manager.get_generated_material(course_id, material_type, artifact_id)
         if material:
             source_artifact = dict(material)
@@ -91,6 +96,37 @@ def _build_ppt_context(*, title: str, artifact_id: str, source_artifact: dict[st
     return "\n".join(line for line in context_lines if str(line or "").strip()).strip()
 
 
+def _build_lesson_plan_context(*, artifact_type: str, source_artifact: dict[str, Any], title: str) -> str:
+    if artifact_type == "lesson_plan":
+        plan = dict(source_artifact.get("plan") or source_artifact.get("content") or {})
+        process = list(plan.get("process") or [])
+        context_lines = [f"\u6807\u9898\uff1a{plan.get('title') or title}"]
+        context_lines.extend(
+            f"\u76ee\u6807\uff1a{item}"
+            for item in list(plan.get("objectives") or [])
+            if str(item or "").strip()
+        )
+        context_lines.extend(
+            f"\u73af\u8282 {index}\uff1a{step.get('step')} - {step.get('goal')}"
+            for index, step in enumerate(process, start=1)
+            if isinstance(step, dict) and (str(step.get("step") or "").strip() or str(step.get("goal") or "").strip())
+        )
+        return "\n".join(line for line in context_lines if str(line or "").strip()).strip()
+
+    outline = dict(source_artifact.get("outline") or source_artifact.get("content") or {})
+    basic_info = dict(outline.get("basic_info") or {})
+    lesson_flow = list(outline.get("lesson_flow") or [])
+    context_lines = [f"\u4e3b\u9898\uff1a{basic_info.get('topic') or title}"]
+    if str(basic_info.get("duration") or "").strip():
+        context_lines.append(f"\u65f6\u957f\uff1a{basic_info.get('duration')}")
+    context_lines.extend(
+        f"\u73af\u8282 {index}\uff1a{item.get('step')} - {item.get('goal')}"
+        for index, item in enumerate(lesson_flow, start=1)
+        if isinstance(item, dict) and (str(item.get("step") or "").strip() or str(item.get("goal") or "").strip())
+    )
+    return "\n".join(line for line in context_lines if str(line or "").strip()).strip()
+
+
 def load_artifact_context(*, artifact_reference: dict[str, Any], snapshot, course_storage_manager, course_id: str) -> dict[str, str] | None:
     artifact_type = str(artifact_reference.get("artifact_type") or "").strip()
     artifact_id = str(artifact_reference.get("artifact_id") or "").strip()
@@ -114,6 +150,12 @@ def load_artifact_context(*, artifact_reference: dict[str, Any], snapshot, cours
             artifact_id=artifact_id,
             source_artifact=source_artifact,
             snapshot=snapshot,
+        )
+    elif artifact_type in {"lesson_plan", "lesson_plan_outline"}:
+        context_text = _build_lesson_plan_context(
+            artifact_type=artifact_type,
+            source_artifact=source_artifact,
+            title=title,
         )
     else:
         return None

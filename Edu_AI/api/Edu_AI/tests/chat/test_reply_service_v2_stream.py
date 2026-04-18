@@ -125,6 +125,71 @@ def test_reply_service_stream_loads_artifact_context_for_ask_path():
     assert "## \u6458\u8981" in captured["artifact_context"]["context_text"]
 
 
+def test_reply_service_stream_loads_lesson_plan_artifact_context_for_ask_path():
+    captured = {}
+    store = DummyStore()
+    snapshot = SimpleNamespace(workflow_state=None, active_artifact=None, active_task=None, recent_messages=[])
+
+    class ArtifactStreamOrchestrator:
+        def dispatch_stream(self, request):
+            captured["artifact_context"] = getattr(request, "artifact_context", None)
+            yield {"type": "metadata", "payload": {"conversation_id": request.conversation_id, "sources": []}}
+            yield {
+                "type": "result",
+                "payload": {
+                    "message": {"role": "assistant", "content": "lesson plan answer"},
+                    "conversation": {"conversation_id": request.conversation_id},
+                    "action": {"name": "chat.reply"},
+                    "workflow": None,
+                    "artifacts": [],
+                    "sources": [],
+                    "trace": {"path": "fast"},
+                },
+            }
+
+    course_storage = SimpleNamespace(
+        get_generated_material=lambda course_id, material_type, material_id: {
+            "material_id": material_id,
+            "title": "\u5206\u6570\u7684\u610f\u4e49\u6559\u6848.json",
+            "plan": {
+                "title": "\u5206\u6570\u7684\u610f\u4e49",
+                "objectives": ["\u7406\u89e3\u5206\u6570\u7684\u610f\u4e49"],
+                "process": [{"step": "\u5bfc\u5165", "goal": "\u8054\u7cfb\u751f\u6d3b\u7ecf\u9a8c"}],
+            },
+        }
+    )
+    service = ReplyServiceV2(
+        orchestrator=ArtifactStreamOrchestrator(),
+        conversation_store=store,
+        context_builder=SimpleNamespace(build=lambda request: snapshot),
+        status_card_builder=DummyStatusCardBuilder(),
+        course_storage_manager=course_storage,
+    )
+    payload = SimpleNamespace(
+        question="\u8fd9\u4efd\u6559\u6848\u7684\u6838\u5fc3\u76ee\u6807\u662f\u4ec0\u4e48\uff1f",
+        conversation_id="conv-stream-lesson-plan-ask",
+        model_id=None,
+        course_id="course-1",
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        owner="u1",
+        artifact_reference={
+            "artifact_id": "lesson-plan-1",
+            "artifact_type": "lesson_plan",
+            "title": "\u5206\u6570\u7684\u610f\u4e49\u6559\u6848.json",
+        },
+    )
+
+    events = list(service.reply_stream(payload))
+
+    assert [event["type"] for event in events] == ["metadata", "result", "done"]
+    assert captured["artifact_context"]["artifact_type"] == "lesson_plan"
+    assert "\u76ee\u6807\uff1a\u7406\u89e3\u5206\u6570\u7684\u610f\u4e49" in captured["artifact_context"]["context_text"]
+
+
 def test_reply_service_stream_routes_explicit_artifact_edit_to_edit_runtime():
     calls = {"edit": [], "stream": []}
     store = DummyStore()
@@ -227,4 +292,60 @@ def test_reply_service_stream_returns_clarification_for_unclear_artifact_request
     assert events[0]["payload"]["action"]["name"] == "chat.reply"
     assert "\u8bf7\u5148\u544a\u8bc9\u6211\u4f60\u60f3\u4fee\u6539\u54ea\u4e00\u90e8\u5206" in events[0]["payload"]["message"]["content"]
     assert calls["edit"] == []
+    assert calls["stream"] == []
+
+
+def test_reply_service_stream_routes_explicit_lesson_plan_edit_to_lesson_plan_edit_runtime():
+    calls = {"lesson_plan_edit": [], "stream": []}
+    store = DummyStore()
+    snapshot = SimpleNamespace(workflow_state=None, active_artifact=None, active_task=None, recent_messages=[])
+
+    class UnexpectedStreamOrchestrator:
+        def dispatch_stream(self, request):
+            calls["stream"].append(request.question)
+            yield {"type": "metadata", "payload": {"conversation_id": request.conversation_id, "sources": []}}
+
+    class DummyLessonPlanEditRuntime:
+        def run_from_request(self, *, request, snapshot, course_storage_manager):
+            calls["lesson_plan_edit"].append(request.question)
+            return {
+                "message": {"role": "assistant", "content": "\u5df2\u751f\u6210\uff0c\u8bf7\u5728\u53f3\u4fa7\u67e5\u770b\u3002"},
+                "conversation": {"conversation_id": request.conversation_id},
+                "action": {"name": "lesson_plan.edit"},
+                "workflow": {"type": "lesson_plan", "status": "completed"},
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "workflow"},
+            }
+
+    service = ReplyServiceV2(
+        orchestrator=UnexpectedStreamOrchestrator(),
+        conversation_store=store,
+        context_builder=SimpleNamespace(build=lambda request: snapshot),
+        status_card_builder=DummyStatusCardBuilder(),
+        lesson_plan_edit_runtime=DummyLessonPlanEditRuntime(),
+    )
+    payload = SimpleNamespace(
+        question="\u91cd\u5199\u6559\u5b66\u76ee\u6807",
+        conversation_id="conv-stream-lesson-plan-edit",
+        model_id=None,
+        course_id="course-1",
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        owner="u1",
+        artifact_reference={
+            "artifact_id": "lesson-plan-1",
+            "artifact_type": "lesson_plan",
+            "title": "\u5206\u6570\u7684\u610f\u4e49\u6559\u6848.json",
+        },
+    )
+
+    events = list(service.reply_stream(payload))
+
+    assert [event["type"] for event in events] == ["result", "done"]
+    assert events[0]["payload"]["action"]["name"] == "lesson_plan.edit"
+    assert calls["lesson_plan_edit"] == ["\u91cd\u5199\u6559\u5b66\u76ee\u6807"]
     assert calls["stream"] == []

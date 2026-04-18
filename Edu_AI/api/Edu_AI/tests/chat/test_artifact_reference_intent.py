@@ -39,3 +39,23 @@ def test_classify_explicit_ppt_edit_with_page_as_edit():
 
     assert result["intent_class"] == "edit"
     assert result["requires_confirmation"] is False
+
+
+def test_classify_lesson_plan_edit_with_field_anchor_as_edit():
+    result = classify_artifact_reference_intent(
+        "重写教学目标",
+        artifact_type="lesson_plan",
+    )
+
+    assert result["intent_class"] == "edit"
+    assert result["requires_confirmation"] is False
+
+
+def test_classify_vague_lesson_plan_edit_without_target_as_unclear():
+    result = classify_artifact_reference_intent(
+        "优化一下这个教案",
+        artifact_type="lesson_plan",
+    )
+
+    assert result["intent_class"] == "unclear"
+    assert result["requires_confirmation"] is True
