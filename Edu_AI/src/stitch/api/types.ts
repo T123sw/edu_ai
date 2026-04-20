@@ -245,6 +245,65 @@ export type ApiEnvelope<T> = {
   data: T;
 };
 
+export type AiLectureSessionSnapshotEvent = {
+  type: string;
+  text?: string;
+  page_index?: number;
+  sentence_index?: number;
+  created_at?: string;
+  [key: string]: unknown;
+};
+
+export type AiLectureSessionSnapshot = {
+  snapshot_id: string;
+  course_id?: string;
+  source_ppt_material_id?: string;
+  ai_lecturer_course_id?: string | null;
+  outline?: Array<Record<string, unknown>>;
+  script?: Array<Record<string, unknown>>;
+  events?: AiLectureSessionSnapshotEvent[];
+  last_position?: {
+    page_index: number;
+    sentence_index: number;
+  };
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type AiLectureSessionMaterial = CourseMaterial & {
+  material_id: string;
+  material_type: "ai_lecture_session";
+  content?: {
+    source_ppt_material_id?: string;
+    session_snapshot_id?: string;
+    recording_asset_id?: string | null;
+    recording_url?: string | null;
+    can_continue_interactive?: boolean;
+    [key: string]: unknown;
+  };
+  generation_state?: {
+    status?: "created" | "recording" | "completed" | "failed" | string;
+    phase?: string;
+    message?: string;
+    [key: string]: unknown;
+  };
+};
+
+export type AiLectureSessionDetail = {
+  material: AiLectureSessionMaterial;
+  snapshot: AiLectureSessionSnapshot;
+  metadata: {
+    session_id?: string;
+    source_ppt_material_id?: string;
+    recording_status?: "not_started" | "recording" | "completed" | "failed" | string;
+    recording_url?: string | null;
+    livetalking_session_id?: number;
+    created_at?: string;
+    updated_at?: string;
+    [key: string]: unknown;
+  };
+};
+
 export type AiLecturerCoursePage = {
   title: string;
   content: string;
@@ -266,6 +325,12 @@ export type AiLecturerScriptResult = {
 
 export type AiLecturerAskResult = {
   answer: string;
+};
+
+export type AiLecturerOfferAnswer = {
+  sdp: string;
+  type: RTCSdpType;
+  sessionid: number;
 };
 
 export type AiLecturerOfflineTaskCreated = {
