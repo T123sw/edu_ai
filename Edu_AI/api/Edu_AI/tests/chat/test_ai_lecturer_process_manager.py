@@ -52,3 +52,10 @@ def test_ai_lecturer_health_requires_gateway_and_livetalking(monkeypatch):
 
 def test_default_ai_lecturer_entrypoint_starts_unified_stack():
     assert Path(Config.AI_LECTURER_ENTRYPOINT).name == "start_unified.py"
+
+
+def test_unified_startup_does_not_require_hardcoded_conda_environment():
+    startup_script = Path(Config.AI_LECTURER_ENTRYPOINT).read_text(encoding="utf-8")
+
+    assert "AI_LECTURER_CONDA_ENV" in startup_script
+    assert "conda activate nerfstream" not in startup_script
