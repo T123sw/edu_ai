@@ -1,5 +1,12 @@
 import { apiRequest } from "./client";
-import type { BackendCourse, CourseMaterial, KnowledgeBaseDocument, KnowledgeGraphData } from "./types";
+import type {
+  BackendCourse,
+  CourseMaterial,
+  KnowledgeBaseDocument,
+  KnowledgeGraphData,
+  KnowledgeGraphHourAllocationRequest,
+  KnowledgeGraphHourAllocationResponse,
+} from "./types";
 import type { CourseSummary } from "../shared";
 
 const accentPalette = [
@@ -73,6 +80,13 @@ export function getKnowledgeGraph(courseId: string) {
 export function saveKnowledgeGraph(courseId: string, payload: KnowledgeGraphData) {
   return apiRequest<KnowledgeGraphData>(`/api/courses/${courseId}/knowledge-graph`, {
     method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function allocateKnowledgeGraphHours(courseId: string, payload: KnowledgeGraphHourAllocationRequest) {
+  return apiRequest<KnowledgeGraphHourAllocationResponse>(`/api/courses/${courseId}/knowledge-graph/allocate-hours`, {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 }

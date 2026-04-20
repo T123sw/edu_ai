@@ -44,11 +44,26 @@ export type KnowledgeGraphNode = {
     summary?: string;
     hasChildren?: boolean;
     type?: string;
+    hours?: number;
   };
 };
 
 export type KnowledgeGraphData = {
   root: KnowledgeGraphNode;
+};
+
+export type KnowledgeGraphHourAllocationRequest = {
+  total_hours: number;
+};
+
+export type KnowledgeGraphHourAllocationResponse = KnowledgeGraphData & {
+  allocation: {
+    total_hours?: number;
+    leaf_count?: number;
+    source?: string;
+    normalized?: boolean;
+    [key: string]: unknown;
+  };
 };
 
 export type ChatReplyRequestV2 = {
