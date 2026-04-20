@@ -335,11 +335,13 @@ class AiLecturerProcessManager:
         self,
         *,
         gateway_url: str | None = None,
+        livetalking_url: str | None = None,
         entrypoint_path: str | Path | None = None,
         autostart: bool | None = None,
         startup_timeout_seconds: float | None = None,
     ) -> None:
         self.gateway_url = str(gateway_url or Config.AI_LECTURER_GATEWAY_URL).strip()
+        self.livetalking_url = str(livetalking_url or Config.AI_LECTURER_LIVETALKING_URL).strip()
         self.entrypoint_path = Path(entrypoint_path or Config.AI_LECTURER_ENTRYPOINT).resolve()
         self.autostart = bool(
             autostart if autostart is not None else str(getattr(Config, "AI_LECTURER_AUTOSTART", "1")).strip() not in {"0", "false", "False"}
@@ -349,14 +351,20 @@ class AiLecturerProcessManager:
         )
         self._process: subprocess.Popen[str] | None = None
 
-    def is_healthy(self) -> bool:
+    def _is_url_healthy(self, *, base_url: str, path: str) -> bool:
         try:
-            with httpx.Client(base_url=self.gateway_url, timeout=2.0, trust_env=False) as client:
-                response = client.get("/openapi.json")
+            with httpx.Client(base_url=base_url, timeout=2.0, trust_env=False) as client:
+                response = client.get(path)
                 response.raise_for_status()
             return True
         except Exception:
             return False
+
+    def is_healthy(self) -> bool:
+        return self._is_url_healthy(base_url=self.gateway_url, path="/openapi.json") and self._is_url_healthy(
+            base_url=self.livetalking_url,
+            path="/webrtcapi.html",
+        )
 
     def ensure_started(self) -> bool:
         if self.is_healthy():

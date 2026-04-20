@@ -79,9 +79,10 @@ class Config:
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
     AI_LECTURER_AUTOSTART = os.getenv("AI_LECTURER_AUTOSTART", "1")
     AI_LECTURER_GATEWAY_URL = os.getenv("AI_LECTURER_GATEWAY_URL", "http://127.0.0.1:8008")
+    AI_LECTURER_LIVETALKING_URL = os.getenv("AI_LECTURER_LIVETALKING_URL", "http://127.0.0.1:8010")
     AI_LECTURER_ENTRYPOINT = os.getenv(
         "AI_LECTURER_ENTRYPOINT",
-        str(BASE_DIR / "AI_Lecturer" / "unified_gateway.py"),
+        str(BASE_DIR / "AI_Lecturer" / "start_unified.py"),
     )
     AI_LECTURER_STARTUP_TIMEOUT_SEC = float(os.getenv("AI_LECTURER_STARTUP_TIMEOUT_SEC", "15"))
     HTML2PPT_JOBS_ROOT = Path(os.getenv("HTML2PPT_JOBS_ROOT", BASE_DIR / "html2ppt" / "data" / "jobs"))
