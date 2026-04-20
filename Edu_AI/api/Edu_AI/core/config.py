@@ -3,10 +3,11 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+BASE_DIR = Path(__file__).resolve().parents[1]
+
 try:
     from dotenv import load_dotenv
 
-    BASE_DIR = Path(__file__).resolve().parents[1]
     for candidate in (
         BASE_DIR / ".env",
         BASE_DIR / "config_openai.env",

@@ -7,6 +7,33 @@ import webbrowser
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LIVETALKING_DIR = os.path.join(BASE_DIR, "LiveTalking-main")
+BACKEND_ENV_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", ".env"))
+
+
+def _load_env_file(path: str) -> None:
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, "r", encoding="utf-8") as env_file:
+            for raw_line in env_file:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+    except OSError:
+        return
+
+
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(BACKEND_ENV_PATH, override=True)
+except Exception:
+    _load_env_file(BACKEND_ENV_PATH)
 
 
 def _quote(value: str) -> str:

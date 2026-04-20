@@ -59,3 +59,24 @@ def test_unified_startup_does_not_require_hardcoded_conda_environment():
 
     assert "AI_LECTURER_CONDA_ENV" in startup_script
     assert "conda activate nerfstream" not in startup_script
+
+
+def test_unified_startup_loads_backend_env_file():
+    startup_script = Path(Config.AI_LECTURER_ENTRYPOINT).read_text(encoding="utf-8")
+
+    assert "load_dotenv" in startup_script
+    assert 'BASE_DIR, "..", ".env"' in startup_script
+
+
+def test_unified_startup_can_read_env_without_python_dotenv():
+    startup_script = Path(Config.AI_LECTURER_ENTRYPOINT).read_text(encoding="utf-8")
+
+    assert "def _load_env_file" in startup_script
+    assert 'line.partition("=")' in startup_script
+    assert "_load_env_file(BACKEND_ENV_PATH)" in startup_script
+
+
+def test_config_defines_base_dir_without_python_dotenv():
+    config_source = Path("core/config.py").read_text(encoding="utf-8")
+
+    assert config_source.index("BASE_DIR = Path(__file__).resolve().parents[1]") < config_source.index("try:")
