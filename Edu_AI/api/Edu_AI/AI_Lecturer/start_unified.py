@@ -59,7 +59,8 @@ def _base_command(workdir: str) -> str:
 
 
 def _start_named_window(title: str, command: str) -> None:
-    subprocess.Popen(f'start "{title}" cmd /k {command}', shell=True)
+    escaped_command = command.replace('"', '""')
+    subprocess.Popen(f'start "{title}" cmd /k "{escaped_command}"', shell=True)
 
 
 def start_engines():

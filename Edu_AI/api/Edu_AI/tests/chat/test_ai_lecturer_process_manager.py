@@ -1,3 +1,4 @@
+import importlib.util
 from pathlib import Path
 
 from app.teaching_video_bridge import AiLecturerProcessManager
@@ -80,3 +81,29 @@ def test_config_defines_base_dir_without_python_dotenv():
     config_source = Path("core/config.py").read_text(encoding="utf-8")
 
     assert config_source.index("BASE_DIR = Path(__file__).resolve().parents[1]") < config_source.index("try:")
+
+
+def _load_start_unified_module():
+    module_path = Path(Config.AI_LECTURER_ENTRYPOINT)
+    spec = importlib.util.spec_from_file_location("start_unified_test_module", module_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_start_named_window_wraps_compound_command_for_cmd(monkeypatch):
+    module = _load_start_unified_module()
+    recorded = {}
+
+    def fake_popen(command, shell):
+        recorded["command"] = command
+        recorded["shell"] = shell
+        return object()
+
+    monkeypatch.setattr(module.subprocess, "Popen", fake_popen)
+
+    module._start_named_window("LiveTalking WebRTC (8010)", 'cd /d "D:\\demo" && python app.py')
+
+    assert recorded["shell"] is True
+    assert 'cmd /k "cd /d ""D:\\demo"" && python app.py"' in recorded["command"]
