@@ -55,7 +55,7 @@ assert.match(
 
 assert.match(
   graphPageFile,
-  /data:\s*\{[\s\S]*hours:\s*node\.hours ?? undefined/,
+  /data:\s*\{[\s\S]*hours:\s*node\.hours \?\? undefined/,
   'buildGraph should preserve flat node hours in node data',
 );
 

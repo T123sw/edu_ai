@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getKnowledgeGraph, saveKnowledgeGraph } from "../api/courses";
+import { allocateKnowledgeGraphHours, getKnowledgeGraph, saveKnowledgeGraph } from "../api/courses";
 import type { KnowledgeGraphNode } from "../api/types";
 import {
   AppSurface,
@@ -52,7 +52,7 @@ function flattenGraph(root: KnowledgeGraphNode, parentId: string | null = null, 
     summary: root.data?.summary || "",
     level,
     type: root.data?.type || "concept",
-    hours: null,
+    hours: typeof root.data?.hours === "number" ? root.data.hours : null,
   };
   const children = Array.isArray(root.children) ? root.children.flatMap((child) => flattenGraph(child, root.id, level + 1)) : [];
   return [current, ...children];
@@ -76,6 +76,7 @@ function buildGraph(flatNodes: FlatNode[], rootId: string): KnowledgeGraphNode {
         summary: node.summary,
         hasChildren: children.length > 0,
         type: node.type,
+        hours: node.hours ?? undefined,
       },
       children,
     };
@@ -168,21 +169,6 @@ function createNode(parentId: string | null, siblingCount: number, parentLevel =
   };
 }
 
-function generateHours(totalHours: number, nodes: FlatNode[]) {
-  if (!nodes.length) return nodes;
-
-  const totalWeight = nodes.reduce((sum, node) => sum + (node.parentId ? 1 : 1.4), 0);
-  let allocated = 0;
-
-  return nodes.map((node, index) => {
-    const raw = Math.max(1, Math.round((totalHours * (node.parentId ? 1 : 1.4)) / totalWeight));
-    const remaining = totalHours - allocated;
-    const hours = index === nodes.length - 1 ? Math.max(1, remaining) : raw;
-    allocated += hours;
-    return { ...node, hours };
-  });
-}
-
 function typeStyle(type: string) {
   switch (type) {
     case "chapter":
@@ -217,6 +203,7 @@ export function KnowledgeGraphPage() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [allocatingHours, setAllocatingHours] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -297,6 +284,36 @@ export function KnowledgeGraphPage() {
       }
       return next;
     });
+  }
+
+  function parseTotalHoursInput() {
+    const normalized = totalHours.trim();
+    if (!/^\d+(?:\.\d)?$/.test(normalized)) {
+      throw new Error("课程总学时需为非负数字，最多一位小数");
+    }
+    return Number(normalized);
+  }
+
+  async function handleAllocateHours() {
+    if (!course?.id) return;
+    try {
+      setAllocatingHours(true);
+      setError(null);
+      const parsedTotalHours = parseTotalHoursInput();
+      const response = await allocateKnowledgeGraphHours(course.id, { total_hours: parsedTotalHours });
+      const flat = flattenGraph(response.root);
+      setNodes(flat);
+      const root = flat.find((node) => node.parentId === null) ?? flat[0];
+      setActiveNodeId((current) => (current && flat.some((node) => node.id === current) ? current : root?.id || ""));
+      setExpandedIds((current) => {
+        if (current.size) return current;
+        return root ? new Set([root.id]) : new Set();
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "节点学时生成失败");
+    } finally {
+      setAllocatingHours(false);
+    }
   }
 
   async function handleSave() {
@@ -398,11 +415,12 @@ export function KnowledgeGraphPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setNodes((current) => generateHours(Number(totalHours) || 32, current))}
-                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white"
+                  onClick={() => void handleAllocateHours()}
+                  disabled={allocatingHours || !course?.id}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
                 >
                   <MaterialIcon name="auto_graph" className="text-base" />
-                  生成节点学时
+                  {allocatingHours ? "生成中..." : "生成节点学时"}
                 </button>
               </div>
             </div>
