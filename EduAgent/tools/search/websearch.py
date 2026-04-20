@@ -98,7 +98,7 @@ def google_search(query: str, gl: str = "cn", return_number: int = 15) -> List[D
 
 
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urljoin, urlparse, urlunparse
 
 import requests
 
@@ -109,6 +109,24 @@ def _canon_url(u: str) -> str:
         return urlunparse((p.scheme, p.netloc, p.path, p.params, p.query, ""))  # drop fragment
     except Exception:
         return u
+
+
+def _contains_cjk(text: str) -> bool:
+    return any("\u4e00" <= ch <= "\u9fff" for ch in text or "")
+
+
+def _is_unhelpful_baidu_url(link: str) -> bool:
+    try:
+        parsed = urlparse(link)
+        netloc = parsed.netloc.lower()
+        path = parsed.path or "/"
+        if netloc in {"top.baidu.com", "passport.baidu.com"}:
+            return True
+        if netloc in {"www.baidu.com", "baidu.com"} and (path in {"", "/"} or path.startswith("/s")):
+            return True
+    except Exception:
+        return False
+    return False
 
 
 # 公共SearxNG实例列表（按稳定性排序）
@@ -313,6 +331,84 @@ def search(
             logger.warning(f"Bing HTML解析失败: {type(e).__name__}: {e}")
             return []
 
+    def _resolve_baidu_link(link: str) -> str:
+        if not link:
+            return link
+        link = urljoin("https://www.baidu.com", link)
+        try:
+            parsed = urlparse(link)
+            if "baidu.com" not in parsed.netloc.lower() or not parsed.path.startswith("/link"):
+                return link
+            r = requests.get(
+                link,
+                headers={"User-Agent": headers["User-Agent"]},
+                timeout=req_timeout,
+                allow_redirects=False,
+            )
+            location = r.headers.get("Location") or r.headers.get("location")
+            if location:
+                return urljoin(link, location)
+        except Exception as e:
+            logger.warning(f"Baidu redirect resolve failed: {type(e).__name__}: {e}")
+        return link
+
+    def _fallback_baidu_html(q: str) -> List[Dict[str, Any]]:
+        """Fallback for Chinese queries when DDG/Bing return anti-bot challenge pages."""
+        url = f"https://www.baidu.com/s?wd={quote_plus(q)}"
+        try:
+            baidu_headers = {
+                "User-Agent": headers["User-Agent"],
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+                "Connection": "keep-alive",
+                "Referer": "https://www.baidu.com/",
+            }
+            r = requests.get(url, headers=baidu_headers, timeout=req_timeout)
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, "lxml")
+            out: List[Dict[str, Any]] = []
+            seen_urls = set()
+
+            result_items = soup.select("div.result, div.result-op")
+            for item in result_items:
+                a = (
+                    item.select_one("h3.t a[href]")
+                    or item.select_one("h3 a[href]")
+                    or item.select_one("a[href]")
+                )
+                if not a:
+                    continue
+
+                title = a.get_text(" ", strip=True)
+                link = a.get("href") or ""
+                if not title or not link or link.startswith("javascript:"):
+                    continue
+
+                link = _canon_url(_resolve_baidu_link(link))
+                if (
+                    not link.startswith("http")
+                    or _is_unhelpful_baidu_url(link)
+                    or link in seen_urls
+                ):
+                    continue
+                seen_urls.add(link)
+
+                snippet_el = (
+                    item.select_one(".c-abstract")
+                    or item.select_one("[class*='abstract']")
+                    or item.select_one("[class*='content-right']")
+                    or item.select_one(".c-span-last")
+                )
+                snippet = snippet_el.get_text(" ", strip=True) if snippet_el else ""
+                out.append({"title": title, "url": link, "snippet": snippet, "engine": "baidu"})
+                if len(out) >= top_k:
+                    break
+
+            return out
+        except Exception as e:
+            logger.warning(f"Baidu HTML解析失败: {type(e).__name__}: {e}")
+            return []
+
     def _fallback_ddg_html(q: str) -> List[Dict[str, Any]]:
         """
         兜底搜索：抓取DuckDuckGo HTML 结果页面
@@ -413,6 +509,15 @@ def search(
         except Exception as e:
             logger.warning(f"DuckDuckGo HTML解析失败: {type(e).__name__}: {e}")
         
+        if _contains_cjk(query):
+            try:
+                baidu_results = _fallback_baidu_html(query)
+                if baidu_results and len(baidu_results) > 0:
+                    logger.info(f"Baidu HTML搜索成功，返回 {len(baidu_results)} 个结果")
+                    return baidu_results[:top_k]
+            except Exception as e:
+                logger.warning(f"Baidu HTML解析失败: {type(e).__name__}: {e}")
+
         # 备选：Bing
         try:
             bing_results = _fallback_bing_html(query)
@@ -421,6 +526,15 @@ def search(
                 return bing_results[:top_k]
         except Exception as e:
             logger.warning(f"Bing HTML解析失败: {type(e).__name__}: {e}")
+
+        if not _contains_cjk(query):
+            try:
+                baidu_results = _fallback_baidu_html(query)
+                if baidu_results and len(baidu_results) > 0:
+                    logger.info(f"Baidu HTML搜索成功，返回 {len(baidu_results)} 个结果")
+                    return baidu_results[:top_k]
+            except Exception as e:
+                logger.warning(f"Baidu HTML解析失败: {type(e).__name__}: {e}")
         
         logger.warning("所有HTML解析都失败，返回空列表")
         return []
@@ -479,6 +593,15 @@ def search(
     except Exception as e:
         logger.warning(f"DuckDuckGo HTML fallback failed: {type(e).__name__}: {e}")
     
+    if _contains_cjk(query):
+        try:
+            baidu_results = _fallback_baidu_html(query)
+            if baidu_results and len(baidu_results) > 0:
+                logger.info(f"Baidu HTML搜索成功，返回 {len(baidu_results)} 个结果")
+                return baidu_results[:top_k]
+        except Exception as e:
+            logger.warning(f"Baidu HTML fallback failed: {type(e).__name__}: {e}")
+
     try:
         bing_results = _fallback_bing_html(query)
         if bing_results and len(bing_results) > 0:
@@ -486,6 +609,15 @@ def search(
             return bing_results[:top_k]
     except Exception as e:
         logger.warning(f"Bing HTML fallback failed: {type(e).__name__}: {e}")
+
+    if not _contains_cjk(query):
+        try:
+            baidu_results = _fallback_baidu_html(query)
+            if baidu_results and len(baidu_results) > 0:
+                logger.info(f"Baidu HTML搜索成功，返回 {len(baidu_results)} 个结果")
+                return baidu_results[:top_k]
+        except Exception as e:
+            logger.warning(f"Baidu HTML fallback failed: {type(e).__name__}: {e}")
     
     logger.warning("所有搜索方法都失败，返回空列表")
     return []
