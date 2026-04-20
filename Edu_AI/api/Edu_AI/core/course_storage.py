@@ -27,6 +27,7 @@ TYPE_MAPPING = {
     "report": "reports",
     "ppt": "ppts",
     "video": "videos",
+    "ai_lecture_session": "lecture_sessions",
     "blog": "blogs",
     "quiz": "quizzes",
 }
@@ -106,6 +107,7 @@ class CourseStorageManager:
         (course_dir / "generated_materials" / "reports").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "ppts").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "videos").mkdir(parents=True, exist_ok=True)
+        (course_dir / "generated_materials" / "lecture_sessions").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "blogs").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "quizzes").mkdir(parents=True, exist_ok=True)
 
