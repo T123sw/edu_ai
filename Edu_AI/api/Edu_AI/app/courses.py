@@ -10,7 +10,12 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
+from app.knowledge_graph_hours import (
+    KnowledgeGraphHourAllocationError,
+    allocate_graph_hours_from_llm,
+)
 from app.teaching_video_bridge import get_teaching_video_bridge_service
+from core import Config
 from core.auth import auth_manager
 from core.course_storage import CourseStorageManager, storage_manager
 from rag_v2.api import get_rag_system
@@ -52,6 +57,14 @@ class PinMaterialRequest(BaseModel):
 
 class KnowledgeGraphData(BaseModel):
     root: dict = Field(..., description="知识图谱根节点")
+
+
+class KnowledgeGraphHourAllocationRequest(BaseModel):
+    total_hours: float = Field(..., description="Course total hours, with at most one decimal place")
+
+
+class KnowledgeGraphHourAllocationResponse(KnowledgeGraphData):
+    allocation: Dict[str, Any] = Field(default_factory=dict, description="Hour allocation metadata")
 
 
 class TeachingVideoPptItem(BaseModel):
@@ -541,6 +554,13 @@ def _find_kg_node(root: Dict[str, Any], node_id: str) -> Optional[Dict[str, Any]
     return None
 
 
+def _call_knowledge_graph_hour_llm(prompt: str) -> str:
+    rag_system = get_rag_system()
+    model_config = Config.get_deep_model()
+    raw = rag_system._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
+    return str(raw or "")
+
+
 @router.get("/{course_id}/knowledge-graph", response_model=KnowledgeGraphData, summary="获取课程知识图谱")
 def get_knowledge_graph(
     course_id: str,
@@ -596,6 +616,43 @@ def get_knowledge_graph_subtree(
         raise HTTPException(status_code=404, detail="知识图谱节点不存在")
 
     return KnowledgeGraphData(root=node)
+
+
+@router.post(
+    "/{course_id}/knowledge-graph/allocate-hours",
+    response_model=KnowledgeGraphHourAllocationResponse,
+    summary="Allocate teaching hours for course knowledge graph nodes",
+)
+def allocate_knowledge_graph_hours(
+    course_id: str,
+    payload: KnowledgeGraphHourAllocationRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    graph_data = mgr.get_knowledge_graph(course_id)
+    if graph_data is None:
+        raise HTTPException(status_code=404, detail="课程知识图谱不存在")
+
+    try:
+        updated_graph, allocation_meta = allocate_graph_hours_from_llm(
+            graph_data,
+            payload.total_hours,
+            _call_knowledge_graph_hour_llm,
+        )
+    except KnowledgeGraphHourAllocationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"调用大模型分配课时失败: {exc}") from exc
+
+    if not mgr.save_knowledge_graph(course_id, updated_graph):
+        raise HTTPException(status_code=500, detail="保存知识图谱课时分配失败")
+
+    return KnowledgeGraphHourAllocationResponse(root=updated_graph, allocation=allocation_meta)
 
 
 @router.put("/{course_id}/knowledge-graph", response_model=KnowledgeGraphData, summary="保存课程知识图谱")
