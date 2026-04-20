@@ -306,6 +306,8 @@ const getGeneratedFileIcon = (file: GeneratedFile, size = 20) => {
       return <AudioOutlined style={{ fontSize: size, color: '#722ed1' }} />;
     case 'video':
       return <VideoCameraOutlined style={{ fontSize: size, color: '#52c41a' }} />;
+    case 'ai_lecture_session':
+      return <VideoCameraOutlined style={{ fontSize: size, color: '#1677ff' }} />;
     case 'graph':
       return <ApartmentOutlined style={{ fontSize: size, color: '#4caf50' }} />;
     case 'flashcard':
@@ -727,6 +729,15 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
   const [pptFullscreenActive, setPptFullscreenActive] = useState(false);
+
+  const openGeneratedFile = (file: GeneratedFile) => {
+    if (file.type === 'ai_lecture_session') {
+      window.localStorage.setItem('stitch-ai-lecture-session-id', file.id);
+      window.location.hash = '#resources';
+      return;
+    }
+    setViewingFile(file);
+  };
 
   useEffect(() => {
     const element = pptPreviewFrameRef.current;
@@ -1501,7 +1512,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   borderRadius: 4,
                   transition: 'background 0.2s',
                 }}
-                onClick={() => setViewingFile(f)}
+                onClick={() => openGeneratedFile(f)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#f5f5f5';
                 }}
@@ -3384,7 +3395,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             <div key={item.id} className="studio-panel__artifact-item">
               <div
                 className="studio-panel__artifact-main"
-                onClick={() => setViewingFile(item)}
+                onClick={() => openGeneratedFile(item)}
               >
                 {getGeneratedFileIcon(item)}
                 <Text ellipsis={{ tooltip: item.name }} className="studio-panel__artifact-name">
@@ -3403,7 +3414,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   icon={<EyeOutlined />}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setViewingFile(item);
+                    openGeneratedFile(item);
                   }}
                 />
               </Tooltip>
