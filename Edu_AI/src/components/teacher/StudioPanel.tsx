@@ -28,6 +28,7 @@ import { useStore } from '../../store/teacher/useStore';
 import type { GeneratedFile } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
+  createAiLectureSession,
   getCourseMaterials,
   getCourseMaterialsPage,
   resumeBlogTaskChapters,
@@ -313,6 +314,8 @@ const getGeneratedFileIcon = (file: GeneratedFile, size = 20) => {
       return <AudioOutlined style={{ fontSize: size, color: '#722ed1' }} />;
     case 'video':
       return <VideoCameraOutlined style={{ fontSize: size, color: '#52c41a' }} />;
+    case 'ai_lecture_session':
+      return <VideoCameraOutlined style={{ fontSize: size, color: '#1677ff' }} />;
     case 'graph':
       return <ApartmentOutlined style={{ fontSize: size, color: '#4caf50' }} />;
     case 'flashcard':
@@ -803,6 +806,16 @@ const StudioPanel: React.FC<Props> = ({
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
   const [pptFullscreenActive, setPptFullscreenActive] = useState(false);
+  const AI_LECTURE_AUTOSTART_REQUEST_KEY = 'stitch-ai-lecture-autostart-request';
+
+  const openGeneratedFile = (file: GeneratedFile) => {
+    if (file.type === 'ai_lecture_session') {
+      window.localStorage.setItem('stitch-ai-lecture-session-id', file.id);
+      window.location.hash = '#resources';
+      return;
+    }
+    setViewingFile(file);
+  };
 
   useEffect(() => {
     const element = pptPreviewFrameRef.current;
@@ -1274,33 +1287,46 @@ const StudioPanel: React.FC<Props> = ({
 
     setGenerating(true);
     try {
-      const response = await createTeachingVideoTask(courseId, {
-        ppt_material_id: pptMaterialId,
+      const response = await createAiLectureSession(courseId, {
+        source_ppt_material_id: pptMaterialId,
+        title: `${pptTitle.replace(/\.pptx$/i, '')}-AI讲解会话`,
       });
-      const videoId = String(response.material_id || `teaching_video__${response.task_id}`);
+      const sessionId = String(response.content?.session_snapshot_id || response.material_id || '').trim();
       const videoName = `${pptTitle.replace(/\.pptx$/i, '')}-教学视频.mp4`;
+      if (!sessionId) {
+        throw new Error('AI lecture session id was not returned.');
+      }
       const pendingFile: GeneratedFile = {
-        id: videoId,
-        name: videoName,
-        type: 'video',
+        id: sessionId,
+        name: `${pptTitle.replace(/\.pptx$/i, '')}-AI讲解会话`,
+        type: 'ai_lecture_session',
         content: {
-          task_id: response.task_id,
-          video_url: response.video_url || undefined,
           source_ppt_material_id: pptMaterialId,
+          session_snapshot_id: sessionId,
+          recording_url: response.content?.recording_url || undefined,
+          can_continue_interactive: true,
         },
         meta: {
           origin: 'course_material',
           generationState: {
-            status: 'processing',
-            phase: 'queued',
+            status: 'created',
+            phase: 'created',
             message: '教学视频任务已提交',
           },
         },
       };
       addGeneratedFile(pendingFile);
-      setViewingFile(pendingFile);
-      setTeachingVideoTaskId(response.task_id);
-      setTeachingVideoPolling(true);
+      window.localStorage.setItem(
+        AI_LECTURE_AUTOSTART_REQUEST_KEY,
+        JSON.stringify({
+          autoPlay: true,
+          courseId,
+          pptMaterialId,
+          pptTitle,
+          sessionId,
+        }),
+      );
+      window.location.hash = '#video';
       setTeachingVideoEntryVisible(false);
       await refreshCourseMaterials();
       message.success('教学视频任务已提交，正在生成');
@@ -1585,7 +1611,7 @@ const StudioPanel: React.FC<Props> = ({
                   borderRadius: 4,
                   transition: 'background 0.2s',
                 }}
-                onClick={() => setViewingFile(f)}
+                onClick={() => openGeneratedFile(f)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#f5f5f5';
                 }}
@@ -3479,7 +3505,7 @@ const StudioPanel: React.FC<Props> = ({
             <div key={item.id} className="studio-panel__artifact-item">
               <div
                 className="studio-panel__artifact-main"
-                onClick={() => setViewingFile(item)}
+                onClick={() => openGeneratedFile(item)}
               >
                 {getGeneratedFileIcon(item)}
                 <Text ellipsis={{ tooltip: item.name }} className="studio-panel__artifact-name">
@@ -3498,7 +3524,7 @@ const StudioPanel: React.FC<Props> = ({
                   icon={<EyeOutlined />}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setViewingFile(item);
+                    openGeneratedFile(item);
                   }}
                 />
               </Tooltip>

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
 import { VideoPlayerPage } from "./pages/VideoPlayer";
+import { CourseResourcesPage } from "./pages/CourseResources";
 import { AIWorkspacePage } from "./pages/AIWorkspace";
 import { HomeDashboardPage } from "./pages/HomeDashboard";
 import { KnowledgeGraphPage } from "./pages/KnowledgeGraph";
@@ -21,7 +22,7 @@ import {
 } from "./shared";
 import { login, verifyToken, type User } from "../services/auth";
 
-const pages = [
+const legacyPages = [
   [routes.profile, "Profile", ProfilePage],
   [routes.home, "首页", HomeDashboardPage],
   [routes.course, "课程详情", CourseDetailPage],
@@ -34,15 +35,27 @@ const pages = [
   [routes.edit, "详情编辑", CourseEditPage],
 ] as const;
 
+void legacyPages;
+
+const pages = [
+  [routes.profile, "Profile", ProfilePage],
+  [routes.home, "Home", HomeDashboardPage],
+  [routes.course, "Course Detail", CourseDetailPage],
+  [routes.workspace, "Workspace", WorkspaceOverviewPage],
+  [routes.video, "Video Player", VideoPlayerPage],
+  [routes.resources, "Course Resources", CourseResourcesPage],
+  [routes.ai, "AI Workspace", AIWorkspacePage],
+  [routes.graph, "Knowledge Graph", KnowledgeGraphPage],
+  [routes.ppt, "PPT Studio", PptStudioPage],
+  [routes.knowledge, "Knowledge Base", CourseKnowledgeBasePage],
+  [routes.edit, "Course Edit", CourseEditPage],
+] as const;
+
 const AUTH_STORAGE_KEY = "edu-ai-auth";
 
 function getCurrentRoute(): RouteKey {
   const hash = window.location.hash.replace(/^#/, "");
   const route = hash.split("?")[0] as RouteKey;
-  if (route === routes.resources) {
-    window.location.hash = routeHref(routes.video);
-    return routes.video;
-  }
   return pages.some(([id]) => id === route) ? route : routes.home;
 }
 

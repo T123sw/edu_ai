@@ -15,13 +15,13 @@ assert.match(
 );
 assert.match(
   studioPanel,
-  /createTeachingVideoTask\(/,
-  'StudioPanel should submit teaching video tasks through the teaching video API',
+  /createAiLectureSession\(/,
+  'StudioPanel should create AI lecture sessions through the main backend',
 );
 assert.match(
   studioPanel,
-  /getTeachingVideoTaskStatus\(/,
-  'StudioPanel should poll teaching video task status after submission',
+  /window\.localStorage\.setItem\(\s*AI_LECTURE_AUTOSTART_REQUEST_KEY/,
+  'StudioPanel should persist an autoplay handoff request before redirecting',
 );
 assert.match(
   studioPanel,
@@ -40,18 +40,13 @@ assert.match(
 );
 assert.match(
   studioPanel,
-  /<video[\s\S]*src=\{videoUrl\}/,
-  'StudioPanel should render an HTML video player for completed teaching videos',
+  /window\.location\.hash = '#video'/,
+  'StudioPanel should redirect to the video player after creating an AI lecture session',
 );
 assert.match(
   studioPanel,
-  /videoErrorMessage/,
-  'StudioPanel should surface backend teaching video failure details',
-);
-assert.match(
-  studioPanel,
-  /useEffect\(\(\)\s*=>\s*\{[\s\S]*generatedFiles\.find\([\s\S]*item\.type !== 'video'[\s\S]*generationState[\s\S]*status === 'processing'[\s\S]*setTeachingVideoTaskId\(/,
-  'StudioPanel should resume polling persisted processing teaching video tasks after reload',
+  /type:\s*'ai_lecture_session'/,
+  'StudioPanel should create AI lecture session artifacts in the workbench',
 );
 
 console.log('studioPanel.teaching-video-entry tests passed');

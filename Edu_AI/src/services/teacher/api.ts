@@ -611,6 +611,22 @@ export interface TeachingVideoTaskResponse {
   error_message?: string | null;
 }
 
+export interface AiLectureSessionMaterialResponse {
+  material_id: string;
+  material_type: string;
+  title?: string | null;
+  summary?: string | null;
+  content?: {
+    source_ppt_material_id?: string;
+    session_snapshot_id?: string;
+    recording_asset_id?: string | null;
+    recording_url?: string | null;
+    can_continue_interactive?: boolean;
+    [key: string]: unknown;
+  };
+  generation_state?: Record<string, any>;
+}
+
 const normalizeCourseMaterialItem = (courseId: string, item: Record<string, any>): CourseMaterialItem => {
   const type = String(item.type || item.material_type || 'unknown');
   let content = item.content;
@@ -1017,6 +1033,29 @@ export const createTeachingVideoTask = async (
   }
 
   return (await resp.json()) as TeachingVideoTaskResponse;
+};
+
+export const createAiLectureSession = async (
+  courseId: string,
+  payload: { source_ppt_material_id: string; title?: string },
+): Promise<AiLectureSessionMaterialResponse> => {
+  const token = getAuthToken();
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/courses/${courseId}/lecture-sessions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`创建 AI 讲解会话失败: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  return (await resp.json()) as AiLectureSessionMaterialResponse;
 };
 
 export const getTeachingVideoTaskStatus = async (
