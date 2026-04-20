@@ -63,6 +63,8 @@ export interface KnowledgeDocument {
   imported_at?: string;
   summary?: string;
   summary_updated_at?: string;
+  summary_title?: string;
+  summary_title_updated_at?: string;
   file_size?: number;
   page_count?: number;
   hash?: string;
@@ -71,6 +73,7 @@ export interface KnowledgeDocument {
   source_url?: string;
   source_title?: string;
   source_domain?: string;
+  source_site_name?: string;
   doc_kind?: string;
   modality?: string;
   image_url?: string;

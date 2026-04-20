@@ -64,6 +64,48 @@ def test_new_fast_path_persists_user_and_assistant_messages():
     assert messages[1]["role"] == "assistant"
 
 
+def test_write_v2_result_persists_workspace_scope_for_history_filtering():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    adapter = ConversationStoreAdapter(storage=storage)
+    request = SimpleNamespace(
+        question="hello",
+        owner="teacher-a",
+        course_id="course-1",
+        scope_type="knowledge_point",
+        scope_id="kp-1",
+        capability=SimpleNamespace(allow_rag=False, allow_web=False, selected_doc_ids=[]),
+        input_images=[],
+        input_videos=[],
+        artifact_reference=None,
+        conversation_reference=None,
+    )
+    result = {
+        "message": {"role": "assistant", "content": "ok"},
+        "conversation": {"conversation_id": "conv-kp"},
+        "action": {"name": "chat.reply"},
+        "workflow": None,
+        "artifacts": [],
+        "sources": [],
+        "trace": {"path": "fast"},
+    }
+
+    adapter.write_v2_result("conv-kp", request, result)
+
+    state = storage.get_state("conv-kp")
+    assert state["course_id"] == "course-1"
+    assert state["scope_type"] == "knowledge_point"
+    assert state["scope_id"] == "kp-1"
+    listed = storage.list_conversations(
+        owner="teacher-a",
+        course_id="course-1",
+        scope_type="knowledge_point",
+        scope_ids={"kp-1"},
+    )
+    assert [item["conversation_id"] for item in listed["conversations"]] == ["conv-kp"]
+
+
 def test_new_fast_path_persists_summary_and_memory_for_normal_chat():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)

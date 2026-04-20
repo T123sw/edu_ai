@@ -702,3 +702,81 @@ def test_route_chat_service_stream_restores_course_id_from_conversation_state():
     assert meta["conversation_id"] == "legacy-conv"
     assert list(stream) == []
     assert legacy.stream_calls[-1]["course_id"] == "course-stream"
+
+
+def test_route_chat_service_persists_scope_metadata_on_chat_requests():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    adapter = ConversationStoreAdapter(storage=storage)
+    legacy = DummyLegacyService()
+    service = RouteChatService(
+        legacy_service=legacy,
+        gateway_factory=lambda model_id: DummyGateway(),
+        enable_new_chat=False,
+        conversation_store=adapter,
+    )
+
+    service.chat(
+        question="hello",
+        conversation_id="conv-scope-write",
+        model_id=None,
+        use_rag=False,
+        selected_doc_ids=[],
+        owner="teacher-a",
+        course_id="course-2",
+        scope_type="knowledge_point",
+        scope_id="sorting",
+        allow_web=False,
+        action_hint=None,
+        artifact_id=None,
+    )
+
+    state = storage.get_state("conv-scope-write")
+    assert state["course_id"] == "course-2"
+    assert state["scope_type"] == "knowledge_point"
+    assert state["scope_id"] == "sorting"
+    assert legacy.calls[-1]["scope_type"] == "knowledge_point"
+    assert legacy.calls[-1]["scope_id"] == "sorting"
+
+
+def test_route_chat_service_restores_scope_metadata_from_conversation_state():
+    temp_dir = Path("tests/.tmp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
+    storage.ensure_conversation("conv-scope", "hello")
+    storage.update_state(
+        "conv-scope",
+        {
+            "course_id": "course-1",
+            "scope_type": "knowledge_point",
+            "scope_id": "bubble-sort",
+        },
+    )
+    adapter = ConversationStoreAdapter(storage=storage)
+    legacy = DummyLegacyService()
+    service = RouteChatService(
+        legacy_service=legacy,
+        gateway_factory=lambda model_id: DummyGateway(),
+        enable_new_chat=False,
+        conversation_store=adapter,
+    )
+
+    service.chat(
+        question="hello",
+        conversation_id="conv-scope",
+        model_id=None,
+        use_rag=False,
+        selected_doc_ids=[],
+        owner="teacher-a",
+        course_id=None,
+        scope_type=None,
+        scope_id=None,
+        allow_web=False,
+        action_hint=None,
+        artifact_id=None,
+    )
+
+    assert legacy.calls[-1]["course_id"] == "course-1"
+    assert legacy.calls[-1]["scope_type"] == "knowledge_point"
+    assert legacy.calls[-1]["scope_id"] == "bubble-sort"

@@ -1522,6 +1522,8 @@ class ChatService:
         selected_doc_ids: Optional[List[str]] = None,
         owner: Optional[str] = None,
         course_id: Optional[str] = None,
+        scope_type: Optional[str] = None,
+        scope_id: Optional[str] = None,
     ) -> tuple[Dict[str, Any], Iterable[Dict[str, Any]]]:
         conv_id = conversation_id or f"conv_{datetime.now().timestamp()}"
         conversation_storage.ensure_conversation(conv_id, question)
@@ -2646,6 +2648,8 @@ class ChatService:
         selected_doc_ids: Optional[List[str]] = None,
         owner: Optional[str] = None,
         course_id: Optional[str] = None,
+        scope_type: Optional[str] = None,
+        scope_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         meta_payload, stream = self.chat_stream_with_meta(
             question=question,
@@ -2655,6 +2659,8 @@ class ChatService:
             selected_doc_ids=selected_doc_ids,
             owner=owner,
             course_id=course_id,
+            scope_type=scope_type,
+            scope_id=scope_id,
         )
 
         answer_chunks: List[str] = []

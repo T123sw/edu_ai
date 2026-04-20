@@ -18,6 +18,12 @@ import {
 import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
+import {
+  getWorkspaceKnowledgeBaseLabel,
+  getWorkspaceScopeApiParams,
+  normalizeWorkspaceScope,
+  type WorkspaceScope,
+} from '../../services/teacher/workspaceScope';
 import ReactMarkdown from 'react-markdown';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
 import './ChatPanel.css';
@@ -59,6 +65,8 @@ interface Message {
 
 interface ChatPanelProps {
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
+  onWorkspaceScopeChange?: (scope: WorkspaceScope) => void;
 }
 
 interface PendingChatImage extends ChatInputImageV2 {
@@ -101,6 +109,7 @@ type InlineSourceEntry = {
 };
 
 const FENCE_PATTERN = /^(```|~~~)/;
+const HISTORY_PAGE_SIZE = 20;
 
 function normalizeSourceComparableText(value: unknown): string {
   return String(value || '')
@@ -257,13 +266,14 @@ function buildInlineSourcePlan(markdown: string, sources: ChatSourceV2[]): Inlin
   };
 }
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorkspaceScopeChange }) => {
   const {
     messages,
     addMessage,
     setMessages,
     updateLastMessage,
     selectedDocs,
+    scopedSourceDocIds,
     allowRag,
     allowWeb,
     setAllowRag,
@@ -292,6 +302,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [historyList, setHistoryList] = useState<ConversationListItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyTotal, setHistoryTotal] = useState(0);
+  const [historyLoadingMore, setHistoryLoadingMore] = useState(false);
   const [loadingConversationId, setLoadingConversationId] = useState<string | null>(null);
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverOpen] = useState(false);
@@ -311,6 +323,36 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   const audioChunksRef = useRef<Blob[]>([]);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
+  const normalizedWorkspaceScope = useMemo(() => normalizeWorkspaceScope(workspaceScope), [workspaceScope]);
+  const workspaceScopeApiParams = useMemo(
+    () => getWorkspaceScopeApiParams(normalizedWorkspaceScope),
+    [normalizedWorkspaceScope],
+  );
+  const workspaceKnowledgeBaseLabel = useMemo(
+    () => getWorkspaceKnowledgeBaseLabel(normalizedWorkspaceScope),
+    [normalizedWorkspaceScope],
+  );
+  const conversationMatchesCurrentWorkspace = useMemo(
+    () => (
+      conversation?: Pick<ConversationListItem, 'scope_type' | 'scope_id'> | null,
+    ) => {
+      const conversationScope = normalizeWorkspaceScope({
+        scopeType: conversation?.scope_type,
+        scopeId: conversation?.scope_id,
+      });
+
+      if (conversationScope.scopeType !== normalizedWorkspaceScope.scopeType) {
+        return false;
+      }
+
+      if (conversationScope.scopeType === 'knowledge_point') {
+        return conversationScope.scopeId === normalizedWorkspaceScope.scopeId;
+      }
+
+      return true;
+    },
+    [normalizedWorkspaceScope.scopeId, normalizedWorkspaceScope.scopeType],
+  );
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -590,24 +632,63 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     };
   }, [persistedSourceVideoUrls]);
 
+  const loadHistoryPage = async ({
+    offset = 0,
+    append = false,
+  }: {
+    offset?: number;
+    append?: boolean;
+  }) => {
+    const result = await listChatConversations({
+      courseId,
+      scopeType: workspaceScopeApiParams.scopeType,
+      scopeId: workspaceScopeApiParams.scopeId,
+      aggregate: workspaceScopeApiParams.aggregate,
+      limit: HISTORY_PAGE_SIZE,
+      offset,
+    });
+    const nextItems = result.conversations || [];
+    setHistoryTotal(typeof result.total === 'number' ? result.total : nextItems.length);
+    setHistoryList((current) => {
+      if (!append) {
+        return nextItems;
+      }
+      const seen = new Set(current.map((item) => item.conversation_id));
+      return [...current, ...nextItems.filter((item) => !seen.has(item.conversation_id))];
+    });
+    return nextItems;
+  };
+
   useEffect(() => {
     const init = async () => {
       setHistoryLoading(true);
       try {
-        const result = await listChatConversations();
-        const list = result.conversations || [];
-        setHistoryList(list);
+        const list = await loadHistoryPage({ offset: 0, append: false });
 
         const storedConversationId = String(currentConversationId || '').trim();
-        const storedConversationExists = storedConversationId
-          ? list.some((item) => item.conversation_id === storedConversationId)
-          : false;
+        const storedConversation = storedConversationId
+          ? list.find((item) => item.conversation_id === storedConversationId)
+          : undefined;
+        const storedConversationExists = Boolean(
+          storedConversation && conversationMatchesCurrentWorkspace(storedConversation),
+        );
+        const initialConversation = list.find((item) => conversationMatchesCurrentWorkspace(item));
 
         if (storedConversationExists) {
           await loadConversation(storedConversationId, false);
-        } else if (list.length > 0) {
-          setCurrentConversationId(list[0].conversation_id);
-          await loadConversation(list[0].conversation_id, false);
+        } else if (initialConversation) {
+          setCurrentConversationId(initialConversation.conversation_id);
+          await loadConversation(initialConversation.conversation_id, false);
+        } else {
+          setMessages([]);
+          setCurrentConversationId(null);
+          setStatusCard(null);
+          setWorkflowType(null);
+          setWorkflowStatus(null);
+          clearArtifactReference();
+          clearConversationReference();
+          clearConversationGeneratedFiles();
+          setViewingFile(null);
         }
       } catch (error) {
         console.error('加载历史对话失败:', error);
@@ -617,14 +698,37 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     };
 
     void init();
-  }, []);
+  }, [
+    courseId,
+    conversationMatchesCurrentWorkspace,
+    workspaceScopeApiParams.aggregate,
+    workspaceScopeApiParams.scopeId,
+    workspaceScopeApiParams.scopeType,
+  ]);
 
   const refreshHistoryList = async () => {
     try {
-      const result = await listChatConversations();
-      setHistoryList(result.conversations || []);
+      await loadHistoryPage({ offset: 0, append: false });
     } catch (error) {
       console.error('刷新历史对话失败:', error);
+    }
+  };
+
+  const handleLoadMoreHistory = async () => {
+    if (historyLoadingMore || historyList.length >= historyTotal) {
+      return;
+    }
+    setHistoryLoadingMore(true);
+    try {
+      await loadHistoryPage({
+        offset: historyList.length,
+        append: true,
+      });
+    } catch (error) {
+      console.error('鍔犺浇鏇村鍘嗗彶瀵硅瘽澶辫触:', error);
+      message.error('鍔犺浇鏇村鍘嗗彶瀵硅瘽澶辫触');
+    } finally {
+      setHistoryLoadingMore(false);
     }
   };
 
@@ -634,6 +738,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     }
     try {
       const detail = await getChatConversationDetail(conversationId);
+      const detailScope = normalizeWorkspaceScope({
+        scopeType: detail.scope_type,
+        scopeId: detail.scope_id,
+      });
+      if (
+        onWorkspaceScopeChange
+        && (
+          detailScope.scopeType !== normalizedWorkspaceScope.scopeType
+          || detailScope.scopeId !== normalizedWorkspaceScope.scopeId
+        )
+      ) {
+        onWorkspaceScopeChange(detailScope);
+      }
       const mapped: Message[] = (detail.history || []).map((msg: any) => ({
         user: msg.role === 'assistant' ? 'AI' : 'You',
         text: msg.content || '',
@@ -930,13 +1047,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
     addMessage(aiResponse);
 
     try {
+      const effectiveSelectedDocIds = allowRag
+        ? (selectedDocs.length > 0 ? selectedDocs : scopedSourceDocIds)
+        : selectedDocs;
       const payload = buildChatReplyPayload({
         question: userMessage.text,
         conversationId: currentConversationId,
         courseId,
+        scopeType: workspaceScopeApiParams.scopeType,
+        scopeId: workspaceScopeApiParams.scopeId,
         allowRag,
         allowWeb,
-        selectedDocIds: selectedDocs,
+        selectedDocIds: effectiveSelectedDocIds,
         inputImages,
         inputVideos,
         artifactReference,
@@ -1138,7 +1260,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
   };
 
   const visibleHistoryList = useMemo(() => {
-    return historyExpanded ? historyList : historyList.slice(0, 7);
+    return historyList;
   }, [historyExpanded, historyList]);
 
   const historyContent = (
@@ -1203,17 +1325,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
             </div>
           ))}
 
-          {!historyExpanded && historyList.length > 7 && (
+          {historyList.length < historyTotal && (
             <div className="chat-panel__history-more">
               <Button
                 type="text"
+                loading={historyLoadingMore}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setHistoryExpanded(true);
+                  void handleLoadMoreHistory();
                 }}
               >
-                ...
+                加载更多
               </Button>
             </div>
           )}
@@ -1250,7 +1373,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId }) => {
           <Title level={5} className="chat-panel__title">
             对话
           </Title>
-          <div className="chat-panel__subtitle">当前知识库：总课程知识库</div>
+          <div className="chat-panel__subtitle">当前知识库：{workspaceKnowledgeBaseLabel}</div>
         </div>
 
         <div className="chat-panel__controls">

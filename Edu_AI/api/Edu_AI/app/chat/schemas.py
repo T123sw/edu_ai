@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
+
 from app.chat.domain.status_card import StatusCardViewModel
 
 
@@ -10,24 +11,22 @@ IntentCategory = Literal["chat", "generate_content", "research"]
 
 
 class ChatRequest(BaseModel):
-    """对话请求体（含意图识别入口）。"""
-
-    question: str = Field(..., min_length=1, description="用户输入")
-    conversation_id: Optional[str] = Field(default=None, description="会话ID")
-    model_id: Optional[str] = Field(default=None, description="模型ID，默认使用 DEFAULT_LLM_MODEL_ID")
-    owner: Optional[str] = Field(default=None, description="当前用户名")
-    artifact_id: Optional[str] = Field(default=None, description="当前活跃产物ID")
-    use_rag: Optional[bool] = Field(default=None, description="是否启用知识库检索，若为空由系统判断")
-    allow_rag: bool = Field(default=False, description="是否允许使用 RAG")
-    allow_web: bool = Field(default=False, description="是否允许使用 Web")
-    action_hint: Optional[str] = Field(default=None, description="前端显式动作提示")
-    selected_doc_ids: List[str] = Field(default_factory=list, description="指定检索的文档ID列表")
-    course_id: Optional[str] = Field(default=None, description="课程ID（用于课程知识库关联）")
+    question: str = Field(..., min_length=1, description="user question")
+    conversation_id: Optional[str] = Field(default=None, description="conversation id")
+    model_id: Optional[str] = Field(default=None, description="model id")
+    owner: Optional[str] = Field(default=None, description="owner")
+    artifact_id: Optional[str] = Field(default=None, description="artifact id")
+    use_rag: Optional[bool] = Field(default=None, description="legacy rag flag")
+    allow_rag: bool = Field(default=False, description="allow rag retrieval")
+    allow_web: bool = Field(default=False, description="allow web retrieval")
+    action_hint: Optional[str] = Field(default=None, description="action hint")
+    selected_doc_ids: List[str] = Field(default_factory=list, description="selected document ids")
+    course_id: Optional[str] = Field(default=None, description="course id")
+    scope_type: str = Field(default="course", description="workspace scope type")
+    scope_id: Optional[str] = Field(default=None, description="workspace scope identifier")
 
 
 class ChatResponse(BaseModel):
-    """对话响应体。"""
-
     answer: str
     conversation_id: str
     model_id: str
@@ -57,7 +56,7 @@ class ConversationHistoryResponse(BaseModel):
 
 
 class SkillHealthCheckRequest(BaseModel):
-    meta: Dict[str, Any] = Field(default_factory=dict, description="chat接口返回的meta对象")
+    meta: Dict[str, Any] = Field(default_factory=dict, description="chat metadata")
 
 
 class SkillHealthCheckResponse(BaseModel):

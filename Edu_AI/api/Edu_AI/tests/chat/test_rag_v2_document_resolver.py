@@ -17,15 +17,36 @@ from rag_v2.document_resolver import (
 class FakeRAGSystem:
     def __init__(self, alice_path: str | None = None):
         self.alice_path = alice_path or r"D:\docs\alice\lesson.md"
+        self.alice_course_relative_path = "knowledge_base/documents/lesson.md"
+        self.public_path = r"D:\course\shared\course-lesson.md"
+        self.public_course_relative_path = "knowledge_base/documents/course-lesson.md"
+        self.public_legacy_path = r"D:\course\shared\legacy-lesson.md"
+        self.public_legacy_course_relative_path = "knowledge_base/documents/legacy-lesson.md"
         self.bob_path = r"D:\docs\bob\lesson.md"
         self.alice_key = f"user_alice:{self.alice_path}"
+        self.public_key = self.public_path
+        self.public_legacy_key = self.public_legacy_path
         self.bob_key = f"user_bob:{self.bob_path}"
         self.document_index = {
             self.alice_key: {
                 "physical_path": self.alice_path,
+                "path": self.alice_course_relative_path,
                 "source_key": self.alice_key,
                 "file_name": "lesson.md",
                 "owner": "alice",
+            },
+            self.public_key: {
+                "physical_path": self.public_path,
+                "path": self.public_course_relative_path,
+                "source_key": self.public_key,
+                "file_name": "course-lesson.md",
+                "owner": None,
+            },
+            self.public_legacy_key: {
+                "physical_path": self.public_legacy_path,
+                "source_key": self.public_legacy_key,
+                "file_name": "legacy-lesson.md",
+                "owner": None,
             },
             self.bob_key: {
                 "physical_path": self.bob_path,
@@ -49,7 +70,7 @@ class FakeRAGSystem:
         return [
             {"file_path": key, "file_name": record["file_name"], "owner": record["owner"]}
             for key, record in self.document_index.items()
-            if owner is None or record["owner"] == owner
+            if owner is None or record["owner"] in (None, owner)
         ]
 
 
@@ -92,6 +113,36 @@ def test_resolve_rag_document_accepts_legacy_physical_path():
     assert resolved.physical_path == rag_system.alice_path
 
 
+def test_resolve_rag_document_accepts_course_relative_path():
+    rag_system = FakeRAGSystem()
+
+    resolved = resolve_rag_document(rag_system, rag_system.alice_course_relative_path, owner="alice")
+
+    assert resolved is not None
+    assert resolved.index_key == rag_system.alice_key
+    assert resolved.physical_path == rag_system.alice_path
+
+
+def test_resolve_rag_document_accepts_public_course_relative_path_for_named_owner():
+    rag_system = FakeRAGSystem()
+
+    resolved = resolve_rag_document(rag_system, rag_system.public_course_relative_path, owner="alice")
+
+    assert resolved is not None
+    assert resolved.index_key == rag_system.public_key
+    assert resolved.physical_path == rag_system.public_path
+
+
+def test_resolve_rag_document_accepts_legacy_public_course_relative_path_without_record_path():
+    rag_system = FakeRAGSystem()
+
+    resolved = resolve_rag_document(rag_system, rag_system.public_legacy_course_relative_path, owner="alice")
+
+    assert resolved is not None
+    assert resolved.index_key == rag_system.public_legacy_key
+    assert resolved.physical_path == rag_system.public_legacy_path
+
+
 def test_resolve_rag_document_rejects_cross_owner_record():
     rag_system = FakeRAGSystem()
 
@@ -114,13 +165,14 @@ def test_resolve_rag_document_ids_returns_only_public_index_keys():
         [
             rag_system.alice_path,
             rag_system.alice_key,
+            rag_system.public_course_relative_path,
             rag_system.bob_path,
             r"D:\docs\alice\missing.md",
         ],
         owner="alice",
     )
 
-    assert resolved_ids == [rag_system.alice_key]
+    assert resolved_ids == [rag_system.alice_key, rag_system.public_key]
 
 
 def test_load_rag_document_content_resolves_identifier_and_loads_text(monkeypatch):

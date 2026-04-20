@@ -48,10 +48,25 @@ def _normalize_path_for_compare(value: Any) -> str:
     return str(value or "").replace("\\", "/").lower().strip()
 
 
+def _basename_for_compare(value: Any) -> str:
+    normalized = _normalize_path_for_compare(value)
+    if not normalized:
+        return ""
+    return normalized.rsplit("/", 1)[-1]
+
+
 def _owner_matches(record: Mapping[str, Any], owner: Optional[str]) -> bool:
     if owner is None:
         return True
-    return record.get("owner") == owner
+
+    record_owner = record.get("owner")
+    if record_owner is None:
+        return True
+
+    if isinstance(record_owner, str) and not record_owner.strip():
+        return True
+
+    return record_owner == owner
 
 
 def _make_key(rag_system: Any, method_name: str, document_id: str, owner: Optional[str]) -> str | None:
@@ -107,16 +122,42 @@ def resolve_rag_document(rag_system: Any, document_id: Any, owner: Optional[str]
             )
 
     requested_norm = _normalize_path_for_compare(requested_id)
+    requested_basename = _basename_for_compare(requested_id)
+    allow_basename_fallback = bool(
+        requested_basename
+        and not requested_norm.startswith("user_")
+        and ":" not in requested_norm
+    )
     for index_key, record in document_index.items():
         if not isinstance(record, Mapping) or not _owner_matches(record, owner):
             continue
 
         physical_path = _normalize_identifier(record.get("physical_path"))
-        if not physical_path:
+        record_path = _normalize_identifier(record.get("path"))
+        file_name = _normalize_identifier(record.get("file_name"))
+        comparable_paths = [value for value in (physical_path, record_path) if value]
+        comparable_basenames = [
+            value
+            for value in (
+                _basename_for_compare(physical_path),
+                _basename_for_compare(record_path),
+                _basename_for_compare(file_name),
+            )
+            if value
+        ]
+        if not comparable_paths and not comparable_basenames:
             continue
 
-        physical_norm = _normalize_path_for_compare(physical_path)
-        if requested_norm == physical_norm:
+        if any(requested_norm == _normalize_path_for_compare(candidate) for candidate in comparable_paths):
+            return _build_resolved_document(
+                rag_system=rag_system,
+                requested_id=requested_id,
+                index_key=str(index_key),
+                record=record,
+                owner=owner,
+                listed_document=listed_by_id.get(str(index_key)),
+            )
+        if allow_basename_fallback and requested_basename in comparable_basenames:
             return _build_resolved_document(
                 rag_system=rag_system,
                 requested_id=requested_id,

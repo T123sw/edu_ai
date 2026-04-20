@@ -21,11 +21,15 @@ export interface DirectPptEntryConfigInput {
 
 export function buildDirectPptOutlineRequest(options: {
   courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
   selectedDocIds: string[];
   config: DirectPptEntryConfigInput;
 }): KnowledgeBaseDirectPptOutlineRequestV2 {
   return {
     course_id: options.courseId,
+    scope_type: options.scopeType,
+    scope_id: options.scopeId,
     selected_doc_ids: options.selectedDocIds,
     ppt_config: {
       deck_title: options.config.deckTitle,

@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import os
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
@@ -17,13 +20,29 @@ from app.knowledge_graph_hours import (
 from app.teaching_video_bridge import get_teaching_video_bridge_service
 from core import Config
 from core.auth import auth_manager
-from core.course_storage import CourseStorageManager, storage_manager
+from core.course_storage import (
+    LIBRARY_TYPE_COURSE,
+    LIBRARY_TYPE_PERSONAL,
+    CourseStorageManager,
+    storage_manager,
+)
 from rag_v2.api import get_rag_system
 from rag_v2.document_resolver import resolve_rag_document
+from app.workspace_scope import SCOPE_TYPE_COURSE, collect_scope_ids_for_query
 
 
 security = HTTPBearer()
 router = APIRouter(prefix="/api/courses", tags=["courses"])
+_PROXY_ENV_KEYS = (
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "ALL_PROXY",
+    "http_proxy",
+    "https_proxy",
+    "all_proxy",
+    "GIT_HTTP_PROXY",
+    "GIT_HTTPS_PROXY",
+)
 
 
 class CourseInfo(BaseModel):
@@ -43,12 +62,21 @@ class KnowledgeBaseDocument(BaseModel):
     file_path: Optional[str] = None
     url: Optional[str] = None
     course_id: str
+    scope_type: str = SCOPE_TYPE_COURSE
+    scope_id: Optional[str] = None
+    library_type: str = LIBRARY_TYPE_COURSE
+    owner_user_id: Optional[str] = None
+    promoted_from_document_id: Optional[str] = None
     created_at: str
     updated_at: Optional[str] = None
 
 
 class AddRAGDocumentRequest(BaseModel):
     rag_file_path: str = Field(..., description="RAG document identifier")
+    scope_type: str = Field(default=SCOPE_TYPE_COURSE, description="workspace scope type")
+    scope_id: Optional[str] = Field(default=None, description="workspace scope identifier")
+    library_type: str = Field(default=LIBRARY_TYPE_COURSE, description="target library type")
+    promoted_from_document_id: Optional[str] = Field(default=None, description="source personal document id when promoting into course knowledge base")
 
 
 class PinMaterialRequest(BaseModel):
@@ -94,6 +122,38 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 def _get_manager() -> CourseStorageManager:
     return storage_manager
+
+
+def _resolve_scope_ids_for_course(
+    *,
+    mgr: CourseStorageManager,
+    course_id: str,
+    scope_type: str,
+    scope_id: Optional[str],
+) -> Optional[set[str]]:
+    if scope_type != "knowledge_point":
+        return None
+    graph_root = mgr.get_knowledge_graph(course_id)
+    return collect_scope_ids_for_query(
+        graph_root,
+        scope_type=scope_type,
+        scope_id=scope_id,
+    )
+
+
+@contextmanager
+def _without_proxy_env():
+    previous = {key: os.environ.get(key) for key in _PROXY_ENV_KEYS}
+    try:
+        for key in _PROXY_ENV_KEYS:
+            os.environ.pop(key, None)
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
 
 
 DEFAULT_COURSES: List[CourseInfo] = [
@@ -236,15 +296,45 @@ def delete_course(course_id: str):
 def get_course_materials(
     course_id: str,
     material_type: Optional[str] = None,
+    scope_type: str = SCOPE_TYPE_COURSE,
+    scope_id: Optional[str] = None,
+    aggregate: bool = False,
+    limit: Optional[int] = None,
+    offset: int = 0,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
+    owner_user_id = current_user.get("username") if current_user else None
     mgr = _get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    return mgr.list_generated_materials(course_id, material_type=material_type)
+    scope_ids = _resolve_scope_ids_for_course(
+        mgr=mgr,
+        course_id=course_id,
+        scope_type=scope_type,
+        scope_id=scope_id,
+    )
+    materials = mgr.list_generated_materials(
+        course_id,
+        material_type=material_type,
+        scope_type=scope_type,
+        scope_ids=scope_ids,
+        aggregate=aggregate,
+    )
+    if limit is None:
+        return materials
+
+    start = max(int(offset or 0), 0)
+    end = start + max(int(limit), 0)
+    paged_items = materials[start:end]
+    return {
+        "items": paged_items,
+        "count": len(paged_items),
+        "total": len(materials),
+        "limit": int(limit),
+        "offset": start,
+    }
 
 
 @router.delete("/{course_id}/materials/{material_type}/{material_id}", summary="删除课程生成资源")
@@ -254,7 +344,7 @@ def delete_course_material(
     material_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
+    owner_user_id = current_user.get("username") if current_user else None
     mgr = _get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -363,15 +453,44 @@ def get_teaching_video_task_status(
 )
 def get_knowledge_base_documents(
     course_id: str,
+    scope_type: str = SCOPE_TYPE_COURSE,
+    scope_id: Optional[str] = None,
+    aggregate: bool = False,
+    library_type: str = LIBRARY_TYPE_COURSE,
+    include_descendants: bool = True,
+    limit: int = 20,
+    offset: int = 0,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
+    owner_user_id = current_user.get("username") if current_user else None
     mgr = _get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    index = mgr.get_knowledge_base_index(course_id)
+    if scope_type == "knowledge_point" and include_descendants:
+        scope_ids = _resolve_scope_ids_for_course(
+            mgr=mgr,
+            course_id=course_id,
+            scope_type=scope_type,
+            scope_id=scope_id,
+        )
+    elif scope_type == "knowledge_point":
+        normalized_scope_id = str(scope_id or "").strip()
+        scope_ids = {normalized_scope_id} if normalized_scope_id else set()
+    else:
+        scope_ids = None
+
+    index = mgr.get_knowledge_base_index(
+        course_id,
+        scope_type=scope_type,
+        scope_ids=scope_ids,
+        aggregate=aggregate,
+        library_type=library_type,
+        owner_user_id=owner_user_id if library_type == LIBRARY_TYPE_PERSONAL else None,
+    )
+    if offset > 0 or limit > 0:
+        index = index[max(offset, 0): max(offset, 0) + max(limit, 0)]
     documents: List[KnowledgeBaseDocument] = []
     for item in index:
         doc_type = "web" if "url" in item else "file"
@@ -383,6 +502,11 @@ def get_knowledge_base_documents(
                 file_path=item.get("path") if doc_type == "file" else None,
                 url=item.get("url") if doc_type == "web" else None,
                 course_id=course_id,
+                scope_type=str(item.get("scope_type") or SCOPE_TYPE_COURSE),
+                scope_id=str(item.get("scope_id") or "").strip() or None,
+                library_type=str(item.get("library_type") or LIBRARY_TYPE_COURSE),
+                owner_user_id=str(item.get("owner_user_id") or "").strip() or None,
+                promoted_from_document_id=str(item.get("promoted_from_document_id") or "").strip() or None,
                 created_at=item.get("uploaded_at", datetime.now().isoformat()),
                 updated_at=item.get("updated_at"),
             )
@@ -398,17 +522,28 @@ def get_knowledge_base_documents(
 )
 async def upload_knowledge_base_document(
     course_id: str,
+    scope_type: str = Form(default=SCOPE_TYPE_COURSE),
+    scope_id: Optional[str] = Form(default=None),
+    library_type: str = Form(default=LIBRARY_TYPE_COURSE),
     file: UploadFile = File(..., description="文档文件"),
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
+    owner_user_id = current_user.get("username") if current_user else None
     mgr = _get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
     file_data = await file.read()
-    relative_path = mgr.save_knowledge_base_file(course_id, file_data, file.filename)
+    relative_path = mgr.save_knowledge_base_file(
+        course_id,
+        file_data,
+        file.filename,
+        scope_type=scope_type,
+        scope_id=scope_id,
+        library_type=library_type,
+        owner_user_id=owner_user_id if library_type == LIBRARY_TYPE_PERSONAL else None,
+    )
     if not relative_path:
         raise HTTPException(status_code=500, detail="保存文档失败")
 
@@ -435,6 +570,11 @@ async def upload_knowledge_base_document(
         type="file",
         file_path=latest.get("path"),
         course_id=course_id,
+        scope_type=str(latest.get("scope_type") or SCOPE_TYPE_COURSE),
+        scope_id=str(latest.get("scope_id") or "").strip() or None,
+        library_type=str(latest.get("library_type") or LIBRARY_TYPE_COURSE),
+        owner_user_id=str(latest.get("owner_user_id") or "").strip() or None,
+        promoted_from_document_id=str(latest.get("promoted_from_document_id") or "").strip() or None,
         created_at=latest.get("uploaded_at", datetime.now().isoformat()),
     )
 
@@ -456,7 +596,17 @@ def add_rag_document_to_course_kb(
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    resolved_document = resolve_rag_document(rag_system, request.rag_file_path, owner=owner)
+    course_dir = mgr.get_course_dir(course_id).resolve()
+    requested_course_path = (course_dir / request.rag_file_path).resolve()
+    try:
+        requested_course_path.relative_to(course_dir)
+        is_course_relative_path = True
+    except ValueError:
+        is_course_relative_path = False
+    if is_course_relative_path and requested_course_path.exists():
+        resolved_document = SimpleNamespace(physical_path=str(requested_course_path))
+    else:
+        resolved_document = resolve_rag_document(rag_system, request.rag_file_path, owner=owner)
     if not resolved_document:
         raise HTTPException(status_code=404, detail="RAG 系统中未找到该文档")
 
@@ -469,7 +619,16 @@ def add_rag_document_to_course_kb(
     with open(rag_path, "rb") as f:
         file_data = f.read()
 
-    relative_path = mgr.save_knowledge_base_file(course_id, file_data, rag_path.name)
+    relative_path = mgr.save_knowledge_base_file(
+        course_id,
+        file_data,
+        rag_path.name,
+        scope_type=request.scope_type,
+        scope_id=request.scope_id,
+        library_type=request.library_type,
+        owner_user_id=owner if request.library_type == LIBRARY_TYPE_PERSONAL else None,
+        promoted_from_document_id=request.promoted_from_document_id,
+    )
     if not relative_path:
         raise HTTPException(status_code=500, detail="保存文档失败")
 
@@ -496,6 +655,11 @@ def add_rag_document_to_course_kb(
         type="file",
         file_path=latest.get("path"),
         course_id=course_id,
+        scope_type=str(latest.get("scope_type") or SCOPE_TYPE_COURSE),
+        scope_id=str(latest.get("scope_id") or "").strip() or None,
+        library_type=str(latest.get("library_type") or LIBRARY_TYPE_COURSE),
+        owner_user_id=str(latest.get("owner_user_id") or "").strip() or None,
+        promoted_from_document_id=str(latest.get("promoted_from_document_id") or "").strip() or None,
         created_at=latest.get("uploaded_at", datetime.now().isoformat()),
     )
 
@@ -557,7 +721,8 @@ def _find_kg_node(root: Dict[str, Any], node_id: str) -> Optional[Dict[str, Any]
 def _call_knowledge_graph_hour_llm(prompt: str) -> str:
     rag_system = get_rag_system()
     model_config = Config.get_deep_model()
-    raw = rag_system._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
+    with _without_proxy_env():
+        raw = rag_system._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
     return str(raw or "")
 
 

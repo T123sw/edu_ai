@@ -119,3 +119,64 @@ def test_web_search_tool_queries_rag_after_import(monkeypatch):
             "owner": "teacher-a",
         }
     ]
+
+
+def test_rag_search_tool_resolves_course_relative_path_before_query(monkeypatch):
+    class DummyRagSystem:
+        def __init__(self):
+            self.file_path = "D:/course/lesson.md"
+            self.document_index = {
+                "index-key": {
+                    "physical_path": self.file_path,
+                    "path": "knowledge_base/documents/lesson.md",
+                    "source_key": "source-key",
+                    "file_name": "lesson.md",
+                    "owner": None,
+                },
+            }
+            self.calls = []
+
+        def _make_index_key(self, path, owner):
+            if str(path) in {self.file_path, "index-key"}:
+                return "index-key"
+            return str(path)
+
+        def _make_source_key(self, path, owner):
+            return "source-key"
+
+        def list_documents(self, owner=None):
+            if owner != "teacher-a":
+                return []
+            return [{"file_path": "index-key", "file_name": "lesson.md", "owner": None}]
+
+        def query(self, query, top_k=5, use_rag=True, selected_doc_ids=None, owner=None):
+            self.calls.append(
+                {
+                    "query": query,
+                    "top_k": top_k,
+                    "use_rag": use_rag,
+                    "selected_doc_ids": list(selected_doc_ids or []),
+                    "owner": owner,
+                }
+            )
+            return {"answer": "ok", "sources": []}
+
+    rag_system = DummyRagSystem()
+    monkeypatch.setattr("app.chat.tools.agent_tools.get_rag_system", lambda: rag_system)
+
+    result = rag_search_tool(
+        query="变量是什么",
+        selected_doc_ids=["knowledge_base/documents/lesson.md"],
+        owner="teacher-a",
+    )
+
+    assert result["ok"] is True
+    assert rag_system.calls == [
+        {
+            "query": "变量是什么",
+            "top_k": 5,
+            "use_rag": True,
+            "selected_doc_ids": ["index-key"],
+            "owner": "teacher-a",
+        }
+    ]

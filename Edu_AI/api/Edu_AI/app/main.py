@@ -21,7 +21,7 @@ from app.teaching_video_bridge import get_ai_lecturer_process_manager
 from app.video_routes import router as video_router
 from core import Config, conversation_storage, lesson_plan_storage
 from rag_v2.api import router as rag_router, get_rag_system
-from rag_v2.document_resolver import load_rag_document_content
+from rag_v2.document_resolver import load_rag_document_content, resolve_rag_document_ids
 
 
 class ChatRequest(BaseModel):
@@ -227,6 +227,19 @@ def _load_selected_rag_documents(
             continue
 
     return documents_content
+
+
+def _resolve_selected_doc_ids_for_query(
+    rag_system: Any,
+    selected_doc_ids: Optional[List[str]],
+    *,
+    owner: str,
+) -> Optional[List[str]]:
+    if not selected_doc_ids:
+        return selected_doc_ids
+
+    resolved_ids = resolve_rag_document_ids(rag_system, selected_doc_ids, owner=owner)
+    return resolved_ids or selected_doc_ids
 
 
 app = FastAPI(title=Config.APP_NAME, version="1.0.0")
@@ -1640,9 +1653,15 @@ async def chat(request: ChatRequest, current_user: dict = Depends(get_current_us
 
         model_config = Config.get_llm_model(request.model_id or Config.DEFAULT_LLM_MODEL_ID)
         rag_system = get_rag_system()
+        username = current_user.get("username")
         
         # 根据use_rag参数决定是否使用RAG检索
         use_rag = request.use_rag if request.use_rag is not None else True
+        resolved_selected_doc_ids = _resolve_selected_doc_ids_for_query(
+            rag_system,
+            request.selected_doc_ids,
+            owner=username,
+        )
         
         result = rag_system.query(
             request.question,
@@ -1650,8 +1669,8 @@ async def chat(request: ChatRequest, current_user: dict = Depends(get_current_us
             conversation_history=history_for_context,
             llm_config=model_config,
             use_rag=use_rag,  # 传递RAG开关参数
-            selected_doc_ids=request.selected_doc_ids,  # 传递选中的文档列表
-            owner=current_user.get("username"),  # 传递用户信息，确保只检索该用户的文档
+            selected_doc_ids=resolved_selected_doc_ids,  # 传递解析后的选中文档列表
+            owner=username,  # 传递用户信息，确保只检索该用户的文档
         )
 
         sources = []

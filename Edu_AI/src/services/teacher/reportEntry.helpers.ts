@@ -71,6 +71,8 @@ export function buildKnowledgeBaseReportRequest(options: {
   promptDraft: string;
   card: ReportEntryCard;
   courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
   selectedDocIds: string[];
   allowRag: boolean;
   allowWeb: boolean;
@@ -78,6 +80,8 @@ export function buildKnowledgeBaseReportRequest(options: {
   return {
     question: options.question,
     course_id: options.courseId,
+    scope_type: options.scopeType,
+    scope_id: options.scopeId,
     selected_doc_ids: options.selectedDocIds,
     prompt_draft: options.promptDraft,
     final_user_prompt: options.question,

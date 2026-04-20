@@ -1,1 +1,80 @@
-[]
+[
+  {
+    "id": "doc-1776686518.929266",
+    "filename": "程序如何记住和处理信息.pdf",
+    "path": "knowledge_base/documents/程序如何记住和处理信息.pdf",
+    "size": 415083,
+    "uploaded_at": "2026-04-20T20:01:58.929266",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1_2",
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-1776686916.808791",
+    "filename": "标识符命名规则.docx",
+    "path": "knowledge_base/documents/标识符命名规则.docx",
+    "size": 9478,
+    "uploaded_at": "2026-04-20T20:08:36.808791",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1_3",
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-1776691023.491681",
+    "filename": "变量定义与使用.docx",
+    "path": "knowledge_base/documents/变量定义与使用.docx",
+    "size": 8970,
+    "uploaded_at": "2026-04-20T21:17:03.491681",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1_2",
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-1776692054.489317",
+    "filename": "标识符命名规则.docx",
+    "path": "knowledge_base/documents/标识符命名规则.docx",
+    "size": 9478,
+    "uploaded_at": "2026-04-20T21:34:14.489317",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1",
+    "library_type": "personal",
+    "owner_user_id": "teacher",
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-1776692329.263781",
+    "filename": "变量定义与使用.docx",
+    "path": "knowledge_base/documents/变量定义与使用.docx",
+    "size": 19988,
+    "uploaded_at": "2026-04-20T21:38:49.263781",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1_2",
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-1776693091.381997",
+    "filename": "变量定义与使用2.docx",
+    "path": "knowledge_base/documents/变量定义与使用2.docx",
+    "size": 19988,
+    "uploaded_at": "2026-04-20T21:51:31.381997",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1_2",
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
+  }
+]

@@ -13,6 +13,7 @@ from app.chat.persistence.conversation_store_adapter import ConversationStoreAda
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.model_registry import build_default_gateway
 from app.chat.workflows.lesson_plan.runtime import LessonPlanWorkflowRuntime
+from app.workspace_scope import SCOPE_TYPE_COURSE, normalize_workspace_scope
 from core.course_storage import storage_manager as default_course_storage_manager
 
 
@@ -54,6 +55,8 @@ def _persist_lesson_plan_course_material(*, payload, result: dict, course_storag
         course_id=course_id,
         material_type="lesson_plan",
         material_id=material_id,
+        scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+        scope_id=getattr(payload, "scope_id", None),
         material_data={
             "title": str(lesson_plan_artifact.get("title") or "教案").strip(),
             "material_type": "lesson_plan",
@@ -154,17 +157,31 @@ class RouteChatService:
             response_builder=_ResponseBuilderAdapter(),
         )
 
-    def _resolve_course_id(self, *, conversation_id, course_id, question=None):
-        if not conversation_id:
-            return course_id
+    def _resolve_scope(self, *, conversation_id, course_id, scope_type, scope_id, question=None):
+        state = {}
+        if conversation_id:
+            state = self.conversation_store.storage.get_state(conversation_id)
 
-        if course_id:
+        resolved_course_id = course_id or state.get("course_id")
+        resolved_scope_type = scope_type or state.get("scope_type") or SCOPE_TYPE_COURSE
+        resolved_scope_id = scope_id if scope_id is not None else state.get("scope_id")
+
+        if not resolved_course_id:
+            return {
+                "course_id": None,
+                "scope_type": SCOPE_TYPE_COURSE,
+                "scope_id": None,
+            }
+
+        normalized_scope = normalize_workspace_scope(
+            course_id=resolved_course_id,
+            scope_type=resolved_scope_type,
+            scope_id=resolved_scope_id,
+        )
+        if conversation_id:
             self.conversation_store.storage.ensure_conversation(conversation_id, question)
-            self.conversation_store.storage.update_state(conversation_id, {"course_id": course_id})
-            return course_id
-
-        state = self.conversation_store.storage.get_state(conversation_id)
-        return state.get("course_id")
+            self.conversation_store.storage.update_state(conversation_id, normalized_scope)
+        return normalized_scope
 
     def _persist_new_result(self, payload, result: dict) -> None:
         conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or getattr(payload, "conversation_id", "") or "").strip()
@@ -216,8 +233,13 @@ class RouteChatService:
                 "active_artifact_id": first_artifact.get("artifact_id") if artifacts else "",
                 "active_artifact_type": first_artifact.get("artifact_type") if artifacts else "",
                 "current_course_id": getattr(payload, "course_id", None),
+                "scope_type": getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+                "scope_id": getattr(payload, "scope_id", None),
                 "pinned_doc_ids": list(getattr(payload, "selected_doc_ids", None) or []),
             }
+        state_patch["course_id"] = getattr(payload, "course_id", None)
+        state_patch["scope_type"] = getattr(payload, "scope_type", SCOPE_TYPE_COURSE)
+        state_patch["scope_id"] = getattr(payload, "scope_id", None)
         state_patch["capability_policy"] = {
             "allow_rag": bool(getattr(payload, "allow_rag", False) or getattr(payload, "use_rag", False)),
             "allow_web": bool(getattr(payload, "allow_web", False)),
@@ -227,6 +249,8 @@ class RouteChatService:
         extraction_request = SimpleNamespace(
             question=getattr(payload, "question", ""),
             course_id=getattr(payload, "course_id", None),
+            scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+            scope_id=getattr(payload, "scope_id", None),
             capability=SimpleNamespace(
                 allow_rag=bool(getattr(payload, "allow_rag", False) or getattr(payload, "use_rag", False)),
                 allow_web=bool(getattr(payload, "allow_web", False)),
@@ -274,6 +298,8 @@ class RouteChatService:
             selected_doc_ids=getattr(payload, "selected_doc_ids", None),
             owner=getattr(payload, "owner", None),
             course_id=getattr(payload, "course_id", None),
+            scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+            scope_id=getattr(payload, "scope_id", None),
             allow_web=bool(getattr(payload, "allow_web", False)),
             action_hint=getattr(payload, "action_hint", None),
             artifact_id=getattr(payload, "artifact_id", None),
@@ -304,6 +330,8 @@ class RouteChatService:
         selected_doc_ids,
         owner,
         course_id,
+        scope_type,
+        scope_id,
         allow_web=False,
         action_hint=None,
         artifact_id=None,
@@ -323,6 +351,8 @@ class RouteChatService:
             selected_doc_ids=selected_doc_ids,
             owner=owner,
             course_id=course_id,
+            scope_type=scope_type,
+            scope_id=scope_id,
             action_hint=action_hint,
             artifact_id=artifact_id,
         )
@@ -338,13 +368,17 @@ class RouteChatService:
         selected_doc_ids=None,
         owner=None,
         course_id=None,
+        scope_type=None,
+        scope_id=None,
         allow_web=False,
         action_hint=None,
         artifact_id=None,
     ):
-        course_id = self._resolve_course_id(
+        resolved_scope = self._resolve_scope(
             conversation_id=conversation_id,
             course_id=course_id,
+            scope_type=scope_type,
+            scope_id=scope_id,
             question=question,
         )
         resolved_use_rag, resolved_allow_rag = self._resolve_rag_flags(
@@ -360,7 +394,9 @@ class RouteChatService:
             allow_rag=resolved_allow_rag,
             selected_doc_ids=selected_doc_ids,
             owner=owner,
-            course_id=course_id,
+            course_id=resolved_scope["course_id"],
+            scope_type=resolved_scope["scope_type"],
+            scope_id=resolved_scope["scope_id"],
             allow_web=allow_web,
             action_hint=action_hint,
             artifact_id=artifact_id,
@@ -377,13 +413,17 @@ class RouteChatService:
         selected_doc_ids=None,
         owner=None,
         course_id=None,
+        scope_type=None,
+        scope_id=None,
         allow_web=False,
         action_hint=None,
         artifact_id=None,
     ):
-        course_id = self._resolve_course_id(
+        resolved_scope = self._resolve_scope(
             conversation_id=conversation_id,
             course_id=course_id,
+            scope_type=scope_type,
+            scope_id=scope_id,
             question=question,
         )
         payload = self._build_payload(
@@ -394,7 +434,9 @@ class RouteChatService:
             allow_rag=allow_rag,
             selected_doc_ids=selected_doc_ids,
             owner=owner,
-            course_id=course_id,
+            course_id=resolved_scope["course_id"],
+            scope_type=resolved_scope["scope_type"],
+            scope_id=resolved_scope["scope_id"],
             allow_web=allow_web,
             action_hint=action_hint,
             artifact_id=artifact_id,
@@ -413,7 +455,9 @@ class RouteChatService:
                 use_rag=resolved_use_rag,
                 selected_doc_ids=selected_doc_ids,
                 owner=owner,
-                course_id=course_id,
+                course_id=resolved_scope["course_id"],
+                scope_type=resolved_scope["scope_type"],
+                scope_id=resolved_scope["scope_id"],
                 allow_web=allow_web,
                 action_hint=action_hint,
                 artifact_id=artifact_id,

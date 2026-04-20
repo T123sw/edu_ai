@@ -14,6 +14,8 @@ type CourseMaterialLike = {
   type?: string;
   content?: unknown;
   courseId?: string;
+  scopeType?: string;
+  scopeId?: string;
   isPinned?: boolean;
   pinnedAt?: string;
   addedAt?: string;
@@ -376,6 +378,8 @@ export function toGeneratedFileFromCourseMaterial<T extends CourseMaterialLike>(
     meta: {
       origin: 'course_material',
       courseId: material.courseId,
+      scopeType: material.scopeType,
+      scopeId: material.scopeId,
       isPinned: Boolean(material.isPinned),
       pinnedAt: material.pinnedAt,
       addedAt: material.addedAt,

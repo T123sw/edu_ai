@@ -263,6 +263,10 @@
   scrollbar-gutter: stable;
 }
 
+.source-panel__items > .source-panel__empty:first-child {
+  display: none;
+}
+
 .source-panel__items::-webkit-scrollbar {
   width: 8px;
 }
@@ -290,6 +294,83 @@
 
 .source-panel__item:last-child {
   border-bottom: none;
+}
+
+.source-panel__library-group {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.72);
+}
+
+.source-panel__library-group:last-child {
+  border-bottom: none;
+}
+
+.source-panel__library-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(241, 245, 249, 0.72));
+}
+
+.source-panel__tree-node {
+  --source-tree-depth: 0;
+}
+
+.source-panel__tree-node-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px 0 calc(12px + (var(--source-tree-depth) * 16px));
+  border-bottom: 1px solid rgba(226, 232, 240, 0.65);
+  background: rgba(248, 250, 252, 0.52);
+}
+
+.source-panel__tree-node-toggle.ant-btn,
+.source-panel__tree-node-spacer {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.source-panel__tree-node-toggle.ant-btn:hover,
+.source-panel__tree-node-toggle.ant-btn:focus {
+  color: var(--source-accent);
+  background: rgba(219, 234, 254, 0.85);
+}
+
+.source-panel__tree-node-label {
+  min-width: 0;
+  flex: 1;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.source-panel__tree-node-count.ant-typography {
+  margin: 0;
+  font-size: 12px;
+}
+
+.source-panel__tree-node-files {
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.source-panel__tree-node-children {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.5), rgba(255, 255, 255, 0));
 }
 
 .source-panel__item-main {

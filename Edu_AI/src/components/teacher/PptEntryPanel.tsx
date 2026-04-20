@@ -7,6 +7,7 @@ import {
   type PptEntryCard,
 } from '../../services/teacher/chatV2';
 import type { DirectPptEntryConfigInput } from '../../services/teacher/pptEntry.helpers';
+import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 
 const { Paragraph, Text, Title } = Typography;
 const { TextArea } = Input;
@@ -75,6 +76,7 @@ type Props = {
   open: boolean;
   selectedDocIds: string[];
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
   submitting?: boolean;
   onCancel: () => void;
   onSubmitOutline: (payload: { config: DirectPptEntryConfigInput }) => Promise<ChatDirectPptOutlineResponseV2>;
@@ -126,6 +128,7 @@ export default function PptEntryPanel({
   open,
   selectedDocIds,
   courseId,
+  workspaceScope,
   submitting = false,
   onCancel,
   onSubmitOutline,
@@ -166,6 +169,8 @@ export default function PptEntryPanel({
 
     fetchPptEntryCardsV2({
       course_id: courseId,
+      scope_type: workspaceScope?.scopeType,
+      scope_id: workspaceScope?.scopeId,
       selected_doc_ids: selectedDocIds,
     })
       .then((response) => {
@@ -184,7 +189,7 @@ export default function PptEntryPanel({
     return () => {
       cancelled = true;
     };
-  }, [courseId, form, open, selectedDocIds]);
+  }, [courseId, form, open, selectedDocIds, workspaceScope]);
 
   const groupedCards = useMemo(() => groupPptCards(cards), [cards]);
 

@@ -1,14 +1,17 @@
 import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import SourcePanel from '../../components/teacher/SourcePanel';
 import ChatPanel from '../../components/teacher/ChatPanel';
 import StudioPanel from '../../components/teacher/StudioPanel';
 import { useCourseStore } from '../../store/course/useCourseStore';
 import { useStore } from '../../store/teacher/useStore';
+import { getAiStudioCourseLabel } from './aiStudioContext';
 import {
-  getAiStudioCourseLabel,
-  getAiStudioKnowledgePointLabel,
-} from './aiStudioContext';
+  getWorkspaceScopeLabel,
+  normalizeWorkspaceScope,
+  readWorkspaceScopeFromSearch,
+  writeWorkspaceScopeToSearch,
+} from '../../services/teacher/workspaceScope';
 import './AiStudioPage.css';
 
 const COLLAPSED_WIDTH = '72px';
@@ -21,6 +24,7 @@ const CENTER_COLUMN_FORMULA = 'minmax(520px, 1fr)';
 
 export default function AiStudioPage() {
   const { courseId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentCourse = useCourseStore((state) => state.currentCourse);
   const statusCard = useStore((state) => state.statusCard);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -28,7 +32,18 @@ export default function AiStudioPage() {
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
   const courseLabel = getAiStudioCourseLabel(currentCourse, courseId);
-  const knowledgePointLabel = getAiStudioKnowledgePointLabel(statusCard);
+  const workspaceScope = useMemo(() => {
+    const current = readWorkspaceScopeFromSearch(searchParams);
+    const firstTopic = Array.isArray(statusCard?.topics)
+      ? statusCard.topics.map((item) => String(item || '').trim()).find(Boolean)
+      : '';
+
+    return normalizeWorkspaceScope({
+      ...current,
+      scopeLabel: current.scopeLabel || (current.scopeType === 'knowledge_point' ? firstTopic : '课程总目录'),
+    });
+  }, [searchParams, statusCard]);
+  const knowledgePointLabel = getWorkspaceScopeLabel(workspaceScope);
 
   // 动态计算 grid 布局，当侧边栏折叠时，中间对话区自动扩大
   const pageStyle = useMemo<React.CSSProperties>(() => {
@@ -79,6 +94,7 @@ export default function AiStudioPage() {
                 if (!leftCollapsed) setKbPreviewOpen(false);
               }}
               courseId={courseId}
+              workspaceScope={workspaceScope}
               onPreviewStateChange={(open) => setKbPreviewOpen(open)}
             />
           </div>
@@ -87,7 +103,13 @@ export default function AiStudioPage() {
         {/* Center Panel: ChatPanel */}
         <div className="ai-studio-content">
           <div className="ai-panel">
-            <ChatPanel courseId={courseId} />
+            <ChatPanel
+              courseId={courseId}
+              workspaceScope={workspaceScope}
+              onWorkspaceScopeChange={(nextScope) => {
+                setSearchParams(writeWorkspaceScopeToSearch(searchParams, nextScope));
+              }}
+            />
           </div>
         </div>
 
@@ -101,6 +123,7 @@ export default function AiStudioPage() {
                 if (!rightCollapsed) setStudioPreviewOpen(false);
               }}
               courseId={courseId}
+              workspaceScope={workspaceScope}
               onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
             />
           </div>

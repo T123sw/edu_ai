@@ -20,6 +20,8 @@ export interface ChatReplyRequestV2 {
   conversation_id?: string;
   model_id?: string;
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   artifact_id?: string;
   allow_rag?: boolean;
   allow_web?: boolean;
@@ -83,6 +85,8 @@ export interface ChatReportRequestV2 {
   conversation_id?: string;
   model_id?: string;
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   allow_rag?: boolean;
   allow_web?: boolean;
   selected_doc_ids?: string[];
@@ -95,22 +99,30 @@ export interface ChatReportRequestV2 {
 
 export interface ChatReportCardsRequestV2 {
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
 }
 
 export interface ChatPptCardsRequestV2 {
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
 }
 
 export interface ChatLessonPlanCardsRequestV2 {
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
 }
 
 export interface KnowledgeBaseDirectReportRequestV2 {
   question: string;
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
   report_config?: Record<string, unknown> | null;
   prompt_draft?: string;
@@ -123,6 +135,8 @@ export type QuizDifficultyV2 = 'easy' | 'medium' | 'hard';
 
 export interface KnowledgeBaseDirectQuizPrefillRequestV2 {
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
 }
 
@@ -138,6 +152,8 @@ export interface DirectQuizConfigV2 {
 
 export interface KnowledgeBaseDirectQuizRequestV2 {
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
   quiz_config: DirectQuizConfigV2;
   prompt_draft?: string;
@@ -146,6 +162,8 @@ export interface KnowledgeBaseDirectQuizRequestV2 {
 
 export interface KnowledgeBaseDirectPptOutlineRequestV2 {
   course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   selected_doc_ids?: string[];
   ppt_config: {
     deck_title: string;
@@ -663,6 +681,8 @@ interface BuildChatReplyPayloadOptions {
   question: string;
   conversationId?: string | null;
   courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
   allowRag: boolean;
   allowWeb: boolean;
   selectedDocIds: string[];
@@ -677,6 +697,8 @@ export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): Ch
     question: options.question,
     conversation_id: options.conversationId || undefined,
     course_id: options.courseId,
+    scope_type: options.scopeType,
+    scope_id: options.scopeId,
     allow_rag: options.allowRag,
     allow_web: options.allowWeb,
     selected_doc_ids: options.selectedDocIds,

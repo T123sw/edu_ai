@@ -15,7 +15,10 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.auth import get_current_user
-from app.deepsearch_importer import import_crawl_results_to_rag
+from app.deepsearch_importer import (
+    import_crawl_results_to_rag,
+    persist_imported_documents_to_course_kb,
+)
 from app.deepsearch_loader import load_eduagent_capabilities
 from core import Config
 from rag_v2.api import get_rag_system
@@ -140,6 +143,9 @@ class DeepSearchAndCrawlRequest(BaseModel):
     max_urls: Optional[int] = Field(10, description="最多爬取的URL数量")
     crawl_timeout: Optional[int] = Field(30, description="单个URL爬取超时（秒）")
     save_to_kb: Optional[bool] = Field(True, description="是否将爬取结果永久保存到知识库并加入RAG索引")
+    course_id: Optional[str] = Field(None, description="当前课程ID")
+    scope_type: Optional[str] = Field(None, description="当前工作域类型")
+    scope_id: Optional[str] = Field(None, description="当前工作域ID")
 
 
 def _safe_slug(text: str, max_len: int = 60) -> str:
@@ -418,6 +424,22 @@ async def deepsearch_and_crawl(
                     rag_system._save_index()
                 except Exception as _e:
                     print(f"[API] [深度搜索] 保存document_index失败: {type(_e).__name__}: {_e}")
+
+                if request.course_id:
+                    try:
+                        from core.course_storage import storage_manager
+
+                        persist_imported_documents_to_course_kb(
+                            imported_docs=imported_docs,
+                            owner=username,
+                            course_id=request.course_id,
+                            scope_type=request.scope_type,
+                            scope_id=request.scope_id,
+                            storage_manager=storage_manager,
+                            rag_system=rag_system,
+                        )
+                    except Exception as _e:
+                        print(f"[API] [深度搜索] scoped personal KB persist failed: {type(_e).__name__}: {_e}")
                 print(f"[API] [深度搜索] 入库完成 imported={len(imported_docs)}")
             except Exception as e:
                 # 入库失败不影响主流程：仅记录并返回提示

@@ -58,6 +58,8 @@ class ChatRequestV2(BaseModel):
     owner: str | None = None
     model_id: str | None = None
     course_id: str | None = None
+    scope_type: str | None = None
+    scope_id: str | None = None
     artifact_id: str | None = None
     artifact_reference: ArtifactReferencePayload | None = None
     conversation_reference: ConversationReferencePayload | None = None

@@ -29,6 +29,7 @@ import type { GeneratedFile } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
   getCourseMaterials,
+  getCourseMaterialsPage,
   resumeBlogTaskChapters,
   resumeBlogTaskOutline,
   startBlogGenerate,
@@ -65,6 +66,11 @@ import {
 import type { ReportEntryCard } from '../../services/teacher/chatV2';
 import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
 import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
+import {
+  getWorkspaceScopeApiParams,
+  normalizeWorkspaceScope,
+  type WorkspaceScope,
+} from '../../services/teacher/workspaceScope';
 import PptEntryPanel from './PptEntryPanel';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
@@ -287,6 +293,7 @@ type Props = {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
   onPreviewStateChange?: (open: boolean) => void;
 };
 
@@ -440,7 +447,15 @@ const STUDIO_ACTIONS = [
   },
 ] as const;
 
-const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, onPreviewStateChange }) => {
+const COURSE_MATERIAL_PAGE_SIZE = 20;
+
+const StudioPanel: React.FC<Props> = ({
+  collapsed,
+  onToggleCollapsed,
+  courseId,
+  workspaceScope,
+  onPreviewStateChange,
+}) => {
   const {
     generatedFiles,
     viewingFile,
@@ -474,36 +489,97 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [blogOutlineDraftText, setBlogOutlineDraftText] = useState<string>('');
   const [blogOutlineOriginalText, setBlogOutlineOriginalText] = useState<string>('');
   const [blogResuming, setBlogResuming] = useState(false);
+  const [courseMaterialsTotal, setCourseMaterialsTotal] = useState(0);
+  const [courseMaterialsLoadingMore, setCourseMaterialsLoadingMore] = useState(false);
+  const normalizedWorkspaceScope = React.useMemo(() => normalizeWorkspaceScope(workspaceScope), [workspaceScope]);
+  const workspaceScopeApiParams = React.useMemo(
+    () => getWorkspaceScopeApiParams(normalizedWorkspaceScope),
+    [normalizedWorkspaceScope],
+  );
 
   const [blogOutlineForm] = Form.useForm();
-  const refreshCourseMaterials = React.useCallback(async () => {
+  const syncCourseMaterialsIntoStores = React.useCallback((
+    materials: Array<{
+      id: string;
+      name: string;
+      type: GeneratedFile['type'];
+      content: unknown;
+      addedAt: string;
+      courseId?: string;
+      isPinned?: boolean;
+      pinnedAt?: string;
+    }>,
+  ) => {
+    useCourseMaterialsStore.getState().setMaterials(materials as any);
+    const syncedGeneratedFiles = materials
+      .map((item) => toGeneratedFileFromCourseMaterial(item))
+      .filter((item): item is GeneratedFile => item !== null);
+    replaceCourseMaterialGeneratedFiles(syncedGeneratedFiles);
+  }, [replaceCourseMaterialGeneratedFiles]);
+
+  const refreshCourseMaterials = React.useCallback(async (options?: { append?: boolean }) => {
     if (!courseId) {
       return;
     }
-    const materials = await getCourseMaterials(courseId);
-    const courseMaterials = materials.map((item) => ({
+
+    const append = Boolean(options?.append);
+    const offset = append ? useCourseMaterialsStore.getState().materials.length : 0;
+    const page = await getCourseMaterialsPage(courseId, {
+      scopeType: workspaceScopeApiParams.scopeType,
+      scopeId: workspaceScopeApiParams.scopeId,
+      aggregate: workspaceScopeApiParams.aggregate,
+      limit: COURSE_MATERIAL_PAGE_SIZE,
+      offset,
+    });
+
+    setCourseMaterialsTotal(page.total);
+    const nextPageItems = page.items.map((item) => ({
       id: item.id,
       name: item.name,
       type: item.type as GeneratedFile['type'],
       content: item.content,
       addedAt: item.addedAt,
       courseId: item.courseId || courseId,
+      scopeType: item.scopeType,
+      scopeId: item.scopeId,
       isPinned: item.isPinned,
       pinnedAt: item.pinnedAt,
     }));
-    useCourseMaterialsStore.getState().setMaterials(courseMaterials as any);
-    const syncedGeneratedFiles = courseMaterials
-      .map((item) => toGeneratedFileFromCourseMaterial(item))
-      .filter((item): item is GeneratedFile => item !== null);
-    replaceCourseMaterialGeneratedFiles(syncedGeneratedFiles);
-  }, [courseId, replaceCourseMaterialGeneratedFiles]);
+
+    if (!append) {
+      syncCourseMaterialsIntoStores(nextPageItems);
+      return;
+    }
+
+    const currentMaterials = useCourseMaterialsStore.getState().materials;
+    const seen = new Set(currentMaterials.map((item) => item.id));
+    syncCourseMaterialsIntoStores([
+      ...currentMaterials,
+      ...nextPageItems.filter((item) => !seen.has(item.id)),
+    ]);
+  }, [courseId, syncCourseMaterialsIntoStores, workspaceScopeApiParams.aggregate, workspaceScopeApiParams.scopeId, workspaceScopeApiParams.scopeType]);
 
   useEffect(() => {
     if (!courseId) {
       return;
     }
     void refreshCourseMaterials();
-  }, [courseId, refreshCourseMaterials]);
+  }, [courseId, refreshCourseMaterials, workspaceScopeApiParams.aggregate, workspaceScopeApiParams.scopeId, workspaceScopeApiParams.scopeType]);
+
+  const handleLoadMoreCourseMaterials = async () => {
+    if (courseMaterialsLoadingMore || generatedFiles.filter((file) => String(file.meta?.origin || '').trim() === 'course_material').length >= courseMaterialsTotal) {
+      return;
+    }
+    setCourseMaterialsLoadingMore(true);
+    try {
+      await refreshCourseMaterials({ append: true });
+    } catch (error) {
+      console.error('load more course materials failed:', error);
+      message.error('加载更多生成物失败');
+    } finally {
+      setCourseMaterialsLoadingMore(false);
+    }
+  };
 
   // 监听 viewingFile 变化，通知父组件预览状态
   useEffect(() => {
@@ -956,6 +1032,8 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           promptDraft,
           card,
           courseId,
+          scopeType: workspaceScopeApiParams.scopeType,
+          scopeId: workspaceScopeApiParams.scopeId,
           selectedDocIds: selectedDocs,
           allowRag,
           allowWeb,
@@ -1006,6 +1084,8 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       const response = await generateKnowledgeBaseQuizV2(
         buildKnowledgeBaseQuizRequest({
           courseId,
+          scopeType: workspaceScopeApiParams.scopeType,
+          scopeId: workspaceScopeApiParams.scopeId,
           selectedDocIds: selectedDocs,
           config,
         }),
@@ -1064,6 +1144,8 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           card,
           config,
           courseId,
+          scopeType: workspaceScopeApiParams.scopeType,
+          scopeId: workspaceScopeApiParams.scopeId,
           selectedDocIds: selectedDocs,
         }),
         action_hint: 'generate.lesson_plan' as const,
@@ -1123,6 +1205,8 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       return await generateKnowledgeBasePptOutlineV2(
         buildDirectPptOutlineRequest({
           courseId,
+          scopeType: workspaceScopeApiParams.scopeType,
+          scopeId: workspaceScopeApiParams.scopeId,
           selectedDocIds: selectedDocs,
           config,
         }),
@@ -2977,6 +3061,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         open={reportEntryVisible}
         selectedDocIds={selectedDocs}
         courseId={courseId}
+        workspaceScope={normalizedWorkspaceScope}
         submitting={generating}
         onCancel={() => setReportEntryVisible(false)}
         onSubmit={handleReportEntrySubmit}
@@ -2985,6 +3070,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         open={lessonPlanEntryVisible}
         selectedDocIds={selectedDocs}
         courseId={courseId}
+        workspaceScope={normalizedWorkspaceScope}
         submitting={generating}
         onCancel={() => setLessonPlanEntryVisible(false)}
         onSubmit={handleLessonPlanEntrySubmit}
@@ -2993,6 +3079,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         open={quizEntryVisible}
         selectedDocIds={selectedDocs}
         courseId={courseId}
+        workspaceScope={normalizedWorkspaceScope}
         submitting={generating}
         onCancel={() => setQuizEntryVisible(false)}
         onSubmit={handleQuizEntrySubmit}
@@ -3001,6 +3088,7 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         open={pptEntryVisible}
         selectedDocIds={selectedDocs}
         courseId={courseId}
+        workspaceScope={normalizedWorkspaceScope}
         submitting={generating}
         onCancel={() => setPptEntryVisible(false)}
         onSubmitOutline={handleDirectPptOutlineSubmit}
@@ -3353,7 +3441,14 @@ const StudioPanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           <div className="studio-panel__section-title">最近产物</div>
           <div className="studio-panel__section-note">生成完成后可在这里继续查看、预览或加入课程资源。</div>
         </div>
-        <div className="studio-panel__artifact-count">{generatedFiles.length}</div>
+        <Space size="small">
+          <div className="studio-panel__artifact-count">{generatedFiles.length}</div>
+          {generatedFiles.filter((file) => String(file.meta?.origin || '').trim() === 'course_material').length < courseMaterialsTotal && (
+            <Button type="text" size="small" loading={courseMaterialsLoadingMore} onClick={() => void handleLoadMoreCourseMaterials()}>
+              加载更多
+            </Button>
+          )}
+        </Space>
       </div>
 
       <div className="studio-panel__artifact-list">

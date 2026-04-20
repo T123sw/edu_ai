@@ -48,6 +48,8 @@ class ChatReplyRequestV2(BaseModel):
     conversation_id: Optional[str] = None
     model_id: Optional[str] = None
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     artifact_id: Optional[str] = None
     artifact_reference: Optional[ArtifactReferencePayload] = None
     conversation_reference: Optional[ConversationReferencePayload] = None
@@ -64,6 +66,8 @@ class ChatReportRequestV2(BaseModel):
     conversation_id: Optional[str] = None
     model_id: Optional[str] = None
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     allow_rag: bool = False
     allow_web: bool = False
     selected_doc_ids: List[str] = Field(default_factory=list)
@@ -76,22 +80,30 @@ class ChatReportRequestV2(BaseModel):
 
 class ChatReportCardsRequestV2(BaseModel):
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
 class ChatPptCardsRequestV2(BaseModel):
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
 class ChatLessonPlanCardsRequestV2(BaseModel):
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
 class KnowledgeBaseDirectReportRequestV2(BaseModel):
     question: str
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
     report_config: Optional[Dict[str, Any]] = None
     prompt_draft: Optional[str] = None
@@ -101,6 +113,8 @@ class KnowledgeBaseDirectReportRequestV2(BaseModel):
 
 class KnowledgeBaseDirectQuizPrefillRequestV2(BaseModel):
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
@@ -116,6 +130,8 @@ class DirectQuizConfigV2(BaseModel):
 
 class KnowledgeBaseDirectQuizRequestV2(BaseModel):
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
     quiz_config: DirectQuizConfigV2
     prompt_draft: Optional[str] = None
@@ -139,6 +155,8 @@ class DirectPptConfigV2(BaseModel):
 
 class KnowledgeBaseDirectPptOutlineRequestV2(BaseModel):
     course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
     ppt_config: DirectPptConfigV2
 

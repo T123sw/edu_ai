@@ -1,11 +1,17 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
 import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
-import { getAiStudioKnowledgePointLabel } from "../../pages/teacher/aiStudioContext";
 import "../../pages/teacher/AiStudioPage.css";
 import { useStore } from "../../store/teacher/useStore";
 import { AppSurface, SidebarBackLink, SidebarDock, SidebarNav, routes, useAppShell } from "../shared";
+import {
+  getWorkspaceScopeLabel,
+  normalizeWorkspaceScope,
+  readWorkspaceScopeFromSearch,
+  writeWorkspaceScopeToSearch,
+  type WorkspaceScope,
+} from "../../services/teacher/workspaceScope";
 
 const COLLAPSED_WIDTH = "72px";
 const EXPANDED_WIDTH_FORMULA = "clamp(320px, 24vw, 520px)";
@@ -13,16 +19,45 @@ const LEFT_PREVIEW_WIDTH_FORMULA = "clamp(420px, 32vw, 720px)";
 const RIGHT_PREVIEW_WIDTH_FORMULA = "clamp(420px, 32vw, 720px)";
 const CENTER_COLUMN_FORMULA = "minmax(520px, 1fr)";
 
+function getHashSearchParams(hash = window.location.hash): URLSearchParams {
+  const normalized = hash.replace(/^#/, "");
+  const queryStart = normalized.indexOf("?");
+  return new URLSearchParams(queryStart >= 0 ? normalized.slice(queryStart + 1) : "");
+}
+
+function writeAiWorkspaceHash(scope: WorkspaceScope) {
+  const nextSearch = writeWorkspaceScopeToSearch(getHashSearchParams(), scope);
+  window.location.hash = `${routes.ai}?${nextSearch.toString()}`;
+}
+
 export function AIWorkspacePage() {
   const { selectedCourse } = useAppShell();
   const statusCard = useStore((state) => state.statusCard);
+  const [hash, setHash] = useState(() => window.location.hash);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
 
   const courseLabel = selectedCourse?.title?.trim() || "未指定课程";
-  const knowledgePointLabel = getAiStudioKnowledgePointLabel(statusCard);
+  const workspaceScope = useMemo(() => {
+    const current = readWorkspaceScopeFromSearch(getHashSearchParams(hash));
+    const firstTopic = Array.isArray(statusCard?.topics)
+      ? statusCard.topics.map((item) => String(item || "").trim()).find(Boolean)
+      : "";
+
+    return normalizeWorkspaceScope({
+      ...current,
+      scopeLabel: current.scopeLabel || (current.scopeType === "knowledge_point" ? firstTopic : "课程总目录"),
+    });
+  }, [hash, statusCard]);
+  const knowledgePointLabel = getWorkspaceScopeLabel(workspaceScope);
+
+  useEffect(() => {
+    const syncHash = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
+  }, []);
 
   const pageStyle = useMemo<React.CSSProperties>(() => {
     const leftColumn = leftCollapsed
@@ -82,6 +117,7 @@ export function AIWorkspacePage() {
                     if (!leftCollapsed) setKbPreviewOpen(false);
                   }}
                   courseId={selectedCourse?.id}
+                  workspaceScope={workspaceScope}
                   onPreviewStateChange={(open) => setKbPreviewOpen(open)}
                 />
               </div>
@@ -89,7 +125,13 @@ export function AIWorkspacePage() {
 
             <div className="ai-studio-content">
               <div className="ai-panel">
-                <ChatPanel courseId={selectedCourse?.id} />
+                <ChatPanel
+                  courseId={selectedCourse?.id}
+                  workspaceScope={workspaceScope}
+                  onWorkspaceScopeChange={(nextScope) => {
+                    writeAiWorkspaceHash(nextScope);
+                  }}
+                />
               </div>
             </div>
 
@@ -102,6 +144,7 @@ export function AIWorkspacePage() {
                     if (!rightCollapsed) setStudioPreviewOpen(false);
                   }}
                   courseId={selectedCourse?.id}
+                  workspaceScope={workspaceScope}
                   onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
                 />
               </div>

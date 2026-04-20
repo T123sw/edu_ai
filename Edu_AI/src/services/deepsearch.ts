@@ -21,6 +21,9 @@ export interface DeepSearchRequest {
   query: string;
   max_urls?: number;
   crawl_timeout?: number;
+  course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
 }
 
 export interface DeepSearchResponse {

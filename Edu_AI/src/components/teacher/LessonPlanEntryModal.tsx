@@ -6,6 +6,7 @@ import {
   groupLessonPlanEntryCards,
   type LessonPlanEntryConfigInput,
 } from '../../services/teacher/lessonPlanEntry.helpers';
+import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 import './LessonPlanEntryModal.css';
 
 const { Text, Title } = Typography;
@@ -16,6 +17,7 @@ type Props = {
   open: boolean;
   selectedDocIds: string[];
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
   submitting?: boolean;
   onCancel: () => void;
   onSubmit: (payload: { card: LessonPlanEntryCard; config: LessonPlanEntryConfigInput }) => Promise<void> | void;
@@ -25,6 +27,7 @@ export default function LessonPlanEntryModal({
   open,
   selectedDocIds,
   courseId,
+  workspaceScope,
   submitting = false,
   onCancel,
   onSubmit,
@@ -57,6 +60,8 @@ export default function LessonPlanEntryModal({
     setLoadError('');
     fetchLessonPlanEntryCardsV2({
       course_id: courseId,
+      scope_type: workspaceScope?.scopeType,
+      scope_id: workspaceScope?.scopeId,
       selected_doc_ids: selectedDocIds,
     })
       .then((response) => {
@@ -77,7 +82,7 @@ export default function LessonPlanEntryModal({
     return () => {
       cancelled = true;
     };
-  }, [open, selectedDocIds, courseId, configForm]);
+  }, [open, selectedDocIds, courseId, configForm, workspaceScope]);
 
   const visibleCards = useMemo(
     () => cards.filter((card) => card.card_id !== 'preset-inquiry-lesson' && card.preset_key !== 'inquiry_lesson'),

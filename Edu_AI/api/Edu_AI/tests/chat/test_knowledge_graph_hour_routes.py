@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -122,3 +124,38 @@ def test_allocate_hours_route_does_not_save_when_llm_call_fails(monkeypatch):
     assert response.status_code == 502
     assert "upstream model timeout" in response.json()["detail"]
     assert manager.saved == []
+
+
+def test_call_knowledge_graph_hour_llm_ignores_proxy_env_for_model_request(monkeypatch):
+    captured = {}
+
+    class DummyRagSystem:
+        def _call_llm(self, prompt, llm_config=None):
+            captured["prompt"] = prompt
+            captured["llm_config"] = llm_config
+            captured["HTTP_PROXY"] = os.environ.get("HTTP_PROXY")
+            captured["HTTPS_PROXY"] = os.environ.get("HTTPS_PROXY")
+            captured["ALL_PROXY"] = os.environ.get("ALL_PROXY")
+            captured["GIT_HTTP_PROXY"] = os.environ.get("GIT_HTTP_PROXY")
+            return "ok"
+
+    monkeypatch.setenv("HTTP_PROXY", "http://127.0.0.1:9")
+    monkeypatch.setenv("HTTPS_PROXY", "http://127.0.0.1:9")
+    monkeypatch.setenv("ALL_PROXY", "http://127.0.0.1:9")
+    monkeypatch.setenv("GIT_HTTP_PROXY", "http://127.0.0.1:9")
+    monkeypatch.setattr(courses_module, "get_rag_system", lambda: DummyRagSystem())
+    monkeypatch.setattr(courses_module.Config, "get_deep_model", staticmethod(lambda: {"model": "test-model"}))
+
+    result = courses_module._call_knowledge_graph_hour_llm("allocate these hours")
+
+    assert result == "ok"
+    assert captured["prompt"] == "allocate these hours"
+    assert captured["llm_config"] == {"model": "test-model"}
+    assert captured["HTTP_PROXY"] is None
+    assert captured["HTTPS_PROXY"] is None
+    assert captured["ALL_PROXY"] is None
+    assert captured["GIT_HTTP_PROXY"] is None
+    assert os.environ["HTTP_PROXY"] == "http://127.0.0.1:9"
+    assert os.environ["HTTPS_PROXY"] == "http://127.0.0.1:9"
+    assert os.environ["ALL_PROXY"] == "http://127.0.0.1:9"
+    assert os.environ["GIT_HTTP_PROXY"] == "http://127.0.0.1:9"

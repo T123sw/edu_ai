@@ -27,6 +27,10 @@ class FakeRAGSystem:
         self.physical_path = r"D:\docs\alice\lesson.md"
         self.index_key = f"user_alice:{self.physical_path}"
         self.source_key = self.index_key
+        self.public_physical_path = r"D:\course\shared\legacy-lesson.md"
+        self.public_index_key = self.public_physical_path
+        self.public_source_key = self.public_index_key
+        self.summarize_calls = []
         self.vector_store = FakeVectorStore(self.source_key)
         self.document_index = {
             self.index_key: {
@@ -37,6 +41,15 @@ class FakeRAGSystem:
                 "summary_updated_at": "2026-04-15T00:00:00",
                 "imported_at": "2026-04-14T00:00:00",
                 "owner": "alice",
+            },
+            self.public_index_key: {
+                "physical_path": self.public_physical_path,
+                "source_key": self.public_source_key,
+                "file_name": "legacy-lesson.md",
+                "summary": "",
+                "summary_updated_at": "",
+                "imported_at": "2026-04-14T00:00:00",
+                "owner": None,
             }
         }
 
@@ -59,11 +72,31 @@ class FakeRAGSystem:
                 "summary_updated_at": "2026-04-15T00:00:00",
                 "imported_at": "2026-04-14T00:00:00",
                 "owner": "alice",
-            }
+            },
+            {
+                "file_path": self.public_index_key,
+                "file_name": "legacy-lesson.md",
+                "summary": "",
+                "summary_updated_at": "",
+                "imported_at": "2026-04-14T00:00:00",
+                "owner": None,
+            },
         ]
 
-    def summarize_document(self, *args, **kwargs):
-        raise AssertionError("stored summary should be resolved without regenerating")
+    def summarize_document(self, file_path, force_refresh=False, owner=None):
+        self.summarize_calls.append(
+            {
+                "file_path": file_path,
+                "force_refresh": force_refresh,
+                "owner": owner,
+            }
+        )
+        if file_path == self.public_index_key and owner is None:
+            return {
+                "summary": "generated public summary",
+                "summary_updated_at": "2026-04-16T00:00:00",
+            }
+        raise AssertionError("unexpected summarize_document call")
 
 
 def test_summary_provider_resolves_legacy_physical_path_against_public_index_key():
@@ -93,3 +126,24 @@ def test_content_provider_resolves_legacy_physical_path_against_public_index_key
     assert result["fallback_used"] is False
     assert result["documents"][0]["title"] == "lesson.md"
     assert result["documents"][0]["content"] == "first chunk\n\nsecond chunk"
+
+
+def test_summary_provider_generates_summary_for_public_legacy_relative_path_without_user_prefix():
+    rag_system = FakeRAGSystem()
+    provider = KnowledgeBaseSummaryProvider(rag_system_factory=lambda: rag_system)
+
+    result = provider.get_selected_document_summaries(
+        selected_doc_ids=["knowledge_base/documents/legacy-lesson.md"],
+        owner="alice",
+    )
+
+    assert result["fallback_used"] is False
+    assert result["documents"][0]["title"] == "legacy-lesson.md"
+    assert result["documents"][0]["summary"] == "generated public summary"
+    assert rag_system.summarize_calls == [
+        {
+            "file_path": rag_system.public_index_key,
+            "force_refresh": False,
+            "owner": None,
+        }
+    ]

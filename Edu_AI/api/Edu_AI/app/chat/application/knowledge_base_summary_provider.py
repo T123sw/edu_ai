@@ -34,10 +34,11 @@ class KnowledgeBaseSummaryProvider:
 
             if not summary_text:
                 try:
+                    summary_owner = index_record.get("owner")
                     generated = rag_system.summarize_document(
                         resolved.index_key,
                         force_refresh=False,
-                        owner=owner,
+                        owner=summary_owner,
                     )
                 except Exception:
                     generated = {}

@@ -30,7 +30,7 @@ class FakeCourseManager:
         course_dir.mkdir(parents=True, exist_ok=True)
         return course_dir
 
-    def save_knowledge_base_file(self, course_id, file_data, filename):
+    def save_knowledge_base_file(self, course_id, file_data, filename, **kwargs):
         relative_path = Path("knowledge_base") / filename
         full_path = self.get_course_dir(course_id) / relative_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
@@ -41,6 +41,8 @@ class FakeCourseManager:
                 "filename": filename,
                 "path": relative_path.as_posix(),
                 "uploaded_at": "2026-04-15T00:00:00",
+                "scope_type": kwargs.get("scope_type", "course"),
+                "scope_id": kwargs.get("scope_id"),
             }
         )
         return relative_path.as_posix()

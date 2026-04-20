@@ -17,15 +17,18 @@ import requests
 import re
 import time
 import concurrent.futures
+import zipfile
 from urllib.parse import unquote, quote
 from typing import List, Dict, Optional, Any, Union, Callable
 from pathlib import Path
 from datetime import datetime
+from xml.etree import ElementTree as ET
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 import chromadb
 from chromadb.config import Settings
 from .core.config import Config
+from rag_v2.document_resolver import resolve_rag_document
 
 try:
     import fitz  # PyMuPDF
@@ -98,6 +101,47 @@ def _check_mineru_available() -> bool:
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
+
+
+def _owner_can_access_document(metadata: Dict[str, Any], owner: Optional[str]) -> bool:
+    if owner is None:
+        return True
+
+    record_owner = metadata.get("owner")
+    if record_owner is None:
+        return True
+
+    if isinstance(record_owner, str) and not record_owner.strip():
+        return True
+
+    return record_owner == owner
+
+
+def _match_allowed_source(
+    document_index: Dict[str, Dict[str, Any]],
+    allowed_sources: set[str],
+    doc_source: Optional[str],
+) -> Optional[str]:
+    if not doc_source:
+        return None
+
+    if doc_source in allowed_sources and doc_source in document_index:
+        return doc_source
+
+    for index_key in allowed_sources:
+        meta = document_index.get(index_key)
+        if not meta:
+            continue
+        source_key = meta.get("source_key")
+        if source_key and doc_source == source_key:
+            return index_key
+        if doc_source == index_key:
+            return index_key
+
+    if doc_source in allowed_sources:
+        return doc_source
+
+    return None
 
 MINERU_AVAILABLE = _check_mineru_available()
 if MINERU_AVAILABLE:
@@ -1660,6 +1704,86 @@ class DocumentProcessor:
 
         self.image_exts = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"}
 
+    def load_text_like(self, file_path: str) -> List[Document]:
+        file_path_obj = Path(file_path)
+        text = self._fallback_read(file_path)
+        if not text.strip():
+            return []
+        return [
+            Document(
+                page_content=text,
+                metadata={
+                    "source": file_path,
+                    "document_name": file_path_obj.name,
+                    "page": 0,
+                    "modality": "text",
+                },
+            )
+        ]
+
+    def load_doc(self, file_path: str) -> List[Document]:
+        file_path_obj = Path(file_path)
+        file_ext = file_path_obj.suffix.lower()
+        if file_ext == ".docx":
+            text = self._read_docx_text(file_path)
+        else:
+            text = self._fallback_read(file_path)
+
+        if not text.strip():
+            return []
+        return [
+            Document(
+                page_content=text,
+                metadata={
+                    "source": file_path,
+                    "document_name": file_path_obj.name,
+                    "page": 0,
+                    "modality": "text",
+                },
+            )
+        ]
+
+    def _read_docx_text(self, file_path: str) -> str:
+        paragraphs: List[str] = []
+        word_namespace = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+        with zipfile.ZipFile(file_path) as archive:
+            xml_names = [
+                "word/document.xml",
+                *sorted(name for name in archive.namelist() if re.fullmatch(r"word/header\d+\.xml", name)),
+                *sorted(name for name in archive.namelist() if re.fullmatch(r"word/footer\d+\.xml", name)),
+            ]
+            for xml_name in xml_names:
+                try:
+                    xml_bytes = archive.read(xml_name)
+                except KeyError:
+                    continue
+
+                root = ET.fromstring(xml_bytes)
+                for paragraph in root.iter(f"{word_namespace}p"):
+                    parts: List[str] = []
+                    for node in paragraph.iter():
+                        if node.tag == f"{word_namespace}t":
+                            parts.append(node.text or "")
+                        elif node.tag == f"{word_namespace}tab":
+                            parts.append("\t")
+                        elif node.tag in {f"{word_namespace}br", f"{word_namespace}cr"}:
+                            parts.append("\n")
+
+                    paragraph_text = "".join(parts).strip()
+                    if paragraph_text:
+                        paragraphs.append(paragraph_text)
+
+        return "\n\n".join(paragraphs)
+
+    def _prepare_text_chunks(self, documents: List[Document]) -> List[Document]:
+        text_chunks = self.split_documents(documents)
+        for doc in text_chunks:
+            if doc.metadata is None:
+                doc.metadata = {}
+            doc.metadata["modality"] = "text"
+        return text_chunks
+
     def _split_pdf_by_pages(self, file_path: str, pages_per_chunk: int = 20) -> List[str]:
         """
         将 PDF 文件按页数切割成多个小 PDF。
@@ -2066,6 +2190,12 @@ class DocumentProcessor:
                     print(f"[Docling] 图片导出失败: {e}")
 
             return text_chunks + image_chunks
+
+        if file_path_obj.suffix.lower() == ".docx":
+            documents = self.load_doc(file_path)
+            if not documents:
+                raise ValueError(f"Unable to extract text from Word document: {file_path_obj.name}")
+            return self._prepare_text_chunks(documents)
 
         if file_path_obj.suffix.lower() != ".pdf":
             # 非 PDF 维持原有降级读取流程
@@ -2994,6 +3124,8 @@ class RAGSystem:
             "include_in_search": include_flag,
             "summary": existing_entry.get("summary"),
             "summary_updated_at": existing_entry.get("summary_updated_at"),
+            "summary_title": existing_entry.get("summary_title"),
+            "summary_title_updated_at": existing_entry.get("summary_title_updated_at"),
             "owner": owner,
             # 记录原始物理路径，便于展示/下载/定位
             "physical_path": file_str,
@@ -3170,7 +3302,7 @@ class RAGSystem:
             candidate_sources = {
                 index_key: meta
                 for index_key, meta in self.document_index.items()
-                if meta.get("include_in_search", True) and (owner is None or meta.get("owner") == owner)
+                if meta.get("include_in_search", True) and _owner_can_access_document(meta, owner)
             }
             
             # 2. 如果提供了 selected_doc_ids，进一步过滤：只保留选中的文档
@@ -3199,36 +3331,45 @@ class RAGSystem:
                     matched_key = None
                     
                     print(f"[RAG] 尝试匹配 doc_id: {doc_id}")
+
+                    resolved_document = resolve_rag_document(self, doc_id, owner=owner)
+                    if resolved_document and resolved_document.index_key in candidate_sources:
+                        matched_key = resolved_document.index_key
+                        print(f"[RAG] 通过公共解析器匹配成功: {doc_id} -> {matched_key}")
                     
                     # 方式1：直接匹配 index_key（doc_id 可能是完整的 index_key）
                     # 这是最常见的匹配方式，因为前端传递的 file_path 就是 index_key
-                    if doc_id in candidate_sources:
+                    if not matched_key and doc_id in candidate_sources:
                         matched_key = doc_id
                         print(f"[RAG] 直接匹配成功: {doc_id}")
-                    elif doc_id_normalized in candidate_sources:
+                    elif not matched_key and doc_id_normalized in candidate_sources:
                         matched_key = doc_id_normalized
                         print(f"[RAG] 规范化后直接匹配成功: {doc_id_normalized}")
                     # 方式1.5：检查是否是 index_key 的变体（处理 user_owner:path 格式）
-                    elif ':' in doc_id:
+                    elif not matched_key and ':' in doc_id:
                         # doc_id 可能是 user_owner:path 格式，尝试直接匹配
                         for index_key in candidate_sources.keys():
                             if doc_id == index_key or doc_id_normalized == normalize_for_match(index_key):
                                 matched_key = index_key
                                 print(f"[RAG] 通过 index_key 格式匹配成功: {doc_id} -> {index_key}")
                                 break
-                    else:
+                    elif not matched_key:
                         # 方式2：通过 physical_path 和 file_name 匹配
                         for index_key, meta in candidate_sources.items():
                             physical_path = meta.get("physical_path", "")
+                            record_path = meta.get("path", "")
                             file_name = meta.get("file_name", "")
                             
                             # 规范化路径用于匹配
                             physical_path_norm = normalize_for_match(physical_path)
+                            record_path_norm = normalize_for_match(record_path)
                             file_name_norm = normalize_for_match(file_name)
                             
                             # 检查多种匹配方式
                             if (doc_id == physical_path or 
                                 doc_id_normalized == physical_path_norm or
+                                doc_id == record_path or
+                                doc_id_normalized == record_path_norm or
                                 doc_id == file_name or
                                 doc_id_normalized == file_name_norm or
                                 # 检查文件名是否包含在 doc_id 中（处理带前缀的情况）
@@ -3236,6 +3377,7 @@ class RAGSystem:
                                 (file_name_norm and file_name_norm in doc_id_normalized) or
                                 # 检查 physical_path 的文件名部分
                                 (physical_path and Path(physical_path).name in doc_id) or
+                                (record_path and Path(record_path).name in doc_id) or
                                 # 检查 doc_id 是否是 index_key 的一部分
                                 (doc_id in index_key or index_key in doc_id)):
                                 matched_key = index_key
@@ -3340,40 +3482,17 @@ class RAGSystem:
             filtered_docs: List[Dict] = []
             for doc in retrieved_docs:
                 doc_source = doc["metadata"].get("source")
-                            
-                # 匹配逻辑：doc_source 可能直接是 index_key，也可能是 source_key
-                # 需要检查多种匹配方式
-                matched = False
-                matched_key = None
-                
-                # 方式1：直接匹配
-                if doc_source in allowed_sources:
-                    matched = True
-                    matched_key = doc_source
-                else:
-                    # 方式2：检查 document_index 中的 source_key
-                    # 向量库中的 source 应该等于 document_index 中的 source_key
-                    for index_key in allowed_sources:
-                        meta = self.document_index.get(index_key, {})
-                        source_key = meta.get("source_key")
-                        # 如果 doc_source 匹配 source_key，则认为匹配
-                        if source_key and doc_source == source_key:
-                            matched = True
-                            matched_key = index_key
-                            break
-                        # 如果 doc_source 匹配 index_key，也认为匹配（因为 source_key 应该等于 index_key）
-                        if doc_source == index_key:
-                            matched = True
-                            matched_key = index_key
-                    break
+                matched_key = _match_allowed_source(self.document_index, allowed_sources, doc_source)
 
-                if matched:
+                if matched_key is not None:
                     # 额外检查：确保文档确实在 document_index 中（防止已删除的文档）
                     if matched_key in self.document_index:
                         meta = self.document_index[matched_key]
                         # 再次检查 include_in_search 和 owner（双重保险）
-                        if (meta.get("include_in_search", True) and 
-                            (owner is None or meta.get("owner") == owner)):
+                        if (
+                            meta.get("include_in_search", True)
+                            and _owner_can_access_document(meta, owner)
+                        ):
                             filtered_docs.append(doc)
                         else:
                             pass  # 文档被过滤
@@ -3662,35 +3781,46 @@ class RAGSystem:
             f"msg_count={len(final_messages)} max_tokens={payload['max_tokens']}"
         )
 
+        session = requests.Session()
+        session.trust_env = False
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=360, stream=stream)
+            response = session.post(url, json=payload, headers=headers, timeout=360, stream=stream)
 
             if stream:
                 # 流式输出：返回生成器
                 def generate():
-                    for line in response.iter_lines():
-                        if line:
-                            line_str = line.decode('utf-8')
-                            if line_str.startswith('data: '):
-                                data_str = line_str[6:]
-                                if data_str.strip() == '[DONE]':
-                                    break
-                                try:
-                                    data = json.loads(data_str)
-                                    delta = data.get("choices", [{}])[0].get("delta", {})
-                                    content = delta.get("content", "")
-                                    if content:
-                                        yield content
-                                except json.JSONDecodeError:
-                                    continue
+                    try:
+                        for line in response.iter_lines():
+                            if line:
+                                line_str = line.decode('utf-8')
+                                if line_str.startswith('data: '):
+                                    data_str = line_str[6:]
+                                    if data_str.strip() == '[DONE]':
+                                        break
+                                    try:
+                                        data = json.loads(data_str)
+                                        delta = data.get("choices", [{}])[0].get("delta", {})
+                                        content = delta.get("content", "")
+                                        if content:
+                                            yield content
+                                    except json.JSONDecodeError:
+                                        continue
+                    finally:
+                        response.close()
+                        session.close()
                 return generate()
             else:
                 # 非流式输出
-                if response.status_code == 200:
-                    data = response.json()
-                    return data.get("choices", [{}])[0].get("message", {}).get("content", "")
-                raise Exception(f"LLM API错误: {response.status_code} - {response.text}")
+                try:
+                    if response.status_code == 200:
+                        data = response.json()
+                        return data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    raise Exception(f"LLM API错误: {response.status_code} - {response.text}")
+                finally:
+                    response.close()
+                    session.close()
         except Exception as e:
+            session.close()
             raise Exception(f"调用LLM失败: {str(e)}")
     
     def list_documents(self, owner: Optional[str] = None) -> List[Dict]:
@@ -3702,7 +3832,7 @@ class RAGSystem:
         documents: List[Dict] = []
         for file_path, metadata in self.document_index.items():
             # 如果指定了owner，则只返回该用户的文档
-            if owner is not None and metadata.get("owner") != owner:
+            if not _owner_can_access_document(metadata, owner):
                 continue
             documents.append(
                 {
@@ -3714,6 +3844,8 @@ class RAGSystem:
                     "imported_at": metadata.get("imported_at"),
                     "summary": metadata.get("summary"),
                     "summary_updated_at": metadata.get("summary_updated_at"),
+                    "summary_title": metadata.get("summary_title"),
+                    "summary_title_updated_at": metadata.get("summary_title_updated_at"),
                     "file_size": metadata.get("file_size"),
                     "page_count": metadata.get("page_count"),
                     "hash": metadata.get("hash"),
@@ -3722,7 +3854,9 @@ class RAGSystem:
                     "source_url": metadata.get("source_url"),
                     "source_title": metadata.get("source_title"),
                     "source_domain": metadata.get("source_domain"),
+                    "source_site_name": metadata.get("source_site_name"),
                     "source_icon_path": metadata.get("source_icon_path"),
+                    "doc_kind": metadata.get("doc_kind"),
                 }
             )
         documents.sort(key=lambda item: item.get("imported_at") or "", reverse=True)
@@ -3798,6 +3932,7 @@ class RAGSystem:
             "file_path": display_path,
             "file_name": record.get("file_name") or Path(display_path).name,
             "summary": record.get("summary"),
+            "summary_title": record.get("summary_title"),
             "imported_at": record.get("imported_at"),
             "chunk_count": record.get("chunk_count", 0),
             "text_chunk_count": text_chunk_count,
@@ -3806,6 +3941,94 @@ class RAGSystem:
             "file_size": record.get("file_size"),
             "page_count": record.get("page_count"),
             "samples": samples,
+        }
+
+    def summarize_document_for_import(self, file_path: str, owner: Optional[str] = None) -> Dict:
+        """Generate and cache a document summary plus a short title during import."""
+        index_key = self._make_index_key(file_path, owner)
+        record = self.document_index.get(index_key)
+        if record is None and str(file_path).startswith("user_"):
+            index_key = str(file_path)
+            record = self.document_index.get(index_key)
+        if record is None:
+            raise FileNotFoundError(f"Indexed document not found: {file_path}")
+
+        if record.get("summary") and record.get("summary_title"):
+            return {
+                "file_path": index_key,
+                "summary": record.get("summary"),
+                "summary_title": record.get("summary_title"),
+                "summary_updated_at": record.get("summary_updated_at"),
+                "summary_title_updated_at": record.get("summary_title_updated_at"),
+            }
+
+        source_key = record.get("source_key") or self._make_source_key(
+            record.get("physical_path") or file_path,
+            record.get("owner") or owner,
+        )
+        documents = self.vector_store.get_documents_by_source(source_key)
+        if not documents:
+            raise ValueError("Document content is missing; cannot generate summary")
+
+        documents.sort(key=lambda x: int(x.get("metadata", {}).get("page", 0)))
+        full_text = "\n\n".join([doc.get("content", "") for doc in documents if doc.get("content")])
+
+        max_chars = int(os.getenv("RAG_SUMMARY_MAX_CHARS", "40000"))
+        if len(full_text) > max_chars:
+            full_text = full_text[:max_chars] + "\n\n...(truncated)"
+
+        file_name = record.get("file_name") or Path(record.get("physical_path") or file_path).name
+        prompt = f"""You are a professional teaching-document analyst.
+Read the document content and return ONLY a JSON object with these fields:
+- "summary": a concise but useful Markdown summary in Chinese, covering theme, key content, knowledge points, and teaching value.
+- "summary_title": a short display title for this document, no website name, no file extension, within 12 Chinese characters or 6 English words.
+
+Document name: {file_name}
+
+Document content:
+{full_text}
+"""
+
+        deep_model_cfg = Config.get_deep_model()
+        raw_response = self._call_llm(
+            prompt,
+            llm_config=deep_model_cfg,
+            preferred_model=deep_model_cfg.get("model_name") or self.summary_model,
+        )
+
+        response_text = str(raw_response or "").strip()
+        json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
+        parsed: Dict[str, Any] = {}
+        if json_match:
+            try:
+                parsed = json.loads(json_match.group(0))
+            except Exception:
+                parsed = {}
+
+        summary = str(parsed.get("summary") or "").strip()
+        summary_title = str(parsed.get("summary_title") or parsed.get("title") or "").strip()
+        if not summary:
+            summary = response_text
+        if not summary_title:
+            summary_title = Path(str(file_name)).stem[:40] or "文档摘要"
+
+        summary_title = re.sub(r"[\\/:*?\"<>|\r\n\t]+", " ", summary_title)
+        summary_title = re.sub(r"\s+", " ", summary_title).strip()[:40] or "文档摘要"
+
+        timestamp = datetime.now().isoformat()
+        record["summary"] = summary
+        record["summary_updated_at"] = timestamp
+        record["summary_title"] = summary_title
+        record["summary_title_updated_at"] = timestamp
+        self.document_index[index_key] = record
+        self._save_index()
+
+        return {
+            "file_path": index_key,
+            "summary": summary,
+            "summary_title": summary_title,
+            "summary_updated_at": timestamp,
+            "summary_title_updated_at": timestamp,
         }
 
     def summarize_document(self, file_path: str, force_refresh: bool = False, owner: Optional[str] = None) -> Dict:

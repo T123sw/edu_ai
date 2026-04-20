@@ -35,6 +35,7 @@ from app.chat.workflows.lesson_plan.runtime import LessonPlanWorkflowRuntime
 from app.chat.workflows.report.edit_runtime import ReportEditRuntime
 from app.chat.workflows.report.assembler import ReportAssembler
 from app.chat.workflows.report.runtime import ReportWorkflowRuntime
+from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import storage_manager as default_course_storage_manager
 
 from .lesson_plan_service_v2 import build_default_lesson_plan_engine
@@ -66,6 +67,8 @@ def _persist_quiz_course_material(*, payload, result: dict, course_storage_manag
         course_id=course_id,
         material_type="quiz",
         material_id=material_id,
+        scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+        scope_id=getattr(payload, "scope_id", None),
         material_data={
             "title": str(quiz_artifact.get("title") or "quiz").strip(),
             "material_type": "quiz",

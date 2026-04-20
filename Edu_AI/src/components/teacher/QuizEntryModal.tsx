@@ -7,6 +7,7 @@ import {
   type QuizQuestionTypeV2,
 } from '../../services/teacher/chatV2';
 import { DEFAULT_QUIZ_CONFIG } from '../../services/teacher/quizEntry.helpers';
+import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 
 const { Text } = Typography;
 
@@ -14,6 +15,7 @@ type Props = {
   open: boolean;
   selectedDocIds: string[];
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
   submitting?: boolean;
   onCancel: () => void;
   onSubmit: (payload: { config: DirectQuizConfigV2 }) => Promise<void> | void;
@@ -30,6 +32,7 @@ export default function QuizEntryModal({
   open,
   selectedDocIds,
   courseId,
+  workspaceScope,
   submitting = false,
   onCancel,
   onSubmit,
@@ -57,6 +60,8 @@ export default function QuizEntryModal({
     setLoadError('');
     fetchQuizEntryPrefillV2({
       course_id: courseId,
+      scope_type: workspaceScope?.scopeType,
+      scope_id: workspaceScope?.scopeId,
       selected_doc_ids: selectedDocIds,
     })
       .then((response) => {
@@ -81,7 +86,7 @@ export default function QuizEntryModal({
     return () => {
       cancelled = true;
     };
-  }, [courseId, form, open, selectedDocIds]);
+  }, [courseId, form, open, selectedDocIds, workspaceScope]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();

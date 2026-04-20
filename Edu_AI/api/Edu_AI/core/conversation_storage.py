@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from threading import RLock
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 from uuid import uuid4
 
 from core.config import Config
@@ -124,15 +124,99 @@ class ConversationStorage:
             }
             self._save_locked()
 
-    def list_conversations(self, owner: Optional[str] = None) -> Dict[str, Any]:
+    @staticmethod
+    def _extract_scope_fields(state: Dict[str, Any]) -> Dict[str, Optional[str]]:
+        state = dict(state or {})
+        active_context = dict(state.get("active_context") or {})
+        course_id = (
+            str(
+                state.get("course_id")
+                or active_context.get("current_course_id")
+                or active_context.get("course_id")
+                or ""
+            ).strip()
+            or None
+        )
+        scope_type = str(
+            state.get("scope_type") or active_context.get("scope_type") or "course"
+        ).strip() or "course"
+        scope_id = (
+            str(state.get("scope_id") or active_context.get("scope_id") or "").strip()
+            or None
+        )
+        if scope_type == "course":
+            scope_id = None
+        return {
+            "course_id": course_id,
+            "scope_type": scope_type,
+            "scope_id": scope_id,
+        }
+
+    @staticmethod
+    def _matches_scope(
+        conv: Dict[str, Any],
+        *,
+        course_id: Optional[str],
+        scope_type: Optional[str],
+        scope_ids: Optional[Set[str]],
+        aggregate: bool,
+    ) -> bool:
+        state = dict(conv.get("state") or {})
+        scope_fields = ConversationStorage._extract_scope_fields(state)
+        conv_course_id = scope_fields["course_id"]
+        conv_scope_type = scope_fields["scope_type"]
+        conv_scope_id = scope_fields["scope_id"]
+
+        if course_id and conv_course_id != str(course_id).strip():
+            return False
+
+        if not scope_type:
+            return True
+
+        normalized_scope_type = str(scope_type).strip()
+        if normalized_scope_type == "course":
+            if aggregate:
+                return True
+            return conv_scope_type == "course"
+
+        if normalized_scope_type != "knowledge_point":
+            return True
+
+        if conv_scope_type != "knowledge_point":
+            return False
+        if not scope_ids:
+            return conv_scope_id is not None
+        return conv_scope_id in scope_ids
+
+    def list_conversations(
+        self,
+        owner: Optional[str] = None,
+        *,
+        course_id: Optional[str] = None,
+        scope_type: Optional[str] = None,
+        scope_ids: Optional[Set[str]] = None,
+        aggregate: bool = False,
+        limit: Optional[int] = None,
+        offset: int = 0,
+    ) -> Dict[str, Any]:
         with self._lock:
             items = []
             total_messages = 0
             for conv in self._conversations.values():
                 if owner and conv.get("owner") != owner:
                     continue
+                if not self._matches_scope(
+                    conv,
+                    course_id=course_id,
+                    scope_type=scope_type,
+                    scope_ids=scope_ids,
+                    aggregate=aggregate,
+                ):
+                    continue
                 message_count = len(conv.get("messages", []))
                 total_messages += message_count
+                state = dict(conv.get("state") or {})
+                scope_fields = self._extract_scope_fields(state)
                 items.append(
                     {
                         "conversation_id": conv["conversation_id"],
@@ -141,13 +225,23 @@ class ConversationStorage:
                         "created_at": conv.get("created_at"),
                         "updated_at": conv.get("updated_at"),
                         "message_count": message_count,
+                        "course_id": scope_fields["course_id"],
+                        "scope_type": scope_fields["scope_type"],
+                        "scope_id": scope_fields["scope_id"],
                     }
                 )
 
             items.sort(key=lambda item: item.get("updated_at") or "", reverse=True)
+            total = len(items)
+            start = max(int(offset or 0), 0)
+            end = None if limit is None or int(limit) <= 0 else start + int(limit)
+            paged_items = items[start:end]
             return {
-                "conversations": items,
-                "count": len(items),
+                "conversations": paged_items,
+                "count": len(paged_items),
+                "total": total,
+                "limit": None if limit is None else int(limit),
+                "offset": start,
                 "total_messages": total_messages,
             }
 
@@ -158,6 +252,8 @@ class ConversationStorage:
             conv = self._conversations[conversation_id]
             if owner and conv.get("owner") != owner:
                 raise KeyError(conversation_id)
+            state = conv.get("state") or {}
+            scope_fields = self._extract_scope_fields(state)
             return {
                 "conversation_id": conv["conversation_id"],
                 "title": conv.get("title"),
@@ -165,7 +261,10 @@ class ConversationStorage:
                 "message_count": len(conv.get("messages", [])),
                 "created_at": conv.get("created_at"),
                 "updated_at": conv.get("updated_at"),
-                "state": conv.get("state") or {},
+                "state": state,
+                "course_id": scope_fields["course_id"],
+                "scope_type": scope_fields["scope_type"],
+                "scope_id": scope_fields["scope_id"],
             }
 
     def get_messages(self, conversation_id: str, limit: Optional[int] = None) -> List[Dict[str, Any]]:

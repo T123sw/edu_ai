@@ -8,8 +8,24 @@ export interface KnowledgeBaseDocument {
   file_path?: string;
   url?: string;
   course_id: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
+  library_type?: 'course' | 'personal';
+  owner_user_id?: string;
+  promoted_from_document_id?: string;
   created_at: string;
   updated_at?: string;
+}
+
+export interface KnowledgeBaseScopeOptions {
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
+  aggregate?: boolean;
+  libraryType?: 'course' | 'personal';
+  includeDescendants?: boolean;
+  limit?: number;
+  offset?: number;
+  promotedFromDocumentId?: string;
 }
 
 /**
@@ -20,14 +36,38 @@ export interface KnowledgeBaseDocument {
  */
 export async function getKnowledgeBaseDocuments(
   courseId: string,
-  token: string
+  token: string,
+  options?: KnowledgeBaseScopeOptions,
 ): Promise<KnowledgeBaseDocument[]> {
   if (!courseId) {
     throw new Error('课程ID不能为空');
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/knowledge-base/documents`, {
+    const params = new URLSearchParams();
+    if (options?.scopeType) {
+      params.set('scope_type', options.scopeType);
+    }
+    if (options?.scopeId) {
+      params.set('scope_id', options.scopeId);
+    }
+    if (typeof options?.aggregate === 'boolean') {
+      params.set('aggregate', options.aggregate ? 'true' : 'false');
+    }
+    if (options?.libraryType) {
+      params.set('library_type', options.libraryType);
+    }
+    if (typeof options?.includeDescendants === 'boolean') {
+      params.set('include_descendants', options.includeDescendants ? 'true' : 'false');
+    }
+    if (typeof options?.limit === 'number') {
+      params.set('limit', String(options.limit));
+    }
+    if (typeof options?.offset === 'number') {
+      params.set('offset', String(options.offset));
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/knowledge-base/documents?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -61,7 +101,8 @@ export async function getKnowledgeBaseDocuments(
 export async function addRAGDocumentToCourseKB(
   courseId: string,
   ragFilePath: string,
-  token: string
+  token: string,
+  options?: KnowledgeBaseScopeOptions,
 ): Promise<KnowledgeBaseDocument> {
   if (!courseId || !ragFilePath) {
     throw new Error('课程ID和文件路径不能为空');
@@ -76,6 +117,10 @@ export async function addRAGDocumentToCourseKB(
       },
       body: JSON.stringify({
         rag_file_path: ragFilePath,
+        scope_type: options?.scopeType,
+        scope_id: options?.scopeId,
+        library_type: options?.libraryType,
+        promoted_from_document_id: options?.promotedFromDocumentId,
       }),
     });
 
@@ -108,7 +153,8 @@ export async function uploadKnowledgeBaseDocument(
   courseId: string,
   file: File,
   token: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  options?: KnowledgeBaseScopeOptions,
 ): Promise<KnowledgeBaseDocument> {
   if (!courseId || !file) {
     throw new Error('课程ID和文件不能为空');
@@ -117,6 +163,15 @@ export async function uploadKnowledgeBaseDocument(
   try {
     const formData = new FormData();
     formData.append('file', file);
+    if (options?.scopeType) {
+      formData.append('scope_type', options.scopeType);
+    }
+    if (options?.scopeId) {
+      formData.append('scope_id', options.scopeId);
+    }
+    if (options?.libraryType) {
+      formData.append('library_type', options.libraryType);
+    }
 
     return new Promise<KnowledgeBaseDocument>((resolve, reject) => {
       const xhr = new XMLHttpRequest();

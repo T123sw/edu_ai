@@ -129,6 +129,8 @@ export function buildKnowledgeBaseLessonPlanReplyRequest(options: {
   card: LessonPlanEntryCard;
   config: LessonPlanEntryConfigInput;
   courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
   selectedDocIds: string[];
 }): ChatReplyRequestV2 {
   return {
@@ -138,6 +140,8 @@ export function buildKnowledgeBaseLessonPlanReplyRequest(options: {
     }),
     conversation_id: undefined,
     course_id: options.courseId,
+    scope_type: options.scopeType,
+    scope_id: options.scopeId,
     selected_doc_ids: options.selectedDocIds,
     action_hint: 'generate.lesson_plan',
     allow_rag: false,

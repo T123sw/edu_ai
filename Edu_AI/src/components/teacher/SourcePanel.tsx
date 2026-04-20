@@ -21,6 +21,7 @@ import {
 } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useAuth } from '../../context/AuthContext';
+import { getKnowledgeGraph, type KnowledgeGraphNode } from '../../services/teacher/api';
 import {
   listDocuments,
   importDocument,
@@ -36,27 +37,41 @@ import {
   type RAGSource,
 } from '../../services/rag';
 import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
-import { addRAGDocumentToCourseKB } from '../../services/knowledgeBase';
+import {
+  addRAGDocumentToCourseKB,
+  deleteKnowledgeBaseDocument,
+  getKnowledgeBaseDocuments,
+  uploadKnowledgeBaseDocument,
+  type KnowledgeBaseDocument,
+} from '../../services/knowledgeBase';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
 import { uploadVideo, getVideoJobStatus } from '../../services/video';
+import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 import './SourcePanel.css';
 
 const { Title, Text } = Typography;
+const COURSE_LIBRARY_TYPE = 'course';
+const PERSONAL_LIBRARY_TYPE = 'personal';
 
 type Props = {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
   onPreviewStateChange?: (open: boolean) => void;
 };
 
 interface FileItem {
   key: string;
+  documentId?: string;
   title: string;
   type: 'file' | 'web' | 'image';
   filePath?: string;
   imageUrl?: string;
   sourceIconUrl?: string;
+  libraryType?: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE;
+  scopeType?: WorkspaceScope['scopeType'];
+  scopeId?: string;
 }
 
 const imageExts = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif'];
@@ -113,11 +128,15 @@ const normalizeFilePath = (raw: string): string => {
   return raw;
 };
 
-const toFileItem = (doc: any): FileItem => {
+const toFileItem = (
+  doc: any,
+  libraryType: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE = PERSONAL_LIBRARY_TYPE,
+): FileItem => {
   let displayTitle = decodeDisplayText(doc.file_name);
-  if (doc.source_url) {
-    if (doc.source_title) {
-      displayTitle = decodeDisplayText(doc.source_title);
+  if (!displayTitle && doc.source_url) {
+    const sourceFallbackTitle = decodeDisplayText(doc.source_title);
+    if (sourceFallbackTitle) {
+      displayTitle = sourceFallbackTitle;
     } else if (doc.source_domain) {
       displayTitle = `${doc.source_domain} - 网页内容`;
     } else {
@@ -137,12 +156,53 @@ const toFileItem = (doc: any): FileItem => {
 
   return {
     key: doc.file_path,
+    documentId: doc.id,
     title: displayTitle,
     type: isImage ? 'image' : (isWeb ? 'web' : 'file'),
     filePath: doc.file_path,
     imageUrl: doc.image_url,
     sourceIconUrl: doc.source_icon_url,
+    libraryType,
   };
+};
+
+const toKnowledgeBaseFileItem = (
+  doc: KnowledgeBaseDocument,
+  fallbackLibraryType: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE,
+): FileItem => {
+  const title = decodeDisplayText(doc.name) || doc.name || doc.url || doc.id;
+  const filePath = doc.file_path || doc.url || doc.id;
+  const type = doc.type === 'web' ? 'web' : (isImageFileName(title) ? 'image' : 'file');
+
+  return {
+    key: filePath,
+    documentId: doc.id,
+    title,
+    type,
+    filePath,
+    libraryType: doc.library_type || fallbackLibraryType,
+    scopeType: doc.scope_type,
+    scopeId: doc.scope_id,
+  };
+};
+
+const findKnowledgeGraphNode = (
+  node: KnowledgeGraphNode | null | undefined,
+  targetId?: string,
+): KnowledgeGraphNode | null => {
+  if (!node || !targetId) {
+    return null;
+  }
+  if (node.id === targetId) {
+    return node;
+  }
+  for (const child of node.children || []) {
+    const matchedNode = findKnowledgeGraphNode(child, targetId);
+    if (matchedNode) {
+      return matchedNode;
+    }
+  }
+  return null;
 };
 
 const isRenderableImageChunk = (chunk: DocumentContent['chunks'][number] | null | undefined): boolean => {
@@ -175,11 +235,16 @@ const extractMarkdownImageUrls = (markdownContent: string): string[] => {
   return Array.from(new Set(urls));
 };
 
-const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, onPreviewStateChange }) => {
-  const { selectedDocs, setSelectedDocs, highlightRequest, setHighlightRequest } = useStore();
+const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, workspaceScope, onPreviewStateChange }) => {
+  const { selectedDocs, setSelectedDocs, setScopedSourceDocIds, highlightRequest, setHighlightRequest } = useStore();
   const [videoUploading, setVideoUploading] = useState(false);
   const { token } = useAuth();
   const [fileList, setFileList] = useState<FileItem[]>([]);
+  const [courseFileList, setCourseFileList] = useState<FileItem[]>([]);
+  const [personalFileList, setPersonalFileList] = useState<FileItem[]>([]);
+  const [courseKnowledgeGraphRoot, setCourseKnowledgeGraphRoot] = useState<KnowledgeGraphNode | null>(null);
+  const [expandedCourseNodeIds, setExpandedCourseNodeIds] = useState<string[]>([]);
+  const [checkedCourseNodeIds, setCheckedCourseNodeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>(selectedDocs);
   const [searchValue, setSearchValue] = useState('');
@@ -210,6 +275,115 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const researchAbortRef = useRef<AbortController | null>(null);
+  const loadRequestSequenceRef = useRef(0);
+
+  const loadDocumentsForCurrentScope = React.useCallback(async () => {
+    const shouldLoadLegacyRagDocuments = workspaceScope?.scopeType !== 'knowledge_point';
+    if (courseId && token) {
+      const scopeType = workspaceScope?.scopeType || 'course';
+      const scopeId = workspaceScope?.scopeId;
+      const [courseDocuments, personalDocuments, legacyRagDocuments] = await Promise.all([
+        getKnowledgeBaseDocuments(courseId, token, {
+          scopeType,
+          scopeId,
+          aggregate: scopeType === 'course',
+          libraryType: COURSE_LIBRARY_TYPE,
+          includeDescendants: true,
+        }),
+        getKnowledgeBaseDocuments(courseId, token, {
+          scopeType,
+          scopeId,
+          aggregate: false,
+          libraryType: PERSONAL_LIBRARY_TYPE,
+          includeDescendants: false,
+        }),
+        shouldLoadLegacyRagDocuments ? listDocuments() : Promise.resolve([]),
+      ]);
+      return {
+        courseFiles: courseDocuments.map((doc) => toKnowledgeBaseFileItem(doc, COURSE_LIBRARY_TYPE)),
+        personalFiles: [
+          ...personalDocuments.map((doc) => toKnowledgeBaseFileItem(doc, PERSONAL_LIBRARY_TYPE)),
+          ...legacyRagDocuments.map((doc) => toFileItem(doc, PERSONAL_LIBRARY_TYPE)),
+        ],
+      };
+    }
+
+    const documents = await listDocuments();
+    return {
+      courseFiles: [],
+      personalFiles: documents.map((doc) => toFileItem(doc, PERSONAL_LIBRARY_TYPE)),
+    };
+  }, [courseId, token, workspaceScope?.scopeId, workspaceScope?.scopeType]);
+
+  const applyScopedFileList = React.useCallback((formattedFiles: {
+    courseFiles: FileItem[];
+    personalFiles: FileItem[];
+  }) => {
+    const combinedFiles = [...formattedFiles.courseFiles, ...formattedFiles.personalFiles];
+    setCourseFileList(formattedFiles.courseFiles);
+    setPersonalFileList(formattedFiles.personalFiles);
+    setFileList(combinedFiles);
+    setScopedSourceDocIds(combinedFiles.map((file) => file.key));
+
+    const visibleKeys = new Set(combinedFiles.map((file) => file.key));
+    const currentSelectedDocs = useStore.getState().selectedDocs;
+    const nextSelectedDocs = currentSelectedDocs.filter((docId) => visibleKeys.has(docId));
+    if (nextSelectedDocs.length !== currentSelectedDocs.length) {
+      setSelectedDocs(nextSelectedDocs);
+    }
+  }, [setScopedSourceDocIds, setSelectedDocs]);
+
+  useEffect(() => {
+    if (!courseId) {
+      setCourseKnowledgeGraphRoot(null);
+      setExpandedCourseNodeIds([]);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const loadCourseKnowledgeGraph = async () => {
+      try {
+        const graphData = await getKnowledgeGraph(courseId);
+        if (cancelled) {
+          return;
+        }
+        setCourseKnowledgeGraphRoot(graphData.root);
+        setExpandedCourseNodeIds((current) => {
+          if (current.length > 0) {
+            return current;
+          }
+          const defaultNodeId = workspaceScope?.scopeType === 'knowledge_point' && workspaceScope.scopeId
+            ? workspaceScope.scopeId
+            : graphData.root.id;
+          return defaultNodeId ? [defaultNodeId] : [];
+        });
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load knowledge graph for source panel:', error);
+          setCourseKnowledgeGraphRoot(null);
+        }
+      }
+    };
+
+    void loadCourseKnowledgeGraph();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, workspaceScope?.scopeId, workspaceScope?.scopeType]);
+
+  useEffect(() => {
+    const activeNodeId = workspaceScope?.scopeType === 'knowledge_point' && workspaceScope.scopeId
+      ? workspaceScope.scopeId
+      : courseKnowledgeGraphRoot?.id;
+    if (!activeNodeId) {
+      return;
+    }
+    setExpandedCourseNodeIds((current) => (
+      current.includes(activeNodeId) ? current : [...current, activeNodeId]
+    ));
+  }, [courseKnowledgeGraphRoot?.id, workspaceScope?.scopeId, workspaceScope?.scopeType]);
 
   useEffect(() => {
     return () => {
@@ -342,23 +516,37 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   }, [previewFile?.imageUrl, previewFile?.type, previewContent]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadDocuments = async () => {
+      const requestId = ++loadRequestSequenceRef.current;
       try {
         setLoading(true);
-        const documents = await listDocuments();
-        const formattedFiles: FileItem[] = documents.map(toFileItem);
-        setFileList(formattedFiles);
+        const formattedFiles = await loadDocumentsForCurrentScope();
+        if (cancelled || requestId !== loadRequestSequenceRef.current) {
+          return;
+        }
+        applyScopedFileList(formattedFiles);
       } catch (error) {
+        if (cancelled || requestId !== loadRequestSequenceRef.current) {
+          return;
+        }
         console.error('获取文档列表失败:', error);
         message.error(error instanceof Error ? error.message : '获取文档列表失败');
         setFileList([]);
       } finally {
-        setLoading(false);
+        if (!cancelled && requestId === loadRequestSequenceRef.current) {
+          setLoading(false);
+        }
       }
     };
 
-    loadDocuments();
-  }, []);
+    void loadDocuments();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [applyScopedFileList, loadDocumentsForCurrentScope]);
 
   useEffect(() => {
     setCheckedKeys(selectedDocs);
@@ -676,31 +864,32 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
   }, [highlightedContent, setHighlightRequest]);
 
+  const applyCheckedFileKeys = React.useCallback((nextKeys: React.Key[]) => {
+    const dedupedKeys = Array.from(new Set(nextKeys));
+    setCheckedKeys(dedupedKeys);
+    setSelectedDocs(dedupedKeys as string[]);
+    setSelectAllChecked(fileList.length > 0 && fileList.every((file) => dedupedKeys.includes(file.key)));
+  }, [fileList, setSelectedDocs]);
+
   const onCheck = (key: React.Key, checked: boolean) => {
     const newChecked = checked ? [...checkedKeys, key] : checkedKeys.filter(k => k !== key);
-    setCheckedKeys(newChecked);
-    setSelectedDocs(newChecked as string[]);
-    setSelectAllChecked(fileList.length > 0 && fileList.every(file => newChecked.includes(file.key)));
+    applyCheckedFileKeys(newChecked);
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       const allFileKeys = fileList.map(file => file.key);
-      setCheckedKeys(allFileKeys);
-      setSelectedDocs(allFileKeys as string[]);
+      applyCheckedFileKeys(allFileKeys);
     } else {
-      setCheckedKeys([]);
-      setSelectedDocs([]);
+      applyCheckedFileKeys([]);
     }
-    setSelectAllChecked(checked);
   };
 
   const reloadDocuments = async () => {
     setLoading(true);
     try {
-      const documents = await listDocuments();
-      const formattedFiles: FileItem[] = documents.map(toFileItem);
-      setFileList(formattedFiles);
+      const formattedFiles = await loadDocumentsForCurrentScope();
+      applyScopedFileList(formattedFiles);
     } finally {
       setLoading(false);
     }
@@ -737,7 +926,16 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       try {
         message.loading({ content: `正在上传 ${file.name}...`, key: `upload-${i}`, duration: 0 });
 
-        if (imageExts.includes(ext)) {
+        if (!videoExts.includes(ext) && courseId && token) {
+          await uploadKnowledgeBaseDocument(courseId, file, token, (progress) => {
+            console.log(`知识库上传进度: ${progress}%`);
+          }, {
+            scopeType: workspaceScope?.scopeType,
+            scopeId: workspaceScope?.scopeId,
+            libraryType: PERSONAL_LIBRARY_TYPE,
+          });
+          message.success({ content: `${file.name} 已上传到当前知识库`, key: `upload-${i}` });
+        } else if (imageExts.includes(ext)) {
           await importImageDocument(file, (progress) => {
             console.log(`图片上传进度: ${progress}%`);
           });
@@ -829,6 +1027,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         query: normalizedQuery,
         max_urls: 5,
         crawl_timeout: 30,
+        course_id: courseId,
+        scope_type: workspaceScope?.scopeType,
+        scope_id: workspaceScope?.scopeId,
       }, { signal: controller.signal });
 
       console.log('[深度研究] 搜索响应:', response);
@@ -897,7 +1098,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
 
     try {
-      await addRAGDocumentToCourseKB(courseId, file.filePath, token);
+      await addRAGDocumentToCourseKB(courseId, file.filePath, token, {
+        scopeType: workspaceScope?.scopeType,
+        scopeId: workspaceScope?.scopeId,
+        libraryType: COURSE_LIBRARY_TYPE,
+        promotedFromDocumentId: file.documentId,
+      });
       message.success('已添加到课程知识库');
     } catch (error) {
       console.error('添加到课程知识库失败:', error);
@@ -1021,13 +1227,20 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   const handleDeleteFile = async (fileKey: string) => {
     const file = fileList.find(f => f.key === fileKey);
-    if (!file || !file.filePath) {
+    if (!file) {
       message.error('文件信息不完整');
       return;
     }
 
     try {
-      await deleteDocument(file.filePath);
+      if (courseId && token && file.documentId) {
+        await deleteKnowledgeBaseDocument(courseId, file.documentId, token);
+      } else if (file.filePath) {
+        await deleteDocument(file.filePath);
+      } else {
+        message.error('文件信息不完整');
+        return;
+      }
       message.success('删除成功');
       await reloadDocuments();
 
@@ -1052,6 +1265,203 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         {getFileIcon(node.type, node.title, 20, node.sourceIconUrl ? listMediaUrls[node.sourceIconUrl] : undefined)}
       </div>
     ));
+  };
+
+  const toggleCourseNodeExpanded = (nodeId: string) => {
+    setExpandedCourseNodeIds((current) => (
+      current.includes(nodeId)
+        ? current.filter((currentNodeId) => currentNodeId !== nodeId)
+        : [...current, nodeId]
+    ));
+  };
+
+  const getCourseFilesForNode = (node: KnowledgeGraphNode): FileItem[] => {
+    const isCourseRootNode = node.id === courseKnowledgeGraphRoot?.id;
+    return courseFileList.filter((file) => {
+      if (file.libraryType !== COURSE_LIBRARY_TYPE) {
+        return false;
+      }
+      if (isCourseRootNode && (file.scopeType === 'course' || !file.scopeType)) {
+        return true;
+      }
+      return file.scopeType === 'knowledge_point' && file.scopeId === node.id;
+    });
+  };
+
+  const collectCourseNodeIdsForNode = (node: KnowledgeGraphNode): string[] => {
+    const descendantNodeIds = (node.children || []).flatMap((childNode) => collectCourseNodeIdsForNode(childNode));
+    return [node.id, ...descendantNodeIds];
+  };
+
+  const collectCourseFileKeysForNode = (node: KnowledgeGraphNode): React.Key[] => {
+    const directFileKeys = getCourseFilesForNode(node).map((file) => file.key);
+    const descendantFileKeys = (node.children || []).flatMap((childNode) => collectCourseFileKeysForNode(childNode));
+    return Array.from(new Set([...directFileKeys, ...descendantFileKeys]));
+  };
+
+  const collectCourseDocumentCountForNode = (node: KnowledgeGraphNode): number => {
+    const directCount = getCourseFilesForNode(node).length;
+    const descendantCount = (node.children || []).reduce(
+      (sum, childNode) => sum + collectCourseDocumentCountForNode(childNode),
+      0,
+    );
+    return directCount + descendantCount;
+  };
+
+  const handleCourseNodeSelectAll = (node: KnowledgeGraphNode, checked: boolean) => {
+    const subtreeNodeIds = collectCourseNodeIdsForNode(node);
+    const subtreeFileKeys = collectCourseFileKeysForNode(node);
+    const nextCheckedNodeIds = new Set(checkedCourseNodeIds);
+    const nextCheckedKeys = new Set(checkedKeys);
+
+    subtreeNodeIds.forEach((nodeId) => {
+      if (checked) {
+        nextCheckedNodeIds.add(nodeId);
+      } else {
+        nextCheckedNodeIds.delete(nodeId);
+      }
+    });
+
+    subtreeFileKeys.forEach((fileKey) => {
+      if (checked) {
+        nextCheckedKeys.add(fileKey);
+      } else {
+        nextCheckedKeys.delete(fileKey);
+      }
+    });
+
+    setCheckedCourseNodeIds(Array.from(nextCheckedNodeIds));
+    applyCheckedFileKeys(Array.from(nextCheckedKeys));
+  };
+
+  const renderCourseLibraryTreeNode = (
+    node: KnowledgeGraphNode,
+    depth = 0,
+  ): React.ReactNode => {
+    const childNodes = node.children || [];
+    const renderedChildren: React.ReactNode[] = [];
+
+    childNodes.forEach((childNode) => {
+      const renderedChildNode = renderCourseLibraryTreeNode(childNode, depth + 1);
+      if (renderedChildNode) {
+        renderedChildren.push(renderedChildNode);
+      }
+    });
+
+    const nodeFiles = getCourseFilesForNode(node);
+    const subtreeNodeIds = collectCourseNodeIdsForNode(node);
+    const subtreeFileKeys = collectCourseFileKeysForNode(node);
+    const subtreeDocumentCount = collectCourseDocumentCountForNode(node);
+    const selectedSubtreeNodeCount = subtreeNodeIds.filter((nodeId) => checkedCourseNodeIds.includes(nodeId)).length;
+    const selectedSubtreeFileCount = subtreeFileKeys.filter((fileKey) => checkedKeys.includes(fileKey)).length;
+    const subtreeFullyChecked = subtreeFileKeys.length > 0
+      ? selectedSubtreeFileCount === subtreeFileKeys.length
+      : selectedSubtreeNodeCount > 0 && selectedSubtreeNodeCount === subtreeNodeIds.length;
+    const subtreeIndeterminate = subtreeFileKeys.length > 0
+      ? selectedSubtreeFileCount > 0 && selectedSubtreeFileCount < subtreeFileKeys.length
+      : selectedSubtreeNodeCount > 0 && selectedSubtreeNodeCount < subtreeNodeIds.length;
+    const isExpanded = expandedCourseNodeIds.includes(node.id);
+    const showToggle = childNodes.length > 0;
+
+    return (
+      <div
+        key={`course-library-node-${node.id}`}
+        className="source-panel__tree-node"
+        style={{ ['--source-tree-depth' as const]: depth } as React.CSSProperties}
+      >
+        <div className="source-panel__tree-node-header">
+          {showToggle ? (
+            <Button
+              type="text"
+              size="small"
+              className="source-panel__tree-node-toggle"
+              onClick={() => toggleCourseNodeExpanded(node.id)}
+            >
+              {isExpanded ? 'v' : '>'}
+            </Button>
+          ) : (
+            <span className="source-panel__tree-node-spacer" />
+          )}
+          <span className="source-panel__tree-node-label" title={node.label}>{node.label}</span>
+          <Text type="secondary" className="source-panel__tree-node-count">{subtreeDocumentCount}</Text>
+          <Checkbox
+            checked={subtreeFullyChecked}
+            indeterminate={subtreeIndeterminate}
+            onChange={(e) => {
+              e.stopPropagation();
+              handleCourseNodeSelectAll(node, e.target.checked);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+
+        {nodeFiles.length > 0 ? (
+          <div className="source-panel__tree-node-files">
+            {nodeFiles.map(renderFileItem)}
+          </div>
+        ) : null}
+
+        {showToggle && isExpanded ? (
+          <div className="source-panel__tree-node-children">
+            {renderedChildren}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
+  const courseLibraryTreeRoot = courseKnowledgeGraphRoot
+    ? (
+      workspaceScope?.scopeType === 'knowledge_point' && workspaceScope.scopeId
+        ? findKnowledgeGraphNode(courseKnowledgeGraphRoot, workspaceScope.scopeId) || courseKnowledgeGraphRoot
+        : courseKnowledgeGraphRoot
+    )
+    : null;
+
+  const renderFileItem = (file: FileItem) => {
+    const menuItems: MenuProps['items'] = [
+      { key: 'preview', label: '预览文档', icon: <EyeOutlined />, onClick: () => openPreview(file.key) },
+      { key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) },
+      ...(file.libraryType === PERSONAL_LIBRARY_TYPE
+        ? [{ key: 'add-to-course', label: '转入课程知识库', icon: <PlusOutlined />, onClick: () => handleAddToCourseKB(file.key) }]
+        : []),
+      { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true, onClick: () => handleDeleteFile(file.key) },
+    ];
+
+    return (
+      <div key={file.documentId || file.key} className="source-panel__item">
+        <div
+          className="source-panel__item-main"
+          onClick={() => openPreview(file.key)}
+          title="点击预览文档"
+        >
+          <span className="source-panel__item-icon">
+            {getFileIcon(
+              file.type,
+              file.title,
+              16,
+              file.sourceIconUrl ? listMediaUrls[file.sourceIconUrl] : undefined,
+            )}
+          </span>
+          <span className="source-panel__item-title">{file.title}</span>
+        </div>
+        <div className="source-panel__item-actions">
+          <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+            <Button
+              type="text"
+              icon={<MoreOutlined />}
+              size="small"
+              className="source-panel__item-more"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Dropdown>
+          <Checkbox checked={checkedKeys.includes(file.key)} onChange={(e) => {
+            e.stopPropagation();
+            onCheck(file.key, e.target.checked);
+          }} className="source-panel__item-checkbox" />
+        </div>
+      </div>
+    );
   };
 
   if (collapsed) {
@@ -1318,11 +1728,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
         <div className="source-panel__list">
           <Spin spinning={loading}>
-            {fileList.length === 0 && !loading ? (
+            <div className="source-panel__items">
               <div className="source-panel__empty"><Text type="secondary">暂无文档</Text></div>
-            ) : (
-              <div className="source-panel__items">
-                {fileList.map((file) => {
+                {false && fileList.map((file) => {
                   const menuItems: MenuProps['items'] = [
                     { key: 'preview', label: '预览文档', icon: <EyeOutlined />, onClick: () => openPreview(file.key) },
                     { key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) },
@@ -1365,8 +1773,31 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                     </div>
                   );
                 })}
+                <div className="source-panel__library-group">
+                  <div className="source-panel__library-heading">
+                    <span>课程知识库</span>
+                    <Text type="secondary">{courseFileList.length} 项</Text>
+                  </div>
+                  {courseLibraryTreeRoot ? (
+                    renderCourseLibraryTreeNode(courseLibraryTreeRoot)
+                  ) : courseFileList.length > 0 ? (
+                    courseFileList.map(renderFileItem)
+                  ) : (
+                    <div className="source-panel__empty"><Text type="secondary">暂无课程资料</Text></div>
+                  )}
+                </div>
+                <div className="source-panel__library-group">
+                  <div className="source-panel__library-heading">
+                    <span>个人知识库</span>
+                    <Text type="secondary">{personalFileList.length} 项</Text>
+                  </div>
+                  {personalFileList.length > 0 ? (
+                    personalFileList.map(renderFileItem)
+                  ) : (
+                    <div className="source-panel__empty"><Text type="secondary">暂无个人资料</Text></div>
+                  )}
+                </div>
               </div>
-            )}
           </Spin>
         </div>
       </div>

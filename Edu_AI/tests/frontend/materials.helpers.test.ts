@@ -69,14 +69,31 @@ const generatedFromMaterial = toGeneratedFileFromCourseMaterial({
   content: '# report\n\nbody',
   addedAt: '2026-04-06T18:05:40.447755',
   courseId: 'course-1',
+  scopeType: 'course',
+  scopeId: undefined,
   isPinned: true,
   pinnedAt: '2026-04-06T18:06:00.000000',
 } as any);
 
 assert.equal(generatedFromMaterial?.id, 'conv-887d71fab7b1__content');
 assert.equal(generatedFromMaterial?.meta?.courseId, 'course-1');
+assert.equal(generatedFromMaterial?.meta?.scopeType, 'course');
+assert.equal(generatedFromMaterial?.meta?.scopeId, undefined);
 assert.equal(generatedFromMaterial?.meta?.isPinned, true);
 assert.equal(generatedFromMaterial?.meta?.origin, 'course_material');
+
+const generatedFromKnowledgePointMaterial = toGeneratedFileFromCourseMaterial({
+  id: 'kp-report-1',
+  name: 'kp-report.md',
+  type: 'report',
+  content: '# kp report',
+  courseId: 'course-1',
+  scopeType: 'knowledge_point',
+  scopeId: 'kp-001',
+} as any);
+
+assert.equal(generatedFromKnowledgePointMaterial?.meta?.scopeType, 'knowledge_point');
+assert.equal(generatedFromKnowledgePointMaterial?.meta?.scopeId, 'kp-001');
 
 const generatedPptFromMaterial = toGeneratedFileFromCourseMaterial({
   id: 'ppt-deck-1',

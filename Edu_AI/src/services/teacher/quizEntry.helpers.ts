@@ -38,11 +38,15 @@ export function buildQuizQuestionFromConfig(config: DirectQuizConfigV2): string 
 
 export function buildKnowledgeBaseQuizRequest(options: {
   courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
   selectedDocIds: string[];
   config: DirectQuizConfigV2;
 }): KnowledgeBaseDirectQuizRequestV2 {
   return {
     course_id: options.courseId,
+    scope_type: options.scopeType,
+    scope_id: options.scopeId,
     selected_doc_ids: options.selectedDocIds,
     quiz_config: options.config,
     prompt_draft: QUIZ_PROMPT_DRAFT,

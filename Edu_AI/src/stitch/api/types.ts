@@ -31,8 +31,23 @@ export type KnowledgeBaseDocument = {
   file_path?: string | null;
   url?: string | null;
   course_id: string;
+  scope_type?: "course" | "knowledge_point";
+  scope_id?: string | null;
+  library_type?: "course" | "personal";
+  owner_user_id?: string | null;
+  promoted_from_document_id?: string | null;
   created_at: string;
   updated_at?: string | null;
+};
+
+export type KnowledgeBaseScopeOptions = {
+  scopeType?: "course" | "knowledge_point";
+  scopeId?: string;
+  aggregate?: boolean;
+  libraryType?: "course" | "personal";
+  includeDescendants?: boolean;
+  limit?: number;
+  offset?: number;
 };
 
 export type KnowledgeGraphNode = {

@@ -10,8 +10,10 @@ from app.chat.domain.capability_policy import CapabilityPolicy
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.status_card_builder import StatusCardBuilder
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
+from app.workspace_scope import SCOPE_TYPE_COURSE, collect_scope_ids_for_query
 from core.conversation_storage import conversation_storage
 from core.auth import auth_manager
+from core.course_storage import storage_manager
 
 from .schemas import ChatRequest, ChatResponse, SkillHealthCheckRequest, SkillHealthCheckResponse
 
@@ -95,7 +97,11 @@ def _build_status_card_for_conversation(conversation_id: str, owner: str | None)
 
 
 def _maybe_refresh_running_ppt_edit_conversation(conversation_id: str, owner: str | None):
-    state = conversation_storage.get_state(conversation_id)
+    get_state = getattr(conversation_storage, "get_state", None)
+    if not callable(get_state):
+        return None
+
+    state = get_state(conversation_id)
     workflow_state = dict(state.get("workflow_state") or {})
     if str(workflow_state.get("workflow_type") or "").strip() != "ppt":
         return None
@@ -138,6 +144,8 @@ async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_us
             selected_doc_ids=payload.selected_doc_ids,
             owner=current_user.get("username"),
             course_id=payload.course_id,
+            scope_type=payload.scope_type,
+            scope_id=payload.scope_id,
             allow_web=bool(payload.allow_web),
             action_hint=payload.action_hint,
             artifact_id=payload.artifact_id,
@@ -158,6 +166,8 @@ async def chat_stream(
     action_hint: str | None = None,
     selected_doc_ids: str | None = None,
     course_id: str | None = None,
+    scope_type: str = SCOPE_TYPE_COURSE,
+    scope_id: str | None = None,
     token: str | None = None,
 ):
     try:
@@ -182,6 +192,8 @@ async def chat_stream(
                 selected_doc_ids=parsed_doc_ids,
                 owner=current_user.get("username"),
                 course_id=course_id,
+                scope_type=scope_type,
+                scope_id=scope_id,
                 allow_web=bool(allow_web),
                 action_hint=action_hint,
             )
@@ -216,8 +228,37 @@ async def skill_health_check(payload: SkillHealthCheckRequest, current_user: dic
 
 
 @router.get("/conversations")
-async def list_conversations(current_user: dict = Depends(get_current_user)):
-    return conversation_storage.list_conversations(owner=current_user.get("username"))
+async def list_conversations(
+    course_id: str | None = None,
+    scope_type: str = SCOPE_TYPE_COURSE,
+    scope_id: str | None = None,
+    aggregate: bool = False,
+    limit: int = 20,
+    offset: int = 0,
+    current_user: dict = Depends(get_current_user),
+):
+    if not course_id and not aggregate and limit == 20 and offset == 0:
+        return conversation_storage.list_conversations(owner=current_user.get("username"))
+
+    scope_ids = None
+    effective_scope_type = scope_type if course_id else None
+    if course_id and scope_type == "knowledge_point":
+        graph_root = storage_manager.get_knowledge_graph(course_id)
+        scope_ids = collect_scope_ids_for_query(
+            graph_root,
+            scope_type=scope_type,
+            scope_id=scope_id,
+        )
+
+    return conversation_storage.list_conversations(
+        owner=current_user.get("username"),
+        course_id=course_id,
+        scope_type=effective_scope_type,
+        scope_ids=scope_ids,
+        aggregate=aggregate,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.get("/conversations/{conversation_id}")

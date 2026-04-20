@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Typography, Divider, Button, Tag, Space, Spin, message, Card, Tooltip, Input } from 'antd';
-import { ReloadOutlined, SaveOutlined, InfoCircleOutlined, NodeIndexOutlined, ExpandOutlined, CompressOutlined, MessageOutlined, FileTextOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
+import { ReloadOutlined, SaveOutlined, InfoCircleOutlined, NodeIndexOutlined, ExpandOutlined, CompressOutlined, MessageOutlined, FileTextOutlined, ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons';
+import { useNavigate, useParams } from 'react-router-dom';
 import './KnowledgeGraphPage.css';
 import { getInitialTreeGraphData, getNodeDetails, type TreeGraphNode, convertBackendToTreeGraph } from '../../services/teacher/knowledgeGraph';
 import { getKnowledgeGraph as fetchKnowledgeGraph, saveKnowledgeGraph, type KnowledgeGraphData, sendChatMessage } from '../../services/teacher/api';
-import { getKnowledgeBaseDocuments, type KnowledgeBaseDocument } from '../../services/knowledgeBase';
+import { getKnowledgeBaseDocuments, uploadKnowledgeBaseDocument, type KnowledgeBaseDocument } from '../../services/knowledgeBase';
+import { writeWorkspaceScopeToSearch } from '../../services/teacher/workspaceScope';
 import ReactMarkdown from 'react-markdown';
+import { useAuth } from '../../context/AuthContext';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -201,6 +203,8 @@ function buildCollapsedTree(full: TreeGraphNode, depth: number): TreeGraphNode {
 
 const KnowledgeGraphPage: React.FC = () => {
   const { courseId } = useParams();
+  const navigate = useNavigate();
+  const { token } = useAuth();
   const graphWrapRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const graphRef = useRef<G6Graph | null>(null);
@@ -213,6 +217,7 @@ const KnowledgeGraphPage: React.FC = () => {
   const expandedNodeIdsRef = useRef<Set<string>>(new Set());
   const [dataSource, setDataSource] = useState<'backend' | 'fallback' | 'unknown'>('unknown');
   const [rootChildrenCount, setRootChildrenCount] = useState<number>(0);
+  const [rootNodeId, setRootNodeId] = useState<string | null>(null);
   
   // Chat State
   const [chatMessages, setChatMessages] = useState<Array<{ user: 'You' | 'AI'; text: string; sources?: any[] }>>([]);
@@ -220,47 +225,32 @@ const KnowledgeGraphPage: React.FC = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const [nodeDocuments, setNodeDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [nodeDocumentIds, setNodeDocumentIds] = useState<string[]>([]);
+  const [uploadingKnowledgeBase, setUploadingKnowledgeBase] = useState(false);
   const clickTimerRef = useRef<number | null>(null);
+  const knowledgeBaseUploadInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     expandedNodeIdsRef.current = expandedNodeIds;
   }, [expandedNodeIds]);
 
   const fetchNodeDocuments = React.useCallback(async (nodeId: string) => {
-    if (!courseId || !fullTreeRef.current) {
+    if (!courseId || !fullTreeRef.current || !token) {
       setNodeDocuments([]);
       setNodeDocumentIds([]);
       return;
     }
     try {
-      const authStorage = localStorage.getItem('edu-ai-auth');
-      let token: string | null = null;
+      const isCourseRootNode = String(fullTreeRef.current.id) === String(nodeId);
       try {
-        if (authStorage) {
-          const parsed = JSON.parse(authStorage);
-          token = parsed?.token || null;
-        }
-      } catch {}
-      
-      if (token) {
-        try {
-          const allDocs = await getKnowledgeBaseDocuments(courseId, token);
-          const node = findNodeInTree(fullTreeRef.current, nodeId);
-          const nodeLabel = node?.label || '';
-          const relatedDocs = allDocs.filter(doc => {
-            const docName = doc.name.toLowerCase();
-            const docPath = doc.file_path?.toLowerCase() || '';
-            const labelLower = nodeLabel.toLowerCase();
-            const nodeIdLower = nodeId.toLowerCase();
-            return docName.includes(labelLower) || docName.includes(nodeIdLower) || docPath.includes(nodeIdLower) || docPath.includes(labelLower);
-          });
-          setNodeDocuments(relatedDocs);
-          setNodeDocumentIds(relatedDocs.map(doc => doc.id));
-        } catch (error) {
-          setNodeDocuments([]);
-          setNodeDocumentIds([]);
-        }
-      } else {
+        const relatedDocs = await getKnowledgeBaseDocuments(courseId, token, {
+          scopeType: isCourseRootNode ? 'course' : 'knowledge_point',
+          scopeId: isCourseRootNode ? undefined : nodeId,
+          aggregate: false,
+          libraryType: 'course',
+        });
+        setNodeDocuments(relatedDocs);
+        setNodeDocumentIds(relatedDocs.map(doc => doc.id));
+      } catch (error) {
         setNodeDocuments([]);
         setNodeDocumentIds([]);
       }
@@ -268,7 +258,7 @@ const KnowledgeGraphPage: React.FC = () => {
       setNodeDocuments([]);
       setNodeDocumentIds([]);
     }
-  }, [courseId]);
+  }, [courseId, token]);
 
   useEffect(() => {
     if (selectedNodeId && courseId) {
@@ -299,10 +289,67 @@ const KnowledgeGraphPage: React.FC = () => {
     }
   };
 
+  const handleJumpToAiStudio = () => {
+    if (!courseId || !selectedNodeId || !fullTreeRef.current) {
+      return;
+    }
+    const node = findNodeInTree(fullTreeRef.current, selectedNodeId);
+    const nextSearch = writeWorkspaceScopeToSearch(
+      new URLSearchParams(),
+      {
+        scopeType: isCourseRootSelected ? 'course' : 'knowledge_point',
+        scopeId: isCourseRootSelected ? undefined : selectedNodeId,
+        scopeLabel: isCourseRootSelected ? undefined : (node?.label || selectedNodeId),
+      },
+    );
+    navigate(`/course/${courseId}/studio?${nextSearch.toString()}`);
+  };
+
   const selectedDetails = useMemo(() => {
     if (!selectedNodeId) return null;
     return getNodeDetails(selectedNodeId, fullTreeRef.current ?? undefined);
   }, [selectedNodeId]);
+
+  const isCourseRootSelected = useMemo(() => {
+    if (!selectedNodeId || !rootNodeId) {
+      return false;
+    }
+    return String(selectedNodeId) === String(rootNodeId);
+  }, [selectedNodeId, rootNodeId]);
+
+  const handleKnowledgeBaseUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+
+    if (!files.length || !courseId || !selectedNodeId || !token || !selectedDetails) {
+      return;
+    }
+
+    try {
+      setUploadingKnowledgeBase(true);
+      for (const file of files) {
+        await uploadKnowledgeBaseDocument(courseId, file, token, undefined, {
+          scopeType: isCourseRootSelected ? 'course' : 'knowledge_point',
+          scopeId: isCourseRootSelected ? undefined : selectedNodeId,
+          libraryType: 'course',
+        });
+      }
+      await fetchNodeDocuments(selectedNodeId);
+      message.success(`已导入到【${selectedDetails.label}】课程知识库`);
+    } catch (error) {
+      console.error('knowledge graph course knowledge upload failed:', error);
+      message.error(error instanceof Error ? error.message : '导入知识点课程知识库失败');
+    } finally {
+      setUploadingKnowledgeBase(false);
+    }
+  };
+
+  const openKnowledgeBaseUpload = () => {
+    if (!selectedNodeId || uploadingKnowledgeBase) {
+      return;
+    }
+    knowledgeBaseUploadInputRef.current?.click();
+  };
 
 
   const syncGraphSize = React.useCallback((fitPadding = 8) => {
@@ -654,6 +701,7 @@ const KnowledgeGraphPage: React.FC = () => {
         setDataSource('fallback');
       }
       fullTreeRef.current = root;
+      setRootNodeId(String(root.id));
       setRootChildrenCount(Array.isArray(root.children) ? root.children.length : 0);
       const collapsed = buildCollapsedTree(root, 1);
       visibleTreeRef.current = collapsed;
@@ -934,6 +982,21 @@ const KnowledgeGraphPage: React.FC = () => {
                       </Button>
                     </>
                   )}
+                </div>
+
+                <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                  <Button icon={<UploadOutlined />} onClick={openKnowledgeBaseUpload} loading={uploadingKnowledgeBase}>
+                    {isCourseRootSelected ? '导入到课程总目录知识库' : '导入到本知识点知识库'}
+                  </Button>
+                  <input
+                    ref={knowledgeBaseUploadInputRef}
+                    type="file"
+                    style={{ display: 'none' }}
+                    onChange={handleKnowledgeBaseUpload}
+                  />
+                  <Button type="primary" icon={<MessageOutlined />} onClick={handleJumpToAiStudio}>
+                    去 AI 聊一聊
+                  </Button>
                 </div>
               </div>
               <Divider style={{ margin: '12px 0' }}>智能问答</Divider>

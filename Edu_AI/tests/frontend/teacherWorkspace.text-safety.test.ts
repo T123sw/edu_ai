@@ -60,6 +60,12 @@ assert.match(
   'SourcePanel should decode stored file names before rendering them',
 );
 
+assert.doesNotMatch(
+  sourcePanelFile,
+  /displayTitle\s*=\s*decodeDisplayText\(doc\.source_title\)/,
+  'SourcePanel should not override generated web document names with raw source titles',
+);
+
 assert.match(
   sourcePanelFile,
   /\u4e0a\u4f20\u6587\u6863\/\u56fe\u7247\/\u89c6\u9891/,
@@ -70,6 +76,18 @@ assert.match(
   sourcePanelFile,
   /\u8d44\u6599\u5217\u8868/,
   'SourcePanel should keep the document-list section label readable',
+);
+
+assert.match(
+  sourcePanelFile,
+  /renderFileItem[\s\S]*title="\u70b9\u51fb\u9884\u89c8\u6587\u6863"/,
+  'SourcePanel should keep the document hover preview tooltip readable',
+);
+
+assert.doesNotMatch(
+  sourcePanelFile,
+  /title="éç‘°åš®æ£°å‹®îé‚å›¨ã€‚"/,
+  'SourcePanel should not keep mojibake tooltip copy for document hover previews',
 );
 
 assert.doesNotMatch(

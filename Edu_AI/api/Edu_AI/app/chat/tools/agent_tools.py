@@ -105,11 +105,12 @@ def submit_outline_for_review(*, outline_json_str: str) -> ToolResult:
 def rag_search_tool(*, query: str, top_k: int = 5, selected_doc_ids: Optional[List[str]] = None, owner: Optional[str] = None) -> ToolResult:
     try:
         rag_system = get_rag_system()
+        resolved_doc_ids = resolve_rag_document_ids(rag_system, list(selected_doc_ids or []), owner=owner)
         result = rag_system.query(
             str(query or ""),
             top_k=max(1, int(top_k or 5)),
             use_rag=True,
-            selected_doc_ids=selected_doc_ids or [],
+            selected_doc_ids=resolved_doc_ids or list(selected_doc_ids or []),
             owner=owner,
         )
         answer = str(result.get("answer") or "").strip()

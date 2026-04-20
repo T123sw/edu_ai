@@ -36,6 +36,12 @@ if "%LOCAL_VENV_FOUND%"=="1" (
 :python_ready
 echo.
 
+echo Clearing proxy environment variables for backend startup...
+for %%V in (HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy GIT_HTTP_PROXY GIT_HTTPS_PROXY) do (
+    set "%%V="
+)
+echo.
+
 set "PORT=8001"
 set "PPT_PORT=46080"
 set "PPT_DIR=%~dp0html2ppt"

@@ -3,6 +3,7 @@ import type {
   BackendCourse,
   CourseMaterial,
   KnowledgeBaseDocument,
+  KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
   KnowledgeGraphHourAllocationRequest,
   KnowledgeGraphHourAllocationResponse,
@@ -59,13 +60,51 @@ export function getCourseMaterials(courseId: string) {
   return apiRequest<CourseMaterial[]>(`/api/courses/${courseId}/materials`);
 }
 
-export function getKnowledgeBaseDocuments(courseId: string) {
-  return apiRequest<KnowledgeBaseDocument[]>(`/api/courses/${courseId}/knowledge-base/documents`);
+export function getKnowledgeBaseDocuments(courseId: string, options?: KnowledgeBaseScopeOptions) {
+  const params = new URLSearchParams();
+
+  if (options?.scopeType) {
+    params.set("scope_type", options.scopeType);
+  }
+  if (options?.scopeId) {
+    params.set("scope_id", options.scopeId);
+  }
+  if (typeof options?.aggregate === "boolean") {
+    params.set("aggregate", options.aggregate ? "true" : "false");
+  }
+  if (options?.libraryType) {
+    params.set("library_type", options.libraryType);
+  }
+  if (typeof options?.includeDescendants === "boolean") {
+    params.set("include_descendants", options.includeDescendants ? "true" : "false");
+  }
+  if (typeof options?.limit === "number") {
+    params.set("limit", String(options.limit));
+  }
+  if (typeof options?.offset === "number") {
+    params.set("offset", String(options.offset));
+  }
+
+  const search = params.toString();
+  const path = search
+    ? `/api/courses/${courseId}/knowledge-base/documents?${search}`
+    : `/api/courses/${courseId}/knowledge-base/documents`;
+
+  return apiRequest<KnowledgeBaseDocument[]>(path);
 }
 
-export function uploadKnowledgeBaseDocument(courseId: string, file: File) {
+export function uploadKnowledgeBaseDocument(courseId: string, file: File, options?: KnowledgeBaseScopeOptions) {
   const formData = new FormData();
   formData.append("file", file);
+  if (options?.scopeType) {
+    formData.append("scope_type", options.scopeType);
+  }
+  if (options?.scopeId) {
+    formData.append("scope_id", options.scopeId);
+  }
+  if (options?.libraryType) {
+    formData.append("library_type", options.libraryType);
+  }
 
   return apiRequest<KnowledgeBaseDocument>(`/api/courses/${courseId}/knowledge-base/documents`, {
     method: "POST",

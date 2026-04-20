@@ -52,6 +52,7 @@ type ConversationReference = ChatConversationReference;
 interface AppState {
   documents: Document[];
   selectedDocs: string[];
+  scopedSourceDocIds: string[];
   allowRag: boolean;
   allowWeb: boolean;
   messages: ChatMessage[];
@@ -66,6 +67,7 @@ interface AppState {
   addDocument: (doc: Document) => void;
   removeDocument: (id: string) => void;
   setSelectedDocs: (ids: string[]) => void;
+  setScopedSourceDocIds: (ids: string[]) => void;
   setAllowRag: (allow: boolean) => void;
   setAllowWeb: (allow: boolean) => void;
   addMessage: (message: ChatMessage) => void;
@@ -99,6 +101,7 @@ export const useStore = create<AppState>()(
     (set) => ({
       documents: initialDocuments,
       selectedDocs: [],
+      scopedSourceDocIds: [],
       allowRag: false,
       allowWeb: false,
       messages: initialMessages,
@@ -118,6 +121,7 @@ export const useStore = create<AppState>()(
           selectedDocs: state.selectedDocs.filter((docId) => docId !== id),
         })),
       setSelectedDocs: (ids) => set({ selectedDocs: ids }),
+      setScopedSourceDocIds: (ids) => set({ scopedSourceDocIds: ids }),
       setAllowRag: (allow) => set({ allowRag: allow }),
       setAllowWeb: (allow) => set({ allowWeb: allow }),
       addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),

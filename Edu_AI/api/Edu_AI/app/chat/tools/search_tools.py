@@ -25,11 +25,16 @@ def create_search_tools(
         try:
             rag_system = get_rag_system()
             rag_context = rag_context_var.get()
+            resolved_doc_ids = resolve_rag_document_ids(
+                rag_system,
+                list(rag_context.get("selected_doc_ids") or []),
+                owner=rag_context.get("owner"),
+            )
             result = rag_system.query(
                 query,
                 top_k=top_k,
                 use_rag=True,
-                selected_doc_ids=rag_context.get("selected_doc_ids") or [],
+                selected_doc_ids=resolved_doc_ids or list(rag_context.get("selected_doc_ids") or []),
                 owner=rag_context.get("owner"),
             )
             answer = str(result.get("answer") or "").strip()

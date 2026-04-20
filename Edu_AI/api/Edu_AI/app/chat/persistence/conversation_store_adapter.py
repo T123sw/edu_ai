@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.chat.domain.extraction_trigger import ExtractionTrigger
 from app.chat.orchestrator.conversation_memory_extractor_v2 import ConversationMemoryExtractor
 from app.chat.orchestrator.llm_enhancement_router import LLMEnhancementRouter
+from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.conversation_storage import conversation_storage
 
 
@@ -204,6 +205,8 @@ class ConversationStoreAdapter:
             "referenced_conversation_id": str(conversation_reference.get("conversation_id") or ""),
             "referenced_conversation_title": conversation_reference.get("title"),
             "current_course_id": getattr(request, "course_id", None),
+            "scope_type": getattr(request, "scope_type", SCOPE_TYPE_COURSE),
+            "scope_id": getattr(request, "scope_id", None),
             "pinned_doc_ids": selected_doc_ids,
         }
 
@@ -303,6 +306,17 @@ class ConversationStoreAdapter:
         recent_messages = self.storage.get_messages(conversation_id, limit=8)
 
         state_patch = {}
+        state_patch["course_id"] = getattr(request, "course_id", None) or existing_state.get("course_id")
+        state_patch["scope_type"] = (
+            getattr(request, "scope_type", None)
+            or existing_state.get("scope_type")
+            or SCOPE_TYPE_COURSE
+        )
+        state_patch["scope_id"] = (
+            getattr(request, "scope_id", None)
+            if getattr(request, "scope_id", None) is not None
+            else existing_state.get("scope_id")
+        )
         workflow_status = str((workflow or {}).get("status") or "").strip()
         if workflow_status == "interrupted":
             state_patch["active_task"] = ""

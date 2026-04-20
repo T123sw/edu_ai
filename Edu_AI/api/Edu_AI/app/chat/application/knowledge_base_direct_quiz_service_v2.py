@@ -7,6 +7,7 @@ from uuid import uuid4
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.application.knowledge_base_document_content_provider import KnowledgeBaseDocumentContentProvider
 from app.chat.workflows.quiz.generator import QuizGenerator
+from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import storage_manager as default_course_storage_manager
 
 
@@ -272,6 +273,8 @@ class KnowledgeBaseDirectQuizServiceV2:
             course_id=course_id,
             material_type="quiz",
             material_id=material_id,
+            scope_type=_clean(getattr(payload, "scope_type", "")) or SCOPE_TYPE_COURSE,
+            scope_id=_clean(getattr(payload, "scope_id", "")) or None,
             material_data={
                 "title": _clean(artifact.get("title")) or "quiz",
                 "material_type": "quiz",

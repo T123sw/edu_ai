@@ -59,6 +59,8 @@ class CompatChatService:
         selected_doc_ids,
         owner,
         course_id,
+        scope_type=None,
+        scope_id=None,
         allow_web=False,
         action_hint=None,
         artifact_id=None,
@@ -75,6 +77,8 @@ class CompatChatService:
             selected_doc_ids=selected_doc_ids,
             owner=owner,
             course_id=course_id,
+            scope_type=scope_type,
+            scope_id=scope_id,
             action_hint=action_hint,
             artifact_id=artifact_id,
         )

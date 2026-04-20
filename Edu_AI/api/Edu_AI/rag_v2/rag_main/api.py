@@ -17,6 +17,7 @@ from urllib.parse import quote, unquote
 
 from .system import RAGSystem
 from .core.config import Config
+from rag_v2.document_resolver import resolve_rag_document
 from app.auth import get_current_user
 
 import base64
@@ -225,6 +226,36 @@ def _public_document_key(rag_system: RAGSystem, file_path: Optional[str], owner:
         return rag_system._make_index_key(file_path, owner)
     except Exception:
         return str(file_path)
+
+
+def _document_owner_allows_access(record: Dict[str, Any], owner: Optional[str]) -> bool:
+    record_owner = record.get("owner")
+    if record_owner is None:
+        return True
+    if isinstance(record_owner, str) and not record_owner.strip():
+        return True
+    return owner is None or record_owner == owner
+
+
+def _resolve_accessible_document_or_none(
+    rag_system: RAGSystem,
+    document_id: str,
+    owner: Optional[str],
+    forbidden_detail: str,
+):
+    resolved = resolve_rag_document(rag_system, document_id, owner=owner)
+    if resolved is not None:
+        return resolved
+
+    unscoped_resolved = resolve_rag_document(rag_system, document_id, owner=None)
+    if unscoped_resolved is None:
+        return None
+
+    record = dict(unscoped_resolved.record or {})
+    if not _document_owner_allows_access(record, owner):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=forbidden_detail)
+
+    return unscoped_resolved
 
 
 def _public_temp_file_path(file_path: str | Path) -> str:
@@ -738,6 +769,8 @@ class DocumentInfo(BaseModel):
     imported_at: Optional[str] = None
     summary: Optional[str] = None
     summary_updated_at: Optional[str] = None
+    summary_title: Optional[str] = None
+    summary_title_updated_at: Optional[str] = None
     file_size: Optional[int] = None
     page_count: Optional[int] = None
     hash: Optional[str] = None
@@ -746,6 +779,7 @@ class DocumentInfo(BaseModel):
     source_url: Optional[str] = None
     source_title: Optional[str] = None
     source_domain: Optional[str] = None
+    source_site_name: Optional[str] = None
     doc_kind: Optional[str] = None
     modality: Optional[str] = None
     image_url: Optional[str] = None
@@ -1628,8 +1662,19 @@ async def get_document_summary(
         # 前端传入的 file_path 可能是物理路径，也可能是 index_key（user_owner:path）
         # list_documents 返回的是 index_key 格式（user_owner:physical_path）
         # 使用 _make_index_key 统一处理，它会识别已经是 index_key 格式的路径
-        index_key = rag_system._make_index_key(request.file_path, username)
-        record = rag_system.document_index.get(index_key)
+        resolved = _resolve_accessible_document_or_none(
+            rag_system,
+            request.file_path,
+            username,
+            "无权查看该文档摘要",
+        )
+        if resolved is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"æœªæ‰¾åˆ°æŒ‡å®šæ–‡æ¡£: {request.file_path}",
+            )
+        index_key = resolved.index_key
+        record = dict(resolved.record or {})
         
         if not record:
             # 如果没找到，尝试直接使用传入的路径作为 index_key（兼容性处理）
@@ -1648,7 +1693,7 @@ async def get_document_summary(
                 )
         
         # 权限检查
-        if record.get("owner") != username:
+        if not _document_owner_allows_access(record, username):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档摘要")
 
         # summarize_document 内部会处理 index_key 格式，直接传入即可
@@ -1656,7 +1701,7 @@ async def get_document_summary(
         summary = rag_system.summarize_document(
             index_key,  # 使用处理后的 index_key，确保一致性
             force_refresh=request.force_refresh,
-            owner=username,
+            owner=record.get("owner"),
         )
         return summary
     except HTTPException:
@@ -1698,8 +1743,14 @@ async def get_document_content(
     try:
         rag_system = get_rag_system()
         username = current_user.get("username")
-        index_key = rag_system._make_index_key(file_path, username)
-        record = rag_system.document_index.get(index_key)
+        resolved = _resolve_accessible_document_or_none(
+            rag_system,
+            file_path,
+            username,
+            "无权查看该文档内容",
+        )
+        index_key = resolved.index_key if resolved else rag_system._make_index_key(file_path, username)
+        record = dict(resolved.record or {}) if resolved else rag_system.document_index.get(index_key)
         if not record:
             image_record = _resolve_image_index_record(rag_system, file_path, username)
             if image_record is not None:
@@ -1731,15 +1782,15 @@ async def get_document_content(
                     total_chunks=1,
                 )
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
-        if record.get("owner") != username:
+        if not _document_owner_allows_access(record, username):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档内容")
 
-        physical_path = record.get("physical_path") or (
+        physical_path = (resolved.physical_path if resolved else None) or record.get("physical_path") or (
             file_path.split(":", 1)[1] if str(file_path).startswith("user_") and ":" in str(file_path) else file_path
         )
 
         # chunks 按 source_key 取
-        source_key = record.get("source_key") or rag_system._make_source_key(physical_path, username)
+        source_key = (resolved.source_key if resolved else None) or record.get("source_key") or rag_system._make_source_key(physical_path, record.get("owner"))
         documents = rag_system.vector_store.get_documents_by_source(source_key)
         documents.sort(key=lambda x: int(x["metadata"].get("page", 0)))
         server_url = _get_server_url()

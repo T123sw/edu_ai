@@ -31,11 +31,17 @@ export interface ConversationListItem {
   created_at?: string;
   updated_at?: string;
   message_count: number;
+  course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
 }
 
 export interface ConversationListResponse {
   conversations: ConversationListItem[];
   count: number;
+  total?: number;
+  limit?: number;
+  offset?: number;
   total_messages: number;
 }
 
@@ -55,8 +61,29 @@ export interface ConversationDetailResponse {
   message_count: number;
   created_at?: string;
   updated_at?: string;
+  course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
   state?: Record<string, any>;
   status_card?: StatusCardV2 | null;
+}
+
+export interface ListChatConversationsOptions {
+  courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
+  aggregate?: boolean;
+  limit?: number;
+  offset?: number;
+}
+
+export interface CourseMaterialsQueryOptions {
+  materialType?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
+  aggregate?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export const sendChatMessage = async (
@@ -168,10 +195,20 @@ export const startChatStream = (payload: SseChatRequest, handlers: SseEventHandl
   return () => source.close();
 };
 
-export const listChatConversations = async (): Promise<ConversationListResponse> => {
+export const listChatConversations = async (
+  options?: ListChatConversationsOptions,
+): Promise<ConversationListResponse> => {
   const token = getAuthToken();
+  const params = new URLSearchParams();
 
-  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/conversations`, {
+  if (options?.courseId) params.set('course_id', options.courseId);
+  if (options?.scopeType) params.set('scope_type', options.scopeType);
+  if (options?.scopeId) params.set('scope_id', options.scopeId);
+  if (typeof options?.aggregate === 'boolean') params.set('aggregate', options.aggregate ? 'true' : 'false');
+  if (typeof options?.limit === 'number') params.set('limit', String(options.limit));
+  if (typeof options?.offset === 'number') params.set('offset', String(options.offset));
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/conversations?${params.toString()}`, {
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -535,12 +572,22 @@ export interface CourseMaterialItem {
   type: string;
   addedAt: string;
   courseId?: string;
+  scopeType?: 'course' | 'knowledge_point';
+  scopeId?: string;
   content?: any;
   isPinned?: boolean;
   pinnedAt?: string;
   version?: Record<string, any>;
   generationState?: Record<string, any>;
   outline?: unknown;
+}
+
+export interface CourseMaterialsPageResponse {
+  items: CourseMaterialItem[];
+  count: number;
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface PinCourseMaterialRequest {
@@ -590,6 +637,8 @@ const normalizeCourseMaterialItem = (courseId: string, item: Record<string, any>
     type,
     addedAt: String(item.addedAt || item.created_at || item.updated_at || ''),
     courseId: String(item.courseId || item.course_id || courseId),
+    scopeType: String(item.scope_type || item.scopeType || 'course') === 'knowledge_point' ? 'knowledge_point' : 'course',
+    scopeId: String(item.scope_id || item.scopeId || '').trim() || undefined,
     content,
     isPinned: Boolean(item.isPinned ?? item.is_pinned),
     pinnedAt:
@@ -634,6 +683,53 @@ export const getCourseMaterials = async (
 
   const data = (await resp.json()) as Array<Record<string, any>>;
   return Array.isArray(data) ? data.map((item) => normalizeCourseMaterialItem(courseId, item)) : [];
+};
+
+export const getCourseMaterialsPage = async (
+  courseId: string,
+  options?: CourseMaterialsQueryOptions,
+): Promise<CourseMaterialsPageResponse> => {
+  const token = getAuthToken();
+
+  const params = new URLSearchParams();
+  if (options?.materialType) params.append('material_type', options.materialType);
+  if (options?.scopeType) params.append('scope_type', options.scopeType);
+  if (options?.scopeId) params.append('scope_id', options.scopeId);
+  if (typeof options?.aggregate === 'boolean') params.append('aggregate', options.aggregate ? 'true' : 'false');
+  if (typeof options?.limit === 'number') params.append('limit', String(options.limit));
+  if (typeof options?.offset === 'number') params.append('offset', String(options.offset));
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/courses/${courseId}/materials?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`閼惧嘲褰囩拠鍓р柤鐠у嫭绨径杈Е: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  const data = (await resp.json()) as {
+    items?: Array<Record<string, any>>;
+    count?: number;
+    total?: number;
+    limit?: number;
+    offset?: number;
+  };
+
+  const items = Array.isArray(data.items)
+    ? data.items.map((item) => normalizeCourseMaterialItem(courseId, item))
+    : [];
+
+  return {
+    items,
+    count: typeof data.count === 'number' ? data.count : items.length,
+    total: typeof data.total === 'number' ? data.total : items.length,
+    limit: typeof data.limit === 'number' ? data.limit : items.length,
+    offset: typeof data.offset === 'number' ? data.offset : 0,
+  };
 };
 
 export const deleteCourseMaterial = async (

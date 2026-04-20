@@ -1,6 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import { allocateKnowledgeGraphHours, getKnowledgeGraph, saveKnowledgeGraph } from "../api/courses";
-import type { KnowledgeGraphNode } from "../api/types";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  allocateKnowledgeGraphHours,
+  getKnowledgeBaseDocuments,
+  getKnowledgeGraph,
+  saveKnowledgeGraph,
+  uploadKnowledgeBaseDocument,
+} from "../api/courses";
+import type { KnowledgeBaseDocument, KnowledgeGraphNode } from "../api/types";
 import {
   AppSurface,
   GlassPanel,
@@ -14,6 +20,7 @@ import {
   routes,
   useAppShell,
 } from "../shared";
+import { writeWorkspaceScopeToSearch } from "../../services/teacher/workspaceScope";
 
 type FlatNode = {
   id: string;
@@ -29,12 +36,6 @@ type PositionedNode = FlatNode & {
   x: number;
   y: number;
   hasChildren: boolean;
-};
-
-type NodeResource = {
-  title: string;
-  type: string;
-  meta: string;
 };
 
 const NODE_WIDTH = 250;
@@ -192,12 +193,22 @@ function getNodeResources(node: FlatNode | null): NodeResource[] {
   ];
 }
 
+function formatHoursInput(hours: number) {
+  return Number.isInteger(hours) ? String(hours) : String(hours);
+}
+
+function formatDocumentMeta(document: KnowledgeBaseDocument) {
+  const typeLabel = document.type === "web" ? "网页资料" : "文件资料";
+  const dateLabel = document.created_at ? new Date(document.created_at).toLocaleDateString("zh-CN") : "刚刚上传";
+  return `${typeLabel} · ${dateLabel}`;
+}
+
 export function KnowledgeGraphPage() {
   const { selectedCourse, theme } = useAppShell();
   const course = selectedCourse;
   const isDark = theme === "dark";
   const [uploadedMaterial, setUploadedMaterial] = useState("高等量子力学教材（第 4 章）.pdf");
-  const [totalHours, setTotalHours] = useState("32");
+  const [totalHours, setTotalHours] = useState("");
   const [nodes, setNodes] = useState<FlatNode[]>([]);
   const [activeNodeId, setActiveNodeId] = useState<string>("");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -205,6 +216,11 @@ export function KnowledgeGraphPage() {
   const [saving, setSaving] = useState(false);
   const [allocatingHours, setAllocatingHours] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nodeDocuments, setNodeDocuments] = useState<KnowledgeBaseDocument[]>([]);
+  const [uploadingKnowledgeBase, setUploadingKnowledgeBase] = useState(false);
+  const [knowledgeBaseFeedback, setKnowledgeBaseFeedback] = useState<string | null>(null);
+  const [knowledgeBaseFeedbackTone, setKnowledgeBaseFeedbackTone] = useState<"success" | "error" | null>(null);
+  const knowledgeBaseUploadInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!course?.id) return;
@@ -219,6 +235,7 @@ export function KnowledgeGraphPage() {
         if (!cancelled) {
           setNodes(flat);
           const root = flat.find((node) => node.parentId === null) ?? flat[0];
+          setTotalHours(root && typeof root.hours === "number" ? formatHoursInput(root.hours) : "");
           setActiveNodeId(root?.id || "");
           setExpandedIds(root ? new Set([root.id]) : new Set());
         }
@@ -243,7 +260,90 @@ export function KnowledgeGraphPage() {
   const activeNode = nodes.find((node) => node.id === activeNodeId) ?? rootNode ?? null;
   const childrenMap = useMemo(() => getChildrenMap(nodes), [nodes]);
   const layout = useMemo(() => buildTreeLayout(rootNode, childrenMap, expandedIds), [rootNode, childrenMap, expandedIds]);
-  const activeNodeResources = useMemo(() => getNodeResources(activeNode), [activeNode]);
+  const isCourseRootSelected = activeNode?.parentId === null;
+  const activeNodeResources = useMemo(
+    () =>
+      nodeDocuments.map((document) => ({
+        title: document.name,
+        type: document.type === "web" ? "网页资料" : "文件资料",
+        meta: formatDocumentMeta(document),
+      })),
+    [nodeDocuments],
+  );
+  const aiWorkspaceHref = useMemo(() => {
+    if (!activeNode) {
+      return routeHref(routes.ai);
+    }
+    const isCourseRootScope = activeNode.parentId === null;
+    const search = writeWorkspaceScopeToSearch(new URLSearchParams(), {
+      scopeType: isCourseRootScope ? "course" : "knowledge_point",
+      scopeId: isCourseRootScope ? undefined : activeNode.id,
+      scopeLabel: activeNode.label.trim() || activeNode.id,
+    });
+    return `${routeHref(routes.ai)}?${search.toString()}`;
+  }, [activeNode]);
+
+  async function loadNodeDocuments(node: FlatNode | null) {
+    if (!course?.id || !node) {
+      setNodeDocuments([]);
+      return;
+    }
+
+    try {
+      const documents = await getKnowledgeBaseDocuments(course.id, {
+        scopeType: node.parentId === null ? "course" : "knowledge_point",
+        scopeId: node.parentId === null ? undefined : node.id,
+        aggregate: false,
+        libraryType: "course",
+      });
+      setNodeDocuments(documents);
+    } catch {
+      setNodeDocuments([]);
+    }
+  }
+
+  useEffect(() => {
+    void loadNodeDocuments(activeNode);
+  }, [course?.id, activeNode]);
+
+  useEffect(() => {
+    setKnowledgeBaseFeedback(null);
+    setKnowledgeBaseFeedbackTone(null);
+  }, [activeNodeId]);
+
+  async function handleKnowledgeBaseUpload(fileList: FileList | null) {
+    if (!course?.id || !activeNode || !fileList?.length) return;
+
+    const files = Array.from(fileList);
+    const targetNode = activeNode;
+    const isCourseRootNode = targetNode.parentId === null;
+
+    try {
+      setUploadingKnowledgeBase(true);
+      setKnowledgeBaseFeedback(null);
+      setKnowledgeBaseFeedbackTone(null);
+
+      for (const file of files) {
+        await uploadKnowledgeBaseDocument(course.id, file, {
+          scopeType: isCourseRootNode ? "course" : "knowledge_point",
+          scopeId: isCourseRootNode ? undefined : targetNode.id,
+          libraryType: "course",
+        });
+      }
+
+      await loadNodeDocuments(targetNode);
+      setKnowledgeBaseFeedback(`已导入到【${targetNode.label}】课程知识库`);
+      setKnowledgeBaseFeedbackTone("success");
+    } catch (err) {
+      setKnowledgeBaseFeedback(err instanceof Error ? err.message : "导入课程知识库失败");
+      setKnowledgeBaseFeedbackTone("error");
+    } finally {
+      setUploadingKnowledgeBase(false);
+      if (knowledgeBaseUploadInputRef.current) {
+        knowledgeBaseUploadInputRef.current.value = "";
+      }
+    }
+  }
 
   function updateNode(nodeId: string, patch: Partial<FlatNode>) {
     setNodes((current) => current.map((node) => (node.id === nodeId ? { ...node, ...patch } : node)));
@@ -304,6 +404,7 @@ export function KnowledgeGraphPage() {
       const flat = flattenGraph(response.root);
       setNodes(flat);
       const root = flat.find((node) => node.parentId === null) ?? flat[0];
+      setTotalHours(root && typeof root.hours === "number" ? formatHoursInput(root.hours) : formatHoursInput(parsedTotalHours));
       setActiveNodeId((current) => (current && flat.some((node) => node.id === current) ? current : root?.id || ""));
       setExpandedIds((current) => {
         if (current.size) return current;
@@ -587,6 +688,44 @@ export function KnowledgeGraphPage() {
                   </div>
                   <div>
                     <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">当前节点资源</label>
+                    <div className="mb-3">
+                      <button
+                        type="button"
+                        onClick={() => knowledgeBaseUploadInputRef.current?.click()}
+                        disabled={uploadingKnowledgeBase || !course?.id}
+                        className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(29,78,216,0.22)] transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                      >
+                        <MaterialIcon name="upload_file" className="text-base" />
+                        {uploadingKnowledgeBase
+                          ? "导入中..."
+                          : isCourseRootSelected
+                            ? "导入到课程总知识库"
+                            : "导入到本知识点知识库"}
+                      </button>
+                      <span className="text-[11px] text-[var(--muted-text)]">{nodeDocuments.length} 份</span>
+                    </div>
+                    <input
+                      ref={knowledgeBaseUploadInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(event) => void handleKnowledgeBaseUpload(event.target.files)}
+                    />
+                    <div className="mb-3 text-[11px] text-[var(--muted-text)]">
+                      {isCourseRootSelected ? "当前为课程总目录课程知识库" : "当前为知识点课程知识库"}
+                    </div>
+                    {knowledgeBaseFeedback ? (
+                      <div
+                        className={cx(
+                          "mb-3 rounded-[18px] px-3 py-2 text-xs font-semibold",
+                          knowledgeBaseFeedbackTone === "error"
+                            ? "bg-rose-50 text-rose-600"
+                            : "bg-emerald-50 text-emerald-600",
+                        )}
+                      >
+                        {knowledgeBaseFeedback}
+                      </div>
+                    ) : null}
                     <div className="space-y-3">
                       {activeNodeResources.map((resource) => (
                         <div key={resource.title} className="flex items-center gap-3 rounded-[18px] bg-[var(--surface-subtle)] p-3">
@@ -604,7 +743,7 @@ export function KnowledgeGraphPage() {
                     </div>
                   </div>
                   <a
-                    href={`${routeHref(routes.ai)}?node=${encodeURIComponent(activeNode.label.trim() || "当前节点")}`}
+                    href={aiWorkspaceHref}
                     className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white"
                   >
                     和 AI 聊一聊

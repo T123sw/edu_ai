@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Input, Modal, Skeleton, Space, Typography, message } from 'antd';
 import { fetchReportEntryCardsV2, type ReportEntryCard } from '../../services/teacher/chatV2';
 import { createDraftCacheKey, getDefaultPresetCards, groupReportEntryCards, shouldConfirmCardSwitch } from '../../services/teacher/reportEntry.helpers';
+import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 import './ReportEntryModal.css';
 
 const { Paragraph, Text, Title } = Typography;
@@ -13,6 +14,7 @@ type Props = {
   open: boolean;
   selectedDocIds: string[];
   courseId?: string;
+  workspaceScope?: WorkspaceScope;
   submitting?: boolean;
   onCancel: () => void;
   onSubmit: (payload: { question: string; promptDraft: string; card: ReportEntryCard }) => Promise<void> | void;
@@ -22,6 +24,7 @@ export default function ReportEntryModal({
   open,
   selectedDocIds,
   courseId,
+  workspaceScope,
   submitting = false,
   onCancel,
   onSubmit,
@@ -58,6 +61,8 @@ export default function ReportEntryModal({
     setLoadError('');
     fetchReportEntryCardsV2({
       course_id: courseId,
+      scope_type: workspaceScope?.scopeType,
+      scope_id: workspaceScope?.scopeId,
       selected_doc_ids: selectedDocIds,
     })
       .then((response) => {
@@ -76,7 +81,7 @@ export default function ReportEntryModal({
     return () => {
       cancelled = true;
     };
-  }, [open, selectedDocIds, courseId]);
+  }, [open, selectedDocIds, courseId, workspaceScope]);
 
   const groupedCards = useMemo(() => groupReportEntryCards(cards), [cards]);
 

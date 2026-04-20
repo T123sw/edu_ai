@@ -19,6 +19,7 @@ from app.chat.skill_manager import SkillManager
 from app.chat.tools.agent_tools import get_tool_registry_for_capability
 from app.chat.workflows.report.assembler import ReportAssembler
 from app.chat.workflows.report.runtime import ReportWorkflowRuntime
+from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import storage_manager as default_course_storage_manager
 
 
@@ -122,6 +123,8 @@ def _persist_report_course_material(*, payload, result: dict, course_storage_man
         course_id=course_id,
         material_type="report",
         material_id=report_id,
+        scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+        scope_id=getattr(payload, "scope_id", None),
         material_data={
             "title": str(report_artifact.get("title") or "报告").strip(),
             "material_type": "report",
@@ -190,6 +193,8 @@ def _persist_ppt_course_material(*, payload, result: dict, course_storage_manage
         course_id=course_id,
         material_type="ppt",
         material_id=material_id,
+        scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
+        scope_id=getattr(payload, "scope_id", None),
         material_data={
             "title": str(deck_artifact.get("title") or "PPT").strip(),
             "material_type": "ppt",

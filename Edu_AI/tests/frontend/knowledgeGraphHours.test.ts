@@ -65,4 +65,22 @@ assert.match(
   'KnowledgeGraphPage should expose a loading state while allocation runs',
 );
 
+assert.match(
+  graphPageFile,
+  /const \[totalHours, setTotalHours\] = useState\(["']["']\)/,
+  'KnowledgeGraphPage should not hard-code a stale default total-hours value',
+);
+
+assert.match(
+  graphPageFile,
+  /setTotalHours\(root && typeof root\.hours === ["']number["'] \? formatHoursInput\(root\.hours\) : ["']["']\)/,
+  'KnowledgeGraphPage should sync total-hours input from the root node when graph data loads',
+);
+
+assert.match(
+  graphPageFile,
+  /setTotalHours\(root && typeof root\.hours === ["']number["'] \? formatHoursInput\(root\.hours\) : formatHoursInput\(parsedTotalHours\)\)/,
+  'KnowledgeGraphPage should refresh total-hours input after hour allocation succeeds',
+);
+
 console.log('knowledgeGraphHours frontend tests passed');

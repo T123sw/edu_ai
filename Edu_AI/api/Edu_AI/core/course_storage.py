@@ -15,7 +15,13 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
+
+from app.workspace_scope import SCOPE_TYPE_COURSE, normalize_workspace_scope
+
+
+LIBRARY_TYPE_COURSE = "course"
+LIBRARY_TYPE_PERSONAL = "personal"
 
 
 COURSE_STORAGE_ROOT = Path(__file__).resolve().parents[2] / "course_data"
@@ -94,6 +100,62 @@ class CourseStorageManager:
             ),
         )
 
+    def _normalize_scope(self, *, course_id: str, scope_type: Optional[str], scope_id: Optional[str]) -> Dict[str, Any]:
+        return normalize_workspace_scope(
+            course_id=course_id,
+            scope_type=scope_type or SCOPE_TYPE_COURSE,
+            scope_id=scope_id,
+        )
+
+    @staticmethod
+    def _matches_scope(
+        item: Dict[str, Any],
+        *,
+        scope_type: Optional[str],
+        scope_ids: Optional[Set[str]],
+        aggregate: bool,
+    ) -> bool:
+        item_scope_type = str(item.get("scope_type") or SCOPE_TYPE_COURSE).strip() or SCOPE_TYPE_COURSE
+        item_scope_id = str(item.get("scope_id") or "").strip() or None
+
+        if not scope_type:
+            return True
+
+        normalized_scope_type = str(scope_type).strip()
+        if normalized_scope_type == SCOPE_TYPE_COURSE:
+            if aggregate:
+                return True
+            return item_scope_type == SCOPE_TYPE_COURSE
+
+        if normalized_scope_type != "knowledge_point":
+            return True
+
+        if item_scope_type != "knowledge_point":
+            return False
+        if not scope_ids:
+            return item_scope_id is not None
+        return item_scope_id in scope_ids
+
+    @staticmethod
+    def _matches_library(
+        item: Dict[str, Any],
+        *,
+        library_type: Optional[str],
+        owner_user_id: Optional[str],
+    ) -> bool:
+        normalized_library_type = str(library_type or "").strip() or None
+        if not normalized_library_type:
+            return True
+
+        item_library_type = str(item.get("library_type") or LIBRARY_TYPE_COURSE).strip() or LIBRARY_TYPE_COURSE
+        if item_library_type != normalized_library_type:
+            return False
+
+        normalized_owner_user_id = str(owner_user_id or "").strip() or None
+        if normalized_library_type == LIBRARY_TYPE_PERSONAL and normalized_owner_user_id:
+            return str(item.get("owner_user_id") or "").strip() == normalized_owner_user_id
+        return True
+
     def get_course_dir(self, course_id: str) -> Path:
         return self.courses_dir / course_id
 
@@ -160,7 +222,18 @@ class CourseStorageManager:
             "updated_at": datetime.now().isoformat(),
         }
 
-    def save_knowledge_base_file(self, course_id: str, file_data: bytes, filename: str) -> Optional[str]:
+    def save_knowledge_base_file(
+        self,
+        course_id: str,
+        file_data: bytes,
+        filename: str,
+        *,
+        scope_type: Optional[str] = None,
+        scope_id: Optional[str] = None,
+        library_type: Optional[str] = None,
+        owner_user_id: Optional[str] = None,
+        promoted_from_document_id: Optional[str] = None,
+    ) -> Optional[str]:
         try:
             kb_documents_dir = self.get_course_dir(course_id) / "knowledge_base" / "documents"
             kb_documents_dir.mkdir(parents=True, exist_ok=True)
@@ -169,6 +242,11 @@ class CourseStorageManager:
             with open(file_path, "wb") as f:
                 f.write(file_data)
 
+            normalized_scope = self._normalize_scope(
+                course_id=course_id,
+                scope_type=scope_type,
+                scope_id=scope_id,
+            )
             index = self.get_knowledge_base_index(course_id)
             file_info = {
                 "id": f"doc-{datetime.now().timestamp()}",
@@ -176,6 +254,12 @@ class CourseStorageManager:
                 "path": f"knowledge_base/documents/{filename}",
                 "size": len(file_data),
                 "uploaded_at": datetime.now().isoformat(),
+                "course_id": course_id,
+                "scope_type": normalized_scope["scope_type"],
+                "scope_id": normalized_scope["scope_id"],
+                "library_type": str(library_type or LIBRARY_TYPE_COURSE).strip() or LIBRARY_TYPE_COURSE,
+                "owner_user_id": str(owner_user_id or "").strip() or None,
+                "promoted_from_document_id": str(promoted_from_document_id or "").strip() or None,
             }
             index.append(file_info)
             self.save_knowledge_base_index(course_id, index)
@@ -184,15 +268,47 @@ class CourseStorageManager:
             print(f"Error saving knowledge base file: {e}")
             return None
 
-    def get_knowledge_base_index(self, course_id: str) -> List[Dict[str, Any]]:
+    def get_knowledge_base_index(
+        self,
+        course_id: str,
+        *,
+        scope_type: Optional[str] = None,
+        scope_ids: Optional[Set[str]] = None,
+        aggregate: bool = False,
+        library_type: Optional[str] = None,
+        owner_user_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
         index_file = self.get_course_dir(course_id) / "knowledge_base" / "index.json"
+        entries: List[Dict[str, Any]] = []
         if index_file.exists():
             try:
                 with open(index_file, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    raw_entries = json.load(f)
+                    entries = list(raw_entries) if isinstance(raw_entries, list) else []
             except Exception:
-                pass
-        return []
+                entries = []
+
+        normalized_entries: List[Dict[str, Any]] = []
+        for item in entries:
+            next_item = dict(item or {})
+            next_item["course_id"] = str(next_item.get("course_id") or course_id)
+            next_item["scope_type"] = str(next_item.get("scope_type") or SCOPE_TYPE_COURSE)
+            next_item["scope_id"] = str(next_item.get("scope_id") or "").strip() or None
+            next_item["library_type"] = str(next_item.get("library_type") or LIBRARY_TYPE_COURSE)
+            next_item["owner_user_id"] = str(next_item.get("owner_user_id") or "").strip() or None
+            next_item["promoted_from_document_id"] = str(next_item.get("promoted_from_document_id") or "").strip() or None
+            if self._matches_scope(
+                next_item,
+                scope_type=scope_type,
+                scope_ids=scope_ids,
+                aggregate=aggregate,
+            ) and self._matches_library(
+                next_item,
+                library_type=library_type,
+                owner_user_id=owner_user_id,
+            ):
+                normalized_entries.append(next_item)
+        return normalized_entries
 
     def save_knowledge_base_index(self, course_id: str, index: List[Dict[str, Any]]) -> bool:
         try:
@@ -231,6 +347,9 @@ class CourseStorageManager:
         material_id: str,
         material_data: Dict[str, Any],
         file_data: Optional[bytes] = None,
+        *,
+        scope_type: Optional[str] = None,
+        scope_id: Optional[str] = None,
     ) -> bool:
         try:
             material_dir = self._material_dir(course_id, material_type)
@@ -240,8 +359,16 @@ class CourseStorageManager:
             existing_data = self._read_json(material_file) or {}
             next_data = dict(existing_data)
             next_data.update(material_data or {})
+            normalized_scope = self._normalize_scope(
+                course_id=course_id,
+                scope_type=scope_type or next_data.get("scope_type"),
+                scope_id=scope_id if scope_id is not None else next_data.get("scope_id"),
+            )
             next_data["material_type"] = material_type
             next_data["material_id"] = self._normalize_material_id(material_id)
+            next_data["course_id"] = course_id
+            next_data["scope_type"] = normalized_scope["scope_type"]
+            next_data["scope_id"] = normalized_scope["scope_id"]
             next_data["created_at"] = str(
                 next_data.get("created_at") or existing_data.get("created_at") or datetime.now().isoformat()
             )
@@ -276,7 +403,15 @@ class CourseStorageManager:
             print(f"Error loading generated material: {e}")
             return None
 
-    def list_generated_materials(self, course_id: str, material_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_generated_materials(
+        self,
+        course_id: str,
+        material_type: Optional[str] = None,
+        *,
+        scope_type: Optional[str] = None,
+        scope_ids: Optional[Set[str]] = None,
+        aggregate: bool = False,
+    ) -> List[Dict[str, Any]]:
         materials: List[Dict[str, Any]] = []
 
         try:
@@ -297,9 +432,18 @@ class CourseStorageManager:
                     if not material_data:
                         continue
                     material_data["material_id"] = json_file.stem
+                    material_data["course_id"] = str(material_data.get("course_id") or course_id)
                     material_data["material_type"] = material_data.get("material_type") or derived_type
+                    material_data["scope_type"] = str(material_data.get("scope_type") or SCOPE_TYPE_COURSE)
+                    material_data["scope_id"] = str(material_data.get("scope_id") or "").strip() or None
                     material_data["is_pinned"] = bool(material_data.get("is_pinned", False))
-                    materials.append(material_data)
+                    if self._matches_scope(
+                        material_data,
+                        scope_type=scope_type,
+                        scope_ids=scope_ids,
+                        aggregate=aggregate,
+                    ):
+                        materials.append(material_data)
         except Exception as e:
             print(f"Error listing generated materials: {e}")
 

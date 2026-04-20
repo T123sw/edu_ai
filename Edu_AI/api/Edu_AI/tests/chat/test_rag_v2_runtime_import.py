@@ -3,6 +3,7 @@ import io
 import json
 import sys
 import uuid
+import zipfile
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
@@ -120,6 +121,31 @@ def test_runtime_media_dirs_follow_config_storage_root():
 
     assert image_dir == runtime_api.Config.STORAGE_ROOT / "images" / "alice"
     assert video_dir == runtime_api.Config.STORAGE_ROOT / "videos" / "alice"
+
+
+def test_document_processor_extracts_docx_text_without_zip_gibberish(monkeypatch):
+    monkeypatch.setenv("RAG_USE_DOCLING", "0")
+    docx_path = _make_workspace_tmp("docx_extract") / "lesson.docx"
+    document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:r><w:t>变量定义与使用</w:t></w:r></w:p>
+    <w:p><w:r><w:t>变量用于记住和处理信息。</w:t></w:r></w:p>
+  </w:body>
+</w:document>
+"""
+    with zipfile.ZipFile(docx_path, "w", compression=zipfile.ZIP_STORED) as archive:
+        archive.writestr("[Content_Types].xml", "<Types />")
+        archive.writestr("word/document.xml", document_xml)
+
+    processor = runtime_system.DocumentProcessor(chunk_size=2000, chunk_overlap=0)
+    documents = processor.process_file(str(docx_path))
+    full_text = "\n\n".join(str(document.page_content or "") for document in documents)
+
+    assert "变量定义与使用" in full_text
+    assert "变量用于记住和处理信息" in full_text
+    assert "PK" not in full_text
+    assert "[Content_Types]" not in full_text
 
 
 def test_normalize_owner_rejects_pathlike_values():
@@ -668,6 +694,124 @@ async def test_document_content_appends_linked_web_images(monkeypatch):
     assert len(image_chunks) == 1
     assert image_chunks[0]["metadata"]["image_url"] == "/api/rag/image?path=images%2Falice%2Fexample_001.png"
     assert image_chunks[0]["metadata"]["image_name"] == "网页配图 1"
+
+
+@pytest.mark.anyio
+async def test_document_content_resolves_public_course_relative_path_without_record_path(monkeypatch):
+    physical_path = str(Path("D:/course/shared/legacy-lesson.md"))
+    index_key = physical_path
+
+    class FakeVectorStore:
+        def get_documents_by_source(self, source_key):
+            assert source_key == index_key
+            return [
+                {
+                    "content": "public course content",
+                    "metadata": {"page": 1, "source": index_key, "modality": "text"},
+                }
+            ]
+
+    class FakeRAGSystem:
+        def __init__(self):
+            self.document_index = {
+                index_key: {
+                    "physical_path": physical_path,
+                    "file_name": "legacy-lesson.md",
+                    "owner": None,
+                    "source_key": index_key,
+                }
+            }
+            self.vector_store = FakeVectorStore()
+
+        def _make_index_key(self, file_path, owner):
+            return f"user_{owner}:{file_path}" if owner else str(file_path)
+
+        def _make_source_key(self, file_path, owner):
+            return f"user_{owner}:{file_path}" if owner else str(file_path)
+
+        def list_documents(self, owner=None):
+            return [
+                {
+                    "file_path": index_key,
+                    "file_name": "legacy-lesson.md",
+                    "owner": None,
+                }
+            ]
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+
+    response = await runtime_api.get_document_content(
+        file_path="knowledge_base/documents/legacy-lesson.md",
+        current_user={"username": "alice"},
+    )
+
+    assert response.file_path == index_key
+    assert response.file_name == "legacy-lesson.md"
+    assert response.content == "public course content"
+    assert response.total_chunks == 1
+
+
+@pytest.mark.anyio
+async def test_document_summary_resolves_public_course_relative_path_without_record_path(monkeypatch):
+    physical_path = str(Path("D:/course/shared/legacy-lesson.md"))
+    index_key = physical_path
+    summarize_calls = []
+
+    class FakeRAGSystem:
+        def __init__(self):
+            self.document_index = {
+                index_key: {
+                    "physical_path": physical_path,
+                    "file_name": "legacy-lesson.md",
+                    "owner": None,
+                    "source_key": index_key,
+                }
+            }
+
+        def _make_index_key(self, file_path, owner):
+            return f"user_{owner}:{file_path}" if owner else str(file_path)
+
+        def _make_source_key(self, file_path, owner):
+            return f"user_{owner}:{file_path}" if owner else str(file_path)
+
+        def list_documents(self, owner=None):
+            return [
+                {
+                    "file_path": index_key,
+                    "file_name": "legacy-lesson.md",
+                    "owner": None,
+                }
+            ]
+
+        def summarize_document(self, file_path, force_refresh=False, owner=None):
+            summarize_calls.append(
+                {
+                    "file_path": file_path,
+                    "force_refresh": force_refresh,
+                    "owner": owner,
+                }
+            )
+            return {
+                "file_path": file_path,
+                "summary": "public course summary",
+                "summary_updated_at": "2026-04-20T00:00:00",
+            }
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+
+    response = await runtime_api.get_document_summary(
+        runtime_api.DocumentSummaryRequest(file_path="knowledge_base/documents/legacy-lesson.md"),
+        current_user={"username": "alice"},
+    )
+
+    assert response["summary"] == "public course summary"
+    assert summarize_calls == [
+        {
+            "file_path": index_key,
+            "force_refresh": False,
+            "owner": None,
+        }
+    ]
 
 
 @pytest.mark.anyio
