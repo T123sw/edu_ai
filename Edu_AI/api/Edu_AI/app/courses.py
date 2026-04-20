@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
@@ -15,6 +16,12 @@ from app.knowledge_graph_hours import (
     allocate_graph_hours_from_llm,
 )
 from app.teaching_video_bridge import get_teaching_video_bridge_service
+from app.ai_lecture_sessions import (
+    AiLectureRecordingRequest,
+    CreateAiLectureSessionRequest,
+    PatchAiLectureSessionSnapshotRequest,
+    get_ai_lecture_session_service,
+)
 from core import Config
 from core.auth import auth_manager
 from core.course_storage import CourseStorageManager, storage_manager
@@ -354,6 +361,118 @@ def get_teaching_video_task_status(
         return get_teaching_video_bridge_service().get_task_status(course_id=course_id, task_id=task_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{course_id}/lecture-sessions", summary="Create an AI lecture session resource")
+def create_ai_lecture_session(
+    course_id: str,
+    payload: CreateAiLectureSessionRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    return get_ai_lecture_session_service().create_session(
+        course_id=course_id,
+        source_ppt_material_id=payload.source_ppt_material_id,
+        title=payload.title,
+        owner=str(current_user.get("username") or "").strip(),
+    )
+
+
+@router.get("/{course_id}/lecture-sessions/{session_id}", summary="Get an AI lecture session")
+def get_ai_lecture_session(
+    course_id: str,
+    session_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    try:
+        return get_ai_lecture_session_service().get_session(course_id, session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.patch("/{course_id}/lecture-sessions/{session_id}/snapshot", summary="Patch an AI lecture session snapshot")
+def patch_ai_lecture_session_snapshot(
+    course_id: str,
+    session_id: str,
+    payload: PatchAiLectureSessionSnapshotRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    try:
+        return get_ai_lecture_session_service().patch_snapshot(
+            course_id=course_id,
+            session_id=session_id,
+            payload=payload.model_dump(exclude_unset=True),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/{course_id}/lecture-sessions/{session_id}/recording/start", summary="Start AI lecture recording")
+def start_ai_lecture_session_recording(
+    course_id: str,
+    session_id: str,
+    payload: AiLectureRecordingRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    try:
+        return get_ai_lecture_session_service().start_recording(
+            course_id,
+            session_id,
+            livetalking_session_id=payload.livetalking_session_id,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.post("/{course_id}/lecture-sessions/{session_id}/recording/stop", summary="Stop AI lecture recording")
+def stop_ai_lecture_session_recording(
+    course_id: str,
+    session_id: str,
+    payload: AiLectureRecordingRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    try:
+        return get_ai_lecture_session_service().stop_recording(
+            course_id,
+            session_id,
+            livetalking_session_id=payload.livetalking_session_id,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.get("/{course_id}/lecture-sessions/{session_id}/recording", response_class=FileResponse, summary="Download AI lecture recording")
+def get_ai_lecture_session_recording(
+    course_id: str,
+    session_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    try:
+        return get_ai_lecture_session_service().recording_response(course_id, session_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get(
