@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { API_BASE_URL } from "../api/client";
 import { courseMaterialToMarkdown, getCourseMaterials } from "../api/courses";
@@ -38,6 +38,17 @@ type Slide = {
   title: string;
   content: string;
 };
+
+type AiLectureAutoStartRequest = {
+  autoPlay?: boolean;
+  courseId?: string;
+  pptMaterialId?: string;
+  pptTitle?: string;
+  sessionId?: string;
+};
+
+const AI_LECTURE_AUTOSTART_REQUEST_KEY = "stitch-ai-lecture-autostart-request";
+const AI_LECTURE_PREFERRED_SESSION_KEY = "stitch-ai-lecture-session-id";
 
 function defaultMarkdown(courseTitle?: string) {
   return [
@@ -79,9 +90,33 @@ function isPptMaterial(material: CourseMaterial) {
   return material.material_type === "ppt" || /\.pptx?$/i.test(material.title || "");
 }
 
+function readStoredJson<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    window.localStorage.removeItem(key);
+    return JSON.parse(raw) as T;
+  } catch {
+    window.localStorage.removeItem(key);
+    return null;
+  }
+}
+
+function readStoredString(key: string): string | null {
+  if (typeof window === "undefined") return null;
+
+  const raw = window.localStorage.getItem(key);
+  if (!raw) return null;
+  window.localStorage.removeItem(key);
+  return raw;
+}
+
 export function VideoPlayerPage() {
   const { selectedCourse } = useAppShell();
   const course = selectedCourse ?? defaultCourse;
+  const autoStartAttemptedRef = useRef(false);
   const [mode, setMode] = useState<"online" | "offline">("online");
   const [rawDocument, setRawDocument] = useState(defaultMarkdown(selectedCourse?.title));
   const [aiLecturerCourseId, setAiLecturerCourseId] = useState("");
@@ -104,6 +139,10 @@ export function VideoPlayerPage() {
   const [aiLectureSessionId, setAiLectureSessionId] = useState<string | null>(null);
   const [recordingStatus, setRecordingStatus] = useState("not_started");
   const [recordingUrl, setRecordingUrl] = useState("");
+  const [autoStartRequest, setAutoStartRequest] = useState<AiLectureAutoStartRequest | null>(() =>
+    readStoredJson<AiLectureAutoStartRequest>(AI_LECTURE_AUTOSTART_REQUEST_KEY),
+  );
+  const [preferredSessionId] = useState<string | null>(() => readStoredString(AI_LECTURE_PREFERRED_SESSION_KEY));
 
   const {
     audioRef,
@@ -139,9 +178,17 @@ export function VideoPlayerPage() {
         setMaterialsError(null);
         const data = await getCourseMaterials(course.id);
         if (!cancelled) {
-          setMaterials(data);
-          setActiveMaterialId((current) =>
-            current && data.some((item) => item.material_id === current) ? current : data[0]?.material_id ?? null,
+        setMaterials(data);
+        setActiveMaterialId((current) =>
+            current && data.some((item) => item.material_id === current)
+              ? current
+              : autoStartRequest?.sessionId && data.some((item) => item.material_id === autoStartRequest.sessionId)
+                ? autoStartRequest.sessionId
+                : preferredSessionId && data.some((item) => item.material_id === preferredSessionId)
+                  ? preferredSessionId
+                  : autoStartRequest?.pptMaterialId && data.some((item) => item.material_id === autoStartRequest.pptMaterialId)
+                    ? autoStartRequest.pptMaterialId
+                    : data[0]?.material_id ?? null,
           );
         }
       } catch (err) {
@@ -162,7 +209,7 @@ export function VideoPlayerPage() {
     return () => {
       cancelled = true;
     };
-  }, [course.id]);
+  }, [autoStartRequest?.pptMaterialId, autoStartRequest?.sessionId, course.id, preferredSessionId]);
 
   useEffect(() => {
     if (!offlineTaskId || offlineStatus === "success" || offlineStatus === "failed") return;
@@ -233,20 +280,19 @@ export function VideoPlayerPage() {
     });
   }
 
-  async function handleStartRealtimeSession() {
-    if (!selectedPptMaterial) {
-      setError("Select or generate a PPT material before starting realtime playback.");
-      return;
-    }
+  async function startRealtimeSession(options?: { sessionId?: string | null; sourcePptMaterial?: CourseMaterial | null }) {
+      const sourcePptMaterial = options?.sourcePptMaterial ?? selectedPptMaterial;
+      if (!sourcePptMaterial) {
+        throw new Error("Select or generate a PPT material before starting realtime playback.");
+      }
 
-    await withBusy("start-session", async () => {
-      const sessionMaterial = aiLectureSessionId
+      const sessionMaterial = options?.sessionId
         ? null
         : await createAiLectureSession(course.id, {
-            source_ppt_material_id: selectedPptMaterial.material_id,
-            title: `${selectedPptMaterial.title || course.title} - AI lecture session`,
+            source_ppt_material_id: sourcePptMaterial.material_id,
+            title: `${sourcePptMaterial.title || course.title} - AI lecture session`,
           });
-      const sessionId = aiLectureSessionId || String(materialContent(sessionMaterial).session_snapshot_id || sessionMaterial?.material_id || "");
+      const sessionId = options?.sessionId || aiLectureSessionId || String(materialContent(sessionMaterial).session_snapshot_id || sessionMaterial?.material_id || "");
       if (!sessionId) {
         throw new Error("AI lecture session id was not returned.");
       }
@@ -263,8 +309,38 @@ export function VideoPlayerPage() {
         events: [{ type: "session_started", livetalking_session_id: liveSessionId, created_at: new Date().toISOString() }],
         last_position: { page_index: activeSlideIndex, sentence_index: 0 },
       });
+  }
+
+  async function handleStartRealtimeSession() {
+    await withBusy("start-session", async () => {
+      await startRealtimeSession();
     });
   }
+
+  useEffect(() => {
+    if (!autoStartRequest?.autoPlay || materialsLoading || autoStartAttemptedRef.current) {
+      return;
+    }
+
+    const sourcePptMaterial =
+      materials.find((item) => item.material_id === autoStartRequest.pptMaterialId && isPptMaterial(item)) || null;
+    if (!sourcePptMaterial) {
+      setAutoStartRequest(null);
+      return;
+    }
+
+    autoStartAttemptedRef.current = true;
+    setMode("online");
+    setActiveMaterialId(autoStartRequest.sessionId || sourcePptMaterial.material_id);
+
+    void withBusy("start-session", async () => {
+      await startRealtimeSession({
+        sessionId: autoStartRequest.sessionId || null,
+        sourcePptMaterial,
+      });
+      setAutoStartRequest(null);
+    });
+  }, [autoStartRequest, materials, materialsLoading]);
 
   async function handleGenerateScript() {
     if (!activeSlide || !outline.length) {

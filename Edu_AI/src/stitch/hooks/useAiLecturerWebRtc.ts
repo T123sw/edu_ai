@@ -60,6 +60,8 @@ export function useAiLecturerWebRtc(options: UseAiLecturerWebRtcOptions = {}) {
     peerConnection.addTransceiver("audio", { direction: "recvonly" });
     peerConnection.ontrack = (event) => {
       remoteStream.addTrack(event.track);
+      void videoRef.current?.play?.().catch(() => {});
+      void audioRef.current?.play?.().catch(() => {});
     };
 
     try {
