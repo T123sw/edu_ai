@@ -11,6 +11,8 @@ import requests
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from app.teaching_video_bridge import HtmlDeckSlideImageExporter
+from core.config import Config
 from core.course_storage import CourseStorageManager, storage_manager
 
 
@@ -28,6 +30,8 @@ class PatchAiLectureSessionSnapshotRequest(BaseModel):
     script: Optional[list[dict[str, Any]]] = None
     events: Optional[list[dict[str, Any]]] = None
     last_position: Optional[dict[str, int]] = None
+    slide_image_urls: Optional[list[str]] = None
+    slide_count: Optional[int] = None
 
 
 class AiLectureRecordingRequest(BaseModel):
@@ -72,9 +76,17 @@ class LiveTalkingRecordingClient:
 
 
 class AiLectureSessionService:
-    def __init__(self, storage_manager: CourseStorageManager, recording_client: Optional[Any] = None):
+    def __init__(
+        self,
+        storage_manager: CourseStorageManager,
+        recording_client: Optional[Any] = None,
+        html_slide_exporter: Optional[Any] = None,
+        html2ppt_jobs_root: Optional[Path] = None,
+    ):
         self.storage_manager = storage_manager
         self.recording_client = recording_client or LiveTalkingRecordingClient()
+        self.html_slide_exporter = html_slide_exporter or HtmlDeckSlideImageExporter()
+        self.html2ppt_jobs_root = Path(html2ppt_jobs_root or Config.HTML2PPT_JOBS_ROOT).resolve()
 
     def _now(self) -> str:
         return datetime.now().isoformat()
@@ -88,11 +100,70 @@ class AiLectureSessionService:
     def _metadata_path(self, course_id: str, session_id: str) -> Path:
         return self._session_dir(course_id, session_id) / "metadata.json"
 
+    def _slides_dir(self, course_id: str, session_id: str) -> Path:
+        return self._session_dir(course_id, session_id) / "slides"
+
     def _read_json(self, path: Path) -> Dict[str, Any]:
         return self.storage_manager._read_json(path) or {}
 
     def _write_json(self, path: Path, payload: Dict[str, Any]) -> None:
         self.storage_manager._write_json(path, payload)
+
+    def _extract_job_ref(self, html_full_url: str) -> tuple[str, str]:
+        import re
+
+        match = re.search(r"/ppt/artifacts/([^/]+)/([^/]+)/", str(html_full_url or "").strip())
+        if not match:
+            return "", ""
+        return match.group(1).strip(), match.group(2).strip()
+
+    def _resolve_source_deck_path(self, *, course_id: str, source_ppt_material_id: str) -> Path | None:
+        material = self.storage_manager.get_generated_material(course_id, "ppt", source_ppt_material_id)
+        if not material:
+            return None
+        content = material.get("content")
+        if not isinstance(content, dict):
+            return None
+        job_id, revision_id = self._extract_job_ref(str(content.get("html_full_url") or content.get("html_url") or ""))
+        if not job_id or not revision_id:
+            return None
+        try:
+            deck_path = (self.html2ppt_jobs_root / job_id / "revisions" / revision_id / "deck.html").resolve()
+            deck_path.relative_to(self.html2ppt_jobs_root)
+        except Exception:
+            return None
+        return deck_path if deck_path.is_file() else None
+
+    def _slide_image_url(self, *, course_id: str, session_id: str, slide_name: str) -> str:
+        return f"/api/courses/{course_id}/lecture-sessions/{session_id}/slides/{slide_name}"
+
+    def _ensure_slide_images(self, *, course_id: str, session_id: str, source_ppt_material_id: str) -> Dict[str, Any]:
+        snapshot = self._read_json(self._snapshot_path(course_id, session_id))
+        if not snapshot or not source_ppt_material_id:
+            return snapshot
+
+        existing_urls = snapshot.get("slide_image_urls")
+        if isinstance(existing_urls, list) and existing_urls:
+            return snapshot
+
+        slides_dir = self._slides_dir(course_id, session_id)
+        slide_paths = sorted(slides_dir.glob("slide-*.png"))
+        if not slide_paths:
+            deck_path = self._resolve_source_deck_path(course_id=course_id, source_ppt_material_id=source_ppt_material_id)
+            if deck_path is None:
+                return snapshot
+            slides_dir.mkdir(parents=True, exist_ok=True)
+            slide_paths = list(self.html_slide_exporter.export(deck_html_path=deck_path, output_dir=slides_dir))
+
+        if slide_paths:
+            snapshot["slide_image_urls"] = [
+                self._slide_image_url(course_id=course_id, session_id=session_id, slide_name=path.name)
+                for path in slide_paths
+            ]
+            snapshot["slide_count"] = len(slide_paths)
+            snapshot["updated_at"] = self._now()
+            self._write_json(self._snapshot_path(course_id, session_id), snapshot)
+        return snapshot
 
     def create_session(
         self,
@@ -145,15 +216,27 @@ class AiLectureSessionService:
         self._write_json(self._snapshot_path(course_id, session_id), snapshot)
         self._write_json(self._metadata_path(course_id, session_id), metadata)
         self.storage_manager.save_generated_material(course_id, AI_LECTURE_SESSION_TYPE, session_id, material)
+        self._ensure_slide_images(
+            course_id=course_id,
+            session_id=session_id,
+            source_ppt_material_id=source_ppt_material_id,
+        )
         return self.storage_manager.get_generated_material(course_id, AI_LECTURE_SESSION_TYPE, session_id) or {}
 
     def get_session(self, course_id: str, session_id: str) -> Dict[str, Any]:
         material = self.storage_manager.get_generated_material(course_id, AI_LECTURE_SESSION_TYPE, session_id)
         if not material:
             raise ValueError("AI lecture session not found")
+        content = material.get("content")
+        source_ppt_material_id = str(content.get("source_ppt_material_id") or "").strip() if isinstance(content, dict) else ""
+        snapshot = self._ensure_slide_images(
+            course_id=course_id,
+            session_id=session_id,
+            source_ppt_material_id=source_ppt_material_id,
+        )
         return {
             "material": material,
-            "snapshot": self._read_json(self._snapshot_path(course_id, session_id)),
+            "snapshot": snapshot,
             "metadata": self._read_json(self._metadata_path(course_id, session_id)),
         }
 
@@ -161,7 +244,7 @@ class AiLectureSessionService:
         current = self._read_json(self._snapshot_path(course_id, session_id))
         if not current:
             raise ValueError("AI lecture session snapshot not found")
-        for key in ("ai_lecturer_course_id", "outline", "script", "last_position"):
+        for key in ("ai_lecturer_course_id", "outline", "script", "last_position", "slide_image_urls", "slide_count"):
             if key in payload and payload[key] is not None:
                 current[key] = payload[key]
         if payload.get("events"):
@@ -218,6 +301,19 @@ class AiLectureSessionService:
         if not path.exists():
             raise FileNotFoundError(str(path))
         return FileResponse(path=path, filename=f"{session_id}.mp4", media_type="video/mp4")
+
+    def slide_image_response(self, course_id: str, session_id: str, slide_name: str) -> FileResponse:
+        if not str(slide_name or "").strip() or "/" in slide_name or "\\" in slide_name:
+            raise FileNotFoundError(slide_name)
+        slides_root = self._slides_dir(course_id, session_id).resolve()
+        path = (slides_root / slide_name).resolve()
+        try:
+            path.relative_to(slides_root)
+        except Exception as exc:
+            raise FileNotFoundError(slide_name) from exc
+        if not path.exists():
+            raise FileNotFoundError(str(path))
+        return FileResponse(path=path, filename=path.name, media_type="image/png")
 
 
 _service: Optional[AiLectureSessionService] = None

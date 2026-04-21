@@ -150,3 +150,35 @@ def test_get_knowledge_base_index_filters_course_and_personal_libraries_independ
 
     assert [item["filename"] for item in course_docs] == ["course-parent.md", "course-child.md"]
     assert [item["filename"] for item in personal_docs] == ["personal-parent.md"]
+
+
+def test_create_course_structure_preserves_existing_knowledge_base_index():
+    manager = _make_manager("course-storage-preserve-index")
+
+    manager.save_knowledge_base_file(
+        "course-1",
+        b"personal-parent",
+        "personal-parent.md",
+        scope_type="knowledge_point",
+        scope_id="sorting",
+        library_type="personal",
+        owner_user_id="teacher-a",
+    )
+    original_index = manager.get_knowledge_base_index("course-1")
+
+    manager.create_course_structure("course-1")
+
+    assert manager.get_knowledge_base_index("course-1") == original_index
+
+
+def test_get_knowledge_base_index_recovers_orphaned_files_from_documents_dir():
+    manager = _make_manager("course-storage-recover-index")
+    orphan_path = manager.get_course_dir("course-1") / "knowledge_base" / "documents" / "orphan.md"
+    orphan_path.write_bytes(b"orphan")
+
+    recovered_index = manager.get_knowledge_base_index("course-1")
+
+    assert [item["filename"] for item in recovered_index] == ["orphan.md"]
+    assert recovered_index[0]["path"] == "knowledge_base/documents/orphan.md"
+    assert recovered_index[0]["scope_type"] == "course"
+    assert recovered_index[0]["library_type"] == "course"

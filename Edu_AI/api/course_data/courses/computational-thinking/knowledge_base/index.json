@@ -156,5 +156,31 @@
     "url": "https://learn.microsoft.com/zh-cn/dotnet/visual-basic/programming-guide/language-features/variables/variable-declaration",
     "source_url": "https://learn.microsoft.com/zh-cn/dotnet/visual-basic/programming-guide/language-features/variables/variable-declaration",
     "doc_kind": "web"
+  },
+  {
+    "id": "doc-1776784683.043543",
+    "filename": "变量定义与使用.docx",
+    "path": "knowledge_base/documents/变量定义与使用.docx",
+    "size": 8970,
+    "uploaded_at": "2026-04-21T23:18:03.043543",
+    "course_id": "computational-thinking",
+    "scope_type": "knowledge_point",
+    "scope_id": "C2_1",
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "recovered-knowledge_base__documents__教学博客：数组.doc",
+    "filename": "教学博客：数组.doc",
+    "path": "knowledge_base/documents/教学博客：数组.doc",
+    "size": 46291,
+    "uploaded_at": "2026-04-21T20:34:46.391239",
+    "course_id": "computational-thinking",
+    "scope_type": "course",
+    "scope_id": null,
+    "library_type": "course",
+    "owner_user_id": null,
+    "promoted_from_document_id": null
   }
 ]

@@ -61,7 +61,7 @@ export function LoginPage({
             </div>
           </div>
           <Title level={1} className="login-main-title">
-            Edu-AI
+            知学启思
           </Title>
           <Title level={3} className="login-sub-title">
             大模型驱动的智能教学平台

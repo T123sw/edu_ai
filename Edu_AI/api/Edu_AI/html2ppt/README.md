@@ -14,6 +14,21 @@
 
 ---
 
+## Layout Content Quality
+
+生成链路现在把 layout 视为教学表达单元，而不是单纯外观模板。`layout-catalog.json` 与 `component-catalog.json` 增加了紧凑的 teaching recipe、内容容量和 fallback 提示；planner / executor prompt 会优先使用当前页的 focused catalog summary，避免把整份 catalog 都塞进执行上下文。
+
+后处理阶段会写出 `layout-quality-report.json`，其中包含：
+
+- 内容过空的 `CONTENT_DENSITY_LOW`
+- 优先级版式关键槽位缺失的 `REQUIRED_SLOT_EMPTY`
+- 内容标记缺失、重复文本版式、结构化页过密等既有 warning
+- 导出前的轻量几何检查 warning，例如关键容器溢出或元素越出 slide
+
+这套质量链路的目标是：在导出 PPTX 前尽量提前发现“页太空”“槽位没填”“元素超界”这类课堂可讲性问题。
+
+---
+
 ## 1. 当前能力
 
 - 异步创建 PPT 任务
@@ -32,12 +47,15 @@
 ```text
 .
 ├── assets/                     # 品牌 logo、本地媒体测试文件
-├── content-protocol.md         # 内容协议文档
-├── content.md                  # 当前测试用内容文件
-├── format/                     # 版式模板和 layout.css
-├── html-generation-entry-prompt.md
-├── layout-contracts.md         # 版式合同与选择规则
-├── ppt-service-api-draft.md    # 对主系统的接口草案
+├── data/                       # job / revision / 导出产物（本地生成，默认忽略）
+├── docs/
+│   ├── api/                    # 对主系统的接口草案
+│   ├── ops/                    # 部署与迁移说明
+│   └── superpowers/            # 设计/计划记录，非运行时依赖
+├── dom-to-pptx/                # DOM -> PPTX 导出适配库
+├── format/                     # frames / presets / components / layout.css
+├── prompts/                    # planner、slide executor、revision executor 提示词
+├── references/                 # 内容协议、catalog、导出限制与工作流参考
 ├── scripts/
 │   ├── build-standalone-html.js
 │   └── export-html-to-pptx.js
@@ -50,7 +68,8 @@
 │   ├── store/
 │   └── server.js
 ├── style/
-└── test/
+├── test/
+└── test-harness/               # 本地导出调试 harness
 ```
 
 ---
@@ -134,7 +153,7 @@ npm start
 
 `content_markdown` 必须遵守纯 Markdown 固定字段协议，详见：
 
-- [content-protocol.md](content-protocol.md)
+- [references/content-protocol.md](references/content-protocol.md)
 
 核心结构：
 
@@ -206,7 +225,7 @@ npm start
 
 完整接口草案见：
 
-- [ppt-service-api-draft.md](doc/ppt-service-api-draft.md)
+- [docs/api/ppt-service-api-draft.md](docs/api/ppt-service-api-draft.md)
 
 主要接口：
 
@@ -401,7 +420,12 @@ v1 当前限制：
 
 ## 14. 相关文档
 
-- [ppt-service-api-draft.md](doc/ppt-service-api-draft.md)
-- [content-protocol.md](content-protocol.md)
-- [layout-contracts.md](layout-contracts.md)
-- [html-generation-entry-prompt.md](html-generation-entry-prompt.md)
+- [docs/README.md](docs/README.md)
+- [docs/api/ppt-service-api-draft.md](docs/api/ppt-service-api-draft.md)
+- [docs/ops/migration-to-linux.md](docs/ops/migration-to-linux.md)
+- [references/content-protocol.md](references/content-protocol.md)
+- [references/layout-catalog.json](references/layout-catalog.json)
+- [references/component-catalog.json](references/component-catalog.json)
+- [references/html-to-pptx-restrict.md](references/html-to-pptx-restrict.md)
+- [prompts/deck-planner.md](prompts/deck-planner.md)
+- [prompts/slide-executor.md](prompts/slide-executor.md)

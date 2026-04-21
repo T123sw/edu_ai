@@ -62,10 +62,14 @@ function inferLayout(slideHtml) {
   if (classes.has('layout-cover')) return 'cover';
   if (classes.has('layout-toc')) return 'toc';
   if (classes.has('layout-section-break')) return 'section';
+  if (classes.has('layout-content-blank')) return 'content_blank';
   if (classes.has('layout-standard-text')) return 'standard-text';
   if (classes.has('layout-standard-text-dual-panel')) return 'standard-text-dual-panel';
   if (classes.has('layout-standard-text-sidebar')) return 'standard-text-sidebar';
   if (classes.has('layout-standard-text-structured')) return 'standard-text-structured';
+  if (classes.has('layout-architecture-pipeline-spotlight')) return 'architecture-pipeline-spotlight';
+  if (classes.has('layout-dual-core-support')) return 'dual-core-support';
+  if (classes.has('layout-thesis-evidence-grid')) return 'thesis-evidence-grid';
   if (classes.has('layout-standard-text-comparison')) return 'standard-text-comparison';
   if (classes.has('layout-standard-text-process')) return 'standard-text-process';
   if (classes.has('layout-comparison-vs-panels')) return 'comparison-vs-panels';

@@ -15,17 +15,17 @@ def test_report_context_organizer_falls_back_to_raw_llm_json_when_structured_out
             return """```json
 {
   "report_intent": "generate_report",
-  "report_subject": "Skills 与 MCP 的差异",
-  "report_focus": "工具集成方式与适用场景差异",
+  "report_subject": "Python Variables",
+  "report_focus": "Variable definitions and naming rules",
   "report_context_summary": {
-    "subject_summary": "当前围绕 Skills 与 MCP 的差异展开讨论",
-    "focus_summary": "重点比较工具集成方式与适用场景",
-    "key_points": ["Skills 偏内置能力", "MCP 偏开放协议"],
+    "subject_summary": "Discuss Python variable basics",
+    "focus_summary": "Explain definitions and naming rules",
+    "key_points": ["definition", "naming"],
     "evidence_points": [],
     "constraints": {},
     "source_scope": ["from_conversation"]
   },
-  "key_points": ["Skills 偏内置能力", "MCP 偏开放协议"],
+  "key_points": ["definition", "naming"],
   "evidence_points": [],
   "constraints": {},
   "source_scope": {
@@ -37,7 +37,7 @@ def test_report_context_organizer_falls_back_to_raw_llm_json_when_structured_out
   "open_questions": [],
   "missing_critical_fields": [],
   "confidence": "high",
-  "soft_confirm_message": "我将基于 Skills 与 MCP 的差异生成报告，可以开始吗？",
+  "soft_confirm_message": "",
   "followup_candidates": []
 }
 ```"""
@@ -45,17 +45,83 @@ def test_report_context_organizer_falls_back_to_raw_llm_json_when_structured_out
     context = GenerationContext(
         conversation_id="conv-llm",
         resource_type="report",
-        summary_text="当前围绕 Skills 与 MCP 的差异展开讨论。",
-        current_topics=["Skills 与 MCP 的差异"],
-        user_goals=["生成报告"],
+        summary_text="Discuss Python variable basics",
+        current_topics=["Python Variables"],
+        user_goals=["generate report"],
     )
 
     result = ReportContextOrganizer(llm=DummyLlm()).organize(
         context=context,
-        request_question="请基于当前内容生成一份报告",
+        request_question="Generate a report from the discussion.",
     )
 
-    assert result.report_subject == "Skills 与 MCP 的差异"
-    assert result.report_focus == "工具集成方式与适用场景差异"
+    assert result.report_subject == "Python Variables"
+    assert result.report_focus == "Variable definitions and naming rules"
     assert result.confidence == "high"
+    assert result.preparation_source == "llm_raw_json"
+
+
+def test_report_context_organizer_uses_raw_json_directly_for_qwen_compatible_models():
+    class DummyLlm:
+        model = "qwen3.5-plus"
+        base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+        def __init__(self):
+            self.structured_calls = 0
+            self.prompts = []
+
+        def with_structured_output(self, schema, method=None):
+            self.structured_calls += 1
+            raise AssertionError("qwen-compatible llm should not use function_calling structured output")
+
+        def invoke(self, prompt):
+            self.prompts.append(prompt)
+            return """```json
+{
+  "report_intent": "generate_report",
+  "report_subject": "Python Variables",
+  "report_focus": "Variable definitions and naming rules",
+  "report_context_summary": {
+    "subject_summary": "Discuss Python variable basics",
+    "focus_summary": "Explain definitions and naming rules",
+    "key_points": ["definition", "naming"],
+    "evidence_points": [],
+    "constraints": {},
+    "source_scope": ["from_conversation"]
+  },
+  "key_points": ["definition", "naming"],
+  "evidence_points": [],
+  "constraints": {},
+  "source_scope": {
+    "from_conversation": true,
+    "from_docs": false,
+    "from_course": false,
+    "from_artifacts": false
+  },
+  "open_questions": [],
+  "missing_critical_fields": [],
+  "confidence": "high",
+  "soft_confirm_message": "",
+  "followup_candidates": []
+}
+```"""
+
+    llm = DummyLlm()
+    context = GenerationContext(
+        conversation_id="conv-report-qwen",
+        resource_type="report",
+        summary_text="Discuss Python variable basics",
+        current_topics=["Python Variables"],
+        user_goals=["generate report"],
+    )
+
+    result = ReportContextOrganizer(llm=llm).organize(
+        context=context,
+        request_question="Generate a report from the discussion.",
+    )
+
+    assert llm.structured_calls == 0
+    assert llm.prompts
+    assert result.report_subject == "Python Variables"
+    assert result.report_focus == "Variable definitions and naming rules"
     assert result.preparation_source == "llm_raw_json"

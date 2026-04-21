@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "components": {
+    "quote_callout": {
+      "source": "format/components/quote-callout-fragment.html",
+      "best_for": ["核心判断", "页面主结论", "短引言"],
+      "required_structure": ["quote-box", "quote-accent", "quote-text"],
+      "content_slots": ["takeaway"],
+      "teaching_recipe": "一个核心判断或课堂结论",
+      "min_content_units": 1,
+      "max_content_units": 1,
+      "chart_affordances": ["none"],
+      "fallback_layout": "standard_text",
+      "hard_constraints": ["quote-accent 必须是真实节点"]
+    },
+    "bullet_list": {
+      "source": "format/components/bullet-list-fragment.html",
+      "best_for": ["2 到 4 条短要点", "低密度解释", "教学讲解点"],
+      "required_structure": ["surface-card", "text-details", "list-item"],
+      "content_slots": ["takeaway", "points", "example"],
+      "teaching_recipe": "结论 + 2-4 个解释点 + 可选例子或课堂提示",
+      "min_content_units": 3,
+      "max_content_units": 6,
+      "chart_affordances": ["none"],
+      "fallback_layout": "thesis_evidence_grid",
+      "hard_constraints": ["list-item 使用扁平文本，不嵌套 ul 或 ol"]
+    },
+    "comparison_matrix": {
+      "source": "format/components/comparison-matrix-fragment.html",
+      "best_for": ["两个平级对象对照", "双视角比较"],
+      "required_structure": ["comparison-grid", "comparison-card"],
+      "content_slots": ["left_title", "right_title", "comparison_rows"],
+      "teaching_recipe": "两个对象 + 2-4 个比较维度 + 课堂类比",
+      "min_content_units": 5,
+      "max_content_units": 8,
+      "chart_affordances": ["comparison", "matrix"],
+      "fallback_layout": "comparison_vs",
+      "hard_constraints": ["左右 comparison-card 都必须保留"]
+    },
+    "process_steps": {
+      "source": "format/components/process-steps-fragment.html",
+      "best_for": ["三到五步流程", "阶段路径", "操作步骤"],
+      "required_structure": ["process-track", "process-step", "process-index"],
+      "content_slots": ["steps", "inputs", "outputs", "teaching_notes"],
+      "teaching_recipe": "步骤序列 + 每步动作或输出",
+      "min_content_units": 3,
+      "max_content_units": 5,
+      "chart_affordances": ["timeline", "flow"],
+      "fallback_layout": "execution_pipeline",
+      "hard_constraints": ["序号由 process-index 承载，标题不要重复写 Step 1"]
+    },
+    "card_grid": {
+      "source": "format/components/card-grid-fragment.html",
+      "best_for": ["三点并列", "三类画像", "三个关键词"],
+      "required_structure": ["cards-grid", "surface-card", "card-top-accent"],
+      "content_slots": ["cards", "examples", "questions"],
+      "teaching_recipe": "3 个并列概念 + 每项解释 + 可选例子或课堂追问",
+      "min_content_units": 6,
+      "max_content_units": 9,
+      "chart_affordances": ["classification"],
+      "fallback_layout": "card_layout",
+      "hard_constraints": ["每张卡保留 card-top-accent"]
+    },
+    "media_panel": {
+      "source": "format/components/media-panel-fragment.html",
+      "best_for": ["媒体配解释", "图文分析"],
+      "required_structure": ["media-card", "media-stage", "media-element"],
+      "content_slots": ["media", "caption", "observation_points"],
+      "teaching_recipe": "媒体 + 观察点 + 简短结论",
+      "min_content_units": 3,
+      "max_content_units": 5,
+      "chart_affordances": ["media"],
+      "fallback_layout": "media_focus",
+      "hard_constraints": ["媒体优先使用 Local-Path 或 Local-Poster-Path"]
+    },
+    "capability_grid": {
+      "source": "format/components/capability-grid-fragment.html",
+      "best_for": ["一个总论点加 5 到 6 个模块", "能力图谱", "组件地图"],
+      "required_structure": ["capability-map", "capability-hero", "capability-grid", "capability-card"],
+      "content_slots": ["hero", "items", "relation", "takeaway"],
+      "teaching_recipe": "总论点 + 5-6 个模块 + 模块关系",
+      "min_content_units": 6,
+      "max_content_units": 8,
+      "chart_affordances": ["relationship_map", "grid"],
+      "fallback_layout": "capability_map_grid",
+      "hard_constraints": ["capability-grid 推荐 6 个 capability-card"]
+    },
+    "metric_strip": {
+      "source": "format/components/metric-strip-fragment.html",
+      "best_for": ["三项指标", "概念速览", "关键对象概括"],
+      "required_structure": ["metric-strip", "metric-item", "metric-value"],
+      "content_slots": ["metrics", "labels", "notes"],
+      "teaching_recipe": "3 个核心对象 + 每项一句解释",
+      "min_content_units": 3,
+      "max_content_units": 6,
+      "chart_affordances": ["metric_strip"],
+      "fallback_layout": "card_layout",
+      "hard_constraints": ["只表达概念标签或相对指标，不编造精确统计"]
+    },
+    "bar_chart": {
+      "source": "format/components/bar-chart-fragment.html",
+      "best_for": ["相对强弱", "优先级对比", "能力成熟度"],
+      "required_structure": ["bar-chart", "bar-row", "bar-fill"],
+      "content_slots": ["title", "bars", "notes"],
+      "teaching_recipe": "一个比较主题 + 3 条相对强度 + 简短解释",
+      "min_content_units": 3,
+      "max_content_units": 5,
+      "chart_affordances": ["bar_chart", "relative_scale"],
+      "fallback_layout": "standard_text_comparison",
+      "hard_constraints": ["条形长度只表示相对关系，避免伪造精确数值"]
+    },
+    "matrix_2x2": {
+      "source": "format/components/matrix-2x2-fragment.html",
+      "best_for": ["判断矩阵", "分类框架", "优先级分析"],
+      "required_structure": ["matrix-2x2", "matrix-cell"],
+      "content_slots": ["x_axis", "y_axis", "cells"],
+      "teaching_recipe": "两个判断维度 + 四类结论",
+      "min_content_units": 4,
+      "max_content_units": 6,
+      "chart_affordances": ["matrix"],
+      "fallback_layout": "standard_text_comparison",
+      "hard_constraints": ["不编造统计数字；只表达概念分类或相对关系"]
+    },
+    "timeline": {
+      "source": "format/components/timeline-fragment.html",
+      "best_for": ["四步流程", "阶段演进", "实施路线"],
+      "required_structure": ["timeline", "timeline-step", "timeline-index"],
+      "content_slots": ["steps", "sequence", "actions"],
+      "teaching_recipe": "3-4 个顺序步骤 + 每步一个动作",
+      "min_content_units": 3,
+      "max_content_units": 4,
+      "chart_affordances": ["timeline", "flow"],
+      "fallback_layout": "standard_text_process_grid",
+      "hard_constraints": ["保持时间顺序清晰，每步文案短句化"]
+    },
+    "relationship_map": {
+      "source": "format/components/relationship-map-fragment.html",
+      "best_for": ["概念关系", "系统组成", "对象协作"],
+      "required_structure": ["relationship-map", "relationship-node", "relationship-link"],
+      "content_slots": ["core", "nodes", "links"],
+      "teaching_recipe": "一个中心概念 + 3 个关联对象 + 关系说明",
+      "min_content_units": 3,
+      "max_content_units": 5,
+      "chart_affordances": ["relationship_map"],
+      "fallback_layout": "capability_map_grid",
+      "hard_constraints": ["relationship-link 使用真实节点，不依赖线条伪元素"]
+    }
+  }
+}

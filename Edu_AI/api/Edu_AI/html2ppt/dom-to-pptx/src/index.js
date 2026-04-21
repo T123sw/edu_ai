@@ -17,6 +17,7 @@ import {
   svgToPng,
   svgToSvg,
   getPadding,
+  getTextBoxMargin,
   getSoftEdges,
   generateBlurredSVG,
   getBorderInfo,
@@ -32,6 +33,29 @@ import { createVideoRenderItem } from './media-processor.js';
 
 const PPI = 96;
 const PX_TO_INCH = 1 / PPI;
+
+export function extractAnchorHyperlink(node) {
+  if (!node || String(node.tagName || '').toUpperCase() !== 'A') {
+    return null;
+  }
+  const href = String(node.getAttribute?.('href') || '').trim();
+  return href ? { url: href } : null;
+}
+
+function resolveAnchorHyperlink(child, container) {
+  if (child?.nodeType === 1) {
+    return (
+      extractAnchorHyperlink(child) ||
+      extractAnchorHyperlink(child.closest?.('a')) ||
+      extractAnchorHyperlink(container)
+    );
+  }
+
+  return (
+    extractAnchorHyperlink(child?.parentElement?.closest?.('a')) ||
+    extractAnchorHyperlink(container)
+  );
+}
 
 /**
  * Main export function.
@@ -57,7 +81,36 @@ export async function exportToPptx(target, options = {}) {
   const PptxConstructor = resolvePptxConstructor(PptxGenJS);
   if (!PptxConstructor) throw new Error('PptxGenJS constructor not found.');
   const pptx = new PptxConstructor();
-  pptx.layout = 'LAYOUT_16x9';
+
+  let finalWidth = 10;
+  let finalHeight = 5.625;
+
+  if (options.width && options.height) {
+    pptx.defineLayout({ name: 'CUSTOM', width: options.width, height: options.height });
+    pptx.layout = 'CUSTOM';
+    finalWidth = options.width;
+    finalHeight = options.height;
+  } else if (options.layout) {
+    pptx.layout = options.layout;
+    if (options.layout === 'LAYOUT_4x3') {
+      finalWidth = 10;
+      finalHeight = 7.5;
+    } else if (options.layout === 'LAYOUT_16x10') {
+      finalWidth = 10;
+      finalHeight = 6.25;
+    } else if (options.layout === 'LAYOUT_WIDE') {
+      finalWidth = 13.3;
+      finalHeight = 7.5;
+    }
+  } else {
+    pptx.layout = 'LAYOUT_16x9';
+  }
+
+  const extendedOptions = {
+    ...options,
+    _slideWidth: finalWidth,
+    _slideHeight: finalHeight,
+  };
 
   const elements = Array.isArray(target) ? target : [target];
 
@@ -68,7 +121,7 @@ export async function exportToPptx(target, options = {}) {
       continue;
     }
     const slide = pptx.addSlide();
-    await processSlide(root, slide, pptx, options);
+    await processSlide(root, slide, pptx, extendedOptions);
   }
 
   // 3. Font Embedding Logic
@@ -158,8 +211,8 @@ export async function exportToPptx(target, options = {}) {
  */
 async function processSlide(root, slide, pptx, globalOptions = {}) {
   const rootRect = root.getBoundingClientRect();
-  const PPTX_WIDTH_IN = 10;
-  const PPTX_HEIGHT_IN = 5.625;
+  const PPTX_WIDTH_IN = globalOptions._slideWidth || 10;
+  const PPTX_HEIGHT_IN = globalOptions._slideHeight || 5.625;
 
   const contentWidthIn = rootRect.width * PX_TO_INCH;
   const contentHeightIn = rootRect.height * PX_TO_INCH;
@@ -542,20 +595,53 @@ function prepareRenderItem(
 
   if (node.tagName === 'TABLE') {
     const tableData = extractTableData(node, config.scale);
+    const tableItems = [
+      {
+        type: 'table',
+        zIndex: effectiveZIndex,
+        domOrder,
+        tableData,
+        options: { x, y, w: unrotatedW, h: unrotatedH },
+      },
+    ];
 
-    // Calculate total table width to ensure X position is correct
-    // (Though x calculation above usually handles it, tables can be finicky)
-    return {
-      items: [
-        {
-          type: 'table',
-          zIndex: effectiveZIndex,
-          domOrder,
-          tableData: tableData,
-          options: { x, y, w: unrotatedW, h: unrotatedH },
+    const shadowStr = style.boxShadow;
+    const hasShadow = shadowStr && shadowStr !== 'none';
+    const borderRadius = parseFloat(style.borderRadius) || 0;
+    const bgColor = parseColor(style.backgroundColor);
+    const hasBg = bgColor.hex && bgColor.opacity > 0;
+
+    if (hasShadow || borderRadius > 0 || hasBg) {
+      const transparency = (1 - bgColor.opacity) * 100;
+      const shadow = hasShadow ? getVisibleShadow(shadowStr, config.scale) : null;
+      let shapeType = pptx.ShapeType.rect;
+      let rectRadius = 0;
+
+      if (borderRadius > 0) {
+        shapeType = pptx.ShapeType.roundRect;
+        rectRadius = Math.min(borderRadius / Math.min(widthPx, heightPx), 0.5);
+      }
+
+      tableItems.unshift({
+        type: 'shape',
+        zIndex: effectiveZIndex,
+        domOrder,
+        shapeType,
+        options: {
+          x,
+          y,
+          w: unrotatedW,
+          h: unrotatedH,
+          fill: hasBg ? { color: bgColor.hex, transparency } : { type: 'none' },
+          shadow,
+          rectRadius,
         },
-      ],
-      stopRecursion: true, // Important: Don't process TR/TD as separate shapes
+      });
+    }
+
+    return {
+      items: tableItems,
+      stopRecursion: true,
     };
   }
 
@@ -1019,6 +1105,7 @@ function prepareRenderItem(
 
       if (textVal.length > 0) {
         const textOpts = getTextStyle(nodeStyle, config.scale);
+        const hyperlink = resolveAnchorHyperlink(child, node);
 
         // BUG FIX: Numbers 1 and 2 having background.
         // If this is a naked Text Node (nodeType 3), it inherits style from the parent container.
@@ -1026,6 +1113,9 @@ function prepareRenderItem(
         // We must NOT render it again as a Text Highlight, otherwise it looks like a solid marker on top of the shape.
         if (child.nodeType === 3 && textOpts.highlight) {
           delete textOpts.highlight;
+        }
+        if (hyperlink) {
+          textOpts.hyperlink = hyperlink;
         }
 
         textParts.push({ text: textVal, options: textOpts });
@@ -1042,12 +1132,11 @@ function prepareRenderItem(
 
       const pt = parseFloat(style.paddingTop) || 0;
       const pb = parseFloat(style.paddingBottom) || 0;
-      if (Math.abs(pt - pb) < 2 && bgColorObj.hex) valign = 'middle';
+      if (Math.abs(pt - pb) < 2) valign = 'middle';
 
-      let padding = getPadding(style, config.scale);
-      if (align === 'center' && valign === 'middle') padding = [0, 0, 0, 0];
+      const textMargin = getTextBoxMargin(style, config.scale);
 
-      textPayload = { text: textParts, align, valign, inset: padding };
+      textPayload = { text: textParts, align, valign, margin: textMargin };
     }
   }
 
@@ -1105,9 +1194,8 @@ function prepareRenderItem(
           h,
           align: textPayload.align,
           valign: textPayload.valign,
-          inset: textPayload.inset,
           rotate: rotation,
-          margin: 0,
+          margin: textPayload.margin,
           wrap: true,
           autoFit: false,
         },
@@ -1215,8 +1303,7 @@ function prepareRenderItem(
           rotate: rotation,
           align: textPayload.align,
           valign: textPayload.valign,
-          inset: textPayload.inset,
-          margin: 0,
+          margin: textPayload.margin,
           wrap: true,
           autoFit: false,
         };
@@ -1308,13 +1395,22 @@ function collectListParts(node, parentStyle, scale) {
   node.childNodes.forEach((child) => {
     if (child.nodeType === 3) {
       // Text
-      const val = child.nodeValue.replace(/[\n\r\t]+/g, ' ').replace(/\s{2,}/g, ' ');
+      let val = child.nodeValue.replace(/[\n\r\t]+/g, ' ').replace(/\s{2,}/g, ' ');
       if (val) {
         // Use parent style if child is text node, otherwise current style
         const styleToUse = node.nodeType === 1 ? window.getComputedStyle(node) : parentStyle;
+        const transform = styleToUse.textTransform;
+        if (transform === 'uppercase') val = val.toUpperCase();
+        else if (transform === 'lowercase') val = val.toLowerCase();
+        else if (transform === 'capitalize') val = val.replace(/\b\w/g, (c) => c.toUpperCase());
+        const textOpts = getTextStyle(styleToUse, scale);
+        const hyperlink = resolveAnchorHyperlink(child, node);
+        if (hyperlink) {
+          textOpts.hyperlink = hyperlink;
+        }
         parts.push({
           text: val,
-          options: getTextStyle(styleToUse, scale),
+          options: textOpts,
         });
       }
     } else if (child.nodeType === 1) {

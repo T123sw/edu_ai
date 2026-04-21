@@ -8,7 +8,7 @@
   "themes": {
     "theme-heu-academic-elegant.css": {
       "brand": {
-        "enabled": true,
+        "enabled": false,
         "asset": "/assets/HEU/heu-logo.png",
         "alt": "哈尔滨工程大学logo",
         "position": "top-right",
@@ -18,7 +18,7 @@
     },
     "theme-heu-academic-basic.css": {
       "brand": {
-        "enabled": true,
+        "enabled": false,
         "asset": "/assets/HEU/heu-logo.png",
         "alt": "哈尔滨工程大学logo",
         "position": "top-right",

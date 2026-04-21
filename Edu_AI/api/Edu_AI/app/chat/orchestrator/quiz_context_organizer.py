@@ -7,6 +7,7 @@ from typing import Any
 from app.chat.domain.generation_context import GenerationContext
 from app.chat.domain.quiz_preparation import QuizContextSummary, QuizPreparationResult
 from app.chat.utils.json_utils import extract_json_block
+from app.chat.utils.llm_compat import llm_base_url, llm_model_label, should_skip_function_calling
 from app.chat.workflows.quiz.assembler import QuizAssembler
 from core.config import Config
 
@@ -21,16 +22,6 @@ def _quiz_trace(*lines: str) -> None:
     print("[quiz_context_organizer]")
     for line in lines:
         print(f"  - {line}")
-
-
-def _quiz_model_label(llm: Any | None) -> str:
-    if llm is None:
-        return ""
-    for attr in ("model", "model_name", "model_id"):
-        value = str(getattr(llm, attr, "") or "").strip()
-        if value:
-            return value
-    return llm.__class__.__name__
 
 
 class QuizContextOrganizer:
@@ -684,22 +675,30 @@ class QuizContextOrganizer:
         request_question: str,
         stored_slots: dict[str, str] | None = None,
     ) -> QuizPreparationResult:
-        model_label = _quiz_model_label(self.llm)
+        model_label = llm_model_label(self.llm)
         if self.llm is not None:
             prompt = self._build_llm_prompt(context=context, request_question=request_question)
-            _quiz_trace("llm_path=enabled", f"llm_model={model_label}", f"request={self._clean(request_question)}")
-            try:
-                structured = self.llm.with_structured_output(QuizPreparationResult, method="function_calling")
-                structured_result = structured.invoke(prompt)
-                if structured_result is not None:
-                    return self._sanitize_result(
-                        context=context,
-                        request_question=request_question,
-                        stored_slots=stored_slots,
-                        raw_result=structured_result,
-                    )
-            except Exception as exc:
-                _quiz_trace("llm_mode=structured_output", f"status=failed error={exc}")
+            _quiz_trace(
+                "llm_path=enabled",
+                f"llm_model={model_label}",
+                f"base_url={llm_base_url(self.llm)}",
+                f"request={self._clean(request_question)}",
+            )
+            if should_skip_function_calling(self.llm):
+                _quiz_trace("llm_mode=structured_output", "status=skipped_qwen_compat")
+            else:
+                try:
+                    structured = self.llm.with_structured_output(QuizPreparationResult, method="function_calling")
+                    structured_result = structured.invoke(prompt)
+                    if structured_result is not None:
+                        return self._sanitize_result(
+                            context=context,
+                            request_question=request_question,
+                            stored_slots=stored_slots,
+                            raw_result=structured_result,
+                        )
+                except Exception as exc:
+                    _quiz_trace("llm_mode=structured_output", f"status=failed error={exc}")
             try:
                 raw = self.llm.invoke(prompt)
                 payload = extract_json_block(getattr(raw, "content", raw))

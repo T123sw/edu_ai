@@ -64,6 +64,115 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function buildPreviewRuntimeBridgeScript() {
+  return [
+    '<script>',
+    '(function () {',
+    '  let previewSingleSlideMode = false;',
+    '',
+    '  function getSlides() {',
+    "    return Array.from(document.querySelectorAll('.slide'));",
+    '  }',
+    '',
+    '  function clampSlideIndex(slideIndex, slides) {',
+    '    if (!slides.length) return 1;',
+    '    if (!Number.isFinite(slideIndex)) return 1;',
+    '    return Math.min(slides.length, Math.max(1, Math.round(slideIndex)));',
+    '  }',
+    '',
+    '  function syncAddressBar(safeSlideIndex) {',
+    '    try {',
+    '      const nextUrl = new URL(window.location.href);',
+    "      nextUrl.searchParams.set('slide', String(safeSlideIndex));",
+    "      nextUrl.searchParams.set('page', String(safeSlideIndex));",
+    "      nextUrl.hash = 'slide-' + safeSlideIndex;",
+    '      window.history.replaceState(null, "", nextUrl);',
+    '    } catch {}',
+    '  }',
+    '',
+    '  function renderSingleSlide(slides, safeSlideIndex) {',
+    "    document.documentElement.style.overflow = 'hidden';",
+    "    document.body.style.overflow = 'hidden';",
+    '    slides.forEach((slide, index) => {',
+    "      slide.style.display = index === safeSlideIndex - 1 ? 'flex' : 'none';",
+    "      slide.dataset.previewActive = index === safeSlideIndex - 1 ? 'true' : 'false';",
+    '    });',
+    '  }',
+    '',
+    '  function scrollToSlide(slideIndex) {',
+    '    const slides = getSlides();',
+    '    const safeSlideIndex = clampSlideIndex(slideIndex, slides);',
+    '    const targetSlide = slides[safeSlideIndex - 1];',
+    '    const singleSlidePreviewMode = previewSingleSlideMode;',
+    '    if (!targetSlide) return;',
+    '    if (!singleSlidePreviewMode) {',
+    "      targetSlide.scrollIntoView({ block: 'start', inline: 'nearest' });",
+    '      window.scrollTo({ top: targetSlide.offsetTop, left: targetSlide.offsetLeft });',
+    '    } else {',
+    '      renderSingleSlide(slides, safeSlideIndex);',
+    '      window.scrollTo({ top: 0, left: 0 });',
+    '    }',
+    '    syncAddressBar(safeSlideIndex);',
+    '  }',
+    '',
+    '  function readInitialSlideIndex() {',
+    '    try {',
+    '      const searchParams = new URLSearchParams(window.location.search);',
+    "      const singleSlidePreviewMode = searchParams.get('preview_mode') === 'single-slide';",
+    '      previewSingleSlideMode = singleSlidePreviewMode;',
+    "      const rawSlideIndex = searchParams.get('slide') || searchParams.get('page') || window.location.hash.replace(/^#slide-/, '');",
+    '      return Number.parseInt(String(rawSlideIndex || 1), 10) || 1;',
+    '    } catch {',
+    '      return 1;',
+    '    }',
+    '  }',
+    '',
+    '  function handlePreviewMessage(event) {',
+    '    const data = event.data || {};',
+    "    if (data.type !== 'ppt-preview-go-to-slide') return;",
+    '    const requestedSlideIndex = Number.parseInt(String(data.slideIndex || 1), 10);',
+    '    scrollToSlide(requestedSlideIndex);',
+    '  }',
+    '',
+    "  window.addEventListener('message', handlePreviewMessage);",
+    '',
+    '  function announceReady() {',
+    '    if (window.parent === window) return;',
+    '    try {',
+    "      window.parent.postMessage({ type: 'ppt-preview-ready' }, '*');",
+    '    } catch {}',
+    '  }',
+    '',
+    '  function initializePreviewBridge() {',
+    '    scrollToSlide(readInitialSlideIndex());',
+    '    announceReady();',
+    '  }',
+    '',
+    "  if (document.readyState === 'complete') {",
+    '    initializePreviewBridge();',
+    '  } else {',
+    "    window.addEventListener('load', initializePreviewBridge, { once: true });",
+    '  }',
+    '})();',
+    '</script>',
+  ].join('\n');
+}
+
+function ensurePreviewRuntimeBridge(html) {
+  const source = String(html || '');
+  if (!source.trim()) {
+    return source;
+  }
+  const upgradedSource = source.replace(
+    /<script\b[^>]*>[\s\S]*?(?:ppt-preview-go-to-slide|ppt-preview-ready)[\s\S]*?<\/script>/gi,
+    ''
+  );
+  if (/<\/body>/i.test(upgradedSource)) {
+    return upgradedSource.replace(/<\/body>/i, `${buildPreviewRuntimeBridgeScript()}\n</body>`);
+  }
+  return `${upgradedSource}\n${buildPreviewRuntimeBridgeScript()}`;
+}
+
 function buildStandaloneHtml({ title, layoutCss, themeCss, fragment }) {
   return [
     '<!DOCTYPE html>',
@@ -82,6 +191,7 @@ function buildStandaloneHtml({ title, layoutCss, themeCss, fragment }) {
     '</head>',
     '<body>',
     fragment.trim(),
+    buildPreviewRuntimeBridgeScript(),
     '</body>',
     '</html>',
     '',
@@ -114,7 +224,7 @@ function buildStandaloneHtmlFromFragment({ fragmentPath, outputPath, title, them
   ensureFileExists(themeCssPath, 'Theme CSS');
 
   const rawInput = fs.readFileSync(resolvedFragmentPath, 'utf8');
-  const fragment = normalizeSlideDecorations(extractBodyFragment(rawInput));
+  const fragment = normalizeSlideDecorations(extractBodyFragment(rawInput), themeId);
   if (!fragment) {
     throw new Error('Input fragment is empty after normalization.');
   }
@@ -151,6 +261,7 @@ module.exports = {
   buildStandaloneHtml,
   buildStandaloneHtmlFromFragment,
   collapseWhitespace,
+  ensurePreviewRuntimeBridge,
   extractBodyFragment,
   hasSlideClass,
   inferTitle,

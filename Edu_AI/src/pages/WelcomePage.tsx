@@ -124,7 +124,7 @@ export default function WelcomePage() {
             <Title level={1} className="welcome-title">
               {getGreeting()}，{user?.username || '用户'}
             </Title>
-            <Paragraph className="welcome-subtitle">欢迎使用 Edu-AI 智能教学平台</Paragraph>
+            <Paragraph className="welcome-subtitle">欢迎使用 知学启思 教学平台</Paragraph>
             <Text type="secondary" className="welcome-description">
               从这里进入课程、知识图谱、资源和工作台，保持现在的业务逻辑不变，只把界面切到新的视觉风格。
             </Text>

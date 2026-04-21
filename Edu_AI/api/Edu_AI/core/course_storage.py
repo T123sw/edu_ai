@@ -160,9 +160,57 @@ class CourseStorageManager:
     def get_course_dir(self, course_id: str) -> Path:
         return self.courses_dir / course_id
 
+    def _knowledge_base_documents_dir(self, course_id: str) -> Path:
+        return self.get_course_dir(course_id) / "knowledge_base" / "documents"
+
+    def _build_recovered_knowledge_base_entry(self, course_id: str, file_path: Path) -> Dict[str, Any]:
+        relative_path = file_path.relative_to(self.get_course_dir(course_id)).as_posix()
+        file_stat = file_path.stat()
+        safe_relative_path = relative_path.replace("/", "__").replace("\\", "__")
+        return {
+            "id": f"recovered-{safe_relative_path}",
+            "filename": file_path.name,
+            "path": relative_path,
+            "size": file_stat.st_size,
+            "uploaded_at": datetime.fromtimestamp(file_stat.st_mtime).isoformat(),
+            "course_id": course_id,
+            "scope_type": SCOPE_TYPE_COURSE,
+            "scope_id": None,
+            "library_type": LIBRARY_TYPE_COURSE,
+            "owner_user_id": None,
+            "promoted_from_document_id": None,
+        }
+
+    def _recover_orphaned_knowledge_base_entries(
+        self,
+        course_id: str,
+        entries: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        kb_documents_dir = self._knowledge_base_documents_dir(course_id)
+        if not kb_documents_dir.exists():
+            return []
+
+        indexed_paths = {
+            str(item.get("path") or "").replace("\\", "/").strip()
+            for item in entries
+            if str(item.get("path") or "").strip()
+        }
+        orphaned_files = sorted(
+            (path for path in kb_documents_dir.iterdir() if path.is_file()),
+            key=lambda path: (path.stat().st_mtime, path.name.lower()),
+        )
+
+        recovered_entries: List[Dict[str, Any]] = []
+        for file_path in orphaned_files:
+            relative_path = file_path.relative_to(self.get_course_dir(course_id)).as_posix()
+            if relative_path in indexed_paths:
+                continue
+            recovered_entries.append(self._build_recovered_knowledge_base_entry(course_id, file_path))
+        return recovered_entries
+
     def create_course_structure(self, course_id: str) -> Path:
         course_dir = self.get_course_dir(course_id)
-        (course_dir / "knowledge_base" / "documents").mkdir(parents=True, exist_ok=True)
+        self._knowledge_base_documents_dir(course_id).mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "audio").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "lesson_plans").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "graphs").mkdir(parents=True, exist_ok=True)
@@ -173,13 +221,18 @@ class CourseStorageManager:
         (course_dir / "generated_materials" / "blogs").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "quizzes").mkdir(parents=True, exist_ok=True)
 
-        metadata = {
-            "course_id": course_id,
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat(),
-        }
-        self.save_course_metadata(course_id, metadata)
-        self.save_knowledge_base_index(course_id, [])
+        metadata_file = course_dir / "metadata.json"
+        if not metadata_file.exists():
+            metadata = {
+                "course_id": course_id,
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat(),
+            }
+            self.save_course_metadata(course_id, metadata)
+
+        index_file = course_dir / "knowledge_base" / "index.json"
+        if not index_file.exists():
+            self.save_knowledge_base_index(course_id, [])
         return course_dir
 
     def save_course_info(self, course_id: str, course_info: Dict[str, Any]) -> bool:
@@ -249,11 +302,17 @@ class CourseStorageManager:
                 scope_type=scope_type,
                 scope_id=scope_id,
             )
+            relative_path = f"knowledge_base/documents/{filename}".replace("\\", "/")
             index = self.get_knowledge_base_index(course_id)
+            index = [
+                item
+                for item in index
+                if str(item.get("path") or "").replace("\\", "/").strip() != relative_path
+            ]
             file_info = {
                 "id": f"doc-{datetime.now().timestamp()}",
                 "filename": filename,
-                "path": f"knowledge_base/documents/{filename}",
+                "path": relative_path,
                 "size": len(file_data),
                 "uploaded_at": datetime.now().isoformat(),
                 "course_id": course_id,
@@ -289,6 +348,11 @@ class CourseStorageManager:
                     entries = list(raw_entries) if isinstance(raw_entries, list) else []
             except Exception:
                 entries = []
+
+        recovered_entries = self._recover_orphaned_knowledge_base_entries(course_id, entries)
+        if recovered_entries:
+            entries = [*entries, *recovered_entries]
+            self.save_knowledge_base_index(course_id, entries)
 
         normalized_entries: List[Dict[str, Any]] = []
         for item in entries:

@@ -4,15 +4,28 @@ const crypto = require('crypto');
 const { repoRoot } = require('../config');
 const { AppError } = require('../domain/errors');
 const { parseContentProtocol, parseSingleSlideContent } = require('../domain/content-protocol');
-const { buildManifest } = require('../domain/manifest');
-const { buildLayoutQualityReport } = require('../domain/layout-quality');
-const { normalizeSlideDecorations } = require('../domain/slide-decor');
+const { defaultComponentCatalogPath, defaultLayoutCatalogPath } = require('../domain/catalogs');
+const {
+  applyRuntimePromptPaths,
+  buildSlideExecutionPrompt,
+  extractSlidePlanEntry,
+} = require('../domain/generation-prompts');
+const { buildPlannerDigest } = require('../domain/planner-digest');
+const { rebalanceDeckDesignPlan } = require('../domain/deck-plan-rebalance');
+const { mergeQualityReports } = require('../domain/layout-quality');
+const {
+  buildDeckDesignPlanPrompt,
+  htmlRestrictPath,
+  validateDeckDesignPlan,
+  validatePlannerPlanMatchesContent,
+} = require('../domain/deck-plan');
 const { nowIso, withLifecycleFields } = require('../domain/status');
 const { getTheme, resolveThemeCss } = require('../domain/themes');
 const { extractSlides, replaceSlide, inferLayout, inferTitle } = require('../domain/fragment');
 const { buildStandaloneHtmlFromFragment } = require('../lib/build-standalone-html');
 const { exportHtmlToPptx } = require('../lib/export-html-to-pptx');
 const { ensureDir, fileExists, hashRequestForIdempotency, readJson, writeJson } = require('../lib/file-utils');
+const { inspectHtmlLayout } = require('../lib/layout-geometry-inspector');
 const { localizeMediaAssets } = require('../lib/media-assets');
 const {
   createJob,
@@ -29,17 +42,21 @@ const {
   updateRevision,
 } = require('../store/job-store');
 
-const entryPromptPath = path.join(repoRoot, 'html-generation-entry-prompt.md');
 const promptPaths = {
   formatDir: path.join(repoRoot, 'format'),
   layoutCssPath: path.join(repoRoot, 'format', 'layout.css'),
   brandConfigPath: path.join(repoRoot, 'style', 'theme-brand-config.json'),
-  contentProtocolPath: path.join(repoRoot, 'content-protocol.md'),
-  layoutContractsPath: path.join(repoRoot, 'layout-contracts.md'),
+  contentProtocolPath: path.join(repoRoot, 'references', 'content-protocol.md'),
+  layoutCatalogPath: defaultLayoutCatalogPath,
+  componentCatalogPath: defaultComponentCatalogPath,
+  htmlRestrictPath,
+  agentWorkflowPath: path.join(repoRoot, 'references', 'agent-workflow.md'),
 };
 
-function normalizeRuntimePath(filePath) {
-  return String(filePath || '').replaceAll('\\', '/');
+function requireFresh(modulePath) {
+  const resolved = require.resolve(modulePath);
+  delete require.cache[resolved];
+  return require(resolved);
 }
 
 function makeJobId() {
@@ -112,45 +129,6 @@ function toArtifactUrl(jobId, revisionId, fileName) {
   return `/ppt/artifacts/${encodeURIComponent(jobId)}/${encodeURIComponent(revisionId)}/${encodeURIComponent(fileName)}`;
 }
 
-async function readEntryPromptTemplate() {
-  return fs.readFile(entryPromptPath, 'utf8');
-}
-
-function applyRuntimePromptPaths(template, { contentPath, themeCssPath }) {
-  const replacements = [
-    ['{{CONTENT_PATH}}', contentPath],
-    ['{{THEME_CSS_PATH}}', themeCssPath],
-    ['{{FORMAT_DIR}}', promptPaths.formatDir],
-    ['{{LAYOUT_CSS_PATH}}', promptPaths.layoutCssPath],
-    ['{{BRAND_CONFIG_PATH}}', promptPaths.brandConfigPath],
-    ['{{CONTENT_PROTOCOL_PATH}}', promptPaths.contentProtocolPath],
-    ['{{LAYOUT_CONTRACTS_PATH}}', promptPaths.layoutContractsPath],
-    ['/Users/sun/code/aippt/html2ppt/content.md', contentPath],
-    ['/Users/sun/code/aippt/html2ppt/style/theme-heu-academic-elegant.css', themeCssPath],
-  ];
-
-  return replacements.reduce((output, [search, replacement]) => {
-    return output.replaceAll(search, replacement);
-  }, String(template || ''));
-}
-
-async function buildInitialPrompt({ contentPath, outputPath, themeId }) {
-  const template = await readEntryPromptTemplate();
-  const themeCssPath = resolveThemeCss(themeId);
-  const normalized = applyRuntimePromptPaths(template, { contentPath, themeCssPath });
-
-  return `${normalized}
-
-## 运行时要求
-- 当前任务实际使用的内容文件：\`${contentPath}\`
-- 当前任务实际使用的主题 CSS：\`${themeCssPath}\`
-- 目标输出路径：\`${outputPath}\`
-- 如果内容里的 Media block 含有 \`Local-Path\` 或 \`Local-Poster-Path\`，必须优先使用这些本地相对路径。
-- 请直接把最终 HTML fragment 写入上面的目标文件。
-- 不要修改仓库根目录的 \`content.md\`，也不要写入其他无关文件。
-`;
-}
-
 function buildDeckOutline(slides) {
   return slides
     .map((slide, index) => {
@@ -161,60 +139,36 @@ function buildDeckOutline(slides) {
     .join('\n');
 }
 
-function buildInitialSlidePrompt({ basePrompt, slide, slideIndex, totalSlides, deckOutline, outputPath }) {
-  const slideMarkdown = (slide.rawLines || []).join('\n').trim();
-
-  return `${basePrompt}
-
-## 单页并行生成覆盖规则
-- 现在是并行生成模式：你只生成第 ${slideIndex} / ${totalSlides} 页。
-- 必须只输出一个 slide 根节点，不能输出其它页，不能输出完整 HTML 文档。
-- 仍然使用完整内容文件理解上下文，但本次只能把“目标页源码”填入页面。
-- 目标输出路径：\`${outputPath}\`
-- 请直接把这一页 HTML fragment 写入目标输出路径。
-
-## 全 Deck 页序上下文
-${deckOutline}
-
-## 目标页源码
-\`\`\`md
-${slideMarkdown}
-\`\`\`
-`;
-}
-
 async function runInitialSlideGeneration({ runner, runtimeContent, revisionPaths, themeId }) {
   const parsed = parseContentProtocol(runtimeContent);
   const slidesDir = path.join(revisionPaths.revisionDir, 'slides');
   await ensureDir(slidesDir);
 
   const deckOutline = buildDeckOutline(parsed.slides);
+  const deckDesignPlan = await fs.readFile(revisionPaths.deckDesignPlanPath, 'utf8');
+  const themeCssPath = resolveThemeCss(themeId);
   const totalSlides = parsed.slides.length;
   const tasks = parsed.slides.map(async (slide, index) => {
     const slideIndex = index + 1;
     const paddedIndex = String(slideIndex).padStart(2, '0');
     const promptPath = path.join(slidesDir, `slide-${paddedIndex}.prompt.txt`);
     const outputPath = path.join(slidesDir, `slide-${paddedIndex}.fragment.html`);
-    const runtimePromptPath = normalizeRuntimePath(promptPath);
-    const runtimeOutputPath = normalizeRuntimePath(outputPath);
-    const basePrompt = await buildInitialPrompt({
+    const prompt = await buildSlideExecutionPrompt({
       contentPath: revisionPaths.contentPath,
-      outputPath: runtimeOutputPath,
-      themeId,
-    });
-    const prompt = buildInitialSlidePrompt({
-      basePrompt,
-      slide,
+      deckDesignPlanPath: revisionPaths.deckDesignPlanPath,
+      outputPath,
+      themeCssPath,
+      targetSlidePlan: extractSlidePlanEntry(deckDesignPlan, slideIndex),
+      targetSlideMarkdown: (slide.rawLines || []).join('\n').trim(),
       slideIndex,
       totalSlides,
       deckOutline,
-      outputPath: runtimeOutputPath,
     });
 
     await fs.writeFile(promptPath, prompt, 'utf8');
     await runner.run({
-      promptPath: runtimePromptPath,
-      outputPath: runtimeOutputPath,
+      promptPath,
+      outputPath,
       workspaceDir: revisionPaths.revisionDir,
       prompt,
     });
@@ -252,7 +206,71 @@ async function runInitialSlideGeneration({ runner, runtimeContent, revisionPaths
   return mergedFragmentHtml;
 }
 
+async function runDeckPlanning({ runner, revisionPaths, themeId }) {
+  const startedAt = nowIso();
+  const startedMs = Date.now();
+  const runtimeContent = await fs.readFile(revisionPaths.contentPath, 'utf8');
+  const plannerDigest = await buildPlannerDigest({ themeId });
+  await fs.writeFile(revisionPaths.plannerDigestPath, plannerDigest, 'utf8');
+  const prompt = await buildDeckDesignPlanPrompt({
+    contentPath: revisionPaths.contentPath,
+    outputPath: revisionPaths.deckDesignPlanPath,
+    plannerDigestPath: revisionPaths.plannerDigestPath,
+  });
+  await fs.writeFile(revisionPaths.deckDesignPlanPromptPath, prompt, 'utf8');
+  let plan = '';
+  let rebalancedPlan = '';
+  let failure = null;
+
+  try {
+    await runner.run({
+      promptPath: revisionPaths.deckDesignPlanPromptPath,
+      outputPath: revisionPaths.deckDesignPlanPath,
+      workspaceDir: revisionPaths.revisionDir,
+      prompt,
+    });
+
+    plan = await fs.readFile(revisionPaths.deckDesignPlanPath, 'utf8');
+    validateDeckDesignPlan(plan);
+    validatePlannerPlanMatchesContent({
+      deckPlanMarkdown: plan,
+      contentMarkdown: runtimeContent,
+    });
+
+    rebalancedPlan = rebalanceDeckDesignPlan({
+      deckPlanMarkdown: plan,
+      contentMarkdown: runtimeContent,
+    });
+    validateDeckDesignPlan(rebalancedPlan);
+
+    if (rebalancedPlan !== plan) {
+      await fs.writeFile(revisionPaths.deckDesignPlanPath, rebalancedPlan, 'utf8');
+    }
+
+    return rebalancedPlan;
+  } catch (error) {
+    failure = error;
+    throw error;
+  } finally {
+    try {
+      await writeJson(revisionPaths.deckPlanningReportPath, {
+        started_at: startedAt,
+        finished_at: nowIso(),
+        duration_ms: Math.max(0, Date.now() - startedMs),
+        success: !failure,
+        prompt_chars: prompt.length,
+        content_chars: runtimeContent.length,
+        planner_digest_chars: plannerDigest.length,
+        plan_chars: plan.length,
+        rebalanced: Boolean(plan) && rebalancedPlan !== plan,
+        error: failure ? buildJobError(failure) : null,
+      });
+    } catch {}
+  }
+}
+
 function buildRevisionPrompt({
+  deckDesignPlanPath,
   targetSlideIndex,
   targetOutputPath,
   themeId,
@@ -265,19 +283,21 @@ function buildRevisionPrompt({
   userInstruction,
 }) {
   const themeCssPath = resolveThemeCss(themeId);
-  const brandConfigPath = path.join(repoRoot, 'style', 'theme-brand-config.json');
-  const contractsPath = path.join(repoRoot, 'layout-contracts.md');
-  const formatDir = path.join(repoRoot, 'format');
 
   return `# 任务目标
 你要重写一个单页 slide，而不是重做整套 PPT。
 
 ## 唯一可信来源
-- 版式模板目录：\`${formatDir}\`
-- 布局骨架：\`${path.join(repoRoot, 'format', 'layout.css')}\`
+- Deck design plan：\`${deckDesignPlanPath}\`
+- 内容协议：\`${promptPaths.contentProtocolPath}\`
+- Layout catalog：\`${promptPaths.layoutCatalogPath}\`
+- Component catalog：\`${promptPaths.componentCatalogPath}\`
+- HTML-to-PPTX restrictions：\`${promptPaths.htmlRestrictPath}\`
+- Agent workflow：\`${promptPaths.agentWorkflowPath}\`
+- 版式模板目录：\`${promptPaths.formatDir}\`
+- 布局骨架：\`${promptPaths.layoutCssPath}\`
 - 当前主题：\`${themeCssPath}\`
-- 品牌配置：\`${brandConfigPath}\`
-- 版式约束合同：\`${contractsPath}\`
+- 品牌配置：\`${promptPaths.brandConfigPath}\`
 
 ## 本次任务
 - 目标页码：第 ${targetSlideIndex} 页
@@ -302,9 +322,10 @@ ${updatedContent ? `### updated_content\n${updatedContent}\n` : ''}
 ${userInstruction ? `### user_instruction\n${userInstruction}\n` : ''}
 
 ## 强约束
-- 只能使用现有模板、layout.css、当前主题 CSS 中已有的 class
+- 必须先读取 deck design plan，并保持其中的全局视觉风格、layout 和 component 决策
+- 只能使用 layout catalog、component catalog、layout.css、当前主题 CSS 中已注册的 class
 - 绝对禁止自定义新的 class
-- 必须遵守 layout-contracts.md
+- 必须遵守 HTML-to-PPTX restrictions
 - 品牌位规则必须遵守 theme-brand-config.json
 - 页面总页数由系统保持不变，你只负责重写这一页
 - 输出必须是单页 slide fragment，不是完整 HTML 文档
@@ -434,6 +455,7 @@ class PptService {
       latest_revision_id: latestRevisionId,
       theme_id: job.theme_id,
       results: {
+        deck_design_plan_url: toArtifactUrl(jobId, latestRevisionId, 'deck_design_plan.md'),
         html_fragment_url: toArtifactUrl(jobId, latestRevisionId, 'deck.fragment.html'),
         html_full_url: toArtifactUrl(jobId, latestRevisionId, 'deck.html'),
         pptx_url: toArtifactUrl(jobId, latestRevisionId, 'deck.pptx'),
@@ -500,6 +522,15 @@ class PptService {
       });
       await fs.writeFile(revisionPaths.contentPath, runtimeContent, 'utf8');
 
+      await this.markJobRunning(jobId, revisionId, 'planning_deck', '正在规划 deck design plan');
+      await this.markRevisionRunning(jobId, revisionId, 'planning_deck', '正在规划 deck design plan');
+
+      await runDeckPlanning({
+        runner: this.runner,
+        revisionPaths,
+        themeId: request.theme_id,
+      });
+
       await this.markJobRunning(jobId, revisionId, 'generating_slides', '正在生成 slides');
       await this.markRevisionRunning(jobId, revisionId, 'generating_slides', '正在生成 slides');
 
@@ -510,13 +541,12 @@ class PptService {
         themeId: request.theme_id,
       });
 
-      const fragmentHtml = await fs.readFile(revisionPaths.fragmentPath, 'utf8');
-      const decoratedFragmentHtml = normalizeSlideDecorations(fragmentHtml);
-      await fs.writeFile(revisionPaths.fragmentPath, `${decoratedFragmentHtml}\n`, 'utf8');
-
-      if (extractSlides(decoratedFragmentHtml).length === 0) {
-        throw new AppError('AGENT_GENERATION_FAILED', 'Agent did not produce any .slide elements.', 500);
-      }
+      const postProcessResult = await this.postProcessGeneratedFragment({
+        jobId,
+        revisionId,
+        themeId: request.theme_id,
+        contentMarkdown: runtimeContent,
+      });
 
       await this.markJobRunning(jobId, revisionId, 'building_full_html', '正在构建完整 HTML');
       await this.markRevisionRunning(jobId, revisionId, 'building_full_html', '正在构建完整 HTML');
@@ -527,16 +557,21 @@ class PptService {
         themeId: request.theme_id,
       });
 
+      const stabilizedPostProcessResult = await this.stabilizeLayoutGeometry({
+        revisionPaths,
+        themeId: request.theme_id,
+        postProcessResult,
+      });
+
       await this.markJobRunning(jobId, revisionId, 'exporting_pptx', '正在导出 PPTX');
       await this.markRevisionRunning(jobId, revisionId, 'exporting_pptx', '正在导出 PPTX');
 
-      await exportHtmlToPptx({
-        htmlPath: revisionPaths.fullHtmlPath,
-        outputPath: revisionPaths.pptxPath,
-        jobWorkspace: revisionPaths.revisionDir,
+      await this.processPostProcessedDeckArtifacts({
+        jobId,
+        revisionId,
+        revisionPaths,
+        postProcessResult: stabilizedPostProcessResult,
       });
-
-      await this.finalizeArtifacts(jobId, revisionId, request.theme_id);
       await this.markRevisionSucceeded(jobId, revisionId, '生成完成');
       await this.markJobSucceeded(jobId, revisionId, '生成完成');
     } catch (error) {
@@ -580,6 +615,7 @@ class PptService {
           })
         : '';
       const prompt = buildRevisionPrompt({
+        deckDesignPlanPath: baselinePaths.deckDesignPlanPath,
         targetSlideIndex,
         targetOutputPath: revisionPaths.fragmentPath,
         themeId: job.theme_id,
@@ -607,8 +643,13 @@ class PptService {
 
       const replacementSlideHtml = await fs.readFile(revisionPaths.fragmentPath, 'utf8');
       const mergedFragmentHtml = replaceSlide(baselineFragmentHtml, targetSlideIndex, replacementSlideHtml);
-      const decoratedFragmentHtml = normalizeSlideDecorations(mergedFragmentHtml);
-      await fs.writeFile(revisionPaths.fragmentPath, `${decoratedFragmentHtml}\n`, 'utf8');
+      await fs.writeFile(revisionPaths.fragmentPath, mergedFragmentHtml, 'utf8');
+      const postProcessResult = await this.postProcessGeneratedFragment({
+        jobId,
+        revisionId,
+        themeId: job.theme_id,
+        contentMarkdown: runtimeUpdatedContent,
+      });
 
       await this.markJobRunning(jobId, revisionId, 'building_full_html', '正在重建完整 HTML');
       await this.markRevisionRunning(jobId, revisionId, 'building_full_html', '正在重建完整 HTML');
@@ -619,16 +660,21 @@ class PptService {
         themeId: job.theme_id,
       });
 
+      const stabilizedPostProcessResult = await this.stabilizeLayoutGeometry({
+        revisionPaths,
+        themeId: job.theme_id,
+        postProcessResult,
+      });
+
       await this.markJobRunning(jobId, revisionId, 'exporting_pptx', '正在重新导出 PPTX');
       await this.markRevisionRunning(jobId, revisionId, 'exporting_pptx', '正在重新导出 PPTX');
 
-      await exportHtmlToPptx({
-        htmlPath: revisionPaths.fullHtmlPath,
-        outputPath: revisionPaths.pptxPath,
-        jobWorkspace: revisionPaths.revisionDir,
+      await this.processPostProcessedDeckArtifacts({
+        jobId,
+        revisionId,
+        revisionPaths,
+        postProcessResult: stabilizedPostProcessResult,
       });
-
-      await this.finalizeArtifacts(jobId, revisionId, job.theme_id);
       await this.markRevisionSucceeded(jobId, revisionId, '修订完成');
       await this.markJobSucceeded(jobId, revisionId, '修订完成');
     } catch (error) {
@@ -637,25 +683,82 @@ class PptService {
     }
   }
 
-  async finalizeArtifacts(jobId, revisionId, themeId) {
+  async postProcessGeneratedFragment({ jobId, revisionId, themeId, contentMarkdown }) {
     const revisionPaths = getRevisionPaths(jobId, revisionId);
     const fragmentHtml = await fs.readFile(revisionPaths.fragmentPath, 'utf8');
-    const contentMarkdown = (await fileExists(revisionPaths.contentPath))
-      ? await fs.readFile(revisionPaths.contentPath, 'utf8')
-      : '';
-
-    const manifest = buildManifest({
+    const { runPostProcessingChain: runFreshPostProcessingChain } = requireFresh('../domain/postprocess');
+    const result = runFreshPostProcessingChain({
       jobId,
       revisionId,
       themeId,
       fragmentHtml,
+      contentMarkdown,
     });
-    const qualityReport = contentMarkdown
-      ? buildLayoutQualityReport({ contentMarkdown, fragmentHtml })
-      : { slide_count: manifest.slide_count, warning_count: 0, warnings: [] };
 
-    await writeJson(revisionPaths.manifestPath, manifest);
-    await writeJson(revisionPaths.qualityReportPath, qualityReport);
+    await fs.writeFile(revisionPaths.fragmentPath, result.fragmentHtml, 'utf8');
+    return result;
+  }
+
+  async stabilizeLayoutGeometry({ revisionPaths, themeId, postProcessResult }) {
+    let geometryReport;
+    try {
+      geometryReport = await inspectHtmlLayout(revisionPaths.fullHtmlPath);
+    } catch {
+      return postProcessResult;
+    }
+
+    const { repairOverflowLayouts: repairFreshOverflowLayouts } = requireFresh('../domain/layout-repair');
+    const repaired = repairFreshOverflowLayouts(postProcessResult.fragmentHtml, geometryReport);
+    if (!repaired.changed) {
+      return postProcessResult;
+    }
+
+    const nextFragmentHtml = `${repaired.fragmentHtml}\n`;
+    await fs.writeFile(revisionPaths.fragmentPath, nextFragmentHtml, 'utf8');
+    buildStandaloneHtmlFromFragment({
+      fragmentPath: revisionPaths.fragmentPath,
+      outputPath: revisionPaths.fullHtmlPath,
+      themeId,
+    });
+
+    return {
+      ...postProcessResult,
+      fragmentHtml: nextFragmentHtml,
+    };
+  }
+
+  async inspectAndMergeQualityReport(postProcessResult, revisionPaths) {
+    try {
+      const geometryReport = await inspectHtmlLayout(revisionPaths.fullHtmlPath);
+      return {
+        ...postProcessResult,
+        qualityReport: mergeQualityReports(postProcessResult.qualityReport, geometryReport),
+      };
+    } catch {
+      return postProcessResult;
+    }
+  }
+
+  async processPostProcessedDeckArtifacts({ jobId, revisionId, revisionPaths, postProcessResult }) {
+    const mergedResult = await this.inspectAndMergeQualityReport(postProcessResult, revisionPaths);
+
+    await this.exportDeckArtifacts(revisionPaths);
+    await this.finalizeArtifacts(jobId, revisionId, mergedResult);
+  }
+
+  async exportDeckArtifacts(revisionPaths) {
+    await exportHtmlToPptx({
+      htmlPath: revisionPaths.fullHtmlPath,
+      outputPath: revisionPaths.pptxPath,
+      jobWorkspace: revisionPaths.revisionDir,
+    });
+  }
+
+  async finalizeArtifacts(jobId, revisionId, postProcessResult) {
+    const revisionPaths = getRevisionPaths(jobId, revisionId);
+
+    await writeJson(revisionPaths.manifestPath, postProcessResult.manifest);
+    await writeJson(revisionPaths.qualityReportPath, postProcessResult.qualityReport);
 
     await this.markRevisionRunning(jobId, revisionId, 'storing_artifacts', '正在写入产物');
     await this.markJobRunning(jobId, revisionId, 'storing_artifacts', '正在写入产物');
@@ -742,6 +845,7 @@ class PptService {
     await getRevision(jobId, revisionId);
     const allowed = new Set([
       'deck.fragment.html',
+      'deck_design_plan.md',
       'deck.html',
       'deck.pptx',
       'manifest.json',
@@ -753,6 +857,7 @@ class PptService {
     const revisionPaths = getRevisionPaths(jobId, revisionId);
     const map = {
       'deck.fragment.html': revisionPaths.fragmentPath,
+      'deck_design_plan.md': revisionPaths.deckDesignPlanPath,
       'deck.html': revisionPaths.fullHtmlPath,
       'deck.pptx': revisionPaths.pptxPath,
       'manifest.json': revisionPaths.manifestPath,
@@ -790,5 +895,6 @@ class PptService {
 module.exports = {
   applyRuntimePromptPaths,
   PptService,
+  runDeckPlanning,
   runInitialSlideGeneration,
 };

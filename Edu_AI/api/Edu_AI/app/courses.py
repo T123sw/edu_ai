@@ -609,6 +609,27 @@ def get_ai_lecture_session_recording(
 
 
 @router.get(
+    "/{course_id}/lecture-sessions/{session_id}/slides/{slide_name}",
+    response_class=FileResponse,
+    summary="Get an AI lecture session slide image",
+)
+def get_ai_lecture_session_slide_image(
+    course_id: str,
+    session_id: str,
+    slide_name: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+    try:
+        return get_ai_lecture_session_service().slide_image_response(course_id, session_id, slide_name)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.get(
     "/{course_id}/knowledge-base/documents",
     response_model=List[KnowledgeBaseDocument],
     summary="获取课程知识库文档列表",

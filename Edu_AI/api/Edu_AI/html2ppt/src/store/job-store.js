@@ -38,6 +38,10 @@ function getRevisionPaths(jobId, revisionId) {
     manifestPath: path.join(revisionDir, 'manifest.json'),
     qualityReportPath: path.join(revisionDir, 'layout-quality-report.json'),
     contentPath: path.join(revisionDir, 'content.md'),
+    deckDesignPlanPath: path.join(revisionDir, 'deck_design_plan.md'),
+    deckDesignPlanPromptPath: path.join(revisionDir, 'deck-design-plan.prompt.txt'),
+    plannerDigestPath: path.join(revisionDir, 'planner-digest.md'),
+    deckPlanningReportPath: path.join(revisionDir, 'deck-planning-report.json'),
     promptPath: path.join(revisionDir, 'agent-prompt.txt'),
   };
 }
@@ -137,7 +141,17 @@ async function updateJob(jobId, updater) {
 async function listJobIds() {
   await initStore();
   const entries = await fs.readdir(jobsRootDir, { withFileTypes: true });
-  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const jobIds = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+    const jobStatePath = path.join(jobsRootDir, entry.name, 'job.json');
+    if (await fileExists(jobStatePath)) {
+      jobIds.push(entry.name);
+    }
+  }
+  return jobIds;
 }
 
 async function ensureRevisionCounter(jobId) {
@@ -188,6 +202,9 @@ async function createRevision(jobId, payload) {
       pptx_path: paths.pptxPath,
       manifest_path: paths.manifestPath,
       quality_report_path: paths.qualityReportPath,
+      deck_design_plan_path: paths.deckDesignPlanPath,
+      planner_digest_path: paths.plannerDigestPath,
+      deck_planning_report_path: paths.deckPlanningReportPath,
       media_dir: paths.mediaDir,
     },
   });

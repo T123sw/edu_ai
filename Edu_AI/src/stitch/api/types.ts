@@ -86,6 +86,8 @@ export type AiLectureSessionSnapshot = {
   ai_lecturer_course_id?: string | null;
   outline?: AiLecturerCoursePage[];
   script?: Array<{ page_index: number; sentences: string[] }>;
+  slide_image_urls?: string[];
+  slide_count?: number;
   events?: Array<Record<string, unknown>>;
   last_position?: { page_index?: number; sentence_index?: number };
   [key: string]: unknown;

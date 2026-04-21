@@ -25,6 +25,10 @@ import {
   type WorkspaceScope,
 } from '../../services/teacher/workspaceScope';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import 'katex/dist/katex.min.css';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
 import './ChatPanel.css';
 
@@ -762,7 +766,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       const nextWorkflowType = String((detailWorkflowState as any)?.workflow_type || '').trim();
       const nextWorkflowStatus = String((detailWorkflowState as any)?.status || '').trim();
 
-      setMessages(mapped);
+      if (!(silent && isLoading)) {
+        setMessages(mapped);
+      }
       setCurrentConversationId(detail.conversation_id);
       setStatusCard(detail.status_card || null);
       setWorkflowType(nextWorkflowType || null);
@@ -1188,7 +1194,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   }, [queuedMessage, isLoading, pendingImages, pendingVideos]);
 
   useEffect(() => {
-    if (!currentConversationId || workflowType !== 'ppt' || workflowStatus !== 'running') {
+    if (isLoading || !currentConversationId || workflowType !== 'ppt' || workflowStatus !== 'running') {
       return undefined;
     }
 
@@ -1197,7 +1203,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     }, 3000);
 
     return () => window.clearInterval(timer);
-  }, [currentConversationId, workflowStatus, workflowType]);
+  }, [currentConversationId, isLoading, workflowStatus, workflowType]);
 
   const handleSourceClick = (source: any) => {
     const path =
@@ -1559,6 +1565,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                             {inlineSourcePlan.blocks.map((block, blockIndex) => (
                               <div key={`message-${index}-block-${blockIndex}`} className="chat-panel__inline-answer-block">
                                 <ReactMarkdown
+                                  remarkPlugins={[remarkGfm, remarkMath]}
+                                  rehypePlugins={[rehypeKatex]}
                                   components={{
                                     p: ({ children }) => (
                                       <p className="chat-panel__markdown-paragraph">
@@ -1575,6 +1583,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                           </div>
                         ) : item.user === 'AI' ? (
                           <ReactMarkdown
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeKatex]}
                             components={{
                               p: ({ children }) => (
                                 <p className="chat-panel__markdown-paragraph">

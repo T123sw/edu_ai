@@ -34,8 +34,10 @@ app.add_middleware(
 # ==========================================
 # 全局环境配置
 # ==========================================
-QWEN_API_KEY = "sk-584341a48ac641668f188a42be9fa2ec"
-LIVETALKING_URL = "http://127.0.0.1:8010/human"
+QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
+QWEN_BASE_URL = os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+QWEN_OUTLINE_MODEL = os.getenv("AI_LECTURER_OUTLINE_MODEL", os.getenv("VISION_MODEL_ID", "qwen-plus"))
+LIVETALKING_URL = os.getenv("AI_LECTURER_LIVETALKING_HUMAN_URL", "http://127.0.0.1:8010/human")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 临时数据库
@@ -204,7 +206,9 @@ class InterruptRequest(BaseModel):
 async def create_course(request: InjectCourseRequest):
     """【业务入口】输入 MD 文档，大模型自动解析为 PPT 页结构"""
     global global_course_counter
-    client = OpenAI(api_key=QWEN_API_KEY, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
+    if not QWEN_API_KEY:
+        raise HTTPException(status_code=503, detail="QWEN_API_KEY is not configured")
+    client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
     system_prompt = "你是一个教案解析引擎。请将输入的讲义大纲按照逻辑段落拆分为PPT页面。必须返回纯JSON数组，格式：[{\"title\": \"页标题\", \"content\": \"内容要点\"}]"
     print(
         "[Online:create_course] raw_document "
@@ -212,7 +216,7 @@ async def create_course(request: InjectCourseRequest):
     )
     try:
         completion = client.chat.completions.create(
-            model="qwen-plus",
+            model=QWEN_OUTLINE_MODEL,
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": request.raw_document}],
             temperature=0.3
         )
@@ -269,7 +273,9 @@ async def get_course(course_id: str):
 @app.post("/api/v1/online/generate_script", tags=["🟢 在线课堂模块"])
 async def generate_script(request: ClassRequest):
     """【智能备课】动态生成当前 PPT 页的讲稿口语"""
-    client = OpenAI(api_key=QWEN_API_KEY, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
+    if not QWEN_API_KEY:
+        raise HTTPException(status_code=503, detail="QWEN_API_KEY is not configured")
+    client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
     system_prompt = (
         f"你是一位学术严谨的大学教授。正在讲授《{request.course_title}》。\n"
         "【输出格式】：5-10句话。每句15-25字，必须以句号或问号结尾。严禁Markdown排版。"
@@ -280,7 +286,7 @@ async def generate_script(request: ClassRequest):
 
     try:
         completion = client.chat.completions.create(
-            model="qwen-plus",
+            model=QWEN_OUTLINE_MODEL,
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": f"【本页核心点】：{request.current_slide_content}\n请输出讲稿："}],
             temperature=0.7 
         )
@@ -321,7 +327,9 @@ async def stop_speaking(request: StopRequest):
 @app.post("/api/v1/online/interrupt_and_ask", tags=["🟢 在线课堂模块"])
 async def interrupt_and_ask(request: InterruptRequest):
     """【打断机制 2】处理学生提问，数字人当场语音解答"""
-    client = OpenAI(api_key=QWEN_API_KEY, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
+    if not QWEN_API_KEY:
+        return {"code": 503, "detail": "QWEN_API_KEY is not configured"}
+    client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
     system_prompt = (
         "你是一位严谨的大学教授，被学生提问打断。\n"
         f"【上下文】：{request.slide_context}\n"
@@ -330,7 +338,7 @@ async def interrupt_and_ask(request: InterruptRequest):
     )
     try:
         completion = client.chat.completions.create(
-            model="qwen-plus",
+            model=QWEN_OUTLINE_MODEL,
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": f"学生提问：{request.question}"}],
             temperature=0.6
         )

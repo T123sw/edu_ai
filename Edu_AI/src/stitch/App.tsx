@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
 import { VideoPlayerPage } from "./pages/VideoPlayer";
 import { CourseResourcesPage } from "./pages/CourseResources";
@@ -76,6 +76,18 @@ function getStoredAuth() {
   }
 }
 
+function resetRouteScrollPosition() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  document.querySelectorAll("[data-route-scroll-root]").forEach((element) => {
+    if (element instanceof HTMLElement) {
+      element.scrollTop = 0;
+      element.scrollLeft = 0;
+    }
+  });
+}
+
 export default function App() {
   const [current, setCurrent] = useState<RouteKey>(getCurrentRoute);
   const [selectedCourse, setSelectedCourse] = useState<CourseSummary | null>(getStoredCourse);
@@ -92,6 +104,20 @@ export default function App() {
     window.addEventListener("hashchange", syncRoute);
     return () => window.removeEventListener("hashchange", syncRoute);
   }, []);
+
+  useEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    return () => {
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    resetRouteScrollPosition();
+    const frameId = window.requestAnimationFrame(resetRouteScrollPosition);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [current]);
 
   useEffect(() => {
     window.localStorage.setItem("stitch-theme", theme);

@@ -159,7 +159,7 @@ export function HomeDashboardPage() {
               <Title level={1} className="welcome-title">
                 {getGreeting()}，{username}！
               </Title>
-              <Paragraph className="welcome-subtitle">欢迎使用 Edu-AI 智能教学平台</Paragraph>
+              <Paragraph className="welcome-subtitle">欢迎使用 知学启思 教学平台</Paragraph>
               <Text type="secondary" className="welcome-description">
                 融合前沿 AI 技术，赋能教育创新。选择下方课程开始你的智能学习之旅。
               </Text>

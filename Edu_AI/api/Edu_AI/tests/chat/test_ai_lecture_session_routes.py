@@ -36,7 +36,7 @@ class DummyAiLectureSessionService:
     def get_session(self, course_id: str, session_id: str):
         return {
             "material": {"material_id": session_id, "material_type": "ai_lecture_session"},
-            "snapshot": {"snapshot_id": session_id, "events": []},
+            "snapshot": {"snapshot_id": session_id, "events": [], "slide_image_urls": [f"/slides/{session_id}/slide-001.png"]},
             "metadata": {"recording_status": "not_started"},
         }
 
@@ -51,6 +51,13 @@ class DummyAiLectureSessionService:
     def stop_recording(self, course_id: str, session_id: str, *, livetalking_session_id: int):
         self.stop_calls.append({"course_id": course_id, "session_id": session_id, "livetalking_session_id": livetalking_session_id})
         return {"recording_status": "completed", "recording_url": "/recording.mp4"}
+
+    def slide_image_response(self, course_id: str, session_id: str, slide_name: str):
+        self.slide_image_calls = getattr(self, "slide_image_calls", [])
+        self.slide_image_calls.append({"course_id": course_id, "session_id": session_id, "slide_name": slide_name})
+        from fastapi.responses import Response
+
+        return Response(content=b"png", media_type="image/png")
 
 
 def _client(service: DummyAiLectureSessionService) -> TestClient:
@@ -86,6 +93,7 @@ def test_ai_lecture_session_routes_create_get_patch_and_record():
         "/api/courses/course-1/lecture-sessions/ai_session_001/recording/stop",
         json={"livetalking_session_id": 123456},
     )
+    slide = client.get("/api/courses/course-1/lecture-sessions/ai_session_001/slides/slide-001.png")
 
     assert created.status_code == 200
     assert created.json()["material_type"] == "ai_lecture_session"
@@ -96,3 +104,4 @@ def test_ai_lecture_session_routes_create_get_patch_and_record():
     assert patched.json()["events"][0]["type"] == "speak"
     assert started.json()["recording_status"] == "recording"
     assert stopped.json()["recording_status"] == "completed"
+    assert slide.status_code == 200

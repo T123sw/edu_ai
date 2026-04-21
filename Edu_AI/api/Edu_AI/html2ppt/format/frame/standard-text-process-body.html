@@ -6,6 +6,14 @@
   </div>
 
   <div class="content-area">
+    <div class="surface-card process-summary-bar">
+      <div class="summary-accent" aria-hidden="true"></div>
+      <div class="summary-copy">
+        <div class="process-summary-title">流程页的目标不是列出 01 / 02 / 03，而是把阶段目标、输入输出和推进关系一起讲清楚。</div>
+        <div class="process-summary-meta">Recognize Intent / Match Tool / Return Structured Result</div>
+      </div>
+    </div>
+
     <div class="process-track">
       <div class="surface-card process-step">
         <div class="process-index">01</div>
@@ -36,15 +44,22 @@
       </div>
     </div>
 
-    <div class="quote-box">
-      <div class="quote-accent"></div>
-      <div class="quote-text">流程型页面的关键，不只是列出 1、2、3，而是让观众一眼看到“先后关系、阶段推进与目标递进”。</div>
-    </div>
-
-    <div class="surface-card text-details">
-      <div class="list-item">顶部流程轨道适合放 3 个短阶段、步骤、训练阶段或研究里程碑。</div>
-      <div class="list-item">下方引言框承载整条路径的总判断，详细卡片负责补充每个阶段的任务与目标。</div>
-      <div class="list-item">如果是 4 到 5 步流程，应改用 process-grid，而不是把横向轨道挤得过密。</div>
+    <div class="process-detail-grid">
+      <div class="surface-card process-detail-card">
+        <div class="process-detail-label">阶段 01 看什么</div>
+        <div class="list-item">输入：用户意图、上下文与约束。</div>
+        <div class="list-item">目标：判断要不要借助外部能力。</div>
+      </div>
+      <div class="surface-card process-detail-card">
+        <div class="process-detail-label">阶段 02 做什么</div>
+        <div class="list-item">输入：可用 Skill / Tool 列表。</div>
+        <div class="list-item">目标：匹配最合适的调用对象。</div>
+      </div>
+      <div class="surface-card process-detail-card">
+        <div class="process-detail-label">阶段 03 产出什么</div>
+        <div class="list-item">输入：工具返回的结构化结果。</div>
+        <div class="list-item">目标：整合为可解释的最终回答。</div>
+      </div>
     </div>
   </div>
 

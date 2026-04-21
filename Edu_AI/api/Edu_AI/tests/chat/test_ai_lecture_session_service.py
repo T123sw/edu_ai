@@ -73,6 +73,20 @@ class StubRecordingClient:
         return RecordingClientResult(ok=True, recording_path=str(source), message="stopped")
 
 
+class StubHtmlSlideExporter:
+    def __init__(self):
+        self.calls = []
+
+    def export(self, *, deck_html_path: Path, output_dir: Path):
+        self.calls.append({"deck_html_path": deck_html_path, "output_dir": output_dir})
+        output_dir.mkdir(parents=True, exist_ok=True)
+        slide_one = output_dir / "slide-001.png"
+        slide_two = output_dir / "slide-002.png"
+        slide_one.write_bytes(b"png-1")
+        slide_two.write_bytes(b"png-2")
+        return [slide_one, slide_two]
+
+
 def test_create_session_persists_material_snapshot_and_metadata():
     manager = CourseStorageManager(root_path=str(_temp_root()))
     _write_course(manager)
@@ -157,3 +171,47 @@ def test_recording_stop_copies_file_to_session_directory_and_updates_material():
     material = manager.get_generated_material("course-1", "ai_lecture_session", created["material_id"])
     assert material["content"]["recording_url"] == stopped["recording_url"]
     assert material["generation_state"]["status"] == "completed"
+
+
+def test_get_session_populates_slide_image_urls_from_source_ppt_deck():
+    manager = CourseStorageManager(root_path=str(_temp_root()))
+    _write_course(manager)
+    jobs_root = manager.root_path / "html2ppt-jobs"
+    deck_path = jobs_root / "job-1" / "revisions" / "rev_0001" / "deck.html"
+    deck_path.parent.mkdir(parents=True, exist_ok=True)
+    deck_path.write_text("<html><body><div class='slide'>slide</div></body></html>", encoding="utf-8")
+    manager.save_generated_material(
+        "course-1",
+        "ppt",
+        "ppt-ready",
+        {
+            "title": "PPT Deck",
+            "content": {
+                "html_full_url": "/ppt/artifacts/job-1/rev_0001/deck.html",
+                "slide_count": 2,
+            },
+            "generation_state": {"status": "completed"},
+        },
+    )
+    exporter = StubHtmlSlideExporter()
+    service = AiLectureSessionService(
+        storage_manager=manager,
+        recording_client=StubRecordingClient(),
+        html_slide_exporter=exporter,
+        html2ppt_jobs_root=jobs_root,
+    )
+    created = service.create_session(
+        course_id="course-1",
+        source_ppt_material_id="ppt-ready",
+        title="AI Lecture",
+        owner="teacher-a",
+    )
+
+    loaded = service.get_session("course-1", created["material_id"])
+
+    assert exporter.calls, "session load should export slide images from the source deck"
+    assert loaded["snapshot"]["slide_count"] == 2
+    assert loaded["snapshot"]["slide_image_urls"] == [
+        f"/api/courses/course-1/lecture-sessions/{created['material_id']}/slides/slide-001.png",
+        f"/api/courses/course-1/lecture-sessions/{created['material_id']}/slides/slide-002.png",
+    ]

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const { repoRoot, chromePath, chromeArgs } = require('../config');
 
 const HOST = '127.0.0.1';
@@ -16,6 +16,60 @@ function ensureFileExists(filePath, label) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`${label} not found: ${filePath}`);
   }
+}
+
+function walkLatestMtime(targetPath) {
+  if (!fs.existsSync(targetPath)) {
+    return 0;
+  }
+  const stats = fs.statSync(targetPath);
+  if (!stats.isDirectory()) {
+    return stats.mtimeMs;
+  }
+
+  let latest = stats.mtimeMs;
+  for (const entry of fs.readdirSync(targetPath, { withFileTypes: true })) {
+    latest = Math.max(latest, walkLatestMtime(path.join(targetPath, entry.name)));
+  }
+  return latest;
+}
+
+function syncDomToPptxBundle() {
+  const domToPptxDir = path.join(repoRoot, 'dom-to-pptx');
+  const sourceDir = path.join(domToPptxDir, 'src');
+  const rollupConfigPath = path.join(domToPptxDir, 'rollup.config.js');
+  const packageJsonPath = path.join(domToPptxDir, 'package.json');
+  const distBundlePath = path.join(domToPptxDir, 'dist', 'dom-to-pptx.bundle.js');
+  const harnessBundlePath = path.join(repoRoot, 'test-harness', 'dom-to-pptx.bundle.js');
+
+  const sourceMtime = Math.max(
+    walkLatestMtime(sourceDir),
+    walkLatestMtime(rollupConfigPath),
+    walkLatestMtime(packageJsonPath)
+  );
+  const harnessMtime = walkLatestMtime(harnessBundlePath);
+  const distMtime = walkLatestMtime(distBundlePath);
+
+  if (harnessMtime >= sourceMtime) {
+    return harnessBundlePath;
+  }
+
+  if (distMtime < sourceMtime) {
+    const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    const buildResult = spawnSync(npmCommand, ['run', 'build'], {
+      cwd: domToPptxDir,
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+    if (buildResult.status !== 0) {
+      const stderr = String(buildResult.stderr || buildResult.stdout || '').trim();
+      throw new Error(`Failed to build dom-to-pptx bundle: ${stderr}`);
+    }
+  }
+
+  ensureFileExists(distBundlePath, 'dom-to-pptx dist bundle');
+  fs.copyFileSync(distBundlePath, harnessBundlePath);
+  return harnessBundlePath;
 }
 
 function extractStatusMessage(domDump) {
@@ -322,7 +376,7 @@ function serveFile(filePath, res) {
 
 function createExportServer({ htmlRootDir, outputDir, port }) {
   const runnerPath = path.join(repoRoot, 'test-harness', 'runner.js');
-  const bundlePath = path.join(repoRoot, 'test-harness', 'dom-to-pptx.bundle.js');
+  const bundlePath = syncDomToPptxBundle();
   const assetsDir = path.join(repoRoot, 'assets');
 
   ensureFileExists(runnerPath, 'runner.js');
@@ -647,4 +701,5 @@ module.exports = {
   normalizeRepoAssetPaths,
   normalizeVideoSourceTags,
   runChromeExport,
+  syncDomToPptxBundle,
 };

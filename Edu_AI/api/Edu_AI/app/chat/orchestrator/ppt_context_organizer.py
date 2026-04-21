@@ -4,6 +4,8 @@ import json
 from typing import Any
 
 from app.chat.domain.ppt_preparation import PptPreparationResult
+from app.chat.utils.json_utils import extract_json_block
+from app.chat.utils.llm_compat import llm_model_label, should_skip_function_calling
 
 
 class PptContextOrganizer:
@@ -313,6 +315,7 @@ class PptContextOrganizer:
 
     def organize(self, *, context, request_question: str) -> PptPreparationResult:
         if self.llm is not None:
+            model_label = llm_model_label(self.llm)
             try:
                 prompt = (
                     "你是 PPT 工作流的上下文整理器。请先基于当前会话总结出可用于生成逐页大纲的 preparation 结果。"
@@ -336,10 +339,29 @@ class PptContextOrganizer:
                     f"evidence_points={json.dumps(list(getattr(context, 'evidence_points', []) or []), ensure_ascii=False)}\n"
                     f"recent_relevant_messages={json.dumps(list(getattr(context, 'recent_relevant_messages', []) or []), ensure_ascii=False)}"
                 )
-                structured = self.llm.with_structured_output(PptPreparationResult, method="function_calling")
-                raw_result = structured.invoke(prompt)
-                if isinstance(raw_result, PptPreparationResult):
-                    return self._sanitize_result(context=context, request_question=request_question, raw_result=raw_result)
+                if not should_skip_function_calling(self.llm):
+                    structured = self.llm.with_structured_output(PptPreparationResult, method="function_calling")
+                    raw_result = structured.invoke(prompt)
+                    if isinstance(raw_result, PptPreparationResult):
+                        return self._sanitize_result(
+                            context=context,
+                            request_question=request_question,
+                            raw_result=raw_result,
+                        )
+                raw = self.llm.invoke(prompt)
+                payload = extract_json_block(getattr(raw, "content", raw))
+                if isinstance(payload, dict) and payload:
+                    return self._sanitize_result(
+                        context=context,
+                        request_question=request_question,
+                        raw_result=PptPreparationResult.model_validate(
+                            {
+                                **payload,
+                                "preparation_source": str(payload.get("preparation_source") or "llm_raw_json").strip(),
+                                "preparation_model": str(payload.get("preparation_model") or model_label).strip(),
+                            }
+                        ),
+                    )
             except Exception:
                 pass
 

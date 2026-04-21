@@ -114,13 +114,13 @@ function parseContentProtocol(markdown, { allowLoose = false } = {}) {
       continue;
     }
 
-    const roleMatch = trimmed.match(/^- Role:\s*(.+)\s*$/);
+    const roleMatch = line.match(/^- Role:\s*(.+)\s*$/);
     if (roleMatch) {
       currentSlide.role = roleMatch[1].trim();
       continue;
     }
 
-    const titleMatch = trimmed.match(/^- Title:\s*(.+)\s*$/);
+    const titleMatch = line.match(/^- Title:\s*(.+)\s*$/);
     if (titleMatch) {
       currentSlide.title = titleMatch[1].trim();
       continue;

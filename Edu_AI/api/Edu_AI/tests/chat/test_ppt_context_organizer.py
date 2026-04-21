@@ -102,6 +102,69 @@ def test_ppt_context_organizer_summarizes_context_with_llm_before_readiness_judg
     assert result.preparation_model == "fallback"
 
 
+class StubQwenJsonLlm:
+    model = "qwen3.5-plus"
+    base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+    def __init__(self, payload: str):
+        self.payload = payload
+        self.prompts: list[str] = []
+        self.structured_calls = 0
+
+    def with_structured_output(self, *_args, **_kwargs):
+        self.structured_calls += 1
+        raise AssertionError("qwen-compatible llm should not use function_calling structured output")
+
+    def invoke(self, prompt: str):
+        self.prompts.append(prompt)
+        return self.payload
+
+
+def test_ppt_context_organizer_uses_raw_json_directly_for_qwen_compatible_models():
+    context = GenerationContext(
+        conversation_id="conv-ppt-qwen-1",
+        resource_type="ppt",
+        summary_text="围绕 Python 变量定义整理 PPT。",
+        current_topics=["Python 变量定义"],
+        user_goals=["生成 PPT"],
+        confirmed_facts=["变量通过赋值定义", "变量名不能以数字开头"],
+        constraints={},
+        teaching_issues=[],
+        student_signals=[],
+        evidence_points=[],
+        source_scope={"from_summary": True, "from_recent_messages": True},
+    )
+    llm = StubQwenJsonLlm(
+        """```json
+{
+  "topic": "Python 变量定义",
+  "audience": "编程初学者",
+  "objective": "帮助学生理解变量定义与命名规则",
+  "key_points": ["赋值即定义", "命名规则"],
+  "source_basis": ["conversation_summary", "recent_messages"],
+  "source_excerpts": ["变量通过赋值定义", "变量名不能以数字开头"],
+  "page_count": 10,
+  "preparation_source": "llm_raw_json",
+  "preparation_model": "qwen3.5-plus"
+}
+```"""
+    )
+
+    result = PptContextOrganizer(llm=llm).organize(
+        context=context,
+        request_question="根据以上内容整理成 PPT",
+    )
+
+    assert llm.structured_calls == 0
+    assert llm.prompts
+    assert result.topic == "Python 变量定义"
+    assert result.audience == "编程初学者"
+    assert result.objective == "帮助学生理解变量定义与命名规则"
+    assert result.key_points == ["赋值即定义", "命名规则"]
+    assert result.preparation_source == "llm_raw_json"
+    assert result.preparation_model == "qwen3.5-plus"
+
+
 def test_ppt_context_organizer_defaults_page_count_to_soft_target_when_missing():
     context = GenerationContext(
         conversation_id="conv-ppt-3",

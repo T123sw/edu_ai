@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from app.chat.agents.report_generation import get_fallback_llm, get_ppt_llm
 from app.chat.api.schemas_v2 import PptEntryPrefillConfigV2
 from app.chat.utils.json_utils import extract_json_block
+from app.chat.utils.llm_compat import should_skip_function_calling
 
 PptRecommendationType = Literal["concept_focus", "process_flow", "comparison_view", "case_application"]
 FitScore = Literal["high", "medium", "low"]
@@ -260,6 +261,8 @@ class PptEntryRecommendationGenerator:
         )
 
         try:
+            if should_skip_function_calling(self.llm):
+                raise RuntimeError("skip_function_calling")
             structured = self.llm.with_structured_output(RecommendedPptCardDraftBundle, method="function_calling")
             bundle = structured.invoke(prompt)
             self._record_generation_state(mode="llm")

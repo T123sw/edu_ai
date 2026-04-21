@@ -1,24 +1,23 @@
 [api_key]
-# DeepSeek API 密钥（标准服务）
+# Standard DeepSeek API key. Leave empty if you use remote_model_api_key.
 deepseek_api_key=''
-# 自定义 API 服务密钥（优先使用，对应 .env 中的 REMOTE_MODEL_API_KEY）
+
+# OpenAI-compatible custom endpoint key. This maps to REMOTE_MODEL_API_KEY.
 remote_model_api_key='sk-your-remote-model-api-key'
 
 [model]
-# LLM 供应商类型: 'deepseek' 或 'openai'
+# Provider type: deepseek or openai-compatible.
 llm_supply='deepseek'
-# 模型名称（对应 .env 中的 LLM_MODEL）
-llm_model='DeepSeek-V3.2-Exp'
-# 默认模型 ID（对应 .env 中的 DEFAULT_LLM_MODEL_ID）
-default_llm_model_id='deepseek-v3.2-exp'
-# 温度参数（0.0-2.0），控制输出的随机性
+
+# Model name. This maps to LLM_MODEL.
+llm_model='deepseek-chat'
+
+# Public/default model id used by UI or orchestration code.
+default_llm_model_id='deepseek-chat'
+
 temperature=0.2
-# 最大输出 token 数
 max_tokens=7000
 
 [api_base]
-# 自定义 API 基础地址（对应 .env 中的 REMOTE_MODEL_API_BASE）
-# 如果使用代理或自定义服务，填写完整地址
-remote_model_api_base='https://1lmapi.blsc.cn'
-# 留空则使用默认地址
-
+# OpenAI-compatible base URL. This maps to REMOTE_MODEL_API_BASE.
+remote_model_api_base='https://api.deepseek.com/v1'

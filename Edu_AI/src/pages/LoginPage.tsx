@@ -82,7 +82,7 @@ export default function LoginPage() {
             </div>
           </div>
           <Title level={1} className="login-main-title">
-            Edu-AI
+            知学启思
           </Title>
           <Title level={3} className="login-sub-title">
             智能课程创作与教学工作台
@@ -114,7 +114,7 @@ export default function LoginPage() {
             <Title level={3} className="login-form-title">
               欢迎登录
             </Title>
-            <p className="login-form-desc">输入账号信息后即可进入新的 Edu-AI 前端界面。</p>
+            <p className="login-form-desc">输入账号信息后即可进入新的 知学启思 前端界面。</p>
           </div>
 
           <Form layout="vertical" form={form} onFinish={onFinish}>

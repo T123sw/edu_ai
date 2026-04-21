@@ -1,8 +1,9 @@
-import React from 'react';
-import { Alert, Button, Divider, Space, Typography } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, Button, Divider, Space, Spin, Typography } from 'antd';
 import { ArrowLeftOutlined, PlayCircleOutlined, RightOutlined } from '@ant-design/icons';
 
 import type { GeneratedFile } from '../../store/teacher/useStore';
+import { getTeacherAuthToken, resolveGameHtmlUrl } from '../../services/teacher/gameAssets';
 
 const { Title } = Typography;
 
@@ -13,7 +14,66 @@ type Props = {
 };
 
 export default function GameArtifactPreview({ file, onBack, onToggleCollapsed }: Props) {
-  const htmlUrl = String(file.meta?.htmlUrl || '').trim();
+  const htmlUrl = useMemo(() => resolveGameHtmlUrl(file.meta?.htmlUrl), [file.meta?.htmlUrl]);
+  const [htmlContent, setHtmlContent] = useState('');
+  const [blobUrl, setBlobUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorText, setErrorText] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    let nextBlobUrl = '';
+
+    if (!htmlUrl) {
+      setHtmlContent('');
+      setBlobUrl('');
+      setErrorText('页面资源不存在，请重新生成小游戏。');
+      return;
+    }
+
+    setLoading(true);
+    setErrorText('');
+    setHtmlContent('');
+    setBlobUrl('');
+
+    const token = getTeacherAuthToken();
+    fetch(htmlUrl, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`小游戏页面加载失败: ${response.status}`);
+        }
+        return response.text();
+      })
+      .then((html) => {
+        if (cancelled) {
+          return;
+        }
+        nextBlobUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        setHtmlContent(html);
+        setBlobUrl(nextBlobUrl);
+      })
+      .catch((error: any) => {
+        if (!cancelled) {
+          setErrorText(error?.message || '小游戏页面加载失败，请重新生成。');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (nextBlobUrl) {
+        URL.revokeObjectURL(nextBlobUrl);
+      }
+    };
+  }, [htmlUrl]);
 
   return (
     <div
@@ -37,8 +97,8 @@ export default function GameArtifactPreview({ file, onBack, onToggleCollapsed }:
           <Button
             type="primary"
             icon={<PlayCircleOutlined />}
-            disabled={!htmlUrl}
-            onClick={() => htmlUrl && window.open(htmlUrl, '_blank', 'noopener,noreferrer')}
+            disabled={!blobUrl && !htmlUrl}
+            onClick={() => (blobUrl || htmlUrl) && window.open(blobUrl || htmlUrl, '_blank', 'noopener,noreferrer')}
           >
             全屏播放
           </Button>
@@ -51,10 +111,16 @@ export default function GameArtifactPreview({ file, onBack, onToggleCollapsed }:
       </Title>
       <Divider style={{ flexShrink: 0 }} />
 
-      {htmlUrl ? (
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, minHeight: 240 }}>
+          <Spin tip="正在加载小游戏..." />
+        </div>
+      ) : errorText ? (
+        <Alert type="warning" showIcon message={errorText} />
+      ) : htmlContent ? (
         <iframe
           title={file.name}
-          src={htmlUrl}
+          srcDoc={htmlContent}
           style={{
             width: '100%',
             flex: 1,

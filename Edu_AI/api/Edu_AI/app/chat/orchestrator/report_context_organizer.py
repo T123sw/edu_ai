@@ -371,6 +371,22 @@ def _report_context_model_label(llm: Any | None) -> str:
     return llm.__class__.__name__
 
 
+def _report_context_base_url(llm: Any | None) -> str:
+    if llm is None:
+        return ""
+    for attr in ("base_url", "openai_api_base", "api_base"):
+        value = str(getattr(llm, attr, "") or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _report_context_should_skip_function_calling(llm: Any | None) -> bool:
+    model = _report_context_model_label(llm).lower()
+    base_url = _report_context_base_url(llm).lower()
+    return "qwen" in model or "dashscope.aliyuncs.com" in base_url
+
+
 def _report_context_result_with_meta(result: ReportPreparationResult, *, source: str, model: str) -> ReportPreparationResult:
     return result.model_copy(
         update={
@@ -452,6 +468,7 @@ ReportContextOrganizer.organize = _report_context_organize_v3
 
 def _report_context_organize_v4(self, *, context, request_question: str) -> ReportPreparationResult:
     model_label = _report_context_model_label(self.llm)
+    skip_function_calling = _report_context_should_skip_function_calling(self.llm)
     if self.llm is not None:
         _report_context_trace("llm_path=enabled", f"llm_model={model_label}", f"request={self._clean(request_question)}")
         prompt = (
@@ -471,46 +488,49 @@ def _report_context_organize_v4(self, *, context, request_question: str) -> Repo
             f"recent_relevant_messages={list(getattr(context, 'recent_relevant_messages', []) or [])}\n\n"
             "请严格输出 JSON 对象，字段必须可被 ReportPreparationResult 解析。"
         )
-        try:
-            structured = self.llm.with_structured_output(ReportPreparationResult, method="function_calling")
-            structured_result = structured.invoke(prompt)
-            if structured_result is None:
-                raise ValueError("structured_output_returned_none")
-            result = _report_context_result_with_meta(
-                structured_result,
-                source="llm_structured_output",
-                model=model_label,
-            )
-            result = self._sanitize_result(
-                context=context,
-                request_question=request_question,
-                raw_result=result,
-            )
-            _report_context_trace("llm_mode=structured_output", "status=ok")
-            _report_context_trace_result(result)
-            return result
-        except Exception as exc:
-            _report_context_trace("llm_mode=structured_output", f"status=failed error={exc}")
+        if skip_function_calling:
+            _report_context_trace("llm_mode=structured_output", "status=skipped_qwen_compat")
+        else:
             try:
-                raw = self.llm.invoke(prompt)
-                payload = extract_json_block(getattr(raw, "content", raw))
-                if isinstance(payload, dict) and payload:
-                    result = _report_context_result_with_meta(
-                        ReportPreparationResult.model_validate(payload),
-                        source="llm_raw_json",
-                        model=model_label,
-                    )
-                    result = self._sanitize_result(
-                        context=context,
-                        request_question=request_question,
-                        raw_result=result,
-                    )
-                    _report_context_trace("llm_mode=raw_json", "status=ok")
-                    _report_context_trace_result(result)
-                    return result
-                _report_context_trace("llm_mode=raw_json", "status=empty_or_invalid")
-            except Exception as raw_exc:
-                _report_context_trace("llm_mode=raw_json", f"status=failed error={raw_exc}")
+                structured = self.llm.with_structured_output(ReportPreparationResult, method="function_calling")
+                structured_result = structured.invoke(prompt)
+                if structured_result is None:
+                    raise ValueError("structured_output_returned_none")
+                result = _report_context_result_with_meta(
+                    structured_result,
+                    source="llm_structured_output",
+                    model=model_label,
+                )
+                result = self._sanitize_result(
+                    context=context,
+                    request_question=request_question,
+                    raw_result=result,
+                )
+                _report_context_trace("llm_mode=structured_output", "status=ok")
+                _report_context_trace_result(result)
+                return result
+            except Exception as exc:
+                _report_context_trace("llm_mode=structured_output", f"status=failed error={exc}")
+        try:
+            raw = self.llm.invoke(prompt)
+            payload = extract_json_block(getattr(raw, "content", raw))
+            if isinstance(payload, dict) and payload:
+                result = _report_context_result_with_meta(
+                    ReportPreparationResult.model_validate(payload),
+                    source="llm_raw_json",
+                    model=model_label,
+                )
+                result = self._sanitize_result(
+                    context=context,
+                    request_question=request_question,
+                    raw_result=result,
+                )
+                _report_context_trace("llm_mode=raw_json", "status=ok")
+                _report_context_trace_result(result)
+                return result
+            _report_context_trace("llm_mode=raw_json", "status=empty_or_invalid")
+        except Exception as raw_exc:
+            _report_context_trace("llm_mode=raw_json", f"status=failed error={raw_exc}")
     _report_context_trace("llm_path=fallback")
     result = _report_context_result_with_meta(
         self._fallback_prepare(context=context, request_question=request_question),

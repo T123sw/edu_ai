@@ -17,8 +17,29 @@ function normalizeAgentOutput(stdout) {
   return normalized.trim();
 }
 
+function normalizeAgentOutputByKind(stdout, outputKind = 'slide') {
+  const trimmed = String(stdout || '').trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (outputKind === 'json') {
+    JSON.parse(trimmed);
+    return trimmed;
+  }
+
+  if (outputKind === 'html_document') {
+    if (!/<html\b/i.test(trimmed)) {
+      throw new Error('Expected a full HTML document.');
+    }
+    return trimmed;
+  }
+
+  return normalizeAgentOutput(trimmed);
+}
+
 class ClaudeCodeRunner {
-  async run({ promptPath, outputPath, workspaceDir, prompt }) {
+  async run({ promptPath, outputPath, workspaceDir, prompt, outputKind = 'slide' }) {
     const context = {
       prompt_file: promptPath,
       output_file: outputPath,
@@ -63,8 +84,11 @@ class ClaudeCodeRunner {
     });
 
     if (!(await fileExists(outputPath))) {
-      const normalized = normalizeAgentOutput(result.stdout);
-      if (normalized && hasSlideClass(normalized)) {
+      const normalized = normalizeAgentOutputByKind(result.stdout, outputKind);
+      if (
+        normalized &&
+        (outputKind === 'json' || outputKind === 'html_document' || hasSlideClass(normalized))
+      ) {
         await fs.writeFile(outputPath, `${normalized}\n`, 'utf8');
       }
     }
@@ -99,4 +123,5 @@ class ClaudeCodeRunner {
 
 module.exports = {
   ClaudeCodeRunner,
+  normalizeAgentOutputByKind,
 };

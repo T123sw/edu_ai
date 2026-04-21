@@ -75,6 +75,26 @@ assert.match(
 );
 assert.match(
   page,
+  /const realtimeStagePptFrameRef = useRef<HTMLIFrameElement \| null>\(null\);/,
+  'Realtime playback should keep a stable realtime PPT iframe ref for message-driven slide navigation',
+);
+assert.match(
+  page,
+  /const selectedPptPreviewUrl = getCourseMaterialPptPreviewUrl\(sourcePptMaterial \|\| selectedPptMaterial\);/,
+  'Realtime playback should resolve the source PPT preview url used by the lecture stage',
+);
+assert.match(
+  page,
+  /const realtimeStageSlideImageUrls = Array\.isArray\(hydratedSessionSnapshot\?\.slide_image_urls\)/,
+  'Realtime playback should hydrate exported slide image urls from the lecture session snapshot',
+);
+assert.match(
+  page,
+  /const realtimeStageSlideImageUrl = realtimeStageSlideImageUrls\[activeSlideIndex\] \|\| "";/,
+  'Realtime playback should derive the visible background from the current exported slide image',
+);
+assert.match(
+  page,
   /const outlineRef = useRef<Slide\[]>\(\[\]\);/,
   'Realtime autoplay should keep the latest outline in a ref for timer-driven slide advancement',
 );
@@ -113,10 +133,10 @@ assert.doesNotMatch(
   /\}, \[activeMaterial,/,
   'Realtime playback should not re-hydrate from the whole active material object on every material refresh',
 );
-assert.doesNotMatch(
+assert.match(
   page,
-  /<iframe[\s\S]*src=\{selectedPptPreviewUrl\}/s,
-  'Realtime playback should no longer render a PPT preview underneath the digital human',
+  /mode === "online" \? \([\s\S]*realtimeStageSlideObjectUrl \? \([\s\S]*<img[\s\S]*src=\{realtimeStageSlideObjectUrl\}/s,
+  'Realtime playback should render an authenticated exported slide image object URL inside the realtime stage',
 );
 
 console.log('videoPlayer.ai-lecture-realtime-bootstrap tests passed');

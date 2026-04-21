@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   askAiLecturer,
   createAiLecturerCourse,
@@ -22,7 +22,8 @@ import {
 } from "../api/courses";
 import { API_BASE_URL } from "../api/client";
 import { MarkdownPreview } from "../components/MarkdownPreview";
-import type { CourseMaterial, KnowledgeGraphNode, TeachingVideoPptItem } from "../api/types";
+import { TransparentAvatarCanvas } from "../components/TransparentAvatarCanvas";
+import type { AiLectureSessionSnapshot, CourseMaterial, KnowledgeGraphNode, TeachingVideoPptItem } from "../api/types";
 import { useAiLecturerWebRtc } from "../hooks/useAiLecturerWebRtc";
 import {
   exportCourseMaterialAsWord,
@@ -60,6 +61,7 @@ const PPT_PREVIEW_BASE_WIDTH = 1920;
 const AI_LECTURE_AUTOSTART_REQUEST_KEY = "stitch-ai-lecture-autostart-request";
 const AI_LECTURE_AUTOSTART_EVENT = "stitch-ai-lecture-autostart";
 const AI_LECTURE_PREFERRED_SESSION_KEY = "stitch-ai-lecture-session-id";
+const API_AUTH_STORAGE_KEY = "edu-ai-auth";
 
 function readStoredJson<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
@@ -153,6 +155,30 @@ function fileNameFromUrl(url: string) {
   return normalized.slice(normalized.lastIndexOf("/") + 1);
 }
 
+function buildRealtimeStagePptPreviewUrl(previewUrl: string, slideIndex = 0) {
+  const normalized = String(previewUrl || "").trim();
+  if (!normalized) return "";
+  const safeSlideIndex = Math.max(1, Math.round(slideIndex) + 1);
+
+  try {
+    const nextUrl = /^https?:\/\//i.test(normalized)
+      ? new URL(normalized)
+      : new URL(normalized, typeof window !== "undefined" ? window.location.origin : API_BASE_URL);
+    nextUrl.searchParams.set("preview_mode", "single-slide");
+    nextUrl.searchParams.set("slide", String(safeSlideIndex));
+    nextUrl.searchParams.set("page", String(safeSlideIndex));
+    nextUrl.hash = `slide-${safeSlideIndex}`;
+    return /^https?:\/\//i.test(normalized)
+      ? nextUrl.toString()
+      : `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+  } catch {
+    const [pathPart] = normalized.split("#", 2);
+    const joiner = pathPart.includes("?") ? "&" : "?";
+    const nextHash = `#slide-${safeSlideIndex}`;
+    return `${pathPart}${joiner}preview_mode=single-slide&slide=${safeSlideIndex}&page=${safeSlideIndex}${nextHash}`;
+  }
+}
+
 function buildMaterialFallback(materials: CourseMaterial[]): KnowledgeGraphNode | null {
   if (!materials.length) return null;
 
@@ -226,6 +252,32 @@ function playbackUrl(path: string) {
   return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+function readApiAuthToken() {
+  if (typeof window === "undefined") return "";
+  try {
+    const stored = window.localStorage.getItem(API_AUTH_STORAGE_KEY);
+    if (!stored) return "";
+    const parsed = JSON.parse(stored) as { token?: string };
+    return parsed.token || "";
+  } catch {
+    return "";
+  }
+}
+
+async function fetchAuthenticatedBlobUrl(path: string) {
+  const headers = new Headers();
+  const token = readApiAuthToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  const response = await fetch(playbackUrl(path), { headers });
+  if (!response.ok) {
+    throw new Error(`Failed to load slide image: ${response.status}`);
+  }
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
 export function VideoPlayerPage() {
   const { selectedCourse } = useAppShell();
   const course = selectedCourse ?? defaultCourse;
@@ -245,6 +297,12 @@ export function VideoPlayerPage() {
   const scriptSentencesRef = useRef<string[]>([]);
   const livetalkingSessionIdRef = useRef<number | null>(null);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
+  const realtimeStagePptFrameRef = useRef<HTMLIFrameElement | null>(null);
+  const realtimeStageFrameRef = useRef<HTMLDivElement | null>(null);
+  const pageMainScrollRef = useRef<HTMLDivElement | null>(null);
+  const initialMainScrollResetRef = useRef(true);
+  const routeEntryScrollGuardRef = useRef({ active: true, userInteracted: false });
+  const routeEntryScrollReleaseTimerRef = useRef<number | null>(null);
 
   const [mode, setMode] = useState<"online" | "offline">("online");
   const [rawDocument, setRawDocument] = useState(getDefaultMarkdown(selectedCourse?.title));
@@ -260,6 +318,8 @@ export function VideoPlayerPage() {
   const [studentQuestion, setStudentQuestion] = useState("");
   const [answerText, setAnswerText] = useState("");
   const [persistedRecordingUrl, setPersistedRecordingUrl] = useState("");
+  const [hydratedSessionSnapshot, setHydratedSessionSnapshot] = useState<AiLectureSessionSnapshot | null>(null);
+  const [realtimeStageSlideObjectUrl, setRealtimeStageSlideObjectUrl] = useState("");
 
   const [offlineTaskId, setOfflineTaskId] = useState("");
   const [offlineStatus, setOfflineStatus] = useState("");
@@ -282,6 +342,7 @@ export function VideoPlayerPage() {
   const [activeStructureId, setActiveStructureId] = useState<string | null>(null);
   const [expandedStructureIds, setExpandedStructureIds] = useState<Set<string>>(new Set());
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
+  const [realtimeStageFrameWidth, setRealtimeStageFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
 
   const {
     audioRef,
@@ -316,7 +377,14 @@ export function VideoPlayerPage() {
   const canExportActiveMaterial = isCourseMaterialWordExportable(activeMaterial, activeMaterialMarkdown);
   const activeMaterialPptExportUrl = getCourseMaterialPptExportUrl(activeMaterial);
   const activeMaterialPptPreviewUrl = getCourseMaterialPptPreviewUrl(activeMaterial);
+  const selectedPptPreviewUrl = getCourseMaterialPptPreviewUrl(sourcePptMaterial || selectedPptMaterial);
+  const realtimeStagePptPreviewUrl = buildRealtimeStagePptPreviewUrl(selectedPptPreviewUrl, activeSlideIndex);
+  const realtimeStageSlideImageUrls = Array.isArray(hydratedSessionSnapshot?.slide_image_urls)
+    ? hydratedSessionSnapshot.slide_image_urls.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    : [];
+  const realtimeStageSlideImageUrl = realtimeStageSlideImageUrls[activeSlideIndex] || "";
   const pptPreviewScale = Math.min(1, pptPreviewFrameWidth / PPT_PREVIEW_BASE_WIDTH);
+  const realtimeStagePptScale = Math.min(1, realtimeStageFrameWidth / PPT_PREVIEW_BASE_WIDTH);
   const lectureMarkdown =
     sourcePptMaterial || selectedPptMaterial
       ? courseMaterialToMarkdown(sourcePptMaterial || selectedPptMaterial)
@@ -353,12 +421,86 @@ export function VideoPlayerPage() {
     } 句。`;
   }, [activeSlideIndex, outline.length, scriptSentences.length]);
 
+  function resetPageMainScrollToTop() {
+    if (!pageMainScrollRef.current) return;
+    pageMainScrollRef.current.scrollTop = 0;
+    pageMainScrollRef.current.scrollLeft = 0;
+  }
+
+  function clearRouteEntryScrollReleaseTimer() {
+    if (routeEntryScrollReleaseTimerRef.current !== null) {
+      window.clearTimeout(routeEntryScrollReleaseTimerRef.current);
+      routeEntryScrollReleaseTimerRef.current = null;
+    }
+  }
+
+  function releaseRouteEntryScrollGuard() {
+    routeEntryScrollGuardRef.current.active = false;
+    clearRouteEntryScrollReleaseTimer();
+  }
+
+  function scheduleRouteEntryScrollGuardRelease(delayMs: number) {
+    clearRouteEntryScrollReleaseTimer();
+    routeEntryScrollReleaseTimerRef.current = window.setTimeout(() => {
+      releaseRouteEntryScrollGuard();
+    }, delayMs);
+  }
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setAutoStartReady(true);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useLayoutEffect(() => {
+    initialMainScrollResetRef.current = true;
+    routeEntryScrollGuardRef.current = { active: true, userInteracted: false };
+    resetPageMainScrollToTop();
+    scheduleRouteEntryScrollGuardRelease(4500);
+    return clearRouteEntryScrollReleaseTimer;
+  }, [course.id]);
+
+  useLayoutEffect(() => {
+    if (!initialMainScrollResetRef.current) return;
+    resetPageMainScrollToTop();
+    if (!materialsLoading && !graphLoading && !offlinePptsLoading) {
+      initialMainScrollResetRef.current = false;
+      scheduleRouteEntryScrollGuardRelease(1400);
+    }
+  }, [materialsLoading, graphLoading, offlinePptsLoading, materials.length, graphRoot, offlinePpts.length]);
+
+  useEffect(() => {
+    const pageMain = pageMainScrollRef.current;
+    if (!pageMain) return undefined;
+
+    function markUserInteracted() {
+      routeEntryScrollGuardRef.current.userInteracted = true;
+      releaseRouteEntryScrollGuard();
+    }
+
+    function guardRouteEntryScroll() {
+      const guard = routeEntryScrollGuardRef.current;
+      if (!guard.active || guard.userInteracted) return;
+      if (pageMain.scrollTop === 0 && pageMain.scrollLeft === 0) return;
+      resetPageMainScrollToTop();
+      window.requestAnimationFrame(resetPageMainScrollToTop);
+    }
+
+    pageMain.addEventListener("scroll", guardRouteEntryScroll, { passive: true });
+    window.addEventListener("wheel", markUserInteracted, { capture: true, passive: true });
+    window.addEventListener("touchmove", markUserInteracted, { capture: true, passive: true });
+    window.addEventListener("pointerdown", markUserInteracted, { capture: true });
+    window.addEventListener("keydown", markUserInteracted, { capture: true });
+
+    return () => {
+      pageMain.removeEventListener("scroll", guardRouteEntryScroll);
+      window.removeEventListener("wheel", markUserInteracted, { capture: true });
+      window.removeEventListener("touchmove", markUserInteracted, { capture: true });
+      window.removeEventListener("pointerdown", markUserInteracted, { capture: true });
+      window.removeEventListener("keydown", markUserInteracted, { capture: true });
+    };
+  }, [course.id]);
 
   useEffect(() => {
     const handleAutoStartEvent = (event: CustomEvent<AiLectureAutoStartRequest>) => {
@@ -386,6 +528,114 @@ export function VideoPlayerPage() {
     observer.observe(element);
     return () => observer.disconnect();
   }, [activeMaterial?.material_id, activeMaterialPptPreviewUrl]);
+
+  useEffect(() => {
+    const element = realtimeStageFrameRef.current;
+    if (!element || typeof ResizeObserver === "undefined" || (!realtimeStagePptPreviewUrl && !realtimeStageSlideImageUrl)) {
+      return;
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const nextWidth = Math.max(Math.floor(entry?.contentRect?.width || 0), 320);
+      setRealtimeStageFrameWidth(nextWidth);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [realtimeStagePptPreviewUrl, realtimeStageSlideImageUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl = "";
+
+    setRealtimeStageSlideObjectUrl("");
+    if (!realtimeStageSlideImageUrl) {
+      return () => {};
+    }
+
+    void fetchAuthenticatedBlobUrl(realtimeStageSlideImageUrl)
+      .then((nextObjectUrl) => {
+        objectUrl = nextObjectUrl;
+        if (cancelled) {
+          URL.revokeObjectURL(nextObjectUrl);
+          return;
+        }
+        setRealtimeStageSlideObjectUrl(objectUrl);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.warn("[AI Lecturer][Realtime] failed to load slide image", err);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [realtimeStageSlideImageUrl]);
+
+  function syncRealtimeStagePptSlide(slideIndex = activeSlideIndex) {
+    realtimeStagePptFrameRef.current?.contentWindow?.postMessage(
+      {
+        type: "ppt-preview-go-to-slide",
+        slideIndex: Math.max(1, slideIndex + 1),
+      },
+      "*",
+    );
+  }
+
+  useEffect(() => {
+    if (mode !== "online" || !realtimeStagePptPreviewUrl || realtimeStageSlideImageUrl) {
+      return;
+    }
+    syncRealtimeStagePptSlide(activeSlideIndex);
+  }, [activeSlideIndex, mode, realtimeStagePptPreviewUrl, realtimeStageSlideImageUrl]);
+
+  useEffect(() => {
+    function handleRealtimeStagePreviewMessage(event: MessageEvent) {
+      if (event.source !== realtimeStagePptFrameRef.current?.contentWindow) return;
+      const data =
+        event.data && typeof event.data === "object" ? (event.data as Record<string, unknown>) : {};
+      if (data.type !== "ppt-preview-ready") return;
+      syncRealtimeStagePptSlide(activeSlideIndexRef.current);
+    }
+
+    window.addEventListener("message", handleRealtimeStagePreviewMessage);
+    return () => window.removeEventListener("message", handleRealtimeStagePreviewMessage);
+  }, []);
+
+  async function hydrateAiLectureSessionState(sessionId: string) {
+    const result = await getAiLectureSession(course.id, sessionId);
+    const snapshot = result.snapshot || {};
+    const snapshotSlideImageUrls = Array.isArray(snapshot.slide_image_urls)
+      ? snapshot.slide_image_urls.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+      : [];
+    snapshot.slide_image_urls = snapshotSlideImageUrls;
+    setHydratedSessionSnapshot(snapshot);
+    if (snapshot.ai_lecturer_course_id) {
+      setCourseId(String(snapshot.ai_lecturer_course_id));
+    }
+    if (Array.isArray(snapshot.outline) && snapshot.outline.length) {
+      setOutline(snapshot.outline);
+    }
+    if (Array.isArray(snapshot.script)) {
+      const nextScripts = snapshot.script.reduce<Record<number, string[]>>((acc, item) => {
+        acc[Number(item.page_index) || 0] = item.sentences || [];
+        return acc;
+      }, {});
+      setSlideScripts(nextScripts);
+      const pageIndex = Number(snapshot.last_position?.page_index || 0);
+      setActiveSlideIndex(pageIndex);
+      setScriptSentences(nextScripts[pageIndex] || []);
+      setCurrentSentenceIndex(Number(snapshot.last_position?.sentence_index || 0));
+    }
+    if (result.metadata?.recording_url) {
+      setPersistedRecordingUrl(String(result.metadata.recording_url));
+    }
+    return result;
+  }
 
   useEffect(() => {
     setRawDocument(getDefaultMarkdown(selectedCourse?.title));
@@ -518,31 +768,7 @@ export function VideoPlayerPage() {
       setSelectedOfflinePptId(sourcePptId);
     }
 
-    void getAiLectureSession(course.id, sessionId)
-      .then((result) => {
-        const snapshot = result.snapshot || {};
-        if (snapshot.ai_lecturer_course_id) {
-          setCourseId(String(snapshot.ai_lecturer_course_id));
-        }
-        if (Array.isArray(snapshot.outline) && snapshot.outline.length) {
-          setOutline(snapshot.outline);
-        }
-        if (Array.isArray(snapshot.script)) {
-          const nextScripts = snapshot.script.reduce<Record<number, string[]>>((acc, item) => {
-            acc[Number(item.page_index) || 0] = item.sentences || [];
-            return acc;
-          }, {});
-          setSlideScripts(nextScripts);
-          const pageIndex = Number(snapshot.last_position?.page_index || 0);
-          setActiveSlideIndex(pageIndex);
-          setScriptSentences(nextScripts[pageIndex] || []);
-          setCurrentSentenceIndex(Number(snapshot.last_position?.sentence_index || 0));
-        }
-        if (result.metadata?.recording_url) {
-          setPersistedRecordingUrl(String(result.metadata.recording_url));
-        }
-      })
-      .catch(() => {});
+    void hydrateAiLectureSessionState(sessionId).catch(() => {});
   }, [
     activeMaterial?.material_id,
     activeMaterial?.material_type,
@@ -621,9 +847,13 @@ export function VideoPlayerPage() {
   }) {
     if (params.sessionId) {
       setAiLectureSessionId(params.sessionId);
+      await hydrateAiLectureSessionState(params.sessionId);
       return params.sessionId;
     }
-    if (aiLectureSessionId) return aiLectureSessionId;
+    if (aiLectureSessionId) {
+      await hydrateAiLectureSessionState(aiLectureSessionId);
+      return aiLectureSessionId;
+    }
     if (!params.sourcePptMaterial?.material_id) {
       throw new Error("请先选择一个可用于实时教学的 PPT。");
     }
@@ -635,6 +865,7 @@ export function VideoPlayerPage() {
     const sessionId = String(result.content?.session_snapshot_id || result.material_id || "").trim();
     if (!sessionId) throw new Error("AI lecture session id was not returned.");
     setAiLectureSessionId(sessionId);
+    await hydrateAiLectureSessionState(sessionId);
     return sessionId;
   }
 
@@ -1026,7 +1257,11 @@ export function VideoPlayerPage() {
           </div>
         </aside>
 
-        <main className="min-w-0 overflow-y-auto rounded-[32px] border border-[var(--shell-border)] bg-[var(--app-bg)] lg:h-[calc(100vh-48px)]">
+        <main
+          ref={pageMainScrollRef}
+          data-route-scroll-root
+          className="min-w-0 overflow-y-auto rounded-[32px] border border-[var(--shell-border)] bg-[var(--app-bg)] [overflow-anchor:none] lg:h-[calc(100vh-48px)]"
+        >
           <header className="sticky top-0 z-40 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-8 py-4 backdrop-blur-xl">
             <h1 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">课程学习</h1>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
@@ -1039,11 +1274,57 @@ export function VideoPlayerPage() {
           <div className="w-full px-6 py-6 xl:px-8">
             <GlassPanel className="overflow-hidden bg-[#020617]">
               {mode === "online" ? (
-                <div className="relative aspect-video w-full bg-black">
-                  <video ref={videoRef} autoPlay playsInline muted className="h-full w-full bg-black object-contain" />
+                <div ref={realtimeStageFrameRef} className="relative aspect-video w-full overflow-hidden bg-black">
+                  {realtimeStageSlideObjectUrl ? (
+                    <img
+                      src={realtimeStageSlideObjectUrl}
+                      alt={`${selectedPptMaterial?.title || sourcePptMaterial?.title || course.title} slide ${activeSlideIndex + 1}`}
+                      className="absolute inset-0 h-full w-full object-contain bg-white"
+                    />
+                  ) : realtimeStagePptPreviewUrl ? (
+                    <div
+                      className="pointer-events-none absolute inset-0 overflow-hidden bg-white"
+                      style={{ contain: "layout paint size" }}
+                    >
+                      <iframe
+                        ref={realtimeStagePptFrameRef}
+                        src={realtimeStagePptPreviewUrl}
+                        onLoad={() => syncRealtimeStagePptSlide(activeSlideIndex)}
+                        title={`${selectedPptMaterial?.title || sourcePptMaterial?.title || course.title} slide ${activeSlideIndex + 1}`}
+                        style={{
+                          width: `${PPT_PREVIEW_BASE_WIDTH}px`,
+                          height: `calc(100% / ${realtimeStagePptScale})`,
+                          minHeight: `${Math.round(1080 / Math.max(realtimeStagePptScale, 0.1))}px`,
+                          border: 0,
+                          background: "#fff",
+                          transform: `scale(${realtimeStagePptScale})`,
+                          transformOrigin: "top left",
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(96,165,250,0.32),transparent_24%),radial-gradient(circle_at_75%_58%,rgba(14,165,233,0.22),transparent_30%),linear-gradient(135deg,#020617_0%,#0f172a_45%,#1d4ed8_100%)]" />
+                  )}
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.08)_0%,rgba(2,6,23,0.12)_52%,rgba(2,6,23,0.42)_100%)]" />
+                  {outline.length ? (
+                    <div className="absolute left-5 top-5 z-10 rounded-full bg-[rgba(15,23,42,0.72)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/92 backdrop-blur">
+                      Slide {activeSlideIndex + 1}/{outline.length}
+                    </div>
+                  ) : null}
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="hidden"
+                  />
+                  <TransparentAvatarCanvas
+                    sourceVideoRef={videoRef}
+                    className="pointer-events-none absolute bottom-[2%] right-[1.8%] z-20 block h-auto w-[24%] min-w-[180px] max-w-[320px] object-contain drop-shadow-[0_18px_36px_rgba(15,23,42,0.34)]"
+                  />
                   <audio ref={audioRef} autoPlay className="hidden" />
                   {webRtcStatus !== "connected" ? (
-                    <div className="absolute inset-0 grid place-items-center bg-[linear-gradient(135deg,rgba(2,6,23,0.92),rgba(15,23,42,0.78))] p-8 text-center">
+                    <div className="absolute inset-0 z-30 grid place-items-center bg-[linear-gradient(135deg,rgba(2,6,23,0.92),rgba(15,23,42,0.78))] p-8 text-center">
                       <div className="max-w-md">
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">Live teaching</p>
                         <h2 className="mt-3 text-3xl font-black text-white">实时教学视频待开始</h2>

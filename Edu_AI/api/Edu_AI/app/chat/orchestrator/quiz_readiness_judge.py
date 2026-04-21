@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from app.chat.domain.quiz_preparation import QuizPreparationResult
 from app.chat.utils.json_utils import extract_json_block
+from app.chat.utils.llm_compat import should_skip_function_calling
 
 
 class QuizFollowupPlan(BaseModel):
@@ -104,16 +105,17 @@ class QuizReadinessJudge:
                 critical_fields=critical_fields,
                 optional_fields=optional_fields,
             )
-            try:
-                structured = self.llm.with_structured_output(QuizFollowupPlan, method="function_calling")
-                plan = structured.invoke(prompt)
-                if plan and plan.ask_needed and self._clean(plan.question):
-                    asked_fields = [self._clean(field) for field in list(plan.asked_fields or []) if self._clean(field)][:2]
-                    if critical_fields:
-                        asked_fields = [field for field in asked_fields if field in critical_fields] or list(critical_fields[:1])
-                    return self._clean(plan.question), asked_fields
-            except Exception:
-                pass
+            if not should_skip_function_calling(self.llm):
+                try:
+                    structured = self.llm.with_structured_output(QuizFollowupPlan, method="function_calling")
+                    plan = structured.invoke(prompt)
+                    if plan and plan.ask_needed and self._clean(plan.question):
+                        asked_fields = [self._clean(field) for field in list(plan.asked_fields or []) if self._clean(field)][:2]
+                        if critical_fields:
+                            asked_fields = [field for field in asked_fields if field in critical_fields] or list(critical_fields[:1])
+                        return self._clean(plan.question), asked_fields
+                except Exception:
+                    pass
 
             try:
                 raw = self.llm.invoke(prompt)

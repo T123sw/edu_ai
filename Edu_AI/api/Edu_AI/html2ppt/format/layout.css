@@ -373,17 +373,17 @@
   justify-content: flex-start;
 }
 
-/* 核心内容区：占据剩余空间并垂直居中 */
+/* 核心内容区：占据剩余空间并靠上组织，避免轻内容页出现大面积留白 */
 .layout-standard-text .content-area {
   flex: 1;                     /* 撑满头部和底部之间的所有空间 */
   display: flex;
   flex-direction: column;
-  justify-content: center;     /* 内容在纵向上居中，留出上下呼吸空间 */
-  gap: 34px;                   /* 引言框与下方列表卡片之间的固定间距 */
-  
+  justify-content: flex-start;
+  gap: 26px;
   width: 100%;
-  max-width: 1500px;           /* 【排版秘诀】限制最大宽度，防止单行文字过长导致视觉疲劳 */
-  margin: 0 auto;              /* 整体水平居中 */
+  max-width: 1560px;
+  margin: 0 auto;
+  padding-top: 56px;
   min-height: 0;
 }
 
@@ -418,7 +418,7 @@
   width: 100%;
   box-sizing: border-box;
   justify-content: center;
-  min-height: 320px;
+  min-height: 280px;
   position: relative;
 }
 
@@ -441,6 +441,42 @@
 
 .layout-standard-text .content-area > .surface-card.text-details:only-child .list-item:first-child::before {
   display: none;
+}
+
+.bullet-teaching {
+  gap: 18px;
+}
+
+.text-density-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(320px, 0.92fr);
+  gap: 26px;
+  align-items: stretch;
+}
+
+.text-density-grid .text-details {
+  min-height: 0;
+}
+
+.text-support-card {
+  min-height: 0;
+  justify-content: flex-start;
+}
+
+.text-support-card .list-item {
+  margin-bottom: 0;
+}
+
+.text-support-card .bullet-example {
+  margin-top: auto;
+}
+
+.bullet-takeaway,
+.bullet-example,
+.card-example,
+.card-question {
+  min-width: 0;
 }
 
 /* =====================================================
@@ -625,6 +661,231 @@
 }
 
 /* =====================================================
+   Layout 1C-3: 架构主链路 + 创新点聚焦
+===================================================== */
+.layout-architecture-pipeline-spotlight {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-architecture-pipeline-spotlight .content-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 20px 24px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding-top: 24px;
+  min-height: 0;
+  align-content: start;
+}
+
+.architecture-summary {
+  grid-column: 1 / -1;
+}
+
+.architecture-pipeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  min-height: 0;
+}
+
+.architecture-stage,
+.architecture-spotlight {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 14px;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.architecture-stage {
+  min-height: 280px;
+  padding: 28px 24px 24px;
+  border-top: 4px solid var(--color-primary);
+}
+
+.architecture-stage-copy {
+  gap: 10px;
+}
+
+.architecture-spotlight {
+  min-height: 280px;
+  padding: 28px 24px 24px;
+  border-top: 4px solid var(--color-secondary);
+  align-self: stretch;
+}
+
+.architecture-spotlight-text {
+  margin-top: 0;
+}
+
+.layout-architecture-pipeline-spotlight.layout-overflow-compact .content-area {
+  grid-template-columns: minmax(0, 1fr) 440px;
+  gap: 14px 18px;
+  padding-top: 14px;
+}
+
+.layout-architecture-pipeline-spotlight.layout-overflow-compact .architecture-pipeline {
+  gap: 16px;
+}
+
+.layout-architecture-pipeline-spotlight.layout-overflow-compact .architecture-stage {
+  min-height: 220px;
+  gap: 10px;
+  padding: 18px 16px 16px;
+}
+
+.layout-architecture-pipeline-spotlight.layout-overflow-compact .architecture-spotlight {
+  min-height: 220px;
+  gap: 10px;
+  padding: 18px 16px 16px;
+}
+
+/* =====================================================
+   Layout 1C-4: 双核概念 + 机制结果补充
+===================================================== */
+.layout-dual-core-support {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-dual-core-support .content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding-top: 32px;
+  min-height: 0;
+}
+
+.dual-core-primary-grid,
+.dual-core-support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  min-height: 0;
+}
+
+.dual-core-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 14px;
+  min-height: 0;
+  padding: 30px 34px;
+  box-sizing: border-box;
+}
+
+.dual-core-card-primary {
+  min-height: 250px;
+  border-top: 4px solid var(--color-primary);
+}
+
+.dual-core-card-secondary {
+  min-height: 208px;
+  border-top: 4px solid var(--color-secondary);
+}
+
+.dual-core-card-secondary .dual-core-card-text {
+  margin-top: auto;
+}
+
+/* =====================================================
+   Layout 1C-5: 总论点 + 证据网格
+===================================================== */
+.layout-thesis-evidence-grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.layout-thesis-evidence-grid .content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding-top: 32px;
+  min-height: 0;
+}
+
+.thesis-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
+  min-height: 0;
+}
+
+.evidence-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 0;
+  padding: 28px 30px;
+  box-sizing: border-box;
+  border-top: 4px solid var(--color-primary);
+}
+
+.evidence-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.evidence-card-head .process-index {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.evidence-card-head .card-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.thesis-evidence-grid > .evidence-card:nth-child(2n) {
+  border-top-color: var(--color-secondary);
+}
+
+.evidence-card-note {
+  margin-top: auto;
+}
+
+.layout-thesis-evidence-grid.layout-overflow-compact .content-area {
+  gap: 16px;
+  padding-top: 20px;
+}
+
+.layout-thesis-evidence-grid.layout-overflow-compact .thesis-band {
+  padding: 18px 22px;
+}
+
+.layout-thesis-evidence-grid.layout-overflow-compact .thesis-evidence-grid {
+  gap: 14px 18px;
+}
+
+.layout-thesis-evidence-grid.layout-overflow-compact .evidence-card {
+  gap: 8px;
+  padding: 20px 22px;
+}
+
+.layout-thesis-evidence-grid.layout-overflow-compact .evidence-card-head {
+  gap: 12px;
+}
+
+/* =====================================================
    Layout 1D: 标准文本页 - 对等对比型
    适合“两种方案 / 两个视角 / 两类机制”的平级比较
 ===================================================== */
@@ -637,33 +898,98 @@
 .layout-standard-text-comparison .content-area {
   flex: 1;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
   width: 100%;
   max-width: 1560px;
   margin: 0 auto;
-  padding-top: 82px;
+  padding-top: 36px;
   min-height: 0;
+}
+
+.comparison-summary-bar {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.comparison-summary-bar,
+.process-summary-bar,
+.cards-lead {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+}
+
+.summary-accent {
+  flex: 0 0 6px;
+  width: 6px;
+  min-width: 6px;
+  align-self: stretch;
+  border-radius: 4px;
+}
+
+.summary-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .comparison-grid {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 36px;
+  gap: 24px 28px;
   align-items: stretch;
 }
 
 .comparison-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  min-height: 0;
+  gap: 10px;
+  min-height: 312px;
+  justify-content: flex-start;
 }
 
 .comparison-details {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+  flex: 1;
+}
+
+.comparison-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+}
+
+.comparison-matrix-card {
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  box-sizing: border-box;
+  padding: 14px 20px;
+}
+
+.layout-standard-text-comparison.layout-overflow-compact .content-area {
+  gap: 14px;
+  padding-top: 24px;
+}
+
+.layout-standard-text-comparison.layout-overflow-compact .comparison-grid {
+  gap: 18px 22px;
 }
 
 /* =====================================================
@@ -681,11 +1007,11 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 30px;
+  gap: 24px;
   width: 100%;
   max-width: 1560px;
   margin: 0 auto;
-  padding-top: 80px;
+  padding-top: 56px;
   min-height: 0;
 }
 
@@ -711,6 +1037,7 @@
   display: flex;
   align-items: stretch;
   gap: 18px;
+  min-height: 188px;
 }
 
 .process-step {
@@ -718,7 +1045,7 @@
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  min-height: 0;
+  min-height: 188px;
 }
 
 .process-index {
@@ -742,6 +1069,31 @@
   display: block;
 }
 
+.process-summary-bar {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.process-detail-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.process-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 180px;
+  box-sizing: border-box;
+}
+
+.process-detail-label {
+  min-width: 0;
+}
+
 .process-grid {
   width: 100%;
   display: grid;
@@ -757,6 +1109,19 @@
 .process-grid .process-step-wide {
   grid-column: 1 / -1;
   min-height: 150px;
+}
+
+.layout-standard-text-process.layout-overflow-compact .content-area {
+  gap: 18px;
+  padding-top: 36px;
+}
+
+.layout-standard-text-process.layout-overflow-compact .process-grid {
+  gap: 22px;
+}
+
+.layout-standard-text-process.layout-overflow-compact .process-grid .process-step {
+  min-height: 176px;
 }
 
 .process-list {
@@ -794,8 +1159,37 @@
   width: 100%;
   max-width: 1680px;
   margin: 0 auto;
-  padding-top: 30px;
+  padding-top: 18px;
   min-height: 0;
+}
+
+.vs-problem,
+.vs-teaching-summary,
+.pipeline-step-input,
+.pipeline-step-output,
+.pipeline-teaching-note,
+.capability-relation,
+.capability-takeaway,
+.pillar-example,
+.media-conclusion {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.vs-problem {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 12px;
+  padding: 12px 22px;
+}
+
+.vs-problem-label {
+  flex: 0 0 auto;
+}
+
+.vs-problem-text {
+  min-width: 0;
 }
 
 .vs-comparison-grid {
@@ -808,6 +1202,10 @@
   align-items: stretch;
 }
 
+.layout-comparison-vs-panels .vs-comparison-grid {
+  min-height: 520px;
+}
+
 .vs-panel {
   min-height: 0;
   display: flex;
@@ -817,18 +1215,18 @@
 }
 
 .vs-panel-heading {
-  min-height: 92px;
+  min-height: 78px;
   display: flex;
   align-items: center;
-  padding: 0 38px;
+  padding: 0 30px;
   box-sizing: border-box;
 }
 
 .vs-point-list {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  padding: 40px 38px 26px;
+  gap: 18px;
+  padding: 28px 30px 20px;
   box-sizing: border-box;
   flex: 1;
 }
@@ -845,8 +1243,8 @@
 }
 
 .vs-summary {
-  margin: 0 38px 36px;
-  padding: 18px 24px;
+  margin: 0 30px 24px;
+  padding: 14px 20px;
   box-sizing: border-box;
 }
 
@@ -864,6 +1262,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.vs-teaching-summary {
+  margin-top: 12px;
+  padding: 12px 22px;
 }
 
 /* =====================================================
@@ -897,7 +1300,12 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 44px 32px 34px;
+  gap: 16px;
+  padding: 36px 28px 30px;
+}
+
+.pipeline-card {
+  gap: 16px;
 }
 
 .pipeline-number {
@@ -908,20 +1316,29 @@
   justify-content: center;
   flex: 0 0 auto;
   align-self: flex-start;
-  margin-bottom: 34px;
+  margin-bottom: 4px;
 }
 
 .pipeline-card-title {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .pipeline-card-text {
-  min-height: 120px;
+  min-height: 0;
+}
+
+.pipeline-step-input,
+.pipeline-step-output {
+  min-height: 0;
+}
+
+.pipeline-teaching-note {
+  padding: 14px 16px;
 }
 
 .pipeline-code {
-  margin-top: auto;
-  padding: 20px 22px;
+  margin-top: 0;
+  padding: 16px 18px;
   box-sizing: border-box;
 }
 
@@ -974,7 +1391,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 38px;
+  padding: 34px;
 }
 
 .pillar-icon-box {
@@ -1012,6 +1429,11 @@
   margin-top: auto;
 }
 
+.pillar-example {
+  margin: 20px 0 24px;
+  padding: 14px 16px;
+}
+
 .pillar-tag {
   padding: 8px 14px;
 }
@@ -1037,7 +1459,7 @@
   width: 100%;
   max-width: 1680px;
   margin: 0 auto;
-  padding-top: 18px;
+  padding-top: 8px;
   min-height: 0;
 }
 
@@ -1052,7 +1474,7 @@
 .layout-capability-map-grid .capability-hero {
   position: relative;
   overflow: hidden;
-  padding: 50px 42px;
+  padding: 44px 38px;
   display: flex;
   flex-direction: column;
 }
@@ -1060,26 +1482,35 @@
 .capability-kicker {
   align-self: flex-start;
   padding: 10px 22px;
-  margin-bottom: 44px;
+  margin-bottom: 36px;
 }
 
 .capability-hero-title {
-  margin-bottom: 36px;
+  margin-bottom: 30px;
 }
 
 .capability-hero-text {
   max-width: 410px;
 }
 
+.capability-relation,
+.capability-takeaway {
+  position: relative;
+  z-index: 1;
+  margin-top: 22px;
+  padding: 16px 18px;
+}
+
+.capability-takeaway {
+  margin-top: 14px;
+}
+
 .capability-hero-number {
-  position: absolute;
-  right: 26px;
-  bottom: -38px;
-  width: 180px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-top: auto;
+  align-self: flex-end;
+  display: block;
+  min-width: 0;
+  padding-right: 8px;
 }
 
 .capability-grid {
@@ -1333,6 +1764,197 @@
   background: transparent;
 }
 
+.media-observation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+  min-width: 0;
+}
+
+.media-conclusion {
+  margin-top: 24px;
+  padding: 16px 18px;
+}
+
+
+/* =====================================================
+   Component: PPT-safe chart fragments
+   Static DOM only: no canvas, scripts, inline styles, or pseudo elements.
+===================================================== */
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.metric-item,
+.chart-card,
+.matrix-2x2,
+.timeline,
+.relationship-map {
+  min-height: 0;
+}
+
+.metric-item {
+  gap: 12px;
+  justify-content: center;
+}
+
+.chart-card {
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) 260px;
+  gap: 18px;
+  align-items: center;
+}
+
+.bar-track {
+  height: 22px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+}
+
+.bar-fill-wide { width: 86%; }
+.bar-fill-mid { width: 68%; }
+.bar-fill-short { width: 52%; }
+
+.matrix-2x2 {
+  display: grid;
+  grid-template-columns: 120px repeat(2, minmax(0, 1fr));
+  grid-template-rows: 52px repeat(2, minmax(112px, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.matrix-corner,
+.matrix-axis,
+.matrix-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.matrix-corner {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.matrix-axis-x {
+  grid-column: 2 / 4;
+  grid-row: 1;
+}
+
+.matrix-axis-y {
+  grid-column: 1;
+  grid-row: 2 / 4;
+}
+
+.matrix-cell-top-left {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.matrix-cell-top-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.matrix-cell-bottom-left {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.matrix-cell-bottom-right {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.timeline-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.timeline-index {
+  flex: 0 0 auto;
+}
+
+.timeline-copy {
+  min-width: 0;
+}
+
+.relationship-map {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.relationship-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  flex: 0 1 220px;
+}
+
+.relationship-node-core {
+  flex-basis: 180px;
+}
+
+.relationship-link {
+  flex: 0 0 70px;
+  height: 4px;
+}
+
+
+.card-layout-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-top: 32px;
+  min-height: 0;
+}
+
+.cards-lead,
+.cards-summary-bar {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card-layout-content .cards-grid {
+  margin: 0;
+  max-width: none;
+  flex: 1 1 auto;
+}
 
 /* =====================================================
    【Layout】多列卡片阵列页 (版式 6) - 纯骨架
@@ -1340,11 +1962,11 @@
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 42px;
+  gap: 32px;
   flex: 1;
   width: 100%;
   max-width: 1680px;
-  margin: 36px auto 60px;
+  margin: 24px auto 40px;
   align-items: stretch;
 }
 
@@ -1354,8 +1976,8 @@
   flex-direction: column;  /* 内部元素垂直流 */
   justify-content: flex-start;
   gap: 0;
-  min-height: 560px;
-  padding: 86px 44px 52px;
+  min-height: 460px;
+  padding: 68px 40px 40px;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
@@ -1367,14 +1989,6 @@
   left: 0;
   right: 0;
   height: 6px;
-}
-
-.cards-grid > .surface-card .card-ghost-number {
-  position: absolute;
-  right: 34px;
-  bottom: 24px;
-  display: block;
-  pointer-events: none;
 }
 
 .cards-grid > .surface-card .card-subtitle {
@@ -1391,6 +2005,14 @@
   flex: 0 0 auto;
 }
 
+.cards-grid > .surface-card .card-example {
+  margin-top: 18px;
+}
+
+.cards-grid > .surface-card .card-question {
+  margin-top: 16px;
+}
+
 .cards-grid > .surface-card .card-icon {
   width: auto;
   max-width: 100%;
@@ -1403,6 +2025,20 @@
   flex: 0 0 auto;
   align-self: flex-start;
   box-sizing: border-box;
+}
+
+.slide.card-layout-overflow-compact .card-layout-content {
+  gap: 14px;
+  padding-top: 22px;
+}
+
+.slide.card-layout-overflow-compact .cards-grid {
+  gap: 20px;
+}
+
+.slide.card-layout-overflow-compact .cards-grid > .surface-card {
+  min-height: 0;
+  padding: 52px 28px 26px;
 }
 
 /* =====================================================
@@ -1430,16 +2066,16 @@
 }
 
 .layout-thanks .title-en {
-  width: 360px;
-  min-width: 360px;
+  width: 320px;
+  max-width: 320px;
   white-space: nowrap;
   text-align: center;
   margin-bottom: 22px;
 }
 
 .layout-thanks .title-main {
-  width: 420px;
-  min-width: 420px;
+  width: 520px;
+  max-width: 520px;
   white-space: nowrap;
   text-align: center;
 }

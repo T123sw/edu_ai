@@ -1,6 +1,7 @@
 const PHASE_PROGRESS = {
   accepted: 0,
   preprocessing: 10,
+  planning_deck: 25,
   generating_slides: 40,
   building_full_html: 70,
   exporting_pptx: 90,

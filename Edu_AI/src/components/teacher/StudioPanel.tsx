@@ -442,7 +442,7 @@ const STUDIO_ACTIONS = [
     title: '小游戏生成',
     description: '把当前资料快速转成可预览、可播放的互动小游戏。',
     color: '#2f8f6b',
-    featured: false,
+    featured: true,
   },
   {
     type: 'video' as const,
@@ -461,6 +461,8 @@ const STUDIO_ACTIONS = [
     featured: true,
   },
 ] as const;
+
+const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'ppt', 'video', 'graph', 'game'] as const;
 
 const COURSE_MATERIAL_PAGE_SIZE = 20;
 
@@ -1632,7 +1634,12 @@ const StudioPanel: React.FC<Props> = ({
     message.success('已添加到对话');
   };
 
-  const primaryStudioActions = STUDIO_ACTIONS.filter((item) => item.featured);
+  const primaryStudioActions = STUDIO_ACTIONS
+    .filter((item) => item.featured)
+    .sort(
+      (left, right) =>
+        STUDIO_ACTION_DISPLAY_ORDER.indexOf(left.type as any) - STUDIO_ACTION_DISPLAY_ORDER.indexOf(right.type as any),
+    );
   const secondaryStudioActions = STUDIO_ACTIONS.filter((item) => !item.featured);
   const selectedDocCount = selectedDocs.length;
 

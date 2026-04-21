@@ -27,7 +27,7 @@ function getTableBorder(style, side, scale) {
   return {
     pt: width * 0.75 * scale, // Convert px to pt
     color: color.hex,
-    style: dash,
+    type: dash,
   };
 }
 
@@ -47,10 +47,20 @@ export function extractTableData(node, scale) {
     const cells = Array.from(firstRow.children);
     cells.forEach((cell) => {
       const rect = cell.getBoundingClientRect();
-      const wIn = rect.width * (1 / 96) * scale;
-      colWidths.push(wIn);
+      const colspan = parseInt(cell.getAttribute('colspan')) || 1;
+      const wIn = (rect.width * (1 / 96) * scale) / colspan;
+      for (let i = 0; i < colspan; i++) {
+        colWidths.push(wIn);
+      }
     });
   }
+
+  const tableStyle = window.getComputedStyle(node);
+  const borderSpacing = tableStyle.borderSpacing.split(' ');
+  const hSpace = parseFloat(borderSpacing[0]) || 0;
+  const vSpace = parseFloat(borderSpacing[1] || borderSpacing[0]) || 0;
+  const hSpacePt = hSpace * 0.75 * scale;
+  const vSpacePt = vSpace * 0.75 * scale;
 
   // 2. Iterate Rows
   const trList = node.querySelectorAll('tr');
@@ -60,13 +70,17 @@ export function extractTableData(node, scale) {
 
     cellList.forEach((cell) => {
       const style = window.getComputedStyle(cell);
-      const cellText = cell.innerText.replace(/[\n\r\t]+/g, ' ').trim();
+      const cellParts = collectTextParts(cell, style, scale);
 
       // A. Text Style
       const textStyle = getTextStyle(style, scale);
 
       // B. Cell Background
-      const bg = parseColor(style.backgroundColor);
+      let bg = parseColor(style.backgroundColor);
+      if ((!bg.hex || bg.opacity === 0) && style.backgroundImage && style.backgroundImage !== 'none') {
+        const fallback = getGradientFallbackColor(style.backgroundImage);
+        if (fallback) bg = parseColor(fallback);
+      }
       const fill = bg.hex && bg.opacity > 0 ? { color: bg.hex } : null;
 
       // C. Alignment
@@ -85,10 +99,10 @@ export function extractTableData(node, scale) {
       // PptxGenJS expects points (pt) for margin: [t, r, b, l]
       // or discrete properties. Let's use discrete for clarity.
       const margin = [
-        padding[0] * 72, // top
-        padding[1] * 72, // right
-        padding[2] * 72, // bottom
-        padding[3] * 72, // left
+        padding[0] * 72 + vSpacePt / 2, // top
+        padding[1] * 72 + hSpacePt / 2, // right
+        padding[2] * 72 + vSpacePt / 2, // bottom
+        padding[3] * 72 + hSpacePt / 2, // left
       ];
 
       // E. Borders
@@ -99,7 +113,7 @@ export function extractTableData(node, scale) {
 
       // F. Construct Cell Object
       rowData.push({
-        text: cellText,
+        text: cellParts,
         options: {
           color: textStyle.color,
           fontFace: textStyle.fontFace,
@@ -116,13 +130,7 @@ export function extractTableData(node, scale) {
           rowspan: parseInt(cell.getAttribute('rowspan')) || null,
           colspan: parseInt(cell.getAttribute('colspan')) || null,
 
-          border: {
-            pt: null, // trigger explicit object structure
-            top: borderTop,
-            right: borderRight,
-            bottom: borderBottom,
-            left: borderLeft,
-          },
+          border: [borderTop, borderRight, borderBottom, borderLeft],
         },
       });
     });
@@ -407,6 +415,34 @@ export function getPadding(style, scale) {
   ];
 }
 
+export function getTextBoxMargin(style, scale) {
+  const pxToPt = 0.75 * scale;
+  const top = (parseFloat(style.paddingTop) || 0) * pxToPt;
+  const right = (parseFloat(style.paddingRight) || 0) * pxToPt;
+  const bottom = (parseFloat(style.paddingBottom) || 0) * pxToPt;
+  const left = (parseFloat(style.paddingLeft) || 0) * pxToPt;
+
+  const hasVisibleBackground = Boolean(parseColor(style.backgroundColor).hex);
+  const hasVisibleBorder = ['Top', 'Right', 'Bottom', 'Left'].some((side) => {
+    const width = parseFloat(style[`border${side}Width`]) || 0;
+    const borderStyle = style[`border${side}Style`];
+    return width > 0 && borderStyle !== 'none' && borderStyle !== 'hidden';
+  });
+  const safeMargin = hasVisibleBackground || hasVisibleBorder ? 6 * scale : 0;
+
+  /*
+   * PptxGenJS text boxes serialize `margin` in the order:
+   * [left, right, bottom, top]
+   * rather than the table-cell order [top, right, bottom, left].
+   */
+  return [
+    Math.max(left, safeMargin),
+    Math.max(right, safeMargin),
+    Math.max(bottom, safeMargin),
+    Math.max(top, safeMargin),
+  ];
+}
+
 export function getSoftEdges(filterStr, scale) {
   if (!filterStr || filterStr === 'none') return null;
   const match = filterStr.match(/blur\(([\d.]+)px\)/);
@@ -469,6 +505,9 @@ export function getTextStyle(style, scale) {
     // Map background color to highlight if present
     ...(parseColor(style.backgroundColor).hex
       ? { highlight: parseColor(style.backgroundColor).hex }
+      : {}),
+    ...(style.letterSpacing && style.letterSpacing !== 'normal'
+      ? { charSpacing: parseFloat(style.letterSpacing) * 0.75 * scale }
       : {}),
   };
 }
@@ -956,4 +995,44 @@ export async function getAutoDetectedFonts(usedFamilies) {
   }
 
   return foundFonts;
+}
+
+export function collectTextParts(node, parentStyle, scale) {
+  const parts = [];
+
+  if (node.nodeType === 1) {
+    const beforeStyle = window.getComputedStyle(node, '::before');
+    const content = beforeStyle.content;
+    if (content && content !== 'none' && content !== 'normal' && content !== '""') {
+      const cleanContent = content.replace(/^['"]|['"]$/g, '');
+      if (cleanContent.trim()) {
+        parts.push({
+          text: cleanContent + ' ',
+          options: getTextStyle(window.getComputedStyle(node), scale),
+        });
+      }
+    }
+  }
+
+  node.childNodes.forEach((child) => {
+    if (child.nodeType === 3) {
+      let val = child.nodeValue.replace(/[\n\r\t]+/g, ' ').replace(/\s{2,}/g, ' ');
+      if (val) {
+        const styleToUse = node.nodeType === 1 ? window.getComputedStyle(node) : parentStyle;
+        const transform = styleToUse.textTransform;
+        if (transform === 'uppercase') val = val.toUpperCase();
+        else if (transform === 'lowercase') val = val.toLowerCase();
+        else if (transform === 'capitalize') val = val.replace(/\b\w/g, (c) => c.toUpperCase());
+
+        parts.push({
+          text: val,
+          options: getTextStyle(styleToUse, scale),
+        });
+      }
+    } else if (child.nodeType === 1) {
+      parts.push(...collectTextParts(child, parentStyle, scale));
+    }
+  });
+
+  return parts;
 }

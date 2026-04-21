@@ -8,7 +8,9 @@ from openai import OpenAI
 # ==========================================
 # 全局配置参数
 # ==========================================
-QWEN_API_KEY = "sk-584341a48ac641668f188a42be9fa2ec"  
+QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
+QWEN_BASE_URL = os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+QWEN_SCRIPT_MODEL = os.getenv("AI_LECTURER_SCRIPT_MODEL", os.getenv("VISION_MODEL_ID", "qwen-plus"))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WAV2LIP_DIR = os.path.join(BASE_DIR, "Wav2Lip_Offline") 
@@ -47,12 +49,16 @@ def generate_script_from_llm(course_title, slide_prompt):
         str: 生成的文本讲稿。
     """
     print(f"[LLM] 开始生成讲稿，输入提示词: {slide_prompt[:15]}...")
+    if not QWEN_API_KEY:
+        print("[LLM Error] QWEN_API_KEY is not configured.")
+        return "该页讲稿暂时无法生成，请先配置 QWEN_API_KEY。"
+
     client = OpenAI(
-        api_key=QWEN_API_KEY, 
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1", 
+        api_key=QWEN_API_KEY,
+        base_url=QWEN_BASE_URL,
         timeout=60.0
     )
-    
+
     system_prompt = (
         f"你是一位学术严谨的大学教授。正在讲授《{course_title}》。\n"
         "【输出格式】：5-10句话。每句15-25字，必须以句号或问号结尾。严禁Markdown排版。\n"
@@ -61,7 +67,7 @@ def generate_script_from_llm(course_title, slide_prompt):
     
     try:
         completion = client.chat.completions.create(
-            model="qwen-plus",
+            model=QWEN_SCRIPT_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"【本页核心点】：{slide_prompt}\n请输出讲稿："}

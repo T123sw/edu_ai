@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { extractGeneratedFilesFromV2Response } from '../../src/services/teacher/chatV2.helpers.ts';
+import { resolveGameHtmlUrl } from '../../src/services/teacher/gameAssets.ts';
 import { toGeneratedFileFromCourseMaterial } from '../../src/services/teacher/materials.helpers.ts';
 
 const files = extractGeneratedFilesFromV2Response({
@@ -62,6 +63,11 @@ assert.equal((restoredGame?.meta as any)?.htmlUrl, '/api/chat/v2/games/html?path
 assert.equal((restoredGame?.meta as any)?.gameType, 'drag_match');
 assert.equal((restoredGame?.meta as any)?.templateId, 'drag-match');
 
+assert.equal(
+  resolveGameHtmlUrl('/api/chat/v2/games/html?path=tester/course-1/game-1/index.html'),
+  'http://localhost:8000/api/chat/v2/games/html?path=tester/course-1/game-1/index.html',
+);
+
 const chatV2Source = readFileSync(new URL('../../src/services/teacher/chatV2.ts', import.meta.url), 'utf8');
 const storeSource = readFileSync(new URL('../../src/store/teacher/useStore.ts', import.meta.url), 'utf8');
 const previewSource = readFileSync(new URL('../../src/components/teacher/GameArtifactPreview.tsx', import.meta.url), 'utf8');
@@ -74,6 +80,8 @@ assert.match(chatV2Source, /\/api\/chat\/v2\/game\/direct/);
 assert.match(storeSource, /type:\s*'report' \| 'ppt' \| 'quiz' \| 'blog' \| 'lesson_plan' \| 'audio' \| 'graph' \| 'video' \| 'ai_lecture_session' \| 'flashcard' \| 'game'/);
 assert.match(previewSource, /iframe/, 'GameArtifactPreview should render an iframe for HTML preview');
 assert.match(previewSource, /全屏播放/, 'GameArtifactPreview should expose a play-mode button');
+assert.match(previewSource, /srcDoc/, 'GameArtifactPreview should render fetched HTML instead of navigating the iframe to the frontend app');
+assert.match(previewSource, /Authorization/, 'GameArtifactPreview should fetch protected game HTML with the auth token');
 assert.match(previewSource, /window\.open\(/, 'GameArtifactPreview should open the standalone HTML URL');
 assert.match(studioPanelSource, /viewingFile\.type === 'game'/, 'StudioPanel should route game files into the dedicated preview');
 assert.match(studioPanelSource, /<GameArtifactPreview/, 'StudioPanel should render GameArtifactPreview for game files');

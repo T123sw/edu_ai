@@ -24,6 +24,7 @@ from ..tools.agent_tools import (
 )
 from ..report_domain import REPORT_DEFAULTS, REPORT_IMPATIENT_KEYWORDS
 from ..agents.report_utils import auto_fill_report_slots, normalize_outline_ast
+from ..utils.llm_compat import llm_base_url, llm_model_label, should_skip_function_calling
 from ..skill_manager import SkillManager
 from core.config import Config
 from .report_state import ReportState
@@ -142,18 +143,8 @@ def _is_impatient(text: str) -> bool:
 def _llm_meta(llm: Optional[Any]) -> Dict[str, str]:
     if llm is None:
         return {"model": "none", "base_url": "none"}
-    model = str(
-        getattr(llm, "model_name", None)
-        or getattr(llm, "model", None)
-        or getattr(llm, "model_id", None)
-        or "unknown"
-    )
-    base_url = str(
-        getattr(llm, "openai_api_base", None)
-        or getattr(llm, "base_url", None)
-        or getattr(llm, "api_base", None)
-        or "unknown"
-    )
+    model = llm_model_label(llm) or "unknown"
+    base_url = llm_base_url(llm) or "unknown"
     return {"model": model, "base_url": base_url}
 
 
@@ -247,8 +238,14 @@ def _extract_slots_with_llm(
             return SlotExtractOut.model_validate(obj)
         return SlotExtractOut.model_validate({"report_slots": obj, "notes": ""})
 
+    skip_function_calling = should_skip_function_calling(extractor_llm)
+    if skip_function_calling:
+        _trace("槽位提取", ["llm_mode=structured_output", "status=skipped_qwen_compat"])
+
     # Try structured output first, fallback to text JSON
     try:
+        if skip_function_calling:
+            raise RuntimeError("skip_function_calling")
         structured = extractor_llm.with_structured_output(SlotExtractOut, method="function_calling")
         out: SlotExtractOut = structured.invoke(prompt)
         incoming = out.report_slots.model_dump(exclude_none=True)
@@ -472,9 +469,9 @@ def _assess_focus_sufficiency_llm(
     try:
         # Try structured output
         try:
-            llm_with_struct = assessor_llm.with_structured_output(
-                FocusAssessOut, method="function_calling"
-            )
+            if should_skip_function_calling(assessor_llm):
+                raise RuntimeError("skip_function_calling")
+            llm_with_struct = assessor_llm.with_structured_output(FocusAssessOut, method="function_calling")
             result = llm_with_struct.invoke(prompt)
             return {
                 "is_sufficient": result.is_sufficient,
@@ -484,7 +481,7 @@ def _assess_focus_sufficiency_llm(
         except Exception:
             # Fallback to text parsing
             text_result = assessor_llm.invoke(prompt)
-            text = str(text_result.content or text_result or "")
+            text = str(getattr(text_result, "content", text_result) or "")
 
             # Extract JSON from markdown code fence
             import re
