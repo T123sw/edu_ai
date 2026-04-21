@@ -160,6 +160,16 @@ export interface KnowledgeBaseDirectQuizRequestV2 {
   final_user_prompt?: string;
 }
 
+export type GameTypeV2 = 'category_sort' | 'drag_match' | 'memory_flip';
+
+export interface KnowledgeBaseDirectGameRequestV2 {
+  course_id?: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
+  selected_doc_ids?: string[];
+  game_type: GameTypeV2;
+}
+
 export interface KnowledgeBaseDirectPptOutlineRequestV2 {
   course_id?: string;
   scope_type?: 'course' | 'knowledge_point';
@@ -304,6 +314,14 @@ export interface ChatQuizPrefillResponseV2 {
 }
 
 export interface ChatDirectQuizResponseV2 {
+  action: {
+    name: string;
+  };
+  artifacts: Array<Record<string, unknown>>;
+  trace: Record<string, unknown>;
+}
+
+export interface ChatDirectGameResponseV2 {
   action: {
     name: string;
   };
@@ -630,6 +648,12 @@ export async function generateKnowledgeBaseQuizV2(
   payload: KnowledgeBaseDirectQuizRequestV2,
 ): Promise<ChatDirectQuizResponseV2> {
   return postV2<ChatDirectQuizResponseV2, KnowledgeBaseDirectQuizRequestV2>('/api/chat/v2/quiz/direct', payload);
+}
+
+export async function generateKnowledgeBaseGameV2(
+  payload: KnowledgeBaseDirectGameRequestV2,
+): Promise<ChatDirectGameResponseV2> {
+  return postV2<ChatDirectGameResponseV2, KnowledgeBaseDirectGameRequestV2>('/api/chat/v2/game/direct', payload);
 }
 
 export async function generateKnowledgeBasePptOutlineV2(

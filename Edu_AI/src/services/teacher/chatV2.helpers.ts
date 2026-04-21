@@ -29,7 +29,7 @@ export interface ConversationDetailLike {
 export interface GeneratedFileLike {
   id: string;
   name: string;
-  type: 'report' | 'ppt' | 'lesson_plan' | 'quiz';
+  type: 'report' | 'ppt' | 'lesson_plan' | 'quiz' | 'game';
   content: unknown;
   meta?: Record<string, unknown>;
 }
@@ -415,6 +415,40 @@ function mergeQuizArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] {
   ];
 }
 
+function mergeGameArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] {
+  const gameArtifact = artifacts.find(
+    (artifact) => String(artifact.artifact_type || '').trim() === 'game',
+  );
+  if (!gameArtifact) {
+    return [];
+  }
+
+  const artifactId = normalizeGeneratedFileId(String(gameArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
+  const content = gameArtifact.content && typeof gameArtifact.content === 'object'
+    ? (gameArtifact.content as Record<string, unknown>)
+    : {};
+
+  return [
+    {
+      id: artifactId,
+      name: String(gameArtifact.title || '小游戏.html').trim() || '小游戏.html',
+      type: 'game',
+      content,
+      meta: {
+        kind: 'game',
+        htmlUrl: String(content.html_url || '').trim() || undefined,
+        gameType: String(content.game_type || '').trim() || undefined,
+        templateId: String(content.template_id || '').trim() || undefined,
+        originalArtifactId: String(gameArtifact.artifact_id || '').trim() || undefined,
+        generationState:
+          gameArtifact.generation_state && typeof gameArtifact.generation_state === 'object'
+            ? gameArtifact.generation_state
+            : undefined,
+      },
+    },
+  ];
+}
+
 export function buildReportQuestionFromConfig(config: ReportConfigInput): string {
   const parts: string[] = ['请基于当前会话和我选中的资料生成一份报告。'];
   const title = String(config.title || '').trim();
@@ -439,6 +473,7 @@ export function extractGeneratedFilesFromV2Response(response: V2ResponseLike): G
     ...mergePptArtifacts(artifacts),
     ...mergeLessonPlanArtifacts(artifacts),
     ...mergeQuizArtifacts(artifacts),
+    ...mergeGameArtifacts(artifacts),
   ];
 }
 
@@ -454,6 +489,7 @@ export function restoreGeneratedFilesFromConversationDetail(
     ...mergePptArtifacts(artifacts),
     ...mergeLessonPlanArtifacts(artifacts),
     ...mergeQuizArtifacts(artifacts),
+    ...mergeGameArtifacts(artifacts),
   ];
 
   return files.map((file) => ({

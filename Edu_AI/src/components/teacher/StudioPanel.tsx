@@ -49,6 +49,8 @@ import {
   type DirectQuizConfigV2,
   sendChatReplyV2,
   sendReportV2,
+  generateKnowledgeBaseGameV2,
+  type GameTypeV2,
   type LessonPlanEntryCard,
   generateKnowledgeBaseQuizV2,
   generateKnowledgeBasePptOutlineV2,
@@ -72,6 +74,8 @@ import {
   normalizeWorkspaceScope,
   type WorkspaceScope,
 } from '../../services/teacher/workspaceScope';
+import GameArtifactPreview from './GameArtifactPreview';
+import GameEntryModal from './GameEntryModal';
 import PptEntryPanel from './PptEntryPanel';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
@@ -431,6 +435,14 @@ const STUDIO_ACTIONS = [
     description: '把知识点整理成适合授课呈现的讲授结构。',
     color: '#f08a33',
     featured: true,
+  },
+  {
+    type: 'game' as const,
+    icon: <PlayCircleOutlined />,
+    title: '小游戏生成',
+    description: '把当前资料快速转成可预览、可播放的互动小游戏。',
+    color: '#2f8f6b',
+    featured: false,
   },
   {
     type: 'video' as const,
@@ -803,6 +815,7 @@ const StudioPanel: React.FC<Props> = ({
   const [lessonPlanEntryVisible, setLessonPlanEntryVisible] = useState(false);
   const [pptEntryVisible, setPptEntryVisible] = useState(false);
   const [quizEntryVisible, setQuizEntryVisible] = useState(false);
+  const [gameEntryVisible, setGameEntryVisible] = useState(false);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
@@ -963,6 +976,24 @@ const StudioPanel: React.FC<Props> = ({
         return;
       }
       setQuizEntryVisible(true);
+      return;
+    }
+
+    if (type === 'game') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setGameEntryVisible(true);
+      return;
+    }
+
+    if (type === 'game') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setGameEntryVisible(true);
       return;
     }
 
@@ -1152,6 +1183,56 @@ const StudioPanel: React.FC<Props> = ({
       message.success(generatedQuizFiles.length > 0 ? '习题已生成并在右侧打开。' : '习题生成任务已启动。');
     } catch (error: any) {
       message.error(`习题生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleGameEntrySubmit = async ({
+    gameType,
+  }: {
+    gameType: GameTypeV2;
+  }) => {
+    setGenerating(true);
+    try {
+      const response = await generateKnowledgeBaseGameV2({
+        course_id: courseId,
+        scope_type: workspaceScopeApiParams.scopeType,
+        scope_id: workspaceScopeApiParams.scopeId,
+        selected_doc_ids: selectedDocs,
+        game_type: gameType,
+      });
+
+      const generatedGameFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
+        ...file,
+        meta: {
+          ...(file.meta || {}),
+          origin: 'knowledge_base_direct',
+          entryMode: 'knowledge_base_game',
+        },
+      }));
+
+      generatedGameFiles.forEach((file) => addGeneratedFile(file as GeneratedFile));
+
+      if (generatedGameFiles.length > 0) {
+        const latestFile = generatedGameFiles[generatedGameFiles.length - 1] as GeneratedFile;
+        setViewingFile(latestFile);
+
+        if (courseId) {
+          addMaterial({
+            ...latestFile,
+            addedAt: new Date().toISOString(),
+            courseId,
+          });
+          await refreshCourseMaterials();
+        }
+      }
+
+      setGameEntryVisible(false);
+      message.success(generatedGameFiles.length > 0 ? '小游戏已生成并在右侧打开。' : '小游戏生成任务已启动。');
+    } catch (error: any) {
+      message.error(`小游戏生成失败: ${error.message || '未知错误'}`);
       throw error;
     } finally {
       setGenerating(false);
@@ -1658,6 +1739,16 @@ const StudioPanel: React.FC<Props> = ({
 
   // Detail view
   if (viewingFile) {
+    if (viewingFile.type === 'game') {
+      return (
+        <GameArtifactPreview
+          file={viewingFile}
+          onBack={() => setViewingFile(null)}
+          onToggleCollapsed={onToggleCollapsed}
+        />
+      );
+    }
+
     if (viewingFile.type === 'lesson_plan' && viewingFile.content) {
       const lessonPlanKind = String((viewingFile.meta as any)?.kind || '').trim();
       return (
@@ -3132,6 +3223,13 @@ const StudioPanel: React.FC<Props> = ({
         submitting={generating}
         onCancel={() => setQuizEntryVisible(false)}
         onSubmit={handleQuizEntrySubmit}
+      />
+      <GameEntryModal
+        open={gameEntryVisible}
+        selectedDocIds={selectedDocs}
+        submitting={generating}
+        onCancel={() => setGameEntryVisible(false)}
+        onSubmit={handleGameEntrySubmit}
       />
       <PptEntryPanel
         open={pptEntryVisible}

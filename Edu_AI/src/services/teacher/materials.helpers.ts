@@ -368,6 +368,52 @@ export function toGeneratedFileFromCourseMaterial<T extends CourseMaterialLike>(
     return null;
   }
 
+  if (type === 'game') {
+    const content = material.content && typeof material.content === 'object'
+      ? (material.content as Record<string, unknown>)
+      : material.content;
+    return {
+      id,
+      name: String(material.name || '小游戏.html'),
+      type,
+      content,
+      meta: {
+        origin: 'course_material',
+        courseId: material.courseId,
+        scopeType: material.scopeType,
+        scopeId: material.scopeId,
+        isPinned: Boolean(material.isPinned),
+        pinnedAt: material.pinnedAt,
+        addedAt: material.addedAt,
+        kind: 'game',
+        htmlUrl:
+          content && typeof content === 'object'
+            ? String((content as Record<string, unknown>).html_url || '').trim() || undefined
+            : undefined,
+        gameType:
+          content && typeof content === 'object'
+            ? String((content as Record<string, unknown>).game_type || '').trim() || undefined
+            : undefined,
+        templateId:
+          content && typeof content === 'object'
+            ? String((content as Record<string, unknown>).template_id || '').trim() || undefined
+            : undefined,
+        originalArtifactId: id,
+        versionId: String(material.version?.version_id || '').trim() || undefined,
+        versionNumber:
+          typeof material.version?.version_number === 'number'
+            ? material.version.version_number
+            : undefined,
+        parentArtifactId: String(material.version?.parent_artifact_id || '').trim() || undefined,
+        rootArtifactId: String(material.version?.root_artifact_id || '').trim() || undefined,
+        generationState:
+          material.generationState && typeof material.generationState === 'object'
+            ? material.generationState
+            : undefined,
+      },
+    };
+  }
+
   const normalizedPptPreview = normalizePptCourseMaterialPreview(material);
 
   return {

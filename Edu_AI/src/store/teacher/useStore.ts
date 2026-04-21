@@ -35,7 +35,7 @@ interface ChatMessage {
 export interface GeneratedFile {
   id: string;
   name: string;
-  type: 'report' | 'ppt' | 'quiz' | 'blog' | 'lesson_plan' | 'audio' | 'graph' | 'video' | 'ai_lecture_session' | 'flashcard';
+  type: 'report' | 'ppt' | 'quiz' | 'blog' | 'lesson_plan' | 'audio' | 'graph' | 'video' | 'ai_lecture_session' | 'flashcard' | 'game';
   content?: any;
   meta?: Record<string, unknown>;
 }
