@@ -10,6 +10,7 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import courses
+from app.teaching_video_bridge import TeachingVideoBridgeService
 from core.course_storage import CourseStorageManager
 
 
@@ -51,6 +52,55 @@ def test_get_course_materials_returns_paginated_aggregate_scope(monkeypatch):
     assert payload["count"] == 5
     assert payload["limit"] == 20
     assert payload["offset"] == 20
+
+
+def test_get_course_materials_hydrates_ppt_content_markdown_from_html2ppt_revision(monkeypatch):
+    manager = _make_manager("course-material-ppt-markdown")
+    html2ppt_jobs_root = manager.root_path / "html2ppt-jobs"
+    content_path = html2ppt_jobs_root / "job-legacy" / "revisions" / "rev_0000" / "content.md"
+    content_path.parent.mkdir(parents=True, exist_ok=True)
+    content_path.write_text(
+        "# Deck\n\n## Slide 1\n- Role: cover\n- Title: Agent Basics\n\n### Blocks\n- Lead: Explain agent fundamentals\n",
+        encoding="utf-8",
+    )
+    manager.save_generated_material(
+        "course-1",
+        "ppt",
+        "ppt-legacy",
+        {
+            "title": "Agent Basics.pptx",
+            "content": {
+                "pptx_url": "http://127.0.0.1:46080/ppt/artifacts/job-legacy/rev_0000/deck.pptx",
+                "job_id": "job-legacy",
+                "revision_id": "rev_0000",
+            },
+            "generation_state": {"status": "completed"},
+        },
+    )
+
+    service = TeachingVideoBridgeService(
+        course_storage_manager=manager,
+        task_root=manager.root_path / "tasks",
+        html2ppt_jobs_root=html2ppt_jobs_root,
+    )
+    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
+    monkeypatch.setattr(courses, "get_teaching_video_bridge_service", lambda: service)
+
+    payload = courses.get_course_materials(
+        "course-1",
+        material_type="ppt",
+        scope_type="course",
+        scope_id=None,
+        aggregate=False,
+        limit=None,
+        offset=0,
+        current_user={"username": "teacher-a"},
+    )
+
+    assert len(payload) == 1
+    assert payload[0]["material_id"] == "ppt-legacy"
+    assert payload[0]["content"]["content_markdown"].startswith("# Deck")
+    assert payload[0]["content"]["job_id"] == "job-legacy"
 
 
 def test_get_knowledge_base_documents_filters_descendant_scope(monkeypatch):

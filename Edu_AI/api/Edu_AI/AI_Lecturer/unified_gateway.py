@@ -110,6 +110,44 @@ def build_fallback_outline(raw_document: str, max_pages: int = 15) -> list:
     return [{"title": "课程概览", "content": fallback_text[:800]}]
 
 
+def normalize_outline_pages(value, max_pages: int = 15) -> list:
+    """Return a normalized list of slide dicts from LLM output."""
+    if not isinstance(value, list):
+        return []
+
+    pages = []
+    for index, item in enumerate(value[:max_pages]):
+        if isinstance(item, dict):
+            title = str(item.get("title") or item.get("page_title") or f"Slide {index + 1}").strip()
+            content_raw = (
+                item.get("content")
+                or item.get("body")
+                or item.get("text")
+                or item.get("bullets")
+                or ""
+            )
+            if isinstance(content_raw, list):
+                content = "\n".join(str(part).strip() for part in content_raw if str(part).strip())
+            else:
+                content = str(content_raw or "").strip()
+        else:
+            title = f"Slide {index + 1}"
+            content = str(item or "").strip()
+
+        if title or content:
+            pages.append({
+                "title": title or f"Slide {len(pages) + 1}",
+                "content": content or title,
+            })
+
+    return pages
+
+
+def _preview_text(value: str, limit: int = 500) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    return text[:limit]
+
+
 def save_course_outline(course_name: str, outline: list) -> str:
     global global_course_counter
     global_course_counter += 1
@@ -168,6 +206,10 @@ async def create_course(request: InjectCourseRequest):
     global global_course_counter
     client = OpenAI(api_key=QWEN_API_KEY, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
     system_prompt = "你是一个教案解析引擎。请将输入的讲义大纲按照逻辑段落拆分为PPT页面。必须返回纯JSON数组，格式：[{\"title\": \"页标题\", \"content\": \"内容要点\"}]"
+    print(
+        "[Online:create_course] raw_document "
+        f"chars={len(request.raw_document or '')} preview={_preview_text(request.raw_document)}"
+    )
     try:
         completion = client.chat.completions.create(
             model="qwen-plus",
@@ -175,25 +217,44 @@ async def create_course(request: InjectCourseRequest):
             temperature=0.3
         )
         res_text = completion.choices[0].message.content.strip()
+        print(
+            "[Online:create_course] llm_response "
+            f"chars={len(res_text)} preview={_preview_text(res_text)}"
+        )
         # 清理可能携带的 Markdown 代码块标签
         if res_text.startswith("```json"): 
             res_text = res_text[7:]
         if res_text.endswith("```"): 
             res_text = res_text[:-3]
-            
-        outline = json.loads(res_text.strip())
+
+        try:
+            parsed_outline = json.loads(res_text.strip())
+        except json.JSONDecodeError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=(
+                    "AI Lecturer create_course returned invalid JSON: "
+                    f"{exc.msg}. response_preview={_preview_text(res_text)}"
+                ),
+            ) from exc
+
+        outline = normalize_outline_pages(parsed_outline)
+        if not outline:
+            raise HTTPException(
+                status_code=502,
+                detail=(
+                    "AI Lecturer create_course returned empty pages. "
+                    f"response_preview={_preview_text(res_text)}"
+                ),
+            )
         
         course_id = save_course_outline(request.course_name, outline)
         return {"code": 200, "data": {"course_id": course_id, "pages": outline}}
+    except HTTPException:
+        raise
     except Exception as e:
         traceback.print_exc()
-        outline = build_fallback_outline(request.raw_document)
-        course_id = save_course_outline(request.course_name, outline)
-        return {
-            "code": 200,
-            "message": "LLM course parsing failed; fallback outline was generated from source markdown.",
-            "data": {"course_id": course_id, "pages": outline},
-        }
+        raise HTTPException(status_code=502, detail=f"AI Lecturer create_course failed: {e}") from e
     
 
 @app.get("/api/v1/online/get_course/{course_id}", tags=["🟢 在线课堂模块"])
@@ -224,10 +285,20 @@ async def generate_script(request: ClassRequest):
             temperature=0.7 
         )
         sentences = split_into_sentences(completion.choices[0].message.content)
+        if not sentences:
+            raise HTTPException(
+                status_code=502,
+                detail=(
+                    "AI Lecturer generate_script returned empty sentences. "
+                    f"response_preview={_preview_text(completion.choices[0].message.content)}"
+                ),
+            )
         return {"code": 200, "data": {"sentences": sentences}}
+    except HTTPException:
+        raise
     except Exception as e:
         traceback.print_exc()
-        return {"code": 200, "message": "LLM script generation failed; fallback script was generated.", "data": {"sentences": build_fallback_script(request.current_slide_content, request.page_index, request.total_pages)}}
+        raise HTTPException(status_code=502, detail=f"AI Lecturer generate_script failed: {e}") from e
 
 @app.post("/api/v1/online/speak_sentence", tags=["🟢 在线课堂模块"])
 async def speak_sentence(request: SpeakRequest):

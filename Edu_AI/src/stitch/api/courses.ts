@@ -1,15 +1,15 @@
 import { apiRequest } from "./client";
 import type {
+  AiLectureRecordingResponse,
+  AiLectureSessionDetailResponse,
+  AiLectureSessionMaterialResponse,
+  AiLectureSessionSnapshot,
   BackendCourse,
   CourseMaterial,
   KnowledgeBaseDocument,
   KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
   KnowledgeGraphTextbookImportResponse,
-  AiLectureRecordingResponse,
-  AiLectureSessionDetailResponse,
-  AiLectureSessionMaterialResponse,
-  AiLectureSessionSnapshot,
   TeachingVideoPptItem,
   TeachingVideoTaskResponse,
 } from "./types";
@@ -216,21 +216,88 @@ function extractDirectMaterialMarkdown(material: CourseMaterial): string {
   if (hasTextContent(material.final_markdown)) return material.final_markdown;
   if (hasTextContent(material.content)) return material.content;
 
-  const record = toPlainRecord(material.content);
-  const candidates = [
-    record.content_markdown,
-    record.markdown,
-    record.report,
-    record.report_content,
-    record.content,
-    record.text,
+  const materialRecord = toPlainRecord(material);
+  const topLevelCandidates = [
+    materialRecord.content_markdown,
+    materialRecord.markdown,
+    materialRecord.report,
+    materialRecord.report_content,
+    materialRecord.text,
   ];
+
+  for (const candidate of topLevelCandidates) {
+    if (hasTextContent(candidate)) return candidate;
+  }
+
+  const record = toPlainRecord(material.content);
+  const candidates = [record.content_markdown, record.markdown, record.report, record.report_content, record.content, record.text];
 
   for (const candidate of candidates) {
     if (hasTextContent(candidate)) return candidate;
   }
 
   return "";
+}
+
+function formatMarkdownList(heading: string, values: unknown): string {
+  const items = Array.isArray(values) ? values.map((item) => textFromUnknown(item)).filter(Boolean) : [];
+  if (items.length === 0) return "";
+  return `## ${heading}\n\n${items.map((item) => `- ${item}`).join("\n")}`;
+}
+
+function formatReportSections(sections: unknown[]): string {
+  return sections
+    .map((section) => {
+      const record = toPlainRecord(section);
+      const subsections = Array.isArray(record.subsections) ? record.subsections : [];
+      const subsectionMarkdown = subsections
+        .map((subsection) => {
+          const subsectionRecord = toPlainRecord(subsection);
+          const title = textFromUnknown(subsectionRecord.title) || "小节";
+          const content = textFromUnknown(subsectionRecord.content);
+          return [`### ${title}`, content].filter(Boolean).join("\n\n");
+        })
+        .filter(Boolean)
+        .join("\n\n");
+
+      return [`## ${textFromUnknown(record.title) || "章节"}`, textFromUnknown(record.content), subsectionMarkdown]
+        .filter(Boolean)
+        .join("\n\n");
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function formatReportMarkdown(material: CourseMaterial): string {
+  const reportRecord = toPlainRecord(material.report);
+  const reportSections = Array.isArray(reportRecord.mainContent)
+    ? reportRecord.mainContent
+    : Array.isArray(material.mainContent)
+      ? material.mainContent
+      : [];
+  const title = textFromUnknown(reportRecord.title) || material.title || material.topic || material.material_id;
+  const summary = textFromUnknown(reportRecord.summary) || material.summary || "";
+  const introduction = textFromUnknown(reportRecord.introduction);
+  const sectionsMarkdown = formatReportSections(reportSections);
+  const keyFindings = formatMarkdownList("关键结论", reportRecord.keyFindings);
+  const conclusions = textFromUnknown(reportRecord.conclusions);
+  const recommendations = formatMarkdownList("建议", reportRecord.recommendations);
+
+  if (!summary && !introduction && !sectionsMarkdown && !keyFindings && !conclusions && !recommendations) {
+    return "";
+  }
+
+  return [
+    `# ${title}`,
+    summary,
+    introduction ? `## 引言\n\n${introduction}` : "",
+    sectionsMarkdown,
+    keyFindings,
+    conclusions ? `## 结论\n\n${conclusions}` : "",
+    recommendations,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 function formatPptDeckMarkdown(material: CourseMaterial): string {
@@ -257,12 +324,97 @@ function formatPptDeckMarkdown(material: CourseMaterial): string {
     .join("\n\n");
 }
 
+function formatQuizMarkdown(material: CourseMaterial): string {
+  const questions = Array.isArray(material.questions) ? material.questions : [];
+  if (questions.length === 0) return "";
+
+  const body = questions
+    .map((question, index) => {
+      const options = Array.isArray(question.options)
+        ? question.options.map((option) => `- ${textFromUnknown(option)}`).filter(Boolean).join("\n")
+        : "";
+      const answer = textFromUnknown(question.answer);
+      const explanation = textFromUnknown(question.explanation);
+
+      return [
+        `## 第 ${index + 1} 题`,
+        textFromUnknown(question.stem),
+        options,
+        answer ? `**答案：** ${answer}` : "",
+        explanation ? `**解析：** ${explanation}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+    })
+    .filter(Boolean)
+    .join("\n\n");
+
+  return [`# ${material.title || material.topic || material.material_id}`, material.summary || "", body]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function formatLessonPlanMarkdown(material: CourseMaterial): string {
+  const plan = toPlainRecord(material.plan);
+  const process = Array.isArray(plan.process) ? plan.process : [];
+  const processMarkdown = process
+    .map((item, index) => {
+      const record = toPlainRecord(item);
+      const step = textFromUnknown(record.step) || `步骤 ${index + 1}`;
+      const content = textFromUnknown(record.content);
+      const duration = textFromUnknown(record.duration);
+
+      return [`### ${step}`, duration ? `时长：${duration}` : "", content]
+        .filter(Boolean)
+        .join("\n\n");
+    })
+    .filter(Boolean)
+    .join("\n\n");
+
+  if (
+    !textFromUnknown(plan.title)
+    && !Array.isArray(plan.objectives)
+    && !Array.isArray(plan.keyPoints)
+    && !Array.isArray(plan.hardPoints)
+    && process.length === 0
+    && !textFromUnknown(plan.homework)
+  ) {
+    return "";
+  }
+
+  return [
+    `# ${textFromUnknown(plan.title) || material.title || material.topic || material.material_id}`,
+    formatMarkdownList("教学目标", plan.objectives),
+    formatMarkdownList("重点", plan.keyPoints),
+    formatMarkdownList("难点", plan.hardPoints),
+    processMarkdown ? `## 教学过程\n\n${processMarkdown}` : "",
+    textFromUnknown(plan.homework) ? `## 作业\n\n${textFromUnknown(plan.homework)}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export function courseMaterialToMarkdown(material: CourseMaterial) {
   const directMarkdown = extractDirectMaterialMarkdown(material);
   if (directMarkdown) return directMarkdown;
 
+  if (material.material_type === "report") {
+    const reportMarkdown = formatReportMarkdown(material);
+    if (reportMarkdown) return reportMarkdown;
+  }
+
   if (material.material_type === "ppt") {
     return formatPptDeckMarkdown(material);
+  }
+
+  if (material.material_type === "quiz") {
+    const quizMarkdown = formatQuizMarkdown(material);
+    if (quizMarkdown) return quizMarkdown;
+  }
+
+  if (material.material_type === "lesson_plan") {
+    const lessonPlanMarkdown = formatLessonPlanMarkdown(material);
+    if (lessonPlanMarkdown) return lessonPlanMarkdown;
   }
 
   if (material.material_type === "report" && Array.isArray(material.mainContent)) {

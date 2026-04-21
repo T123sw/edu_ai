@@ -16,13 +16,13 @@ const graphPageFile = readFileSync(
 
 assert.match(
   typesFile,
-  /export type TextbookKnowledgeGraphImportResponse/,
+  /export type KnowledgeGraphTextbookImportResponse/,
   'stitch types should define the textbook import response',
 );
 
 assert.match(
   apiFile,
-  /export function importTextbookKnowledgeGraph/,
+  /export function importKnowledgeGraphTextbook/,
   'stitch API should expose a textbook import helper',
 );
 
@@ -34,25 +34,25 @@ assert.match(
 
 assert.match(
   graphPageFile,
-  /importTextbookKnowledgeGraph/,
+  /importKnowledgeGraphTextbook/,
   'stitch KnowledgeGraphPage should call the dedicated textbook import helper',
 );
 
 assert.match(
   graphPageFile,
-  /textbookImportInputRef/,
+  /fileInputRef/,
   'stitch KnowledgeGraphPage should expose a hidden file input for course-level textbook import',
 );
 
 assert.match(
   graphPageFile,
-  /setImportingTextbookKnowledgeGraph/,
+  /setImporting\(/,
   'stitch KnowledgeGraphPage should track textbook import loading state',
 );
 
 assert.match(
   graphPageFile,
-  /flattenGraph\(result\.knowledge_graph\.root\)/,
+  /applyGraphToCanvas\(result\.knowledge_graph\.root\)/,
   'stitch KnowledgeGraphPage should rebuild the graph from the textbook import response',
 );
 

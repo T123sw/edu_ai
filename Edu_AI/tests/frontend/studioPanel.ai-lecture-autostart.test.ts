@@ -11,6 +11,8 @@ assert.match(studioPanel, /setTeachingVideoTaskId\(String\(offlineVideoResult\.v
 assert.match(studioPanel, /setTeachingVideoPolling\(true\)/, 'StudioPanel should start polling the offline teaching video task immediately');
 assert.match(studioPanel, /window\.localStorage\.setItem\(\s*AI_LECTURE_AUTOSTART_REQUEST_KEY/, 'StudioPanel should persist the autoplay handoff request');
 assert.match(studioPanel, /autoPlay:\s*true/, 'StudioPanel should mark the handoff request for autoplay');
+assert.match(studioPanel, /AI_LECTURE_AUTOSTART_EVENT/, 'StudioPanel should define a same-tab autoplay handoff event');
+assert.match(studioPanel, /window\.dispatchEvent\(\s*new CustomEvent\(AI_LECTURE_AUTOSTART_EVENT/, 'StudioPanel should notify an already-mounted video page about the autoplay request');
 assert.match(studioPanel, /window\.location\.hash = '#video'/, 'StudioPanel should jump to the video player after submission');
 
 console.log('studioPanel.ai-lecture-autostart tests passed');

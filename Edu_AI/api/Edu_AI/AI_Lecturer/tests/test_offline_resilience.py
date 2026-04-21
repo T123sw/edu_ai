@@ -14,11 +14,19 @@ class OfflineResilienceTests(unittest.TestCase):
         self.assertIn('"--resize_factor"', source)
         self.assertNotIn('"--wav2lip_batch_size", "128"', source)
 
-    def test_online_course_creation_has_markdown_fallback(self):
+    def test_online_course_creation_reports_bad_model_output_without_fallback(self):
         source = (ROOT / "unified_gateway.py").read_text(encoding="utf-8")
 
-        self.assertIn("def build_fallback_outline", source)
-        self.assertIn("build_fallback_outline(request.raw_document", source)
+        self.assertIn("def normalize_outline_pages", source)
+        self.assertIn("outline = normalize_outline_pages", source)
+        self.assertIn("if not outline", source)
+        self.assertIn("AI Lecturer create_course returned empty pages", source)
+        self.assertIn("[Online:create_course] raw_document", source)
+        self.assertIn("[Online:create_course] llm_response", source)
+        self.assertNotIn("build_fallback_outline(request.raw_document", source)
+        self.assertIn("AI Lecturer generate_script returned empty sentences", source)
+        self.assertIn("AI Lecturer generate_script failed", source)
+        self.assertNotIn("fallback script was generated", source)
         self.assertNotIn('raise HTTPException(status_code=500, detail="ç‘™ï½†ç€½ç’‡å‰§â–¼æ¾¶è¾«è§¦")', source)
 
     def test_wav2lip_cache_is_scoped_to_frame_geometry(self):

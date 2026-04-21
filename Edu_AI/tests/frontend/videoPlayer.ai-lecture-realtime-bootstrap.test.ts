@@ -65,6 +65,31 @@ assert.match(
 );
 assert.match(
   page,
+  /const slideScriptsRef = useRef<Record<number, string\[]>>\(\{\}\);/,
+  'Realtime autoplay should keep the latest per-slide scripts in a ref so timers do not read a stale render snapshot',
+);
+assert.match(
+  page,
+  /const scriptSentencesRef = useRef<string\[]>\(\[\]\);/,
+  'Realtime autoplay should keep the latest visible script sentences in a ref for timer-driven playback',
+);
+assert.match(
+  page,
+  /const outlineRef = useRef<Slide\[]>\(\[\]\);/,
+  'Realtime autoplay should keep the latest outline in a ref for timer-driven slide advancement',
+);
+assert.match(
+  page,
+  /const liveSessionId = livetalkingSessionIdRef\.current;/,
+  'Realtime autoplay should read the freshest LiveTalking session id from a ref before speaking follow-up sentences',
+);
+assert.match(
+  page,
+  /const sentencesOnSlide = slideScriptsRef\.current\[slideIndex\] \|\| \(slideIndex === activeSlideIndexRef\.current \? scriptSentencesRef\.current : \[\]\);/,
+  'Realtime autoplay should resolve follow-up sentences from refs instead of stale closure state',
+);
+assert.match(
+  page,
   /const activeLivetalkingSessionId = livetalkingSessionIdOverride \|\| livetalkingSessionId;/,
   'Realtime playback should allow speakSentence to use the just-created LiveTalking session id before React state settles',
 );

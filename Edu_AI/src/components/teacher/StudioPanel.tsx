@@ -483,6 +483,7 @@ const StudioPanel: React.FC<Props> = ({
   const { addMaterial } = useCourseMaterialsStore();
   const [configModalVisible, setConfigModalVisible] = useState(false);
   const [configType, setConfigType] = useState<string>('');
+  const [teachingVideoGenerationMode, setTeachingVideoGenerationMode] = useState<'realtime' | 'offline'>('realtime');
 
   const [blogTaskId, setBlogTaskId] = useState<string | null>(null);
   const [blogTaskStatus, setBlogTaskStatus] = useState<BlogTaskStatusResponse | null>(null);
@@ -807,6 +808,7 @@ const StudioPanel: React.FC<Props> = ({
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
   const [pptFullscreenActive, setPptFullscreenActive] = useState(false);
   const AI_LECTURE_AUTOSTART_REQUEST_KEY = 'stitch-ai-lecture-autostart-request';
+  const AI_LECTURE_AUTOSTART_EVENT = 'stitch-ai-lecture-autostart';
 
   const buildPendingTeachingVideoFile = (taskId: string, videoName: string): GeneratedFile => ({
     id: `teaching_video__${taskId}`,
@@ -1293,9 +1295,11 @@ const StudioPanel: React.FC<Props> = ({
   const handleTeachingVideoSubmit = async ({
     pptMaterialId,
     pptTitle,
+    generationMode,
   }: {
     pptMaterialId: string;
     pptTitle: string;
+    generationMode: 'realtime' | 'offline';
   }) => {
     if (!courseId) {
       message.warning('请先进入具体课程后，再创建教学视频。');
@@ -1304,100 +1308,52 @@ const StudioPanel: React.FC<Props> = ({
 
     setGenerating(true);
     try {
-      /*
-      const response = await createAiLectureSession(courseId, {
-        source_ppt_material_id: pptMaterialId,
-        title: `${pptTitle.replace(/\.pptx$/i, '')}-AI讲解会话`,
-      });
-      const sessionId = String(response.content?.session_snapshot_id || response.material_id || '').trim();
-      const videoName = `${pptTitle.replace(/\.pptx$/i, '')}-教学视频.mp4`;
-      if (!sessionId) {
-        throw new Error('AI lecture session id was not returned.');
-      }
-      const pendingFile: GeneratedFile = {
-        id: sessionId,
-        name: `${pptTitle.replace(/\.pptx$/i, '')}-AI讲解会话`,
-        type: 'ai_lecture_session',
-        content: {
-          source_ppt_material_id: pptMaterialId,
-          session_snapshot_id: sessionId,
-          recording_url: response.content?.recording_url || undefined,
-          can_continue_interactive: true,
-        },
-        meta: {
-          origin: 'course_material',
-          generationState: {
-            status: 'created',
-            phase: 'created',
-            message: '教学视频任务已提交',
-          },
-        },
-      };
-      addGeneratedFile(pendingFile);
-      */
       const normalizedPptTitle = pptTitle.replace(/\.pptx$/i, '');
-      const [sessionResult, offlineVideoResult] = await Promise.allSettled([
-        createAiLectureSession(courseId, {
+
+      if (generationMode === 'realtime') {
+        const response = await createAiLectureSession(courseId, {
           source_ppt_material_id: pptMaterialId,
           title: `${normalizedPptTitle}-AI lecture session`,
-        }),
-        createTeachingVideoTask(courseId, { ppt_material_id: pptMaterialId }),
-      ]);
-      if (sessionResult.status !== 'fulfilled') {
-        throw sessionResult.reason;
-      }
-      const response = sessionResult.value;
-      const sessionId = String(response.content?.session_snapshot_id || response.material_id || '').trim();
-      const videoName = `${normalizedPptTitle}-teaching-video.mp4`;
-      if (!sessionId) {
-        throw new Error('AI lecture session id was not returned.');
-      }
-      addGeneratedFile({
-        id: sessionId,
-        name: `${normalizedPptTitle}-AI lecture session`,
-        type: 'ai_lecture_session',
-        content: {
-          source_ppt_material_id: pptMaterialId,
-          session_snapshot_id: sessionId,
-          recording_url: response.content?.recording_url || undefined,
-          can_continue_interactive: true,
-        },
-        meta: {
-          origin: 'course_material',
-          generationState: {
-            status: 'created',
-            phase: 'created',
-            message: 'Realtime AI lecture session created.',
-          },
-        },
-      });
-      if (offlineVideoResult.status === 'fulfilled') {
-        const teachingVideoTaskId = String(offlineVideoResult.value.task_id || '').trim();
-        if (teachingVideoTaskId) {
-          addGeneratedFile(buildPendingTeachingVideoFile(teachingVideoTaskId, videoName));
-          setTeachingVideoTaskId(String(offlineVideoResult.value.task_id || '').trim());
-          setTeachingVideoPolling(true);
+        });
+        const sessionId = String(response.content?.session_snapshot_id || response.material_id || '').trim();
+        if (!sessionId) {
+          throw new Error('AI lecture session id was not returned.');
         }
-      }
-      window.localStorage.setItem(
-        AI_LECTURE_AUTOSTART_REQUEST_KEY,
-        JSON.stringify({
+        const autoStartPayload = {
           autoPlay: true,
           courseId,
           pptMaterialId,
           pptTitle,
           sessionId,
-        }),
-      );
-      window.location.hash = '#video';
-      setTeachingVideoEntryVisible(false);
-      await refreshCourseMaterials();
-      if (offlineVideoResult.status === 'rejected') {
-        message.warning(
-          `Offline video generation did not start: ${offlineVideoResult.reason instanceof Error ? offlineVideoResult.reason.message : 'Unknown error'}`,
-        );
+        };
+        window.localStorage.setItem(AI_LECTURE_AUTOSTART_REQUEST_KEY, JSON.stringify(autoStartPayload));
+        window.dispatchEvent(new CustomEvent(AI_LECTURE_AUTOSTART_EVENT, { detail: autoStartPayload }));
+        window.location.hash = '#video';
+        setTeachingVideoEntryVisible(false);
+        message.success('实时教学视频已创建，正在跳转播放。');
+        return;
       }
-      message.success('教学视频任务已提交，正在生成');
+
+      if (generationMode === 'offline') {
+        const response = await createTeachingVideoTask(courseId, { ppt_material_id: pptMaterialId });
+        const teachingVideoTaskId = String(response.task_id || '').trim();
+        const videoName = `${normalizedPptTitle}-teaching-video.mp4`;
+        if (!teachingVideoTaskId) {
+          throw new Error('Offline teaching video task id was not returned.');
+        }
+        const pendingVideoFile = buildPendingTeachingVideoFile(teachingVideoTaskId, videoName);
+        addGeneratedFile(pendingVideoFile);
+        setViewingFile(pendingVideoFile);
+        setTeachingVideoTaskId(teachingVideoTaskId);
+        setTeachingVideoPolling(true);
+        await refreshCourseMaterials();
+        setTeachingVideoEntryVisible(false);
+        message.success('离线教学视频任务已提交，已加入文件列表。');
+        return;
+      }
+
+      setTeachingVideoEntryVisible(false);
+      message.warning('未识别的教学视频生成链路。');
     } catch (error: any) {
       message.error(`教学视频创建失败: ${error.message || '未知错误'}`);
       throw error;
@@ -1405,11 +1361,10 @@ const StudioPanel: React.FC<Props> = ({
       setGenerating(false);
     }
   };
-
   const handleConfigSubmit = async () => {
     try {
       const values = await configForm.validateFields();
-      
+
       // 如果是教案生成，调用后端API
       if (configType === 'lesson_plan') {
         setConfigModalVisible(false);
@@ -3191,6 +3146,8 @@ const StudioPanel: React.FC<Props> = ({
       <TeachingVideoEntryModal
         open={teachingVideoEntryVisible}
         courseId={courseId}
+        generationMode={teachingVideoGenerationMode}
+        onGenerationModeChange={setTeachingVideoGenerationMode}
         submitting={generating}
         onCancel={() => setTeachingVideoEntryVisible(false)}
         onSubmit={handleTeachingVideoSubmit}

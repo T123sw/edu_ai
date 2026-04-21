@@ -42,4 +42,46 @@ assert.match(
   'courseMaterialToMarkdown should extract slide content from PPT deck metadata',
 );
 
+assert.match(
+  coursesApiFile,
+  /materialRecord\.report|topLevelCandidates = \[[\s\S]*materialRecord\.report/,
+  'courseMaterialToMarkdown should read persisted top-level report markdown fields',
+);
+
+assert.match(
+  coursesApiFile,
+  /function formatQuizMarkdown\(/,
+  'courses api should define a dedicated quiz to markdown formatter',
+);
+
+assert.match(
+  coursesApiFile,
+  /material\.material_type === "quiz"/,
+  'courseMaterialToMarkdown should detect quiz materials explicitly',
+);
+
+assert.match(
+  coursesApiFile,
+  /Array\.isArray\(material\.questions\)/,
+  'courseMaterialToMarkdown should render persisted quiz questions when no markdown exists',
+);
+
+assert.match(
+  coursesApiFile,
+  /function formatLessonPlanMarkdown\(/,
+  'courses api should define a dedicated lesson plan to markdown formatter',
+);
+
+assert.match(
+  coursesApiFile,
+  /material\.material_type === "lesson_plan"/,
+  'courseMaterialToMarkdown should detect lesson plan materials explicitly',
+);
+
+assert.match(
+  coursesApiFile,
+  /plan\.process/,
+  'courseMaterialToMarkdown should render persisted lesson plan process blocks',
+);
+
 console.log('courseMaterialToMarkdown tests passed');

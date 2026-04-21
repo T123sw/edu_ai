@@ -498,6 +498,13 @@ class TeachingVideoBridgeService:
             return direct_markdown
         return self._read_html2ppt_content_markdown(deck_content)
 
+    def resolve_material_content_markdown(self, material: dict[str, Any]) -> str:
+        try:
+            deck_content = self._extract_deck_content(material)
+        except ValueError:
+            return ""
+        return self._resolve_content_markdown(deck_content)
+
     def _resolve_html_deck_path(self, deck_content: dict[str, Any]) -> Path | None:
         job_id, revision_id = _extract_html2ppt_job_ref(deck_content)
         if not job_id or not revision_id:

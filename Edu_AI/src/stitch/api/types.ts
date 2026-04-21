@@ -15,12 +15,32 @@ export type CourseMaterial = {
   topic?: string;
   summary?: string;
   final_markdown?: string;
+  markdown?: string;
+  report?: unknown;
+  report_content?: string;
+  text?: string;
   content?: unknown;
   mainContent?: Array<{ title?: string; content?: string }>;
   outline?: Array<{
     title?: string;
     children?: Array<{ title?: string; key_concepts?: string[] }>;
   }>;
+  questions?: Array<{
+    id?: string;
+    type?: string;
+    stem?: string;
+    options?: string[] | null;
+    answer?: string;
+    explanation?: string;
+  }>;
+  plan?: {
+    title?: string;
+    objectives?: string[];
+    keyPoints?: string[];
+    hardPoints?: string[];
+    process?: Array<{ step?: string; content?: string; duration?: string }>;
+    homework?: string;
+  };
   is_pinned?: boolean;
   scope_type?: "course" | "knowledge_point";
   scope_id?: string | null;

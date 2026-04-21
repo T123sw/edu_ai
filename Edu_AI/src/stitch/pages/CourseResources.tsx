@@ -73,7 +73,7 @@ export function CourseResourcesPage() {
   const markdown = activeMaterial ? courseMaterialToMarkdown(activeMaterial) : "";
 
   return (
-    <AppSurface className="flex min-h-screen">
+    <AppSurface className="flex min-h-screen xl:h-screen xl:overflow-hidden">
       <SidebarDock className="h-screen gap-3 bg-[linear-gradient(180deg,#fcfdff_0%,#f2f6ff_100%)] p-4">
         <div className="mb-2 px-2 py-4">
           <SidebarBackLink />
@@ -96,7 +96,7 @@ export function CourseResourcesPage() {
         </div>
       </SidebarDock>
 
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col xl:overflow-hidden">
         <header className="sticky top-0 z-40 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-6 py-4 backdrop-blur-xl sm:px-8">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-strong)]">{course.module}</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-[var(--accent-strong)] sm:text-4xl">课程资源中心</h1>
@@ -104,8 +104,8 @@ export function CourseResourcesPage() {
           </p>
         </header>
 
-        <div className="grid flex-1 gap-6 p-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-          <section className="space-y-4">
+        <div className="grid flex-1 gap-6 p-6 xl:min-h-0 xl:grid-cols-[360px_minmax(0,1fr)] xl:overflow-hidden">
+          <section className="flex min-h-0 flex-col overflow-hidden">
             {loading ? (
               <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-6 text-sm text-[var(--muted-text)]">正在加载资源...</GlassPanel>
             ) : error ? (
@@ -113,8 +113,9 @@ export function CourseResourcesPage() {
             ) : materials.length === 0 ? (
               <GlassPanel className="border border-[var(--shell-border)] bg-white/90 p-6 text-sm text-[var(--muted-text)]">当前课程还没有生成材料。</GlassPanel>
             ) : (
-              Object.entries(grouped).map(([type, items]) => (
-                <GlassPanel key={type} className="border border-[var(--shell-border)] bg-white/90 p-5">
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <GlassPanel key={type} className="border border-[var(--shell-border)] bg-white/90 p-5">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">{type}</p>
@@ -151,13 +152,14 @@ export function CourseResourcesPage() {
                       );
                     })}
                   </div>
-                </GlassPanel>
-              ))
+                  </GlassPanel>
+                ))}
+              </div>
             )}
           </section>
 
-          <section className="min-w-0">
-            <GlassPanel className="h-full border border-[var(--shell-border)] bg-white/90 p-6">
+          <section className="min-h-0 min-w-0">
+            <GlassPanel className="flex h-full min-h-0 flex-col border border-[var(--shell-border)] bg-white/90 p-6">
               {activeMaterial ? (
                 <>
                   <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] pb-4">
@@ -179,7 +181,7 @@ export function CourseResourcesPage() {
                       去视频页
                     </button>
                   </div>
-                  <div className="mt-6 max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
+                  <div className="mt-6 min-h-0 flex-1 overflow-y-auto pr-2">
                     <MarkdownPreview content={markdown} />
                   </div>
                 </>

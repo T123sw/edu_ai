@@ -25,6 +25,12 @@ import { MarkdownPreview } from "../components/MarkdownPreview";
 import type { CourseMaterial, KnowledgeGraphNode, TeachingVideoPptItem } from "../api/types";
 import { useAiLecturerWebRtc } from "../hooks/useAiLecturerWebRtc";
 import {
+  exportCourseMaterialAsWord,
+  getCourseMaterialPptExportUrl,
+  getCourseMaterialPptPreviewUrl,
+  isCourseMaterialWordExportable,
+} from "../wordExport";
+import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
@@ -50,7 +56,9 @@ type AiLectureAutoStartRequest = {
   sessionId?: string;
 };
 
+const PPT_PREVIEW_BASE_WIDTH = 1920;
 const AI_LECTURE_AUTOSTART_REQUEST_KEY = "stitch-ai-lecture-autostart-request";
+const AI_LECTURE_AUTOSTART_EVENT = "stitch-ai-lecture-autostart";
 const AI_LECTURE_PREFERRED_SESSION_KEY = "stitch-ai-lecture-session-id";
 
 function readStoredJson<T>(key: string): T | null {
@@ -92,6 +100,52 @@ function getDefaultMarkdown(courseTitle?: string) {
     "- 重点回顾",
     "- 延伸思考",
   ].join("\n");
+}
+
+function normalizeAiLecturerPages(pages: unknown): Slide[] {
+  if (!Array.isArray(pages)) {
+    throw new Error("AI Lecturer create_course returned non-array pages.");
+  }
+
+  const normalized = pages
+    .slice(0, 15)
+    .map((page, index) => {
+      if (page && typeof page === "object") {
+        const item = page as Record<string, unknown>;
+        const title = String(item.title || item.page_title || `Slide ${index + 1}`).trim();
+        const rawContent = item.content || item.body || item.text || item.bullets || "";
+        const content = Array.isArray(rawContent)
+          ? rawContent.map((part) => String(part).trim()).filter(Boolean).join("\n")
+          : String(rawContent || "").trim();
+        return { title, content: content || title };
+      }
+
+      const content = String(page || "").trim();
+      return { title: `Slide ${index + 1}`, content };
+    })
+    .filter((page) => page.title || page.content);
+
+  if (!normalized.length) {
+    throw new Error("AI Lecturer create_course returned empty pages.");
+  }
+
+  return normalized;
+}
+
+function describeError(err: unknown) {
+  return err instanceof Error ? err.message : String(err);
+}
+
+async function runRealtimeStage<T>(stage: string, action: () => Promise<T>): Promise<T> {
+  console.info(`[AI Lecturer][Realtime] ${stage}: start`);
+  try {
+    const result = await action();
+    console.info(`[AI Lecturer][Realtime] ${stage}: done`);
+    return result;
+  } catch (err) {
+    console.error(`[AI Lecturer][Realtime] ${stage}: failed`, err);
+    throw new Error(`${stage} failed: ${describeError(err)}`);
+  }
 }
 
 function fileNameFromUrl(url: string) {
@@ -146,6 +200,13 @@ function nodeTypeLabel(node: KnowledgeGraphNode) {
   return "节点";
 }
 
+function shouldShowStructureSummary(node: KnowledgeGraphNode) {
+  const summary = String(node.data?.summary || "").trim();
+  const label = String(node.label || "").trim();
+  if (!summary) return false;
+  return summary !== label;
+}
+
 function isOfflineTaskCompleted(status: string) {
   return ["completed", "success", "succeeded"].includes(status.trim().toLowerCase());
 }
@@ -178,6 +239,12 @@ export function VideoPlayerPage() {
   const lastHydratedSessionIdRef = useRef<string | null>(null);
   const autoPlaybackTimerRef = useRef<number | null>(null);
   const playbackPositionRef = useRef({ slideIndex: 0, sentenceIndex: 0, sessionId: "" });
+  const outlineRef = useRef<Slide[]>([]);
+  const activeSlideIndexRef = useRef(0);
+  const slideScriptsRef = useRef<Record<number, string[]>>({});
+  const scriptSentencesRef = useRef<string[]>([]);
+  const livetalkingSessionIdRef = useRef<number | null>(null);
+  const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
 
   const [mode, setMode] = useState<"online" | "offline">("online");
   const [rawDocument, setRawDocument] = useState(getDefaultMarkdown(selectedCourse?.title));
@@ -214,6 +281,7 @@ export function VideoPlayerPage() {
   const [graphError, setGraphError] = useState<string | null>(null);
   const [activeStructureId, setActiveStructureId] = useState<string | null>(null);
   const [expandedStructureIds, setExpandedStructureIds] = useState<Set<string>>(new Set());
+  const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
 
   const {
     audioRef,
@@ -224,6 +292,12 @@ export function VideoPlayerPage() {
     stop: stopWebRtc,
     videoRef,
   } = useAiLecturerWebRtc();
+
+  outlineRef.current = outline;
+  activeSlideIndexRef.current = activeSlideIndex;
+  slideScriptsRef.current = slideScripts;
+  scriptSentencesRef.current = scriptSentences;
+  livetalkingSessionIdRef.current = livetalkingSessionId;
 
   const activeSlide = outline[activeSlideIndex] ?? null;
   const activeMaterial = materials.find((item) => item.material_id === activeMaterialId) ?? materials[0] ?? null;
@@ -239,6 +313,10 @@ export function VideoPlayerPage() {
   const sourcePptMaterial =
     materials.find((item) => item.material_id === String(activeMaterialContent.source_ppt_material_id || "")) ?? null;
   const activeMaterialMarkdown = activeMaterial ? courseMaterialToMarkdown(activeMaterial) : "";
+  const canExportActiveMaterial = isCourseMaterialWordExportable(activeMaterial, activeMaterialMarkdown);
+  const activeMaterialPptExportUrl = getCourseMaterialPptExportUrl(activeMaterial);
+  const activeMaterialPptPreviewUrl = getCourseMaterialPptPreviewUrl(activeMaterial);
+  const pptPreviewScale = Math.min(1, pptPreviewFrameWidth / PPT_PREVIEW_BASE_WIDTH);
   const lectureMarkdown =
     sourcePptMaterial || selectedPptMaterial
       ? courseMaterialToMarkdown(sourcePptMaterial || selectedPptMaterial)
@@ -281,6 +359,33 @@ export function VideoPlayerPage() {
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const handleAutoStartEvent = (event: CustomEvent<AiLectureAutoStartRequest>) => {
+      if (event.detail?.autoPlay) {
+        autoStartAttemptedRef.current = false;
+        setAutoStartRequest(event.detail);
+      }
+    };
+
+    window.addEventListener(AI_LECTURE_AUTOSTART_EVENT, handleAutoStartEvent as EventListener);
+    return () => window.removeEventListener(AI_LECTURE_AUTOSTART_EVENT, handleAutoStartEvent as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const element = pptPreviewFrameRef.current;
+    if (!element || typeof ResizeObserver === "undefined" || !activeMaterialPptPreviewUrl) {
+      return;
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const nextWidth = Math.max(Math.floor(entry?.contentRect?.width || 0), 320);
+      setPptPreviewFrameWidth(nextWidth);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [activeMaterial?.material_id, activeMaterialPptPreviewUrl]);
 
   useEffect(() => {
     setRawDocument(getDefaultMarkdown(selectedCourse?.title));
@@ -542,22 +647,22 @@ export function VideoPlayerPage() {
       course_name: course.title || "课程学习",
       raw_document: markdown || rawDocument,
     });
-    const pages = result.pages || [];
+    const pages = normalizeAiLecturerPages(result.pages);
     setCourseId(result.course_id);
     setOutline(pages);
     setActiveSlideIndex(0);
     setScriptSentences([]);
     setCurrentSentence("");
-    await patchAiLectureSessionSnapshot(course.id, sessionId, {
+    await runRealtimeStage("sync AI lecturer course snapshot", () => patchAiLectureSessionSnapshot(course.id, sessionId, {
       ai_lecturer_course_id: result.course_id,
       outline: pages,
       last_position: { page_index: 0, sentence_index: 0 },
-    });
+    }));
     return { course_id: result.course_id, pages };
   }
 
-  async function ensureSlideScript(slideIndex: number, sessionId: string, pageList: Slide[] = outline) {
-    const cached = slideScripts[slideIndex];
+  async function ensureSlideScript(slideIndex: number, sessionId: string, pageList: Slide[] = outlineRef.current) {
+    const cached = slideScriptsRef.current[slideIndex];
     if (cached?.length) return cached;
 
     const slide = pageList[slideIndex];
@@ -570,7 +675,10 @@ export function VideoPlayerPage() {
       total_pages: pageList.length,
     });
     const sentences = result.sentences || [];
-    const nextScripts = { ...slideScripts, [slideIndex]: sentences };
+    if (!sentences.length) {
+      throw new Error("AI Lecturer generate_script returned empty sentences.");
+    }
+    const nextScripts = { ...slideScriptsRef.current, [slideIndex]: sentences };
     setSlideScripts(nextScripts);
     setScriptSentences(sentences);
     setCurrentSentence(sentences[0] || "");
@@ -618,26 +726,26 @@ export function VideoPlayerPage() {
 
   async function continueAutoPlayback() {
     const { slideIndex, sentenceIndex, sessionId } = playbackPositionRef.current;
-    const sentencesOnSlide = slideScripts[slideIndex] || (slideIndex === activeSlideIndex ? scriptSentences : []);
+    const sentencesOnSlide = slideScriptsRef.current[slideIndex] || (slideIndex === activeSlideIndexRef.current ? scriptSentencesRef.current : []);
     const currentSentenceIndex = sentenceIndex;
     const nextSentenceIndex = currentSentenceIndex + 1;
+    const liveSessionId = livetalkingSessionIdRef.current;
 
     if (nextSentenceIndex < sentencesOnSlide.length) {
-      await speakSentence(sentencesOnSlide[nextSentenceIndex], nextSentenceIndex, slideIndex, sessionId, livetalkingSessionId, {
+      await speakSentence(sentencesOnSlide[nextSentenceIndex], nextSentenceIndex, slideIndex, sessionId, liveSessionId, {
         scheduleAutoAdvance: true,
       });
       return;
     }
 
     const nextSlideIndex = slideIndex + 1;
-    if (nextSlideIndex >= outline.length) {
+    if (nextSlideIndex >= outlineRef.current.length) {
       setIsRealtimePlaying(false);
       return;
     }
 
     setActiveSlideIndex(nextSlideIndex);
     const sentences = await ensureSlideScript(nextSlideIndex, sessionId);
-    const liveSessionId = livetalkingSessionId;
     if (sentences[0]) {
       await speakSentence(sentences[0], 0, nextSlideIndex, sessionId, liveSessionId, { scheduleAutoAdvance: true });
     }
@@ -649,18 +757,22 @@ export function VideoPlayerPage() {
     title?: string;
   }) {
     setMode("online");
-    const sessionId = await ensureAiLectureSession(params);
+    const sessionId = await runRealtimeStage("ensure AI lecture session", () => ensureAiLectureSession(params));
     const markdown = params.sourcePptMaterial ? courseMaterialToMarkdown(params.sourcePptMaterial) : lectureMarkdown;
-    const result = await ensureAiLecturerCourse(markdown, sessionId);
-    const sentences = await ensureSlideScript(0, sessionId, result.pages);
-    const liveSessionId = await startWebRtc();
+    const result = await runRealtimeStage("create AI lecturer course", () => ensureAiLecturerCourse(markdown, sessionId));
+    const sentences = await runRealtimeStage("generate first slide script", () => ensureSlideScript(0, sessionId, result.pages));
+    const liveSessionId = await runRealtimeStage("connect LiveTalking WebRTC", () => startWebRtc());
     if (!liveSessionId) {
       throw new Error(webRtcError || "实时视频连接失败。");
     }
-    await startAiLectureSessionRecording(course.id, sessionId, { livetalking_session_id: liveSessionId });
+    await runRealtimeStage("start AI lecture recording", () =>
+      startAiLectureSessionRecording(course.id, sessionId, { livetalking_session_id: liveSessionId }),
+    );
     setIsRealtimePlaying(true);
     if (sentences[0]) {
-      await speakSentence(sentences[0], 0, 0, sessionId, liveSessionId, { scheduleAutoAdvance: true });
+      await runRealtimeStage("speak first sentence", () =>
+        speakSentence(sentences[0], 0, 0, sessionId, liveSessionId, { scheduleAutoAdvance: true }),
+      );
     }
   }
 
@@ -680,8 +792,9 @@ export function VideoPlayerPage() {
         course_name: course.title || "课程学习",
         raw_document: lectureMarkdown || rawDocument,
       });
+      const pages = normalizeAiLecturerPages(result.pages);
       setCourseId(result.course_id);
-      setOutline(result.pages || []);
+      setOutline(pages);
       setActiveSlideIndex(0);
       setScriptSentences([]);
       setCurrentSentence("");
@@ -769,6 +882,17 @@ export function VideoPlayerPage() {
     });
   }
 
+  const handleExportActiveMaterial = () => {
+    if (!activeMaterial || !canExportActiveMaterial) return;
+
+    try {
+      exportCourseMaterialAsWord(activeMaterial, activeMaterialMarkdown);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "导出失败，请稍后重试。");
+    }
+  };
+
   function toggleStructureNode(nodeId: string) {
     setExpandedStructureIds((current) => {
       const next = new Set(current);
@@ -789,46 +913,66 @@ export function VideoPlayerPage() {
     const hasChildren = Boolean(node.children?.length);
     const expanded = expandedStructureIds.has(node.id);
     const active = activeStructureId === node.id;
+    const isRootNode = depth === 0;
+    const isBranchNode = depth === 1;
 
     return (
-      <div key={node.id} className="space-y-2">
+      <div key={node.id} className="space-y-2" style={{ marginLeft: depth > 0 ? `${depth * 12}px` : "0px" }}>
         <div
-          className={`rounded-[20px] border transition ${
+          className={`relative transition ${
+            isRootNode
+              ? "rounded-[18px] border px-3.5 py-3.5"
+              : isBranchNode
+                ? "rounded-[16px] border px-3.5 py-3"
+                : "rounded-[12px] border px-3 py-2.5"
+          } ${
             active
               ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_12px_24px_var(--accent-shadow)]"
-              : "border-[var(--shell-border)] bg-[var(--surface-subtle)]"
+              : "border-[var(--shell-border)] bg-white hover:border-[rgba(37,99,235,0.24)] hover:bg-[rgba(248,250,255,0.96)]"
           }`}
         >
-          <div className="flex items-stretch gap-2 p-3" style={{ paddingLeft: `${14 + depth * 18}px` }}>
+          {active ? <span className="absolute inset-y-3 left-0 w-1 rounded-full bg-[var(--accent)]" /> : null}
+
+          <div className="flex items-start gap-2.5">
             {hasChildren ? (
               <button
                 type="button"
                 onClick={() => toggleStructureNode(node.id)}
-                className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-[var(--accent-strong)]"
+                className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[var(--shell-border)] bg-[var(--surface-elevated)] text-[var(--accent-strong)]"
               >
-                <MaterialIcon name={expanded ? "expand_less" : "expand_more"} className="text-sm" />
+                <MaterialIcon name={expanded ? "expand_less" : "expand_more"} className="text-[13px]" />
               </button>
             ) : (
-              <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-[var(--muted-text)]">
-                <MaterialIcon name="article" className="text-sm" />
+              <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[rgba(37,99,235,0.08)] text-[var(--accent-strong)]">
+                <span className="h-2 w-2 rounded-full bg-current" />
               </div>
             )}
 
             <button type="button" onClick={() => handleStructureSelect(node)} className="min-w-0 flex-1 text-left">
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
+                <span className="rounded-full bg-[rgba(37,99,235,0.08)] px-2 py-0.5 text-[9px] font-bold tracking-[0.1em] text-[var(--accent-strong)]">
                   {nodeTypeLabel(node)}
                 </span>
               </div>
-              <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{node.label}</p>
-              {node.data?.summary ? (
-                <p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--muted-text)]">{node.data.summary}</p>
+              <p
+                className={`${
+                  isRootNode ? "mt-1.5 text-[15px]" : isBranchNode ? "mt-1 text-[13.5px]" : "mt-1 text-[13px]"
+                } font-bold leading-5 text-[var(--app-text)]`}
+              >
+                {node.label}
+              </p>
+              {shouldShowStructureSummary(node) ? (
+                <p className="mt-0.5 text-[11px] leading-4 text-[var(--muted-text)]">{node.data?.summary}</p>
               ) : null}
             </button>
           </div>
         </div>
 
-        {hasChildren && expanded ? <div className="space-y-2">{node.children!.map((child) => renderStructureNode(child, depth + 1))}</div> : null}
+        {hasChildren && expanded ? (
+          <div className="relative ml-2.5 space-y-2 border-l border-[rgba(37,99,235,0.12)] pl-2.5">
+            {node.children!.map((child) => renderStructureNode(child, depth + 1))}
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -865,7 +1009,7 @@ export function VideoPlayerPage() {
                 </span>
               </div>
 
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 space-y-2.5">
                 {graphLoading ? (
                   <div className="rounded-[18px] bg-[var(--surface-subtle)] px-4 py-4 text-sm text-[var(--muted-text)]">
                     正在加载知识结构...
@@ -1111,8 +1255,9 @@ export function VideoPlayerPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
-                  <div className="space-y-3">
+                <div className="mt-6 grid gap-6 xl:h-[min(72vh,760px)] xl:min-h-0 xl:grid-cols-[340px_minmax(0,1fr)]">
+                  <div className="min-h-0 overflow-y-auto pr-2">
+                    <div className="space-y-3">
                     {materialsLoading ? (
                       <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
                         正在加载课程内容...
@@ -1160,9 +1305,10 @@ export function VideoPlayerPage() {
                         );
                       })
                     )}
+                    </div>
                   </div>
 
-                  <div className="min-w-0 rounded-[24px] border border-[var(--shell-border)] bg-white/88 p-5">
+                  <div className="flex min-h-0 min-w-0 flex-col rounded-[24px] border border-[var(--shell-border)] bg-white/88 p-5">
                     {activeMaterial ? (
                       <>
                         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] pb-4">
@@ -1174,12 +1320,53 @@ export function VideoPlayerPage() {
                               {activeMaterial.title || activeMaterial.topic || activeMaterial.material_id}
                             </h3>
                           </div>
-                          <div className="rounded-full border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">
-                            {course.title}
+                          <div className="flex flex-wrap items-center gap-3">
+                            <div className="rounded-full border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">
+                              {course.title}
+                            </div>
+                            {canExportActiveMaterial ? (
+                              <button
+                                type="button"
+                                onClick={handleExportActiveMaterial}
+                                className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-xs font-bold text-[var(--accent-strong)] transition hover:bg-white"
+                              >
+                                导出 DOC
+                              </button>
+                            ) : null}
+                            {activeMaterialPptExportUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => window.open(activeMaterialPptExportUrl, "_blank", "noopener,noreferrer")}
+                                className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-xs font-bold text-[var(--accent-strong)] transition hover:bg-white"
+                              >
+                                导出 PPT
+                              </button>
+                            ) : null}
                           </div>
                         </div>
-                        <div className="mt-5 max-h-[560px] overflow-y-auto pr-2">
-                          <MarkdownPreview content={activeMaterialMarkdown} />
+                        <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-2">
+                          {activeMaterialPptPreviewUrl ? (
+                            <div
+                              ref={pptPreviewFrameRef}
+                              className="h-full min-h-[620px] overflow-auto rounded-[20px] border border-[var(--shell-border)] bg-[#f8fafc] shadow-[0_18px_36px_rgba(15,23,42,0.08)]"
+                            >
+                              <iframe
+                                src={activeMaterialPptPreviewUrl}
+                                title={activeMaterial.title || activeMaterial.topic || activeMaterial.material_id}
+                                style={{
+                                  width: `${PPT_PREVIEW_BASE_WIDTH}px`,
+                                  height: `calc(100% / ${pptPreviewScale})`,
+                                  minHeight: `${Math.round(620 / Math.max(pptPreviewScale, 0.1))}px`,
+                                  border: 0,
+                                  background: "#fff",
+                                  transform: `scale(${pptPreviewScale})`,
+                                  transformOrigin: "top left",
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <MarkdownPreview content={activeMaterialMarkdown} />
+                          )}
                         </div>
                       </>
                     ) : (

@@ -19,6 +19,7 @@ import {
   routes,
   useAppShell,
 } from "../shared";
+import { writeWorkspaceScopeToSearch } from "../../services/teacher/workspaceScope";
 
 type FlatNode = {
   id: string;
@@ -287,6 +288,19 @@ export function KnowledgeGraphPage() {
   const childrenMap = useMemo(() => getChildrenMap(nodes), [nodes]);
   const layout = useMemo(() => buildTreeLayout(rootNode, childrenMap, expandedIds), [rootNode, childrenMap, expandedIds]);
   const isCourseRootSelected = activeNode?.parentId === null;
+  const aiWorkspaceHref = useMemo(() => {
+    if (!activeNode) {
+      return routeHref(routes.ai);
+    }
+
+    const isCourseRootScope = activeNode.parentId === null;
+    const nextSearch = writeWorkspaceScopeToSearch(new URLSearchParams(), {
+      scopeType: isCourseRootScope ? "course" : "knowledge_point",
+      scopeId: isCourseRootScope ? undefined : activeNode.id,
+      scopeLabel: isCourseRootScope ? undefined : activeNode.label,
+    });
+    return `${routeHref(routes.ai)}?${nextSearch.toString()}`;
+  }, [activeNode]);
   const activeNodeResources = useMemo(
     () =>
       nodeDocuments.length
@@ -425,7 +439,7 @@ export function KnowledgeGraphPage() {
 
     const files = Array.from(fileList);
     const targetNode = activeNode;
-    const targetIsCourseRoot = targetNode.parentId === null;
+    const isCourseRootNode = targetNode.parentId === null;
 
     try {
       setUploadingKnowledgeBase(true);
@@ -434,14 +448,14 @@ export function KnowledgeGraphPage() {
 
       for (const file of files) {
         await uploadKnowledgeBaseDocument(course.id, file, {
-          scopeType: targetIsCourseRoot ? "course" : "knowledge_point",
-          scopeId: targetIsCourseRoot ? undefined : targetNode.id,
+          scopeType: isCourseRootNode ? "course" : "knowledge_point",
+          scopeId: isCourseRootNode ? undefined : targetNode.id,
           libraryType: "course",
         });
       }
 
       await loadNodeDocuments(targetNode);
-      setKnowledgeBaseFeedback(`已导入到【${targetNode.label}】${targetIsCourseRoot ? "课程知识库" : "知识点知识库"}`);
+      setKnowledgeBaseFeedback(`已导入到【${targetNode.label}】${isCourseRootNode ? "课程知识库" : "知识点知识库"}`);
       setKnowledgeBaseFeedbackTone("success");
     } catch (err) {
       setKnowledgeBaseFeedback(err instanceof Error ? err.message : "导入知识点知识库失败");
@@ -814,7 +828,7 @@ export function KnowledgeGraphPage() {
                     </div>
                   </div>
                   <a
-                    href={`${routeHref(routes.ai)}?node=${encodeURIComponent(activeNode.label.trim() || "当前节点")}`}
+                    href={aiWorkspaceHref}
                     className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white"
                   >
                     和 AI 聊一聊

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Empty, Modal, Skeleton, Space, Typography } from 'antd';
+import { Alert, Button, Card, Empty, Modal, Radio, Skeleton, Space, Typography } from 'antd';
 import { getTeachingVideoPpts, type TeachingVideoPptItem } from '../../services/teacher/api';
 
 const { Paragraph, Text, Title } = Typography;
@@ -7,14 +7,22 @@ const { Paragraph, Text, Title } = Typography;
 type Props = {
   open: boolean;
   courseId?: string;
+  generationMode: 'realtime' | 'offline';
+  onGenerationModeChange: (mode: 'realtime' | 'offline') => void;
   submitting?: boolean;
   onCancel: () => void;
-  onSubmit: (payload: { pptMaterialId: string; pptTitle: string }) => Promise<void> | void;
+  onSubmit: (payload: {
+    pptMaterialId: string;
+    pptTitle: string;
+    generationMode: 'realtime' | 'offline';
+  }) => Promise<void> | void;
 };
 
 export default function TeachingVideoEntryModal({
   open,
   courseId,
+  generationMode,
+  onGenerationModeChange,
   submitting = false,
   onCancel,
   onSubmit,
@@ -79,6 +87,7 @@ export default function TeachingVideoEntryModal({
     await onSubmit({
       pptMaterialId: selectedItem.material_id,
       pptTitle: selectedItem.title,
+      generationMode,
     });
   };
 
@@ -95,6 +104,24 @@ export default function TeachingVideoEntryModal({
         <Text type="secondary">
           这里展示的是后端已经生成完成、并且保留了 `content.md` 的 PPT。选中后系统会自动把对应的 PPT 和内容稿送入教学视频模块。
         </Text>
+
+        <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Text strong>生成链路</Text>
+          <Radio.Group
+            optionType="button"
+            buttonStyle="solid"
+            value={generationMode}
+            onChange={(event) => onGenerationModeChange(event.target.value)}
+          >
+            <Radio.Button value="realtime">实时链路</Radio.Button>
+            <Radio.Button value="offline">离线链路</Radio.Button>
+          </Radio.Group>
+          <Text type="secondary">
+            {generationMode === 'realtime'
+              ? '实时链路会直接跳转到播放页开始讲解。'
+              : '离线链路会创建生成任务，并把视频保存在文件列表里。'}
+          </Text>
+        </Space>
 
         {errorText ? <Alert type="warning" showIcon message={errorText} /> : null}
 

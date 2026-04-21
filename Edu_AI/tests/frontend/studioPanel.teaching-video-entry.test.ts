@@ -11,27 +11,47 @@ assert.match(
 assert.match(
   studioPanel,
   /if\s*\(type\s*===\s*'video'\)\s*\{[\s\S]*setTeachingVideoEntryVisible\(true\)/,
-  'StudioPanel should open the teaching video entry modal for the video action',
+  'StudioPanel should open the teaching-video entry modal directly for the video action',
+);
+assert.doesNotMatch(
+  studioPanel,
+  /configType === 'video'/,
+  'StudioPanel should not keep a dedicated video branch inside the generic config modal',
+);
+assert.doesNotMatch(
+  studioPanel,
+  /name="videoGenerationMode"/,
+  'StudioPanel should not render the video generation mode field inside the generic config modal',
 );
 assert.match(
   studioPanel,
-  /createAiLectureSession\(/,
-  'StudioPanel should create AI lecture sessions through the main backend',
+  /if\s*\(generationMode\s*===\s*'realtime'\)\s*\{[\s\S]*createAiLectureSession\(/,
+  'StudioPanel should create an AI lecture session only for the realtime teaching-video chain',
 );
 assert.match(
   studioPanel,
-  /createTeachingVideoTask\(courseId,\s*\{\s*ppt_material_id:\s*pptMaterialId\s*\}\)/,
-  'StudioPanel should also submit the offline teaching video task from the same teaching video entry flow',
+  /if\s*\(generationMode\s*===\s*'offline'\)\s*\{[\s\S]*createTeachingVideoTask\(courseId,\s*\{\s*ppt_material_id:\s*pptMaterialId\s*\}\)/,
+  'StudioPanel should create the offline teaching video task only for the offline chain',
+);
+assert.doesNotMatch(
+  studioPanel,
+  /Promise\.allSettled\(\s*\[\s*createAiLectureSession[\s\S]*createTeachingVideoTask/s,
+  'StudioPanel should no longer start realtime and offline teaching-video tasks together',
 );
 assert.match(
   studioPanel,
-  /setTeachingVideoTaskId\(String\(offlineVideoResult\.value\.task_id \|\| ''\)\.trim\(\)\)/,
-  'StudioPanel should persist the teaching video task id so the existing polling flow can resume it',
+  /if\s*\(generationMode\s*===\s*'realtime'\)\s*\{[\s\S]*window\.localStorage\.setItem\(\s*AI_LECTURE_AUTOSTART_REQUEST_KEY/,
+  'StudioPanel should only persist the autoplay handoff request for realtime teaching-video playback',
 );
 assert.match(
   studioPanel,
-  /window\.localStorage\.setItem\(\s*AI_LECTURE_AUTOSTART_REQUEST_KEY/,
-  'StudioPanel should persist an autoplay handoff request before redirecting',
+  /if\s*\(generationMode\s*===\s*'offline'\)\s*\{[\s\S]*setTeachingVideoTaskId\(/,
+  'StudioPanel should persist the offline teaching-video task id only for the offline chain',
+);
+assert.doesNotMatch(
+  studioPanel,
+  /if\s*\(generationMode\s*===\s*'realtime'\)\s*\{[\s\S]*addGeneratedFile\(\s*\{[\s\S]*type:\s*'ai_lecture_session'/s,
+  'StudioPanel should not add realtime AI lecture sessions into the workbench file list from the teaching-video flow',
 );
 assert.match(
   studioPanel,
@@ -45,18 +65,18 @@ assert.match(
 );
 assert.match(
   studioPanel,
-  /title:\s*'教学视频'|title="教学视频"/,
-  'StudioPanel should expose a teaching video card in the workbench',
+  /<TeachingVideoEntryModal[\s\S]*generationMode=\{teachingVideoGenerationMode\}/,
+  'StudioPanel should pass the current teaching-video generation mode into the single-step modal',
+);
+assert.match(
+  studioPanel,
+  /<TeachingVideoEntryModal[\s\S]*onGenerationModeChange=\{setTeachingVideoGenerationMode\}/,
+  'StudioPanel should let the single-step modal update the selected teaching-video chain',
 );
 assert.match(
   studioPanel,
   /window\.location\.hash = '#video'/,
   'StudioPanel should redirect to the video player after creating an AI lecture session',
-);
-assert.match(
-  studioPanel,
-  /type:\s*'ai_lecture_session'/,
-  'StudioPanel should create AI lecture session artifacts in the workbench',
 );
 
 console.log('studioPanel.teaching-video-entry tests passed');
