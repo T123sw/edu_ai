@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "required": ["title", "matches"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "matches": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["pair_id", "card_a", "card_b"],
+        "properties": {
+          "pair_id": {
+            "anyOf": [
+              { "type": "string", "minLength": 1 },
+              { "type": "number" }
+            ]
+          },
+          "card_a": { "type": "string", "minLength": 1 },
+          "card_b": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

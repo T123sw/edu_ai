@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "required": ["title", "pairs"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "pairs": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "left", "right"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "left": { "type": "string", "minLength": 1 },
+          "right": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分类归纳游戏</title>
+  <style>
+    :root {
+      --bg: #f4efe8;
+      --panel: rgba(255, 251, 246, 0.92);
+      --ink: #1f2940;
+      --muted: #6e7487;
+      --line: rgba(31, 41, 64, 0.14);
+      --accent: #8a5034;
+      --accent-soft: rgba(138, 80, 52, 0.12);
+      --success: #2d7f53;
+      --danger: #c43c3c;
+      --shadow: 0 24px 70px rgba(31, 41, 64, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(138, 80, 52, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(21, 93, 120, 0.12), transparent 26%),
+        linear-gradient(180deg, #faf6ef 0%, var(--bg) 100%);
+    }
+
+    .shell {
+      width: min(1380px, calc(100vw - 56px));
+      margin: 28px auto;
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1 {
+      margin: 12px 0 8px;
+      font-size: clamp(32px, 4vw, 50px);
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .source-panel {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: rgba(255,255,255,0.68);
+    }
+
+    .source-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      min-height: 92px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 58px;
+      padding: 12px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      box-shadow: 0 12px 26px rgba(31, 41, 64, 0.08);
+      font-size: 18px;
+      font-weight: 600;
+      cursor: grab;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .chip:hover { transform: translateY(-2px); }
+    .chip.dragging { opacity: 0.48; cursor: grabbing; }
+    .chip.wrong { border-color: rgba(196,60,60,0.45); background: rgba(196,60,60,0.08); }
+
+    .bucket-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .bucket {
+      min-height: 260px;
+      padding: 18px;
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.74);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .bucket.is-target {
+      border-color: rgba(138, 80, 52, 0.55);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 4px rgba(138, 80, 52, 0.1);
+    }
+
+    .bucket.correct { border-color: rgba(45,127,83,0.42); }
+    .bucket.wrong { border-color: rgba(196,60,60,0.42); }
+
+    .bucket-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .bucket-tag {
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .bucket-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-content: flex-start;
+      min-height: 100px;
+    }
+
+    .bucket .chip { transform: scale(0.94); box-shadow: none; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .status { min-height: 28px; font-size: 17px; color: var(--muted); }
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .action {
+      min-width: 180px;
+      padding: 16px 24px;
+      border: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #28435f, #8a5034);
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 16px 28px rgba(40, 67, 95, 0.22);
+    }
+
+    @media (max-width: 900px) {
+      .shell { width: min(100vw - 24px, 1380px); padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="eyebrow">Category Sorting</div>
+    <h1 id="game-title"></h1>
+    <p class="subtitle">把上方卡片拖入下方分类桶。提交前可以直接拖回原区，错误项会自动弹回。</p>
+
+    <section class="source-panel">
+      <div class="source-list" id="source-list"></div>
+    </section>
+
+    <section class="bucket-grid" id="bucket-grid"></section>
+
+    <div class="toolbar">
+      <div class="status" id="status"></div>
+      <button class="action" id="submit-button">提交校验</button>
+    </div>
+  </main>
+
+  <script>
+    const GAME_DATA = __GAME_DATA_JSON__;
+    const state = {
+      draggingId: null,
+      placements: Object.fromEntries(GAME_DATA.items.map((item) => [item.id, 'source'])),
+      feedback: Object.create(null),
+    };
+
+    const sourceList = document.getElementById('source-list');
+    const bucketGrid = document.getElementById('bucket-grid');
+    const status = document.getElementById('status');
+    document.getElementById('game-title').textContent = GAME_DATA.title;
+
+    function itemNode(item, extraClass = '') {
+      const chip = document.createElement('div');
+      chip.className = `chip ${extraClass}`.trim();
+      chip.draggable = true;
+      chip.dataset.itemId = item.id;
+      chip.textContent = item.text;
+      chip.addEventListener('dragstart', () => {
+        state.draggingId = item.id;
+        chip.classList.add('dragging');
+      });
+      chip.addEventListener('dragend', () => {
+        state.draggingId = null;
+        chip.classList.remove('dragging');
+        document.querySelectorAll('.bucket.is-target').forEach((node) => node.classList.remove('is-target'));
+      });
+      return chip;
+    }
+
+    function moveItem(itemId, bucketId) {
+      state.placements[itemId] = bucketId;
+      state.feedback[itemId] = '';
+      render();
+    }
+
+    function attachDropzone(node, targetId) {
+      node.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        if (targetId !== 'source') {
+          node.classList.add('is-target');
+        }
+      });
+      node.addEventListener('dragleave', () => node.classList.remove('is-target'));
+      node.addEventListener('drop', (event) => {
+        event.preventDefault();
+        node.classList.remove('is-target');
+        if (state.draggingId) {
+          moveItem(state.draggingId, targetId);
+        }
+      });
+    }
+
+    function render() {
+      sourceList.innerHTML = '';
+      bucketGrid.innerHTML = '';
+
+      GAME_DATA.items
+        .filter((item) => state.placements[item.id] === 'source')
+        .forEach((item) => sourceList.appendChild(itemNode(item, state.feedback[item.id])));
+
+      GAME_DATA.categories.forEach((category) => {
+        const bucket = document.createElement('div');
+        bucket.className = 'bucket';
+        const items = GAME_DATA.items.filter((item) => state.placements[item.id] === category.id);
+        bucket.innerHTML = `
+          <div class="bucket-head">
+            <span>${category.name}</span>
+            <span class="bucket-tag">Dropzone</span>
+          </div>
+          <div class="bucket-list"></div>
+        `;
+        const bucketList = bucket.querySelector('.bucket-list');
+        items.forEach((item) => bucketList.appendChild(itemNode(item, state.feedback[item.id])));
+        if (items.some((item) => state.feedback[item.id] === 'wrong')) {
+          bucket.classList.add('wrong');
+        }
+        if (items.length && items.every((item) => state.feedback[item.id] === 'correct')) {
+          bucket.classList.add('correct');
+        }
+        attachDropzone(bucket, category.id);
+        bucketGrid.appendChild(bucket);
+      });
+    }
+
+    async function submit() {
+      let correct = 0;
+      let wrong = 0;
+      GAME_DATA.items.forEach((item) => {
+        if (state.placements[item.id] === item.categoryId) {
+          state.feedback[item.id] = 'correct';
+          correct += 1;
+        } else {
+          state.feedback[item.id] = 'wrong';
+          wrong += 1;
+        }
+      });
+      render();
+
+      if (wrong === 0) {
+        status.className = 'status success';
+        status.textContent = `全部分类正确，共 ${correct} 项。`;
+        return;
+      }
+
+      status.className = 'status error';
+      status.textContent = `有 ${wrong} 张卡片分类错误，它们会返回上方待分类区。`;
+      await new Promise((resolve) => setTimeout(resolve, 850));
+      GAME_DATA.items.forEach((item) => {
+        if (state.feedback[item.id] === 'wrong') {
+          state.placements[item.id] = 'source';
+          state.feedback[item.id] = '';
+        }
+      });
+      render();
+    }
+
+    document.getElementById('submit-button').addEventListener('click', submit);
+    attachDropzone(sourceList, 'source');
+    render();
+  </script>
+</body>
+</html>

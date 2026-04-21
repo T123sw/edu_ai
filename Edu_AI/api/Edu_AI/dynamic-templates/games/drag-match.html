@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽匹配游戏</title>
+  <style>
+    :root {
+      --bg: #f6f0e4;
+      --paper: rgba(255, 252, 246, 0.92);
+      --ink: #16243a;
+      --muted: #62748a;
+      --line: rgba(22, 36, 58, 0.14);
+      --accent: #c45b2d;
+      --accent-soft: rgba(196, 91, 45, 0.14);
+      --correct: #2d7f53;
+      --wrong: #c43c3c;
+      --shadow: 0 20px 60px rgba(22, 36, 58, 0.12);
+      --radius: 26px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(196, 91, 45, 0.16), transparent 30%),
+        radial-gradient(circle at right center, rgba(26, 90, 122, 0.14), transparent 28%),
+        linear-gradient(180deg, #fbf7ef 0%, var(--bg) 100%);
+    }
+
+    .shell {
+      width: min(1360px, calc(100vw - 64px));
+      margin: 32px auto;
+      padding: 36px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(32px, 4vw, 52px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .board {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 0.94fr 1.06fr;
+      gap: 24px;
+    }
+
+    .panel {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      min-height: 540px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    .bank,
+    .slot-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .bank {
+      min-height: 460px;
+      align-content: start;
+    }
+
+    .card,
+    .slot {
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .card {
+      padding: 18px 18px 18px 20px;
+      cursor: grab;
+      box-shadow: 0 12px 30px rgba(22, 36, 58, 0.08);
+    }
+
+    .card:hover { transform: translateY(-2px); }
+    .card:active,
+    body.dragging .card.drag-source { cursor: grabbing; }
+    .card.drag-source { opacity: 0.46; }
+    .card.correct { border-color: rgba(45, 127, 83, 0.45); background: rgba(45, 127, 83, 0.12); }
+    .card.wrong { border-color: rgba(196, 60, 60, 0.45); background: rgba(196, 60, 60, 0.1); }
+    .card-label { font-size: 22px; font-weight: 700; }
+
+    .slot {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      min-height: 132px;
+    }
+
+    .slot.is-target {
+      border-color: rgba(196, 91, 45, 0.55);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 4px rgba(196, 91, 45, 0.12);
+    }
+
+    .slot.correct { border-color: rgba(45, 127, 83, 0.45); background: rgba(45, 127, 83, 0.08); }
+    .slot.wrong { border-color: rgba(196, 60, 60, 0.45); background: rgba(196, 60, 60, 0.08); }
+
+    .slot-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .slot-tag {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(22, 36, 58, 0.06);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .slot-text {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .slot .card {
+      margin-top: 2px;
+      box-shadow: none;
+      background: rgba(255,255,255,0.92);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .status {
+      min-height: 28px;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    .status.success { color: var(--correct); }
+    .status.error { color: var(--wrong); }
+
+    .action {
+      min-width: 180px;
+      padding: 16px 24px;
+      border: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #163a5f, #c45b2d);
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 16px 28px rgba(22, 58, 95, 0.24);
+    }
+
+    @media (max-width: 960px) {
+      .shell { width: min(100vw - 24px, 1360px); padding: 20px; }
+      .board { grid-template-columns: 1fr; }
+      .panel { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="eyebrow">Drag Match</div>
+    <h1 id="game-title"></h1>
+    <p class="subtitle">将左侧概念拖到右侧对应定义中，再点击“提交校验”。错误项会自动退回待匹配区。</p>
+
+    <section class="board">
+      <div class="panel">
+        <div class="panel-title">
+          <span>待匹配概念</span>
+          <span>拖拽到右侧</span>
+        </div>
+        <div class="bank" id="bank"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>定义区</span>
+          <span>悬浮时高亮</span>
+        </div>
+        <div class="slot-list" id="slots"></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="status" id="status"></div>
+      <button class="action" id="submit-button">提交校验</button>
+    </div>
+  </main>
+
+  <script>
+    const GAME_DATA = __GAME_DATA_JSON__;
+    const state = {
+      draggingId: null,
+      placements: Object.create(null),
+      feedback: Object.create(null),
+      shuffledPairs: [...GAME_DATA.pairs].sort(() => Math.random() - 0.5),
+    };
+
+    const bank = document.getElementById('bank');
+    const slots = document.getElementById('slots');
+    const status = document.getElementById('status');
+    document.getElementById('game-title').textContent = GAME_DATA.title;
+
+    function cardNode(pair, extraClass = '') {
+      const card = document.createElement('div');
+      card.className = `card ${extraClass}`.trim();
+      card.draggable = true;
+      card.dataset.pairId = pair.id;
+      card.innerHTML = `<div class="card-label">${pair.left}</div>`;
+      card.addEventListener('dragstart', () => {
+        state.draggingId = pair.id;
+        document.body.classList.add('dragging');
+        card.classList.add('drag-source');
+      });
+      card.addEventListener('dragend', () => {
+        state.draggingId = null;
+        document.body.classList.remove('dragging');
+        card.classList.remove('drag-source');
+        clearTargets();
+      });
+      card.addEventListener('dblclick', () => returnToBank(pair.id));
+      return card;
+    }
+
+    function mountBankDropzone() {
+      bank.addEventListener('dragover', (event) => event.preventDefault());
+      bank.addEventListener('drop', (event) => {
+        event.preventDefault();
+        if (state.draggingId) {
+          returnToBank(state.draggingId);
+        }
+      });
+    }
+
+    function createSlot(pair) {
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.dataset.pairId = pair.id;
+      slot.innerHTML = `
+        <div class="slot-head">
+          <div class="slot-tag">Definition</div>
+          <div class="slot-tag">Drop Here</div>
+        </div>
+        <div class="slot-text">${pair.right}</div>
+      `;
+      slot.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        slot.classList.add('is-target');
+      });
+      slot.addEventListener('dragleave', () => slot.classList.remove('is-target'));
+      slot.addEventListener('drop', (event) => {
+        event.preventDefault();
+        slot.classList.remove('is-target');
+        if (state.draggingId) {
+          placeCard(state.draggingId, pair.id);
+        }
+      });
+      return slot;
+    }
+
+    function clearTargets() {
+      document.querySelectorAll('.slot.is-target').forEach((node) => node.classList.remove('is-target'));
+    }
+
+    function placeCard(pairId, slotId) {
+      Object.keys(state.placements).forEach((key) => {
+        if (state.placements[key] === slotId) {
+          delete state.placements[key];
+        }
+      });
+      state.placements[pairId] = slotId;
+      state.feedback[pairId] = '';
+      render();
+    }
+
+    function returnToBank(pairId) {
+      delete state.placements[pairId];
+      state.feedback[pairId] = '';
+      render();
+    }
+
+    function render() {
+      bank.innerHTML = '';
+      slots.innerHTML = '';
+
+      const placedIds = new Set(Object.keys(state.placements));
+      GAME_DATA.pairs
+        .filter((pair) => !placedIds.has(pair.id))
+        .forEach((pair) => bank.appendChild(cardNode(pair, state.feedback[pair.id])));
+
+      state.shuffledPairs.forEach((pair) => {
+        const slot = createSlot(pair);
+        slot.classList.toggle('correct', state.feedback[pair.id] === 'correct');
+        slot.classList.toggle('wrong', state.feedback[pair.id] === 'wrong');
+        const placedId = Object.keys(state.placements).find((id) => state.placements[id] === pair.id);
+        if (placedId) {
+          const placedPair = GAME_DATA.pairs.find((item) => item.id === placedId);
+          slot.appendChild(cardNode(placedPair, state.feedback[placedId]));
+        }
+        slots.appendChild(slot);
+      });
+    }
+
+    async function submit() {
+      let correct = 0;
+      let wrong = 0;
+      GAME_DATA.pairs.forEach((pair) => {
+        if (!state.placements[pair.id]) {
+          wrong += 1;
+          state.feedback[pair.id] = 'wrong';
+          return;
+        }
+        if (state.placements[pair.id] === pair.id) {
+          correct += 1;
+          state.feedback[pair.id] = 'correct';
+        } else {
+          wrong += 1;
+          state.feedback[pair.id] = 'wrong';
+        }
+      });
+
+      render();
+
+      if (wrong === 0) {
+        status.className = 'status success';
+        status.textContent = `全部匹配正确，共 ${correct} 组。`;
+        return;
+      }
+
+      status.className = 'status error';
+      status.textContent = `当前正确 ${correct} 组，错误 ${wrong} 组，错误项将退回待匹配区。`;
+
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      Object.entries(state.feedback).forEach(([pairId, stateName]) => {
+        if (stateName === 'wrong') {
+          delete state.placements[pairId];
+          state.feedback[pairId] = '';
+        }
+      });
+      render();
+    }
+
+    document.getElementById('submit-button').addEventListener('click', submit);
+    mountBankDropzone();
+    render();
+  </script>
+</body>
+</html>
