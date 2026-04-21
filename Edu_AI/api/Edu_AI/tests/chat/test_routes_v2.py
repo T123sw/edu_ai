@@ -560,6 +560,63 @@ def test_direct_ppt_generate_v2_route_returns_run_payload(monkeypatch):
     assert response.json()["run"]["run_id"] == "ppt-run-1"
 
 
+def test_game_direct_route_returns_game_artifact(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    class DummyService:
+        def generate(self, payload):
+            assert payload.owner == "tester"
+            assert payload.course_id == "course-1"
+            assert payload.selected_doc_ids == ["doc-1"]
+            assert payload.game_type == "drag_match"
+            return {
+                "action": {"name": "generate.game.direct"},
+                "artifacts": [
+                    {
+                        "artifact_id": "game-1",
+                        "artifact_type": "game",
+                        "title": "历史概念配对.html",
+                        "content": {
+                            "game_type": "drag_match",
+                            "template_id": "drag-match",
+                            "game_data": {"title": "历史概念配对", "pairs": []},
+                            "html_url": "/api/chat/v2/games/html?path=tester/course-1/game-1/index.html",
+                        },
+                    }
+                ],
+                "trace": {"path": "direct"},
+            }
+
+    monkeypatch.setattr("app.chat.api.routes_v2._get_direct_game_service", lambda: DummyService(), raising=False)
+    client = TestClient(app)
+    response = client.post(
+        "/api/chat/v2/game/direct",
+        json={"course_id": "course-1", "selected_doc_ids": ["doc-1"], "game_type": "drag_match"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["artifacts"][0]["artifact_type"] == "game"
+
+
+def test_game_html_route_uses_authenticated_path_resolution(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2._resolve_chat_game_path",
+        lambda owner, relative_path: Path(__file__).resolve(),
+        raising=False,
+    )
+    client = TestClient(app)
+    response = client.get("/api/chat/v2/games/html", params={"path": "tester/course-1/game-1/index.html"})
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+
+
 def test_reply_v2_route_returns_structured_error_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)

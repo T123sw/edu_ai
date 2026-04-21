@@ -1,4 +1,5 @@
 from app.chat.api.schemas_v2 import (
+    ChatDirectGameResponseV2,
     ChatDirectPptGenerateResponseV2,
     ChatDirectPptOutlineResponseV2,
     ChatDirectReportResponseV2,
@@ -11,6 +12,7 @@ from app.chat.api.schemas_v2 import (
     ChatReportRequestV2,
     ChatResponseV2,
     DirectPptConfigV2,
+    KnowledgeBaseDirectGameRequestV2,
     KnowledgeBaseDirectPptGenerateRequestV2,
     KnowledgeBaseDirectPptOutlineRequestV2,
     KnowledgeBaseDirectReportRequestV2,
@@ -324,3 +326,38 @@ def test_direct_ppt_generate_response_supports_run_payload():
 
     assert payload.action["name"] == "generate.ppt.direct"
     assert payload.run["run_id"] == "ppt-run-1"
+
+
+def test_game_direct_request_requires_supported_game_type():
+    payload = KnowledgeBaseDirectGameRequestV2(
+        course_id="course-1",
+        selected_doc_ids=["doc-1"],
+        game_type="drag_match",
+    )
+
+    assert payload.game_type == "drag_match"
+    assert payload.selected_doc_ids == ["doc-1"]
+
+
+def test_game_direct_response_accepts_game_artifact_payload():
+    response = ChatDirectGameResponseV2(
+        action={"name": "generate.game.direct"},
+        artifacts=[
+            {
+                "artifact_id": "game-1",
+                "artifact_type": "game",
+                "title": "历史概念配对.html",
+                "content": {
+                    "game_type": "drag_match",
+                    "template_id": "drag-match",
+                    "game_data": {"title": "历史概念配对", "pairs": []},
+                    "html_url": "/api/chat/v2/games/html?path=u1/course-1/game-1/index.html",
+                },
+            }
+        ],
+        trace={"path": "direct"},
+    )
+
+    assert response.action["name"] == "generate.game.direct"
+    assert response.artifacts[0]["artifact_type"] == "game"
+    assert response.artifacts[0]["content"]["html_url"].startswith("/api/chat/v2/games/html")

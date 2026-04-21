@@ -15,6 +15,7 @@ from app.auth import get_current_user
 from app.chat.api.schemas_v2 import (
     ChatDirectQuizResponseV2,
     ChatDirectPptGenerateResponseV2,
+    ChatDirectGameResponseV2,
     ChatDirectPptOutlineResponseV2,
     ChatQuizPrefillResponseV2,
     ChatDirectReportResponseV2,
@@ -30,6 +31,7 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectQuizPrefillRequestV2,
     KnowledgeBaseDirectQuizRequestV2,
     KnowledgeBaseDirectPptGenerateRequestV2,
+    KnowledgeBaseDirectGameRequestV2,
     KnowledgeBaseDirectPptOutlineRequestV2,
     KnowledgeBaseDirectReportRequestV2,
 )
@@ -80,6 +82,14 @@ def _get_direct_quiz_service():
     )
 
     return build_default_knowledge_base_direct_quiz_service_v2()
+
+
+def _get_direct_game_service():
+    from app.chat.application.knowledge_base_direct_game_service_v2 import (
+        build_default_knowledge_base_direct_game_service_v2,
+    )
+
+    return build_default_knowledge_base_direct_game_service_v2()
 
 
 def _get_ppt_entry_cards_service():
@@ -146,12 +156,22 @@ def _chat_videos_root() -> Path:
     return root
 
 
+def _chat_games_root() -> Path:
+    root = (Config.STORAGE_ROOT / "chat_games").resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
 def _build_chat_image_url(relative_path: str) -> str:
     return f"/api/chat/v2/images?path={quote(relative_path, safe='')}"
 
 
 def _build_chat_video_url(relative_path: str) -> str:
     return f"/api/chat/v2/videos?path={quote(relative_path, safe='')}"
+
+
+def _build_chat_game_url(relative_path: str) -> str:
+    return f"/api/chat/v2/games/html?path={quote(relative_path, safe='')}"
 
 
 def _resolve_chat_image_path(*, owner: str, relative_path: str) -> Path:
@@ -173,6 +193,17 @@ def _resolve_chat_video_path(*, owner: str, relative_path: str) -> Path:
         raise HTTPException(status_code=403, detail="forbidden_video_path")
     if not requested.exists() or not requested.is_file():
         raise HTTPException(status_code=404, detail="video_not_found")
+    return requested
+
+
+def _resolve_chat_game_path(*, owner: str, relative_path: str) -> Path:
+    root = _chat_games_root()
+    requested = (root / str(relative_path or "")).resolve()
+    expected_owner_root = (root / _safe_segment(owner, "anonymous")).resolve()
+    if not str(requested).startswith(str(expected_owner_root)):
+        raise HTTPException(status_code=403, detail="forbidden_game_path")
+    if not requested.exists() or not requested.is_file():
+        raise HTTPException(status_code=404, detail="game_not_found")
     return requested
 
 
@@ -284,6 +315,16 @@ async def get_chat_video(
     resolved = _resolve_chat_video_path(owner=owner, relative_path=unquote(path))
     media_type = mimetypes.guess_type(str(resolved))[0] or "application/octet-stream"
     return FileResponse(path=str(resolved), media_type=media_type, filename=resolved.name)
+
+
+@router.get("/games/html")
+async def get_chat_game(
+    path: str = Query(..., description="Relative chat game html path under storage/chat_games"),
+    current_user: dict = Depends(get_current_user),
+):
+    owner = str(current_user.get("username") or "")
+    resolved = _resolve_chat_game_path(owner=owner, relative_path=unquote(path))
+    return FileResponse(path=str(resolved), media_type="text/html", filename=resolved.name)
 
 
 @router.post("/reply", response_model=ChatResponseV2)
@@ -415,6 +456,21 @@ async def quiz_prefill(payload: KnowledgeBaseDirectQuizPrefillRequestV2, current
 async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: dict = Depends(get_current_user)):
     try:
         return _get_direct_quiz_service().generate(_with_owner(payload, current_user))
+    except Exception as exc:
+        body = build_v2_error_response(
+            code="workflow_failed",
+            message=str(exc),
+            conversation_id="",
+            trace_path="direct",
+            retryable=False,
+        )
+        return JSONResponse(status_code=500, content=body)
+
+
+@router.post("/game/direct", response_model=ChatDirectGameResponseV2)
+async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: dict = Depends(get_current_user)):
+    try:
+        return _get_direct_game_service().generate(_with_owner(payload, current_user))
     except Exception as exc:
         body = build_v2_error_response(
             code="workflow_failed",

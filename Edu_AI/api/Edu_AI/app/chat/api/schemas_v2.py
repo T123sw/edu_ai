@@ -16,6 +16,7 @@ ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
 PptEntryMode = Literal["knowledge_base_ppt"]
 LessonPlanEntryMode = Literal["knowledge_base_lesson_plan"]
 QuizEntryMode = Literal["knowledge_base_quiz"]
+GameType = Literal["category_sort", "drag_match", "memory_flip"]
 ReportEntryCardType = Literal["preset", "recommended"]
 PresetKey = Literal["brief", "detailed", "study_plan", "custom"]
 PptPresetKey = Literal["knowledge_lecture", "topic_briefing", "comparison_analysis", "defense_summary"]
@@ -136,6 +137,14 @@ class KnowledgeBaseDirectQuizRequestV2(BaseModel):
     quiz_config: DirectQuizConfigV2
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
+
+
+class KnowledgeBaseDirectGameRequestV2(BaseModel):
+    course_id: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+    game_type: GameType
 
 
 class DirectPptConfigV2(BaseModel):
@@ -313,6 +322,12 @@ class ChatDirectReportResponseV2(BaseModel):
 
 
 class ChatDirectQuizResponseV2(BaseModel):
+    action: Dict[str, Any]
+    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
+    trace: DirectTraceMetaV2
+
+
+class ChatDirectGameResponseV2(BaseModel):
     action: Dict[str, Any]
     artifacts: List[Dict[str, Any]] = Field(default_factory=list)
     trace: DirectTraceMetaV2
