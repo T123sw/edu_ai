@@ -1,11 +1,7 @@
 import React from 'react';
 import { Layout, Avatar, Dropdown, Space } from 'antd';
 import type { MenuProps } from 'antd';
-import {
-  SettingOutlined,
-  UserOutlined,
-  LogoutOutlined,
-} from '@ant-design/icons';
+import { SettingOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,7 +24,7 @@ const SharedHeader: React.FC = () => {
     {
       key: '/settings',
       icon: <SettingOutlined />,
-      label: '个人设置',
+      label: '个人中心',
     },
     {
       type: 'divider',
@@ -41,23 +37,12 @@ const SharedHeader: React.FC = () => {
   ];
 
   return (
-    <Header
-      style={{
-        padding: '0 24px',
-        background: '#fff',
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        borderBottom: '1px solid var(--color-border)',
-        height: 48,
-        lineHeight: '48px',
-      }}
-    >
+    <Header className="global-shared-header">
       <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight" trigger={['click']}>
-        <a onClick={(e) => e.preventDefault()}>
-          <Space>
+        <a className="global-user-trigger" onClick={(event) => event.preventDefault()}>
+          <Space size={10}>
             <Avatar icon={<UserOutlined />} size="small" />
-            {user?.username || '用户'}
+            <span>{user?.username || '用户'}</span>
           </Space>
         </a>
       </Dropdown>

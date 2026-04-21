@@ -808,6 +808,23 @@ const StudioPanel: React.FC<Props> = ({
   const [pptFullscreenActive, setPptFullscreenActive] = useState(false);
   const AI_LECTURE_AUTOSTART_REQUEST_KEY = 'stitch-ai-lecture-autostart-request';
 
+  const buildPendingTeachingVideoFile = (taskId: string, videoName: string): GeneratedFile => ({
+    id: `teaching_video__${taskId}`,
+    name: videoName,
+    type: 'video',
+    content: {
+      task_id: taskId,
+    },
+    meta: {
+      origin: 'course_material',
+      generationState: {
+        status: 'processing',
+        phase: 'queued',
+        message: 'Offline teaching video generation queued.',
+      },
+    },
+  });
+
   const openGeneratedFile = (file: GeneratedFile) => {
     if (file.type === 'ai_lecture_session') {
       window.localStorage.setItem('stitch-ai-lecture-session-id', file.id);
@@ -1287,6 +1304,7 @@ const StudioPanel: React.FC<Props> = ({
 
     setGenerating(true);
     try {
+      /*
       const response = await createAiLectureSession(courseId, {
         source_ppt_material_id: pptMaterialId,
         title: `${pptTitle.replace(/\.pptx$/i, '')}-AI讲解会话`,
@@ -1316,6 +1334,51 @@ const StudioPanel: React.FC<Props> = ({
         },
       };
       addGeneratedFile(pendingFile);
+      */
+      const normalizedPptTitle = pptTitle.replace(/\.pptx$/i, '');
+      const [sessionResult, offlineVideoResult] = await Promise.allSettled([
+        createAiLectureSession(courseId, {
+          source_ppt_material_id: pptMaterialId,
+          title: `${normalizedPptTitle}-AI lecture session`,
+        }),
+        createTeachingVideoTask(courseId, { ppt_material_id: pptMaterialId }),
+      ]);
+      if (sessionResult.status !== 'fulfilled') {
+        throw sessionResult.reason;
+      }
+      const response = sessionResult.value;
+      const sessionId = String(response.content?.session_snapshot_id || response.material_id || '').trim();
+      const videoName = `${normalizedPptTitle}-teaching-video.mp4`;
+      if (!sessionId) {
+        throw new Error('AI lecture session id was not returned.');
+      }
+      addGeneratedFile({
+        id: sessionId,
+        name: `${normalizedPptTitle}-AI lecture session`,
+        type: 'ai_lecture_session',
+        content: {
+          source_ppt_material_id: pptMaterialId,
+          session_snapshot_id: sessionId,
+          recording_url: response.content?.recording_url || undefined,
+          can_continue_interactive: true,
+        },
+        meta: {
+          origin: 'course_material',
+          generationState: {
+            status: 'created',
+            phase: 'created',
+            message: 'Realtime AI lecture session created.',
+          },
+        },
+      });
+      if (offlineVideoResult.status === 'fulfilled') {
+        const teachingVideoTaskId = String(offlineVideoResult.value.task_id || '').trim();
+        if (teachingVideoTaskId) {
+          addGeneratedFile(buildPendingTeachingVideoFile(teachingVideoTaskId, videoName));
+          setTeachingVideoTaskId(String(offlineVideoResult.value.task_id || '').trim());
+          setTeachingVideoPolling(true);
+        }
+      }
       window.localStorage.setItem(
         AI_LECTURE_AUTOSTART_REQUEST_KEY,
         JSON.stringify({
@@ -1329,6 +1392,11 @@ const StudioPanel: React.FC<Props> = ({
       window.location.hash = '#video';
       setTeachingVideoEntryVisible(false);
       await refreshCourseMaterials();
+      if (offlineVideoResult.status === 'rejected') {
+        message.warning(
+          `Offline video generation did not start: ${offlineVideoResult.reason instanceof Error ? offlineVideoResult.reason.message : 'Unknown error'}`,
+        );
+      }
       message.success('教学视频任务已提交，正在生成');
     } catch (error: any) {
       message.error(`教学视频创建失败: ${error.message || '未知错误'}`);

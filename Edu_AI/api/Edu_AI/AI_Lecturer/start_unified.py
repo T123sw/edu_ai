@@ -58,9 +58,37 @@ def _base_command(workdir: str) -> str:
     return " && ".join(commands)
 
 
-def _start_named_window(title: str, command: str) -> None:
-    escaped_command = command.replace('"', '""')
-    subprocess.Popen(f'start "{title}" cmd /k "{escaped_command}"', shell=True)
+def _start_named_window(
+    title: str,
+    command: list[str],
+    *,
+    cwd: str,
+    extra_env: dict[str, str] | None = None,
+) -> None:
+    env = os.environ.copy()
+    if extra_env:
+        env.update({key: str(value) for key, value in extra_env.items()})
+
+    conda_env = os.getenv("AI_LECTURER_CONDA_ENV", "").strip()
+    if conda_env:
+        escaped_args = " ".join(_quote(str(part)) for part in command)
+        full_command = f"{_base_command(cwd)} && {escaped_args}"
+        escaped_command = full_command.replace('"', '""')
+        subprocess.Popen(
+            f'start "{title}" cmd /k "{escaped_command}"',
+            shell=True,
+            cwd=cwd,
+            env=env,
+        )
+        return
+
+    subprocess.Popen(
+        [str(part) for part in command],
+        cwd=cwd,
+        env=env,
+        shell=False,
+        creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
+    )
 
 
 def start_engines():
@@ -68,7 +96,7 @@ def start_engines():
     print("        Starting AI Lecturer unified stack")
     print("==================================================")
 
-    python_exe = _quote(_python_executable())
+    python_exe = _python_executable()
     hf_endpoint = os.getenv("HF_ENDPOINT", "https://hf-mirror.com")
     avatar_id = os.getenv("AI_LECTURER_AVATAR_ID", "my_teacher")
     ref_file = os.getenv("AI_LECTURER_REF_FILE", "zh-CN-XiaoxiaoNeural")
@@ -76,20 +104,33 @@ def start_engines():
     tts = os.getenv("AI_LECTURER_TTS", "edgetts")
 
     print("\n[1/3] Starting LiveTalking WebRTC engine on port 8010...")
-    livetalking_command = (
-        f"{_base_command(LIVETALKING_DIR)}"
-        f" && set HF_ENDPOINT={hf_endpoint}"
-        f" && {python_exe} app.py --transport webrtc --model {model}"
-        f" --avatar_id {avatar_id} --tts {tts} --REF_FILE {ref_file}"
+    livetalking_command = [
+        python_exe,
+        "app.py",
+        "--transport",
+        "webrtc",
+        "--model",
+        model,
+        "--avatar_id",
+        avatar_id,
+        "--tts",
+        tts,
+        "--REF_FILE",
+        ref_file,
+    ]
+    _start_named_window(
+        "LiveTalking WebRTC (8010)",
+        livetalking_command,
+        cwd=LIVETALKING_DIR,
+        extra_env={"HF_ENDPOINT": hf_endpoint},
     )
-    _start_named_window("LiveTalking WebRTC (8010)", livetalking_command)
 
     print("      Waiting for LiveTalking to initialize...")
     time.sleep(float(os.getenv("AI_LECTURER_LIVETALKING_BOOT_WAIT_SEC", "8")))
 
     print("\n[2/3] Starting AI Lecturer unified gateway on port 8008...")
-    gateway_command = f"{_base_command(BASE_DIR)} && {python_exe} unified_gateway.py"
-    _start_named_window("AI Lecturer Gateway (8008)", gateway_command)
+    gateway_command = [python_exe, "unified_gateway.py"]
+    _start_named_window("AI Lecturer Gateway (8008)", gateway_command, cwd=BASE_DIR)
 
     print("      Waiting for gateway to initialize...")
     time.sleep(float(os.getenv("AI_LECTURER_GATEWAY_BOOT_WAIT_SEC", "4")))

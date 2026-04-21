@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
 import { VideoPlayerPage } from "./pages/VideoPlayer";
 import { CourseResourcesPage } from "./pages/CourseResources";
@@ -7,9 +7,10 @@ import { HomeDashboardPage } from "./pages/HomeDashboard";
 import { KnowledgeGraphPage } from "./pages/KnowledgeGraph";
 import { PptStudioPage } from "./pages/PptStudio";
 import { CourseKnowledgeBasePage } from "./pages/CourseKnowledgeBase";
-import { CourseDetailPage } from "./pages/CourseDetail";
+import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
 import { CourseEditPage } from "./pages/CourseEdit";
 import { ProfilePage } from "./pages/Profile";
+import { LoginPage } from "./pages/LoginPage";
 import {
   AppShellProvider,
   ThemeCustomizer,
@@ -22,25 +23,11 @@ import {
 } from "./shared";
 import { login, verifyToken, type User } from "../services/auth";
 
-const legacyPages = [
-  [routes.profile, "Profile", ProfilePage],
-  [routes.home, "首页", HomeDashboardPage],
-  [routes.course, "课程详情", CourseDetailPage],
-  [routes.workspace, "课程工作台", WorkspaceOverviewPage],
-  [routes.video, "视频学习", VideoPlayerPage],
-  [routes.ai, "AI 问答", AIWorkspacePage],
-  [routes.graph, "知识图谱", KnowledgeGraphPage],
-  [routes.ppt, "PPT 工作室", PptStudioPage],
-  [routes.knowledge, "课程知识库", CourseKnowledgeBasePage],
-  [routes.edit, "详情编辑", CourseEditPage],
-] as const;
-
-void legacyPages;
-
 const pages = [
   [routes.profile, "Profile", ProfilePage],
   [routes.home, "Home", HomeDashboardPage],
-  [routes.course, "Course Detail", CourseDetailPage],
+  [routes.course, "Course List", CourseListPage],
+  [routes.courseDetail, "Course Detail", CourseDetailPage],
   [routes.workspace, "Workspace", WorkspaceOverviewPage],
   [routes.video, "Video Player", VideoPlayerPage],
   [routes.resources, "Course Resources", CourseResourcesPage],
@@ -87,78 +74,6 @@ function getStoredAuth() {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
   }
-}
-
-function AuthScreen({
-  onLogin,
-}: {
-  onLogin: (payload: { username: string; password: string }) => Promise<void>;
-}) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    try {
-      setLoading(true);
-      setError(null);
-      await onLogin({ username, password });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "登录失败");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_45%,#eff6ff_100%)] px-6 py-10 text-slate-900">
-      <div className="mx-auto grid min-h-[calc(100vh-80px)] max-w-6xl items-center gap-8 lg:grid-cols-[1.1fr_460px]">
-        <div className="text-white">
-          <p className="text-sm font-bold uppercase tracking-[0.32em] text-white/70">Edu AI</p>
-          <h1 className="mt-6 max-w-2xl text-5xl font-black leading-[0.95] tracking-tight md:text-6xl">教师工作台已切到 Stitch 前端</h1>
-          <p className="mt-6 max-w-xl text-base leading-8 text-white/82">
-            这套界面现在直接连接 `Edu_AI` 后端。由于课程资源、知识图谱、视频检索和问答都需要 Bearer Token，先登录再进入工作区。
-          </p>
-        </div>
-
-        <div className="rounded-[32px] border border-white/40 bg-white/90 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.24)] backdrop-blur-xl">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--accent-strong)]">登录</p>
-          <h2 className="mt-3 text-3xl font-black text-[var(--accent-strong)]">进入课程工作区</h2>
-          <form className="mt-8 space-y-4" onSubmit={(event) => void handleSubmit(event)}>
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700">账号</span>
-              <input
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
-                placeholder="请输入账号"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700">密码</span>
-              <input
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                type="password"
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
-                placeholder="请输入密码"
-              />
-            </label>
-            {error ? <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600">{error}</div> : null}
-            <button
-              type="submit"
-              disabled={loading || !username.trim() || !password.trim()}
-              className="w-full rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "登录中..." : "登录"}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export default function App() {
@@ -240,12 +155,11 @@ export default function App() {
     setAuthReady(true);
   }
 
-  if (!authReady) {
-    return <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在验证登录状态...</div>;
-  }
-
-  if (!authenticated) {
-    return <AuthScreen onLogin={handleLogin} />;
+  function handleLogout() {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    setAuthenticated(false);
+    setAuthReady(true);
+    window.location.hash = routeHref(routes.home);
   }
 
   return (
@@ -254,10 +168,17 @@ export default function App() {
       setSelectedCourse={setSelectedCourse}
       theme={theme}
       setTheme={setTheme}
+      logout={handleLogout}
     >
-      <div key={current} className="route-stage">
-        <ActivePage />
-      </div>
+      {!authReady ? (
+        <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
+      ) : authenticated ? (
+        <div key={current} className="route-stage">
+          <ActivePage />
+        </div>
+      ) : (
+        <LoginPage onLogin={handleLogin} />
+      )}
       <ThemeCustomizer />
     </AppShellProvider>
   );

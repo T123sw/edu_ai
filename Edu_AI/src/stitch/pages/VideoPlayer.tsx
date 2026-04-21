@@ -1,26 +1,29 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-
-import { API_BASE_URL } from "../api/client";
-import { courseMaterialToMarkdown, getCourseMaterials } from "../api/courses";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   askAiLecturer,
-  createAiLectureSession,
   createAiLecturerCourse,
-  generateAiLecturerFullVideo,
   generateAiLecturerScript,
-  getAiLectureSession,
   getAiLecturerDownloadUrl,
-  getAiLecturerTaskStatus,
-  getAiLecturerVideoUrl,
-  patchAiLectureSessionSnapshot,
   speakAiLecturerSentence,
-  startAiLectureSessionRecording,
-  stopAiLectureSessionRecording,
   stopAiLecturerSpeaking,
 } from "../api/video";
+import {
+  courseMaterialToMarkdown,
+  createAiLectureSession,
+  createTeachingVideoTask,
+  getAiLectureSession,
+  getCourseMaterials,
+  getKnowledgeGraph,
+  getTeachingVideoPpts,
+  getTeachingVideoTaskStatus,
+  patchAiLectureSessionSnapshot,
+  startAiLectureSessionRecording,
+  stopAiLectureSessionRecording,
+} from "../api/courses";
+import { API_BASE_URL } from "../api/client";
 import { MarkdownPreview } from "../components/MarkdownPreview";
+import type { CourseMaterial, KnowledgeGraphNode, TeachingVideoPptItem } from "../api/types";
 import { useAiLecturerWebRtc } from "../hooks/useAiLecturerWebRtc";
-import type { CourseMaterial } from "../api/types";
 import {
   AppSurface,
   GlassPanel,
@@ -50,17 +53,44 @@ type AiLectureAutoStartRequest = {
 const AI_LECTURE_AUTOSTART_REQUEST_KEY = "stitch-ai-lecture-autostart-request";
 const AI_LECTURE_PREFERRED_SESSION_KEY = "stitch-ai-lecture-session-id";
 
-function defaultMarkdown(courseTitle?: string) {
+function readStoredJson<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const value = window.localStorage.getItem(key);
+    return value ? (JSON.parse(value) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+function readStoredString(key: string) {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem(key) || "";
+}
+
+function clearStoredValue(key: string) {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(key);
+}
+
+function getDefaultMarkdown(courseTitle?: string) {
   return [
-    `# ${courseTitle || "AI Lecture Course"}`,
+    `# ${courseTitle || "课程讲义"}`,
     "",
-    "## Overview",
-    "- Explain the core concepts from the selected PPT.",
-    "- Keep each slide concise and classroom friendly.",
+    "## 第一部分 课程导入",
     "",
-    "## Interaction",
-    "- Students can interrupt the AI lecturer at any time.",
-    "- The realtime session can be recorded as a course resource.",
+    "- 课程背景",
+    "- 学习目标",
+    "",
+    "## 第二部分 核心概念",
+    "",
+    "- 核心知识点一",
+    "- 核心知识点二",
+    "",
+    "## 第三部分 总结",
+    "",
+    "- 重点回顾",
+    "- 延伸思考",
   ].join("\n");
 }
 
@@ -69,80 +99,121 @@ function fileNameFromUrl(url: string) {
   return normalized.slice(normalized.lastIndexOf("/") + 1);
 }
 
-function playbackUrl(url: string) {
-  if (!url) return "";
-  if (/^https?:\/\//.test(url)) return url;
-  if (url.startsWith("/api/")) return `${API_BASE_URL}${url}`;
-  return getAiLecturerVideoUrl(url);
+function buildMaterialFallback(materials: CourseMaterial[]): KnowledgeGraphNode | null {
+  if (!materials.length) return null;
+
+  return {
+    id: "materials-root",
+    label: "课程内容",
+    data: {
+      type: "chapter",
+      summary: "知识图谱不可用时，使用课程内容生成学习结构。",
+    },
+    children: materials.map((item, index) => ({
+      id: item.material_id,
+      label: item.title || item.topic || `内容 ${index + 1}`,
+      data: {
+        type: item.material_type || "topic",
+        summary: item.summary || "课程学习资料",
+      },
+      children: [],
+    })),
+  };
 }
 
-function materialContent(material: CourseMaterial | null) {
-  const content = (material as { content?: unknown } | null)?.content;
-  return content && typeof content === "object" ? (content as Record<string, unknown>) : {};
+function countNodes(node: KnowledgeGraphNode | null | undefined): number {
+  if (!node) return 0;
+  return 1 + (node.children || []).reduce((sum, child) => sum + countNodes(child), 0);
 }
 
-function materialGenerationState(material: CourseMaterial | null) {
-  const state = (material as { generation_state?: unknown } | null)?.generation_state;
-  return state && typeof state === "object" ? (state as Record<string, unknown>) : {};
-}
+function findNodeById(node: KnowledgeGraphNode | null | undefined, nodeId: string | null): KnowledgeGraphNode | null {
+  if (!node || !nodeId) return null;
+  if (node.id === nodeId) return node;
 
-function isPptMaterial(material: CourseMaterial) {
-  return material.material_type === "ppt" || /\.pptx?$/i.test(material.title || "");
-}
-
-function readStoredJson<T>(key: string): T | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return null;
-    window.localStorage.removeItem(key);
-    return JSON.parse(raw) as T;
-  } catch {
-    window.localStorage.removeItem(key);
-    return null;
+  for (const child of node.children || []) {
+    const found = findNodeById(child, nodeId);
+    if (found) return found;
   }
+
+  return null;
 }
 
-function readStoredString(key: string): string | null {
-  if (typeof window === "undefined") return null;
+function nodeTypeLabel(node: KnowledgeGraphNode) {
+  const type = node.data?.type?.toLowerCase();
+  if (type === "chapter") return "章节";
+  if (type === "section") return "小节";
+  if (type === "topic") return "知识点";
+  return "节点";
+}
 
-  const raw = window.localStorage.getItem(key);
-  if (!raw) return null;
-  window.localStorage.removeItem(key);
-  return raw;
+function isOfflineTaskCompleted(status: string) {
+  return ["completed", "success", "succeeded"].includes(status.trim().toLowerCase());
+}
+
+function isOfflineTaskFailed(status: string) {
+  return status.trim().toLowerCase() === "failed";
+}
+
+function estimateSpeechDurationMs(sentence: string) {
+  const textLength = sentence.trim().length;
+  return Math.min(14000, Math.max(2200, textLength * 180));
+}
+
+function playbackUrl(path: string) {
+  if (!path) return "";
+  if (/^https?:\/\//.test(path)) return path;
+  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 export function VideoPlayerPage() {
   const { selectedCourse } = useAppShell();
   const course = selectedCourse ?? defaultCourse;
-  const autoStartAttemptedRef = useRef(false);
-  const [mode, setMode] = useState<"online" | "offline">("online");
-  const [rawDocument, setRawDocument] = useState(defaultMarkdown(selectedCourse?.title));
-  const [aiLecturerCourseId, setAiLecturerCourseId] = useState("");
-  const [outline, setOutline] = useState<Slide[]>([]);
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [scriptSentences, setScriptSentences] = useState<string[]>([]);
-  const [currentSentence, setCurrentSentence] = useState("");
-  const [studentQuestion, setStudentQuestion] = useState("");
-  const [answerText, setAnswerText] = useState("");
-  const [offlineTaskId, setOfflineTaskId] = useState("");
-  const [offlineStatus, setOfflineStatus] = useState("");
-  const [offlineVideoUrl, setOfflineVideoUrl] = useState("");
-  const [offlineImageRoot, setOfflineImageRoot] = useState("");
-  const [busy, setBusy] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
-  const [materialsLoading, setMaterialsLoading] = useState(true);
-  const [materialsError, setMaterialsError] = useState<string | null>(null);
-  const [activeMaterialId, setActiveMaterialId] = useState<string | null>(null);
-  const [aiLectureSessionId, setAiLectureSessionId] = useState<string | null>(null);
-  const [recordingStatus, setRecordingStatus] = useState("not_started");
-  const [recordingUrl, setRecordingUrl] = useState("");
+
+  const preferredSessionId = useMemo(() => readStoredString(AI_LECTURE_PREFERRED_SESSION_KEY), []);
   const [autoStartRequest, setAutoStartRequest] = useState<AiLectureAutoStartRequest | null>(() =>
     readStoredJson<AiLectureAutoStartRequest>(AI_LECTURE_AUTOSTART_REQUEST_KEY),
   );
-  const [preferredSessionId] = useState<string | null>(() => readStoredString(AI_LECTURE_PREFERRED_SESSION_KEY));
+  const [autoStartReady, setAutoStartReady] = useState(false);
+  const autoStartAttemptedRef = useRef(false);
+  const lastHydratedSessionIdRef = useRef<string | null>(null);
+  const autoPlaybackTimerRef = useRef<number | null>(null);
+  const playbackPositionRef = useRef({ slideIndex: 0, sentenceIndex: 0, sessionId: "" });
+
+  const [mode, setMode] = useState<"online" | "offline">("online");
+  const [rawDocument, setRawDocument] = useState(getDefaultMarkdown(selectedCourse?.title));
+  const [courseId, setCourseId] = useState("");
+  const [aiLectureSessionId, setAiLectureSessionId] = useState("");
+  const [outline, setOutline] = useState<Slide[]>([]);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [slideScripts, setSlideScripts] = useState<Record<number, string[]>>({});
+  const [scriptSentences, setScriptSentences] = useState<string[]>([]);
+  const [currentSentence, setCurrentSentence] = useState("");
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [isRealtimePlaying, setIsRealtimePlaying] = useState(false);
+  const [studentQuestion, setStudentQuestion] = useState("");
+  const [answerText, setAnswerText] = useState("");
+  const [persistedRecordingUrl, setPersistedRecordingUrl] = useState("");
+
+  const [offlineTaskId, setOfflineTaskId] = useState("");
+  const [offlineStatus, setOfflineStatus] = useState("");
+  const [offlineVideoUrl, setOfflineVideoUrl] = useState("");
+  const [offlinePpts, setOfflinePpts] = useState<TeachingVideoPptItem[]>([]);
+  const [offlinePptsLoading, setOfflinePptsLoading] = useState(true);
+  const [offlinePptsError, setOfflinePptsError] = useState<string | null>(null);
+  const [selectedOfflinePptId, setSelectedOfflinePptId] = useState("");
+  const [busy, setBusy] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [materialsError, setMaterialsError] = useState<string | null>(null);
+  const [activeMaterialId, setActiveMaterialId] = useState<string | null>(preferredSessionId || null);
+
+  const [graphRoot, setGraphRoot] = useState<KnowledgeGraphNode | null>(null);
+  const [graphLoading, setGraphLoading] = useState(true);
+  const [graphError, setGraphError] = useState<string | null>(null);
+  const [activeStructureId, setActiveStructureId] = useState<string | null>(null);
+  const [expandedStructureIds, setExpandedStructureIds] = useState<Set<string>>(new Set());
 
   const {
     audioRef,
@@ -156,17 +227,63 @@ export function VideoPlayerPage() {
 
   const activeSlide = outline[activeSlideIndex] ?? null;
   const activeMaterial = materials.find((item) => item.material_id === activeMaterialId) ?? materials[0] ?? null;
+  const activeMaterialContent =
+    activeMaterial?.content && typeof activeMaterial.content === "object"
+      ? (activeMaterial.content as Record<string, unknown>)
+      : {};
+  const selectedPptMaterial =
+    materials.find((item) => item.material_id === selectedOfflinePptId) ??
+    materials.find((item) => item.material_type === "ppt") ??
+    activeMaterial ??
+    null;
+  const sourcePptMaterial =
+    materials.find((item) => item.material_id === String(activeMaterialContent.source_ppt_material_id || "")) ?? null;
   const activeMaterialMarkdown = activeMaterial ? courseMaterialToMarkdown(activeMaterial) : "";
-  const activeMaterialContent = materialContent(activeMaterial);
-  const activeMaterialState = materialGenerationState(activeMaterial);
-  const selectedPptMaterial = useMemo(
-    () => (activeMaterial && isPptMaterial(activeMaterial) ? activeMaterial : materials.find(isPptMaterial) ?? null),
-    [activeMaterial, materials],
+  const lectureMarkdown =
+    sourcePptMaterial || selectedPptMaterial
+      ? courseMaterialToMarkdown(sourcePptMaterial || selectedPptMaterial)
+      : rawDocument;
+  const selectedOfflinePpt = offlinePpts.find((item) => item.material_id === selectedOfflinePptId) ?? null;
+
+  const fallbackStructure = useMemo(() => buildMaterialFallback(materials), [materials]);
+  const structureRoot = graphRoot ?? fallbackStructure;
+  const activeStructureNode = useMemo(
+    () => findNodeById(structureRoot, activeStructureId) ?? structureRoot,
+    [activeStructureId, structureRoot],
   );
-  const persistedRecordingUrl = String(activeMaterialContent.recording_url || recordingUrl || "");
+  const selectedMaterialScope = useMemo(() => {
+    const selectedGraphNode = findNodeById(graphRoot, activeStructureId);
+
+    if (graphRoot && selectedGraphNode && selectedGraphNode.id !== graphRoot.id) {
+      return {
+        scopeType: "knowledge_point" as const,
+        scopeId: selectedGraphNode.id,
+        aggregate: false,
+      };
+    }
+
+    return {
+      scopeType: "course" as const,
+      aggregate: false,
+    };
+  }, [activeStructureId, graphRoot]);
+  const structureNodeCount = useMemo(() => countNodes(structureRoot), [structureRoot]);
+
+  const learningSummary = useMemo(() => {
+    return `已解析 ${outline.length} 页，当前第 ${outline.length ? activeSlideIndex + 1 : 0} 页，当前讲稿 ${
+      scriptSentences.length
+    } 句。`;
+  }, [activeSlideIndex, outline.length, scriptSentences.length]);
 
   useEffect(() => {
-    setRawDocument(defaultMarkdown(selectedCourse?.title));
+    const timer = window.setTimeout(() => {
+      setAutoStartReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    setRawDocument(getDefaultMarkdown(selectedCourse?.title));
   }, [selectedCourse?.title]);
 
   useEffect(() => {
@@ -176,26 +293,23 @@ export function VideoPlayerPage() {
       try {
         setMaterialsLoading(true);
         setMaterialsError(null);
-        const data = await getCourseMaterials(course.id);
+        const data = await getCourseMaterials(course.id, selectedMaterialScope);
         if (!cancelled) {
-        setMaterials(data);
-        setActiveMaterialId((current) =>
-            current && data.some((item) => item.material_id === current)
-              ? current
-              : autoStartRequest?.sessionId && data.some((item) => item.material_id === autoStartRequest.sessionId)
-                ? autoStartRequest.sessionId
-                : preferredSessionId && data.some((item) => item.material_id === preferredSessionId)
-                  ? preferredSessionId
-                  : autoStartRequest?.pptMaterialId && data.some((item) => item.material_id === autoStartRequest.pptMaterialId)
-                    ? autoStartRequest.pptMaterialId
-                    : data[0]?.material_id ?? null,
-          );
+          setMaterials(data);
+          setActiveMaterialId((current) => {
+            if (current && data.some((item) => item.material_id === current)) return current;
+            if (preferredSessionId && data.some((item) => item.material_id === preferredSessionId)) return preferredSessionId;
+            if (autoStartRequest?.pptMaterialId && data.some((item) => item.material_id === autoStartRequest.pptMaterialId)) {
+              return autoStartRequest.pptMaterialId;
+            }
+            return data[0]?.material_id ?? null;
+          });
         }
       } catch (err) {
         if (!cancelled) {
           setMaterials([]);
           setActiveMaterialId(null);
-          setMaterialsError(err instanceof Error ? err.message : "Failed to load course materials.");
+          setMaterialsError(err instanceof Error ? err.message : "课程内容加载失败");
         }
       } finally {
         if (!cancelled) {
@@ -205,46 +319,183 @@ export function VideoPlayerPage() {
     }
 
     void loadMaterials();
-
     return () => {
       cancelled = true;
     };
-  }, [autoStartRequest?.pptMaterialId, autoStartRequest?.sessionId, course.id, preferredSessionId]);
+  }, [course.id, selectedMaterialScope, preferredSessionId, autoStartRequest?.pptMaterialId]);
 
   useEffect(() => {
-    if (!offlineTaskId || offlineStatus === "success" || offlineStatus === "failed") return;
+    let cancelled = false;
+
+    async function loadGraph() {
+      try {
+        setGraphLoading(true);
+        setGraphError(null);
+        const data = await getKnowledgeGraph(course.id);
+        if (!cancelled) {
+          setGraphRoot(data.root);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setGraphRoot(null);
+          setGraphError(err instanceof Error ? err.message : "知识结构加载失败");
+        }
+      } finally {
+        if (!cancelled) {
+          setGraphLoading(false);
+        }
+      }
+    }
+
+    void loadGraph();
+    return () => {
+      cancelled = true;
+    };
+  }, [course.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOfflinePpts() {
+      try {
+        setOfflinePptsLoading(true);
+        setOfflinePptsError(null);
+        const data = await getTeachingVideoPpts(course.id);
+        if (!cancelled) {
+          setOfflinePpts(data);
+          setSelectedOfflinePptId((current) =>
+            current && data.some((item) => item.material_id === current) ? current : (data[0]?.material_id ?? ""),
+          );
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setOfflinePpts([]);
+          setSelectedOfflinePptId("");
+          setOfflinePptsError(err instanceof Error ? err.message : "可用 PPT 列表加载失败");
+        }
+      } finally {
+        if (!cancelled) {
+          setOfflinePptsLoading(false);
+        }
+      }
+    }
+
+    void loadOfflinePpts();
+    return () => {
+      cancelled = true;
+    };
+  }, [course.id]);
+
+  useEffect(() => {
+    if (!structureRoot) {
+      setActiveStructureId(null);
+      setExpandedStructureIds(new Set());
+      return;
+    }
+
+    setActiveStructureId((current) => current ?? structureRoot.id);
+    setExpandedStructureIds((current) => {
+      if (current.size > 0) return current;
+      return new Set([structureRoot.id]);
+    });
+  }, [structureRoot]);
+
+  useEffect(() => {
+    const sessionId = String(activeMaterialContent.session_snapshot_id || activeMaterial?.material_id || "").trim();
+    if (activeMaterial?.material_type !== "ai_lecture_session" || !sessionId) return;
+    if (lastHydratedSessionIdRef.current === sessionId) return;
+
+    lastHydratedSessionIdRef.current = sessionId;
+    setAiLectureSessionId(sessionId);
+    setPersistedRecordingUrl(String(activeMaterialContent.recording_url || ""));
+    const sourcePptId = String(activeMaterialContent.source_ppt_material_id || "").trim();
+    if (sourcePptId) {
+      setSelectedOfflinePptId(sourcePptId);
+    }
+
+    void getAiLectureSession(course.id, sessionId)
+      .then((result) => {
+        const snapshot = result.snapshot || {};
+        if (snapshot.ai_lecturer_course_id) {
+          setCourseId(String(snapshot.ai_lecturer_course_id));
+        }
+        if (Array.isArray(snapshot.outline) && snapshot.outline.length) {
+          setOutline(snapshot.outline);
+        }
+        if (Array.isArray(snapshot.script)) {
+          const nextScripts = snapshot.script.reduce<Record<number, string[]>>((acc, item) => {
+            acc[Number(item.page_index) || 0] = item.sentences || [];
+            return acc;
+          }, {});
+          setSlideScripts(nextScripts);
+          const pageIndex = Number(snapshot.last_position?.page_index || 0);
+          setActiveSlideIndex(pageIndex);
+          setScriptSentences(nextScripts[pageIndex] || []);
+          setCurrentSentenceIndex(Number(snapshot.last_position?.sentence_index || 0));
+        }
+        if (result.metadata?.recording_url) {
+          setPersistedRecordingUrl(String(result.metadata.recording_url));
+        }
+      })
+      .catch(() => {});
+  }, [
+    activeMaterial?.material_id,
+    activeMaterial?.material_type,
+    activeMaterialContent.recording_url,
+    activeMaterialContent.session_snapshot_id,
+    activeMaterialContent.source_ppt_material_id,
+    course.id,
+  ]);
+
+  useEffect(() => {
+    if (!offlineTaskId || isOfflineTaskCompleted(offlineStatus) || isOfflineTaskFailed(offlineStatus)) return;
 
     const timer = window.setInterval(async () => {
       try {
-        const result = await getAiLecturerTaskStatus(offlineTaskId);
+        const result = await getTeachingVideoTaskStatus(course.id, offlineTaskId);
         setOfflineStatus(result.status);
-        if (result.status === "success" && result.video_url) {
-          setOfflineVideoUrl(getAiLecturerVideoUrl(result.video_url));
+        if (isOfflineTaskCompleted(result.status) && result.video_url) {
+          setOfflineVideoUrl(result.video_url);
         }
-        if (result.status === "failed") {
-          setError(result.error || "Offline video generation failed.");
+        if (isOfflineTaskFailed(result.status)) {
+          setError(result.error_message || "离线视频生成失败。");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to poll offline video status.");
+        setError(err instanceof Error ? err.message : "任务状态查询失败。");
       }
     }, 4000);
 
     return () => window.clearInterval(timer);
-  }, [offlineStatus, offlineTaskId]);
+  }, [course.id, offlineStatus, offlineTaskId]);
 
   useEffect(() => {
-    if (!activeMaterial || activeMaterial.material_type !== "ai_lecture_session") return;
+    if (!autoStartReady || !autoStartRequest?.autoPlay || materialsLoading || autoStartAttemptedRef.current) return;
 
-    const sessionId = String(activeMaterialContent.session_snapshot_id || activeMaterial.material_id || "");
-    if (!sessionId) return;
-    setAiLectureSessionId(sessionId);
-    setRecordingUrl(String(activeMaterialContent.recording_url || ""));
-    setRecordingStatus(String(activeMaterialState.status || "completed"));
-  }, [activeMaterial, activeMaterialContent.recording_url, activeMaterialContent.session_snapshot_id, activeMaterialState.status]);
+    autoStartAttemptedRef.current = true;
+    setMode("online");
+    const sourcePptMaterial =
+      materials.find((item) => item.material_id === autoStartRequest.pptMaterialId) || selectedPptMaterial;
 
-  const onlineSummary = useMemo(() => {
-    return `${outline.length} slides | slide ${outline.length ? activeSlideIndex + 1 : 0} | ${scriptSentences.length} script lines`;
-  }, [activeSlideIndex, outline.length, scriptSentences.length]);
+    void (async () => {
+      try {
+        await startRealtimeSession({
+          sessionId: autoStartRequest.sessionId || null,
+          sourcePptMaterial,
+          title: autoStartRequest.pptTitle || sourcePptMaterial?.title,
+        });
+      } finally {
+        clearStoredValue(AI_LECTURE_AUTOSTART_REQUEST_KEY);
+        setAutoStartRequest(null);
+      }
+    })();
+  }, [autoStartReady, autoStartRequest, materials, materialsLoading, selectedPptMaterial]);
+
+  function clearAutoPlaybackTimer() {
+    if (autoPlaybackTimerRef.current !== null) {
+      window.clearTimeout(autoPlaybackTimerRef.current);
+      autoPlaybackTimerRef.current = null;
+    }
+  }
 
   async function withBusy(name: string, action: () => Promise<void>) {
     try {
@@ -252,26 +503,184 @@ export function VideoPlayerPage() {
       setError(null);
       await action();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Operation failed.");
+      setError(err instanceof Error ? err.message : "操作失败。");
     } finally {
       setBusy("");
     }
   }
 
-  async function refreshAiLectureSession(sessionId: string) {
-    const detail = await getAiLectureSession(course.id, sessionId);
-    const content = materialContent(detail.material);
-    setRecordingStatus(String(detail.metadata.recording_status || "not_started"));
-    setRecordingUrl(String(detail.metadata.recording_url || content.recording_url || ""));
+  async function ensureAiLectureSession(params: {
+    sessionId?: string | null;
+    sourcePptMaterial: CourseMaterial | null;
+    title?: string;
+  }) {
+    if (params.sessionId) {
+      setAiLectureSessionId(params.sessionId);
+      return params.sessionId;
+    }
+    if (aiLectureSessionId) return aiLectureSessionId;
+    if (!params.sourcePptMaterial?.material_id) {
+      throw new Error("请先选择一个可用于实时教学的 PPT。");
+    }
+
+    const result = await createAiLectureSession(course.id, {
+      source_ppt_material_id: params.sourcePptMaterial.material_id,
+      title: params.title || `${params.sourcePptMaterial.title || course.title}-AI lecture session`,
+    });
+    const sessionId = String(result.content?.session_snapshot_id || result.material_id || "").trim();
+    if (!sessionId) throw new Error("AI lecture session id was not returned.");
+    setAiLectureSessionId(sessionId);
+    return sessionId;
+  }
+
+  async function ensureAiLecturerCourse(markdown: string, sessionId: string) {
+    if (courseId && outline.length) {
+      return { course_id: courseId, pages: outline };
+    }
+
+    const result = await createAiLecturerCourse({
+      course_name: course.title || "课程学习",
+      raw_document: markdown || rawDocument,
+    });
+    const pages = result.pages || [];
+    setCourseId(result.course_id);
+    setOutline(pages);
+    setActiveSlideIndex(0);
+    setScriptSentences([]);
+    setCurrentSentence("");
+    await patchAiLectureSessionSnapshot(course.id, sessionId, {
+      ai_lecturer_course_id: result.course_id,
+      outline: pages,
+      last_position: { page_index: 0, sentence_index: 0 },
+    });
+    return { course_id: result.course_id, pages };
+  }
+
+  async function ensureSlideScript(slideIndex: number, sessionId: string, pageList: Slide[] = outline) {
+    const cached = slideScripts[slideIndex];
+    if (cached?.length) return cached;
+
+    const slide = pageList[slideIndex];
+    if (!slide) throw new Error("请先生成课程大纲。");
+
+    const result = await generateAiLecturerScript({
+      course_title: course.title || "课程学习",
+      current_slide_content: slide.content,
+      page_index: slideIndex,
+      total_pages: pageList.length,
+    });
+    const sentences = result.sentences || [];
+    const nextScripts = { ...slideScripts, [slideIndex]: sentences };
+    setSlideScripts(nextScripts);
+    setScriptSentences(sentences);
+    setCurrentSentence(sentences[0] || "");
+    setCurrentSentenceIndex(0);
+    await patchAiLectureSessionSnapshot(course.id, sessionId, {
+      script: Object.entries(nextScripts).map(([pageIndex, pageSentences]) => ({
+        page_index: Number(pageIndex),
+        sentences: pageSentences,
+      })),
+      last_position: { page_index: slideIndex, sentence_index: 0 },
+    });
+    return sentences;
+  }
+
+  async function speakSentence(
+    sentence: string,
+    sentenceIndex = 0,
+    slideIndex = activeSlideIndex,
+    sessionId = aiLectureSessionId,
+    livetalkingSessionIdOverride?: number | null,
+    options: { scheduleAutoAdvance?: boolean } = {},
+  ) {
+    const activeLivetalkingSessionId = livetalkingSessionIdOverride || livetalkingSessionId;
+    if (!activeLivetalkingSessionId) {
+      throw new Error("请先开始实时教学视频。");
+    }
+
+    clearAutoPlaybackTimer();
+    await speakAiLecturerSentence({ text: sentence, session_id: activeLivetalkingSessionId });
+    setCurrentSentence(sentence);
+    setCurrentSentenceIndex(sentenceIndex);
+    playbackPositionRef.current = { slideIndex, sentenceIndex, sessionId };
+    if (sessionId) {
+      await patchAiLectureSessionSnapshot(course.id, sessionId, {
+        events: [{ type: "speak", page_index: slideIndex, sentence_index: sentenceIndex, text: sentence }],
+        last_position: { page_index: slideIndex, sentence_index: sentenceIndex },
+      });
+    }
+    if (options.scheduleAutoAdvance) {
+      autoPlaybackTimerRef.current = window.setTimeout(() => {
+        void continueAutoPlayback();
+      }, estimateSpeechDurationMs(sentence));
+    }
+  }
+
+  async function continueAutoPlayback() {
+    const { slideIndex, sentenceIndex, sessionId } = playbackPositionRef.current;
+    const sentencesOnSlide = slideScripts[slideIndex] || (slideIndex === activeSlideIndex ? scriptSentences : []);
+    const currentSentenceIndex = sentenceIndex;
+    const nextSentenceIndex = currentSentenceIndex + 1;
+
+    if (nextSentenceIndex < sentencesOnSlide.length) {
+      await speakSentence(sentencesOnSlide[nextSentenceIndex], nextSentenceIndex, slideIndex, sessionId, livetalkingSessionId, {
+        scheduleAutoAdvance: true,
+      });
+      return;
+    }
+
+    const nextSlideIndex = slideIndex + 1;
+    if (nextSlideIndex >= outline.length) {
+      setIsRealtimePlaying(false);
+      return;
+    }
+
+    setActiveSlideIndex(nextSlideIndex);
+    const sentences = await ensureSlideScript(nextSlideIndex, sessionId);
+    const liveSessionId = livetalkingSessionId;
+    if (sentences[0]) {
+      await speakSentence(sentences[0], 0, nextSlideIndex, sessionId, liveSessionId, { scheduleAutoAdvance: true });
+    }
+  }
+
+  async function startRealtimeSession(params: {
+    sessionId?: string | null;
+    sourcePptMaterial: CourseMaterial | null;
+    title?: string;
+  }) {
+    setMode("online");
+    const sessionId = await ensureAiLectureSession(params);
+    const markdown = params.sourcePptMaterial ? courseMaterialToMarkdown(params.sourcePptMaterial) : lectureMarkdown;
+    const result = await ensureAiLecturerCourse(markdown, sessionId);
+    const sentences = await ensureSlideScript(0, sessionId, result.pages);
+    const liveSessionId = await startWebRtc();
+    if (!liveSessionId) {
+      throw new Error(webRtcError || "实时视频连接失败。");
+    }
+    await startAiLectureSessionRecording(course.id, sessionId, { livetalking_session_id: liveSessionId });
+    setIsRealtimePlaying(true);
+    if (sentences[0]) {
+      await speakSentence(sentences[0], 0, 0, sessionId, liveSessionId, { scheduleAutoAdvance: true });
+    }
+  }
+
+  async function handleStartRealtimePlayback() {
+    await withBusy("start-realtime", async () => {
+      await startRealtimeSession({
+        sessionId: aiLectureSessionId || null,
+        sourcePptMaterial: sourcePptMaterial || selectedPptMaterial,
+        title: selectedOfflinePpt?.title || selectedPptMaterial?.title || course.title,
+      });
+    });
   }
 
   async function handleCreateCourse() {
     await withBusy("create-course", async () => {
       const result = await createAiLecturerCourse({
-        course_name: course.title || "AI Lecture Course",
-        raw_document: rawDocument,
+        course_name: course.title || "课程学习",
+        raw_document: lectureMarkdown || rawDocument,
       });
-      setAiLecturerCourseId(result.course_id);
+      setCourseId(result.course_id);
       setOutline(result.pages || []);
       setActiveSlideIndex(0);
       setScriptSentences([]);
@@ -280,132 +689,59 @@ export function VideoPlayerPage() {
     });
   }
 
-  async function startRealtimeSession(options?: { sessionId?: string | null; sourcePptMaterial?: CourseMaterial | null }) {
-      const sourcePptMaterial = options?.sourcePptMaterial ?? selectedPptMaterial;
-      if (!sourcePptMaterial) {
-        throw new Error("Select or generate a PPT material before starting realtime playback.");
-      }
-
-      const sessionMaterial = options?.sessionId
-        ? null
-        : await createAiLectureSession(course.id, {
-            source_ppt_material_id: sourcePptMaterial.material_id,
-            title: `${sourcePptMaterial.title || course.title} - AI lecture session`,
-          });
-      const sessionId = options?.sessionId || aiLectureSessionId || String(materialContent(sessionMaterial).session_snapshot_id || sessionMaterial?.material_id || "");
-      if (!sessionId) {
-        throw new Error("AI lecture session id was not returned.");
-      }
-
-      setAiLectureSessionId(sessionId);
-      const liveSessionId = await startWebRtc();
-      if (!liveSessionId) {
-        throw new Error("LiveTalking session was not connected.");
-      }
-
-      const metadata = await startAiLectureSessionRecording(course.id, sessionId, liveSessionId);
-      setRecordingStatus(String(metadata.recording_status || "recording"));
-      await patchAiLectureSessionSnapshot(course.id, sessionId, {
-        events: [{ type: "session_started", livetalking_session_id: liveSessionId, created_at: new Date().toISOString() }],
-        last_position: { page_index: activeSlideIndex, sentence_index: 0 },
-      });
-  }
-
-  async function handleStartRealtimeSession() {
-    await withBusy("start-session", async () => {
-      await startRealtimeSession();
-    });
-  }
-
-  useEffect(() => {
-    if (!autoStartRequest?.autoPlay || materialsLoading || autoStartAttemptedRef.current) {
-      return;
-    }
-
-    const sourcePptMaterial =
-      materials.find((item) => item.material_id === autoStartRequest.pptMaterialId && isPptMaterial(item)) || null;
-    if (!sourcePptMaterial) {
-      setAutoStartRequest(null);
-      return;
-    }
-
-    autoStartAttemptedRef.current = true;
-    setMode("online");
-    setActiveMaterialId(autoStartRequest.sessionId || sourcePptMaterial.material_id);
-
-    void withBusy("start-session", async () => {
-      await startRealtimeSession({
-        sessionId: autoStartRequest.sessionId || null,
-        sourcePptMaterial,
-      });
-      setAutoStartRequest(null);
-    });
-  }, [autoStartRequest, materials, materialsLoading]);
-
   async function handleGenerateScript() {
-    if (!activeSlide || !outline.length) {
-      setError("Create an AI lecturer course and select a slide first.");
+    if (!aiLectureSessionId && !activeSlide) {
+      setError("请先开始实时教学视频或生成课程大纲。");
       return;
     }
 
     await withBusy("generate-script", async () => {
-      const result = await generateAiLecturerScript({
-        course_title: course.title || "AI Lecture Course",
-        current_slide_content: activeSlide.content,
-        page_index: activeSlideIndex,
-        total_pages: outline.length,
-      });
-      setScriptSentences(result.sentences || []);
-      setCurrentSentence(result.sentences?.[0] || "");
+      const sessionId = aiLectureSessionId || (await ensureAiLectureSession({ sourcePptMaterial: sourcePptMaterial || selectedPptMaterial }));
+      const courseResult = await ensureAiLecturerCourse(lectureMarkdown, sessionId);
+      await ensureSlideScript(activeSlideIndex, sessionId, courseResult.pages);
     });
   }
 
-  async function handleSpeak(sentence: string, sentenceIndex: number) {
-    if (!livetalkingSessionId) {
-      setError("Start realtime playback before sending speech.");
-      return;
-    }
-
+  async function handleSpeak(sentence: string, index = 0) {
     await withBusy("speak", async () => {
-      await speakAiLecturerSentence({ text: sentence, session_id: livetalkingSessionId });
-      setCurrentSentence(sentence);
-      if (aiLectureSessionId) {
-        await patchAiLectureSessionSnapshot(course.id, aiLectureSessionId, {
-          events: [{ type: "speak", text: sentence, page_index: activeSlideIndex, sentence_index: sentenceIndex }],
-          last_position: { page_index: activeSlideIndex, sentence_index: sentenceIndex },
-        });
-      }
+      await speakSentence(sentence, index, activeSlideIndex, aiLectureSessionId, livetalkingSessionId, {
+        scheduleAutoAdvance: false,
+      });
     });
   }
 
-  async function handleStopSpeaking() {
-    if (!livetalkingSessionId) return;
-
-    await withBusy("stop-speech", async () => {
-      await stopAiLecturerSpeaking(livetalkingSessionId);
-      if (aiLectureSessionId) {
-        await patchAiLectureSessionSnapshot(course.id, aiLectureSessionId, {
-          events: [{ type: "stop_speaking", page_index: activeSlideIndex }],
-          last_position: { page_index: activeSlideIndex, sentence_index: Math.max(scriptSentences.indexOf(currentSentence), 0) },
-        });
+  async function handleStop() {
+    await withBusy("stop", async () => {
+      clearAutoPlaybackTimer();
+      setIsRealtimePlaying(false);
+      if (livetalkingSessionId) {
+        await stopAiLecturerSpeaking(livetalkingSessionId);
+        if (aiLectureSessionId) {
+          const result = await stopAiLectureSessionRecording(course.id, aiLectureSessionId, {
+            livetalking_session_id: livetalkingSessionId,
+          });
+          if (result.recording_url) {
+            setPersistedRecordingUrl(result.recording_url);
+          }
+        }
       }
+      stopWebRtc();
     });
   }
 
   async function handleInterruptAsk() {
     if (!studentQuestion.trim()) {
-      setError("Enter a student question first.");
+      setError("请输入学生实时提问内容。");
       return;
     }
     if (!livetalkingSessionId) {
-      setError("Start realtime playback before interrupting.");
+      setError("请先开始实时教学视频。");
       return;
     }
 
     await withBusy("ask", async () => {
-      const question = studentQuestion.trim();
       const result = await askAiLecturer({
-        question,
+        question: studentQuestion.trim(),
         slide_context: activeSlide?.content || "",
         interrupted_sentence: currentSentence || "",
         session_id: livetalkingSessionId,
@@ -413,48 +749,88 @@ export function VideoPlayerPage() {
       setAnswerText(result.answer || "");
       if (aiLectureSessionId) {
         await patchAiLectureSessionSnapshot(course.id, aiLectureSessionId, {
-          events: [{ type: "interrupt_ask", question, answer: result.answer || "", page_index: activeSlideIndex }],
-          last_position: { page_index: activeSlideIndex, sentence_index: Math.max(scriptSentences.indexOf(currentSentence), 0) },
+          events: [{ type: "ask", question: studentQuestion.trim(), answer: result.answer || "" }],
         });
       }
     });
   }
 
-  async function handleStopRealtimeSession() {
-    await withBusy("stop-session", async () => {
-      if (aiLectureSessionId && livetalkingSessionId) {
-        const metadata = await stopAiLectureSessionRecording(course.id, aiLectureSessionId, livetalkingSessionId);
-        setRecordingStatus(String(metadata.recording_status || "completed"));
-        setRecordingUrl(String(metadata.recording_url || ""));
-        await refreshAiLectureSession(aiLectureSessionId);
-      }
-      stopWebRtc();
-    });
-  }
-
   async function handleGenerateOfflineVideo() {
-    if (!outline.length) {
-      setError("Create an AI lecturer course first.");
-      return;
-    }
-    if (!offlineImageRoot.trim()) {
-      setError("Enter the PPT image folder first.");
+    if (!selectedOfflinePptId) {
+      setError("请先选择一个可用于生成的视频 PPT。");
       return;
     }
 
     await withBusy("offline", async () => {
-      const normalizedRoot = offlineImageRoot.replace(/[\\]+/g, "/").replace(/\/$/, "");
-      const result = await generateAiLecturerFullVideo({
-        course_title: course.title || "AI Lecture Course",
-        pages: outline.map((item, index) => ({
-          ppt_image_path: `${normalizedRoot}/slide${index + 1}.png`,
-          content_text: item.content,
-        })),
-      });
+      const result = await createTeachingVideoTask(course.id, { ppt_material_id: selectedOfflinePptId });
       setOfflineTaskId(result.task_id);
-      setOfflineStatus("processing");
-      setOfflineVideoUrl("");
+      setOfflineStatus(result.status || "processing");
+      setOfflineVideoUrl(result.video_url || "");
     });
+  }
+
+  function toggleStructureNode(nodeId: string) {
+    setExpandedStructureIds((current) => {
+      const next = new Set(current);
+      if (next.has(nodeId)) next.delete(nodeId);
+      else next.add(nodeId);
+      return next;
+    });
+  }
+
+  function handleStructureSelect(node: KnowledgeGraphNode) {
+    setActiveStructureId(node.id);
+    if (materials.some((item) => item.material_id === node.id)) {
+      setActiveMaterialId(node.id);
+    }
+  }
+
+  function renderStructureNode(node: KnowledgeGraphNode, depth = 0): ReactNode {
+    const hasChildren = Boolean(node.children?.length);
+    const expanded = expandedStructureIds.has(node.id);
+    const active = activeStructureId === node.id;
+
+    return (
+      <div key={node.id} className="space-y-2">
+        <div
+          className={`rounded-[20px] border transition ${
+            active
+              ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_12px_24px_var(--accent-shadow)]"
+              : "border-[var(--shell-border)] bg-[var(--surface-subtle)]"
+          }`}
+        >
+          <div className="flex items-stretch gap-2 p-3" style={{ paddingLeft: `${14 + depth * 18}px` }}>
+            {hasChildren ? (
+              <button
+                type="button"
+                onClick={() => toggleStructureNode(node.id)}
+                className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-[var(--accent-strong)]"
+              >
+                <MaterialIcon name={expanded ? "expand_less" : "expand_more"} className="text-sm" />
+              </button>
+            ) : (
+              <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-[var(--muted-text)]">
+                <MaterialIcon name="article" className="text-sm" />
+              </div>
+            )}
+
+            <button type="button" onClick={() => handleStructureSelect(node)} className="min-w-0 flex-1 text-left">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
+                  {nodeTypeLabel(node)}
+                </span>
+              </div>
+              <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{node.label}</p>
+              {node.data?.summary ? (
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--muted-text)]">{node.data.summary}</p>
+              ) : null}
+            </button>
+          </div>
+        </div>
+
+        {hasChildren && expanded ? <div className="space-y-2">{node.children!.map((child) => renderStructureNode(child, depth + 1))}</div> : null}
+      </div>
+    );
   }
 
   return (
@@ -463,103 +839,82 @@ export function VideoPlayerPage() {
         <div className="px-2 py-4">
           <SidebarBackLink />
           <h2 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">{course.title}</h2>
-          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">AI lecturer playback</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">课程学习</p>
         </div>
         <SidebarNav activeRoute={routes.video} />
       </SidebarDock>
 
-      <div className="grid min-w-0 flex-1 overflow-hidden lg:grid-cols-[340px_minmax(0,1fr)_360px]">
-        <aside className="border-r border-[var(--shell-border)] bg-[var(--surface-subtle)] lg:h-screen lg:overflow-auto">
+      <div className="grid min-w-0 flex-1 gap-6 overflow-hidden p-6 lg:grid-cols-[360px_minmax(0,1fr)_380px]">
+        <aside className="overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[var(--panel-surface)] shadow-[0_16px_32px_var(--panel-shadow)] lg:h-[calc(100vh-48px)]">
           <div className="border-b border-[var(--shell-border)] bg-[var(--surface-elevated)]/92 p-6 backdrop-blur-xl">
-            <h3 className="text-lg font-bold text-[var(--accent-strong)]">Course Materials</h3>
-            <p className="mt-1 text-xs uppercase tracking-[0.22em] text-[var(--muted-text)]">{course.id}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">课程学习</p>
+            <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">知识结构列表</h3>
           </div>
-          <div className="space-y-5 p-4">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setMode("online")}
-                className={`flex-1 rounded-full px-4 py-3 text-sm font-bold ${mode === "online" ? "bg-[var(--accent)] text-white" : "bg-white text-[var(--accent-strong)]"}`}
-              >
-                Realtime
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("offline")}
-                className={`flex-1 rounded-full px-4 py-3 text-sm font-bold ${mode === "offline" ? "bg-[var(--accent)] text-white" : "bg-white text-[var(--accent-strong)]"}`}
-              >
-                Offline MP4
-              </button>
-            </div>
 
+          <div className="space-y-5 overflow-y-auto p-5 lg:h-[calc(100vh-196px)]">
             <div className="rounded-[24px] border border-[var(--shell-border)] bg-white p-4">
-              <p className="text-sm font-bold text-[var(--accent-strong)]">Source Markdown</p>
-              <textarea
-                value={rawDocument}
-                onChange={(event) => setRawDocument(event.target.value)}
-                className="mt-3 min-h-[180px] w-full rounded-[18px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4 text-sm outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => void handleCreateCourse()}
-                disabled={busy === "create-course" || !rawDocument.trim()}
-                className="mt-3 w-full rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
-              >
-                {busy === "create-course" ? "Creating..." : "Create AI Course Outline"}
-              </button>
-            </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-[var(--accent-strong)]">学习路径</p>
+                  <p className="mt-1 text-xs text-[var(--muted-text)]">
+                    {graphRoot ? "当前结构直接来自知识图谱。" : "知识图谱不可用时，自动回退为课程内容列表。"}
+                  </p>
+                </div>
+                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+                  {structureNodeCount} nodes
+                </span>
+              </div>
 
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-white p-4">
-              <p className="text-sm font-bold text-[var(--accent-strong)]">Persisted Materials</p>
-              <div className="mt-3 space-y-3">
-                {materialsLoading ? (
-                  <div className="rounded-[18px] bg-[var(--surface-subtle)] p-4 text-sm text-[var(--muted-text)]">Loading...</div>
-                ) : materialsError ? (
-                  <div className="rounded-[18px] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">{materialsError}</div>
-                ) : materials.length ? (
-                  materials.map((item) => (
-                    <button
-                      key={item.material_id}
-                      type="button"
-                      onClick={() => setActiveMaterialId(item.material_id)}
-                      className={`w-full rounded-[18px] border p-4 text-left ${
-                        item.material_id === activeMaterial?.material_id
-                          ? "border-[var(--accent-border)] bg-[var(--accent-soft)]"
-                          : "border-[var(--shell-border)] bg-[var(--surface-subtle)]"
-                      }`}
-                    >
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">{item.material_type}</p>
-                      <p className="mt-2 line-clamp-2 text-sm font-bold text-[var(--app-text)]">{item.title || item.topic || item.material_id}</p>
-                    </button>
-                  ))
+              <div className="mt-4 space-y-3">
+                {graphLoading ? (
+                  <div className="rounded-[18px] bg-[var(--surface-subtle)] px-4 py-4 text-sm text-[var(--muted-text)]">
+                    正在加载知识结构...
+                  </div>
+                ) : structureRoot ? (
+                  renderStructureNode(structureRoot)
                 ) : (
-                  <div className="rounded-[18px] bg-[var(--surface-subtle)] p-4 text-sm text-[var(--muted-text)]">No materials yet.</div>
+                  <div className="rounded-[18px] bg-[var(--surface-subtle)] px-4 py-4 text-sm text-[var(--muted-text)]">
+                    {graphError || "当前课程还没有可显示的知识结构。"}
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </aside>
 
-        <main className="min-w-0 overflow-y-auto bg-[var(--app-bg)] lg:h-screen">
+        <main className="min-w-0 overflow-y-auto rounded-[32px] border border-[var(--shell-border)] bg-[var(--app-bg)] lg:h-[calc(100vh-48px)]">
           <header className="sticky top-0 z-40 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-8 py-4 backdrop-blur-xl">
-            <h1 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">AI Lecturer Video</h1>
+            <h1 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">课程学习</h1>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Realtime sessions use LiveTalking WebRTC. Saved recordings are persisted back into course resources.
+              {mode === "online"
+                ? "在线学习模式：开始实时教学视频、生成讲稿、学生提问与课程内容联动。"
+                : "离线生成模式：根据已生成 PPT 批量生成完整课程视频。"}
             </p>
           </header>
 
-          <div className="mx-auto w-full max-w-5xl px-6 py-6 xl:px-8">
+          <div className="w-full px-6 py-6 xl:px-8">
             <GlassPanel className="overflow-hidden bg-[#020617]">
               {mode === "online" ? (
-                <div className="relative aspect-video bg-black">
+                <div className="relative aspect-video w-full bg-black">
                   <video ref={videoRef} autoPlay playsInline muted className="h-full w-full bg-black object-contain" />
-                  <audio ref={audioRef} autoPlay />
+                  <audio ref={audioRef} autoPlay className="hidden" />
                   {webRtcStatus !== "connected" ? (
-                    <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_35%_20%,rgba(56,189,248,0.28),transparent_32%),linear-gradient(135deg,#020617_0%,#0f172a_50%,#164e63_100%)]">
-                      <div className="max-w-md rounded-[28px] border border-white/15 bg-white/10 p-6 text-center text-white backdrop-blur-xl">
-                        <p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-100">LiveTalking</p>
-                        <h2 className="mt-3 text-3xl font-black">Realtime AI lecture stream</h2>
-                        <p className="mt-3 text-sm leading-6 text-cyan-50/80">Start a session to connect the remote digital lecturer.</p>
+                    <div className="absolute inset-0 grid place-items-center bg-[linear-gradient(135deg,rgba(2,6,23,0.92),rgba(15,23,42,0.78))] p-8 text-center">
+                      <div className="max-w-md">
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">Live teaching</p>
+                        <h2 className="mt-3 text-3xl font-black text-white">实时教学视频待开始</h2>
+                        <p className="mt-3 text-sm leading-7 text-blue-100">
+                          创建视频任务后，点击开始即可连接数字人课堂、生成当前页讲稿并自动播报。
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => void handleStartRealtimePlayback()}
+                          disabled={busy === "start-realtime" || webRtcStatus === "connecting"}
+                          className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-950 disabled:opacity-60"
+                        >
+                          <MaterialIcon name="play_arrow" className="text-base" />
+                          {busy === "start-realtime" || webRtcStatus === "connecting" ? "正在开始..." : "开始实时教学"}
+                        </button>
                       </div>
                     </div>
                   ) : null}
@@ -576,57 +931,36 @@ export function VideoPlayerPage() {
                 <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-2xl font-black text-[var(--accent-strong)]">Realtime Session</h2>
-                      <p className="mt-1 text-sm text-[var(--muted-text)]">
-                        {aiLectureSessionId || "No persisted session yet"} | LiveTalking {livetalkingSessionId || "--"}
+                      <h2 className="text-2xl font-black text-[var(--accent-strong)]">当前讲解</h2>
+                      <p className="mt-1 text-xs text-[var(--muted-text)]">
+                        {webRtcStatus === "connected" ? `LiveTalking session ${livetalkingSessionId || "--"}` : "尚未连接实时课堂"}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
-                        onClick={() => void handleStartRealtimeSession()}
-                        disabled={busy === "start-session" || webRtcStatus === "connected"}
+                        onClick={() => void handleStartRealtimePlayback()}
+                        disabled={busy === "start-realtime" || webRtcStatus === "connecting"}
                         className="rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
                       >
-                        {busy === "start-session" ? "Starting..." : "Start Session"}
+                        {isRealtimePlaying ? "继续实时教学" : "开始实时教学"}
                       </button>
                       <button
                         type="button"
-                        onClick={() => void handleStopRealtimeSession()}
-                        disabled={busy === "stop-session" || webRtcStatus === "idle"}
-                        className="rounded-full border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 disabled:opacity-60"
+                        onClick={() => void handleGenerateScript()}
+                        disabled={busy === "generate-script"}
+                        className="rounded-full border border-[var(--shell-border)] bg-white px-4 py-3 text-sm font-bold text-[var(--accent-strong)] disabled:opacity-60"
                       >
-                        {busy === "stop-session" ? "Saving..." : "Stop & Save"}
+                        {busy === "generate-script" ? "生成中..." : "生成当前页讲稿"}
                       </button>
                     </div>
                   </div>
-
-                  <div className="mt-5 rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
-                    <p className="text-sm font-bold text-[var(--accent-strong)]">{activeSlide ? activeSlide.title : "No slide selected"}</p>
+                  <div className="mt-4 rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
+                    <p className="text-sm font-bold text-[var(--accent-strong)]">{activeSlide ? activeSlide.title : "未选择页面"}</p>
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-text)]">
-                      {activeSlide?.content || "Create the AI course outline, then generate script for a slide."}
+                      {activeSlide?.content || "点击开始实时教学后，系统会先根据 PPT/课程内容生成课程大纲。"}
                     </p>
                   </div>
-
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => void handleGenerateScript()}
-                      disabled={busy === "generate-script"}
-                      className="rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
-                    >
-                      {busy === "generate-script" ? "Generating..." : "Generate Script"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleStopSpeaking()}
-                      disabled={busy === "stop-speech" || !livetalkingSessionId}
-                      className="rounded-full border border-[var(--shell-border)] bg-white px-4 py-3 text-sm font-bold text-[var(--accent-strong)] disabled:opacity-60"
-                    >
-                      Stop Speaking
-                    </button>
-                  </div>
-
                   <div className="mt-4 space-y-3">
                     {scriptSentences.map((sentence, index) => (
                       <button
@@ -637,67 +971,106 @@ export function VideoPlayerPage() {
                           currentSentence === sentence ? "border-[var(--accent-border)] bg-[var(--accent-soft)]" : "border-[var(--shell-border)] bg-white"
                         }`}
                       >
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">Sentence {index + 1}</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">讲稿句子 {index + 1}</p>
                         <p className="mt-2 text-sm leading-7 text-[var(--app-text)]">{sentence}</p>
                       </button>
                     ))}
-                    {!scriptSentences.length ? <div className="text-sm text-[var(--muted-text)]">No script generated yet.</div> : null}
+                    {!scriptSentences.length ? <div className="text-sm text-[var(--muted-text)]">当前还没有生成讲稿。</div> : null}
                   </div>
                 </GlassPanel>
 
                 <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">Interrupt & Ask</h2>
+                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">课堂问答</h2>
                   <textarea
                     value={studentQuestion}
                     onChange={(event) => setStudentQuestion(event.target.value)}
                     className="mt-4 min-h-[140px] w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4 text-sm outline-none"
-                    placeholder="Ask a question during the lecture..."
+                    placeholder="输入学生实时提问..."
                   />
-                  <button
-                    type="button"
-                    onClick={() => void handleInterruptAsk()}
-                    disabled={busy === "ask" || !livetalkingSessionId}
-                    className="mt-4 w-full rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
-                  >
-                    {busy === "ask" ? "Asking..." : "Interrupt and Ask"}
-                  </button>
+                  <div className="mt-4 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => void handleStop()}
+                      disabled={busy === "stop"}
+                      className="flex-1 rounded-full border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 disabled:opacity-60"
+                    >
+                      {busy === "stop" ? "停止中..." : "停止并保存录制"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleInterruptAsk()}
+                      disabled={busy === "ask"}
+                      className="flex-1 rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+                    >
+                      {busy === "ask" ? "回答中..." : "提交提问"}
+                    </button>
+                  </div>
                   <div className="mt-5 rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
-                    <p className="text-sm font-bold text-[var(--accent-strong)]">AI Answer</p>
+                    <p className="text-sm font-bold text-[var(--accent-strong)]">AI 回答</p>
                     <div className="mt-3 text-sm leading-7 text-[var(--muted-text)]">
-                      <MarkdownPreview content={answerText || "The answer will appear here."} />
+                      <MarkdownPreview content={answerText || "学生提问后，回答会显示在这里。"} />
                     </div>
                   </div>
+                  {persistedRecordingUrl ? (
+                    <div className="mt-5 rounded-[22px] border border-[var(--shell-border)] bg-white p-4">
+                      <p className="text-sm font-bold text-[var(--accent-strong)]">录制回看</p>
+                      <video controls preload="metadata" className="mt-3 aspect-video w-full rounded-[18px] bg-black" src={playbackUrl(persistedRecordingUrl)} />
+                    </div>
+                  ) : null}
                 </GlassPanel>
               </section>
             ) : (
               <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
                 <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">Offline MP4 Generation</h2>
+                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">离线整课视频生成</h2>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted-text)]">
-                    Enter the folder containing slide1.png, slide2.png, and so on. This legacy path still generates a normal video file.
+                    选择课程里已经生成完成的 PPT，前端会通过课程后端提交视频任务；PPT 图片、讲稿素材和本地路径都由后端统一处理。
                   </p>
-                  <input
-                    value={offlineImageRoot}
-                    onChange={(event) => setOfflineImageRoot(event.target.value)}
-                    className="mt-4 h-12 w-full rounded-[18px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 text-sm outline-none"
-                    placeholder="D:/AI_Lecturer/assets"
-                  />
+                  <div className="mt-4 rounded-[20px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
+                    {offlinePptsLoading ? (
+                      <p className="text-sm text-[var(--muted-text)]">正在加载可用 PPT...</p>
+                    ) : offlinePptsError ? (
+                      <p className="text-sm text-rose-600">{offlinePptsError}</p>
+                    ) : offlinePpts.length === 0 ? (
+                      <p className="text-sm text-[var(--muted-text)]">当前课程还没有可用于生成教学视频的 PPT，请先在 PPT 工作坊完成课件生成。</p>
+                    ) : (
+                      <div className="space-y-3">
+                        <label className="text-xs font-black uppercase tracking-[0.16em] text-[var(--accent-strong)]">Select PPT</label>
+                        <select
+                          value={selectedOfflinePptId}
+                          onChange={(event) => setSelectedOfflinePptId(event.target.value)}
+                          className="h-12 w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 text-sm font-semibold text-[var(--app-text)] outline-none"
+                        >
+                          {offlinePpts.map((item) => (
+                            <option key={item.material_id} value={item.material_id}>
+                              {item.title}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs leading-6 text-[var(--muted-text)]">
+                          {selectedOfflinePpt
+                            ? `已选择：${selectedOfflinePpt.title}${selectedOfflinePpt.slide_count ? `，共 ${selectedOfflinePpt.slide_count} 页` : ""}`
+                            : "请选择一个 PPT"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={() => void handleGenerateOfflineVideo()}
-                    disabled={busy === "offline"}
+                    disabled={busy === "offline" || offlinePptsLoading || !selectedOfflinePptId}
                     className="mt-4 w-full rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
                   >
-                    {busy === "offline" ? "Generating..." : "Generate Offline Video"}
+                    {busy === "offline" ? "提交中..." : "提交整套课件渲染任务"}
                   </button>
                 </GlassPanel>
 
                 <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">Offline Status</h2>
+                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">任务状态</h2>
                   <div className="mt-4 space-y-3 text-sm text-[var(--muted-text)]">
-                    <p>Task ID: {offlineTaskId || "--"}</p>
-                    <p>Status: {offlineStatus || "--"}</p>
-                    <p>Video URL: {offlineVideoUrl || "--"}</p>
+                    <p>任务 ID：{offlineTaskId || "--"}</p>
+                    <p>当前状态：{offlineStatus || "--"}</p>
+                    <p>视频地址：{offlineVideoUrl || "--"}</p>
                   </div>
                   {offlineVideoUrl ? (
                     <div className="mt-5 flex gap-3">
@@ -707,7 +1080,7 @@ export function VideoPlayerPage() {
                         rel="noreferrer"
                         className="flex-1 rounded-full border border-[var(--shell-border)] bg-white px-4 py-3 text-center text-sm font-bold text-[var(--accent-strong)]"
                       >
-                        Open
+                        在线预览
                       </a>
                       <a
                         href={getAiLecturerDownloadUrl(fileNameFromUrl(offlineVideoUrl))}
@@ -715,7 +1088,7 @@ export function VideoPlayerPage() {
                         rel="noreferrer"
                         className="flex-1 rounded-full bg-[var(--accent)] px-4 py-3 text-center text-sm font-bold text-white"
                       >
-                        Download
+                        下载视频
                       </a>
                     </div>
                   ) : null}
@@ -727,44 +1100,99 @@ export function VideoPlayerPage() {
               <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--shell-border)] pb-5">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">Session Resource</p>
-                    <h2 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">Course Resource Preview</h2>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">Course Content</p>
+                    <h2 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">课程内容</h2>
                     <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--muted-text)]">
-                      Select a PPT to start realtime playback, or select an AI lecture session to replay its saved recording.
+                      学习视频下方保留课程内容预览区，便于在课程学习过程中对照讲义、资料与文本内容。
                     </p>
                   </div>
                   <div className="rounded-[20px] border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
-                    Recording: {recordingStatus}
+                    {materialsLoading ? "加载中..." : `共 ${materials.length} 份内容`}
                   </div>
                 </div>
 
-                {persistedRecordingUrl ? (
-                  <video controls className="mt-6 aspect-video w-full rounded-[22px] bg-black" src={playbackUrl(persistedRecordingUrl)} />
-                ) : (
-                  <div className="mt-6 rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted-text)]">
-                    No saved recording yet. Stop a realtime session to persist the teaching video.
-                  </div>
-                )}
+                <div className="mt-6 grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+                  <div className="space-y-3">
+                    {materialsLoading ? (
+                      <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                        正在加载课程内容...
+                      </div>
+                    ) : materialsError ? (
+                      <div className="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-5 text-sm text-rose-600">
+                        {materialsError}
+                      </div>
+                    ) : materials.length === 0 ? (
+                      <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                        当前课程还没有可展示的内容。
+                      </div>
+                    ) : (
+                      materials.map((item, index) => {
+                        const active = item.material_id === activeMaterial?.material_id;
 
-                {activeMaterial ? (
-                  <div className="mt-6 rounded-[24px] border border-[var(--shell-border)] bg-white/88 p-5">
-                    <div className="border-b border-[var(--shell-border)] pb-4">
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
-                        {activeMaterial.material_type || "content"}
-                      </p>
-                      <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">
-                        {activeMaterial.title || activeMaterial.topic || activeMaterial.material_id}
-                      </h3>
-                    </div>
-                    <div className="mt-5 max-h-[420px] overflow-y-auto pr-2">
-                      <MarkdownPreview content={activeMaterialMarkdown} />
-                    </div>
+                        return (
+                          <button
+                            key={item.material_id}
+                            type="button"
+                            onClick={() => setActiveMaterialId(item.material_id)}
+                            className={`w-full rounded-[22px] border px-4 py-4 text-left transition ${
+                              active
+                                ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_14px_28px_var(--accent-shadow)]"
+                                : "border-[var(--shell-border)] bg-[var(--surface-subtle)] hover:border-[var(--accent-border)] hover:bg-white"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--muted-text)]">
+                                  第 {index + 1} 项 · {item.material_type || "content"}
+                                </p>
+                                <h3 className="mt-2 truncate text-sm font-bold text-[var(--app-text)]">
+                                  {item.title || item.topic || item.material_id}
+                                </h3>
+                                <p className="mt-2 line-clamp-3 text-sm leading-6 text-[var(--muted-text)]">
+                                  {item.summary || "点击查看当前内容详情。"}
+                                </p>
+                              </div>
+                              {item.is_pinned ? (
+                                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[var(--accent-strong)]">置顶</span>
+                              ) : null}
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
-                ) : null}
+
+                  <div className="min-w-0 rounded-[24px] border border-[var(--shell-border)] bg-white/88 p-5">
+                    {activeMaterial ? (
+                      <>
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] pb-4">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                              {activeMaterial.material_type || "content"}
+                            </p>
+                            <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">
+                              {activeMaterial.title || activeMaterial.topic || activeMaterial.material_id}
+                            </h3>
+                          </div>
+                          <div className="rounded-full border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">
+                            {course.title}
+                          </div>
+                        </div>
+                        <div className="mt-5 max-h-[560px] overflow-y-auto pr-2">
+                          <MarkdownPreview content={activeMaterialMarkdown} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-[20px] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                        选择左侧一项内容后，会在这里显示完整预览。
+                      </div>
+                    )}
+                  </div>
+                </div>
               </GlassPanel>
             </section>
 
-            {(error || webRtcError) ? (
+            {error || webRtcError ? (
               <div className="mt-6 rounded-[22px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-600">
                 {error || webRtcError}
               </div>
@@ -772,67 +1200,55 @@ export function VideoPlayerPage() {
           </div>
         </main>
 
-        <aside className="flex flex-col border-l border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(246,249,255,0.94)_0%,rgba(239,245,253,0.96)_100%)] lg:h-screen lg:overflow-auto">
+        <aside className="flex flex-col overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(246,249,255,0.94)_0%,rgba(239,245,253,0.96)_100%)] shadow-[0_16px_32px_var(--panel-shadow)] lg:h-[calc(100vh-48px)] lg:overflow-auto">
           <div className="border-b border-[var(--shell-border)] bg-[var(--surface-elevated)]/95 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--accent)] text-white">
-                <MaterialIcon name="smart_toy" fill />
+                <MaterialIcon name="school" className="text-lg" />
               </div>
               <div>
-                <h4 className="font-bold text-[var(--accent-strong)]">Session Status</h4>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1b6d24]">{webRtcStatus}</p>
+                <h4 className="font-bold text-[var(--accent-strong)]">学习概览</h4>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1b6d24]">实时联动</p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-1 flex-col gap-6 overflow-hidden p-6">
             <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">Realtime Summary</p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">学习状态</p>
               <div className="mt-4 space-y-3 text-sm text-[var(--muted-text)]">
-                <p>{onlineSummary}</p>
-                <p>AI lecturer course: {aiLecturerCourseId || "--"}</p>
-                <p>Persisted session: {aiLectureSessionId || "--"}</p>
-                <p>LiveTalking session: {livetalkingSessionId || "--"}</p>
-                <p>Current sentence: {currentSentence || "--"}</p>
+                <p>{learningSummary}</p>
+                <p>课程 ID：{courseId || "--"}</p>
+                <p>AI 会话：{aiLectureSessionId || "--"}</p>
+                <p>LiveTalking：{livetalkingSessionId || "--"}</p>
+                <p>当前结构节点：{activeStructureNode?.label || "--"}</p>
+                <p>当前播报句子：{currentSentence || "--"}</p>
               </div>
             </div>
 
             <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">Slides</p>
-              <div className="mt-4 space-y-3">
-                {outline.length ? (
-                  outline.map((item, index) => (
-                    <button
-                      key={`${item.title}-${index}`}
-                      type="button"
-                      onClick={() => setActiveSlideIndex(index)}
-                      className={`w-full rounded-[18px] border p-4 text-left ${
-                        index === activeSlideIndex ? "border-[var(--accent-border)] bg-[var(--accent-soft)]" : "border-[var(--shell-border)] bg-[var(--surface-subtle)]"
-                      }`}
-                    >
-                      <p className="text-sm font-bold text-[var(--app-text)]">Slide {index + 1}: {item.title}</p>
-                      <p className="mt-2 line-clamp-3 text-xs leading-6 text-[var(--muted-text)]">{item.content}</p>
-                    </button>
-                  ))
-                ) : (
-                  <div className="rounded-[18px] bg-[var(--surface-subtle)] p-4 text-sm text-[var(--muted-text)]">No outline yet.</div>
-                )}
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">节点说明</p>
+              <div className="mt-4 rounded-[18px] bg-[var(--surface-subtle)] p-4 text-sm leading-7 text-[var(--muted-text)]">
+                {activeStructureNode?.data?.summary || "选择左侧知识结构节点后，这里会显示当前节点摘要。"}
               </div>
             </div>
 
             <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">Quick Links</p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">快速跳转</p>
               <div className="mt-4 space-y-3">
                 <button
                   type="button"
                   onClick={() => document.getElementById("course-materials")?.scrollIntoView({ behavior: "smooth", block: "start" })}
                   className="flex w-full items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]"
                 >
-                  <span className="text-sm font-semibold text-[var(--app-text)]">Course resource preview</span>
+                  <span className="text-sm font-semibold text-[var(--app-text)]">课程内容</span>
                   <MaterialIcon name="arrow_forward" className="text-[var(--accent)]" />
                 </button>
-                <a href={routeHref(routes.resources)} className="flex items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]">
-                  <span className="text-sm font-semibold text-[var(--app-text)]">All course resources</span>
+                <a
+                  href={routeHref(routes.ai)}
+                  className="flex items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]"
+                >
+                  <span className="text-sm font-semibold text-[var(--app-text)]">问答工作台</span>
                   <MaterialIcon name="arrow_forward" className="text-[var(--accent)]" />
                 </a>
               </div>

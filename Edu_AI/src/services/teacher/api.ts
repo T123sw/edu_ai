@@ -818,6 +818,27 @@ export interface KnowledgeGraphData {
   root: KnowledgeGraphNode;
 }
 
+export interface TextbookKnowledgeGraphImportSplitDocument {
+  id: string;
+  title: string;
+  file_path: string;
+  preview?: string;
+}
+
+export interface TextbookKnowledgeGraphImportResponse {
+  source_document: {
+    id?: string;
+    name: string;
+    file_path?: string | null;
+  };
+  parser_used?: string;
+  outline_source?: string;
+  knowledge_graph: KnowledgeGraphData;
+  split_documents: TextbookKnowledgeGraphImportSplitDocument[];
+  vectorized_documents: Array<Record<string, unknown>>;
+  warnings: string[];
+}
+
 export const getKnowledgeGraph = async (courseId: string): Promise<KnowledgeGraphData> => {
   const token = getAuthToken();
 
@@ -835,6 +856,30 @@ export const getKnowledgeGraph = async (courseId: string): Promise<KnowledgeGrap
   }
 
   return (await resp.json()) as KnowledgeGraphData;
+};
+
+export const importTextbookKnowledgeGraph = async (
+  courseId: string,
+  file: File,
+): Promise<TextbookKnowledgeGraphImportResponse> => {
+  const token = getAuthToken();
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/courses/${courseId}/knowledge-graph/textbook-import`, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`æ•™æå¯¼å…¥å¤±è´¥: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+
+  return (await resp.json()) as TextbookKnowledgeGraphImportResponse;
 };
 
 export interface BlogGenerateStartRequest {

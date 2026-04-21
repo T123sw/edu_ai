@@ -1,5 +1,13 @@
-export function resolveSpeechInputError(error: unknown): { message: string } {
+export type SpeechInputFallback = 'none';
+
+export interface SpeechInputResolution {
+  message: string;
+  fallback: SpeechInputFallback;
+}
+
+export function resolveSpeechInputError(error: unknown): SpeechInputResolution {
   const err = error as { name?: string; message?: string };
+  const resolution = (() => {
 
   switch (err?.name) {
     case 'NotAllowedError':
@@ -19,4 +27,7 @@ export function resolveSpeechInputError(error: unknown): { message: string } {
     default:
       return { message: err?.message || '语音输入启动失败，请稍后重试。' };
   }
+  })();
+
+  return { ...resolution, fallback: 'none' };
 }

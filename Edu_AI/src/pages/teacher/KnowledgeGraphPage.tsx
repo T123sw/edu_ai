@@ -4,7 +4,14 @@ import { ReloadOutlined, SaveOutlined, InfoCircleOutlined, NodeIndexOutlined, Ex
 import { useNavigate, useParams } from 'react-router-dom';
 import './KnowledgeGraphPage.css';
 import { getInitialTreeGraphData, getNodeDetails, type TreeGraphNode, convertBackendToTreeGraph } from '../../services/teacher/knowledgeGraph';
-import { getKnowledgeGraph as fetchKnowledgeGraph, saveKnowledgeGraph, type KnowledgeGraphData, sendChatMessage } from '../../services/teacher/api';
+import {
+  getKnowledgeGraph as fetchKnowledgeGraph,
+  importTextbookKnowledgeGraph,
+  saveKnowledgeGraph,
+  sendChatMessage,
+  type KnowledgeGraphData,
+  type TextbookKnowledgeGraphImportResponse,
+} from '../../services/teacher/api';
 import { getKnowledgeBaseDocuments, uploadKnowledgeBaseDocument, type KnowledgeBaseDocument } from '../../services/knowledgeBase';
 import { writeWorkspaceScopeToSearch } from '../../services/teacher/workspaceScope';
 import ReactMarkdown from 'react-markdown';
@@ -226,8 +233,11 @@ const KnowledgeGraphPage: React.FC = () => {
   const [nodeDocuments, setNodeDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [nodeDocumentIds, setNodeDocumentIds] = useState<string[]>([]);
   const [uploadingKnowledgeBase, setUploadingKnowledgeBase] = useState(false);
+  const [importingTextbookKnowledgeGraph, setImportingTextbookKnowledgeGraph] = useState(false);
+  const [textbookImportSummary, setTextbookImportSummary] = useState<TextbookKnowledgeGraphImportResponse | null>(null);
   const clickTimerRef = useRef<number | null>(null);
   const knowledgeBaseUploadInputRef = useRef<HTMLInputElement | null>(null);
+  const textbookImportInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     expandedNodeIdsRef.current = expandedNodeIds;
@@ -364,6 +374,17 @@ const KnowledgeGraphPage: React.FC = () => {
       try { g.fitView?.(fitPadding); } catch {}
     }
   }, []);
+
+  const applyGraphRoot = async (root: TreeGraphNode) => {
+    fullTreeRef.current = root;
+    setRootNodeId(String(root.id));
+    setRootChildrenCount(Array.isArray(root.children) ? root.children.length : 0);
+    const collapsed = buildCollapsedTree(root, 1);
+    visibleTreeRef.current = collapsed;
+    setExpandedNodeIds(new Set());
+    setSelectedNodeId(String(root.id));
+    await setGraphDataAndRender(collapsed);
+  };
 
   const setGraphDataAndRender = async (root: TreeGraphNode, options?: { focusNodeId?: string; focusSubtreeRootId?: string }) => {
     if (!containerRef.current) return;
@@ -700,13 +721,7 @@ const KnowledgeGraphPage: React.FC = () => {
         root = getInitialTreeGraphData();
         setDataSource('fallback');
       }
-      fullTreeRef.current = root;
-      setRootNodeId(String(root.id));
-      setRootChildrenCount(Array.isArray(root.children) ? root.children.length : 0);
-      const collapsed = buildCollapsedTree(root, 1);
-      visibleTreeRef.current = collapsed;
-      setExpandedNodeIds(new Set());
-      await setGraphDataAndRender(collapsed);
+      await applyGraphRoot(root);
 
       // 数据加载完成后再做一次尺寸同步与视图适配
       window.requestAnimationFrame(() => {
@@ -717,6 +732,42 @@ const KnowledgeGraphPage: React.FC = () => {
       setDataSource('unknown');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openTextbookImport = () => {
+    if (!courseId || importingTextbookKnowledgeGraph) {
+      return;
+    }
+    textbookImportInputRef.current?.click();
+  };
+
+  const handleTextbookImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file || !courseId) {
+      return;
+    }
+
+    try {
+      setImportingTextbookKnowledgeGraph(true);
+      setInitError(null);
+      const result = await importTextbookKnowledgeGraph(courseId, file);
+      const root = convertBackendToTreeGraph(result.knowledge_graph.root);
+      setDataSource('backend');
+      setTextbookImportSummary(result);
+      await applyGraphRoot(root);
+      if (result.warnings.length) {
+        message.warning(`教材已导入，但有 ${result.warnings.length} 条提示信息`);
+      } else {
+        message.success(`已根据教材《${result.source_document.name}》生成课程知识图谱`);
+      }
+    } catch (error) {
+      console.error('textbook knowledge graph import failed:', error);
+      message.error(error instanceof Error ? error.message : '教材导入失败');
+    } finally {
+      setImportingTextbookKnowledgeGraph(false);
     }
   };
 
@@ -820,6 +871,17 @@ const KnowledgeGraphPage: React.FC = () => {
           }
           extra={
             <Space size={8}>
+              <Tooltip title="上传教材并重建课程知识图谱">
+                <Button
+                  size="small"
+                  icon={<UploadOutlined />}
+                  onClick={openTextbookImport}
+                  loading={importingTextbookKnowledgeGraph}
+                  disabled={!courseId}
+                >
+                  教材导入
+                </Button>
+              </Tooltip>
               <Tooltip title="重新加载">
                 <Button size="small" icon={<ReloadOutlined />} onClick={loadGraph} loading={loading} />
               </Tooltip>
@@ -832,9 +894,40 @@ const KnowledgeGraphPage: React.FC = () => {
           className="details-card"
           bodyStyle={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1, minHeight: 0, paddingBottom: 16 }}
         >
+          <input
+            ref={textbookImportInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.md"
+            style={{ display: 'none' }}
+            onChange={handleTextbookImport}
+          />
           {initError && (
             <div style={{ marginBottom: 12 }}>
               <Tag color="red" style={{ borderRadius: 999, padding: '4px 10px' }}>{initError}</Tag>
+            </div>
+          )}
+          {textbookImportSummary && (
+            <div
+              style={{
+                marginBottom: 12,
+                border: '1px solid #d6e4ff',
+                background: '#f5f9ff',
+                borderRadius: 12,
+                padding: 12,
+              }}
+            >
+              <Space size={[8, 8]} wrap>
+                <Tag color="blue">教材 {textbookImportSummary.source_document.name}</Tag>
+                <Tag color="geekblue">切片 {textbookImportSummary.split_documents.length}</Tag>
+                <Tag color="cyan">向量化 {textbookImportSummary.vectorized_documents.length}</Tag>
+                {textbookImportSummary.parser_used ? <Tag>{textbookImportSummary.parser_used}</Tag> : null}
+                {textbookImportSummary.outline_source ? <Tag>{textbookImportSummary.outline_source}</Tag> : null}
+              </Space>
+              {textbookImportSummary.warnings.length ? (
+                <div style={{ marginTop: 8 }}>
+                  <Text type="secondary">提示：{textbookImportSummary.warnings.join('；')}</Text>
+                </div>
+              ) : null}
             </div>
           )}
           {!selectedDetails ? (
@@ -885,6 +978,14 @@ const KnowledgeGraphPage: React.FC = () => {
                 </div>
 
                 <Space size={8} wrap>
+                  <Button
+                    icon={<UploadOutlined />}
+                    onClick={openTextbookImport}
+                    loading={importingTextbookKnowledgeGraph}
+                    disabled={!courseId}
+                  >
+                    导入教材生成图谱
+                  </Button>
                   <Button icon={<ReloadOutlined />} onClick={loadGraph} loading={loading}>
                     重新加载
                   </Button>

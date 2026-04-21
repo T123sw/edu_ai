@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, Space } from 'antd';
-import {
-  HomeOutlined,
-  AppstoreOutlined,
-  DatabaseOutlined,
-  ReadOutlined,
-  SearchOutlined,
-} from '@ant-design/icons';
+import { Layout, Menu } from 'antd';
+import { HomeOutlined, AppstoreOutlined, DatabaseOutlined, ReadOutlined, SearchOutlined } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SharedHeader from './SharedHeader';
@@ -22,10 +16,10 @@ const GlobalLayout: React.FC = () => {
   const isTeacher = user?.role === 'teacher';
 
   const teacherMenuItems = [
-    { key: '/welcome', icon: <HomeOutlined />, label: '课程列表' },
+    { key: '/welcome', icon: <HomeOutlined />, label: '课程首页' },
     { key: '/course-management', icon: <AppstoreOutlined />, label: '课程管理' },
-    { key: '/global-resources', icon: <DatabaseOutlined />, label: '资源库' },
-    { key: '/deep-search', icon: <SearchOutlined />, label: '深度搜索' },
+    { key: '/global-resources', icon: <DatabaseOutlined />, label: '公共资源' },
+    { key: '/deep-search', icon: <SearchOutlined />, label: '深度检索' },
   ];
 
   const studentMenuItems = [
@@ -42,35 +36,21 @@ const GlobalLayout: React.FC = () => {
   const selectedKey = '/' + location.pathname.split('/')[1];
   const isInCourse = location.pathname.startsWith('/course/');
 
-  // 当进入课程时，GlobalLayout 不渲染任何东西，完全由 CourseContextLayout 接管
   if (isInCourse) {
     return <Outlet />;
   }
 
-  // 在全局页面，渲染带一级导航的布局
   return (
     <Layout className="global-layout" style={{ minHeight: '100vh' }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        width={200}
-        theme="dark"
-      >
+      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} width={232} theme="dark">
         <div className="logo">
           <span>{collapsed ? 'AI' : 'Edu-AI'}</span>
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          items={menuItems}
-          onClick={handleMenuClick}
-        />
+        <Menu theme="dark" mode="inline" selectedKeys={[selectedKey]} items={menuItems} onClick={handleMenuClick} />
       </Sider>
-      <Layout>
+      <Layout className="global-layout-main">
         <SharedHeader />
-        <Content style={{ padding: '16px', height: 'calc(100vh - 48px)', overflow: 'auto' }}>
+        <Content className="global-layout-content">
           <Outlet />
         </Content>
       </Layout>

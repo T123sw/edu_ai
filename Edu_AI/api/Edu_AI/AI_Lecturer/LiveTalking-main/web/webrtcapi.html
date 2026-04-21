@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 讲师 | 终端播放器</title>
+    <style>
+        :root { --bg-base: #080808; --surface-1: #141414; --surface-2: #1E1E1E; --border-color: #2D2D2D; --text-main: #E2E2E2; --text-muted: #888888; --btn-blue: #223B59; --btn-blue-hover: #2C4A70; --btn-orange: #663524; --btn-orange-hover: #7D422D; --status-bg: #1B2430; --status-text: #6B9EC7; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg-base); color: var(--text-main); margin: 0; padding: 2vh 2vw; display: flex; gap: 24px; height: 96vh; box-sizing: border-box; }
+        .card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* 左侧 PPT 区域 */
+        .ppt-area { flex: 5.5; padding: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: #0F0F0F; }
+        #course-title { font-size: 16px; color: #4A6C98; margin-bottom: 20px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase;}
+        #ppt-placeholder { font-size: 60px; font-weight: bold; color: #333; letter-spacing: 5px; margin-bottom: 20px;}
+        #ppt-sub { font-size: 20px; color: #888; line-height: 1.6; max-width: 80%; }
+        
+        /* 右侧布局结构 */
+        .sidebar { flex: 4.5; display: flex; flex-direction: column; gap: 16px; height: 100%; }
+        
+        /* 视频框 */
+        .video-box { flex: 0 0 40%; background: #000; border-radius: 8px; position: relative; border: 1px solid #333; min-height: 250px; }
+        video { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        
+        /* 极简控制面板 */
+        .control-panel { padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-2); }
+        .control-header { font-size: 13px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        
+        button { padding: 10px; border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: #E2E2E2; transition: all 0.2s; white-space: nowrap; }
+        .btn-blue { background: var(--btn-blue); } .btn-blue:hover:not(:disabled) { background: var(--btn-blue-hover); }
+        .btn-orange { background: var(--btn-orange); } .btn-orange:hover:not(:disabled) { background: var(--btn-orange-hover); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        
+        input[type="text"] { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #121212; color: var(--text-main); font-size: 14px; box-sizing: border-box; }
+        input[type="text"]:focus { outline: none; border-color: #4A6C98; }
+        #status-bar { font-size: 12px; color: var(--status-text); background: var(--status-bg); padding: 8px; border-radius: 6px; text-align: center; font-family: monospace; margin-top: 4px; }
+        
+        /* 聊天框容器 */
+        .chat-container { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 8px; flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+        .chat-history { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 16px; background: #0F0F0F; font-size: 14px; line-height: 1.6; scroll-behavior: smooth; }
+        
+        /* 聊天消息气泡样式 */
+        .chat-msg { display: flex; flex-direction: column; gap: 4px; }
+        .chat-msg .name { font-size: 12px; font-weight: bold; }
+        .chat-msg .text { padding: 10px 14px; border-radius: 8px; display: inline-block; word-break: break-all; }
+        
+        .chat-msg.user { align-items: flex-end; }
+        .chat-msg.user .name { color: #E2E2E2; }
+        .chat-msg.user .text { background: #223B59; color: #FFF; border-bottom-right-radius: 2px; }
+        
+        .chat-msg.ai { align-items: flex-start; }
+        .chat-msg.ai .name { color: #6B9EC7; }
+        .chat-msg.ai .text { background: #1E1E1E; border: 1px solid #2D2D2D; color: #E2E2E2; border-bottom-left-radius: 2px; }
+
+        /* 系统消息 */
+        .chat-msg.system { align-items: center; margin: 4px 0; }
+        .chat-msg.system .text { background: rgba(255, 255, 255, 0.08); color: #888; font-size: 11px; padding: 4px 12px; border-radius: 12px; border: none; letter-spacing: 1px; }
+
+        /* 聊天输入区 */
+        .chat-input-row { display: flex; gap: 10px; padding: 12px; background: var(--surface-2); border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+    <div class="card ppt-area">
+        <div id="course-title"></div>
+        <div id="ppt-placeholder">STANDBY</div>
+        <div id="ppt-sub">等待拉取云端课程数据</div>
+    </div>
+
+    <div class="sidebar">
+        <div class="card video-box">
+            <div id="status" style="display:none;"></div> 
+            <input type="hidden" id="sessionid" value="0">
+            <input id="use-stun" type="checkbox" style="display:none;"/>
+            <audio id="audio" autoplay></audio>
+            <video id="video" autoplay playsinline></video>
+        </div>
+        
+        <div class="card control-panel">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="course_id_input" placeholder="输入课程ID (如: 1001)" style="flex: 2;">
+                <button id="btn_load" class="btn-blue" onclick="loadCourseData()" style="flex: 1;">拉取</button>
+                <button id="start" class="btn-blue" onclick="start()" style="flex: 1;">1.唤醒</button>
+                <button id="btn_main" class="btn-blue" onclick="startLesson()" disabled style="flex: 1;">2.授课</button>
+                <button id="stop" style="display:none;">停止</button>
+            </div>
+            <div id="status-bar">STATUS: WAITING FOR COURSE ID</div>
+        </div>
+
+        <div class="chat-container">
+            <div class="control-header" style="padding: 12px 12px 4px 12px; background: var(--surface-2);">实时课堂纪要</div>
+            <div id="chat-history" class="chat-history"></div>
+            
+            <div class="chat-input-row">
+                <input type="text" id="q_in" placeholder="输入问题，举手打断讲师..." onkeypress="if(event.keyCode===13) handleInterrupt()">
+                <button id="btn_int" class="btn-orange" onclick="handleInterrupt()" style="flex: 0 0 80px;">提问</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="client.js"></script>
+    <script>
+        // 🚀 全局配置：指向你的 8008 业务网关
+        const API_BASE = 'http://127.0.0.1:8008/api/v1/online';
+
+        let currentCourseTitle = "";
+        let internalOutline = []; 
+        let currentPage = 0;
+        let sentences = [];
+        let cursor = 0;
+        let isRunning = false;
+        let isInterrupted = false;
+        let timer = null;
+
+        function updateStatus(t) { document.getElementById('status-bar').innerText = t; }
+
+        function appendChat(role, text) {
+            const chatBox = document.getElementById('chat-history');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-msg ' + role; 
+            
+            if (role !== 'system') {
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                nameSpan.innerText = role === 'user' ? '🧑 用户' : '🤖 AI 讲师';
+                msgDiv.appendChild(nameSpan);
+            }
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text';
+            textSpan.innerText = text;
+            
+            msgDiv.appendChild(textSpan);
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function reliableSpeak(text, sessionId, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    let res = await fetch(`${API_BASE}/speak_sentence`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ text, session_id: sessionId })
+                    });
+                    if (res.ok) return true;
+                } catch (e) { }
+            }
+            return false;
+        }
+
+        async function loadCourseData() {
+            const cid = document.getElementById('course_id_input').value;
+            if (!cid) return alert("请输入课程ID！");
+            
+            updateStatus("STATUS: FETCHING FROM DATABASE...");
+            try {
+                let res = await fetch(`${API_BASE}/get_course/${cid}`);
+                if (!res.ok) return alert("课程不存在！请先在 Swagger 中调用 create_course 生成。");
+                let d = await res.json();
+                
+                currentCourseTitle = d.data.course_name;
+                internalOutline = d.data.outline;
+                
+                document.getElementById('course-title').innerText = `《${currentCourseTitle}》`;
+                document.getElementById('ppt-placeholder').innerText = "READY";
+                document.getElementById('ppt-sub').innerText = `成功拉取大纲，共 ${internalOutline.length} 页。请唤醒引擎并授课。`;
+                
+                document.getElementById('btn_main').disabled = false;
+                updateStatus(`STATUS: COURSE [${cid}] LOADED`);
+            } catch(e) {
+                updateStatus("ERROR: FETCH FAILED");
+            }
+        }
+
+        async function startLesson() {
+            const sid = parseInt(document.getElementById('sessionid').value);
+            if (sid === 0) return alert("请先点击【1. 唤醒引擎】等待画面出现！");
+            if (internalOutline.length === 0) return alert("请先拉取课程数据！");
+            
+            isRunning = true;
+            isInterrupted = false;
+            currentPage = 0;
+            document.getElementById('btn_main').disabled = true;
+            document.getElementById('btn_load').disabled = true;
+            
+            document.getElementById('chat-history').innerHTML = ''; 
+            appendChat('system', '—— 课堂正式开始 ——');
+            loadDynamicPage();
+        }
+
+        async function loadDynamicPage() {
+            if (currentPage >= internalOutline.length) {
+                updateStatus("STATUS: CLASS COMPLETED");
+                document.getElementById('ppt-placeholder').innerText = "CLASS FINISHED";
+                document.getElementById('ppt-sub').innerText = "课程圆满结束。";
+                isRunning = false;
+                document.getElementById('btn_main').disabled = false;
+                document.getElementById('btn_load').disabled = false;
+                appendChat('system', '—— 本次课程已圆满结束 ——');
+                return;
+            }
+            
+            appendChat('system', `PPT 已翻页至 (${currentPage + 1}/${internalOutline.length})`);
+            
+            document.getElementById('ppt-placeholder').innerText = `第 ${currentPage + 1} 页`;
+            document.getElementById('ppt-sub').innerText = `【本页主题】：${internalOutline[currentPage].title}`;
+            
+            updateStatus("STATUS: PREPARING SCRIPT...");
+            try {
+                let res = await fetch(`${API_BASE}/generate_script`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        course_title: currentCourseTitle,
+                        current_slide_content: internalOutline[currentPage].content,
+                        page_index: currentPage,
+                        total_pages: internalOutline.length
+                    })
+                });
+                let d = await res.json();
+                sentences = d.data.sentences;
+                cursor = 0;
+                playQueue();
+            } catch(e) {
+                updateStatus("ERROR: SCRIPT GENERATION FAILED");
+            }
+        }
+
+        async function playQueue() {
+            const sid = parseInt(document.getElementById('sessionid').value);
+            while (cursor < sentences.length && !isInterrupted) {
+                let txt = sentences[cursor];
+                updateStatus(`STREAMING: P${currentPage+1} - S${cursor+1}`);
+                
+                appendChat('ai', txt);
+                await reliableSpeak(txt, sid);
+                
+                let waitTime = (txt.length * 200) + 100; 
+                await new Promise(r => { timer = setTimeout(r, waitTime); });
+                
+                if (!isInterrupted) cursor++;
+            }
+            if (!isInterrupted && isRunning) {
+                currentPage++;
+                loadDynamicPage();
+            }
+        }
+
+        async function handleInterrupt() {
+            const q = document.getElementById('q_in').value;
+            const sid = parseInt(document.getElementById('sessionid').value);
+            if (!q || sid === 0 || !isRunning) return;
+
+            isInterrupted = true;
+            clearTimeout(timer); 
+            
+            appendChat('user', q);
+            document.getElementById('q_in').value = ""; 
+            
+            updateStatus("STATUS: INTERRUPT TRIGGERED");
+            document.getElementById('btn_int').disabled = true;
+
+            fetch(`${API_BASE}/stop_speaking`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ session_id: sid })
+            });
+
+            let currentKnowledge = internalOutline[currentPage]?.title || "未知知识点";
+            let exactWords = sentences[cursor] || "正准备讲解...";
+
+            try {
+                let res = await fetch(`${API_BASE}/interrupt_and_ask`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        question: q, 
+                        slide_context: currentKnowledge, 
+                        interrupted_sentence: exactWords, 
+                        session_id: sid 
+                    })
+                });
+                let d = await res.json();
+                let answer = d.data.answer;
+                
+                appendChat('ai', answer);
+                
+                let answerWait = (answer.length * 280) + 1200; 
+                updateStatus("STATUS: ANSWERING...");
+
+                setTimeout(() => {
+                    updateStatus("STATUS: RESUMING...");
+                    isInterrupted = false;
+                    document.getElementById('btn_int').disabled = false;
+                    
+                    appendChat('system', '—— 讲师解答完毕，继续授课 ——');
+                    playQueue(); 
+                }, answerWait);
+            } catch (e) {
+                document.getElementById('btn_int').disabled = false;
+                appendChat('ai', '抱歉，我的网络好像开小差了，能再问一次吗？');
+            }
+        }
+    </script>
+</body>
+</html>

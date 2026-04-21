@@ -20,6 +20,16 @@ assert.match(
 );
 assert.match(
   studioPanel,
+  /createTeachingVideoTask\(courseId,\s*\{\s*ppt_material_id:\s*pptMaterialId\s*\}\)/,
+  'StudioPanel should also submit the offline teaching video task from the same teaching video entry flow',
+);
+assert.match(
+  studioPanel,
+  /setTeachingVideoTaskId\(String\(offlineVideoResult\.value\.task_id \|\| ''\)\.trim\(\)\)/,
+  'StudioPanel should persist the teaching video task id so the existing polling flow can resume it',
+);
+assert.match(
+  studioPanel,
   /window\.localStorage\.setItem\(\s*AI_LECTURE_AUTOSTART_REQUEST_KEY/,
   'StudioPanel should persist an autoplay handoff request before redirecting',
 );

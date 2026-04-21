@@ -5,8 +5,7 @@
     "level": 0,
     "summary": "计算思维与程序设计",
     "hasChildren": true,
-    "type": "concept",
-    "hours": 64
+    "type": "concept"
   },
   "children": [
     {
@@ -16,8 +15,7 @@
         "level": 1,
         "summary": "第1章 计算思维与问题求解",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 4
+        "type": "chapter"
       },
       "children": [
         {
@@ -27,8 +25,7 @@
             "level": 2,
             "summary": "1.1 计算、自动计算与计算机",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -38,8 +35,7 @@
                 "level": 3,
                 "summary": "计算的发展历程",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -49,8 +45,7 @@
                     "level": 4,
                     "summary": "计算工具",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -61,8 +56,7 @@
                     "level": 4,
                     "summary": "计算辅助工具",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -73,8 +67,7 @@
                     "level": 4,
                     "summary": "自动计算",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -85,8 +78,7 @@
                     "level": 4,
                     "summary": "机械计算装置",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -97,8 +89,7 @@
                     "level": 4,
                     "summary": "可编程计算装置",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -109,8 +100,7 @@
                     "level": 4,
                     "summary": "现代计算机",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -123,8 +113,7 @@
                 "level": 3,
                 "summary": "计算模式的演化",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": [
                 {
@@ -134,8 +123,7 @@
                     "level": 4,
                     "summary": "十五年周期定律",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -150,8 +138,7 @@
             "level": 2,
             "summary": "1.2 计算机的组成及工作原理",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -161,8 +148,7 @@
                 "level": 3,
                 "summary": "计算机的组成及工作原理",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -172,8 +158,7 @@
                     "level": 4,
                     "summary": "计算机软件和硬件",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -184,8 +169,7 @@
                     "level": 4,
                     "summary": "冯诺依曼体系",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -196,8 +180,7 @@
                     "level": 4,
                     "summary": "计算机五大设备",
                     "hasChildren": true,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": [
                     {
@@ -207,8 +190,7 @@
                         "level": 5,
                         "summary": "输入设备",
                         "hasChildren": false,
-                        "type": "concept",
-                        "hours": 0
+                        "type": "concept"
                       },
                       "children": []
                     },
@@ -219,8 +201,7 @@
                         "level": 5,
                         "summary": "输出设备",
                         "hasChildren": false,
-                        "type": "concept",
-                        "hours": 0
+                        "type": "concept"
                       },
                       "children": []
                     },
@@ -231,8 +212,7 @@
                         "level": 5,
                         "summary": "控制器",
                         "hasChildren": false,
-                        "type": "concept",
-                        "hours": 0
+                        "type": "concept"
                       },
                       "children": []
                     },
@@ -243,8 +223,7 @@
                         "level": 5,
                         "summary": "运算器",
                         "hasChildren": false,
-                        "type": "concept",
-                        "hours": 0
+                        "type": "concept"
                       },
                       "children": []
                     },
@@ -255,8 +234,7 @@
                         "level": 5,
                         "summary": "储存器",
                         "hasChildren": false,
-                        "type": "concept",
-                        "hours": 0
+                        "type": "concept"
                       },
                       "children": []
                     }
@@ -271,8 +249,7 @@
                 "level": 3,
                 "summary": "计算机的大脑CPU",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": [
                 {
@@ -282,8 +259,7 @@
                     "level": 4,
                     "summary": "控制器",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -294,8 +270,7 @@
                     "level": 4,
                     "summary": "运算器",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -306,8 +281,7 @@
                     "level": 4,
                     "summary": "寄存器",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -320,8 +294,7 @@
                 "level": 3,
                 "summary": "计算机的存储器",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -334,8 +307,7 @@
             "level": 2,
             "summary": "1.3 计算机内部数据表示与01符号化",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1
+            "type": "section"
           },
           "children": [
             {
@@ -345,8 +317,7 @@
                 "level": 3,
                 "summary": "图灵测试",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -357,8 +328,7 @@
                 "level": 3,
                 "summary": "位、字节与字长",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -369,8 +339,7 @@
                 "level": 3,
                 "summary": "进位制及其相互转换",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -381,8 +350,7 @@
                 "level": 3,
                 "summary": "数值信息表示方法",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -393,8 +361,7 @@
                 "level": 3,
                 "summary": "非数值信息表示方法",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -407,8 +374,7 @@
             "level": 2,
             "summary": "1.4 机器指令的表示与自动化执行",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0
+            "type": "section"
           },
           "children": [
             {
@@ -418,8 +384,7 @@
                 "level": 3,
                 "summary": "计算机结构和机器指令",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -430,8 +395,7 @@
                 "level": 3,
                 "summary": "机器指令的表示方法",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -444,8 +408,7 @@
             "level": 2,
             "summary": "1.5 计算思维与问题求解",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2
+            "type": "section"
           },
           "children": [
             {
@@ -455,8 +418,7 @@
                 "level": 3,
                 "summary": "求解问题的核心——算法",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             },
@@ -467,8 +429,7 @@
                 "level": 3,
                 "summary": "算法及其特征",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             },
@@ -479,8 +440,7 @@
                 "level": 3,
                 "summary": "评价算法原则",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -491,8 +451,7 @@
                 "level": 3,
                 "summary": "算法评价及表示",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -503,8 +462,7 @@
                 "level": 3,
                 "summary": "求解问题的一般步骤",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -517,8 +475,7 @@
             "level": 2,
             "summary": "1.6 高级语言程序设计",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0
+            "type": "section"
           },
           "children": [
             {
@@ -528,8 +485,7 @@
                 "level": 3,
                 "summary": "程序语言",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -544,8 +500,7 @@
         "level": 1,
         "summary": "第2章 C程序设计基础",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 8
+        "type": "chapter"
       },
       "children": [
         {
@@ -555,8 +510,7 @@
             "level": 2,
             "summary": "2.1 常量和变量",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1.5
+            "type": "section"
           },
           "children": [
             {
@@ -566,8 +520,7 @@
                 "level": 3,
                 "summary": "常量与符号常量",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -578,8 +531,7 @@
                 "level": 3,
                 "summary": "变量定义与使用",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             },
@@ -590,8 +542,7 @@
                 "level": 3,
                 "summary": "标识符命名规则",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -602,8 +553,7 @@
                 "level": 3,
                 "summary": "C语言关键字",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -616,8 +566,7 @@
             "level": 2,
             "summary": "2.2 数据类型",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1.5
+            "type": "section"
           },
           "children": [
             {
@@ -627,8 +576,7 @@
                 "level": 3,
                 "summary": "整型数据",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -638,8 +586,7 @@
                     "level": 4,
                     "summary": "整型常量表示",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -650,8 +597,7 @@
                     "level": 4,
                     "summary": "整型变量分类",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -662,8 +608,7 @@
                     "level": 4,
                     "summary": "数据存储形式",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -674,8 +619,7 @@
                     "level": 4,
                     "summary": "数据溢出问题",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -688,8 +632,7 @@
                 "level": 3,
                 "summary": "实型数据",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -699,8 +642,7 @@
                     "level": 4,
                     "summary": "实型变量分类",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -711,8 +653,7 @@
                     "level": 4,
                     "summary": "实型数据存储",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -723,8 +664,7 @@
                     "level": 4,
                     "summary": "实型常量表示",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -737,8 +677,7 @@
                 "level": 3,
                 "summary": "字符型数据",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -748,8 +687,7 @@
                     "level": 4,
                     "summary": "字符常量",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -760,8 +698,7 @@
                     "level": 4,
                     "summary": "字符变量",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -772,8 +709,7 @@
                     "level": 4,
                     "summary": "字符串常量",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -784,8 +720,7 @@
                     "level": 4,
                     "summary": "字符数组",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -800,8 +735,7 @@
             "level": 2,
             "summary": "2.3 运算符",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1
+            "type": "section"
           },
           "children": [
             {
@@ -811,8 +745,7 @@
                 "level": 3,
                 "summary": "赋值运算符",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -823,8 +756,7 @@
                 "level": 3,
                 "summary": "算术运算符",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -835,8 +767,7 @@
                 "level": 3,
                 "summary": "自增自减运算符",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -847,8 +778,7 @@
                 "level": 3,
                 "summary": "逗号运算符",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -859,8 +789,7 @@
                 "level": 3,
                 "summary": "类型转换规则",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -873,8 +802,7 @@
             "level": 2,
             "summary": "2.4 标准输入输出",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2
+            "type": "section"
           },
           "children": [
             {
@@ -884,8 +812,7 @@
                 "level": 3,
                 "summary": "格式化输入输出",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1.5
+                "type": "topic"
               },
               "children": []
             },
@@ -896,8 +823,7 @@
                 "level": 3,
                 "summary": "字符输入输出",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -908,8 +834,7 @@
                 "level": 3,
                 "summary": "字符串输入输出",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -920,8 +845,7 @@
                 "level": 3,
                 "summary": "标准输入输出流",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -934,8 +858,7 @@
             "level": 2,
             "summary": "2.5 数值算法：线性插值",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2
+            "type": "section"
           },
           "children": [
             {
@@ -945,8 +868,7 @@
                 "level": 3,
                 "summary": "线性插值原理",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -957,8 +879,7 @@
                 "level": 3,
                 "summary": "实际应用案例",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 2
+                "type": "topic"
               },
               "children": []
             }
@@ -973,8 +894,7 @@
         "level": 1,
         "summary": "第3章 结构化程序设计方法",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 12
+        "type": "chapter"
       },
       "children": [
         {
@@ -984,8 +904,7 @@
             "level": 2,
             "summary": "3.1 顺序结构：步骤与次序",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -995,8 +914,7 @@
                 "level": 3,
                 "summary": "算法描述方法",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -1006,8 +924,7 @@
                     "level": 4,
                     "summary": "自然语言描述",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -1018,8 +935,7 @@
                     "level": 4,
                     "summary": "伪代码表示",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -1030,8 +946,7 @@
                     "level": 4,
                     "summary": "N-S图表示",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -1042,8 +957,7 @@
                     "level": 4,
                     "summary": "流程图表示",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1056,8 +970,7 @@
                 "level": 3,
                 "summary": "流程图符号",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1068,8 +981,7 @@
                 "level": 3,
                 "summary": "执行特点",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -1082,8 +994,7 @@
             "level": 2,
             "summary": "3.2 选择结构：判断与决策",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2
+            "type": "section"
           },
           "children": [
             {
@@ -1093,8 +1004,7 @@
                 "level": 3,
                 "summary": "单分支选择",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -1104,8 +1014,7 @@
                     "level": 4,
                     "summary": "if语句实现",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1118,8 +1027,7 @@
                 "level": 3,
                 "summary": "双分支选择",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": [
                 {
@@ -1129,8 +1037,7 @@
                     "level": 4,
                     "summary": "if-else语句实现",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 1
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1143,8 +1050,7 @@
                 "level": 3,
                 "summary": "多分支选择",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": [
                 {
@@ -1154,8 +1060,7 @@
                     "level": 4,
                     "summary": "if-else if-else实现",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1168,8 +1073,7 @@
                 "level": 3,
                 "summary": "switch语句",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -1179,8 +1083,7 @@
                     "level": 4,
                     "summary": "case-break机制",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1195,8 +1098,7 @@
             "level": 2,
             "summary": "3.3 循环结构：重复与迭代",
             "hasChildren": true,
-            "type": "section",
-            "hours": 6.5
+            "type": "section"
           },
           "children": [
             {
@@ -1206,8 +1108,7 @@
                 "level": 3,
                 "summary": "计数循环",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 2.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -1217,8 +1118,7 @@
                     "level": 4,
                     "summary": "for循环结构",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 2.5
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1231,8 +1131,7 @@
                 "level": 3,
                 "summary": "条件循环",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 2
+                "type": "topic"
               },
               "children": [
                 {
@@ -1242,8 +1141,7 @@
                     "level": 4,
                     "summary": "while循环结构",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 2
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -1254,8 +1152,7 @@
                     "level": 4,
                     "summary": "do-while循环结构",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1268,8 +1165,7 @@
                 "level": 3,
                 "summary": "嵌套循环",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1280,8 +1176,7 @@
                 "level": 3,
                 "summary": "跳转控制",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -1291,8 +1186,7 @@
                     "level": 4,
                     "summary": "break语句",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 },
@@ -1303,8 +1197,7 @@
                     "level": 4,
                     "summary": "continue语句",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1319,8 +1212,7 @@
             "level": 2,
             "summary": "3.4 条件表达：关系与逻辑",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1330,8 +1222,7 @@
                 "level": 3,
                 "summary": "关系运算符",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": [
                 {
@@ -1341,8 +1232,7 @@
                     "level": 4,
                     "summary": "比较运算",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1355,8 +1245,7 @@
                 "level": 3,
                 "summary": "逻辑运算符",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": [
                 {
@@ -1366,8 +1255,7 @@
                     "level": 4,
                     "summary": "与或非运算",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0.5
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1380,8 +1268,7 @@
                 "level": 3,
                 "summary": "优先级规则",
                 "hasChildren": true,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": [
                 {
@@ -1391,8 +1278,7 @@
                     "level": 4,
                     "summary": "结合性规则",
                     "hasChildren": false,
-                    "type": "concept",
-                    "hours": 0
+                    "type": "concept"
                   },
                   "children": []
                 }
@@ -1407,8 +1293,7 @@
             "level": 2,
             "summary": "3.5 数值计算：积分与求解",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2.5
+            "type": "section"
           },
           "children": [
             {
@@ -1418,8 +1303,7 @@
                 "level": 3,
                 "summary": "数值积分",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1430,8 +1314,7 @@
                 "level": 3,
                 "summary": "梯形法实现",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             },
@@ -1442,8 +1325,7 @@
                 "level": 3,
                 "summary": "综合应用",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             }
@@ -1458,8 +1340,7 @@
         "level": 1,
         "summary": "第4章 模块化程序设计方法",
         "hasChildren": false,
-        "type": "chapter",
-        "hours": 8
+        "type": "chapter"
       },
       "children": []
     },
@@ -1470,8 +1351,7 @@
         "level": 1,
         "summary": "第5章 批量数据处理方法",
         "hasChildren": false,
-        "type": "chapter",
-        "hours": 6
+        "type": "chapter"
       },
       "children": []
     },
@@ -1482,8 +1362,7 @@
         "level": 1,
         "summary": "第6章 内存数据深度操控方法",
         "hasChildren": false,
-        "type": "chapter",
-        "hours": 8
+        "type": "chapter"
       },
       "children": []
     },
@@ -1494,8 +1373,7 @@
         "level": 1,
         "summary": "第7章 数据的结构化封装方法",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 6
+        "type": "chapter"
       },
       "children": [
         {
@@ -1505,8 +1383,7 @@
             "level": 2,
             "summary": "7.4 结构体指针<br>->操作成员",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1516,8 +1393,7 @@
                 "level": 3,
                 "summary": "定义：struct 类型名 *指针名;",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1528,8 +1404,7 @@
                 "level": 3,
                 "summary": "访问成员：指针名->成员名",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1542,8 +1417,7 @@
             "level": 2,
             "summary": "7.5 链表<br>动态数据结构",
             "hasChildren": true,
-            "type": "section",
-            "hours": 3
+            "type": "section"
           },
           "children": [
             {
@@ -1553,8 +1427,7 @@
                 "level": 3,
                 "summary": "核心：结构体包含指针域<br>（next）",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             },
@@ -1565,8 +1438,7 @@
                 "level": 3,
                 "summary": "操作：malloc/free<br>动态内存管理",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1577,8 +1449,7 @@
                 "level": 3,
                 "summary": "优点：长度可动态增删",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1591,8 +1462,7 @@
             "level": 2,
             "summary": "7.6 综合应用<br>二分法求根",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2.5
+            "type": "section"
           },
           "children": [
             {
@@ -1602,8 +1472,7 @@
                 "level": 3,
                 "summary": "结合结构体封装区间参数",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1614,8 +1483,7 @@
                 "level": 3,
                 "summary": "应用：求解非线性方程根",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 2
+                "type": "topic"
               },
               "children": []
             }
@@ -1630,8 +1498,7 @@
         "level": 1,
         "summary": "第8章 数据持久化储存方法",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 6
+        "type": "chapter"
       },
       "children": [
         {
@@ -1641,8 +1508,7 @@
             "level": 2,
             "summary": "8.1 文件系统基础<br>概念与分类",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1652,8 +1518,7 @@
                 "level": 3,
                 "summary": "文本文件 vs 二进制文件",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1664,8 +1529,7 @@
                 "level": 3,
                 "summary": "顺序存取 vs 随机存取",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1676,8 +1540,7 @@
                 "level": 3,
                 "summary": "缓冲 vs 非缓冲系统",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -1690,8 +1553,7 @@
             "level": 2,
             "summary": "8.2 文件型指针<br>FILE结构体",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1701,8 +1563,7 @@
                 "level": 3,
                 "summary": "FILE结构体定义",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1713,8 +1574,7 @@
                 "level": 3,
                 "summary": "文件指针fp的作用",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1727,8 +1587,7 @@
             "level": 2,
             "summary": "8.3 文件打开与关闭<br>fopen与fclose",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1
+            "type": "section"
           },
           "children": [
             {
@@ -1738,8 +1597,7 @@
                 "level": 3,
                 "summary": "打开模式：r/w/a/r+/w+/a+",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             },
@@ -1750,8 +1608,7 @@
                 "level": 3,
                 "summary": "返回值判断：NULL或EOF",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -1764,8 +1621,7 @@
             "level": 2,
             "summary": "8.4 文件读写操作<br>多种读写函数",
             "hasChildren": true,
-            "type": "section",
-            "hours": 2.5
+            "type": "section"
           },
           "children": [
             {
@@ -1775,8 +1631,7 @@
                 "level": 3,
                 "summary": "字符读写：fgetc/fputc",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1787,8 +1642,7 @@
                 "level": 3,
                 "summary": "字符串读写：fgets/fputs",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1799,8 +1653,7 @@
                 "level": 3,
                 "summary": "数据块读写：fread/fwrite",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -1811,8 +1664,7 @@
                 "level": 3,
                 "summary": "格式化读写：fprintf/fscanf",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             }
@@ -1825,8 +1677,7 @@
             "level": 2,
             "summary": "8.5 文件定位<br>rewind与fseek",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1836,8 +1687,7 @@
                 "level": 3,
                 "summary": "重置指针：rewind",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1848,8 +1698,7 @@
                 "level": 3,
                 "summary": "随机定位：fseek",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1862,8 +1711,7 @@
             "level": 2,
             "summary": "8.6 综合应用<br>拉格朗日插值",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1873,8 +1721,7 @@
                 "level": 3,
                 "summary": "数据文件生成与读取",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1885,8 +1732,7 @@
                 "level": 3,
                 "summary": "拉格朗日插值算法实现",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1899,8 +1745,7 @@
             "level": 2,
             "summary": "8.7 数据库技术<br>SQLite操作",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1910,8 +1755,7 @@
                 "level": 3,
                 "summary": "SQL语言：DDL/DML/DCL",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1922,8 +1766,7 @@
                 "level": 3,
                 "summary": "SQLite轻量级数据库",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1934,8 +1777,7 @@
                 "level": 3,
                 "summary": "C程序连接与操作数据库",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1950,8 +1792,7 @@
         "level": 1,
         "summary": "问题求解策略和常用算法",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 4
+        "type": "chapter"
       },
       "children": [
         {
@@ -1961,8 +1802,7 @@
             "level": 2,
             "summary": "9.2 枚举法<br>穷举所有可能解",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -1972,8 +1812,7 @@
                 "level": 3,
                 "summary": "特点：简单但效率低",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -1984,8 +1823,7 @@
                 "level": 3,
                 "summary": "案例：百钱买百鸡",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -1998,8 +1836,7 @@
             "level": 2,
             "summary": "9.3 分治法<br>分解-解决-合并",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -2009,8 +1846,7 @@
                 "level": 3,
                 "summary": "特征：最优子结构，子问题独立",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2021,8 +1857,7 @@
                 "level": 3,
                 "summary": "案例：排序问题",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -2035,8 +1870,7 @@
             "level": 2,
             "summary": "9.4 递推与递归<br>递推：迭代公式<br>递归：自我调用",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1.5
+            "type": "section"
           },
           "children": [
             {
@@ -2046,8 +1880,7 @@
                 "level": 3,
                 "summary": "递推：斐波那契数列迭代求解",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2058,8 +1891,7 @@
                 "level": 3,
                 "summary": "递归：函数调用自身，需终止条件",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1.5
+                "type": "topic"
               },
               "children": []
             }
@@ -2072,8 +1904,7 @@
             "level": 2,
             "summary": "9.5 回溯法<br>深度优先搜索+剪枝",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -2083,8 +1914,7 @@
                 "level": 3,
                 "summary": "解空间树",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2095,8 +1925,7 @@
                 "level": 3,
                 "summary": "案例：0-1背包问题",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -2109,8 +1938,7 @@
             "level": 2,
             "summary": "9.6 贪心算法<br>局部最优选择",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -2120,8 +1948,7 @@
                 "level": 3,
                 "summary": "特点：无后效性",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2132,8 +1959,7 @@
                 "level": 3,
                 "summary": "案例：活动安排问题",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             }
@@ -2146,8 +1972,7 @@
             "level": 2,
             "summary": "9.7 排序与查找<br>基础算法实现",
             "hasChildren": true,
-            "type": "section",
-            "hours": 0.5
+            "type": "section"
           },
           "children": [
             {
@@ -2157,8 +1982,7 @@
                 "level": 3,
                 "summary": "排序：选择/冒泡/插入",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0.5
+                "type": "topic"
               },
               "children": []
             },
@@ -2169,8 +1993,7 @@
                 "level": 3,
                 "summary": "查找：二分查找",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             }
@@ -2185,8 +2008,7 @@
         "level": 1,
         "summary": "复杂问题求解技术",
         "hasChildren": true,
-        "type": "chapter",
-        "hours": 2
+        "type": "chapter"
       },
       "children": [
         {
@@ -2196,8 +2018,7 @@
             "level": 2,
             "summary": "10.2 大数据技术<br>核心：海量数据处理方法",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1
+            "type": "section"
           },
           "children": [
             {
@@ -2207,8 +2028,7 @@
                 "level": 3,
                 "summary": "核心特征：5V<br>大量、高速、多样、价值、真实",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2219,8 +2039,7 @@
                 "level": 3,
                 "summary": "C语言处理技术<br>数据分块、并行计算、压缩索引",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2231,8 +2050,7 @@
                 "level": 3,
                 "summary": "应用：统计大数据文件",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             }
@@ -2245,8 +2063,7 @@
             "level": 2,
             "summary": "10.3 智能计算<br>核心：经典AI算法",
             "hasChildren": true,
-            "type": "section",
-            "hours": 1
+            "type": "section"
           },
           "children": [
             {
@@ -2256,8 +2073,7 @@
                 "level": 3,
                 "summary": "K-Means聚类算法<br>无监督学习，按距离分组",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2268,8 +2084,7 @@
                 "level": 3,
                 "summary": "KNN分类算法<br>监督学习，近邻投票决定类别",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 0
+                "type": "topic"
               },
               "children": []
             },
@@ -2280,8 +2095,7 @@
                 "level": 3,
                 "summary": "应用：手写数字识别",
                 "hasChildren": false,
-                "type": "topic",
-                "hours": 1
+                "type": "topic"
               },
               "children": []
             }

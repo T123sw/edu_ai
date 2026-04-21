@@ -5,11 +5,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #0a1929;
-  background-image: url('/login-bg.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(37, 99, 235, 0.18) 0%, transparent 32%),
+    radial-gradient(circle at 78% 72%, rgba(99, 102, 241, 0.14) 0%, transparent 28%),
+    linear-gradient(135deg, rgba(7, 17, 31, 0.82) 0%, rgba(15, 35, 66, 0.58) 48%, rgba(10, 21, 39, 0.42) 100%),
+    url("../../tests/stitch/login-bg.png") center/cover no-repeat;
   padding: 0 140px 0 80px;
 }
 
@@ -17,7 +17,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(10, 25, 41, 0.2);
+  background: linear-gradient(90deg, rgba(6, 14, 27, 0.52) 0%, rgba(6, 14, 27, 0.18) 45%, rgba(6, 14, 27, 0.06) 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -47,10 +47,11 @@
   max-width: 100%;
   min-height: 580px;
   padding: 72px 56px;
-  border-radius: 16px;
+  border-radius: 18px !important;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
-  border: none;
-  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -74,7 +75,7 @@
   flex-direction: column;
   align-items: center;
   line-height: 1;
-  color: #667eea;
+  color: #2563eb;
 }
 
 .login-logo-main {
@@ -128,9 +129,15 @@
 }
 
 .login-feature-icon {
-  font-size: 48px;
-  margin-bottom: 4px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  font-size: 26px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
 .login-feature-text {
@@ -140,7 +147,6 @@
 }
 
 .login-form-wrapper {
-  flex: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -154,6 +160,23 @@
   margin-bottom: 0;
 }
 
+.login-form-wrapper .ant-form-item-label > label {
+  color: #475569;
+  font-weight: 600;
+}
+
+.login-form-wrapper .ant-input-affix-wrapper,
+.login-form-wrapper .ant-input {
+  border-radius: 12px !important;
+}
+
+.login-form-wrapper .ant-input-affix-wrapper:focus,
+.login-form-wrapper .ant-input-affix-wrapper-focused,
+.login-form-wrapper .ant-input:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14) !important;
+}
+
 .login-form-wrapper .ant-checkbox-wrapper {
   color: #6b7280;
   font-size: 14px;
@@ -161,6 +184,23 @@
 
 .login-form-wrapper .ant-checkbox-wrapper:hover {
   color: #111827;
+}
+
+.login-form-wrapper .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.login-form-wrapper .ant-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  border-color: transparent;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+}
+
+.login-form-wrapper .ant-btn-primary:hover,
+.login-form-wrapper .ant-btn-primary:focus {
+  background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%) !important;
+  border-color: transparent !important;
 }
 
 .login-form-header {
@@ -225,6 +265,10 @@
     margin-bottom: 40px;
   }
 
+  .login-feature-item {
+    align-items: center;
+  }
+
   .login-card {
     width: 100%;
     min-width: auto;
@@ -249,6 +293,7 @@
 
   .login-features {
     gap: 24px;
+    justify-content: center;
   }
 
   .login-card {
@@ -259,6 +304,3 @@
     font-size: 22px !important;
   }
 }
-
-
-

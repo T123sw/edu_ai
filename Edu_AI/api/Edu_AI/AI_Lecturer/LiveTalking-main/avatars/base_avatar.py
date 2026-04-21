@@ -70,6 +70,7 @@ class BaseAvatar:
 
         self.speaking = False
         self.recording = False
+        self.recording_requested = False
         self._record_video_pipe = None
         self._record_audio_pipe = None
         self.width = self.height = 0
@@ -220,9 +221,37 @@ class BaseAvatar:
             logger.info("notify:%s", eventpoint)
 
     def start_recording(self):
-        if self.recording:
+        if self.recording or self.recording_requested:
             return
-        paths = recording_paths_for_session(self.opt.sessionid)
+        self.recording_requested = True
+        self._recording_paths = recording_paths_for_session(self.opt.sessionid)
+        if not self._open_recording_pipes():
+            logger.warning(
+                "Recording armed for session %s but frame size is not available yet; waiting for first frame.",
+                self.opt.sessionid,
+            )
+
+    def _resolve_recording_dimensions(self, image=None):
+        if self.width > 0 and self.height > 0:
+            return True
+
+        frame = image
+        if frame is None and hasattr(self, 'frame_list_cycle') and len(self.frame_list_cycle) > 0:
+            frame = self.frame_list_cycle[0]
+
+        if frame is None or not hasattr(frame, "shape") or len(frame.shape) < 2:
+            return False
+
+        self.height, self.width = frame.shape[:2]
+        return self.width > 0 and self.height > 0
+
+    def _open_recording_pipes(self):
+        if self.recording:
+            return True
+        if not self._resolve_recording_dimensions():
+            return False
+
+        paths = getattr(self, "_recording_paths", None) or recording_paths_for_session(self.opt.sessionid)
         self._recording_paths = paths
         command = ['ffmpeg',
                     '-y', '-an',
@@ -248,18 +277,23 @@ class BaseAvatar:
         self._record_audio_pipe = subprocess.Popen(acommand, shell=False, stdin=subprocess.PIPE)
 
         self.recording = True
+        return True
     
     def record_video_data(self, image):
-        if self.width == 0:
-            self.height, self.width, _ = image.shape
+        self._resolve_recording_dimensions(image)
+        if getattr(self, "recording_requested", False) and not self.recording:
+            self._open_recording_pipes()
         if self.recording:
-            self._record_video_pipe.stdin.write(image.tostring())
+            self._record_video_pipe.stdin.write(image.tobytes())
 
     def record_audio_data(self, frame):
         if self.recording:
-            self._record_audio_pipe.stdin.write(frame.tostring())
+            self._record_audio_pipe.stdin.write(frame.tobytes())
 		
     def stop_recording(self):
+        if not self.recording and not getattr(self, "recording_requested", False):
+            return
+        self.recording_requested = False
         if not self.recording:
             return
         self.recording = False 
@@ -267,6 +301,8 @@ class BaseAvatar:
         self._record_video_pipe.wait()
         self._record_audio_pipe.stdin.close()
         self._record_audio_pipe.wait()
+        self._record_video_pipe = None
+        self._record_audio_pipe = None
         paths = getattr(self, "_recording_paths", recording_paths_for_session(self.opt.sessionid))
         cmd_combine_audio = f'ffmpeg -y -i "{paths.audio}" -i "{paths.video}" -c:v copy -c:a copy "{paths.final}"'
         os.system(cmd_combine_audio)

@@ -151,10 +151,16 @@ export default function DataPipelinePage() {
 
   return (
     <div className="data-pipeline-page">
-      <Title level={2}>
+      <div className="pipeline-hero-shell">
+        <div className="pipeline-eyebrow">Pipeline Console</div>
+      </div>
+      <Title level={2} className="pipeline-title">
         <DatabaseOutlined /> 数据采集管道
       </Title>
-      <Tabs defaultActiveKey="config">
+      <Text className="pipeline-subtitle">
+        ä¿ç•™çŽ°æœ‰ä»»åŠ¡è°ƒåº¦ã€�çˆ¬å–ã€�è§£æžå’Œåˆ‡å—è°ƒç”¨ï¼Œåªå°†é¡µé¢å¤–è§‚å’Œä¿¡æ¯å±‚æ¬¡åˆ‡æ¢åˆ°æ–°çš„å¡ç‰‡ç³»ç»Ÿã€‚
+      </Text>
+      <Tabs defaultActiveKey="config" className="pipeline-tabs">
         <Tabs.TabPane
           key="config"
           tab={

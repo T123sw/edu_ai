@@ -406,6 +406,7 @@ export interface ChatErrorResponseV2 {
     message?: string;
     retryable?: boolean;
   };
+  detail?: string;
 }
 
 export type ChatStreamEventTypeV2 = 'metadata' | 'status' | 'delta' | 'result' | 'done' | 'error';
@@ -443,7 +444,7 @@ async function postV2<TResponse, TPayload>(path: string, payload: TPayload): Pro
     let detail = `请求失败: ${resp.status} ${resp.statusText}`;
     try {
       const errorPayload = (await resp.json()) as ChatErrorResponseV2;
-      detail = errorPayload.error?.message || detail;
+      detail = errorPayload.error?.message || errorPayload.detail || detail;
     } catch {
       const text = await resp.text().catch(() => '');
       if (text) detail = text;
@@ -542,7 +543,7 @@ export async function uploadChatImagesV2(
     let detail = `请求失败: ${resp.status} ${resp.statusText}`;
     try {
       const errorPayload = (await resp.json()) as ChatErrorResponseV2;
-      detail = errorPayload.error?.message || detail;
+      detail = errorPayload.error?.message || errorPayload.detail || detail;
     } catch {
       const text = await resp.text().catch(() => '');
       if (text) detail = text;
@@ -579,7 +580,7 @@ export async function uploadChatVideosV2(
     let detail = `璇锋眰澶辫触: ${resp.status} ${resp.statusText}`;
     try {
       const errorPayload = (await resp.json()) as ChatErrorResponseV2;
-      detail = errorPayload.error?.message || detail;
+      detail = errorPayload.error?.message || errorPayload.detail || detail;
     } catch {
       const text = await resp.text().catch(() => '');
       if (text) detail = text;
@@ -654,7 +655,7 @@ export async function transcribeSpeechV2(file: Blob, filename: string): Promise<
   const formData = new FormData();
   formData.append('file', file, filename);
 
-  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/v2/speech/transcribe`, {
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/speech/transcribe`, {
     method: 'POST',
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -666,7 +667,7 @@ export async function transcribeSpeechV2(file: Blob, filename: string): Promise<
     let detail = `请求失败: ${resp.status} ${resp.statusText}`;
     try {
       const errorPayload = (await resp.json()) as ChatErrorResponseV2;
-      detail = errorPayload.error?.message || detail;
+      detail = errorPayload.error?.message || errorPayload.detail || detail;
     } catch {
       const text = await resp.text().catch(() => '');
       if (text) detail = text;

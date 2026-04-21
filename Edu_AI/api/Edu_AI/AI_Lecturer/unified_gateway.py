@@ -47,6 +47,11 @@ TEMP_DIR = os.path.join(BASE_DIR, "temp_export")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 
+def is_offline_video_enabled() -> bool:
+    value = os.getenv("AI_LECTURER_OFFLINE_ENABLED", "1").strip().lower()
+    return value not in {"0", "false", "off", "no"}
+
+
 def split_into_sentences(text: str) -> list:
     """工具函数：将长段落切分为单句，方便逐句播报与打断"""
     parts = re.split(r'([。？！.?!])', text)
@@ -57,6 +62,77 @@ def split_into_sentences(text: str) -> list:
     if len(parts) % 2 != 0 and len(parts[-1].strip()) > 1:
         sentences.append(parts[-1].strip())
     return sentences
+
+
+def build_fallback_outline(raw_document: str, max_pages: int = 15) -> list:
+    """在大模型暂时不可用时，从 Markdown/纯文本中提取一个可讲的大纲。"""
+    lines = [line.strip() for line in (raw_document or "").splitlines()]
+    pages = []
+    current_title = ""
+    current_content = []
+
+    def flush_current():
+        nonlocal current_title, current_content
+        content = "\n".join(item for item in current_content if item).strip()
+        if current_title or content:
+            pages.append({
+                "title": current_title or f"Slide {len(pages) + 1}",
+                "content": content or current_title,
+            })
+        current_title = ""
+        current_content = []
+
+    for line in lines:
+        if not line:
+            continue
+        heading = re.match(r"^#{1,6}\s+(.+)$", line)
+        if heading:
+            flush_current()
+            current_title = heading.group(1).strip()
+            if len(pages) >= max_pages:
+                break
+            continue
+        if line.startswith(("-", "*", "+")):
+            current_content.append(line.lstrip("-*+ ").strip())
+        else:
+            current_content.append(line)
+        if len(current_content) >= 6:
+            flush_current()
+            if len(pages) >= max_pages:
+                break
+
+    flush_current()
+    pages = [page for page in pages if page["title"] or page["content"]][:max_pages]
+    if pages:
+        return pages
+
+    fallback_text = (raw_document or "").strip() or "课程内容暂时无法解析，请围绕已选择的 PPT 进行概览讲解。"
+    return [{"title": "课程概览", "content": fallback_text[:800]}]
+
+
+def save_course_outline(course_name: str, outline: list) -> str:
+    global global_course_counter
+    global_course_counter += 1
+    course_id = str(global_course_counter)
+    COURSE_DB[course_id] = {"course_name": course_name, "outline": outline}
+    return course_id
+
+
+def build_fallback_script(slide_content: str, page_index: int, total_pages: int) -> list:
+    core = re.sub(r"\s+", " ", (slide_content or "").strip())
+    if not core:
+        core = "本页主要围绕当前 PPT 的核心概念展开。"
+    if page_index == 0:
+        prefix = "我们先从本节课的整体目标开始。"
+    elif page_index == max(total_pages - 1, 0):
+        prefix = "最后我们回顾本页和整节课的关键结论。"
+    else:
+        prefix = "接下来我们继续分析这一页的重点。"
+    return [
+        prefix,
+        f"这一页的核心内容是：{core[:80]}。",
+        "请同学们先抓住概念之间的关系，再理解具体实现方式。",
+    ]
 
 # ==============================================================================
 # 🟢 模块 A: 在线实时课堂 (Online Interaction)
@@ -107,13 +183,17 @@ async def create_course(request: InjectCourseRequest):
             
         outline = json.loads(res_text.strip())
         
-        global_course_counter += 1
-        course_id = str(global_course_counter)
-        COURSE_DB[course_id] = {"course_name": request.course_name, "outline": outline}
+        course_id = save_course_outline(request.course_name, outline)
         return {"code": 200, "data": {"course_id": course_id, "pages": outline}}
     except Exception as e:
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail="解析课程失败")
+        outline = build_fallback_outline(request.raw_document)
+        course_id = save_course_outline(request.course_name, outline)
+        return {
+            "code": 200,
+            "message": "LLM course parsing failed; fallback outline was generated from source markdown.",
+            "data": {"course_id": course_id, "pages": outline},
+        }
     
 
 @app.get("/api/v1/online/get_course/{course_id}", tags=["🟢 在线课堂模块"])
@@ -146,7 +226,8 @@ async def generate_script(request: ClassRequest):
         sentences = split_into_sentences(completion.choices[0].message.content)
         return {"code": 200, "data": {"sentences": sentences}}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        traceback.print_exc()
+        return {"code": 200, "message": "LLM script generation failed; fallback script was generated.", "data": {"sentences": build_fallback_script(request.current_slide_content, request.page_index, request.total_pages)}}
 
 @app.post("/api/v1/online/speak_sentence", tags=["🟢 在线课堂模块"])
 async def speak_sentence(request: SpeakRequest):
@@ -232,6 +313,16 @@ async def generate_full_course_video(request: FullCourseVideoRequest, bg_tasks: 
     输入一整套 PPT 图片数组和对应大纲，系统将在后台异步渲染，并自动拼接为一个完整的 MP4 教学大片。
     立即返回 task_id 用于轮询进度。
     """
+    if not is_offline_video_enabled():
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Offline AI Lecturer video generation is disabled by "
+                "AI_LECTURER_OFFLINE_ENABLED=0. Enable it only when CPU/GPU "
+                "capacity is available."
+            ),
+        )
+
     task_id = f"course_{uuid.uuid4().hex[:8]}"
     OFFLINE_TASK_DB[task_id] = {"status": "processing"}
     

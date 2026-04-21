@@ -3,6 +3,9 @@ uvicorn[standard]>=0.24
 pydantic>=2.0
 python-multipart>=0.0.6
 python-dotenv>=1.0
+baidu-aip>=4.16.13
+chardet>=5.2.0,<6
+ffmpeg-python>=0.2.0
 
 requests>=2.31
 pyjwt>=2.8

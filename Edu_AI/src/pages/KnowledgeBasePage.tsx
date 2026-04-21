@@ -1,334 +1,430 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Card,
-  Col,
-  Row,
-  Tabs,
-  Typography,
-  Tag,
-  Input,
-  List,
-  Space,
-  Statistic,
-  Empty,
-  Tooltip,
   Button,
-  Checkbox,
+  Card,
+  Empty,
+  Input,
   Popconfirm,
+  Select,
+  Space,
+  Spin,
+  Statistic,
+  Tag,
+  Typography,
+  message,
 } from 'antd';
 import {
+  CloudUploadOutlined,
   DatabaseOutlined,
-  FileTextOutlined,
-  CloudServerOutlined,
-  SearchOutlined,
-  ClockCircleOutlined,
-  LinkOutlined,
   DeleteOutlined,
+  FileTextOutlined,
+  SearchOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
+import { useAuth } from '../context/AuthContext';
+import { useCourseStore } from '../store/course/useCourseStore';
+import {
+  deleteKnowledgeBaseDocument,
+  getKnowledgeBaseDocuments,
+  type KnowledgeBaseDocument,
+  uploadKnowledgeBaseDocument,
+} from '../services/knowledgeBase';
 import './KnowledgeBasePage.css';
 
 const { Title, Text, Paragraph } = Typography;
-const { TabPane } = Tabs as any;
 
-interface KnowledgeItem {
-  id: string;
-  title: string;
-  sourceType: 'crawler' | 'pdf';
-  sourceName: string;
-  tags: string[];
-  summary: string;
-  updatedAt: string;
+type FilterType = 'all' | 'file' | 'web';
+
+const CATEGORY_STORAGE_KEY = 'edu-ai-kb-category-map';
+
+function loadCategoryMap() {
+  try {
+    const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
 }
 
-const MOCK_ITEMS: KnowledgeItem[] = [
-  {
-    id: '1',
-    title: '鸦片战争背景与爆发',
-    sourceType: 'crawler',
-    sourceName: '历史百科爬取',
-    tags: ['近代史', '战争背景', '中国近代化'],
-    summary:
-      '介绍鸦片战争前清政府的闭关锁国政策、英国对华贸易逆差以及鸦片走私扩张等历史背景，为理解战争爆发提供整体脉络。',
-    updatedAt: '2025-11-30 21:15',
-  },
-  {
-    id: '2',
-    title: '高中历史必修一·鸦片战争课文精读',
-    sourceType: 'pdf',
-    sourceName: '教材 PDF',
-    tags: ['教材', '精读', '课堂讲解'],
-    summary:
-      '节选自高中历史必修一教材，对鸦片战争的时间线、主要战役和《南京条约》内容进行了系统梳理，可直接用于课堂讲解。',
-    updatedAt: '2025-11-25 09:42',
-  },
-  {
-    id: '3',
-    title: '第一次鸦片战争主要战役一览',
-    sourceType: 'crawler',
-    sourceName: '开放数据接口',
-    tags: ['战役', '数据表', '可视化'],
-    summary:
-      '按时间顺序罗列鸦片战争中的重要战役节点，包括爆发时间、参战双方、战果和历史影响，可支持后续图表与练习题自动生成。',
-    updatedAt: '2025-11-20 14:08',
-  },
-];
+function saveCategoryMap(categoryMap: Record<string, string>) {
+  localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categoryMap));
+}
+
+function inferCategory(document: KnowledgeBaseDocument) {
+  const name = document.name.toLowerCase();
+  if (name.endsWith('.ppt') || name.endsWith('.pptx')) return 'PPT';
+  if (name.endsWith('.pdf')) return '教材资料';
+  if (name.endsWith('.doc') || name.endsWith('.docx')) return '讲义文档';
+  if (document.type === 'web') return '网页采集';
+  return '课程素材';
+}
 
 export default function KnowledgeBasePage() {
-  const [activeTab, setActiveTab] = useState<'all' | 'crawler' | 'pdf'>('all');
+  const { token } = useAuth();
+  const { courses, currentCourse, loadCoursesFromBackend } = useCourseStore();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [keyword, setKeyword] = useState('');
-  const [items, setItems] = useState<KnowledgeItem[]>(MOCK_ITEMS);
+  const [filterType, setFilterType] = useState<FilterType>('all');
+  const [activeCourseId, setActiveCourseId] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      if (activeTab === 'crawler' && item.sourceType !== 'crawler') return false;
-      if (activeTab === 'pdf' && item.sourceType !== 'pdf') return false;
-      if (!keyword.trim()) return true;
-      const k = keyword.trim();
-      return (
-        item.title.includes(k) ||
-        item.summary.includes(k) ||
-        item.tags.some((t) => t.includes(k)) ||
-        item.sourceName.includes(k)
-      );
+  useEffect(() => {
+    if (!courses.length) {
+      void loadCoursesFromBackend();
+    }
+    setCategoryMap(loadCategoryMap());
+  }, [courses.length, loadCoursesFromBackend]);
+
+  useEffect(() => {
+    if (activeCourseId) return;
+    const preferredId = currentCourse?.id || courses[0]?.id || '';
+    if (preferredId) {
+      setActiveCourseId(preferredId);
+    }
+  }, [activeCourseId, courses, currentCourse]);
+
+  useEffect(() => {
+    if (!activeCourseId || !token) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function run() {
+      try {
+        setLoading(true);
+        const data = await getKnowledgeBaseDocuments(activeCourseId, token, {
+          scopeType: 'course',
+          libraryType: 'course',
+          aggregate: true,
+        });
+
+        if (cancelled) return;
+
+        setDocuments(data);
+        setCategoryMap((current) => {
+          const next = { ...current };
+          let changed = false;
+          for (const item of data) {
+            if (!next[item.id]) {
+              next[item.id] = inferCategory(item);
+              changed = true;
+            }
+          }
+          if (changed) {
+            saveCategoryMap(next);
+          }
+          return next;
+        });
+      } catch (error) {
+        if (!cancelled) {
+          message.error(error instanceof Error ? error.message : '课程知识库加载失败');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCourseId, token]);
+
+  const activeCourse = courses.find((course) => course.id === activeCourseId) || currentCourse || null;
+
+  const stats = useMemo(() => {
+    const fileCount = documents.filter((item) => item.type === 'file').length;
+    const webCount = documents.filter((item) => item.type === 'web').length;
+    const selectedCount = selectedIds.length;
+    return { fileCount, webCount, selectedCount };
+  }, [documents, selectedIds.length]);
+
+  const filteredDocuments = useMemo(() => {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    return documents.filter((item) => {
+      if (filterType !== 'all' && item.type !== filterType) {
+        return false;
+      }
+      if (!normalizedKeyword) {
+        return true;
+      }
+      return [item.name, item.course_id, item.url || '', categoryMap[item.id] || inferCategory(item)]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedKeyword);
     });
-  }, [items, activeTab, keyword]);
+  }, [categoryMap, documents, filterType, keyword]);
 
-  const selectedItemsInView = useMemo(() => {
-    const visibleIds = new Set(filteredItems.map((item) => item.id));
+  const visibleSelection = useMemo(() => {
+    const visibleIds = new Set(filteredDocuments.map((item) => item.id));
     return selectedIds.filter((id) => visibleIds.has(id));
-  }, [filteredItems, selectedIds]);
+  }, [filteredDocuments, selectedIds]);
 
-  const allVisibleSelected =
-    filteredItems.length > 0 && selectedItemsInView.length === filteredItems.length;
-  const isIndeterminate =
-    selectedItemsInView.length > 0 && selectedItemsInView.length < filteredItems.length;
+  const allVisibleSelected = filteredDocuments.length > 0 && visibleSelection.length === filteredDocuments.length;
 
-  const handleSelectAllVisible = (checked: boolean) => {
-    if (checked) {
-      const visibleIds = filteredItems.map((item) => item.id);
-      setSelectedIds((prev) => Array.from(new Set([...prev, ...visibleIds])));
-    } else {
-      const visibleSet = new Set(filteredItems.map((item) => item.id));
-      setSelectedIds((prev) => prev.filter((id) => !visibleSet.has(id)));
+  const toggleVisibleSelection = () => {
+    if (allVisibleSelected) {
+      const visibleSet = new Set(filteredDocuments.map((item) => item.id));
+      setSelectedIds((current) => current.filter((id) => !visibleSet.has(id)));
+      return;
+    }
+
+    const visibleIds = filteredDocuments.map((item) => item.id);
+    setSelectedIds((current) => Array.from(new Set([...current, ...visibleIds])));
+  };
+
+  const handleUploadFiles = async (fileList: FileList | null) => {
+    if (!fileList?.length || !token || !activeCourseId) return;
+
+    setUploading(true);
+    try {
+      const uploaded: KnowledgeBaseDocument[] = [];
+      for (const file of Array.from(fileList)) {
+        const document = await uploadKnowledgeBaseDocument(activeCourseId, file, token, undefined, {
+          scopeType: 'course',
+          libraryType: 'course',
+        });
+        uploaded.push(document);
+      }
+
+      setDocuments((current) => [...uploaded, ...current]);
+      setCategoryMap((current) => {
+        const next = { ...current };
+        for (const item of uploaded) {
+          next[item.id] = inferCategory(item);
+        }
+        saveCategoryMap(next);
+        return next;
+      });
+
+      message.success(`已上传 ${uploaded.length} 个知识库文件`);
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '上传失败');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
-  const handleToggleItem = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      if (checked) {
-        return prev.includes(id) ? prev : [...prev, id];
-      }
-      return prev.filter((itemId) => itemId !== id);
-    });
+  const handleDeleteSelected = async () => {
+    if (!token || !activeCourseId || !selectedIds.length) return;
+
+    try {
+      await Promise.all(selectedIds.map((id) => deleteKnowledgeBaseDocument(activeCourseId, id, token)));
+      const selectedSet = new Set(selectedIds);
+      setDocuments((current) => current.filter((item) => !selectedSet.has(item.id)));
+      setSelectedIds([]);
+      message.success('已删除选中的知识库条目');
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '删除失败');
+    }
   };
 
-  const handleBatchDelete = () => {
-    if (selectedIds.length === 0) return;
-    setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
-    setSelectedIds([]);
-  };
+  const handleDeleteOne = async (documentId: string) => {
+    if (!token || !activeCourseId) return;
 
-  const crawlerCount = items.filter((i) => i.sourceType === 'crawler').length;
-  const pdfCount = items.filter((i) => i.sourceType === 'pdf').length;
+    try {
+      await deleteKnowledgeBaseDocument(activeCourseId, documentId, token);
+      setDocuments((current) => current.filter((item) => item.id !== documentId));
+      setSelectedIds((current) => current.filter((id) => id !== documentId));
+      message.success('条目已删除');
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '删除失败');
+    }
+  };
 
   return (
     <div className="kb-page">
-      <div className="kb-header">
-        <Title level={2} className="kb-title">
-          <DatabaseOutlined style={{ marginRight: 12, color: '#1890ff' }} />
-          知识库
-        </Title>
-        <Text type="secondary" className="kb-subtitle">
-          统一管理数据爬取正文与 PDF 文档内容，作为教学问答与教案生成的底层知识支撑
-        </Text>
+      <section className="kb-shell">
+        <div className="kb-shell-copy">
+          <div className="kb-shell-kicker">Course Knowledge Base</div>
+          <Title level={1} className="kb-shell-title">
+            {activeCourse?.title || '课程知识库'}
+          </Title>
+          <Paragraph className="kb-shell-text">
+            保留现有课程知识库接口，直接接入新的页面结构与视觉语言，支持检索、批量选择、上传和删除。
+          </Paragraph>
+          <Space wrap className="kb-shell-actions">
+            <Select
+              value={activeCourseId || undefined}
+              onChange={setActiveCourseId}
+              className="kb-course-select"
+              placeholder="选择课程"
+              options={courses.map((course) => ({ label: course.title, value: course.id }))}
+            />
+            <Button
+              type="primary"
+              icon={<UploadOutlined />}
+              loading={uploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              上传文件
+            </Button>
+            <Popconfirm
+              title="确认删除当前勾选的知识库条目吗？"
+              okText="删除"
+              cancelText="取消"
+              disabled={!selectedIds.length}
+              onConfirm={() => void handleDeleteSelected()}
+            >
+              <Button danger icon={<DeleteOutlined />} disabled={!selectedIds.length}>
+                批量删除
+              </Button>
+            </Popconfirm>
+          </Space>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="kb-hidden-input"
+            onChange={(event) => void handleUploadFiles(event.target.files)}
+          />
+        </div>
+
+        <div className="kb-shell-stats">
+          <div>
+            <span>当前课程</span>
+            <strong>{activeCourse ? 1 : 0}</strong>
+          </div>
+          <div>
+            <span>文件条目</span>
+            <strong>{stats.fileCount}</strong>
+          </div>
+          <div>
+            <span>网页条目</span>
+            <strong>{stats.webCount}</strong>
+          </div>
+          <div>
+            <span>已勾选</span>
+            <strong>{stats.selectedCount}</strong>
+          </div>
+        </div>
+      </section>
+
+      <div className="kb-stats-grid">
+        <Card className="kb-stat-card">
+          <Statistic title="知识库总数" value={documents.length} prefix={<DatabaseOutlined />} />
+        </Card>
+        <Card className="kb-stat-card">
+          <Statistic title="文件型素材" value={stats.fileCount} prefix={<FileTextOutlined />} />
+        </Card>
+        <Card className="kb-stat-card">
+          <Statistic title="网页型素材" value={stats.webCount} prefix={<CloudUploadOutlined />} />
+        </Card>
       </div>
 
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
-          <Card className="kb-stat-card">
-            <Statistic
-              title="知识条目总数"
-              value={MOCK_ITEMS.length}
-              prefix={<DatabaseOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card className="kb-stat-card">
-            <Statistic
-              title="爬取数据条目"
-              value={crawlerCount}
-              prefix={<CloudServerOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card className="kb-stat-card">
-            <Statistic
-              title="PDF 文档条目"
-              value={pdfCount}
-              prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#fa8c16' }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
       <Card className="kb-filter-card">
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
-            <Tabs
-              activeKey={activeTab}
-              onChange={(key) => setActiveTab(key as 'all' | 'crawler' | 'pdf')}
-            >
-              <TabPane
-                tab={
-                  <span>
-                    <DatabaseOutlined />
-                    全部来源
-                  </span>
-                }
-                key="all"
-              />
-              <TabPane
-                tab={
-                  <span>
-                    <CloudServerOutlined />
-                    爬取数据
-                  </span>
-                }
-                key="crawler"
-              />
-              <TabPane
-                tab={
-                  <span>
-                    <FileTextOutlined />
-                    PDF 文档
-                  </span>
-                }
-                key="pdf"
-              />
-            </Tabs>
-          </Col>
-          <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-            <Space size="middle" className="kb-actions">
-              <Input
-                allowClear
-                prefix={<SearchOutlined />}
-                placeholder="按标题 / 标签 / 来源 搜索知识条目"
-                style={{ maxWidth: 360, width: '100%' }}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-              />
-              <Popconfirm
-                title="确定要删除所选文档吗？"
-                okText="删除"
-                cancelText="取消"
-                onConfirm={handleBatchDelete}
-                disabled={selectedIds.length === 0}
+        <div className="kb-toolbar">
+          <div className="kb-filter-chips">
+            {(['all', 'file', 'web'] as FilterType[]).map((type) => (
+              <button
+                key={type}
+                type="button"
+                className={`kb-filter-chip ${filterType === type ? 'is-active' : ''}`}
+                onClick={() => setFilterType(type)}
               >
-                <Button
-                  danger
-                  type="primary"
-                  icon={<DeleteOutlined />}
-                  disabled={selectedIds.length === 0}
-                >
-                  批量删除
-                  {selectedIds.length > 0 ? `（${selectedIds.length}）` : ''}
-                </Button>
-              </Popconfirm>
-            </Space>
-          </Col>
-        </Row>
+                {type === 'all' ? '全部' : type === 'file' ? '文件' : '网页'}
+              </button>
+            ))}
+          </div>
+          <Input
+            allowClear
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            prefix={<SearchOutlined />}
+            placeholder="搜索标题、课程、类别或链接"
+            className="kb-search"
+          />
+        </div>
       </Card>
 
       <Card className="kb-list-card">
-        <div className="kb-batch-bar">
-          <Checkbox
-            checked={allVisibleSelected}
-            indeterminate={isIndeterminate}
-            onChange={(e) => handleSelectAllVisible(e.target.checked)}
-          >
-            全选当前列表
-          </Checkbox>
-          <Text type="secondary">
-            已选 {selectedIds.length} 条
-          </Text>
+        <div className="kb-list-head">
+          <button type="button" className="kb-batch-toggle" onClick={toggleVisibleSelection}>
+            {allVisibleSelected ? '取消当前页全选' : '全选当前结果'}
+          </button>
+          <Text type="secondary">共 {filteredDocuments.length} 条结果</Text>
         </div>
-        {filteredItems.length === 0 ? (
-          <Empty
-            description="暂无符合条件的知识条目"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            style={{ margin: '60px 0' }}
-          />
+
+        {loading ? (
+          <div className="kb-state-block">
+            <Spin />
+            <span>正在加载课程知识库…</span>
+          </div>
+        ) : !token ? (
+          <div className="kb-state-block">
+            <span>当前未登录，无法读取知识库。</span>
+          </div>
+        ) : filteredDocuments.length === 0 ? (
+          <Empty description="当前没有匹配的知识库内容" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
-          <List
-            itemLayout="vertical"
-            dataSource={filteredItems}
-            renderItem={(item) => (
-              <List.Item
-                key={item.id}
-                className="kb-item"
-                actions={[
-                  <Space key="meta" size="middle">
-                    <Text type="secondary">
-                      <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      最近更新：{item.updatedAt}
-                    </Text>
-                    <Text type="secondary">
-                      来源：{item.sourceName}
-                    </Text>
-                  </Space>,
-                  <Button
-                    key="view"
-                    type="link"
-                    icon={<LinkOutlined />}
-                    disabled
-                  >
-                    预览内容（待接入后端）
-                  </Button>,
-                ]}
-              >
-                <div className="kb-item-select">
-                  <Checkbox
-                    checked={selectedIds.includes(item.id)}
-                    onChange={(e) => handleToggleItem(item.id, e.target.checked)}
-                  />
-                </div>
-                <List.Item.Meta
-                  title={
-                    <Space size="small">
-                      <Text strong className="kb-item-title">
-                        {item.title}
-                      </Text>
-                      <Tag color={item.sourceType === 'crawler' ? 'green' : 'blue'}>
-                        {item.sourceType === 'crawler' ? '爬取数据' : 'PDF 文档'}
-                      </Tag>
-                    </Space>
-                  }
-                  description={
-                    <Space size={[4, 4]} wrap>
-                      {item.tags.map((tag) => (
-                        <Tag key={tag} color="geekblue">
-                          {tag}
-                        </Tag>
-                      ))}
-                    </Space>
-                  }
-                />
-                <Paragraph className="kb-item-summary">
-                  {item.summary}
-                </Paragraph>
-              </List.Item>
-            )}
-          />
+          <div className="kb-document-grid">
+            {filteredDocuments.map((item) => {
+              const selected = selectedIds.includes(item.id);
+              const category = categoryMap[item.id] || inferCategory(item);
+              return (
+                <article key={item.id} className={`kb-document-card ${selected ? 'is-selected' : ''}`}>
+                  <label className="kb-document-check">
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={(event) => {
+                        setSelectedIds((current) =>
+                          event.target.checked
+                            ? Array.from(new Set([...current, item.id]))
+                            : current.filter((id) => id !== item.id),
+                        );
+                      }}
+                    />
+                    <span>选择</span>
+                  </label>
+
+                  <div className="kb-document-head">
+                    <Tag color={item.type === 'web' ? 'blue' : 'green'}>{item.type === 'web' ? '网页' : '文件'}</Tag>
+                    <Tag>{category}</Tag>
+                  </div>
+
+                  <h3>{item.name}</h3>
+                  <p>{item.url || item.file_path || '课程知识库文档'}</p>
+
+                  <div className="kb-document-meta">
+                    <span>{item.course_id}</span>
+                    <span>{new Date(item.created_at).toLocaleString('zh-CN')}</span>
+                  </div>
+
+                  <div className="kb-document-actions">
+                    {item.url ? (
+                      <Button type="link" onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}>
+                        打开链接
+                      </Button>
+                    ) : null}
+                    <Popconfirm
+                      title="确认删除这个知识库条目吗？"
+                      okText="删除"
+                      cancelText="取消"
+                      onConfirm={() => void handleDeleteOne(item.id)}
+                    >
+                      <Button type="link" danger>
+                        删除
+                      </Button>
+                    </Popconfirm>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         )}
       </Card>
     </div>
   );
 }
-
-

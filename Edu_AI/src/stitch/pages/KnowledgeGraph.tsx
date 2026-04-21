@@ -1,17 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  allocateKnowledgeGraphHours,
   getKnowledgeBaseDocuments,
   getKnowledgeGraph,
+  importKnowledgeGraphTextbook,
   saveKnowledgeGraph,
   uploadKnowledgeBaseDocument,
 } from "../api/courses";
-import type { KnowledgeBaseDocument, KnowledgeGraphNode } from "../api/types";
+import type { KnowledgeBaseDocument, KnowledgeGraphNode, KnowledgeGraphTextbookImportResponse } from "../api/types";
 import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
-  ProgressBar,
   SidebarBackLink,
   SidebarDock,
   SidebarNav,
@@ -20,7 +19,6 @@ import {
   routes,
   useAppShell,
 } from "../shared";
-import { writeWorkspaceScopeToSearch } from "../../services/teacher/workspaceScope";
 
 type FlatNode = {
   id: string;
@@ -38,6 +36,12 @@ type PositionedNode = FlatNode & {
   hasChildren: boolean;
 };
 
+type NodeResource = {
+  title: string;
+  type: string;
+  meta: string;
+};
+
 const NODE_WIDTH = 250;
 const NODE_HEIGHT = 56;
 const H_GAP = 116;
@@ -53,7 +57,7 @@ function flattenGraph(root: KnowledgeGraphNode, parentId: string | null = null, 
     summary: root.data?.summary || "",
     level,
     type: root.data?.type || "concept",
-    hours: typeof root.data?.hours === "number" ? root.data.hours : null,
+    hours: null,
   };
   const children = Array.isArray(root.children) ? root.children.flatMap((child) => flattenGraph(child, root.id, level + 1)) : [];
   return [current, ...children];
@@ -77,7 +81,6 @@ function buildGraph(flatNodes: FlatNode[], rootId: string): KnowledgeGraphNode {
         summary: node.summary,
         hasChildren: children.length > 0,
         type: node.type,
-        hours: node.hours ?? undefined,
       },
       children,
     };
@@ -147,9 +150,7 @@ function buildTreeLayout(root: FlatNode | null, childrenMap: Record<string, Flat
     return centerY;
   }
 
-  if (root) {
-    visit(root, 0);
-  }
+  if (root) visit(root, 0);
 
   const height = Math.max(720, PADDING_Y * 2 + Math.max(leafCursor - 1, 0) * (NODE_HEIGHT + V_GAP) + NODE_HEIGHT);
   const width = Math.max(1280, PADDING_X * 2 + (maxDepth + 1) * NODE_WIDTH + maxDepth * H_GAP);
@@ -170,6 +171,20 @@ function createNode(parentId: string | null, siblingCount: number, parentLevel =
   };
 }
 
+function generateHours(totalHours: number, nodes: FlatNode[]) {
+  if (!nodes.length) return nodes;
+  const totalWeight = nodes.reduce((sum, node) => sum + (node.parentId ? 1 : 1.4), 0);
+  let allocated = 0;
+
+  return nodes.map((node, index) => {
+    const raw = Math.max(1, Math.round((totalHours * (node.parentId ? 1 : 1.4)) / totalWeight));
+    const remaining = totalHours - allocated;
+    const hours = index === nodes.length - 1 ? Math.max(1, remaining) : raw;
+    allocated += hours;
+    return { ...node, hours };
+  });
+}
+
 function typeStyle(type: string) {
   switch (type) {
     case "chapter":
@@ -187,14 +202,10 @@ function getNodeResources(node: FlatNode | null): NodeResource[] {
   if (!node) return [];
   const base = node.label.trim() || "当前节点";
   return [
-    { title: `${base}讲义`, type: "讲义", meta: "1 份" },
-    { title: `${base}练习`, type: "练习", meta: "8 题" },
-    { title: `${base}参考资料`, type: "资料", meta: "可查看" },
+    { title: `${base} 讲义`, type: "讲义", meta: "1 份" },
+    { title: `${base} 练习`, type: "练习", meta: "8 题" },
+    { title: `${base} 参考资料`, type: "资料", meta: "可查阅" },
   ];
-}
-
-function formatHoursInput(hours: number) {
-  return Number.isInteger(hours) ? String(hours) : String(hours);
 }
 
 function formatDocumentMeta(document: KnowledgeBaseDocument) {
@@ -207,37 +218,52 @@ export function KnowledgeGraphPage() {
   const { selectedCourse, theme } = useAppShell();
   const course = selectedCourse;
   const isDark = theme === "dark";
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const graphViewportRef = useRef<HTMLDivElement | null>(null);
+  const didHydrateRef = useRef(false);
+  const saveTimerRef = useRef<number | null>(null);
+  const lastSavedSignatureRef = useRef("");
+  const dragStateRef = useRef<{ startX: number; startY: number; left: number; top: number } | null>(null);
+  const knowledgeBaseUploadInputRef = useRef<HTMLInputElement | null>(null);
+
   const [uploadedMaterial, setUploadedMaterial] = useState("高等量子力学教材（第 4 章）.pdf");
-  const [totalHours, setTotalHours] = useState("");
+  const [totalHours, setTotalHours] = useState("32");
   const [nodes, setNodes] = useState<FlatNode[]>([]);
-  const [activeNodeId, setActiveNodeId] = useState<string>("");
+  const [activeNodeId, setActiveNodeId] = useState("");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [allocatingHours, setAllocatingHours] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [savingState, setSavingState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [panMode, setPanMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [importSummary, setImportSummary] = useState<KnowledgeGraphTextbookImportResponse | null>(null);
   const [nodeDocuments, setNodeDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [uploadingKnowledgeBase, setUploadingKnowledgeBase] = useState(false);
   const [knowledgeBaseFeedback, setKnowledgeBaseFeedback] = useState<string | null>(null);
   const [knowledgeBaseFeedbackTone, setKnowledgeBaseFeedbackTone] = useState<"success" | "error" | null>(null);
-  const knowledgeBaseUploadInputRef = useRef<HTMLInputElement | null>(null);
+
+  function applyGraphToCanvas(graph: KnowledgeGraphNode) {
+    const flat = flattenGraph(graph);
+    setNodes(flat);
+    const root = flat.find((node) => node.parentId === null) ?? flat[0];
+    setActiveNodeId(root?.id || "");
+    setExpandedIds(root ? new Set([root.id]) : new Set());
+  }
 
   useEffect(() => {
     if (!course?.id) return;
+    const courseId = course.id;
     let cancelled = false;
 
     async function run() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getKnowledgeGraph(course.id);
-        const flat = flattenGraph(data.root);
+        const data = await getKnowledgeGraph(courseId);
         if (!cancelled) {
-          setNodes(flat);
-          const root = flat.find((node) => node.parentId === null) ?? flat[0];
-          setTotalHours(root && typeof root.hours === "number" ? formatHoursInput(root.hours) : "");
-          setActiveNodeId(root?.id || "");
-          setExpandedIds(root ? new Set([root.id]) : new Set());
+          applyGraphToCanvas(data.root);
+          lastSavedSignatureRef.current = JSON.stringify(data.root);
+          didHydrateRef.current = true;
         }
       } catch (err) {
         if (!cancelled) {
@@ -263,25 +289,15 @@ export function KnowledgeGraphPage() {
   const isCourseRootSelected = activeNode?.parentId === null;
   const activeNodeResources = useMemo(
     () =>
-      nodeDocuments.map((document) => ({
-        title: document.name,
-        type: document.type === "web" ? "网页资料" : "文件资料",
-        meta: formatDocumentMeta(document),
-      })),
-    [nodeDocuments],
+      nodeDocuments.length
+        ? nodeDocuments.map((document) => ({
+            title: document.name,
+            type: document.type === "web" ? "网页资料" : "文件资料",
+            meta: formatDocumentMeta(document),
+          }))
+        : getNodeResources(activeNode),
+    [activeNode, nodeDocuments],
   );
-  const aiWorkspaceHref = useMemo(() => {
-    if (!activeNode) {
-      return routeHref(routes.ai);
-    }
-    const isCourseRootScope = activeNode.parentId === null;
-    const search = writeWorkspaceScopeToSearch(new URLSearchParams(), {
-      scopeType: isCourseRootScope ? "course" : "knowledge_point",
-      scopeId: isCourseRootScope ? undefined : activeNode.id,
-      scopeLabel: activeNode.label.trim() || activeNode.id,
-    });
-    return `${routeHref(routes.ai)}?${search.toString()}`;
-  }, [activeNode]);
 
   async function loadNodeDocuments(node: FlatNode | null) {
     if (!course?.id || !node) {
@@ -304,46 +320,41 @@ export function KnowledgeGraphPage() {
 
   useEffect(() => {
     void loadNodeDocuments(activeNode);
-  }, [course?.id, activeNode]);
+  }, [course?.id, activeNodeId]);
 
   useEffect(() => {
     setKnowledgeBaseFeedback(null);
     setKnowledgeBaseFeedbackTone(null);
   }, [activeNodeId]);
 
-  async function handleKnowledgeBaseUpload(fileList: FileList | null) {
-    if (!course?.id || !activeNode || !fileList?.length) return;
+  useEffect(() => {
+    if (!course?.id || !rootNode || loading || importing || !didHydrateRef.current) return;
 
-    const files = Array.from(fileList);
-    const targetNode = activeNode;
-    const isCourseRootNode = targetNode.parentId === null;
+    const nextSignature = JSON.stringify(buildGraph(nodes, rootNode.id));
+    if (nextSignature === lastSavedSignatureRef.current) return;
 
-    try {
-      setUploadingKnowledgeBase(true);
-      setKnowledgeBaseFeedback(null);
-      setKnowledgeBaseFeedbackTone(null);
-
-      for (const file of files) {
-        await uploadKnowledgeBaseDocument(course.id, file, {
-          scopeType: isCourseRootNode ? "course" : "knowledge_point",
-          scopeId: isCourseRootNode ? undefined : targetNode.id,
-          libraryType: "course",
-        });
-      }
-
-      await loadNodeDocuments(targetNode);
-      setKnowledgeBaseFeedback(`已导入到【${targetNode.label}】课程知识库`);
-      setKnowledgeBaseFeedbackTone("success");
-    } catch (err) {
-      setKnowledgeBaseFeedback(err instanceof Error ? err.message : "导入课程知识库失败");
-      setKnowledgeBaseFeedbackTone("error");
-    } finally {
-      setUploadingKnowledgeBase(false);
-      if (knowledgeBaseUploadInputRef.current) {
-        knowledgeBaseUploadInputRef.current.value = "";
-      }
+    if (saveTimerRef.current) {
+      window.clearTimeout(saveTimerRef.current);
     }
-  }
+
+    setSavingState("saving");
+    saveTimerRef.current = window.setTimeout(async () => {
+      try {
+        await saveKnowledgeGraph(course.id, { root: buildGraph(nodes, rootNode.id) });
+        lastSavedSignatureRef.current = nextSignature;
+        setSavingState("saved");
+      } catch (err) {
+        setSavingState("error");
+        setError(err instanceof Error ? err.message : "自动保存失败");
+      }
+    }, 900);
+
+    return () => {
+      if (saveTimerRef.current) {
+        window.clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [course?.id, importing, loading, nodes, rootNode]);
 
   function updateNode(nodeId: string, patch: Partial<FlatNode>) {
     setNodes((current) => current.map((node) => (node.id === nodeId ? { ...node, ...patch } : node)));
@@ -386,52 +397,87 @@ export function KnowledgeGraphPage() {
     });
   }
 
-  function parseTotalHoursInput() {
-    const normalized = totalHours.trim();
-    if (!/^\d+(?:\.\d)?$/.test(normalized)) {
-      throw new Error("课程总学时需为非负数字，最多一位小数");
-    }
-    return Number(normalized);
-  }
+  async function handleTextbookSelection(fileList: FileList | null) {
+    const file = fileList?.[0];
+    if (!course?.id || !file) return;
 
-  async function handleAllocateHours() {
-    if (!course?.id) return;
     try {
-      setAllocatingHours(true);
+      setImporting(true);
       setError(null);
-      const parsedTotalHours = parseTotalHoursInput();
-      const response = await allocateKnowledgeGraphHours(course.id, { total_hours: parsedTotalHours });
-      const flat = flattenGraph(response.root);
-      setNodes(flat);
-      const root = flat.find((node) => node.parentId === null) ?? flat[0];
-      setTotalHours(root && typeof root.hours === "number" ? formatHoursInput(root.hours) : formatHoursInput(parsedTotalHours));
-      setActiveNodeId((current) => (current && flat.some((node) => node.id === current) ? current : root?.id || ""));
-      setExpandedIds((current) => {
-        if (current.size) return current;
-        return root ? new Set([root.id]) : new Set();
-      });
+      const result = await importKnowledgeGraphTextbook(course.id, file);
+      setUploadedMaterial(result.source_document.name);
+      setImportSummary(result);
+      applyGraphToCanvas(result.knowledge_graph.root);
+      lastSavedSignatureRef.current = JSON.stringify(result.knowledge_graph.root);
+      setSavingState("saved");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "节点学时生成失败");
+      setError(err instanceof Error ? err.message : "教材导入失败");
     } finally {
-      setAllocatingHours(false);
+      setImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   }
 
-  async function handleSave() {
-    if (!course?.id || !rootNode) return;
+  async function handleKnowledgeBaseUpload(fileList: FileList | null) {
+    if (!course?.id || !activeNode || !fileList?.length) return;
+
+    const files = Array.from(fileList);
+    const targetNode = activeNode;
+    const targetIsCourseRoot = targetNode.parentId === null;
+
     try {
-      setSaving(true);
-      setError(null);
-      await saveKnowledgeGraph(course.id, { root: buildGraph(nodes, rootNode.id) });
+      setUploadingKnowledgeBase(true);
+      setKnowledgeBaseFeedback(null);
+      setKnowledgeBaseFeedbackTone(null);
+
+      for (const file of files) {
+        await uploadKnowledgeBaseDocument(course.id, file, {
+          scopeType: targetIsCourseRoot ? "course" : "knowledge_point",
+          scopeId: targetIsCourseRoot ? undefined : targetNode.id,
+          libraryType: "course",
+        });
+      }
+
+      await loadNodeDocuments(targetNode);
+      setKnowledgeBaseFeedback(`已导入到【${targetNode.label}】${targetIsCourseRoot ? "课程知识库" : "知识点知识库"}`);
+      setKnowledgeBaseFeedbackTone("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "保存失败");
+      setKnowledgeBaseFeedback(err instanceof Error ? err.message : "导入知识点知识库失败");
+      setKnowledgeBaseFeedbackTone("error");
     } finally {
-      setSaving(false);
+      setUploadingKnowledgeBase(false);
+      if (knowledgeBaseUploadInputRef.current) {
+        knowledgeBaseUploadInputRef.current.value = "";
+      }
     }
+  }
+
+  function handlePanStart(event: React.MouseEvent<HTMLDivElement>) {
+    if (!panMode || !graphViewportRef.current) return;
+    dragStateRef.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      left: graphViewportRef.current.scrollLeft,
+      top: graphViewportRef.current.scrollTop,
+    };
+  }
+
+  function handlePanMove(event: React.MouseEvent<HTMLDivElement>) {
+    if (!panMode || !graphViewportRef.current || !dragStateRef.current) return;
+    const dx = event.clientX - dragStateRef.current.startX;
+    const dy = event.clientY - dragStateRef.current.startY;
+    graphViewportRef.current.scrollLeft = dragStateRef.current.left - dx;
+    graphViewportRef.current.scrollTop = dragStateRef.current.top - dy;
+  }
+
+  function stopPan() {
+    dragStateRef.current = null;
   }
 
   return (
-    <AppSurface className="flex min-h-screen">
+    <AppSurface className="flex min-h-screen overflow-hidden">
       <SidebarDock
         className={cx(
           "h-screen gap-6 overflow-y-auto p-4",
@@ -444,31 +490,35 @@ export function KnowledgeGraphPage() {
           <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">{course?.title ?? "课程知识图谱"}</p>
         </div>
         <SidebarNav activeRoute={routes.graph} />
-        <div className="mt-auto rounded-[24px] bg-[var(--accent-soft)] p-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">图谱完成度</p>
-          <ProgressBar value={nodes.length ? 100 : 0} className="mt-2" barClassName="bg-[#1b6d24]" />
-          <p className="mt-2 text-right text-[10px] text-[var(--muted-text)]">默认仅展开根节点一级</p>
-        </div>
       </SidebarDock>
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-6 py-4 backdrop-blur-xl">
           <div>
             <h1 className="text-xl font-bold text-[var(--accent-strong)]">{course?.title ?? "课程"} 知识图谱</h1>
-            <p className="mt-1 text-sm text-[var(--muted-text)]">设置区已放回页面内部左栏，展开箭头改为右侧箭头，子节点按布局自动下移避免重叠。</p>
           </div>
-          <button
-            type="button"
-            onClick={() => void handleSave()}
-            disabled={saving || !nodes.length}
-            className="rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
-          >
-            {saving ? "保存中..." : "保存图谱"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPanMode((current) => !current)}
+              className={cx(
+                "inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition",
+                panMode
+                  ? "border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "border-[var(--shell-border)] bg-white text-[var(--muted-text)]",
+              )}
+            >
+              <MaterialIcon name="pan_tool_alt" className="text-base" />
+              手型拖动
+            </button>
+            <div className="rounded-full border border-[var(--shell-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--muted-text)]">
+              {savingState === "saving" ? "自动保存中..." : savingState === "error" ? "自动保存失败" : "已自动保存"}
+            </div>
+          </div>
         </header>
 
-        <div className="grid flex-1 gap-6 p-6 lg:min-h-0 lg:grid-cols-[280px_minmax(0,1.15fr)_320px] xl:grid-cols-[300px_minmax(0,1.2fr)_340px]">
-          <GlassPanel className="border border-[var(--shell-border)] p-6 lg:max-h-[calc(100vh-116px)] lg:overflow-y-auto">
+        <div className="grid min-h-0 flex-1 gap-6 p-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] xl:grid-cols-[300px_minmax(0,1.2fr)_340px]">
+          <GlassPanel className="h-[calc(100vh-116px)] overflow-y-auto border border-[var(--shell-border)] p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">图谱设置</p>
@@ -478,26 +528,36 @@ export function KnowledgeGraphPage() {
             </div>
 
             <div className="mt-5 space-y-4">
-              <div className="rounded-[24px] border border-dashed border-[var(--accent-border)] bg-[var(--accent-soft)]/55 p-5">
+              <div className="space-y-4">
                 <p className="text-sm font-semibold text-[var(--app-text)]">教材上传</p>
-                <div className="mt-3 rounded-[18px] bg-[var(--surface-elevated)] px-4 py-3 text-sm text-[var(--app-text)]">
-                  {uploadedMaterial}
-                </div>
-                <div className="mt-3 flex flex-col gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.md,.markdown,.txt"
+                  className="hidden"
+                  onChange={(event) => {
+                    void handleTextbookSelection(event.target.files);
+                  }}
+                />
+                <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-4 text-xs leading-6 text-[var(--muted-text)]">
                   <button
                     type="button"
-                    onClick={() => setUploadedMaterial("现代物理教材（教学版）.pdf")}
-                    className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={importing}
+                    className="w-full rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
-                    模拟上传教材
+                    {importing ? "导入教材中..." : "上传教材并解析"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setUploadedMaterial("知识图谱课程资料（教师版）.docx")}
-                    className="rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--accent-strong)]"
-                  >
-                    切换演示教材
-                  </button>
+                  {importSummary ? (
+                    <div className="mt-3 space-y-1">
+                      <div>Parser: {importSummary.parser_used}</div>
+                      <div>Outline: {importSummary.outline_source}</div>
+                      <div>Splits: {importSummary.split_documents.length}</div>
+                      <div>Indexed files: {importSummary.vectorized_documents.length}</div>
+                    </div>
+                  ) : (
+                    <div className="mt-3"></div>
+                  )}
                 </div>
               </div>
 
@@ -510,30 +570,38 @@ export function KnowledgeGraphPage() {
                     className="min-w-0 flex-1 rounded-2xl border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm text-[var(--app-text)] outline-none"
                     placeholder="输入总学时"
                   />
-                  <span className="rounded-full bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">
-                    学时
-                  </span>
+                  <span className="rounded-full bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">学时</span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => void handleAllocateHours()}
-                  disabled={allocatingHours || !course?.id}
-                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+                  onClick={() => setNodes((current) => generateHours(Number(totalHours) || 32, current))}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white"
                 >
                   <MaterialIcon name="auto_graph" className="text-base" />
-                  {allocatingHours ? "生成中..." : "生成节点学时"}
+                  生成节点学时
                 </button>
               </div>
             </div>
           </GlassPanel>
 
-          <section className="overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[var(--panel-surface)]">
-            <div className="border-b border-[var(--shell-border)] px-6 py-5">
-              <h3 className="text-2xl font-black text-[var(--accent-strong)]">知识图谱画布</h3>
-              <p className="mt-1 text-sm text-[var(--muted-text)]">节点默认只显示一行文字，点击选中后展示新增和删除按钮。</p>
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[var(--panel-surface)]">
+            <div className="flex items-center justify-between border-b border-[var(--shell-border)] px-6 py-5">
+              <div>
+                <h3 className="text-2xl font-black text-[var(--accent-strong)]">知识图谱画布</h3>
+              </div>
             </div>
 
-            <div className="min-h-[680px] overflow-auto bg-[radial-gradient(var(--graph-grid)_0.7px,transparent_0.7px)] [background-size:28px_28px]">
+            <div
+              ref={graphViewportRef}
+              onMouseDown={handlePanStart}
+              onMouseMove={handlePanMove}
+              onMouseUp={stopPan}
+              onMouseLeave={stopPan}
+              className={cx(
+                "min-h-0 flex-1 overflow-auto bg-[radial-gradient(var(--graph-grid)_0.7px,transparent_0.7px)] [background-size:28px_28px]",
+                panMode ? "cursor-grab active:cursor-grabbing" : "",
+              )}
+            >
               {loading ? (
                 <div className="p-6 text-sm text-[var(--muted-text)]">正在加载知识图谱...</div>
               ) : error ? (
@@ -581,6 +649,7 @@ export function KnowledgeGraphPage() {
                         className={cx(
                           "absolute rounded-[18px] border bg-[var(--surface-elevated)] px-4 py-3 shadow-[0_16px_28px_var(--panel-shadow)] transition",
                           active ? "border-[var(--accent-border)] ring-2 ring-[var(--accent)]/20" : "border-[var(--shell-border)]",
+                          panMode ? "pointer-events-none" : "",
                         )}
                         style={{ left: node.x, top: node.y, width: NODE_WIDTH, minHeight: NODE_HEIGHT }}
                       >
@@ -642,8 +711,8 @@ export function KnowledgeGraphPage() {
             </div>
           </section>
 
-          <aside>
-            <GlassPanel className="border border-[var(--shell-border)] p-6 lg:max-h-[calc(100vh-116px)] lg:overflow-y-auto">
+          <aside className="h-[calc(100vh-116px)]">
+            <GlassPanel className="h-full overflow-y-auto border border-[var(--shell-border)] p-6">
               <div className="mb-6 flex items-start justify-between">
                 <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
                   当前节点
@@ -700,9 +769,11 @@ export function KnowledgeGraphPage() {
                           ? "导入中..."
                           : isCourseRootSelected
                             ? "导入到课程总知识库"
-                            : "导入到本知识点知识库"}
+                            : "按当前知识点导入"}
                       </button>
-                      <span className="text-[11px] text-[var(--muted-text)]">{nodeDocuments.length} 份</span>
+                      <span className="mt-2 block text-[11px] text-[var(--muted-text)]">
+                        当前已有 {nodeDocuments.length} 份资料
+                      </span>
                     </div>
                     <input
                       ref={knowledgeBaseUploadInputRef}
@@ -712,7 +783,7 @@ export function KnowledgeGraphPage() {
                       onChange={(event) => void handleKnowledgeBaseUpload(event.target.files)}
                     />
                     <div className="mb-3 text-[11px] text-[var(--muted-text)]">
-                      {isCourseRootSelected ? "当前为课程总目录课程知识库" : "当前为知识点课程知识库"}
+                      {isCourseRootSelected ? "当前节点为课程根目录，文件会进入课程总知识库。" : "文件会带上当前知识点 ID，进入该知识点知识库。"}
                     </div>
                     {knowledgeBaseFeedback ? (
                       <div
@@ -743,7 +814,7 @@ export function KnowledgeGraphPage() {
                     </div>
                   </div>
                   <a
-                    href={aiWorkspaceHref}
+                    href={`${routeHref(routes.ai)}?node=${encodeURIComponent(activeNode.label.trim() || "当前节点")}`}
                     className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white"
                   >
                     和 AI 聊一聊
@@ -751,7 +822,7 @@ export function KnowledgeGraphPage() {
                   </a>
                 </div>
               ) : (
-                <div className="text-sm text-[var(--muted-text)]">请选择中间节点后再编辑。</div>
+                <div className="text-sm text-[var(--muted-text)]">请先选择一个图谱节点。</div>
               )}
             </GlassPanel>
           </aside>

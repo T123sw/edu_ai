@@ -13,6 +13,7 @@ export interface Course {
   description: string;
   icon: string;
   color: string;
+  image?: string;
   createdAt?: string;
   objectives?: string[]; // 教学目标
   knowledgeGraph?: string; // 课程知识图谱（可以是JSON字符串或URL）
@@ -45,6 +46,29 @@ interface CourseState {
   removeKnowledgeBaseItem: (courseId: string, itemId: string) => void;
 }
 
+const COURSE_IMAGE_STORAGE_KEY = 'edu-ai-course-cover-images';
+
+function readCourseImageMap(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(COURSE_IMAGE_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeCourseImage(courseId: string, image?: string) {
+  if (typeof window === 'undefined') return;
+  const current = readCourseImageMap();
+  if (image?.trim()) {
+    current[courseId] = image.trim();
+  } else {
+    delete current[courseId];
+  }
+  window.localStorage.setItem(COURSE_IMAGE_STORAGE_KEY, JSON.stringify(current));
+}
+
 export const useCourseStore = create<CourseState>((set, get) => ({
   courses: [],
   currentCourse: null,
@@ -55,8 +79,10 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     try {
       const list = await fetchCourses();
       const current = get().courses;
+      const imageMap = readCourseImageMap();
       const courses: Course[] = list.map((c: BackendCourse) => ({
         ...c,
+        image: imageMap[c.id] || current.find(cc => cc.id === c.id)?.image,
         masterKnowledgeBase: current.find(cc => cc.id === c.id)?.masterKnowledgeBase || [],
       }));
       set({ courses, loading: false });
@@ -92,6 +118,10 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     const existing = state.courses.find(course => course.id === id);
     if (!existing) return;
 
+    if ('image' in updates) {
+      writeCourseImage(id, updates.image);
+    }
+
     const payload: BackendCourse = {
       id,
       title: updates.title ?? existing.title,
@@ -105,7 +135,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     const saved = await updateCourseDetail(payload);
     set({
       courses: state.courses.map(course =>
-        course.id === id ? { ...course, ...saved } : course
+        course.id === id ? { ...course, ...saved, image: updates.image ?? course.image } : course
       ),
     });
   },

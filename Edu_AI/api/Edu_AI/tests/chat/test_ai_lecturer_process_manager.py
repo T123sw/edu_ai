@@ -92,18 +92,25 @@ def _load_start_unified_module():
     return module
 
 
-def test_start_named_window_wraps_compound_command_for_cmd(monkeypatch):
+def test_start_named_window_uses_direct_subprocess_args_without_shell(monkeypatch):
     module = _load_start_unified_module()
     recorded = {}
 
-    def fake_popen(command, shell):
+    def fake_popen(command, **kwargs):
         recorded["command"] = command
-        recorded["shell"] = shell
+        recorded.update(kwargs)
         return object()
 
     monkeypatch.setattr(module.subprocess, "Popen", fake_popen)
 
-    module._start_named_window("LiveTalking WebRTC (8010)", 'cd /d "D:\\demo" && python app.py')
+    module._start_named_window(
+        "LiveTalking WebRTC (8010)",
+        ["D:\\python.exe", "app.py", "--transport", "webrtc"],
+        cwd="D:\\demo",
+        extra_env={"HF_ENDPOINT": "https://hf-mirror.com"},
+    )
 
-    assert recorded["shell"] is True
-    assert 'cmd /k "cd /d ""D:\\demo"" && python app.py"' in recorded["command"]
+    assert recorded["command"] == ["D:\\python.exe", "app.py", "--transport", "webrtc"]
+    assert recorded["cwd"] == "D:\\demo"
+    assert recorded["shell"] is False
+    assert recorded["env"]["HF_ENDPOINT"] == "https://hf-mirror.com"

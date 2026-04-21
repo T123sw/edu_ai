@@ -40,6 +40,7 @@ env/
 ENV/
 .venv/
 .venv1/
+.venv_local/
 
 # 操作系统文件
 Thumbs.db
@@ -53,6 +54,12 @@ coverage/
 *.tmp
 *.temp
 *.bak
+.tmp_*/
+.tmp_*.zip
+tmp/
+temp-runlogs/
+__MACOSX/
+tmpeuct26pc/
 
 # 数据目录（包含大文件和敏感数据）
 data/textbooks/*.pdf
@@ -69,6 +76,27 @@ api/Edu_AI/storage/
 models/
 *.bin
 *.safetensors
+*.pth
+*.onnx
+*.exe
+*.coords.npy
+
+# AI Lecturer runtime outputs and local generated artifacts
+api/Edu_AI/.tmp_runtime/
+api/Edu_AI/AI_Lecturer/temp_export/
+api/Edu_AI/AI_Lecturer/LiveTalking-main/data/
+api/Edu_AI/AI_Lecturer/LiveTalking-main/models/
+api/Edu_AI/AI_Lecturer/Wav2Lip_Offline/temp/
+api/course_data/**/generated_materials/
+api/course_data/**/knowledge_base/documents/
+api/Edu_AI/html2ppt/data/
+api/Edu_AI/html2ppt/temp-runlogs/
+api/Edu_AI/html2ppt/e2e_conversation_runs/
+api/Edu_AI/html2ppt/content.md
+api/Edu_AI/html2ppt/deck.raw*.html
+api/Edu_AI/html2ppt/temp.txt
+api/Edu_AI/html2ppt/--bare
+api/Edu_AI/__MACOSX/
 
 # 备份目录
 * copy/

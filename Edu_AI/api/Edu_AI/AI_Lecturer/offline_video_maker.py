@@ -18,6 +18,19 @@ TEMP_DIR = os.path.join(BASE_DIR, "temp_export")
 
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+
+def read_positive_int_env(name, default):
+    try:
+        value = int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+    return value if value > 0 else default
+
+
+WAV2LIP_FACE_DET_BATCH_SIZE = read_positive_int_env("AI_LECTURER_FACE_DET_BATCH_SIZE", 2)
+WAV2LIP_BATCH_SIZE = read_positive_int_env("AI_LECTURER_WAV2LIP_BATCH_SIZE", 16)
+WAV2LIP_RESIZE_FACTOR = read_positive_int_env("AI_LECTURER_WAV2LIP_RESIZE_FACTOR", 2)
+
 # ==========================================
 # 核心业务逻辑
 # ==========================================
@@ -112,8 +125,9 @@ def render_wav2lip_offline(audio_path, output_video_path):
         "--face", os.path.abspath(BASE_AVATAR_VIDEO), 
         "--audio", os.path.abspath(audio_path), 
         "--outfile", os.path.abspath(output_video_path),
-        "--face_det_batch_size", "4", 
-        "--wav2lip_batch_size", "128"
+        "--face_det_batch_size", str(WAV2LIP_FACE_DET_BATCH_SIZE),
+        "--wav2lip_batch_size", str(WAV2LIP_BATCH_SIZE),
+        "--resize_factor", str(WAV2LIP_RESIZE_FACTOR),
     ]
     subprocess.run(cmd, cwd=WAV2LIP_DIR, check=True)
     return output_video_path

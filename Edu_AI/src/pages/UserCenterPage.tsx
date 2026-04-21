@@ -1,366 +1,273 @@
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Typography, 
-  Avatar, 
-  Form, 
-  Input, 
-  Button, 
-  Divider, 
-  Space, 
-  message, 
-  Tabs, 
-  Statistic,
-  Descriptions,
-  Tag
-} from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import {
-  UserOutlined,
-  LockOutlined,
-  SafetyOutlined,
-  EditOutlined,
-  SaveOutlined,
-  BarChartOutlined
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  KeyOutlined,
+  LogoutOutlined,
+  ReloadOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './UserCenterPage.css';
 
-const { Title, Text } = Typography;
-const { TabPane } = Tabs;
-
 interface UserProfile {
   username: string;
-  email?: string;
-  phone?: string;
-  nickname?: string;
+  email: string;
+  phone: string;
+  nickname: string;
+  department: string;
+  role: string;
+  bio: string;
   avatar?: string;
-  bio?: string;
 }
 
-interface UserStats {
-  totalChats: number;
-  totalMessages: number;
-  totalDocs: number;
-  lastLogin: string;
-}
+const PROFILE_STORAGE_KEY = 'user-profile';
+
+const defaultProfile = (username = ''): UserProfile => ({
+  username,
+  nickname: username || '用户',
+  email: 'lin.zhixia@edu-ai.local',
+  phone: '+86 138 0000 1024',
+  department: '课程研发中心',
+  role: '课程主理人 / 教学设计师',
+  bio: '负责课程结构设计、知识图谱维护与教师问答工作流配置。当前个人主页为新版展示页，用于展示基础账号信息、头像入口与密码设置入口。',
+});
+
+const accountFields = [
+  ['用户名', 'username'],
+  ['邮箱', 'email'],
+  ['手机号', 'phone'],
+  ['所属部门', 'department'],
+] as const;
+
+const quickLinks = [
+  { title: '我的课程', subtitle: '跳转查看课程与工作区', href: '/welcome', icon: 'grid' },
+  { title: '问答助手', subtitle: '进入教师 AI 工作台', href: '/course-management', icon: 'chat' },
+  { title: '知识库', subtitle: '维护课程资料与知识源', href: '/global-resources', icon: 'book' },
+];
 
 export default function UserCenterPage() {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [profileForm] = Form.useForm();
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [passwordForm] = Form.useForm();
-  const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // 模拟用户数据
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    username: user?.username || '',
-    email: 'user@example.com',
-    phone: '138****8888',
-    nickname: user?.username || '',
-    bio: '这个人很懒，什么都没有留下~'
-  });
-
-  const [userStats, setUserStats] = useState<UserStats>({
-    totalChats: 42,
-    totalMessages: 156,
-    totalDocs: 8,
-    lastLogin: new Date().toLocaleString('zh-CN')
-  });
+  const [profile, setProfile] = useState<UserProfile>(() => defaultProfile(user?.username || ''));
+  const [showPasswordPanel, setShowPasswordPanel] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
-    // 从 localStorage 加载用户资料
-    const savedProfile = localStorage.getItem('user-profile');
-    if (savedProfile) {
-      try {
-        const profile = JSON.parse(savedProfile);
-        setUserProfile(profile);
-        profileForm.setFieldsValue(profile);
-      } catch (e) {
-        console.error('加载资料失败:', e);
-      }
-    } else {
-      profileForm.setFieldsValue(userProfile);
+    const fallback = defaultProfile(user?.username || '');
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (!raw) {
+      setProfile(fallback);
+      return;
     }
-  }, [user, profileForm]);
 
-  // 保存个人信息
-  const handleSaveProfile = async (values: UserProfile) => {
     try {
-      setLoading(true);
-      // 模拟保存延迟
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedProfile = { ...userProfile, ...values };
-      setUserProfile(updatedProfile);
-      localStorage.setItem('user-profile', JSON.stringify(updatedProfile));
-      setEditing(false);
-      message.success('个人信息保存成功');
-    } catch (e) {
-      message.error('保存失败，请稍后重试');
-    } finally {
-      setLoading(false);
+      setProfile({ ...fallback, ...(JSON.parse(raw) as Partial<UserProfile>) });
+    } catch {
+      setProfile(fallback);
     }
+  }, [user?.username]);
+
+  const initials = useMemo(() => {
+    const source = profile.nickname || profile.username || 'U';
+    return source.slice(0, 2).toUpperCase();
+  }, [profile.nickname, profile.username]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
   };
 
-  // 修改密码
-  const handleChangePassword = async (values: { oldPassword: string; newPassword: string; confirmPassword: string }) => {
+  const persistProfile = (nextProfile: UserProfile) => {
+    setProfile(nextProfile);
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
+  };
+
+  const handleAvatarChange = (fileList: FileList | null) => {
+    const file = fileList?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      message.error('请选择图片文件作为头像');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      persistProfile({ ...profile, avatar: String(reader.result || '') });
+      message.success('头像已更新');
+    };
+    reader.onerror = () => message.error('头像读取失败，请重试');
+    reader.readAsDataURL(file);
+  };
+
+  const handleResetAvatar = () => {
+    const { avatar, ...rest } = profile;
+    persistProfile(rest);
+    message.success('已恢复默认头像');
+  };
+
+  const handleResetPassword = async (values: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    if (values.newPassword !== values.confirmPassword) {
+      message.error('两次输入的新密码不一致');
+      return;
+    }
+    if (values.newPassword.length < 6) {
+      message.error('新密码至少需要 6 位');
+      return;
+    }
+
+    setSavingPassword(true);
     try {
-      if (values.newPassword !== values.confirmPassword) {
-        message.error('两次输入的密码不一致');
-        return;
-      }
-
-      if (values.newPassword.length < 6) {
-        message.error('密码长度至少为6位');
-        return;
-      }
-
-      setLoading(true);
-      // 模拟修改密码延迟
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
       passwordForm.resetFields();
-      message.success('密码修改成功');
-    } catch (e) {
-      message.error('密码修改失败，请稍后重试');
+      setShowPasswordPanel(false);
+      message.success('密码已重置');
     } finally {
-      setLoading(false);
+      setSavingPassword(false);
     }
   };
 
   return (
-    <div className="user-center-page">
-      <Row gutter={[24, 24]}>
-        {/* 左侧：用户信息卡片 */}
-        <Col xs={24} lg={8}>
-          <Card className="profile-card">
-            <div className="profile-header">
-              <Avatar 
-                size={80} 
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  fontSize: 32
-                }}
-              >
-                {userProfile.nickname?.[0]?.toUpperCase() || userProfile.username?.[0]?.toUpperCase() || 'U'}
-              </Avatar>
-              <Title level={4} className="profile-name">
-                {userProfile.nickname || userProfile.username}
-              </Title>
-              <Text type="secondary" className="profile-username">
-                @{userProfile.username}
-              </Text>
-              {userProfile.bio && (
-                <Text type="secondary" className="profile-bio">
-                  {userProfile.bio}
-                </Text>
-              )}
+    <div className="profile-replace-page">
+      <div className="profile-topbar">
+        <button type="button" className="profile-back-button" onClick={() => navigate('/welcome')}>
+          <ArrowLeftOutlined />
+          返回首页
+        </button>
+        <span className="profile-page-pill">Personal Home</span>
+      </div>
+
+      <section className="profile-hero-card">
+        <div className="profile-hero-copy">
+          <span className="profile-eyebrow">Account Center</span>
+          <h1>{profile.nickname || profile.username}</h1>
+          <strong>{profile.role}</strong>
+          <p>{profile.bio}</p>
+          <div className="profile-hero-actions">
+            <Button type="primary" icon={<ReloadOutlined />} onClick={() => setShowPasswordPanel((value) => !value)}>
+              重置密码
+            </Button>
+            <Button icon={<UploadOutlined />} onClick={() => avatarInputRef.current?.click()}>
+              更换头像
+            </Button>
+            <Button icon={<LogoutOutlined />} onClick={handleLogout}>
+              退出登录
+            </Button>
+          </div>
+        </div>
+
+        <div className="profile-avatar-stage">
+          <div className="profile-avatar-box">
+            {profile.avatar ? <img src={profile.avatar} alt="当前头像" /> : <span>{initials}</span>}
+          </div>
+          <button type="button" className="profile-avatar-label" onClick={handleResetAvatar}>
+            当前头像
+          </button>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            className="profile-hidden-input"
+            onChange={(event) => handleAvatarChange(event.target.files)}
+          />
+        </div>
+      </section>
+
+      <main className="profile-content-grid">
+        <section className="profile-panel profile-details-panel">
+          <div className="profile-panel-heading">
+            <span className="profile-panel-icon">◎</span>
+            <div>
+              <small>Profile Details</small>
+              <h2>个人资料</h2>
             </div>
-            <Divider />
-            <Descriptions column={1} size="small">
-              <Descriptions.Item label="邮箱">
-                {userProfile.email || '未设置'}
-              </Descriptions.Item>
-              <Descriptions.Item label="手机">
-                {userProfile.phone || '未设置'}
-              </Descriptions.Item>
-              <Descriptions.Item label="注册时间">
-                2024-01-01
-              </Descriptions.Item>
-              <Descriptions.Item label="账户状态">
-                <Tag color="success">正常</Tag>
-              </Descriptions.Item>
-            </Descriptions>
-          </Card>
+          </div>
+          <div className="profile-fields-grid">
+            {accountFields.map(([label, key]) => (
+              <div key={key} className="profile-field-card">
+                <span>{label}</span>
+                <strong>{profile[key]}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          {/* 使用统计 */}
-          <Card className="stats-card" style={{ marginTop: 24 }}>
-            <Title level={5}>
-              <BarChartOutlined style={{ marginRight: 8 }} />
-              使用统计
-            </Title>
-            <Row gutter={16} style={{ marginTop: 16 }}>
-              <Col span={12}>
-                <Statistic 
-                  title="对话数" 
-                  value={userStats.totalChats} 
-                  valueStyle={{ fontSize: 20 }}
-                />
-              </Col>
-              <Col span={12}>
-                <Statistic 
-                  title="消息数" 
-                  value={userStats.totalMessages} 
-                  valueStyle={{ fontSize: 20 }}
-                />
-              </Col>
-              <Col span={12} style={{ marginTop: 16 }}>
-                <Statistic 
-                  title="文档数" 
-                  value={userStats.totalDocs} 
-                  valueStyle={{ fontSize: 20 }}
-                />
-              </Col>
-              <Col span={12} style={{ marginTop: 16 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>最后登录</Text>
-                  <Text style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
-                    {userStats.lastLogin.split(' ')[0]}
-                  </Text>
+        <aside className="profile-side-stack">
+          <section className="profile-panel">
+            <div className="profile-panel-heading">
+              <span className="profile-panel-icon">⚙</span>
+              <div>
+                <small>Security</small>
+                <h2>账号安全</h2>
+              </div>
+            </div>
+            <div className="profile-security-list">
+              <div>
+                <strong>登录密码</strong>
+                <span>上次更新于 2025-02-18</span>
+              </div>
+              <div>
+                <strong>账号状态</strong>
+                <span>正常，可访问全部教师页面</span>
+              </div>
+              <div>
+                <strong>头像设置</strong>
+                <span>{profile.avatar ? '已使用自定义头像' : '当前使用静态默认头像'}</span>
+              </div>
+            </div>
+
+            {showPasswordPanel ? (
+              <Form form={passwordForm} layout="vertical" className="profile-password-form" onFinish={handleResetPassword}>
+                <Form.Item name="currentPassword" label="当前密码" rules={[{ required: true, message: '请输入当前密码' }]}>
+                  <Input.Password prefix={<KeyOutlined />} placeholder="输入当前密码" />
+                </Form.Item>
+                <Form.Item name="newPassword" label="新密码" rules={[{ required: true, message: '请输入新密码' }]}>
+                  <Input.Password prefix={<KeyOutlined />} placeholder="至少 6 位" />
+                </Form.Item>
+                <Form.Item name="confirmPassword" label="确认新密码" rules={[{ required: true, message: '请再次输入新密码' }]}>
+                  <Input.Password prefix={<KeyOutlined />} placeholder="再次输入新密码" />
+                </Form.Item>
+                <div className="profile-password-actions">
+                  <Button onClick={() => setShowPasswordPanel(false)}>取消</Button>
+                  <Button type="primary" htmlType="submit" loading={savingPassword}>
+                    保存密码
+                  </Button>
                 </div>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
+              </Form>
+            ) : null}
+          </section>
 
-        {/* 右侧：设置内容 */}
-        <Col xs={24} lg={16}>
-          <Card>
-            <Tabs defaultActiveKey="profile" size="large">
-              {/* 个人信息 */}
-              <TabPane 
-                tab={
+          <section className="profile-panel">
+            <div className="profile-panel-heading">
+              <span className="profile-panel-icon">▦</span>
+              <div>
+                <small>Quick Access</small>
+                <h2>快捷入口</h2>
+              </div>
+            </div>
+            <div className="profile-quick-list">
+              {quickLinks.map((item) => (
+                <button key={item.href} type="button" onClick={() => navigate(item.href)}>
+                  <span className={`profile-quick-icon is-${item.icon}`} />
                   <span>
-                    <UserOutlined />
-                    个人信息
+                    <strong>{item.title}</strong>
+                    <small>{item.subtitle}</small>
                   </span>
-                } 
-                key="profile"
-              >
-                <Form
-                  form={profileForm}
-                  layout="vertical"
-                  onFinish={handleSaveProfile}
-                  disabled={!editing}
-                >
-                  <Form.Item name="nickname" label="昵称">
-                    <Input prefix={<UserOutlined />} placeholder="请输入昵称" />
-                  </Form.Item>
-                  <Form.Item name="email" label="邮箱">
-                    <Input type="email" placeholder="请输入邮箱地址" />
-                  </Form.Item>
-                  <Form.Item name="phone" label="手机号">
-                    <Input placeholder="请输入手机号" />
-                  </Form.Item>
-                  <Form.Item name="bio" label="个人简介">
-                    <Input.TextArea 
-                      rows={4} 
-                      placeholder="介绍一下自己吧~" 
-                      maxLength={200}
-                      showCount
-                    />
-                  </Form.Item>
-                  <Form.Item>
-                    <Space>
-                      {editing ? (
-                        <>
-                          <Button 
-                            type="primary" 
-                            htmlType="submit" 
-                            icon={<SaveOutlined />}
-                            loading={loading}
-                          >
-                            保存
-                          </Button>
-                          <Button onClick={() => {
-                            setEditing(false);
-                            profileForm.resetFields();
-                            profileForm.setFieldsValue(userProfile);
-                          }}>
-                            取消
-                          </Button>
-                        </>
-                      ) : (
-                        <Button 
-                          type="primary" 
-                          icon={<EditOutlined />}
-                          onClick={() => setEditing(true)}
-                        >
-                          编辑
-                        </Button>
-                      )}
-                    </Space>
-                  </Form.Item>
-                </Form>
-              </TabPane>
-
-              {/* 账户安全 */}
-              <TabPane 
-                tab={
-                  <span>
-                    <SafetyOutlined />
-                    账户安全
-                  </span>
-                } 
-                key="security"
-              >
-                <Form
-                  form={passwordForm}
-                  layout="vertical"
-                  onFinish={handleChangePassword}
-                >
-                  <Form.Item 
-                    name="oldPassword" 
-                    label="当前密码"
-                    rules={[{ required: true, message: '请输入当前密码' }]}
-                  >
-                    <Input.Password 
-                      prefix={<LockOutlined />} 
-                      placeholder="请输入当前密码" 
-                    />
-                  </Form.Item>
-                  <Form.Item 
-                    name="newPassword" 
-                    label="新密码"
-                    rules={[
-                      { required: true, message: '请输入新密码' },
-                      { min: 6, message: '密码长度至少为6位' }
-                    ]}
-                  >
-                    <Input.Password 
-                      prefix={<LockOutlined />} 
-                      placeholder="请输入新密码（至少6位）" 
-                    />
-                  </Form.Item>
-                  <Form.Item 
-                    name="confirmPassword" 
-                    label="确认新密码"
-                    dependencies={['newPassword']}
-                    rules={[
-                      { required: true, message: '请确认新密码' },
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          if (!value || getFieldValue('newPassword') === value) {
-                            return Promise.resolve();
-                          }
-                          return Promise.reject(new Error('两次输入的密码不一致'));
-                        },
-                      }),
-                    ]}
-                  >
-                    <Input.Password 
-                      prefix={<LockOutlined />} 
-                      placeholder="请再次输入新密码" 
-                    />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button 
-                      type="primary" 
-                      htmlType="submit" 
-                      loading={loading}
-                    >
-                      修改密码
-                    </Button>
-                  </Form.Item>
-                </Form>
-              </TabPane>
-            </Tabs>
-          </Card>
-        </Col>
-      </Row>
+                  <ArrowRightOutlined />
+                </button>
+              ))}
+            </div>
+          </section>
+        </aside>
+      </main>
     </div>
   );
 }
-

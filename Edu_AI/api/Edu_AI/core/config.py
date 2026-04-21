@@ -79,6 +79,7 @@ class Config:
     COURSE_STORAGE_ROOT = Path(os.getenv("COURSE_STORAGE_ROOT", BASE_DIR.parent / "course_data"))
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
     AI_LECTURER_AUTOSTART = os.getenv("AI_LECTURER_AUTOSTART", "1")
+    AI_LECTURER_OFFLINE_ENABLED = os.getenv("AI_LECTURER_OFFLINE_ENABLED", "1")
     AI_LECTURER_GATEWAY_URL = os.getenv("AI_LECTURER_GATEWAY_URL", "http://127.0.0.1:8008")
     AI_LECTURER_LIVETALKING_URL = os.getenv("AI_LECTURER_LIVETALKING_URL", "http://127.0.0.1:8010")
     AI_LECTURER_ENTRYPOINT = os.getenv(

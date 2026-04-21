@@ -3,7 +3,7 @@ import uuid
 
 from core.course_storage import CourseStorageManager
 
-from app.teaching_video_bridge import TeachingVideoBridgeService
+from app.teaching_video_bridge import OfflineTeachingVideoDisabledError, TeachingVideoBridgeService
 
 
 class StubPptDownloader:
@@ -166,7 +166,8 @@ def test_list_available_ppts_only_returns_decks_with_pptx_and_markdown():
     assert items[1]["material_id"] == "ppt-missing-markdown"
 
 
-def test_create_task_adapts_ppt_and_content_markdown_into_ai_lecturer_pages():
+def test_create_task_adapts_ppt_and_content_markdown_into_ai_lecturer_pages(monkeypatch):
+    monkeypatch.setenv("AI_LECTURER_OFFLINE_ENABLED", "1")
     tmp_path = _make_temp_root()
     storage_manager = CourseStorageManager(root_path=str(tmp_path))
     _write_course_info(storage_manager, "course-1")
@@ -248,7 +249,8 @@ def test_create_task_adapts_ppt_and_content_markdown_into_ai_lecturer_pages():
     assert saved_video["content"]["source_ppt_material_id"] == "ppt-ready"
 
 
-def test_create_task_prefers_html_deck_export_when_deck_html_exists():
+def test_create_task_prefers_html_deck_export_when_deck_html_exists(monkeypatch):
+    monkeypatch.setenv("AI_LECTURER_OFFLINE_ENABLED", "1")
     tmp_path = _make_temp_root()
     storage_manager = CourseStorageManager(root_path=str(tmp_path))
     _write_course_info(storage_manager, "course-1")
@@ -314,6 +316,55 @@ def test_create_task_prefers_html_deck_export_when_deck_html_exists():
     assert html_exporter.calls[0]["deck_html_path"] == deck_html_path.resolve()
     assert ai_client.create_calls[0]["pages"][0]["ppt_image_path"].endswith("html-slide-1.png")
     assert "Agent intro" in ai_client.create_calls[0]["pages"][0]["content_text"]
+
+
+def test_create_task_disabled_by_env_before_expensive_export(monkeypatch):
+    monkeypatch.setenv("AI_LECTURER_OFFLINE_ENABLED", "0")
+    tmp_path = _make_temp_root()
+    storage_manager = CourseStorageManager(root_path=str(tmp_path))
+    _write_course_info(storage_manager, "course-1")
+
+    pptx_source = tmp_path / "source-deck.pptx"
+    pptx_source.write_bytes(b"fake pptx")
+    slide_one = tmp_path / "slide-1.png"
+    slide_one.write_bytes(b"slide-1")
+
+    storage_manager.save_generated_material(
+        course_id="course-1",
+        material_type="ppt",
+        material_id="ppt-ready",
+        material_data={
+            "title": "Agent intro.pptx",
+            "content": {
+                "pptx_url": "http://127.0.0.1:46080/ppt/artifacts/job-1/rev_0000/deck.pptx",
+                "content_markdown": "# Deck\n\n## Slide 1\n- Title: Agent intro\n",
+                "slide_count": 1,
+            },
+            "generation_state": {"status": "completed"},
+        },
+    )
+
+    downloader = StubPptDownloader(pptx_source)
+    exporter = StubSlideExporter([slide_one])
+    ai_client = StubAiLecturerClient()
+    service = TeachingVideoBridgeService(
+        course_storage_manager=storage_manager,
+        ai_lecturer_client=ai_client,
+        ppt_downloader=downloader,
+        slide_exporter=exporter,
+        task_root=tmp_path / "tasks",
+    )
+
+    try:
+        service.create_task(course_id="course-1", ppt_material_id="ppt-ready", owner="teacher-a")
+    except OfflineTeachingVideoDisabledError as exc:
+        assert "AI_LECTURER_OFFLINE_ENABLED" in str(exc)
+    else:
+        raise AssertionError("expected offline teaching video generation to be disabled")
+
+    assert downloader.calls == []
+    assert exporter.calls == []
+    assert ai_client.create_calls == []
 
 
 def test_get_task_status_persists_completed_video_material():

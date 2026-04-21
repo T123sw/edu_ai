@@ -18,4 +18,28 @@ assert.match(
   'courseMaterialToMarkdown should guard non-string material.content values before trimming',
 );
 
+assert.match(
+  coursesApiFile,
+  /function formatPptDeckMarkdown\(/,
+  'courses api should define a dedicated PPT deck to markdown formatter',
+);
+
+assert.match(
+  coursesApiFile,
+  /material\.material_type === "ppt"/,
+  'courseMaterialToMarkdown should detect PPT materials explicitly',
+);
+
+assert.match(
+  coursesApiFile,
+  /record\.deck_title|record\.title/,
+  'courseMaterialToMarkdown should build markdown from PPT deck title metadata when no direct markdown exists',
+);
+
+assert.match(
+  coursesApiFile,
+  /Array\.isArray\(record\.slides\)/,
+  'courseMaterialToMarkdown should extract slide content from PPT deck metadata',
+);
+
 console.log('courseMaterialToMarkdown tests passed');

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+import os
 import re
 import subprocess
 import sys
@@ -43,6 +44,18 @@ def _normalize_processing_status(value: str) -> str:
     if normalized in {"failed", "error"}:
         return "failed"
     return "processing"
+
+
+class OfflineTeachingVideoDisabledError(RuntimeError):
+    pass
+
+
+def is_offline_teaching_video_enabled() -> bool:
+    value = os.getenv(
+        "AI_LECTURER_OFFLINE_ENABLED",
+        str(getattr(Config, "AI_LECTURER_OFFLINE_ENABLED", "1")),
+    ).strip().lower()
+    return value not in {"0", "false", "off", "no"}
 
 
 def _extract_html2ppt_job_ref(deck_content: dict[str, Any]) -> tuple[str, str]:
@@ -571,6 +584,13 @@ class TeachingVideoBridgeService:
         ]
 
     def create_task(self, *, course_id: str, ppt_material_id: str, owner: str = "") -> dict[str, Any]:
+        if not is_offline_teaching_video_enabled():
+            raise OfflineTeachingVideoDisabledError(
+                "Offline teaching video generation is disabled by "
+                "AI_LECTURER_OFFLINE_ENABLED=0. Use real-time teaching playback "
+                "or re-enable offline generation when CPU/GPU capacity is available."
+            )
+
         material = self._get_ppt_material(course_id, ppt_material_id)
         workspace = self._build_workspace(course_id=course_id)
         pages = self._build_pages(workspace=workspace, material=material)

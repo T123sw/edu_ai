@@ -18,7 +18,14 @@ from app.knowledge_graph_hours import (
     KnowledgeGraphHourAllocationError,
     allocate_graph_hours_from_llm,
 )
-from app.teaching_video_bridge import get_teaching_video_bridge_service
+from app.textbook_knowledge_graph import (
+    TextbookKnowledgeGraphError,
+    import_textbook_into_knowledge_graph,
+)
+from app.teaching_video_bridge import (
+    OfflineTeachingVideoDisabledError,
+    get_teaching_video_bridge_service,
+)
 from app.ai_lecture_sessions import (
     AiLectureRecordingRequest,
     CreateAiLectureSessionRequest,
@@ -427,6 +434,8 @@ def create_teaching_video_task(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OfflineTeachingVideoDisabledError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
@@ -618,7 +627,7 @@ def get_knowledge_base_documents(
                 id=item.get("id", f"doc-{datetime.now().timestamp()}"),
                 name=item.get("filename", item.get("name", "未命名文档")),
                 type=doc_type,
-                file_path=item.get("path") if doc_type == "file" else None,
+                file_path=item.get("path"),
                 url=item.get("url") if doc_type == "web" else None,
                 course_id=course_id,
                 scope_type=str(item.get("scope_type") or SCOPE_TYPE_COURSE),
@@ -696,6 +705,40 @@ async def upload_knowledge_base_document(
         promoted_from_document_id=str(latest.get("promoted_from_document_id") or "").strip() or None,
         created_at=latest.get("uploaded_at", datetime.now().isoformat()),
     )
+
+
+@router.post(
+    "/{course_id}/knowledge-graph/textbook-import",
+    summary="Import a textbook and regenerate the course knowledge graph",
+)
+async def import_textbook_knowledge_graph(
+    course_id: str,
+    file: UploadFile = File(..., description="Textbook file"),
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _get_manager()
+
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="Course not found")
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Textbook file is required")
+
+    try:
+        return import_textbook_into_knowledge_graph(
+            course_id=course_id,
+            filename=file.filename,
+            file_bytes=await file.read(),
+            manager=mgr,
+            rag_system=get_rag_system(),
+        )
+    except TextbookKnowledgeGraphError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to import textbook: {exc}") from exc
 
 
 @router.post(

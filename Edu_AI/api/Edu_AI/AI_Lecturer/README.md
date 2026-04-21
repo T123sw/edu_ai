@@ -85,6 +85,19 @@ AI_Lecturer_Project/
     ```bash
     python start_unified.py
     ```
+    Windows 推荐直接运行：
+    ```bat
+    start_unified.bat
+    ```
+    如果使用 PowerShell 且不想先激活虚拟环境，请使用：
+    ```powershell
+    & ..\.venv_local\Scripts\python.exe .\start_unified.py
+    ```
+    不要这样启动：
+    ```powershell
+    python ..\.venv_local\Scripts\python.exe
+    ```
+    上面这条命令会把 `python.exe` 当成 Python 源码文件去解析，并触发 `SyntaxError: Non-UTF-8 code starting with '\x90'`。
 3.  **产物清理策略**: 
     在开发与长期运行中，`temp_export/` 目录下会积压大量的 `_p0.wav`, `_p0.mp4` 等临时切片文件。建议在 `merge_all_videos` 成功后，由后端逻辑自动清除这些过程副产物，仅保留最终合并的 `task_id.mp4` 文件。
 ```

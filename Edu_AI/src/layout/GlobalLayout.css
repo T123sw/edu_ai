@@ -1,84 +1,112 @@
+.global-layout {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.18) 0%, transparent 24%),
+    radial-gradient(circle at 100% 100%, rgba(79, 70, 229, 0.14) 0%, transparent 24%),
+    linear-gradient(180deg, #eef4ff 0%, #f7f9fc 100%);
+}
+
 .global-layout .ant-layout-sider {
-  background: #001529;
-  box-shadow: 2px 0 8px rgba(0, 21, 41, 0.35);
-  transition: width 0.2s;
+  background: linear-gradient(180deg, #0f172a 0%, #16325c 52%, #10233f 100%) !important;
+  box-shadow: 18px 0 42px rgba(15, 23, 42, 0.18);
+  border-right: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 .global-layout .logo {
-  height: 64px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 16px 16px 8px;
   color: white;
-  font-size: 20px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.global-layout .course-layout-back {
+  height: auto;
+  padding: 8px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .global-layout .ant-menu-dark {
-  background: #001529;
-  padding: 0 var(--spacing-sm);
+  background: transparent !important;
+  padding: 10px 12px 18px;
 }
 
 .global-layout .ant-menu-dark .ant-menu-item {
-  margin-top: var(--spacing-sm) !important;
+  margin: 10px 0 !important;
+  height: 48px;
+  line-height: 48px;
+  border-radius: 16px;
+}
+
+.global-layout .ant-menu-dark .ant-menu-item .ant-menu-title-content {
+  font-weight: 600;
 }
 
 .global-layout .ant-menu-dark .ant-menu-item-selected {
-  background-color: var(--color-primary) !important;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.42), rgba(99, 102, 241, 0.3)) !important;
   position: relative;
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.14);
 }
 
-/* 选中项左侧 indicator */
 .global-layout .ant-menu-dark .ant-menu-item-selected::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
+  top: 8px;
+  bottom: 8px;
   width: 4px;
-  background-color: var(--color-primary-hover);
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  background: #93c5fd;
+  border-radius: 999px;
 }
 
-.global-layout .user-profile {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--spacing-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: #001529;
+.global-layout-main {
+  background: transparent;
 }
 
-.global-layout .user-profile .ant-avatar {
-  background-color: var(--color-primary);
-}
-
-.global-layout .user-profile-content {
+.global-shared-header {
+  padding: 0 24px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  gap: var(--spacing-sm);
-  color: white;
-  cursor: pointer;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.6);
+  backdrop-filter: blur(18px);
+  height: 56px !important;
+  line-height: 56px !important;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.global-user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  color: #1e293b;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.global-layout-content {
+  padding: 16px;
+  height: calc(100vh - 56px);
+  overflow: auto;
+  background: transparent;
+}
+
+.global-layout-content--course {
   overflow: hidden;
-  white-space: nowrap;
 }
-
-.global-layout .ant-layout-sider-collapsed .user-profile-content .username {
-  display: none;
-}
-
-.global-layout .ant-layout-header {
-  padding: 0 24px;
-  background: var(--color-bg-container);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.global-layout .ant-layout-content {
-  padding: var(--spacing-lg);
-  background: var(--color-bg-layout);
-}
-

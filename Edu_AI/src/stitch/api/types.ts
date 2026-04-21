@@ -15,13 +15,73 @@ export type CourseMaterial = {
   topic?: string;
   summary?: string;
   final_markdown?: string;
-  content?: string;
+  content?: unknown;
   mainContent?: Array<{ title?: string; content?: string }>;
   outline?: Array<{
     title?: string;
     children?: Array<{ title?: string; key_concepts?: string[] }>;
   }>;
   is_pinned?: boolean;
+  scope_type?: "course" | "knowledge_point";
+  scope_id?: string | null;
+};
+
+export type TeachingVideoPptItem = {
+  material_id: string;
+  title: string;
+  pptx_url: string;
+  html_full_url?: string | null;
+  slide_count?: number | null;
+  updated_at?: string | null;
+};
+
+export type TeachingVideoTaskResponse = {
+  task_id: string;
+  material_id?: string | null;
+  status: string;
+  video_url?: string | null;
+  error_message?: string | null;
+};
+
+export type AiLectureSessionMaterialResponse = {
+  material_id: string;
+  material_type: string;
+  title?: string | null;
+  summary?: string | null;
+  content?: {
+    source_ppt_material_id?: string;
+    session_snapshot_id?: string;
+    recording_asset_id?: string | null;
+    recording_url?: string | null;
+    can_continue_interactive?: boolean;
+    [key: string]: unknown;
+  };
+  generation_state?: Record<string, unknown>;
+};
+
+export type AiLectureSessionSnapshot = {
+  snapshot_id?: string;
+  course_id?: string;
+  source_ppt_material_id?: string;
+  ai_lecturer_course_id?: string | null;
+  outline?: AiLecturerCoursePage[];
+  script?: Array<{ page_index: number; sentences: string[] }>;
+  events?: Array<Record<string, unknown>>;
+  last_position?: { page_index?: number; sentence_index?: number };
+  [key: string]: unknown;
+};
+
+export type AiLectureSessionDetailResponse = {
+  material?: AiLectureSessionMaterialResponse;
+  snapshot?: AiLectureSessionSnapshot;
+  metadata?: Record<string, unknown>;
+};
+
+export type AiLectureRecordingResponse = {
+  recording_status?: string;
+  recording_url?: string | null;
+  livetalking_session_id?: number;
+  [key: string]: unknown;
 };
 
 export type KnowledgeBaseDocument = {
@@ -67,18 +127,34 @@ export type KnowledgeGraphData = {
   root: KnowledgeGraphNode;
 };
 
-export type KnowledgeGraphHourAllocationRequest = {
-  total_hours: number;
+export type KnowledgeGraphSplitDocument = {
+  id: string;
+  title: string;
+  section_titles: string[];
+  file_path: string;
+  char_count: number;
+  preview: string;
 };
 
-export type KnowledgeGraphHourAllocationResponse = KnowledgeGraphData & {
-  allocation: {
-    total_hours?: number;
-    leaf_count?: number;
-    source?: string;
-    normalized?: boolean;
-    [key: string]: unknown;
-  };
+export type KnowledgeGraphVectorizedDocument = {
+  title: string;
+  file_path: string;
+  status: string;
+  message: string;
+  chunk_count: number;
+};
+
+export type KnowledgeGraphTextbookImportResponse = {
+  source_document: KnowledgeBaseDocument;
+  parser_used: string;
+  outline_source: string;
+  llm_env_path: string;
+  graph_material_id: string;
+  parsed_markdown_path: string;
+  knowledge_graph: KnowledgeGraphData;
+  split_documents: KnowledgeGraphSplitDocument[];
+  vectorized_documents: KnowledgeGraphVectorizedDocument[];
+  warnings: string[];
 };
 
 export type ChatReplyRequestV2 = {
@@ -258,65 +334,6 @@ export type ApiEnvelope<T> = {
   code: number;
   message?: string;
   data: T;
-};
-
-export type AiLectureSessionSnapshotEvent = {
-  type: string;
-  text?: string;
-  page_index?: number;
-  sentence_index?: number;
-  created_at?: string;
-  [key: string]: unknown;
-};
-
-export type AiLectureSessionSnapshot = {
-  snapshot_id: string;
-  course_id?: string;
-  source_ppt_material_id?: string;
-  ai_lecturer_course_id?: string | null;
-  outline?: Array<Record<string, unknown>>;
-  script?: Array<Record<string, unknown>>;
-  events?: AiLectureSessionSnapshotEvent[];
-  last_position?: {
-    page_index: number;
-    sentence_index: number;
-  };
-  created_at?: string;
-  updated_at?: string;
-};
-
-export type AiLectureSessionMaterial = CourseMaterial & {
-  material_id: string;
-  material_type: "ai_lecture_session";
-  content?: {
-    source_ppt_material_id?: string;
-    session_snapshot_id?: string;
-    recording_asset_id?: string | null;
-    recording_url?: string | null;
-    can_continue_interactive?: boolean;
-    [key: string]: unknown;
-  };
-  generation_state?: {
-    status?: "created" | "recording" | "completed" | "failed" | string;
-    phase?: string;
-    message?: string;
-    [key: string]: unknown;
-  };
-};
-
-export type AiLectureSessionDetail = {
-  material: AiLectureSessionMaterial;
-  snapshot: AiLectureSessionSnapshot;
-  metadata: {
-    session_id?: string;
-    source_ppt_material_id?: string;
-    recording_status?: "not_started" | "recording" | "completed" | "failed" | string;
-    recording_url?: string | null;
-    livetalking_session_id?: number;
-    created_at?: string;
-    updated_at?: string;
-    [key: string]: unknown;
-  };
 };
 
 export type AiLecturerCoursePage = {

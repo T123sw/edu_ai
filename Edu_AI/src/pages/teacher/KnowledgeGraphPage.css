@@ -2,7 +2,7 @@
   height: 100%;
   width: 100%;
   min-height: 0;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #eef4ff 0%, #e2e8f5 100%);
   display: flex;
   overflow: hidden;
   gap: 0;
@@ -11,7 +11,6 @@
   position: relative;
 }
 
-/* 图谱真实承载容器：固定占满除右侧面板外的区域 */
 .knowledge-graph-canvas-host {
   position: absolute;
   left: 0;
@@ -21,10 +20,11 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: #fff;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.12) 0%, transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(243, 246, 252, 0.96) 100%);
 }
 
-/* G6 容器必须撑满 */
 .knowledge-graph-canvas-host > div {
   width: 100% !important;
   height: 100% !important;
@@ -40,17 +40,19 @@
 
 .details-card {
   height: 100%;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8e8e8;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  backdrop-filter: blur(16px);
 }
 
 .details-card .ant-card-head {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+  border-radius: 24px 24px 0 0 !important;
   border-bottom: none;
 }
 
@@ -67,6 +69,7 @@
   border-color: rgba(255, 255, 255, 0.3);
   color: #fff;
   background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
 .details-card .ant-card-extra .ant-btn:hover {

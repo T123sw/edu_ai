@@ -4,6 +4,7 @@ import { getAiLecturerOfferUrl } from "../api/video";
 import type { AiLecturerOfferAnswer } from "../api/types";
 
 type ConnectionStatus = "idle" | "connecting" | "connected" | "failed";
+const AI_LECTURER_OFFER_TIMEOUT_MS = Number(import.meta.env.VITE_AI_LECTURER_OFFER_TIMEOUT_MS || 15000);
 
 type UseAiLecturerWebRtcOptions = {
   autoStart?: boolean;
@@ -68,15 +69,22 @@ export function useAiLecturerWebRtc(options: UseAiLecturerWebRtcOptions = {}) {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
 
+      const controller = new AbortController();
+      const offerTimeoutMs = Number.isFinite(AI_LECTURER_OFFER_TIMEOUT_MS) && AI_LECTURER_OFFER_TIMEOUT_MS > 0
+        ? AI_LECTURER_OFFER_TIMEOUT_MS
+        : 15000;
+      const timeoutId = window.setTimeout(() => controller.abort(), offerTimeoutMs);
+
       const response = await fetch(getAiLecturerOfferUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           ...options.offerParams,
           sdp: offer.sdp,
           type: offer.type,
         }),
-      });
+      }).finally(() => window.clearTimeout(timeoutId));
 
       if (!response.ok) {
         throw new Error(`LiveTalking offer failed: ${response.status}`);
