@@ -127,31 +127,34 @@ class ReplyServiceV2:
                 result["status_card"] = status_card if isinstance(status_card, dict) else status_card.model_dump(exclude_none=True)
         return result
 
+    def _run_artifact_edit(self, *, request, snapshot):
+        artifact_reference = getattr(request, "artifact_reference", None)
+        if artifact_reference is None:
+            return None
+
+        artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
+        if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
+            return self.ppt_edit_runtime.run_from_request(
+                request=request,
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+            )
+        if self.report_edit_runtime is not None:
+            return self.report_edit_runtime.run_from_request(
+                request=request,
+                snapshot=snapshot,
+                course_storage_manager=self.course_storage_manager,
+            )
+        return None
+
     def reply(self, payload):
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
-        artifact_reference = getattr(request, "artifact_reference", None)
-        artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
-        if artifact_reference is not None:
-            if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
-                result = self.ppt_edit_runtime.run_from_request(
-                    request=request,
-                    snapshot=snapshot,
-                    course_storage_manager=self.course_storage_manager,
-                )
-            elif self.report_edit_runtime is not None:
-                result = self.report_edit_runtime.run_from_request(
-                    request=request,
-                    snapshot=snapshot,
-                    course_storage_manager=self.course_storage_manager,
-                )
-            else:
-                orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
-                result = orchestrator.dispatch(request)
-        else:
+        result = self._run_artifact_edit(request=request, snapshot=snapshot)
+        if result is None:
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
         return self._finalize_result(payload=payload, request=request, result=result)
@@ -160,6 +163,19 @@ class ReplyServiceV2:
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
+
+        snapshot = self.context_builder.build(request) if self.context_builder is not None else None
+        edit_result = self._run_artifact_edit(request=request, snapshot=snapshot)
+        if edit_result is not None:
+            final_result = self._finalize_result(
+                payload=payload,
+                request=request,
+                result=edit_result,
+            )
+            conversation_id = str(((final_result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "")
+            yield {"type": "result", "payload": final_result}
+            yield {"type": "done", "payload": {"conversation_id": conversation_id}}
+            return
 
         orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
         final_result = None
