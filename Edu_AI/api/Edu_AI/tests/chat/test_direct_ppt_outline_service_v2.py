@@ -68,6 +68,8 @@ def test_direct_ppt_outline_service_creates_draft_without_chat_context(monkeypat
     result = service.generate_outline(
         SimpleNamespace(
             course_id="course-1",
+            scope_type="knowledge_point",
+            scope_id="agent-basics",
             selected_doc_ids=["doc-1"],
             ppt_config={
                 "deck_title": "Agent Basics",
@@ -89,6 +91,8 @@ def test_direct_ppt_outline_service_creates_draft_without_chat_context(monkeypat
     assert result["trace"]["uses_chat_context"] is False
     stored = store.get("ppt-draft-abcdef123456")
     assert stored["normalized_ppt_config"]["deck_title"] == "Agent Basics"
+    assert stored["scope_type"] == "knowledge_point"
+    assert stored["scope_id"] == "agent-basics"
     assert stored["selected_doc_snapshot_id"] == "snap-abcdef123456"
     assert outline_builder.calls[0].deck_topic == "Agent Basics"
 

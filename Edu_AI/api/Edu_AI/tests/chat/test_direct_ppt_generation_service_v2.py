@@ -10,6 +10,8 @@ class DummyDraftStore:
         return {
             "draft_id": draft_id,
             "course_id": "course-1",
+            "scope_type": "knowledge_point",
+            "scope_id": "agent-basics",
             "selected_doc_ids": ["doc-1"],
             "selected_doc_snapshot_id": "snap-1",
             "selected_doc_snapshot": [{"doc_id": "doc-1", "summary": "Agent definition"}],
@@ -78,12 +80,14 @@ def test_direct_ppt_generation_service_persists_completed_deck():
         def __init__(self):
             self.saved = []
 
-        def save_generated_material(self, *, course_id, material_type, material_id, material_data):
+        def save_generated_material(self, *, course_id, material_type, material_id, material_data, scope_type=None, scope_id=None):
             self.saved.append(
                 {
                     "course_id": course_id,
                     "material_type": material_type,
                     "material_id": material_id,
+                    "scope_type": scope_type,
+                    "scope_id": scope_id,
                     "material_data": material_data,
                 }
             )
@@ -127,3 +131,5 @@ def test_direct_ppt_generation_service_persists_completed_deck():
 
     assert storage.saved[0]["course_id"] == "course-1"
     assert storage.saved[0]["material_type"] == "ppt"
+    assert storage.saved[0]["scope_type"] == "knowledge_point"
+    assert storage.saved[0]["scope_id"] == "agent-basics"

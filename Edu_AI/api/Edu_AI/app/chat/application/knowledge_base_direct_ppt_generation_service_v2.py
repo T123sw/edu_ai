@@ -124,7 +124,11 @@ class KnowledgeBaseDirectPptGenerationServiceV2:
                 "trace": dict(result.get("trace") or {}),
             }
         _persist_ppt_course_material(
-            payload=SimpleNamespace(course_id=draft.get("course_id")),
+            payload=SimpleNamespace(
+                course_id=draft.get("course_id"),
+                scope_type=draft.get("scope_type"),
+                scope_id=draft.get("scope_id"),
+            ),
             result={"artifacts": response.get("artifacts") or []},
             course_storage_manager=self.course_storage_manager,
         )

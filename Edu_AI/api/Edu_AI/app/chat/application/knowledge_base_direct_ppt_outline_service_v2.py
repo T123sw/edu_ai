@@ -172,6 +172,8 @@ class KnowledgeBaseDirectPptOutlineServiceV2:
         draft = {
             "draft_id": draft_id,
             "course_id": str(getattr(payload, "course_id", "") or "").strip() or None,
+            "scope_type": str(getattr(payload, "scope_type", "") or "").strip() or None,
+            "scope_id": str(getattr(payload, "scope_id", "") or "").strip() or None,
             "selected_doc_ids": selected_doc_ids,
             "selected_doc_snapshot_id": snapshot_id,
             "selected_doc_snapshot": documents,
