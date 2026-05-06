@@ -7,6 +7,19 @@ const { repoRoot, chromePath, chromeArgs } = require('../config');
 const HOST = '127.0.0.1';
 const DEFAULT_CHROME_EXPORT_TIMEOUT_MS = 120000;
 
+function shouldUseShellForCommand(command, platform = process.platform) {
+  return platform === 'win32' && /\.(cmd|bat)$/i.test(String(command || '').trim());
+}
+
+function buildProcessSpawnOptions({ command, cwd, platform = process.platform }) {
+  return {
+    cwd,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    shell: shouldUseShellForCommand(command, platform),
+  };
+}
+
 function parsePositiveInt(value, fallback) {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -56,11 +69,17 @@ function syncDomToPptxBundle() {
 
   if (distMtime < sourceMtime) {
     const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const buildResult = spawnSync(npmCommand, ['run', 'build'], {
-      cwd: domToPptxDir,
-      encoding: 'utf8',
-      stdio: 'pipe',
-    });
+    const buildResult = spawnSync(
+      npmCommand,
+      ['run', 'build'],
+      buildProcessSpawnOptions({
+        command: npmCommand,
+        cwd: domToPptxDir,
+      })
+    );
+    if (buildResult.error) {
+      throw new Error(`Failed to build dom-to-pptx bundle: ${buildResult.error.message}`);
+    }
     if (buildResult.status !== 0) {
       const stderr = String(buildResult.stderr || buildResult.stdout || '').trim();
       throw new Error(`Failed to build dom-to-pptx bundle: ${stderr}`);
@@ -697,6 +716,7 @@ async function exportHtmlToPptx({ htmlPath, outputPath, jobWorkspace, serverPort
 }
 
 module.exports = {
+  buildProcessSpawnOptions,
   exportHtmlToPptx,
   normalizeRepoAssetPaths,
   normalizeVideoSourceTags,

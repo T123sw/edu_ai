@@ -1,12 +1,21 @@
 const CONTENT_OUTLINE_HEADING = '## Content Outline';
 const SLIDE_HEADING_PATTERN = /^###\s+Slide\s+(\d+)\b/i;
 const PLAN_FIELD_PATTERN = /^-\s+(\*\*[^:]+?\*\*|[^:]+?)\s*:\s*(.*)$/;
+const BOLD_PLAN_FIELD_PATTERN = /^-\s+\*\*([^*]+?)\s*:\*\*\s*(.*)$/;
 
 function normalizePlanFieldName(value) {
   return String(value || '')
     .replace(/\*/g, '')
     .trim()
     .toLowerCase();
+}
+
+function normalizePlanFieldValue(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^\*\*\s*/, '')
+    .replace(/\s*\*\*$/, '')
+    .trim();
 }
 
 function splitPlanSections(markdown) {
@@ -52,14 +61,14 @@ function parsePlanEntryFields(entry) {
   const fields = {};
 
   for (const line of String(entry || '').split(/\r?\n/)) {
-    const match = line.match(PLAN_FIELD_PATTERN);
+    const match = line.match(BOLD_PLAN_FIELD_PATTERN) || line.match(PLAN_FIELD_PATTERN);
     if (!match) {
       continue;
     }
 
     fields[normalizePlanFieldName(match[1])] = {
       rawKey: match[1].trim(),
-      value: match[2].trim(),
+      value: normalizePlanFieldValue(match[2]),
     };
   }
 
@@ -99,6 +108,7 @@ module.exports = {
   extractSlideIndex,
   getPlanField,
   normalizePlanFieldName,
+  normalizePlanFieldValue,
   parsePlanEntryFields,
   setPlanField,
   splitPlanSections,

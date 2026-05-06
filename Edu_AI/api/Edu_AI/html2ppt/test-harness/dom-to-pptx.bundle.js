@@ -54216,9 +54216,9 @@
 
   var ttftowoff2 = {};
 
-  var __dirname$1 = '/Users/sun/code/aippt/html2ppt/dom-to-pptx/node_modules/fonteditor-core/woff2';
+  var __dirname$1 = '/Edu_AI_1/Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx';
 
-  var __dirname = '/Users/sun/code/aippt/html2ppt/dom-to-pptx/node_modules/fonteditor-core/woff2';
+  var __dirname = '/Edu_AI_1/Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx';
 
   var woff2$1 = {exports: {}};
 

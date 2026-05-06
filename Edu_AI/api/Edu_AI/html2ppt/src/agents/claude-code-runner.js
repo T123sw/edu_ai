@@ -38,6 +38,21 @@ function normalizeAgentOutputByKind(stdout, outputKind = 'slide') {
   return normalizeAgentOutput(trimmed);
 }
 
+function shouldUseShellForCommand(command, platform = process.platform) {
+  if (platform !== 'win32') {
+    return false;
+  }
+  return /\.(cmd|bat)$/i.test(String(command || '').trim());
+}
+
+function buildSpawnOptions({ command, cwd, platform = process.platform }) {
+  return {
+    cwd,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    shell: shouldUseShellForCommand(command, platform),
+  };
+}
+
 class ClaudeCodeRunner {
   async run({ promptPath, outputPath, workspaceDir, prompt, outputKind = 'slide' }) {
     const context = {
@@ -49,10 +64,14 @@ class ClaudeCodeRunner {
 
     const args = claudeArgs.map((arg) => interpolateArg(arg, context));
     const result = await new Promise((resolve, reject) => {
-      const child = spawn(claudeCmd, args, {
-        cwd: repoRoot,
-        stdio: ['pipe', 'pipe', 'pipe'],
-      });
+      const child = spawn(
+        claudeCmd,
+        args,
+        buildSpawnOptions({
+          command: claudeCmd,
+          cwd: repoRoot,
+        })
+      );
 
       let stdout = '';
       let stderr = '';
@@ -123,5 +142,6 @@ class ClaudeCodeRunner {
 
 module.exports = {
   ClaudeCodeRunner,
+  buildSpawnOptions,
   normalizeAgentOutputByKind,
 };

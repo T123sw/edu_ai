@@ -12,6 +12,7 @@ const { progressForPhase } = require('../src/domain/status');
 const { extractSlides, replaceSlide, inferLayout, inferTitle } = require('../src/domain/fragment');
 const { normalizeSlideDecorations } = require('../src/domain/slide-decor');
 const { parseContentProtocol } = require('../src/domain/content-protocol');
+const { parsePlanEntryFields } = require('../src/domain/deck-plan-outline');
 const { buildManifest } = require('../src/domain/manifest');
 const { loadCatalogBundle, summarizeCatalogEntries } = require('../src/domain/catalogs');
 const { localizeMediaAssets } = require('../src/lib/media-assets');
@@ -20,6 +21,7 @@ const {
   ensurePreviewRuntimeBridge,
 } = require('../src/lib/build-standalone-html');
 const {
+  buildProcessSpawnOptions,
   normalizeRepoAssetPaths,
   normalizeVideoSourceTags,
   runChromeExport,
@@ -109,6 +111,46 @@ test('runner can normalize json and html document outputs', async () => {
     normalizeAgentOutputByKind('<!DOCTYPE html><html><body><h1>Demo</h1></body></html>', 'html_document'),
     /<html>/i
   );
+});
+
+test('runner uses shell mode for windows cmd launchers', () => {
+  const { buildSpawnOptions } = require('../src/agents/claude-code-runner');
+
+  const options = buildSpawnOptions({
+    command: 'C:\\Users\\Administrator\\AppData\\Roaming\\npm\\claude.cmd',
+    cwd: 'C:\\repo\\html2ppt',
+    platform: 'win32',
+  });
+
+  assert.equal(options.cwd, 'C:\\repo\\html2ppt');
+  assert.deepEqual(options.stdio, ['pipe', 'pipe', 'pipe']);
+  assert.equal(options.shell, true);
+});
+
+test('export bundle build uses shell mode for windows cmd launchers', () => {
+  const options = buildProcessSpawnOptions({
+    command: 'npm.cmd',
+    cwd: 'C:\\repo\\html2ppt\\dom-to-pptx',
+    platform: 'win32',
+  });
+
+  assert.equal(options.cwd, 'C:\\repo\\html2ppt\\dom-to-pptx');
+  assert.equal(options.encoding, 'utf8');
+  assert.equal(options.stdio, 'pipe');
+  assert.equal(options.shell, true);
+});
+
+test('deck plan parser strips markdown emphasis from field labels and values', () => {
+  const fields = parsePlanEntryFields([
+    '### Slide 1',
+    '- **Role:** cover',
+    '- **Title:** Python 变量基础：概念解析与代码实现',
+    '- **Visible Content:** Lead subtitle',
+  ].join('\n'));
+
+  assert.equal(fields.role.value, 'cover');
+  assert.equal(fields.title.value, 'Python 变量基础：概念解析与代码实现');
+  assert.equal(fields['visible content'].value, 'Lead subtitle');
 });
 
 test('phase progress mapping stays stable', () => {
