@@ -4,7 +4,10 @@ import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
 import "../../pages/teacher/AiStudioPage.css";
 import { useStore } from "../../store/teacher/useStore";
-import { AppSurface, SidebarBackLink, SidebarDock, SidebarNav, routes, useAppShell } from "../shared";
+import { SidebarBackLink, SidebarDock, SidebarNav } from "../../app/shell";
+import { useAppShell } from "../../app/providers";
+import { routes } from "../../app/routing";
+import { AppSurface } from "../../shared/ui";
 import {
   getWorkspaceScopeLabel,
   normalizeWorkspaceScope,

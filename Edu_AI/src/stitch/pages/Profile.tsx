@@ -1,4 +1,6 @@
-import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
+import { useAppShell } from "../../app/providers";
+import { routeHref, routes } from "../../app/routing";
+import { AppSurface, GlassPanel, MaterialIcon } from "../../shared/ui";
 
 const profile = {
   username: "林知夏",

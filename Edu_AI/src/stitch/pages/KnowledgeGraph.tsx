@@ -11,14 +11,22 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
+} from "../../shared/ui";
+import {
   SidebarBackLink,
   SidebarDock,
   SidebarNav,
-  cx,
+} from "../../app/shell";
+import {
+  useAppShell,
+} from "../../app/providers";
+import {
   routeHref,
   routes,
-  useAppShell,
-} from "../shared";
+} from "../../app/routing";
+import {
+  cx,
+} from "../../shared/utils";
 import { writeWorkspaceScopeToSearch } from "../../services/teacher/workspaceScope";
 
 type FlatNode = {

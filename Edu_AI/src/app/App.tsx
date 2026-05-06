@@ -11,7 +11,7 @@ import { CourseDetailPage, CourseListPage } from "../stitch/pages/CourseDetail";
 import { CourseEditPage } from "../stitch/pages/CourseEdit";
 import { ProfilePage } from "../stitch/pages/Profile";
 import { LoginPage } from "../stitch/pages/LoginPage";
-import { ThemeCustomizer } from "../stitch/shared";
+import { ThemeCustomizer } from "./shell";
 import { AppShellProvider, type CourseSummary } from "./providers";
 import {
   getCurrentRoute,

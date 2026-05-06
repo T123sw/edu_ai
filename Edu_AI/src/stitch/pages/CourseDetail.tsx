@@ -5,13 +5,19 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
+} from "../../shared/ui";
+import {
   SidebarBackLink,
+} from "../../app/shell";
+import {
   defaultCourse,
-  routeHref,
-  routes,
   useAppShell,
   type CourseSummary,
-} from "../shared";
+} from "../../app/providers";
+import {
+  routeHref,
+  routes,
+} from "../../app/routing";
 
 function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: (course: CourseSummary) => void }) {
   return (

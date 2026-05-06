@@ -5,14 +5,22 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
+} from "../../shared/ui";
+import {
   SidebarBackLink,
   SidebarDock,
   SidebarNav,
-  cx,
-  defaultCourse,
-  routes,
+} from "../../app/shell";
+import {
   useAppShell,
-} from "../shared";
+  defaultCourse,
+} from "../../app/providers";
+import {
+  routes,
+} from "../../app/routing";
+import {
+  cx,
+} from "../../shared/utils";
 
 type KnowledgeCategory = "教材" | "讲义" | "PPT" | "习题" | "实验手册";
 

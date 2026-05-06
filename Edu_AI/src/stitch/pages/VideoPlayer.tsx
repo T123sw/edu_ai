@@ -35,14 +35,20 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
+} from "../../shared/ui";
+import {
   SidebarBackLink,
   SidebarDock,
   SidebarNav,
+} from "../../app/shell";
+import {
   defaultCourse,
+  useAppShell,
+} from "../../app/providers";
+import {
   routeHref,
   routes,
-  useAppShell,
-} from "../shared";
+} from "../../app/routing";
 
 type Slide = {
   title: string;

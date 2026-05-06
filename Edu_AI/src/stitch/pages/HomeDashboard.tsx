@@ -12,7 +12,9 @@ import {
 } from "@ant-design/icons";
 import { backendCourseToSummary, listCourses } from "../api/courses";
 import type { BackendCourse } from "../api/types";
-import { AppSurface, routeHref, routes, useAppShell } from "../shared";
+import { useAppShell } from "../../app/providers";
+import { routeHref, routes } from "../../app/routing";
+import { AppSurface } from "../../shared/ui";
 import "./HomeDashboard.css";
 
 const { Title, Paragraph, Text } = Typography;

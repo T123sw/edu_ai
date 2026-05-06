@@ -1,4 +1,5 @@
-import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes } from "../shared";
+import { routeHref, routes } from "../../app/routing";
+import { AppSurface, GlassPanel, MaterialIcon } from "../../shared/ui";
 
 export function PptStudioPage() {
   return (

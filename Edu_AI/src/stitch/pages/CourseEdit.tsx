@@ -3,14 +3,20 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
+} from "../../shared/ui";
+import {
   SidebarBackLink,
   SidebarDock,
   SidebarNav,
+} from "../../app/shell";
+import {
   defaultCourse,
+  useAppShell,
+} from "../../app/providers";
+import {
   routeHref,
   routes,
-  useAppShell,
-} from "../shared";
+} from "../../app/routing";
 import { useCourseStore } from "../../store/course/useCourseStore";
 
 type CourseFormState = {
