@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '../services/auth';
-import { login as loginService } from '../services/auth';
+import { login as loginService, verifyToken } from '../services/auth';
 
 interface AuthContextValue {
   user: User | null;
   token: string | null;
+  authReady: boolean;
   login: (username: string, password: string) => Promise<{ user: User; token: string }>;
   logout: () => void;
 }
@@ -16,18 +17,51 @@ const STORAGE_KEY = 'edu-ai-auth';
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    let cancelled = false;
+
+    async function restoreAuth() {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        if (!cancelled) {
+          setAuthReady(true);
+        }
+        return;
+      }
+
       try {
         const parsed = JSON.parse(stored) as { user: User; token: string };
-        setUser(parsed.user);
-        setToken(parsed.token);
+        const result = await verifyToken(parsed.token);
+
+        if (cancelled) return;
+
+        if (result.valid) {
+          setUser(result.user);
+          setToken(parsed.token);
+        } else {
+          setUser(null);
+          setToken(null);
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
       } catch {
+        if (cancelled) return;
+        setUser(null);
+        setToken(null);
         window.localStorage.removeItem(STORAGE_KEY);
+      } finally {
+        if (!cancelled) {
+          setAuthReady(true);
+        }
       }
     }
+
+    void restoreAuth();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = async (username: string, password: string) => {
@@ -48,10 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       token,
+      authReady,
       login,
       logout
     }),
-    [user, token]
+    [user, token, authReady]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

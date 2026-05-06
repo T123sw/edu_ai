@@ -31,7 +31,10 @@ import AiStudentStudioPage from '../pages/student/AiStudentStudioPage';
 import AiStudentCourseIntroPage from '../pages/student/AiStudentCourseIntroPage';
 
 function RootRedirect() {
-  const { token } = useAuth();
+  const { authReady, token } = useAuth();
+  if (!authReady) {
+    return null;
+  }
   if (!token) {
     return <Navigate to="/login" replace />;
   }
