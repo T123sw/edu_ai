@@ -1,16 +1,16 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
-import { VideoPlayerPage } from "./pages/VideoPlayer";
-import { CourseResourcesPage } from "./pages/CourseResources";
-import { AIWorkspacePage } from "./pages/AIWorkspace";
-import { HomeDashboardPage } from "./pages/HomeDashboard";
-import { KnowledgeGraphPage } from "./pages/KnowledgeGraph";
-import { PptStudioPage } from "./pages/PptStudio";
-import { CourseKnowledgeBasePage } from "./pages/CourseKnowledgeBase";
-import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
-import { CourseEditPage } from "./pages/CourseEdit";
-import { ProfilePage } from "./pages/Profile";
-import { LoginPage } from "./pages/LoginPage";
+import { WorkspaceOverviewPage } from "../stitch/pages/WorkspaceOverview";
+import { VideoPlayerPage } from "../stitch/pages/VideoPlayer";
+import { CourseResourcesPage } from "../stitch/pages/CourseResources";
+import { AIWorkspacePage } from "../stitch/pages/AIWorkspace";
+import { HomeDashboardPage } from "../stitch/pages/HomeDashboard";
+import { KnowledgeGraphPage } from "../stitch/pages/KnowledgeGraph";
+import { PptStudioPage } from "../stitch/pages/PptStudio";
+import { CourseKnowledgeBasePage } from "../stitch/pages/CourseKnowledgeBase";
+import { CourseDetailPage, CourseListPage } from "../stitch/pages/CourseDetail";
+import { CourseEditPage } from "../stitch/pages/CourseEdit";
+import { ProfilePage } from "../stitch/pages/Profile";
+import { LoginPage } from "../stitch/pages/LoginPage";
 import {
   AppShellProvider,
   ThemeCustomizer,
@@ -20,7 +20,7 @@ import {
   type CourseSummary,
   type RouteKey,
   type ThemeName,
-} from "./shared";
+} from "../stitch/shared";
 import { login, verifyToken, type User } from "../services/auth";
 
 const pages = [
