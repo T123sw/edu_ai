@@ -83,8 +83,8 @@ assert.match(
 
 assert.match(
   page,
-  /<video[\s\S]*className="absolute bottom-\[2%\] right-\[1\.8%\] z-20 h-auto w-\[24%\][\s\S]*bg-transparent object-contain mix-blend-multiply/,
-  "Realtime stage should pin the digital human layer to the lower-right corner and visually remove the white video background",
+  /<TransparentAvatarCanvas[\s\S]*className="pointer-events-none absolute bottom-\[2%\] right-\[1\.8%\] z-20 block h-auto w-\[24%\][\s\S]*object-contain[\s\S]*drop-shadow-/,
+  "Realtime stage should pin the digital human canvas to the lower-right corner with the dedicated transparent-avatar renderer",
 );
 
 assert.match(

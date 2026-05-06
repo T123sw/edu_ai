@@ -90,6 +90,24 @@ import './StudioPanel.css';
 
 const { Title, Text, Paragraph } = Typography;
 const PPT_PREVIEW_BASE_WIDTH = 1920;
+const HIDDEN_RECENT_ARTIFACT_NAMES = [
+  '变量本质、动态特性及其教学价值分析报告.md',
+  '编程基础：变量的概念、命名与赋值操作-quiz.json',
+] as const;
+
+const getGeneratedFileAddedAtTimestamp = (file: GeneratedFile): number => {
+  const rawAddedAt = typeof file.meta?.addedAt === 'string' ? file.meta.addedAt : '';
+  const parsed = Date.parse(rawAddedAt);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getHiddenRecentArtifactIds = (files: GeneratedFile[]): string[] =>
+  HIDDEN_RECENT_ARTIFACT_NAMES.map((targetName) => {
+    const latestMatch = files
+      .filter((file) => String(file.name || '').trim() === targetName)
+      .sort((left, right) => getGeneratedFileAddedAtTimestamp(right) - getGeneratedFileAddedAtTimestamp(left))[0];
+    return latestMatch?.id || '';
+  }).filter(Boolean);
 
 const getBlogStatusLabel = (status?: string) => {
   switch (status) {
@@ -1639,9 +1657,10 @@ const StudioPanel: React.FC<Props> = ({
     .sort(
       (left, right) =>
         STUDIO_ACTION_DISPLAY_ORDER.indexOf(left.type as any) - STUDIO_ACTION_DISPLAY_ORDER.indexOf(right.type as any),
-    );
+  );
   const secondaryStudioActions = STUDIO_ACTIONS.filter((item) => !item.featured);
   const selectedDocCount = selectedDocs.length;
+  const visibleGeneratedFiles = generatedFiles;
 
   if (collapsed) {
     // 功能类型定义
@@ -3190,7 +3209,7 @@ const StudioPanel: React.FC<Props> = ({
             生成式工厂
           </Title>
           <div className="studio-panel__subtitle">
-            已生成 {generatedFiles.length} 份资源
+            已生成 {visibleGeneratedFiles.length} 份资源
           </div>
         </div>
         <Button
@@ -3527,7 +3546,7 @@ const StudioPanel: React.FC<Props> = ({
           <div className="studio-panel__summary-eyebrow">工作摘要</div>
           <div className="studio-panel__summary-title">从当前知识库快速生成本课时教学产物</div>
           <div className="studio-panel__summary-hint">
-            已选 {selectedDocCount} 份资料，已生成 {generatedFiles.length} 项内容
+            已选 {selectedDocCount} 份资料，已生成 {visibleGeneratedFiles.length} 项内容
           </div>
         </div>
       </div>
@@ -3598,7 +3617,7 @@ const StudioPanel: React.FC<Props> = ({
           <div className="studio-panel__section-note">生成完成后可在这里继续查看、预览或加入课程资源。</div>
         </div>
         <Space size="small">
-          <div className="studio-panel__artifact-count">{generatedFiles.length}</div>
+          <div className="studio-panel__artifact-count">{visibleGeneratedFiles.length}</div>
           {generatedFiles.filter((file) => String(file.meta?.origin || '').trim() === 'course_material').length < courseMaterialsTotal && (
             <Button type="text" size="small" loading={courseMaterialsLoadingMore} onClick={() => void handleLoadMoreCourseMaterials()}>
               加载更多
@@ -3608,7 +3627,7 @@ const StudioPanel: React.FC<Props> = ({
       </div>
 
       <div className="studio-panel__artifact-list">
-        {generatedFiles.map((item) => {
+        {visibleGeneratedFiles.map((item) => {
           const menuItems: MenuProps['items'] = [
             {
               key: 'add-to-course',
@@ -3661,7 +3680,7 @@ const StudioPanel: React.FC<Props> = ({
             </div>
           );
         })}
-        {generatedFiles.length === 0 && (
+        {visibleGeneratedFiles.length === 0 && (
           <div className="studio-panel__empty-state">
             <div className="studio-panel__empty-title">还没有生成内容</div>
             <div className="studio-panel__empty-copy">从上方入口开始，生成后的报告、教案、博客、习题、PPT、视频和思维导图会集中出现在这里。</div>

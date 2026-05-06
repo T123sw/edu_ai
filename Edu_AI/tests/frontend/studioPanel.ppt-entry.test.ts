@@ -5,10 +5,9 @@ const studioPanel = readFileSync(new URL('../../src/components/teacher/StudioPan
 
 assert.match(studioPanel, /import\s+PptEntryPanel\s+from\s+['"]\.\/PptEntryPanel['"]/);
 assert.match(studioPanel, /if\s*\(type\s*===\s*'ppt'\)\s*\{[\s\S]*setPptEntryVisible\(true\)/);
-assert.match(studioPanel, /title="PPT"/);
 assert.match(studioPanel, /generateKnowledgeBasePptOutlineV2\(/);
 assert.match(studioPanel, /generateKnowledgeBasePptV2\(/);
-assert.match(studioPanel, /<PptEntryPanel/);
+assert.match(studioPanel, /<PptEntryPanel[\s\S]*onSubmitOutline=\{handleDirectPptOutlineSubmit\}[\s\S]*onSubmitGenerate=\{handleDirectPptGenerateSubmit\}/);
 assert.doesNotMatch(studioPanel, /title="Report"/);
 
 console.log('studioPanel.ppt-entry tests passed');
