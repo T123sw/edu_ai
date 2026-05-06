@@ -49,6 +49,24 @@ def _default_external_env_path() -> Path:
     return _workspace_root() / "edu_ai_src" / "edu_ai-main" / "Edu_AI" / "api" / "Edu_AI" / ".env"
 
 
+def _default_llm_env_paths() -> List[Path]:
+    current = Path(__file__).resolve()
+    candidates = [
+        current.parents[1] / ".env",
+        current.parents[3] / ".env",
+        _default_external_env_path(),
+    ]
+    unique_candidates: List[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        normalized = str(candidate.resolve(strict=False))
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        unique_candidates.append(candidate)
+    return unique_candidates
+
+
 def _normalize_slug(value: str, fallback: str) -> str:
     cleaned = re.sub(r"[^a-zA-Z0-9._-]+", "-", str(value or "").strip()).strip("._-")
     return cleaned or fallback
@@ -199,7 +217,7 @@ def _resolve_llm_env_values(explicit_env_path: Optional[str] = None) -> tuple[Di
     env_from_var = str(os.getenv("TEXTBOOK_PIPELINE_ENV_PATH") or "").strip()
     if env_from_var:
         candidates.append(Path(env_from_var))
-    candidates.append(_default_external_env_path())
+    candidates.extend(_default_llm_env_paths())
 
     for candidate in candidates:
         if candidate.exists():
