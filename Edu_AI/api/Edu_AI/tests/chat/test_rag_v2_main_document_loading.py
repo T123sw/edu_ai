@@ -7,6 +7,7 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import main
+from app.integrations import rag_client
 
 
 def test_main_selected_document_loader_uses_rag_v2_resolver_only(monkeypatch):
@@ -25,7 +26,7 @@ def test_main_selected_document_loader_uses_rag_v2_resolver_only(monkeypatch):
         def _make_index_key(self, *args, **kwargs):
             raise AssertionError("business layer must not use legacy manual key fallback")
 
-    monkeypatch.setattr(main, "load_rag_document_content", fake_load_rag_document_content)
+    monkeypatch.setattr(rag_client, "load_rag_document_content", fake_load_rag_document_content)
 
     documents = main._load_selected_rag_documents(
         LegacyTrapRAGSystem(),

@@ -6,6 +6,7 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import main
+from app.integrations import rag_client
 
 
 class DummyRagSystem:
@@ -14,7 +15,7 @@ class DummyRagSystem:
 
 def test_resolve_selected_doc_ids_for_query_prefers_resolved_ids(monkeypatch):
     monkeypatch.setattr(
-        main,
+        rag_client,
         "resolve_rag_document_ids",
         lambda rag_system, selected_doc_ids, owner=None: ["index-key-1", "index-key-2"],
     )
@@ -30,7 +31,7 @@ def test_resolve_selected_doc_ids_for_query_prefers_resolved_ids(monkeypatch):
 
 def test_resolve_selected_doc_ids_for_query_falls_back_to_original_ids_when_resolution_fails(monkeypatch):
     monkeypatch.setattr(
-        main,
+        rag_client,
         "resolve_rag_document_ids",
         lambda rag_system, selected_doc_ids, owner=None: [],
     )
