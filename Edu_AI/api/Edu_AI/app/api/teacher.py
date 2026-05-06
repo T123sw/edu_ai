@@ -33,7 +33,6 @@ from app.services.teacher_service import (
     generate_quiz,
     generate_report,
     generate_questions,
-    get_course_materials,
     get_lesson_plan_detail,
     list_lesson_plans,
     suggest_knowledge_points,
@@ -261,18 +260,3 @@ async def generate_questions_endpoint(payload: QuestionGenerateRequest):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"生成题目失败: {exc}") from exc
 
-
-# ---------------------------------------------------------------------------
-# course materials
-# ---------------------------------------------------------------------------
-
-@router.get("/api/courses/{course_id}/materials")
-async def get_course_materials_endpoint(
-    course_id: str,
-    material_type: Optional[str] = None,
-    current_user: dict = Depends(get_current_user),
-):
-    try:
-        return get_course_materials(course_id, material_type)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"获取课程资源失败: {exc}") from exc

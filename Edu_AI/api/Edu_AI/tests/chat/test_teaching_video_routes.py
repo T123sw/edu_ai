@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app import courses as courses_module
+from app.api import courses as courses_api
+from app.services import course_service
 
 
 class DummyManager:
@@ -9,6 +11,12 @@ class DummyManager:
         if course_id == "course-1":
             return {"id": "course-1", "title": "计算机网络"}
         return None
+
+    def create_course_structure(self, course_id: str):
+        return True
+
+    def save_course_info(self, course_id: str, info: dict):
+        return True
 
 
 class DummyTeachingVideoService:
@@ -63,8 +71,8 @@ def test_teaching_video_routes_expose_ppt_listing_task_creation_and_polling(monk
     app.dependency_overrides[courses_module.get_current_user] = lambda: {"username": "teacher-a"}
 
     service = DummyTeachingVideoService()
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: DummyManager())
-    monkeypatch.setattr(courses_module, "get_teaching_video_bridge_service", lambda: service)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: DummyManager())
+    monkeypatch.setattr(courses_api, "get_teaching_video_bridge_service", lambda: service)
 
     client = TestClient(app)
 
@@ -98,8 +106,8 @@ def test_teaching_video_create_returns_readable_gateway_error(monkeypatch):
     app.include_router(courses_module.router)
     app.dependency_overrides[courses_module.get_current_user] = lambda: {"username": "teacher-a"}
 
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: DummyManager())
-    monkeypatch.setattr(courses_module, "get_teaching_video_bridge_service", lambda: RuntimeFailingTeachingVideoService())
+    monkeypatch.setattr(course_service, "_get_manager", lambda: DummyManager())
+    monkeypatch.setattr(courses_api, "get_teaching_video_bridge_service", lambda: RuntimeFailingTeachingVideoService())
 
     client = TestClient(app)
 

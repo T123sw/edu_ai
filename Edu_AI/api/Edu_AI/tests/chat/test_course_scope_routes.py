@@ -10,6 +10,9 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import courses
+from app.api import courses as courses_api
+from app.services import course_service
+import app.teaching_video_bridge as teaching_video_bridge
 from app.teaching_video_bridge import TeachingVideoBridgeService
 from core.course_storage import CourseStorageManager
 
@@ -35,7 +38,7 @@ def test_get_course_materials_returns_paginated_aggregate_scope(monkeypatch):
             scope_id=None if index % 2 == 0 else f"kp-{index:02d}",
         )
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     payload = courses.get_course_materials(
         "course-1",
@@ -83,8 +86,8 @@ def test_get_course_materials_hydrates_ppt_content_markdown_from_html2ppt_revisi
         task_root=manager.root_path / "tasks",
         html2ppt_jobs_root=html2ppt_jobs_root,
     )
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
-    monkeypatch.setattr(courses, "get_teaching_video_bridge_service", lambda: service)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    monkeypatch.setattr(teaching_video_bridge, "get_teaching_video_bridge_service", lambda: service)
 
     payload = courses.get_course_materials(
         "course-1",
@@ -147,7 +150,7 @@ def test_get_knowledge_base_documents_filters_descendant_scope(monkeypatch):
         scope_id="graphs",
     )
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     documents = courses.get_knowledge_base_documents(
         "course-1",
@@ -202,7 +205,7 @@ def test_get_knowledge_base_documents_keeps_personal_library_current_node_only(m
         owner_user_id="teacher-a",
     )
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     course_documents = courses.get_knowledge_base_documents(
         "course-1",
@@ -242,7 +245,7 @@ def test_get_knowledge_base_documents_returns_local_path_for_web_documents(monke
     index[-1]["doc_kind"] = "web"
     manager.save_knowledge_base_index("course-1", index)
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     documents = courses.get_knowledge_base_documents(
         "course-1",
@@ -278,8 +281,8 @@ def test_add_rag_document_to_course_kb_accepts_course_relative_personal_document
         def import_document(self, path, force_reimport=False):
             return {"file": path}
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
-    monkeypatch.setattr(courses, "get_rag_system", lambda: FakeRagSystem())
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    monkeypatch.setattr(courses_api, "get_rag_system", lambda: FakeRagSystem())
 
     promoted = courses.add_rag_document_to_course_kb(
         "course-1",
@@ -311,8 +314,8 @@ async def test_upload_knowledge_base_document_writes_selected_knowledge_point_sc
         def import_document(self, file_path, force_reimport=False):
             return {"file": file_path}
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
-    monkeypatch.setattr(courses, "get_rag_system", lambda: FakeRagSystem())
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    monkeypatch.setattr(courses_api, "get_rag_system", lambda: FakeRagSystem())
 
     upload = courses.UploadFile(filename="sorting.md", file=io.BytesIO(b"sorting"))
     created = await courses.upload_knowledge_base_document(
@@ -342,8 +345,8 @@ async def test_upload_knowledge_base_document_writes_course_root_scope_for_graph
         def import_document(self, file_path, force_reimport=False):
             return {"file": file_path}
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
-    monkeypatch.setattr(courses, "get_rag_system", lambda: FakeRagSystem())
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    monkeypatch.setattr(courses_api, "get_rag_system", lambda: FakeRagSystem())
 
     upload = courses.UploadFile(filename="root.md", file=io.BytesIO(b"root"))
     created = await courses.upload_knowledge_base_document(
@@ -388,8 +391,8 @@ def test_delete_knowledge_base_document_removes_index_entry_by_document_id(monke
             self.deleted.append(path)
 
     rag_system = FakeRagSystem()
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
-    monkeypatch.setattr(courses, "get_rag_system", lambda: rag_system)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    monkeypatch.setattr(courses_api, "get_rag_system", lambda: rag_system)
 
     result = courses.delete_knowledge_base_document(
         "course-1",

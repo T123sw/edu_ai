@@ -2,11 +2,19 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app import courses as courses_module
+from app.api import courses as courses_api
+from app.services import course_service
 
 
 class DummyManager:
     def get_course_info(self, course_id: str):
         return {"id": course_id, "title": "计算思维"} if course_id == "course-1" else None
+
+    def create_course_structure(self, course_id: str):
+        return True
+
+    def save_course_info(self, course_id: str, info: dict):
+        return True
 
 
 class DummyAiLectureSessionService:
@@ -64,8 +72,8 @@ def _client(service: DummyAiLectureSessionService) -> TestClient:
     app = FastAPI()
     app.include_router(courses_module.router)
     app.dependency_overrides[courses_module.get_current_user] = lambda: {"username": "teacher-a"}
-    courses_module.get_ai_lecture_session_service = lambda: service
-    courses_module._get_manager = lambda: DummyManager()
+    courses_api.get_ai_lecture_session_service = lambda: service
+    course_service._get_manager = lambda: DummyManager()
     return TestClient(app)
 
 

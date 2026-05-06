@@ -10,6 +10,8 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import courses as courses_module
+from app.api import courses as courses_api
+from app.services import course_service
 
 
 class DummyManager:
@@ -17,6 +19,12 @@ class DummyManager:
         if course_id == "course-1":
             return {"id": "course-1", "title": "Course 1"}
         return None
+
+    def create_course_structure(self, course_id: str):
+        return True
+
+    def save_course_info(self, course_id: str, info: dict):
+        return True
 
 
 def make_client():
@@ -27,9 +35,9 @@ def make_client():
 
 
 def test_textbook_import_route_returns_graph_payload(monkeypatch):
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: DummyManager())
+    monkeypatch.setattr(course_service, "_get_manager", lambda: DummyManager())
     monkeypatch.setattr(
-        courses_module,
+        courses_api,
         "import_textbook_into_knowledge_graph",
         lambda **kwargs: {
             "source_document": {"name": "book.pdf"},

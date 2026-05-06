@@ -4,7 +4,10 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app import courses as courses_module
+from app.api import courses as courses_api
+from app.services import course_service
 from app.knowledge_graph_hours import KnowledgeGraphHourAllocationError
+import rag_v2.api as rag_api
 
 
 class DummyManager:
@@ -16,6 +19,12 @@ class DummyManager:
         if course_id == "course-1":
             return {"id": "course-1", "title": "Course 1"}
         return None
+
+    def create_course_structure(self, course_id: str):
+        return True
+
+    def save_course_info(self, course_id: str, info: dict):
+        return True
 
     def get_knowledge_graph(self, course_id: str):
         return self.graph
@@ -47,7 +56,7 @@ def graph():
 
 def test_allocate_hours_route_saves_and_returns_updated_graph(monkeypatch):
     manager = DummyManager(graph())
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     def fake_allocate(graph_data, total_hours, llm_call):
         assert total_hours == 2.5
@@ -62,8 +71,8 @@ def test_allocate_hours_route_saves_and_returns_updated_graph(monkeypatch):
         }
         return updated, {"total_hours": 2.5, "leaf_count": 2, "source": "llm", "normalized": False}
 
-    monkeypatch.setattr(courses_module, "allocate_graph_hours_from_llm", fake_allocate)
-    monkeypatch.setattr(courses_module, "_call_knowledge_graph_hour_llm", lambda prompt: '{"allocations": []}')
+    monkeypatch.setattr(courses_api, "allocate_graph_hours_from_llm", fake_allocate)
+    monkeypatch.setattr(course_service, "_call_knowledge_graph_hour_llm", lambda prompt: '{"allocations": []}')
 
     client = make_client(manager)
     response = client.post("/api/courses/course-1/knowledge-graph/allocate-hours", json={"total_hours": 2.5})
@@ -77,7 +86,7 @@ def test_allocate_hours_route_saves_and_returns_updated_graph(monkeypatch):
 
 def test_allocate_hours_route_returns_404_for_missing_course(monkeypatch):
     manager = DummyManager(graph())
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     response = make_client(manager).post("/api/courses/missing/knowledge-graph/allocate-hours", json={"total_hours": 2})
 
@@ -86,7 +95,7 @@ def test_allocate_hours_route_returns_404_for_missing_course(monkeypatch):
 
 def test_allocate_hours_route_returns_404_for_missing_graph(monkeypatch):
     manager = DummyManager(None)
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     response = make_client(manager).post("/api/courses/course-1/knowledge-graph/allocate-hours", json={"total_hours": 2})
 
@@ -96,12 +105,12 @@ def test_allocate_hours_route_returns_404_for_missing_graph(monkeypatch):
 
 def test_allocate_hours_route_maps_validation_errors_to_400(monkeypatch):
     manager = DummyManager(graph())
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     def fail_validation(graph_data, total_hours, llm_call):
         raise KnowledgeGraphHourAllocationError("total_hours must be non-negative with at most one decimal place")
 
-    monkeypatch.setattr(courses_module, "allocate_graph_hours_from_llm", fail_validation)
+    monkeypatch.setattr(courses_api, "allocate_graph_hours_from_llm", fail_validation)
 
     response = make_client(manager).post("/api/courses/course-1/knowledge-graph/allocate-hours", json={"total_hours": 2.25})
 
@@ -112,12 +121,12 @@ def test_allocate_hours_route_maps_validation_errors_to_400(monkeypatch):
 
 def test_allocate_hours_route_does_not_save_when_llm_call_fails(monkeypatch):
     manager = DummyManager(graph())
-    monkeypatch.setattr(courses_module, "_get_manager", lambda: manager)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
 
     def fail_llm(graph_data, total_hours, llm_call):
         raise RuntimeError("upstream model timeout")
 
-    monkeypatch.setattr(courses_module, "allocate_graph_hours_from_llm", fail_llm)
+    monkeypatch.setattr(courses_api, "allocate_graph_hours_from_llm", fail_llm)
 
     response = make_client(manager).post("/api/courses/course-1/knowledge-graph/allocate-hours", json={"total_hours": 2})
 
@@ -143,10 +152,10 @@ def test_call_knowledge_graph_hour_llm_ignores_proxy_env_for_model_request(monke
     monkeypatch.setenv("HTTPS_PROXY", "http://127.0.0.1:9")
     monkeypatch.setenv("ALL_PROXY", "http://127.0.0.1:9")
     monkeypatch.setenv("GIT_HTTP_PROXY", "http://127.0.0.1:9")
-    monkeypatch.setattr(courses_module, "get_rag_system", lambda: DummyRagSystem())
-    monkeypatch.setattr(courses_module.Config, "get_deep_model", staticmethod(lambda: {"model": "test-model"}))
+    monkeypatch.setattr(rag_api, "get_rag_system", lambda: DummyRagSystem())
+    monkeypatch.setattr(course_service.Config, "get_deep_model", staticmethod(lambda: {"model": "test-model"}))
 
-    result = courses_module._call_knowledge_graph_hour_llm("allocate these hours")
+    result = course_service._call_knowledge_graph_hour_llm("allocate these hours")
 
     assert result == "ok"
     assert captured["prompt"] == "allocate these hours"

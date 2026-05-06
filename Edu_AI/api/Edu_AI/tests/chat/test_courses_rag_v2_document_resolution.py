@@ -7,6 +7,8 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import courses
+from app.api import courses as courses_api
+from app.services import course_service
 
 
 def _make_workspace_tmp(name: str) -> Path:
@@ -92,8 +94,8 @@ def test_add_rag_document_to_course_accepts_public_index_key(monkeypatch):
     rag_system = FakeRAGSystem(rag_file, owner="alice")
     manager = FakeCourseManager(tmp_path / "courses")
 
-    monkeypatch.setattr(courses, "_get_manager", lambda: manager)
-    monkeypatch.setattr(courses, "get_rag_system", lambda: rag_system)
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    monkeypatch.setattr(courses_api, "get_rag_system", lambda: rag_system)
 
     result = courses.add_rag_document_to_course_kb(
         "course-1",

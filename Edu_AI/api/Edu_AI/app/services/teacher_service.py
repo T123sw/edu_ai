@@ -666,38 +666,3 @@ def delete_quiz(quiz_id: str, course_id: str) -> None:
     if not ok:
         raise KeyError("测验不存在或删除失败")
     print(f"[Quiz] 已从课程资源删除: {course_id}/{quiz_id}")
-
-
-def get_course_materials(course_id: str, material_type: Optional[str] = None) -> list:
-    """List generated materials for a course."""
-    from core.course_storage import CourseStorageManager
-    storage_manager = CourseStorageManager()
-    materials = storage_manager.list_generated_materials(course_id, material_type)
-    print(f"[CourseMaterials] 从存储加载了 {len(materials)} 个资料")
-
-    result = []
-    for material in materials:
-        material_id = material.get("material_id") or material.get("id")
-        material_type_key = material.get("material_type") or material_type or "unknown"
-        print(f"[CourseMaterials] 处理资料: id={material_id}, type={material_type_key}, title={material.get('title', 'N/A')}")
-
-        content = None
-        if material_type_key == "lesson_plan":
-            content = material.get("plan")
-        elif material_type_key == "report":
-            content = material.get("report")
-        else:
-            content = material
-
-        result.append({
-            "id": material_id,
-            "name": material.get("title") or material.get("name", "未命名"),
-            "type": material_type_key,
-            "addedAt": material.get("created_at") or material.get("addedAt", ""),
-            "courseId": course_id,
-            "content": content,
-        })
-        print(f"[CourseMaterials] 添加资料到结果: {result[-1]['name']} ({result[-1]['type']})")
-
-    print(f"[CourseMaterials] 返回 {len(result)} 个资料给前端")
-    return result

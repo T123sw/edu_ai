@@ -33,10 +33,12 @@ class _DummyRagSystem:
 
 def test_create_app_keeps_health_and_lifecycle(monkeypatch):
     from app import bootstrap
+    from app.services import course_service
 
     manager = _DummyLecturerManager()
     monkeypatch.setattr(bootstrap, "get_ai_lecturer_process_manager", lambda: manager)
     monkeypatch.setattr("app.api.health.get_rag_system", lambda: _DummyRagSystem(document_count=4))
+    monkeypatch.setattr(course_service, "ensure_default_courses", lambda: None)
 
     app = bootstrap.create_app()
 

@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+API_ROOT = Path(__file__).resolve().parents[1]
+if str(API_ROOT) not in sys.path:
+    sys.path.insert(0, str(API_ROOT))
+
 from app.schemas.auth import LoginRequest, LoginResponse, RegisterRequest, UserInfoResponse
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.common import HealthResponse, ModelInfo
