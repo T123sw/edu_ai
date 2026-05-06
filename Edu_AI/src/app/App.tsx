@@ -1,16 +1,15 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { WorkspaceOverviewPage } from "../stitch/pages/WorkspaceOverview";
-import { VideoPlayerPage } from "../stitch/pages/VideoPlayer";
-import { CourseResourcesPage } from "../stitch/pages/CourseResources";
-import { AIWorkspacePage } from "../stitch/pages/AIWorkspace";
-import { HomeDashboardPage } from "../stitch/pages/HomeDashboard";
-import { KnowledgeGraphPage } from "../stitch/pages/KnowledgeGraph";
-import { PptStudioPage } from "../stitch/pages/PptStudio";
-import { CourseKnowledgeBasePage } from "../stitch/pages/CourseKnowledgeBase";
-import { CourseDetailPage, CourseListPage } from "../stitch/pages/CourseDetail";
-import { CourseEditPage } from "../stitch/pages/CourseEdit";
-import { ProfilePage } from "../stitch/pages/Profile";
-import { LoginPage } from "../stitch/pages/LoginPage";
+import { AIWorkspacePage } from "../features/ai-workspace/AIWorkspacePage";
+import { LoginPage } from "../features/auth/LoginPage";
+import { CourseKnowledgeBasePage } from "../features/course-knowledge-base/CourseKnowledgeBasePage";
+import { CourseResourcesPage } from "../features/course-resources/CourseResourcesPage";
+import { CourseDetailPage, CourseListPage } from "../features/courses/CourseDetail";
+import { CourseEditPage } from "../features/courses/CourseEdit";
+import { HomeDashboardPage } from "../features/home/HomeDashboard";
+import { KnowledgeGraphPage } from "../features/knowledge-graph/KnowledgeGraphPage";
+import { PptStudioPage } from "../features/ppt-studio/PptStudioPage";
+import { ProfilePage } from "../features/profile/ProfilePage";
+import { VideoPlayerPage } from "../features/teaching-video/VideoPlayerPage";
 import { ThemeCustomizer } from "./shell";
 import { AppShellProvider, type CourseSummary } from "./providers";
 import {
@@ -30,7 +29,7 @@ const pages = [
   [routes.home, "Home", HomeDashboardPage],
   [routes.course, "Course List", CourseListPage],
   [routes.courseDetail, "Course Detail", CourseDetailPage],
-  [routes.workspace, "Workspace", WorkspaceOverviewPage],
+  [routes.workspace, "Workspace", AIWorkspacePage],
   [routes.video, "Video Player", VideoPlayerPage],
   [routes.resources, "Course Resources", CourseResourcesPage],
   [routes.ai, "AI Workspace", AIWorkspacePage],

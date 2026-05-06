@@ -12,7 +12,7 @@ import {
   readWorkspaceScopeFromSearch,
   writeWorkspaceScopeToSearch,
 } from '../../services/teacher/workspaceScope';
-import './AiStudioPage.css';
+import '../../features/ai-workspace/AIWorkspacePage.css';
 
 const COLLAPSED_WIDTH = '72px';
 const EXPANDED_WIDTH_FORMULA = 'clamp(320px, 24vw, 520px)';

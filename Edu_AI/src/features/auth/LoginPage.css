@@ -9,7 +9,7 @@
     radial-gradient(circle at 18% 28%, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 32%),
     radial-gradient(circle at 78% 72%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 28%),
     linear-gradient(135deg, rgba(7, 17, 31, 0.82) 0%, rgba(15, 35, 66, 0.58) 48%, rgba(10, 21, 39, 0.42) 100%),
-    url("../login-bg.png") center/cover no-repeat;
+    url("./login-bg.png") center/cover no-repeat;
   padding: 0 140px 0 80px;
 }
 

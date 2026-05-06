@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
 import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
-import "../../pages/teacher/AiStudioPage.css";
+import "./AIWorkspacePage.css";
 import { useStore } from "../../store/teacher/useStore";
 import { SidebarBackLink, SidebarDock, SidebarNav } from "../../app/shell";
 import { useAppShell } from "../../app/providers";
