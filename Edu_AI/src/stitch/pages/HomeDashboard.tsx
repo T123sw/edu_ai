@@ -10,8 +10,8 @@ import {
   RightOutlined,
   RocketOutlined,
 } from "@ant-design/icons";
-import { backendCourseToSummary, listCourses } from "../api/courses";
-import type { BackendCourse } from "../api/types";
+import { backendCourseToSummary, listCourses } from "../../shared/api/courses";
+import type { BackendCourse } from "../../shared/api/types";
 import { useAppShell } from "../../app/providers";
 import { routeHref, routes } from "../../app/routing";
 import { AppSurface } from "../../shared/ui";

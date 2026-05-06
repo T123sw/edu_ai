@@ -13,7 +13,7 @@ import type {
   TeachingVideoPptItem,
   TeachingVideoTaskResponse,
 } from "./types";
-import type { CourseSummary } from "../shared";
+import type { CourseSummary } from "../../app/providers";
 
 const accentPalette = [
   "from-[#0f172a] via-[#1d4ed8] to-[#60a5fa]",

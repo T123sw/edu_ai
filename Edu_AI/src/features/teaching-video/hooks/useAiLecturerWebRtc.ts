@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import { getAiLecturerOfferUrl } from "../api/video";
-import type { AiLecturerOfferAnswer } from "../api/types";
+import { getAiLecturerOfferUrl } from "../../../shared/api/video";
+import type { AiLecturerOfferAnswer } from "../../../shared/api/types";
 
 type ConnectionStatus = "idle" | "connecting" | "connected" | "failed";
 const AI_LECTURER_OFFER_TIMEOUT_MS = Number(import.meta.env.VITE_AI_LECTURER_OFFER_TIMEOUT_MS || 15000);

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { courseMaterialToMarkdown, getCourseMaterials } from "../api/courses";
-import type { CourseMaterial } from "../api/types";
-import { MarkdownPreview } from "../components/MarkdownPreview";
+import { courseMaterialToMarkdown, getCourseMaterials } from "../../shared/api/courses";
+import type { CourseMaterial } from "../../shared/api/types";
+import { MarkdownPreview } from "../../shared/ui";
 import {
   AppSurface,
   GlassPanel,

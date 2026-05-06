@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { backendCourseToSummary, listCourses } from "../api/courses";
-import type { BackendCourse } from "../api/types";
+import { backendCourseToSummary, listCourses } from "../../shared/api/courses";
+import type { BackendCourse } from "../../shared/api/types";
 import {
   AppSurface,
   GlassPanel,

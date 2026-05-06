@@ -6,7 +6,7 @@ import {
   getAiLecturerDownloadUrl,
   speakAiLecturerSentence,
   stopAiLecturerSpeaking,
-} from "../api/video";
+} from "../../shared/api/video";
 import {
   courseMaterialToMarkdown,
   createAiLectureSession,
@@ -19,18 +19,18 @@ import {
   patchAiLectureSessionSnapshot,
   startAiLectureSessionRecording,
   stopAiLectureSessionRecording,
-} from "../api/courses";
-import { API_BASE_URL } from "../api/client";
-import { MarkdownPreview } from "../components/MarkdownPreview";
-import { TransparentAvatarCanvas } from "../components/TransparentAvatarCanvas";
-import type { AiLectureSessionSnapshot, CourseMaterial, KnowledgeGraphNode, TeachingVideoPptItem } from "../api/types";
-import { useAiLecturerWebRtc } from "../hooks/useAiLecturerWebRtc";
+} from "../../shared/api/courses";
+import { API_BASE_URL } from "../../shared/api/client";
+import { MarkdownPreview } from "../../shared/ui";
+import { TransparentAvatarCanvas } from "../../features/teaching-video/components/TransparentAvatarCanvas";
+import type { AiLectureSessionSnapshot, CourseMaterial, KnowledgeGraphNode, TeachingVideoPptItem } from "../../shared/api/types";
+import { useAiLecturerWebRtc } from "../../features/teaching-video/hooks/useAiLecturerWebRtc";
 import {
   exportCourseMaterialAsWord,
   getCourseMaterialPptExportUrl,
   getCourseMaterialPptPreviewUrl,
   isCourseMaterialWordExportable,
-} from "../wordExport";
+} from "../../shared/utils/wordExport";
 import {
   AppSurface,
   GlassPanel,

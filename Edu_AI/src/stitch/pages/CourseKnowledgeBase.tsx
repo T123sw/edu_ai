@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getKnowledgeBaseDocuments, uploadKnowledgeBaseDocument } from "../api/courses";
-import type { KnowledgeBaseDocument } from "../api/types";
+import { getKnowledgeBaseDocuments, uploadKnowledgeBaseDocument } from "../../shared/api/courses";
+import type { KnowledgeBaseDocument } from "../../shared/api/types";
 import {
   AppSurface,
   GlassPanel,

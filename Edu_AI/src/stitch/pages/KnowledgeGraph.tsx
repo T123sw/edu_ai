@@ -5,8 +5,8 @@ import {
   importKnowledgeGraphTextbook,
   saveKnowledgeGraph,
   uploadKnowledgeBaseDocument,
-} from "../api/courses";
-import type { KnowledgeBaseDocument, KnowledgeGraphNode, KnowledgeGraphTextbookImportResponse } from "../api/types";
+} from "../../shared/api/courses";
+import type { KnowledgeBaseDocument, KnowledgeGraphNode, KnowledgeGraphTextbookImportResponse } from "../../shared/api/types";
 import {
   AppSurface,
   GlassPanel,
