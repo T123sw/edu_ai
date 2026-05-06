@@ -11,16 +11,18 @@ import { CourseDetailPage, CourseListPage } from "../stitch/pages/CourseDetail";
 import { CourseEditPage } from "../stitch/pages/CourseEdit";
 import { ProfilePage } from "../stitch/pages/Profile";
 import { LoginPage } from "../stitch/pages/LoginPage";
+import { ThemeCustomizer } from "../stitch/shared";
+import { AppShellProvider, type CourseSummary } from "./providers";
 import {
-  AppShellProvider,
-  ThemeCustomizer,
-  defaultCourse,
+  getCurrentRoute,
+  getStoredCourse,
+  getStoredTheme,
+  resetRouteScrollPosition,
   routeHref,
   routes,
-  type CourseSummary,
   type RouteKey,
   type ThemeName,
-} from "../stitch/shared";
+} from "./routing";
 import { login, verifyToken, type User } from "../services/auth";
 
 const pages = [
@@ -40,29 +42,6 @@ const pages = [
 
 const AUTH_STORAGE_KEY = "edu-ai-auth";
 
-function getCurrentRoute(): RouteKey {
-  const hash = window.location.hash.replace(/^#/, "");
-  const route = hash.split("?")[0] as RouteKey;
-  return pages.some(([id]) => id === route) ? route : routes.home;
-}
-
-function getStoredTheme(): ThemeName {
-  const stored = window.localStorage.getItem("stitch-theme");
-  return stored === "forest" || stored === "sunset" || stored === "dark" ? stored : "ocean";
-}
-
-function getStoredCourse(): CourseSummary | null {
-  const raw = window.localStorage.getItem("stitch-course");
-
-  if (!raw) return defaultCourse;
-
-  try {
-    return JSON.parse(raw) as CourseSummary;
-  } catch {
-    return defaultCourse;
-  }
-}
-
 function getStoredAuth() {
   const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
 
@@ -76,20 +55,8 @@ function getStoredAuth() {
   }
 }
 
-function resetRouteScrollPosition() {
-  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-  document.querySelectorAll("[data-route-scroll-root]").forEach((element) => {
-    if (element instanceof HTMLElement) {
-      element.scrollTop = 0;
-      element.scrollLeft = 0;
-    }
-  });
-}
-
 export default function App() {
-  const [current, setCurrent] = useState<RouteKey>(getCurrentRoute);
+  const [current, setCurrent] = useState<RouteKey>(() => getCurrentRoute(pages));
   const [selectedCourse, setSelectedCourse] = useState<CourseSummary | null>(getStoredCourse);
   const [theme, setTheme] = useState<ThemeName>(getStoredTheme);
   const [authReady, setAuthReady] = useState(false);
@@ -100,7 +67,7 @@ export default function App() {
       window.location.hash = routeHref(routes.home);
     }
 
-    const syncRoute = () => setCurrent(getCurrentRoute());
+    const syncRoute = () => setCurrent(getCurrentRoute(pages));
     window.addEventListener("hashchange", syncRoute);
     return () => window.removeEventListener("hashchange", syncRoute);
   }, []);
