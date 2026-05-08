@@ -14,11 +14,11 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.ai_lecture_sessions import (
+from app.ai_lecture_sessions import get_ai_lecture_session_service
+from app.schemas.ai_lecture_sessions import (
     AiLectureRecordingRequest,
     CreateAiLectureSessionRequest,
     PatchAiLectureSessionSnapshotRequest,
-    get_ai_lecture_session_service,
 )
 from app.knowledge_graph_hours import (
     KnowledgeGraphHourAllocationError,

@@ -2,47 +2,24 @@ from __future__ import annotations
 
 import shutil
 import uuid
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import requests
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
 
+from app.schemas.ai_lecture_sessions import (
+    AiLectureRecordingRequest,
+    CreateAiLectureSessionRequest,
+    PatchAiLectureSessionSnapshotRequest,
+    RecordingClientResult,
+)
 from app.teaching_video_bridge import HtmlDeckSlideImageExporter
 from core.config import Config
 from core.course_storage import CourseStorageManager, storage_manager
 
-
 AI_LECTURE_SESSION_TYPE = "ai_lecture_session"
-
-
-class CreateAiLectureSessionRequest(BaseModel):
-    source_ppt_material_id: str = Field(..., min_length=1)
-    title: Optional[str] = None
-
-
-class PatchAiLectureSessionSnapshotRequest(BaseModel):
-    ai_lecturer_course_id: Optional[str] = None
-    outline: Optional[list[dict[str, Any]]] = None
-    script: Optional[list[dict[str, Any]]] = None
-    events: Optional[list[dict[str, Any]]] = None
-    last_position: Optional[dict[str, int]] = None
-    slide_image_urls: Optional[list[str]] = None
-    slide_count: Optional[int] = None
-
-
-class AiLectureRecordingRequest(BaseModel):
-    livetalking_session_id: int = Field(..., ge=1)
-
-
-@dataclass
-class RecordingClientResult:
-    ok: bool
-    recording_path: Optional[str] = None
-    message: str = ""
 
 
 class LiveTalkingRecordingClient:
