@@ -2,7 +2,7 @@
 测试 Google 官方 API Key 是否可用 gemini-embedding-2-preview。
 
 用法（PowerShell）：
-  cd Edu_AI/api/Edu_AI
+  cd Edu_AI/api/src
   $env:GOOGLE_API_KEY="你的key"
   python scripts/test_google_gemini_embedding.py
 

@@ -9,7 +9,7 @@
   （你的项目 .env 当前使用的是第 2 套）
 
 用法：
-  cd Edu_AI/api/Edu_AI
+  cd Edu_AI/api/src
   python scripts/test_llm_chat.py
 
 脚本会依次尝试（OpenAI 兼容）：
@@ -34,7 +34,7 @@ def _try_load_dotenv() -> None:
     try:
         from dotenv import load_dotenv  # type: ignore
 
-        base_dir = Path(__file__).resolve().parents[1]  # .../api/Edu_AI
+        base_dir = Path(__file__).resolve().parents[1]  # .../api/src
         candidates = [
             base_dir / ".env",
             base_dir / "config_openai.env",

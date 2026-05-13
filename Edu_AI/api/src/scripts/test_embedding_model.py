@@ -2,7 +2,7 @@
 测试 EMBEDDING_MODEL 是否可用（OpenAI-compatible /v1/embeddings）
 
 用法：
-  cd Edu_AI/api/Edu_AI
+  cd Edu_AI/api/src
   python scripts/test_embedding_model.py
 
 环境变量：
@@ -26,7 +26,7 @@ def _try_load_dotenv() -> None:
     try:
         from dotenv import load_dotenv  # type: ignore
 
-        base_dir = Path(__file__).resolve().parents[1]  # .../api/Edu_AI
+        base_dir = Path(__file__).resolve().parents[1]  # .../api/src
         candidates = [
             base_dir / ".env",
             base_dir / "config_openai.env",

@@ -36,7 +36,7 @@ class StubContentMarkdownGenerator:
 """,
             {
                 "generation_mode": "direct_content_markdown",
-                "protocol_path": "D:/Edu_AI_1/Edu_AI/api/Edu_AI/html2ppt/content-protocol.md",
+                "protocol_path": "D:/Edu_AI_1/Edu_AI/api/src/modules/html2ppt/content-protocol.md",
                 "protocol_loaded": True,
                 "prompt_preview": "prompt preview",
                 "response_preview": "response preview",

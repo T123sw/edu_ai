@@ -14,7 +14,7 @@ from app.deepsearch_importer import import_crawl_results_to_rag
 
 
 # 添加EduAgent到Python路径
-# 从 D:\Edu_AI_1\Edu_AI\api\Edu_AI\app\deepsearch_pipeline.py 到 D:\Edu_AI_1\EduAgent
+# 从 D:\Edu_AI_1\Edu_AI\api\src\app\deepsearch_pipeline.py 到 D:\Edu_AI_1\EduAgent
 # 可能路径：D:\Edu_AI_1\EduAgent 或 D:\Edu_AI_1\Edu_AI\EduAgent
 base_dir = Path(__file__).resolve().parent
 candidate_paths = [

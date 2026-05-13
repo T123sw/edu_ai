@@ -5,12 +5,13 @@ from pathlib import Path
 
 def _load_recording_paths_module():
     module_path = (
-        Path("D:/Edu_AI_1/Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/recording_paths.py")
+        Path("D:/Edu_AI_1/Edu_AI/api/src/modules/AI_Lecturer/LiveTalking-main/server/recording_paths.py")
         .resolve()
     )
     if not module_path.exists():
         module_path = (
             Path(__file__).resolve().parents[2]
+            / "modules"
             / "AI_Lecturer"
             / "LiveTalking-main"
             / "server"
