@@ -1,1 +1,1 @@
-# 自动化爬虫.src 包，用于相对导入
+# automation_spider.src 包，用于相对导入

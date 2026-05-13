@@ -1,6 +1,6 @@
 """
 爬虫服务模块
-封装自动化爬虫模块的调用，提供批量爬取URL的功能
+封装automation_spider模块的调用，提供批量爬取URL的功能
 """
 import sys
 import json
@@ -9,9 +9,9 @@ from typing import List, Dict, Optional
 from datetime import datetime
 import os
 
-# 添加自动化爬虫模块到路径
-SPIDER_MODULE_PATH = Path(__file__).resolve().parent.parent.parent / "自动化爬虫" / "src" / "selenium_way"
-SPIDER_ROOT_PATH = Path(__file__).resolve().parent.parent.parent / "自动化爬虫" / "src"
+# 添加automation_spider模块到路径
+SPIDER_MODULE_PATH = Path(__file__).resolve().parent.parent.parent / "automation_spider" / "src" / "selenium_way"
+SPIDER_ROOT_PATH = Path(__file__).resolve().parent.parent.parent / "automation_spider" / "src"
 
 # 添加多个路径以确保能找到所有依赖
 paths_to_add = [

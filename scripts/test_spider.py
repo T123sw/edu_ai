@@ -4,7 +4,7 @@ from pathlib import Path
 
 # 添加路径
 current_dir = Path(__file__).parent
-sys.path.insert(0, str(current_dir / "自动化爬虫"))
+sys.path.insert(0, str(current_dir / "automation_spider"))
 sys.path.insert(0, str(current_dir))
 
 print("=" * 60)
@@ -56,7 +56,7 @@ except ImportError as e:
     print(f"  [WARN] ddddocr: {e} (CNKI功能需要)")
 
 if not deps_ok:
-    print("\n[ERROR] 核心依赖包缺失，请运行: pip install -r 自动化爬虫/src/selenium_way/requirement.txt")
+    print("\n[ERROR] 核心依赖包缺失，请运行: pip install -r automation_spider/src/selenium_way/requirement.txt")
     sys.exit(1)
 
 # 2. 测试配置模块

@@ -34,7 +34,7 @@ def _ensure_output_dir(path: str | Path):
 # ---------------- command handlers -----------------
 
 def _run_pdf(args: argparse.Namespace):
-    pdf_runner = _import("自动化爬虫.src.selenium_way.get_PDF_links_by_keywords.pdf_runner")
+    pdf_runner = _import("automation_spider.src.selenium_way.get_PDF_links_by_keywords.pdf_runner")
     settings.keywords = args.keywords
     settings.pages = args.pages
     settings.save_root_dir = args.output
@@ -43,7 +43,7 @@ def _run_pdf(args: argparse.Namespace):
 
 
 def _run_txt(args: argparse.Namespace):
-    txt_runner = _import("自动化爬虫.src.selenium_way.Selenium_get_html.txt_runner")
+    txt_runner = _import("automation_spider.src.selenium_way.Selenium_get_html.txt_runner")
     settings.keywords = args.keywords
     settings.pages = args.pages
     settings.save_root_dir = args.output
@@ -52,7 +52,7 @@ def _run_txt(args: argparse.Namespace):
 
 
 def _run_cnki(args: argparse.Namespace):
-    cnki_run = _import("自动化爬虫.src.selenium_way.CNKI.run")
+    cnki_run = _import("automation_spider.src.selenium_way.CNKI.run")
     settings.keywords = args.keywords
     settings.pages = args.pages
     settings.save_root_dir = args.output
@@ -61,7 +61,7 @@ def _run_cnki(args: argparse.Namespace):
 
 
 def _run_urls(args: argparse.Namespace):
-    crawle_runner_cls = _import("自动化爬虫.src.selenium_way.crawle_url.crawle_url")
+    crawle_runner_cls = _import("automation_spider.src.selenium_way.crawle_url.crawle_url")
     settings.urls = args.urls
     settings.save_root_dir = args.output
     _ensure_output_dir(settings.save_root_dir)

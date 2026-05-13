@@ -2,7 +2,7 @@
 
 实现三阶段异步任务：crawl / parse / chunk。
 此版本修复 ROOT 目录计算：不再依赖固定的 parents 层数，
-而是向上递归寻找包含“自动化爬虫”目录的路径，保证跨环境稳定。
+而是向上递归寻找包含”automation_spider”目录的路径，保证跨环境稳定。
 """
 from __future__ import annotations
 
@@ -27,12 +27,12 @@ from .storage import store
 # ---------------------------------------------------------------------------
 # 动态解析项目根目录 ROOT
 ROOT = Path(__file__).resolve()
-while ROOT != ROOT.parent and not (ROOT / "自动化爬虫").exists():
+while ROOT != ROOT.parent and not (ROOT / "automation_spider").exists():
     ROOT = ROOT.parent
-if not (ROOT / "自动化爬虫").exists():
-    raise RuntimeError("未找到包含 ‘自动化爬虫’ 的项目根路径")
+if not (ROOT / "automation_spider").exists():
+    raise RuntimeError("未找到包含 ‘automation_spider’ 的项目根路径")
 
-SPIDER_SRC = ROOT / "自动化爬虫" / "src" / "selenium_way"
+SPIDER_SRC = ROOT / "automation_spider" / "src" / "selenium_way"
 if str(SPIDER_SRC) not in sys.path:
     sys.path.append(str(SPIDER_SRC))
 

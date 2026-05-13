@@ -17,7 +17,7 @@ from importlib import import_module as _import_module
 
 # 将 selenium_way.methods 映射为顶级 methods
 try:
-    _methods_mod = _import_module("自动化爬虫.src.selenium_way.methods")
+    _methods_mod = _import_module("automation_spider.src.selenium_way.methods")
     _sys.modules.setdefault("methods", _methods_mod)
 except ModuleNotFoundError:
     pass

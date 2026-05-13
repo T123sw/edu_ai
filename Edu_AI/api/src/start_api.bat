@@ -3,37 +3,46 @@ setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 
 echo ========================================
-echo    RAG API service startup script
+echo    Edu-AI API service startup script
 echo ========================================
 echo.
 
 cd /d %~dp0
 
 set "PYTHON_EXE=python"
-set "LOCAL_VENV_FOUND=0"
+
+REM ---- 1) local venvs (highest priority - most isolated) ----
 for %%P in ("%~dp0.venv\Scripts\python.exe" "%~dp0.venv_local\Scripts\python.exe") do (
     if exist "%%~fP" (
-        set "LOCAL_VENV_FOUND=1"
         echo Detected local virtual environment: %%~fP
-        REM Validate the venv before using it. A copied or stale venv can exist
-        REM even when its base Python installation has been removed.
         "%%~fP" -c "import pip, ctypes, sys; print(sys.base_prefix)" >nul 2>nul
         if !ERRORLEVEL! EQU 0 (
             set "PYTHON_EXE=%%~fP"
             goto :python_ready
         ) else (
-            echo Local virtual environment is unhealthy. Trying next Python environment.
+            echo Local virtual environment is unhealthy. Trying next.
         )
     )
 )
 
-if "%LOCAL_VENV_FOUND%"=="1" (
-    echo No healthy local virtual environment found. Falling back to system Python.
-) else (
-    echo Local virtual environment not found. Falling back to system Python.
+REM ---- 2) conda edu-ai environment ----
+for %%D in ("%USERPROFILE%\miniconda3" "%USERPROFILE%\anaconda3" "C:\ProgramData\miniconda3" "C:\ProgramData\anaconda3") do (
+    if exist "%%~fD\envs\edu-ai\python.exe" (
+        echo Detected conda edu-ai environment: %%~fD\envs\edu-ai\python.exe
+        "%%~fD\envs\edu-ai\python.exe" -c "import pip, ctypes, sys; print(sys.base_prefix)" >nul 2>nul
+        if !ERRORLEVEL! EQU 0 (
+            set "PYTHON_EXE=%%~fD\envs\edu-ai\python.exe"
+            goto :python_ready
+        ) else (
+            echo Conda edu-ai environment is unhealthy. Trying next.
+        )
+    )
 )
 
+echo No healthy Python environment found. Falling back to system python.
+
 :python_ready
+echo Using Python: %PYTHON_EXE%
 echo.
 
 echo Clearing proxy environment variables for backend startup...
@@ -104,6 +113,6 @@ echo Press Ctrl+C to stop the service
 echo ========================================
 echo.
 
-"%PYTHON_EXE%" -m uvicorn app.main:app --host 0.0.0.0 --port %PORT%
+"%PYTHON_EXE%" -m uvicorn app.main:app --host 0.0.0.0 --port %PORT% --reload
 
 pause
