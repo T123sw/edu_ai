@@ -5,7 +5,7 @@ echo ========================================
 echo.
 
 echo [1/2] 启动后端服务...
-cd api/Edu_AI
+cd api/src
 start "Edu-AI Backend" cmd /k "start_api.bat"
 
 echo [2/2] 等待3秒后启动前端...

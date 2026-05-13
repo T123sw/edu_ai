@@ -64,10 +64,10 @@ echo ""
 
 # 步骤 3: 安装后端依赖（如果需要）
 echo "[3/4] 检查后端依赖..."
-if [ -f "api/Edu_AI/requirements_api.txt" ]; then
+if [ -f "api/src/requirements-media.txt" ]; then
     echo "安装后端 Python 依赖..."
-    cd api/Edu_AI
-    pip install -r requirements_api.txt
+    cd api/src
+    pip install -r requirements-media.txt
     cd ../..
     echo "✅ 后端依赖安装完成"
 else

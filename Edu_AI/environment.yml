@@ -9,5 +9,5 @@ dependencies:
   - npm
   - ffmpeg
   - pip:
-      - -r api/Edu_AI/requirements_api.txt
+      - -r api/src/requirements-media.txt
 
