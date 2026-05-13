@@ -30,6 +30,7 @@ pytest-cache-files-*/
 .tmp_*/
 .tmp_*.zip
 _deepsearch_import_test_tmp_root/
+_runtime_import_test_tmp/
 _runtime_import_test_tmp_root/
 _pytest_tmp/
 tmp/

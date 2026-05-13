@@ -1,1 +1,0 @@
-gemini|https://api.vectorengine.ai|gemini-embedding-2-preview

@@ -1,7 +1,6 @@
 -r requirements.txt
 
-baidu-aip>=4.16.13
-ffmpeg-python>=0.2.0
+# AI Lecturer media processing (speech recognition, video)
 tqdm>=4.66.0
 faster-whisper>=1.0.0
 openai-whisper>=20240930
