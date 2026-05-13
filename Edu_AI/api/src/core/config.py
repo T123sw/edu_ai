@@ -84,10 +84,10 @@ class Config:
     AI_LECTURER_LIVETALKING_URL = os.getenv("AI_LECTURER_LIVETALKING_URL", "http://127.0.0.1:8010")
     AI_LECTURER_ENTRYPOINT = os.getenv(
         "AI_LECTURER_ENTRYPOINT",
-        str(BASE_DIR / "AI_Lecturer" / "start_unified.py"),
+        str(BASE_DIR / "modules" / "AI_Lecturer" / "start_unified.py"),
     )
     AI_LECTURER_STARTUP_TIMEOUT_SEC = float(os.getenv("AI_LECTURER_STARTUP_TIMEOUT_SEC", "15"))
-    HTML2PPT_JOBS_ROOT = Path(os.getenv("HTML2PPT_JOBS_ROOT", BASE_DIR / "html2ppt" / "data" / "jobs"))
+    HTML2PPT_JOBS_ROOT = Path(os.getenv("HTML2PPT_JOBS_ROOT", BASE_DIR / "modules" / "html2ppt" / "data" / "jobs"))
     POWERPOINT_EXPORT_TIMEOUT_SEC = float(os.getenv("POWERPOINT_EXPORT_TIMEOUT_SEC", "120"))
     CONVERSATIONS_FILE = Path(
         os.getenv("CONVERSATIONS_FILE", STORAGE_ROOT / "conversations.json")

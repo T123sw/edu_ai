@@ -3,7 +3,7 @@ import sys
 
 
 def test_wav2lip_mel_basis_supports_current_librosa():
-    wav2lip_dir = Path(__file__).resolve().parents[2] / "AI_Lecturer" / "Wav2Lip_Offline"
+    wav2lip_dir = Path(__file__).resolve().parents[2] / "modules" / "AI_Lecturer" / "Wav2Lip_Offline"
     sys.path.insert(0, str(wav2lip_dir))
     try:
         import audio

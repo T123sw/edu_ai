@@ -14,7 +14,7 @@ class PptContentMarkdownGenerator:
 
     @staticmethod
     def _default_protocol_path() -> Path:
-        return Path(__file__).resolve().parents[4] / "html2ppt" / "content-protocol.md"
+        return Path(__file__).resolve().parents[4] / "modules" / "html2ppt" / "content-protocol.md"
 
     @staticmethod
     def _clean(value: object, default: str = "") -> str:
