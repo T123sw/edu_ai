@@ -22,7 +22,7 @@ from core import Config
 
 def _startup_ai_lecturer_bridge() -> None:
     try:
-        get_ai_lecturer_process_manager().ensure_started()
+        get_ai_lecturer_process_manager().launch_background()
     except Exception as exc:  # pragma: no cover - defensive logging only
         log_bootstrap_exception("AI Lecturer startup", exc)
 

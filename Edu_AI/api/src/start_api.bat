@@ -113,6 +113,4 @@ echo Press Ctrl+C to stop the service
 echo ========================================
 echo.
 
-"%PYTHON_EXE%" -m uvicorn app.main:app --host 0.0.0.0 --port %PORT% --reload
-
-pause
+"%PYTHON_EXE%" -m uvicorn app.main:app --host 0.0.0.0 --port %PORT%

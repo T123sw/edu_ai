@@ -16,7 +16,7 @@ class _DummyLecturerManager:
     started: int = 0
     stopped: int = 0
 
-    def ensure_started(self) -> None:
+    def launch_background(self) -> None:
         self.started += 1
 
     def shutdown(self) -> None:

@@ -405,6 +405,24 @@ class AiLecturerProcessManager:
             time.sleep(0.5)
         return self.is_healthy()
 
+    def launch_background(self) -> bool:
+        """Fire-and-forget: start the subprocess without blocking on health checks."""
+        if self.is_healthy():
+            return True
+        if not self.autostart:
+            return False
+        if not self.entrypoint_path.exists():
+            return False
+        if self._process is None or self._process.poll() is not None:
+            self._process = subprocess.Popen(
+                [sys.executable, str(self.entrypoint_path)],
+                cwd=str(self.entrypoint_path.parent),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+        return True
+
     def shutdown(self) -> None:
         if self._process is None or self._process.poll() is not None:
             return
