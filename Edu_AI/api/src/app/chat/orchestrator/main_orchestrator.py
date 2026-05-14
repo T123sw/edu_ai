@@ -33,6 +33,15 @@ class MainOrchestrator:
             yield from self.fast_runtime.run_stream(request=request, snapshot=snapshot, decision=decision)
             return
 
+        if decision.workflow_name not in self.workflow_registry:
+            # Workflow not registered — fall back to fast path instead of raising KeyError
+            yield from self.fast_runtime.run_stream(
+                request=request,
+                snapshot=snapshot,
+                decision=decision.__class__.fast(action="chat.reply", reason="workflow_unregistered_fallback"),
+            )
+            return
+
         yield {
             "type": "status",
             "payload": {

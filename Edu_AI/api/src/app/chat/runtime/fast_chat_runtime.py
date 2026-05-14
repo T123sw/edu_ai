@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlsplit
 
+import time
+
 from core.config import Config
 
 
@@ -296,6 +298,7 @@ class FastChatRuntime:
         return {"role": role, "content": text}
 
     def _prepare_generation(self, *, request, snapshot, decision):
+        t_prep = time.perf_counter()
         recent_messages = list(getattr(snapshot, "recent_messages", []) or []) if snapshot is not None else []
         capability = getattr(request, "capability", None)
         sources: list[dict[str, Any]] = []
@@ -306,12 +309,14 @@ class FastChatRuntime:
         web_trace: dict[str, Any] = {}
 
         if self.rag_retriever is not None and bool(getattr(capability, "allow_rag", False)):
+            t_rag = time.perf_counter()
             rag_result = self.rag_retriever(
                 query=request.question,
                 top_k=5,
                 selected_doc_ids=list(getattr(capability, "selected_doc_ids", []) or []),
                 owner=getattr(request, "owner", None),
             )
+            print(f"[PREP] RAG 检索 {(time.perf_counter() - t_rag) * 1000:.0f}ms", flush=True)
             payload = dict((rag_result or {}).get("payload") or {}) if isinstance(rag_result, dict) else {}
             rag_sources = list(payload.get("sources") or [])
             rag_answer = str(payload.get("answer") or "").strip()
@@ -320,10 +325,12 @@ class FastChatRuntime:
             sources.extend(rag_sources)
 
         if self.web_retriever is not None and bool(getattr(capability, "allow_web", False)):
+            t_web = time.perf_counter()
             web_result = self.web_retriever(
                 query=request.question,
                 owner=getattr(request, "owner", None),
             )
+            print(f"[PREP] Web 检索 {(time.perf_counter() - t_web) * 1000:.0f}ms", flush=True)
             payload = dict((web_result or {}).get("payload") or {}) if isinstance(web_result, dict) else {}
             web_sources = list(payload.get("sources") or [])
             web_summary = str(payload.get("summary") or payload.get("answer") or "").strip()
@@ -333,12 +340,14 @@ class FastChatRuntime:
             sources.extend(web_sources)
 
         if self.video_retriever is not None and bool(getattr(capability, "allow_rag", False)):
+            t_video = time.perf_counter()
             video_result = self.video_retriever(
                 query=request.question,
                 top_k=5,
                 selected_doc_ids=list(getattr(capability, "selected_doc_ids", []) or []),
                 owner=getattr(request, "owner", None),
             )
+            print(f"[PREP] Video 检索 {(time.perf_counter() - t_video) * 1000:.0f}ms", flush=True)
             payload = dict((video_result or {}).get("payload") or {}) if isinstance(video_result, dict) else {}
             video_sources = list(payload.get("sources") or [])
             video_summary = str(payload.get("summary") or payload.get("answer") or "").strip()
@@ -392,6 +401,12 @@ class FastChatRuntime:
         if video_summary:
             trace["video_summary_used"] = True
 
+        print(
+            f"[PREP] 准备完成 {(time.perf_counter() - t_prep) * 1000:.0f}ms"
+            f" | rag={trace['rag_used']} web={trace['web_used']}"
+            f" | msgs={len(messages)}",
+            flush=True,
+        )
         return {
             "messages": messages,
             "sources": sources,

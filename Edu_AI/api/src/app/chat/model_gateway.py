@@ -3,6 +3,8 @@
 from typing import Any, Dict, Iterable, List, Optional
 
 import json
+import time
+
 import requests
 
 
@@ -56,6 +58,14 @@ class ChatModelGateway:
             headers["Authorization"] = f"Bearer {api_key}"
         return headers
 
+    @staticmethod
+    def _thinking_params(model_name: str) -> Dict[str, Any]:
+        # Qwen3 family enables chain-of-thought thinking by default, causing ~85s TTFT.
+        # Disable it for chat use cases where reasoning transparency isn't needed.
+        if str(model_name or "").lower().startswith("qwen3"):
+            return {"enable_thinking": False}
+        return {}
+
     def chat(self, messages: List[Dict[str, str]], temperature: float = 0.2, max_tokens: int = 1200) -> str:
         errors: List[str] = []
         for candidate in self.candidates:
@@ -65,7 +75,9 @@ class ChatModelGateway:
                 "messages": messages,
                 "temperature": temperature,
                 "max_tokens": max_tokens,
+                **self._thinking_params(candidate["model_name"]),
             }
+            t0 = time.perf_counter()
             try:
                 resp = requests.post(
                     url,
@@ -74,19 +86,26 @@ class ChatModelGateway:
                     timeout=120,
                 )
             except requests.RequestException as exc:
+                elapsed_ms = (time.perf_counter() - t0) * 1000
+                print(f"[LLM] ✗ {candidate['model_name']} 同步调用失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
                 errors.append(f"{candidate['model_name']}: {exc}")
                 continue
             if resp.status_code != 200:
+                elapsed_ms = (time.perf_counter() - t0) * 1000
+                print(f"[LLM] ✗ {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
                 errors.append(f"{candidate['model_name']}: {resp.status_code} {resp.text}")
                 continue
 
             data = resp.json()
-            return (
+            content = (
                 data.get("choices", [{}])[0]
                 .get("message", {})
                 .get("content", "")
                 .strip()
             )
+            elapsed_ms = (time.perf_counter() - t0) * 1000
+            print(f"[LLM] ✓ {candidate['model_name']} 同步调用 {elapsed_ms:.0f}ms | {len(content)} 字符", flush=True)
+            return content
 
         raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")
 
@@ -105,7 +124,11 @@ class ChatModelGateway:
                 "temperature": temperature,
                 "max_tokens": max_tokens,
                 "stream": True,
+                **self._thinking_params(candidate["model_name"]),
             }
+            t0 = time.perf_counter()
+            t_first: float | None = None
+            token_count = 0
             try:
                 resp = requests.post(
                     url,
@@ -115,9 +138,13 @@ class ChatModelGateway:
                     timeout=120,
                 )
             except requests.RequestException as exc:
+                elapsed_ms = (time.perf_counter() - t0) * 1000
+                print(f"[LLM] ✗ {candidate['model_name']} 流式连接失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
                 errors.append(f"{candidate['model_name']}: {exc}")
                 continue
             if resp.status_code != 200:
+                elapsed_ms = (time.perf_counter() - t0) * 1000
+                print(f"[LLM] ✗ {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
                 errors.append(f"{candidate['model_name']}: {resp.status_code} {resp.text}")
                 continue
 
@@ -142,7 +169,15 @@ class ChatModelGateway:
                 delta = choices[0].get("delta") or {}
                 content = delta.get("content")
                 if content:
+                    if t_first is None:
+                        t_first = time.perf_counter()
+                        ttft_ms = (t_first - t0) * 1000
+                        print(f"[LLM] ⚡ {candidate['model_name']} 首个token {ttft_ms:.0f}ms", flush=True)
+                    token_count += 1
                     yield str(content)
+
+            elapsed_ms = (time.perf_counter() - t0) * 1000
+            print(f"[LLM] ✓ {candidate['model_name']} 流式完成 {elapsed_ms:.0f}ms | {token_count} tokens", flush=True)
             return
 
         raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")

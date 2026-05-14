@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 from app.chat.domain.extraction_trigger import ExtractionTrigger
 from app.chat.orchestrator.conversation_memory_extractor_v2 import ConversationMemoryExtractor
 from app.chat.orchestrator.llm_enhancement_router import LLMEnhancementRouter
@@ -143,16 +145,55 @@ class ConversationStoreAdapter:
             request=request,
             result=result,
         )
-        return self.enhancement_router.apply_with_observation(
-            trigger=trigger,
-            existing_state=existing_state,
-            rule_patch=rule_patch,
-            context={
-                "resource_type": str(((result.get("workflow") or {}).get("type")) or "chat"),
-                "action_name": str(((result.get("action") or {}).get("name")) or "").strip(),
-                "recent_messages": recent_messages,
+
+        if not self.enhancement_router.should_run(trigger):
+            # Enhancement disabled or unsupported — return rule_patch synchronously
+            base_obs = self.enhancement_router._base_observation(trigger=trigger, rule_patch=rule_patch)
+            base_obs["fallback_reason"] = "disabled_or_unsupported_event"
+            return rule_patch, base_obs
+
+        # Enhancement enabled — run LLM call in background thread to avoid blocking response
+        context = {
+            "resource_type": str(((result.get("workflow") or {}).get("type")) or "chat"),
+            "action_name": str(((result.get("action") or {}).get("name")) or "").strip(),
+            "recent_messages": recent_messages,
+        }
+
+        def _run_enhancement():
+            try:
+                merged_patch, _ = self.enhancement_router.apply_with_observation(
+                    trigger=trigger,
+                    existing_state=existing_state,
+                    rule_patch=rule_patch,
+                    context=context,
+                )
+                # Write only the fields that the LLM enhanced beyond the rule patch
+                delta: dict = {}
+                for key in ("conversation_memory", "conversation_summary"):
+                    rule_val = rule_patch.get(key)
+                    merged_val = merged_patch.get(key)
+                    if merged_val and merged_val != rule_val:
+                        delta[key] = merged_val
+                if delta:
+                    self.storage.update_state(conversation_id, delta)
+            except Exception:
+                pass
+
+        threading.Thread(target=_run_enhancement, daemon=True).start()
+
+        observation = {
+            "trigger_event": trigger.event,
+            "candidate_fields": [],
+            "accepted_fields": [],
+            "rejected_fields": [],
+            "fallback_reason": None,
+            "deferred": True,
+            "final_patch": {
+                "summary_text": str(((rule_patch.get("conversation_summary") or {}).get("summary_text")) or ""),
+                "memory": dict(rule_patch.get("conversation_memory") or {}),
             },
-        )
+        }
+        return rule_patch, observation
 
     def build_memory_state_patch(self, *, conversation_id: str, request, result: dict, existing_state: dict, recent_messages: list[dict]) -> dict:
         patch, _ = self.build_memory_state_patch_with_observation(

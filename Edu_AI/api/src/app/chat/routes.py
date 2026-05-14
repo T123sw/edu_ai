@@ -1,5 +1,7 @@
 ﻿from __future__ import annotations
 
+import time
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 import asyncio
@@ -134,6 +136,11 @@ def _maybe_refresh_running_ppt_edit_conversation(conversation_id: str, owner: st
 
 @router.post("", response_model=ChatResponse)
 async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_user)):
+    t0 = time.perf_counter()
+    cid = str(payload.conversation_id or "new")[-8:]
+    username = current_user.get("username", "?")
+    q_preview = str(payload.question or "")[:50]
+    print(f"[CHAT {cid}] ▶ 开始 | user={username} | q=\"{q_preview}\"", flush=True)
     try:
         data = _get_service().chat(
             question=payload.question,
@@ -150,8 +157,10 @@ async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_us
             action_hint=payload.action_hint,
             artifact_id=payload.artifact_id,
         )
+        print(f"[CHAT {cid}] ← 完成 {(time.perf_counter() - t0) * 1000:.0f}ms", flush=True)
         return ChatResponse(**data)
     except Exception as exc:
+        print(f"[CHAT {cid}] ✗ 失败 {(time.perf_counter() - t0) * 1000:.0f}ms | {exc}", flush=True)
         raise HTTPException(status_code=500, detail=f"聊天失败: {exc}") from exc
 
 
@@ -178,6 +187,11 @@ async def chat_stream(
         raise exc
 
     async def event_generator():
+        t0 = time.perf_counter()
+        cid = str(conversation_id or "new")[-8:]
+        username = current_user.get("username", "?")
+        q_preview = str(question or "")[:50]
+        print(f"[STREAM {cid}] ▶ 开始 | user={username} | q=\"{q_preview}\"", flush=True)
         try:
             parsed_doc_ids = None
             if selected_doc_ids:
@@ -199,10 +213,24 @@ async def chat_stream(
             )
             from .application.response_builder import build_legacy_sse_frames
 
+            first_delta = True
+            delta_count = 0
             for frame in build_legacy_sse_frames(meta, stream, include_v2=_get_flags().enable_sse_v2_events):
+                if frame.startswith("event: delta"):
+                    delta_count += 1
+                    if first_delta:
+                        first_delta = False
+                        print(f"[STREAM {cid}] ⚡ 首个token {(time.perf_counter() - t0) * 1000:.0f}ms", flush=True)
                 yield frame
                 await asyncio.sleep(0)
+
+            print(
+                f"[STREAM {cid}] ← 完成 {(time.perf_counter() - t0) * 1000:.0f}ms"
+                f" | {delta_count} frames",
+                flush=True,
+            )
         except Exception as exc:
+            print(f"[STREAM {cid}] ✗ 失败 {(time.perf_counter() - t0) * 1000:.0f}ms | {exc}", flush=True)
             yield f"event: error\ndata: {str(exc)}\n\n"
 
     headers = {

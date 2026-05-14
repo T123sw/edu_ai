@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import threading
 from datetime import datetime
 from types import SimpleNamespace
+from typing import Any
 
 from app.chat.application.chat_app_service import ChatAppService
 from app.chat.application.request_normalizer import normalize_chat_request
@@ -107,6 +109,8 @@ class RouteChatService:
                 enhancement_trace_enabled=self.enhancement_trace_enabled,
             )
         self._compat = CompatChatService(delegate=self._run_new_path)
+        # Fix #3: cache built service stacks per model_id to avoid rebuilding every request
+        self._service_cache: dict[str | None, Any] = {}
 
     def _resolve_report_engine(self):
         getter = getattr(self.legacy_service, "get_report_engine", None)
@@ -156,6 +160,12 @@ class RouteChatService:
             orchestrator=orchestrator,
             response_builder=_ResponseBuilderAdapter(),
         )
+
+    def _get_cached_chat_app_service(self, model_id: str | None) -> ChatAppService:
+        key = model_id or ""
+        if key not in self._service_cache:
+            self._service_cache[key] = self._build_chat_app_service(model_id=model_id)
+        return self._service_cache[key]
 
     def _resolve_scope(self, *, conversation_id, course_id, scope_type, scope_id, question=None):
         state = {}
@@ -311,7 +321,7 @@ class RouteChatService:
         if not self.enable_fast_runtime and getattr(payload, "action_hint", None) in {None, "", "chat.reply", "chat.rewrite"}:
             return self._delegate_legacy(payload)
 
-        app_service = self._build_chat_app_service(model_id=getattr(payload, "model_id", None))
+        app_service = self._get_cached_chat_app_service(model_id=getattr(payload, "model_id", None))
         try:
             result = app_service.chat(payload)
         except KeyError:
@@ -426,24 +436,13 @@ class RouteChatService:
             scope_id=scope_id,
             question=question,
         )
-        payload = self._build_payload(
-            question=question,
-            conversation_id=conversation_id,
-            model_id=model_id,
-            use_rag=use_rag,
-            allow_rag=allow_rag,
-            selected_doc_ids=selected_doc_ids,
-            owner=owner,
-            course_id=resolved_scope["course_id"],
-            scope_type=resolved_scope["scope_type"],
-            scope_id=resolved_scope["scope_id"],
-            allow_web=allow_web,
-            action_hint=action_hint,
-            artifact_id=artifact_id,
-        )
-        result = self._run_new_path(payload)
-        if "answer" in result and "intent_category" in result:
-            resolved_use_rag, _resolved_allow_rag = self._resolve_rag_flags(
+
+        # Fall back to legacy streaming when the new path is disabled
+        if not self.enable_new_chat or (
+            not self.enable_fast_runtime
+            and action_hint in {None, "", "chat.reply", "chat.rewrite"}
+        ):
+            resolved_use_rag, _ = self._resolve_rag_flags(
                 use_rag=use_rag,
                 allow_rag=allow_rag,
                 selected_doc_ids=selected_doc_ids,
@@ -463,13 +462,71 @@ class RouteChatService:
                 artifact_id=artifact_id,
             )
 
-        meta = self._compat._adapt_result(result, payload)
-        stream = [
-            {"type": "meta", "payload": {"path": ((result.get("trace") or {}).get("path") or "fast")}},
-            {"type": "delta", "delta": meta["answer"]},
-            {"type": "done"},
-        ]
-        return meta, stream
+        payload = self._build_payload(
+            question=question,
+            conversation_id=conversation_id,
+            model_id=model_id,
+            use_rag=use_rag,
+            allow_rag=allow_rag,
+            selected_doc_ids=selected_doc_ids,
+            owner=owner,
+            course_id=resolved_scope["course_id"],
+            scope_type=resolved_scope["scope_type"],
+            scope_id=resolved_scope["scope_id"],
+            allow_web=allow_web,
+            action_hint=action_hint,
+            artifact_id=artifact_id,
+        )
+
+        # Fix #1b: true token-by-token streaming via dispatch_stream
+        app_service = self._get_cached_chat_app_service(model_id=model_id)
+        request = normalize_chat_request(payload)
+
+        # Preliminary meta returned immediately so the SSE meta frame is sent before LLM starts
+        preliminary_meta = {
+            "answer": "",
+            "conversation_id": str(payload.conversation_id or ""),
+            "model_id": str(payload.model_id or ""),
+            "intent_category": "chat",
+            "meta": {},
+        }
+
+        # Capture self for use inside the generator closure
+        service = self
+
+        def _stream():
+            final_result = None
+            for event in app_service.orchestrator.dispatch_stream(request):
+                event_type = event.get("type")
+                if event_type == "result":
+                    final_result = event.get("payload") or {}
+                elif event_type == "metadata":
+                    # FastChatRuntime emits "metadata"; translate to the legacy "meta" event
+                    ep = event.get("payload") or {}
+                    yield {
+                        "type": "meta",
+                        "payload": {"path": (ep.get("trace") or {}).get("path", "fast")},
+                    }
+                elif event_type == "delta":
+                    content = (event.get("payload") or {}).get("content", "") or event.get("delta", "")
+                    if content:
+                        yield {"type": "delta", "delta": content}
+                elif event_type == "status":
+                    yield event
+
+            # Send done frame to client before persisting
+            yield {"type": "done"}
+
+            # Persist result in a background thread so the done frame reaches the client first
+            # and the LLM-enhancement second call (Fix #2) never blocks this path at all
+            if final_result:
+                threading.Thread(
+                    target=service._persist_new_result,
+                    args=(payload, final_result),
+                    daemon=True,
+                ).start()
+
+        return preliminary_meta, _stream()
 
     def skill_health_check(self, meta):
         return self.legacy_service.skill_health_check(meta)

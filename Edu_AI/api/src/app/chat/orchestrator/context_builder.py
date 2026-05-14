@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from app.chat.domain.artifact_ref import ArtifactRef
 from app.chat.domain.conversation_snapshot import ConversationSnapshot
 from app.chat.domain.workflow_state import WorkflowState
@@ -58,8 +60,10 @@ class ContextBuilder:
                 capability=request.capability,
             )
 
+        t_ctx = time.perf_counter()
         raw_snapshot = self.conversation_store.load_snapshot(request.conversation_id)
         state = raw_snapshot.get("state") or {}
+        print(f"[CTX] context 加载 {(time.perf_counter() - t_ctx) * 1000:.0f}ms | cid={str(request.conversation_id or '')[-8:]}", flush=True)
         workflow_state = None
         if state.get("workflow_state"):
             workflow_state = WorkflowState.model_validate(

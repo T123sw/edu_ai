@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional, Tuple
 
 from langchain_openai import ChatOpenAI
@@ -19,6 +20,13 @@ def _normalize_openai_compatible_base_url(base_url: str) -> str:
     return base
 
 
+def _thinking_extra_body(model_name: str) -> dict:
+    # Qwen3 models enable chain-of-thought thinking by default, causing huge latency.
+    if str(model_name or "").lower().startswith("qwen3"):
+        return {"enable_thinking": False}
+    return {}
+
+
 def get_fallback_llm() -> Optional[ChatOpenAI]:
     try:
         model_cfg = Config.get_deep_model()
@@ -28,10 +36,7 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
             or Config.DEEP_MODEL_API_BASE
             or Config.REMOTE_MODEL_API_BASE
         )
-        print(
-            f"[report_model_debug] stage=fallback_llm "
-            f"model={selected_model} base={selected_base}"
-        )
+        extra_body = _thinking_extra_body(selected_model)
         return ChatOpenAI(
             api_key=str(
                 model_cfg.get("api_key")
@@ -41,6 +46,7 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
             base_url=selected_base,
             model=selected_model,
             temperature=0.4,
+            **({"extra_body": extra_body} if extra_body else {}),
         )
     except Exception as e:
         print(f"[report_model_debug] stage=fallback_llm error={e}")
@@ -58,15 +64,13 @@ def get_ppt_llm() -> Optional[ChatOpenAI]:
         return get_fallback_llm()
 
     try:
-        print(
-            f"[report_model_debug] stage=ppt_llm "
-            f"model={selected_model} base={selected_base}"
-        )
+        extra_body = _thinking_extra_body(selected_model)
         return ChatOpenAI(
             api_key=selected_key,
             base_url=selected_base,
             model=selected_model,
             temperature=0.4,
+            **({"extra_body": extra_body} if extra_body else {}),
         )
     except Exception as e:
         print(f"[report_model_debug] stage=ppt_llm error={e}")
@@ -98,8 +102,9 @@ def build_report_markdown(
     slots: Dict[str, str],
     outline: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[str, Dict[str, Any]]:
-    """分段生成：按章节->按小节生成，再拼接。
+    """并发生成所有小节，再按原始顺序拼装。
 
+    所有小节任务同时提交给线程池，消除串行等待。
     每次调用模型都携带：全部槽位 + 全量大纲标题 + 当前章节/小节上下文。
     """
     llm = get_fallback_llm()
@@ -118,21 +123,6 @@ def build_report_markdown(
                 titles.append(t)
     outline_titles = " | ".join(titles)
 
-    checkpoint: Dict[str, Any] = {
-        "chapter_count": len(outline_items),
-        "completed_chapters": 0,
-        "current_chapter_index": 0,
-        "retry_count": 0,
-        "failed_chapters": [],
-        "failed_sections": [],
-        "last_previous_ending": "",
-        "chapter_snapshots": [],
-    }
-
-    full_chunks: List[str] = []
-    previous_ending = ""
-
-    # 单小节重试，避免整章失败
     max_retry_per_section = 2
 
     strict_appendix = (
@@ -143,11 +133,16 @@ def build_report_markdown(
         "4) 信息不足时可做审慎分析，不得编造事实。\n"
     )
 
+    # --- 第一步：预处理大纲，构建所有小节任务 ---
+    # task_key: (chapter_idx, section_idx)
+    # task_meta: dict with chapter/section metadata and prompt
+    task_order: List[tuple] = []  # ordered list of (ch_idx, s_i)
+    task_meta: Dict[tuple, Dict[str, Any]] = {}
+    chapter_order: List[tuple] = []  # (ch_idx, chapter_title, chapter_goal)
+
     for idx, ch in enumerate(outline_items, 1):
         if not isinstance(ch, dict):
             continue
-
-        checkpoint["current_chapter_index"] = idx
 
         chapter_title = str(ch.get("chapter_title") or ch.get("title") or f"第{idx}章").strip()
         chapter_goal = str(ch.get("chapter_goal") or "").strip() or "本章围绕核心主题进行分析"
@@ -159,18 +154,13 @@ def build_report_markdown(
             section_items = [{"section_id": f"{idx}.{p_i + 1}", "title": str(p).strip()} for p_i, p in enumerate(points) if str(p).strip()]
 
         section_titles = [str(s.get("title") or "").strip() for s in section_items if str(s.get("title") or "").strip()]
-
-        chapter_blocks: List[str] = [
-            f"## {chapter_title}",
-            "",
-            f"本章目标：{chapter_goal}",
-            "",
-        ]
+        chapter_order.append((idx, chapter_title, chapter_goal))
 
         for s_i, s in enumerate(section_items, 1):
             section_id = str(s.get("section_id") or f"{idx}.{s_i}").strip()
             section_title = str(s.get("title") or f"小节{s_i}").strip()
 
+            # previous_ending 无法在并发模式下获取，传空字符串（各节已独立约束）
             section_prompt = chapter_prompt.format(
                 core_topic=slots.get("core_topic") or REPORT_DEFAULTS["core_topic"],
                 focus_area=slots.get("focus_area") or REPORT_DEFAULTS["focus_area"],
@@ -180,7 +170,7 @@ def build_report_markdown(
                 chapter_title=chapter_title,
                 chapter_goal=chapter_goal,
                 section_titles="、".join(section_titles) if section_titles else "核心要点",
-                previous_ending=previous_ending,
+                previous_ending="",
             )
             section_prompt += (
                 "\n\n"
@@ -192,60 +182,114 @@ def build_report_markdown(
                 "请只输出这个 section 的内容，不要输出整章。"
             ) + strict_appendix
 
-            section_content = ""
-            for attempt in range(max_retry_per_section + 1):
-                try:
-                    response = llm.invoke([
-                        {"role": "system", "content": "你是资深研究写作助手。"},
-                        {"role": "user", "content": section_prompt},
-                    ])
-                    content = _extract_text_from_response(response)
-                    if content:
-                        # 若模型没写 ### 标题，自动补齐
-                        if not content.lstrip().startswith("###"):
-                            content = f"### {section_title}\n\n{content}".strip()
-                        section_content = content
-                        break
-                except Exception:
-                    pass
+            key = (idx, s_i)
+            task_order.append(key)
+            task_meta[key] = {
+                "chapter_idx": idx,
+                "chapter_title": chapter_title,
+                "section_id": section_id,
+                "section_title": section_title,
+                "prompt": section_prompt,
+            }
 
-                if attempt < max_retry_per_section:
-                    checkpoint["retry_count"] = int(checkpoint.get("retry_count", 0)) + 1
-                    time.sleep(0.3)
+    if not task_order:
+        return "", {"chapter_count": 0, "completed_chapters": 0, "retry_count": 0, "failed_chapters": []}
 
-            if not section_content:
+    # --- 第二步：并发执行所有小节 ---
+    def _generate_section(key: tuple) -> tuple:
+        meta = task_meta[key]
+        prompt = meta["prompt"]
+        section_title = meta["section_title"]
+        retries = 0
+        t0 = time.perf_counter()
+        for attempt in range(max_retry_per_section + 1):
+            try:
+                response = llm.invoke([
+                    {"role": "system", "content": "你是资深研究写作助手。"},
+                    {"role": "user", "content": prompt},
+                ])
+                content = _extract_text_from_response(response)
+                if content:
+                    if not content.lstrip().startswith("###"):
+                        content = f"### {section_title}\n\n{content}".strip()
+                    elapsed = (time.perf_counter() - t0) * 1000
+                    print(f"[REPORT] ✓ {meta['chapter_title']} / {section_title} {elapsed:.0f}ms", flush=True)
+                    return key, content, retries
+            except Exception:
+                pass
+            if attempt < max_retry_per_section:
+                retries += 1
+                time.sleep(0.3)
+        elapsed = (time.perf_counter() - t0) * 1000
+        print(f"[REPORT] ✗ {meta['chapter_title']} / {section_title} 失败 {elapsed:.0f}ms", flush=True)
+        return key, None, retries
+
+    max_workers = min(len(task_order), 6)
+    section_results: Dict[tuple, Optional[str]] = {}
+    total_retries = 0
+
+    t_gen = time.perf_counter()
+    print(f"[REPORT] 开始并发生成 {len(task_order)} 个小节，并发数={max_workers}", flush=True)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(_generate_section, key): key for key in task_order}
+        for future in as_completed(futures):
+            key, content, retries = future.result()
+            section_results[key] = content
+            total_retries += retries
+    print(f"[REPORT] 全部小节生成完毕 {(time.perf_counter() - t_gen) * 1000:.0f}ms | 重试={total_retries}", flush=True)
+
+    # --- 第三步：按原始顺序拼装 ---
+    checkpoint: Dict[str, Any] = {
+        "chapter_count": len(chapter_order),
+        "completed_chapters": 0,
+        "retry_count": total_retries,
+        "failed_chapters": [],
+        "failed_sections": [],
+        "chapter_snapshots": [],
+    }
+
+    full_chunks: List[str] = []
+
+    for ch_idx, chapter_title, chapter_goal in chapter_order:
+        chapter_blocks: List[str] = [
+            f"## {chapter_title}",
+            "",
+            f"本章目标：{chapter_goal}",
+            "",
+        ]
+        chapter_has_content = False
+        chapter_keys = [k for k in task_order if k[0] == ch_idx]
+
+        for key in chapter_keys:
+            meta = task_meta[key]
+            content = section_results.get(key)
+            if content:
+                chapter_blocks.append(content)
+                chapter_blocks.append("")
+                chapter_has_content = True
+            else:
                 checkpoint["failed_sections"].append({
-                    "chapter_index": idx,
+                    "chapter_index": ch_idx,
                     "chapter_title": chapter_title,
-                    "section_id": section_id,
-                    "section_title": section_title,
+                    "section_id": meta["section_id"],
+                    "section_title": meta["section_title"],
                 })
-                section_content = (
-                    f"### {section_title}\n\n"
-                    "（该小节生成中断，先保留占位，后续可补写。）"
+                chapter_blocks.append(
+                    f"### {meta['section_title']}\n\n（该小节生成中断，先保留占位，后续可补写。）"
                 )
-
-            chapter_blocks.append(section_content)
-            chapter_blocks.append("")
-
-            paras = [p.strip() for p in section_content.split("\n") if p.strip()]
-            if paras:
-                previous_ending = paras[-1]
-                checkpoint["last_previous_ending"] = previous_ending
+                chapter_blocks.append("")
 
         chapter_text = "\n".join(chapter_blocks).strip()
-        if chapter_text:
+        if chapter_has_content:
             full_chunks.append(chapter_text)
             checkpoint["completed_chapters"] = int(checkpoint.get("completed_chapters", 0)) + 1
-            checkpoint["chapter_snapshots"].append(
-                {
-                    "chapter_index": idx,
-                    "chapter_title": chapter_title,
-                    "content": chapter_text,
-                }
-            )
+            checkpoint["chapter_snapshots"].append({
+                "chapter_index": ch_idx,
+                "chapter_title": chapter_title,
+                "content": chapter_text,
+            })
         else:
-            checkpoint["failed_chapters"].append({"index": idx, "title": chapter_title})
+            checkpoint["failed_chapters"].append({"index": ch_idx, "title": chapter_title})
 
     if not full_chunks:
         return "", checkpoint
