@@ -26,6 +26,7 @@ class _DirectPreparation:
         slide_count: int | None,
         source_basis: list[str],
         source_excerpts: list[str],
+        image_assets: list | None = None,
     ) -> None:
         self.topic = deck_title
         self.deck_topic = deck_title
@@ -36,6 +37,7 @@ class _DirectPreparation:
         self.slide_count = slide_count
         self.source_basis = list(source_basis or [])
         self.source_excerpts = list(source_excerpts or [])
+        self.image_assets = list(image_assets or [])
 
     def model_dump(self, exclude_none: bool = True) -> dict:
         payload = {
@@ -56,6 +58,7 @@ class _DirectPreparation:
 def build_direct_ppt_metadata_from_draft(*, draft_id: str, draft: dict) -> dict:
     normalized_config = dict(draft.get("normalized_ppt_config") or {})
     source_snapshot = list(draft.get("selected_doc_snapshot") or [])
+    image_sources = list(draft.get("image_sources") or [])
     preparation = _DirectPreparation(
         deck_title=str(normalized_config.get("deck_title") or "").strip() or "PPT",
         audience=str(normalized_config.get("audience") or "").strip() or "general learners",
@@ -73,6 +76,7 @@ def build_direct_ppt_metadata_from_draft(*, draft_id: str, draft: dict) -> dict:
             for item in source_snapshot
             if str(item.get("summary") or "").strip()
         ],
+        image_assets=image_sources,
     )
     return {
         "artifact_scope_id": draft_id,

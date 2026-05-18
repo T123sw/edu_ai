@@ -10,11 +10,13 @@ import httpx
 
 from app.chat.debug_logging import append_debug_log
 from app.chat.domain.ppt_outline import PptOutline
+from app.chat.tasks.progress import report_progress
 
 from .content_gate import PptContentGate
 from .content_markdown_generator import PptContentMarkdownGenerator
 from .content_validator import PptContentValidator
 from .html2ppt_client import Html2PptClient
+from .rag_image_bridge import extract_image_assets, inject_media_blocks
 
 _SUPPORTED_THEME_IDS = {"heu_academic_elegant", "heu_academic_basic"}
 _DEFAULT_THEME_ID = "heu_academic_elegant"
@@ -210,6 +212,11 @@ class PptPostOutlineExecutor:
             if polled_phase != current_phase:
                 current_phase = polled_phase
                 phase_started_at = polled_at
+                report_progress({
+                    "html2ppt_job_id": job_id,
+                    "phase": current_phase,
+                    "progress": int(status_response.get("progress") or 0),
+                })
             append_debug_log(
                 "ppt_workflow",
                 event="html2ppt_status_polled",
@@ -279,6 +286,9 @@ class PptPostOutlineExecutor:
             outline=outline,
             preparation=preparation,
         )
+        image_assets = extract_image_assets(list(getattr(preparation, "image_assets", []) or []))
+        if image_assets:
+            content_markdown = inject_media_blocks(content_markdown, image_assets, max_images=3)
         validation = self.content_gate.apply(content_markdown=content_markdown, outline=outline)
         final_markdown = str(validation.get("final_markdown") or content_markdown)
         artifacts = [
@@ -329,6 +339,8 @@ class PptPostOutlineExecutor:
             }
 
         job_id = str(create_response.get("job_id") or "").strip()
+        if job_id:
+            report_progress({"html2ppt_job_id": job_id, "phase": "submitted", "progress": 0})
         status_response = create_response if create_response.get("status") else {}
         results_response = None
         try:

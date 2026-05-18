@@ -65,3 +65,46 @@ class KnowledgeBaseSummaryProvider:
             "summary_updated_at_snapshot": sorted(summary_timestamps),
             "fallback_used": len(resolved_documents) == 0,
         }
+
+    def get_document_image_sources(
+        self,
+        *,
+        selected_doc_ids: list[str],
+        owner: str | None,
+        query_text: str,
+        top_k: int = 10,
+    ) -> list[dict[str, Any]]:
+        """Query RAG for image-type chunks from the selected documents.
+
+        Returns a list of dicts with keys: modality, image_url, content.
+        Returns empty list on any error (non-fatal).
+        """
+        from modules.rag_v2.rag_main.api import _get_server_url, _scrub_response_sources
+
+        if not selected_doc_ids or not query_text:
+            return []
+        try:
+            rag_system = self._rag_system_factory()
+            result = rag_system.query(
+                query_text,
+                top_k=top_k,
+                use_rag=True,
+                selected_doc_ids=list(selected_doc_ids),
+                owner=owner,
+            )
+            raw_sources = list((result or {}).get("sources") or [])
+            safe_sources = _scrub_response_sources(raw_sources, _get_server_url())
+            image_sources: list[dict[str, Any]] = []
+            for src in safe_sources:
+                metadata = dict((src or {}).get("metadata") or {})
+                modality = str(metadata.get("modality") or "").strip().lower()
+                image_url = str(metadata.get("image_url") or "").strip()
+                if modality == "image" and image_url:
+                    image_sources.append({
+                        "modality": "image",
+                        "image_url": image_url,
+                        "content": str((src or {}).get("content") or "").strip(),
+                    })
+            return image_sources
+        except Exception:
+            return []

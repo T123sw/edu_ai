@@ -96,25 +96,114 @@ def _extract_text_from_response(response: Any) -> str:
     return str(content or "").strip()
 
 
+def _build_report_fast(
+    *,
+    llm: Any,
+    slots: Dict[str, str],
+    outline_items: List[Dict[str, Any]],
+) -> Tuple[str, Dict[str, Any]]:
+    """Fast mode: generate the full report body in a single LLM call.
+
+    Use when expected length is small (≤5000 chars). Trades per-section
+    retry granularity for lower latency.
+    """
+    outline_text_parts: List[str] = []
+    for idx, ch in enumerate(outline_items, 1):
+        if not isinstance(ch, dict):
+            continue
+        chapter_title = str(ch.get("chapter_title") or ch.get("title") or f"第{idx}章").strip()
+        chapter_goal = str(ch.get("chapter_goal") or "").strip()
+        sections = ch.get("sections") if isinstance(ch.get("sections"), list) else []
+        section_items = [s for s in sections if isinstance(s, dict)]
+        section_lines = "\n".join(
+            f"  - {str(s.get('title') or '').strip()}"
+            for s in section_items
+            if str(s.get("title") or "").strip()
+        )
+        chapter_block = f"## {chapter_title}"
+        if chapter_goal:
+            chapter_block += f"\n本章目标：{chapter_goal}"
+        if section_lines:
+            chapter_block += f"\n小节：\n{section_lines}"
+        outline_text_parts.append(chapter_block)
+
+    outline_text = "\n\n".join(outline_text_parts)
+    prompt = (
+        f"你是资深研究写作助手。请根据以下大纲，一次性生成完整的报告正文。\n\n"
+        f"主题：{slots.get('core_topic') or REPORT_DEFAULTS['core_topic']}\n"
+        f"重点：{slots.get('focus_area') or REPORT_DEFAULTS['focus_area']}\n"
+        f"深度：{slots.get('depth_level') or REPORT_DEFAULTS['depth_level']}\n"
+        f"格式：{slots.get('format_style') or REPORT_DEFAULTS['format_style']}\n\n"
+        f"大纲：\n{outline_text}\n\n"
+        "【输出格式要求】\n"
+        "1) 使用 Markdown 格式，每章以 `## ` 开头，每节以 `### ` 开头。\n"
+        "2) 按大纲顺序输出所有章节和小节，不要省略。\n"
+        "3) 禁止小说化叙事、人物对话、虚构情节；信息不足时可审慎分析。\n"
+        "4) 直接输出正文内容，不要重复输出大纲标题行。\n"
+    )
+
+    t0 = time.perf_counter()
+    try:
+        response = llm.invoke([
+            {"role": "system", "content": "你是资深研究写作助手。"},
+            {"role": "user", "content": prompt},
+        ])
+        body = _extract_text_from_response(response)
+        elapsed_ms = round((time.perf_counter() - t0) * 1000)
+        print(f"[REPORT fast] 一次性生成完成 {elapsed_ms}ms", flush=True)
+    except Exception as exc:
+        elapsed_ms = round((time.perf_counter() - t0) * 1000)
+        print(f"[REPORT fast] 生成失败 {elapsed_ms}ms | {exc}", flush=True)
+        body = ""
+
+    chapter_count = len([ch for ch in outline_items if isinstance(ch, dict)])
+    checkpoint: Dict[str, Any] = {
+        "chapter_count": chapter_count,
+        "completed_chapters": chapter_count if body else 0,
+        "retry_count": 0,
+        "failed_chapters": [],
+        "failed_sections": [],
+        "chapter_snapshots": [],
+        "llm_calls": [{"stage": "report.fast_body", "duration_ms": elapsed_ms, "retry": 0}],
+    }
+    return body, checkpoint
+
+
 def build_report_markdown(
     *,
     skill_manager: Any,
     slots: Dict[str, str],
     outline: Optional[List[Dict[str, Any]]] = None,
+    mode: str = "balanced",
 ) -> Tuple[str, Dict[str, Any]]:
-    """并发生成所有小节，再按原始顺序拼装。
+    """生成报告正文。
 
-    所有小节任务同时提交给线程池，消除串行等待。
-    每次调用模型都携带：全部槽位 + 全量大纲标题 + 当前章节/小节上下文。
+    mode="fast"     一次 prompt 生成完整正文（适合 5000 字以内，延迟最低）
+    mode="balanced" 所有小节并发调用 LLM，最后拼装（默认）
     """
     llm = get_fallback_llm()
     if not llm:
         return "", {"chapter_count": 0, "completed_chapters": 0, "retry_count": 0, "failed_chapters": []}
 
+    outline_items = outline if isinstance(outline, list) else []
+
+    _fast_length_keywords = {"5000字以内", "5000以内", "短篇", "简短", "概述", "摘要", "3000字", "3000以内"}
+    _resolved_mode = mode
+    if _resolved_mode == "balanced":
+        length_req = str(slots.get("length_requirement") or "").strip()
+        total_sections = sum(
+            len([s for s in (ch.get("sections") or []) if isinstance(s, dict)])
+            for ch in outline_items if isinstance(ch, dict)
+        )
+        if any(kw in length_req for kw in _fast_length_keywords) or (len(outline_items) <= 2 and total_sections <= 4):
+            _resolved_mode = "fast"
+
+    if _resolved_mode == "fast":
+        return _build_report_fast(llm=llm, slots=slots, outline_items=outline_items)
+
     chapter_prompt = skill_manager.extract_section("edu-report-agent", "REPORT_CHAPTER_GENERATE_PROMPT")
     chapter_prompt = chapter_prompt or "请根据当前章节信息生成正文。"
 
-    outline_items = outline if isinstance(outline, list) else []
     titles = []
     for ch in outline_items:
         if isinstance(ch, dict):
@@ -214,7 +303,7 @@ def build_report_markdown(
                         content = f"### {section_title}\n\n{content}".strip()
                     elapsed = (time.perf_counter() - t0) * 1000
                     print(f"[REPORT] ✓ {meta['chapter_title']} / {section_title} {elapsed:.0f}ms", flush=True)
-                    return key, content, retries
+                    return key, content, retries, round(elapsed)
             except Exception:
                 pass
             if attempt < max_retry_per_section:
@@ -222,10 +311,11 @@ def build_report_markdown(
                 time.sleep(0.3)
         elapsed = (time.perf_counter() - t0) * 1000
         print(f"[REPORT] ✗ {meta['chapter_title']} / {section_title} 失败 {elapsed:.0f}ms", flush=True)
-        return key, None, retries
+        return key, None, retries, round(elapsed)
 
     max_workers = min(len(task_order), 6)
     section_results: Dict[tuple, Optional[str]] = {}
+    section_timings: Dict[tuple, int] = {}
     total_retries = 0
 
     t_gen = time.perf_counter()
@@ -233,12 +323,23 @@ def build_report_markdown(
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(_generate_section, key): key for key in task_order}
         for future in as_completed(futures):
-            key, content, retries = future.result()
+            key, content, retries, elapsed_ms = future.result()
             section_results[key] = content
+            section_timings[key] = elapsed_ms
             total_retries += retries
     print(f"[REPORT] 全部小节生成完毕 {(time.perf_counter() - t_gen) * 1000:.0f}ms | 重试={total_retries}", flush=True)
 
     # --- 第三步：按原始顺序拼装 ---
+    llm_calls: List[Dict[str, Any]] = [
+        {
+            "stage": "report.section",
+            "chapter_title": task_meta[key]["chapter_title"],
+            "section_title": task_meta[key]["section_title"],
+            "duration_ms": section_timings.get(key, 0),
+            "retry": 0,
+        }
+        for key in task_order
+    ]
     checkpoint: Dict[str, Any] = {
         "chapter_count": len(chapter_order),
         "completed_chapters": 0,
@@ -246,6 +347,7 @@ def build_report_markdown(
         "failed_chapters": [],
         "failed_sections": [],
         "chapter_snapshots": [],
+        "llm_calls": llm_calls,
     }
 
     full_chunks: List[str] = []
@@ -301,10 +403,13 @@ def build_report_markdown(
         return body, checkpoint
 
     try:
+        t_stitch = time.perf_counter()
         response = llm.invoke([
             {"role": "system", "content": stitch_prompt},
             {"role": "user", "content": body},
         ])
+        stitch_ms = round((time.perf_counter() - t_stitch) * 1000)
+        checkpoint["llm_calls"].append({"stage": "report.stitch", "duration_ms": stitch_ms, "retry": 0})
         stitched = _extract_text_from_response(response)
         if stitched:
             return f"{stitched}\n\n{body}".strip(), checkpoint

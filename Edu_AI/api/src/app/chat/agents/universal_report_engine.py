@@ -515,6 +515,17 @@ def extractor_node(
     if prefilled_slots:
         _trace("extractor", [f"context_prefill_keys={list(prefilled_slots.keys())}"])
 
+    # P1-B: Skip LLM if all required slots are already filled from gathered context
+    if all(
+        bool(str(prefilled_slots.get(s) or "").strip()) and not _is_low_signal_slot_value(str(prefilled_slots.get(s) or ""))
+        for s in REQUIRED_SLOTS
+    ):
+        _trace("extractor", ["required_slots prefilled & valid → skip LLM extraction"])
+        patch: Dict[str, Any] = {"phase": "evaluating"}
+        if prefilled_slots:
+            patch["report_slots"] = prefilled_slots
+        return patch
+
     extraction_state = dict(state)
     extraction_state["report_slots"] = prefilled_slots
 
@@ -525,7 +536,7 @@ def extractor_node(
     )
     effective_slots = merged_slots or prefilled_slots
 
-    patch: Dict[str, Any] = {"phase": "evaluating"}
+    patch = {"phase": "evaluating"}
     if effective_slots:
         patch["report_slots"] = effective_slots
 

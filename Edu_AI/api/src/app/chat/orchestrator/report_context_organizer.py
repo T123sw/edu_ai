@@ -466,9 +466,35 @@ def _report_context_organize_v3(self, *, context, request_question: str) -> Repo
 ReportContextOrganizer.organize = _report_context_organize_v3
 
 
+def _is_context_data_sufficient(organizer: ReportContextOrganizer, *, context, request_question: str) -> bool:
+    """Return True when context already has enough data to skip the LLM call."""
+    resolved_subject = organizer._resolve_subject(context=context, request_question=request_question)
+    if not resolved_subject or organizer._is_low_signal(resolved_subject):
+        return False
+    resolved_focus = organizer._resolve_focus(context=context, report_subject=resolved_subject)
+    if not resolved_focus or organizer._is_low_signal(resolved_focus):
+        return False
+    key_points = organizer._pick_key_points(context=context)
+    evidence_points = list(getattr(context, "evidence_points", []) or [])
+    return len(key_points) >= 2 or len(evidence_points) >= 2
+
+
 def _report_context_organize_v4(self, *, context, request_question: str) -> ReportPreparationResult:
     model_label = _report_context_model_label(self.llm)
     skip_function_calling = _report_context_should_skip_function_calling(self.llm)
+
+    # P1-B: Skip LLM when context is already rich enough for rule-based assembly
+    if _is_context_data_sufficient(self, context=context, request_question=request_question):
+        _report_context_trace("llm_path=short_circuit", "sufficient data → rule-based")
+        result = _report_context_result_with_meta(
+            self._fallback_prepare(context=context, request_question=request_question),
+            source="rule_based_short_circuit",
+            model=model_label,
+        )
+        result = self._sanitize_result(context=context, request_question=request_question, raw_result=result)
+        _report_context_trace_result(result)
+        return result
+
     if self.llm is not None:
         _report_context_trace("llm_path=enabled", f"llm_model={model_label}", f"request={self._clean(request_question)}")
         prompt = (

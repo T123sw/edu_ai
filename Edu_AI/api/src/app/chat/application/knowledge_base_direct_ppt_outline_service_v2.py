@@ -147,6 +147,13 @@ class KnowledgeBaseDirectPptOutlineServiceV2:
         if not documents:
             raise ValueError("selected documents summary is empty")
 
+        image_sources = self.summary_provider.get_document_image_sources(
+            selected_doc_ids=selected_doc_ids,
+            owner=owner,
+            query_text=normalized_config["deck_title"] or "图片",
+            top_k=10,
+        )
+
         preparation = SimpleNamespace(
             deck_topic=normalized_config["deck_title"] or "PPT",
             audience=normalized_config["audience"] or "general learners",
@@ -180,6 +187,7 @@ class KnowledgeBaseDirectPptOutlineServiceV2:
             "summary_updated_at_snapshot": list(summary_result.get("summary_updated_at_snapshot") or []),
             "normalized_ppt_config": normalized_config,
             "draft_outline": outline_payload,
+            "image_sources": image_sources,
             "status": "outline_ready",
         }
         self.draft_store.save(draft)

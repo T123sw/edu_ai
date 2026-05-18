@@ -10,6 +10,7 @@ from typing import Any
 from urllib.parse import parse_qs, unquote, urlsplit
 
 import time
+import uuid
 
 from core.config import Config
 
@@ -424,6 +425,7 @@ class FastChatRuntime:
         t_total_prep = (time.perf_counter() - t_prep) * 1000
         action_name = getattr(decision, "action", "chat.reply") if decision is not None else "chat.reply"
         trace = {
+            "trace_id": str(uuid.uuid4()),
             "path": "fast",
             "rag_used": bool(getattr(capability, "allow_rag", False) and self.rag_retriever is not None),
             "web_used": bool(getattr(capability, "allow_web", False) and self.web_retriever is not None),
@@ -433,6 +435,7 @@ class FastChatRuntime:
             "timings": {
                 "prep_ms": round(t_total_prep),
                 **{f"{k}_ms": round(v) for k, v in _retrieval_timings.items()},
+                "llm_calls": [],
             },
         }
         if web_trace:
@@ -467,11 +470,18 @@ class FastChatRuntime:
         }
 
     def run(self, *, request, snapshot, decision):
+        t_start = time.perf_counter()
         prepared = self._prepare_generation(request=request, snapshot=snapshot, decision=decision)
+        t_llm = time.perf_counter()
         answer = self.model_gateway.chat(prepared["messages"])
+        llm_ms = round((time.perf_counter() - t_llm) * 1000)
+        total_ms = round((time.perf_counter() - t_start) * 1000)
+        prepared["trace"]["timings"]["llm_calls"] = [{"stage": "fast.reply", "duration_ms": llm_ms, "retry": 0}]
+        prepared["trace"]["timings"]["total_ms"] = total_ms
         return self._build_result(request=request, prepared=prepared, answer=answer)
 
     def run_stream(self, *, request, snapshot, decision):
+        t_start = time.perf_counter()
         prepared = self._prepare_generation(request=request, snapshot=snapshot, decision=decision)
         yield {
             "type": "metadata",
@@ -484,6 +494,7 @@ class FastChatRuntime:
 
         chunks: list[str] = []
         stream_chat = getattr(self.model_gateway, "stream_chat", None)
+        t_llm = time.perf_counter()
         if callable(stream_chat):
             stream = stream_chat(prepared["messages"])
         else:
@@ -495,6 +506,11 @@ class FastChatRuntime:
                 continue
             chunks.append(text)
             yield {"type": "delta", "payload": {"content": text}}
+
+        llm_ms = round((time.perf_counter() - t_llm) * 1000)
+        total_ms = round((time.perf_counter() - t_start) * 1000)
+        prepared["trace"]["timings"]["llm_calls"] = [{"stage": "fast.reply", "duration_ms": llm_ms, "retry": 0}]
+        prepared["trace"]["timings"]["total_ms"] = total_ms
 
         answer = "".join(chunks)
         yield {
