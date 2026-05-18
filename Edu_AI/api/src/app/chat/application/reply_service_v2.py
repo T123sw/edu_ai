@@ -178,8 +178,14 @@ class ReplyServiceV2:
             return
 
         orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
+
+        service_ref = self
+
+        def _on_workflow_complete(result: dict) -> None:
+            service_ref._finalize_result(payload=payload, request=request, result=result)
+
         final_result = None
-        for event in orchestrator.dispatch_stream(request):
+        for event in orchestrator.dispatch_stream(request, on_workflow_complete=_on_workflow_complete):
             if event.get("type") == "result":
                 final_result = self._finalize_result(
                     payload=payload,

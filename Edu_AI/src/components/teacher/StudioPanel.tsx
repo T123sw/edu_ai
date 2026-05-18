@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Divider, Dropdown, Space, Tooltip, Typography, Modal, Form, Input, Select, message, Progress, Spin, Card, InputNumber, Radio, Switch } from 'antd';
+import { Button, Divider, Dropdown, Space, Tooltip, Typography, Modal, Form, Input, Select, message, notification, Progress, Spin, Card, InputNumber, Radio, Switch } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   ApartmentOutlined,
@@ -56,6 +56,7 @@ import {
   generateKnowledgeBasePptOutlineV2,
   generateKnowledgeBasePptV2,
   generateKnowledgeBaseReportV2,
+  pollChatTask,
 } from '../../services/teacher/chatV2';
 import { extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
 import { buildKnowledgeBaseQuizRequest } from '../../services/teacher/quizEntry.helpers';
@@ -484,6 +485,14 @@ const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'p
 
 const COURSE_MATERIAL_PAGE_SIZE = 20;
 
+type DirectBgTask = {
+  taskId: string;
+  workflowType: string;
+  description: string;
+  originMeta: Record<string, string>;
+  courseId?: string | null;
+};
+
 const StudioPanel: React.FC<Props> = ({
   collapsed,
   onToggleCollapsed,
@@ -825,6 +834,52 @@ const StudioPanel: React.FC<Props> = ({
     }
   }, [courseId, generatedFiles, teachingVideoPolling, teachingVideoTaskId, viewingFile, setViewingFile]);
 
+  const [directBgTasks, setDirectBgTasks] = useState<DirectBgTask[]>([]);
+
+  useEffect(() => {
+    if (directBgTasks.length === 0) return;
+    const interval = setInterval(async () => {
+      const remaining: DirectBgTask[] = [];
+      for (const task of directBgTasks) {
+        try {
+          const status = await pollChatTask(task.taskId);
+          if (status.status === 'completed' && status.result) {
+            const files = extractGeneratedFilesFromV2Response(status.result as any).map((f) => ({
+              ...f,
+              meta: { ...(f.meta || {}), ...task.originMeta },
+            }));
+            files.forEach((f) => addGeneratedFile(f as GeneratedFile));
+            if (files.length > 0) {
+              const latest = files[files.length - 1] as GeneratedFile;
+              setViewingFile(latest);
+              if (task.courseId) {
+                addMaterial({ ...latest, addedAt: new Date().toISOString(), courseId: task.courseId });
+                refreshCourseMaterials();
+              }
+            }
+            notification.success({
+              message: `${task.description}已生成`,
+              description: files.length > 0 ? '已在右侧面板打开。' : '请在资源列表中查看。',
+              duration: 6,
+            });
+          } else if (status.status === 'failed') {
+            notification.error({
+              message: `${task.description}生成失败`,
+              description: status.error || '未知错误',
+              duration: 8,
+            });
+          } else {
+            remaining.push(task);
+          }
+        } catch {
+          remaining.push(task);
+        }
+      }
+      setDirectBgTasks(remaining);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [directBgTasks, addGeneratedFile, setViewingFile, addMaterial, refreshCourseMaterials]);
+
   const [configForm] = Form.useForm();
   const [generating, setGenerating] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
@@ -1109,7 +1164,7 @@ const StudioPanel: React.FC<Props> = ({
   }) => {
     setGenerating(true);
     try {
-      const response = await generateKnowledgeBaseReportV2(
+      const task = await generateKnowledgeBaseReportV2(
         buildKnowledgeBaseReportRequest({
           question,
           promptDraft,
@@ -1122,33 +1177,12 @@ const StudioPanel: React.FC<Props> = ({
           allowWeb,
         }),
       );
-
-      const generatedReportFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
-        ...file,
-        meta: {
-          ...(file.meta || {}),
-          origin: 'knowledge_base_direct',
-        },
-      }));
-
-      generatedReportFiles.forEach((file) => addGeneratedFile(file));
-
-      if (generatedReportFiles.length > 0) {
-        const latestFile = generatedReportFiles[generatedReportFiles.length - 1];
-        setViewingFile(latestFile);
-
-        if (courseId) {
-          addMaterial({
-            ...latestFile,
-            addedAt: new Date().toISOString(),
-            courseId,
-          });
-          await refreshCourseMaterials();
-        }
-      }
-
+      setDirectBgTasks((prev) => [
+        ...prev,
+        { taskId: task.task_id, workflowType: task.workflow_type, description: '报告', originMeta: { origin: 'knowledge_base_direct' }, courseId },
+      ]);
       setReportEntryVisible(false);
-      message.success(generatedReportFiles.length > 0 ? '报告已生成并在右侧打开。' : '报告流程已启动。');
+      message.success('报告生成任务已提交，后台处理中...');
     } catch (error: any) {
       message.error(`报告生成失败: ${error.message || '未知错误'}`);
       throw error;
@@ -1164,7 +1198,7 @@ const StudioPanel: React.FC<Props> = ({
   }) => {
     setGenerating(true);
     try {
-      const response = await generateKnowledgeBaseQuizV2(
+      const task = await generateKnowledgeBaseQuizV2(
         buildKnowledgeBaseQuizRequest({
           courseId,
           scopeType: workspaceScopeApiParams.scopeType,
@@ -1173,34 +1207,12 @@ const StudioPanel: React.FC<Props> = ({
           config,
         }),
       );
-
-      const generatedQuizFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
-        ...file,
-        meta: {
-          ...(file.meta || {}),
-          origin: 'knowledge_base_direct',
-          entryMode: 'knowledge_base_quiz',
-        },
-      }));
-
-      generatedQuizFiles.forEach((file) => addGeneratedFile(file));
-
-      if (generatedQuizFiles.length > 0) {
-        const latestFile = generatedQuizFiles[generatedQuizFiles.length - 1];
-        setViewingFile(latestFile);
-
-        if (courseId) {
-          addMaterial({
-            ...latestFile,
-            addedAt: new Date().toISOString(),
-            courseId,
-          });
-          await refreshCourseMaterials();
-        }
-      }
-
+      setDirectBgTasks((prev) => [
+        ...prev,
+        { taskId: task.task_id, workflowType: task.workflow_type, description: '习题', originMeta: { origin: 'knowledge_base_direct', entryMode: 'knowledge_base_quiz' }, courseId },
+      ]);
       setQuizEntryVisible(false);
-      message.success(generatedQuizFiles.length > 0 ? '习题已生成并在右侧打开。' : '习题生成任务已启动。');
+      message.success('习题生成任务已提交，后台处理中...');
     } catch (error: any) {
       message.error(`习题生成失败: ${error.message || '未知错误'}`);
       throw error;
@@ -1216,41 +1228,19 @@ const StudioPanel: React.FC<Props> = ({
   }) => {
     setGenerating(true);
     try {
-      const response = await generateKnowledgeBaseGameV2({
+      const task = await generateKnowledgeBaseGameV2({
         course_id: courseId,
         scope_type: workspaceScopeApiParams.scopeType,
         scope_id: workspaceScopeApiParams.scopeId,
         selected_doc_ids: selectedDocs,
         game_type: gameType,
       });
-
-      const generatedGameFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
-        ...file,
-        meta: {
-          ...(file.meta || {}),
-          origin: 'knowledge_base_direct',
-          entryMode: 'knowledge_base_game',
-        },
-      }));
-
-      generatedGameFiles.forEach((file) => addGeneratedFile(file as GeneratedFile));
-
-      if (generatedGameFiles.length > 0) {
-        const latestFile = generatedGameFiles[generatedGameFiles.length - 1] as GeneratedFile;
-        setViewingFile(latestFile);
-
-        if (courseId) {
-          addMaterial({
-            ...latestFile,
-            addedAt: new Date().toISOString(),
-            courseId,
-          });
-          await refreshCourseMaterials();
-        }
-      }
-
+      setDirectBgTasks((prev) => [
+        ...prev,
+        { taskId: task.task_id, workflowType: task.workflow_type, description: '小游戏', originMeta: { origin: 'knowledge_base_direct', entryMode: 'knowledge_base_game' }, courseId },
+      ]);
       setGameEntryVisible(false);
-      message.success(generatedGameFiles.length > 0 ? '小游戏已生成并在右侧打开。' : '小游戏生成任务已启动。');
+      message.success('小游戏生成任务已提交，后台处理中...');
     } catch (error: any) {
       message.error(`小游戏生成失败: ${error.message || '未知错误'}`);
       throw error;
@@ -1361,30 +1351,19 @@ const StudioPanel: React.FC<Props> = ({
   }) => {
     setGenerating(true);
     try {
-      const response = await generateKnowledgeBasePptV2(
+      const task = await generateKnowledgeBasePptV2(
         buildDirectPptGenerateRequest({
           draftId,
           outline,
         }),
       );
-      const generatedFiles = extractGeneratedFilesFromV2Response(response as any).map((file) => ({
-        ...file,
-        meta: {
-          ...(file.meta || {}),
-          origin: 'knowledge_base_direct',
-        },
-      }));
-      generatedFiles.forEach((file) => addGeneratedFile(file as GeneratedFile));
-      if (generatedFiles.length > 0) {
-        const latestFile = generatedFiles[generatedFiles.length - 1] as GeneratedFile;
-        setViewingFile(latestFile);
-      }
-      if (courseId) {
-        await refreshCourseMaterials();
-      }
+      setDirectBgTasks((prev) => [
+        ...prev,
+        { taskId: task.task_id, workflowType: task.workflow_type, description: 'PPT', originMeta: { origin: 'knowledge_base_direct' }, courseId },
+      ]);
       setPptEntryVisible(false);
-      message.success(generatedFiles.length > 0 ? 'PPT 已生成并在右侧打开。' : 'PPT 生成任务已启动。');
-      return response;
+      message.success('PPT 生成任务已提交，后台处理中...');
+      return task;
     } catch (error: any) {
       message.error(`PPT 生成失败: ${error.message || '未知错误'}`);
       throw error;

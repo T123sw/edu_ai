@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import mimetypes
 import re
+import threading
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import quote, unquote
@@ -13,12 +14,9 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from app.auth import get_current_user
 from app.chat.api.schemas_v2 import (
-    ChatDirectQuizResponseV2,
-    ChatDirectPptGenerateResponseV2,
-    ChatDirectGameResponseV2,
     ChatDirectPptOutlineResponseV2,
+    ChatDirectTaskSubmittedResponseV2,
     ChatQuizPrefillResponseV2,
-    ChatDirectReportResponseV2,
     ChatLessonPlanCardsRequestV2,
     ChatLessonPlanCardsResponseV2,
     ChatPptCardsRequestV2,
@@ -36,6 +34,7 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectReportRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
+from app.chat.tasks.task_store import get_task_store
 from core.config import Config
 
 
@@ -422,19 +421,21 @@ async def lesson_plan_cards(payload: ChatLessonPlanCardsRequestV2, current_user:
         return JSONResponse(status_code=500, content=body)
 
 
-@router.post("/report/direct", response_model=ChatDirectReportResponseV2)
+@router.post("/report/direct", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_user: dict = Depends(get_current_user)):
-    try:
-        return _get_direct_report_service().generate(_with_owner(payload, current_user))
-    except Exception as exc:
-        body = build_v2_error_response(
-            code="workflow_failed",
-            message=str(exc),
-            conversation_id="",
-            trace_path="direct",
-            retryable=False,
-        )
-        return JSONResponse(status_code=500, content=body)
+    ns_payload = _with_owner(payload, current_user)
+    store = get_task_store()
+    task_id = store.create(workflow_type="report_direct")
+
+    def _run():
+        store.mark_running(task_id)
+        try:
+            store.mark_complete(task_id, _get_direct_report_service().generate(ns_payload))
+        except Exception as exc:
+            store.mark_failed(task_id, str(exc))
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"task_id": task_id, "status": "pending", "workflow_type": "report_direct"}
 
 
 @router.post("/quiz/prefill", response_model=ChatQuizPrefillResponseV2)
@@ -452,34 +453,38 @@ async def quiz_prefill(payload: KnowledgeBaseDirectQuizPrefillRequestV2, current
         return JSONResponse(status_code=500, content=body)
 
 
-@router.post("/quiz/direct", response_model=ChatDirectQuizResponseV2)
+@router.post("/quiz/direct", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: dict = Depends(get_current_user)):
-    try:
-        return _get_direct_quiz_service().generate(_with_owner(payload, current_user))
-    except Exception as exc:
-        body = build_v2_error_response(
-            code="workflow_failed",
-            message=str(exc),
-            conversation_id="",
-            trace_path="direct",
-            retryable=False,
-        )
-        return JSONResponse(status_code=500, content=body)
+    ns_payload = _with_owner(payload, current_user)
+    store = get_task_store()
+    task_id = store.create(workflow_type="quiz_direct")
+
+    def _run():
+        store.mark_running(task_id)
+        try:
+            store.mark_complete(task_id, _get_direct_quiz_service().generate(ns_payload))
+        except Exception as exc:
+            store.mark_failed(task_id, str(exc))
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"task_id": task_id, "status": "pending", "workflow_type": "quiz_direct"}
 
 
-@router.post("/game/direct", response_model=ChatDirectGameResponseV2)
+@router.post("/game/direct", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: dict = Depends(get_current_user)):
-    try:
-        return _get_direct_game_service().generate(_with_owner(payload, current_user))
-    except Exception as exc:
-        body = build_v2_error_response(
-            code="workflow_failed",
-            message=str(exc),
-            conversation_id="",
-            trace_path="direct",
-            retryable=False,
-        )
-        return JSONResponse(status_code=500, content=body)
+    ns_payload = _with_owner(payload, current_user)
+    store = get_task_store()
+    task_id = store.create(workflow_type="game_direct")
+
+    def _run():
+        store.mark_running(task_id)
+        try:
+            store.mark_complete(task_id, _get_direct_game_service().generate(ns_payload))
+        except Exception as exc:
+            store.mark_failed(task_id, str(exc))
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"task_id": task_id, "status": "pending", "workflow_type": "game_direct"}
 
 
 @router.post("/ppt/outline", response_model=ChatDirectPptOutlineResponseV2)
@@ -500,19 +505,21 @@ async def direct_ppt_outline(
         return JSONResponse(status_code=500, content=body)
 
 
-@router.post("/ppt/generate", response_model=ChatDirectPptGenerateResponseV2)
+@router.post("/ppt/generate", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_ppt_generate(
     payload: KnowledgeBaseDirectPptGenerateRequestV2,
     current_user: dict = Depends(get_current_user),
 ):
-    try:
-        return _get_direct_ppt_generation_service().generate(_with_owner(payload, current_user))
-    except Exception as exc:
-        body = build_v2_error_response(
-            code="workflow_failed",
-            message=str(exc),
-            conversation_id="",
-            trace_path="direct",
-            retryable=False,
-        )
-        return JSONResponse(status_code=500, content=body)
+    ns_payload = _with_owner(payload, current_user)
+    store = get_task_store()
+    task_id = store.create(workflow_type="ppt_direct")
+
+    def _run():
+        store.mark_running(task_id)
+        try:
+            store.mark_complete(task_id, _get_direct_ppt_generation_service().generate(ns_payload))
+        except Exception as exc:
+            store.mark_failed(task_id, str(exc))
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"task_id": task_id, "status": "pending", "workflow_type": "ppt_direct"}

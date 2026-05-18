@@ -7,10 +7,12 @@ import { listChatConversations, getChatConversationDetail, deleteChatConversatio
 import {
   buildChatReplyPayload,
   sendChatReplyV2Stream,
+  pollChatTask,
   transcribeSpeechV2,
   uploadChatImagesV2,
   uploadChatVideosV2,
   type ChatResponseV2,
+  type ChatTaskStatusV2,
   type ChatInputImageV2,
   type ChatInputVideoV2,
   type ChatSourceV2,
@@ -276,6 +278,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     addMessage,
     setMessages,
     updateLastMessage,
+    updateMessageById,
     selectedDocs,
     scopedSourceDocIds,
     allowRag,
@@ -313,6 +316,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const [historyPopoverOpen, setHistoryPopoverOpen] = useState(false);
   const [workflowType, setWorkflowType] = useState<string | null>(null);
   const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
+  const [backgroundTaskId, setBackgroundTaskId] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [pendingImages, setPendingImages] = useState<PendingChatImage[]>([]);
@@ -1072,6 +1076,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       });
       let streamedText = '';
       let response: ChatResponseV2 | null = null;
+      let pendingTaskId: string | null = null;
+
       await sendChatReplyV2Stream(payload, {
         onMetadata: (payload) => {
           const nextConversationId = String(payload.conversation_id || '').trim();
@@ -1108,11 +1114,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         onResult: (finalResponse) => {
           response = finalResponse;
         },
+        onTaskSubmitted: (taskId) => {
+          pendingTaskId = taskId;
+          // Tag the AI message with the task ID so the background poller can find and update it
+          updateLastMessage({ id: taskId });
+        },
         onError: (error) => {
           throw error;
         },
       });
-      if (!response) {
+
+      // Background task path: hand off to useEffect poller and release the UI immediately
+      if (pendingTaskId) {
+        updateLastMessage({ statusText: '正在后台生成，请稍候...' });
+        setBackgroundTaskId(pendingTaskId);
+        return; // isLoading → false via finally; user can continue chatting
+      } else if (!response) {
         throw new Error('流式回复未返回最终结果');
       }
 
@@ -1204,6 +1221,87 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
     return () => window.clearInterval(timer);
   }, [currentConversationId, isLoading, workflowStatus, workflowType]);
+
+  // Non-blocking background task poller: runs independently of isLoading
+  useEffect(() => {
+    if (!backgroundTaskId) return undefined;
+
+    const taskId = backgroundTaskId;
+    const timer = window.setInterval(() => {
+      void (async () => {
+        try {
+          const status = await pollChatTask(taskId);
+
+          if (status.status === 'completed') {
+            window.clearInterval(timer);
+            setBackgroundTaskId(null);
+            if (!status.result) {
+              updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done' });
+              return;
+            }
+            const result = status.result;
+            const nextConversationId = String(result.conversation?.conversation_id || '').trim();
+            if (nextConversationId && nextConversationId !== currentConversationId) {
+              setCurrentConversationId(nextConversationId);
+            }
+            setStatusCard(result.status_card || null);
+            setWorkflowType(String(result.workflow?.type || '').trim() || null);
+            setWorkflowStatus(String(result.workflow?.status || '').trim() || null);
+
+            const sources = Array.isArray(result.sources) ? (result.sources as ChatSourceV2[]) : [];
+            const genFiles = extractGeneratedFilesFromV2Response(result).map((file) => ({
+              ...file,
+              meta: {
+                ...(file.meta || {}),
+                origin: 'conversation',
+                conversationId: nextConversationId || currentConversationId,
+              },
+            }));
+            genFiles.forEach((file) => addGeneratedFile(file));
+            const nextPptArtifact = genFiles.find((f) => f.meta?.kind === 'ppt_deck');
+            if (artifactReference?.artifact_type === 'ppt_deck' && nextPptArtifact) {
+              setArtifactReference({
+                artifact_id: String(nextPptArtifact.meta?.originalArtifactId || nextPptArtifact.id).trim(),
+                artifact_type: 'ppt_deck',
+                title: nextPptArtifact.name,
+                source_conversation_id: String(nextPptArtifact.meta?.conversationId || nextConversationId || currentConversationId || '').trim() || undefined,
+                source_course_id: String(courseId || '').trim() || undefined,
+              });
+            }
+            if (courseId) {
+              genFiles.forEach((file) =>
+                addMaterial({
+                  id: file.id,
+                  name: file.name,
+                  type: file.type,
+                  content: file.content,
+                  addedAt: String(file.meta?.addedAt || new Date().toISOString()),
+                  courseId,
+                  isPinned: Boolean(file.meta?.isPinned),
+                  pinnedAt: typeof file.meta?.pinnedAt === 'string' ? file.meta.pinnedAt : undefined,
+                } as any),
+              );
+            }
+            if (genFiles.length > 0) setViewingFile(genFiles[genFiles.length - 1]);
+
+            const hasFinalReport = genFiles.some((f) => f.meta?.kind === 'final_report');
+            const replyText = hasFinalReport ? '已生成，请在右侧查看。' : String(result.message?.content || '');
+            updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done' });
+            void refreshHistoryList();
+          } else if (status.status === 'failed') {
+            window.clearInterval(timer);
+            setBackgroundTaskId(null);
+            updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error' });
+          }
+        } catch {
+          // transient network error — keep polling
+        }
+      })();
+    }, 2000);
+
+    return () => window.clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backgroundTaskId]);
 
   const handleSourceClick = (source: any) => {
     const path =

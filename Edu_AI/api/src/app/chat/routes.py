@@ -245,6 +245,16 @@ async def chat_stream(
     )
 
 
+@router.get("/tasks/{task_id}")
+async def get_task_status(task_id: str, current_user: dict = Depends(get_current_user)):
+    from app.chat.tasks.task_store import get_task_store
+
+    task = get_task_store().get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="任务不存在或已过期")
+    return task
+
+
 @router.post("/skill-health-check", response_model=SkillHealthCheckResponse)
 async def skill_health_check(payload: SkillHealthCheckRequest, current_user: dict = Depends(get_current_user)):
     _ = current_user

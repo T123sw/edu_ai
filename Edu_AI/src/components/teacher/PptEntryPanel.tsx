@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Card, Form, Input, Modal, Radio, Select, Skeleton, Space, Typography, message } from 'antd';
 import {
   fetchPptEntryCardsV2,
-  type ChatDirectPptGenerateResponseV2,
+  type ChatDirectTaskSubmittedV2,
   type ChatDirectPptOutlineResponseV2,
   type PptEntryCard,
 } from '../../services/teacher/chatV2';
@@ -80,7 +80,7 @@ type Props = {
   submitting?: boolean;
   onCancel: () => void;
   onSubmitOutline: (payload: { config: DirectPptEntryConfigInput }) => Promise<ChatDirectPptOutlineResponseV2>;
-  onSubmitGenerate: (payload: { draftId: string; outline?: Record<string, unknown> }) => Promise<ChatDirectPptGenerateResponseV2>;
+  onSubmitGenerate: (payload: { draftId: string; outline?: Record<string, unknown> }) => Promise<ChatDirectTaskSubmittedV2>;
 };
 
 function normalizeKeyPoints(value: string): string[] {

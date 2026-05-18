@@ -345,3 +345,9 @@ class ChatDirectPptGenerateResponseV2(BaseModel):
     run: Dict[str, Any]
     artifacts: List[Dict[str, Any]] = Field(default_factory=list)
     trace: DirectTraceMetaV2
+
+
+class ChatDirectTaskSubmittedResponseV2(BaseModel):
+    task_id: str
+    status: Literal["pending"] = "pending"
+    workflow_type: str

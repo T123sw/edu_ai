@@ -496,10 +496,18 @@ class RouteChatService:
 
         def _stream():
             final_result = None
-            for event in app_service.orchestrator.dispatch_stream(request):
+            task_submitted = False
+            for event in app_service.orchestrator.dispatch_stream(
+                request,
+                on_workflow_complete=lambda result: service._persist_new_result(payload, result),
+            ):
                 event_type = event.get("type")
                 if event_type == "result":
                     final_result = event.get("payload") or {}
+                elif event_type == "task_submitted":
+                    # Workflow dispatched to background — forward event, persist handled by on_workflow_complete
+                    yield event
+                    task_submitted = True
                 elif event_type == "metadata":
                     # FastChatRuntime emits "metadata"; translate to the legacy "meta" event
                     ep = event.get("payload") or {}
@@ -517,9 +525,9 @@ class RouteChatService:
             # Send done frame to client before persisting
             yield {"type": "done"}
 
-            # Persist result in a background thread so the done frame reaches the client first
-            # and the LLM-enhancement second call (Fix #2) never blocks this path at all
-            if final_result:
+            # For fast-path results, persist in background thread so done reaches client first.
+            # Workflow results are persisted via on_workflow_complete callback when task completes.
+            if not task_submitted and final_result:
                 threading.Thread(
                     target=service._persist_new_result,
                     args=(payload, final_result),

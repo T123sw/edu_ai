@@ -1,6 +1,15 @@
 from __future__ import annotations
 
+from typing import Any, Callable, Optional
+
 from .route_rules import decide_route
+
+_WORKFLOW_LABELS = {
+    "report": "报告",
+    "ppt": "PPT课件",
+    "lesson_plan": "教案",
+    "quiz": "练习题",
+}
 
 
 class MainOrchestrator:
@@ -22,7 +31,7 @@ class MainOrchestrator:
         workflow = self.workflow_registry[decision.workflow_name]
         return workflow.run(request=request, snapshot=snapshot, decision=decision)
 
-    def dispatch_stream(self, request):
+    def dispatch_stream(self, request, *, on_workflow_complete: Optional[Callable] = None):
         snapshot = self.context_builder.build(request)
         decision = decide_route(
             request=request,
@@ -34,7 +43,6 @@ class MainOrchestrator:
             return
 
         if decision.workflow_name not in self.workflow_registry:
-            # Workflow not registered — fall back to fast path instead of raising KeyError
             yield from self.fast_runtime.run_stream(
                 request=request,
                 snapshot=snapshot,
@@ -42,17 +50,31 @@ class MainOrchestrator:
             )
             return
 
+        from app.chat.tasks.background_runner import submit_workflow_task
+
+        label = _WORKFLOW_LABELS.get(decision.workflow_name, "内容")
+        task_id = submit_workflow_task(
+            workflow=self.workflow_registry[decision.workflow_name],
+            request=request,
+            snapshot=snapshot,
+            decision=decision,
+            workflow_type=decision.workflow_name,
+            on_complete=on_workflow_complete,
+        )
+
         yield {
             "type": "status",
             "payload": {
-                "stage": "workflow_routing",
-                "label": f"正在进入{decision.workflow_name or '工作流'}流程",
-                "workflow": {"type": decision.workflow_name or "", "status": "running"},
+                "stage": "task_queued",
+                "label": f"{label}生成任务已提交，正在后台处理...",
+                "workflow": {"type": decision.workflow_name, "status": "running"},
             },
         }
-        workflow = self.workflow_registry[decision.workflow_name]
-        result = workflow.run(request=request, snapshot=snapshot, decision=decision)
-        answer = str(((result.get("message") or {}).get("content")) or "")
-        for index in range(0, len(answer), 24):
-            yield {"type": "delta", "payload": {"content": answer[index:index + 24]}}
-        yield {"type": "result", "payload": result}
+        yield {
+            "type": "task_submitted",
+            "payload": {
+                "task_id": task_id,
+                "workflow_type": decision.workflow_name,
+                "message": f"正在后台生成{label}，可通过任务ID查询进度",
+            },
+        }

@@ -4,6 +4,7 @@ import base64
 import hashlib
 import mimetypes
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlsplit
@@ -308,15 +309,62 @@ class FastChatRuntime:
         video_summary = ""
         web_trace: dict[str, Any] = {}
 
+        # ── 并发检索：RAG / Web / Video 同时发起，取最慢的时间而非累加 ──
+        _retrieval_futures: dict[str, Any] = {}
+        _retrieval_timings: dict[str, float] = {}
+
+        def _timed(label: str, fn, **kwargs):
+            t = time.perf_counter()
+            try:
+                return label, fn(**kwargs), (time.perf_counter() - t) * 1000, None
+            except Exception as exc:
+                return label, None, (time.perf_counter() - t) * 1000, exc
+
+        _retrieval_calls = []
         if self.rag_retriever is not None and bool(getattr(capability, "allow_rag", False)):
-            t_rag = time.perf_counter()
-            rag_result = self.rag_retriever(
-                query=request.question,
-                top_k=5,
-                selected_doc_ids=list(getattr(capability, "selected_doc_ids", []) or []),
-                owner=getattr(request, "owner", None),
+            _retrieval_calls.append(("rag", self.rag_retriever, {
+                "query": request.question,
+                "top_k": 5,
+                "selected_doc_ids": list(getattr(capability, "selected_doc_ids", []) or []),
+                "owner": getattr(request, "owner", None),
+            }))
+        if self.web_retriever is not None and bool(getattr(capability, "allow_web", False)):
+            _retrieval_calls.append(("web", self.web_retriever, {
+                "query": request.question,
+                "owner": getattr(request, "owner", None),
+            }))
+        if self.video_retriever is not None and bool(getattr(capability, "allow_rag", False)):
+            _retrieval_calls.append(("video", self.video_retriever, {
+                "query": request.question,
+                "top_k": 5,
+                "selected_doc_ids": list(getattr(capability, "selected_doc_ids", []) or []),
+                "owner": getattr(request, "owner", None),
+            }))
+
+        _raw_results: dict[str, Any] = {}
+        if _retrieval_calls:
+            t_retrieval = time.perf_counter()
+            with ThreadPoolExecutor(max_workers=len(_retrieval_calls)) as _pool:
+                _futures = {
+                    _pool.submit(_timed, label, fn, **kwargs): label
+                    for label, fn, kwargs in _retrieval_calls
+                }
+                for future in _futures:
+                    label, result, elapsed_ms, exc = future.result()
+                    _raw_results[label] = result
+                    _retrieval_timings[label] = elapsed_ms
+                    if exc:
+                        print(f"[PREP] {label} 检索失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
+                    else:
+                        print(f"[PREP] {label} 检索 {elapsed_ms:.0f}ms", flush=True)
+            print(
+                f"[PREP] 并发检索完成（挂钟） {(time.perf_counter() - t_retrieval) * 1000:.0f}ms",
+                flush=True,
             )
-            print(f"[PREP] RAG 检索 {(time.perf_counter() - t_rag) * 1000:.0f}ms", flush=True)
+
+        # ── 处理各路检索结果 ──
+        if "rag" in _raw_results:
+            rag_result = _raw_results["rag"]
             payload = dict((rag_result or {}).get("payload") or {}) if isinstance(rag_result, dict) else {}
             rag_sources = list(payload.get("sources") or [])
             rag_answer = str(payload.get("answer") or "").strip()
@@ -324,13 +372,8 @@ class FastChatRuntime:
                 context_blocks.append(f"以下是知识库检索到的参考信息，请优先基于这些内容回答：\n{rag_answer}")
             sources.extend(rag_sources)
 
-        if self.web_retriever is not None and bool(getattr(capability, "allow_web", False)):
-            t_web = time.perf_counter()
-            web_result = self.web_retriever(
-                query=request.question,
-                owner=getattr(request, "owner", None),
-            )
-            print(f"[PREP] Web 检索 {(time.perf_counter() - t_web) * 1000:.0f}ms", flush=True)
+        if "web" in _raw_results:
+            web_result = _raw_results["web"]
             payload = dict((web_result or {}).get("payload") or {}) if isinstance(web_result, dict) else {}
             web_sources = list(payload.get("sources") or [])
             web_summary = str(payload.get("summary") or payload.get("answer") or "").strip()
@@ -339,15 +382,8 @@ class FastChatRuntime:
                 context_blocks.append(f"以下是联网检索到的参考信息，请结合这些内容回答：\n{web_summary}")
             sources.extend(web_sources)
 
-        if self.video_retriever is not None and bool(getattr(capability, "allow_rag", False)):
-            t_video = time.perf_counter()
-            video_result = self.video_retriever(
-                query=request.question,
-                top_k=5,
-                selected_doc_ids=list(getattr(capability, "selected_doc_ids", []) or []),
-                owner=getattr(request, "owner", None),
-            )
-            print(f"[PREP] Video 检索 {(time.perf_counter() - t_video) * 1000:.0f}ms", flush=True)
+        if "video" in _raw_results:
+            video_result = _raw_results["video"]
             payload = dict((video_result or {}).get("payload") or {}) if isinstance(video_result, dict) else {}
             video_sources = list(payload.get("sources") or [])
             video_summary = str(payload.get("summary") or payload.get("answer") or "").strip()
@@ -385,6 +421,7 @@ class FastChatRuntime:
             *model_history_messages,
             {"role": "user", "content": user_content},
         ]
+        t_total_prep = (time.perf_counter() - t_prep) * 1000
         action_name = getattr(decision, "action", "chat.reply") if decision is not None else "chat.reply"
         trace = {
             "path": "fast",
@@ -393,6 +430,10 @@ class FastChatRuntime:
             "video_used": bool(getattr(capability, "allow_rag", False) and self.video_retriever is not None),
             "input_image_count": len(list(getattr(request, "input_images", []) or [])),
             "input_video_count": len(list(getattr(request, "input_videos", []) or [])),
+            "timings": {
+                "prep_ms": round(t_total_prep),
+                **{f"{k}_ms": round(v) for k, v in _retrieval_timings.items()},
+            },
         }
         if web_trace:
             trace.update(web_trace)
@@ -402,7 +443,7 @@ class FastChatRuntime:
             trace["video_summary_used"] = True
 
         print(
-            f"[PREP] 准备完成 {(time.perf_counter() - t_prep) * 1000:.0f}ms"
+            f"[PREP] 准备完成 {t_total_prep:.0f}ms"
             f" | rag={trace['rag_used']} web={trace['web_used']}"
             f" | msgs={len(messages)}",
             flush=True,

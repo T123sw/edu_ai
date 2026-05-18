@@ -451,27 +451,14 @@ def test_lesson_plan_cards_v2_route_returns_cards_payload(monkeypatch):
     assert response.json()["cards"][0]["prefill_config"]["lesson_type"] == "新授课"
 
 
-def test_direct_report_v2_route_returns_direct_artifact_payload(monkeypatch):
+def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
 
     class DummyService:
         def generate(self, payload):
-            assert payload.owner == "tester"
-            assert payload.selected_doc_ids == ["doc-1"]
-            return {
-                "action": {"name": "generate.report.direct"},
-                "artifacts": [
-                    {
-                        "artifact_id": "report-1",
-                        "artifact_type": "report",
-                        "title": "report.md",
-                        "content": "# report",
-                    }
-                ],
-                "trace": {"path": "direct", "selected_doc_count": 1},
-            }
+            return {"action": {"name": "generate.report.direct"}, "artifacts": [], "trace": {"path": "direct"}}
 
     monkeypatch.setattr("app.chat.api.routes_v2._get_direct_report_service", lambda: DummyService())
     client = TestClient(app)
@@ -485,8 +472,10 @@ def test_direct_report_v2_route_returns_direct_artifact_payload(monkeypatch):
     )
 
     assert response.status_code == 200
-    assert response.json()["action"]["name"] == "generate.report.direct"
-    assert response.json()["artifacts"][0]["artifact_type"] == "report"
+    data = response.json()
+    assert data["status"] == "pending"
+    assert data["workflow_type"] == "report_direct"
+    assert data["task_id"]
 
 
 def test_direct_ppt_outline_v2_route_returns_draft_payload(monkeypatch):
@@ -528,22 +517,14 @@ def test_direct_ppt_outline_v2_route_returns_draft_payload(monkeypatch):
     assert response.json()["draft"]["draft_id"] == "ppt-draft-1"
 
 
-def test_direct_ppt_generate_v2_route_returns_run_payload(monkeypatch):
+def test_direct_ppt_generate_v2_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
 
     class DummyService:
         def generate(self, payload):
-            assert payload.owner == "tester"
-            assert payload.draft_id == "ppt-draft-1"
-            assert payload.confirm is True
-            return {
-                "action": {"name": "generate.ppt.direct"},
-                "run": {"run_id": "ppt-run-1", "status": "running"},
-                "artifacts": [],
-                "trace": {"path": "direct", "draft_id": "ppt-draft-1", "run_id": "ppt-run-1"},
-            }
+            return {"action": {"name": "generate.ppt.direct"}, "run": {}, "artifacts": [], "trace": {"path": "direct"}}
 
     monkeypatch.setattr("app.chat.api.routes_v2._get_direct_ppt_generation_service", lambda: DummyService())
     client = TestClient(app)
@@ -557,37 +538,20 @@ def test_direct_ppt_generate_v2_route_returns_run_payload(monkeypatch):
     )
 
     assert response.status_code == 200
-    assert response.json()["run"]["run_id"] == "ppt-run-1"
+    data = response.json()
+    assert data["status"] == "pending"
+    assert data["workflow_type"] == "ppt_direct"
+    assert data["task_id"]
 
 
-def test_game_direct_route_returns_game_artifact(monkeypatch):
+def test_game_direct_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
 
     class DummyService:
         def generate(self, payload):
-            assert payload.owner == "tester"
-            assert payload.course_id == "course-1"
-            assert payload.selected_doc_ids == ["doc-1"]
-            assert payload.game_type == "drag_match"
-            return {
-                "action": {"name": "generate.game.direct"},
-                "artifacts": [
-                    {
-                        "artifact_id": "game-1",
-                        "artifact_type": "game",
-                        "title": "历史概念配对.html",
-                        "content": {
-                            "game_type": "drag_match",
-                            "template_id": "drag-match",
-                            "game_data": {"title": "历史概念配对", "pairs": []},
-                            "html_url": "/api/chat/v2/games/html?path=tester/course-1/game-1/index.html",
-                        },
-                    }
-                ],
-                "trace": {"path": "direct"},
-            }
+            return {"action": {"name": "generate.game.direct"}, "artifacts": [], "trace": {"path": "direct"}}
 
     monkeypatch.setattr("app.chat.api.routes_v2._get_direct_game_service", lambda: DummyService(), raising=False)
     client = TestClient(app)
@@ -597,7 +561,10 @@ def test_game_direct_route_returns_game_artifact(monkeypatch):
     )
 
     assert response.status_code == 200
-    assert response.json()["artifacts"][0]["artifact_type"] == "game"
+    data = response.json()
+    assert data["status"] == "pending"
+    assert data["workflow_type"] == "game_direct"
+    assert data["task_id"]
 
 
 def test_game_html_route_uses_authenticated_path_resolution(monkeypatch):

@@ -23,6 +23,7 @@ interface Document {
 }
 
 interface ChatMessage {
+  id?: string;
   user: 'You' | 'AI';
   text: string;
   sources?: RAGSource[];
@@ -73,6 +74,7 @@ interface AppState {
   addMessage: (message: ChatMessage) => void;
   setMessages: (messages: ChatMessage[]) => void;
   updateLastMessage: (message: Partial<ChatMessage>) => void;
+  updateMessageById: (id: string, message: Partial<ChatMessage>) => void;
   clearMessages: () => void;
   setCurrentConversationId: (conversationId: string | null) => void;
   setArtifactReference: (reference: ArtifactReference | null) => void;
@@ -140,6 +142,15 @@ export const useStore = create<AppState>()(
             }
           }
           return state;
+        }),
+      updateMessageById: (id, message) =>
+        set((state) => {
+          const idx = [...state.messages].reduceRight((found, _, i) =>
+            found === -1 && state.messages[i].id === id ? i : found, -1);
+          if (idx === -1) return state;
+          const next = [...state.messages];
+          next[idx] = { ...next[idx], ...message };
+          return { messages: next };
         }),
       clearMessages: () => set({ messages: [] }),
       setCurrentConversationId: (conversationId) => set({ currentConversationId: conversationId }),

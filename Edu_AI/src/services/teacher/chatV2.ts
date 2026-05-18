@@ -347,6 +347,12 @@ export interface ChatDirectPptGenerateResponseV2 {
   trace: Record<string, unknown>;
 }
 
+export interface ChatDirectTaskSubmittedV2 {
+  task_id: string;
+  status: 'pending';
+  workflow_type: string;
+}
+
 export interface StatusCardEvidenceDetail {
   content: string;
   source_type?: string;
@@ -427,7 +433,7 @@ export interface ChatErrorResponseV2 {
   detail?: string;
 }
 
-export type ChatStreamEventTypeV2 = 'metadata' | 'status' | 'delta' | 'result' | 'done' | 'error';
+export type ChatStreamEventTypeV2 = 'metadata' | 'status' | 'delta' | 'result' | 'done' | 'error' | 'task_submitted';
 
 export interface ChatStreamEventV2 {
   type: ChatStreamEventTypeV2;
@@ -439,8 +445,27 @@ export interface ChatReplyStreamHandlersV2 {
   onStatus?: (payload: Record<string, any>) => void;
   onDelta?: (content: string, payload: Record<string, any>) => void;
   onResult?: (response: ChatResponseV2) => void;
+  onTaskSubmitted?: (taskId: string, workflowType: string, payload: Record<string, any>) => void;
   onDone?: (payload: Record<string, any>) => void;
   onError?: (error: Error, payload?: Record<string, any>) => void;
+}
+
+export interface ChatTaskStatusV2 {
+  task_id: string;
+  workflow_type: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  result?: ChatResponseV2 | null;
+  error?: string | null;
+  created_at: string;
+}
+
+export async function pollChatTask(taskId: string): Promise<ChatTaskStatusV2> {
+  const token = getAuthToken();
+  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/tasks/${taskId}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!resp.ok) throw new Error(`任务查询失败: ${resp.status} ${resp.statusText}`);
+  return (await resp.json()) as ChatTaskStatusV2;
 }
 
 export interface SpeechTranscriptResponseV2 {
@@ -529,6 +554,11 @@ export async function sendChatReplyV2Stream(
       else if (event.type === 'status') handlers.onStatus?.(event.payload);
       else if (event.type === 'delta') handlers.onDelta?.(String(event.payload?.content || ''), event.payload);
       else if (event.type === 'result') handlers.onResult?.(event.payload as ChatResponseV2);
+      else if (event.type === 'task_submitted') {
+        const taskId = String(event.payload?.task_id || '');
+        const workflowType = String(event.payload?.workflow_type || '');
+        handlers.onTaskSubmitted?.(taskId, workflowType, event.payload);
+      }
       else if (event.type === 'done') handlers.onDone?.(event.payload);
       else if (event.type === 'error') handlers.onError?.(new Error(String(event.payload?.message || '流式回复失败')), event.payload);
     }
@@ -634,8 +664,8 @@ export async function fetchLessonPlanEntryCardsV2(
 
 export async function generateKnowledgeBaseReportV2(
   payload: KnowledgeBaseDirectReportRequestV2,
-): Promise<ChatDirectReportResponseV2> {
-  return postV2<ChatDirectReportResponseV2, KnowledgeBaseDirectReportRequestV2>('/api/chat/v2/report/direct', payload);
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectReportRequestV2>('/api/chat/v2/report/direct', payload);
 }
 
 export async function fetchQuizEntryPrefillV2(
@@ -646,14 +676,14 @@ export async function fetchQuizEntryPrefillV2(
 
 export async function generateKnowledgeBaseQuizV2(
   payload: KnowledgeBaseDirectQuizRequestV2,
-): Promise<ChatDirectQuizResponseV2> {
-  return postV2<ChatDirectQuizResponseV2, KnowledgeBaseDirectQuizRequestV2>('/api/chat/v2/quiz/direct', payload);
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectQuizRequestV2>('/api/chat/v2/quiz/direct', payload);
 }
 
 export async function generateKnowledgeBaseGameV2(
   payload: KnowledgeBaseDirectGameRequestV2,
-): Promise<ChatDirectGameResponseV2> {
-  return postV2<ChatDirectGameResponseV2, KnowledgeBaseDirectGameRequestV2>('/api/chat/v2/game/direct', payload);
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectGameRequestV2>('/api/chat/v2/game/direct', payload);
 }
 
 export async function generateKnowledgeBasePptOutlineV2(
@@ -667,8 +697,8 @@ export async function generateKnowledgeBasePptOutlineV2(
 
 export async function generateKnowledgeBasePptV2(
   payload: KnowledgeBaseDirectPptGenerateRequestV2,
-): Promise<ChatDirectPptGenerateResponseV2> {
-  return postV2<ChatDirectPptGenerateResponseV2, KnowledgeBaseDirectPptGenerateRequestV2>(
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectPptGenerateRequestV2>(
     '/api/chat/v2/ppt/generate',
     payload,
   );
