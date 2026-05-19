@@ -30,3 +30,12 @@ def build_default_gateway(model_id: str | None = None) -> ChatModelGateway:
         model_name=candidate["model_name"],
         fallbacks=fallbacks,
     )
+
+
+def build_agent_gateway() -> ChatModelGateway:
+    candidate = _to_gateway_candidate(Config.get_agent_model())
+    return ChatModelGateway(
+        api_base=candidate["api_base"],
+        api_key=candidate["api_key"],
+        model_name=candidate["model_name"],
+    )

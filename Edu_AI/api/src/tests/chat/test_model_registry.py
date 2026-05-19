@@ -1,4 +1,4 @@
-from app.chat.runtime.model_registry import build_default_gateway
+from app.chat.runtime.model_registry import build_agent_gateway, build_default_gateway
 
 
 def test_build_default_gateway_uses_requested_model_id():
@@ -21,3 +21,20 @@ def test_build_default_gateway_includes_fallback_candidates():
         "qwen3.5-plus",
         "openai/gpt-5.4-mini",
     ]
+
+
+def test_build_agent_gateway_uses_agent_model_config(monkeypatch):
+    monkeypatch.setattr(
+        "app.chat.runtime.model_registry.Config.get_agent_model",
+        lambda: {
+            "model_name": "agent-model",
+            "api_base": "https://agent.example/v1",
+            "api_key": "agent-key",
+        },
+    )
+
+    gateway = build_agent_gateway()
+
+    assert gateway.model_name == "agent-model"
+    assert gateway.api_base == "https://agent.example/v1"
+    assert gateway.api_key == "agent-key"

@@ -109,6 +109,134 @@ class ChatModelGateway:
 
         raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")
 
+    def stream_chat_with_tools(
+        self,
+        messages: List[Dict[str, Any]],
+        tools: List[Dict[str, Any]],
+        tool_choice: str = "auto",
+        temperature: float = 0.1,
+        max_tokens: int = 1024,
+    ) -> Iterable[Dict[str, Any]]:
+        """Streaming call with function calling support.
+
+        Yields:
+          {"type": "text_delta", "content": str}   — forwarded immediately for low TTFT
+          {"type": "tool_calls", "calls": list}     — after finish_reason=tool_calls
+          {"type": "done"}
+          {"type": "unsupported"}                   — model doesn't support tools
+          {"type": "error", "message": str}
+        """
+        errors: List[str] = []
+        for candidate in self.candidates:
+            url = f"{candidate['api_base']}/chat/completions"
+            req_payload: Dict[str, Any] = {
+                "model": candidate["model_name"],
+                "messages": messages,
+                "tools": tools,
+                "tool_choice": tool_choice,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": True,
+                **self._thinking_params(candidate["model_name"]),
+            }
+            t0 = time.perf_counter()
+            t_first: float | None = None
+            try:
+                resp = requests.post(
+                    url,
+                    headers=self._build_headers(candidate.get("api_key")),
+                    json=req_payload,
+                    stream=True,
+                    timeout=120,
+                )
+            except requests.RequestException as exc:
+                errors.append(f"{candidate['model_name']}: {exc}")
+                continue
+            if resp.status_code != 200:
+                errors.append(f"{candidate['model_name']}: HTTP {resp.status_code}")
+                continue
+
+            accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
+
+            for raw_line in resp.iter_lines(decode_unicode=False):
+                if not raw_line:
+                    continue
+                line = (raw_line.decode("utf-8", errors="replace") if isinstance(raw_line, bytes) else raw_line).strip()
+                if line.startswith("data:"):
+                    line = line[len("data:"):].strip()
+                if line == "[DONE]":
+                    break
+                try:
+                    chunk = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                choices = chunk.get("choices") or []
+                if not choices:
+                    continue
+                choice = choices[0]
+                delta = choice.get("delta") or {}
+                finish_reason = choice.get("finish_reason")
+
+                content = delta.get("content")
+                if content:
+                    if t_first is None:
+                        t_first = time.perf_counter()
+                        print(f"[AGENT] ⚡ 首token {(t_first - t0)*1000:.0f}ms", flush=True)
+                    yield {"type": "text_delta", "content": str(content)}
+
+                for tc in (delta.get("tool_calls") or []):
+                    idx = tc.get("index", 0)
+                    if idx not in accumulated_tool_calls:
+                        accumulated_tool_calls[idx] = {
+                            "id": tc.get("id", ""),
+                            "type": "function",
+                            "function": {"name": "", "arguments": ""},
+                        }
+                    fn = tc.get("function") or {}
+                    if fn.get("name"):
+                        accumulated_tool_calls[idx]["function"]["name"] += fn["name"]
+                    if fn.get("arguments"):
+                        accumulated_tool_calls[idx]["function"]["arguments"] += fn["arguments"]
+                    if tc.get("id"):
+                        accumulated_tool_calls[idx]["id"] = tc["id"]
+
+                if finish_reason == "tool_calls":
+                    calls = []
+                    for idx in sorted(accumulated_tool_calls.keys()):
+                        tc = accumulated_tool_calls[idx]
+                        try:
+                            args = json.loads(tc["function"]["arguments"] or "{}")
+                        except json.JSONDecodeError:
+                            args = {}
+                        calls.append({
+                            "id": tc["id"],
+                            "name": tc["function"]["name"],
+                            "args": args,
+                        })
+                    print(f"[AGENT] tool_calls: {[c['name'] for c in calls]} {(time.perf_counter()-t0)*1000:.0f}ms", flush=True)
+                    yield {"type": "tool_calls", "calls": calls}
+                    yield {"type": "done"}
+                    return
+
+                if finish_reason == "stop":
+                    yield {"type": "done"}
+                    return
+
+            if accumulated_tool_calls:
+                calls = []
+                for idx in sorted(accumulated_tool_calls.keys()):
+                    tc = accumulated_tool_calls[idx]
+                    try:
+                        args = json.loads(tc["function"]["arguments"] or "{}")
+                    except json.JSONDecodeError:
+                        args = {}
+                    calls.append({"id": tc["id"], "name": tc["function"]["name"], "args": args})
+                yield {"type": "tool_calls", "calls": calls}
+            yield {"type": "done"}
+            return
+
+        yield {"type": "error", "message": f"所有模型失败: {' | '.join(errors)}"}
+
     def stream_chat(
         self,
         messages: List[Dict[str, str]],

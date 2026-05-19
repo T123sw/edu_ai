@@ -17,3 +17,11 @@ def test_route_decision_for_fast_chat():
     assert decision.action == "chat.reply"
     assert decision.workflow_name is None
 
+
+def test_route_decision_for_agent_path():
+    decision = RouteDecision.agent(reason="react_agent_enabled")
+
+    assert decision.path == "agent"
+    assert decision.action == "agent.plan"
+    assert decision.workflow_name is None
+    assert decision.reason == "react_agent_enabled"

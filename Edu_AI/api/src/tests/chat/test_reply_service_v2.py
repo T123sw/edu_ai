@@ -583,6 +583,85 @@ def test_build_default_reply_service_v2_uses_request_model_id_for_gateway(monkey
     assert seen["model_id"] == "custom-model"
 
 
+def test_build_default_reply_service_v2_wires_react_agent_when_enabled(monkeypatch):
+    seen = {}
+
+    class DummyStoreImpl:
+        def ensure_conversation(self, conversation_id, question, owner=None):
+            return None
+
+        def get_messages(self, conversation_id, limit=20):
+            return []
+
+        def get_state(self, conversation_id):
+            return {}
+
+        def append_message(self, conversation_id, role, content, sources=None):
+            return None
+
+        def update_state(self, conversation_id, patch):
+            return None
+
+    class DummyGateway:
+        def chat(self, messages):
+            return "ok"
+
+    class DummyReactAgent:
+        def __init__(self, **kwargs):
+            seen["react_agent_kwargs"] = kwargs
+
+    class DummyMainOrchestrator:
+        def __init__(self, *, react_agent=None, workflow_registry=None, **kwargs):
+            seen["react_agent"] = react_agent
+            seen["workflow_registry"] = workflow_registry
+
+        def dispatch(self, request):
+            return {
+                "message": {"role": "assistant", "content": "ok"},
+                "conversation": {"conversation_id": request.conversation_id or "conv-1"},
+                "action": {"name": "chat.reply"},
+                "workflow": None,
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "fast"},
+            }
+
+    monkeypatch.setattr(
+        "app.chat.application.reply_service_v2.ConversationStoreAdapter",
+        lambda: SimpleNamespace(
+            storage=DummyStoreImpl(),
+            load_snapshot=lambda conversation_id: {"messages": [], "state": {}},
+            write_v2_result=lambda conversation_id, request, result: None,
+        ),
+    )
+    monkeypatch.setattr("app.chat.application.reply_service_v2.Config.USE_REACT_AGENT", True)
+    monkeypatch.setattr("app.chat.application.reply_service_v2.build_default_gateway", lambda model_id=None: DummyGateway())
+    monkeypatch.setattr("app.chat.application.reply_service_v2.build_agent_gateway", lambda: DummyGateway())
+    monkeypatch.setattr("app.chat.application.reply_service_v2.ReActAgent", DummyReactAgent)
+    monkeypatch.setattr("app.chat.application.reply_service_v2.MainOrchestrator", DummyMainOrchestrator)
+
+    service = build_default_reply_service_v2()
+    payload = SimpleNamespace(
+        question="hello",
+        conversation_id="conv-1",
+        model_id=None,
+        course_id=None,
+        artifact_id=None,
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+        action_hint=None,
+        owner="u1",
+    )
+
+    service.reply(payload)
+
+    assert isinstance(seen["react_agent"], DummyReactAgent)
+    assert seen["react_agent_kwargs"]["workflow_registry"] is seen["workflow_registry"]
+    assert seen["react_agent_kwargs"]["rag_retriever"] is not None
+    assert seen["react_agent_kwargs"]["web_retriever"] is not None
+
+
 def test_build_default_reply_service_v2_uses_rag_retriever_for_fast_chat(monkeypatch):
     seen = {}
 

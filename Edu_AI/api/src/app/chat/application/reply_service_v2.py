@@ -18,7 +18,9 @@ from app.chat.orchestrator.report_context_organizer import ReportContextOrganize
 from app.chat.orchestrator.status_card_builder import StatusCardBuilder
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
-from app.chat.runtime.model_registry import build_default_gateway
+from app.chat.runtime.model_registry import build_agent_gateway, build_default_gateway
+from app.chat.runtime.react_agent import ReActAgent
+from app.chat.tasks import background_runner
 from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
 from app.chat.tools.video_search import video_search_tool
 from app.chat.workflows.ppt.content_validator import PptContentValidator
@@ -36,6 +38,7 @@ from app.chat.workflows.report.edit_runtime import ReportEditRuntime
 from app.chat.workflows.report.assembler import ReportAssembler
 from app.chat.workflows.report.runtime import ReportWorkflowRuntime
 from app.workspace_scope import SCOPE_TYPE_COURSE
+from core.config import Config
 from core.course_storage import storage_manager as default_course_storage_manager
 
 from .lesson_plan_service_v2 import build_default_lesson_plan_engine
@@ -247,47 +250,61 @@ def build_default_reply_service_v2():
             web_retriever=web_search_tool,
             video_retriever=runtime_video_search_tool,
         )
+        workflow_registry = {
+            "report": ReportWorkflowRuntime(
+                engine_resolver=lambda *, request, snapshot, decision: build_default_report_engine(
+                    allow_rag=bool(getattr(request.capability, "allow_rag", False)),
+                    allow_web=bool(getattr(request.capability, "allow_web", False)),
+                ),
+                generation_context_builder=GenerationContextBuilder(),
+                report_assembler=ReportAssembler(),
+                report_context_organizer=ReportContextOrganizer(llm=get_fallback_llm()),
+                generation_readiness_judge=GenerationReadinessJudge(),
+            ),
+            "ppt": PptWorkflowRuntime(
+                generation_context_builder=GenerationContextBuilder(),
+                ppt_context_organizer=PptContextOrganizer(llm=get_fallback_llm()),
+                readiness_judge=PptReadinessJudge(),
+                outline_builder=PptOutlineBuilder(llm=get_fallback_llm()),
+                content_markdown_generator=PptContentMarkdownGenerator(llm=get_fallback_llm()),
+                content_validator=PptContentValidator(),
+                html2ppt_client_factory=lambda: Html2PptClient(
+                    base_url=os.getenv("HTML2PPT_BASE_URL", "http://127.0.0.1:46080")
+                ),
+            ),
+            "lesson_plan": LessonPlanWorkflowRuntime(
+                engine_resolver=lambda *, request, snapshot, decision: build_default_lesson_plan_engine(
+                    llm=get_fallback_llm()
+                ),
+                generation_context_builder=GenerationContextBuilder(),
+                lesson_plan_context_organizer=LessonPlanContextOrganizer(),
+                lesson_plan_readiness_judge=LessonPlanReadinessJudge(),
+            ),
+            "quiz": QuizWorkflowRuntime(
+                generation_context_builder=GenerationContextBuilder(),
+                quiz_assembler=QuizAssembler(),
+                quiz_context_organizer=QuizContextOrganizer(llm=get_fallback_llm()),
+                quiz_readiness_judge=QuizReadinessJudge(llm=get_fallback_llm()),
+                quiz_generator=QuizGenerator(llm=get_fallback_llm(), rag_fetcher=rag_search_tool),
+            ),
+        }
+        react_agent = None
+        if Config.USE_REACT_AGENT:
+            react_agent = ReActAgent(
+                agent_gateway=build_agent_gateway(),
+                fast_runtime=fast_runtime,
+                rag_retriever=rag_search_tool,
+                web_retriever=web_search_tool,
+                workflow_registry=workflow_registry,
+                background_runner=background_runner,
+                max_steps=Config.REACT_MAX_STEPS,
+                timeout_seconds=Config.REACT_TIMEOUT_SECONDS,
+            )
         return MainOrchestrator(
             fast_runtime=fast_runtime,
-            workflow_registry={
-                "report": ReportWorkflowRuntime(
-                    engine_resolver=lambda *, request, snapshot, decision: build_default_report_engine(
-                        allow_rag=bool(getattr(request.capability, "allow_rag", False)),
-                        allow_web=bool(getattr(request.capability, "allow_web", False)),
-                    ),
-                    generation_context_builder=GenerationContextBuilder(),
-                    report_assembler=ReportAssembler(),
-                    report_context_organizer=ReportContextOrganizer(llm=get_fallback_llm()),
-                    generation_readiness_judge=GenerationReadinessJudge(),
-                ),
-                "ppt": PptWorkflowRuntime(
-                    generation_context_builder=GenerationContextBuilder(),
-                    ppt_context_organizer=PptContextOrganizer(llm=get_fallback_llm()),
-                    readiness_judge=PptReadinessJudge(),
-                    outline_builder=PptOutlineBuilder(llm=get_fallback_llm()),
-                    content_markdown_generator=PptContentMarkdownGenerator(llm=get_fallback_llm()),
-                    content_validator=PptContentValidator(),
-                    html2ppt_client_factory=lambda: Html2PptClient(
-                        base_url=os.getenv("HTML2PPT_BASE_URL", "http://127.0.0.1:46080")
-                    ),
-                ),
-                "lesson_plan": LessonPlanWorkflowRuntime(
-                    engine_resolver=lambda *, request, snapshot, decision: build_default_lesson_plan_engine(
-                        llm=get_fallback_llm()
-                    ),
-                    generation_context_builder=GenerationContextBuilder(),
-                    lesson_plan_context_organizer=LessonPlanContextOrganizer(),
-                    lesson_plan_readiness_judge=LessonPlanReadinessJudge(),
-                ),
-                "quiz": QuizWorkflowRuntime(
-                    generation_context_builder=GenerationContextBuilder(),
-                    quiz_assembler=QuizAssembler(),
-                    quiz_context_organizer=QuizContextOrganizer(llm=get_fallback_llm()),
-                    quiz_readiness_judge=QuizReadinessJudge(llm=get_fallback_llm()),
-                    quiz_generator=QuizGenerator(llm=get_fallback_llm(), rag_fetcher=rag_search_tool),
-                ),
-            },
+            workflow_registry=workflow_registry,
             context_builder=context_builder,
+            react_agent=react_agent,
         )
 
     return ReplyServiceV2(

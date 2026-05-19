@@ -150,6 +150,17 @@ class Config:
     UNIVERSAL_REPORT_SKILL_TRACE = os.getenv("UNIVERSAL_REPORT_SKILL_TRACE", "0")
     QUIZ_WORKFLOW_TRACE = os.getenv("QUIZ_WORKFLOW_TRACE", "1")
 
+    # === P4-A ReAct Agent ===
+    # Agent 模型：专用于工具调用决策，读取 REACT_AGENT_MODEL，
+    # 未设置时回落到 LLM_MODEL_DEEP（即 .env 里的 deepseek-v4-flash）
+    REACT_AGENT_MODEL_NAME = os.getenv("REACT_AGENT_MODEL", os.getenv("LLM_MODEL_DEEP", "deepseek-v4-flash"))
+    REACT_AGENT_API_BASE = os.getenv("REACT_AGENT_API_BASE", os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"))
+    REACT_AGENT_API_KEY = os.getenv("REACT_AGENT_API_KEY", os.getenv("DEEPSEEK_API_KEY", ""))
+    # ReAct 行为参数（可动态调整）
+    USE_REACT_AGENT: bool = os.getenv("USE_REACT_AGENT", "true").lower() == "true"
+    REACT_MAX_STEPS: int = int(os.getenv("REACT_MAX_STEPS", "4"))
+    REACT_TIMEOUT_SECONDS: float = float(os.getenv("REACT_TIMEOUT_SECONDS", "25"))
+
     @classmethod
     def ensure_directories(cls):
         cls.STORAGE_ROOT.mkdir(parents=True, exist_ok=True)
@@ -197,6 +208,17 @@ class Config:
             if model.get("role") == "vision":
                 return model
         return cls.get_deep_model()
+
+    @classmethod
+    def get_agent_model(cls) -> Dict[str, Any]:
+        """ReAct Agent 专用模型（工具调用决策）：deepseek-v4-flash via DeepSeek 官方。"""
+        return {
+            "id": "react-agent",
+            "model_name": cls.REACT_AGENT_MODEL_NAME,
+            "api_base": cls.REACT_AGENT_API_BASE,
+            "api_key": cls.REACT_AGENT_API_KEY,
+            "role": "agent",
+        }
 
     @classmethod
     def get_public_llm_models(cls) -> List[Dict[str, Any]]:

@@ -13,9 +13,12 @@ from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.orchestrator.main_orchestrator import MainOrchestrator
 from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
-from app.chat.runtime.model_registry import build_default_gateway
+from app.chat.runtime.model_registry import build_agent_gateway, build_default_gateway
+from app.chat.runtime.react_agent import ReActAgent
+from app.chat.tasks import background_runner
 from app.chat.workflows.lesson_plan.runtime import LessonPlanWorkflowRuntime
 from app.workspace_scope import SCOPE_TYPE_COURSE, normalize_workspace_scope
+from core.config import Config
 from core.course_storage import storage_manager as default_course_storage_manager
 
 
@@ -150,10 +153,21 @@ class RouteChatService:
                 lesson_plan_context_organizer=LessonPlanContextOrganizer(),
                 lesson_plan_readiness_judge=LessonPlanReadinessJudge(),
             )
+        react_agent = None
+        if Config.USE_REACT_AGENT:
+            react_agent = ReActAgent(
+                agent_gateway=build_agent_gateway(),
+                fast_runtime=fast_runtime,
+                workflow_registry=workflow_registry,
+                background_runner=background_runner,
+                max_steps=Config.REACT_MAX_STEPS,
+                timeout_seconds=Config.REACT_TIMEOUT_SECONDS,
+            )
         orchestrator = MainOrchestrator(
             fast_runtime=fast_runtime,
             workflow_registry=workflow_registry,
             context_builder=ContextBuilder(conversation_store=self.conversation_store),
+            react_agent=react_agent,
         )
         return ChatAppService(
             normalizer=normalize_chat_request,
