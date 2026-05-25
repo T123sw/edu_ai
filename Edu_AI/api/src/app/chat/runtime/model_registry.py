@@ -39,3 +39,12 @@ def build_agent_gateway() -> ChatModelGateway:
         api_key=candidate["api_key"],
         model_name=candidate["model_name"],
     )
+
+
+def build_planner_gateway() -> ChatModelGateway:
+    """规划专用网关：使用 Qwen (阿里百炼)，响应快、成本低。"""
+    return ChatModelGateway(
+        api_base=Config.QWEN_BASE_URL,
+        api_key=Config.QWEN_API_KEY,
+        model_name=Config.VISION_MODEL_ID,
+    )

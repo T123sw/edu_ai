@@ -155,8 +155,10 @@ class RouteChatService:
             )
         react_agent = None
         if Config.USE_REACT_AGENT:
+            from app.chat.runtime.model_registry import build_planner_gateway
             react_agent = ReActAgent(
                 agent_gateway=build_agent_gateway(),
+                planner_gateway=build_planner_gateway(),
                 fast_runtime=fast_runtime,
                 workflow_registry=workflow_registry,
                 background_runner=background_runner,

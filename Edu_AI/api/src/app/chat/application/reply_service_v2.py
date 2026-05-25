@@ -290,8 +290,10 @@ def build_default_reply_service_v2():
         }
         react_agent = None
         if Config.USE_REACT_AGENT:
+            from app.chat.runtime.model_registry import build_planner_gateway
             react_agent = ReActAgent(
                 agent_gateway=build_agent_gateway(),
+                planner_gateway=build_planner_gateway(),
                 fast_runtime=fast_runtime,
                 rag_retriever=rag_search_tool,
                 web_retriever=web_search_tool,

@@ -559,9 +559,10 @@ async def upload_knowledge_base_document(
         course_dir = mgr.get_course_dir(course_id)
         full_file_path = course_dir / relative_path
         rag_system = get_rag_system()
-        rag_system.import_document(str(full_file_path), force_reimport=False)
+        rag_system.import_document(str(full_file_path), force_reimport=False, owner=owner_user_id)
+        print(f"[课程知识库] RAG导入成功 | 文件={relative_path} | 用户={owner_user_id}", flush=True)
     except Exception as exc:
-        print(f"Warning: failed to import course document into RAG: {exc}")
+        print(f"[课程知识库] RAG导入失败 | 文件={relative_path} | 错误={exc}", flush=True)
 
     latest = None
     for item in reversed(mgr.get_knowledge_base_index(course_id)):

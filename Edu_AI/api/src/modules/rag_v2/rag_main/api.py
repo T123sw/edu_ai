@@ -520,6 +520,49 @@ def _resolve_image_index_record(
     return None
 
 
+def _find_course_physical_path(file_path: str) -> Optional[Path]:
+    """Search all course directories for a file matching the given relative path."""
+    try:
+        from core.course_storage import storage_manager
+        courses_dir = storage_manager.courses_dir
+        if not courses_dir.exists():
+            return None
+        rel = str(file_path).replace("\\", "/").lstrip("/")
+        fname = Path(rel).name
+        for course_dir in courses_dir.iterdir():
+            if not course_dir.is_dir():
+                continue
+            candidate = course_dir / rel
+            if candidate.exists():
+                return candidate
+            # Also try matching just by filename inside knowledge_base/documents/
+            kb_dir = course_dir / "knowledge_base" / "documents"
+            if kb_dir.exists():
+                candidate2 = kb_dir / fname
+                if candidate2.exists():
+                    return candidate2
+    except Exception as exc:
+        print(f"[RAG文档] 搜索课程文件失败 | {exc}", flush=True)
+    return None
+
+
+def _reimport_course_file(rag_system: RAGSystem, file_path: str, username: Optional[str]) -> Optional[str]:
+    """Find file in course storage and import into RAG. Returns index_key on success."""
+    physical = _find_course_physical_path(file_path)
+    if physical is None:
+        print(f"[RAG文档] 未找到课程文件 | 路径={file_path!r}", flush=True)
+        return None
+    try:
+        print(f"[RAG文档] 自动导入 | 文件={physical} | 用户={username}", flush=True)
+        rag_system.import_document(str(physical), force_reimport=True, owner=username)
+        index_key = rag_system._make_index_key(str(physical), username)
+        print(f"[RAG文档] 导入完成 | 键={index_key}", flush=True)
+        return index_key
+    except Exception as exc:
+        print(f"[RAG文档] 自动导入失败 | {exc}", flush=True)
+        return None
+
+
 def _build_allowed_sources_for_owner(rag_system: RAGSystem, owner: Optional[str]) -> List[str]:
     if not owner:
         return []
@@ -1669,10 +1712,22 @@ async def get_document_summary(
             "无权查看该文档摘要",
         )
         if resolved is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"æœªæ‰¾åˆ°æŒ‡å®šæ–‡æ¡£: {request.file_path}",
+            tried_key = rag_system._make_index_key(request.file_path, username)
+            sample_keys = list(rag_system.document_index.keys())[:5]
+            print(
+                f"[RAG摘要] 查找失败 | 请求路径={request.file_path!r} | 尝试键={tried_key!r}"
+                f" | 索引样本={sample_keys}",
+                flush=True,
             )
+            # Fallback: auto-import from course storage
+            reimported_key = _reimport_course_file(rag_system, request.file_path, username)
+            if reimported_key:
+                resolved = _resolve_accessible_document_or_none(rag_system, reimported_key, username, "无权查看该文档摘要")
+            if resolved is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"未找到指定文档: {request.file_path}",
+                )
         index_key = resolved.index_key
         record = dict(resolved.record or {})
         
@@ -1752,6 +1807,14 @@ async def get_document_content(
         index_key = resolved.index_key if resolved else rag_system._make_index_key(file_path, username)
         record = dict(resolved.record or {}) if resolved else rag_system.document_index.get(index_key)
         if not record:
+            # 诊断日志：帮助排查路径不匹配问题
+            tried_key = rag_system._make_index_key(file_path, username)
+            sample_keys = list(rag_system.document_index.keys())[:5]
+            print(
+                f"[RAG文档] 查找失败 | 请求路径={file_path!r} | 尝试键={tried_key!r}"
+                f" | 索引样本={sample_keys}",
+                flush=True,
+            )
             image_record = _resolve_image_index_record(rag_system, file_path, username)
             if image_record is not None:
                 image_index_key, image_info = image_record
@@ -1781,7 +1844,17 @@ async def get_document_content(
                     ],
                     total_chunks=1,
                 )
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
+            # Fallback: auto-import from course storage
+            reimported_key = _reimport_course_file(rag_system, file_path, username)
+            if reimported_key:
+                resolved2 = _resolve_accessible_document_or_none(rag_system, reimported_key, username, "无权查看该文档内容")
+                if resolved2:
+                    index_key = resolved2.index_key
+                    record = dict(resolved2.record or {})
+                else:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
+            else:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
         if not _document_owner_allows_access(record, username):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该文档内容")
 

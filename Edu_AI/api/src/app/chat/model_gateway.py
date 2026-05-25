@@ -87,12 +87,12 @@ class ChatModelGateway:
                 )
             except requests.RequestException as exc:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
-                print(f"[LLM] ✗ {candidate['model_name']} 同步调用失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
+                print(f"[LLM] fail {candidate['model_name']} 同步调用失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
                 errors.append(f"{candidate['model_name']}: {exc}")
                 continue
             if resp.status_code != 200:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
-                print(f"[LLM] ✗ {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
+                print(f"[LLM] fail {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
                 errors.append(f"{candidate['model_name']}: {resp.status_code} {resp.text}")
                 continue
 
@@ -104,7 +104,7 @@ class ChatModelGateway:
                 .strip()
             )
             elapsed_ms = (time.perf_counter() - t0) * 1000
-            print(f"[LLM] ✓ {candidate['model_name']} 同步调用 {elapsed_ms:.0f}ms | {len(content)} 字符", flush=True)
+            print(f"[LLM] ok {candidate['model_name']} 同步调用 {elapsed_ms:.0f}ms | {len(content)} 字符", flush=True)
             return content
 
         raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")
@@ -153,6 +153,8 @@ class ChatModelGateway:
                 errors.append(f"{candidate['model_name']}: {exc}")
                 continue
             if resp.status_code != 200:
+                body_preview = resp.text[:400] if resp.text else ""
+                print(f"[LLM] 工具调用失败 | {candidate['model_name']} HTTP {resp.status_code} | {body_preview}", flush=True)
                 errors.append(f"{candidate['model_name']}: HTTP {resp.status_code}")
                 continue
 
@@ -181,7 +183,7 @@ class ChatModelGateway:
                 if content:
                     if t_first is None:
                         t_first = time.perf_counter()
-                        print(f"[AGENT] ⚡ 首token {(t_first - t0)*1000:.0f}ms", flush=True)
+                        print(f"[AGENT] ttft {(t_first - t0)*1000:.0f}ms", flush=True)
                     yield {"type": "text_delta", "content": str(content)}
 
                 for tc in (delta.get("tool_calls") or []):
@@ -267,12 +269,12 @@ class ChatModelGateway:
                 )
             except requests.RequestException as exc:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
-                print(f"[LLM] ✗ {candidate['model_name']} 流式连接失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
+                print(f"[LLM] fail {candidate['model_name']} 流式连接失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
                 errors.append(f"{candidate['model_name']}: {exc}")
                 continue
             if resp.status_code != 200:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
-                print(f"[LLM] ✗ {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
+                print(f"[LLM] fail {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
                 errors.append(f"{candidate['model_name']}: {resp.status_code} {resp.text}")
                 continue
 
@@ -300,12 +302,12 @@ class ChatModelGateway:
                     if t_first is None:
                         t_first = time.perf_counter()
                         ttft_ms = (t_first - t0) * 1000
-                        print(f"[LLM] ⚡ {candidate['model_name']} 首个token {ttft_ms:.0f}ms", flush=True)
+                        print(f"[LLM] ttft {candidate['model_name']} {ttft_ms:.0f}ms", flush=True)
                     token_count += 1
                     yield str(content)
 
             elapsed_ms = (time.perf_counter() - t0) * 1000
-            print(f"[LLM] ✓ {candidate['model_name']} 流式完成 {elapsed_ms:.0f}ms | {token_count} tokens", flush=True)
+            print(f"[LLM] ok {candidate['model_name']} 流式完成 {elapsed_ms:.0f}ms | {token_count} tokens", flush=True)
             return
 
         raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")
