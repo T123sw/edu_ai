@@ -25,41 +25,37 @@ from app.chat.runtime.agent_tools import (
 )
 from app.chat.runtime.agent_tools.constants import TOOL_TO_WORKFLOW
 
-AGENT_SYSTEM_PROMPT = """你是一个教学资源助手，专门帮助教师生成报告、PPT课件、教案和练习题。
+AGENT_SYSTEM_PROMPT = """你是一个教学资源助手，帮助教师生成报告、PPT课件、教案和练习题。
 
-【意图识别与工具决策】
-根据用户请求，按以下规则决定行动：
+【自主规划原则】
+接到生成任务后，自主规划完整执行路径并逐步执行，无需用户介入中间步骤。
+每次工具返回后，先评估结果质量，再决定下一步行动。
 
-▸ 用户要生成 报告/研究报告/总结 → 调用 draft_outline(resource_type=report)
-▸ 用户要生成 PPT/幻灯片/课件   → 调用 draft_outline(resource_type=ppt)
-▸ 用户要生成 教案/课程设计      → 调用 draft_outline(resource_type=lesson_plan)
-▸ 用户要生成 练习题/习题/试题   → 直接调用 generate_quiz（不需要大纲步骤）
-▸ 普通问答/概念解释/闲聊        → 直接回答，不调用任何工具
+【资源生成标准执行路径】（报告 / PPT / 教案）
+第1步 → draft_outline：起草结构化大纲
+第2步 → rag_search：检索知识库，获取相关内容和配图素材
+第3步 → （若知识库内容不足）web_search：补充联网资料
+第4步 → 向用户完整展示大纲，附上检索到的关键材料，询问是否满意或需要调整
+第5步 → 用户确认后：调用对应 generate_* 工具，传入 confirmed_outline 参数
 
-【资源生成标准流程】（报告 / PPT / 教案）
-第一步：主题明确时，立即调用 draft_outline 生成大纲，不要先问用户
-第二步：将大纲展示给用户，用一句话询问是否满意或需要调整
-第三步：用户确认后，调用对应 generate_* 工具，并传入 confirmed_outline 参数
-第四步：告知用户任务已在后台处理
+【练习题路径】直接调用 generate_quiz，无需大纲步骤。
+【普通问答/闲聊】直接回答，不调用任何工具。
+
+【每步自检规则】
+- rag_search 返回内容为空或过少 → 改用 web_search 重试
+- draft_outline 内容过短（少于200字）→ 重新调用并增大篇幅要求
+- 检索内容缺少图片/图表 → 额外调用 web_search 搜索"主题+图表"
+- generate_* 提交失败 → 说明原因，询问用户是否重试
+
+【用户确认识别】
+若历史对话中已展示过大纲，且用户当前回复表示满意/确认/好的/OK，
+则从历史中提取大纲原文作为 confirmed_outline，直接调用对应 generate_* 工具。
 
 【追问规则】
-只有主题完全不清楚时才追问，且一次最多问 2 个问题。
-主题已知时，直接进入大纲生成阶段，不要多余追问。
+主题完全不清楚时才追问，一次最多问 2 个问题。
+主题已知时直接执行第1步，不要多余追问。
 
-【语气】自然简洁，不使用"请输入确认"等命令式表达。"""
-
-_PLANNER_SYSTEM_PROMPT = """你是一个任务分解助手。将用户的任务拆解为有序执行步骤（2-4步）。
-
-输出格式（每行一个步骤）：
-步骤1: <具体操作>
-步骤2: <具体操作>
-...
-
-规则：
-- 资源生成类任务（报告/PPT/教案）：步骤固定为 起草大纲 → 用户确认 → 生成内容
-- 练习题：只需 生成练习题
-- 普通问答/闲聊：只输出"直接回答"
-- 不要输出步骤以外的任何说明文字"""
+【语气】自然简洁，不使用命令式表达。"""
 
 _WORKFLOW_LABELS = {
     "report":      "报告",
@@ -79,18 +75,31 @@ _TOOL_NAMES_CN = {
 }
 
 _ARG_KEYS_CN = {
-    "subject":          "主题",
-    "topic":            "主题",
-    "query":            "查询",
-    "confirmed_outline":"大纲",
-    "focus":            "侧重",
-    "grade":            "年级",
-    "difficulty":       "难度",
-    "question_count":   "题数",
-    "slide_count":      "页数",
-    "duration_minutes": "时长",
-    "question_types":   "题型",
-    "outline_type":     "类型",
+    "subject":           "主题",
+    "topic":             "主题",
+    "query":             "查询",
+    "confirmed_outline": "大纲",
+    "focus":             "侧重",
+    "grade":             "年级",
+    "difficulty":        "难度",
+    "question_count":    "题数",
+    "slide_count":       "页数",
+    "duration_minutes":  "时长",
+    "question_types":    "题型",
+    "outline_type":      "类型",
+}
+
+# 工具结果观察提示：引导模型评估质量并决定下一步
+_OBSERVE_HINTS = {
+    "rag_search": (
+        "\n\n【自检】请评估以上检索结果："
+        "内容是否充分？是否有图片/图表？若不足，继续调用 web_search 补充。"
+    ),
+    "web_search": (
+        "\n\n【自检】请评估以上联网结果是否满足需求。"
+        "若已充分，进行下一步。"
+    ),
+    "draft_outline": "",  # draft_outline 的提示由 _format_tool_result_for_context 单独处理
 }
 
 
@@ -121,7 +130,7 @@ class ReActAgent:
         *,
         agent_gateway,
         fast_runtime,
-        planner_gateway=None,
+        planner_gateway=None,   # 保留参数兼容性，不再使用
         rag_retriever=None,
         web_retriever=None,
         workflow_registry=None,
@@ -131,43 +140,12 @@ class ReActAgent:
     ):
         self.agent_gateway = agent_gateway
         self.fast_runtime = fast_runtime
-        self.planner_gateway = planner_gateway
         self.rag_retriever = rag_retriever
         self.web_retriever = web_retriever
         self.workflow_registry = workflow_registry or {}
         self.background_runner = background_runner
         self.max_steps = max_steps if max_steps is not None else Config.REACT_MAX_STEPS
         self.timeout_seconds = timeout_seconds if timeout_seconds is not None else Config.REACT_TIMEOUT_SECONDS
-
-    def _plan_task(self, question: str) -> list[str]:
-        """调用快速模型对任务做分解，返回有序步骤列表；普通问答返回空列表。"""
-        if not question.strip():
-            return []
-        try:
-            t0 = time.perf_counter()
-            gateway = self.planner_gateway or getattr(self.fast_runtime, "model_gateway", None)
-            if gateway is None:
-                return []
-            raw = gateway.chat(
-                [
-                    {"role": "system", "content": _PLANNER_SYSTEM_PROMPT},
-                    {"role": "user", "content": question},
-                ],
-                temperature=0.1,
-                max_tokens=120,
-            )
-            plan_ms = round((time.perf_counter() - t0) * 1000)
-            lines = [l.strip() for l in raw.strip().splitlines() if l.strip()]
-            if not lines or lines[0] == "直接回答":
-                print(f"[智能体] 规划   | 普通问答，跳过工具  {plan_ms}ms", flush=True)
-                return []
-            for line in lines:
-                print(f"[智能体] 规划   | {line}", flush=True)
-            print(f"[智能体] 规划   | 共{len(lines)}步  {plan_ms}ms", flush=True)
-            return lines
-        except Exception as exc:
-            print(f"[智能体] 规划   | 分解失败，继续执行  {exc}", flush=True)
-            return []
 
     def run_stream(self, *, request, snapshot) -> Iterator[dict]:
         t_start = time.perf_counter()
@@ -176,22 +154,9 @@ class ReActAgent:
 
         username = str(getattr(request, "owner", "") or "匿名")
         question = str(getattr(request, "question", "") or "")
-        q_preview = question[:40]
-        print(f"[智能体] 开始   | 用户={username}  问题=\"{q_preview}\"", flush=True)
+        print(f"[智能体] 开始   | 用户={username}  问题=\"{question[:40]}\"", flush=True)
 
         yield {"type": "status", "payload": {"stage": "thinking", "label": "正在分析请求..."}}
-
-        # 规划阶段：分解任务
-        plan_steps = self._plan_task(question)
-        if plan_steps:
-            yield {
-                "type": "status",
-                "payload": {
-                    "stage": "planning",
-                    "label": f"任务已分解为{len(plan_steps)}个步骤",
-                    "steps": plan_steps,
-                },
-            }
 
         tool_schemas = build_tool_schemas(capability)
         ctx = ToolExecutionContext(
@@ -209,7 +174,7 @@ class ReActAgent:
         ctx.trace["path"] = "agent"
         ctx.trace["_t_start"] = t_start
 
-        messages = self._build_messages(request, snapshot, plan_steps=plan_steps)
+        messages = self._build_messages(request, snapshot)
 
         try:
             yield from self._react_loop(messages, tool_schemas, ctx, request, snapshot, t_start)
@@ -243,34 +208,40 @@ class ReActAgent:
 
             step += 1
             t_llm = time.perf_counter()
+            t_first: float | None = None
+            tool_calls_event = None
+            should_fallback: tuple | None = None  # (reason,)
 
-            events = list(stream_fn(
+            # 改动 A：真正流式，text_delta 立即 yield，不再 list() 阻塞
+            for e in stream_fn(
                 messages,
                 tool_schemas,
                 tool_choice="auto",
                 temperature=0.1,
-                max_tokens=1024,
-            ))
-
-            llm_ms = round((time.perf_counter() - t_llm) * 1000)
-
-            if any(e["type"] == "unsupported" for e in events):
-                yield from self._fallback(request, snapshot, reason="unsupported_function_calling")
-                return
-
-            if any(e["type"] == "error" for e in events):
-                err_msg = next((e["message"] for e in events if e["type"] == "error"), "未知错误")
-                yield from self._fallback(request, snapshot, reason=f"llm_error: {err_msg}")
-                return
-
-            tool_calls_event = None
-            for e in events:
-                if e["type"] == "text_delta":
+                max_tokens=2048,   # 改动 E：1024 → 2048，避免大纲截断
+            ):
+                etype = e["type"]
+                if etype == "text_delta":
+                    if t_first is None:
+                        t_first = time.perf_counter()
+                        print(f"[智能体] 第{step}轮   | ttft {(t_first - t_llm)*1000:.0f}ms", flush=True)
                     answer_chunks.append(e["content"])
                     yield {"type": "delta", "payload": {"content": e["content"]}}
-                elif e["type"] == "tool_calls":
+                elif etype == "tool_calls":
                     tool_calls_event = e
+                elif etype == "error":
+                    should_fallback = (f"llm_error: {e['message']}",)
+                    break
+                elif etype == "unsupported":
+                    should_fallback = ("unsupported_function_calling",)
+                    break
+                # "done" → 内层循环自然结束
 
+            if should_fallback:
+                yield from self._fallback(request, snapshot, reason=should_fallback[0])
+                return
+
+            llm_ms = round((time.perf_counter() - t_llm) * 1000)
             if tool_calls_event is not None:
                 tool_names_cn = [_TOOL_NAMES_CN.get(c["name"], c["name"]) for c in tool_calls_event["calls"]]
                 print(f"[智能体] 第{step}轮   | {llm_ms}ms  调用工具: {'、'.join(tool_names_cn)}", flush=True)
@@ -286,9 +257,7 @@ class ReActAgent:
                 tool_args = call["args"]
                 call_id = call.get("id") or f"call_{tool_name}"
 
-                tool_name_cn = _TOOL_NAMES_CN.get(tool_name, tool_name)
-                print(f"[智能体] 调用    | {tool_name_cn}  {_fmt_tool_args(tool_args)}", flush=True)
-
+                print(f"[智能体] 调用    | {_TOOL_NAMES_CN.get(tool_name, tool_name)}  {_fmt_tool_args(tool_args)}", flush=True)
                 yield {"type": "tool_call", "payload": {"tool": tool_name, "args": tool_args}}
 
                 t_tool = time.perf_counter()
@@ -323,11 +292,10 @@ class ReActAgent:
                             },
                         }
 
-                tool_result_content = _format_tool_result_for_context(tool_name, result)
                 tool_results_for_messages.append({
                     "tool_call_id": call_id,
                     "role": "tool",
-                    "content": tool_result_content,
+                    "content": _format_tool_result_for_context(tool_name, result),
                 })
 
             messages = messages + [
@@ -366,25 +334,34 @@ class ReActAgent:
             },
         }
 
-    def _build_messages(self, request, snapshot, *, plan_steps: list[str] = ()) -> list[dict]:
+    def _build_messages(self, request, snapshot) -> list[dict]:
+        """构建消息列表，完整保留历史（含 tool_calls 轮次）。"""
         recent = list(getattr(snapshot, "recent_messages", []) or [])
         history = []
         for msg in recent:
-            role = str((msg.get("role") if isinstance(msg, dict) else getattr(msg, "role", "user")) or "user")
-            content = str((msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", "")) or "")
-            if content:
-                history.append({"role": role, "content": content})
+            if isinstance(msg, dict):
+                role = str(msg.get("role") or "user")
+                content = msg.get("content")
+                tool_calls = msg.get("tool_calls")
+                tool_call_id = msg.get("tool_call_id")
+            else:
+                role = str(getattr(msg, "role", "user") or "user")
+                content = getattr(msg, "content", None)
+                tool_calls = getattr(msg, "tool_calls", None)
+                tool_call_id = getattr(msg, "tool_call_id", None)
 
-        system_content = AGENT_SYSTEM_PROMPT
-        if plan_steps:
-            plan_text = "\n".join(plan_steps)
-            system_content += (
-                f"\n\n【本次任务分解计划】\n{plan_text}\n"
-                "请严格按此计划逐步执行，当前执行第一步。"
-            )
+            content_str = str(content) if content is not None else ""
+
+            # 改动 B：保留工具调用轮次，让 agent 知道上轮做了什么
+            if role == "assistant" and tool_calls:
+                history.append({"role": "assistant", "content": None, "tool_calls": tool_calls})
+            elif role == "tool" and tool_call_id:
+                history.append({"role": "tool", "tool_call_id": tool_call_id, "content": content_str})
+            elif content_str:
+                history.append({"role": role, "content": content_str})
 
         return [
-            {"role": "system", "content": system_content},
+            {"role": "system", "content": AGENT_SYSTEM_PROMPT},
             *history,
             {"role": "user", "content": str(getattr(request, "question", "") or "")},
         ]
@@ -398,19 +375,28 @@ class ReActAgent:
 
 
 def _format_tool_result_for_context(tool_name: str, result: dict) -> str:
+    """格式化工具结果，附加自检观察提示（改动 D）。"""
     if not result.get("ok"):
         return f"工具 {tool_name} 执行失败: {result.get('error', '未知错误')}"
+
     payload = result.get("payload", {})
+
     if tool_name == "rag_search":
-        return f"知识库检索结果：\n{payload.get('answer', '无内容')}"
+        content = f"知识库检索结果：\n{payload.get('answer', '无内容')}"
+        return content + _OBSERVE_HINTS["rag_search"]
+
     if tool_name == "web_search":
-        return f"联网检索结果：\n{payload.get('summary', '无内容')}"
+        content = f"联网检索结果：\n{payload.get('summary', '无内容')}"
+        return content + _OBSERVE_HINTS["web_search"]
+
     if tool_name == "draft_outline":
-        outline = payload.get('outline_markdown', '')
+        outline = payload.get("outline_markdown", "")
         return (
             f"大纲已生成，请在回复中将以下大纲内容**完整逐字输出**给用户，"
-            f"然后用一句话询问是否满意或需要调整，不要省略或摘要大纲正文：\n\n{outline}"
+            f"然后说明你接下来会检索相关材料，不要省略大纲正文：\n\n{outline}"
         )
+
     if tool_name in TOOL_TO_WORKFLOW:
         return f"已提交后台任务，task_id={payload.get('task_id', '')}"
+
     return result.get("summary", "")
