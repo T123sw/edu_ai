@@ -48,3 +48,13 @@ def build_planner_gateway() -> ChatModelGateway:
         api_key=Config.QWEN_API_KEY,
         model_name=Config.VISION_MODEL_ID,
     )
+
+
+def build_vision_gateway() -> ChatModelGateway:
+    """视觉反思网关：使用多模态模型检查图片质量。"""
+    candidate = _to_gateway_candidate(Config.get_vision_model())
+    return ChatModelGateway(
+        api_base=candidate["api_base"],
+        api_key=candidate["api_key"],
+        model_name=candidate["model_name"],
+    )
