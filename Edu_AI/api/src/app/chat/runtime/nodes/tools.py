@@ -1,0 +1,151 @@
+from __future__ import annotations
+
+import json
+import time
+
+from langgraph.config import get_config, get_stream_writer
+
+from app.chat.runtime.agent_tools import ToolExecutionContext, execute_tool
+from app.chat.runtime.agent_tools.constants import TOOL_TO_WORKFLOW
+from app.chat.runtime.graph.state import AgentState
+from app.chat.runtime.nodes.constants import (
+    _ARG_KEYS_CN,
+    _OBSERVE_HINTS,
+    _TOOL_NAMES_CN,
+    _WORKFLOW_LABELS,
+)
+
+
+def _fmt_tool_args(args: dict) -> str:
+    parts = []
+    for k, v in list(args.items())[:4]:
+        if v is None or v == "" or v == []:
+            continue
+        if k == "confirmed_outline":
+            v_str = str(v)
+            parts.append(f"大纲=({len(v_str)}字)")
+        else:
+            v_str = str(v)
+            if len(v_str) > 16:
+                v_str = v_str[:16] + "..."
+            parts.append(f"{_ARG_KEYS_CN.get(k, k)}={v_str!r}")
+    return "  ".join(parts)
+
+
+def _format_tool_result_for_context(tool_name: str, result: dict) -> str:
+    if not result.get("ok"):
+        return f"工具 {tool_name} 执行失败: {result.get('error', '未知错误')}"
+
+    payload = result.get("payload", {})
+
+    if tool_name == "rag_search":
+        content = f"知识库检索结果：\n{payload.get('answer', '无内容')}"
+        return content + _OBSERVE_HINTS["rag_search"]
+
+    if tool_name == "web_search":
+        content = f"联网检索结果：\n{payload.get('summary', '无内容')}"
+        return content + _OBSERVE_HINTS["web_search"]
+
+    if tool_name == "draft_outline":
+        outline = payload.get("outline_markdown", "")
+        return (
+            f"大纲已生成，请在回复中将以下大纲内容**完整逐字输出**给用户，"
+            f"然后说明你接下来会检索相关材料，不要省略大纲正文：\n\n{outline}"
+        )
+
+    if tool_name in TOOL_TO_WORKFLOW:
+        return f"已提交后台任务，task_id={payload.get('task_id', '')}"
+
+    return result.get("summary", "")
+
+
+def tools_node(state: AgentState) -> dict:
+    writer = get_stream_writer()
+    rt = get_config()["configurable"]["runtime"]
+    ctx: ToolExecutionContext = rt["ctx"]
+
+    last_msg = state["messages"][-1]
+    tool_calls_openai = last_msg.get("tool_calls") or []
+
+    calls = [
+        {
+            "id": tc.get("id"),
+            "name": tc.get("function", {}).get("name") or "",
+            "args": json.loads(tc.get("function", {}).get("arguments") or "{}"),
+        }
+        for tc in tool_calls_openai
+    ]
+
+    tool_results_msgs: list[dict] = []
+    new_tool_exchange = list(state["tool_exchange"])
+    new_tool_exchange.append(last_msg)
+
+    new_active_draft_outline = state.get("active_draft_outline")
+    new_pending_tasks = list(state.get("pending_tasks") or [])
+    raw_results_for_reflect: list[dict] = []
+
+    for call in calls:
+        tool_name = call["name"]
+        tool_args = call["args"]
+        call_id = call.get("id") or f"call_{tool_name}"
+
+        print(f"[智能体] 调用 | {_TOOL_NAMES_CN.get(tool_name, tool_name)}  {_fmt_tool_args(tool_args)}", flush=True)
+
+        t_tool = time.perf_counter()
+        result = execute_tool(tool_name, tool_args, ctx)
+        tool_ms = round((time.perf_counter() - t_tool) * 1000)
+        raw_results_for_reflect.append({"tool_name": tool_name, "raw_result": result})
+
+        ok_label = "成功" if result.get("ok") else "失败"
+        summary = str(result.get("summary", ""))[:40]
+        payload = result.get("payload") or {}
+        task_hint = (
+            f"  任务={str(payload.get('task_id', ''))[:10]}"
+            if isinstance(payload, dict) and payload.get("task_id")
+            else ""
+        )
+        print(f"[智能体] 结果 | {ok_label}  {summary}  {tool_ms}ms{task_hint}", flush=True)
+
+        writer({"type": "tool_result", "payload": {
+            "tool": tool_name,
+            "summary": result.get("summary", ""),
+            "ok": result.get("ok", False),
+        }})
+
+        if result.get("ok") and tool_name in TOOL_TO_WORKFLOW:
+            task_id = str(payload.get("task_id", ""))
+            workflow_type = str(payload.get("workflow_type", ""))
+            if task_id:
+                label = _WORKFLOW_LABELS.get(workflow_type, "内容")
+                writer({
+                    "type": "task_submitted",
+                    "payload": {
+                        "task_id": task_id,
+                        "workflow_type": workflow_type,
+                        "message": f"正在后台生成{label}，可通过任务ID查询进度",
+                    },
+                })
+                new_pending_tasks.append({"task_id": task_id, "workflow_type": workflow_type})
+
+        if tool_name == "draft_outline" and result.get("ok"):
+            new_active_draft_outline = {
+                "subject": str(payload.get("subject", "")),
+                "resource_type": str(payload.get("resource_type", "report")),
+                "outline_markdown": str(payload.get("outline_markdown", "")),
+            }
+
+        tool_result_msg = {
+            "role": "tool",
+            "tool_call_id": call_id,
+            "content": _format_tool_result_for_context(tool_name, result),
+        }
+        tool_results_msgs.append(tool_result_msg)
+        new_tool_exchange.append(tool_result_msg)
+
+    return {
+        "messages": state["messages"] + tool_results_msgs,
+        "tool_exchange": new_tool_exchange,
+        "active_draft_outline": new_active_draft_outline,
+        "pending_tasks": new_pending_tasks,
+        "last_tool_results": raw_results_for_reflect,
+    }

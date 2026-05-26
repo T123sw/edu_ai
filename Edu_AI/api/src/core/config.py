@@ -80,6 +80,7 @@ class Config:
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
     AI_LECTURER_AUTOSTART = os.getenv("AI_LECTURER_AUTOSTART", "1")
     AI_LECTURER_OFFLINE_ENABLED = os.getenv("AI_LECTURER_OFFLINE_ENABLED", "1")
+    AI_LECTURER_TRANSFER_MODE = os.getenv("AI_LECTURER_TRANSFER_MODE", "upload").strip().lower()
     AI_LECTURER_GATEWAY_URL = os.getenv("AI_LECTURER_GATEWAY_URL", "http://127.0.0.1:8008")
     AI_LECTURER_LIVETALKING_URL = os.getenv("AI_LECTURER_LIVETALKING_URL", "http://127.0.0.1:8010")
     AI_LECTURER_ENTRYPOINT = os.getenv(
@@ -151,11 +152,23 @@ class Config:
     QUIZ_WORKFLOW_TRACE = os.getenv("QUIZ_WORKFLOW_TRACE", "1")
 
     # === P4-A ReAct Agent ===
-    # Agent 模型：专用于工具调用决策，读取 REACT_AGENT_MODEL，
-    # 未设置时回落到 LLM_MODEL_DEEP（即 .env 里的 deepseek-v4-flash）
+    # 旧配置（保留兼容性）
     REACT_AGENT_MODEL_NAME = os.getenv("REACT_AGENT_MODEL", os.getenv("LLM_MODEL_DEEP", "deepseek-v4-flash"))
     REACT_AGENT_API_BASE = os.getenv("REACT_AGENT_API_BASE", os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"))
     REACT_AGENT_API_KEY = os.getenv("REACT_AGENT_API_KEY", os.getenv("DEEPSEEK_API_KEY", ""))
+
+    # Agent Planner 模型（负责任务规划，推理能力优先）
+    # 默认指向 Qwen（DEEP_MODEL_API_*），后续可在 .env 中独立切换更强的推理模型
+    AGENT_PLANNER_MODEL    = os.getenv("AGENT_PLANNER_MODEL",    LLM_MODEL_DEEP)
+    AGENT_PLANNER_API_BASE = os.getenv("AGENT_PLANNER_API_BASE", DEEP_MODEL_API_BASE)
+    AGENT_PLANNER_API_KEY  = os.getenv("AGENT_PLANNER_API_KEY",  DEEP_MODEL_API_KEY)
+
+    # Agent Executor 模型（负责工具调用决策，响应速度优先）
+    # 默认指向 Qwen（DEEP_MODEL_API_*），后续可在 .env 中独立切换更快的模型
+    AGENT_EXECUTOR_MODEL    = os.getenv("AGENT_EXECUTOR_MODEL",    LLM_MODEL_DEEP)
+    AGENT_EXECUTOR_API_BASE = os.getenv("AGENT_EXECUTOR_API_BASE", DEEP_MODEL_API_BASE)
+    AGENT_EXECUTOR_API_KEY  = os.getenv("AGENT_EXECUTOR_API_KEY",  DEEP_MODEL_API_KEY)
+
     # ReAct 行为参数（可动态调整）
     USE_REACT_AGENT: bool = os.getenv("USE_REACT_AGENT", "true").lower() == "true"
     REACT_MAX_STEPS: int = int(os.getenv("REACT_MAX_STEPS", "4"))

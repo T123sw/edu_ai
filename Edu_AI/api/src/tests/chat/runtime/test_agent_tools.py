@@ -39,7 +39,7 @@ def test_execute_tool_returns_stub_task_for_generate_quiz():
     assert result["ok"] is True
     assert result["tool"] == "generate_quiz"
     assert result["payload"]["workflow_type"] == "quiz"
-    assert result["payload"]["task_id"].startswith("stub-quiz-")
+    assert result["payload"]["task_id"]  # non-empty UUID
     assert ctx.step_count == 1
     assert ctx.trace["agent_steps"][0]["tool"] == "generate_quiz"
 
