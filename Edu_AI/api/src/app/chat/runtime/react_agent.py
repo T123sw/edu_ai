@@ -29,7 +29,8 @@ class ReActAgent:
         *,
         agent_gateway,
         fast_runtime,
-        planner_gateway=None,   # kept for call-site compatibility
+        planner_gateway=None,   # None → falls back to agent_gateway
+        vision_gateway=None,    # None → VisionReflector disabled
         rag_retriever=None,
         web_retriever=None,
         workflow_registry=None,
@@ -39,7 +40,8 @@ class ReActAgent:
     ):
         self.agent_gateway = agent_gateway
         self.fast_runtime = fast_runtime
-        self.planner_gateway = planner_gateway  # None → falls back to agent_gateway
+        self.planner_gateway = planner_gateway
+        self.vision_gateway = vision_gateway
         self.rag_retriever = rag_retriever
         self.web_retriever = web_retriever
         self.workflow_registry = workflow_registry or {}
@@ -99,6 +101,7 @@ class ReActAgent:
         rt = {
             "agent_gateway": self.agent_gateway,
             "planner_gateway": effective_planner_gateway,
+            "vision_gateway": self.vision_gateway,
             "capability": capability,
             "tool_schemas": tool_schemas,
             "request": request,

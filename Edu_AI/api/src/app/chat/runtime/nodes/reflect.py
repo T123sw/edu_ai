@@ -14,6 +14,8 @@ def reflect_node(state: AgentState) -> dict:
     if not last_tool_results:
         return {"reflect_verdict": "pass", "reflect_hint": "", "reflect_filtered": {}}
 
+    pipeline = _build_pipeline()
+
     plan_step_index = state.get("plan_step_index") or 0
     current_plan = state.get("current_plan")
 
@@ -27,7 +29,6 @@ def reflect_node(state: AgentState) -> dict:
     max_per_step: int = plan_gc.get("max_retries_per_step", 2)
     max_total: int = plan_gc.get("max_total_reflect_retries", 4)
 
-    pipeline = ReflectorPipeline.default()
     new_retry_counts = dict(state.get("retry_counts") or {})
 
     worst_verdict = "pass"
@@ -47,7 +48,6 @@ def reflect_node(state: AgentState) -> dict:
                 total = sum(new_retry_counts.values())
 
                 if current_count >= max_per_step or total >= max_total:
-                    # Retry limit hit — downgrade
                     if v.verdict == "retry":
                         v = ReflectVerdict(
                             verdict="pass_with_warning",
@@ -63,7 +63,6 @@ def reflect_node(state: AgentState) -> dict:
                 else:
                     new_retry_counts[key] = current_count + 1
 
-            # Track worst verdict
             if _VERDICT_PRIORITY.get(v.verdict, 0) > _VERDICT_PRIORITY.get(worst_verdict, 0):
                 worst_verdict = v.verdict
 
@@ -86,10 +85,69 @@ def reflect_node(state: AgentState) -> dict:
         flush=True,
     )
 
-    return {
+    updates: dict = {
         "reflect_verdict": worst_verdict,
         "reflect_hint": combined_hint,
         "reflect_filtered": combined_filtered,
         "retry_counts": new_retry_counts,
-        "last_tool_results": [],  # consumed — clear for next tools_node run
+        "last_tool_results": [],  # consumed — clear
     }
+
+    # guided mode: advance plan_step_index when step passes
+    _maybe_advance_step(writer, state, worst_verdict, updates)
+
+    return updates
+
+
+def _build_pipeline() -> ReflectorPipeline:
+    """Select pipeline tier based on available gateways in runtime config."""
+    try:
+        from langgraph.config import get_config as _get_config
+        rt = _get_config()["configurable"]["runtime"]
+        llm_gateway = rt.get("agent_gateway")
+        vision_gateway = rt.get("vision_gateway")
+        if vision_gateway:
+            return ReflectorPipeline.with_vision(llm_gateway, vision_gateway)
+        if llm_gateway:
+            return ReflectorPipeline.with_llm(llm_gateway)
+    except Exception:
+        pass  # running outside graph context (unit tests, etc.)
+    return ReflectorPipeline.default()
+
+
+def _maybe_advance_step(writer, state: dict, worst_verdict: str, updates: dict) -> None:
+    """In guided mode, advance plan_step_index when a step passes reflect."""
+    if state.get("plan_mode") != "guided":
+        return
+    if worst_verdict not in ("pass", "pass_with_warning"):
+        return
+
+    current_plan = state.get("current_plan")
+    if not current_plan:
+        return
+
+    steps = current_plan.get("steps", [])
+    idx = state.get("plan_step_index", 0)
+    if not (0 <= idx < len(steps)):
+        return
+
+    step = steps[idx]
+
+    # Mark current step as done in the plan dict
+    updated_steps = list(steps)
+    updated_steps[idx] = dict(step, status="done")
+    updated_plan = dict(current_plan, steps=updated_steps)
+
+    writer({
+        "type": "plan_step_update",
+        "payload": {
+            "step_index": idx,
+            "status": "done",
+            "user_title": step.get("user_title", ""),
+        },
+    })
+
+    print(f"[规划] 步骤 {idx + 1}/{len(steps)} 完成 → 推进到步骤 {idx + 2}", flush=True)
+
+    updates["current_plan"] = updated_plan
+    updates["plan_step_index"] = idx + 1

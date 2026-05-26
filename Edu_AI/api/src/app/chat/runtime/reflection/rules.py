@@ -120,7 +120,40 @@ class ReflectorPipeline:
 
     @classmethod
     def default(cls) -> "ReflectorPipeline":
+        """Code-rules only — no LLM/Vision calls."""
         return cls([LengthReflector(), SourcesReflector(), ChapterCountReflector()])
+
+    @classmethod
+    def with_llm(cls, llm_gateway) -> "ReflectorPipeline":
+        """Code rules + LLM content/coherence checkers (Phase 3)."""
+        from app.chat.runtime.reflection.llm_eval import (
+            ContentRelevanceReflector,
+            OutlineCoherenceReflector,
+        )
+        return cls([
+            LengthReflector(),
+            SourcesReflector(),
+            ChapterCountReflector(),
+            ContentRelevanceReflector(llm_gateway),
+            OutlineCoherenceReflector(llm_gateway),
+        ])
+
+    @classmethod
+    def with_vision(cls, llm_gateway, vision_gateway) -> "ReflectorPipeline":
+        """Code rules + LLM + Vision (Phase 3 full)."""
+        from app.chat.runtime.reflection.llm_eval import (
+            ContentRelevanceReflector,
+            OutlineCoherenceReflector,
+        )
+        from app.chat.runtime.reflection.vision import VisionReflector
+        return cls([
+            LengthReflector(),
+            SourcesReflector(),
+            ChapterCountReflector(),
+            ContentRelevanceReflector(llm_gateway),
+            OutlineCoherenceReflector(llm_gateway),
+            VisionReflector(vision_gateway),
+        ])
 
     def evaluate_all(
         self,

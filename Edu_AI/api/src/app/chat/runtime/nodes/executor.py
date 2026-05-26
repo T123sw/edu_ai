@@ -16,10 +16,15 @@ def executor_node(state: AgentState) -> dict:
     ctx: ToolExecutionContext = rt["ctx"]
 
     messages: list = _inject_reflect_hint(state["messages"], state)
+    messages = _inject_plan_step_hint(messages, state)
+
     t_start: float = rt["t_start"]
     timeout_seconds: float = rt["timeout_seconds"]
     agent_gateway = rt["agent_gateway"]
     tool_schemas: list = rt["tool_schemas"]
+
+    # Emit plan step "running" at start of each executor turn (guided mode)
+    _emit_step_running(writer, state)
 
     if (time.perf_counter() - t_start) > timeout_seconds:
         writer({"type": "__internal_fallback__", "reason": "react_timeout"})
@@ -122,13 +127,60 @@ def executor_node(state: AgentState) -> dict:
     }
 
 
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+def _emit_step_running(writer, state: dict) -> None:
+    """Emit plan_step_update 'running' when guided mode and a valid step exists."""
+    if state.get("plan_mode") != "guided":
+        return
+    current_plan = state.get("current_plan")
+    if not current_plan:
+        return
+    steps = current_plan.get("steps", [])
+    idx = state.get("plan_step_index", 0)
+    if not (0 <= idx < len(steps)):
+        return
+    writer({
+        "type": "plan_step_update",
+        "payload": {
+            "step_index": idx,
+            "status": "running",
+            "user_title": steps[idx].get("user_title", ""),
+        },
+    })
+
+
+def _inject_plan_step_hint(messages: list, state: dict) -> list:
+    """In guided mode, inject current step info before the user message."""
+    if state.get("plan_mode") != "guided":
+        return messages
+    current_plan = state.get("current_plan")
+    if not current_plan:
+        return messages
+    steps = current_plan.get("steps", [])
+    idx = state.get("plan_step_index", 0)
+    if not (0 <= idx < len(steps)):
+        return messages
+    step = steps[idx]
+    tools_str = "、".join(step.get("expected_tools", [])) or "无特定工具"
+    hint = (
+        f"【当前执行步骤 {idx + 1}/{len(steps)}】\n"
+        f"任务：{step.get('user_title', '')}\n"
+        f"预期工具：{tools_str}\n"
+        "请专注完成此步骤，不要跳步。"
+    )
+    note = {"role": "system", "content": hint}
+    if len(messages) >= 2:
+        return messages[:-1] + [note, messages[-1]]
+    return messages + [note]
+
+
 def _inject_reflect_hint(messages: list, state: dict) -> list:
-    """If reflect found an issue last step, prepend a system note so executor knows."""
+    """If reflect found an issue, prepend a system note so executor knows."""
     hint = state.get("reflect_hint", "")
     if not hint:
         return messages
     note = {"role": "system", "content": f"【上一步自检提示】{hint}"}
-    # Insert before the last user message (keep system prompt at index 0)
     if len(messages) >= 2:
         return messages[:-1] + [note, messages[-1]]
     return messages + [note]

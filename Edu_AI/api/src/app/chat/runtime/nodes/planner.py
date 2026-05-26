@@ -34,7 +34,7 @@ def planner_node(state: AgentState) -> dict:
         return {
             "current_plan": out,
             "plan_step_index": 0,
-            "plan_mode": "display_only",
+            "plan_mode": "guided",   # Phase 3: executor follows plan steps
             "needs_planning": False,
             "reflect_verdict": "",
             "reflect_hint": "",
