@@ -21,7 +21,7 @@ def executor_node(state: AgentState) -> dict:
     t_start: float = rt["t_start"]
     timeout_seconds: float = rt["timeout_seconds"]
     agent_gateway = rt["agent_gateway"]
-    tool_schemas: list = rt["tool_schemas"]
+    tool_schemas: list = _filter_tool_schemas_for_step(rt["tool_schemas"], state)
 
     # Emit plan step "running" at start of each executor turn (guided mode)
     _emit_step_running(writer, state)
@@ -128,6 +128,25 @@ def executor_node(state: AgentState) -> dict:
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
+
+def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
+    """In strict mode, narrow tool_schemas to current step's expected_tools."""
+    if state.get("plan_mode") != "strict":
+        return tool_schemas
+    current_plan = state.get("current_plan")
+    if not current_plan:
+        return tool_schemas
+    steps = current_plan.get("steps", [])
+    idx = state.get("plan_step_index", 0)
+    if not (0 <= idx < len(steps)):
+        return tool_schemas
+    expected = steps[idx].get("expected_tools") or []
+    if not expected:
+        return tool_schemas
+    from app.chat.runtime.agent_tools.schemas import filter_schemas_by_step
+    filtered = filter_schemas_by_step(tool_schemas, expected)
+    return filtered if filtered else tool_schemas
+
 
 def _emit_step_running(writer, state: dict) -> None:
     """Emit plan_step_update 'running' when guided mode and a valid step exists."""

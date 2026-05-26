@@ -1,7 +1,7 @@
 # Agent 架构设计文档
 
 > 版本：2026-05-26 v4  
-> 状态：Phase 2-A ✅ Phase 2-B ✅ Phase 2-C ✅ Phase 3 ✅ Phase 4（真实引擎接入）✅ | Phase 5（远期）待实现
+> 状态：Phase 2-A ✅ Phase 2-B ✅ Phase 2-C ✅ Phase 3 ✅ Phase 4 ✅ Phase 5（strict + ToolMeta + 并行执行）✅ | Phase 6（Supervisor / L3 记忆）待实现
 
 ---
 
@@ -550,12 +550,20 @@ AGENT_EXECUTOR_MODEL=qwen-turbo
 - [x] `ReActAgent` 接入 vision_gateway / rag_retriever / web_retriever
 - [x] 反模式检查通过（无 WorkflowRuntime / stub-* / _agent_params 引用）
 
-### Phase 5（远期）
+### Phase 5：strict 模式 + ToolMeta + 并行执行 ✅
 
-- [ ] `plan_mode="strict"`（路由层强制按 step 顺序）
-- [ ] ToolMeta（parallel_safe, depends_on, mutates_state 完整元信息）
-- [ ] Supervisor + 多 Agent（并行生成多种资源）
+- [x] `plan_mode="strict"`：executor 只看到当前 step 的 expected_tools（schema 过滤）
+- [x] tools_node 强制校验：越界调用被替换为 strict_violation 错误（LLM 会自我纠正）
+- [x] `ToolMeta`：parallel_safe / mutates_state / depends_on
+- [x] 并行执行：parallel_safe 的工具组使用 ThreadPoolExecutor 并发
+- [x] 17 个 Phase 5 测试覆盖
+
+### Phase 6（远期）
+
+- [ ] Supervisor + 多 Agent（并行生成多种资源，如 PPT + 配套教案）
 - [ ] L3 长期用户记忆（跨会话偏好学习）
+- [ ] 前端展示 step 状态（pending / running / done / failed）— 前端任务
+- [ ] HITL 中间件（用户在关键节点介入）
 
 ---
 

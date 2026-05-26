@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from langgraph.config import get_config, get_stream_writer
 
 from app.chat.runtime.agent_tools import ToolExecutionContext, execute_tool
 from app.chat.runtime.agent_tools.constants import TOOL_TO_WORKFLOW
+from app.chat.runtime.agent_tools.tool_meta import is_parallel_safe
 from app.chat.runtime.graph.state import AgentState
 from app.chat.runtime.nodes.constants import (
     _ARG_KEYS_CN,
@@ -84,16 +86,32 @@ def tools_node(state: AgentState) -> dict:
     new_pending_tasks = list(state.get("pending_tasks") or [])
     raw_results_for_reflect: list[dict] = []
 
-    for call in calls:
+    # Strict-mode validation: reject any call outside current step's expected_tools
+    calls = _enforce_strict_mode(calls, state)
+
+    tool_names = [c["name"] for c in calls]
+    parallel_eligible = len(calls) > 1 and is_parallel_safe(tool_names)
+    if parallel_eligible:
+        print(f"[智能体] 并行执行 | {len(calls)}个工具: {'、'.join(tool_names)}", flush=True)
+        executed = _execute_in_parallel(calls, ctx)
+    else:
+        executed = []
+        for call in calls:
+            if call.get("_rejected_reason"):
+                from app.chat.runtime.agent_tools.result import error_result
+                executed.append((call, error_result(call["name"], "strict_violation", call["_rejected_reason"]), 0))
+                continue
+            t_tool = time.perf_counter()
+            result = execute_tool(call["name"], call["args"], ctx)
+            tool_ms = round((time.perf_counter() - t_tool) * 1000)
+            executed.append((call, result, tool_ms))
+
+    for call, result, tool_ms in executed:
         tool_name = call["name"]
         tool_args = call["args"]
         call_id = call.get("id") or f"call_{tool_name}"
 
         print(f"[智能体] 调用 | {_TOOL_NAMES_CN.get(tool_name, tool_name)}  {_fmt_tool_args(tool_args)}", flush=True)
-
-        t_tool = time.perf_counter()
-        result = execute_tool(tool_name, tool_args, ctx)
-        tool_ms = round((time.perf_counter() - t_tool) * 1000)
         raw_results_for_reflect.append({"tool_name": tool_name, "raw_result": result})
 
         ok_label = "成功" if result.get("ok") else "失败"
@@ -149,3 +167,48 @@ def tools_node(state: AgentState) -> dict:
         "pending_tasks": new_pending_tasks,
         "last_tool_results": raw_results_for_reflect,
     }
+
+
+def _enforce_strict_mode(calls: list[dict], state: dict) -> list[dict]:
+    """In strict mode, replace out-of-bounds tool calls with synthetic rejection results."""
+    if state.get("plan_mode") != "strict":
+        return calls
+    current_plan = state.get("current_plan")
+    if not current_plan:
+        return calls
+    steps = current_plan.get("steps", [])
+    idx = state.get("plan_step_index", 0)
+    if not (0 <= idx < len(steps)):
+        return calls
+    expected = set(steps[idx].get("expected_tools") or [])
+    if not expected:
+        return calls
+    out = []
+    for call in calls:
+        if call["name"] in expected:
+            out.append(call)
+        else:
+            out.append({
+                **call,
+                "_rejected_reason": (
+                    f"strict模式：当前步骤只允许 {sorted(expected)} 中的工具，"
+                    f"不允许 {call['name']}"
+                ),
+            })
+    return out
+
+
+def _execute_in_parallel(calls: list[dict], ctx: ToolExecutionContext) -> list[tuple]:
+    """Execute parallel-safe tool calls concurrently. Returns [(call, result, ms), ...]."""
+    def _run_one(call):
+        if call.get("_rejected_reason"):
+            from app.chat.runtime.agent_tools.result import error_result
+            return call, error_result(call["name"], "strict_violation", call["_rejected_reason"]), 0
+        t_tool = time.perf_counter()
+        result = execute_tool(call["name"], call["args"], ctx)
+        tool_ms = round((time.perf_counter() - t_tool) * 1000)
+        return call, result, tool_ms
+
+    with ThreadPoolExecutor(max_workers=min(len(calls), 4)) as pool:
+        results = list(pool.map(_run_one, calls))
+    return results

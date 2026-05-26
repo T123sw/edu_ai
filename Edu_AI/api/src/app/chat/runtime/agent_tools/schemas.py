@@ -173,3 +173,11 @@ def build_tool_schemas(capability) -> list[dict]:
         ]
     )
     return schemas
+
+
+def filter_schemas_by_step(schemas: list[dict], expected_tools: list[str]) -> list[dict]:
+    """Strict mode: keep only schemas whose function.name is in expected_tools."""
+    if not expected_tools:
+        return schemas
+    allowed = set(expected_tools)
+    return [s for s in schemas if s.get("function", {}).get("name") in allowed]
