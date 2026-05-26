@@ -1,7 +1,7 @@
 # Agent 架构设计文档
 
 > 版本：2026-05-26 v4  
-> 状态：Phase 2-A ✅ Phase 2-B ✅ Phase 2-C ✅ | Phase 3 待实现
+> 状态：Phase 2-A ✅ Phase 2-B ✅ Phase 2-C ✅ Phase 3 ✅ Phase 4（真实引擎接入）✅ | Phase 5（远期）待实现
 
 ---
 
@@ -535,15 +535,22 @@ AGENT_EXECUTOR_MODEL=qwen-turbo
 - [x] reflect_filtered 流转基础设施（executor 已有 _inject_reflect_hint）
 - [x] 16个单元测试全部通过（T2 代码规则 + T4 反死循环）
 
-### Phase 3：Reflect 完整化 + Plan 驱动执行
+### Phase 3：Reflect 完整化 + Plan 驱动执行 ✅
 
-- [ ] `plan_mode` 升级为 `guided`（executor 参考当前 plan step）
-- [ ] `plan_step_index` 驱动执行顺序
-- [ ] `reflect/llm_eval.py`（ContentRelevanceReflector, OutlineCoherenceReflector）
-- [ ] `reflect/vision.py`（VisionReflector，接入视觉模型）
-- [ ] 前端展示 step 状态（pending / running / done / failed）
+- [x] `plan_mode` 升级为 `guided`（executor 参考当前 plan step）
+- [x] `plan_step_index` 驱动执行顺序（reflect_node 通过时自动推进）
+- [x] `reflect/llm_eval.py`（ContentRelevanceReflector, OutlineCoherenceReflector）
+- [x] `reflect/vision.py`（VisionReflector，接入视觉模型）
+- [x] `plan_step_update` SSE 事件（running/done）
+- [ ] 前端展示 step 状态（pending / running / done / failed）— 前端任务
 
-### Phase 4（远期）
+### Phase 4：真实引擎全接入 ✅
+
+- [x] `build_vision_gateway()` 工厂函数
+- [x] `ReActAgent` 接入 vision_gateway / rag_retriever / web_retriever
+- [x] 反模式检查通过（无 WorkflowRuntime / stub-* / _agent_params 引用）
+
+### Phase 5（远期）
 
 - [ ] `plan_mode="strict"`（路由层强制按 step 顺序）
 - [ ] ToolMeta（parallel_safe, depends_on, mutates_state 完整元信息）
