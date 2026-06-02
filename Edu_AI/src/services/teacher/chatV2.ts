@@ -433,11 +433,63 @@ export interface ChatErrorResponseV2 {
   detail?: string;
 }
 
-export type ChatStreamEventTypeV2 = 'metadata' | 'status' | 'delta' | 'result' | 'done' | 'error' | 'task_submitted';
+export type ChatStreamEventTypeV2 =
+  | 'metadata'
+  | 'status'
+  | 'delta'
+  | 'result'
+  | 'done'
+  | 'error'
+  | 'task_submitted'
+  | 'plan'
+  | 'plan_step_update'
+  | 'tool_call'
+  | 'tool_result'
+  | 'reflect';
 
 export interface ChatStreamEventV2 {
   type: ChatStreamEventTypeV2;
   payload: Record<string, any>;
+}
+
+// ReAct agent plan event payloads (mirrors Edu_AI/api/src/app/chat/runtime/planning/schema.py).
+export interface AgentPlanStepV2 {
+  index: number;
+  user_title: string;
+  internal_action: string;
+  expected_tools: string[];
+  constraints?: Record<string, any>;
+  status?: 'pending' | 'running' | 'done' | 'failed' | 'skipped';
+}
+
+export interface AgentPlanV2 {
+  subject: string;
+  resource_type: string;
+  steps: AgentPlanStepV2[];
+}
+
+export interface AgentPlanStepUpdateV2 {
+  step_index: number;
+  status: 'pending' | 'running' | 'done' | 'failed' | 'skipped';
+  user_title?: string;
+}
+
+export interface AgentToolCallV2 {
+  tool: string;
+  args: Record<string, any>;
+}
+
+export interface AgentToolResultV2 {
+  tool: string;
+  summary: string;
+  ok: boolean;
+}
+
+export interface AgentReflectV2 {
+  tool: string;
+  verdict: string;
+  severity: string;
+  issue: string;
 }
 
 export interface ChatReplyStreamHandlersV2 {
@@ -448,6 +500,12 @@ export interface ChatReplyStreamHandlersV2 {
   onTaskSubmitted?: (taskId: string, workflowType: string, payload: Record<string, any>) => void;
   onDone?: (payload: Record<string, any>) => void;
   onError?: (error: Error, payload?: Record<string, any>) => void;
+  // ReAct agent events (Phase 2-5 SSE additions)
+  onPlan?: (plan: AgentPlanV2) => void;
+  onPlanStepUpdate?: (update: AgentPlanStepUpdateV2) => void;
+  onToolCall?: (call: AgentToolCallV2) => void;
+  onToolResult?: (result: AgentToolResultV2) => void;
+  onReflect?: (reflect: AgentReflectV2) => void;
 }
 
 export interface ChatTaskStatusV2 {
@@ -559,6 +617,11 @@ export async function sendChatReplyV2Stream(
         const workflowType = String(event.payload?.workflow_type || '');
         handlers.onTaskSubmitted?.(taskId, workflowType, event.payload);
       }
+      else if (event.type === 'plan') handlers.onPlan?.(event.payload as AgentPlanV2);
+      else if (event.type === 'plan_step_update') handlers.onPlanStepUpdate?.(event.payload as AgentPlanStepUpdateV2);
+      else if (event.type === 'tool_call') handlers.onToolCall?.(event.payload as AgentToolCallV2);
+      else if (event.type === 'tool_result') handlers.onToolResult?.(event.payload as AgentToolResultV2);
+      else if (event.type === 'reflect') handlers.onReflect?.(event.payload as AgentReflectV2);
       else if (event.type === 'done') handlers.onDone?.(event.payload);
       else if (event.type === 'error') handlers.onError?.(new Error(String(event.payload?.message || '流式回复失败')), event.payload);
     }

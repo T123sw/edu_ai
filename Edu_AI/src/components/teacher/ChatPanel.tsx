@@ -17,6 +17,11 @@ import {
   type ChatInputVideoV2,
   type ChatSourceV2,
 } from '../../services/teacher/chatV2';
+import {
+  AgentActivityPanel,
+  emptyAgentActivity,
+  type AgentActivityState,
+} from './AgentActivityPanel';
 import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
@@ -67,6 +72,8 @@ interface Message {
   inputImages?: ChatInputImageV2[];
   inputVideos?: ChatInputVideoV2[];
   statusText?: string;
+  /** ReAct agent activity captured during streaming. Optional — present only on AI msgs that went through agent path. */
+  agentActivity?: AgentActivityState;
 }
 
 interface ChatPanelProps {
@@ -1077,6 +1084,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       let streamedText = '';
       let response: ChatResponseV2 | null = null;
       let pendingTaskId: string | null = null;
+      const agentActivity: AgentActivityState = emptyAgentActivity();
+      const flushAgentActivity = () => {
+        // Shallow copy so React detects a change
+        updateLastMessage({
+          agentActivity: {
+            plan: agentActivity.plan,
+            stepStatus: { ...agentActivity.stepStatus },
+            toolCalls: [...agentActivity.toolCalls],
+            toolResults: [...agentActivity.toolResults],
+            reflects: [...agentActivity.reflects],
+          },
+        });
+      };
 
       await sendChatReplyV2Stream(payload, {
         onMetadata: (payload) => {
@@ -1118,6 +1138,26 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           pendingTaskId = taskId;
           // Tag the AI message with the task ID so the background poller can find and update it
           updateLastMessage({ id: taskId });
+        },
+        onPlan: (plan) => {
+          agentActivity.plan = plan;
+          flushAgentActivity();
+        },
+        onPlanStepUpdate: (update) => {
+          agentActivity.stepStatus[update.step_index] = update.status;
+          flushAgentActivity();
+        },
+        onToolCall: (call) => {
+          agentActivity.toolCalls.push(call);
+          flushAgentActivity();
+        },
+        onToolResult: (result) => {
+          agentActivity.toolResults.push(result);
+          flushAgentActivity();
+        },
+        onReflect: (reflect) => {
+          agentActivity.reflects.push(reflect);
+          flushAgentActivity();
         },
         onError: (error) => {
           throw error;
@@ -1538,6 +1578,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                       <div className="chat-panel__status-text">
                         {item.statusText}
                       </div>
+                    )}
+                    {item.user === 'AI' && item.agentActivity && (
+                      <AgentActivityPanel
+                        activity={item.agentActivity as AgentActivityState}
+                        defaultExpanded={Boolean(item.statusText)}
+                      />
                     )}
                     {item.inputImages && item.inputImages.length > 0 && (
                     <div className="chat-panel__media-strip" style={{ marginBottom: item.text ? 10 : 0 }}>

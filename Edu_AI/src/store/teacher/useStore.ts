@@ -31,6 +31,8 @@ interface ChatMessage {
   inputVideos?: ChatInputVideoV2[];
   status?: 'thinking' | 'tool' | 'streaming' | 'done' | 'error';
   statusText?: string;
+  /** ReAct agent execution timeline. Set by ChatPanel during streaming. */
+  agentActivity?: unknown;
 }
 
 export interface GeneratedFile {
