@@ -35,6 +35,8 @@ class ConversationStoreAdapter:
         input_images=None,
         input_videos=None,
         message_kind: str | None = None,
+        tool_calls=None,
+        tool_call_id: str | None = None,
     ):
         self.storage.append_message(
             conversation_id,
@@ -44,6 +46,8 @@ class ConversationStoreAdapter:
             input_images=input_images,
             input_videos=input_videos,
             message_kind=message_kind,
+            tool_calls=tool_calls,
+            tool_call_id=tool_call_id,
         )
 
     def update_workflow_state(self, conversation_id: str, workflow_state: dict):
@@ -328,6 +332,22 @@ class ConversationStoreAdapter:
                 input_videos=normalized_input_videos or None,
                 message_kind=user_message_kind,
             )
+        # 持久化工具调用轮次（assistant tool_calls + tool results），让多轮对话上下文完整
+        for exchange_msg in result.get("tool_exchange") or []:
+            ex_role = str(exchange_msg.get("role") or "")
+            ex_content = str(exchange_msg.get("content") or "")
+            ex_tool_calls = exchange_msg.get("tool_calls") or None
+            ex_tool_call_id = str(exchange_msg.get("tool_call_id") or "") or None
+            if ex_role in ("assistant", "tool"):
+                self.append_message(
+                    conversation_id,
+                    ex_role,
+                    ex_content,
+                    message_kind="tool_exchange",
+                    tool_calls=ex_tool_calls,
+                    tool_call_id=ex_tool_call_id,
+                )
+
         answer = str(((result.get("message") or {}).get("content")) or "").strip()
         if answer:
             assistant_message_kind = self.memory_extractor.classify_message_kind(
