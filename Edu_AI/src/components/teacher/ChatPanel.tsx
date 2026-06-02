@@ -1791,6 +1791,59 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                                   {children}
                                 </p>
                               ),
+                              h1: ({ children }) => (
+                                <h1 style={{
+                                  fontSize: 18,
+                                  fontWeight: 700,
+                                  margin: '16px 0 8px',
+                                  paddingBottom: 4,
+                                  borderBottom: '1px solid #e8e8e8',
+                                }}>{children}</h1>
+                              ),
+                              h2: ({ children }) => (
+                                <h2 style={{
+                                  fontSize: 16,
+                                  fontWeight: 600,
+                                  margin: '12px 0 6px',
+                                  color: '#1677ff',
+                                }}>{children}</h2>
+                              ),
+                              h3: ({ children }) => (
+                                <h3 style={{
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  margin: '8px 0 4px',
+                                  paddingLeft: 12,
+                                  borderLeft: '2px solid #91caff',
+                                }}>{children}</h3>
+                              ),
+                              h4: ({ children }) => (
+                                <h4 style={{
+                                  fontSize: 13,
+                                  fontWeight: 500,
+                                  margin: '6px 0 2px',
+                                  paddingLeft: 24,
+                                  color: '#555',
+                                }}>{children}</h4>
+                              ),
+                              h5: ({ children }) => (
+                                <h5 style={{
+                                  fontSize: 13,
+                                  fontWeight: 500,
+                                  margin: '4px 0',
+                                  paddingLeft: 36,
+                                  color: '#777',
+                                }}>{children}</h5>
+                              ),
+                              ul: ({ children }) => (
+                                <ul style={{ paddingLeft: 24, margin: '4px 0' }}>{children}</ul>
+                              ),
+                              ol: ({ children }) => (
+                                <ol style={{ paddingLeft: 24, margin: '4px 0' }}>{children}</ol>
+                              ),
+                              li: ({ children }) => (
+                                <li style={{ margin: '2px 0', lineHeight: 1.7 }}>{children}</li>
+                              ),
                             }}
                           >
                             {item.text}

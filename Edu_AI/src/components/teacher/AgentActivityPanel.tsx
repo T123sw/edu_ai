@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Collapse } from 'antd';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import type {
   AgentPlanV2,
   AgentPlanStepUpdateV2,
@@ -123,73 +121,6 @@ const StepRow: React.FC<{ step: MergedTimelineStep; isLast: boolean }> = ({ step
   );
 };
 
-const OutlinePreview: React.FC<{ markdown: string; subject?: string }> = ({ markdown, subject }) => {
-  const [folded, setFolded] = useState(false);
-  if (!markdown || !markdown.trim()) return null;
-  return (
-    <div style={{
-      marginTop: 12,
-      marginBottom: 4,
-      borderLeft: '3px solid #1677ff',
-      background: '#f0f7ff',
-      borderRadius: '0 6px 6px 0',
-      padding: '10px 14px',
-    }}>
-      <div
-        style={{
-          cursor: 'pointer',
-          fontSize: 13,
-          fontWeight: 500,
-          color: '#1677ff',
-          marginBottom: folded ? 0 : 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          userSelect: 'none',
-        }}
-        onClick={() => setFolded(!folded)}
-      >
-        <span>📋</span>
-        <span>大纲预览{subject ? ` · ${subject}` : ''}</span>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>
-          {markdown.length} 字 {folded ? '▸' : '▾'}
-        </span>
-      </div>
-      {!folded && (
-        <div
-          className="agent-outline-preview"
-          style={{
-            fontSize: 13,
-            lineHeight: 1.7,
-            color: '#222',
-            background: '#fff',
-            borderRadius: 4,
-            padding: '8px 12px',
-            maxHeight: 480,
-            overflowY: 'auto',
-            border: '1px solid #d6e8ff',
-          }}
-        >
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              h1: ({ children }) => <div style={{ fontSize: 15, fontWeight: 600, margin: '8px 0 4px' }}>{children}</div>,
-              h2: ({ children }) => <div style={{ fontSize: 14, fontWeight: 600, marginTop: 8, marginLeft: 0, color: '#1677ff' }}>{children}</div>,
-              h3: ({ children }) => <div style={{ fontSize: 13, fontWeight: 500, marginTop: 4, marginLeft: 16 }}>{children}</div>,
-              h4: ({ children }) => <div style={{ fontSize: 12, fontWeight: 500, marginTop: 2, marginLeft: 32, color: '#555' }}>{children}</div>,
-              p: ({ children }) => <div style={{ margin: '4px 0', marginLeft: 16 }}>{children}</div>,
-              ul: ({ children }) => <ul style={{ paddingLeft: 24, margin: '4px 0' }}>{children}</ul>,
-              li: ({ children }) => <li style={{ margin: '2px 0' }}>{children}</li>,
-            }}
-          >
-            {markdown}
-          </ReactMarkdown>
-        </div>
-      )}
-    </div>
-  );
-};
-
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export const AgentActivityPanel: React.FC<Props> = ({
@@ -226,9 +157,6 @@ export const AgentActivityPanel: React.FC<Props> = ({
   const headerText = totalSteps > 0
     ? `${doneCount}/${totalSteps} 步完成${runningCount > 0 ? ' · 进行中' : ''}`
     : `调用 ${toolCalls.length} 个工具`;
-
-  // Outline preview comes from the most recent draft_outline tool result with payload
-  const outlineResult = toolResults.find((r) => r.tool === 'draft_outline' && r.outline_markdown);
 
   return (
     <div style={{ marginBottom: 8 }}>
@@ -276,13 +204,6 @@ export const AgentActivityPanel: React.FC<Props> = ({
                       ))}
                     </div>
                   </div>
-                )}
-
-                {outlineResult?.outline_markdown && (
-                  <OutlinePreview
-                    markdown={outlineResult.outline_markdown}
-                    subject={outlineResult.subject}
-                  />
                 )}
 
                 {toolCalls.length > 0 && (
