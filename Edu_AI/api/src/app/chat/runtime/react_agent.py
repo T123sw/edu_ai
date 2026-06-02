@@ -111,6 +111,8 @@ class ReActAgent:
             "ctx": ctx,
         }
 
+        # Reset all per-turn transient state explicitly to avoid stale plan/reflect from
+        # prior turns leaking into the new turn via the LangGraph checkpoint.
         initial_input = {
             "messages": messages,
             "tool_exchange": [],
@@ -118,6 +120,14 @@ class ReActAgent:
             "needs_planning": needs_planning,
             "active_draft_outline": active_draft_outline,
             "pending_tasks": current_pending_tasks,
+            "current_plan": {},
+            "plan_step_index": 0,
+            "plan_mode": "",
+            "reflect_verdict": "",
+            "reflect_hint": "",
+            "reflect_filtered": {},
+            "retry_counts": {},
+            "last_tool_results": [],
         }
 
         config = {"configurable": {"thread_id": conv_id, "runtime": rt}}

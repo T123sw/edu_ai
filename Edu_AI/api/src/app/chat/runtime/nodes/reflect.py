@@ -96,6 +96,10 @@ def reflect_node(state: AgentState) -> dict:
     # guided mode: advance plan_step_index when step passes
     _maybe_advance_step(writer, state, worst_verdict, updates)
 
+    # abort: emit a graceful result so the user sees a termination message
+    if worst_verdict == "abort":
+        _emit_abort_result(writer, state, combined_hint, updates)
+
     return updates
 
 
@@ -151,3 +155,35 @@ def _maybe_advance_step(writer, state: dict, worst_verdict: str, updates: dict) 
 
     updates["current_plan"] = updated_plan
     updates["plan_step_index"] = idx + 1
+
+
+def _emit_abort_result(writer, state: dict, hint: str, updates: dict) -> None:
+    """On abort, surface a final assistant message + result event so the user sees a clean end."""
+    try:
+        from langgraph.config import get_config as _get_config
+        rt = _get_config()["configurable"]["runtime"]
+        request = rt["request"]
+        conv_id = getattr(request, "conversation_id", "") or ""
+    except Exception:
+        conv_id = ""
+
+    user_msg = "抱歉，本次任务因质量问题已中止" + (f"：{hint}" if hint else "。")
+
+    writer({
+        "type": "result",
+        "payload": {
+            "message": {"role": "assistant", "content": user_msg},
+            "conversation": {"conversation_id": conv_id},
+            "action": {"name": "agent.aborted"},
+            "artifacts": [],
+            "workflow": None,
+            "sources": [],
+            "trace": {"path": "agent", "aborted": True, "reason": hint},
+            "tool_exchange": state.get("tool_exchange", []),
+        },
+    })
+    print(f"[审查] abort → 终止链路  原因={hint[:50]}", flush=True)
+    # also append to messages for persistence
+    msgs = list(state.get("messages") or [])
+    msgs.append({"role": "assistant", "content": user_msg})
+    updates["messages"] = msgs

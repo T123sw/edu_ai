@@ -17,14 +17,8 @@ from app.chat.runtime.nodes.tools import tools_node
 
 
 def _build_checkpointer():
-    try:
-        from langgraph.checkpoint.sqlite import SqliteSaver
-        from core.config import Config
-        db_path = str(Config.STORAGE_ROOT / "agent_checkpoints.db")
-        return SqliteSaver.from_conn_string(db_path)
-    except Exception:
-        from langgraph.checkpoint.memory import MemorySaver
-        return MemorySaver()
+    from langgraph.checkpoint.memory import MemorySaver
+    return MemorySaver()
 
 
 def build_graph() -> Any:
@@ -51,9 +45,10 @@ def build_graph() -> Any:
     # Tools → reflect (always)
     graph.add_edge("tools", "reflect")
 
-    # Reflect: replan → planner; everything else → executor
+    # Reflect: abort → END; replan → planner; everything else → executor
     graph.add_conditional_edges(
-        "reflect", route_after_reflect, {"executor": "executor", "planner": "planner"}
+        "reflect", route_after_reflect,
+        {"executor": "executor", "planner": "planner", END: END},
     )
 
     return graph.compile(checkpointer=_build_checkpointer())

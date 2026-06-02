@@ -95,7 +95,9 @@ def executor_node(state: AgentState) -> dict:
                 for c in calls
             ],
         }
-        return {"messages": messages + [assistant_msg]}
+        # Persist original history + new assistant msg only; injected system hints
+        # (reflect_hint / plan_step_hint) are transient — given to LLM this turn only.
+        return {"messages": state["messages"] + [assistant_msg]}
 
     # Final answer turn — emit result event and finish
     answer = "".join(answer_chunks)
@@ -120,7 +122,7 @@ def executor_node(state: AgentState) -> dict:
     })
 
     return {
-        "messages": messages + [{"role": "assistant", "content": answer}],
+        "messages": state["messages"] + [{"role": "assistant", "content": answer}],
         "reflect_verdict": "",  # clear after consuming
         "reflect_hint": "",
         "reflect_filtered": {},

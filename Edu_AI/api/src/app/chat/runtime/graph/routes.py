@@ -45,8 +45,10 @@ def route_entry(state: AgentState) -> str:
 # ─── Post-reflect routing ─────────────────────────────────────────────────────
 
 def route_after_reflect(state: AgentState) -> str:
-    """replan → planner; everything else (pass/retry/abort) → executor."""
+    """abort → END; replan → planner; everything else (pass/retry) → executor."""
     verdict = state.get("reflect_verdict", "")
+    if verdict == "abort":
+        return END
     if verdict == "replan":
         return "planner"
     return "executor"
