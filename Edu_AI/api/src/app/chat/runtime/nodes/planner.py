@@ -28,6 +28,7 @@ def planner_node(state: AgentState) -> dict:
         print("[规划器] LLM未调用工具，使用关键词回退计划", flush=True)
 
     if plan_dict and plan_dict.get("steps"):
+        _attach_step_constraints(plan_dict)
         plan = Plan.from_dict(plan_dict)
         out = plan.to_dict()
         writer({"type": "plan", "payload": out})
@@ -44,6 +45,38 @@ def planner_node(state: AgentState) -> dict:
     # Planner failed entirely — skip plan, let executor run free
     print("[规划器] 计划生成失败，跳过规划直接执行", flush=True)
     return {"needs_planning": False}
+
+
+def _attach_step_constraints(plan_dict: dict) -> None:
+    """Populate per-step constraints so LLM/Vision reflectors actually activate.
+
+    Without this, the Phase 3 LLMReflector/VisionReflector built earlier never
+    fire because they're opt-in via step_constraints flags.
+    """
+    resource_type = plan_dict.get("resource_type", "")
+    for step in plan_dict.get("steps", []):
+        action = step.get("internal_action", "")
+        constraints = dict(step.get("constraints") or {})
+
+        if action == "retrieve_context":
+            # Search results: must be relevant + have sources; for教学资源 also need图片
+            constraints.setdefault("check_relevance", True)
+            constraints.setdefault("require_sources", True)
+            constraints.setdefault("min_sources", 1)
+            if resource_type in ("ppt", "lesson_plan"):
+                constraints.setdefault("require_images", True)
+        elif action == "draft_outline":
+            constraints.setdefault("check_coherence", True)
+            if resource_type == "report":
+                constraints.setdefault("min_chapters", 4)
+                constraints.setdefault("min_outline_length", 300)
+            elif resource_type == "ppt":
+                constraints.setdefault("min_chapters", 3)
+                constraints.setdefault("min_outline_length", 200)
+            elif resource_type == "lesson_plan":
+                constraints.setdefault("min_chapters", 3)
+
+        step["constraints"] = constraints
 
 
 def _build_planner_messages(
@@ -213,7 +246,13 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
             })
         steps.append({
             "index": len(steps) + 1,
-            "user_title": f"确认大纲后生成{type_cn}",
+            "user_title": "展示大纲并等待用户确认",
+            "internal_action": "confirm_outline",
+            "expected_tools": [],
+        })
+        steps.append({
+            "index": len(steps) + 1,
+            "user_title": f"用户确认后生成{type_cn}",
             "internal_action": "generate_resource",
             "expected_tools": [tool_name],
         })

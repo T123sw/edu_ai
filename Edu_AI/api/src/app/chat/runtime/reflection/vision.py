@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
 from app.chat.runtime.reflection.base import BaseReflector, ReflectVerdict
 
 _MAX_IMAGES_TO_CHECK = 5
@@ -38,10 +40,14 @@ class VisionReflector(BaseReflector):
         topic = plan.get("subject", "")
         resource_type = plan.get("resource_type", "")
 
-        good_images: list[str] = []
-        for img_url in images[:_MAX_IMAGES_TO_CHECK]:
-            if self._is_image_suitable(img_url, topic, resource_type):
-                good_images.append(img_url)
+        # Parallel vision calls — each can take 1-3s, so 5 images sequential ≈ 10s.
+        candidate_imgs = images[:_MAX_IMAGES_TO_CHECK]
+        with ThreadPoolExecutor(max_workers=min(len(candidate_imgs), 5)) as pool:
+            verdicts = list(pool.map(
+                lambda u: (u, self._is_image_suitable(u, topic, resource_type)),
+                candidate_imgs,
+            ))
+        good_images = [u for u, ok in verdicts if ok]
 
         if good_images:
             return ReflectVerdict(

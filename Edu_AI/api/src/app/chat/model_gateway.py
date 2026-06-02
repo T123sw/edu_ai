@@ -132,13 +132,16 @@ class ChatModelGateway:
             req_payload: Dict[str, Any] = {
                 "model": candidate["model_name"],
                 "messages": messages,
-                "tools": tools,
-                "tool_choice": tool_choice,
                 "temperature": temperature,
                 "max_tokens": max_tokens,
                 "stream": True,
                 **self._thinking_params(candidate["model_name"]),
             }
+            # Only include tools/tool_choice when the caller actually provides tools.
+            # Some providers (e.g. Qwen) reject empty tool arrays.
+            if tools:
+                req_payload["tools"] = tools
+                req_payload["tool_choice"] = tool_choice
             t0 = time.perf_counter()
             t_first: float | None = None
             try:
