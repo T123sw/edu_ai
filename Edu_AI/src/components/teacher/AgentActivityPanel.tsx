@@ -125,25 +125,65 @@ const StepRow: React.FC<{ step: MergedTimelineStep; isLast: boolean }> = ({ step
 
 const OutlinePreview: React.FC<{ markdown: string; subject?: string }> = ({ markdown, subject }) => {
   const [folded, setFolded] = useState(false);
-  if (!markdown) return null;
+  if (!markdown || !markdown.trim()) return null;
   return (
     <div style={{
-      marginTop: 8,
-      borderLeft: '2px solid #91caff',
-      paddingLeft: 10,
-      background: '#f6fbff',
-      borderRadius: 4,
-      padding: '6px 10px',
+      marginTop: 12,
+      marginBottom: 4,
+      borderLeft: '3px solid #1677ff',
+      background: '#f0f7ff',
+      borderRadius: '0 6px 6px 0',
+      padding: '10px 14px',
     }}>
       <div
-        style={{ cursor: 'pointer', fontSize: 12, color: '#1677ff', marginBottom: folded ? 0 : 4 }}
+        style={{
+          cursor: 'pointer',
+          fontSize: 13,
+          fontWeight: 500,
+          color: '#1677ff',
+          marginBottom: folded ? 0 : 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          userSelect: 'none',
+        }}
         onClick={() => setFolded(!folded)}
       >
-        📋 大纲预览 {subject ? `· ${subject}` : ''} {folded ? '▸' : '▾'}
+        <span>📋</span>
+        <span>大纲预览{subject ? ` · ${subject}` : ''}</span>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>
+          {markdown.length} 字 {folded ? '▸' : '▾'}
+        </span>
       </div>
       {!folded && (
-        <div className="agent-outline-preview" style={{ fontSize: 12, lineHeight: 1.6 }}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+        <div
+          className="agent-outline-preview"
+          style={{
+            fontSize: 13,
+            lineHeight: 1.7,
+            color: '#222',
+            background: '#fff',
+            borderRadius: 4,
+            padding: '8px 12px',
+            maxHeight: 480,
+            overflowY: 'auto',
+            border: '1px solid #d6e8ff',
+          }}
+        >
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({ children }) => <div style={{ fontSize: 15, fontWeight: 600, margin: '8px 0 4px' }}>{children}</div>,
+              h2: ({ children }) => <div style={{ fontSize: 14, fontWeight: 600, marginTop: 8, marginLeft: 0, color: '#1677ff' }}>{children}</div>,
+              h3: ({ children }) => <div style={{ fontSize: 13, fontWeight: 500, marginTop: 4, marginLeft: 16 }}>{children}</div>,
+              h4: ({ children }) => <div style={{ fontSize: 12, fontWeight: 500, marginTop: 2, marginLeft: 32, color: '#555' }}>{children}</div>,
+              p: ({ children }) => <div style={{ margin: '4px 0', marginLeft: 16 }}>{children}</div>,
+              ul: ({ children }) => <ul style={{ paddingLeft: 24, margin: '4px 0' }}>{children}</ul>,
+              li: ({ children }) => <li style={{ margin: '2px 0' }}>{children}</li>,
+            }}
+          >
+            {markdown}
+          </ReactMarkdown>
         </div>
       )}
     </div>
@@ -154,7 +194,7 @@ const OutlinePreview: React.FC<{ markdown: string; subject?: string }> = ({ mark
 
 export const AgentActivityPanel: React.FC<Props> = ({
   activity,
-  defaultExpanded = false,
+  defaultExpanded = true,  // default to expanded — users want to see the activity
   mergedTimeline,
 }) => {
   const [expanded, setExpanded] = useState<string[]>(defaultExpanded ? ['1'] : []);

@@ -50,9 +50,12 @@ def _format_tool_result_for_context(tool_name: str, result: dict) -> str:
 
     if tool_name == "draft_outline":
         outline = payload.get("outline_markdown", "")
+        subject = payload.get("subject", "")
         return (
-            f"大纲已生成，请在回复中将以下大纲内容**完整逐字输出**给用户，"
-            f"然后说明你接下来会检索相关材料，不要省略大纲正文：\n\n{outline}"
+            f"已为《{subject}》生成大纲（共 {len(outline)} 字）。\n"
+            "大纲已经独立展示给用户，**不要在回复中重复大纲正文**。"
+            "请用 1-2 句话告诉用户：大纲已生成，请查看上方面板的'大纲预览'，"
+            "如有需要调整的地方请告知；若满意请说'可以'，将进入下一步。"
         )
 
     if tool_name in TOOL_TO_WORKFLOW:
