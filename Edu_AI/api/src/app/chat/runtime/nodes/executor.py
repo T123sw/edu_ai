@@ -106,12 +106,13 @@ def executor_node(state: AgentState) -> dict:
 
     ctx.trace["total_ms"] = total_ms
     request = rt["request"]
+    resolved_conv_id = rt.get("conv_id") or (getattr(request, "conversation_id", "") or "")
 
     writer({
         "type": "result",
         "payload": {
             "message": {"role": "assistant", "content": answer},
-            "conversation": {"conversation_id": getattr(request, "conversation_id", "") or ""},
+            "conversation": {"conversation_id": resolved_conv_id},
             "action": {"name": "agent.reply"},
             "artifacts": [],
             "workflow": None,

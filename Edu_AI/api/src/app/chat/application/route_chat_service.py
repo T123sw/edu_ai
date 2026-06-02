@@ -524,6 +524,11 @@ class RouteChatService:
                 event_type = event.get("type")
                 if event_type == "result":
                     final_result = event.get("payload") or {}
+                    # Forward conversation_id so client can persist it for the next turn.
+                    # Without this, multi-turn conversations cannot resume working memory.
+                    conv_id = (final_result.get("conversation") or {}).get("conversation_id")
+                    if conv_id:
+                        yield {"type": "meta", "payload": {"conversation_id": conv_id}}
                 elif event_type == "task_submitted":
                     # Workflow dispatched to background — forward event, persist handled by on_workflow_complete
                     yield event
@@ -540,6 +545,10 @@ class RouteChatService:
                     if content:
                         yield {"type": "delta", "delta": content}
                 elif event_type == "status":
+                    yield event
+                elif event_type in ("tool_call", "tool_result", "plan", "plan_step_update", "reflect"):
+                    # Forward ReAct agent's richer events so the client can render
+                    # plan visibility, tool execution progress, and self-check feedback.
                     yield event
 
             # Send done frame to client before persisting

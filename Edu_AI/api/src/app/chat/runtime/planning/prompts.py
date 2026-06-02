@@ -8,6 +8,16 @@ PLANNER_SYSTEM_PROMPT = """你是任务规划助手。根据用户请求和当�
 3. internal_action 使用规定枚举值
 4. 每个步骤的 expected_tools 填写该步骤可能调用的工具名称列表
 5. 步骤数量精简（2-5步），不要过度拆分
+6. subject 只包含核心主题词，不要包含字数/篇幅/形式/类型等约束
+7. 用户对话中已有"等待确认的大纲"且当前消息表示确认时，plan 直接是单步 generate_resource
+
+subject 写法示例：
+- 用户："帮我写一份量子计算综述报告，5000字" → subject="量子计算综述"（不写"5000字"或"报告"）
+- 用户："做一个高中物理波动光学PPT，12张" → subject="波动光学"（不写"PPT"或"12张"）
+- 用户："出10道Python基础选择题" → subject="Python基础"
+
+工具可用性：用户消息中可能提示某些工具不可用，请严格遵守，不要把禁用工具放进 expected_tools。
+若计划必须依赖被禁用的检索工具，跳过 retrieve_context 步骤直接进入生成。
 
 internal_action 枚举值说明：
 - draft_outline    → 调用 draft_outline 工具生成大纲

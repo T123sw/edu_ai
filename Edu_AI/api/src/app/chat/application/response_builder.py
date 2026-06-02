@@ -42,6 +42,11 @@ def build_legacy_sse_frames(meta: dict, stream, *, include_v2: bool = False):
             yield f"event: delta\ndata: {payload}\n\n"
             if include_v2:
                 yield f"event: message.delta\ndata: {payload}\n\n"
+        elif event_type in ("tool_call", "tool_result", "plan", "plan_step_update", "reflect"):
+            # ReAct agent richer events — forward as SSE frames so the client can render
+            # plan visibility, tool execution progress, and reflect feedback.
+            payload = event.get("payload") or {}
+            yield f"event: {event_type}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
         elif event_type == "done":
             done_emitted = True
             yield "event: done\ndata: [DONE]\n\n"

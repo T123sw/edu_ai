@@ -109,6 +109,9 @@ class ReActAgent:
             "t_start": t_start,
             "timeout_seconds": self.timeout_seconds,
             "ctx": ctx,
+            # The conv_id resolved by run_stream() — used by executor for result events
+            # so the client can persist a real conv_id even when the user didn't supply one.
+            "conv_id": conv_id,
         }
 
         # Reset all per-turn transient state explicitly to avoid stale plan/reflect from
