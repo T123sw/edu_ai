@@ -21,6 +21,8 @@ import {
   AgentActivityPanel,
   emptyAgentActivity,
   type AgentActivityState,
+  type MergedTimeline,
+  type MergedTimelineStep,
 } from './AgentActivityPanel';
 import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { resolveSpeechInputError } from '../../services/teacher/speechInput';
@@ -81,6 +83,59 @@ interface ChatPanelProps {
   workspaceScope?: WorkspaceScope;
   onWorkspaceScopeChange?: (scope: WorkspaceScope) => void;
 }
+
+/**
+ * Merge agent plans across consecutive AI messages with the same subject into
+ * a single timeline, so the user sees task continuity instead of fragmented
+ * single-step plans on turn N+1.
+ *
+ * Walks back from `currentIndex` while subject matches; all earlier-turn steps
+ * are forced to status='done' (we know they finished since this turn started).
+ */
+const buildMergedTimeline = (messages: Message[], currentIndex: number): MergedTimeline | undefined => {
+  const current = messages[currentIndex];
+  if (current?.user !== 'AI') return undefined;
+  const activity = current.agentActivity as AgentActivityState | undefined;
+  const subject = activity?.plan?.subject;
+  if (!subject) return undefined;
+
+  const related: AgentActivityState[] = [];
+  for (let i = currentIndex; i >= 0; i--) {
+    const msg = messages[i];
+    if (msg.user !== 'AI') continue;
+    const a = msg.agentActivity as AgentActivityState | undefined;
+    if (!a?.plan) continue;
+    if (a.plan.subject !== subject) break; // different task — stop
+    related.unshift(a);
+  }
+  if (related.length <= 1) return undefined; // single plan — no need to merge
+
+  const seen = new Set<string>();
+  const steps: MergedTimelineStep[] = [];
+  for (let i = 0; i < related.length; i++) {
+    const a = related[i];
+    const isLatest = i === related.length - 1;
+    for (const step of a.plan!.steps) {
+      const key = `${step.user_title}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const status: MergedTimelineStep['status'] = isLatest
+        ? ((a.stepStatus[step.index] || step.status || 'pending') as MergedTimelineStep['status'])
+        : 'done';
+      steps.push({
+        index: step.index,
+        user_title: step.user_title,
+        status,
+        fromPriorTurn: !isLatest,
+      });
+    }
+  }
+  return {
+    subject,
+    resource_type: current.agentActivity?.plan?.resource_type || '',
+    steps,
+  };
+};
 
 interface PendingChatImage extends ChatInputImageV2 {
   previewUrl: string;
@@ -1583,6 +1638,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                       <AgentActivityPanel
                         activity={item.agentActivity as AgentActivityState}
                         defaultExpanded={Boolean(item.statusText)}
+                        mergedTimeline={buildMergedTimeline(messages as unknown as Message[], index)}
                       />
                     )}
                     {item.inputImages && item.inputImages.length > 0 && (

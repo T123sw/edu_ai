@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Collapse, Tag, Tooltip } from 'antd';
+import { Collapse } from 'antd';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type {
   AgentPlanV2,
   AgentPlanStepUpdateV2,
@@ -23,10 +25,26 @@ export const emptyAgentActivity = (): AgentActivityState => ({
   reflects: [],
 });
 
+// One unified "task timeline" step combining info from this AND prior plans.
+export interface MergedTimelineStep {
+  index: number;
+  user_title: string;
+  status: 'pending' | 'running' | 'done' | 'failed' | 'skipped';
+  /** 0 = current turn, 1 = previous, etc. */
+  fromPriorTurn: boolean;
+}
+
+export interface MergedTimeline {
+  subject: string;
+  resource_type: string;
+  steps: MergedTimelineStep[];
+}
+
 interface Props {
   activity: AgentActivityState;
-  /** Whether to start expanded (true while AI is still streaming). */
   defaultExpanded?: boolean;
+  /** If provided, render this combined timeline instead of activity.plan alone. */
+  mergedTimeline?: MergedTimeline;
 }
 
 const TOOL_NAME_CN: Record<string, string> = {
@@ -39,20 +57,28 @@ const TOOL_NAME_CN: Record<string, string> = {
   generate_quiz: '生成练习题',
 };
 
-const STATUS_LABEL: Record<string, { text: string; color: string }> = {
-  pending: { text: '等待', color: 'default' },
-  running: { text: '进行中', color: 'processing' },
-  done: { text: '完成', color: 'success' },
-  failed: { text: '失败', color: 'error' },
-  skipped: { text: '跳过', color: 'warning' },
+const STATUS_ICON: Record<string, string> = {
+  pending: '○',
+  running: '◐',
+  done: '●',
+  failed: '✗',
+  skipped: '◌',
 };
 
-const VERDICT_LABEL: Record<string, { text: string; color: string }> = {
-  pass: { text: '通过', color: 'success' },
-  pass_with_warning: { text: '提示', color: 'warning' },
-  retry: { text: '需重试', color: 'orange' },
-  replan: { text: '需重新规划', color: 'volcano' },
-  abort: { text: '中止', color: 'error' },
+const STATUS_COLOR: Record<string, string> = {
+  pending: '#bfbfbf',
+  running: '#1677ff',
+  done: '#52c41a',
+  failed: '#ff4d4f',
+  skipped: '#fa8c16',
+};
+
+const VERDICT_COLOR: Record<string, string> = {
+  pass: '#52c41a',
+  pass_with_warning: '#faad14',
+  retry: '#fa8c16',
+  replan: '#ff7a45',
+  abort: '#ff4d4f',
 };
 
 const formatArgs = (args: Record<string, any>): string => {
@@ -73,73 +99,178 @@ const formatArgs = (args: Record<string, any>): string => {
   return pairs.join('  ');
 };
 
-export const AgentActivityPanel: React.FC<Props> = ({ activity, defaultExpanded = false }) => {
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+const StepRow: React.FC<{ step: MergedTimelineStep; isLast: boolean }> = ({ step, isLast }) => {
+  const icon = STATUS_ICON[step.status] || STATUS_ICON.pending;
+  const color = STATUS_COLOR[step.status] || STATUS_COLOR.pending;
+  const dim = step.status === 'pending';
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', position: 'relative', paddingBottom: isLast ? 0 : 10 }}>
+      <div style={{ width: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+        <span style={{ color, fontSize: 14, lineHeight: 1, marginTop: 2 }}>{icon}</span>
+        {!isLast && (
+          <div style={{ width: 1, flex: 1, background: '#e8e8e8', marginTop: 2, minHeight: 10 }} />
+        )}
+      </div>
+      <div style={{ marginLeft: 8, fontSize: 13, lineHeight: 1.5, color: dim ? '#999' : '#333', flex: 1 }}>
+        {step.user_title}
+        {step.fromPriorTurn && (
+          <span style={{ marginLeft: 6, fontSize: 11, color: '#bfbfbf' }}>· 上一轮</span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const OutlinePreview: React.FC<{ markdown: string; subject?: string }> = ({ markdown, subject }) => {
+  const [folded, setFolded] = useState(false);
+  if (!markdown) return null;
+  return (
+    <div style={{
+      marginTop: 8,
+      borderLeft: '2px solid #91caff',
+      paddingLeft: 10,
+      background: '#f6fbff',
+      borderRadius: 4,
+      padding: '6px 10px',
+    }}>
+      <div
+        style={{ cursor: 'pointer', fontSize: 12, color: '#1677ff', marginBottom: folded ? 0 : 4 }}
+        onClick={() => setFolded(!folded)}
+      >
+        📋 大纲预览 {subject ? `· ${subject}` : ''} {folded ? '▸' : '▾'}
+      </div>
+      {!folded && (
+        <div className="agent-outline-preview" style={{ fontSize: 12, lineHeight: 1.6 }}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Main component ──────────────────────────────────────────────────────────
+
+export const AgentActivityPanel: React.FC<Props> = ({
+  activity,
+  defaultExpanded = false,
+  mergedTimeline,
+}) => {
   const [expanded, setExpanded] = useState<string[]>(defaultExpanded ? ['1'] : []);
   const { plan, stepStatus, toolCalls, toolResults, reflects } = activity;
 
-  const hasContent = plan || toolCalls.length > 0 || toolResults.length > 0 || reflects.length > 0;
+  const hasContent = plan || mergedTimeline || toolCalls.length > 0 || reflects.length > 0;
   if (!hasContent) return null;
 
-  const planStepsRunning = plan?.steps.filter((s) => stepStatus[s.index] === 'running').length || 0;
-  const planStepsDone = plan?.steps.filter((s) => stepStatus[s.index] === 'done').length || 0;
-  const planTotal = plan?.steps.length || 0;
+  // Build timeline steps from either mergedTimeline or activity.plan
+  const timelineSteps: MergedTimelineStep[] = (() => {
+    if (mergedTimeline) return mergedTimeline.steps;
+    if (plan) {
+      return plan.steps.map((s) => ({
+        index: s.index,
+        user_title: s.user_title,
+        status: (stepStatus[s.index] || s.status || 'pending') as MergedTimelineStep['status'],
+        fromPriorTurn: false,
+      }));
+    }
+    return [];
+  })();
 
-  const headerText = plan
-    ? `智能体执行 · ${planStepsDone}/${planTotal} 步完成${planStepsRunning > 0 ? '（进行中）' : ''}`
-    : `智能体执行 · 调用 ${toolCalls.length} 个工具`;
+  const displaySubject = mergedTimeline?.subject || plan?.subject || '';
+  const displayResourceType = mergedTimeline?.resource_type || plan?.resource_type || '';
+  const doneCount = timelineSteps.filter((s) => s.status === 'done').length;
+  const runningCount = timelineSteps.filter((s) => s.status === 'running').length;
+  const totalSteps = timelineSteps.length;
+
+  const headerText = totalSteps > 0
+    ? `${doneCount}/${totalSteps} 步完成${runningCount > 0 ? ' · 进行中' : ''}`
+    : `调用 ${toolCalls.length} 个工具`;
+
+  // Outline preview comes from the most recent draft_outline tool result with payload
+  const outlineResult = toolResults.find((r) => r.tool === 'draft_outline' && r.outline_markdown);
 
   return (
     <div style={{ marginBottom: 8 }}>
       <Collapse
         size="small"
+        bordered={false}
         activeKey={expanded}
         onChange={(keys) => setExpanded(Array.isArray(keys) ? keys : [keys])}
+        style={{ background: '#fafafa', borderRadius: 8 }}
         items={[
           {
             key: '1',
             label: (
-              <span style={{ fontSize: 12, color: '#666' }}>
-                <span style={{ marginRight: 6 }}>🤖</span>
-                {headerText}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#666' }}>
+                <span style={{ fontSize: 14 }}>🤖</span>
+                <span style={{ fontWeight: 500 }}>智能体执行</span>
+                <span style={{ color: '#999' }}>· {headerText}</span>
+                {displaySubject && (
+                  <span style={{ color: '#bfbfbf' }}>· {displaySubject}</span>
+                )}
+              </div>
             ),
             children: (
-              <div style={{ fontSize: 12, lineHeight: 1.7 }}>
-                {plan && (
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontWeight: 500, marginBottom: 4 }}>
-                      执行计划：{plan.subject}
-                      <Tag style={{ marginLeft: 6 }}>{plan.resource_type}</Tag>
+              <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+                {timelineSteps.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    {displaySubject && (
+                      <div style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>
+                        执行计划：<span style={{ color: '#333' }}>{displaySubject}</span>
+                        {displayResourceType && (
+                          <span style={{
+                            marginLeft: 6,
+                            padding: '0 6px',
+                            borderRadius: 3,
+                            background: '#e6f4ff',
+                            color: '#1677ff',
+                            fontSize: 11,
+                          }}>{displayResourceType}</span>
+                        )}
+                      </div>
+                    )}
+                    <div style={{ paddingLeft: 4 }}>
+                      {timelineSteps.map((step, i) => (
+                        <StepRow key={`${step.index}-${i}`} step={step} isLast={i === timelineSteps.length - 1} />
+                      ))}
                     </div>
-                    <ol style={{ paddingLeft: 20, margin: 0 }}>
-                      {plan.steps.map((step) => {
-                        const status = stepStatus[step.index] || step.status || 'pending';
-                        const label = STATUS_LABEL[status] || STATUS_LABEL.pending;
-                        return (
-                          <li key={step.index} style={{ marginBottom: 2 }}>
-                            <Tag color={label.color}>{label.text}</Tag>
-                            {step.user_title}
-                          </li>
-                        );
-                      })}
-                    </ol>
                   </div>
                 )}
 
+                {outlineResult?.outline_markdown && (
+                  <OutlinePreview
+                    markdown={outlineResult.outline_markdown}
+                    subject={outlineResult.subject}
+                  />
+                )}
+
                 {toolCalls.length > 0 && (
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontWeight: 500, marginBottom: 4 }}>工具调用：</div>
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>工具调用</div>
                     {toolCalls.map((call, i) => {
                       const result = toolResults[i];
                       const cn = TOOL_NAME_CN[call.tool] || call.tool;
                       return (
-                        <div key={i} style={{ paddingLeft: 8, color: '#555' }}>
-                          <span style={{ fontFamily: 'monospace' }}>{cn}</span>
-                          <span style={{ color: '#999', marginLeft: 6 }}>{formatArgs(call.args)}</span>
+                        <div key={i} style={{
+                          paddingLeft: 4,
+                          fontSize: 12,
+                          color: '#666',
+                          marginBottom: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          flexWrap: 'wrap',
+                        }}>
+                          <span style={{ color: '#333', fontWeight: 500 }}>{cn}</span>
+                          <span style={{ color: '#bfbfbf', fontSize: 11 }}>{formatArgs(call.args)}</span>
                           {result && (
-                            <Tag color={result.ok ? 'green' : 'red'} style={{ marginLeft: 6 }}>
+                            <span style={{
+                              color: result.ok ? '#52c41a' : '#ff4d4f',
+                              fontSize: 11,
+                            }}>
                               {result.ok ? '✓' : '✗'} {result.summary?.slice(0, 30)}
-                            </Tag>
+                            </span>
                           )}
                         </div>
                       );
@@ -148,21 +279,17 @@ export const AgentActivityPanel: React.FC<Props> = ({ activity, defaultExpanded 
                 )}
 
                 {reflects.length > 0 && (
-                  <div>
-                    <div style={{ fontWeight: 500, marginBottom: 4 }}>质量自检：</div>
-                    {reflects.map((r, i) => {
-                      const v = VERDICT_LABEL[r.verdict] || { text: r.verdict, color: 'default' };
-                      return (
-                        <div key={i} style={{ paddingLeft: 8 }}>
-                          <Tag color={v.color}>{v.text}</Tag>
-                          <Tooltip title={r.issue}>
-                            <span style={{ color: '#555' }}>
-                              {(TOOL_NAME_CN[r.tool] || r.tool)} · {r.issue?.slice(0, 40)}
-                            </span>
-                          </Tooltip>
-                        </div>
-                      );
-                    })}
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>质量自检</div>
+                    {reflects.map((r, i) => (
+                      <div key={i} style={{
+                        paddingLeft: 4,
+                        fontSize: 12,
+                        color: VERDICT_COLOR[r.verdict] || '#666',
+                      }}>
+                        {TOOL_NAME_CN[r.tool] || r.tool} · {r.verdict} · {r.issue?.slice(0, 50)}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

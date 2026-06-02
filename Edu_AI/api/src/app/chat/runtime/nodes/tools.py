@@ -124,10 +124,20 @@ def tools_node(state: AgentState) -> dict:
         )
         print(f"[智能体] 结果 | {ok_label}  {summary}  {tool_ms}ms{task_hint}", flush=True)
 
+        # Forward structured payload extras for UI rendering (e.g. outline preview).
+        # Keep keys minimal — full task results stay server-side.
+        extras: dict = {}
+        if tool_name == "draft_outline" and result.get("ok"):
+            outline_md = str((payload or {}).get("outline_markdown") or "")
+            if outline_md:
+                extras["outline_markdown"] = outline_md
+                extras["resource_type"] = str((payload or {}).get("resource_type") or "")
+                extras["subject"] = str((payload or {}).get("subject") or "")
         writer({"type": "tool_result", "payload": {
             "tool": tool_name,
             "summary": result.get("summary", ""),
             "ok": result.get("ok", False),
+            **extras,
         }})
 
         if result.get("ok") and tool_name in TOOL_TO_WORKFLOW:

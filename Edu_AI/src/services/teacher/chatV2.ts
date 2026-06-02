@@ -483,6 +483,10 @@ export interface AgentToolResultV2 {
   tool: string;
   summary: string;
   ok: boolean;
+  /** Tool-specific extras forwarded for rich UI rendering (e.g. outline_markdown). */
+  outline_markdown?: string;
+  resource_type?: string;
+  subject?: string;
 }
 
 export interface AgentReflectV2 {
