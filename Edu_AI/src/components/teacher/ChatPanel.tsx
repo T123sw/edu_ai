@@ -821,13 +821,25 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       ) {
         onWorkspaceScopeChange(detailScope);
       }
-      const mapped: Message[] = (detail.history || []).map((msg: any) => ({
-        user: msg.role === 'assistant' ? 'AI' : 'You',
-        text: msg.content || '',
-        sources: (msg.sources || []) as any[],
-        inputImages: (msg.input_images || []) as ChatInputImageV2[],
-        inputVideos: (msg.input_videos || []) as ChatInputVideoV2[],
-      }));
+      const mapped: Message[] = (detail.history || [])
+        .filter((msg: any) => {
+          // Internal tool exchange (role='tool' or message_kind='tool_exchange') is
+          // for LLM context only — never user-facing. Without this filter, internal
+          // prompts injected via _format_tool_result_for_context render as user
+          // bubbles after page refresh.
+          if (msg.message_kind === 'tool_exchange') return false;
+          if (msg.role === 'tool') return false;
+          // Skip assistant-with-only-tool_calls turns (no visible text)
+          if (msg.role === 'assistant' && !String(msg.content || '').trim() && msg.tool_calls) return false;
+          return true;
+        })
+        .map((msg: any) => ({
+          user: msg.role === 'assistant' ? 'AI' : 'You',
+          text: msg.content || '',
+          sources: (msg.sources || []) as any[],
+          inputImages: (msg.input_images || []) as ChatInputImageV2[],
+          inputVideos: (msg.input_videos || []) as ChatInputVideoV2[],
+        }));
       const detailWorkflowState = detail?.state?.workflow_state;
       const nextWorkflowType = String((detailWorkflowState as any)?.workflow_type || '').trim();
       const nextWorkflowStatus = String((detailWorkflowState as any)?.status || '').trim();
@@ -1634,7 +1646,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                         {item.statusText}
                       </div>
                     )}
-                    {item.user === 'AI' && item.agentActivity && (
+                    {item.user === 'AI' && Boolean(item.agentActivity) && (
                       <AgentActivityPanel
                         activity={item.agentActivity as AgentActivityState}
                         defaultExpanded={Boolean(item.statusText)}

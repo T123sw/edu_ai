@@ -49,14 +49,16 @@ def _format_tool_result_for_context(tool_name: str, result: dict) -> str:
         return content + _OBSERVE_HINTS["web_search"]
 
     if tool_name == "draft_outline":
-        outline = payload.get("outline_markdown", "")
+        subject = payload.get("subject", "")
+        # NOTE: do NOT ask the LLM to reproduce the outline. Qwen / DeepSeek strip
+        # markdown header symbols (## / ###) and turn the outline into flat
+        # numbered text, losing visual hierarchy. Instead the executor will
+        # synthesize the final assistant message by appending outline_markdown
+        # verbatim (see _maybe_append_outline in executor.py).
         return (
-            "大纲已生成。请按下列格式在回复中完整呈现：\n"
-            "1) 先用一句话简短介绍（如：以下是为您草拟的《X》大纲）；\n"
-            "2) 然后【完整逐字复制下面的 Markdown 大纲】到回复中，"
-            "**保留所有 # / ## / ### 标题层级符号**，不要改成纯数字列表；\n"
-            "3) 末尾问一句：是否需要调整？若满意请回复'可以'，将进入下一步。\n\n"
-            f"大纲 Markdown：\n{outline}"
+            f"已为《{subject}》生成大纲。请只用 1-2 句话告诉用户大纲已就绪，"
+            "并询问是否需要调整或确认。**不要在回复中重复或改写大纲正文** — "
+            "系统会自动把完整大纲附在你的回复后面。"
         )
 
     if tool_name in TOOL_TO_WORKFLOW:

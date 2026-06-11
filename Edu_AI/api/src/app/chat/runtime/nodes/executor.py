@@ -101,6 +101,19 @@ def executor_node(state: AgentState) -> dict:
 
     # Final answer turn — emit result event and finish
     answer = "".join(answer_chunks)
+    # If this turn invoked draft_outline, append the structured outline_markdown to
+    # the assistant answer. LLMs (esp. Qwen / DeepSeek) tend to strip # / ## / ###
+    # symbols when reproducing markdown, losing visual hierarchy. We append server-side
+    # to guarantee structure, and stream the appended portion as deltas so the
+    # client sees a single continuous answer.
+    outline_to_append = _maybe_outline_to_append(answer, state)
+    if outline_to_append:
+        appendix = "\n\n" + outline_to_append
+        # Stream the appendix so the UI updates without a perceived jump
+        for chunk_start in range(0, len(appendix), 64):
+            writer({"type": "delta", "payload": {"content": appendix[chunk_start:chunk_start + 64]}})
+        answer = answer + appendix
+
     total_ms = round((time.perf_counter() - t_start) * 1000)
     print(f"[智能体] 第{step}轮 | {llm_ms}ms  直接回答  总耗时={total_ms}ms", flush=True)
 
@@ -128,6 +141,35 @@ def executor_node(state: AgentState) -> dict:
         "reflect_hint": "",
         "reflect_filtered": {},
     }
+
+
+def _maybe_outline_to_append(answer: str, state: dict) -> str:
+    """If this turn called draft_outline and the LLM didn't include markdown
+    headers in its answer, return the outline_markdown to append. Otherwise
+    return empty string."""
+    import json as _json
+
+    # LLM already produced structured markdown — don't double-append
+    if "## " in answer or "\n#" in answer or "\n# " in answer:
+        return ""
+
+    # Check tool_exchange for a draft_outline call this turn
+    called_outline_this_turn = False
+    for msg in (state.get("tool_exchange") or []):
+        if msg.get("role") != "assistant":
+            continue
+        for tc in (msg.get("tool_calls") or []):
+            if (tc.get("function") or {}).get("name") == "draft_outline":
+                called_outline_this_turn = True
+                break
+        if called_outline_this_turn:
+            break
+    if not called_outline_this_turn:
+        return ""
+
+    # active_draft_outline holds the latest outline content
+    outline = (state.get("active_draft_outline") or {}).get("outline_markdown") or ""
+    return str(outline).strip()
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
