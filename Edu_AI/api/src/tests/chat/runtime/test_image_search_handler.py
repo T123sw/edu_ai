@@ -681,6 +681,33 @@ def test_planner_safety_net_moves_misplaced_fetch_visuals_to_before_generate():
     assert [s["index"] for s in plan["steps"]] == [1, 2, 3, 4]
 
 
+def test_planner_safety_net_handles_state_with_explicit_none_outline():
+    """Regression: state.active_draft_outline=None (initial turn) must not crash
+    the safety net. Previously `state.get("active_draft_outline", {}).get(...)`
+    returned None (not {}) when the key existed with value None, then crashed."""
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG", "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "起草", "internal_action": "draft_outline",
+             "expected_tools": ["draft_outline"]},
+            {"index": 2, "user_title": "确认", "internal_action": "confirm_outline",
+             "expected_tools": []},
+            {"index": 3, "user_title": "生成", "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    # state has active_draft_outline explicitly None (the bug scenario)
+    state = {"active_draft_outline": None}
+
+    # Should not raise; should skip injection since question has no visual keyword
+    _ensure_fetch_visuals_when_needed(plan, "生成一份报告", capability, state)
+    actions = [s["internal_action"] for s in plan["steps"]]
+    assert "fetch_visuals" not in actions  # no visual keyword + no persisted intent
+
+
 def test_planner_safety_net_reads_persisted_intent_when_question_lacks_keyword():
     """On confirm turn the user typically says '生成' without visual keywords.
     Safety net must read active_draft_outline.needs_visuals to know intent."""

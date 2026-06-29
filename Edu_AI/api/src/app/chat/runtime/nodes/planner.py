@@ -221,9 +221,10 @@ def _ensure_fetch_visuals_when_needed(plan_dict: dict, question: str, capability
         return
 
     visuals_from_question = _question_requests_visuals(question)
-    visuals_from_outline = bool(
-        (state or {}).get("active_draft_outline", {}).get("needs_visuals")
-    )
+    # NB: state.get("active_draft_outline") may explicitly be None on the first
+    # turn (vs. missing). Chain `or {}` AFTER the get so None doesn't reach .get.
+    outline = (state or {}).get("active_draft_outline") or {}
+    visuals_from_outline = bool(outline.get("needs_visuals"))
     if not (visuals_from_question or visuals_from_outline):
         return
 
