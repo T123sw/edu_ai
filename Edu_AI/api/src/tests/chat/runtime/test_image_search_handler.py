@@ -559,9 +559,10 @@ def test_inject_plan_step_hint_omits_visual_block_for_non_fetch_visuals_steps():
     assert "RAG architecture diagram" not in hint
 
 
-def test_planner_safety_net_injects_fetch_visuals_when_llm_omits_it():
-    """Phase 6-A.2 fix: LLM-driven plan that forgot fetch_visuals must be
-    auto-patched when the user explicitly asked for images."""
+def test_planner_safety_net_does_not_inject_in_initial_turn():
+    """Phase 6-A.2 UX: in the initial turn (no active_draft_outline) safety net
+    must NOT add fetch_visuals — that would make image_search run BEFORE user
+    confirms the outline, polluting accumulated_images and asking twice."""
     from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
 
     plan = {
@@ -580,17 +581,37 @@ def test_planner_safety_net_injects_fetch_visuals_when_llm_omits_it():
         ],
     }
     capability = SimpleNamespace(allow_image_search=True)
-    question = "生成一份rag的报告，要配上图片"
+    state = {}  # no active_draft_outline → initial turn
 
-    _ensure_fetch_visuals_when_needed(plan, question, capability)
+    _ensure_fetch_visuals_when_needed(plan, "生成一份rag的报告，要配上图片", capability, state)
 
     actions = [s["internal_action"] for s in plan["steps"]]
-    # fetch_visuals inserted BEFORE generate_resource
-    assert actions == ["draft_outline", "confirm_outline", "fetch_visuals", "generate_resource"]
-    # Indices reflowed to 1-based contiguous
-    assert [s["index"] for s in plan["steps"]] == [1, 2, 3, 4]
-    # Injected step carries visual_need with candidates
-    fv = next(s for s in plan["steps"] if s["internal_action"] == "fetch_visuals")
+    # Initial plan untouched: no fetch_visuals
+    assert actions == ["draft_outline", "confirm_outline", "generate_resource"]
+
+
+def test_planner_safety_net_injects_in_post_confirm_turn_when_llm_omits():
+    """In the post-confirm turn (active_draft_outline.needs_visuals=True), safety
+    net must inject fetch_visuals before generate_resource."""
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG 技术",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "生成报告",
+             "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    state = {"active_draft_outline": {"needs_visuals": True}}
+
+    _ensure_fetch_visuals_when_needed(plan, "继续", capability, state)
+
+    actions = [s["internal_action"] for s in plan["steps"]]
+    assert actions == ["fetch_visuals", "generate_resource"]
+    fv = plan["steps"][0]
     assert fv["expected_tools"] == ["image_search"]
     assert fv["visual_need"]["required"] is True
     assert len(fv["visual_need"]["query_candidates"]) >= 1
@@ -650,35 +671,31 @@ def test_planner_safety_net_no_op_when_already_present():
     assert actions == ["fetch_visuals", "generate_resource"]
 
 
-def test_planner_safety_net_moves_misplaced_fetch_visuals_to_before_generate():
-    """If LLM put fetch_visuals BEFORE confirm_outline, that would split it
-    across turns from generate_resource (state.accumulated_images is per-turn).
-    Safety net must reorder to ensure they're in the same turn."""
+def test_planner_safety_net_moves_misplaced_fetch_visuals_in_post_confirm_turn():
+    """In post-confirm turn, if LLM put fetch_visuals BEFORE confirm/draft,
+    safety net moves it to right before generate_resource so both run in
+    the same turn (accumulated_images doesn't cross turn boundary)."""
     from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
 
     plan = {
         "subject": "RAG",
         "resource_type": "report",
         "steps": [
-            {"index": 1, "user_title": "起草大纲",
-             "internal_action": "draft_outline", "expected_tools": ["draft_outline"]},
-            {"index": 2, "user_title": "搜图",
+            {"index": 1, "user_title": "搜图",
              "internal_action": "fetch_visuals", "expected_tools": ["image_search"]},
-            {"index": 3, "user_title": "确认大纲",
-             "internal_action": "confirm_outline", "expected_tools": []},
-            {"index": 4, "user_title": "生成报告",
+            {"index": 2, "user_title": "无关步骤",
+             "internal_action": "other", "expected_tools": []},
+            {"index": 3, "user_title": "生成报告",
              "internal_action": "generate_resource", "expected_tools": ["generate_report"]},
         ],
     }
     capability = SimpleNamespace(allow_image_search=True)
-    _ensure_fetch_visuals_when_needed(plan, "要配图片", capability)
+    state = {"active_draft_outline": {"needs_visuals": True}}
+
+    _ensure_fetch_visuals_when_needed(plan, "继续", capability, state)
     actions = [s["internal_action"] for s in plan["steps"]]
-    # fetch_visuals must end up immediately before generate_resource
-    assert actions == [
-        "draft_outline", "confirm_outline", "fetch_visuals", "generate_resource",
-    ]
-    # Indices reflowed contiguous
-    assert [s["index"] for s in plan["steps"]] == [1, 2, 3, 4]
+    assert actions == ["other", "fetch_visuals", "generate_resource"]
+    assert [s["index"] for s in plan["steps"]] == [1, 2, 3]
 
 
 def test_planner_safety_net_handles_state_with_explicit_none_outline():

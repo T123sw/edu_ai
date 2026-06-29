@@ -220,10 +220,15 @@ def _ensure_fetch_visuals_when_needed(plan_dict: dict, question: str, capability
     if not allow_image_search:
         return
 
-    visuals_from_question = _question_requests_visuals(question)
-    # NB: state.get("active_draft_outline") may explicitly be None on the first
-    # turn (vs. missing). Chain `or {}` AFTER the get so None doesn't reach .get.
+    # Safety net only fires in the POST-confirm scenario (active_draft_outline
+    # exists). In the initial turn we let the LLM-driven plan proceed unmodified;
+    # visual intent is carried via active_draft_outline.needs_visuals to the next
+    # turn, where this safety net injects fetch_visuals if the next plan misses it.
     outline = (state or {}).get("active_draft_outline") or {}
+    if not outline:
+        return  # initial turn — do NOT inject
+
+    visuals_from_question = _question_requests_visuals(question)
     visuals_from_outline = bool(outline.get("needs_visuals"))
     if not (visuals_from_question or visuals_from_outline):
         return

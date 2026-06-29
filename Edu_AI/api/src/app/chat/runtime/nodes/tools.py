@@ -101,6 +101,10 @@ def tools_node(state: AgentState) -> dict:
     new_active_draft_outline = state.get("active_draft_outline")
     new_pending_tasks = list(state.get("pending_tasks") or [])
     raw_results_for_reflect: list[dict] = []
+    # Per-tools-node-invocation override: if any tool in this batch is draft_outline,
+    # we reset accumulated_images so the new task starts fresh (set below after
+    # the dispatch loop knows which tools ran).
+    accumulated_images_override: list | None = None
 
     # Phase 6-A: expose accumulated visual assets (from prior image_search rounds
     # in this run) on ctx so handlers like generate_report can pick them up
@@ -189,6 +193,9 @@ def tools_node(state: AgentState) -> dict:
                 "outline_markdown": str(payload.get("outline_markdown", "")),
                 "needs_visuals": _question_requests_visuals(origin_question),
             }
+            # A new draft_outline marks the start of a new task — discard any
+            # leftover images from a previous generation cycle.
+            accumulated_images_override = []
 
         tool_result_msg = {
             "role": "tool",
@@ -198,13 +205,16 @@ def tools_node(state: AgentState) -> dict:
         tool_results_msgs.append(tool_result_msg)
         new_tool_exchange.append(tool_result_msg)
 
-    return {
+    updates: dict = {
         "messages": state["messages"] + tool_results_msgs,
         "tool_exchange": new_tool_exchange,
         "active_draft_outline": new_active_draft_outline,
         "pending_tasks": new_pending_tasks,
         "last_tool_results": raw_results_for_reflect,
     }
+    if accumulated_images_override is not None:
+        updates["accumulated_images"] = accumulated_images_override
+    return updates
 
 
 def _enforce_strict_mode(calls: list[dict], state: dict) -> list[dict]:

@@ -119,6 +119,19 @@ class ReActAgent:
 
         # Reset all per-turn transient state explicitly to avoid stale plan/reflect from
         # prior turns leaking into the new turn via the LangGraph checkpoint.
+        # accumulated_images is the EXCEPTION: it must persist so that image_search
+        # results from a prior turn (typically the post-outline turn) survive to the
+        # next turn's generate_report. tools_node clears it explicitly when a new
+        # draft_outline cycle begins.
+        prior_accumulated_images = list(checkpoint_state.get("accumulated_images") or [])
+
+        print(
+            f"[智能体] needs_planning={needs_planning}  "
+            f"active_draft_outline={'set' if active_draft_outline else 'none'}  "
+            f"accumulated_images={len(prior_accumulated_images)}",
+            flush=True,
+        )
+
         initial_input = {
             "messages": messages,
             "tool_exchange": [],
@@ -134,7 +147,7 @@ class ReActAgent:
             "reflect_filtered": {},
             "retry_counts": {},
             "last_tool_results": [],
-            "accumulated_images": [],
+            "accumulated_images": prior_accumulated_images,
         }
 
         config = {"configurable": {"thread_id": conv_id, "runtime": rt}}
