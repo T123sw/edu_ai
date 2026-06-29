@@ -59,6 +59,7 @@ class Config:
     IMAGE_SEARCH_DEFAULT_COUNT = int(os.getenv("IMAGE_SEARCH_DEFAULT_COUNT", "6") or "6")
     IMAGE_SEARCH_MAX_COUNT = int(os.getenv("IMAGE_SEARCH_MAX_COUNT", "12") or "12")
 
+
     # 统一别名（兼容历史代码中的 REMOTE_*）
     REMOTE_MODEL_API_BASE = os.getenv("REMOTE_MODEL_API_BASE", DEEPSEEK_BASE_URL)
     REMOTE_MODEL_API_KEY = os.getenv("REMOTE_MODEL_API_KEY", DEEPSEEK_API_KEY)
@@ -88,6 +89,21 @@ class Config:
     VIDEO_CHUNKS_ROOT = Path(os.getenv("VIDEO_CHUNKS_ROOT", STORAGE_ROOT / "video_chunks"))
     COURSE_STORAGE_ROOT = Path(os.getenv("COURSE_STORAGE_ROOT", BASE_DIR.parent / "course_data"))
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
+
+    # Phase 6-A.2 — agent 搜来的图片本地化存储
+    SEARCHED_IMAGE_STORAGE_ROOT = Path(
+        os.getenv("SEARCHED_IMAGE_STORAGE_ROOT", STORAGE_ROOT / "searched_images")
+    )
+    SEARCHED_IMAGE_MAX_BYTES = int(
+        os.getenv("SEARCHED_IMAGE_MAX_BYTES", str(10 * 1024 * 1024)) or str(10 * 1024 * 1024)
+    )
+    SEARCHED_IMAGE_DOWNLOAD_TIMEOUT_S = float(
+        os.getenv("SEARCHED_IMAGE_DOWNLOAD_TIMEOUT_S", "10") or "10"
+    )
+    SEARCHED_IMAGE_USER_AGENT = os.getenv(
+        "SEARCHED_IMAGE_USER_AGENT",
+        "Mozilla/5.0 (compatible; EduAI/1.0)",
+    )
     AI_LECTURER_AUTOSTART = os.getenv("AI_LECTURER_AUTOSTART", "1")
     AI_LECTURER_OFFLINE_ENABLED = os.getenv("AI_LECTURER_OFFLINE_ENABLED", "1")
     AI_LECTURER_TRANSFER_MODE = os.getenv("AI_LECTURER_TRANSFER_MODE", "upload").strip().lower()

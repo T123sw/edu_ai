@@ -23,6 +23,7 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
     allow_rag = bool(getattr(getattr(ctx, "capability", None), "allow_rag", False))
     selected_doc_ids = list(getattr(getattr(ctx, "capability", None), "selected_doc_ids", []) or [])
     owner = getattr(getattr(ctx, "request", None), "owner", None)
+    course_id = getattr(getattr(ctx, "request", None), "course_id", None)
 
     # Phase 6-A: images accumulated by reflect_node from this turn's image_search calls.
     # tools_node sets ctx.accumulated_images before dispatch.
@@ -31,9 +32,20 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
     def _run():
         from app.chat.agents.report_generation import build_report_markdown, get_fallback_llm
         from app.chat.skill_manager import SkillManager
+        from app.chat.workflows.report.image_downloader import (
+            resolve_async_localization,
+            start_async_localization,
+        )
         from app.chat.workflows.report.image_injector import (
             inject_images_into_report,
             inject_report_images_from_rag,
+        )
+
+        # Phase 6-A.2: fire image localization in parallel with LLM body generation.
+        # Downloads usually finish well before the ~30s LLM run; we join below
+        # with a 5s extra grace before falling back to external URLs.
+        localization_future = start_async_localization(
+            accumulated_images, owner=owner, course_id=course_id,
         )
 
         llm = get_fallback_llm()
@@ -49,11 +61,22 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
             outline=outline_chapters,
             mode="fast",
         )
-        # Phase 6-A: prefer external image_search results; fall back to RAG-embedded
-        # images only when no search images were gathered this run.
-        if body and accumulated_images:
+
+        # Join downloads now: successful ones return local /api/images/searched/*
+        # URLs; failures preserve the original external URL.
+        injectable_assets = resolve_async_localization(
+            localization_future, accumulated_images, extra_timeout_s=5.0,
+        )
+
+        localized_count = sum(
+            1 for a in injectable_assets if str(a.get("url", "")).startswith("/api/images/")
+        )
+
+        # Phase 6-A: prefer external image_search results (now localized);
+        # fall back to RAG-embedded images only when no search images this run.
+        if body and injectable_assets:
             body = inject_images_into_report(
-                body, accumulated_images, max_images=min(len(accumulated_images), 6)
+                body, injectable_assets, max_images=min(len(injectable_assets), 6)
             )
         elif body and allow_rag and selected_doc_ids:
             body = inject_report_images_from_rag(
@@ -71,6 +94,7 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
                 "content": body,
                 "generation_state": checkpoint,
                 "visual_assets_count": len(accumulated_images),
+                "visual_assets_localized": localized_count,
             }],
         }
 
