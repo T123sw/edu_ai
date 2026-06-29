@@ -83,8 +83,9 @@ def _build_status_card_for_conversation(conversation_id: str, owner: str | None)
     capability = CapabilityPolicy(
         allow_rag=bool(capability_state.get("allow_rag")) or bool(selected_doc_ids),
         allow_web=_allow_web,
-        # Phase 6-A: image_search mirrors web until a dedicated toggle ships.
-        allow_image_search=bool(capability_state.get("allow_image_search", _allow_web)),
+        # Phase 6-A.2: image_search default True (local SearXNG, no extra cost);
+        # planner-side keyword detection still gates actual invocation.
+        allow_image_search=bool(capability_state.get("allow_image_search", True)),
         selected_doc_ids=selected_doc_ids,
     )
     request = SimpleNamespace(
@@ -130,10 +131,8 @@ def _maybe_refresh_running_ppt_edit_conversation(conversation_id: str, owner: st
         capability=CapabilityPolicy(
             allow_rag=bool(capability_state.get("allow_rag")),
             allow_web=bool(capability_state.get("allow_web")),
-            allow_image_search=bool(
-                capability_state.get("allow_image_search",
-                                     capability_state.get("allow_web", False))
-            ),
+            # Phase 6-A.2: image_search default True; planner gates real usage.
+            allow_image_search=bool(capability_state.get("allow_image_search", True)),
             selected_doc_ids=selected_doc_ids,
         ),
         artifact_reference=SimpleNamespace(**artifact_reference),

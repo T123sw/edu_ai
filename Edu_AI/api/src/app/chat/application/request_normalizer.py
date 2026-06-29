@@ -13,10 +13,14 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         allow_rag = True
 
     allow_web = bool(getattr(payload, "allow_web", False))
-    # Phase 6-A: image_search is exposed via the same external-data toggle as
-    # web_search until the UI gets a dedicated control. If the user has opted
-    # into web access we also let the agent fetch supporting images.
-    allow_image_search = bool(getattr(payload, "allow_image_search", allow_web))
+    # Phase 6-A.2 (decoupling fix): image_search is a separate capability from
+    # web_search. It runs against the local SearXNG service — there's no extra
+    # cost/privacy concern in keeping it always-on, and tying it to allow_web
+    # caused silent failures when users explicitly asked for visuals but
+    # hadn't enabled Web search. The planner still gates actual usage by
+    # detecting visual keywords in the question.
+    explicit_image_search = getattr(payload, "allow_image_search", None)
+    allow_image_search = True if explicit_image_search is None else bool(explicit_image_search)
 
     return ChatRequestV2(
         question=payload.question,

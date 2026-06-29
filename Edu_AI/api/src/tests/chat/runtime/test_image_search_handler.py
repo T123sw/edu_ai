@@ -524,6 +524,129 @@ def test_inject_plan_step_hint_omits_visual_block_for_non_fetch_visuals_steps():
     assert "RAG architecture diagram" not in hint
 
 
+def test_planner_safety_net_injects_fetch_visuals_when_llm_omits_it():
+    """Phase 6-A.2 fix: LLM-driven plan that forgot fetch_visuals must be
+    auto-patched when the user explicitly asked for images."""
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG 技术",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "起草大纲",
+             "internal_action": "draft_outline",
+             "expected_tools": ["draft_outline"]},
+            {"index": 2, "user_title": "等待用户确认",
+             "internal_action": "confirm_outline",
+             "expected_tools": []},
+            {"index": 3, "user_title": "生成报告",
+             "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    question = "生成一份rag的报告，要配上图片"
+
+    _ensure_fetch_visuals_when_needed(plan, question, capability)
+
+    actions = [s["internal_action"] for s in plan["steps"]]
+    # fetch_visuals inserted BEFORE generate_resource
+    assert actions == ["draft_outline", "confirm_outline", "fetch_visuals", "generate_resource"]
+    # Indices reflowed to 1-based contiguous
+    assert [s["index"] for s in plan["steps"]] == [1, 2, 3, 4]
+    # Injected step carries visual_need with candidates
+    fv = next(s for s in plan["steps"] if s["internal_action"] == "fetch_visuals")
+    assert fv["expected_tools"] == ["image_search"]
+    assert fv["visual_need"]["required"] is True
+    assert len(fv["visual_need"]["query_candidates"]) >= 1
+
+
+def test_planner_safety_net_skips_when_question_has_no_visual_keyword():
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "生成", "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    _ensure_fetch_visuals_when_needed(plan, "做一份报告", capability)
+    assert all(s["internal_action"] != "fetch_visuals" for s in plan["steps"])
+
+
+def test_planner_safety_net_skips_when_capability_disabled():
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "生成", "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=False)
+    _ensure_fetch_visuals_when_needed(plan, "要配图片", capability)
+    assert all(s["internal_action"] != "fetch_visuals" for s in plan["steps"])
+
+
+def test_planner_safety_net_no_op_when_already_present():
+    """If LLM already added fetch_visuals, don't duplicate."""
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "搜图",
+             "internal_action": "fetch_visuals",
+             "expected_tools": ["image_search"]},
+            {"index": 2, "user_title": "生成",
+             "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    _ensure_fetch_visuals_when_needed(plan, "要配图片", capability)
+    actions = [s["internal_action"] for s in plan["steps"]]
+    assert actions.count("fetch_visuals") == 1
+
+
+def test_request_normalizer_defaults_image_search_to_true_regardless_of_allow_web():
+    """Phase 6-A.2 fix: image_search must NOT be silently disabled when
+    allow_web=False. Previously coupled → caused users' '要配图' requests to
+    fail silently."""
+    from app.chat.application.request_normalizer import normalize_chat_request
+
+    # No allow_web, no explicit allow_image_search → should still be True
+    payload = SimpleNamespace(
+        question="测试",
+        allow_web=False,
+        allow_rag=False,
+        selected_doc_ids=[],
+    )
+    result = normalize_chat_request(payload)
+    assert result.capability.allow_image_search is True
+    assert result.capability.allow_web is False  # unchanged
+
+
+def test_request_normalizer_honors_explicit_image_search_false():
+    """Explicit override from frontend should still be respected."""
+    from app.chat.application.request_normalizer import normalize_chat_request
+    payload = SimpleNamespace(
+        question="测试",
+        allow_web=False,
+        allow_rag=False,
+        allow_image_search=False,
+        selected_doc_ids=[],
+    )
+    result = normalize_chat_request(payload)
+    assert result.capability.allow_image_search is False
+
+
 def test_plan_step_serialization_roundtrips_visual_need():
     from app.chat.runtime.planning.schema import PlanStep, VisualNeed
     step = PlanStep(

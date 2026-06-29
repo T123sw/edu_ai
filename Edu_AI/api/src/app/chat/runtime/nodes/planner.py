@@ -28,6 +28,7 @@ def planner_node(state: AgentState) -> dict:
         print("[规划器] LLM未调用工具，使用关键词回退计划", flush=True)
 
     if plan_dict and plan_dict.get("steps"):
+        _ensure_fetch_visuals_when_needed(plan_dict, question, capability)
         _attach_step_constraints(plan_dict)
         plan = Plan.from_dict(plan_dict)
         out = plan.to_dict()
@@ -203,6 +204,48 @@ def _question_requests_visuals(question: str) -> bool:
     if not question:
         return False
     return any(kw in question for kw in _VISUAL_KEYWORDS)
+
+
+def _ensure_fetch_visuals_when_needed(plan_dict: dict, question: str, capability) -> None:
+    """Safety net: LLM-driven plans sometimes omit fetch_visuals even when the
+    user explicitly asked for images. Inject it before generate_resource when
+    all three hold: capability allows, question mentions visuals, plan lacks it.
+    """
+    allow_image_search = bool(getattr(capability, "allow_image_search", False))
+    if not allow_image_search or not _question_requests_visuals(question):
+        return
+
+    steps = plan_dict.get("steps") or []
+    if any(s.get("internal_action") == "fetch_visuals" for s in steps):
+        return  # LLM already included it — nothing to do
+
+    # Find insertion point: just before generate_resource (or at end if missing)
+    insert_idx = len(steps)
+    for i, s in enumerate(steps):
+        if s.get("internal_action") == "generate_resource":
+            insert_idx = i
+            break
+
+    subject = plan_dict.get("subject", "")
+    resource_type = plan_dict.get("resource_type", "")
+    new_step = {
+        "index": insert_idx + 1,  # 1-based ordering, will be reflowed below
+        "user_title": f"为{subject}搜集配图",
+        "internal_action": "fetch_visuals",
+        "expected_tools": ["image_search"],
+        "visual_need": _build_visual_need(subject, resource_type),
+    }
+    steps.insert(insert_idx, new_step)
+
+    # Reflow 1-based step indices so downstream code (logging / SSE) stays aligned
+    for i, s in enumerate(steps):
+        s["index"] = i + 1
+
+    plan_dict["steps"] = steps
+    print(
+        f"[规划器] 安全网补全：LLM 漏掉 fetch_visuals，已插入到 step {insert_idx + 1}",
+        flush=True,
+    )
 
 
 def _extract_english_keywords(subject: str) -> str:
