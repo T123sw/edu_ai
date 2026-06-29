@@ -277,7 +277,10 @@ def test_image_search_tool_meta_is_parallel_safe_and_non_mutating():
 # Planner fallback: image-related questions trigger fetch_visuals step
 # ============================================================================
 
-def test_planner_fallback_adds_fetch_visuals_step_for_report_with_image_request():
+def test_planner_initial_plan_omits_fetch_visuals_until_user_confirms():
+    """Phase 6-A.2 UX fix: initial plan does NOT include fetch_visuals.
+    Image search runs in the post-confirm turn so accumulated_images survive
+    to generate_resource without crossing a turn boundary."""
     from app.chat.runtime.nodes.planner import _fallback_plan
     capability = SimpleNamespace(
         allow_rag=False, allow_web=False, allow_image_search=True,
@@ -285,21 +288,46 @@ def test_planner_fallback_adds_fetch_visuals_step_for_report_with_image_request(
 
     plan = _fallback_plan(
         "给我做一份 RAG 技术教学报告，要配图",
-        state={},
+        state={},  # no active_draft_outline → initial path
         capability=capability,
     )
 
     assert plan["resource_type"] == "report"
     internal_actions = [s["internal_action"] for s in plan["steps"]]
-    assert "fetch_visuals" in internal_actions
+    # confirm_outline present, fetch_visuals NOT present in initial plan
+    assert "confirm_outline" in internal_actions
+    assert "fetch_visuals" not in internal_actions
+    # Order: draft_outline → confirm_outline → generate_resource
+    assert internal_actions.index("draft_outline") < internal_actions.index("confirm_outline")
+    assert internal_actions.index("confirm_outline") < internal_actions.index("generate_resource")
 
-    fv = next(s for s in plan["steps"] if s["internal_action"] == "fetch_visuals")
+
+def test_planner_confirm_path_includes_fetch_visuals_when_outline_flagged():
+    """After user confirms an outline that originated from a visual request,
+    the next plan should be fetch_visuals → generate_resource (same turn)."""
+    from app.chat.runtime.nodes.planner import _fallback_plan
+    capability = SimpleNamespace(
+        allow_rag=False, allow_web=False, allow_image_search=True,
+    )
+
+    plan = _fallback_plan(
+        "生成",  # confirm message, no visual keywords
+        state={
+            "active_draft_outline": {
+                "subject": "RAG 技术",
+                "resource_type": "report",
+                "outline_markdown": "...",
+                "needs_visuals": True,   # persisted from the original request
+            }
+        },
+        capability=capability,
+    )
+
+    actions = [s["internal_action"] for s in plan["steps"]]
+    assert actions == ["fetch_visuals", "generate_resource"]
+    fv = plan["steps"][0]
     assert fv["expected_tools"] == ["image_search"]
-
-    # fetch_visuals must come BEFORE generate_resource
-    generate_idx = internal_actions.index("generate_resource")
-    visuals_idx = internal_actions.index("fetch_visuals")
-    assert visuals_idx < generate_idx
+    assert fv["visual_need"]["query_candidates"]
 
 
 def test_planner_fallback_skips_fetch_visuals_when_image_search_disabled():
@@ -381,13 +409,20 @@ def test_build_visual_query_candidates_uses_english_subject_with_technical_suffi
 
 
 def test_fallback_plan_attaches_visual_need_with_candidates_for_fetch_visuals():
+    """fetch_visuals appears in the post-confirm plan, not the initial one."""
     from app.chat.runtime.nodes.planner import _fallback_plan
     capability = SimpleNamespace(
         allow_rag=False, allow_web=False, allow_image_search=True,
     )
     plan = _fallback_plan(
-        "给我做一份 RAG 技术教学报告，要配图",
-        state={},
+        "继续",
+        state={
+            "active_draft_outline": {
+                "subject": "RAG 技术",
+                "resource_type": "report",
+                "needs_visuals": True,
+            }
+        },
         capability=capability,
     )
     fv = next(s for s in plan["steps"] if s["internal_action"] == "fetch_visuals")
@@ -594,7 +629,7 @@ def test_planner_safety_net_skips_when_capability_disabled():
 
 
 def test_planner_safety_net_no_op_when_already_present():
-    """If LLM already added fetch_visuals, don't duplicate."""
+    """If LLM already added fetch_visuals right before generate_resource, don't move it."""
     from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
 
     plan = {
@@ -612,7 +647,59 @@ def test_planner_safety_net_no_op_when_already_present():
     capability = SimpleNamespace(allow_image_search=True)
     _ensure_fetch_visuals_when_needed(plan, "要配图片", capability)
     actions = [s["internal_action"] for s in plan["steps"]]
-    assert actions.count("fetch_visuals") == 1
+    assert actions == ["fetch_visuals", "generate_resource"]
+
+
+def test_planner_safety_net_moves_misplaced_fetch_visuals_to_before_generate():
+    """If LLM put fetch_visuals BEFORE confirm_outline, that would split it
+    across turns from generate_resource (state.accumulated_images is per-turn).
+    Safety net must reorder to ensure they're in the same turn."""
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "起草大纲",
+             "internal_action": "draft_outline", "expected_tools": ["draft_outline"]},
+            {"index": 2, "user_title": "搜图",
+             "internal_action": "fetch_visuals", "expected_tools": ["image_search"]},
+            {"index": 3, "user_title": "确认大纲",
+             "internal_action": "confirm_outline", "expected_tools": []},
+            {"index": 4, "user_title": "生成报告",
+             "internal_action": "generate_resource", "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    _ensure_fetch_visuals_when_needed(plan, "要配图片", capability)
+    actions = [s["internal_action"] for s in plan["steps"]]
+    # fetch_visuals must end up immediately before generate_resource
+    assert actions == [
+        "draft_outline", "confirm_outline", "fetch_visuals", "generate_resource",
+    ]
+    # Indices reflowed contiguous
+    assert [s["index"] for s in plan["steps"]] == [1, 2, 3, 4]
+
+
+def test_planner_safety_net_reads_persisted_intent_when_question_lacks_keyword():
+    """On confirm turn the user typically says '生成' without visual keywords.
+    Safety net must read active_draft_outline.needs_visuals to know intent."""
+    from app.chat.runtime.nodes.planner import _ensure_fetch_visuals_when_needed
+
+    plan = {
+        "subject": "RAG",
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "生成报告",
+             "internal_action": "generate_resource",
+             "expected_tools": ["generate_report"]},
+        ],
+    }
+    capability = SimpleNamespace(allow_image_search=True)
+    state = {"active_draft_outline": {"needs_visuals": True}}
+    _ensure_fetch_visuals_when_needed(plan, "生成", capability, state)
+    actions = [s["internal_action"] for s in plan["steps"]]
+    assert actions == ["fetch_visuals", "generate_resource"]
 
 
 def test_request_normalizer_defaults_image_search_to_true_regardless_of_allow_web():

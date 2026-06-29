@@ -28,7 +28,7 @@ def planner_node(state: AgentState) -> dict:
         print("[规划器] LLM未调用工具，使用关键词回退计划", flush=True)
 
     if plan_dict and plan_dict.get("steps"):
-        _ensure_fetch_visuals_when_needed(plan_dict, question, capability)
+        _ensure_fetch_visuals_when_needed(plan_dict, question, capability, state)
         _attach_step_constraints(plan_dict)
         plan = Plan.from_dict(plan_dict)
         out = plan.to_dict()
@@ -206,46 +206,78 @@ def _question_requests_visuals(question: str) -> bool:
     return any(kw in question for kw in _VISUAL_KEYWORDS)
 
 
-def _ensure_fetch_visuals_when_needed(plan_dict: dict, question: str, capability) -> None:
+def _ensure_fetch_visuals_when_needed(plan_dict: dict, question: str, capability, state: dict | None = None) -> None:
     """Safety net: LLM-driven plans sometimes omit fetch_visuals even when the
-    user explicitly asked for images. Inject it before generate_resource when
-    all three hold: capability allows, question mentions visuals, plan lacks it.
+    user explicitly asked for images. Inject it at the appropriate position:
+      - If plan has confirm_outline: place fetch_visuals IMMEDIATELY before
+        generate_resource (so it runs in the same post-confirm turn).
+      - Otherwise: place before generate_resource.
+
+    Visuals intent comes from either the current question or, in the post-
+    confirm turn, from active_draft_outline.needs_visuals persisted earlier.
     """
     allow_image_search = bool(getattr(capability, "allow_image_search", False))
-    if not allow_image_search or not _question_requests_visuals(question):
+    if not allow_image_search:
+        return
+
+    visuals_from_question = _question_requests_visuals(question)
+    visuals_from_outline = bool(
+        (state or {}).get("active_draft_outline", {}).get("needs_visuals")
+    )
+    if not (visuals_from_question or visuals_from_outline):
         return
 
     steps = plan_dict.get("steps") or []
-    if any(s.get("internal_action") == "fetch_visuals" for s in steps):
-        return  # LLM already included it — nothing to do
-
-    # Find insertion point: just before generate_resource (or at end if missing)
-    insert_idx = len(steps)
-    for i, s in enumerate(steps):
-        if s.get("internal_action") == "generate_resource":
-            insert_idx = i
-            break
-
     subject = plan_dict.get("subject", "")
     resource_type = plan_dict.get("resource_type", "")
-    new_step = {
-        "index": insert_idx + 1,  # 1-based ordering, will be reflowed below
-        "user_title": f"为{subject}搜集配图",
-        "internal_action": "fetch_visuals",
-        "expected_tools": ["image_search"],
-        "visual_need": _build_visual_need(subject, resource_type),
-    }
-    steps.insert(insert_idx, new_step)
 
-    # Reflow 1-based step indices so downstream code (logging / SSE) stays aligned
+    # Locate the existing fetch_visuals (if any) and generate_resource positions.
+    existing_fv_idx = next(
+        (i for i, s in enumerate(steps) if s.get("internal_action") == "fetch_visuals"),
+        None,
+    )
+    generate_idx = next(
+        (i for i, s in enumerate(steps) if s.get("internal_action") == "generate_resource"),
+        len(steps),
+    )
+
+    if existing_fv_idx is None:
+        # CASE A: missing entirely → inject right before generate_resource
+        new_step = {
+            "index": generate_idx + 1,
+            "user_title": f"为{subject}搜集配图",
+            "internal_action": "fetch_visuals",
+            "expected_tools": ["image_search"],
+            "visual_need": _build_visual_need(subject, resource_type),
+        }
+        steps.insert(generate_idx, new_step)
+        print(
+            f"[规划器] 安全网补全：LLM 漏掉 fetch_visuals，已插入到 step {generate_idx + 1}",
+            flush=True,
+        )
+    elif existing_fv_idx + 1 != generate_idx:
+        # CASE B: misplaced → move to right before generate_resource so fetch_visuals
+        # + generate_resource run within the same turn (avoiding state.accumulated_images
+        # being reset across turn boundary).
+        misplaced = steps.pop(existing_fv_idx)
+        # After pop, generate_resource index may have shifted
+        generate_idx = next(
+            (i for i, s in enumerate(steps) if s.get("internal_action") == "generate_resource"),
+            len(steps),
+        )
+        steps.insert(generate_idx, misplaced)
+        print(
+            f"[规划器] 安全网重排：fetch_visuals 从 step {existing_fv_idx + 1} 移到 step {generate_idx + 1}（紧邻 generate_resource）",
+            flush=True,
+        )
+    else:
+        return  # already in the right place
+
+    # Reflow 1-based step indices
     for i, s in enumerate(steps):
         s["index"] = i + 1
 
     plan_dict["steps"] = steps
-    print(
-        f"[规划器] 安全网补全：LLM 漏掉 fetch_visuals，已插入到 step {insert_idx + 1}",
-        flush=True,
-    )
 
 
 def _extract_english_keywords(subject: str) -> str:
@@ -339,8 +371,13 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
         outline = state["active_draft_outline"]
         rtype = outline.get("resource_type", "report")
         outline_subject = outline.get("subject", subject)
+        # Phase 6-A.2: the confirm message ("生成"/"继续") usually has no visual
+        # keywords. Read the intent persisted on active_draft_outline (set by
+        # tools_node when draft_outline ran in the previous turn).
+        visuals_from_outline = bool(outline.get("needs_visuals"))
+        confirm_needs_visuals = allow_image_search and (visuals_from_outline or needs_visuals)
         confirm_steps = []
-        if needs_visuals:
+        if confirm_needs_visuals:
             confirm_steps.append({
                 "index": 1,
                 "user_title": f"为「{outline_subject}」搜集配图",
@@ -389,20 +426,16 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
                 "internal_action": "retrieve_context",
                 "expected_tools": retrieve_tools,
             })
-        if needs_visuals:
-            steps.append({
-                "index": len(steps) + 1,
-                "user_title": f"为{subject}搜集配图",
-                "internal_action": "fetch_visuals",
-                "expected_tools": ["image_search"],
-                "visual_need": _build_visual_need(subject, resource_type),
-            })
         steps.append({
             "index": len(steps) + 1,
             "user_title": "展示大纲并等待用户确认",
             "internal_action": "confirm_outline",
             "expected_tools": [],
         })
+        # NOTE: fetch_visuals is intentionally NOT placed before confirm_outline.
+        # The user should make a single confirmation on the outline; image search
+        # then runs in the SAME turn as generate_resource so accumulated_images
+        # survive to injection (state.accumulated_images is per-turn).
         steps.append({
             "index": len(steps) + 1,
             "user_title": f"用户确认后生成{type_cn}",

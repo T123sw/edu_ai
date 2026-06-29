@@ -177,10 +177,17 @@ def tools_node(state: AgentState) -> dict:
                 new_pending_tasks.append({"task_id": task_id, "workflow_type": workflow_type})
 
         if tool_name == "draft_outline" and result.get("ok"):
+            # Phase 6-A.2: remember whether the user asked for images at the
+            # time of outline drafting, so the post-confirm turn can plan a
+            # fetch_visuals step even when the confirm message itself ("继续"
+            # / "生成") contains no visual keywords.
+            from app.chat.runtime.nodes.planner import _question_requests_visuals
+            origin_question = str(getattr(getattr(ctx, "request", None), "question", "") or "")
             new_active_draft_outline = {
                 "subject": str(payload.get("subject", "")),
                 "resource_type": str(payload.get("resource_type", "report")),
                 "outline_markdown": str(payload.get("outline_markdown", "")),
+                "needs_visuals": _question_requests_visuals(origin_question),
             }
 
         tool_result_msg = {

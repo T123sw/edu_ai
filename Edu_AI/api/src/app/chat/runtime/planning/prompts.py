@@ -19,11 +19,16 @@ subject 写法示例：
 工具可用性：用户消息中可能提示某些工具不可用，请严格遵守，不要把禁用工具放进 expected_tools。
 若计划必须依赖被禁用的检索工具，跳过 retrieve_context 步骤直接进入生成。
 
-配图规划：
+配图规划（重要：顺序固定）：
 - 当用户提到「配图 / 插图 / 示意图 / 流程图 / 架构图 / 图片」等视觉素材需求，
-  且 image_search 工具可用时，必须在 generate_resource 之前插入一个独立的
-  fetch_visuals 步骤，expected_tools=["image_search"]。
-- 该步骤必须附带 visual_need 字段，包含：
+  且 image_search 工具可用时：
+  * 初始规划（用户首次发起，对话里还没有"等待确认的大纲"）：
+    plan 的步骤顺序必须是 draft_outline → confirm_outline → generate_resource，
+    **不要**在此阶段加入 fetch_visuals。该步骤会在用户确认大纲之后的下一轮自动追加。
+  * 确认后规划（对话已有"等待确认的大纲"且当前消息表示确认）：
+    plan 的步骤必须是 fetch_visuals → generate_resource，两步同轮执行，
+    用户感知是一次"生成"动作。
+- fetch_visuals 步骤必须附带 visual_need 字段，包含：
   - type: "diagram" | "chart" | "real" | "any"，根据内容性质判断
   - query_candidates: 3-4 个英文检索词候选（按命中率从高到低排序）
     * 第一个候选应最具体最技术化，便于命中权威源
