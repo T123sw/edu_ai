@@ -431,6 +431,28 @@ def test_vision_reflector_rejects_when_vlm_returns_empty_text():
     assert v.verdict == "retry"
 
 
+def test_vision_reflector_retries_image_search_when_no_images_returned():
+    """Phase 6-A.2 fix: when image_search returns 0 raw candidates, verdict
+    must be 'retry' (not pass_with_warning) so the LLM gets a chance to try
+    a different query and reflect's retry budget bounds the loop."""
+    r = VisionReflector(_FakeVisionGateway("合格"))
+    result = {"ok": True, "payload": {"images": []}}
+    state = {"current_plan": {"subject": "RAG"}}
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+    assert v.verdict == "retry"
+    assert v.severity == "blocking"
+    assert "重试" in v.hint or "query" in v.hint.lower()
+
+
+def test_vision_reflector_still_warns_for_legacy_web_search_zero_images():
+    """Keep legacy behavior for web_search / rag_search — only image_search
+    gets the retry treatment."""
+    r = VisionReflector(_FakeVisionGateway("合格"))
+    result = {"ok": True, "payload": {"summary": "x", "images": []}}
+    v = r.evaluate("web_search", result, {}, {"require_images": True})
+    assert v.verdict == "pass_with_warning"
+
+
 def test_vision_reflector_rejects_ambiguous_reply_without_pass_keyword():
     """A reply that omits both '合格' and '不合格' is not approval."""
     class _AmbiguousGateway:

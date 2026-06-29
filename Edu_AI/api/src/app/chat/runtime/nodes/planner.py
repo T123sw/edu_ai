@@ -33,11 +33,22 @@ def planner_node(state: AgentState) -> dict:
         plan = Plan.from_dict(plan_dict)
         out = plan.to_dict()
         writer({"type": "plan", "payload": out})
-        print(f"[规划器] 计划生成 | 步骤数={len(plan.steps)}  主题=\"{plan.subject[:30]}\"", flush=True)
+        # Use strict mode for post-confirm plans (active_draft_outline + confirm
+        # keyword path). These plans are short and unambiguous — fetch_visuals
+        # then generate_resource — and strict mode prevents the executor LLM
+        # from looping image_search forever and exhausting max_steps.
+        is_post_confirm = bool(state.get("active_draft_outline")) and not any(
+            s.get("internal_action") == "draft_outline" for s in plan_dict.get("steps") or []
+        )
+        plan_mode = "strict" if is_post_confirm else "guided"
+        print(
+            f"[规划器] 计划生成 | 步骤数={len(plan.steps)}  主题=\"{plan.subject[:30]}\"  模式={plan_mode}",
+            flush=True,
+        )
         return {
             "current_plan": out,
             "plan_step_index": 0,
-            "plan_mode": "guided",   # Phase 3: executor follows plan steps
+            "plan_mode": plan_mode,
             "needs_planning": False,
             "reflect_verdict": "",
             "reflect_hint": "",

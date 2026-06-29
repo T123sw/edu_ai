@@ -16,9 +16,26 @@ from app.chat.runtime.nodes.reflect import reflect_node
 from app.chat.runtime.nodes.tools import tools_node
 
 
+_SHARED_CHECKPOINTER = None
+
+
 def _build_checkpointer():
-    from langgraph.checkpoint.memory import MemorySaver
-    return MemorySaver()
+    """Process-level shared MemorySaver.
+
+    ReActAgent is constructed per chat request (via build_orchestrator), which
+    used to mean every request got a brand-new MemorySaver — making the
+    LangGraph checkpoint useless across turns (active_draft_outline /
+    accumulated_images vanished between user messages).
+
+    Pinning the saver at module level keeps checkpoint state alive for the
+    lifetime of the process. Server restarts still wipe it; a persistent
+    checkpointer is planned per agent_architecture_design Phase 2-B.
+    """
+    global _SHARED_CHECKPOINTER
+    if _SHARED_CHECKPOINTER is None:
+        from langgraph.checkpoint.memory import MemorySaver
+        _SHARED_CHECKPOINTER = MemorySaver()
+    return _SHARED_CHECKPOINTER
 
 
 def build_graph() -> Any:
