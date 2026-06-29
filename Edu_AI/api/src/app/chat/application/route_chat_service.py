@@ -155,6 +155,9 @@ class RouteChatService:
             )
         react_agent = None
         if Config.USE_REACT_AGENT:
+            from app.chat.runtime.agent_tools.handlers.providers import (
+                build_default_image_search_provider,
+            )
             from app.chat.runtime.model_registry import build_planner_gateway, build_vision_gateway
             from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
             react_agent = ReActAgent(
@@ -163,6 +166,7 @@ class RouteChatService:
                 vision_gateway=build_vision_gateway(),
                 rag_retriever=rag_search_tool,
                 web_retriever=web_search_tool,
+                image_search_provider=build_default_image_search_provider(),
                 fast_runtime=fast_runtime,
                 workflow_registry=workflow_registry,
                 background_runner=background_runner,

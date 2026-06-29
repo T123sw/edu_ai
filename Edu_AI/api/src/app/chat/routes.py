@@ -79,9 +79,12 @@ def _build_status_card_for_conversation(conversation_id: str, owner: str | None)
         or active_context.get("pinned_doc_ids")
         or []
     )
+    _allow_web = bool(capability_state.get("allow_web", False))
     capability = CapabilityPolicy(
         allow_rag=bool(capability_state.get("allow_rag")) or bool(selected_doc_ids),
-        allow_web=bool(capability_state.get("allow_web", False)),
+        allow_web=_allow_web,
+        # Phase 6-A: image_search mirrors web until a dedicated toggle ships.
+        allow_image_search=bool(capability_state.get("allow_image_search", _allow_web)),
         selected_doc_ids=selected_doc_ids,
     )
     request = SimpleNamespace(
@@ -127,6 +130,10 @@ def _maybe_refresh_running_ppt_edit_conversation(conversation_id: str, owner: st
         capability=CapabilityPolicy(
             allow_rag=bool(capability_state.get("allow_rag")),
             allow_web=bool(capability_state.get("allow_web")),
+            allow_image_search=bool(
+                capability_state.get("allow_image_search",
+                                     capability_state.get("allow_web", False))
+            ),
             selected_doc_ids=selected_doc_ids,
         ),
         artifact_reference=SimpleNamespace(**artifact_reference),
@@ -140,7 +147,7 @@ async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_us
     cid = str(payload.conversation_id or "new")[-8:]
     username = current_user.get("username", "?")
     q_preview = str(payload.question or "")[:50]
-    print(f"[CHAT {cid}] ▶ 开始 | user={username} | q=\"{q_preview}\"", flush=True)
+    print(f"[CHAT {cid}] start | user={username} | q=\"{q_preview}\"", flush=True)
     try:
         data = _get_service().chat(
             question=payload.question,
@@ -157,10 +164,10 @@ async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_us
             action_hint=payload.action_hint,
             artifact_id=payload.artifact_id,
         )
-        print(f"[CHAT {cid}] ← 完成 {(time.perf_counter() - t0) * 1000:.0f}ms", flush=True)
+        print(f"[CHAT {cid}] done {(time.perf_counter() - t0) * 1000:.0f}ms", flush=True)
         return ChatResponse(**data)
     except Exception as exc:
-        print(f"[CHAT {cid}] ✗ 失败 {(time.perf_counter() - t0) * 1000:.0f}ms | {exc}", flush=True)
+        print(f"[CHAT {cid}] fail {(time.perf_counter() - t0) * 1000:.0f}ms | {exc}", flush=True)
         raise HTTPException(status_code=500, detail=f"聊天失败: {exc}") from exc
 
 
@@ -191,7 +198,7 @@ async def chat_stream(
         cid = str(conversation_id or "new")[-8:]
         username = current_user.get("username", "?")
         q_preview = str(question or "")[:50]
-        print(f"[STREAM {cid}] ▶ 开始 | user={username} | q=\"{q_preview}\"", flush=True)
+        print(f"[STREAM {cid}] start | user={username} | q=\"{q_preview}\"", flush=True)
         try:
             parsed_doc_ids = None
             if selected_doc_ids:
@@ -220,7 +227,7 @@ async def chat_stream(
                     delta_count += 1
                     if first_delta:
                         first_delta = False
-                        print(f"[STREAM {cid}] ⚡ 首个token {(time.perf_counter() - t0) * 1000:.0f}ms", flush=True)
+                        print(f"[STREAM {cid}] ttft {(time.perf_counter() - t0) * 1000:.0f}ms", flush=True)
                 yield frame
                 await asyncio.sleep(0)
 
@@ -230,7 +237,7 @@ async def chat_stream(
                 flush=True,
             )
         except Exception as exc:
-            print(f"[STREAM {cid}] ✗ 失败 {(time.perf_counter() - t0) * 1000:.0f}ms | {exc}", flush=True)
+            print(f"[STREAM {cid}] fail {(time.perf_counter() - t0) * 1000:.0f}ms | {exc}", flush=True)
             yield f"event: error\ndata: {str(exc)}\n\n"
 
     headers = {

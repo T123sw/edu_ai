@@ -33,6 +33,7 @@ class ReActAgent:
         vision_gateway=None,    # None → VisionReflector disabled
         rag_retriever=None,
         web_retriever=None,
+        image_search_provider=None,   # None → image_search tool returns provider_not_configured
         workflow_registry=None,
         background_runner=None,
         max_steps: int | None = None,
@@ -44,6 +45,7 @@ class ReActAgent:
         self.vision_gateway = vision_gateway
         self.rag_retriever = rag_retriever
         self.web_retriever = web_retriever
+        self.image_search_provider = image_search_provider
         self.workflow_registry = workflow_registry or {}
         self.background_runner = background_runner
         self.max_steps = max_steps if max_steps is not None else Config.REACT_MAX_STEPS
@@ -86,6 +88,7 @@ class ReActAgent:
             max_steps=self.max_steps,
             rag_retriever=self.rag_retriever,
             web_retriever=self.web_retriever,
+            image_search_provider=self.image_search_provider,
             workflow_registry=self.workflow_registry,
             background_runner=self.background_runner,
             agent_gateway=self.agent_gateway,
@@ -131,6 +134,7 @@ class ReActAgent:
             "reflect_filtered": {},
             "retry_counts": {},
             "last_tool_results": [],
+            "accumulated_images": [],
         }
 
         config = {"configurable": {"thread_id": conv_id, "runtime": rt}}

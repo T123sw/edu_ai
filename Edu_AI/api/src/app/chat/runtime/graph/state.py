@@ -25,3 +25,11 @@ class AgentState(TypedDict):
     reflect_filtered: dict  # filtered clean data (e.g. approved images)
     retry_counts: dict      # {"step_2:web_search": 1} — prevents reflect dead loops
     last_tool_results: list  # raw results from last tools_node, consumed by reflect_node
+
+    # ── Phase 6-A: accumulated visual assets across image_search calls in this run ──
+    # Each entry is the normalized image dict from image_search handler
+    # ({url, source_page, title, width, height, thumbnail, license, proxy_url, provenance}).
+    # Written by reflect_node when image_search verdict passes;
+    # read by tools_node before dispatching generate_report so the handler can
+    # inject these images into the final report markdown.
+    accumulated_images: list

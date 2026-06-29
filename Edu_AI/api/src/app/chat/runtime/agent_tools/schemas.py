@@ -38,6 +38,38 @@ SCHEMA_WEB_SEARCH = {
     },
 }
 
+SCHEMA_IMAGE_SEARCH = {
+    "type": "function",
+    "function": {
+        "name": "image_search",
+        "description": (
+            "为正在生成的报告/PPT/教案小节搜索配图。"
+            "仅在确实需要视觉素材的章节调用（流程/结构/案例/人物/场景类），"
+            "概念定义或纯文字章节不需要调用。"
+            "使用英文检索词通常命中率更高；可通过 style 指定 diagram（示意图）、"
+            "chart（数据图）、real（照片）或 any（不限）。"
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "图片检索关键词，建议英文"},
+                "count": {
+                    "type": "integer",
+                    "default": 6,
+                    "description": "候选数量上限，1-12",
+                },
+                "style": {
+                    "type": "string",
+                    "enum": ["real", "diagram", "chart", "any"],
+                    "default": "any",
+                    "description": "real=照片 / diagram=示意图 / chart=数据图 / any=不限",
+                },
+            },
+            "required": ["query"],
+        },
+    },
+}
+
 SCHEMA_DRAFT_OUTLINE = {
     "type": "function",
     "function": {
@@ -163,6 +195,8 @@ def build_tool_schemas(capability) -> list[dict]:
         schemas.append(SCHEMA_RAG_SEARCH)
     if getattr(capability, "allow_web", False):
         schemas.append(SCHEMA_WEB_SEARCH)
+    if getattr(capability, "allow_image_search", False):
+        schemas.append(SCHEMA_IMAGE_SEARCH)
     schemas.extend(
         [
             SCHEMA_DRAFT_OUTLINE,

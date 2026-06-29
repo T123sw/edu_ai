@@ -290,13 +290,21 @@ def build_default_reply_service_v2():
         }
         react_agent = None
         if Config.USE_REACT_AGENT:
-            from app.chat.runtime.model_registry import build_planner_gateway
+            from app.chat.runtime.agent_tools.handlers.providers import (
+                build_default_image_search_provider,
+            )
+            from app.chat.runtime.model_registry import (
+                build_planner_gateway,
+                build_vision_gateway,
+            )
             react_agent = ReActAgent(
                 agent_gateway=build_agent_gateway(),
                 planner_gateway=build_planner_gateway(),
+                vision_gateway=build_vision_gateway(),
                 fast_runtime=fast_runtime,
                 rag_retriever=rag_search_tool,
                 web_retriever=web_search_tool,
+                image_search_provider=build_default_image_search_provider(),
                 workflow_registry=workflow_registry,
                 background_runner=background_runner,
                 max_steps=Config.REACT_MAX_STEPS,

@@ -23,6 +23,11 @@ _TOOL_META: dict[str, ToolMeta] = {
         parallel_safe=True,
         mutates_state=False,
     ),
+    "image_search": ToolMeta(
+        name="image_search",
+        parallel_safe=True,
+        mutates_state=False,
+    ),
     "draft_outline": ToolMeta(
         name="draft_outline",
         parallel_safe=False,
@@ -52,6 +57,12 @@ _TOOL_META: dict[str, ToolMeta] = {
         mutates_state=True,
     ),
 }
+
+
+# Tools whose results MUST NOT be cached across calls within one conversation turn.
+# Image search results vary per call (provider ranking, freshness), and the HITL
+# "refresh visuals" flow needs to be able to re-fetch with the same args.
+NEVER_CACHE: frozenset[str] = frozenset({"image_search"})
 
 
 def get_tool_meta(name: str) -> ToolMeta:

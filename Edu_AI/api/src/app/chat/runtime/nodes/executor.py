@@ -227,16 +227,50 @@ def _inject_plan_step_hint(messages: list, state: dict) -> list:
         return messages
     step = steps[idx]
     tools_str = "、".join(step.get("expected_tools", [])) or "无特定工具"
+    extras = _build_visual_step_hint(step, state, idx)
     hint = (
         f"【当前执行步骤 {idx + 1}/{len(steps)}】\n"
         f"任务：{step.get('user_title', '')}\n"
         f"预期工具：{tools_str}\n"
+        f"{extras}"
         "请专注完成此步骤，不要跳步。"
     )
     note = {"role": "system", "content": hint}
     if len(messages) >= 2:
         return messages[:-1] + [note, messages[-1]]
     return messages + [note]
+
+
+def _build_visual_step_hint(step: dict, state: dict, step_idx: int) -> str:
+    """Phase 6-B: for fetch_visuals steps, surface visual_need.query_candidates
+    so the executor LLM uses pre-planned English keywords instead of inventing
+    weak ones. On reflect retry, advance to the next unused candidate."""
+    if step.get("internal_action") != "fetch_visuals":
+        return ""
+    visual_need = step.get("visual_need") or {}
+    candidates = list(visual_need.get("query_candidates") or [])
+    if not candidates:
+        return ""
+
+    # Pick a candidate based on how many times we've already retried this step
+    # (each blocking retry from VisionReflector bumps retry_counts[key]).
+    retry_counts = state.get("retry_counts") or {}
+    retry_key = f"step_{step_idx}:image_search"
+    attempt = int(retry_counts.get(retry_key, 0))
+    chosen = candidates[min(attempt, len(candidates) - 1)]
+
+    parts = [
+        f"配图检索：调用 image_search(query=\"{chosen}\""
+        f", count={visual_need.get('max_count', 3)}, "
+        f"style=\"{visual_need.get('type', 'diagram')}\")。"
+    ]
+    if visual_need.get("purpose"):
+        parts.append(f"目的：{visual_need['purpose']}")
+    if attempt > 0:
+        remaining = candidates[attempt + 1:]
+        if remaining:
+            parts.append(f"前次 query 未通过审查，本次切换 query。剩余候选：{remaining}")
+    return "\n" + "\n".join(parts) + "\n"
 
 
 def _inject_reflect_hint(messages: list, state: dict) -> list:

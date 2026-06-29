@@ -302,3 +302,146 @@ def test_vision_reflector_retries_unsuitable_images():
     v = r.evaluate("web_search", result, state, {"require_images": True})
     assert v.verdict == "retry"
     assert v.severity == "blocking"
+
+
+# ─── VisionReflector × image_search (list[dict] payload, Phase 6-A) ───────────
+
+
+def _image_search_payload(*urls):
+    """Build an image_search-style payload (handler returns list of full dicts)."""
+    return {
+        "ok": True,
+        "payload": {
+            "images": [
+                {
+                    "url": u,
+                    "source_page": u + "-page",
+                    "title": "img",
+                    "width": 800,
+                    "height": 600,
+                    "thumbnail": u,
+                    "license": None,
+                    "proxy_url": None,
+                    "provenance": {"provider": "fake", "fetched_at": "2026-06-11T00:00:00Z"},
+                }
+                for u in urls
+            ],
+        },
+    }
+
+
+def test_vision_reflector_applies_to_image_search_tool_name():
+    r = VisionReflector(_FakeVisionGateway("合格"))
+    assert r.applies_to("image_search") is True
+    assert r.applies_to("web_search") is True
+    assert r.applies_to("draft_outline") is False
+
+
+def test_vision_reflector_handles_image_search_dict_items():
+    r = VisionReflector(_FakeVisionGateway("合格：图片相关清晰"))
+    result = _image_search_payload("https://img.example.com/python.jpg")
+    state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
+
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    assert v.verdict == "pass"
+    filtered = v.filtered_data.get("images") or []
+    # filtered_data preserves the full dict shape from upstream
+    assert len(filtered) == 1
+    assert isinstance(filtered[0], dict)
+    assert filtered[0]["url"] == "https://img.example.com/python.jpg"
+    assert filtered[0]["source_page"] == "https://img.example.com/python.jpg-page"
+
+
+def test_vision_reflector_filters_image_search_dicts_partially():
+    """When VLM rejects some images, only the good ones remain — as dicts."""
+    class _SelectiveGateway:
+        """Approve only URLs containing 'good'."""
+
+        def stream_chat_with_tools(self, messages, _tools, **_kwargs):
+            url = ""
+            for block in messages[0]["content"]:
+                if block.get("type") == "image_url":
+                    url = block["image_url"]["url"]
+                    break
+            verdict_text = "合格" if "good" in url else "不合格"
+            yield {"type": "text_delta", "content": verdict_text}
+            yield {"type": "done"}
+
+    r = VisionReflector(_SelectiveGateway())
+    result = _image_search_payload(
+        "https://img.example.com/good1.jpg",
+        "https://img.example.com/bad1.jpg",
+        "https://img.example.com/good2.jpg",
+    )
+    state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
+
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    assert v.verdict == "pass"
+    urls = [img["url"] for img in v.filtered_data.get("images") or []]
+    assert sorted(urls) == [
+        "https://img.example.com/good1.jpg",
+        "https://img.example.com/good2.jpg",
+    ]
+
+
+def test_vision_reflector_retries_when_all_image_search_dicts_rejected():
+    r = VisionReflector(_FakeVisionGateway("不合格：与主题无关"))
+    result = _image_search_payload("https://img.example.com/x.jpg")
+    state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
+
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    assert v.verdict == "retry"
+    assert v.severity == "blocking"
+    assert "Python" in v.hint
+
+
+def test_vision_reflector_rejects_when_vlm_emits_error_event():
+    """Provider-level error (e.g. DashScope download timeout) must NOT be treated as pass."""
+    class _ErrorGateway:
+        def stream_chat_with_tools(self, messages, tools, **_):
+            yield {"type": "error", "message": "Failed to download multimodal content"}
+
+    r = VisionReflector(_ErrorGateway())
+    result = _image_search_payload("https://geo-blocked.example.com/x.jpg")
+    state = {"current_plan": {"subject": "RAG", "resource_type": "report"}}
+
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    # All images rejected → retry blocking
+    assert v.verdict == "retry"
+    assert v.severity == "blocking"
+
+
+def test_vision_reflector_rejects_when_vlm_returns_empty_text():
+    """Empty / blank model response also must not be treated as pass."""
+    class _EmptyGateway:
+        def stream_chat_with_tools(self, messages, tools, **_):
+            yield {"type": "text_delta", "content": "   "}
+            yield {"type": "done"}
+
+    r = VisionReflector(_EmptyGateway())
+    result = _image_search_payload("https://example.com/x.jpg")
+    state = {"current_plan": {"subject": "RAG", "resource_type": "report"}}
+
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    assert v.verdict == "retry"
+
+
+def test_vision_reflector_rejects_ambiguous_reply_without_pass_keyword():
+    """A reply that omits both '合格' and '不合格' is not approval."""
+    class _AmbiguousGateway:
+        def stream_chat_with_tools(self, messages, tools, **_):
+            yield {"type": "text_delta", "content": "我无法评估这张图片"}
+            yield {"type": "done"}
+
+    r = VisionReflector(_AmbiguousGateway())
+    result = _image_search_payload("https://example.com/x.jpg")
+    state = {"current_plan": {"subject": "RAG", "resource_type": "report"}}
+
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    assert v.verdict == "retry"

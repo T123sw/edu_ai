@@ -1,12 +1,31 @@
-"""Report image injection — P3-B.
+"""Report image injection.
 
-Injects RAG-retrieved images into report Markdown as ![alt](url) references.
-Mirrors rag_image_bridge.py from the PPT pipeline.
+P3-B: injects RAG-retrieved images into report Markdown (MediaAsset shape).
+Phase 6-A: also accepts image_search dict shape ({url, title, source_page, ...}).
 """
 from __future__ import annotations
 
 import re
 from typing import Any
+
+
+def _asset_url(asset: Any) -> str:
+    """Extract the image URL from either a MediaAsset-like object or an image_search dict."""
+    if isinstance(asset, dict):
+        return str(asset.get("url") or "")
+    return str(getattr(asset, "url", "") or "")
+
+
+def _asset_alt(asset: Any) -> str:
+    """Extract alt text. Prefer MediaAsset.alt; fall back to image_search title."""
+    if isinstance(asset, dict):
+        for key in ("alt", "title"):
+            text = str(asset.get(key) or "").strip()
+            if text:
+                return text
+        return "图片"
+    alt = str(getattr(asset, "alt", "") or "").strip()
+    return alt or "图片"
 
 
 def inject_images_into_report(
@@ -16,13 +35,20 @@ def inject_images_into_report(
 ) -> str:
     """Insert Markdown image references after selected section headings.
 
+    Accepts a mixed list of MediaAsset-like objects (legacy RAG path) and
+    image_search dicts (Phase 6-A external search path). Assets without a URL
+    are silently skipped.
+
     Prefers ### headings (section level); falls back to ## (chapter level).
     Images are distributed evenly across eligible headings.
     """
     if not image_assets or not report_markdown or max_images <= 0:
         return report_markdown
 
-    assets = list(image_assets[:max_images])
+    # Skip assets without a usable URL up-front so max_images stays meaningful.
+    assets = [a for a in image_assets if _asset_url(a)][:max_images]
+    if not assets:
+        return report_markdown
 
     # Try ### headings first, fall back to ##
     heading_pattern = r"^### .+$"
@@ -49,8 +75,9 @@ def inject_images_into_report(
         insert_at = (newline_pos + 1) if newline_pos != -1 else len(result)
 
         asset = assets[i]
-        alt = str(asset.alt or "图片").strip() or "图片"
-        img_block = f"\n![{alt}]({asset.url})\n\n"
+        alt = _asset_alt(asset)
+        url = _asset_url(asset)
+        img_block = f"\n![{alt}]({url})\n\n"
 
         result = result[:insert_at] + img_block + result[insert_at:]
         offset += len(img_block)

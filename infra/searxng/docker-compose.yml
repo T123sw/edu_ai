@@ -1,0 +1,30 @@
+# SearXNG self-hosted image search backend for Phase 6-A image_search tool.
+# Start with:   docker compose up -d
+# Stop with:    docker compose down
+# Logs:         docker logs edu-ai-searxng
+#
+# After startup, verify with:
+#   curl 'http://localhost:8888/search?q=rag+diagram&categories=images&format=json'
+# Then set in your .env:
+#   IMAGE_SEARCH_PROVIDER=searxng
+#   SEARXNG_BASE_URL=http://localhost:8888
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: edu-ai-searxng
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+    environment:
+      - BASE_URL=http://localhost:8888/
+      - INSTANCE_NAME=edu-ai-internal
+    restart: unless-stopped
+    networks:
+      - edu-ai
+
+networks:
+  edu-ai:
+    name: edu-ai
+    driver: bridge

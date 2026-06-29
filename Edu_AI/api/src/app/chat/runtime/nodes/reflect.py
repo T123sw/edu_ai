@@ -34,6 +34,7 @@ def reflect_node(state: AgentState) -> dict:
     worst_verdict = "pass"
     combined_hint = ""
     combined_filtered: dict = {}
+    new_visual_assets: list[dict] = []
 
     for item in last_tool_results:
         tool_name = item.get("tool_name", "")
@@ -41,6 +42,22 @@ def reflect_node(state: AgentState) -> dict:
         key = f"step_{plan_step_index}:{tool_name}"
 
         verdicts = pipeline.evaluate_all(tool_name, raw_result, state, step_constraints)
+
+        # Phase 6-A: harvest image_search filtered images for downstream report injection.
+        # Source order of preference:
+        #   1. VisionReflector filtered_data["images"] (VLM-approved subset)
+        #   2. raw payload images (when no VLM review ran but tool returned ok)
+        if tool_name == "image_search" and raw_result.get("ok"):
+            harvested: list[dict] = []
+            for v in verdicts:
+                vlm_filtered = v.filtered_data.get("images") if v.filtered_data else None
+                if vlm_filtered:
+                    harvested = [img for img in vlm_filtered if isinstance(img, dict)]
+                    break
+            if not harvested:
+                payload_images = (raw_result.get("payload") or {}).get("images") or []
+                harvested = [img for img in payload_images if isinstance(img, dict)]
+            new_visual_assets.extend(harvested)
 
         for v in verdicts:
             if v.verdict in ("retry", "replan", "abort"):
@@ -92,6 +109,23 @@ def reflect_node(state: AgentState) -> dict:
         "retry_counts": new_retry_counts,
         "last_tool_results": [],  # consumed — clear
     }
+
+    # Phase 6-A: persist newly approved image_search results across the turn.
+    # On retry verdicts we still keep prior accepted images (subsequent retries
+    # may surface different candidates we want to add).
+    if new_visual_assets:
+        prior = list(state.get("accumulated_images") or [])
+        # dedup by url
+        seen_urls = {img.get("url") for img in prior}
+        for img in new_visual_assets:
+            if img.get("url") and img["url"] not in seen_urls:
+                prior.append(img)
+                seen_urls.add(img["url"])
+        updates["accumulated_images"] = prior
+        print(
+            f"[审查] image_search 累积 +{len(new_visual_assets)} 张  累计={len(prior)} 张",
+            flush=True,
+        )
 
     # guided mode: advance plan_step_index when step passes
     _maybe_advance_step(writer, state, worst_verdict, updates)

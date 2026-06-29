@@ -48,6 +48,16 @@ def _format_tool_result_for_context(tool_name: str, result: dict) -> str:
         content = f"联网检索结果：\n{payload.get('summary', '无内容')}"
         return content + _OBSERVE_HINTS["web_search"]
 
+    if tool_name == "image_search":
+        images = payload.get("images") or []
+        trace = payload.get("trace") or {}
+        content = (
+            f"图片检索完成：候选 {len(images)} 张"
+            f"（原始 {trace.get('raw_count', '?')}，过滤后 {trace.get('filtered_count', '?')}）。"
+            f"VisionReflector 将审查相关性与质量。"
+        )
+        return content + _OBSERVE_HINTS["image_search"]
+
     if tool_name == "draft_outline":
         subject = payload.get("subject", "")
         # NOTE: do NOT ask the LLM to reproduce the outline. Qwen / DeepSeek strip
@@ -91,6 +101,11 @@ def tools_node(state: AgentState) -> dict:
     new_active_draft_outline = state.get("active_draft_outline")
     new_pending_tasks = list(state.get("pending_tasks") or [])
     raw_results_for_reflect: list[dict] = []
+
+    # Phase 6-A: expose accumulated visual assets (from prior image_search rounds
+    # in this run) on ctx so handlers like generate_report can pick them up
+    # and inject them into the produced artifact.
+    ctx.accumulated_images = list(state.get("accumulated_images") or [])
 
     # Strict-mode validation: reject any call outside current step's expected_tools
     calls = _enforce_strict_mode(calls, state)

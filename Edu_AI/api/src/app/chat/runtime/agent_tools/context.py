@@ -12,6 +12,7 @@ class ToolExecutionContext:
         max_steps: int,
         rag_retriever=None,
         web_retriever=None,
+        image_search_provider=None,
         workflow_registry=None,
         background_runner=None,
         agent_gateway=None,
@@ -22,6 +23,7 @@ class ToolExecutionContext:
         self.max_steps = max_steps
         self.rag_retriever = rag_retriever
         self.web_retriever = web_retriever
+        self.image_search_provider = image_search_provider
         self.workflow_registry = workflow_registry or {}
         self.background_runner = background_runner
         self.agent_gateway = agent_gateway

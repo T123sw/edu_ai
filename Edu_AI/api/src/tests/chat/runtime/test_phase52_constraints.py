@@ -32,6 +32,20 @@ def test_retrieve_context_for_ppt_also_requires_images():
     assert c.get("require_images") is True
 
 
+def test_fetch_visuals_step_activates_vision_reflector_via_require_images():
+    plan = {
+        "resource_type": "report",
+        "steps": [
+            {"index": 1, "user_title": "配图", "internal_action": "fetch_visuals",
+             "expected_tools": ["image_search"], "constraints": {}},
+        ],
+    }
+    _attach_step_constraints(plan)
+    c = plan["steps"][0]["constraints"]
+    assert c.get("require_images") is True
+    assert c.get("min_image_count", 0) >= 1
+
+
 def test_draft_outline_gets_coherence_check():
     plan = {
         "resource_type": "report",

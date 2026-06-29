@@ -12,7 +12,7 @@ class VisionReflector(BaseReflector):
     Only activates when step_constraints contains require_images=True."""
 
     priority = 20
-    _APPLIES_TO = {"web_search", "rag_search"}
+    _APPLIES_TO = {"image_search", "web_search", "rag_search"}
 
     def __init__(self, vision_gateway):
         self._gateway = vision_gateway
@@ -27,7 +27,11 @@ class VisionReflector(BaseReflector):
             return ReflectVerdict(verdict="pass")
 
         payload = result.get("payload") or {}
-        images: list[str] = payload.get("images") or []
+        # image_search payload returns list[dict] with url/source_page/...;
+        # legacy web_search / rag_search inject_images_into_report path uses list[str].
+        # Accept both, but always preserve the original item shape in filtered_data
+        # so downstream consumers see what they expect.
+        images = payload.get("images") or []
 
         if not images:
             return ReflectVerdict(
@@ -44,10 +48,10 @@ class VisionReflector(BaseReflector):
         candidate_imgs = images[:_MAX_IMAGES_TO_CHECK]
         with ThreadPoolExecutor(max_workers=min(len(candidate_imgs), 5)) as pool:
             verdicts = list(pool.map(
-                lambda u: (u, self._is_image_suitable(u, topic, resource_type)),
+                lambda item: (item, self._is_image_suitable(_extract_url(item), topic, resource_type)),
                 candidate_imgs,
             ))
-        good_images = [u for u, ok in verdicts if ok]
+        good_images = [item for item, ok in verdicts if ok]
 
         if good_images:
             return ReflectVerdict(
@@ -64,7 +68,9 @@ class VisionReflector(BaseReflector):
     def _is_image_suitable(self, img_url: str, topic: str, resource_type: str) -> bool:
         stream_fn = getattr(self._gateway, "stream_chat_with_tools", None)
         if not callable(stream_fn):
-            return True  # fail-safe: pass when vision unavailable
+            # When vision is entirely unconfigured we pass — heuristics in the
+            # handler already filtered low-quality candidates.
+            return True
 
         prompt = (
             f"这张图片是否适合用于《{topic}》的{resource_type or '教学材料'}？\n"
@@ -81,13 +87,36 @@ class VisionReflector(BaseReflector):
             }
         ]
         chunks: list[str] = []
+        had_error = False
         try:
             for e in stream_fn(messages, [], tool_choice="auto", temperature=0.0, max_tokens=50):
-                if e.get("type") == "text_delta":
+                etype = e.get("type")
+                if etype == "text_delta":
                     chunks.append(e.get("content", ""))
+                elif etype in ("error", "unsupported"):
+                    # Provider-level failure: image download timeout, geo-block,
+                    # auth/cookie wall, NSFW filter, model rejection, etc.
+                    had_error = True
+                    break
         except Exception:
-            return True  # fail-safe on network/model errors
+            had_error = True
 
-        text = "".join(chunks)
-        # "合格" pass, "不合格" fail — handle ambiguous/empty as pass
-        return "不合格" not in text
+        text = "".join(chunks).strip()
+
+        # Reject when VLM couldn't render a verdict — being permissive here
+        # silently lets through irrelevant or unreachable images.
+        if had_error or not text:
+            return False
+        # Explicit reject signal from the model.
+        if "不合格" in text:
+            return False
+        # Require an explicit pass signal — defends against ambiguous replies
+        # like apologies or refusals that happen to omit "不合格".
+        return "合格" in text
+
+
+def _extract_url(item) -> str:
+    """Accept both list[str] (legacy web_search/rag_search) and list[dict] (image_search)."""
+    if isinstance(item, dict):
+        return str(item.get("url") or "")
+    return str(item or "")

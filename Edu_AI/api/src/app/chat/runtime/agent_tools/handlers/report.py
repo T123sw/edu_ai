@@ -24,9 +24,17 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
     selected_doc_ids = list(getattr(getattr(ctx, "capability", None), "selected_doc_ids", []) or [])
     owner = getattr(getattr(ctx, "request", None), "owner", None)
 
+    # Phase 6-A: images accumulated by reflect_node from this turn's image_search calls.
+    # tools_node sets ctx.accumulated_images before dispatch.
+    accumulated_images = list(getattr(ctx, "accumulated_images", []) or [])
+
     def _run():
         from app.chat.agents.report_generation import build_report_markdown, get_fallback_llm
         from app.chat.skill_manager import SkillManager
+        from app.chat.workflows.report.image_injector import (
+            inject_images_into_report,
+            inject_report_images_from_rag,
+        )
 
         llm = get_fallback_llm()
         skill_manager = SkillManager()
@@ -41,8 +49,13 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
             outline=outline_chapters,
             mode="fast",
         )
-        if body and allow_rag and selected_doc_ids:
-            from app.chat.workflows.report.image_injector import inject_report_images_from_rag
+        # Phase 6-A: prefer external image_search results; fall back to RAG-embedded
+        # images only when no search images were gathered this run.
+        if body and accumulated_images:
+            body = inject_images_into_report(
+                body, accumulated_images, max_images=min(len(accumulated_images), 6)
+            )
+        elif body and allow_rag and selected_doc_ids:
             body = inject_report_images_from_rag(
                 body,
                 allow_rag=allow_rag,
@@ -57,6 +70,7 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
                 "title": subject,
                 "content": body,
                 "generation_state": checkpoint,
+                "visual_assets_count": len(accumulated_images),
             }],
         }
 

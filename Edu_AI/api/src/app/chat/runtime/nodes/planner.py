@@ -54,6 +54,7 @@ def _attach_step_constraints(plan_dict: dict) -> None:
     fire because they're opt-in via step_constraints flags.
     """
     resource_type = plan_dict.get("resource_type", "")
+    subject = plan_dict.get("subject", "")
     for step in plan_dict.get("steps", []):
         action = step.get("internal_action", "")
         constraints = dict(step.get("constraints") or {})
@@ -65,6 +66,19 @@ def _attach_step_constraints(plan_dict: dict) -> None:
             constraints.setdefault("min_sources", 1)
             if resource_type in ("ppt", "lesson_plan"):
                 constraints.setdefault("require_images", True)
+        elif action == "fetch_visuals":
+            # image_search step — activate VisionReflector by setting require_images.
+            constraints.setdefault("require_images", True)
+            constraints.setdefault("min_image_count", 1)
+            # Safety net: LLM-driven plan path may forget visual_need; populate
+            # query_candidates from the subject so the executor still gets
+            # decent search queries.
+            visual_need = dict(step.get("visual_need") or {})
+            if not visual_need.get("query_candidates"):
+                fallback = _build_visual_need(subject, resource_type)
+                for key, default in fallback.items():
+                    visual_need.setdefault(key, default)
+            step["visual_need"] = visual_need
         elif action == "draft_outline":
             constraints.setdefault("check_coherence", True)
             if resource_type == "report":
@@ -91,15 +105,23 @@ def _build_planner_messages(
     # Capability constraints — planner must not propose tools the runtime won't allow.
     allow_rag = bool(getattr(capability, "allow_rag", False))
     allow_web = bool(getattr(capability, "allow_web", False))
+    allow_image_search = bool(getattr(capability, "allow_image_search", False))
     disabled = []
     if not allow_rag:
         disabled.append("rag_search（知识库检索未启用）")
     if not allow_web:
         disabled.append("web_search（联网搜索未启用）")
+    if not allow_image_search:
+        disabled.append("image_search（图片搜索未启用，禁止规划 fetch_visuals 步骤）")
     if disabled:
         context_parts.append(
             "⚠️ 以下工具当前不可用，请勿在 plan 步骤的 expected_tools 中包含它们："
             + "、".join(disabled)
+        )
+    if allow_image_search and _question_requests_visuals(question):
+        context_parts.append(
+            "📷 用户明确要求配图/插图，必须在生成步骤之前规划一个 fetch_visuals 步骤"
+            "（expected_tools=[\"image_search\"]）来搜集视觉素材。"
         )
 
     if state.get("active_draft_outline"):
@@ -158,6 +180,75 @@ _RESOURCE_KEYWORDS = {
 
 _CONFIRM_KEYWORDS = ("好的", "可以", "确认", "开始", "生成", "ok", "OK", "没问题", "继续", "是的")
 
+_VISUAL_KEYWORDS = (
+    "配图", "插图", "图片", "示意图", "流程图", "架构图", "结构图",
+    "图表", "图解", "配上图", "要图", "带图", "有图",
+)
+
+# Query suffixes that orient SearXNG toward technical/教学 imagery rather than
+# consumer photos. Style="diagram" in the searxng provider already appends
+# "diagram OR flowchart OR architecture", so suffixes here MUST NOT repeat
+# those words (doubling pushes results toward icon libraries like devicons).
+_DIAGRAM_QUERY_SUFFIXES = (
+    "system overview",      # generic, often hits explainer blog posts
+    "explained",            # blog/tutorial coverage
+    "tutorial",
+    "how it works",
+    "components",
+)
+
+
+def _question_requests_visuals(question: str) -> bool:
+    """Detect whether the user request implies a need for fetched visual assets."""
+    if not question:
+        return False
+    return any(kw in question for kw in _VISUAL_KEYWORDS)
+
+
+def _extract_english_keywords(subject: str) -> str:
+    """Best-effort: keep Latin/digit token runs from the subject. Falls back to
+    original subject when nothing usable remains. Helps when subject mixes
+    Chinese with English technical terms (e.g. 'RAG 技术' → 'RAG')."""
+    import re
+    matches = re.findall(r"[A-Za-z][A-Za-z0-9]*", subject or "")
+    english = " ".join(m for m in matches if m).strip()
+    return english if english else (subject or "").strip()
+
+
+def _build_visual_query_candidates(subject: str, visual_type: str = "diagram") -> list[str]:
+    """Generate query candidates the executor LLM can pick from to call image_search.
+
+    On reflect retry the executor switches to the next unused candidate. The
+    first candidate is intentionally the most specific/technical so we hit a
+    high-quality educational result on the first try; later candidates broaden.
+    """
+    base = _extract_english_keywords(subject)
+    if not base:
+        return []
+    candidates: list[str] = []
+    seen: set[str] = set()
+    for suffix in _DIAGRAM_QUERY_SUFFIXES:
+        q = f"{base} {suffix}".strip()
+        if q.lower() not in seen:
+            candidates.append(q)
+            seen.add(q.lower())
+        if len(candidates) >= 4:
+            break
+    return candidates
+
+
+def _build_visual_need(subject: str, resource_type: str) -> dict:
+    """Construct the VisualNeed dict attached to a fetch_visuals plan step.
+    Returns plain dict (not the dataclass) for direct embedding in plan_dict."""
+    visual_type = "diagram"  # default for教学 content; PPT/lesson_plan rarely want real photos
+    return {
+        "required": True,
+        "type": visual_type,
+        "query_candidates": _build_visual_query_candidates(subject, visual_type),
+        "purpose": f"为「{subject}」{resource_type or '教学'}内容提供视觉支撑",
+        "max_count": 3,
+    }
+
 
 def _extract_subject(question: str) -> str:
     """Strip prefixes / trailing constraints to get a clean topic phrase."""
@@ -197,22 +288,33 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
     subject = _extract_subject(question)
     allow_rag = bool(getattr(capability, "allow_rag", False))
     allow_web = bool(getattr(capability, "allow_web", False))
+    allow_image_search = bool(getattr(capability, "allow_image_search", False))
+    needs_visuals = allow_image_search and _question_requests_visuals(question)
 
     # Confirmation of existing outline → skip to generate
     if state.get("active_draft_outline") and any(kw in question for kw in _CONFIRM_KEYWORDS):
         outline = state["active_draft_outline"]
         rtype = outline.get("resource_type", "report")
+        outline_subject = outline.get("subject", subject)
+        confirm_steps = []
+        if needs_visuals:
+            confirm_steps.append({
+                "index": 1,
+                "user_title": f"为「{outline_subject}」搜集配图",
+                "internal_action": "fetch_visuals",
+                "expected_tools": ["image_search"],
+                "visual_need": _build_visual_need(outline_subject, rtype),
+            })
+        confirm_steps.append({
+            "index": len(confirm_steps) + 1,
+            "user_title": f"根据已确认大纲生成{_RTYPE_CN.get(rtype, '内容')}",
+            "internal_action": "generate_resource",
+            "expected_tools": [f"generate_{rtype}"],
+        })
         return {
-            "subject": outline.get("subject", subject),
+            "subject": outline_subject,
             "resource_type": rtype,
-            "steps": [
-                {
-                    "index": 1,
-                    "user_title": f"根据已确认大纲生成{_RTYPE_CN.get(rtype, '内容')}",
-                    "internal_action": "generate_resource",
-                    "expected_tools": [f"generate_{rtype}"],
-                }
-            ],
+            "steps": confirm_steps,
         }
 
     if resource_type == "quiz":
@@ -243,6 +345,14 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
                 "user_title": "检索相关资料",
                 "internal_action": "retrieve_context",
                 "expected_tools": retrieve_tools,
+            })
+        if needs_visuals:
+            steps.append({
+                "index": len(steps) + 1,
+                "user_title": f"为{subject}搜集配图",
+                "internal_action": "fetch_visuals",
+                "expected_tools": ["image_search"],
+                "visual_need": _build_visual_need(subject, resource_type),
             })
         steps.append({
             "index": len(steps) + 1,

@@ -19,9 +19,24 @@ subject 写法示例：
 工具可用性：用户消息中可能提示某些工具不可用，请严格遵守，不要把禁用工具放进 expected_tools。
 若计划必须依赖被禁用的检索工具，跳过 retrieve_context 步骤直接进入生成。
 
+配图规划：
+- 当用户提到「配图 / 插图 / 示意图 / 流程图 / 架构图 / 图片」等视觉素材需求，
+  且 image_search 工具可用时，必须在 generate_resource 之前插入一个独立的
+  fetch_visuals 步骤，expected_tools=["image_search"]。
+- 该步骤必须附带 visual_need 字段，包含：
+  - type: "diagram" | "chart" | "real" | "any"，根据内容性质判断
+  - query_candidates: 3-4 个英文检索词候选（按命中率从高到低排序）
+    * 第一个候选应最具体最技术化，便于命中权威源
+    * 后续候选作为重试用，逐步泛化
+    * 中文主题需自行翻译为英文关键词
+  - purpose: 一句话说明这组配图要支撑什么内容
+  - max_count: 1-5，默认 3
+- 若用户没有明确要求配图，不要主动添加 fetch_visuals。
+
 internal_action 枚举值说明：
 - draft_outline    → 调用 draft_outline 工具生成大纲
 - retrieve_context → 调用 rag_search / web_search 检索资料
+- fetch_visuals    → 调用 image_search 获取配图（仅在用户提及视觉素材时）
 - confirm_outline  → 向用户展示大纲并等待确认（不调用工具）
 - generate_resource → 调用 generate_* 工具生成最终资源
 - answer_question  → 直接回答问题，无工具调用
@@ -63,6 +78,7 @@ CREATE_PLAN_SCHEMA = {
                                 "enum": [
                                     "draft_outline",
                                     "retrieve_context",
+                                    "fetch_visuals",
                                     "confirm_outline",
                                     "generate_resource",
                                     "answer_question",
@@ -73,6 +89,23 @@ CREATE_PLAN_SCHEMA = {
                                 "type": "array",
                                 "items": {"type": "string"},
                                 "description": "预期调用的工具名称列表",
+                            },
+                            "visual_need": {
+                                "type": "object",
+                                "description": "仅 fetch_visuals 步骤需要填写",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": ["real", "diagram", "chart", "any"],
+                                    },
+                                    "query_candidates": {
+                                        "type": "array",
+                                        "items": {"type": "string"},
+                                        "description": "3-4 个英文检索词候选，按命中率从高到低排序",
+                                    },
+                                    "purpose": {"type": "string"},
+                                    "max_count": {"type": "integer", "default": 3},
+                                },
                             },
                         },
                         "required": ["index", "user_title", "internal_action", "expected_tools"],

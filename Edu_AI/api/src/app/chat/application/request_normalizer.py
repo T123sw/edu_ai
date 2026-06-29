@@ -13,6 +13,10 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         allow_rag = True
 
     allow_web = bool(getattr(payload, "allow_web", False))
+    # Phase 6-A: image_search is exposed via the same external-data toggle as
+    # web_search until the UI gets a dedicated control. If the user has opted
+    # into web access we also let the agent fetch supporting images.
+    allow_image_search = bool(getattr(payload, "allow_image_search", allow_web))
 
     return ChatRequestV2(
         question=payload.question,
@@ -31,7 +35,8 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         capability=CapabilityPolicy(
             allow_rag=bool(allow_rag),
             allow_web=allow_web,
-            allow_tools=bool(allow_rag or allow_web),
+            allow_image_search=allow_image_search,
+            allow_tools=bool(allow_rag or allow_web or allow_image_search),
             selected_doc_ids=selected_doc_ids,
         ),
     )

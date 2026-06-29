@@ -1,7 +1,41 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, Optional
+
+
+@dataclass
+class VisualNeed:
+    """Visual asset requirements attached to a fetch_visuals plan step (Phase 6-B).
+
+    query_candidates carry pre-thought-out search queries so the executor LLM
+    doesn't have to invent them; on reflect retry the executor picks the next
+    unused candidate.
+    """
+    required: bool = False
+    type: Literal["real", "diagram", "chart", "any"] = "any"
+    query_candidates: list[str] = field(default_factory=list)
+    purpose: str = ""
+    max_count: int = 3
+
+    def to_dict(self) -> dict:
+        return {
+            "required": self.required,
+            "type": self.type,
+            "query_candidates": list(self.query_candidates),
+            "purpose": self.purpose,
+            "max_count": self.max_count,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "VisualNeed":
+        return cls(
+            required=bool(d.get("required", False)),
+            type=d.get("type", "any"),
+            query_candidates=list(d.get("query_candidates") or []),
+            purpose=str(d.get("purpose", "")),
+            max_count=int(d.get("max_count", 3)),
+        )
 
 
 @dataclass
@@ -12,9 +46,10 @@ class PlanStep:
     expected_tools: list[str]
     constraints: dict = field(default_factory=dict)
     status: Literal["pending", "running", "done", "failed", "skipped"] = "pending"
+    visual_need: Optional[VisualNeed] = None
 
     def to_dict(self) -> dict:
-        return {
+        out = {
             "index": self.index,
             "user_title": self.user_title,
             "internal_action": self.internal_action,
@@ -22,9 +57,13 @@ class PlanStep:
             "constraints": self.constraints,
             "status": self.status,
         }
+        if self.visual_need is not None:
+            out["visual_need"] = self.visual_need.to_dict()
+        return out
 
     @classmethod
     def from_dict(cls, d: dict) -> "PlanStep":
+        vn = d.get("visual_need")
         return cls(
             index=d["index"],
             user_title=d["user_title"],
@@ -32,6 +71,7 @@ class PlanStep:
             expected_tools=d.get("expected_tools", []),
             constraints=d.get("constraints", {}),
             status=d.get("status", "pending"),
+            visual_need=VisualNeed.from_dict(vn) if vn else None,
         )
 
 
