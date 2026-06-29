@@ -34,16 +34,12 @@ class VisionReflector(BaseReflector):
         images = payload.get("images") or []
 
         if not images:
-            # For image_search specifically: 0 candidates is "retry with new query"
-            # rather than "advance past this step". reflect_node's retry budget
-            # will downgrade to pass_with_warning after the limit, letting the
-            # step finally advance even if no images were found.
-            if tool_name == "image_search":
-                return ReflectVerdict(
-                    verdict="retry",
-                    hint="本次 query 未返回候选图，请换一组英文关键词重试",
-                    severity="blocking",
-                )
+            # Always pass_with_warning on 0 candidates — let the step advance.
+            # When a parallel batch contains some 0-image calls and some good
+            # ones, returning "retry" here forced every retry per call and
+            # blew the agent's time budget. strict mode + accumulated_images
+            # already ensure that generate_resource runs next regardless of
+            # whether this particular call found anything.
             return ReflectVerdict(
                 verdict="pass_with_warning",
                 hint="搜索结果中未找到图片",
