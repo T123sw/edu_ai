@@ -26,6 +26,20 @@ class VisionReflector(BaseReflector):
         if not step_constraints.get("require_images", False):
             return ReflectVerdict(verdict="pass")
 
+        # image_search VLM review is gated by config. When off (default), we
+        # trust the handler's heuristic filtering and pass through immediately —
+        # reflect_node will accumulate the raw filtered images. This avoids the
+        # DashScope-can't-fetch-external-URL failure mode that otherwise rejects
+        # every image, triggers retry, and times out the whole agent run.
+        if tool_name == "image_search":
+            try:
+                from core import Config
+                vlm_enabled = bool(getattr(Config, "IMAGE_SEARCH_VLM_REVIEW", False))
+            except Exception:
+                vlm_enabled = False
+            if not vlm_enabled:
+                return ReflectVerdict(verdict="pass")
+
         payload = result.get("payload") or {}
         # image_search payload returns list[dict] with url/source_page/...;
         # legacy web_search / rag_search inject_images_into_report path uses list[str].

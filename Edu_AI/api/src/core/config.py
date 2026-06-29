@@ -58,6 +58,11 @@ class Config:
     IMAGE_SEARCH_TIMEOUT_S = float(os.getenv("IMAGE_SEARCH_TIMEOUT_S", "8") or "8")
     IMAGE_SEARCH_DEFAULT_COUNT = int(os.getenv("IMAGE_SEARCH_DEFAULT_COUNT", "6") or "6")
     IMAGE_SEARCH_MAX_COUNT = int(os.getenv("IMAGE_SEARCH_MAX_COUNT", "12") or "12")
+    # VLM 审查 image_search 结果开关。默认关闭：当前 VLM (Qwen on DashScope) 无法
+    # 可靠下载境外图片 URL 做多模态审查（频繁 400 / 超时），留着只会拖垮时间预算
+    # 并触发 retry → react_timeout → 降级。关闭后仅依赖 handler 启发式过滤。
+    # 待图片本地化后改为发送本地 base64 给 VLM，再开启此开关。
+    IMAGE_SEARCH_VLM_REVIEW = os.getenv("IMAGE_SEARCH_VLM_REVIEW", "0").strip() not in ("", "0", "false", "False")
 
 
     # 统一别名（兼容历史代码中的 REMOTE_*）

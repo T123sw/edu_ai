@@ -2,6 +2,8 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 from app.chat.runtime.react_agent import ReActAgent
 from app.chat.runtime.reflection.llm_eval import (
     ContentRelevanceReflector,
@@ -307,6 +309,13 @@ def test_vision_reflector_retries_unsuitable_images():
 # ─── VisionReflector × image_search (list[dict] payload, Phase 6-A) ───────────
 
 
+@pytest.fixture
+def vlm_review_enabled(monkeypatch):
+    """Enable image_search VLM review (off by default in this deployment)."""
+    from core import Config
+    monkeypatch.setattr(Config, "IMAGE_SEARCH_VLM_REVIEW", True, raising=False)
+
+
 def _image_search_payload(*urls):
     """Build an image_search-style payload (handler returns list of full dicts)."""
     return {
@@ -337,7 +346,7 @@ def test_vision_reflector_applies_to_image_search_tool_name():
     assert r.applies_to("draft_outline") is False
 
 
-def test_vision_reflector_handles_image_search_dict_items():
+def test_vision_reflector_handles_image_search_dict_items(vlm_review_enabled):
     r = VisionReflector(_FakeVisionGateway("合格：图片相关清晰"))
     result = _image_search_payload("https://img.example.com/python.jpg")
     state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
@@ -353,7 +362,7 @@ def test_vision_reflector_handles_image_search_dict_items():
     assert filtered[0]["source_page"] == "https://img.example.com/python.jpg-page"
 
 
-def test_vision_reflector_filters_image_search_dicts_partially():
+def test_vision_reflector_filters_image_search_dicts_partially(vlm_review_enabled):
     """When VLM rejects some images, only the good ones remain — as dicts."""
     class _SelectiveGateway:
         """Approve only URLs containing 'good'."""
@@ -386,7 +395,7 @@ def test_vision_reflector_filters_image_search_dicts_partially():
     ]
 
 
-def test_vision_reflector_retries_when_all_image_search_dicts_rejected():
+def test_vision_reflector_retries_when_all_image_search_dicts_rejected(vlm_review_enabled):
     r = VisionReflector(_FakeVisionGateway("不合格：与主题无关"))
     result = _image_search_payload("https://img.example.com/x.jpg")
     state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
@@ -398,7 +407,7 @@ def test_vision_reflector_retries_when_all_image_search_dicts_rejected():
     assert "Python" in v.hint
 
 
-def test_vision_reflector_rejects_when_vlm_emits_error_event():
+def test_vision_reflector_rejects_when_vlm_emits_error_event(vlm_review_enabled):
     """Provider-level error (e.g. DashScope download timeout) must NOT be treated as pass."""
     class _ErrorGateway:
         def stream_chat_with_tools(self, messages, tools, **_):
@@ -415,7 +424,7 @@ def test_vision_reflector_rejects_when_vlm_emits_error_event():
     assert v.severity == "blocking"
 
 
-def test_vision_reflector_rejects_when_vlm_returns_empty_text():
+def test_vision_reflector_rejects_when_vlm_returns_empty_text(vlm_review_enabled):
     """Empty / blank model response also must not be treated as pass."""
     class _EmptyGateway:
         def stream_chat_with_tools(self, messages, tools, **_):
@@ -431,11 +440,12 @@ def test_vision_reflector_rejects_when_vlm_returns_empty_text():
     assert v.verdict == "retry"
 
 
-def test_vision_reflector_warns_on_image_search_zero_images_does_not_retry():
+def test_vision_reflector_warns_on_image_search_zero_images_does_not_retry(monkeypatch):
     """Phase 6-A.2: 0 raw candidates returns pass_with_warning (let the step
     advance). Returning 'retry' caused the LLM to spin on image_search when
-    one query in a parallel batch had no results, busting the time budget.
-    Strict mode + accumulated_images ensure generate_resource still runs."""
+    one query in a parallel batch had no results, busting the time budget."""
+    from core import Config
+    monkeypatch.setattr(Config, "IMAGE_SEARCH_VLM_REVIEW", True, raising=False)
     r = VisionReflector(_FakeVisionGateway("合格"))
     result = {"ok": True, "payload": {"images": []}}
     state = {"current_plan": {"subject": "RAG"}}
@@ -444,7 +454,43 @@ def test_vision_reflector_warns_on_image_search_zero_images_does_not_retry():
     assert v.severity == "info"
 
 
-def test_vision_reflector_rejects_ambiguous_reply_without_pass_keyword():
+def test_vision_reflector_skips_image_search_when_vlm_disabled(monkeypatch):
+    """Default deployment: VLM review of image_search is OFF (DashScope can't
+    fetch external URLs). Reflector must pass immediately so heuristic-filtered
+    images flow through to accumulation without slow/failing VLM calls."""
+    from core import Config
+    monkeypatch.setattr(Config, "IMAGE_SEARCH_VLM_REVIEW", False, raising=False)
+
+    calls = {"n": 0}
+
+    class _CountingGateway:
+        def stream_chat_with_tools(self, *a, **k):
+            calls["n"] += 1
+            yield {"type": "text_delta", "content": "不合格"}
+            yield {"type": "done"}
+
+    r = VisionReflector(_CountingGateway())
+    result = _image_search_payload("https://img.example.com/a.jpg", "https://img.example.com/b.jpg")
+    state = {"current_plan": {"subject": "RAG", "resource_type": "report"}}
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+
+    assert v.verdict == "pass"
+    assert calls["n"] == 0  # VLM never invoked
+
+
+def test_vision_reflector_runs_image_search_when_vlm_enabled(monkeypatch):
+    """When explicitly enabled, VLM review still works for image_search."""
+    from core import Config
+    monkeypatch.setattr(Config, "IMAGE_SEARCH_VLM_REVIEW", True, raising=False)
+    r = VisionReflector(_FakeVisionGateway("合格：清晰相关"))
+    result = _image_search_payload("https://img.example.com/good.jpg")
+    state = {"current_plan": {"subject": "RAG", "resource_type": "report"}}
+    v = r.evaluate("image_search", result, state, {"require_images": True})
+    assert v.verdict == "pass"
+    assert v.filtered_data.get("images")  # VLM-approved subset present
+
+
+def test_vision_reflector_rejects_ambiguous_reply_without_pass_keyword(vlm_review_enabled):
     """A reply that omits both '合格' and '不合格' is not approval."""
     class _AmbiguousGateway:
         def stream_chat_with_tools(self, messages, tools, **_):
