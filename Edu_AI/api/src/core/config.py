@@ -62,7 +62,9 @@ class Config:
     # 可靠下载境外图片 URL 做多模态审查（频繁 400 / 超时），留着只会拖垮时间预算
     # 并触发 retry → react_timeout → 降级。关闭后仅依赖 handler 启发式过滤。
     # 待图片本地化后改为发送本地 base64 给 VLM，再开启此开关。
-    IMAGE_SEARCH_VLM_REVIEW = os.getenv("IMAGE_SEARCH_VLM_REVIEW", "0").strip() not in ("", "0", "false", "False")
+    # 默认开启：Phase 6-A.2 重构后，VisionReflector 先把图下载到本地，再以
+    # base64 data URI 发给 VLM 审查，DashScope 无需联网下载境外图，审查可用。
+    IMAGE_SEARCH_VLM_REVIEW = os.getenv("IMAGE_SEARCH_VLM_REVIEW", "1").strip() not in ("", "0", "false", "False")
 
 
     # 统一别名（兼容历史代码中的 REMOTE_*）
@@ -202,8 +204,8 @@ class Config:
 
     # ReAct 行为参数（可动态调整）
     USE_REACT_AGENT: bool = os.getenv("USE_REACT_AGENT", "true").lower() == "true"
-    REACT_MAX_STEPS: int = int(os.getenv("REACT_MAX_STEPS", "4"))
-    REACT_TIMEOUT_SECONDS: float = float(os.getenv("REACT_TIMEOUT_SECONDS", "25"))
+    REACT_MAX_STEPS: int = int(os.getenv("REACT_MAX_STEPS", "6"))
+    REACT_TIMEOUT_SECONDS: float = float(os.getenv("REACT_TIMEOUT_SECONDS", "40"))
 
     @classmethod
     def ensure_directories(cls):

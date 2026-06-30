@@ -16,6 +16,18 @@ def reflect_node(state: AgentState) -> dict:
 
     pipeline = _build_pipeline()
 
+    # Phase 6-A.2: expose owner / course_id to VisionReflector (for sidecar
+    # attribution when it downloads images locally). Read-only injection into
+    # the in-memory state dict — not persisted to checkpoint.
+    try:
+        from langgraph.config import get_config as _get_config
+        _rt = _get_config()["configurable"]["runtime"]
+        _request = _rt.get("request")
+        state["_owner"] = getattr(_request, "owner", None)
+        state["_course_id"] = getattr(_request, "course_id", None)
+    except Exception:
+        pass
+
     plan_step_index = state.get("plan_step_index") or 0
     current_plan = state.get("current_plan")
 
@@ -154,8 +166,13 @@ def _build_pipeline() -> ReflectorPipeline:
 
 
 def _maybe_advance_step(writer, state: dict, worst_verdict: str, updates: dict) -> None:
-    """In guided mode, advance plan_step_index when a step passes reflect."""
-    if state.get("plan_mode") != "guided":
+    """Advance plan_step_index when a step passes reflect.
+
+    Applies to BOTH guided and strict modes. (Originally guided-only — that
+    bug meant strict-mode plans never advanced: the executor stayed pinned to
+    step 0's expected_tools forever, looping image_search until react_timeout.)
+    """
+    if state.get("plan_mode") not in ("guided", "strict"):
         return
     if worst_verdict not in ("pass", "pass_with_warning"):
         return

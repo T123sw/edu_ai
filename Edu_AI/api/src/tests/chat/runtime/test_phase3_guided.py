@@ -297,13 +297,15 @@ def test_vision_reflector_passes_suitable_image():
     assert "http://img.example.com/python.jpg" in v.filtered_data.get("images", [])
 
 
-def test_vision_reflector_retries_unsuitable_images():
+def test_vision_reflector_warns_on_unsuitable_web_search_images():
+    """web_search images all rejected → pass_with_warning (not retry).
+    Phase 6-A.2 made image quality non-blocking so the run never stalls."""
     r = VisionReflector(_FakeVisionGateway("不合格：图片模糊无关"))
     result = {"ok": True, "payload": {"images": ["http://img.example.com/bad.jpg"]}}
     state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
     v = r.evaluate("web_search", result, state, {"require_images": True})
-    assert v.verdict == "retry"
-    assert v.severity == "blocking"
+    assert v.verdict == "pass_with_warning"
+    assert v.severity == "info"
 
 
 # ─── VisionReflector × image_search (list[dict] payload, Phase 6-A) ───────────
@@ -311,9 +313,44 @@ def test_vision_reflector_retries_unsuitable_images():
 
 @pytest.fixture
 def vlm_review_enabled(monkeypatch):
-    """Enable image_search VLM review (off by default in this deployment)."""
+    """Enable image_search VLM review (Phase 6-A.2: on by default, but tests
+    set it explicitly for clarity)."""
     from core import Config
     monkeypatch.setattr(Config, "IMAGE_SEARCH_VLM_REVIEW", True, raising=False)
+
+
+@pytest.fixture
+def mock_localize(monkeypatch, tmp_path):
+    """Mock localize_image so image_search VLM tests don't hit the network.
+    Each call writes a real temp file and returns a LocalizedAsset pointing
+    at it (so VisionReflector can read base64)."""
+    import hashlib
+    from app.chat.workflows.report import image_downloader
+
+    def _fake_localize(img, **kw):
+        url = str(img.get("url") or "")
+        h = hashlib.sha256(url.encode()).hexdigest()[:16]
+        p = tmp_path / f"{h}.png"
+        p.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+        return image_downloader.LocalizedAsset(
+            local_url=f"/api/images/searched/{h}.png",
+            local_path=p,
+            source_url=url,
+            source_page=str(img.get("source_page") or ""),
+            title=str(img.get("title") or ""),
+            alt=str(img.get("alt") or img.get("title") or "图片"),
+            content_type="image/png",
+            size_bytes=p.stat().st_size,
+            hash=h,
+            fetched_at="2026-06-29T00:00:00Z",
+        )
+
+    monkeypatch.setattr(
+        "app.chat.workflows.report.image_downloader.localize_image",
+        _fake_localize,
+        raising=True,
+    )
+    return _fake_localize
 
 
 def _image_search_payload(*urls):
@@ -346,7 +383,7 @@ def test_vision_reflector_applies_to_image_search_tool_name():
     assert r.applies_to("draft_outline") is False
 
 
-def test_vision_reflector_handles_image_search_dict_items(vlm_review_enabled):
+def test_vision_reflector_handles_image_search_dict_items(vlm_review_enabled, mock_localize):
     r = VisionReflector(_FakeVisionGateway("合格：图片相关清晰"))
     result = _image_search_payload("https://img.example.com/python.jpg")
     state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
@@ -355,26 +392,45 @@ def test_vision_reflector_handles_image_search_dict_items(vlm_review_enabled):
 
     assert v.verdict == "pass"
     filtered = v.filtered_data.get("images") or []
-    # filtered_data preserves the full dict shape from upstream
     assert len(filtered) == 1
     assert isinstance(filtered[0], dict)
-    assert filtered[0]["url"] == "https://img.example.com/python.jpg"
-    assert filtered[0]["source_page"] == "https://img.example.com/python.jpg-page"
+    # Phase 6-A.2: url is now the localized path; source_url preserves origin
+    assert filtered[0]["url"].startswith("/api/images/searched/")
+    assert filtered[0]["source_url"] == "https://img.example.com/python.jpg"
+    assert filtered[0]["_localized"] is True
 
 
-def test_vision_reflector_filters_image_search_dicts_partially(vlm_review_enabled):
-    """When VLM rejects some images, only the good ones remain — as dicts."""
+def test_vision_reflector_filters_image_search_dicts_partially(vlm_review_enabled, monkeypatch, tmp_path):
+    """When VLM rejects some images, only the good ones remain.
+    The localize mock encodes the source URL into the file bytes so the VLM
+    gateway (which now only sees base64) can still tell good from bad."""
+    import base64 as _b64
+    import hashlib
+    from app.chat.workflows.report import image_downloader
+
+    def _url_encoding_localize(img, **kw):
+        url = str(img.get("url") or "")
+        h = hashlib.sha256(url.encode()).hexdigest()[:16]
+        p = tmp_path / f"{h}.png"
+        p.write_bytes(url.encode("utf-8"))  # file content = source url
+        return image_downloader.LocalizedAsset(
+            local_url=f"/api/images/searched/{h}.png", local_path=p,
+            source_url=url, source_page="", title="", alt="图片",
+            content_type="image/png", size_bytes=p.stat().st_size, hash=h,
+            fetched_at="t",
+        )
+
+    monkeypatch.setattr(
+        "app.chat.workflows.report.image_downloader.localize_image",
+        _url_encoding_localize, raising=True,
+    )
+
     class _SelectiveGateway:
-        """Approve only URLs containing 'good'."""
-
+        """Approve only images whose decoded base64 content contains 'good'."""
         def stream_chat_with_tools(self, messages, _tools, **_kwargs):
-            url = ""
-            for block in messages[0]["content"]:
-                if block.get("type") == "image_url":
-                    url = block["image_url"]["url"]
-                    break
-            verdict_text = "合格" if "good" in url else "不合格"
-            yield {"type": "text_delta", "content": verdict_text}
+            data_uri = messages[0]["content"][0]["image_url"]["url"]
+            content = _b64.b64decode(data_uri.split(",", 1)[1]).decode("utf-8", "ignore")
+            yield {"type": "text_delta", "content": "合格" if "good" in content else "不合格"}
             yield {"type": "done"}
 
     r = VisionReflector(_SelectiveGateway())
@@ -388,27 +444,29 @@ def test_vision_reflector_filters_image_search_dicts_partially(vlm_review_enable
     v = r.evaluate("image_search", result, state, {"require_images": True})
 
     assert v.verdict == "pass"
-    urls = [img["url"] for img in v.filtered_data.get("images") or []]
-    assert sorted(urls) == [
+    source_urls = sorted(img["source_url"] for img in v.filtered_data.get("images") or [])
+    assert source_urls == [
         "https://img.example.com/good1.jpg",
         "https://img.example.com/good2.jpg",
     ]
 
 
-def test_vision_reflector_retries_when_all_image_search_dicts_rejected(vlm_review_enabled):
+def test_vision_reflector_warns_when_all_image_search_dicts_rejected(vlm_review_enabled, mock_localize):
+    """All images rejected by VLM → pass_with_warning (non-blocking), the run
+    still proceeds to generate the report (just without these images)."""
     r = VisionReflector(_FakeVisionGateway("不合格：与主题无关"))
     result = _image_search_payload("https://img.example.com/x.jpg")
     state = {"current_plan": {"subject": "Python", "resource_type": "report"}}
 
     v = r.evaluate("image_search", result, state, {"require_images": True})
 
-    assert v.verdict == "retry"
-    assert v.severity == "blocking"
-    assert "Python" in v.hint
+    assert v.verdict == "pass_with_warning"
+    assert v.severity == "info"
 
 
-def test_vision_reflector_rejects_when_vlm_emits_error_event(vlm_review_enabled):
-    """Provider-level error (e.g. DashScope download timeout) must NOT be treated as pass."""
+def test_vision_reflector_drops_image_on_vlm_error_event(vlm_review_enabled, mock_localize):
+    """Provider-level error (e.g. DashScope) → image dropped, not approved.
+    With all dropped → pass_with_warning (non-blocking)."""
     class _ErrorGateway:
         def stream_chat_with_tools(self, messages, tools, **_):
             yield {"type": "error", "message": "Failed to download multimodal content"}
@@ -419,13 +477,12 @@ def test_vision_reflector_rejects_when_vlm_emits_error_event(vlm_review_enabled)
 
     v = r.evaluate("image_search", result, state, {"require_images": True})
 
-    # All images rejected → retry blocking
-    assert v.verdict == "retry"
-    assert v.severity == "blocking"
+    assert v.verdict == "pass_with_warning"
+    assert not v.filtered_data.get("images")
 
 
-def test_vision_reflector_rejects_when_vlm_returns_empty_text(vlm_review_enabled):
-    """Empty / blank model response also must not be treated as pass."""
+def test_vision_reflector_drops_image_on_empty_vlm_text(vlm_review_enabled, mock_localize):
+    """Empty / blank model response → image dropped (not approved)."""
     class _EmptyGateway:
         def stream_chat_with_tools(self, messages, tools, **_):
             yield {"type": "text_delta", "content": "   "}
@@ -437,7 +494,7 @@ def test_vision_reflector_rejects_when_vlm_returns_empty_text(vlm_review_enabled
 
     v = r.evaluate("image_search", result, state, {"require_images": True})
 
-    assert v.verdict == "retry"
+    assert v.verdict == "pass_with_warning"
 
 
 def test_vision_reflector_warns_on_image_search_zero_images_does_not_retry(monkeypatch):
@@ -478,20 +535,19 @@ def test_vision_reflector_skips_image_search_when_vlm_disabled(monkeypatch):
     assert calls["n"] == 0  # VLM never invoked
 
 
-def test_vision_reflector_runs_image_search_when_vlm_enabled(monkeypatch):
-    """When explicitly enabled, VLM review still works for image_search."""
-    from core import Config
-    monkeypatch.setattr(Config, "IMAGE_SEARCH_VLM_REVIEW", True, raising=False)
+def test_vision_reflector_runs_image_search_when_vlm_enabled(vlm_review_enabled, mock_localize):
+    """When enabled, VLM review (download→base64) approves suitable images."""
     r = VisionReflector(_FakeVisionGateway("合格：清晰相关"))
     result = _image_search_payload("https://img.example.com/good.jpg")
     state = {"current_plan": {"subject": "RAG", "resource_type": "report"}}
     v = r.evaluate("image_search", result, state, {"require_images": True})
     assert v.verdict == "pass"
-    assert v.filtered_data.get("images")  # VLM-approved subset present
+    imgs = v.filtered_data.get("images") or []
+    assert imgs and imgs[0]["url"].startswith("/api/images/searched/")
 
 
-def test_vision_reflector_rejects_ambiguous_reply_without_pass_keyword(vlm_review_enabled):
-    """A reply that omits both '合格' and '不合格' is not approval."""
+def test_vision_reflector_drops_image_on_ambiguous_reply(vlm_review_enabled, mock_localize):
+    """A reply that omits both '合格' and '不合格' is not approval → dropped."""
     class _AmbiguousGateway:
         def stream_chat_with_tools(self, messages, tools, **_):
             yield {"type": "text_delta", "content": "我无法评估这张图片"}
@@ -503,4 +559,4 @@ def test_vision_reflector_rejects_ambiguous_reply_without_pass_keyword(vlm_revie
 
     v = r.evaluate("image_search", result, state, {"require_images": True})
 
-    assert v.verdict == "retry"
+    assert v.verdict == "pass_with_warning"

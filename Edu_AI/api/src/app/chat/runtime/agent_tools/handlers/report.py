@@ -29,6 +29,13 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
     # tools_node sets ctx.accumulated_images before dispatch.
     accumulated_images = list(getattr(ctx, "accumulated_images", []) or [])
 
+    # Phase 6-A.2: when VLM review is on, VisionReflector already downloaded +
+    # reviewed these images, so they arrive already-localized (_localized=True,
+    # url=/api/images/searched/...). Skip re-download in that case.
+    already_localized = bool(accumulated_images) and all(
+        a.get("_localized") for a in accumulated_images
+    )
+
     def _run():
         from app.chat.agents.report_generation import build_report_markdown, get_fallback_llm
         from app.chat.skill_manager import SkillManager
@@ -41,12 +48,14 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
             inject_report_images_from_rag,
         )
 
-        # Phase 6-A.2: fire image localization in parallel with LLM body generation.
-        # Downloads usually finish well before the ~30s LLM run; we join below
-        # with a 5s extra grace before falling back to external URLs.
-        localization_future = start_async_localization(
-            accumulated_images, owner=owner, course_id=course_id,
-        )
+        # Fire image localization in parallel with LLM body generation — unless
+        # the images are already localized (VLM review path), in which case we
+        # use them directly.
+        localization_future = None
+        if accumulated_images and not already_localized:
+            localization_future = start_async_localization(
+                accumulated_images, owner=owner, course_id=course_id,
+            )
 
         llm = get_fallback_llm()
         skill_manager = SkillManager()
@@ -62,11 +71,16 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
             mode="fast",
         )
 
-        # Join downloads now: successful ones return local /api/images/searched/*
-        # URLs; failures preserve the original external URL.
-        injectable_assets = resolve_async_localization(
-            localization_future, accumulated_images, extra_timeout_s=5.0,
-        )
+        if already_localized:
+            injectable_assets = list(accumulated_images)
+        elif localization_future is not None:
+            # Join downloads now: successful ones return local /api/images/searched/*
+            # URLs; failures preserve the original external URL.
+            injectable_assets = resolve_async_localization(
+                localization_future, accumulated_images, extra_timeout_s=5.0,
+            )
+        else:
+            injectable_assets = []
 
         localized_count = sum(
             1 for a in injectable_assets if str(a.get("url", "")).startswith("/api/images/")
