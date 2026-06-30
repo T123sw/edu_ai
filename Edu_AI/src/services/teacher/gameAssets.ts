@@ -1,10 +1,10 @@
-const ABSOLUTE_URL_RE = /^https?:\/\//i;
+﻿const ABSOLUTE_URL_RE = /^https?:\/\//i;
 const AUTH_STORAGE_KEY = 'edu-ai-auth';
 
 function getBackendBaseUrl(): string {
   return (
     (typeof import.meta !== 'undefined' ? String((import.meta as any).env?.VITE_API_BASE_URL || '').trim() : '')
-    || 'http://localhost:8000'
+    || 'http://localhost:8001'
   );
 }
 

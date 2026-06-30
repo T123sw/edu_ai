@@ -1,6 +1,6 @@
-const BACKEND_BASE_URL =
+﻿const BACKEND_BASE_URL =
   (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_API_BASE_URL : undefined) ||
-  'http://localhost:8000';
+  'http://localhost:8001';
 const AUTH_STORAGE_KEY = 'edu-ai-auth';
 
 function getAuthToken(): string | null {

@@ -1,5 +1,5 @@
-// RAG API服务
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+﻿// RAG API服务
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
 const AUTH_STORAGE_KEY = 'edu-ai-auth';
 
 function getAuthToken(): string | null {

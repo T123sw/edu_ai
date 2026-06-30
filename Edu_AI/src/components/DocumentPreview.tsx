@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Modal, Spin, message, Tabs, Typography, Button, Card } from 'antd';
 import { FileTextOutlined, DownloadOutlined, CloseOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
@@ -95,7 +95,7 @@ export default function DocumentPreview({ visible, filePath, fileName, onClose }
 
   const renderPDFPreview = () => {
     // 构建PDF预览URL（需要后端提供文件访问接口）
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
     // 注意：这里需要后端提供文件访问接口，或者使用文件路径
     const pdfUrl = `${API_BASE_URL}/api/files/${encodeURIComponent(filePath)}`;
     
@@ -247,7 +247,7 @@ export default function DocumentPreview({ visible, filePath, fileName, onClose }
       footer={[
         <Button key="download" icon={<DownloadOutlined />} onClick={() => {
           // 下载文件功能
-          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
           const downloadUrl = `${API_BASE_URL}/api/files/${encodeURIComponent(filePath)}`;
           window.open(downloadUrl, '_blank');
         }}>
