@@ -1,0 +1,60 @@
+<div class="slide layout-comparison-vs-panels">
+  <div class="header-area">
+    <div class="title-en">ARCHITECTURE COMPARISON</div>
+    <div class="title-main">痛点突破：传统 API 架构 VS 现代协议</div>
+    <div class="title-divider"></div>
+  </div>
+
+  <div class="content-area">
+    <div class="vs-problem">
+      <div class="vs-problem-label">Problem</div>
+      <div class="vs-problem-text">当模型和工具平台数量同时增长，硬编码 API 会形成 N 对 N 集成网。</div>
+    </div>
+
+    <div class="vs-comparison-grid">
+      <div class="surface-card vs-panel vs-panel-negative">
+        <div class="vs-panel-heading">传统硬编码 API 集成模式</div>
+        <div class="vs-point-list">
+          <div class="vs-point">
+            <div class="vs-point-mark vs-point-mark-negative">×</div>
+            <div class="vs-point-copy">N 对 N 的网状泥潭：每个模型都需要单独适配外部平台接口。</div>
+          </div>
+          <div class="vs-point">
+            <div class="vs-point-mark vs-point-mark-negative">×</div>
+            <div class="vs-point-copy">缺乏上下文感知：接口只传数据，无法表达业务语义和调用意图。</div>
+          </div>
+          <div class="vs-point">
+            <div class="vs-point-mark vs-point-mark-negative">×</div>
+            <div class="vs-point-copy">权限管理碎片化：密钥、授权和安全策略分散在不同系统里。</div>
+          </div>
+        </div>
+        <div class="vs-summary vs-summary-negative">痛点总结：集成成本极高，接口语言不通，工程维护压力持续上升。</div>
+      </div>
+
+      <div class="vs-center">
+        <div class="vs-badge">VS</div>
+      </div>
+
+      <div class="surface-card vs-panel vs-panel-positive">
+        <div class="vs-panel-heading">模型上下文协议（MCP）</div>
+        <div class="vs-point-list">
+          <div class="vs-point">
+            <div class="vs-point-mark vs-point-mark-positive">✓</div>
+            <div class="vs-point-copy">即插即用的通用抽象：一个协议连接多类工具与多种客户端。</div>
+          </div>
+          <div class="vs-point">
+            <div class="vs-point-mark vs-point-mark-positive">✓</div>
+            <div class="vs-point-copy">自带 Prompt 规范：不仅传输数据，还描述模型如何正确使用数据。</div>
+          </div>
+          <div class="vs-point">
+            <div class="vs-point-mark vs-point-mark-positive">✓</div>
+            <div class="vs-point-copy">客户端主导安全沙箱：工具调用由本地授权拦截，降低注入和越权风险。</div>
+          </div>
+        </div>
+        <div class="vs-summary vs-summary-positive">方案优势：统一标准，连接万物，把复杂集成收敛为清晰协议。</div>
+      </div>
+    </div>
+
+    <div class="vs-teaching-summary">课堂总结：MCP 的核心价值是把分散接口收敛为统一能力协议。</div>
+  </div>
+</div>

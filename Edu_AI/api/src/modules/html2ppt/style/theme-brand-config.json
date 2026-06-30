@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "default": {
+    "brand": {
+      "enabled": false
+    }
+  },
+  "themes": {
+    "theme-heu-academic-elegant.css": {
+      "brand": {
+        "enabled": false,
+        "asset": "/assets/HEU/heu-logo.png",
+        "alt": "哈尔滨工程大学logo",
+        "position": "top-right",
+        "slotClass": "slide-brand",
+        "imageClass": "slide-brand-image"
+      }
+    },
+    "theme-heu-academic-basic.css": {
+      "brand": {
+        "enabled": false,
+        "asset": "/assets/HEU/heu-logo.png",
+        "alt": "哈尔滨工程大学logo",
+        "position": "top-right",
+        "slotClass": "slide-brand",
+        "imageClass": "slide-brand-image"
+      }
+    }
+  }
+}

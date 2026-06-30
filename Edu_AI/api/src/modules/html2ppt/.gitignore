@@ -1,0 +1,16 @@
+node_modules/
+.worktrees/
+.superpowers/
+data/*
+*.log
+.DS_Store
+.env
+.claude
+content.md
+content2.md
+cmd.md
+*.pdf
+.superpowers
+tmp/
+docs/
+
