@@ -259,6 +259,25 @@ class ReportWorkflowRuntime:
         if engine is None:
             raise KeyError("report")
         capability = getattr(request, "capability", None)
+        _allow_rag = bool(getattr(capability, "allow_rag", False))
+        _doc_ids = list(getattr(capability, "selected_doc_ids", []) or [])
+        _owner = getattr(request, "owner", None)
+
+        def _inject_images(content: str, *, subject: str = "") -> str:
+            if not content or not _allow_rag or not _doc_ids:
+                return content
+            try:
+                from app.chat.workflows.report.image_injector import inject_report_images_from_rag
+                return inject_report_images_from_rag(
+                    content,
+                    allow_rag=True,
+                    selected_doc_ids=_doc_ids,
+                    owner=_owner,
+                    query_text=subject or content[:80],
+                )
+            except Exception:
+                return content
+
         gathered_context = {}
         generation_context = GenerationContext(
             conversation_id=request.conversation_id or "",
@@ -341,7 +360,10 @@ class ReportWorkflowRuntime:
                             {
                                 "artifact_id": f"{request.conversation_id or 'report'}:content",
                                 "artifact_type": "report",
-                                "content": raw.get("report_content"),
+                                "content": _inject_images(
+                                    raw.get("report_content") or "",
+                                    subject=str(stored_filled_slots.get("core_topic") or ""),
+                                ),
                             }
                         )
                 return {
@@ -416,7 +438,10 @@ class ReportWorkflowRuntime:
                             {
                                 "artifact_id": f"{request.conversation_id or 'report'}:content",
                                 "artifact_type": "report",
-                                "content": raw.get("report_content"),
+                                "content": _inject_images(
+                                    raw.get("report_content") or "",
+                                    subject=str(stored_filled_slots.get("core_topic") or ""),
+                                ),
                             }
                         )
                 return {
@@ -532,7 +557,10 @@ class ReportWorkflowRuntime:
                     {
                         "artifact_id": f"{request.conversation_id or 'report'}:content",
                         "artifact_type": "report",
-                        "content": raw.get("report_content"),
+                        "content": _inject_images(
+                            raw.get("report_content") or "",
+                            subject=str(getattr(preparation, "report_subject", "") or ""),
+                        ),
                     }
                 )
         return {

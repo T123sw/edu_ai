@@ -3,7 +3,8 @@ import re
 import json
 import uuid
 import traceback
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, BackgroundTasks, File, Form, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -47,6 +48,27 @@ global_course_counter = 1000
 
 TEMP_DIR = os.path.join(BASE_DIR, "temp_export")
 os.makedirs(TEMP_DIR, exist_ok=True)
+
+
+def _safe_upload_filename(value: str, index: int) -> str:
+    suffix = Path(value or "").suffix.lower()
+    if suffix not in {".png", ".jpg", ".jpeg", ".webp"}:
+        suffix = ".png"
+    return f"slide-{index + 1:03d}{suffix}"
+
+
+def _task_workspace(task_id: str) -> Path:
+    root = Path(TEMP_DIR).resolve() / "tasks" / task_id
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _local_task_path(path: Path) -> str:
+    resolved = Path(path).resolve()
+    try:
+        return str(resolved.relative_to(Path(BASE_DIR).resolve()))
+    except ValueError:
+        return str(resolved)
 
 
 def is_offline_video_enabled() -> bool:
@@ -361,6 +383,16 @@ class FullCourseVideoRequest(BaseModel):
     course_title: str = Field(..., description="总课程名称")
     pages: List[SlidePage] = Field(..., description="整套 PPT 的页面列表组合")
 
+class UploadedSlidePage(BaseModel):
+    filename: str = Field(..., description="Uploaded slide image filename")
+    content_text: str = Field(..., description="Slide outline prompt")
+
+
+class UploadedFullCourseVideoMetadata(BaseModel):
+    course_title: str = Field(..., description="Course title")
+    pages: List[UploadedSlidePage] = Field(..., description="Ordered slide metadata")
+
+
 def background_full_course_worker(task_id: str, request: FullCourseVideoRequest):
     """后台执行整套课程的渲染与无缝拼接"""
     output_filename = os.path.join(TEMP_DIR, f"{task_id}.mp4")
@@ -384,6 +416,36 @@ def background_full_course_worker(task_id: str, request: FullCourseVideoRequest)
     except Exception as e:
         OFFLINE_TASK_DB[task_id] = {"status": "failed", "error": str(e)}
         print(f"[Offline] 任务 {task_id} 渲染失败: {str(e)}")
+
+def background_uploaded_course_worker(
+    task_id: str,
+    metadata: UploadedFullCourseVideoMetadata,
+    slide_paths: list[Path],
+):
+    workspace = _task_workspace(task_id)
+    output_filename = workspace / "output.mp4"
+    try:
+        pages_data = [
+            {
+                "ppt_image": _local_task_path(slide_path),
+                "outline_prompt": metadata.pages[index].content_text,
+            }
+            for index, slide_path in enumerate(slide_paths)
+        ]
+        build_course_video(metadata.course_title, pages_data, str(output_filename))
+
+        final_filename = f"{task_id}.mp4"
+        final_path = Path(TEMP_DIR).resolve() / final_filename
+        if output_filename.exists():
+            final_path.write_bytes(output_filename.read_bytes())
+        OFFLINE_TASK_DB[task_id] = {
+            "status": "success",
+            "video_url": f"/api/v1/offline/download/{final_filename}",
+        }
+    except Exception as e:
+        OFFLINE_TASK_DB[task_id] = {"status": "failed", "error": str(e)}
+        print(f"[Offline] uploaded task {task_id} failed: {str(e)}")
+
 
 @app.post("/api/v1/offline/generate_full_video", tags=["🟠 离线渲染一键成片"])
 async def generate_full_course_video(request: FullCourseVideoRequest, bg_tasks: BackgroundTasks):
@@ -409,6 +471,46 @@ async def generate_full_course_video(request: FullCourseVideoRequest, bg_tasks: 
     bg_tasks.add_task(background_full_course_worker, task_id, request)
     
     return {"code": 200, "message": "整套课程视频已加入后台合成队列", "task_id": task_id}
+
+
+@app.post("/api/v1/offline/generate_full_video_upload", tags=["🟠 离线渲染一键成片"])
+async def generate_full_course_video_upload(
+    bg_tasks: BackgroundTasks,
+    metadata: str = Form(...),
+    files: List[UploadFile] = File(...),
+):
+    if not is_offline_video_enabled():
+        raise HTTPException(
+            status_code=503,
+            detail="Offline AI Lecturer video generation is disabled.",
+        )
+
+    try:
+        parsed = UploadedFullCourseVideoMetadata.model_validate_json(metadata)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid metadata: {exc}") from exc
+
+    if len(parsed.pages) != len(files):
+        raise HTTPException(
+            status_code=400,
+            detail="metadata.pages count must match uploaded files count",
+        )
+
+    task_id = f"course_{uuid.uuid4().hex[:8]}"
+    workspace = _task_workspace(task_id)
+    slides_dir = workspace / "slides"
+    slides_dir.mkdir(parents=True, exist_ok=True)
+
+    slide_paths: list[Path] = []
+    for index, upload in enumerate(files):
+        filename = _safe_upload_filename(parsed.pages[index].filename or upload.filename or "", index)
+        target = slides_dir / filename
+        target.write_bytes(await upload.read())
+        slide_paths.append(target)
+
+    OFFLINE_TASK_DB[task_id] = {"status": "processing"}
+    bg_tasks.add_task(background_uploaded_course_worker, task_id, parsed, slide_paths)
+    return {"code": 200, "message": "uploaded teaching video task queued", "task_id": task_id}
 
 @app.get("/api/v1/offline/status/{task_id}", tags=["🟠 离线渲染一键成片"])
 async def get_video_status(task_id: str):

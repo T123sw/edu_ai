@@ -302,7 +302,7 @@ def build_report_markdown(
                     if not content.lstrip().startswith("###"):
                         content = f"### {section_title}\n\n{content}".strip()
                     elapsed = (time.perf_counter() - t0) * 1000
-                    print(f"[REPORT] ✓ {meta['chapter_title']} / {section_title} {elapsed:.0f}ms", flush=True)
+                    print(f"[REPORT] ok {meta['chapter_title']} / {section_title} {elapsed:.0f}ms", flush=True)
                     return key, content, retries, round(elapsed)
             except Exception:
                 pass
@@ -310,7 +310,7 @@ def build_report_markdown(
                 retries += 1
                 time.sleep(0.3)
         elapsed = (time.perf_counter() - t0) * 1000
-        print(f"[REPORT] ✗ {meta['chapter_title']} / {section_title} 失败 {elapsed:.0f}ms", flush=True)
+        print(f"[REPORT] fail {meta['chapter_title']} / {section_title} {elapsed:.0f}ms", flush=True)
         return key, None, retries, round(elapsed)
 
     max_workers = min(len(task_order), 6)

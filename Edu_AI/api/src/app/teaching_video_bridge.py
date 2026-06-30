@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+import json
 import os
 import re
 import subprocess
@@ -324,6 +325,50 @@ class AiLecturerGatewayClient:
             "raw": data,
         }
 
+    def create_offline_video_upload(self, *, course_title: str, pages: list[dict[str, str]]) -> dict[str, Any]:
+        metadata_pages: list[dict[str, str]] = []
+        file_handles: list[Any] = []
+        files: list[tuple[str, tuple[str, Any, str]]] = []
+        try:
+            for index, page in enumerate(pages):
+                image_path = Path(str(page.get("ppt_image_path") or "")).resolve()
+                suffix = image_path.suffix or ".png"
+                filename = f"slide-{index + 1:03d}{suffix}"
+                metadata_pages.append(
+                    {
+                        "filename": filename,
+                        "content_text": str(page.get("content_text") or "").strip(),
+                    }
+                )
+                handle = image_path.open("rb")
+                file_handles.append(handle)
+                files.append(("files", (filename, handle, "image/png")))
+
+            metadata = {
+                "course_title": str(course_title or "").strip() or "教学视频",
+                "pages": metadata_pages,
+            }
+            with httpx.Client(base_url=self.base_url, timeout=self.timeout_seconds, trust_env=False) as client:
+                response = client.post(
+                    "/api/v1/offline/generate_full_video_upload",
+                    data={"metadata": json.dumps(metadata, ensure_ascii=False)},
+                    files=files,
+                )
+                response.raise_for_status()
+                data = response.json()
+        finally:
+            for handle in file_handles:
+                handle.close()
+
+        task_id = str(data.get("task_id") or ((data.get("data") or {}).get("task_id")) or "").strip()
+        video_url = str(data.get("video_url") or ((data.get("data") or {}).get("video_url")) or "").strip()
+        return {
+            "task_id": task_id,
+            "status": str(data.get("status") or "processing").strip() or "processing",
+            "video_url": _join_url(self.base_url, video_url) if video_url else "",
+            "raw": data,
+        }
+
     def get_offline_task_status(self, task_id: str) -> dict[str, Any]:
         with httpx.Client(base_url=self.base_url, timeout=self.timeout_seconds, trust_env=False) as client:
             response = client.get(f"/api/v1/offline/status/{task_id}")
@@ -621,7 +666,11 @@ class TeachingVideoBridgeService:
         pages = self._build_pages(workspace=workspace, material=material)
 
         course_title = _strip_extension(str(material.get("title") or "").strip()) or "教学视频"
-        task = self.ai_lecturer_client.create_offline_video(course_title=course_title, pages=pages)
+        transfer_mode = str(getattr(Config, "AI_LECTURER_TRANSFER_MODE", "upload")).strip().lower()
+        if transfer_mode == "path":
+            task = self.ai_lecturer_client.create_offline_video(course_title=course_title, pages=pages)
+        else:
+            task = self.ai_lecturer_client.create_offline_video_upload(course_title=course_title, pages=pages)
         task_id = str(task.get("task_id") or "").strip()
         if not task_id:
             raise RuntimeError("AI Lecturer did not return task_id.")

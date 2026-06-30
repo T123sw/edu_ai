@@ -306,6 +306,8 @@ class ConversationStorage:
         input_videos: Optional[List[Dict[str, Any]]] = None,
         timestamp: Optional[str] = None,
         message_kind: Optional[str] = None,
+        tool_calls: Optional[List[Dict[str, Any]]] = None,
+        tool_call_id: Optional[str] = None,
     ):
         with self._lock:
             if conversation_id not in self._conversations:
@@ -324,6 +326,10 @@ class ConversationStorage:
                 message["input_images"] = list(input_images)
             if input_videos:
                 message["input_videos"] = list(input_videos)
+            if tool_calls:
+                message["tool_calls"] = tool_calls
+            if tool_call_id:
+                message["tool_call_id"] = tool_call_id
             conv.setdefault("messages", []).append(message)
             conv["updated_at"] = _now_iso()
             self._save_locked()

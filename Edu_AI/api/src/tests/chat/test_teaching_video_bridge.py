@@ -3,7 +3,11 @@ import uuid
 
 from core.course_storage import CourseStorageManager
 
-from app.teaching_video_bridge import OfflineTeachingVideoDisabledError, TeachingVideoBridgeService
+from app.teaching_video_bridge import (
+    AiLecturerGatewayClient,
+    OfflineTeachingVideoDisabledError,
+    TeachingVideoBridgeService,
+)
 
 
 class StubPptDownloader:
@@ -63,6 +67,9 @@ class StubAiLecturerClient:
             "video_url": "/api/v1/offline/download/course_task_001.mp4",
         }
 
+    def create_offline_video_upload(self, *, course_title: str, pages: list[dict]) -> dict:
+        return self.create_offline_video(course_title=course_title, pages=pages)
+
     def get_offline_task_status(self, task_id: str) -> dict:
         self.status_calls.append(task_id)
         return {
@@ -103,6 +110,50 @@ def _write_course_info(storage_manager: CourseStorageManager, course_id: str) ->
             "color": "#1677ff",
         },
     )
+
+
+def test_ai_lecturer_client_uploads_slide_files(monkeypatch, tmp_path):
+    slide = tmp_path / "slide-001.png"
+    slide.write_bytes(b"fake png")
+    captured = {}
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"task_id": "course_task_001", "status": "processing"}
+
+    class FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def post(self, path, data=None, files=None):
+            captured["path"] = path
+            captured["data"] = data
+            captured["files"] = files
+            return FakeResponse()
+
+    monkeypatch.setattr("app.teaching_video_bridge.httpx.Client", FakeClient)
+
+    client = AiLecturerGatewayClient(base_url="http://gpu-server:8008")
+    result = client.create_offline_video_upload(
+        course_title="Remote Course",
+        pages=[{"ppt_image_path": str(slide), "content_text": "page one"}],
+    )
+
+    assert result["task_id"] == "course_task_001"
+    assert captured["path"] == "/api/v1/offline/generate_full_video_upload"
+    assert "metadata" in captured["data"]
+    assert '"course_title": "Remote Course"' in captured["data"]["metadata"]
+    assert captured["files"][0][0] == "files"
+    assert captured["files"][0][1][0] == "slide-001.png"
 
 
 def test_list_available_ppts_only_returns_decks_with_pptx_and_markdown():

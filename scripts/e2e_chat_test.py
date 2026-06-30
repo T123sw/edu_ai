@@ -74,8 +74,8 @@ def run_case(name: str, question: str, conversation_id: str | None = None, **kwa
                 sys.stdout.write(content)
                 sys.stdout.flush()
             elif etype == "meta":
-                cid = data.get("conversation_id") or data.get("path")
-                print(f"\n[meta] conv_id={cid}  raw_keys={list(data.keys())}")
+                cid = data.get("conversation_id")
+                print(f"\n[meta #{events_by_type['meta']}] conv_id={cid!r}  raw={json.dumps(data, ensure_ascii=False)[:160]}")
             elif etype == "result":
                 msg = data.get("message", {}).get("content", "")[:80]
                 action = data.get("action", {}).get("name", "")
