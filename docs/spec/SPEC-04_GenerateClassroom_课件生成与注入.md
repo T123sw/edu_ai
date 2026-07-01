@@ -18,7 +18,7 @@
 - `OpenMaicClient`（SPEC-07，聚焦 `generate_classroom` / `poll_job` / `wait_job` + 错误映射）。
 - job 表衔接（SPEC-05，generate-classroom 的 job 化）。
 - `classroom_service` 编排：researchContext = **web search（主外部源）+ RAG Top-K 领域补充（带出处）合并** → 生成 → 过 SPEC-02 §6 不变量校验 → 落库 `classrooms` / `classroom_scenes`（同 `Stage.id` 幂等 upsert）。
-- 生成 flags：**`enableWebSearch=true`（主力外部源，需配 web search provider key）**；`enableTTS/Image/Video=false`（媒体后置）。**知识源分层 = LLM 基座 + web（主）+ RAG（领域补充，叠加非替代）**；researchContext 为空也应能靠 LLM+web 生成。Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
+- 生成 flags：**`enableWebSearch=false`**——web 由 **edu_ai 侧独立 Web 检索层（SPEC-00，Phase 1.5 前置：Bocha 搜索 + Tavily Extract）** 产出并拼进 researchContext；sidecar 自带 web search **保留可用**（可选/兜底）。`enableTTS/Image/Video=false`（媒体后置）。**知识源分层 = LLM 基座 + web（edu_ai 侧 SPEC-00）+ RAG（领域补充，叠加非替代）**；researchContext 为空也应能靠 LLM 生成。Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
 
 ### 0.1 切割清单（Deferred —— 后续 Phase 必须回来补，不等于删除）
 
@@ -30,10 +30,10 @@
 | D4 | researchContext 领域补充深度：**教材章节 + 知识图谱节点/关系 + 本地化图片说明**（本轮 web + RAG 第一路已接） | Phase 2.5 | §4.3 |
 | D5 | 客户端 `parse_pdf` 方法接入（当前 Phase 1 用 Python 直连绕过） | 按需 | SPEC-07 §3 |
 | D6 | parse-pdf 的 job 化（当前同步阻塞） | 可选 | SPEC-05 §6 |
-| D7 | EduAgent **deepsearch+爬虫→RAG** 链路（`app/deepsearch_pipeline.py`）作「RAG 预填 / 特定深挖」，**非课件生成实时 web 源** | Phase 2.5/按需 | 下方说明 |
+| D7 | 旧 EduAgent **deepsearch+爬虫+SearxNG** 链路下线（已被 **SPEC-00 Web 检索层** 替换） | Phase 6 | SPEC-00 §11 |
 | D8 | web search **图片**接入（sidecar 当前丢弃 Bocha `image_links` / Tavily images，`WebSearchResult` 无 images 字段）→ 真实配图来源，随媒体一起 | Phase 5 | §4.3、下方说明 |
 
-> **web 层定稿（2026-07-01，用户实测后）**：MVP web 层用 **Bocha 博查 web API**（sidecar 原生 provider `lib/web-search/bocha.ts`，中文最好、AI 摘要、秒级、托管可扩展；`enableWebSearch=true` + key 写 sidecar `.env`）。**放弃**用自建 deepsearch+爬虫做课件 web 源——现有链路 deepsearch(SearxNG+LangGraph)→Selenium 爬取→入 RAG 虽已跑通，但用户实测**慢、不稳、内容未审查（直接取前几链接）、SearxNG 限流上线扛不住多用户** → 保留作 RAG 预填/深挖（D7），非实时 web 源。**图片**：Bocha/Tavily API 都能返回图，但 sidecar 现实现丢弃了，需小补丁、随 Phase 5 媒体一起接（D8）。**Tavily** 可开 `raw_content` 一次拿全文 markdown（替代自建爬虫），作英文/深度备选。
+> **web 层定稿（2026-07-01，用户实测后）**：web 检索独立为 **Phase 1.5 前置层 [SPEC-00](SPEC-00_Web检索层_Bocha搜索与Tavily抽取.md)**：edu_ai 侧 **Bocha 搜索 + Tavily Extract 全文**，替换旧 deepsearch+SearxNG+自建爬虫（用户实测慢/不稳/内容未审查/SearxNG 限流上线扛不住）。产物入 RAG / 供 researchContext。课件生成默认 `enableWebSearch=false`（web 由本层注入）；**sidecar 自带 web search 保留可用**（可选/兜底），web 功能独立于 sidecar。**图片**入库随 Phase 5 媒体（D8）。详见 SPEC-00。
 
 > **D4 是"不照搬"的价值核心**：MVP 先证明注入链路生效（AC-04-1/2/3），拼装深度后补。收口每个后续 Phase 时回填对应切割项。
 
@@ -150,7 +150,7 @@ resolveModel → (可选 web search → researchContext)
 ```
 LLM 自身能力            ← 基座：生成主体，无任何外部资料也应能产出合理课件
   +
-web search（sidecar 内，Bocha web API：中文/AI摘要/托管可扩展；图片待补丁D8） ← 主外部源（时效/广度），enableWebSearch=true
+web（edu_ai 侧 SPEC-00 Web 检索层：Bocha 搜索 + Tavily Extract；不走 sidecar） ← 主外部源（时效/广度），由 edu_ai 拼进 researchContext
   +
 researchContext（edu_ai 注入的领域补充，叠加非替代）=
     RAG 检索片段（按 requirement 检索本课程知识库，Top-K，带出处）   ← 本轮 MVP 只做这一路

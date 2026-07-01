@@ -13,6 +13,7 @@
 
 | 验收文档 | 对应 spec | Phase | 当前状态 |
 | --- | --- | --- | --- |
+| [ACC-00 Web 检索层（Bocha+Tavily）](ACC-00_Web检索层_验收.md) | SPEC-00 | 1.5 前置 | ⏳ 待实现 |
 | [ACC-01 Sidecar 裁剪与部署](ACC-01_Sidecar裁剪与部署_验收.md) | SPEC-01 | 0 | ✅ 核心已验证（2026-06-30），容器化待补 |
 | [ACC-02 数据契约](ACC-02_数据契约_验收.md) | SPEC-02 | 全阶段地基 | ⏳ 待做（随 Phase 2 落库校验） |
 | [ACC-03 ParsePDF 解析迁移](ACC-03_ParsePDF解析迁移_验收.md) | SPEC-03 | 1 | ⏳ 待做 |

@@ -12,6 +12,7 @@
 
 ```
 README.md (本文 = 总)                     ← 范围/术语/约定/横切原则/交叉引用
+  ├─ SPEC-00  Web 检索层（Bocha+Tavily）  ← Phase 1.5 前置：Bocha 搜索+Tavily Extract 替换旧 deepsearch+SearxNG+爬虫（先于 Phase 2）
   ├─ SPEC-01  Sidecar 裁剪与部署          ← Phase 0：sidecar 形态、目录裁剪、.env、容器、暴露端点
   ├─ SPEC-02  数据契约 Stage/Scene/Action/Slide   ← 所有阶段共享的地基（分-地基）
   ├─ SPEC-03  ParsePDF 解析迁移           ← Phase 1：/api/parse-pdf 契约 + 替换 scripts/mineru.py
@@ -69,6 +70,7 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | Phase | 主 spec | 验收锚点 |
 | --- | --- | --- |
 | 0 打底 | SPEC-01 | sidecar 起、`/api/health` 200、`/api/parse-pdf` 解析成功（**已验证 2026-06-30**）|
+| 1.5 Web 检索前置 | **SPEC-00** | Bocha 搜索 + Tavily Extract 替换旧 web，入 RAG（Phase 2 前置）|
 | 1 解析替换 | SPEC-03（依赖 SPEC-06/07）| RAG 入库改走 MinerU Cloud，结果对齐 |
 | 2 课件生成 | SPEC-04（依赖 SPEC-02/05/07）| 用 edu_ai 知识源生成一节结构化课件并落库 |
 | 3 交互课堂 | SPEC-08（依赖 SPEC-02）| 前端播一节课，聚焦+旁白同步 |
