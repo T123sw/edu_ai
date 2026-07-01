@@ -5056,5 +5056,18 @@
     "library_type": "personal",
     "owner_user_id": "teacher",
     "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-1782890995.4463",
+    "filename": "22-唐胜文-S325067043.pdf",
+    "path": "knowledge_base/documents/22-唐胜文-S325067043.pdf",
+    "size": 1795323,
+    "uploaded_at": "2026-07-01T15:29:55.446300",
+    "course_id": "computational-thinking",
+    "scope_type": "course",
+    "scope_id": null,
+    "library_type": "personal",
+    "owner_user_id": "teacher",
+    "promoted_from_document_id": null
   }
 ]
