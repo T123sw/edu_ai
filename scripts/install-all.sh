@@ -6,7 +6,6 @@ SKIP_NODE=0
 SKIP_OPTIONAL=0
 SKIP_PLAYWRIGHT_BROWSERS=0
 SKIP_ENV_FILES=0
-INCLUDE_RAG_STANDALONE=0
 PYTHON_BIN="${PYTHON:-python3}"
 
 for arg in "$@"; do
@@ -16,7 +15,6 @@ for arg in "$@"; do
     --skip-optional) SKIP_OPTIONAL=1 ;;
     --skip-playwright-browsers) SKIP_PLAYWRIGHT_BROWSERS=1 ;;
     --skip-env-files) SKIP_ENV_FILES=1 ;;
-    --include-rag-standalone) INCLUDE_RAG_STANDALONE=1 ;;
     --python=*) PYTHON_BIN="${arg#--python=}" ;;
     *)
       echo "Unknown argument: $arg" >&2
@@ -27,11 +25,10 @@ done
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FRONTEND_DIR="$REPO_ROOT/Edu_AI"
-BACKEND_DIR="$FRONTEND_DIR/api/Edu_AI"
-HTML2PPT_DIR="$BACKEND_DIR/html2ppt"
+BACKEND_DIR="$FRONTEND_DIR/api/src"
+HTML2PPT_DIR="$BACKEND_DIR/modules/html2ppt"
 DOM_TO_PPTX_DIR="$HTML2PPT_DIR/dom-to-pptx"
-AI_LECTURER_DIR="$BACKEND_DIR/AI_Lecturer"
-RAG_STANDALONE_DIR="$BACKEND_DIR/rag_v2/rag-main"
+AI_LECTURER_DIR="$BACKEND_DIR/modules/AI_Lecturer"
 EDU_AGENT_DIR="$REPO_ROOT/EduAgent"
 
 step() {
@@ -73,7 +70,7 @@ if [[ "$SKIP_PYTHON" -eq 0 ]]; then
   "$PYTHON_BIN" -m pip install --upgrade pip setuptools wheel
 
   step "Install backend Python dependencies"
-  "$PYTHON_BIN" -m pip install -r "$BACKEND_DIR/requirements_api.txt"
+  "$PYTHON_BIN" -m pip install -r "$BACKEND_DIR/requirements-media.txt"
 
   if [[ "$SKIP_OPTIONAL" -eq 0 ]]; then
     step "Install AI Lecturer offline-video Python dependencies"
@@ -81,11 +78,6 @@ if [[ "$SKIP_PYTHON" -eq 0 ]]; then
 
     step "Install EduAgent Python dependencies"
     "$PYTHON_BIN" -m pip install -r "$EDU_AGENT_DIR/requirements.txt"
-  fi
-
-  if [[ "$INCLUDE_RAG_STANDALONE" -eq 1 ]]; then
-    step "Install standalone RAG Python dependencies"
-    "$PYTHON_BIN" -m pip install -r "$RAG_STANDALONE_DIR/requirements.txt"
   fi
 
   if [[ "$SKIP_PLAYWRIGHT_BROWSERS" -eq 0 ]]; then

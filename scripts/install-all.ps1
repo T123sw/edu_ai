@@ -4,7 +4,6 @@ param(
     [switch]$SkipOptional,
     [switch]$SkipPlaywrightBrowsers,
     [switch]$SkipEnvFiles,
-    [switch]$IncludeRagStandalone,
     [string]$Python = "python"
 )
 
@@ -12,11 +11,10 @@ $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $FrontendDir = Join-Path $RepoRoot "Edu_AI"
-$BackendDir = Join-Path $FrontendDir "api\Edu_AI"
-$Html2PptDir = Join-Path $BackendDir "html2ppt"
+$BackendDir = Join-Path $FrontendDir "api\src"
+$Html2PptDir = Join-Path $BackendDir "modules\html2ppt"
 $DomToPptxDir = Join-Path $Html2PptDir "dom-to-pptx"
-$AiLecturerDir = Join-Path $BackendDir "AI_Lecturer"
-$RagStandaloneDir = Join-Path $BackendDir "rag_v2\rag-main"
+$AiLecturerDir = Join-Path $BackendDir "modules\AI_Lecturer"
 $EduAgentDir = Join-Path $RepoRoot "EduAgent"
 
 function Invoke-Step {
@@ -85,7 +83,7 @@ if (-not $SkipPython) {
         & $Python -m pip install --upgrade pip setuptools wheel
     }
     Invoke-Step "Install backend Python dependencies" {
-        & $Python -m pip install -r (Join-Path $BackendDir "requirements_api.txt")
+        & $Python -m pip install -r (Join-Path $BackendDir "requirements-media.txt")
     }
     if (-not $SkipOptional) {
         Invoke-Step "Install AI Lecturer offline-video Python dependencies" {
@@ -93,11 +91,6 @@ if (-not $SkipPython) {
         }
         Invoke-Step "Install EduAgent Python dependencies" {
             & $Python -m pip install -r (Join-Path $EduAgentDir "requirements.txt")
-        }
-    }
-    if ($IncludeRagStandalone) {
-        Invoke-Step "Install standalone RAG Python dependencies" {
-            & $Python -m pip install -r (Join-Path $RagStandaloneDir "requirements.txt")
         }
     }
     if (-not $SkipPlaywrightBrowsers) {

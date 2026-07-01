@@ -9,13 +9,12 @@
 | 模块 | 路径 | 安装方式 | 是否默认安装 | 说明 |
 | --- | --- | --- | --- | --- |
 | 前端主应用 | `Edu_AI/` | `npm ci --prefix Edu_AI` | 是 | Vite + React + Ant Design 5 |
-| 后端主服务 | `Edu_AI/api/Edu_AI/` | `pip install -r requirements_api.txt` | 是 | FastAPI、RAG、PPT/视频桥接、课程存储 |
-| PPT 生成服务 | `Edu_AI/api/Edu_AI/html2ppt/` | `npm ci --prefix Edu_AI/api/Edu_AI/html2ppt` | 是 | 已同步 `Sun-Jia-Jun/ppt-generation-service` 最新 `main`：`ce0ccfd` |
-| PPT 导出子包 | `Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx/` | `npm ci --prefix Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx` | 是 | 当前版本 `1.1.6` |
-| AI Lecturer 离线视频 | `Edu_AI/api/Edu_AI/AI_Lecturer/` | `pip install -r requirements-offline-py312.txt` | 可选，默认安装 | Python 3.12 兼容版，避免原始 requirements 冲突 |
+| 后端主服务 | `Edu_AI/api/src/` | `pip install -r requirements-media.txt` | 是 | FastAPI、RAG、PPT/视频桥接、课程存储 |
+| PPT 生成服务 | `Edu_AI/api/src/modules/html2ppt/` | `npm ci --prefix Edu_AI/api/src/modules/html2ppt` | 是 | 已同步 `Sun-Jia-Jun/ppt-generation-service` 最新 `main`：`ce0ccfd` |
+| PPT 导出子包 | `Edu_AI/api/src/modules/html2ppt/dom-to-pptx/` | `npm ci --prefix Edu_AI/api/src/modules/html2ppt/dom-to-pptx` | 是 | 当前版本 `1.1.6` |
+| AI Lecturer 离线视频 | `Edu_AI/api/src/modules/AI_Lecturer/` | `pip install -r requirements-offline-py312.txt` | 可选，默认安装 | Python 3.12 兼容版，避免原始 requirements 冲突 |
 | EduAgent | `EduAgent/` | `pip install -r requirements.txt` | 可选，默认安装 | Agent / 抓取辅助模块 |
-| RAG standalone | `Edu_AI/api/Edu_AI/rag_v2/rag-main/` | `pip install -r requirements.txt` 或 `pip install -e .` | 可选，不默认 | 独立 RAG 实验工程，包含 `streamlit` 等较重依赖 |
-| LiveTalking GPU 栈 | `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/` | 手动独立环境安装 | 不默认 | CUDA、`onnxruntime-gpu`、`aiortc` 等，建议单独 conda 环境 |
+| LiveTalking GPU 栈 | `Edu_AI/api/src/modules/AI_Lecturer/LiveTalking-main/` | 手动独立环境安装 | 不默认 | CUDA、`onnxruntime-gpu`、`aiortc` 等，建议单独 conda 环境 |
 | 根目录 Node 包 | `package.json` | 手动可选 | 不默认 | 旧的根级实验依赖，包含 Ant Design 6；不要和主前端依赖混用 |
 
 ## 2. 系统级依赖
@@ -52,7 +51,6 @@ python -m venv .venv
 .\scripts\install-all.ps1 -SkipPython
 .\scripts\install-all.ps1 -SkipNode
 .\scripts\install-all.ps1 -Python py
-.\scripts\install-all.ps1 -IncludeRagStandalone
 ```
 
 ### Linux / macOS
@@ -72,13 +70,12 @@ bash scripts/install-all.sh --skip-playwright-browsers
 bash scripts/install-all.sh --skip-python
 bash scripts/install-all.sh --skip-node
 bash scripts/install-all.sh --python=python3.12
-bash scripts/install-all.sh --include-rag-standalone
 ```
 
 默认脚本会做这些事：
 
 1. 升级 `pip`、`setuptools`、`wheel`
-2. 安装后端主依赖：`Edu_AI/api/Edu_AI/requirements_api.txt`
+2. 安装后端主依赖：`Edu_AI/api/src/requirements-media.txt`
 3. 安装可选 Python 依赖：AI Lecturer 离线视频、EduAgent
 4. 安装 Playwright Chromium 浏览器
 5. 安装前端依赖：`Edu_AI/package-lock.json`
@@ -96,7 +93,7 @@ bash scripts/install-all.sh --include-rag-standalone
 
 ```bash
 python -m playwright install chromium
-python -m pip install -r Edu_AI/api/Edu_AI/AI_Lecturer/requirements-offline-py312.txt
+python -m pip install -r Edu_AI/api/src/modules/AI_Lecturer/requirements-offline-py312.txt
 ```
 
 ## 4. Conda 方案
@@ -113,7 +110,7 @@ npm ci
 只建后端环境：
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd Edu_AI/api/src
 conda env create -f environment.yml
 conda activate edu-ai-backend
 ```
@@ -154,15 +151,15 @@ VITE_PPT_BASE_URL=http://127.0.0.1:46080
 
 ## 6. 后端主服务依赖
 
-路径：`Edu_AI/api/Edu_AI/`
+路径：`Edu_AI/api/src/`
 
 安装：
 
 ```bash
-python -m pip install -r Edu_AI/api/Edu_AI/requirements_api.txt
+python -m pip install -r Edu_AI/api/src/requirements-media.txt
 ```
 
-`requirements_api.txt` 会先引用 `requirements.txt`，然后补充语音/转写等 API 运行依赖。
+`requirements-media.txt` 会先引用 `requirements.txt`，然后补充语音/转写等 API 运行依赖。
 
 主要依赖：
 
@@ -177,11 +174,11 @@ python -m pip install -r Edu_AI/api/Edu_AI/requirements_api.txt
 启动：
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd Edu_AI/api/src
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-模板文件：`Edu_AI/api/Edu_AI/.env.example`
+模板文件：`Edu_AI/api/src/.env.example`
 
 ## 7. 模型与 env 样式
 
@@ -307,7 +304,7 @@ BAIDU_SPEECH_DEV_PID=1537
 
 ## 8. html2ppt 依赖
 
-路径：`Edu_AI/api/Edu_AI/html2ppt/`
+路径：`Edu_AI/api/src/modules/html2ppt/`
 
 当前状态：
 
@@ -319,14 +316,14 @@ BAIDU_SPEECH_DEV_PID=1537
 安装：
 
 ```bash
-npm ci --prefix Edu_AI/api/Edu_AI/html2ppt
-npm ci --prefix Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx
+npm ci --prefix Edu_AI/api/src/modules/html2ppt
+npm ci --prefix Edu_AI/api/src/modules/html2ppt/dom-to-pptx
 ```
 
 启动：
 
 ```bash
-cd Edu_AI/api/Edu_AI/html2ppt
+cd Edu_AI/api/src/modules/html2ppt
 npm start
 ```
 
@@ -346,7 +343,7 @@ PPT_CLAUDE_ARGS=["-p","--output-format","text","--permission-mode","bypassPermis
 PPT_DEFAULT_THEME_ID=heu_academic_elegant
 ```
 
-模板文件：`Edu_AI/api/Edu_AI/html2ppt/.env.example`
+模板文件：`Edu_AI/api/src/modules/html2ppt/.env.example`
 
 `PPT_CHROME_PATH` 留空时，服务会尝试系统常见的 Chrome、Edge、Chromium 路径。`PPT_FFMPEG_PATH` 默认使用 PATH 中的 `ffmpeg`。
 
@@ -355,7 +352,7 @@ PPT_DEFAULT_THEME_ID=heu_academic_elegant
 推荐使用：
 
 ```bash
-python -m pip install -r Edu_AI/api/Edu_AI/AI_Lecturer/requirements-offline-py312.txt
+python -m pip install -r Edu_AI/api/src/modules/AI_Lecturer/requirements-offline-py312.txt
 ```
 
 不要把 `AI_Lecturer/requirements.txt` 直接装进主后端环境。这个原始文件里存在多组重复/冲突 pin，例如多个 `aiohttp`、`Flask`、`numpy`、`opencv`、`Pillow`、`scipy`、`torch`、`transformers` 版本。当前项目已整理出 `requirements-offline-py312.txt` 作为 Python 3.12 的稳定安装入口。
@@ -365,7 +362,7 @@ LiveTalking GPU 栈建议单独环境：
 ```bash
 conda create -n livetalking python=3.10
 conda activate livetalking
-pip install -r Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/requirements.txt
+pip install -r Edu_AI/api/src/modules/AI_Lecturer/LiveTalking-main/requirements.txt
 ```
 
 如果机器没有 CUDA/GPU，不建议安装 LiveTalking 完整 requirements。
@@ -377,22 +374,9 @@ pip install -r Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/requirements.txt
 - 需要的本地模型权重或缓存
 - `models/`、`checkpoints/`、`assets/` 等大文件目录
 
-## 10. RAG standalone
+## 10. RAG
 
-主后端已经包含当前应用需要的 RAG 依赖。`rag_v2/rag-main` 是独立实验工程，只有需要单独跑它时再安装：
-
-```bash
-python -m pip install -r Edu_AI/api/Edu_AI/rag_v2/rag-main/requirements.txt
-```
-
-或：
-
-```bash
-cd Edu_AI/api/Edu_AI/rag_v2/rag-main
-python -m pip install -e .
-```
-
-注意：该模块会引入 `streamlit`、更高版本的 `chromadb` 等重依赖，所以没有放入默认一键安装。
+主后端已经包含当前应用需要的 RAG 依赖（`Edu_AI/api/src/modules/rag_v2/`，随后端 `requirements.txt` 一起安装）。此前独立的 `rag_v2/rag-main` 实验工程已随 Phase 1 解析迁移收口删除，无需单独安装。
 
 ## 11. Env 文件初始化
 
@@ -401,8 +385,8 @@ python -m pip install -e .
 | Example | 本地文件 |
 | --- | --- |
 | `Edu_AI/.env.example` | `Edu_AI/.env` |
-| `Edu_AI/api/Edu_AI/.env.example` | `Edu_AI/api/Edu_AI/.env` |
-| `Edu_AI/api/Edu_AI/html2ppt/.env.example` | `Edu_AI/api/Edu_AI/html2ppt/.env` |
+| `Edu_AI/api/src/.env.example` | `Edu_AI/api/src/.env` |
+| `Edu_AI/api/src/modules/html2ppt/.env.example` | `Edu_AI/api/src/modules/html2ppt/.env` |
 | `EduAgent/config.toml.example` | `EduAgent/config.toml` |
 
 手动复制命令：
@@ -420,8 +404,8 @@ Linux/macOS：
 
 ```bash
 cp Edu_AI/.env.example Edu_AI/.env
-cp Edu_AI/api/Edu_AI/.env.example Edu_AI/api/Edu_AI/.env
-cp Edu_AI/api/Edu_AI/html2ppt/.env.example Edu_AI/api/Edu_AI/html2ppt/.env
+cp Edu_AI/api/src/.env.example Edu_AI/api/src/.env
+cp Edu_AI/api/src/modules/html2ppt/.env.example Edu_AI/api/src/modules/html2ppt/.env
 cp EduAgent/config.toml.example EduAgent/config.toml
 ```
 
@@ -432,14 +416,14 @@ cp EduAgent/config.toml.example EduAgent/config.toml
 1. 启动 html2ppt：
 
 ```bash
-cd Edu_AI/api/Edu_AI/html2ppt
+cd Edu_AI/api/src/modules/html2ppt
 npm start
 ```
 
 2. 启动后端：
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd Edu_AI/api/src
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -465,13 +449,13 @@ http://127.0.0.1:46080/health
 ```bash
 python -m pip check
 npm run build --prefix Edu_AI
-npm test --prefix Edu_AI/api/Edu_AI/html2ppt
+npm test --prefix Edu_AI/api/src/modules/html2ppt
 ```
 
 可选：
 
 ```bash
-npm test --prefix Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx
+npm test --prefix Edu_AI/api/src/modules/html2ppt/dom-to-pptx
 ```
 
 当前已知情况：

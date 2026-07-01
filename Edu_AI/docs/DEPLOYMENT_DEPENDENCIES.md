@@ -21,7 +21,7 @@ npm run build
 
 ## 主后端
 
-- `Edu_AI/api/Edu_AI/requirements.txt`
+- `Edu_AI/api/src/requirements.txt`
   - FastAPI 主后端依赖清单。
   - 覆盖 API 服务、鉴权、课程资料、RAG、知识图谱、报告/PPT/测验工作流、教材导入解析等能力。
   - 当前包含 `fastapi`、`uvicorn`、`pydantic`、`python-dotenv`、`baidu-aip`、`chardet`、`ffmpeg-python`、`langchain-*`、`langgraph`、`chromadb`、`python-docx`、`rank-bm25`、`jieba` 等。
@@ -29,7 +29,7 @@ npm run build
 常用命令：
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd Edu_AI/api/src
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install --upgrade pip
@@ -38,14 +38,14 @@ pip install -r requirements.txt
 
 ## AI Lecturer
 
-- `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/requirements.txt`
+- `Edu_AI/api/src/modules/AI_Lecturer/LiveTalking-main/requirements.txt`
   - LiveTalking/WebRTC 实时数字人链路依赖。
   - 覆盖 WebRTC、TTS、音频处理、数字人模型推理等能力。
   - 主要依赖包括 `aiortc`、`aiohttp_cors`、`edge_tts`、`openai`、`websockets`、`librosa`、`opencv-python-headless`、`transformers`、`onnxruntime-gpu` 等。
-- `Edu_AI/api/Edu_AI/AI_Lecturer/offline_video_maker.py`
+- `Edu_AI/api/src/modules/AI_Lecturer/offline_video_maker.py`
   - 离线整套课程视频生成入口，依赖 Edge-TTS、Wav2Lip、FFmpeg。
   - 该链路 CPU/GPU 占用高，生产或演示环境中建议按需开启。
-- `Edu_AI/api/Edu_AI/AI_Lecturer/Wav2Lip_Offline/`
+- `Edu_AI/api/src/modules/AI_Lecturer/Wav2Lip_Offline/`
   - 离线唇形同步推理代码目录。
   - 其中模型权重、临时导出视频和运行缓存不应作为普通业务数据提交。
 
@@ -65,10 +65,10 @@ AI_LECTURER_OFFLINE_ENABLED=0
 
 ## 环境变量
 
-- `Edu_AI/api/Edu_AI/.env.example`
+- `Edu_AI/api/src/.env.example`
   - 可提交的示例配置。
   - 包含 Baidu Speech、AI Lecturer 网关、离线链路开关等示例项。
-- `Edu_AI/api/Edu_AI/.env`
+- `Edu_AI/api/src/.env`
   - 本地真实配置，可能包含密钥，应保持在 `.gitignore` 中，不提交。
 
 常用 AI Lecturer 相关变量：
