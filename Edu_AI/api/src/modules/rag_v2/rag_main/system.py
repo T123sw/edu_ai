@@ -30,14 +30,6 @@ from chromadb.config import Settings
 from .core.config import Config
 from modules.rag_v2.document_resolver import resolve_rag_document
 
-try:
-    import fitz  # PyMuPDF
-    PYMUPDF_AVAILABLE = True
-except Exception:
-    fitz = None  # type: ignore
-    PYMUPDF_AVAILABLE = False
-    print("[WARNING] PyMuPDF 未安装，PDF 解析将不可用。安装: pip install PyMuPDF")
-
 # MinerU 解析已迁移为「直连 MinerU Cloud」provider（见 docs/spec/SPEC-03）。
 # 不再依赖本地 mineru CLI；可用性 = provider 是否配置了 API key。
 def _check_mineru_available() -> bool:
@@ -95,7 +87,7 @@ MINERU_AVAILABLE = _check_mineru_available()
 if MINERU_AVAILABLE:
     print("[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析")
 else:
-    print("[WARNING] 未配置 MinerU Cloud API key，PDF 解析将回退到 PyMuPDF")
+    print("[WARNING] 未配置 MinerU Cloud API key，PDF 导入将直接失败")
 
 # 关键词检索支持（可选导入）
 try:
@@ -112,25 +104,8 @@ except ImportError:
     JIEBA_AVAILABLE = False
     print("[WARNING] jieba 未安装，中文分词功能将不可用。安装: pip install jieba")
 
-# 尝试导入 Docling
-try:
-    from docling.document_converter import DocumentConverter, PdfFormatOption
-    from docling.datamodel.base_models import InputFormat
-    from docling.datamodel.pipeline_options import PdfPipelineOptions
-    try:
-        from docling.datamodel.pipeline_options import RapidOcrOptions  # type: ignore
-    except Exception:
-        RapidOcrOptions = None  # type: ignore
-    try:
-        from docling.datamodel.pipeline_options import TableFormerMode  # type: ignore
-    except Exception:
-        TableFormerMode = None  # type: ignore
-    DOCLING_AVAILABLE = True
-except ImportError:
-    DOCLING_AVAILABLE = False
-    RapidOcrOptions = None  # type: ignore
-    TableFormerMode = None  # type: ignore
-    print("[WARNING] docling 未安装，强烈建议安装以获得最佳文档解析效果: pip install docling")
+# PDF 导入链路已收敛为 MinerU Cloud only；不再探测/降级到 PyMuPDF 或 docling。
+DOCLING_AVAILABLE = False
 
 try:
     from PIL import Image
@@ -1806,12 +1781,12 @@ class DocumentProcessor:
         doc_id: Optional[str] = None,
         images_root: Optional[Path] = None,
     ) -> List[Document]:
-        """基于 PyMuPDF 的工业级稳定解析：文本与图片分离抽取。"""
+        """解析并切分导入文件。PDF 只使用 MinerU Cloud，失败即失败。"""
         file_path_obj = Path(file_path)
 
         # 可选强制使用 Docling（仅用于调试/对比，默认关闭）
         force_docling = os.getenv("RAG_USE_DOCLING", "0").strip().lower() in {"1", "true", "yes"}
-        if force_docling and DOCLING_AVAILABLE:
+        if file_path_obj.suffix.lower() != ".pdf" and force_docling and DOCLING_AVAILABLE:
             print("[Docling] RAG_USE_DOCLING=1，启用 Docling 路径")
 
             md_text = ""
@@ -1883,223 +1858,107 @@ class DocumentProcessor:
                 doc.metadata["modality"] = "text"
             return text_chunks
 
-        # ===== PDF 处理逻辑 =====
-        # 检查是否强制使用 MinerU（通过环境变量控制）
-        force_mineru = os.getenv("RAG_USE_MINERU", "1").strip().lower() in {"1", "true", "yes"}
-        
+        if not MINERU_AVAILABLE:
+            raise RuntimeError("未配置 MinerU Cloud API key (PDF_MINERU_CLOUD_API_KEY)，无法解析 PDF。")
+
         text_chunks: List[Document] = []
         image_chunks: List[Document] = []
         _, safe_doc_id, target_root = self._resolve_image_target_root(file_path_obj, owner, doc_id, images_root)
 
-        # 尝试使用 MinerU 解析（优先）
-        mineru_success = False
-        if force_mineru and MINERU_AVAILABLE:
-            try:
-                print(f"[MinerU] 开始解析文档: {file_path_obj.name}")
-                
-                # 获取 MinerU 配置参数
-                pages_per_chunk = int(os.getenv("RAG_MINERU_PAGES_PER_CHUNK", "20"))
-                max_workers = int(os.getenv("RAG_MINERU_MAX_WORKERS", "4"))
-                
-                # 调用新的解析方法（返回文本+图片）
-                mineru_result = self._parse_pdf_with_mineru(
-                    file_path=file_path,
-                    pages_per_chunk=pages_per_chunk,
-                    max_workers=max_workers
-                )
-                
-                if not mineru_result['success']:
-                    raise ValueError(f"MinerU 解析失败: {mineru_result['error']}")
-                
-                markdown_text = mineru_result['markdown_text']
-                mineru_images = mineru_result['images']
-                
-                if not markdown_text.strip():
-                    raise ValueError(f"MinerU 未提取到有效文本内容")
-                
-                # 创建文本文档并分块
-                base_doc = Document(
-                    page_content=markdown_text,
-                    metadata={
-                        "source": file_path,
-                        "document_name": file_path_obj.name,
-                        "page": 0,
-                        "modality": "text",
-                    },
-                )
-                text_chunks = self.split_documents([base_doc])
-                for doc in text_chunks:
-                    if doc.metadata is None:
-                        doc.metadata = {}
-                    doc.metadata["modality"] = "text"
-                
-                # 处理 MinerU 提取的图片（在清理临时目录之前）
-                print(f"[MinerU] 开始保存图片 ({len(mineru_images)} 张)...")
-                
-                # 检查是否启用了图片向量（BGE 通常不支持，建议设为 0）
-                enable_image_embedding = os.getenv("RAG_ENABLE_IMAGE_EMBEDDING", "0").strip().lower() in {"1", "true", "yes"}
-                
-                for img_info in mineru_images:
-                    try:
-                        # 将图片复制到目标目录
-                        src_path = img_info['path']
-                        
-                        # 检查源文件是否存在
-                        if not os.path.exists(src_path):
-                            print(f"[WARNING] 图片源文件不存在: {src_path}")
-                            continue
-                        
-                        dst_name = f"mineru_{img_info['name']}"
-                        dst_path = target_root / dst_name
-                        
-                        # 复制文件到 storage
-                        shutil.copy2(src_path, dst_path)
-                        print(f"[MinerU图片] 已保存到硬盘: {dst_name}")
-                        
-                        # 只有当启用图片向量时，才创建图片 Document 并入库
-                        if enable_image_embedding:
-                            image_chunks.append(
-                                self._build_image_chunk_document(
-                                    file_path_obj=file_path_obj,
-                                    image_path=dst_path,
-                                    image_index=img_info.get('page_offset', 0),
-                                    alt_text=f"MinerU 解析的插图",
-                                    safe_doc_id=safe_doc_id,
-                                )
-                            )
-                        else:
-                            print(f"[MinerU图片] 跳过向量化入库 (RAG_ENABLE_IMAGE_EMBEDDING=0)")
-                            
-                    except Exception as e:
-                        print(f"[WARNING] 处理 MinerU 图片失败: {e}")
-                
-                mineru_success = True
-                print(f"[MinerU] 解析成功！文本块: {len(text_chunks)}，图片: {len(image_chunks)}")
-                
-                # 清理 MinerU 临时目录（在图片保存完成后）
-                temp_dirs = mineru_result.get('temp_dirs_to_cleanup', [])
-                for temp_dir in temp_dirs:
-                    if temp_dir and os.path.exists(temp_dir):
-                        try:
-                            shutil.rmtree(temp_dir)
-                            print(f"[MinerU] 已清理临时目录: {temp_dir}")
-                        except Exception as e:
-                            print(f"[WARNING] 清理临时目录失败: {e}")
-                
-            except Exception as e:
-                print(f"[WARNING] MinerU 解析失败，降级到 PyMuPDF: {e}")
-                mineru_success = False
-        
-        # 如果 MinerU 失败或不可用，使用 PyMuPDF
-        if not mineru_success:
-            if not PYMUPDF_AVAILABLE:
-                raise RuntimeError("PyMuPDF 未安装，无法解析 PDF。请先安装: pip install PyMuPDF")
-            
-            print(f"[PyMuPDF] 开始极速解析文档: {file_path_obj.name}")
-            
-            try:
-                pdf_document = fitz.open(file_path)
-                full_text_parts: List[str] = []
-                image_index = 0
+        print(f"[MinerU] 开始解析文档: {file_path_obj.name}")
+        mineru_result: Dict[str, Any] = {}
+        try:
+            pages_per_chunk = int(os.getenv("RAG_MINERU_PAGES_PER_CHUNK", "20"))
+            max_workers = int(os.getenv("RAG_MINERU_MAX_WORKERS", "4"))
+            mineru_result = self._parse_pdf_with_mineru(
+                file_path=file_path,
+                pages_per_chunk=pages_per_chunk,
+                max_workers=max_workers,
+            )
 
-                for page_num in range(len(pdf_document)):
-                    page = pdf_document.load_page(page_num)
+            if not mineru_result["success"]:
+                raise ValueError(f"MinerU 解析失败: {mineru_result['error']}")
 
-                    page_text = (page.get_text("text") or "").strip()
-                    if page_text:
-                        full_text_parts.append(f"--- 第 {page_num + 1} 页 ---\n\n{page_text}")
+            markdown_text = mineru_result["markdown_text"]
+            mineru_images = mineru_result["images"]
 
-                    image_list = page.get_images(full=True)
-                    for img_info in image_list:
-                        xref = img_info[0]
-                        try:
-                            base_image = pdf_document.extract_image(xref)
-                        except Exception:
-                            continue
+            if not markdown_text.strip():
+                raise ValueError("MinerU 未提取到有效文本内容")
 
-                        image_bytes = base_image.get("image")
-                        image_ext = base_image.get("ext") or "png"
-                        width = int(base_image.get("width") or 0)
-                        height = int(base_image.get("height") or 0)
+            base_doc = Document(
+                page_content=markdown_text,
+                metadata={
+                    "source": file_path,
+                    "document_name": file_path_obj.name,
+                    "page": 0,
+                    "modality": "text",
+                    "image_doc_id": safe_doc_id,
+                },
+            )
+            text_chunks = self.split_documents([base_doc])
+            for doc in text_chunks:
+                if doc.metadata is None:
+                    doc.metadata = {}
+                doc.metadata["modality"] = "text"
+                doc.metadata["image_doc_id"] = safe_doc_id
 
-                        # 增强过滤条件（方案 1）
-                        if not image_bytes:
-                            continue
-                        
-                        # 1. 尺寸过滤：宽高至少 200px（防止小图标）
-                        if width < 200 or height < 200:
-                            print(f"[图片过滤] 跳过过小图片：{width}x{height}")
-                            continue
-                        
-                        # 2. 面积过滤：总面积至少 40000 像素
-                        area = width * height
-                        if area < 40000:
-                            print(f"[图片过滤] 跳过面积过小：{area:,}px")
-                            continue
-                        
-                        # 3. 宽高比过滤：排除极端比例（防止细长条背景）
-                        aspect_ratio = max(width, height) / min(width, height) if min(width, height) > 0 else 0
-                        if aspect_ratio > 5:
-                            print(f"[图片过滤] 跳过宽高比异常：{aspect_ratio:.2f}")
-                            continue
-                        
-                        # 4. 扫描版 PDF 检测：如果图片几乎和页面一样大，可能是整页扫描
-                        page_rect = page.rect
-                        page_area = page_rect.width * page_rect.height if page_rect else 0
-                        image_area_ratio = area / page_area if page_area > 0 else 0
-                        
-                        if image_area_ratio > 0.9:  # 图片占页面 90% 以上
-                            print(f"[图片过滤] 跳过疑似整页扫描：{image_area_ratio:.1%}")
-                            continue
+            print(f"[MinerU] 开始保存图片 ({len(mineru_images)} 张)...")
+            enable_image_embedding = os.getenv("RAG_ENABLE_IMAGE_EMBEDDING", "0").strip().lower() in {"1", "true", "yes"}
+            linked_images: List[Dict[str, Any]] = []
 
-                        dst_name = f"page{page_num + 1}_{image_index:04d}.{image_ext}"
-                        dst_path = target_root / dst_name
-                        with open(dst_path, "wb") as f:
-                            f.write(image_bytes)
+            for img_info in mineru_images:
+                src_path = img_info["path"]
+                if not os.path.exists(src_path):
+                    print(f"[WARNING] 图片源文件不存在: {src_path}")
+                    continue
 
-                        print(f"[图片提取] 成功保存：{dst_name} ({width}x{height}, {area:,}px)")
-                        
-                        image_chunks.append(
-                            self._build_image_chunk_document(
-                                file_path_obj=file_path_obj,
-                                image_path=dst_path,
-                                image_index=image_index,
-                                alt_text=f"PDF 第 {page_num + 1} 页的插图",
-                                safe_doc_id=safe_doc_id,
-                            )
+                dst_name = Path(str(img_info.get("name") or Path(src_path).name)).name
+                dst_path = target_root / dst_name
+                shutil.copy2(src_path, dst_path)
+                print(f"[MinerU图片] 已保存到硬盘: {dst_name}")
+
+                page = int(img_info.get("page_offset", 0) or 0)
+                linked_image = {
+                    "image_path": str(dst_path),
+                    "image_name": dst_name,
+                    "image_alt": "MinerU 解析的插图",
+                    "page": page,
+                    "source": "mineru",
+                }
+                linked_images.append(linked_image)
+
+                if enable_image_embedding:
+                    image_chunks.append(
+                        self._build_image_chunk_document(
+                            file_path_obj=file_path_obj,
+                            image_path=dst_path,
+                            image_index=page,
+                            alt_text=linked_image["image_alt"],
+                            safe_doc_id=safe_doc_id,
                         )
-                        image_index += 1
+                    )
+                else:
+                    print("[MinerU图片] 跳过向量化入库 (RAG_ENABLE_IMAGE_EMBEDDING=0)")
 
-                pdf_document.close()
-
-                full_text = "\n\n".join(full_text_parts).strip()
-                if not full_text:
-                    print(f"[PyMuPDF] 未检测到原生文本，触发 fallback 读取: {file_path_obj.name}")
-                    full_text = self._fallback_read(file_path)
-
-                if not full_text.strip():
-                    raise ValueError(f"无法从文件 {file_path_obj.name} 中提取有效文本内容。")
-
-                base_doc = Document(
-                    page_content=full_text,
-                    metadata={
-                        "source": file_path,
-                        "document_name": file_path_obj.name,
-                        "page": 0,
-                        "modality": "text",
-                    },
-                )
-                text_chunks = self.split_documents([base_doc])
+            if linked_images:
                 for doc in text_chunks:
                     if doc.metadata is None:
                         doc.metadata = {}
-                    doc.metadata["modality"] = "text"
+                    doc.metadata["linked_images"] = linked_images
 
-                print(f"[PyMuPDF] 解析成功！提取文本块: {len(text_chunks)}，高清插图: {len(image_chunks)}")
-                
-            except Exception as e:
-                raise RuntimeError(f"文档解析彻底失败，请检查文件是否损坏: {e}")
-        
+            print(f"[MinerU] 解析成功！文本块: {len(text_chunks)}，图片: {len(linked_images)}")
+        except Exception:
+            raise
+        finally:
+            temp_dirs = mineru_result.get("temp_dirs_to_cleanup", []) if mineru_result else []
+            for temp_dir in temp_dirs:
+                if temp_dir and os.path.exists(temp_dir):
+                    try:
+                        shutil.rmtree(temp_dir)
+                        print(f"[MinerU] 已清理临时目录: {temp_dir}")
+                    except Exception as e:
+                        print(f"[WARNING] 清理临时目录失败: {e}")
+
         return text_chunks + image_chunks
 
     def _fallback_read(self, file_path: str) -> str:
@@ -2777,6 +2636,15 @@ class RAGSystem:
 
         image_storage_dir = (Config.STORAGE_ROOT / "images" / (owner or "anonymous") / image_doc_id).resolve()
         image_chunk_count = sum(1 for d in documents if str((d.metadata or {}).get("modality", "text")).lower() == "image")
+        linked_images: List[Dict[str, Any]] = []
+        linked_image_keys: set[str] = set()
+        for doc in documents:
+            for linked_image in (doc.metadata or {}).get("linked_images") or []:
+                image_path = str(linked_image.get("image_path") or "")
+                if not image_path or image_path in linked_image_keys:
+                    continue
+                linked_image_keys.add(image_path)
+                linked_images.append(dict(linked_image))
 
         self.document_index[index_key] = {
             "hash": file_hash,
@@ -2799,6 +2667,7 @@ class RAGSystem:
             # 图片统一存储目录（用于联动清理）
             "image_doc_id": image_doc_id,
             "image_storage_dir": str(image_storage_dir),
+            "linked_images": linked_images,
         }
         print(f"[RAG导入][Stage] index_save_start key={index_key}")
         self._save_index()
@@ -2848,7 +2717,7 @@ class RAGSystem:
             # RAG 模式：行内沉浸式溯源 System Prompt（极度严格版本）
             messages.append({
                 "role": "system",
-                "content": """你是一名专业的教育知识助手。请基于【参考资料】回答用户问题。
+                "content": r"""你是一名专业的教育知识助手。请基于【参考资料】回答用户问题。
 
 【核心原则】
 1. **优先使用参考资料**：有资料时优先基于资料回答

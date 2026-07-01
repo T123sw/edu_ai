@@ -11,7 +11,7 @@ from core.config import Config as HostConfig
 
 
 class Config(HostConfig):
-    BASE_DIR = Path(__file__).resolve().parents[3]
+    BASE_DIR = Path(__file__).resolve().parents[4]
 
     STORAGE_ROOT = Path(os.getenv("STORAGE_ROOT", BASE_DIR / "storage"))
     VECTOR_DB_PATH = Path(os.getenv("VECTOR_DB_PATH", STORAGE_ROOT / "vector_db"))

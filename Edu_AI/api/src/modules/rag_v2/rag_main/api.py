@@ -122,8 +122,13 @@ def _normalize_storage_relative_path(file_path: str | Path) -> Path:
         resolved = candidate.resolve()
         try:
             return resolved.relative_to(storage_root)
-        except ValueError as exc:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid media path") from exc
+        except ValueError:
+            normalized_parts = Path(str(file_path).replace("\\", "/")).parts
+            for media_root in ("images", "videos"):
+                if media_root in normalized_parts:
+                    media_root_index = normalized_parts.index(media_root)
+                    return Path(*normalized_parts[media_root_index:])
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid media path")
 
     normalized = Path(str(file_path).replace("\\", "/"))
     if normalized.parts and normalized.parts[0] == "storage":
@@ -194,6 +199,64 @@ def _normalize_owner_for_media(owner: Optional[str]) -> str:
         return _normalize_owner(owner)
     except HTTPException:
         return ""
+
+
+def _rewrite_markdown_media_urls(
+    content: str,
+    *,
+    server_url: str,
+    owner: Optional[str],
+    image_doc_id: Optional[str] = None,
+) -> str:
+    media_owner = _normalize_owner_for_media(owner)
+
+    def is_external_or_guarded(src: str) -> bool:
+        lowered = src.lower()
+        return (
+            lowered.startswith(("http://", "https://", "data:", "mailto:", "#"))
+            or src.startswith("/api/rag/")
+        )
+
+    def storage_media_path(media_root: str, src: str) -> Path:
+        clean_src = unquote(src.strip().strip('"').strip("'")).split("#", 1)[0].split("?", 1)[0]
+        normalized = Path(clean_src.replace("\\", "/"))
+        parts = normalized.parts
+        if parts and parts[0] == media_root:
+            parts = parts[1:]
+
+        if media_owner and len(parts) == 1 and image_doc_id and media_root == "images":
+            return Config.STORAGE_ROOT / media_root / media_owner / image_doc_id / parts[0]
+        if media_owner and len(parts) == 1:
+            return Config.STORAGE_ROOT / media_root / media_owner / parts[0]
+        return Config.STORAGE_ROOT / media_root / Path(*parts)
+
+    def replace_image(match: re.Match[str]) -> str:
+        alt_text = match.group(1)
+        src = match.group(2).strip()
+        if is_external_or_guarded(src) or not src.replace("\\", "/").startswith("images/"):
+            return match.group(0)
+        image_url = _build_guarded_media_url(server_url, storage_media_path("images", src), "image")
+        return f"![{alt_text}]({image_url})"
+
+    def replace_video_markdown(match: re.Match[str]) -> str:
+        alt_text = match.group(1)
+        src = match.group(2).strip()
+        if is_external_or_guarded(src) or not src.replace("\\", "/").startswith("videos/"):
+            return match.group(0)
+        video_url = _build_guarded_media_url(server_url, storage_media_path("videos", src), "media")
+        return f'<video src="{video_url}" controls style="max-width: 100%; width: 800px; height: auto;"></video>'
+
+    def replace_video_tag(match: re.Match[str]) -> str:
+        src = match.group(1).strip()
+        if is_external_or_guarded(src) or not src.replace("\\", "/").startswith("videos/"):
+            return match.group(0)
+        video_url = _build_guarded_media_url(server_url, storage_media_path("videos", src), "media")
+        return f'<video src="{video_url}" controls style="max-width: 100%; width: 800px; height: auto;">'
+
+    content = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', replace_image, content)
+    content = re.sub(r'!\[([^\]]*)\]\((videos/[^)]+)\)', replace_video_markdown, content)
+    content = re.sub(r'<video\s+src="([^"]+)"[^>]*>', replace_video_tag, content)
+    return content
 
 
 def _guarded_storage_file_response(path: str, current_user: dict) -> FileResponse:
@@ -1031,90 +1094,12 @@ async def rag_query_stream(
             combined_score = doc.get("combined_score", 0.0)
             score = rerank_score if rerank_score is not None else combined_score
 
-            # 修复文档内容中的相对路径图片/视频引用
-            import re
-            from urllib.parse import quote
-
-            # 根据文档的 owner 构建正确的图片路径
-            # 替换 ![xxx](images/xxx.jpg) -> ![xxx](http://localhost:8000/storage/images/admin/xxx.jpg)
-            if media_owner:
-                # 图片替换
-                def replace_image(match):
-                    alt_text = match.group(1)
-                    filename = match.group(2)
-                    image_path = Config.STORAGE_ROOT / "images" / media_owner / filename
-                    return f"![{alt_text}]({_build_guarded_media_url(server_url, image_path, 'image')})"
-
-                content = re.sub(
-                    r'!\[([^\]]*)\]\(images/([^)]+)\)',
-                    replace_image,
-                    content
-                )
-
-                # 视频替换（Markdown 格式）
-                def replace_video_markdown(match):
-                    alt_text = match.group(1)
-                    filename = match.group(2)
-                    video_path = Config.STORAGE_ROOT / "videos" / media_owner / filename
-                    video_url = _build_guarded_media_url(server_url, video_path, "media")
-                    return f'<video src="{video_url}" controls style="max-width: 100%; width: 800px; height: auto;"></video>'
-
-                content = re.sub(
-                    r'!\[([^\]]*)\]\(videos/([^)]+)\)',
-                    replace_video_markdown,
-                    content
-                )
-
-                # 视频替换（已有的 video 标签）
-                def replace_video_tag(match):
-                    filename = match.group(1)
-                    video_path = Config.STORAGE_ROOT / "videos" / media_owner / filename
-                    video_url = _build_guarded_media_url(server_url, video_path, "media")
-                    return f'<video src="{video_url}" controls style="max-width: 100%; width: 800px; height: auto;">'
-
-                content = re.sub(
-                    r'<video\s+src="videos/([^"]+)"[^>]*>',
-                    replace_video_tag,
-                    content
-                )
-            else:
-                # 兼容没有 owner 的旧数据
-                def replace_image_no_owner(match):
-                    alt_text = match.group(1)
-                    filename = match.group(2)
-                    image_path = Config.STORAGE_ROOT / "images" / filename
-                    return f"![{alt_text}]({_build_guarded_media_url(server_url, image_path, 'image')})"
-
-                content = re.sub(
-                    r'!\[([^\]]*)\]\(images/([^)]+)\)',
-                    replace_image_no_owner,
-                    content
-                )
-
-                def replace_video_markdown_no_owner(match):
-                    alt_text = match.group(1)
-                    filename = match.group(2)
-                    video_path = Config.STORAGE_ROOT / "videos" / filename
-                    video_url = _build_guarded_media_url(server_url, video_path, "media")
-                    return f'<video src="{video_url}" controls style="max-width: 100%; width: 800px; height: auto;"></video>'
-
-                content = re.sub(
-                    r'!\[([^\]]*)\]\(videos/([^)]+)\)',
-                    replace_video_markdown_no_owner,
-                    content
-                )
-
-                def replace_video_tag_no_owner(match):
-                    filename = match.group(1)
-                    video_path = Config.STORAGE_ROOT / "videos" / filename
-                    video_url = _build_guarded_media_url(server_url, video_path, "media")
-                    return f'<video src="{video_url}" controls style="max-width: 100%; width: 800px; height: auto;">'
-
-                content = re.sub(
-                    r'<video\s+src="videos/([^"]+)"[^>]*>',
-                    replace_video_tag_no_owner,
-                    content
-                )
+            content = _rewrite_markdown_media_urls(
+                content,
+                server_url=server_url,
+                owner=media_owner,
+                image_doc_id=raw_metadata.get("image_doc_id"),
+            )
 
             # 根据模态类型构建上下文
             if modality == "image":
@@ -1870,8 +1855,15 @@ async def get_document_content(
         
         content_parts = []
         chunks_info = []
+        media_owner = _normalize_owner_for_media(record.get("owner") or username)
+        image_doc_id = record.get("image_doc_id")
         for idx, doc in enumerate(documents):
-            chunk_content = doc["content"]
+            chunk_content = _rewrite_markdown_media_urls(
+                doc["content"],
+                server_url=server_url,
+                owner=media_owner,
+                image_doc_id=image_doc_id,
+            )
             page = doc["metadata"].get("page", 0)
             content_parts.append(chunk_content)
             chunks_info.append(

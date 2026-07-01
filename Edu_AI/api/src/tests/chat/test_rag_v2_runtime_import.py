@@ -122,6 +122,75 @@ def test_document_processor_extracts_docx_text_without_zip_gibberish(monkeypatch
     assert "[Content_Types]" not in full_text
 
 
+def test_document_processor_pdf_fails_when_mineru_fails_without_pymupdf_fallback(monkeypatch):
+    pdf_path = _make_workspace_tmp("mineru_failure") / "lesson.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4\n% test")
+
+    monkeypatch.setattr(runtime_system, "MINERU_AVAILABLE", True)
+    processor = runtime_system.DocumentProcessor(chunk_size=2000, chunk_overlap=0)
+
+    def fail_mineru(**_kwargs):
+        return {
+            "success": False,
+            "error": "MinerU test failure",
+            "markdown_text": "",
+            "images": [],
+            "temp_dirs_to_cleanup": [],
+        }
+
+    monkeypatch.setattr(processor, "_parse_pdf_with_mineru", fail_mineru)
+
+    with pytest.raises(ValueError, match="MinerU test failure"):
+        processor.process_file(str(pdf_path), owner="alice", doc_id="doc-1")
+
+
+def test_document_processor_mineru_images_are_registered_as_linked_images(monkeypatch):
+    workspace = _make_workspace_tmp("mineru_linked_images")
+    pdf_path = workspace / "lesson.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4\n% test")
+    source_image = workspace / "hash.jpg"
+    source_image.write_bytes(b"fake image")
+    images_root = workspace / "storage" / "images"
+
+    monkeypatch.setattr(runtime_system, "MINERU_AVAILABLE", True)
+    processor = runtime_system.DocumentProcessor(chunk_size=2000, chunk_overlap=0)
+
+    def parse_with_image(**_kwargs):
+        return {
+            "success": True,
+            "error": "",
+            "markdown_text": "正文\n\n![图 1](images/hash.jpg)",
+            "images": [{"path": str(source_image), "name": "hash.jpg", "page_offset": 1}],
+            "temp_dirs_to_cleanup": [],
+        }
+
+    monkeypatch.setattr(processor, "_parse_pdf_with_mineru", parse_with_image)
+    documents = processor.process_file(
+        str(pdf_path),
+        owner="alice",
+        doc_id="doc-1",
+        images_root=images_root,
+    )
+
+    text_documents = [
+        document
+        for document in documents
+        if str((document.metadata or {}).get("modality", "text")).lower() != "image"
+    ]
+    assert text_documents
+    linked_images = text_documents[0].metadata.get("linked_images")
+    assert linked_images == [
+        {
+            "image_path": str(images_root / "alice" / "doc-1" / "hash.jpg"),
+            "image_name": "hash.jpg",
+            "image_alt": "MinerU 解析的插图",
+            "page": 1,
+            "source": "mineru",
+        }
+    ]
+    assert (images_root / "alice" / "doc-1" / "hash.jpg").exists()
+
+
 def test_normalize_owner_rejects_pathlike_values():
     assert runtime_api._normalize_owner("alice") == "alice"
 
@@ -668,6 +737,60 @@ async def test_document_content_appends_linked_web_images(monkeypatch):
     assert len(image_chunks) == 1
     assert image_chunks[0]["metadata"]["image_url"] == "/api/rag/image?path=images%2Falice%2Fexample_001.png"
     assert image_chunks[0]["metadata"]["image_name"] == "网页配图 1"
+
+
+@pytest.mark.anyio
+async def test_document_content_rewrites_mineru_markdown_images_to_guarded_doc_storage(monkeypatch):
+    physical_path = str(Path("D:/docs/alice/mineru.pdf"))
+    index_key = f"user_alice:{physical_path}"
+
+    class FakeVectorStore:
+        def get_documents_by_source(self, source_key):
+            assert source_key == index_key
+            return [
+                {
+                    "content": "正文\n\n![图 1](images/hash.jpg)",
+                    "metadata": {"page": 1, "modality": "text"},
+                }
+            ]
+
+    class FakeRAGSystem:
+        def __init__(self):
+            self.document_index = {
+                index_key: {
+                    "physical_path": physical_path,
+                    "file_name": "mineru.pdf",
+                    "owner": "alice",
+                    "source_key": index_key,
+                    "image_doc_id": "doc-mineru",
+                }
+            }
+            self.vector_store = FakeVectorStore()
+
+        def _make_index_key(self, file_path, owner):
+            return index_key
+
+        def _make_source_key(self, file_path, owner):
+            return index_key
+
+    monkeypatch.delenv("SERVER_URL", raising=False)
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+
+    response = await runtime_api.get_document_content(
+        file_path=index_key,
+        current_user={"username": "alice"},
+    )
+
+    assert "images/hash.jpg" not in response.content
+    assert str(runtime_api.Config.STORAGE_ROOT) not in response.content
+    assert (
+        "/api/rag/image?path=images%2Falice%2Fdoc-mineru%2Fhash.jpg"
+        in response.content
+    )
+    assert (
+        "/api/rag/image?path=images%2Falice%2Fdoc-mineru%2Fhash.jpg"
+        in response.chunks[0]["content"]
+    )
 
 
 @pytest.mark.anyio
