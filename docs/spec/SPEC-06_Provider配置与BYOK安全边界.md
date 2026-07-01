@@ -94,7 +94,7 @@ else (BYOK):
 | 默认 LLM | 托管 | `deepseek-v4-pro` 等 |
 | TTS | 托管 | 中文音色实测后固定 |
 | 用户自带 LLM/图片/视频 key | 开放 BYOK（可选）| 需保留 SSRF + verify |
-| webSearch | 一般不开 | edu_ai 用 researchContext 注入（SPEC-04）|
+| webSearch | **默认开（主力外部源）** | 与 edu_ai RAG 注入合并叠加、非二选一（SPEC-04 §4）|
 
 ---
 

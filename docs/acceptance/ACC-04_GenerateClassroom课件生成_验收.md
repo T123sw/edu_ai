@@ -11,7 +11,7 @@
 
 **做**：edu_ai 调 `/api/generate-classroom`，注入自己的 `researchContext`，拿回 `Stage+Scene[]`，校验→落库，取代 content_markdown。含 sidecar 的 3 处注入补丁。
 
-> **本轮 MVP 收窄（2026-07-01 用户拍板）**：researchContext **仅 RAG Top-K 片段**；生成 flags **全关**（TTS/图片/视频/web search）；**不含前端播放**。sidecar 用 vendor 复制接入。切割项见 [SPEC-04 §0.1](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)，后续 Phase 回填。
+> **本轮 MVP 收窄（2026-07-01 用户拍板）**：知识源=**LLM 基座 + web search（主）+ RAG 领域补充（叠加，非替代）**，`enableWebSearch=true`；媒体 flags（TTS/图片/视频）关；**不含前端播放**。sidecar 用 vendor 复制接入。切割项见 [SPEC-04 §0.1](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)，后续 Phase 回填。
 
 **不做（本轮，Deferred）**：TTS 配音与 `audioUrl` 改写（→Phase 3）；图片/视频生成（→Phase 5）；前端 renderer 播放（→Phase 3）；researchContext 的教材章节/知识图谱/本地化图片深度（→Phase 2.5）；PPTX 导出（Phase 4）；成片视频（Phase 5）。
 
@@ -22,8 +22,8 @@
 | 编号 | 标准 | 本轮 | 判定 |
 | --- | --- | --- | --- |
 | AC-04-1 | **注入补丁生效**：body 传 `researchContext` 后，生成大纲/内容明显采用注入知识（可抽查引用点/术语） | ✅ MVP | |
-| AC-04-2 | `enableWebSearch=false` 且不传 web search key 时仍能生成（纯注入源，不依赖联网） | ✅ MVP | |
-| AC-04-3 | 补丁「注入优先」：同时具备 web search 能力时，传了 `researchContext` 则**用注入的**，不触发 web search | ✅ MVP | |
+| AC-04-2 | 不强依赖单一源：`researchContext` 为空靠 LLM+web 也能生成；反之 web 不可用时纯 RAG 注入也能兜底 | ✅ MVP | |
+| AC-04-3 | 补丁「合并叠加」：web search 结果与注入的 `researchContext` **共同进入上下文**（不互相短路），抽查两源都被采用 | ✅ MVP | |
 | AC-04-4 | 提交返回 202 `{jobId,pollUrl,pollIntervalMs:5000}`；轮询按 SPEC-04 §3 步骤推进到 `completed` | ✅ MVP | |
 | AC-04-5 | 产出通过 ACC-02 全部不变量校验 | ✅ MVP | |
 | AC-04-6 | `enableTTS=true`：`speech.audioUrl` 已改写为 edu_ai 可达地址且能播放 | ⏭ D1 / Phase 3 | |
@@ -49,8 +49,9 @@ curl --noproxy "localhost,127.0.0.1" -s http://localhost:3000/api/generate-class
 # 轮询到 step=completed，result.stage/scenes 存在；抽查 scene 文本含注入术语（如"相邻比较交换/O(n^2)"）
 ```
 
-### 3.2 纯注入不联网（AC-04-2）
-- `.env` 不配 web search key，`enableWebSearch=false`，仅传 `researchContext` → 生成成功。
+### 3.2 单源可用性兜底（AC-04-2）
+- 兜底A：`enableWebSearch=false`、仅传 RAG `researchContext` → 生成成功（web 不可用不阻断）。
+- 兜底B：`researchContext` 为空、`enableWebSearch=true` → 靠 LLM+web 也能生成（不强依赖 RAG）。
 
 ### 3.3 落库 + 校验 + 幂等（AC-04-5/7）
 - edu_ai `classroom_service` 走完整流程（pytest 集成测试）：断言落库行数、id 稳定；重复提交同任务 → upsert 不新增课件。

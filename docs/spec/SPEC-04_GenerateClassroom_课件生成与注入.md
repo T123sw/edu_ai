@@ -10,15 +10,15 @@
 
 ## 0. 本轮 MVP 范围（收窄，2026-07-01 用户拍板）
 
-> 本轮只实现**最小生成闭环**：纯注入源（RAG Top-K）生成结构化课件并落库，打通 sidecar/客户端/job/校验主链路。媒体与前端后置。**决策**：sidecar=vendor 复制、researchContext=RAG Top-K 简版、范围=最小闭环。
+> 本轮只实现**最小生成闭环**：生成结构化课件并落库，打通 sidecar/客户端/job/校验主链路。媒体与前端后置。**决策（2026-07-01）**：sidecar=vendor 复制；知识源=**LLM 基座 + web search（主）+ RAG 领域补充（叠加，非替代）**；媒体/前端切割。
 
 **本轮做（MVP）**：
 
 - sidecar **vendor 复制**接入 `edu_ai/openmaic-sidecar/`（补完 SPEC-01 的正式接入）+ researchContext 注入补丁（§4）。
 - `OpenMaicClient`（SPEC-07，聚焦 `generate_classroom` / `poll_job` / `wait_job` + 错误映射）。
 - job 表衔接（SPEC-05，generate-classroom 的 job 化）。
-- `classroom_service` 编排：researchContext = **仅 RAG Top-K 片段（带出处）** → 生成 → 过 SPEC-02 §6 不变量校验 → 落库 `classrooms` / `classroom_scenes`（同 `Stage.id` 幂等 upsert）。
-- 生成 flags **全关**（`enableTTS/Image/Video=false`、`enableWebSearch=false`）。但 Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
+- `classroom_service` 编排：researchContext = **web search（主外部源）+ RAG Top-K 领域补充（带出处）合并** → 生成 → 过 SPEC-02 §6 不变量校验 → 落库 `classrooms` / `classroom_scenes`（同 `Stage.id` 幂等 upsert）。
+- 生成 flags：**`enableWebSearch=true`（主力外部源，需配 web search provider key）**；`enableTTS/Image/Video=false`（媒体后置）。**知识源分层 = LLM 基座 + web（主）+ RAG（领域补充，叠加非替代）**；researchContext 为空也应能靠 LLM+web 生成。Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
 
 ### 0.1 切割清单（Deferred —— 后续 Phase 必须回来补，不等于删除）
 
@@ -27,7 +27,7 @@
 | D1 | TTS 配音 + `audioUrl` 改写为 edu_ai 可达地址 | Phase 3 | §5、AC-04-6、SPEC-02 §6 不变量 5 |
 | D2 | 图片/视频生成（`enableImage/Video`）+ 媒体落盘迁移 | Phase 5 | §5、SPEC-02 视频/媒体元素 |
 | D3 | 前端 `renderer` 完整播放一节课 | Phase 3 | AC-04-8、SPEC-08 |
-| D4 | researchContext 深度：**教材章节 + 知识图谱节点/关系 + 本地化图片说明**（本轮只做第一路 RAG） | Phase 2.5 | §4.3 后三路 |
+| D4 | researchContext 领域补充深度：**教材章节 + 知识图谱节点/关系 + 本地化图片说明**（本轮 web + RAG 第一路已接） | Phase 2.5 | §4.3 |
 | D5 | 客户端 `parse_pdf` 方法接入（当前 Phase 1 用 Python 直连绕过） | 按需 | SPEC-07 §3 |
 | D6 | parse-pdf 的 job 化（当前同步阻塞） | 可选 | SPEC-05 §6 |
 
@@ -73,7 +73,7 @@ GET {pollUrl}  (= /api/generate-classroom/{jobId})
 interface GenerateClassroomInput {
   requirement: string;                 // ★必填：需求文本
   pdfContent?: { text: string; images: string[] };   // 解析后的教材
-  enableWebSearch?: boolean;           // edu_ai 通常 false（用自己的注入）
+  enableWebSearch?: boolean;           // edu_ai 默认 true（web 主力，与注入的 researchContext 合并叠加）
   webSearchProviderId?, webSearchApiKey?, baiduSubSources?;
   enableImageGeneration?: boolean;     // L? 媒体
   enableVideoGeneration?: boolean;
@@ -124,33 +124,44 @@ resolveModel → (可选 web search → researchContext)
 
 1. `GenerateClassroomInput` 加字段：
    ```ts
-   researchContext?: string;   // 外部注入的内容来源，覆盖/替代 web search
+   researchContext?: string;   // 外部注入的【领域补充】内容源（RAG/教材/图谱），与 web search 合并叠加，不替代
    ```
 2. `route.ts` 透传：body 组装处加 `...(rawBody.researchContext ? { researchContext: rawBody.researchContext } : {})`。
-3. `classroom-generation.ts:275` 附近改为「注入优先」：
+3. `classroom-generation.ts:275` 附近改为「**合并叠加**」（web 主 + 注入补充，不互相短路）：
    ```ts
-   let researchContext: string | undefined = input.researchContext;   // ← 注入优先
-   if (!researchContext && input.enableWebSearch) { /* 原 web search 逻辑 */ }
+   let researchContext: string | undefined;
+   if (input.enableWebSearch) { /* 原 web search 逻辑，产出 web 结果 */ }
+   if (input.researchContext) {                    // ← 注入的领域补充（RAG/教材/图谱）
+     researchContext = [researchContext, input.researchContext].filter(Boolean).join('\n\n');
+   }
    ```
-   下游 `generateSceneOutlinesFromRequirements(..., { researchContext })`（行 342）无需改，天然消费。
+   下游 `generateSceneOutlinesFromRequirements(..., { researchContext })`（行 342）无需改，天然消费合并后的文本。
 
 > 补丁记录在 `docs/spec/patches/`（SPEC-01 §2）。仅 3 处、非侵入，跟上游 diff 成本低。
 
-### 4.3 edu_ai 侧拼装 researchContext（§不照搬的关键）
+### 4.3 知识源分层（§不照搬的关键：骨架用它的，知识源分层混合）
+
+最终喂给生成的上下文 = 三层混合，**edu_ai 只负责拼「注入的领域补充」那一层，web 由 sidecar 内部产生并在 §4.2 合并**：
 
 ```
-researchContext =
-    RAG 检索片段（按 requirement 检索本课程知识库，Top-K，带出处）
-  + 教材正文相关章节（来自 MinerU 解析入库，SPEC-03）
-  + 知识图谱节点/关系（该主题的概念、先修、课时，见 计算思维知识图谱.md）
-  + 已本地化图片说明（Phase6A2，供 outline 引用）
+LLM 自身能力            ← 基座：生成主体，无任何外部资料也应能产出合理课件
+  +
+web search（sidecar 内） ← 主要外部知识源（时效/广度），enableWebSearch=true
+  +
+researchContext（edu_ai 注入的领域补充，叠加非替代）=
+    RAG 检索片段（按 requirement 检索本课程知识库，Top-K，带出处）   ← 本轮 MVP 只做这一路
+  + 教材正文相关章节（来自 MinerU 解析入库，SPEC-03）                ┐
+  + 知识图谱节点/关系（该主题的概念、先修、课时，见 计算思维知识图谱.md）├ §0.1 D4，Phase 2.5 补
+  + 已本地化图片说明（Phase6A2，供 outline 引用）                    ┘
 ```
+
+> **原则**：不把系统做成"只堆检索片段"。researchContext 是让课件贴合本课程/本教材的**补充**，不是唯一真相源；缺它时 LLM+web 仍应能生成。
 
 - 拼装在 edu_ai `classroom_service.py`，格式为带来源标注的纯文本/markdown，长度受模型上下文预算约束（超限则先摘要）。
 - **`pdfContent.text` 与 `researchContext` 分工**：`pdfContent` = 用户本次上传的原始教材；`researchContext` = edu_ai 检索/图谱拼出的背景。二者可同时传。
-- `enableWebSearch` 默认 **false**（用自己的源；需要兜底时再开）。
+- `enableWebSearch` 默认 **true**（web 是主力外部源）；与注入的 RAG 补充在 sidecar 内合并（§4.2），不互相短路。
 
-> **【本轮 MVP】只实现第一路「RAG 检索片段」**（按 requirement 检索本课程知识库 Top-K，带出处）。教材章节 / 知识图谱节点 / 本地化图片说明 = §0.1 D4，Phase 2.5 补。
+> **【本轮 MVP】接通 web + RAG 第一路**：web search（主）+ RAG 检索片段（领域补充，Top-K 带出处）合并注入。教材章节 / 知识图谱节点 / 本地化图片说明 = §0.1 D4，Phase 2.5 补。
 
 ---
 
@@ -194,8 +205,8 @@ researchContext =
 ## 8. 验收清单（对应 ACC-04；【MVP】=本轮硬性，【D/Phase】=切割后置）
 
 - [ ] 【MVP】补丁生效：传 `researchContext` 后，生成大纲/内容明显采用注入知识（AC-04-1）
-- [ ] 【MVP】`enableWebSearch=false` 且不传 key 时仍能生成（纯注入源，AC-04-2）
-- [ ] 【MVP】注入优先：传了 `researchContext` 则短路 web search（AC-04-3）
+- [ ] 【MVP】不强依赖单一源：researchContext 为空靠 LLM+web 也能生成；web 不可用时纯 RAG 注入也能兜底（AC-04-2）
+- [ ] 【MVP】合并叠加生效：web 结果与 RAG 注入都进入上下文，不互相短路（AC-04-3）
 - [ ] 【MVP】job/poll 全程进度可见、推进到 `completed`，失败有 error 文案（AC-04-4/9）
 - [ ] 【MVP】产出通过 SPEC-02 §6 全部不变量校验（AC-04-5）
 - [ ] 【MVP】落库 + 同 `Stage.id` 幂等 upsert（AC-04-7）
