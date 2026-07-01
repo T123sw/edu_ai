@@ -177,30 +177,6 @@ def _read_text_file(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
 
 
-def _extract_pdf_text_with_pymupdf(path: Path) -> str:
-    try:
-        import fitz  # type: ignore
-    except Exception as exc:  # pragma: no cover - depends on runtime install
-        raise TextbookKnowledgeGraphError("PyMuPDF unavailable and MinerU parsing failed.") from exc
-
-    blocks: List[str] = []
-    document = fitz.open(str(path))
-    try:
-        for page_index in range(len(document)):
-            page = document.load_page(page_index)
-            text = str(page.get_text("text") or "").strip()
-            if not text:
-                continue
-            blocks.append(f"# Page {page_index + 1}\n\n{text}")
-    finally:
-        document.close()
-
-    merged = "\n\n".join(blocks).strip()
-    if not merged:
-        raise TextbookKnowledgeGraphError(f"No readable text extracted from PDF: {path.name}")
-    return merged
-
-
 def _ensure_markdown_title(text: str, title: str) -> str:
     stripped = str(text or "").strip()
     if not stripped:

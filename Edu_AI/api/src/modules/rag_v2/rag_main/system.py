@@ -38,68 +38,16 @@ except Exception:
     PYMUPDF_AVAILABLE = False
     print("[WARNING] PyMuPDF 未安装，PDF 解析将不可用。安装: pip install PyMuPDF")
 
-# MinerU 命令解析与可用性检测（可选）
-def _resolve_mineru_command() -> List[str]:
-    """优先使用项目目录下的 MinerU CLI，其次回退到系统 PATH。"""
-    base_dir = Path(Config.BASE_DIR)
-    bundled_runtime_dir = base_dir / "rag_v2" / "rag-main"
-
-    if os.name == "nt":
-        candidates = [
-            base_dir / ".venv" / "Scripts" / "mineru.cmd",
-            base_dir / ".venv" / "Scripts" / "mineru.exe",
-            bundled_runtime_dir / ".venv" / "Scripts" / "mineru.cmd",
-            bundled_runtime_dir / ".venv" / "Scripts" / "mineru.exe",
-        ]
-    else:
-        candidates = [
-            base_dir / ".venv" / "bin" / "mineru",
-            bundled_runtime_dir / ".venv" / "bin" / "mineru",
-        ]
-
-    for candidate in candidates:
-        if candidate.exists():
-            return [str(candidate)]
-
-    resolved = shutil.which("mineru")
-    if resolved:
-        return [resolved]
-
-    return ["mineru"]
-
-
-def _resolve_mineru_cwd(command: List[str]) -> Optional[str]:
-    if not command:
-        return None
-
-    executable = str(command[0] or "").strip().strip('"')
-    if not executable:
-        return None
-
-    candidate = Path(executable).expanduser()
-    if candidate.exists():
-        return str(candidate.resolve().parent)
-
-    resolved = shutil.which(executable)
-    if resolved:
-        return str(Path(resolved).resolve().parent)
-
-    return None
-
-
+# MinerU 解析已迁移为「直连 MinerU Cloud」provider（见 docs/spec/SPEC-03）。
+# 不再依赖本地 mineru CLI；可用性 = provider 是否配置了 API key。
 def _check_mineru_available() -> bool:
-    """检查 MinerU CLI 是否可用"""
+    """MinerU（云端）是否可用 = provider 是否配置了 API key。"""
     try:
-        command = _resolve_mineru_command()
-        result = subprocess.run(
-            command + ["--version"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            cwd=_resolve_mineru_cwd(command)
-        )
-        return result.returncode == 0
-    except (FileNotFoundError, subprocess.TimeoutExpired):
+        from app.integrations.pdf import get_pdf_parser
+
+        parser = get_pdf_parser()
+        return bool(getattr(parser, "is_configured", lambda: True)())
+    except Exception:
         return False
 
 
@@ -145,9 +93,9 @@ def _match_allowed_source(
 
 MINERU_AVAILABLE = _check_mineru_available()
 if MINERU_AVAILABLE:
-    print("[MinerU] 检测到 MinerU CLI 已安装，将用于 PDF 解析")
+    print("[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析")
 else:
-    print("[WARNING] MinerU CLI 未检测到，将使用 PyMuPDF 作为备选方案")
+    print("[WARNING] 未配置 MinerU Cloud API key，PDF 解析将回退到 PyMuPDF")
 
 # 关键词检索支持（可选导入）
 try:
@@ -1784,355 +1732,72 @@ class DocumentProcessor:
             doc.metadata["modality"] = "text"
         return text_chunks
 
-    def _split_pdf_by_pages(self, file_path: str, pages_per_chunk: int = 20) -> List[str]:
-        """
-        将 PDF 文件按页数切割成多个小 PDF。
-        
-        Args:
-            file_path: 原始 PDF 文件路径
-            pages_per_chunk: 每个分片的页数（默认 20 页）
-            
-        Returns:
-            分片 PDF 文件路径列表
-        """
-        if not PYMUPDF_AVAILABLE:
-            raise RuntimeError("PyMuPDF 未安装，无法切割 PDF")
-        
-        try:
-            pdf_document = fitz.open(file_path)
-            total_pages = len(pdf_document)
-            pdf_document.close()
-            
-            if total_pages <= pages_per_chunk:
-                # 不需要切割
-                return [file_path]
-            
-            # 创建临时目录存放分片
-            temp_dir = tempfile.mkdtemp(prefix="pdf_split_")
-            base_name = Path(file_path).stem
-            
-            chunk_files = []
-            for start_page in range(0, total_pages, pages_per_chunk):
-                end_page = min(start_page + pages_per_chunk, total_pages)
-                
-                # 创建新的 PDF 文档
-                new_pdf = fitz.open()
-                original_pdf = fitz.open(file_path)
-                
-                # 复制指定页面
-                for page_num in range(start_page, end_page):
-                    new_pdf.insert_pdf(original_pdf, from_page=page_num, to_page=page_num)
-                
-                # 保存分片
-                chunk_filename = f"{base_name}_pages_{start_page+1}-{end_page}.pdf"
-                chunk_path = os.path.join(temp_dir, chunk_filename)
-                new_pdf.save(chunk_path)
-                new_pdf.close()
-                original_pdf.close()
-                
-                chunk_files.append(chunk_path)
-                print(f"[PDF切割] 生成分片: {chunk_filename} (第 {start_page+1}-{end_page} 页)")
-            
-            print(f"[PDF切割] 共生成 {len(chunk_files)} 个分片文件")
-            return chunk_files
-            
-        except Exception as e:
-            raise RuntimeError(f"PDF 切割失败: {str(e)}")
-    
-    def _parse_single_pdf_with_mineru(
-        self, 
-        pdf_path: str, 
-        output_dir: str,
-        page_offset: int = 0
+    def _parse_pdf_with_mineru(
+        self,
+        file_path: str,
+        pages_per_chunk: int = 20,
+        max_workers: int = 4,
     ) -> Dict[str, Any]:
+        """解析 PDF —— 直连 MinerU Cloud（替代旧的本地 mineru CLI + 分片并行）。
+
+        见 docs/spec/SPEC-03。云端已处理整份文档，无需本地按页切割/并行；
+        ``pages_per_chunk`` / ``max_workers`` 仅为兼容旧签名保留，忽略之。
+
+        返回保持旧契约（供 rag 入库与 textbook_knowledge_graph 复用）::
+
+            {'markdown_text': str, 'images': [{'path','name','page_offset'}],
+             'success': bool, 'error': str, 'temp_dirs_to_cleanup': [str]}
         """
-        使用 MinerU CLI 解析单个 PDF 文件。
-        
-        Args:
-            pdf_path: PDF 文件路径
-            output_dir: MinerU 输出目录（会自动创建 {pdf_name}/ 子目录）
-            page_offset: 页码偏移量（用于分片合并时计算真实页码）
-            
-        Returns:
-            包含文本和图片信息的字典：
-            {
-                'markdown_text': str,  # Markdown 文本
-                'images': List[Dict],  # 图片信息列表
-                'success': bool,       # 是否成功
-                'error': str           # 错误信息（如果有）
-            }
-        """
-        result = {
+        result: Dict[str, Any] = {
             'markdown_text': '',
             'images': [],
             'success': False,
-            'error': ''
+            'error': '',
+            'temp_dirs_to_cleanup': [],
         }
-        
         try:
-            print(f"[MinerU] 开始解析: {Path(pdf_path).name}")
-            
-            # 构建 MinerU CLI 命令
-            cmd = _resolve_mineru_command() + [
-                "-p", pdf_path,
-                "-o", output_dir
-            ]
-            
-            # 执行命令
-            exec_result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=300,  # 5分钟超时
-                cwd=_resolve_mineru_cwd(cmd) or str(Path(pdf_path).parent)
-            )
-            
-            # 🔍 透视眼：打印 MinerU 的真实输出
-            print("\n" + "="*20 + " MinerU 终端输出 (STDOUT) " + "="*20)
-            print(exec_result.stdout)
-            print("="*20 + " MinerU 错误信息 (STDERR) " + "="*20)
-            print(exec_result.stderr)
-            print("="*66 + "\n")
-            
-            # 检查执行结果
-            if exec_result.returncode != 0:
-                error_msg = exec_result.stderr.strip() if exec_result.stderr else "未知错误"
-                result['error'] = f"MinerU 执行失败: {error_msg}"
+            from app.integrations.pdf import get_pdf_parser
+
+            parser = get_pdf_parser()
+            if not getattr(parser, "is_configured", lambda: True)():
+                result['error'] = '未配置 MinerU Cloud API key (PDF_MINERU_CLOUD_API_KEY)'
                 return result
-            
-            # MinerU 会在 output_dir 下创建以 PDF 文件名命名的子目录
-            pdf_name = Path(pdf_path).stem
-            mineru_output_dir = os.path.join(output_dir, pdf_name)
-            
-            if not os.path.exists(mineru_output_dir):
-                result['error'] = f"MinerU 未生成输出目录: {mineru_output_dir}"
+
+            print(f"[MinerU Cloud] 开始解析: {Path(file_path).name}")
+            data = Path(file_path).read_bytes()
+            parsed = parser.parse(data, filename=Path(file_path).name)
+
+            result['markdown_text'] = parsed.text or ''
+            if not result['markdown_text'].strip():
+                result['error'] = 'MinerU Cloud 未提取到有效文本'
                 return result
-            
-            # 🔍 查找 Markdown 文件（可能在子目录中）
-            md_file_path = None
-            
-            # 方案 1：直接在 pdf_name 目录下
-            direct_md = os.path.join(mineru_output_dir, f"{pdf_name}.md")
-            if os.path.exists(direct_md):
-                md_file_path = direct_md
-            else:
-                # 方案 2：在子目录中（如 hybrid_auto/）
-                for root, dirs, files in os.walk(mineru_output_dir):
-                    for file in files:
-                        if file == f"{pdf_name}.md":
-                            md_file_path = os.path.join(root, file)
-                            break
-                    if md_file_path:
-                        break
-            
-            if not md_file_path:
-                result['error'] = f"未找到 Markdown 文件，请在 {mineru_output_dir} 中查找 {pdf_name}.md"
-                return result
-            
-            with open(md_file_path, 'r', encoding='utf-8') as f:
-                markdown_text = f.read()
-            
-            if not markdown_text.strip():
-                result['error'] = "MinerU 生成的 .md 文件为空"
-                return result
-            
-            result['markdown_text'] = markdown_text
-            
-            # 🔍 查找 images 目录（可能在子目录中）
-            images_dir = None
-            
-            # 方案 1：直接在 pdf_name/images/
-            direct_images = os.path.join(mineru_output_dir, "images")
-            if os.path.exists(direct_images) and os.path.isdir(direct_images):
-                images_dir = direct_images
-            else:
-                # 方案 2：在子目录中（如 hybrid_auto/images/）
-                for root, dirs, files in os.walk(mineru_output_dir):
-                    if "images" in dirs:
-                        images_dir = os.path.join(root, "images")
-                        break
-            
-            if images_dir and os.path.isdir(images_dir):
-                image_extensions = {'.png', '.jpg', '.jpeg', '.webp', '.bmp'}
-                for filename in sorted(os.listdir(images_dir)):  # 排序保证顺序一致
-                    file_ext = Path(filename).suffix.lower()
-                    if file_ext in image_extensions:
-                        image_path = os.path.join(images_dir, filename)
-                        # 获取图片尺寸
-                        width, height = 0, 0
-                        if PIL_AVAILABLE:
-                            try:
-                                with Image.open(image_path) as img:
-                                    width, height = img.size
-                            except Exception:
-                                pass
-                        
-                        result['images'].append({
-                            'path': image_path,
-                            'name': filename,
-                            'width': width,
-                            'height': height,
-                            'size': os.path.getsize(image_path),
-                            'page_offset': page_offset
-                        })
-            
-            result['success'] = True
-            print(f"[MinerU] 解析成功！文本: {len(markdown_text)} 字符, 图片: {len(result['images'])} 张")
-            
-        except subprocess.TimeoutExpired:
-            result['error'] = "MinerU 执行超时（超过 5 分钟）"
-        except Exception as e:
-            result['error'] = f"MinerU 解析失败: {str(e)}"
-        
-        return result
-    
-    def _parse_pdf_with_mineru(
-        self, 
-        file_path: str,
-        pages_per_chunk: int = 20,
-        max_workers: int = 4
-    ) -> Dict[str, Any]:
-        """
-        使用 MinerU CLI 解析 PDF 文件（支持大文件分页切割和并行处理）。
-        
-        Args:
-            file_path: PDF 文件的绝对路径
-            pages_per_chunk: 每个分片的页数（默认 20 页，范围 10-30）
-            max_workers: 最大并行工作线程数（默认 4）
-            
-        Returns:
-            包含文本和图片信息的字典：
-            {
-                'markdown_text': str,      # 合并后的 Markdown 文本
-                'images': List[Dict],      # 所有图片信息列表
-                'success': bool,           # 是否成功
-                'error': str               # 错误信息（如果有）
-            }
-        """
-        if not MINERU_AVAILABLE:
-            return {
-                'markdown_text': '',
-                'images': [],
-                'success': False,
-                'error': 'MinerU 未安装或不可用'
-            }
-        
-        # 限制 pages_per_chunk 范围
-        pages_per_chunk = max(10, min(30, pages_per_chunk))
-        
-        print(f"[MinerU] 开始解析 PDF: {Path(file_path).name} (每 {pages_per_chunk} 页一个分片)")
-        
-        # 创建主临时目录（使用项目根目录的 temp/）
-        project_temp_dir = Config.TEMP_DIR
-        project_temp_dir.mkdir(parents=True, exist_ok=True)
-        main_temp_dir = tempfile.mkdtemp(prefix="mineru_main_", dir=str(project_temp_dir))
-        split_temp_dir = None
-        chunk_output_dirs = []
-        
-        try:
-            # Step 1: 检查是否需要切割
-            if not PYMUPDF_AVAILABLE:
-                print("[WARNING] PyMuPDF 未安装，无法切割 PDF，将直接解析整个文件")
-                chunk_files = [file_path]
-            else:
-                try:
-                    chunk_files = self._split_pdf_by_pages(file_path, pages_per_chunk)
-                    if len(chunk_files) > 1:
-                        # 如果生成了分片，记录分片目录以便清理
-                        split_temp_dir = os.path.dirname(chunk_files[0])
-                except Exception as e:
-                    print(f"[WARNING] PDF 切割失败，降级为直接解析: {e}")
-                    chunk_files = [file_path]
-            
-            print(f"[MinerU] 共 {len(chunk_files)} 个分片需要处理")
-            
-            # Step 2: 并行处理每个分片
-            all_results = []
-            
-            def process_single_chunk(args):
-                """处理单个分片的辅助函数"""
-                idx, chunk_path = args
-                page_offset = idx * pages_per_chunk
-                
-                # 为每个分片创建独立的输出目录
-                chunk_output_dir = tempfile.mkdtemp(
-                    prefix=f"mineru_chunk_{idx}_",
-                    dir=main_temp_dir
-                )
-                chunk_output_dirs.append(chunk_output_dir)
-                
-                # 解析该分片
-                result = self._parse_single_pdf_with_mineru(
-                    pdf_path=chunk_path,
-                    output_dir=chunk_output_dir,
-                    page_offset=page_offset
-                )
-                
-                return idx, result
-            
-            # 使用线程池并行处理
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                futures = {
-                    executor.submit(process_single_chunk, (idx, chunk_path)): idx
-                    for idx, chunk_path in enumerate(chunk_files)
-                }
-                
-                for future in concurrent.futures.as_completed(futures):
+
+            # 图片：base64 → 写入临时目录，暴露 {path,name,page_offset} 供上层保存
+            image_mapping = (parsed.metadata or {}).get('imageMapping') or {}
+            if image_mapping:
+                Config.TEMP_DIR.mkdir(parents=True, exist_ok=True)
+                tmp = tempfile.mkdtemp(prefix='mineru_cloud_', dir=str(Config.TEMP_DIR))
+                result['temp_dirs_to_cleanup'].append(tmp)
+                for name, data_url in image_mapping.items():
                     try:
-                        idx, result = future.result()
-                        all_results.append((idx, result))
-                    except Exception as e:
-                        print(f"[WARNING] 分片处理异常: {e}")
-            
-            # Step 3: 按顺序合并结果
-            all_results.sort(key=lambda x: x[0])  # 按索引排序
-            
-            merged_markdown_parts = []
-            all_images = []
-            failed_chunks = []
-            
-            for idx, result in all_results:
-                if result['success']:
-                    # 添加页码标记
-                    if idx > 0:
-                        merged_markdown_parts.append(f"\n\n--- 第 {idx * pages_per_chunk + 1} 页起 ---\n\n")
-                    merged_markdown_parts.append(result['markdown_text'])
-                    all_images.extend(result['images'])
-                else:
-                    failed_chunks.append(idx)
-                    print(f"[WARNING] 分片 {idx} 解析失败: {result['error']}")
-            
-            if not merged_markdown_parts:
-                return {
-                    'markdown_text': '',
-                    'images': [],
-                    'success': False,
-                    'error': f"所有分片解析失败: {'; '.join([all_results[i][1]['error'] for i in failed_chunks])}"
-                }
-            
-            merged_markdown = ''.join(merged_markdown_parts).strip()
-            
-            print(f"[MinerU] 解析完成！总文本: {len(merged_markdown)} 字符, 总图片: {len(all_images)} 张")
-            
-            if failed_chunks:
-                print(f"[WARNING] 有 {len(failed_chunks)} 个分片解析失败: {failed_chunks}")
-            
-            return {
-                'markdown_text': merged_markdown,
-                'images': all_images,
-                'success': True,
-                'error': '',
-                'temp_dirs_to_cleanup': [main_temp_dir] + ([split_temp_dir] if split_temp_dir else [])
-            }
-            
-        except Exception as e:
-            return {
-                'markdown_text': '',
-                'images': [],
-                'success': False,
-                'error': f"MinerU 解析失败: {str(e)}",
-                'temp_dirs_to_cleanup': [main_temp_dir] + ([split_temp_dir] if split_temp_dir else [])
-            }
+                        b64 = data_url.split(',', 1)[1] if ',' in data_url else data_url
+                        img_path = os.path.join(tmp, name)
+                        with open(img_path, 'wb') as fh:
+                            fh.write(base64.b64decode(b64))
+                        result['images'].append(
+                            {'path': img_path, 'name': name, 'page_offset': 0}
+                        )
+                    except Exception as img_exc:
+                        print(f"[MinerU Cloud] 图片落盘失败 {name}: {img_exc}")
+
+            result['success'] = True
+            print(
+                f"[MinerU Cloud] 解析成功：文本 {len(result['markdown_text'])} 字，"
+                f"图片 {len(result['images'])} 张"
+            )
+        except Exception as exc:  # noqa: BLE001
+            result['error'] = f'MinerU Cloud 解析失败: {exc}'
+        return result
 
     def process_file(
         self,

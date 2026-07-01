@@ -24,6 +24,8 @@ from .models import (
 )
 from .storage import store
 
+from app.integrations.pdf import get_pdf_parser, write_parsed_markdown
+
 # ---------------------------------------------------------------------------
 # 动态解析项目根目录 ROOT
 ROOT = Path(__file__).resolve()
@@ -36,7 +38,6 @@ SPIDER_SRC = ROOT / "automation_spider" / "src" / "selenium_way"
 if str(SPIDER_SRC) not in sys.path:
     sys.path.append(str(SPIDER_SRC))
 
-MINERU_PY = ROOT / "mineru.py"
 NEW_PY = ROOT / "new.py"
 
 # ---------------------------------------------------------------------------
@@ -132,12 +133,16 @@ async def parse_worker(task_id: str, cfg: Dict[str, Any]):
     out_files: List[str] = []
 
     async def _convert(idx: int, pdf: str):
-        cmd = [sys.executable, str(MINERU_PY), "-p", pdf, "-o", str(out_base)]
-        proc = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
-        await proc.wait()
-        md = Path(out_base) / (Path(pdf).stem + ".md")
-        if md.exists():
-            out_files.append(str(md))
+        # 直连 MinerU Cloud 解析（替代旧的本地 mineru.py 子进程）。见 docs/spec/SPEC-03。
+        try:
+            parser = get_pdf_parser()
+            data = await asyncio.to_thread(Path(pdf).read_bytes)
+            parsed = await parser.parse_async(data, filename=Path(pdf).name)
+            md = write_parsed_markdown(parsed, out_base, Path(pdf).stem)
+            if md.exists() and (parsed.text or "").strip():
+                out_files.append(str(md))
+        except Exception as exc:  # 单份失败不阻断整批
+            store.update(task_id, details={"current": Path(pdf).name, "warning": f"解析失败: {exc}"})
         store.update(task_id, progress=int(idx/total*100), details={"current": Path(pdf).name, "processed": idx})
 
     for idx, pdf in enumerate(pdf_paths, 1):

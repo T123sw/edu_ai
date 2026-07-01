@@ -34,50 +34,24 @@ def test_rag_v2_runtime_package_can_be_imported():
     assert runtime_api.Config.BASE_DIR == Path(__file__).resolve().parents[2]
 
 
-def test_resolve_mineru_cwd_uses_local_cli_parent(monkeypatch):
-    base_dir = _make_workspace_tmp("mineru_workspace")
-    cli_path = base_dir / ".venv" / "Scripts" / "mineru.cmd"
-    cli_path.parent.mkdir(parents=True, exist_ok=True)
-    cli_path.write_text("@echo off\n", encoding="utf-8")
+def test_check_mineru_available_reflects_provider_config(monkeypatch):
+    """迁移后（SPEC-03）：MinerU 可用性 = 直连 MinerU Cloud provider 是否配置了
+    API key，不再依赖本地 mineru CLI。"""
+    import app.integrations.pdf as pdf_pkg
 
-    monkeypatch.setattr(runtime_system.Config, "BASE_DIR", base_dir)
+    class _ConfiguredParser:
+        def is_configured(self):
+            return True
 
-    command = runtime_system._resolve_mineru_command()
+    class _UnconfiguredParser:
+        def is_configured(self):
+            return False
 
-    assert command == [str(cli_path)]
-    assert runtime_system._resolve_mineru_cwd(command) == str(cli_path.parent)
-
-
-def test_resolve_mineru_command_finds_bundled_rag_runtime_cli(monkeypatch):
-    base_dir = _make_workspace_tmp("mineru_bundled")
-    cli_path = base_dir / "rag_v2" / "rag-main" / ".venv" / "Scripts" / "mineru.cmd"
-    cli_path.parent.mkdir(parents=True, exist_ok=True)
-    cli_path.write_text("@echo off\n", encoding="utf-8")
-
-    monkeypatch.setattr(runtime_system.Config, "BASE_DIR", base_dir)
-    monkeypatch.setattr(runtime_system.shutil, "which", lambda _name: None)
-
-    assert runtime_system._resolve_mineru_command() == [str(cli_path)]
-
-
-def test_check_mineru_available_runs_from_cli_directory(monkeypatch):
-    cli_path = _make_workspace_tmp("mineru_cli") / ".venv" / "Scripts" / "mineru.cmd"
-    cli_path.parent.mkdir(parents=True, exist_ok=True)
-    cli_path.write_text("@echo off\n", encoding="utf-8")
-
-    captured = {}
-
-    def fake_run(command, **kwargs):
-        captured["command"] = command
-        captured["cwd"] = kwargs.get("cwd")
-        return type("Result", (), {"returncode": 0})()
-
-    monkeypatch.setattr(runtime_system, "_resolve_mineru_command", lambda: [str(cli_path)])
-    monkeypatch.setattr(runtime_system.subprocess, "run", fake_run)
-
+    monkeypatch.setattr(pdf_pkg, "get_pdf_parser", lambda: _ConfiguredParser())
     assert runtime_system._check_mineru_available() is True
-    assert captured["command"] == [str(cli_path), "--version"]
-    assert captured["cwd"] == str(cli_path.parent)
+
+    monkeypatch.setattr(pdf_pkg, "get_pdf_parser", lambda: _UnconfiguredParser())
+    assert runtime_system._check_mineru_available() is False
 
 
 def test_rag_v2_runtime_system_uses_host_storage_and_host_auth(monkeypatch):
