@@ -30,6 +30,9 @@
 | D4 | researchContext 领域补充深度：**教材章节 + 知识图谱节点/关系 + 本地化图片说明**（本轮 web + RAG 第一路已接） | Phase 2.5 | §4.3 |
 | D5 | 客户端 `parse_pdf` 方法接入（当前 Phase 1 用 Python 直连绕过） | 按需 | SPEC-07 §3 |
 | D6 | parse-pdf 的 job 化（当前同步阻塞） | 可选 | SPEC-05 §6 |
+| D7 | **EduAgent deepsearch 作「深度研究增强」模式**（LangGraph ReAct + SearxNG + Playwright，能读全文深挖冷门主题）| Phase 2.5 | §4.3、SPEC-06 §7 |
+
+> **D7 说明**：MVP 基础 web 层用**托管 search API**（返回即用内容片段、秒级、零运维）。EduAgent（`D:\github\edu_ai\EduAgent`）的 deepsearch **只回链接不回正文**、依赖本地 SearxNG/Playwright、分钟级且较脆，不适合做流水线基础依赖 → 留作高级"深度研究"选项（需读全文时切换）。
 
 > **D4 是"不照搬"的价值核心**：MVP 先证明注入链路生效（AC-04-1/2/3），拼装深度后补。收口每个后续 Phase 时回填对应切割项。
 
@@ -146,7 +149,7 @@ resolveModel → (可选 web search → researchContext)
 ```
 LLM 自身能力            ← 基座：生成主体，无任何外部资料也应能产出合理课件
   +
-web search（sidecar 内） ← 主要外部知识源（时效/广度），enableWebSearch=true
+web search（sidecar 内，托管 search API：中文优先 Bocha/Baidu，或 Tavily） ← 主外部源（时效/广度），enableWebSearch=true
   +
 researchContext（edu_ai 注入的领域补充，叠加非替代）=
     RAG 检索片段（按 requirement 检索本课程知识库，Top-K，带出处）   ← 本轮 MVP 只做这一路
