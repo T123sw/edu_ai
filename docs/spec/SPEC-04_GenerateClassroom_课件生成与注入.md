@@ -8,6 +8,33 @@
 
 ---
 
+## 0. 本轮 MVP 范围（收窄，2026-07-01 用户拍板）
+
+> 本轮只实现**最小生成闭环**：纯注入源（RAG Top-K）生成结构化课件并落库，打通 sidecar/客户端/job/校验主链路。媒体与前端后置。**决策**：sidecar=vendor 复制、researchContext=RAG Top-K 简版、范围=最小闭环。
+
+**本轮做（MVP）**：
+
+- sidecar **vendor 复制**接入 `edu_ai/openmaic-sidecar/`（补完 SPEC-01 的正式接入）+ researchContext 注入补丁（§4）。
+- `OpenMaicClient`（SPEC-07，聚焦 `generate_classroom` / `poll_job` / `wait_job` + 错误映射）。
+- job 表衔接（SPEC-05，generate-classroom 的 job 化）。
+- `classroom_service` 编排：researchContext = **仅 RAG Top-K 片段（带出处）** → 生成 → 过 SPEC-02 §6 不变量校验 → 落库 `classrooms` / `classroom_scenes`（同 `Stage.id` 幂等 upsert）。
+- 生成 flags **全关**（`enableTTS/Image/Video=false`、`enableWebSearch=false`）。但 Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
+
+### 0.1 切割清单（Deferred —— 后续 Phase 必须回来补，不等于删除）
+
+| # | 切割项 | 归属 | 触达的原 spec / AC |
+| --- | --- | --- | --- |
+| D1 | TTS 配音 + `audioUrl` 改写为 edu_ai 可达地址 | Phase 3 | §5、AC-04-6、SPEC-02 §6 不变量 5 |
+| D2 | 图片/视频生成（`enableImage/Video`）+ 媒体落盘迁移 | Phase 5 | §5、SPEC-02 视频/媒体元素 |
+| D3 | 前端 `renderer` 完整播放一节课 | Phase 3 | AC-04-8、SPEC-08 |
+| D4 | researchContext 深度：**教材章节 + 知识图谱节点/关系 + 本地化图片说明**（本轮只做第一路 RAG） | Phase 2.5 | §4.3 后三路 |
+| D5 | 客户端 `parse_pdf` 方法接入（当前 Phase 1 用 Python 直连绕过） | 按需 | SPEC-07 §3 |
+| D6 | parse-pdf 的 job 化（当前同步阻塞） | 可选 | SPEC-05 §6 |
+
+> **D4 是"不照搬"的价值核心**：MVP 先证明注入链路生效（AC-04-1/2/3），拼装深度后补。收口每个后续 Phase 时回填对应切割项。
+
+---
+
 ## 1. 端点契约（已核对源码）
 
 ### 1.1 提交
@@ -123,9 +150,13 @@ researchContext =
 - **`pdfContent.text` 与 `researchContext` 分工**：`pdfContent` = 用户本次上传的原始教材；`researchContext` = edu_ai 检索/图谱拼出的背景。二者可同时传。
 - `enableWebSearch` 默认 **false**（用自己的源；需要兜底时再开）。
 
+> **【本轮 MVP】只实现第一路「RAG 检索片段」**（按 requirement 检索本课程知识库 Top-K，带出处）。教材章节 / 知识图谱节点 / 本地化图片说明 = §0.1 D4，Phase 2.5 补。
+
 ---
 
 ## 5. 媒体落盘与回填（audioUrl / video src）
+
+> **【本轮 MVP】本节整体 Deferred**（媒体/TTS flags 全关，见 §0.1 D1/D2）。因无配音，SPEC-02 §6 不变量 5（已配音则 audioUrl 须改写）本轮自然 N/A 通过。以下为后续 Phase 3/5 实现依据，保留不删。
 
 - `enableTTS` → `generateTTSForClassroom` 预生成 mp3、`splitLongSpeechActions` 切句、回填 `SpeechAction.audioUrl`。
 - `enableVideo/Image` → 在线 provider 异步生成、落盘、回填 `mediaRef/src`。
@@ -160,11 +191,13 @@ researchContext =
 
 ---
 
-## 8. 验收清单
+## 8. 验收清单（对应 ACC-04；【MVP】=本轮硬性，【D/Phase】=切割后置）
 
-- [ ] 补丁生效：传 `researchContext` 后，生成大纲/内容明显采用注入知识（抽查引用点）
-- [ ] `enableWebSearch=false` 且不传 key 时仍能生成（纯注入源）
-- [ ] 产出通过 SPEC-02 §6 全部不变量校验
-- [ ] `enableTTS=true` 时 `audioUrl` 已改写为 edu_ai 可达地址且能播
-- [ ] job/poll 全程进度可见（SPEC-05），失败有 error 文案
-- [ ] 落库后前端 renderer 能完整播放一节课
+- [ ] 【MVP】补丁生效：传 `researchContext` 后，生成大纲/内容明显采用注入知识（AC-04-1）
+- [ ] 【MVP】`enableWebSearch=false` 且不传 key 时仍能生成（纯注入源，AC-04-2）
+- [ ] 【MVP】注入优先：传了 `researchContext` 则短路 web search（AC-04-3）
+- [ ] 【MVP】job/poll 全程进度可见、推进到 `completed`，失败有 error 文案（AC-04-4/9）
+- [ ] 【MVP】产出通过 SPEC-02 §6 全部不变量校验（AC-04-5）
+- [ ] 【MVP】落库 + 同 `Stage.id` 幂等 upsert（AC-04-7）
+- [ ] 【D1 / Phase 3】`enableTTS=true` 时 `audioUrl` 已改写为 edu_ai 可达地址且能播（AC-04-6）
+- [ ] 【D3 / Phase 3】落库后前端 renderer 能完整播放一节课（AC-04-8）

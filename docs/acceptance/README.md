@@ -16,7 +16,7 @@
 | [ACC-01 Sidecar 裁剪与部署](ACC-01_Sidecar裁剪与部署_验收.md) | SPEC-01 | 0 | ✅ 核心已验证（2026-06-30），容器化待补 |
 | [ACC-02 数据契约](ACC-02_数据契约_验收.md) | SPEC-02 | 全阶段地基 | ⏳ 待做（随 Phase 2 落库校验） |
 | [ACC-03 ParsePDF 解析迁移](ACC-03_ParsePDF解析迁移_验收.md) | SPEC-03 | 1 | ⏳ 待做 |
-| [ACC-04 GenerateClassroom 课件生成](ACC-04_GenerateClassroom课件生成_验收.md) | SPEC-04 | 2 | ⏳ 待做 |
+| [ACC-04 GenerateClassroom 课件生成](ACC-04_GenerateClassroom课件生成_验收.md) | SPEC-04 | 2 | ⏳ MVP 待做（切割见 SPEC-04 §0.1）|
 | [ACC-05 异步任务协议](ACC-05_异步任务协议_验收.md) | SPEC-05 | 横切 | ⏳ 待做 |
 | [ACC-06 Provider 与 BYOK 安全边界](ACC-06_Provider与BYOK安全边界_验收.md) | SPEC-06 | 横切 | ⏳ 待做 |
 | [ACC-07 OpenMaicClient 客户端](ACC-07_OpenMaicClient客户端_验收.md) | SPEC-07 | 横切 | ⏳ 待做 |

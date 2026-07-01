@@ -3,31 +3,35 @@
 > 对应 spec：[`../spec/SPEC-04_GenerateClassroom_课件生成与注入.md`](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)
 > 对应 Phase：2（课件生成）· 地图：[`../../项目总览地图.md`](../../项目总览地图.md) §2 / §8
 > 通用环境：见 [验收 README §2](README.md)
-> 状态：⏳ 待做（依赖 SPEC-04 §4 sidecar 注入补丁）
+> 状态：⏳ MVP 待实现（本轮范围见 §1；切割清单见 [SPEC-04 §0.1](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)）
 
 ---
 
 ## 1. 功能范围
 
-**做**：edu_ai 调 `/api/generate-classroom`，注入自己的 `researchContext`（RAG+教材+知识图谱），拿回 `Stage+Scene[]`，拉媒体→改写 url→校验→落库，取代 content_markdown。含 sidecar 的 3 处注入补丁。
+**做**：edu_ai 调 `/api/generate-classroom`，注入自己的 `researchContext`，拿回 `Stage+Scene[]`，校验→落库，取代 content_markdown。含 sidecar 的 3 处注入补丁。
 
-**不做**：视频成片（Phase 5）；PPTX 导出（Phase 4）；本轮媒体只验「配音 audioUrl 改写」，图片/视频生成可先关。
+> **本轮 MVP 收窄（2026-07-01 用户拍板）**：researchContext **仅 RAG Top-K 片段**；生成 flags **全关**（TTS/图片/视频/web search）；**不含前端播放**。sidecar 用 vendor 复制接入。切割项见 [SPEC-04 §0.1](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)，后续 Phase 回填。
+
+**不做（本轮，Deferred）**：TTS 配音与 `audioUrl` 改写（→Phase 3）；图片/视频生成（→Phase 5）；前端 renderer 播放（→Phase 3）；researchContext 的教材章节/知识图谱/本地化图片深度（→Phase 2.5）；PPTX 导出（Phase 4）；成片视频（Phase 5）。
 
 ---
 
 ## 2. 验收标准（DoD）
 
-| 编号 | 标准 | 判定 |
-| --- | --- | --- |
-| AC-04-1 | **注入补丁生效**：body 传 `researchContext` 后，生成大纲/内容明显采用注入知识（可抽查引用点/术语） | |
-| AC-04-2 | `enableWebSearch=false` 且不传 web search key 时仍能生成（纯注入源，不依赖联网） | |
-| AC-04-3 | 补丁「注入优先」：同时具备 web search 能力时，传了 `researchContext` 则**用注入的**，不触发 web search | |
-| AC-04-4 | 提交返回 202 `{jobId,pollUrl,pollIntervalMs:5000}`；轮询按 SPEC-04 §3 步骤推进到 `completed` | |
-| AC-04-5 | 产出通过 ACC-02 全部不变量校验 | |
-| AC-04-6 | `enableTTS=true`：`speech.audioUrl` 已改写为 edu_ai 可达地址且能播放 | |
-| AC-04-7 | 落库 `classrooms`+`classroom_scenes`，绑定 `course_id/owner`；重试用同 `Stage.id` upsert 不重复 | |
-| AC-04-8 | 前端用 renderer 能完整播放这节课（衔接 ACC-08） | |
-| AC-04-9 | 失败路径：sidecar 成功但 edu_ai 落库/校验失败 → edu_ai job=failed 且 error 明确（ACC-05） | |
+| 编号 | 标准 | 本轮 | 判定 |
+| --- | --- | --- | --- |
+| AC-04-1 | **注入补丁生效**：body 传 `researchContext` 后，生成大纲/内容明显采用注入知识（可抽查引用点/术语） | ✅ MVP | |
+| AC-04-2 | `enableWebSearch=false` 且不传 web search key 时仍能生成（纯注入源，不依赖联网） | ✅ MVP | |
+| AC-04-3 | 补丁「注入优先」：同时具备 web search 能力时，传了 `researchContext` 则**用注入的**，不触发 web search | ✅ MVP | |
+| AC-04-4 | 提交返回 202 `{jobId,pollUrl,pollIntervalMs:5000}`；轮询按 SPEC-04 §3 步骤推进到 `completed` | ✅ MVP | |
+| AC-04-5 | 产出通过 ACC-02 全部不变量校验 | ✅ MVP | |
+| AC-04-6 | `enableTTS=true`：`speech.audioUrl` 已改写为 edu_ai 可达地址且能播放 | ⏭ D1 / Phase 3 | |
+| AC-04-7 | 落库 `classrooms`+`classroom_scenes`，绑定 `course_id/owner`；重试用同 `Stage.id` upsert 不重复 | ✅ MVP | |
+| AC-04-8 | 前端用 renderer 能完整播放这节课（衔接 ACC-08） | ⏭ D3 / Phase 3 | |
+| AC-04-9 | 失败路径：sidecar 成功但 edu_ai 落库/校验失败 → edu_ai job=failed 且 error 明确（ACC-05） | ✅ MVP | |
+
+> 本轮硬性 = AC-04-1/2/3/4/5/7/9（7 条）。AC-04-6/8 随媒体与前端后置（切割 D1/D3），本轮 §3.4/§3.5 的 TTS 用例与 §2 AC-04-8 暂不作为通过条件。
 
 ---
 
