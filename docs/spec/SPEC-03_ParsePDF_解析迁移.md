@@ -1,6 +1,6 @@
 # SPEC-03 · ParsePDF 解析迁移（Phase 1）
 
-> **状态**：⏳ 收口中（Python 直连）
+> **状态**：✅ 已完成（Python 直连 + 图片存储收口 + 删本地降级，2026-07-01 `cd85567`）
 > **验收文档**：[`../acceptance/ACC-03_ParsePDF解析迁移_验收.md`](../acceptance/ACC-03_ParsePDF解析迁移_验收.md) · **地图**：[`../../项目总览地图.md`](../../项目总览地图.md)
 > 目标：edu_ai 用 **Python 直连 MinerU Cloud provider** 替换 `scripts/mineru.py` 本地解析链路，RAG 入库改走在线解析。
 > 这是**最独立、最低风险**的一条链路，先换它。
@@ -136,5 +136,30 @@ result = get_pdf_parser().parse(pdf_bytes, filename="ch1.pdf")   # 同步
 - [ ] RAG 入库走新链路（经 `_parse_pdf_with_mineru` 契约），检索质量不回退（抽样问答对比）
 - [ ] 强制默认 `mineru-cloud` 不回退 unpdf
 - [ ] 托管 MinerU key 生效（`.env` 提供，业务侧不传 key 也能解析，SPEC-06）
-- [ ] 契约不变：`_parse_pdf_with_mineru` 返回结构键集稳定
+- [x] 契约不变：`_parse_pdf_with_mineru` 返回结构键集稳定（测试覆盖）
 - [ ] ~~生产环境客户端传恶意 baseUrl → 403（SSRF）~~ → 直连形态无客户端 baseUrl 入口，**移交后续 Phase**
+
+---
+
+## 7. Phase 1 收口（图片存储 + 删本地降级，2026-07-01 `f40ccbf` / `cd85567`）
+
+migration 收口的最后一环：把 PDF 链路**彻底**收敛到 MinerU Cloud，并把 MinerU 解析出的配图端到端接进 RAG 存储与前端渲染。
+
+### 7.1 删净本地解析降级（PDF 转 MinerU-only）
+- `rag_main/system.py`：删除 `fitz`(PyMuPDF) 与 docling 的全部 import、可用性探测、`DocumentProcessor.__init__` 里的 docling converter 装配、`force_docling` / `force_mineru` 分支、`_extract_image_documents_from_docling`。PDF 分支不再有任何本地降级：`MINERU_AVAILABLE=False` 直接 `RuntimeError`，MinerU 解析失败直接抛错（**不再 fallback 到 PyMuPDF**）。
+- `Edu_AI/api/src/config.py`：删 `PyMuPDFLoader` import。
+- `EduAgent/chunks.py` `pdf_chunks_by_page()`、`EduAgent/services/content_cleaner.py` PDF 分支：改为存根，明确报错「本地 PDF 解析已移除，请走主 MinerU 导入管线」；`requirements*.txt` 去 `pymupdf`。
+- 回归护栏：`test_active_runtime_has_no_legacy_pdf_parser_residue` 白名单文件里禁止再出现 `docling/PyMuPDF/pymupdf/fitz/DOCLING_AVAILABLE` 等 token。
+
+### 7.2 图片存储收口（`linked_images` 端到端）
+- **落盘命名**：MinerU 图片按原始 basename 落到 `storage/images/{owner}/{doc_id}/`（去掉旧的 `mineru_` 前缀，使 markdown 里的 `![](images/xxx.jpg)` 引用可被后续 URL 重写命中）。
+- **关联元数据**：解析产出的每张图片登记为 `linked_images` 项 `{image_path,image_name,image_alt,page,source}`，写入文本 chunk 的 `metadata.linked_images` 与文档索引记录（`RAGSystem` 落 `linked_images` 去重列表 + `image_doc_id`/`image_storage_dir`）。
+- **guarded URL 重写**：`rag_main/api.py` 抽出 `_rewrite_markdown_media_urls(...)`，把 markdown/`<video>` 里的 `images/…`、`videos/…` 相对引用统一改写为 `/api/rag/image?path=…` / `/api/rag/media?path=…` guarded URL（owner+doc_id 归位，外链/已 guarded 的跳过）；`rag_query_stream` 与 `get_document_content` 共用，杜绝把 `storage` 绝对路径/盘符泄漏进响应。
+- **路径根修正**：`rag_main/core/config.py` `BASE_DIR` 由 `parents[3]`(误指 `src/modules`) 改为 `parents[4]`(=`src`)，与 host `core/config.py` 的 `BASE_DIR=parents[1]`(=`src`) 对齐，`STORAGE_ROOT` 回到 `src/storage`（连带修掉此前 2 个既有 rag_v2 测试红灯）。
+
+### 7.3 覆盖测试
+`tests/chat/test_rag_v2_runtime_import.py`（44 passed）关键新增：
+- `test_document_processor_mineru_images_are_registered_as_linked_images`：图片落到 `images/{owner}/{doc_id}/` 且 `linked_images` 结构正确。
+- `test_document_processor_pdf_fails_when_mineru_fails_without_local_parser_fallback`：MinerU 失败即 `ValueError`，无本地降级。
+- `test_document_content_rewrites_mineru_markdown_images_to_guarded_doc_storage`：markdown 图片引用被改写为 guarded doc-storage URL，`storage` 绝对路径不泄漏。
+- `test_active_runtime_has_no_legacy_pdf_parser_residue`：残留护栏。
