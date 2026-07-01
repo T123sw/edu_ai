@@ -98,7 +98,6 @@ def test_runtime_media_dirs_follow_config_storage_root():
 
 
 def test_document_processor_extracts_docx_text_without_zip_gibberish(monkeypatch):
-    monkeypatch.setenv("RAG_USE_DOCLING", "0")
     docx_path = _make_workspace_tmp("docx_extract") / "lesson.docx"
     document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
@@ -122,7 +121,40 @@ def test_document_processor_extracts_docx_text_without_zip_gibberish(monkeypatch
     assert "[Content_Types]" not in full_text
 
 
-def test_document_processor_pdf_fails_when_mineru_fails_without_pymupdf_fallback(monkeypatch):
+def test_active_runtime_has_no_legacy_pdf_parser_residue():
+    repo_root = Path(__file__).resolve().parents[5]
+    checked_paths = [
+        repo_root / "Edu_AI" / "api" / "src" / "config.py",
+        repo_root / "Edu_AI" / "api" / "src" / "requirements.txt",
+        repo_root / "Edu_AI" / "api" / "src" / "requirements-lock.txt",
+        repo_root / "Edu_AI" / "api" / "src" / "modules" / "rag_v2" / "rag_main" / "system.py",
+        repo_root / "EduAgent" / "chunks.py",
+        repo_root / "EduAgent" / "services" / "content_cleaner.py",
+        repo_root / "EduAgent" / "requirements.txt",
+        repo_root / "EduAgent" / "install_deps.ps1",
+    ]
+    forbidden = [
+        "doc" + "ling",
+        "PyMu" + "PDF",
+        "pymu" + "pdf",
+        "fit" + "z",
+        "PyMu" + "PDFLoader",
+        "RAG_USE_DOC" + "LING",
+        "DOC" + "LING_AVAILABLE",
+    ]
+
+    offenders = []
+    for path in checked_paths:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        lowered = text.lower()
+        for token in forbidden:
+            if token.lower() in lowered:
+                offenders.append(f"{path.relative_to(repo_root)} contains {token}")
+
+    assert offenders == []
+
+
+def test_document_processor_pdf_fails_when_mineru_fails_without_local_parser_fallback(monkeypatch):
     pdf_path = _make_workspace_tmp("mineru_failure") / "lesson.pdf"
     pdf_path.write_bytes(b"%PDF-1.4\n% test")
 

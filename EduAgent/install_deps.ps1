@@ -19,7 +19,7 @@ Write-Host "`n安装 Web 框架..." -ForegroundColor Cyan
 & $python -m pip install fastapi uvicorn[standard]
 
 Write-Host "`n安装文档处理库..." -ForegroundColor Cyan
-& $python -m pip install pymupdf python-pptx
+& $python -m pip install python-pptx
 
 Write-Host "`n安装网络请求库..." -ForegroundColor Cyan
 & $python -m pip install requests beautifulsoup4 lxml

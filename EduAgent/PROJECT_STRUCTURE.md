@@ -107,7 +107,7 @@ EduAgent/
 - `summarize_doc()` - 文档摘要生成
 
 **依赖：**
-- PyMuPDF (fitz) - PDF 处理
+- MinerU - PDF 处理
 - python-pptx - PPT 处理
 
 ### 3. **deepsearch.py** - 深度搜索
@@ -229,7 +229,7 @@ EduAgent/
 - **LangChain** - LLM 集成
 
 ### 文档处理
-- **PyMuPDF (fitz)** - PDF 处理
+- **MinerU** - PDF 处理
 - **python-pptx** - PPT 处理
 
 ### 网络工具

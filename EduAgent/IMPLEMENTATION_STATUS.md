@@ -25,7 +25,7 @@
 
 **功能**:
 - ✅ 文本内容清洗（移除多余空白、特殊字符）
-- ✅ PDF内容提取（使用PyMuPDF）
+- ✅ PDF内容通过主线 MinerU 导入管线处理
 - ✅ HTML内容提取和清洗
 - ✅ 元数据提取（标题、日期等）
 - ✅ Markdown格式化
@@ -214,7 +214,7 @@ curl -X POST "http://127.0.0.1:8848/agent/deepsearch-and-crawl" \
 
 1. **依赖检查**
    - 确保 `自动化爬虫` 模块可正常导入
-   - 确保 PyMuPDF (fitz) 已安装
+   - 确保主线 MinerU 导入配置可用
    - 确保 ChromeDriver 可用
 
 2. **性能考虑**

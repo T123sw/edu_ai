@@ -4,7 +4,6 @@ import chromadb
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyMuPDFLoader
 from chromadb.config import Settings
 from typing import List, Optional, Dict, Any
 from langchain_core.documents import Document

@@ -108,7 +108,7 @@ POST /agent/deepsearch-and-crawl
 - 处理特殊格式（表格、代码块）
 
 #### 步骤2.2：PDF内容提取
-- 集成 PyMuPDF 提取PDF文本
+- 集成主线 MinerU 导入管线处理 PDF 文本
 - 处理PDF中的图片和表格
 - 提取PDF元数据（标题、作者等）
 
@@ -193,7 +193,7 @@ EduAgent/
 - **FastAPI**: Web框架
 - **自动化爬虫模块**: 已有模块
 - **trafilatura**: 文本提取（已有）
-- **PyMuPDF**: PDF处理（已有）
+- **MinerU**: PDF处理（主线导入管线）
 - **BeautifulSoup**: HTML解析（已有）
 
 ### 前端

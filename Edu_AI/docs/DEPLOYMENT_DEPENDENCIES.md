@@ -24,7 +24,7 @@ npm run build
 - `Edu_AI/api/Edu_AI/requirements.txt`
   - FastAPI 主后端依赖清单。
   - 覆盖 API 服务、鉴权、课程资料、RAG、知识图谱、报告/PPT/测验工作流、教材导入解析等能力。
-  - 当前包含 `fastapi`、`uvicorn`、`pydantic`、`python-dotenv`、`baidu-aip`、`chardet`、`ffmpeg-python`、`langchain-*`、`langgraph`、`chromadb`、`PyMuPDF`、`python-docx`、`rank-bm25`、`jieba` 等。
+  - 当前包含 `fastapi`、`uvicorn`、`pydantic`、`python-dotenv`、`baidu-aip`、`chardet`、`ffmpeg-python`、`langchain-*`、`langgraph`、`chromadb`、`python-docx`、`rank-bm25`、`jieba` 等。
 
 常用命令：
 

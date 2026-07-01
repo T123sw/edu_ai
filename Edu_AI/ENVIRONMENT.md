@@ -350,7 +350,7 @@ conda init cmd.exe  # Windows CMD
 - `langchain-text-splitters>=0.0.1` - 文本分割
 
 文档处理:
-- `PyMuPDF>=1.23.0` - PDF 解析
+- MinerU Cloud - PDF 解析
 
 工具库:
 - `requests>=2.31.0` - HTTP 客户端

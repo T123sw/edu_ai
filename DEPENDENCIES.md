@@ -14,7 +14,7 @@
 | PPT 导出子包 | `Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx/` | `npm ci --prefix Edu_AI/api/Edu_AI/html2ppt/dom-to-pptx` | 是 | 当前版本 `1.1.6` |
 | AI Lecturer 离线视频 | `Edu_AI/api/Edu_AI/AI_Lecturer/` | `pip install -r requirements-offline-py312.txt` | 可选，默认安装 | Python 3.12 兼容版，避免原始 requirements 冲突 |
 | EduAgent | `EduAgent/` | `pip install -r requirements.txt` | 可选，默认安装 | Agent / 抓取辅助模块 |
-| RAG standalone | `Edu_AI/api/Edu_AI/rag_v2/rag-main/` | `pip install -r requirements.txt` 或 `pip install -e .` | 可选，不默认 | 独立 RAG 实验工程，包含 `docling`、`streamlit` 等较重依赖 |
+| RAG standalone | `Edu_AI/api/Edu_AI/rag_v2/rag-main/` | `pip install -r requirements.txt` 或 `pip install -e .` | 可选，不默认 | 独立 RAG 实验工程，包含 `streamlit` 等较重依赖 |
 | LiveTalking GPU 栈 | `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/` | 手动独立环境安装 | 不默认 | CUDA、`onnxruntime-gpu`、`aiortc` 等，建议单独 conda 环境 |
 | 根目录 Node 包 | `package.json` | 手动可选 | 不默认 | 旧的根级实验依赖，包含 Ant Design 6；不要和主前端依赖混用 |
 
@@ -169,7 +169,7 @@ python -m pip install -r Edu_AI/api/Edu_AI/requirements_api.txt
 - Web/API：FastAPI、Uvicorn、Pydantic、python-multipart
 - 认证/HTTP：PyJWT、python-jose、requests、httpx
 - RAG/Agent：ChromaDB、LangChain、LangGraph、rank-bm25、jieba
-- 文档处理：PyMuPDF、docx2txt、python-docx、Pillow
+- 文档处理：MinerU Cloud、docx2txt、python-docx、Pillow
 - 模型客户端：OpenAI SDK、langchain-openai、langchain-ollama
 - 语音/视频辅助：baidu-aip、ffmpeg-python、faster-whisper、openai-whisper
 - 浏览器自动化：Playwright
@@ -392,7 +392,7 @@ cd Edu_AI/api/Edu_AI/rag_v2/rag-main
 python -m pip install -e .
 ```
 
-注意：该模块会引入 `docling`、`streamlit`、更高版本的 `chromadb` 等重依赖，所以没有放入默认一键安装。
+注意：该模块会引入 `streamlit`、更高版本的 `chromadb` 等重依赖，所以没有放入默认一键安装。
 
 ## 11. Env 文件初始化
 

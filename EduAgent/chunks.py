@@ -77,37 +77,7 @@ def _group_lines(lines: List[str], lines_per_chunk: int) -> List[Tuple[int, int,
 # PDF: 按页
 # -------------------------
 def pdf_chunks_by_page(pdf_path: str) -> List[Chunk]:
-    try:
-        import fitz  # PyMuPDF
-    except Exception as e:
-        raise RuntimeError("缺少依赖 pymupdf：pip install pymupdf") from e
-
-    p = Path(pdf_path).resolve()
-    doc_id = _sha1(str(p))
-    doc = fitz.open(str(p))
-
-    chunks: List[Chunk] = []
-    pages = doc.page_count
-
-    for i in range(pages):
-        page_no = i + 1
-        page = doc.load_page(i)
-        text = _norm_text(page.get_text("text") or "")
-        if not text:
-            text = "<EMPTY_PAGE_TEXT>"
-
-        meta: ChunkMeta = {"ext": ".pdf", "page_no": page_no, "pages": pages}
-        chunks.append({
-            "doc_id": doc_id,
-            "chunk_id": _chunk_id(doc_id, "pdf_page", page_no, text),
-            "source_path": str(p),
-            "kind": "pdf_page",
-            "index": page_no,
-            "text": text,
-            "meta": meta,
-        })
-
-    return chunks
+    raise RuntimeError("PDF chunking must use the main MinerU import pipeline; local PDF parsing has been removed.")
 
 
 # -------------------------

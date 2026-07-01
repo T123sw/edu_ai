@@ -104,9 +104,6 @@ except ImportError:
     JIEBA_AVAILABLE = False
     print("[WARNING] jieba 未安装，中文分词功能将不可用。安装: pip install jieba")
 
-# PDF 导入链路已收敛为 MinerU Cloud only；不再探测/降级到 PyMuPDF 或 docling。
-DOCLING_AVAILABLE = False
-
 try:
     from PIL import Image
     PIL_AVAILABLE = True
@@ -1505,7 +1502,7 @@ class VectorStore:
 
 
 class DocumentProcessor:
-    """升级版文档处理类：基于 Docling 解析 + Markdown AST 结构化切分"""
+    """文档处理类：PDF 使用 MinerU Cloud，其他文本类文档走本地读取与 Markdown 切分。"""
 
     def __init__(
         self,
@@ -1536,94 +1533,6 @@ class DocumentProcessor:
             length_function=len,
             separators=["\n\n", "\n", "。", "！", "？", "；", "，", " ", ""],
         )
-        
-        use_docling = os.getenv("RAG_USE_DOCLING", "0").strip().lower() in {"1", "true", "yes"}
-        if DOCLING_AVAILABLE and use_docling:
-            # 防止极复杂 PDF 导致 AST 递归栈溢出
-            try:
-                sys.setrecursionlimit(max(5000, sys.getrecursionlimit()))
-            except Exception:
-                pass
-
-            pipeline_options = PdfPipelineOptions()
-            pipeline_options.generate_picture_images = True
-            pipeline_options.generate_page_images = False
-
-            # OCR 策略：默认开启，但优先混合解析（非全页 OCR）
-            low_memory_ocr = os.getenv("RAG_LOW_MEMORY_OCR", "1").strip().lower() in {"1", "true", "yes"}
-            enable_ocr = os.getenv("RAG_ENABLE_OCR", "1").strip().lower() in {"1", "true", "yes"}
-            if hasattr(pipeline_options, "do_ocr"):
-                pipeline_options.do_ocr = enable_ocr
-
-            # 显式绑定 RapidOCR（若当前版本可用）
-            if RapidOcrOptions is not None:
-                try:
-                    ocr_opts = RapidOcrOptions()
-                    if hasattr(ocr_opts, "force_full_page_ocr"):
-                        # 稳定优先：默认不做全页 OCR，仅在必要时触发
-                        force_full_page = os.getenv("RAG_OCR_FORCE_FULL_PAGE", "0").strip().lower() in {"1", "true", "yes"}
-                        ocr_opts.force_full_page_ocr = force_full_page
-                    pipeline_options.ocr_options = ocr_opts
-                except Exception as e:
-                    print(f"[Docling] RapidOcrOptions 配置失败，回退默认 OCR 选项: {e}")
-
-            # 表格结构：稳定优先，低内存模式下默认关闭（可通过环境变量强制开启）
-            if hasattr(pipeline_options, "do_table_structure"):
-                default_table = "0" if low_memory_ocr else "1"
-                pipeline_options.do_table_structure = os.getenv("RAG_ENABLE_TABLE_STRUCTURE", default_table).strip().lower() in {"1", "true", "yes"}
-            tso = getattr(pipeline_options, "table_structure_options", None)
-            if tso is not None and TableFormerMode is not None and hasattr(tso, "mode"):
-                try:
-                    tso.mode = TableFormerMode.FAST
-                except Exception:
-                    pass
-
-            # 并发限制（稳定优先：低内存模式默认单线程）
-            if hasattr(pipeline_options, "num_threads"):
-                try:
-                    default_threads = "1" if low_memory_ocr else "2"
-                    pipeline_options.num_threads = int(os.getenv("DOCLING_NUM_THREADS", default_threads))
-                except Exception:
-                    pipeline_options.num_threads = 1 if low_memory_ocr else 2
-
-            if low_memory_ocr:
-                # 降低图像尺度，显著降低 OCR 峰值内存（稳定优先默认 0.6）
-                if hasattr(pipeline_options, "images_scale"):
-                    try:
-                        pipeline_options.images_scale = float(os.getenv("RAG_OCR_IMAGE_SCALE", "0.6"))
-                    except Exception:
-                        pipeline_options.images_scale = 0.6
-
-                # 尝试压低各类批量参数（不同 docling 版本字段名可能不同）
-                ocr_opts = getattr(pipeline_options, "ocr_options", None)
-                if ocr_opts is not None:
-                    for name, value in {
-                        "batch_size": 1,
-                        "det_batch_size": 1,
-                        "rec_batch_size": 1,
-                        "cls_batch_size": 1,
-                        "max_batch_size": 1,
-                    }.items():
-                        if hasattr(ocr_opts, name):
-                            try:
-                                setattr(ocr_opts, name, int(os.getenv(f"RAG_OCR_{name.upper()}", str(value))))
-                            except Exception:
-                                setattr(ocr_opts, name, value)
-
-            print(
-                "[DoclingConfig] "
-                f"ocr={getattr(pipeline_options, 'do_ocr', 'n/a')} "
-                f"threads={getattr(pipeline_options, 'num_threads', 'n/a')} "
-                f"images_scale={getattr(pipeline_options, 'images_scale', 'n/a')} "
-                f"table={getattr(pipeline_options, 'do_table_structure', 'n/a')} "
-                f"low_memory={low_memory_ocr}"
-            )
-
-            self.converter = DocumentConverter(
-                format_options={
-                    InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
-                }
-            )
 
         self.image_exts = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"}
 
@@ -1784,53 +1693,6 @@ class DocumentProcessor:
         """解析并切分导入文件。PDF 只使用 MinerU Cloud，失败即失败。"""
         file_path_obj = Path(file_path)
 
-        # 可选强制使用 Docling（仅用于调试/对比，默认关闭）
-        force_docling = os.getenv("RAG_USE_DOCLING", "0").strip().lower() in {"1", "true", "yes"}
-        if file_path_obj.suffix.lower() != ".pdf" and force_docling and DOCLING_AVAILABLE:
-            print("[Docling] RAG_USE_DOCLING=1，启用 Docling 路径")
-
-            md_text = ""
-            docling_result: Optional[Any] = None
-            try:
-                docling_result = self.converter.convert(file_path)
-                md_text = docling_result.document.export_to_markdown()
-            except Exception as e:
-                print(f"[Docling] 解析失败，降级基础读取: {e}")
-                md_text = self._fallback_read(file_path)
-
-            if not md_text.strip():
-                raise ValueError(f"无法从文件 {file_path_obj.name} 中提取有效文本内容。")
-
-            base_doc = Document(
-                page_content=md_text,
-                metadata={
-                    "source": file_path,
-                    "document_name": file_path_obj.name,
-                    "page": 0,
-                    "modality": "text",
-                },
-            )
-            text_chunks = self.split_documents([base_doc])
-            for doc in text_chunks:
-                if doc.metadata is None:
-                    doc.metadata = {}
-                doc.metadata["modality"] = "text"
-
-            image_chunks: List[Document] = []
-            if docling_result is not None:
-                try:
-                    image_chunks = self._extract_image_documents_from_docling(
-                        docling_result,
-                        file_path_obj,
-                        owner=owner,
-                        doc_id=doc_id,
-                        images_root=images_root,
-                    )
-                except Exception as e:
-                    print(f"[Docling] 图片导出失败: {e}")
-
-            return text_chunks + image_chunks
-
         if file_path_obj.suffix.lower() == ".docx":
             documents = self.load_doc(file_path)
             if not documents:
@@ -1962,7 +1824,7 @@ class DocumentProcessor:
         return text_chunks + image_chunks
 
     def _fallback_read(self, file_path: str) -> str:
-        """降级读取方案（针对 docling 失败或未安装的情况）"""
+        """Read plain text-like files with a small encoding fallback list."""
         encodings = ["utf-8", "gbk", "gb2312", "utf-8-sig"]
         for enc in encodings:
             try:
@@ -2028,51 +1890,6 @@ class DocumentProcessor:
                 "image_doc_id": safe_doc_id,
             },
         )
-
-    def _extract_image_documents_from_docling(
-        self,
-        docling_result: Any,
-        file_path_obj: Path,
-        owner: Optional[str] = None,
-        doc_id: Optional[str] = None,
-        images_root: Optional[Path] = None,
-    ) -> List[Document]:
-        """Docling 原生图片导出：使用 document.pictures + picture.get_image(document)。"""
-        image_docs: List[Document] = []
-        _, safe_doc_id, target_root = self._resolve_image_target_root(file_path_obj, owner, doc_id, images_root)
-
-        doc_obj = getattr(docling_result, "document", None)
-        if doc_obj is None:
-            return image_docs
-
-        pictures = getattr(doc_obj, "pictures", None)
-        if not pictures:
-            return image_docs
-
-        for idx, pic in enumerate(pictures):
-            try:
-                img_pil = pic.get_image(doc_obj)
-                if img_pil is None:
-                    continue
-
-                dst_path = target_root / f"{idx:04d}.png"
-                img_pil.save(str(dst_path), format="PNG")
-
-                alt = str(getattr(pic, "caption", "") or "").strip()
-                image_docs.append(
-                    self._build_image_chunk_document(
-                        file_path_obj=file_path_obj,
-                        image_path=dst_path,
-                        image_index=idx,
-                        alt_text=alt,
-                        safe_doc_id=safe_doc_id,
-                    )
-                )
-            except Exception as e:
-                print(f"[Docling][Picture] 导出单张图片失败 idx={idx}: {e}")
-                continue
-
-        return image_docs
 
     def _extract_image_documents(
         self,

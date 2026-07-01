@@ -5,7 +5,6 @@
 import re
 from pathlib import Path
 from typing import Optional, Dict, Any
-import fitz  # PyMuPDF
 from bs4 import BeautifulSoup
 import markdownify
 
@@ -83,64 +82,10 @@ class ContentCleaner:
         Returns:
             Dict包含提取的文本和元数据
         """
-        if not Path(file_path).exists():
-            return {
-                "cleaned_content": "",
-                "error": "PDF文件不存在"
-            }
-        
-        try:
-            doc = fitz.open(file_path)
-            text_parts = []
-            metadata = {}
-            
-            # 提取元数据
-            if doc.metadata:
-                metadata = {
-                    "title": doc.metadata.get("title", ""),
-                    "author": doc.metadata.get("author", ""),
-                    "subject": doc.metadata.get("subject", ""),
-                    "creator": doc.metadata.get("creator", ""),
-                    "producer": doc.metadata.get("producer", ""),
-                    "creation_date": doc.metadata.get("creationDate", ""),
-                    "modification_date": doc.metadata.get("modDate", "")
-                }
-            
-            # 提取每页文本
-            for page_num in range(len(doc)):
-                page = doc[page_num]
-                text = page.get_text()
-                if text.strip():
-                    text_parts.append(f"--- 第 {page_num + 1} 页 ---\n{text}")
-            
-            doc.close()
-            
-            # 合并文本
-            full_text = "\n\n".join(text_parts)
-            full_text_length = len(full_text)
-            print(f"[清洗] PDF提取完成，总页数: {len(doc)}, 提取文本长度: {full_text_length} 字符")
-            
-            # 清洗文本
-            cleaned = ContentCleaner._basic_clean(full_text)
-            cleaned_length = len(cleaned)
-            print(f"[清洗] PDF清洗后长度: {cleaned_length} 字符 (原始: {full_text_length})")
-            
-            result = {
-                "cleaned_content": cleaned,
-                "markdown_content": cleaned,  # PDF文本通常不需要Markdown转换
-                "metadata": metadata,
-                "page_count": len(doc),
-                "word_count": len(cleaned.split()),
-                "char_count": len(cleaned)
-            }
-            print(f"[清洗] PDF返回结果，cleaned_content长度: {len(result['cleaned_content'])} 字符")
-            return result
-        
-        except Exception as e:
-            return {
-                "cleaned_content": "",
-                "error": f"PDF处理失败: {str(e)}"
-            }
+        return {
+            "cleaned_content": "",
+            "error": "PDF cleaning must use the main MinerU import pipeline; local PDF parsing has been removed.",
+        }
     
     @staticmethod
     def _basic_clean(text: str) -> str:
