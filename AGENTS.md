@@ -1,5 +1,7 @@
 # AGENTS
 
+> **每次启动必读**：先阅读 [项目总览地图.md](./项目总览地图.md)，了解项目结构、模块职责与当前进展，再开始工作。
+
 <skills_system priority="1">
 
 ## Available Skills
