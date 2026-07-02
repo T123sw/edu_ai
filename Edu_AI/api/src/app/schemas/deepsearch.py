@@ -13,7 +13,7 @@ class DeepSearchAndCrawlRequest(BaseModel):
     query: str = Field(..., description="Search query")
     depth: Literal["basic", "full"] = Field("basic", description="basic=Bocha summaries, full=Bocha+Tavily extract")
     max_urls: Optional[int] = Field(10, description="Maximum URL count")
-    crawl_timeout: Optional[int] = Field(30, description="Per-URL extract timeout in seconds")
+    crawl_timeout: Optional[int] = Field(60, description="Per-URL extract timeout in seconds")
     save_to_kb: Optional[bool] = Field(True, description="Whether to save results into RAG")
     course_id: Optional[str] = Field(None, description="Course id")
     scope_type: Optional[str] = Field(None, description="Scope type")

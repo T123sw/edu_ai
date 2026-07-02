@@ -52,8 +52,9 @@ const DeepSearchPage: React.FC = () => {
       console.log('发送搜索请求:', { query: query.trim(), max_urls: maxUrls });
       const response = await deepSearchAndCrawl({
         query: query.trim(),
+        depth: 'full',
         max_urls: maxUrls,
-        crawl_timeout: 30,
+        crawl_timeout: 60,
       });
 
       console.log('搜索响应:', response);

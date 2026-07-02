@@ -24,6 +24,8 @@ def extract_tavily(
             "extract_depth": depth,
             "format": "markdown",
             "timeout": timeout,
+            "include_images": True,
+            "include_favicon": True,
         }
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -40,6 +42,8 @@ def extract_tavily(
                     url=str(item.get("url") or ""),
                     content=str(item.get("raw_content") or item.get("content") or ""),
                     status="success",
+                    images=_extract_images(item),
+                    favicon=str(item.get("favicon") or "").strip() or None,
                     raw=item,
                 )
             )
@@ -50,6 +54,8 @@ def extract_tavily(
                     content="",
                     status="failed",
                     error=str(item.get("error") or "extract_failed"),
+                    images=_extract_images(item),
+                    favicon=str(item.get("favicon") or "").strip() or None,
                     raw=item,
                 )
             )
@@ -59,3 +65,21 @@ def extract_tavily(
 def _chunks(values: list[str], size: int):
     for i in range(0, len(values), size):
         yield values[i : i + size]
+
+
+def _extract_images(item: dict) -> list[str]:
+    values = item.get("images") or []
+    if isinstance(values, str):
+        values = [values]
+    out: list[str] = []
+    for image in values if isinstance(values, list) else []:
+        if isinstance(image, str):
+            url = image
+        elif isinstance(image, dict):
+            url = image.get("url") or image.get("src") or image.get("contentUrl") or image.get("image_url")
+        else:
+            url = ""
+        url = str(url or "").strip()
+        if url and url not in out:
+            out.append(url)
+    return out

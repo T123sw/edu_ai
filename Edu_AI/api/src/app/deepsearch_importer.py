@@ -3,6 +3,7 @@
 import hashlib
 import os
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
 from urllib.parse import urlparse
@@ -56,21 +57,6 @@ def _compose_deepsearch_file_name(site_name: str, summary_title: str, fallback_t
     if safe_site and safe_site != "untitled" and safe_title and safe_site.casefold() != safe_title.casefold():
         return _safe_slug(f"{safe_site}{_FULL_WIDTH_BAR}{safe_title}", 120)
     return _safe_slug(safe_title or safe_site, 120)
-
-
-def _summarize_imported_document(rag_system: Any, import_path: str, owner: str) -> Dict[str, Any]:
-    try:
-        if hasattr(rag_system, "summarize_document_for_import"):
-            summary = rag_system.summarize_document_for_import(import_path, owner=owner)
-        elif hasattr(rag_system, "summarize_document"):
-            summary = rag_system.summarize_document(import_path, force_refresh=False, owner=owner)
-        else:
-            return {}
-    except Exception as exc:
-        print(f"[DeepSearchImport] summary generation failed: {type(exc).__name__}: {exc}")
-        return {}
-
-    return summary if isinstance(summary, dict) else {}
 
 
 def _normalize_paths(values: Any) -> List[str]:
@@ -273,9 +259,8 @@ def import_crawl_results_to_rag(
 
         if isinstance(record, dict):
             site_name = _derive_site_name(metadata, domain, title)
-            summary_metadata = _summarize_imported_document(rag_system, import_path, owner)
-            summary = str(summary_metadata.get("summary") or "").strip()
-            summary_title = str(summary_metadata.get("summary_title") or "").strip()
+            # 摘要直接复用博查搜索返回的 summary，不再触发 LLM 二次生成（旧链路已删除）。
+            summary = str(metadata.get("bocha_summary") or "").strip()
 
             pretty_name = title
             if domain and domain not in pretty_name:
@@ -283,14 +268,9 @@ def import_crawl_results_to_rag(
 
             if summary:
                 record["summary"] = summary
-            if summary_metadata.get("summary_updated_at"):
-                record["summary_updated_at"] = summary_metadata.get("summary_updated_at")
-            if summary_title:
-                record["summary_title"] = _safe_slug(summary_title, 80)
-            if summary_metadata.get("summary_title_updated_at"):
-                record["summary_title_updated_at"] = summary_metadata.get("summary_title_updated_at")
+                record["summary_updated_at"] = datetime.now().isoformat()
 
-            record["file_name"] = _compose_deepsearch_file_name(site_name, summary_title, pretty_name)
+            record["file_name"] = _compose_deepsearch_file_name(site_name, "", pretty_name)
             record["source_url"] = url
             record["source_title"] = title
             record["source_domain"] = domain

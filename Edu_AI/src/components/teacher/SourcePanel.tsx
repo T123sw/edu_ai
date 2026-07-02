@@ -1025,8 +1025,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       
       const response = await deepSearchAndCrawl({
         query: normalizedQuery,
+        depth: 'full',
         max_urls: 5,
-        crawl_timeout: 30,
+        crawl_timeout: 60,
         course_id: courseId,
         scope_type: workspaceScope?.scopeType,
         scope_id: workspaceScope?.scopeId,

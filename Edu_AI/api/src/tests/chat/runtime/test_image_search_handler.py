@@ -80,6 +80,37 @@ def test_build_default_image_search_provider_uses_bocha(monkeypatch):
     assert provider.name == "bocha"
 
 
+def test_bocha_image_provider_requests_high_recall_count(monkeypatch):
+    import httpx
+
+    from app.chat.runtime.agent_tools.handlers.providers.bocha_provider import (
+        BochaImageSearchProvider,
+    )
+
+    payloads = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        payloads.append(request.read().decode("utf-8"))
+        return httpx.Response(200, json={"code": 200, "data": {"webPages": {"value": []}}})
+
+    transport = httpx.MockTransport(handler)
+    real_client = httpx.Client
+
+    def mock_client(*args, **kwargs):
+        kwargs.pop("transport", None)
+        return real_client(transport=transport, **kwargs)
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.providers.bocha_provider.httpx.Client",
+        mock_client,
+    )
+
+    provider = BochaImageSearchProvider(api_key="bocha-test", base_url="https://bocha.example")
+    provider.search(query="rag", count=4, style="diagram", safe=True, license_="any", owner="alice")
+
+    assert '"count":50' in payloads[0].replace(" ", "")
+
+
 # ----------------------------------------------------------------------------
 # T2: empty query
 # ----------------------------------------------------------------------------
@@ -168,6 +199,24 @@ def test_handler_filters_low_quality_or_blocked_candidates():
     assert urls == ["https://ex.com/ok.png", "https://example.com/clean.jpg"]
     assert result["payload"]["trace"]["raw_count"] == 7
     assert result["payload"]["trace"]["filtered_count"] == 2
+
+
+def test_handler_keeps_provider_images_when_dimensions_or_extension_are_missing():
+    provider = _FakeProvider(images=[
+        _img("https://cdn.example.com/image?id=abc", width=0, height=0),
+        _img("https://cdn.example.com/known-small.png", width=120, height=400),
+        _img("https://cdn.example.com/thumbnail", width=600, height=0),
+    ])
+
+    result = handle_image_search(
+        "image_search", {"query": "rag", "count": 10}, _ctx(provider=provider)
+    )
+
+    urls = [img["url"] for img in result["payload"]["images"]]
+    assert urls == [
+        "https://cdn.example.com/image?id=abc",
+        "https://cdn.example.com/thumbnail",
+    ]
 
 
 def test_handler_does_not_misclassify_substring_lookalike_hosts():

@@ -5,6 +5,7 @@ raw dict shape consumed by image_search.py.
 """
 from __future__ import annotations
 
+import os
 import re
 from typing import Any
 
@@ -29,9 +30,10 @@ class BochaImageSearchProvider:
         license_: str,  # noqa: ARG002 - Bocha web search has no license filter.
         owner: str | None,  # noqa: ARG002 - reserved for future per-tenant quotas.
     ) -> list[dict]:
+        recall_count = int(os.getenv("BOCHA_IMAGE_SEARCH_RECALL_COUNT", "50") or "50")
         payload = {
             "query": _build_query(query, style),
-            "count": max(count * 3, count),
+            "count": max(1, min(max(count * 3, recall_count), 50)),
             "summary": True,
             "includeImages": True,
         }
@@ -48,7 +50,7 @@ class BochaImageSearchProvider:
             message = data.get("message") or data.get("msg") or "bocha_image_search_failed"
             raise RuntimeError(str(message))
 
-        return _extract_images(data, count=max(count * 3, count))
+        return _extract_images(data, count=max(count * 3, recall_count))
 
 
 def _build_query(query: str, style: str) -> str:

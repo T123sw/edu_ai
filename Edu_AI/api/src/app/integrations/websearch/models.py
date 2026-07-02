@@ -29,4 +29,6 @@ class ExtractResult:
     content: str
     status: str = "success"
     error: str | None = None
+    images: list[str] = field(default_factory=list)
+    favicon: str | None = None
     raw: dict[str, Any] = field(default_factory=dict)

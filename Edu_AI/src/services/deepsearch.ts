@@ -19,6 +19,7 @@ function getAuthToken(): string | null {
 
 export interface DeepSearchRequest {
   query: string;
+  depth?: 'basic' | 'full';
   max_urls?: number;
   crawl_timeout?: number;
   course_id?: string;

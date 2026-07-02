@@ -16,6 +16,9 @@ class DummySummaryProvider:
         self.calls.append((list(selected_doc_ids), owner))
         return self.result
 
+    def get_document_image_sources(self, *, selected_doc_ids, owner=None, query_text="", top_k=10):
+        return []
+
 
 class DummyOutlineBuilder:
     def __init__(self):

@@ -118,16 +118,18 @@ def handle_image_search(name: str, args: dict, ctx) -> dict:
 
 
 def _passes_heuristics(img: dict) -> bool:
-    if _safe_int(img.get("width"), 0) < _MIN_DIMENSION:
+    width = _safe_int(img.get("width"), 0)
+    height = _safe_int(img.get("height"), 0)
+    if width and width < _MIN_DIMENSION:
         return False
-    if _safe_int(img.get("height"), 0) < _MIN_DIMENSION:
+    if height and height < _MIN_DIMENSION:
         return False
     url = str(img.get("url") or "")
     if not url:
         return False
     path = url.split("?", 1)[0]
     ext = path.rsplit(".", 1)[-1].lower() if "." in path.rsplit("/", 1)[-1] else ""
-    if ext not in _ALLOWED_EXT:
+    if ext and ext not in _ALLOWED_EXT:
         return False
     host = (urlparse(url).hostname or "").lower()
     return not _is_blocked_host(host)

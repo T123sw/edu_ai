@@ -12,7 +12,6 @@ from app.deepsearch_importer import (
     persist_imported_documents_to_course_kb,
 )
 from core.course_storage import CourseStorageManager
-from modules.rag_v2.rag_main.system import RAGSystem
 
 
 def _make_workspace_tmp(name: str) -> Path:
@@ -120,7 +119,7 @@ def test_import_crawl_results_to_rag_rewrites_inline_images_and_site_icon(monkey
     assert "/api/rag/image?path=images%2Fteacher%2Fexample_001.png" in markdown_content
 
 
-def test_import_crawl_results_to_rag_generates_summary_title_and_renames_web_doc(monkeypatch):
+def test_import_crawl_results_to_rag_reuses_bocha_summary_and_renames_web_doc(monkeypatch):
     workspace = _make_workspace_tmp("deepsearch_import_summary")
     documents_root = workspace / "documents"
     crawl_root = workspace / "crawl"
@@ -136,23 +135,24 @@ def test_import_crawl_results_to_rag_generates_summary_title_and_renames_web_doc
         content_type="text",
         file_path=str(text_file),
         status="success",
-        metadata={"site_name": "Example EDU"},
+        metadata={
+            "site_name": "Example EDU",
+            "bocha_summary": "博查返回的课堂算法要点摘要。",
+        },
     )
 
     class FakeRAGSystem:
         def __init__(self):
-            self.summary_calls = []
             self.saved = False
 
         def import_document(self, file_path, force_reimport=False, owner=None):
             return {"status": "success", "file_path": file_path}
 
         def summarize_document_for_import(self, file_path, owner=None):
-            self.summary_calls.append((file_path, owner))
-            return {
-                "summary": "This document explains classroom algorithm ideas.",
-                "summary_title": "Algorithm Lesson",
-            }
+            raise AssertionError("deepsearch import must not call LLM summary")
+
+        def summarize_document(self, file_path, force_refresh=False, owner=None):
+            raise AssertionError("deepsearch import must not call LLM summary")
 
         def _save_index(self):
             self.saved = True
@@ -178,51 +178,64 @@ def test_import_crawl_results_to_rag_generates_summary_title_and_renames_web_doc
     )
 
     assert len(imported) == 1
-    assert rag_system.summary_calls == [(imported[0]["file_path"], "teacher")]
-    assert record["summary"] == "This document explains classroom algorithm ideas."
-    assert record["summary_title"] == "Algorithm Lesson"
+    # 摘要直接复用博查 summary，不触发任何 LLM 生成
+    assert record["summary"] == "博查返回的课堂算法要点摘要。"
+    assert record["summary_updated_at"]
+    assert "summary_title" not in record
     assert record["source_site_name"] == "Example EDU"
-    assert record["file_name"] == "Example EDU｜Algorithm Lesson"
+    # 无 LLM summary_title 时，文件名回退到站点名 + 标题
+    assert record["file_name"] == "Example EDU｜A very long crawler page title - example.edu"
 
 
-def test_rag_system_summarize_document_for_import_parses_short_title(monkeypatch):
-    index_key = "user_teacher:/tmp/web.md"
-    source_key = "user_teacher:/tmp/web.md"
-    saved = {"called": False}
+def test_import_crawl_results_to_rag_leaves_summary_empty_without_bocha_summary(monkeypatch):
+    workspace = _make_workspace_tmp("deepsearch_import_no_summary")
+    documents_root = workspace / "documents"
 
-    rag_system = RAGSystem.__new__(RAGSystem)
-    rag_system.summary_model = "summary-model"
-    rag_system.document_index = {
-        index_key: {
-            "file_name": "web_example.md",
-            "owner": "teacher",
-            "physical_path": "/tmp/web.md",
-            "source_key": source_key,
-        }
-    }
-    rag_system.vector_store = SimpleNamespace(
-        get_documents_by_source=lambda key: [
-            {"content": "Algorithms help students reason about procedures.", "metadata": {"page": 0}}
-        ]
-    )
-    rag_system._make_index_key = lambda file_path, owner=None: index_key
-    rag_system._make_source_key = lambda file_path, owner=None: source_key
-    rag_system._save_index = lambda: saved.update(called=True)
-    rag_system._call_llm = lambda *args, **kwargs: (
-        '{"summary":"A concise summary for teachers.","summary_title":"Algorithm Reasoning"}'
+    result = SimpleNamespace(
+        url="https://example.edu/lesson",
+        title="Crawler title",
+        content="algorithm lesson content " * 120,
+        content_type="text",
+        file_path="",
+        status="success",
+        metadata={"site_name": "Example EDU"},
     )
 
+    class FakeRAGSystem:
+        def import_document(self, file_path, force_reimport=False, owner=None):
+            return {"status": "success", "file_path": file_path}
+
+        def summarize_document_for_import(self, file_path, owner=None):
+            raise AssertionError("deepsearch import must not call LLM summary")
+
+        def summarize_document(self, file_path, force_refresh=False, owner=None):
+            raise AssertionError("deepsearch import must not call LLM summary")
+
+        def _save_index(self):
+            pass
+
+    record = {}
     monkeypatch.setattr(
-        "rag_v2.rag_main.system.Config.get_deep_model",
-        lambda: {"model_name": "summary-model"},
+        "app.deepsearch_importer.resolve_rag_document",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            index_key="user_teacher:/tmp/example.md",
+            source_key="user_teacher:/tmp/example.md",
+            record=record,
+        ),
     )
 
-    result = rag_system.summarize_document_for_import("/tmp/web.md", owner="teacher")
+    imported = import_crawl_results_to_rag(
+        results=[result],
+        owner="teacher",
+        rag_system=FakeRAGSystem(),
+        documents_root=documents_root,
+        min_content_length=10,
+    )
 
-    assert result["summary"] == "A concise summary for teachers."
-    assert result["summary_title"] == "Algorithm Reasoning"
-    assert rag_system.document_index[index_key]["summary_title"] == "Algorithm Reasoning"
-    assert saved["called"] is True
+    assert len(imported) == 1
+    assert "summary" not in record
+    assert "summary_title" not in record
+    assert record["file_name"] == "Example EDU｜Crawler title - example.edu"
 
 
 def test_persist_imported_documents_to_course_kb_writes_personal_scoped_entries_and_hides_rag_docs():

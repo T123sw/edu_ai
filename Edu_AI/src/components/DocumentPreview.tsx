@@ -27,9 +27,8 @@ export default function DocumentPreview({ visible, filePath, fileName, onClose }
       setSummaryLoading(false);
       setDocumentDetail(null);
       
-      // 加载文档详情和摘要
+      // 加载文档详情；摘要页按需手动加载，避免预览时触发旧 LLM 摘要链路。
       loadDocumentDetails();
-      loadSummary();
     } else {
       setDocumentDetail(null);
       setSummary('');
@@ -150,9 +149,34 @@ export default function DocumentPreview({ visible, filePath, fileName, onClose }
                 第 {sample.page} 页
               </Text>
             )}
-            <Paragraph style={{ marginBottom: 0, whiteSpace: 'pre-wrap' }}>
-              {sample.content}
-            </Paragraph>
+            <div style={{ marginBottom: 0, lineHeight: 1.8 }}>
+              <ReactMarkdown
+                components={{
+                  img: ({ src, alt }) => (
+                    <img
+                      src={String(src || '')}
+                      alt={String(alt || '')}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '50vh',
+                        objectFit: 'contain',
+                        display: 'block',
+                        margin: '16px auto',
+                        borderRadius: 8,
+                        background: '#f5f5f5',
+                      }}
+                    />
+                  ),
+                  a: ({ href, children }) => (
+                    <a href={href} target="_blank" rel="noreferrer">
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {sample.content}
+              </ReactMarkdown>
+            </div>
           </div>
         ))}
       </div>

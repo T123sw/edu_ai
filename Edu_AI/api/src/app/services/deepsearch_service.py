@@ -5,25 +5,21 @@ Does NOT depend on HTTP or FastAPI.
 
 from __future__ import annotations
 
-import hashlib
 import os
 import re
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, List, Optional
-from urllib.parse import urlparse
 
 from app.deepsearch_importer import (
     import_crawl_results_to_rag,
     persist_imported_documents_to_course_kb,
 )
-from app.integrations.websearch import ExtractResult, WebSearchHit, extract_tavily, search_bocha
+from app.chat.workflows.report.image_downloader import localize_image
+from app.integrations.websearch import ExtractResult, WebSearchHit, extract_tavily, rerank_bocha, search_bocha
 from app.services import crawl_batch_store
 from core import Config
 from modules.rag_v2.api import get_rag_system
-from modules.rag_v2.document_resolver import resolve_rag_document
 
 
 @dataclass
@@ -62,34 +58,74 @@ class CrawlBatchResult:
 # ---------------------------------------------------------------------------
 
 
-def _safe_slug(text: str, max_len: int = 60) -> str:
-    s = (text or "").strip()
-    if not s:
-        return "untitled"
-    s = re.sub(r"[\\/:*?\"<>|\r\n\t]+", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    s = s[:max_len].strip()
-    return s or "untitled"
-
-
-def _url_hash(url: str) -> str:
-    return hashlib.md5((url or "").encode("utf-8", errors="ignore")).hexdigest()[:12]
-
-
 # ---------------------------------------------------------------------------
 # pipeline steps
 # ---------------------------------------------------------------------------
 
 
 def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
-    count = max(1, int(max_urls or int(os.getenv("WEB_SEARCH_DEFAULT_COUNT", "10") or "10")))
-    return search_bocha(
+    final_count = max(1, int(max_urls or int(os.getenv("WEB_SEARCH_DEFAULT_COUNT", "10") or "10")))
+    recall_count = max(final_count, int(os.getenv("BOCHA_SEARCH_RECALL_COUNT", "50") or "50"))
+    recall_count = min(recall_count, 50)
+    print(f"[DeepSearch] phase=search provider=bocha query={query!r} max_urls={final_count} recall={recall_count}")
+    hits = search_bocha(
         query,
-        count=count,
+        count=recall_count,
         freshness=os.getenv("WEB_SEARCH_FRESHNESS", "noLimit"),
         api_key=os.getenv("BOCHA_API_KEY", ""),
         base_url=os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn"),
     )
+    hits = _rerank_hits(query, hits, final_count)
+    return hits[:final_count]
+
+
+def _rerank_hits(query: str, hits: list[WebSearchHit], top_n: int) -> list[WebSearchHit]:
+    if len(hits) <= 1:
+        return hits
+    enabled = str(os.getenv("BOCHA_RERANK_ENABLED", "true") or "true").strip().lower()
+    if enabled in {"0", "false", "no", "off"}:
+        return hits
+    documents = [_hit_rerank_text(hit) for hit in hits]
+    try:
+        ranked = rerank_bocha(
+            query,
+            documents,
+            top_n=min(max(1, int(top_n or len(hits))), len(hits)),
+            api_key=os.getenv("BOCHA_API_KEY", ""),
+            base_url=os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn"),
+            model=os.getenv("BOCHA_RERANK_MODEL", "gte-rerank"),
+            timeout=float(os.getenv("BOCHA_RERANK_TIMEOUT_S", "15") or "15"),
+        )
+    except Exception as exc:
+        print(f"[DeepSearch] phase=rerank provider=bocha status=error error={type(exc).__name__}: {exc}")
+        return hits
+    if not ranked:
+        print("[DeepSearch] phase=rerank provider=bocha status=empty fallback=original_order")
+        return hits
+    ordered: list[WebSearchHit] = []
+    seen: set[int] = set()
+    for item in ranked:
+        if item.index in seen:
+            continue
+        ordered.append(hits[item.index])
+        seen.add(item.index)
+    ordered.extend(hit for idx, hit in enumerate(hits) if idx not in seen)
+    print(
+        "[DeepSearch] phase=rerank provider=bocha status=success "
+        f"input={len(hits)} returned={len(ranked)} top_score={ranked[0].score if ranked else 0:.4f}"
+    )
+    return ordered
+
+
+def _hit_rerank_text(hit: WebSearchHit) -> str:
+    parts = [
+        f"Title: {hit.title}",
+        f"Content: {hit.content}",
+        f"Site: {hit.site or ''}",
+        f"Date: {hit.date or ''}",
+        f"URL: {hit.url}",
+    ]
+    return "\n".join(part for part in parts if part.strip())
 
 
 def _execute_extract(
@@ -99,13 +135,20 @@ def _execute_extract(
     crawl_timeout: Optional[int],
 ) -> CrawlBatchResult:
     urls = [hit.url for hit in hits[: max_urls or len(hits)]]
+    extract_depth = os.getenv("WEB_EXTRACT_DEPTH_FULL", "advanced")
+    timeout = int(crawl_timeout or int(os.getenv("WEB_EXTRACT_TIMEOUT_S", "60") or "60"))
+    max_extract_urls = int(os.getenv("WEB_EXTRACT_MAX_URLS", "20") or "20")
+    print(
+        "[DeepSearch] phase=extract provider=tavily "
+        f"depth={extract_depth} urls={len(urls)} timeout_s={timeout} max_urls={max_extract_urls}"
+    )
     extracted = extract_tavily(
         urls,
-        depth=os.getenv("WEB_EXTRACT_DEPTH", "basic"),
-        timeout=int(crawl_timeout or int(os.getenv("WEB_EXTRACT_TIMEOUT_S", "30") or "30")),
+        depth=extract_depth,
+        timeout=timeout,
         api_key=os.getenv("TAVILY_API_KEY", ""),
         base_url=os.getenv("TAVILY_BASE_URL", "https://api.tavily.com"),
-        max_urls=int(os.getenv("WEB_EXTRACT_MAX_URLS", "20") or "20"),
+        max_urls=max_extract_urls,
     )
     by_url = {item.url: item for item in extracted}
     results: list[CrawlResult] = []
@@ -124,7 +167,7 @@ def _build_basic_batch(query: str, hits: List[WebSearchHit]) -> CrawlBatchResult
             CrawlResult(
                 url=hit.url,
                 title=hit.title or hit.url,
-                content=hit.content,
+                content=_append_image_markdown(hit.content, hit.images),
                 content_type="summary",
                 status="success" if hit.content else "failed",
                 error_message=None if hit.content else "empty_summary",
@@ -134,6 +177,7 @@ def _build_basic_batch(query: str, hits: List[WebSearchHit]) -> CrawlBatchResult
                     "site": hit.site,
                     "date": hit.date,
                     "images": hit.images,
+                    "image_count": len(hit.images),
                 },
             )
             for hit in hits
@@ -142,10 +186,12 @@ def _build_basic_batch(query: str, hits: List[WebSearchHit]) -> CrawlBatchResult
 
 
 def _crawl_result_from_extract(hit: WebSearchHit, item: ExtractResult) -> CrawlResult:
+    images = _merge_images(item.images, hit.images)
+    content = _append_image_markdown(item.content or hit.content, images)
     return CrawlResult(
         url=hit.url,
         title=hit.title or hit.url,
-        content=item.content or hit.content,
+        content=content,
         content_type="markdown",
         status=item.status,
         error_message=item.error,
@@ -154,20 +200,26 @@ def _crawl_result_from_extract(hit: WebSearchHit, item: ExtractResult) -> CrawlR
             "bocha_summary": hit.content,
             "site": hit.site,
             "date": hit.date,
-            "images": hit.images,
+            "images": images,
+            "image_count": len(images),
+            "favicon": item.favicon,
         },
     )
 
 
 def _clean_crawl_results(crawl_batch) -> List[dict]:
     cleaned_results: List[dict] = []
+    content_limit = int(os.getenv("DEEPSEARCH_RESULT_CONTENT_MAX_CHARS", "50000") or "50000")
 
     for idx, result in enumerate(crawl_batch.results, 1):
+        content = result.content
+        if content and content_limit > 0 and len(content) > content_limit:
+            content = content[:content_limit]
         cleaned_results.append(
             {
                 "url": result.url,
                 "title": result.title,
-                "content": result.content[:2000] if result.content else None,
+                "content": content,
                 "content_type": result.content_type,
                 "status": result.status,
                 "error_message": result.error_message,
@@ -179,6 +231,91 @@ def _clean_crawl_results(crawl_batch) -> List[dict]:
     return cleaned_results
 
 
+def _merge_images(*groups: list[str]) -> list[str]:
+    merged: list[str] = []
+    for group in groups:
+        for value in group or []:
+            url = str(value or "").strip()
+            if url and url not in merged:
+                merged.append(url)
+    return merged
+
+
+def _append_image_markdown(content: str | None, images: list[str]) -> str | None:
+    body = str(content or "").strip()
+    if not body or not images:
+        return body or None
+    existing = set(re.findall(r"!\[[^\]]*]\(([^)]+)\)", body))
+    lines = []
+    for index, url in enumerate(images[: int(os.getenv("DEEPSEARCH_MAX_INLINE_IMAGES", "8") or "8")], start=1):
+        if url in existing:
+            continue
+        lines.append(f"![Image {index}]({url})")
+    if not lines:
+        return body
+    return f"{body}\n\n## Images\n\n" + "\n\n".join(lines)
+
+
+def _is_external_image_url(url: str) -> bool:
+    return bool(re.match(r"^https?://", str(url or "").strip(), flags=re.IGNORECASE))
+
+
+def _localize_crawl_batch_images(crawl_batch: CrawlBatchResult, *, owner: str, course_id: Optional[str]) -> None:
+    for result in crawl_batch.results:
+        images = _merge_images(result.metadata.get("images") or [])
+        if not images:
+            continue
+
+        localized_images: list[str] = []
+        image_assets: list[dict[str, str]] = []
+        replacements: dict[str, str] = {}
+        for url in images:
+            if not _is_external_image_url(url):
+                localized_images.append(url)
+                continue
+            try:
+                localized = localize_image(
+                    {
+                        "url": url,
+                        "source_page": result.url,
+                        "title": result.title,
+                        "alt": result.title,
+                        "provenance": {"provider": str(result.metadata.get("source") or "deepsearch")},
+                    },
+                    owner=owner,
+                    course_id=course_id,
+                )
+            except Exception as exc:
+                print(f"[DeepSearch] phase=image_localize status=error url={url} error={type(exc).__name__}: {exc}")
+                localized_images.append(url)
+                continue
+
+            local_url = str(getattr(localized, "local_url", "") or "").strip()
+            local_path = str(getattr(localized, "local_path", "") or "").strip()
+            if local_url and local_path:
+                localized_images.append(local_url)
+                replacements[url] = local_url
+                image_assets.append(
+                    {
+                        "file_path": local_path,
+                        "source_url": local_url,
+                        "original_url": url,
+                    }
+                )
+            else:
+                localized_images.append(url)
+
+        result.metadata["images"] = localized_images
+        result.metadata["image_count"] = len(localized_images)
+        if image_assets:
+            result.metadata["image_assets"] = image_assets
+        if result.content and replacements:
+            updated_content = result.content
+            for source_url, local_url in replacements.items():
+                updated_content = updated_content.replace(source_url, local_url)
+            result.content = updated_content
+
+
 def _import_to_knowledge_base(
     crawl_batch,
     owner: str,
@@ -186,102 +323,14 @@ def _import_to_knowledge_base(
     scope_type: Optional[str],
     scope_id: Optional[str],
 ) -> List[dict]:
-    imported_docs: List[dict] = []
     rag_system = get_rag_system()
 
-    imported_docs = import_crawl_results_to_rag(
+    imported_docs: List[dict] = import_crawl_results_to_rag(
         results=crawl_batch.results,
         owner=owner,
         rag_system=rag_system,
         documents_root=Config.DOCUMENTS_ROOT,
     )
-
-    dest_dir = Config.DOCUMENTS_ROOT / "web" / owner
-    dest_dir.mkdir(parents=True, exist_ok=True)
-
-    for r in crawl_batch.results:
-        if r.status != "success":
-            continue
-        url = r.url or ""
-        if not url:
-            continue
-
-        title = (r.title or "").strip() or url
-        domain = ""
-        try:
-            domain = (urlparse(url).netloc or "").replace(":", "_")
-        except Exception:
-            domain = ""
-
-        h = _url_hash(url)
-
-        if r.content_type == "pdf" and r.file_path and Path(r.file_path).exists():
-            filename = f"web_{domain or 'pdf'}_{_safe_slug(title, 30)}_{h}.pdf"
-            dst = dest_dir / filename
-            if not dst.exists():
-                dst.write_bytes(Path(r.file_path).read_bytes())
-            import_path = str(dst.absolute())
-        else:
-            filename = f"web_{domain or 'page'}_{_safe_slug(title, 30)}_{h}.md"
-            dst = dest_dir / filename
-
-            full_content = ""
-            if r.content:
-                full_content = r.content
-            elif r.file_path and Path(r.file_path).exists():
-                try:
-                    full_content = Path(r.file_path).read_text(encoding="utf-8")
-                except Exception:
-                    full_content = r.content or ""
-
-            if not full_content:
-                continue
-
-            if not dst.exists():
-                md = (
-                    f"# {title}\n\n"
-                    f"- 来源: {url}\n"
-                    f"- 抓取方式: deepsearch+crawl\n\n"
-                    f"## 正文\n\n{full_content}\n"
-                )
-                dst.write_text(md, encoding="utf-8")
-            import_path = str(dst.absolute())
-
-        if not Path(import_path).exists():
-            continue
-
-        import_result = rag_system.import_document(import_path, force_reimport=False, owner=owner)
-
-        resolved_document = None
-        try:
-            resolved_document = resolve_rag_document(rag_system, import_path, owner=owner)
-            rec = resolved_document.record if resolved_document is not None else None
-            if isinstance(rec, dict):
-                pretty_name = f"{title}"
-                if domain and domain not in pretty_name:
-                    pretty_name = f"{pretty_name} - {domain}"
-                rec["file_name"] = _safe_slug(pretty_name, 120)
-                rec["source_url"] = url
-                rec["source_title"] = title
-                rec["source_domain"] = domain
-                rec["doc_kind"] = "web"
-                rec["source_key"] = rec.get("source_key") or resolved_document.source_key
-        except Exception:
-            pass
-
-        imported_docs.append(
-            {
-                "file_path": import_path,
-                "index_key": resolved_document.index_key if resolved_document is not None else None,
-                "file_name": Path(import_path).name,
-                "url": url,
-            }
-        )
-
-    try:
-        rag_system._save_index()
-    except Exception:
-        pass
 
     if course_id:
         try:
@@ -313,7 +362,7 @@ def run_deepsearch_and_crawl(
     owner: str,
     depth: str = "basic",
     max_urls: Optional[int] = 10,
-    crawl_timeout: Optional[int] = 30,
+    crawl_timeout: Optional[int] = 60,
     save_to_kb: Optional[bool] = True,
     course_id: Optional[str] = None,
     scope_type: Optional[str] = None,
@@ -322,6 +371,7 @@ def run_deepsearch_and_crawl(
     try:
         hits = _execute_search(query, max_urls)
     except Exception as exc:
+        print(f"[DeepSearch] phase=search provider=bocha status=error error={type(exc).__name__}: {exc}")
         return {
             "ok": False,
             "message": f"Bocha 搜索失败: {exc}",
@@ -329,11 +379,16 @@ def run_deepsearch_and_crawl(
         }
 
     if not hits:
+        print("[DeepSearch] phase=search provider=bocha status=empty hits=0")
         return {
             "ok": False,
             "message": "深度搜索未找到相关链接",
             "query": query,
         }
+    print(
+        "[DeepSearch] phase=search provider=bocha status=success "
+        f"hits={len(hits)} image_urls={sum(len(hit.images) for hit in hits)}"
+    )
 
     fallback_reason = ""
     if depth == "full":
@@ -341,17 +396,30 @@ def run_deepsearch_and_crawl(
             crawl_batch = _execute_extract(hits, query, max_urls, crawl_timeout)
             if crawl_batch.success_count == 0:
                 fallback_reason = "tavily_all_failed"
+                print("[DeepSearch] phase=extract provider=tavily status=all_failed fallback=bocha_basic")
                 crawl_batch = _build_basic_batch(query, hits)
         except Exception as exc:
             fallback_reason = str(exc)
+            print(
+                "[DeepSearch] phase=extract provider=tavily status=error "
+                f"error={type(exc).__name__}: {exc} fallback=bocha_basic"
+            )
             crawl_batch = _build_basic_batch(query, hits)
     else:
         crawl_batch = _build_basic_batch(query, hits)
+    _localize_crawl_batch_images(crawl_batch, owner=owner, course_id=course_id)
+    print(
+        "[DeepSearch] phase=content status=ready "
+        f"mode={depth} results={crawl_batch.total_urls} success={crawl_batch.success_count} "
+        f"failed={crawl_batch.failed_count} chars={sum(len(result.content or '') for result in crawl_batch.results)} "
+        f"image_urls={sum(int(result.metadata.get('image_count') or 0) for result in crawl_batch.results)}"
+    )
 
     cleaned_results = _clean_crawl_results(crawl_batch)
 
     batch_id = crawl_batch_store.save_crawl_batch(crawl_batch)
     crawl_batch.batch_id = batch_id
+    print(f"[DeepSearch] phase=batch_store status=saved batch_id={batch_id}")
 
     imported_docs: List[dict] = []
     if save_to_kb:
@@ -364,7 +432,9 @@ def run_deepsearch_and_crawl(
                 scope_id=scope_id,
             )
         except Exception:
+            print("[DeepSearch] phase=rag_import status=error")
             pass
+    print(f"[DeepSearch] phase=rag_import status=done saved_to_kb={bool(save_to_kb)} docs={len(imported_docs)}")
     sources = [
         {"title": result.title, "url": result.url, "site": result.metadata.get("site")}
         for result in crawl_batch.results
