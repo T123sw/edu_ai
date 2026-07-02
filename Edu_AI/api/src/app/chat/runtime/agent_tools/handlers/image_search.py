@@ -77,7 +77,7 @@ def handle_image_search(name: str, args: dict, ctx) -> dict:
         return error_result(
             "image_search",
             "provider_not_configured",
-            "未配置图片搜索 provider（检查 IMAGE_SEARCH_PROVIDER / SEARXNG_BASE_URL）",
+            "未配置图片搜索 provider（检查 IMAGE_SEARCH_PROVIDER=bocha / BOCHA_API_KEY）",
         )
 
     owner = getattr(getattr(ctx, "request", None), "owner", None)

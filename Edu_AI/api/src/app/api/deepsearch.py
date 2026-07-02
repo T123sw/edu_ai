@@ -28,6 +28,7 @@ async def deepsearch_and_crawl(
         result = _svc.run_deepsearch_and_crawl(
             query=request.query,
             owner=username,
+            depth=request.depth,
             max_urls=request.max_urls,
             crawl_timeout=request.crawl_timeout,
             save_to_kb=request.save_to_kb,

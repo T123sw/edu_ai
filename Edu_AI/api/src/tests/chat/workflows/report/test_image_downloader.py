@@ -76,7 +76,7 @@ def test_localize_downloads_and_writes_sidecar(tmp_path):
         "url": "https://example.com/diagram.png",
         "source_page": "https://example.com/article",
         "title": "RAG architecture",
-        "provenance": {"provider": "searxng"},
+        "provenance": {"provider": "bocha"},
     }
     with _patch_httpx_with(_png_response):
         result = localize_image(asset, owner="alice", course_id="c-rag", storage_root=tmp_path)
@@ -97,7 +97,7 @@ def test_localize_downloads_and_writes_sidecar(tmp_path):
     assert sidecar["downloaded"] is True
     assert sidecar["accessed_by"] == ["alice"]
     assert sidecar["course_ids"] == ["c-rag"]
-    assert sidecar["provider"] == "searxng"
+    assert sidecar["provider"] == "bocha"
 
 
 # ---------------------------------------------------------------------------

@@ -14,7 +14,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
 
     allow_web = bool(getattr(payload, "allow_web", False))
     # Phase 6-A.2 (decoupling fix): image_search is a separate capability from
-    # web_search. It runs against the local SearXNG service — there's no extra
+    # web_search. It runs against the configured image provider.
     # cost/privacy concern in keeping it always-on, and tying it to allow_web
     # caused silent failures when users explicitly asked for visuals but
     # hadn't enabled Web search. The planner still gates actual usage by

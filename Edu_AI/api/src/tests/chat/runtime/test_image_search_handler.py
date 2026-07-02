@@ -1,6 +1,6 @@
 """Phase 6-A image_search handler unit tests.
 
-All tests use a mock provider so no SearXNG / network dependency is required.
+All tests use a mock provider so no Bocha / network dependency is required.
 """
 from types import SimpleNamespace
 
@@ -60,7 +60,24 @@ def test_handler_returns_provider_not_configured_when_ctx_has_no_provider():
 
     assert result["ok"] is False
     assert result["error"] == "provider_not_configured"
-    assert "SEARXNG_BASE_URL" in result["summary"]
+    assert "BOCHA_API_KEY" in result["summary"]
+    assert "SEARXNG" not in result["summary"]
+
+
+def test_build_default_image_search_provider_uses_bocha(monkeypatch):
+    from app.chat.runtime.agent_tools.handlers.providers.image_base import (
+        build_default_image_search_provider,
+    )
+
+    monkeypatch.setenv("IMAGE_SEARCH_PROVIDER", "bocha")
+    monkeypatch.setenv("BOCHA_API_KEY", "bocha-test-key")
+    monkeypatch.setenv("BOCHA_BASE_URL", "https://bocha.example")
+    monkeypatch.setenv("IMAGE_SEARCH_TIMEOUT_S", "3")
+
+    provider = build_default_image_search_provider()
+
+    assert provider is not None
+    assert provider.name == "bocha"
 
 
 # ----------------------------------------------------------------------------

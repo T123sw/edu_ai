@@ -6,9 +6,11 @@ Does NOT depend on HTTP or FastAPI.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
-import sys
 import time
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, List, Optional
 from urllib.parse import urlparse
@@ -17,60 +19,43 @@ from app.deepsearch_importer import (
     import_crawl_results_to_rag,
     persist_imported_documents_to_course_kb,
 )
-from app.deepsearch_loader import load_eduagent_capabilities
+from app.integrations.websearch import ExtractResult, WebSearchHit, extract_tavily, search_bocha
+from app.services import crawl_batch_store
 from core import Config
 from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.document_resolver import resolve_rag_document
 
-# ---------------------------------------------------------------------------
-# EduAgent path setup
-# ---------------------------------------------------------------------------
 
-_base_dir = Path(__file__).resolve().parent
-_candidate_paths = [
-    _base_dir.parent.parent.parent.parent.parent / "EduAgent",
-    _base_dir.parent.parent.parent.parent / "EduAgent",
-]
-_EDU_AGENT_PATH = next((p for p in _candidate_paths if p.exists()), _candidate_paths[0])
-if str(_EDU_AGENT_PATH) not in sys.path:
-    sys.path.insert(0, str(_EDU_AGENT_PATH))
-
-# ---------------------------------------------------------------------------
-# EduAgent capability loading
-# ---------------------------------------------------------------------------
-
-_capabilities = load_eduagent_capabilities(__file__)
-_EDU_AGENT_PATH = _capabilities.edu_agent_path
+@dataclass
+class CrawlResult:
+    url: str
+    title: str
+    content: str | None
+    content_type: str = "html"
+    status: str = "success"
+    error_message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    file_path: str | None = None
 
 
-def _missing_capability(message: str):
-    def _raise(*args, **kwargs):
-        raise NotImplementedError(message)
+@dataclass
+class CrawlBatchResult:
+    query: str
+    results: list[CrawlResult]
+    batch_id: str = ""
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    return _raise
+    @property
+    def total_urls(self) -> int:
+        return len(self.results)
 
+    @property
+    def success_count(self) -> int:
+        return sum(1 for result in self.results if result.status == "success")
 
-if _capabilities.deepsearch_error:
-    _deepsearch_large_llm = _missing_capability(
-        f"EduAgent deepsearch 未配置: {_capabilities.deepsearch_error}"
-    )
-else:
-    _deepsearch_large_llm = _capabilities.deepsearch_large_llm
-
-if _capabilities.service_error:
-    _get_crawler_service = _missing_capability(
-        f"EduAgent crawler_service 未配置: {_capabilities.service_error}"
-    )
-    _ContentCleaner = _missing_capability(
-        f"EduAgent content_cleaner 未配置: {_capabilities.service_error}"
-    )
-    _get_storage_service = _missing_capability(
-        f"EduAgent storage_service 未配置: {_capabilities.service_error}"
-    )
-else:
-    _get_crawler_service = _capabilities.get_crawler_service
-    _ContentCleaner = _capabilities.ContentCleaner
-    _get_storage_service = _capabilities.get_storage_service
+    @property
+    def failed_count(self) -> int:
+        return sum(1 for result in self.results if result.status != "success")
 
 # ---------------------------------------------------------------------------
 # small utilities
@@ -96,49 +81,88 @@ def _url_hash(url: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _execute_deepsearch(query: str, max_urls: Optional[int]) -> List[str]:
-    search_result = _deepsearch_large_llm(query)
-    if not search_result or not search_result.get("links"):
-        return []
-    urls = search_result["links"]
-    if max_urls:
-        urls = urls[:max_urls]
-    return urls
+def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
+    count = max(1, int(max_urls or int(os.getenv("WEB_SEARCH_DEFAULT_COUNT", "10") or "10")))
+    return search_bocha(
+        query,
+        count=count,
+        freshness=os.getenv("WEB_SEARCH_FRESHNESS", "noLimit"),
+        api_key=os.getenv("BOCHA_API_KEY", ""),
+        base_url=os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn"),
+    )
 
 
-def _execute_crawl(
-    urls: List[str],
+def _execute_extract(
+    hits: List[WebSearchHit],
     query: str,
     max_urls: Optional[int],
     crawl_timeout: Optional[int],
-):
-    crawler_service = _get_crawler_service()
-    return crawler_service.crawl_urls(
-        urls=urls,
+) -> CrawlBatchResult:
+    urls = [hit.url for hit in hits[: max_urls or len(hits)]]
+    extracted = extract_tavily(
+        urls,
+        depth=os.getenv("WEB_EXTRACT_DEPTH", "basic"),
+        timeout=int(crawl_timeout or int(os.getenv("WEB_EXTRACT_TIMEOUT_S", "30") or "30")),
+        api_key=os.getenv("TAVILY_API_KEY", ""),
+        base_url=os.getenv("TAVILY_BASE_URL", "https://api.tavily.com"),
+        max_urls=int(os.getenv("WEB_EXTRACT_MAX_URLS", "20") or "20"),
+    )
+    by_url = {item.url: item for item in extracted}
+    results: list[CrawlResult] = []
+    for hit in hits:
+        item = by_url.get(hit.url)
+        if item is None:
+            continue
+        results.append(_crawl_result_from_extract(hit, item))
+    return CrawlBatchResult(query=query, results=results)
+
+
+def _build_basic_batch(query: str, hits: List[WebSearchHit]) -> CrawlBatchResult:
+    return CrawlBatchResult(
         query=query,
-        max_urls=max_urls,
-        timeout_per_url=crawl_timeout,
+        results=[
+            CrawlResult(
+                url=hit.url,
+                title=hit.title or hit.url,
+                content=hit.content,
+                content_type="summary",
+                status="success" if hit.content else "failed",
+                error_message=None if hit.content else "empty_summary",
+                metadata={
+                    "source": "bocha",
+                    "bocha_summary": hit.content,
+                    "site": hit.site,
+                    "date": hit.date,
+                    "images": hit.images,
+                },
+            )
+            for hit in hits
+        ],
+    )
+
+
+def _crawl_result_from_extract(hit: WebSearchHit, item: ExtractResult) -> CrawlResult:
+    return CrawlResult(
+        url=hit.url,
+        title=hit.title or hit.url,
+        content=item.content or hit.content,
+        content_type="markdown",
+        status=item.status,
+        error_message=item.error,
+        metadata={
+            "source": "bocha+tavily",
+            "bocha_summary": hit.content,
+            "site": hit.site,
+            "date": hit.date,
+            "images": hit.images,
+        },
     )
 
 
 def _clean_crawl_results(crawl_batch) -> List[dict]:
-    content_cleaner = _ContentCleaner()
     cleaned_results: List[dict] = []
 
     for idx, result in enumerate(crawl_batch.results, 1):
-        if result.status == "success" and result.file_path:
-            if result.content_type == "pdf":
-                cleaned = content_cleaner.clean_pdf_content(result.file_path)
-            else:
-                cleaned = content_cleaner.clean_text_content(
-                    result.content or "",
-                    result.file_path,
-                )
-            if "cleaned_content" in cleaned:
-                cleaned_content = cleaned.get("cleaned_content", "")
-                result.content = cleaned_content
-                result.metadata.update(cleaned.get("metadata", {}))
-
         cleaned_results.append(
             {
                 "url": result.url,
@@ -287,6 +311,7 @@ def run_deepsearch_and_crawl(
     *,
     query: str,
     owner: str,
+    depth: str = "basic",
     max_urls: Optional[int] = 10,
     crawl_timeout: Optional[int] = 30,
     save_to_kb: Optional[bool] = True,
@@ -294,28 +319,39 @@ def run_deepsearch_and_crawl(
     scope_type: Optional[str] = None,
     scope_id: Optional[str] = None,
 ) -> dict:
-    urls = _execute_deepsearch(query, max_urls)
-    if not urls:
+    try:
+        hits = _execute_search(query, max_urls)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "message": f"Bocha 搜索失败: {exc}",
+            "query": query,
+        }
+
+    if not hits:
         return {
             "ok": False,
             "message": "深度搜索未找到相关链接",
             "query": query,
         }
 
-    try:
-        crawl_batch = _execute_crawl(urls, query, max_urls, crawl_timeout)
-    except Exception as exc:
-        return {
-            "ok": False,
-            "message": f"爬虫启动失败: {exc}",
-            "query": query,
-            "links": urls,
-        }
+    fallback_reason = ""
+    if depth == "full":
+        try:
+            crawl_batch = _execute_extract(hits, query, max_urls, crawl_timeout)
+            if crawl_batch.success_count == 0:
+                fallback_reason = "tavily_all_failed"
+                crawl_batch = _build_basic_batch(query, hits)
+        except Exception as exc:
+            fallback_reason = str(exc)
+            crawl_batch = _build_basic_batch(query, hits)
+    else:
+        crawl_batch = _build_basic_batch(query, hits)
 
     cleaned_results = _clean_crawl_results(crawl_batch)
 
-    storage_service = _get_storage_service()
-    batch_id = storage_service.save_crawl_batch(crawl_batch)
+    batch_id = crawl_batch_store.save_crawl_batch(crawl_batch)
+    crawl_batch.batch_id = batch_id
 
     imported_docs: List[dict] = []
     if save_to_kb:
@@ -329,6 +365,14 @@ def run_deepsearch_and_crawl(
             )
         except Exception:
             pass
+    sources = [
+        {"title": result.title, "url": result.url, "site": result.metadata.get("site")}
+        for result in crawl_batch.results
+        if result.status == "success"
+    ]
+    summary = "\n\n".join(
+        [str(result.content or "").strip() for result in crawl_batch.results if result.status == "success" and result.content][:3]
+    )
 
     return {
         "ok": True,
@@ -337,45 +381,34 @@ def run_deepsearch_and_crawl(
         "total_urls": crawl_batch.total_urls,
         "success_count": crawl_batch.success_count,
         "failed_count": crawl_batch.failed_count,
-        "links": urls,
+        "links": [hit.url for hit in hits],
         "created_at": crawl_batch.created_at.isoformat() if hasattr(crawl_batch.created_at, "isoformat") else None,
         "results": cleaned_results,
+        "summary": summary,
+        "sources": sources,
+        "fallback_reason": fallback_reason,
         "saved_to_kb": bool(save_to_kb),
         "imported_documents": imported_docs,
     }
 
 
 def get_crawl_results(*, batch_id: str) -> dict:
-    storage_service = _get_storage_service()
-    batch_result = storage_service.load_crawl_batch(batch_id)
+    batch_result = crawl_batch_store.load_crawl_batch(batch_id)
     if not batch_result:
         return {"ok": False, "message": "批次不存在"}
 
     return {
         "ok": True,
         "batch_id": batch_id,
-        "query": batch_result.query,
-        "total_urls": batch_result.total_urls,
-        "success_count": batch_result.success_count,
-        "failed_count": batch_result.failed_count,
-        "created_at": batch_result.created_at.isoformat(),
-        "results": [
-            {
-                "url": r.url,
-                "title": r.title,
-                "content": r.content[:2000] if r.content else None,
-                "content_type": r.content_type,
-                "status": r.status,
-                "error_message": r.error_message,
-                "metadata": r.metadata,
-                "file_path": r.file_path,
-            }
-            for r in batch_result.results
-        ],
+        "query": batch_result.get("query"),
+        "total_urls": batch_result.get("total_urls"),
+        "success_count": batch_result.get("success_count"),
+        "failed_count": batch_result.get("failed_count"),
+        "created_at": batch_result.get("created_at"),
+        "results": batch_result.get("results") or [],
     }
 
 
 def get_crawl_history(*, limit: int = 20) -> dict:
-    storage_service = _get_storage_service()
-    batches = storage_service.list_batches(limit=limit)
+    batches = crawl_batch_store.list_batches(limit=limit)
     return {"ok": True, "batches": batches}

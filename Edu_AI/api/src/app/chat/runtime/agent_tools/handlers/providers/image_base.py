@@ -47,16 +47,18 @@ def build_default_image_search_provider() -> ImageSearchProvider | None:
     name = (os.getenv("IMAGE_SEARCH_PROVIDER") or "").strip().lower()
     if not name:
         return None
-    if name == "searxng":
-        from app.chat.runtime.agent_tools.handlers.providers.searxng_provider import (
-            SearxngImageSearchProvider,
+    if name == "bocha":
+        from app.chat.runtime.agent_tools.handlers.providers.bocha_provider import (
+            BochaImageSearchProvider,
         )
-        base = (os.getenv("SEARXNG_BASE_URL") or "").rstrip("/")
-        if not base:
+
+        api_key = (os.getenv("BOCHA_API_KEY") or "").strip()
+        base = (os.getenv("BOCHA_BASE_URL") or "https://api.bocha.cn").rstrip("/")
+        if not api_key or not base:
             return None
         try:
             timeout = float(os.getenv("IMAGE_SEARCH_TIMEOUT_S", "8") or "8")
         except ValueError:
             timeout = 8.0
-        return SearxngImageSearchProvider(base_url=base, timeout=timeout)
+        return BochaImageSearchProvider(api_key=api_key, base_url=base, timeout=timeout)
     return None

@@ -50,11 +50,10 @@ class Config:
     VISION_MODEL_ID = os.getenv("VISION_MODEL_ID", "qwen3.5-plus")
 
     # 4. 图片搜索（Phase 6-A）
-    # IMAGE_SEARCH_PROVIDER: "" = disabled (default), "searxng" = SearXNG self-hosted
+    # IMAGE_SEARCH_PROVIDER: "" = disabled (default), "bocha" = Bocha hosted search
     # 未配置时 image_search 工具调用会返回 provider_not_configured 错误，
     # 不影响应用启动；普通对话不依赖此工具。
     IMAGE_SEARCH_PROVIDER = os.getenv("IMAGE_SEARCH_PROVIDER", "")
-    SEARXNG_BASE_URL = os.getenv("SEARXNG_BASE_URL", "")
     IMAGE_SEARCH_TIMEOUT_S = float(os.getenv("IMAGE_SEARCH_TIMEOUT_S", "8") or "8")
     IMAGE_SEARCH_DEFAULT_COUNT = int(os.getenv("IMAGE_SEARCH_DEFAULT_COUNT", "6") or "6")
     IMAGE_SEARCH_MAX_COUNT = int(os.getenv("IMAGE_SEARCH_MAX_COUNT", "12") or "12")

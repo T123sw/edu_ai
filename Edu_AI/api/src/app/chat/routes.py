@@ -83,7 +83,7 @@ def _build_status_card_for_conversation(conversation_id: str, owner: str | None)
     capability = CapabilityPolicy(
         allow_rag=bool(capability_state.get("allow_rag")) or bool(selected_doc_ids),
         allow_web=_allow_web,
-        # Phase 6-A.2: image_search default True (local SearXNG, no extra cost);
+        # Phase 6-A.2: image_search default True; planner gates real usage.
         # planner-side keyword detection still gates actual invocation.
         allow_image_search=bool(capability_state.get("allow_image_search", True)),
         selected_doc_ids=selected_doc_ids,

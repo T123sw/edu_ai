@@ -15,9 +15,9 @@ from ..agents.report_generation import build_report_markdown
 from ..skill_manager import SkillManager
 
 try:
-    from app.deepsearch_pipeline import run_deepsearch_pipeline
+    from app.services.deepsearch_service import run_deepsearch_and_crawl
 except Exception:  # pragma: no cover
-    run_deepsearch_pipeline = None
+    run_deepsearch_and_crawl = None
 
 
 ToolResult = Dict[str, Any]
@@ -135,65 +135,57 @@ def _build_selected_doc_ids(*, imported_docs: List[Dict[str, Any]], owner: Optio
     return resolve_rag_document_ids(rag_system, document_ids, owner=owner)
 
 
+def _source_from_result(item: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "title": str(item.get("title") or item.get("url") or ""),
+        "url": str(item.get("url") or ""),
+        "content": str(item.get("content") or "")[:500],
+    }
+
+
+def _summary_from_results(results: List[Dict[str, Any]]) -> str:
+    parts = [
+        str(item.get("content") or "").strip()
+        for item in results
+        if str(item.get("status") or "success") == "success" and str(item.get("content") or "").strip()
+    ]
+    return "\n\n".join(parts[:3])
+
+
 
 def web_search_tool(*, query: str, owner: Optional[str] = None) -> ToolResult:
-    if run_deepsearch_pipeline is None:
-        return _err("web_search_tool", "deepsearch_pipeline_unavailable")
+    if run_deepsearch_and_crawl is None:
+        return _err("web_search_tool", "web_search_service_unavailable")
 
     try:
-        result = run_deepsearch_pipeline(query=str(query or "").strip(), owner=owner)
+        result = run_deepsearch_and_crawl(
+            query=str(query or "").strip(),
+            owner=owner,
+            depth="basic",
+            save_to_kb=False,
+        )
         if result.get("ok") is False:
             return _err("web_search_tool", str(result.get("message") or "deepsearch_failed"), payload=result)
 
-        imported_docs = list(result.get("imported") or [])
+        results = list(result.get("results") or [])
+        sources = list(result.get("sources") or [])
+        if not sources:
+            sources = [_source_from_result(item) for item in results if item.get("url")]
+        summary = str(result.get("summary") or result.get("answer") or "").strip()
+        if not summary:
+            summary = _summary_from_results(results)
         payload: Dict[str, Any] = {
             "links": list(result.get("links") or []),
-            "imported": imported_docs,
+            "summary": summary,
+            "answer": summary,
+            "sources": sources,
+            "trace": {
+                "web_links_count": len(list(result.get("links") or [])),
+                "web_sources_count": len(sources),
+            },
         }
 
-        if imported_docs:
-            rag_system = get_rag_system()
-            selected_doc_ids = _build_selected_doc_ids(imported_docs=imported_docs, owner=owner, rag_system=rag_system)
-            rag_result = rag_system.query(
-                str(query or ""),
-                top_k=5,
-                use_rag=True,
-                selected_doc_ids=selected_doc_ids,
-                owner=owner,
-            )
-            answer = str(rag_result.get("answer") or "").strip()
-            sources = list(rag_result.get("sources") or [])
-            payload.update(
-                {
-                    "summary": answer,
-                    "answer": answer,
-                    "sources": sources,
-                    "selected_doc_ids": selected_doc_ids,
-                    "trace": {
-                        "web_links_count": len(payload["links"]),
-                        "web_imported_count": len(imported_docs),
-                        "web_selected_doc_ids_count": len(selected_doc_ids),
-                        "web_sources_count": len(sources),
-                    },
-                }
-            )
-        else:
-            payload.update(
-                {
-                    "summary": "",
-                    "answer": "",
-                    "sources": [],
-                    "selected_doc_ids": [],
-                    "trace": {
-                        "web_links_count": len(payload["links"]),
-                        "web_imported_count": 0,
-                        "web_selected_doc_ids_count": 0,
-                        "web_sources_count": 0,
-                    },
-                }
-            )
-
-        return _ok("web_search_tool", "Web 深度检索完成", payload)
+        return _ok("web_search_tool", "Web 检索完成", payload)
     except Exception as exc:
         return _err("web_search_tool", str(exc))
 

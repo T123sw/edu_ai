@@ -197,8 +197,8 @@ _VISUAL_KEYWORDS = (
     "图表", "图解", "配上图", "要图", "带图", "有图",
 )
 
-# Query suffixes that orient SearXNG toward technical/教学 imagery rather than
-# consumer photos. Style="diagram" in the searxng provider already appends
+# Query suffixes that orient image search toward technical/教学 imagery rather than
+# consumer photos. Style="diagram" in the provider already appends
 # "diagram OR flowchart OR architecture", so suffixes here MUST NOT repeat
 # those words (doubling pushes results toward icon libraries like devicons).
 _DIAGRAM_QUERY_SUFFIXES = (

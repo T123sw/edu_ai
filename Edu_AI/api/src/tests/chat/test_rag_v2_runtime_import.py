@@ -128,10 +128,6 @@ def test_active_runtime_has_no_legacy_pdf_parser_residue():
         repo_root / "Edu_AI" / "api" / "src" / "requirements.txt",
         repo_root / "Edu_AI" / "api" / "src" / "requirements-lock.txt",
         repo_root / "Edu_AI" / "api" / "src" / "modules" / "rag_v2" / "rag_main" / "system.py",
-        repo_root / "EduAgent" / "chunks.py",
-        repo_root / "EduAgent" / "services" / "content_cleaner.py",
-        repo_root / "EduAgent" / "requirements.txt",
-        repo_root / "EduAgent" / "install_deps.ps1",
     ]
     forbidden = [
         "doc" + "ling",
