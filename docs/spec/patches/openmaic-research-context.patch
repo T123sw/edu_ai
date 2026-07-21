@@ -1,0 +1,94 @@
+diff --git a/openmaic-sidecar/app/api/generate-classroom/route.ts b/openmaic-sidecar/app/api/generate-classroom/route.ts
+index 1191748..7a4bd97 100644
+--- a/openmaic-sidecar/app/api/generate-classroom/route.ts
++++ b/openmaic-sidecar/app/api/generate-classroom/route.ts
+@@ -11,28 +11,34 @@ const log = createLogger('GenerateClassroom API');
+ 
+ export const maxDuration = 30;
+ 
++export function buildGenerateClassroomInput(
++  rawBody: Partial<GenerateClassroomInput>,
++): GenerateClassroomInput {
++  return {
++    requirement: rawBody.requirement || '',
++    ...(rawBody.pdfContent ? { pdfContent: rawBody.pdfContent } : {}),
++    ...(rawBody.researchContext ? { researchContext: rawBody.researchContext } : {}),
++    ...(rawBody.enableWebSearch != null ? { enableWebSearch: rawBody.enableWebSearch } : {}),
++    ...(rawBody.webSearchProviderId ? { webSearchProviderId: rawBody.webSearchProviderId } : {}),
++    ...(rawBody.webSearchApiKey ? { webSearchApiKey: rawBody.webSearchApiKey } : {}),
++    ...(rawBody.baiduSubSources ? { baiduSubSources: rawBody.baiduSubSources } : {}),
++    ...(rawBody.enableImageGeneration != null
++      ? { enableImageGeneration: rawBody.enableImageGeneration }
++      : {}),
++    ...(rawBody.enableVideoGeneration != null
++      ? { enableVideoGeneration: rawBody.enableVideoGeneration }
++      : {}),
++    ...(rawBody.enableTTS != null ? { enableTTS: rawBody.enableTTS } : {}),
++    ...(rawBody.agentMode ? { agentMode: rawBody.agentMode } : {}),
++  };
++}
++
+ export async function POST(req: NextRequest) {
+   let requirementSnippet: string | undefined;
+   try {
+     const rawBody = (await req.json()) as Partial<GenerateClassroomInput>;
+     requirementSnippet = rawBody.requirement?.substring(0, 60);
+-    const body: GenerateClassroomInput = {
+-      requirement: rawBody.requirement || '',
+-      ...(rawBody.pdfContent ? { pdfContent: rawBody.pdfContent } : {}),
+-
+-      ...(rawBody.enableWebSearch != null ? { enableWebSearch: rawBody.enableWebSearch } : {}),
+-      ...(rawBody.webSearchProviderId ? { webSearchProviderId: rawBody.webSearchProviderId } : {}),
+-      ...(rawBody.webSearchApiKey ? { webSearchApiKey: rawBody.webSearchApiKey } : {}),
+-      ...(rawBody.baiduSubSources ? { baiduSubSources: rawBody.baiduSubSources } : {}),
+-      ...(rawBody.enableImageGeneration != null
+-        ? { enableImageGeneration: rawBody.enableImageGeneration }
+-        : {}),
+-      ...(rawBody.enableVideoGeneration != null
+-        ? { enableVideoGeneration: rawBody.enableVideoGeneration }
+-        : {}),
+-      ...(rawBody.enableTTS != null ? { enableTTS: rawBody.enableTTS } : {}),
+-      ...(rawBody.agentMode ? { agentMode: rawBody.agentMode } : {}),
+-    };
++    const body = buildGenerateClassroomInput(rawBody);
+     const { requirement } = body;
+ 
+     if (!requirement) {
+diff --git a/openmaic-sidecar/lib/server/classroom-generation.ts b/openmaic-sidecar/lib/server/classroom-generation.ts
+index 0ecdac1..a636deb 100644
+--- a/openmaic-sidecar/lib/server/classroom-generation.ts
++++ b/openmaic-sidecar/lib/server/classroom-generation.ts
+@@ -40,6 +40,7 @@ const log = createLogger('Classroom');
+ export interface GenerateClassroomInput {
+   requirement: string;
+   pdfContent?: { text: string; images: string[] };
++  researchContext?: string;
+   enableWebSearch?: boolean;
+   webSearchProviderId?: WebSearchProviderId;
+   webSearchApiKey?: string;
+@@ -50,6 +51,16 @@ export interface GenerateClassroomInput {
+   agentMode?: 'default' | 'generate';
+ }
+ 
++export function mergeResearchContexts(
++  webContext: string | undefined,
++  injectedContext: string | undefined,
++): string | undefined {
++  const contexts = [webContext, injectedContext].filter(
++    (context): context is string => typeof context === 'string' && context.length > 0,
++  );
++  return contexts.length > 0 ? contexts.join('\n\n') : undefined;
++}
++
+ export type ClassroomGenerationStep =
+   | 'initializing'
+   | 'researching'
+@@ -323,6 +334,8 @@ export async function generateClassroom(
+     }
+   }
+ 
++  researchContext = mergeResearchContexts(researchContext, input.researchContext);
++
+   await options.onProgress?.({
+     step: 'generating_outlines',
+     progress: 15,

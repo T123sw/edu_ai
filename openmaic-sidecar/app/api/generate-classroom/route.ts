@@ -11,28 +11,34 @@ const log = createLogger('GenerateClassroom API');
 
 export const maxDuration = 30;
 
+export function buildGenerateClassroomInput(
+  rawBody: Partial<GenerateClassroomInput>,
+): GenerateClassroomInput {
+  return {
+    requirement: rawBody.requirement || '',
+    ...(rawBody.pdfContent ? { pdfContent: rawBody.pdfContent } : {}),
+    ...(rawBody.researchContext ? { researchContext: rawBody.researchContext } : {}),
+    ...(rawBody.enableWebSearch != null ? { enableWebSearch: rawBody.enableWebSearch } : {}),
+    ...(rawBody.webSearchProviderId ? { webSearchProviderId: rawBody.webSearchProviderId } : {}),
+    ...(rawBody.webSearchApiKey ? { webSearchApiKey: rawBody.webSearchApiKey } : {}),
+    ...(rawBody.baiduSubSources ? { baiduSubSources: rawBody.baiduSubSources } : {}),
+    ...(rawBody.enableImageGeneration != null
+      ? { enableImageGeneration: rawBody.enableImageGeneration }
+      : {}),
+    ...(rawBody.enableVideoGeneration != null
+      ? { enableVideoGeneration: rawBody.enableVideoGeneration }
+      : {}),
+    ...(rawBody.enableTTS != null ? { enableTTS: rawBody.enableTTS } : {}),
+    ...(rawBody.agentMode ? { agentMode: rawBody.agentMode } : {}),
+  };
+}
+
 export async function POST(req: NextRequest) {
   let requirementSnippet: string | undefined;
   try {
     const rawBody = (await req.json()) as Partial<GenerateClassroomInput>;
     requirementSnippet = rawBody.requirement?.substring(0, 60);
-    const body: GenerateClassroomInput = {
-      requirement: rawBody.requirement || '',
-      ...(rawBody.pdfContent ? { pdfContent: rawBody.pdfContent } : {}),
-
-      ...(rawBody.enableWebSearch != null ? { enableWebSearch: rawBody.enableWebSearch } : {}),
-      ...(rawBody.webSearchProviderId ? { webSearchProviderId: rawBody.webSearchProviderId } : {}),
-      ...(rawBody.webSearchApiKey ? { webSearchApiKey: rawBody.webSearchApiKey } : {}),
-      ...(rawBody.baiduSubSources ? { baiduSubSources: rawBody.baiduSubSources } : {}),
-      ...(rawBody.enableImageGeneration != null
-        ? { enableImageGeneration: rawBody.enableImageGeneration }
-        : {}),
-      ...(rawBody.enableVideoGeneration != null
-        ? { enableVideoGeneration: rawBody.enableVideoGeneration }
-        : {}),
-      ...(rawBody.enableTTS != null ? { enableTTS: rawBody.enableTTS } : {}),
-      ...(rawBody.agentMode ? { agentMode: rawBody.agentMode } : {}),
-    };
+    const body = buildGenerateClassroomInput(rawBody);
     const { requirement } = body;
 
     if (!requirement) {

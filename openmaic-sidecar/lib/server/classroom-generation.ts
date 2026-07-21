@@ -40,6 +40,7 @@ const log = createLogger('Classroom');
 export interface GenerateClassroomInput {
   requirement: string;
   pdfContent?: { text: string; images: string[] };
+  researchContext?: string;
   enableWebSearch?: boolean;
   webSearchProviderId?: WebSearchProviderId;
   webSearchApiKey?: string;
@@ -48,6 +49,16 @@ export interface GenerateClassroomInput {
   enableVideoGeneration?: boolean;
   enableTTS?: boolean;
   agentMode?: 'default' | 'generate';
+}
+
+export function mergeResearchContexts(
+  webContext: string | undefined,
+  injectedContext: string | undefined,
+): string | undefined {
+  const contexts = [webContext, injectedContext].filter(
+    (context): context is string => typeof context === 'string' && context.length > 0,
+  );
+  return contexts.length > 0 ? contexts.join('\n\n') : undefined;
 }
 
 export type ClassroomGenerationStep =
@@ -322,6 +333,8 @@ export async function generateClassroom(
       log.warn('enableWebSearch is true but no web search API key configured, skipping web search');
     }
   }
+
+  researchContext = mergeResearchContexts(researchContext, input.researchContext);
 
   await options.onProgress?.({
     step: 'generating_outlines',
