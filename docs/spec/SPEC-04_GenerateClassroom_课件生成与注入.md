@@ -125,6 +125,8 @@ resolveModel → (可选 web search → researchContext)
 
 ## 4. ★内容注入补丁（researchContext）——迁移的核心改动
 
+> **状态：✅ 已完成（2026-07-24，P2-2）**。3 处改动已落地并通过 `tsc --noEmit` + 4 条新增单测（`tests/server/classroom-generation-research-context.test.ts`：仅注入/都不传/web+注入合并/web 无 key 时回退注入）+ 既有 `classroom-generation-retry.test.ts` 4 条零回归。补丁说明见 [`docs/spec/patches/001-researchContext-injection.md`](patches/001-researchContext-injection.md)。
+
 ### 4.1 问题
 
 上游 `researchContext` **只能由内部 web search 产生**（`classroom-generation.ts:275` `let researchContext; if (input.enableWebSearch) {...}`），`GenerateClassroomInput` 无 `researchContext` 字段。edu_ai 要注入自己的 RAG/教材/知识图谱，**必须打一个最小补丁**。

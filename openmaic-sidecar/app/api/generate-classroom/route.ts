@@ -32,6 +32,8 @@ export async function POST(req: NextRequest) {
         : {}),
       ...(rawBody.enableTTS != null ? { enableTTS: rawBody.enableTTS } : {}),
       ...(rawBody.agentMode ? { agentMode: rawBody.agentMode } : {}),
+      // edu_ai patch (docs/spec/patches/001-researchContext-injection.md)
+      ...(rawBody.researchContext ? { researchContext: rawBody.researchContext } : {}),
     };
     const { requirement } = body;
 

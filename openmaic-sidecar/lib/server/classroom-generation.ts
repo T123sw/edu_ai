@@ -48,6 +48,12 @@ export interface GenerateClassroomInput {
   enableVideoGeneration?: boolean;
   enableTTS?: boolean;
   agentMode?: 'default' | 'generate';
+  /**
+   * edu_ai patch (docs/spec/patches/001-researchContext-injection.md):
+   * externally injected domain supplement (RAG / textbook / knowledge graph).
+   * Merged with (not a replacement for) the internal web search result.
+   */
+  researchContext?: string;
 }
 
 export type ClassroomGenerationStep =
@@ -321,6 +327,12 @@ export async function generateClassroom(
     } else {
       log.warn('enableWebSearch is true but no web search API key configured, skipping web search');
     }
+  }
+
+  // edu_ai patch (docs/spec/patches/001-researchContext-injection.md):
+  // merge externally injected domain supplement on top of (not instead of) web search.
+  if (input.researchContext) {
+    researchContext = [researchContext, input.researchContext].filter(Boolean).join('\n\n');
   }
 
   await options.onProgress?.({
