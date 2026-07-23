@@ -12,9 +12,13 @@
 
 > 本轮只实现**最小生成闭环**：生成结构化课件并落库，打通 sidecar/客户端/job/校验主链路。媒体与前端后置。**决策（2026-07-01）**：sidecar=vendor 复制；知识源=**LLM 基座 + web search（主）+ RAG 领域补充（叠加，非替代）**；媒体/前端切割。
 
+> **决策补充（2026-07-21，用户拍板）**：
+> ① **sidecar 落地 = 方案 A「整体保留完整 OpenMAIC 项目」**——整个 OpenMAIC（Next.js 应用）原样 vendor 进 `edu_ai/openmaic-sidecar/` 子目录（纳入 edu_ai 统一版本管理），**不拆解吸收、不裁剪**；所有对上游的改动收敛到最少接缝（researchContext §4 三处 + env/配置），逐处以 patch 文件归档 `docs/spec/patches/`，保住「能追上游」这条命脉。定性理由：`generate-classroom` 背后是 `@openmaic/dsl` + `scene-generator`(1746) + `renderer` 一整套深度耦合 TS，整体当服务用 = 表面积最小、前端 renderer 白捡、追上游冲突面小；edu_ai(Python) 与 sidecar(Node) 通信**始终是 HTTP**，vendor 不增加运行时耦合，只决定源码归属。将来若需独立扩缩容 / 多产品共享，再把子目录拆成独立部署——因 `OpenMaicClient` 已用 HTTP 隔离，升级近零成本。
+> ② **PBL（项目式学习，`app/api/pbl/**` + `lib/pbl/v2`）本轮不接入**——它是独立的多 agent 互动运行时（Instructor / Simulator 流式 SSE 对话 + `PBLProjectV2` 有状态推进 + evaluate 评估），与课件生成是两条产品线；但因 PBL 嵌在 `scene.content.projectV2`、与 DSL 深度耦合，**整包保留不裁**，未来单独立 SPEC 接入。见 §0.1 D9。
+
 **本轮做（MVP）**：
 
-- sidecar **vendor 复制**接入 `edu_ai/openmaic-sidecar/`（补完 SPEC-01 的正式接入）+ researchContext 注入补丁（§4）。
+- sidecar **整体保留完整项目（方案 A）** vendor 进 `edu_ai/openmaic-sidecar/` 子目录（补完 SPEC-01 的正式接入；**不拆解、不裁剪**，仅源码接缝改 + patch 归档，详见 §0 决策补充①）+ researchContext 注入补丁（§4）。
 - `OpenMaicClient`（SPEC-07，聚焦 `generate_classroom` / `poll_job` / `wait_job` + 错误映射）。
 - job 表衔接（SPEC-05，generate-classroom 的 job 化）。
 - `classroom_service` 编排：researchContext = **web search（主外部源）+ RAG Top-K 领域补充（带出处）合并** → 生成 → 过 SPEC-02 §6 不变量校验 → 落库 `classrooms` / `classroom_scenes`（同 `Stage.id` 幂等 upsert）。
@@ -32,6 +36,7 @@
 | D6 | parse-pdf 的 job 化（当前同步阻塞） | 可选 | SPEC-05 §6 |
 | D7 | 旧 EduAgent **deepsearch+爬虫+SearxNG** 链路下线（已被 **SPEC-00 Web 检索层** 替换） | Phase 6 | SPEC-00 §11 |
 | D8 | web search **图片**接入（sidecar 当前丢弃 Bocha `image_links` / Tavily images，`WebSearchResult` 无 images 字段）→ 真实配图来源，随媒体一起 | Phase 5 | §4.3、下方说明 |
+| D9 | **PBL 项目式学习**（`pbl/v2` Instructor/Simulator 多 agent 互动运行时 + `PBLProjectV2`）接入——vendor 时整包保留不裁，本轮不接入 | 未定（单独立 SPEC） | OpenMAIC `app/api/pbl/**`、`lib/pbl/v2`、`scene.content.projectV2`（§0 决策补充②）|
 
 > **web 层定稿（2026-07-01，用户实测后）**：web 检索独立为 **Phase 1.5 前置层 [SPEC-00](SPEC-00_Web检索层_Bocha搜索与Tavily抽取.md)**：edu_ai 侧 **Bocha 搜索 + Tavily Extract 全文**，替换旧 deepsearch+SearxNG+自建爬虫（用户实测慢/不稳/内容未审查/SearxNG 限流上线扛不住）。产物入 RAG / 供 researchContext。课件生成默认 `enableWebSearch=false`（web 由本层注入）；**sidecar 自带 web search 保留可用**（可选/兜底），web 功能独立于 sidecar。**图片**入库随 Phase 5 媒体（D8）。详见 SPEC-00。
 

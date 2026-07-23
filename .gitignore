@@ -121,3 +121,10 @@ pnpm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+# OpenMAIC sidecar（vendored，方案 A；node_modules/dist/build/.env/*.log 已被上方通配覆盖，
+# .next/public/vendor/test-results 亦由 sidecar 自带嵌套 .gitignore 覆盖，这里补显式兜底）
+openmaic-sidecar/.next/
+openmaic-sidecar/**/.next/
+openmaic-sidecar/public/vendor/maic-importer/
+openmaic-sidecar/dev.log
