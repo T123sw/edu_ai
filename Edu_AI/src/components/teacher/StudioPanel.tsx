@@ -186,7 +186,7 @@ const normalizeLessonPlanPreview = (content: unknown, kind?: string) => {
       ? (record.teaching_support as Record<string, any>)
       : {};
   const isOutline =
-    String(kind || '').trim() === 'outline'
+    String(kind || '').trim() === 'outline-solid'
     || Boolean(record.basic_info)
     || Boolean(record.lesson_flow)
     || Boolean(record.teaching_objectives);
@@ -885,7 +885,7 @@ const StudioPanel: React.FC<Props> = ({
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizChecked, setQuizChecked] = useState<Record<string, boolean>>({});
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
-  const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline'>('body');
+  const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline-solid'>('body');
   const [reportEntryVisible, setReportEntryVisible] = useState(false);
   const [lessonPlanEntryVisible, setLessonPlanEntryVisible] = useState(false);
   const [pptEntryVisible, setPptEntryVisible] = useState(false);
@@ -1616,7 +1616,7 @@ const StudioPanel: React.FC<Props> = ({
     const artifactType =
       file.type === 'ppt'
         ? 'ppt_deck'
-        : file.meta?.kind === 'outline'
+        : file.meta?.kind === 'outline-solid'
           ? 'report_outline'
           : 'report';
 
@@ -1806,7 +1806,7 @@ const StudioPanel: React.FC<Props> = ({
           </Title>
           <Divider style={{ flexShrink: 0 }} />
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
-            {lessonPlanKind === 'outline' && (
+            {lessonPlanKind === 'outline-solid' && (
               <div
                 style={{
                   marginBottom: 20,
@@ -2033,7 +2033,7 @@ const StudioPanel: React.FC<Props> = ({
               </div>
             )}
           </div>
-          {lessonPlanKind === 'outline' && (
+          {lessonPlanKind === 'outline-solid' && (
             <div style={{ position: 'absolute', right: 24, bottom: 24 }}>
               <Button
                 type="primary"
@@ -2421,7 +2421,7 @@ const StudioPanel: React.FC<Props> = ({
 
     if (viewingFile.type === 'report' && viewingFile.content) {
       const rawReportOutlineContent = (viewingFile as any)?.meta?.outlineContent;
-      const canToggleReportOutline = String((viewingFile as any)?.meta?.kind || '').trim() !== 'outline';
+      const canToggleReportOutline = String((viewingFile as any)?.meta?.kind || '').trim() !== 'outline-solid';
 
       return (
         <ReportArtifactPreview
@@ -2446,7 +2446,7 @@ const StudioPanel: React.FC<Props> = ({
     if (viewingFile.type === 'report' && viewingFile.content) {
       const reportOutlineContent = String((viewingFile as any)?.meta?.outlineContent || '').trim();
       const canToggleReportOutline =
-        Boolean(reportOutlineContent) && (viewingFile as any)?.meta?.kind !== 'outline';
+        Boolean(reportOutlineContent) && (viewingFile as any)?.meta?.kind !== 'outline-solid';
       if (typeof viewingFile.content === 'string') {
         return (
           <div
@@ -2496,8 +2496,8 @@ const StudioPanel: React.FC<Props> = ({
                     正文
                   </Button>
                   <Button
-                    type={reportPreviewMode === 'outline' ? 'primary' : 'default'}
-                    onClick={() => setReportPreviewMode('outline')}
+                    type={reportPreviewMode === 'outline-solid' ? 'primary' : 'default'}
+                    onClick={() => setReportPreviewMode('outline-solid')}
                   >
                     大纲
                   </Button>
@@ -2505,9 +2505,9 @@ const StudioPanel: React.FC<Props> = ({
               </div>
             )}
             <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 8 }}>
-              <MarkdownPreview content={reportPreviewMode === 'outline' ? reportOutlineContent : viewingFile.content} />
+              <MarkdownPreview content={reportPreviewMode === 'outline-solid' ? reportOutlineContent : viewingFile.content} />
             </div>
-            {(viewingFile as any)?.meta?.kind === 'outline' && (
+            {(viewingFile as any)?.meta?.kind === 'outline-solid' && (
               <div style={{ position: 'absolute', right: 24, bottom: 24 }}>
                 <Button type="primary" onClick={() => {
                   const text = `根据已确认的大纲开始生成报告`;
@@ -3314,7 +3314,7 @@ const StudioPanel: React.FC<Props> = ({
             </Button>
             <Button
               onClick={() => {
-                const arr = blogOutlineForm.getFieldValue('outline') || [];
+                const arr = blogOutlineForm.getFieldValue('outline-solid') || [];
                 try {
                   setBlogOutlineDraftText(JSON.stringify(arr, null, 2));
                 } catch {

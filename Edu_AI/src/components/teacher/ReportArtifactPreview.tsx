@@ -5,7 +5,7 @@ import type { GeneratedFile } from '../../store/teacher/useStore';
 import MarkdownPreview from '../shared/MarkdownPreview';
 import './ReportArtifactPreview.css';
 
-type ReportPreviewMode = 'body' | 'outline';
+type ReportPreviewMode = 'body' | 'outline-solid';
 
 type Props = {
   file: GeneratedFile;
@@ -35,7 +35,7 @@ type OutlineChapter = {
 type RenderableReport =
   | { kind: 'markdown'; markdown: string }
   | {
-      kind: 'outline';
+      kind: 'outline-solid';
       title: string;
       chapters: OutlineChapter[];
     }
@@ -161,7 +161,7 @@ function normalizeOutline(value: unknown, fallbackTitle: string): RenderableRepo
   });
 
   return {
-    kind: 'outline',
+    kind: 'outline-solid',
     title: fallbackTitle,
     chapters,
   };
@@ -217,7 +217,7 @@ function outlineFromMarkdown(markdown: string, fallbackTitle: string): Renderabl
   }
 
   return {
-    kind: 'outline',
+    kind: 'outline-solid',
     title,
     chapters,
   };
@@ -234,7 +234,7 @@ function outlineFromSections(sections: ReportSection[], title: string): Renderab
   }));
 
   return {
-    kind: 'outline',
+    kind: 'outline-solid',
     title,
     chapters: chapters.length > 0 ? chapters : [{ title: '正文结构', sections: [] }],
   };
@@ -388,7 +388,7 @@ function StructuredReportView({ report }: { report: RenderableReport }) {
     );
   }
 
-  if (report.kind === 'outline') {
+  if (report.kind === 'outline-solid') {
     return (
       <article className="report-artifact-preview__document">
         <div className="report-artifact-preview__document-head">
@@ -485,10 +485,10 @@ export default function ReportArtifactPreview({
   onAddToChat,
   onGenerateFromOutline,
 }: Props) {
-  const isOutlineFile = String(file.meta?.kind || '').trim() === 'outline';
-  const effectiveContent = previewMode === 'outline' && canToggleOutline && outlineContent ? outlineContent : file.content;
+  const isOutlineFile = String(file.meta?.kind || '').trim() === 'outline-solid';
+  const effectiveContent = previewMode === 'outline-solid' && canToggleOutline && outlineContent ? outlineContent : file.content;
   const report = useMemo(
-    () => normalizeReportContent(effectiveContent, file.name, previewMode === 'outline' && canToggleOutline),
+    () => normalizeReportContent(effectiveContent, file.name, previewMode === 'outline-solid' && canToggleOutline),
     [effectiveContent, file.name, previewMode, canToggleOutline],
   );
 
@@ -507,7 +507,7 @@ export default function ReportArtifactPreview({
             <Button type={previewMode === 'body' ? 'primary' : 'default'} onClick={() => onPreviewModeChange('body')}>
               正文
             </Button>
-            <Button type={previewMode === 'outline' ? 'primary' : 'default'} onClick={() => onPreviewModeChange('outline')}>
+            <Button type={previewMode === 'outline-solid' ? 'primary' : 'default'} onClick={() => onPreviewModeChange('outline-solid')}>
               大纲
             </Button>
           </Space.Compact>

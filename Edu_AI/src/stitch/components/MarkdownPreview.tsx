@@ -5,7 +5,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export function MarkdownPreview({ content }: { content: string }) {
   return (
-    <div className="markdown-preview text-sm leading-7 text-[var(--app-text)]">
+    <div className="markdown-preview text-sm leading-7 text-(--app-text)">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -33,7 +33,7 @@ export function MarkdownPreview({ content }: { content: string }) {
               );
             }
 
-            return <code className="rounded-md bg-[var(--surface-subtle)] px-1.5 py-1 text-[12px]">{children}</code>;
+            return <code className="rounded-md bg-(--surface-subtle) px-1.5 py-1 text-[12px]">{children}</code>;
           },
         }}
       >

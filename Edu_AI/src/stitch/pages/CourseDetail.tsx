@@ -19,7 +19,7 @@ function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: 
       <a
         href={routeHref(routes.workspace)}
         onClick={() => onSelect(course)}
-        className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-bold text-[var(--accent-strong)] transition hover:-translate-y-px"
+        className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-bold text-(--accent-strong) transition hover:-translate-y-px"
       >
         进入问答工作台
         <MaterialIcon name="arrow_forward" className="text-base" />
@@ -102,28 +102,28 @@ export function CourseListPage() {
         <div className="mb-8 flex items-center justify-between gap-4">
           <SidebarBackLink />
           <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">我的课程</p>
-            <p className="mt-1 text-sm text-[var(--muted-text)]">这里只显示课程列表，点击课程后进入课程详情页。</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">我的课程</p>
+            <p className="mt-1 text-sm text-(--muted-text)">这里只显示课程列表，点击课程后进入课程详情页。</p>
           </div>
         </div>
 
         {loading ? (
-          <GlassPanel className="w-full border border-[var(--shell-border)] bg-white/85 p-8 text-sm text-[var(--muted-text)]">
+          <GlassPanel className="w-full border border-(--shell-border) bg-white/85 p-8 text-sm text-(--muted-text)">
             正在加载课程列表...
           </GlassPanel>
         ) : error ? (
-          <GlassPanel className="w-full border border-[var(--shell-border)] bg-white/85 p-8 text-sm text-rose-600">
+          <GlassPanel className="w-full border border-(--shell-border) bg-white/85 p-8 text-sm text-rose-600">
             {error}
           </GlassPanel>
         ) : (
           <div className="w-full">
-            <GlassPanel className="border border-[var(--shell-border)] bg-white/88 p-5">
+            <GlassPanel className="border border-(--shell-border) bg-white/88 p-5">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">课程清单</p>
-                  <h2 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">全部课程</h2>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课程清单</p>
+                  <h2 className="mt-2 text-2xl font-black text-(--accent-strong)">全部课程</h2>
                 </div>
-                <div className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent-strong)]">
+                <div className="rounded-full bg-(--accent-soft) px-3 py-1 text-xs font-semibold text-(--accent-strong)">
                   {summaries.length} 门
                 </div>
               </div>
@@ -137,20 +137,20 @@ export function CourseListPage() {
                       onClick={() => openDetail(course)}
                       className={`w-full rounded-[22px] border p-4 text-left transition ${
                         active
-                          ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_16px_32px_var(--accent-shadow)]"
-                          : "border-[var(--shell-border)] bg-[var(--surface-subtle)] hover:border-[var(--accent-border)] hover:bg-white"
+                          ? "border-(--accent-border) bg-(--accent-soft) shadow-[0_16px_32px_var(--accent-shadow)]"
+                          : "border-(--shell-border) bg-(--surface-subtle) hover:border-(--accent-border) hover:bg-white"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="mt-2 truncate text-base font-bold text-[var(--app-text)]">{course.title}</h3>
-                          <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--muted-text)]">{course.summary}</p>
+                          <h3 className="mt-2 truncate text-base font-bold text-(--app-text)">{course.title}</h3>
+                          <p className="mt-2 line-clamp-2 text-sm leading-6 text-(--muted-text)">{course.summary}</p>
                         </div>
-                        <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[var(--accent-strong)]">
+                        <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-(--accent-strong)">
                           {course.progress}%
                         </span>
                       </div>
-                      <div className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[var(--accent)]">
+                      <div className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-(--accent)">
                         进入课程详情
                         <MaterialIcon name="arrow_forward" className="text-sm" />
                       </div>
@@ -181,30 +181,30 @@ export function CourseDetailPage() {
         <div className="mb-8 flex items-center justify-between gap-4">
           <a
             href={routeHref(routes.course)}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--shell-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--accent-strong)]"
+            className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--accent-strong)"
           >
             <MaterialIcon name="arrow_back" className="text-sm" />
             返回我的课程
           </a>
           <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">课程详情</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课程详情</p>
           </div>
         </div>
 
         {loading ? (
-          <GlassPanel className="border border-[var(--shell-border)] bg-white/85 p-8 text-sm text-[var(--muted-text)]">
+          <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-(--muted-text)">
             正在加载课程详情...
           </GlassPanel>
         ) : error ? (
-          <GlassPanel className="border border-[var(--shell-border)] bg-white/85 p-8 text-sm text-rose-600">
+          <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-rose-600">
             {error}
           </GlassPanel>
         ) : (
-          <GlassPanel className="overflow-hidden border border-[var(--shell-border)] bg-white/85">
+          <GlassPanel className="overflow-hidden border border-(--shell-border) bg-white/85">
             <div className="grid min-h-[720px] gap-0 lg:grid-cols-[0.95fr_1.25fr]">
               <section className="flex flex-col justify-between bg-[linear-gradient(160deg,var(--accent-strong),var(--accent))] p-10 text-white lg:p-14">
                 <div>
-                  <h1 className="mt-5 max-w-md text-5xl font-black leading-[0.95] tracking-[-0.05em] lg:text-6xl">
+                  <h1 className="mt-5 max-w-md text-5xl font-black leading-[0.95] tracking-tighter lg:text-6xl">
                     {activeCourse.uppercaseTitle}
                   </h1>
                   <p className="mt-8 max-w-md text-base leading-7 text-white/82">{activeCourse.summary}</p>
@@ -219,7 +219,7 @@ export function CourseDetailPage() {
 
               <section className="relative min-h-[360px] overflow-hidden bg-slate-100">
                 <img alt={activeCourse.title} className="h-full w-full object-cover" src={activeCourse.image} />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/70 via-slate-950/14 to-transparent p-8 text-white">
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-slate-950/70 via-slate-950/14 to-transparent p-8 text-white">
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/14 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]">
                  
                   </div>

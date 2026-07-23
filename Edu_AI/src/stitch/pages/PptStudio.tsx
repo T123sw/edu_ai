@@ -123,9 +123,9 @@ export function PptStudioPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-2xl rounded-tl-none border border-[#c3c6d6]/10 bg-white p-5 shadow-sm">
+              <div className="rounded-2xl rounded-tl-none border border-[#c3c6d6]/10 bg-white p-5 shadow-xs">
                 <p className="mb-4 text-sm leading-relaxed text-[#424654]">
-                  在态矢量方程 <code className="rounded bg-[#e7e8e9] px-1 text-[#0040a1]">|ψ⟩ = α|0⟩ + β|1⟩</code> 中：
+                  在态矢量方程 <code className="rounded-sm bg-[#e7e8e9] px-1 text-[#0040a1]">|ψ⟩ = α|0⟩ + β|1⟩</code> 中：
                 </p>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
@@ -153,7 +153,7 @@ export function PptStudioPage() {
             <div className="group relative">
               <div className="absolute inset-0 rounded-2xl bg-[#0040a1]/5 opacity-0 blur-xl transition-opacity group-focus-within:opacity-100" />
               <div className="relative flex items-end gap-2 rounded-2xl border border-transparent bg-[#e7e8e9]/40 p-1.5 focus-within:border-[#0040a1]/20 focus-within:bg-white">
-                <textarea className="min-h-[52px] flex-1 resize-none border-none bg-transparent px-3 py-3 text-sm outline-none" placeholder="请输入你对量子叠加的疑问..." rows={1} />
+                <textarea className="min-h-[52px] flex-1 resize-none border-none bg-transparent px-3 py-3 text-sm outline-hidden" placeholder="请输入你对量子叠加的疑问..." rows={1} />
                 <div className="flex items-center gap-1 p-1">
                   <button className="rounded-xl p-2 text-[#737785] hover:bg-[#0040a1]/5 hover:text-[#0040a1]"><MaterialIcon name="mic" /></button>
                   <button className="rounded-xl bg-[#0040a1] p-2 text-white shadow-lg"><MaterialIcon name="send" /></button>

@@ -16,7 +16,7 @@ type LessonPlanStep = {
 };
 
 type NormalizedLessonPlan = {
-  kind: 'outline' | 'final' | 'markdown' | 'generic';
+  kind: 'outline-solid' | 'final' | 'markdown' | 'generic';
   title: string;
   markdown: string;
   basicInfo: {
@@ -145,7 +145,7 @@ function normalizeLessonPlanContent(content: unknown, kind: string, fallbackTitl
   const keyAndHardPoints = asRecord(record.key_and_hard_points || record.keyAndHardPoints);
   const teachingSupport = asRecord(record.teaching_support || record.teachingSupport);
   const isOutline =
-    normalizedKind === 'outline'
+    normalizedKind === 'outline-solid'
     || Boolean(record.basic_info)
     || Boolean(record.lesson_flow)
     || Boolean(record.teaching_objectives);
@@ -158,7 +158,7 @@ function normalizeLessonPlanContent(content: unknown, kind: string, fallbackTitl
     || [];
 
   return {
-    kind: isOutline ? 'outline' : 'final',
+    kind: isOutline ? 'outline-solid' : 'final',
     title: readText(record, ['title', 'topic', 'lesson_title']) || readText(basicInfo, ['topic', 'title']) || fallbackTitle,
     markdown: '',
     basicInfo: {
@@ -302,7 +302,7 @@ export default function LessonPlanArtifactPreview({
   onContinueFromOutline,
 }: Props) {
   const plan = useMemo(() => normalizeLessonPlanContent(file.content, kind, file.name), [file.content, file.name, kind]);
-  const isOutline = plan.kind === 'outline';
+  const isOutline = plan.kind === 'outline-solid';
   const metaItems = [
     plan.basicInfo.audience ? `适用对象：${plan.basicInfo.audience}` : '',
     plan.basicInfo.duration ? `课时：${plan.basicInfo.duration}` : '',

@@ -291,7 +291,7 @@ function mergeReportArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] 
         type: 'report',
         content: outlineContent,
         meta: {
-          kind: 'outline',
+          kind: 'outline-solid',
           originalArtifactId: String(outlineArtifact.artifact_id || '').trim() || undefined,
           versionId: String(outlineArtifact.version?.version_id || '').trim() || undefined,
           versionNumber:
@@ -366,7 +366,7 @@ function mergeLessonPlanArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLik
         type: 'lesson_plan',
         content,
         meta: {
-          kind: 'outline',
+          kind: 'outline-solid',
           originalArtifactId: String(outlineArtifact.artifact_id || '').trim() || undefined,
           generationState:
             outlineArtifact.generation_state && typeof outlineArtifact.generation_state === 'object'

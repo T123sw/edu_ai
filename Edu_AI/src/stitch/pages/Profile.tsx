@@ -51,7 +51,7 @@ export function ProfilePage() {
           <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="p-10 lg:p-14">
               <p className="text-xs font-bold uppercase tracking-[0.34em] text-white/82">Account Center</p>
-              <h1 className="mt-6 max-w-2xl text-5xl font-black leading-[0.95] tracking-[-0.05em]">{profile.username}</h1>
+              <h1 className="mt-6 max-w-2xl text-5xl font-black leading-[0.95] tracking-tighter">{profile.username}</h1>
               <p className="mt-4 text-lg font-semibold text-white">{profile.role}</p>
               <p className="mt-8 max-w-2xl text-base leading-8 text-white/92">{profile.bio}</p>
 

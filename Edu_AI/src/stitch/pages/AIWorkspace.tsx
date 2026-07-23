@@ -79,10 +79,10 @@ export function AIWorkspacePage() {
       <SidebarDock className="ai-workspace-shell__sidebar h-screen px-5 py-6">
         <div className="mb-6">
           <SidebarBackLink />
-          <h1 className="text-xl font-black tracking-tight text-[var(--accent-strong)]">
+          <h1 className="text-xl font-black tracking-tight text-(--accent-strong)">
             {courseLabel}
           </h1>
-          <p className="mt-1 text-sm text-[var(--muted-text)]">教师 AI 工作台</p>
+          <p className="mt-1 text-sm text-(--muted-text)">教师 AI 工作台</p>
         </div>
         <SidebarNav activeRoute={routes.ai} />
       </SidebarDock>

@@ -181,8 +181,8 @@ export function AppSurface({ children, className }: PropsWithChildren<{ classNam
   return (
     <div
       className={cx(
-        "min-h-screen bg-[var(--app-bg)] text-[var(--app-text)]",
-        "[font-family:var(--font-sans)] [&_h1]:[font-family:var(--font-display)] [&_h2]:[font-family:var(--font-display)] [&_h3]:[font-family:var(--font-display)]",
+        "min-h-screen bg-(--app-bg) text-(--app-text)",
+        "font-sans [&_h1]:[font-family:var(--font-display)] [&_h2]:[font-family:var(--font-display)] [&_h3]:[font-family:var(--font-display)]",
         className,
       )}
     >
@@ -206,7 +206,7 @@ export function SidebarDock({
       />
       <aside
         className={cx(
-          "fixed left-0 top-0 z-50 hidden w-64 flex-col border-r border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-[10px_0_30px_var(--shell-shadow)] transition-transform duration-200 lg:flex",
+          "fixed left-0 top-0 z-50 hidden w-64 flex-col border-r border-(--shell-border) bg-(--shell-surface) shadow-[10px_0_30px_var(--shell-shadow)] transition-transform duration-200 lg:flex",
           collapsed ? "-translate-x-[calc(100%-18px)]" : "translate-x-0",
           className,
         )}
@@ -214,7 +214,7 @@ export function SidebarDock({
         <button
           type="button"
           onClick={() => setCollapsed((current) => !current)}
-          className="absolute -right-4 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--accent-strong)] shadow-md"
+          className="absolute -right-4 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-(--shell-border) bg-(--shell-surface) text-(--accent-strong) shadow-md"
         >
           <MaterialIcon name={collapsed ? "chevron_right" : "chevron_left"} className="text-base" />
         </button>
@@ -228,7 +228,7 @@ export function GlassPanel({ children, className }: PropsWithChildren<{ classNam
   return (
     <div
       className={cx(
-        "rounded-[28px] bg-[var(--panel-surface)] backdrop-blur-xl shadow-[0_16px_32px_var(--panel-shadow)]",
+        "rounded-[28px] bg-(--panel-surface) backdrop-blur-xl shadow-[0_16px_32px_var(--panel-shadow)]",
         className,
       )}
     >
@@ -249,8 +249,8 @@ export function SectionHeading({
   return (
     <div className="mb-6 flex items-start justify-between gap-4">
       <div>
-        <h3 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">{title}</h3>
-        {subtitle ? <p className="mt-1 text-sm text-[var(--muted-text)]">{subtitle}</p> : null}
+        <h3 className="text-xl font-extrabold tracking-tight text-(--accent-strong)">{title}</h3>
+        {subtitle ? <p className="mt-1 text-sm text-(--muted-text)">{subtitle}</p> : null}
       </div>
       {action}
     </div>
@@ -267,8 +267,8 @@ export function ProgressBar({
   barClassName?: string;
 }) {
   return (
-    <div className={cx("h-1.5 overflow-hidden rounded-full bg-[var(--track-color)]", className)}>
-      <div className={cx("h-full rounded-full bg-[var(--accent)]", barClassName)} style={{ width: `${value}%` }} />
+    <div className={cx("h-1.5 overflow-hidden rounded-full bg-(--track-color)", className)}>
+      <div className={cx("h-full rounded-full bg-(--accent)", barClassName)} style={{ width: `${value}%` }} />
     </div>
   );
 }
@@ -290,22 +290,22 @@ export function SidebarLink({
       className={cx(
         "group relative flex items-center gap-3 rounded-[18px] border px-3 py-3 text-sm font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-200",
         active
-          ? "border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-[0_10px_24px_var(--accent-shadow)]"
-          : "border-transparent text-[var(--muted-text)] hover:-translate-y-px hover:border-[var(--shell-border)] hover:bg-[var(--surface-elevated)] hover:text-[var(--accent)]",
+          ? "border-(--accent-border) bg-(--accent-soft) text-(--accent-strong) shadow-[0_10px_24px_var(--accent-shadow)]"
+          : "border-transparent text-(--muted-text) hover:-translate-y-px hover:border-(--shell-border) hover:bg-(--surface-elevated) hover:text-(--accent)",
       )}
     >
       <span
         className={cx(
           "absolute bottom-2 left-0 top-2 w-1 rounded-r-full transition-colors",
-          active ? "bg-[var(--accent)]" : "bg-transparent group-hover:bg-[var(--track-color)]",
+          active ? "bg-(--accent)" : "bg-transparent group-hover:bg-(--track-color)",
         )}
       />
       <span
         className={cx(
           "ml-2 grid h-10 w-10 place-items-center rounded-2xl border transition-[background-color,color,border-color]",
           active
-            ? "border-[var(--accent-border)] bg-[var(--surface-elevated)] text-[var(--accent)]"
-            : "border-[var(--shell-border)] bg-[var(--surface-subtle)] text-slate-400 group-hover:border-[var(--accent-border)] group-hover:bg-[var(--accent-soft)] group-hover:text-[var(--accent)]",
+            ? "border-(--accent-border) bg-(--surface-elevated) text-(--accent)"
+            : "border-(--shell-border) bg-(--surface-subtle) text-slate-400 group-hover:border-(--accent-border) group-hover:bg-(--accent-soft) group-hover:text-(--accent)",
         )}
       >
         <MaterialIcon name={icon} fill={active} className="text-[20px]" />
@@ -341,7 +341,7 @@ export function SidebarBackLink({ href = routeHref(routes.home), label = "返回
   return (
     <a
       href={href}
-      className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--shell-border)] bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--accent-strong)] transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)]"
+      className="mb-4 inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-(--surface-elevated) px-3 py-2 text-xs font-semibold text-(--accent-strong) transition hover:border-(--accent-border) hover:bg-(--accent-soft)"
     >
       <MaterialIcon name="arrow_back" className="text-sm" />
       {label}
@@ -360,9 +360,9 @@ export function ThemeCustomizer() {
   ];
 
   return (
-    <div className="fixed bottom-5 right-5 z-[120]">
+    <div className="fixed bottom-5 right-5 z-120">
       {open ? (
-        <div className="w-72 rounded-[24px] border border-[#bfdbfe] bg-gradient-to-br from-[#f8fbff] via-[#eef6ff] to-[#e0f2fe] p-4 shadow-[0_24px_60px_rgba(37,99,235,0.22)] backdrop-blur-xl">
+        <div className="w-72 rounded-[24px] border border-[#bfdbfe] bg-linear-to-br from-[#f8fbff] via-[#eef6ff] to-[#e0f2fe] p-4 shadow-[0_24px_60px_rgba(37,99,235,0.22)] backdrop-blur-xl">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-sm font-bold text-[#1d4ed8]">个人账号设置</div>
@@ -389,7 +389,7 @@ export function ThemeCustomizer() {
                     : "border-[#dbeafe] bg-white/65 hover:border-[#93c5fd] hover:bg-white/90",
                 )}
               >
-                <span className={`h-9 w-9 rounded-full bg-gradient-to-br ${item.preview}`} />
+                <span className={`h-9 w-9 rounded-full bg-linear-to-br ${item.preview}`} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-[#0f172a]">{item.label}</span>
                   <span className="block text-xs text-[#64748b]">{item.note}</span>
@@ -407,7 +407,7 @@ export function ThemeCustomizer() {
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="ml-auto mt-3 flex h-12 w-12 items-center justify-center rounded-full border border-[#93c5fd] bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] text-white shadow-[0_18px_36px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#0284c7]"
+        className="ml-auto mt-3 flex h-12 w-12 items-center justify-center rounded-full border border-[#93c5fd] bg-linear-to-br from-[#2563eb] to-[#0ea5e9] text-white shadow-[0_18px_36px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#0284c7]"
       >
         <MaterialIcon name="manage_accounts" className="text-xl" />
       </button>

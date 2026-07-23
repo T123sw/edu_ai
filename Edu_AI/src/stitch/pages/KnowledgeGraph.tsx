@@ -195,7 +195,7 @@ function typeStyle(type: string) {
     case "topic":
       return "bg-[#fef3c7] text-[#b45309]";
     default:
-      return "bg-[var(--accent-soft)] text-[var(--accent)]";
+      return "bg-(--accent-soft) text-(--accent)";
   }
 }
 
@@ -500,16 +500,16 @@ export function KnowledgeGraphPage() {
       >
         <div className="px-2 py-4">
           <SidebarBackLink />
-          <h2 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">知识图谱</h2>
-          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">{course?.title ?? "课程知识图谱"}</p>
+          <h2 className="text-xl font-extrabold tracking-tight text-(--accent-strong)">知识图谱</h2>
+          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-(--muted-text)">{course?.title ?? "课程知识图谱"}</p>
         </div>
         <SidebarNav activeRoute={routes.graph} />
       </SidebarDock>
 
       <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-6 py-4 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-4 border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl">
           <div>
-            <h1 className="text-xl font-bold text-[var(--accent-strong)]">{course?.title ?? "课程"} 知识图谱</h1>
+            <h1 className="text-xl font-bold text-(--accent-strong)">{course?.title ?? "课程"} 知识图谱</h1>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -518,32 +518,32 @@ export function KnowledgeGraphPage() {
               className={cx(
                 "inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition",
                 panMode
-                  ? "border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "border-[var(--shell-border)] bg-white text-[var(--muted-text)]",
+                  ? "border-(--accent-border) bg-(--accent-soft) text-(--accent-strong)"
+                  : "border-(--shell-border) bg-white text-(--muted-text)",
               )}
             >
               <MaterialIcon name="pan_tool_alt" className="text-base" />
               手型拖动
             </button>
-            <div className="rounded-full border border-[var(--shell-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--muted-text)]">
+            <div className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--muted-text)">
               {savingState === "saving" ? "自动保存中..." : savingState === "error" ? "自动保存失败" : "已自动保存"}
             </div>
           </div>
         </header>
 
         <div className="grid min-h-0 flex-1 gap-6 p-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] xl:grid-cols-[300px_minmax(0,1.2fr)_340px]">
-          <GlassPanel className="h-[calc(100vh-116px)] overflow-y-auto border border-[var(--shell-border)] p-6">
+          <GlassPanel className="h-[calc(100vh-116px)] overflow-y-auto border border-(--shell-border) p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">图谱设置</p>
-                <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">教材与学时</h3>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">图谱设置</p>
+                <h3 className="mt-2 text-2xl font-black text-(--accent-strong)">教材与学时</h3>
               </div>
-              <MaterialIcon name="upload_file" className="text-[var(--accent)]" />
+              <MaterialIcon name="upload_file" className="text-(--accent)" />
             </div>
 
             <div className="mt-5 space-y-4">
               <div className="space-y-4">
-                <p className="text-sm font-semibold text-[var(--app-text)]">教材上传</p>
+                <p className="text-sm font-semibold text-(--app-text)">教材上传</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -553,12 +553,12 @@ export function KnowledgeGraphPage() {
                     void handleTextbookSelection(event.target.files);
                   }}
                 />
-                <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-4 text-xs leading-6 text-[var(--muted-text)]">
+                <div className="mt-4 rounded-[18px] border border-(--shell-border) bg-white/80 p-4 text-xs leading-6 text-(--muted-text)">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={importing}
-                    className="w-full rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    className="w-full rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     {importing ? "导入教材中..." : "上传教材并解析"}
                   </button>
@@ -575,21 +575,21 @@ export function KnowledgeGraphPage() {
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5">
-                <label className="block text-sm font-semibold text-[var(--app-text)]">课程总学时</label>
+              <div className="rounded-[24px] border border-(--shell-border) bg-(--surface-subtle) p-5">
+                <label className="block text-sm font-semibold text-(--app-text)">课程总学时</label>
                 <div className="mt-3 flex items-center gap-2">
                   <input
                     value={totalHours}
                     onChange={(event) => setTotalHours(event.target.value)}
-                    className="min-w-0 flex-1 rounded-2xl border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm text-[var(--app-text)] outline-none"
+                    className="min-w-0 flex-1 rounded-2xl border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm text-(--app-text) outline-hidden"
                     placeholder="输入总学时"
                   />
-                  <span className="rounded-full bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">学时</span>
+                  <span className="rounded-full bg-(--surface-elevated) px-3 py-2 text-xs font-semibold text-(--muted-text)">学时</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setNodes((current) => generateHours(Number(totalHours) || 32, current))}
-                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white"
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-(--accent) px-4 py-3 text-sm font-bold text-white"
                 >
                   <MaterialIcon name="auto_graph" className="text-base" />
                   生成节点学时
@@ -598,10 +598,10 @@ export function KnowledgeGraphPage() {
             </div>
           </GlassPanel>
 
-          <section className="flex min-h-0 flex-col overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[var(--panel-surface)]">
-            <div className="flex items-center justify-between border-b border-[var(--shell-border)] px-6 py-5">
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-[32px] border border-(--shell-border) bg-(--panel-surface)">
+            <div className="flex items-center justify-between border-b border-(--shell-border) px-6 py-5">
               <div>
-                <h3 className="text-2xl font-black text-[var(--accent-strong)]">知识图谱画布</h3>
+                <h3 className="text-2xl font-black text-(--accent-strong)">知识图谱画布</h3>
               </div>
             </div>
 
@@ -612,12 +612,12 @@ export function KnowledgeGraphPage() {
               onMouseUp={stopPan}
               onMouseLeave={stopPan}
               className={cx(
-                "min-h-0 flex-1 overflow-auto bg-[radial-gradient(var(--graph-grid)_0.7px,transparent_0.7px)] [background-size:28px_28px]",
+                "min-h-0 flex-1 overflow-auto bg-[radial-gradient(var(--graph-grid)_0.7px,transparent_0.7px)] bg-size-[28px_28px]",
                 panMode ? "cursor-grab active:cursor-grabbing" : "",
               )}
             >
               {loading ? (
-                <div className="p-6 text-sm text-[var(--muted-text)]">正在加载知识图谱...</div>
+                <div className="p-6 text-sm text-(--muted-text)">正在加载知识图谱...</div>
               ) : error ? (
                 <div className="p-6 text-sm text-rose-600">{error}</div>
               ) : (
@@ -661,8 +661,8 @@ export function KnowledgeGraphPage() {
                       <div
                         key={node.id}
                         className={cx(
-                          "absolute rounded-[18px] border bg-[var(--surface-elevated)] px-4 py-3 shadow-[0_16px_28px_var(--panel-shadow)] transition",
-                          active ? "border-[var(--accent-border)] ring-2 ring-[var(--accent)]/20" : "border-[var(--shell-border)]",
+                          "absolute rounded-[18px] border bg-(--surface-elevated) px-4 py-3 shadow-[0_16px_28px_var(--panel-shadow)] transition",
+                          active ? "border-(--accent-border) ring-2 ring-(--accent)/20" : "border-(--shell-border)",
                           panMode ? "pointer-events-none" : "",
                         )}
                         style={{ left: node.x, top: node.y, width: NODE_WIDTH, minHeight: NODE_HEIGHT }}
@@ -671,11 +671,11 @@ export function KnowledgeGraphPage() {
                           <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ${typeStyle(node.type)}`}>
                             <MaterialIcon name="hub" className="text-[15px]" />
                           </div>
-                          <span className="min-w-0 flex-1 truncate text-sm font-bold text-[var(--app-text)]">
+                          <span className="min-w-0 flex-1 truncate text-sm font-bold text-(--app-text)">
                             {node.label.replace(/<br\s*\/?>/gi, " / ")}
                           </span>
                           {node.hours ? (
-                            <span className="shrink-0 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-[10px] font-bold text-[var(--accent-strong)]">
+                            <span className="shrink-0 rounded-full border border-(--accent-border) bg-(--accent-soft) px-2.5 py-1 text-[10px] font-bold text-(--accent-strong)">
                               {node.hours}h
                             </span>
                           ) : null}
@@ -686,7 +686,7 @@ export function KnowledgeGraphPage() {
                             <button
                               type="button"
                               onClick={() => addChildNode(node.id)}
-                              className="grid h-8 w-8 place-items-center rounded-full bg-[var(--accent)] text-sm font-bold text-white"
+                              className="grid h-8 w-8 place-items-center rounded-full bg-(--accent) text-sm font-bold text-white"
                               aria-label="新增子节点"
                               title="新增子节点"
                             >
@@ -710,7 +710,7 @@ export function KnowledgeGraphPage() {
                           <button
                             type="button"
                             onClick={() => toggleNode(node.id)}
-                            className="absolute -right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-[var(--shell-border)] bg-white text-[var(--accent-strong)]"
+                            className="absolute -right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-(--shell-border) bg-white text-(--accent-strong)"
                             aria-label={expanded ? "收起子节点" : "展开子节点"}
                             title={expanded ? "收起子节点" : "展开子节点"}
                           >
@@ -726,24 +726,24 @@ export function KnowledgeGraphPage() {
           </section>
 
           <aside className="h-[calc(100vh-116px)]">
-            <GlassPanel className="h-full overflow-y-auto border border-[var(--shell-border)] p-6">
+            <GlassPanel className="h-full overflow-y-auto border border-(--shell-border) p-6">
               <div className="mb-6 flex items-start justify-between">
-                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+                <span className="rounded-full bg-(--accent-soft) px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-(--accent-strong)">
                   当前节点
                 </span>
               </div>
               {activeNode ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">节点名称</label>
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">节点名称</label>
                     <input
                       value={activeNode.label}
                       onChange={(event) => updateNode(activeNode.id, { label: event.target.value })}
-                      className="w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm font-semibold text-[var(--app-text)] outline-none"
+                      className="w-full rounded-[20px] border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm font-semibold text-(--app-text) outline-hidden"
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">学时</label>
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">学时</label>
                     <div className="flex gap-3">
                       <input
                         value={activeNode.hours ?? ""}
@@ -752,31 +752,31 @@ export function KnowledgeGraphPage() {
                             hours: event.target.value === "" ? null : Math.max(0, Number(event.target.value) || 0),
                           })
                         }
-                        className="flex-1 rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm font-semibold text-[var(--app-text)] outline-none"
+                        className="flex-1 rounded-[20px] border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm font-semibold text-(--app-text) outline-hidden"
                         inputMode="numeric"
                         placeholder="输入学时"
                       />
-                      <div className="grid h-[52px] w-[52px] place-items-center rounded-[20px] bg-[var(--accent-soft)] text-[var(--accent)]">
+                      <div className="grid h-[52px] w-[52px] place-items-center rounded-[20px] bg-(--accent-soft) text-(--accent)">
                         <MaterialIcon name="schedule" />
                       </div>
                     </div>
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">节点说明</label>
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">节点说明</label>
                     <textarea
                       value={activeNode.summary}
                       onChange={(event) => updateNode(activeNode.id, { summary: event.target.value })}
-                      className="min-h-[140px] w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--input-surface)] px-4 py-3 text-sm leading-7 text-[var(--app-text)] outline-none"
+                      className="min-h-[140px] w-full rounded-[20px] border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm leading-7 text-(--app-text) outline-hidden"
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">当前节点资源</label>
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">当前节点资源</label>
                     <div className="mb-3">
                       <button
                         type="button"
                         onClick={() => knowledgeBaseUploadInputRef.current?.click()}
                         disabled={uploadingKnowledgeBase || !course?.id}
-                        className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(29,78,216,0.22)] transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                        className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-(--accent) py-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(29,78,216,0.22)] transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                       >
                         <MaterialIcon name="upload_file" className="text-base" />
                         {uploadingKnowledgeBase
@@ -785,7 +785,7 @@ export function KnowledgeGraphPage() {
                             ? "导入到课程总知识库"
                             : "按当前知识点导入"}
                       </button>
-                      <span className="mt-2 block text-[11px] text-[var(--muted-text)]">
+                      <span className="mt-2 block text-[11px] text-(--muted-text)">
                         当前已有 {nodeDocuments.length} 份资料
                       </span>
                     </div>
@@ -796,7 +796,7 @@ export function KnowledgeGraphPage() {
                       className="hidden"
                       onChange={(event) => void handleKnowledgeBaseUpload(event.target.files)}
                     />
-                    <div className="mb-3 text-[11px] text-[var(--muted-text)]">
+                    <div className="mb-3 text-[11px] text-(--muted-text)">
                       {isCourseRootSelected ? "当前节点为课程根目录，文件会进入课程总知识库。" : "文件会带上当前知识点 ID，进入该知识点知识库。"}
                     </div>
                     {knowledgeBaseFeedback ? (
@@ -813,13 +813,13 @@ export function KnowledgeGraphPage() {
                     ) : null}
                     <div className="space-y-3">
                       {activeNodeResources.map((resource) => (
-                        <div key={resource.title} className="flex items-center gap-3 rounded-[18px] bg-[var(--surface-subtle)] p-3">
-                          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-[var(--surface-elevated)] text-[var(--accent)]">
+                        <div key={resource.title} className="flex items-center gap-3 rounded-[18px] bg-(--surface-subtle) p-3">
+                          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-(--surface-elevated) text-(--accent)">
                             <MaterialIcon name="description" className="text-[16px]" />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-bold text-[var(--app-text)]">{resource.title}</div>
-                            <div className="text-[11px] text-[var(--muted-text)]">
+                            <div className="truncate text-sm font-bold text-(--app-text)">{resource.title}</div>
+                            <div className="text-[11px] text-(--muted-text)">
                               {resource.type} · {resource.meta}
                             </div>
                           </div>
@@ -829,14 +829,14 @@ export function KnowledgeGraphPage() {
                   </div>
                   <a
                     href={aiWorkspaceHref}
-                    className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[var(--accent)] py-4 text-sm font-bold text-white"
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-(--accent) py-4 text-sm font-bold text-white"
                   >
                     和 AI 聊一聊
                     <MaterialIcon name="arrow_forward" className="text-sm" />
                   </a>
                 </div>
               ) : (
-                <div className="text-sm text-[var(--muted-text)]">请先选择一个图谱节点。</div>
+                <div className="text-sm text-(--muted-text)">请先选择一个图谱节点。</div>
               )}
             </GlassPanel>
           </aside>

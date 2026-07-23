@@ -1158,42 +1158,42 @@ export function VideoPlayerPage() {
                 : "rounded-[12px] border px-3 py-2.5"
           } ${
             active
-              ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_12px_24px_var(--accent-shadow)]"
-              : "border-[var(--shell-border)] bg-white hover:border-[rgba(37,99,235,0.24)] hover:bg-[rgba(248,250,255,0.96)]"
+              ? "border-(--accent-border) bg-(--accent-soft) shadow-[0_12px_24px_var(--accent-shadow)]"
+              : "border-(--shell-border) bg-white hover:border-[rgba(37,99,235,0.24)] hover:bg-[rgba(248,250,255,0.96)]"
           }`}
         >
-          {active ? <span className="absolute inset-y-3 left-0 w-1 rounded-full bg-[var(--accent)]" /> : null}
+          {active ? <span className="absolute inset-y-3 left-0 w-1 rounded-full bg-(--accent)" /> : null}
 
           <div className="flex items-start gap-2.5">
             {hasChildren ? (
               <button
                 type="button"
                 onClick={() => toggleStructureNode(node.id)}
-                className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[var(--shell-border)] bg-[var(--surface-elevated)] text-[var(--accent-strong)]"
+                className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-(--shell-border) bg-(--surface-elevated) text-(--accent-strong)"
               >
                 <MaterialIcon name={expanded ? "expand_less" : "expand_more"} className="text-[13px]" />
               </button>
             ) : (
-              <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[rgba(37,99,235,0.08)] text-[var(--accent-strong)]">
+              <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[rgba(37,99,235,0.08)] text-(--accent-strong)">
                 <span className="h-2 w-2 rounded-full bg-current" />
               </div>
             )}
 
             <button type="button" onClick={() => handleStructureSelect(node)} className="min-w-0 flex-1 text-left">
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-[rgba(37,99,235,0.08)] px-2 py-0.5 text-[9px] font-bold tracking-[0.1em] text-[var(--accent-strong)]">
+                <span className="rounded-full bg-[rgba(37,99,235,0.08)] px-2 py-0.5 text-[9px] font-bold tracking-widest text-(--accent-strong)">
                   {nodeTypeLabel(node)}
                 </span>
               </div>
               <p
                 className={`${
                   isRootNode ? "mt-1.5 text-[15px]" : isBranchNode ? "mt-1 text-[13.5px]" : "mt-1 text-[13px]"
-                } font-bold leading-5 text-[var(--app-text)]`}
+                } font-bold leading-5 text-(--app-text)`}
               >
                 {node.label}
               </p>
               {shouldShowStructureSummary(node) ? (
-                <p className="mt-0.5 text-[11px] leading-4 text-[var(--muted-text)]">{node.data?.summary}</p>
+                <p className="mt-0.5 text-[11px] leading-4 text-(--muted-text)">{node.data?.summary}</p>
               ) : null}
             </button>
           </div>
@@ -1213,42 +1213,42 @@ export function VideoPlayerPage() {
       <SidebarDock className="h-screen gap-6 overflow-hidden bg-[linear-gradient(180deg,#fcfdff_0%,#f2f6ff_100%)] p-4">
         <div className="px-2 py-4">
           <SidebarBackLink />
-          <h2 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">{course.title}</h2>
-          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">课程学习</p>
+          <h2 className="text-xl font-extrabold tracking-tight text-(--accent-strong)">{course.title}</h2>
+          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-(--muted-text)">课程学习</p>
         </div>
         <SidebarNav activeRoute={routes.video} />
       </SidebarDock>
 
       <div className="grid min-w-0 flex-1 gap-6 overflow-hidden p-6 lg:grid-cols-[360px_minmax(0,1fr)_380px]">
-        <aside className="overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[var(--panel-surface)] shadow-[0_16px_32px_var(--panel-shadow)] lg:h-[calc(100vh-48px)]">
-          <div className="border-b border-[var(--shell-border)] bg-[var(--surface-elevated)]/92 p-6 backdrop-blur-xl">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">课程学习</p>
-            <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">知识结构列表</h3>
+        <aside className="overflow-hidden rounded-[32px] border border-(--shell-border) bg-(--panel-surface) shadow-[0_16px_32px_var(--panel-shadow)] lg:h-[calc(100vh-48px)]">
+          <div className="border-b border-(--shell-border) bg-(--surface-elevated)/92 p-6 backdrop-blur-xl">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课程学习</p>
+            <h3 className="mt-2 text-2xl font-black text-(--accent-strong)">知识结构列表</h3>
           </div>
 
           <div className="space-y-5 overflow-y-auto p-5 lg:h-[calc(100vh-196px)]">
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-white p-4">
+            <div className="rounded-[24px] border border-(--shell-border) bg-white p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-bold text-[var(--accent-strong)]">学习路径</p>
-                  <p className="mt-1 text-xs text-[var(--muted-text)]">
+                  <p className="text-sm font-bold text-(--accent-strong)">学习路径</p>
+                  <p className="mt-1 text-xs text-(--muted-text)">
                     {graphRoot ? "当前结构直接来自知识图谱。" : "知识图谱不可用时，自动回退为课程内容列表。"}
                   </p>
                 </div>
-                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+                <span className="rounded-full bg-(--accent-soft) px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-(--accent-strong)">
                   {structureNodeCount} nodes
                 </span>
               </div>
 
               <div className="mt-4 space-y-2.5">
                 {graphLoading ? (
-                  <div className="rounded-[18px] bg-[var(--surface-subtle)] px-4 py-4 text-sm text-[var(--muted-text)]">
+                  <div className="rounded-[18px] bg-(--surface-subtle) px-4 py-4 text-sm text-(--muted-text)">
                     正在加载知识结构...
                   </div>
                 ) : structureRoot ? (
                   renderStructureNode(structureRoot)
                 ) : (
-                  <div className="rounded-[18px] bg-[var(--surface-subtle)] px-4 py-4 text-sm text-[var(--muted-text)]">
+                  <div className="rounded-[18px] bg-(--surface-subtle) px-4 py-4 text-sm text-(--muted-text)">
                     {graphError || "当前课程还没有可显示的知识结构。"}
                   </div>
                 )}
@@ -1260,11 +1260,11 @@ export function VideoPlayerPage() {
         <main
           ref={pageMainScrollRef}
           data-route-scroll-root
-          className="min-w-0 overflow-y-auto rounded-[32px] border border-[var(--shell-border)] bg-[var(--app-bg)] [overflow-anchor:none] lg:h-[calc(100vh-48px)]"
+          className="min-w-0 overflow-y-auto rounded-[32px] border border-(--shell-border) bg-(--app-bg) [overflow-anchor:none] lg:h-[calc(100vh-48px)]"
         >
-          <header className="sticky top-0 z-40 border-b border-[var(--shell-border)] bg-[var(--app-bg)]/88 px-8 py-4 backdrop-blur-xl">
-            <h1 className="text-xl font-extrabold tracking-tight text-[var(--accent-strong)]">课程学习</h1>
-            <p className="mt-1 text-sm text-[var(--muted-text)]">
+          <header className="sticky top-0 z-40 border-b border-(--shell-border) bg-(--app-bg)/88 px-8 py-4 backdrop-blur-xl">
+            <h1 className="text-xl font-extrabold tracking-tight text-(--accent-strong)">课程学习</h1>
+            <p className="mt-1 text-sm text-(--muted-text)">
               {mode === "online"
                 ? "在线学习模式：开始实时教学视频、生成讲稿、学生提问与课程内容联动。"
                 : "离线生成模式：根据已生成 PPT 批量生成完整课程视频。"}
@@ -1307,7 +1307,7 @@ export function VideoPlayerPage() {
                   )}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.08)_0%,rgba(2,6,23,0.12)_52%,rgba(2,6,23,0.42)_100%)]" />
                   {outline.length ? (
-                    <div className="absolute left-5 top-5 z-10 rounded-full bg-[rgba(15,23,42,0.72)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/92 backdrop-blur">
+                    <div className="absolute left-5 top-5 z-10 rounded-full bg-[rgba(15,23,42,0.72)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/92 backdrop-blur-sm">
                       Slide {activeSlideIndex + 1}/{outline.length}
                     </div>
                   ) : null}
@@ -1353,11 +1353,11 @@ export function VideoPlayerPage() {
 
             {mode === "online" ? (
               <section className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
+                <GlassPanel className="border border-(--shell-border) bg-(--surface-elevated) p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-2xl font-black text-[var(--accent-strong)]">当前讲解</h2>
-                      <p className="mt-1 text-xs text-[var(--muted-text)]">
+                      <h2 className="text-2xl font-black text-(--accent-strong)">当前讲解</h2>
+                      <p className="mt-1 text-xs text-(--muted-text)">
                         {webRtcStatus === "connected" ? `LiveTalking session ${livetalkingSessionId || "--"}` : "尚未连接实时课堂"}
                       </p>
                     </div>
@@ -1366,7 +1366,7 @@ export function VideoPlayerPage() {
                         type="button"
                         onClick={() => void handleStartRealtimePlayback()}
                         disabled={busy === "start-realtime" || webRtcStatus === "connecting"}
-                        className="rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+                        className="rounded-full bg-(--accent) px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
                       >
                         {isRealtimePlaying ? "继续实时教学" : "开始实时教学"}
                       </button>
@@ -1374,15 +1374,15 @@ export function VideoPlayerPage() {
                         type="button"
                         onClick={() => void handleGenerateScript()}
                         disabled={busy === "generate-script"}
-                        className="rounded-full border border-[var(--shell-border)] bg-white px-4 py-3 text-sm font-bold text-[var(--accent-strong)] disabled:opacity-60"
+                        className="rounded-full border border-(--shell-border) bg-white px-4 py-3 text-sm font-bold text-(--accent-strong) disabled:opacity-60"
                       >
                         {busy === "generate-script" ? "生成中..." : "生成当前页讲稿"}
                       </button>
                     </div>
                   </div>
-                  <div className="mt-4 rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
-                    <p className="text-sm font-bold text-[var(--accent-strong)]">{activeSlide ? activeSlide.title : "未选择页面"}</p>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-text)]">
+                  <div className="mt-4 rounded-[22px] border border-(--shell-border) bg-(--surface-subtle) p-4">
+                    <p className="text-sm font-bold text-(--accent-strong)">{activeSlide ? activeSlide.title : "未选择页面"}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-(--muted-text)">
                       {activeSlide?.content || "点击开始实时教学后，系统会先根据 PPT/课程内容生成课程大纲。"}
                     </p>
                   </div>
@@ -1393,23 +1393,23 @@ export function VideoPlayerPage() {
                         type="button"
                         onClick={() => void handleSpeak(sentence, index)}
                         className={`w-full rounded-[18px] border p-4 text-left ${
-                          currentSentence === sentence ? "border-[var(--accent-border)] bg-[var(--accent-soft)]" : "border-[var(--shell-border)] bg-white"
+                          currentSentence === sentence ? "border-(--accent-border) bg-(--accent-soft)" : "border-(--shell-border) bg-white"
                         }`}
                       >
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">讲稿句子 {index + 1}</p>
-                        <p className="mt-2 text-sm leading-7 text-[var(--app-text)]">{sentence}</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">讲稿句子 {index + 1}</p>
+                        <p className="mt-2 text-sm leading-7 text-(--app-text)">{sentence}</p>
                       </button>
                     ))}
-                    {!scriptSentences.length ? <div className="text-sm text-[var(--muted-text)]">当前还没有生成讲稿。</div> : null}
+                    {!scriptSentences.length ? <div className="text-sm text-(--muted-text)">当前还没有生成讲稿。</div> : null}
                   </div>
                 </GlassPanel>
 
-                <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">课堂问答</h2>
+                <GlassPanel className="border border-(--shell-border) bg-(--surface-elevated) p-6">
+                  <h2 className="text-2xl font-black text-(--accent-strong)">课堂问答</h2>
                   <textarea
                     value={studentQuestion}
                     onChange={(event) => setStudentQuestion(event.target.value)}
-                    className="mt-4 min-h-[140px] w-full rounded-[20px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4 text-sm outline-none"
+                    className="mt-4 min-h-[140px] w-full rounded-[20px] border border-(--shell-border) bg-(--surface-subtle) p-4 text-sm outline-hidden"
                     placeholder="输入学生实时提问..."
                   />
                   <div className="mt-4 flex gap-3">
@@ -1425,20 +1425,20 @@ export function VideoPlayerPage() {
                       type="button"
                       onClick={() => void handleInterruptAsk()}
                       disabled={busy === "ask"}
-                      className="flex-1 rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+                      className="flex-1 rounded-full bg-(--accent) px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
                     >
                       {busy === "ask" ? "回答中..." : "提交提问"}
                     </button>
                   </div>
-                  <div className="mt-5 rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
-                    <p className="text-sm font-bold text-[var(--accent-strong)]">AI 回答</p>
-                    <div className="mt-3 text-sm leading-7 text-[var(--muted-text)]">
+                  <div className="mt-5 rounded-[22px] border border-(--shell-border) bg-(--surface-subtle) p-4">
+                    <p className="text-sm font-bold text-(--accent-strong)">AI 回答</p>
+                    <div className="mt-3 text-sm leading-7 text-(--muted-text)">
                       <MarkdownPreview content={answerText || "学生提问后，回答会显示在这里。"} />
                     </div>
                   </div>
                   {persistedRecordingUrl ? (
-                    <div className="mt-5 rounded-[22px] border border-[var(--shell-border)] bg-white p-4">
-                      <p className="text-sm font-bold text-[var(--accent-strong)]">录制回看</p>
+                    <div className="mt-5 rounded-[22px] border border-(--shell-border) bg-white p-4">
+                      <p className="text-sm font-bold text-(--accent-strong)">录制回看</p>
                       <video controls preload="metadata" className="mt-3 aspect-video w-full rounded-[18px] bg-black" src={playbackUrl(persistedRecordingUrl)} />
                     </div>
                   ) : null}
@@ -1446,25 +1446,25 @@ export function VideoPlayerPage() {
               </section>
             ) : (
               <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
-                <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">离线整课视频生成</h2>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted-text)]">
+                <GlassPanel className="border border-(--shell-border) bg-(--surface-elevated) p-6">
+                  <h2 className="text-2xl font-black text-(--accent-strong)">离线整课视频生成</h2>
+                  <p className="mt-3 text-sm leading-7 text-(--muted-text)">
                     选择课程里已经生成完成的 PPT，前端会通过课程后端提交视频任务；PPT 图片、讲稿素材和本地路径都由后端统一处理。
                   </p>
-                  <div className="mt-4 rounded-[20px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
+                  <div className="mt-4 rounded-[20px] border border-(--shell-border) bg-(--surface-subtle) p-4">
                     {offlinePptsLoading ? (
-                      <p className="text-sm text-[var(--muted-text)]">正在加载可用 PPT...</p>
+                      <p className="text-sm text-(--muted-text)">正在加载可用 PPT...</p>
                     ) : offlinePptsError ? (
                       <p className="text-sm text-rose-600">{offlinePptsError}</p>
                     ) : offlinePpts.length === 0 ? (
-                      <p className="text-sm text-[var(--muted-text)]">当前课程还没有可用于生成教学视频的 PPT，请先在 PPT 工作坊完成课件生成。</p>
+                      <p className="text-sm text-(--muted-text)">当前课程还没有可用于生成教学视频的 PPT，请先在 PPT 工作坊完成课件生成。</p>
                     ) : (
                       <div className="space-y-3">
-                        <label className="text-xs font-black uppercase tracking-[0.16em] text-[var(--accent-strong)]">Select PPT</label>
+                        <label className="text-xs font-black uppercase tracking-[0.16em] text-(--accent-strong)">Select PPT</label>
                         <select
                           value={selectedOfflinePptId}
                           onChange={(event) => setSelectedOfflinePptId(event.target.value)}
-                          className="h-12 w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 text-sm font-semibold text-[var(--app-text)] outline-none"
+                          className="h-12 w-full rounded-[16px] border border-(--shell-border) bg-white px-4 text-sm font-semibold text-(--app-text) outline-hidden"
                         >
                           {offlinePpts.map((item) => (
                             <option key={item.material_id} value={item.material_id}>
@@ -1472,7 +1472,7 @@ export function VideoPlayerPage() {
                             </option>
                           ))}
                         </select>
-                        <p className="text-xs leading-6 text-[var(--muted-text)]">
+                        <p className="text-xs leading-6 text-(--muted-text)">
                           {selectedOfflinePpt
                             ? `已选择：${selectedOfflinePpt.title}${selectedOfflinePpt.slide_count ? `，共 ${selectedOfflinePpt.slide_count} 页` : ""}`
                             : "请选择一个 PPT"}
@@ -1484,15 +1484,15 @@ export function VideoPlayerPage() {
                     type="button"
                     onClick={() => void handleGenerateOfflineVideo()}
                     disabled={busy === "offline" || offlinePptsLoading || !selectedOfflinePptId}
-                    className="mt-4 w-full rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+                    className="mt-4 w-full rounded-full bg-(--accent) px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
                   >
                     {busy === "offline" ? "提交中..." : "提交整套课件渲染任务"}
                   </button>
                 </GlassPanel>
 
-                <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                  <h2 className="text-2xl font-black text-[var(--accent-strong)]">任务状态</h2>
-                  <div className="mt-4 space-y-3 text-sm text-[var(--muted-text)]">
+                <GlassPanel className="border border-(--shell-border) bg-(--surface-elevated) p-6">
+                  <h2 className="text-2xl font-black text-(--accent-strong)">任务状态</h2>
+                  <div className="mt-4 space-y-3 text-sm text-(--muted-text)">
                     <p>任务 ID：{offlineTaskId || "--"}</p>
                     <p>当前状态：{offlineStatus || "--"}</p>
                     <p>视频地址：{offlineVideoUrl || "--"}</p>
@@ -1503,7 +1503,7 @@ export function VideoPlayerPage() {
                         href={offlineVideoUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 rounded-full border border-[var(--shell-border)] bg-white px-4 py-3 text-center text-sm font-bold text-[var(--accent-strong)]"
+                        className="flex-1 rounded-full border border-(--shell-border) bg-white px-4 py-3 text-center text-sm font-bold text-(--accent-strong)"
                       >
                         在线预览
                       </a>
@@ -1511,7 +1511,7 @@ export function VideoPlayerPage() {
                         href={getAiLecturerDownloadUrl(fileNameFromUrl(offlineVideoUrl))}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 rounded-full bg-[var(--accent)] px-4 py-3 text-center text-sm font-bold text-white"
+                        className="flex-1 rounded-full bg-(--accent) px-4 py-3 text-center text-sm font-bold text-white"
                       >
                         下载视频
                       </a>
@@ -1522,16 +1522,16 @@ export function VideoPlayerPage() {
             )}
 
             <section id="course-materials" className="mt-8">
-              <GlassPanel className="border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--shell-border)] pb-5">
+              <GlassPanel className="border border-(--shell-border) bg-(--surface-elevated) p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-(--shell-border) pb-5">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">Course Content</p>
-                    <h2 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">课程内容</h2>
-                    <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--muted-text)]">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">Course Content</p>
+                    <h2 className="mt-2 text-2xl font-black text-(--accent-strong)">课程内容</h2>
+                    <p className="mt-2 max-w-3xl text-sm leading-7 text-(--muted-text)">
                       学习视频下方保留课程内容预览区，便于在课程学习过程中对照讲义、资料与文本内容。
                     </p>
                   </div>
-                  <div className="rounded-[20px] border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
+                  <div className="rounded-[20px] border border-(--accent-border) bg-(--accent-soft) px-4 py-3 text-sm font-semibold text-(--accent-strong)">
                     {materialsLoading ? "加载中..." : `共 ${materials.length} 份内容`}
                   </div>
                 </div>
@@ -1540,7 +1540,7 @@ export function VideoPlayerPage() {
                   <div className="min-h-0 overflow-y-auto pr-2">
                     <div className="space-y-3">
                     {materialsLoading ? (
-                      <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                      <div className="rounded-[22px] border border-(--shell-border) bg-(--surface-subtle) px-4 py-5 text-sm text-(--muted-text)">
                         正在加载课程内容...
                       </div>
                     ) : materialsError ? (
@@ -1548,7 +1548,7 @@ export function VideoPlayerPage() {
                         {materialsError}
                       </div>
                     ) : materials.length === 0 ? (
-                      <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                      <div className="rounded-[22px] border border-(--shell-border) bg-(--surface-subtle) px-4 py-5 text-sm text-(--muted-text)">
                         当前课程还没有可展示的内容。
                       </div>
                     ) : (
@@ -1562,24 +1562,24 @@ export function VideoPlayerPage() {
                             onClick={() => setActiveMaterialId(item.material_id)}
                             className={`w-full rounded-[22px] border px-4 py-4 text-left transition ${
                               active
-                                ? "border-[var(--accent-border)] bg-[var(--accent-soft)] shadow-[0_14px_28px_var(--accent-shadow)]"
-                                : "border-[var(--shell-border)] bg-[var(--surface-subtle)] hover:border-[var(--accent-border)] hover:bg-white"
+                                ? "border-(--accent-border) bg-(--accent-soft) shadow-[0_14px_28px_var(--accent-shadow)]"
+                                : "border-(--shell-border) bg-(--surface-subtle) hover:border-(--accent-border) hover:bg-white"
                             }`}
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--muted-text)]">
+                                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--muted-text)">
                                   第 {index + 1} 项 · {item.material_type || "content"}
                                 </p>
-                                <h3 className="mt-2 truncate text-sm font-bold text-[var(--app-text)]">
+                                <h3 className="mt-2 truncate text-sm font-bold text-(--app-text)">
                                   {item.title || item.topic || item.material_id}
                                 </h3>
-                                <p className="mt-2 line-clamp-3 text-sm leading-6 text-[var(--muted-text)]">
+                                <p className="mt-2 line-clamp-3 text-sm leading-6 text-(--muted-text)">
                                   {item.summary || "点击查看当前内容详情。"}
                                 </p>
                               </div>
                               {item.is_pinned ? (
-                                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[var(--accent-strong)]">置顶</span>
+                                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-(--accent-strong)">置顶</span>
                               ) : null}
                             </div>
                           </button>
@@ -1589,27 +1589,27 @@ export function VideoPlayerPage() {
                     </div>
                   </div>
 
-                  <div className="flex min-h-0 min-w-0 flex-col rounded-[24px] border border-[var(--shell-border)] bg-white/88 p-5">
+                  <div className="flex min-h-0 min-w-0 flex-col rounded-[24px] border border-(--shell-border) bg-white/88 p-5">
                     {activeMaterial ? (
                       <>
-                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--shell-border)] pb-4">
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-(--shell-border) pb-4">
                           <div>
-                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">
                               {activeMaterial.material_type || "content"}
                             </p>
-                            <h3 className="mt-2 text-2xl font-black text-[var(--accent-strong)]">
+                            <h3 className="mt-2 text-2xl font-black text-(--accent-strong)">
                               {activeMaterial.title || activeMaterial.topic || activeMaterial.material_id}
                             </h3>
                           </div>
                           <div className="flex flex-wrap items-center gap-3">
-                            <div className="rounded-full border border-[var(--shell-border)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--muted-text)]">
+                            <div className="rounded-full border border-(--shell-border) bg-(--surface-subtle) px-3 py-2 text-xs font-semibold text-(--muted-text)">
                               {course.title}
                             </div>
                             {canExportActiveMaterial ? (
                               <button
                                 type="button"
                                 onClick={handleExportActiveMaterial}
-                                className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-xs font-bold text-[var(--accent-strong)] transition hover:bg-white"
+                                className="rounded-full border border-(--accent-border) bg-(--accent-soft) px-4 py-2 text-xs font-bold text-(--accent-strong) transition hover:bg-white"
                               >
                                 导出 DOC
                               </button>
@@ -1618,7 +1618,7 @@ export function VideoPlayerPage() {
                               <button
                                 type="button"
                                 onClick={() => window.open(activeMaterialPptExportUrl, "_blank", "noopener,noreferrer")}
-                                className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2 text-xs font-bold text-[var(--accent-strong)] transition hover:bg-white"
+                                className="rounded-full border border-(--accent-border) bg-(--accent-soft) px-4 py-2 text-xs font-bold text-(--accent-strong) transition hover:bg-white"
                               >
                                 导出 PPT
                               </button>
@@ -1629,7 +1629,7 @@ export function VideoPlayerPage() {
                           {activeMaterialPptPreviewUrl ? (
                             <div
                               ref={pptPreviewFrameRef}
-                              className="h-full min-h-[620px] overflow-auto rounded-[20px] border border-[var(--shell-border)] bg-[#f8fafc] shadow-[0_18px_36px_rgba(15,23,42,0.08)]"
+                              className="h-full min-h-[620px] overflow-auto rounded-[20px] border border-(--shell-border) bg-[#f8fafc] shadow-[0_18px_36px_rgba(15,23,42,0.08)]"
                             >
                               <iframe
                                 src={activeMaterialPptPreviewUrl}
@@ -1651,7 +1651,7 @@ export function VideoPlayerPage() {
                         </div>
                       </>
                     ) : (
-                      <div className="rounded-[20px] bg-[var(--surface-subtle)] px-4 py-5 text-sm text-[var(--muted-text)]">
+                      <div className="rounded-[20px] bg-(--surface-subtle) px-4 py-5 text-sm text-(--muted-text)">
                         选择左侧一项内容后，会在这里显示完整预览。
                       </div>
                     )}
@@ -1668,23 +1668,23 @@ export function VideoPlayerPage() {
           </div>
         </main>
 
-        <aside className="flex flex-col overflow-hidden rounded-[32px] border border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(246,249,255,0.94)_0%,rgba(239,245,253,0.96)_100%)] shadow-[0_16px_32px_var(--panel-shadow)] lg:h-[calc(100vh-48px)] lg:overflow-auto">
-          <div className="border-b border-[var(--shell-border)] bg-[var(--surface-elevated)]/95 p-6 backdrop-blur-xl">
+        <aside className="flex flex-col overflow-hidden rounded-[32px] border border-(--shell-border) bg-[linear-gradient(180deg,rgba(246,249,255,0.94)_0%,rgba(239,245,253,0.96)_100%)] shadow-[0_16px_32px_var(--panel-shadow)] lg:h-[calc(100vh-48px)] lg:overflow-auto">
+          <div className="border-b border-(--shell-border) bg-(--surface-elevated)/95 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--accent)] text-white">
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-(--accent) text-white">
                 <MaterialIcon name="school" className="text-lg" />
               </div>
               <div>
-                <h4 className="font-bold text-[var(--accent-strong)]">学习概览</h4>
+                <h4 className="font-bold text-(--accent-strong)">学习概览</h4>
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1b6d24]">实时联动</p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-1 flex-col gap-6 overflow-hidden p-6">
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">学习状态</p>
-              <div className="mt-4 space-y-3 text-sm text-[var(--muted-text)]">
+            <div className="rounded-[24px] border border-(--shell-border) bg-(--surface-elevated) p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-(--accent-strong)">学习状态</p>
+              <div className="mt-4 space-y-3 text-sm text-(--muted-text)">
                 <p>{learningSummary}</p>
                 <p>课程 ID：{courseId || "--"}</p>
                 <p>AI 会话：{aiLectureSessionId || "--"}</p>
@@ -1694,30 +1694,30 @@ export function VideoPlayerPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">节点说明</p>
-              <div className="mt-4 rounded-[18px] bg-[var(--surface-subtle)] p-4 text-sm leading-7 text-[var(--muted-text)]">
+            <div className="rounded-[24px] border border-(--shell-border) bg-(--surface-elevated) p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-(--accent-strong)">节点说明</p>
+              <div className="mt-4 rounded-[18px] bg-(--surface-subtle) p-4 text-sm leading-7 text-(--muted-text)">
                 {activeStructureNode?.data?.summary || "选择左侧知识结构节点后，这里会显示当前节点摘要。"}
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--surface-elevated)] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">快速跳转</p>
+            <div className="rounded-[24px] border border-(--shell-border) bg-(--surface-elevated) p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-(--accent-strong)">快速跳转</p>
               <div className="mt-4 space-y-3">
                 <button
                   type="button"
                   onClick={() => document.getElementById("course-materials")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                  className="flex w-full items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]"
+                  className="flex w-full items-center justify-between rounded-[18px] bg-(--surface-subtle) px-4 py-3 text-left transition hover:bg-(--accent-soft)"
                 >
-                  <span className="text-sm font-semibold text-[var(--app-text)]">课程内容</span>
-                  <MaterialIcon name="arrow_forward" className="text-[var(--accent)]" />
+                  <span className="text-sm font-semibold text-(--app-text)">课程内容</span>
+                  <MaterialIcon name="arrow_forward" className="text-(--accent)" />
                 </button>
                 <a
                   href={routeHref(routes.ai)}
-                  className="flex items-center justify-between rounded-[18px] bg-[var(--surface-subtle)] px-4 py-3 text-left transition hover:bg-[var(--accent-soft)]"
+                  className="flex items-center justify-between rounded-[18px] bg-(--surface-subtle) px-4 py-3 text-left transition hover:bg-(--accent-soft)"
                 >
-                  <span className="text-sm font-semibold text-[var(--app-text)]">问答工作台</span>
-                  <MaterialIcon name="arrow_forward" className="text-[var(--accent)]" />
+                  <span className="text-sm font-semibold text-(--app-text)">问答工作台</span>
+                  <MaterialIcon name="arrow_forward" className="text-(--accent)" />
                 </a>
               </div>
             </div>
