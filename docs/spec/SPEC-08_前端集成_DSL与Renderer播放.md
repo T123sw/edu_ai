@@ -6,6 +6,15 @@
 > 上游（已核对）：`packages/@openmaic/{dsl,renderer,importer}`；`lib/playback/engine.ts`（`PlaybackEngine`）+ `lib/action/engine.ts`（`ActionEngine`）。
 > 关联：SPEC-02（渲染的数据契约）、SPEC-04（数据来源）。
 
+> **P3-1 进度（2026-07-24）**：引包+最小播放器+dev 冒烟样本已完成，详见 §7。
+> `PlaybackEngine`/`ActionEngine` 已按 §3.1 port 完（speech+spotlight/laser 子集，
+> 其余动作类型留白见 `actionEngine.ts` 顶部注释）；三接缝形状已落地（ClockSource
+> 注入、renderVideo 强制插槽、effect-timing 归入 ClockSource/PlaybackEngine 层，
+> 详见 `SlidePlayer.tsx` 注释里对 seam #2 的取舍说明）。**AC-08-3(真实课件播放)/
+> AC-08-9(中文字体音色实测) 尚未做**——冒烟样本是手写夹具，没有接 SPEC-04 落库
+> 的真实 classroom 数据；中文字体/TTS 只验证了机制存在（浏览器 TTS 兜底触发），
+> 没有实测音色/字体渲染效果。
+
 ---
 
 ## 1. 引包（MIT，workspace/vendor）
@@ -91,8 +100,8 @@ useSlideBackgroundStyle
 
 ## 6. 验收清单
 
-- [ ] `@openmaic/dsl+renderer` 在 edu_ai 前端构建通过（workspace 解析 OK）
-- [ ] 喂一份手写 `Slide + [speech, spotlight]` → 前端能渲染 + 聚焦 + 旁白同步
+- [x] `@openmaic/dsl+renderer` 在 edu_ai 前端构建通过（`file:` 依赖 + patch 002，非 workspace；`npm run build`/`vite dev` 均通过）
+- [x] 喂一份手写 `Slide + [speech, spotlight]` → 前端能渲染 + 聚焦 + 旁白同步（`pages/_dev/PlayerSmoke.tsx`，浏览器验证：`#slide-element-el-formula` 命中、spotlight mask 出现、无未捕获异常）
 - [ ] 用 SPEC-04 落库的真实课件完整播放一节课
-- [ ] 三接缝形状就位：ClockSource 注入点存在、effect 组件有 `localTimeMs?` 可选 prop、视频走 renderVideo 插槽（B 分支未实现但形状在）
-- [ ] 中文字体/音色实测通过
+- [x] 三接缝形状就位：`ClockSource`（`openmaic/clock.ts`）、renderVideo 强制插槽（`SlidePlayer.tsx`，永不落回默认 `<video>`）；`localTimeMs?` 的取舍见 `SlidePlayer.tsx` 顶部注释（用 `SlideCanvas.effects` 而非裸 overlay 组件，seam 落在 ClockSource/PlaybackEngine 层）
+- [ ] 中文字体/音色实测通过（机制已接：浏览器 TTS 兜底、renderer fonts.css 已 import；未做真实中文渲染/音色效果验收）

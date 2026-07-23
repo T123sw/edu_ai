@@ -24,6 +24,8 @@ export const routes = {
   resources: "resources",
   knowledge: "knowledge",
   edit: "edit",
+  // Dev-only, not in any nav — Phase 3 player smoke test (SPEC-08 §6 / ACC-08 §3.2).
+  playerSmoke: "player-smoke",
 } as const;
 
 export type RouteKey = (typeof routes)[keyof typeof routes];

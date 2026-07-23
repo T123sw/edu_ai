@@ -11,6 +11,7 @@ import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
 import { CourseEditPage } from "./pages/CourseEdit";
 import { ProfilePage } from "./pages/Profile";
 import { LoginPage } from "./pages/LoginPage";
+import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
 import {
   AppShellProvider,
   ThemeCustomizer,
@@ -36,6 +37,7 @@ const pages = [
   [routes.ppt, "PPT Studio", PptStudioPage],
   [routes.knowledge, "Knowledge Base", CourseKnowledgeBasePage],
   [routes.edit, "Course Edit", CourseEditPage],
+  [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
 ] as const;
 
 const AUTH_STORAGE_KEY = "edu-ai-auth";
@@ -196,7 +198,10 @@ export default function App() {
       setTheme={setTheme}
       logout={handleLogout}
     >
-      {!authReady ? (
+      {current === routes.playerSmoke ? (
+        // Dev-only: no backend dependency, so it skips the auth gate.
+        <PlayerSmokePage />
+      ) : !authReady ? (
         <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
       ) : authenticated ? (
         <div key={current} className="route-stage">
