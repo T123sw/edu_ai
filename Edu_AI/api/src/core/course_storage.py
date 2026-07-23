@@ -36,6 +36,7 @@ TYPE_MAPPING = {
     "ai_lecture_session": "lecture_sessions",
     "blog": "blogs",
     "quiz": "quizzes",
+    "classroom": "classrooms",
 }
 
 DIR_TO_TYPE = {value: key for key, value in TYPE_MAPPING.items()}

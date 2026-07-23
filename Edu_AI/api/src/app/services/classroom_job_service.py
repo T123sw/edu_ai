@@ -173,12 +173,16 @@ async def start_generate_classroom_job(
         result_ref = await on_sidecar_succeeded(final_envelope.get("result") or {})
     except Exception as exc:  # noqa: BLE001 — 后处理任何异常都必须落 edu_job=failed
         log.exception("post-process after sidecar success failed for edu_job=%s", job.edu_job_id)
+        # 鸭子类型而非 import ClassroomValidationError：这层不应依赖具体的落库实现
+        # （P2-5 换钩子时这层代码不用动），只看异常是否带 `violations`（SPEC-02 §6
+        # 校验失败的标记）来决定归入 VALIDATION_FAILED 还是 PERSIST_FAILED（SPEC-05 §5）。
+        error_code = "VALIDATION_FAILED" if getattr(exc, "violations", None) else "PERSIST_FAILED"
         return _fail(
             job.edu_job_id,
             step="failed",
             message="Post-processing failed after sidecar generation succeeded",
             error=str(exc),
-            error_code="PERSIST_FAILED",
+            error_code=error_code,
         )
 
     updated = update_job(
