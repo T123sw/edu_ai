@@ -31,7 +31,7 @@
 | D1 | TTS 配音 + `audioUrl` 改写为 edu_ai 可达地址 | Phase 3 | §5、AC-04-6、SPEC-02 §6 不变量 5 |
 | D2 | 图片/视频生成（`enableImage/Video`）+ 媒体落盘迁移 | Phase 5 | §5、SPEC-02 视频/媒体元素 |
 | D3 | 前端 `renderer` 完整播放一节课 | Phase 3 | AC-04-8、SPEC-08 |
-| D4 | researchContext 领域补充深度：**教材章节 + 知识图谱节点/关系 + 本地化图片说明**（本轮 web + RAG 第一路已接） | Phase 2.5 | §4.3 |
+| D4 | researchContext 领域补充深度：教材章节 + ~~知识图谱节点/关系~~（**✅ 已完成 2026-07-24**，`app/services/knowledge_graph_context.py`，按关键词命中课程知识图谱树节点，拼「章节路径（隐含先修）+课时」为第三路） + 本地化图片说明（本轮 web + RAG 第一路已接） | Phase 2.5（部分） | §4.3 |
 | D5 | 客户端 `parse_pdf` 方法接入（当前 Phase 1 用 Python 直连绕过） | 按需 | SPEC-07 §3 |
 | D6 | parse-pdf 的 job 化（当前同步阻塞） | 可选 | SPEC-05 §6 |
 | D7 | 旧 EduAgent **deepsearch+爬虫+SearxNG** 链路下线（已被 **SPEC-00 Web 检索层** 替换） | Phase 6 | SPEC-00 §11 |

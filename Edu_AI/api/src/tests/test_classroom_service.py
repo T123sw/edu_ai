@@ -246,6 +246,38 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     assert saved["title"] == "Compound Interest"
 
 
+async def test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer(monkeypatch):
+    """web + RAG + 知识图谱三路都命中时，三段都要出现在最终 researchContext 里
+    （Phase 2.5/D4：知识图谱是新加的第三路，不能顶掉/短路前两路）。"""
+    manager = _make_manager()
+    manager.get_course_dir("course-1").mkdir(parents=True, exist_ok=True)
+    (manager.get_course_dir("course-1") / "knowledge_graph.json").write_text(
+        '{"id":"root","label":"Finance","data":{},'
+        '"children":[{"id":"n1","label":"Compound interest","data":{"hours":2},"children":[]}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "app.services.classroom_service.fetch_course_rag_snippets",
+        lambda **kwargs: "[来源: textbook.pdf]\nRAG snippet",
+    )
+    client = FakeClient()
+
+    job = await generate_classroom_for_course(
+        course_id="course-1",
+        requirement="Teach compound interest",
+        owner="teacher-a",
+        course_storage_manager=manager,
+        web_research_context="web snippet",
+        client=client,
+    )
+
+    assert job.status == JobStatus.SUCCEEDED
+    assert client.submitted_body["research_context"] == (
+        "web snippet\n\n[来源: textbook.pdf]\nRAG snippet"
+        "\n\n[知识图谱] Finance > Compound interest（课时 2 学时）"
+    )
+
+
 async def test_generate_classroom_for_course_marks_validation_failed_on_bad_stage(monkeypatch):
     manager = _make_manager()
     monkeypatch.setattr(

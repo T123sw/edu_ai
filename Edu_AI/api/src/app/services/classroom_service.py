@@ -1,10 +1,11 @@
 """P2-5 编排入口：串联 P2-2~P2-4 的全部产出。
 
-researchContext 合并注入（web + 本课程 RAG Top-K，SPEC-04 §4.3 第一路）→
-提交 `generate_classroom` job（P2-4 `classroom_job_service`）→ sidecar 完成
-后校验 + 落库（`classroom_validation`/`classroom_persistence`，SPEC-02 §6/
-SPEC-04 §6）→ 返回最终 `EduJob`（succeeded/failed 由真实的落库结果决定，
-不是 sidecar 说了算，见 SPEC-05 §2.2）。
+researchContext 合并注入（web + 本课程 RAG Top-K + 知识图谱节点/课时，
+SPEC-04 §4.3；后者是 Phase 2.5/D4 补的第三路）→ 提交 `generate_classroom`
+job（P2-4 `classroom_job_service`）→ sidecar 完成后校验 + 落库
+（`classroom_validation`/`classroom_persistence`，SPEC-02 §6/SPEC-04 §6）→
+返回最终 `EduJob`（succeeded/failed 由真实的落库结果决定，不是 sidecar 说了
+算，见 SPEC-05 §2.2）。
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from app.integrations.openmaic import OpenMaicClient
 from app.services.classroom_job_service import start_generate_classroom_job
 from app.services.classroom_persistence import persist_classroom_result
 from app.services.job_store import EduJob
+from app.services.knowledge_graph_context import fetch_knowledge_graph_context
 from core.course_storage import CourseStorageManager
 
 log = logging.getLogger("classroom_service")
@@ -100,7 +102,7 @@ def fetch_course_rag_snippets(
 
 
 def merge_research_context(*parts: Optional[str]) -> Optional[str]:
-    """web 结果与 RAG 片段合并叠加（不互相短路），空片段自动跳过。"""
+    """web/RAG/知识图谱各路结果合并叠加（不互相短路），空片段自动跳过。"""
     non_empty = [p.strip() for p in parts if p and p.strip()]
     return "\n\n".join(non_empty) if non_empty else None
 
@@ -120,8 +122,8 @@ async def generate_classroom_for_course(
     client: Optional[OpenMaicClient] = None,
     rag_system: Optional[Any] = None,
 ) -> EduJob:
-    """顶层入口：拼 researchContext（web+RAG 合并叠加）→ 提交 sidecar job →
-    sidecar 完成后校验+落库 → 返回最终 edu_job。"""
+    """顶层入口：拼 researchContext（web+RAG+知识图谱 合并叠加）→ 提交
+    sidecar job → sidecar 完成后校验+落库 → 返回最终 edu_job。"""
     rag_context = await anyio.to_thread.run_sync(
         partial(
             fetch_course_rag_snippets,
@@ -132,7 +134,14 @@ async def generate_classroom_for_course(
             rag_system=rag_system,
         )
     )
-    research_context = merge_research_context(web_research_context, rag_context)
+    # 知识图谱是本地小 JSON 树的一次内存遍历，不是网络/向量库调用，
+    # 不需要像 RAG 那样丢线程池（不会有明显阻塞）。
+    kg_context = fetch_knowledge_graph_context(
+        course_storage_manager=course_storage_manager,
+        course_id=course_id,
+        query=requirement,
+    )
+    research_context = merge_research_context(web_research_context, rag_context, kg_context)
 
     async def _on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
         return persist_classroom_result(
