@@ -102,3 +102,19 @@ def test_speech_audio_url_pointing_to_edu_ai_storage_is_fine():
     stage, scenes = _valid_stage_and_scenes()
     scenes[0]["actions"][0]["audioUrl"] = "/api/media?path=audio/foo.mp3"
     assert validate_stage(stage, scenes) == []
+
+
+def test_speech_audio_url_on_edu_ai_own_localhost_is_not_flagged():
+    """回归测试：edu_ai 本地开发时自己也跑在 localhost（只是端口跟 sidecar
+    不同），迁移改写后的地址不该被"是不是 localhost"这种粗糙判断误伤——
+    必须精确匹配当前配置的 sidecar_base_url 才算违规。"""
+    stage, scenes = _valid_stage_and_scenes()
+    scenes[0]["actions"][0]["audioUrl"] = "http://127.0.0.1:8001/api/courses/c1/classrooms/s1/audio/a.mp3"
+    assert validate_stage(stage, scenes, sidecar_base_url="http://localhost:3000") == []
+
+
+def test_speech_audio_url_matching_configured_sidecar_base_url_is_flagged():
+    stage, scenes = _valid_stage_and_scenes()
+    scenes[0]["actions"][0]["audioUrl"] = "http://sidecar.internal:3000/api/classroom-media/s1/audio/a.mp3"
+    violations = validate_stage(stage, scenes, sidecar_base_url="http://sidecar.internal:3000")
+    assert any("audioUrl" in v for v in violations)

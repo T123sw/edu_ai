@@ -16,9 +16,24 @@ from typing import Any
 # action.ts:251/257 —— 这两类动作不推进时钟、只在 slide 场景内叠加聚焦效果。
 FIRE_AND_FORGET_ELEMENT_ACTIONS = {"spotlight", "laser"}
 
+# 跟 OpenMaicClient._default_base_url() 的默认值保持一致——这里不 import
+# client 模块（validation 不该依赖 integrations 层），只是复用同一个默认值。
+_DEFAULT_SIDECAR_BASE_URL = "http://localhost:3000"
 
-def validate_stage(stage: dict[str, Any], scenes: list[dict[str, Any]]) -> list[str]:
-    """返回违规描述列表；空列表 = 通过。不抛异常，由调用方决定落库策略。"""
+
+def validate_stage(
+    stage: dict[str, Any],
+    scenes: list[dict[str, Any]],
+    *,
+    sidecar_base_url: str = _DEFAULT_SIDECAR_BASE_URL,
+) -> list[str]:
+    """返回违规描述列表；空列表 = 通过。不抛异常，由调用方决定落库策略。
+
+    `sidecar_base_url` 用于不变量 5 的判定：只有 audioUrl 精确落在**这个
+    sidecar 的地址**下才算"忘记迁移"，不能拿"是不是 localhost"来判断——
+    edu_ai 自己的后端本地开发时也跑在 localhost（只是端口不同），拿
+    localhost 一刀切会把 edu_ai 自己迁移改写后的地址也误判为违规。
+    """
     violations: list[str] = []
 
     if not stage.get("id"):
@@ -35,12 +50,12 @@ def validate_stage(stage: dict[str, Any], scenes: list[dict[str, Any]]) -> list[
             seen_scene_ids.add(scene_id)
 
         label = f"Scene[{scene_id or scene_index}]"
-        violations.extend(_validate_scene(label, scene))
+        violations.extend(_validate_scene(label, scene, sidecar_base_url))
 
     return violations
 
 
-def _validate_scene(label: str, scene: dict[str, Any]) -> list[str]:
+def _validate_scene(label: str, scene: dict[str, Any], sidecar_base_url: str) -> list[str]:
     violations: list[str] = []
     content = scene.get("content") or {}
 
@@ -95,7 +110,7 @@ def _validate_scene(label: str, scene: dict[str, Any]) -> list[str]:
         elif action_type == "speech":
             # 不变量 5：已配音的 audioUrl 必须指向 edu_ai 可达存储，不能是 sidecar 临时地址。
             audio_url = action.get("audioUrl")
-            if audio_url and _looks_like_sidecar_local_url(audio_url):
+            if audio_url and _looks_like_sidecar_local_url(audio_url, sidecar_base_url):
                 violations.append(
                     f"{label} speech.audioUrl 指向 sidecar 本地地址而非 edu_ai 存储: {audio_url}"
                 )
@@ -113,10 +128,5 @@ def _validate_element_reference(
     return []
 
 
-def _looks_like_sidecar_local_url(url: str) -> bool:
-    lowered = url.strip().lower()
-    return (
-        lowered.startswith("http://localhost")
-        or lowered.startswith("http://127.0.0.1")
-        or lowered.startswith("https://localhost")
-    )
+def _looks_like_sidecar_local_url(url: str, sidecar_base_url: str) -> bool:
+    return url.strip().lower().startswith(sidecar_base_url.strip().lower().rstrip("/"))

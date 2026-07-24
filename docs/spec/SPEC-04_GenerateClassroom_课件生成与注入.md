@@ -22,13 +22,13 @@
 - `OpenMaicClient`（SPEC-07，聚焦 `generate_classroom` / `poll_job` / `wait_job` + 错误映射）。
 - job 表衔接（SPEC-05，generate-classroom 的 job 化）。
 - `classroom_service` 编排：researchContext = **web search（主外部源）+ RAG Top-K 领域补充（带出处）合并** → 生成 → 过 SPEC-02 §6 不变量校验 → 落库 `classrooms` / `classroom_scenes`（同 `Stage.id` 幂等 upsert）。
-- 生成 flags：**`enableWebSearch=false`**——web 由 **edu_ai 侧独立 Web 检索层（SPEC-00，Phase 1.5 前置：Bocha 搜索 + Tavily Extract）** 产出并拼进 researchContext；sidecar 自带 web search **保留可用**（可选/兜底）。`enableTTS/Image/Video=false`（媒体后置）。**知识源分层 = LLM 基座 + web（edu_ai 侧 SPEC-00）+ RAG（领域补充，叠加非替代）**；researchContext 为空也应能靠 LLM 生成。Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
+- 生成 flags：**`enableWebSearch=false`**——web 由 **edu_ai 侧独立 Web 检索层（SPEC-00，Phase 1.5 前置：Bocha 搜索 + Tavily Extract）** 产出并拼进 researchContext；sidecar 自带 web search **保留可用**（可选/兜底）。`enableImage/Video=false`（媒体后置，D2 未做）；`enableTTS` **自 D1 起默认 `true`**（见 §5）。**知识源分层 = LLM 基座 + web（edu_ai 侧 SPEC-00）+ RAG（领域补充，叠加非替代）**；researchContext 为空也应能靠 LLM 生成。Stage/Scene 结构（含 `speech.text`、`spotlight.elementId`）本轮须完整生成。
 
 ### 0.1 切割清单（Deferred —— 后续 Phase 必须回来补，不等于删除）
 
 | # | 切割项 | 归属 | 触达的原 spec / AC |
 | --- | --- | --- | --- |
-| D1 | TTS 配音 + `audioUrl` 改写为 edu_ai 可达地址 | Phase 3 | §5、AC-04-6、SPEC-02 §6 不变量 5 |
+| D1 | TTS 配音 + `audioUrl` 改写为 edu_ai 可达地址 | Phase 3（**✅ 已完成 2026-07-24**，`app/services/classroom_media.py`） | §5、AC-04-6、SPEC-02 §6 不变量 5 |
 | D2 | 图片/视频生成（`enableImage/Video`）+ 媒体落盘迁移 | Phase 5 | §5、SPEC-02 视频/媒体元素 |
 | D3 | 前端 `renderer` 完整播放一节课 | Phase 3 | AC-04-8、SPEC-08 |
 | D4 | researchContext 领域补充深度：教材章节 + ~~知识图谱节点/关系~~（**✅ 已完成 2026-07-24**，`app/services/knowledge_graph_context.py`，按关键词命中课程知识图谱树节点，拼「章节路径（隐含先修）+课时」为第三路） + 本地化图片说明（本轮 web + RAG 第一路已接） | Phase 2.5（部分） | §4.3 |
@@ -186,14 +186,42 @@ researchContext（edu_ai 注入的领域补充，叠加非替代）=
 
 ## 5. 媒体落盘与回填（audioUrl / video src）
 
-> **【本轮 MVP】本节整体 Deferred**（媒体/TTS flags 全关，见 §0.1 D1/D2）。因无配音，SPEC-02 §6 不变量 5（已配音则 audioUrl 须改写）本轮自然 N/A 通过。以下为后续 Phase 3/5 实现依据，保留不删。
+> **D1（配音）已实现（2026-07-24）**，见 `app/services/classroom_media.py`
+> `migrate_classroom_speech_audio`；D2（图片/视频生成 `enableImage/Video`）
+> 仍 Deferred，本节 D2 部分描述保留不删。
 
-- `enableTTS` → `generateTTSForClassroom` 预生成 mp3、`splitLongSpeechActions` 切句、回填 `SpeechAction.audioUrl`。
-- `enableVideo/Image` → 在线 provider 异步生成、落盘、回填 `mediaRef/src`。
-- **落盘位置问题**：sidecar 回填的是 **sidecar 本地/临时 URL**。edu_ai 落库前必须**把媒体迁到 edu_ai 存储**并改写 url（否则 SPEC-02 §6 不变量 5 失败）。两种做法：
-  1. edu_ai 拉取 sidecar 产物 → 存自己对象存储 → 改写 `audioUrl/src` 为 edu_ai 可达地址（**推荐**）。
-  2. edu_ai 反代 sidecar 媒体路径（临时，简单但耦合 sidecar 生命周期）。
-- 共享卷（SPEC-01 §6）便于做法 1 的拉取。
+- `enableTTS`（edu_ai 默认 `True`，见 `GenerateClassroomRequest.enable_tts`）→ sidecar
+  `generateTTSForClassroom` 预生成音频、`splitLongSpeechActions` 切句、回填
+  `SpeechAction.audioUrl`（指向 sidecar 自己的临时地址）。sidecar 未配置任何
+  server-managed TTS provider（`TTS_<PREFIX>_API_KEY`）时静默跳过，不报错、
+  `audioUrl` 不出现，前端自动退回 tier-2/3 兜底（浏览器 TTS/朗读时长静音
+  等待），不影响生成成功与否。
+- `enableVideo/Image` → 在线 provider 异步生成、落盘、回填 `mediaRef/src`（仍 Deferred）。
+- **落盘位置问题**：sidecar 回填的是 **sidecar 本地/临时 URL**（如
+  `http://localhost:3000/api/classroom-media/...`）。edu_ai 落库前**已实现**
+  按方案 1 迁移：`classroom_media.migrate_classroom_speech_audio` 下载音频
+  字节、落到 `CourseStorageManager.get_classroom_audio_dir(course_id,
+  classroom_id)`（`course_data/courses/{course_id}/generated_materials/
+  classrooms/{classroom_id}_media/audio/`），改写 `audioUrl` 为 edu_ai 自己
+  的地址 `/api/courses/{course_id}/classrooms/{classroom_id}/audio/
+  {filename}`（`app/api/courses.py` 的 `get_classroom_audio` 路由 serve，
+  带路径穿越防护，同 `ai_lecture_sessions.py` 的既有模式）。
+- 该路由要求登录（跟其它 material 路由一致），`<audio src>`/`new Audio()`
+  发不出 Authorization 头——前端 `stitch/api/classroom.ts` 的
+  `getClassroom()` 会在拿到课件后，用带 token 的 `fetch` 把每个相对
+  audioUrl 转成 blob object URL 再交给播放器（跟 `VideoPlayer.tsx` 里
+  `fetchAuthenticatedBlobUrl` 同样的既有模式），播放器本身不需要知道任何
+  鉴权细节。
+- SPEC-02 §6 不变量 5 的校验也已改为参数化：`validate_stage(...,
+  sidecar_base_url=...)` 只精确匹配"当前配置的 sidecar 地址"，不再用
+  "是不是 localhost"这种粗判断（否则 edu_ai 自己在本地开发时也跑在
+  localhost，会把自己迁移改写后的地址误判为违规）。
+- **真实验证**（2026-07-24）：配置 `TTS_QWEN_API_KEY`（阿里云百炼/DashScope
+  Qwen3 TTS）后，真实生成一份课件（5 个 speech action），全部产出真实 wav
+  音频（400-700KB/条），迁移改写、校验通过、落库成功；浏览器实测通过
+  monkey-patch `Audio` 构造函数确认：`play()` 真实 resolve、`ended` 事件
+  在音频真实播放完（`currentTime === duration`，8.88s/14.48s 等真实时长）
+  后才触发，逐条顺序播放正确——不是走 tier-2/3 兜底。
 
 ---
 
@@ -229,5 +257,5 @@ researchContext（edu_ai 注入的领域补充，叠加非替代）=
 - [ ] 【MVP】job/poll 全程进度可见、推进到 `completed`，失败有 error 文案（AC-04-4/9）
 - [ ] 【MVP】产出通过 SPEC-02 §6 全部不变量校验（AC-04-5）
 - [ ] 【MVP】落库 + 同 `Stage.id` 幂等 upsert（AC-04-7）
-- [ ] 【D1 / Phase 3】`enableTTS=true` 时 `audioUrl` 已改写为 edu_ai 可达地址且能播（AC-04-6）
+- [x] 【D1 / Phase 3】`enableTTS=true` 时 `audioUrl` 已改写为 edu_ai 可达地址且能播（AC-04-6，2026-07-24 真实验证通过）
 - [ ] 【D3 / Phase 3】落库后前端 renderer 能完整播放一节课（AC-04-8）

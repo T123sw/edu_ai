@@ -172,6 +172,23 @@ class OpenMaicClient:
             raise OpenMaicServerError(f"GET /api/classroom returned no classroom for id={classroom_id}")
         return classroom
 
+    async def download_media(self, url: str) -> tuple[bytes, Optional[str]]:
+        """下载 sidecar 生成的媒体文件（目前只用于配音 audioUrl 迁移，见
+        `classroom_media.migrate_classroom_speech_audio`）。`url` 必须是
+        `self.config.base_url` 下的地址——调用方负责这个前置判断，这里只管下载。
+        返回 `(内容字节, content-type)`。"""
+        try:
+            resp = await self._client.get(url, timeout=self.config.request_timeout)
+        except (httpx.TransportError, httpx.TimeoutException) as exc:
+            raise OpenMaicUnavailable(f"sidecar media unreachable: {exc}") from exc
+
+        if not (200 <= resp.status_code < 300):
+            raise OpenMaicServerError(
+                f"failed to download media from sidecar: HTTP {resp.status_code} url={url}",
+                status_code=resp.status_code,
+            )
+        return resp.content, resp.headers.get("content-type")
+
     async def wait_job(
         self,
         poll_url: str,

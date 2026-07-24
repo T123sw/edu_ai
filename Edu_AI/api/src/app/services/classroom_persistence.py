@@ -41,15 +41,20 @@ def persist_classroom_result(
     result: dict[str, Any],
     scope_type: Optional[str] = None,
     scope_id: Optional[str] = None,
+    sidecar_base_url: Optional[str] = None,
 ) -> dict[str, Any]:
     """校验 + 落库一份 generate_classroom 的产出，返回 edu_job.result_ref 用的引用。
 
-    `result` 是 sidecar `GenerateClassroomResult` 的原样 dict。
+    `result` 是 sidecar `GenerateClassroomResult` 的原样 dict——若开了 TTS，
+    调用方应已经先跑过 `migrate_classroom_speech_audio` 把 audioUrl 改写成
+    edu_ai 地址，这里的 `sidecar_base_url` 只是不变量 5 的校验依据（见
+    classroom_validation 的说明），不做任何改写。
     """
     stage = result.get("stage") or {}
     scenes = result.get("scenes") or []
 
-    violations = validate_stage(stage, scenes)
+    validate_kwargs = {} if sidecar_base_url is None else {"sidecar_base_url": sidecar_base_url}
+    violations = validate_stage(stage, scenes, **validate_kwargs)
     if violations:
         raise ClassroomValidationError(violations)
 

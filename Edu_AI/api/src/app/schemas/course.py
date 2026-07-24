@@ -51,11 +51,15 @@ class PinMaterialRequest(BaseModel):
 
 
 class GenerateClassroomRequest(BaseModel):
-    """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（媒体/TTS flags 本轮不开放，见 §0.1 D1/D2）。"""
+    """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（图片/视频生成 flags 仍不开放，见 §0.1 D2）。"""
 
     requirement: str = Field(..., description="课件需求文本")
     enable_web_search: bool = Field(
         default=False, description="是否启用 sidecar 内建 web search（edu_ai 默认走 SPEC-00 独立检索层，这里通常不开）"
+    )
+    enable_tts: bool = Field(
+        default=True,
+        description="是否生成真人配音（D1，SPEC-04 §5）。sidecar 未配置 TTS provider 时会静默跳过，自动退回前端浏览器 TTS/静音等待兜底",
     )
 
 

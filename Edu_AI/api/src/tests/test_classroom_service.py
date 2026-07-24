@@ -175,11 +175,20 @@ class FakeClient:
     `{id, stage, scenes, createdAt}` requires a separate `get_classroom` call.
     """
 
-    def __init__(self, *, final_status="succeeded", stage_id="stage-1"):
+    def __init__(self, *, final_status="succeeded", stage_id="stage-1", with_audio=False):
         self.final_status = final_status
         self.stage_id = stage_id
+        self.with_audio = with_audio
         self.submitted_body = {}
         self.get_classroom_calls: list[str] = []
+        self.download_media_calls: list[str] = []
+        # `migrate_classroom_speech_audio` reads `.config.base_url` unconditionally
+        # (to know which audioUrl prefix counts as "still points at sidecar").
+        self.config = SimpleNamespace(base_url="http://sidecar-test:3000")
+
+    async def download_media(self, url: str):
+        self.download_media_calls.append(url)
+        return b"fake-audio-bytes", "audio/mpeg"
 
     async def generate_classroom(self, **kwargs):
         self.submitted_body = kwargs
@@ -222,6 +231,10 @@ class FakeClient:
 
     async def get_classroom(self, classroom_id: str) -> dict:
         self.get_classroom_calls.append(classroom_id)
+        speech_action = {"id": "act-1", "type": "speech", "text": "hi"}
+        if self.with_audio:
+            speech_action["audioId"] = "tts_s1_act-1"
+            speech_action["audioUrl"] = "http://sidecar-test:3000/api/classroom-media/stage-1/audio/tts_s1_act-1.mp3"
         return {
             "id": self.stage_id,
             "url": "http://sidecar-test:3000/classroom/stage-1",
@@ -239,7 +252,7 @@ class FakeClient:
                             "elements": [{"id": "el-1", "type": "text"}],
                         },
                     },
-                    "actions": [{"id": "act-1", "type": "speech", "text": "hi"}],
+                    "actions": [speech_action],
                 }
             ],
         }
@@ -270,6 +283,38 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     saved = manager.get_generated_material("course-1", "classroom", "stage-1")
     assert saved is not None
     assert saved["title"] == "Compound Interest"
+
+
+async def test_generate_classroom_for_course_migrates_tts_audio_before_persisting(monkeypatch):
+    """D1（SPEC-04 §5）：sidecar 回填的 audioUrl 必须先搬到 edu_ai 自己的
+    存储、改写成 edu_ai 地址，落库的数据里不能再出现 sidecar 的临时地址
+    （否则 SPEC-02 §6 不变量 5 会拒绝落库，见 classroom_validation）。"""
+    manager = _make_manager()
+    monkeypatch.setattr(
+        "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
+    )
+    client = FakeClient(with_audio=True)
+
+    job = await generate_classroom_for_course(
+        course_id="course-1",
+        requirement="Teach compound interest",
+        owner="teacher-a",
+        course_storage_manager=manager,
+        client=client,
+    )
+
+    assert job.status == JobStatus.SUCCEEDED
+    assert client.download_media_calls == [
+        "http://sidecar-test:3000/api/classroom-media/stage-1/audio/tts_s1_act-1.mp3"
+    ]
+
+    saved = manager.get_generated_material("course-1", "classroom", "stage-1")
+    assert saved is not None
+    migrated_url = saved["scenes"][0]["actions"][0]["audioUrl"]
+    assert migrated_url == "/api/courses/course-1/classrooms/stage-1/audio/tts_s1_act-1.mp3"
+
+    audio_dir = manager.get_classroom_audio_dir("course-1", "stage-1")
+    assert (audio_dir / "tts_s1_act-1.mp3").read_bytes() == b"fake-audio-bytes"
 
 
 async def test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer(monkeypatch):

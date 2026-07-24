@@ -5,6 +5,7 @@ Delegates business logic to app.services.course_service and core storage.
 
 from __future__ import annotations
 
+import mimetypes
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -885,6 +886,7 @@ async def generate_classroom(
         owner=owner,
         course_storage_manager=mgr,
         enable_web_search=payload.enable_web_search,
+        enable_tts=payload.enable_tts,
     )
     return job
 
@@ -916,3 +918,32 @@ def list_classrooms(
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
     return mgr.list_generated_materials(course_id, "classroom")
+
+
+@router.get(
+    "/{course_id}/classrooms/{classroom_id}/audio/{filename}",
+    response_class=FileResponse,
+    summary="读取课件配音文件（D1 迁移落盘，见 classroom_media.migrate_classroom_speech_audio）",
+)
+def get_classroom_audio(
+    course_id: str,
+    classroom_id: str,
+    filename: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    audio_root = mgr.get_classroom_audio_dir(course_id, classroom_id).resolve()
+    path = (audio_root / filename).resolve()
+    try:
+        path.relative_to(audio_root)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="音频文件不存在")
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="音频文件不存在")
+
+    media_type, _ = mimetypes.guess_type(path.name)
+    return FileResponse(path=path, filename=path.name, media_type=media_type or "application/octet-stream")

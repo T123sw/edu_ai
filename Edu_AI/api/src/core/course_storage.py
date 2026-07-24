@@ -164,6 +164,13 @@ class CourseStorageManager:
     def _knowledge_base_documents_dir(self, course_id: str) -> Path:
         return self.get_course_dir(course_id) / "knowledge_base" / "documents"
 
+    def get_classroom_audio_dir(self, course_id: str, classroom_id: str) -> Path:
+        """课件配音文件目录（SPEC-04 §5 media 迁移落盘位置），跟课件 JSON
+        本身（`generated_materials/classrooms/{id}.json`）同级、按 id 分子目录，
+        不与 `_material_file` 的单文件约定冲突。"""
+        safe_classroom_id = self._normalize_material_id(classroom_id)
+        return self._material_dir(course_id, "classroom") / f"{safe_classroom_id}_media" / "audio"
+
     def _build_recovered_knowledge_base_entry(self, course_id: str, file_path: Path) -> Dict[str, Any]:
         relative_path = file_path.relative_to(self.get_course_dir(course_id)).as_posix()
         file_stat = file_path.stat()
