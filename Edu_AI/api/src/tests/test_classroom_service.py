@@ -8,6 +8,7 @@ import uuid
 from types import SimpleNamespace
 from pathlib import Path
 
+import anyio
 import pytest
 
 API_ROOT = Path(__file__).resolve().parents[1]
@@ -17,11 +18,12 @@ if str(API_ROOT) not in sys.path:
 pytestmark = pytest.mark.anyio
 
 from core.course_storage import CourseStorageManager
-from app.services.job_store import JobStatus
+from app.services.job_store import JobStatus, get_job
 from app.services.classroom_service import (
     fetch_course_rag_snippets,
     merge_research_context,
     generate_classroom_for_course,
+    submit_classroom_generation_job,
 )
 
 
@@ -338,3 +340,76 @@ async def test_generate_classroom_for_course_marks_internal_error_when_sidecar_f
 
     assert job.status == JobStatus.FAILED
     assert job.error == "LLM error"
+
+
+# ── submit_classroom_generation_job（异步提交，P3-2） ───────────────────
+#
+# asyncio.create_task 内部要求一个真正在跑的 asyncio 事件循环——trio backend
+# 下会直接报错（同一类问题这个会话里已经踩过两次：asyncio.sleep/to_thread）。
+# 这次刻意不改用 anyio 的结构化并发（TaskGroup 的 async with 生命周期会等
+# 子任务跑完才退出，正好违背"提交立即返回"的本意），因为生产环境
+# （uvicorn）本来就只跑 asyncio，不会真的遇到 trio——所以用
+# `anyio_backend` 参数化把这两条测试限定在 asyncio-only，而不是假装两个
+# backend 都要支持。
+
+
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_submit_classroom_generation_job_returns_queued_immediately_then_completes(monkeypatch):
+    manager = _make_manager()
+    monkeypatch.setattr(
+        "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
+    )
+    client = FakeClient()
+
+    job = await submit_classroom_generation_job(
+        course_id="course-1",
+        requirement="Teach compound interest",
+        owner="teacher-a",
+        course_storage_manager=manager,
+        client=client,
+    )
+
+    # 提交立即返回，后台任务这时大概率还没跑完——不该已经是终态。
+    assert job.status == JobStatus.QUEUED
+
+    current = job
+    for _ in range(200):
+        current = get_job(job.edu_job_id)
+        if current and current.status in (JobStatus.SUCCEEDED, JobStatus.FAILED):
+            break
+        await anyio.sleep(0.01)
+    else:
+        pytest.fail("background generation task did not finish in time")
+
+    assert current.status == JobStatus.SUCCEEDED
+    assert current.result_ref == {"classroom_id": "stage-1", "course_id": "course-1", "scenes_count": 1}
+    assert client.get_classroom_calls == ["stage-1"]
+
+
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_submit_classroom_generation_job_background_failure_reflected_in_job_store(monkeypatch):
+    manager = _make_manager()
+    monkeypatch.setattr(
+        "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
+    )
+    client = FakeClient(final_status="failed")
+
+    job = await submit_classroom_generation_job(
+        course_id="course-1",
+        requirement="Teach compound interest",
+        owner="teacher-a",
+        course_storage_manager=manager,
+        client=client,
+    )
+
+    current = job
+    for _ in range(200):
+        current = get_job(job.edu_job_id)
+        if current and current.status in (JobStatus.SUCCEEDED, JobStatus.FAILED):
+            break
+        await anyio.sleep(0.01)
+    else:
+        pytest.fail("background generation task did not finish in time")
+
+    assert current.status == JobStatus.FAILED
+    assert current.error == "LLM error"

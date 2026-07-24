@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
     # lazy imports to avoid circular import via app/api/__init__.py
     from app.api.courses import router as courses_router
     from app.api.health import router as health_router
+    from app.api.jobs import router as jobs_router
     from app.api.teacher import router as teacher_router
     from app.api.chat_legacy import router as chat_legacy_router
     from app.api.searched_images import router as searched_images_router
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
 
     app.include_router(courses_router)
     app.include_router(health_router)
+    app.include_router(jobs_router)
     app.include_router(teacher_router)
     app.include_router(chat_legacy_router)
     app.include_router(searched_images_router)

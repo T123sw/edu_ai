@@ -105,7 +105,13 @@ persisting→保存 · completed→完成 · failed→失败 · queued→排队�
 
 ## 7. 验收清单
 
-- [ ] generate-classroom 全程通过 edu_ai job 暴露给前端，进度/失败/重试都走统一组件
-- [ ] sidecar 成功但 edu_ai 落库失败时，edu_ai job=failed 且有明确 error
+- [x] generate-classroom 全程通过 edu_ai job 暴露给前端（2026-07-24 补：
+      `POST /api/courses/{course_id}/classrooms/generate` 立即返回 202 +
+      queued 状态的 edu_job，真正生成在后台 `asyncio.create_task` 里跑；
+      前端轮询 `GET /api/jobs/{edu_job_id}`，见
+      `app/services/classroom_service.submit_classroom_generation_job` +
+      `app/api/jobs.py`。此前是同步 await 版，真实生成一次 9-scene 课件
+      实测约 20 分钟，不适合让 HTTP 请求挂那么久，已改为异步）
+- [x] sidecar 成功但 edu_ai 落库失败时，edu_ai job=failed 且有明确 error（AC-05-4/5，2026-07-24 已用真实生成验证：`get_classroom` 二次取数失败/校验失败均正确落 VALIDATION_FAILED/PERSIST_FAILED）
 - [ ] parse-pdf 以 job 形式呈现（做法 1），前端无需感知同步/异步差异
 - [ ] 重试幂等：不产生重复课件/重复入库

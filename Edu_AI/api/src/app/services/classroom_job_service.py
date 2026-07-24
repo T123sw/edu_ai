@@ -83,7 +83,15 @@ def _fail(edu_job_id: str, *, step: str, message: str, error: str, error_code: s
     return updated
 
 
-async def start_generate_classroom_job(
+def create_classroom_job(*, owner: Optional[str] = None) -> EduJob:
+    """只建 job（queued），不提交给 sidecar。给需要"立即拿到 edu_job_id 再
+    在后台跑生成"的调用方用（P3-2 异步提交），见
+    `classroom_service.submit_classroom_generation_job`。"""
+    return create_job(kind=JobKind.GENERATE_CLASSROOM, owner=owner)
+
+
+async def run_generate_classroom_job(
+    job: EduJob,
     *,
     requirement: str,
     research_context: Optional[str] = None,
@@ -93,17 +101,16 @@ async def start_generate_classroom_job(
     enable_video: bool = False,
     enable_tts: bool = False,
     agent_mode: str = "default",
-    owner: Optional[str] = None,
     client: Optional[OpenMaicClient] = None,
     on_sidecar_succeeded: OnSidecarSucceeded = _default_on_sidecar_succeeded,
 ) -> EduJob:
-    """提交并跑完一次 generate_classroom job（阻塞至 done）。
-
-    调用方（未来 P2-5 的 HTTP 路由）决定是否把这个协程丢进后台任务；这里
-    只负责把 sidecar 的状态机适配成 edu_job，见模块顶部说明的范围边界。
+    """跑完一份**已存在**的 job（阻塞至 done）：提交 sidecar → 轮询回写 →
+    完成语义判定。`start_generate_classroom_job` 是"建 job + 跑"的便捷封装
+    （同步等待场景，如测试）；异步提交场景（HTTP 路由 fire-and-forget 一个
+    `asyncio.create_task`）应该先 `create_classroom_job()` 拿到 job_id
+    立即返回给调用方，再用这个函数在后台跑。
     """
     active_client = client or get_openmaic_client()
-    job = create_job(kind=JobKind.GENERATE_CLASSROOM, owner=owner)
 
     try:
         envelope = await active_client.generate_classroom(
@@ -195,3 +202,37 @@ async def start_generate_classroom_job(
     )
     assert updated is not None
     return updated
+
+
+async def start_generate_classroom_job(
+    *,
+    requirement: str,
+    research_context: Optional[str] = None,
+    pdf_content: Optional[dict[str, Any]] = None,
+    enable_web_search: bool = False,
+    enable_image: bool = False,
+    enable_video: bool = False,
+    enable_tts: bool = False,
+    agent_mode: str = "default",
+    owner: Optional[str] = None,
+    client: Optional[OpenMaicClient] = None,
+    on_sidecar_succeeded: OnSidecarSucceeded = _default_on_sidecar_succeeded,
+) -> EduJob:
+    """建 job + 跑完（阻塞至 done）的便捷封装——同步等待场景（测试、手动
+    脚本）用这个。HTTP 路由的异步提交场景请用
+    `create_classroom_job()` + `run_generate_classroom_job()` 分两步。
+    """
+    job = create_classroom_job(owner=owner)
+    return await run_generate_classroom_job(
+        job,
+        requirement=requirement,
+        research_context=research_context,
+        pdf_content=pdf_content,
+        enable_web_search=enable_web_search,
+        enable_image=enable_image,
+        enable_video=enable_video,
+        enable_tts=enable_tts,
+        agent_mode=agent_mode,
+        client=client,
+        on_sidecar_succeeded=on_sidecar_succeeded,
+    )

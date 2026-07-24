@@ -38,7 +38,7 @@ from app.schemas.course import (
     TeachingVideoTaskResponse,
 )
 from app.services import course_service as _svc
-from app.services.classroom_service import generate_classroom_for_course
+from app.services.classroom_service import submit_classroom_generation_job
 from app.teaching_video_bridge import (
     OfflineTeachingVideoDisabledError,
     get_teaching_video_bridge_service,
@@ -860,26 +860,26 @@ def save_knowledge_graph(
     return payload
 
 
-@router.post("/{course_id}/classrooms/generate", summary="生成课件（P2-5 classroom_service，同步等待）")
+@router.post(
+    "/{course_id}/classrooms/generate",
+    status_code=202,
+    summary="提交课件生成任务（P2-5 classroom_service，异步）",
+)
 async def generate_classroom(
     course_id: str,
     payload: GenerateClassroomRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """打通"能生成+能落库+前端能播"这条主链路的手动触发入口。
-
-    **当前是同步等待版**：直接 await 到 job 完成才返回 HTTP 响应（sidecar
-    生成通常几十秒到几分钟）。job 状态机（SPEC-05）已在
-    `app/services/job_store.py` 落地，但把这个提交端点改成"提交即 202 +
-    前端轮询 edu_job 进度"的异步形状是独立的后续任务——本次先验证 AC-08-3
-    （真实课件前端播放）。
+    """提交即返回（202 + queued 状态的 edu_job），真正的生成/校验/落库在
+    后台任务里跑（真实实测一份 9-scene 课件约 20 分钟，不适合同步 await）。
+    前端轮询 `GET /api/jobs/{edu_job_id}` 直到 `done`（SPEC-05 §3）。
     """
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
     owner = current_user.get("username") if current_user else None
-    job = await generate_classroom_for_course(
+    job = await submit_classroom_generation_job(
         course_id=course_id,
         requirement=payload.requirement,
         owner=owner,

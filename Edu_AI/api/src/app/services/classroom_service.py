@@ -10,6 +10,7 @@ job（P2-4 `classroom_job_service`）→ sidecar 完成后校验 + 落库
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from functools import partial
 from typing import Any, Optional
@@ -17,7 +18,11 @@ from typing import Any, Optional
 import anyio
 
 from app.integrations.openmaic import OpenMaicClient, get_openmaic_client
-from app.services.classroom_job_service import start_generate_classroom_job
+from app.services.classroom_job_service import (
+    create_classroom_job,
+    run_generate_classroom_job,
+    start_generate_classroom_job,
+)
 from app.services.classroom_persistence import ClassroomValidationError, persist_classroom_result
 from app.services.job_store import EduJob
 from app.services.knowledge_graph_context import fetch_knowledge_graph_context
@@ -26,6 +31,11 @@ from core.course_storage import CourseStorageManager
 log = logging.getLogger("classroom_service")
 
 DEFAULT_RAG_TOP_K = 5
+
+# 持有 submit_classroom_generation_job() 派生的后台任务的强引用——
+# asyncio 文档明确警告 create_task() 不会自动保留强引用，没人拿着的话
+# 任务可能在跑到一半时被垃圾回收。任务结束后自动从集合里摘除。
+_background_generation_tasks: set[asyncio.Task[None]] = set()
 
 
 def fetch_course_rag_snippets(
@@ -107,24 +117,15 @@ def merge_research_context(*parts: Optional[str]) -> Optional[str]:
     return "\n\n".join(non_empty) if non_empty else None
 
 
-async def generate_classroom_for_course(
+async def _build_research_context(
     *,
+    course_storage_manager: CourseStorageManager,
     course_id: str,
     requirement: str,
-    owner: Optional[str],
-    course_storage_manager: CourseStorageManager,
-    web_research_context: Optional[str] = None,
-    pdf_content: Optional[dict[str, Any]] = None,
-    enable_web_search: bool = False,
-    rag_top_k: int = DEFAULT_RAG_TOP_K,
-    scope_type: Optional[str] = None,
-    scope_id: Optional[str] = None,
-    client: Optional[OpenMaicClient] = None,
-    rag_system: Optional[Any] = None,
-) -> EduJob:
-    """顶层入口：拼 researchContext（web+RAG+知识图谱 合并叠加）→ 提交
-    sidecar job → sidecar 完成后校验+落库 → 返回最终 edu_job。"""
-    active_client = client or get_openmaic_client()
+    web_research_context: Optional[str],
+    rag_top_k: int,
+    rag_system: Optional[Any],
+) -> Optional[str]:
     rag_context = await anyio.to_thread.run_sync(
         partial(
             fetch_course_rag_snippets,
@@ -142,13 +143,23 @@ async def generate_classroom_for_course(
         course_id=course_id,
         query=requirement,
     )
-    research_context = merge_research_context(web_research_context, rag_context, kg_context)
+    return merge_research_context(web_research_context, rag_context, kg_context)
 
+
+def _make_on_sidecar_succeeded(
+    *,
+    active_client: OpenMaicClient,
+    course_storage_manager: CourseStorageManager,
+    course_id: str,
+    owner: Optional[str],
+    scope_type: Optional[str],
+    scope_id: Optional[str],
+):
     async def _on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
         # `result` here is the job envelope's slim {classroomId, url,
-        # scenesCount} — NOT the full GenerateClassroomResult (see
-        # OpenMaicClient.get_classroom's docstring / patch 003). Must fetch
-        # the full {id, stage, scenes, createdAt} separately before validating
+        # scenesCount} — NOT the full GenerateClassroomResult (SPEC-04 §1.2
+        # 订正 / OpenMaicClient.get_classroom 的 docstring). Must fetch the
+        # full {id, stage, scenes, createdAt} separately before validating
         # and persisting.
         classroom_id = result.get("classroomId")
         if not classroom_id:
@@ -163,6 +174,50 @@ async def generate_classroom_for_course(
             scope_id=scope_id,
         )
 
+    return _on_sidecar_succeeded
+
+
+async def generate_classroom_for_course(
+    *,
+    course_id: str,
+    requirement: str,
+    owner: Optional[str],
+    course_storage_manager: CourseStorageManager,
+    web_research_context: Optional[str] = None,
+    pdf_content: Optional[dict[str, Any]] = None,
+    enable_web_search: bool = False,
+    rag_top_k: int = DEFAULT_RAG_TOP_K,
+    scope_type: Optional[str] = None,
+    scope_id: Optional[str] = None,
+    client: Optional[OpenMaicClient] = None,
+    rag_system: Optional[Any] = None,
+) -> EduJob:
+    """顶层入口（同步等待版）：拼 researchContext（web+RAG+知识图谱 合并
+    叠加）→ 提交 sidecar job → 阻塞至完成 → 校验+落库 → 返回最终 edu_job。
+
+    生成通常要几分钟到几十分钟（真实实测一次 9-scene 课件约 20 分钟），HTTP
+    路由不应该直接 await 这个函数——用 `submit_classroom_generation_job`
+    立即拿到 queued 状态的 job 再让前端轮询。这个函数留给测试/脚本等愿意
+    等的调用方。
+    """
+    active_client = client or get_openmaic_client()
+    research_context = await _build_research_context(
+        course_storage_manager=course_storage_manager,
+        course_id=course_id,
+        requirement=requirement,
+        web_research_context=web_research_context,
+        rag_top_k=rag_top_k,
+        rag_system=rag_system,
+    )
+    on_sidecar_succeeded = _make_on_sidecar_succeeded(
+        active_client=active_client,
+        course_storage_manager=course_storage_manager,
+        course_id=course_id,
+        owner=owner,
+        scope_type=scope_type,
+        scope_id=scope_id,
+    )
+
     return await start_generate_classroom_job(
         requirement=requirement,
         research_context=research_context,
@@ -170,5 +225,66 @@ async def generate_classroom_for_course(
         enable_web_search=enable_web_search,
         owner=owner,
         client=active_client,
-        on_sidecar_succeeded=_on_sidecar_succeeded,
+        on_sidecar_succeeded=on_sidecar_succeeded,
     )
+
+
+async def submit_classroom_generation_job(
+    *,
+    course_id: str,
+    requirement: str,
+    owner: Optional[str],
+    course_storage_manager: CourseStorageManager,
+    web_research_context: Optional[str] = None,
+    pdf_content: Optional[dict[str, Any]] = None,
+    enable_web_search: bool = False,
+    rag_top_k: int = DEFAULT_RAG_TOP_K,
+    scope_type: Optional[str] = None,
+    scope_id: Optional[str] = None,
+    client: Optional[OpenMaicClient] = None,
+    rag_system: Optional[Any] = None,
+) -> EduJob:
+    """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
+    落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
+    job 原样给前端，前端轮询 `GET /api/jobs/{edu_job_id}` 直到 `done`。
+
+    researchContext 的拼装（RAG/知识图谱检索）仍然同步跑完才返回——这样
+    "课程不存在""RAG 系统炸了"这类问题在提交阶段就能快速失败，不会让调用方
+    以为提交成功了，实际后台任务立刻挂掉却无人知晓。
+    """
+    active_client = client or get_openmaic_client()
+    research_context = await _build_research_context(
+        course_storage_manager=course_storage_manager,
+        course_id=course_id,
+        requirement=requirement,
+        web_research_context=web_research_context,
+        rag_top_k=rag_top_k,
+        rag_system=rag_system,
+    )
+    on_sidecar_succeeded = _make_on_sidecar_succeeded(
+        active_client=active_client,
+        course_storage_manager=course_storage_manager,
+        course_id=course_id,
+        owner=owner,
+        scope_type=scope_type,
+        scope_id=scope_id,
+    )
+
+    job = create_classroom_job(owner=owner)
+
+    async def _run() -> None:
+        await run_generate_classroom_job(
+            job,
+            requirement=requirement,
+            research_context=research_context,
+            pdf_content=pdf_content,
+            enable_web_search=enable_web_search,
+            client=active_client,
+            on_sidecar_succeeded=on_sidecar_succeeded,
+        )
+
+    task = asyncio.create_task(_run())
+    _background_generation_tasks.add(task)
+    task.add_done_callback(_background_generation_tasks.discard)
+
+    return job
