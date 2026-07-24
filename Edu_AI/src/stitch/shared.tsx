@@ -26,7 +26,9 @@ export const routes = {
   edit: "edit",
   // Dev-only, not in any nav — Phase 3 player smoke test (SPEC-08 §6 / ACC-08 §3.2).
   playerSmoke: "player-smoke",
-  // Dev-only, not in any nav — real classroom playback (ACC-08 AC-08-3).
+  // Real feature (not dev-only): AI 课件生成 studio，从课程详情页进入。
+  classroomStudio: "classroom-studio",
+  // Real feature (not dev-only): 播放一份已生成的课件。
   // Reached via #classroom-player?course_id=...&classroom_id=...
   classroomPlayer: "classroom-player",
 } as const;

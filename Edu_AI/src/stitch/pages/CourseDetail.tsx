@@ -33,6 +33,14 @@ function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: 
         <MaterialIcon name="play_circle" className="text-base" />
       </a>
       <a
+        href={routeHref(routes.classroomStudio)}
+        onClick={() => onSelect(course)}
+        className="inline-flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
+      >
+        AI 生成课件
+        <MaterialIcon name="auto_awesome" className="text-base" />
+      </a>
+      <a
         href={routeHref(routes.edit)}
         onClick={() => onSelect(course)}
         className="inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-slate-950/16 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"

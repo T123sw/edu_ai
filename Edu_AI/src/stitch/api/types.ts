@@ -396,3 +396,41 @@ export type AiLecturerOfflineTaskStatus = {
   video_url?: string;
   error?: string;
 };
+
+export type EduJob = {
+  edu_job_id: string;
+  kind: string;
+  sidecar_job_id?: string | null;
+  status: "queued" | "running" | "succeeded" | "failed";
+  step: string;
+  progress: number;
+  message: string;
+  result_ref?: { classroom_id: string; course_id: string; scenes_count: number } | null;
+  error?: string | null;
+  error_code?: string | null;
+  owner?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ClassroomScene = {
+  id: string;
+  type: string;
+  content?: { type?: string; canvas?: Record<string, unknown> };
+  actions?: Array<Record<string, unknown>>;
+};
+
+export type ClassroomMaterial = {
+  material_id: string;
+  material_type: string;
+  title?: string;
+  owner?: string | null;
+  stage?: { id: string; name?: string; [key: string]: unknown };
+  scenes?: ClassroomScene[];
+  scenes_count?: number;
+  sidecar_url?: string;
+  sidecar_created_at?: string;
+  course_id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
