@@ -28,6 +28,7 @@ from app.schemas.course import (
     AddRAGDocumentRequest,
     CourseInfo,
     CreateTeachingVideoTaskRequest,
+    GenerateClassroomRequest,
     KnowledgeBaseDocument,
     KnowledgeGraphData,
     KnowledgeGraphHourAllocationRequest,
@@ -37,6 +38,7 @@ from app.schemas.course import (
     TeachingVideoTaskResponse,
 )
 from app.services import course_service as _svc
+from app.services.classroom_service import generate_classroom_for_course
 from app.teaching_video_bridge import (
     OfflineTeachingVideoDisabledError,
     get_teaching_video_bridge_service,
@@ -856,3 +858,61 @@ def save_knowledge_graph(
         raise HTTPException(status_code=500, detail="保存知识图谱失败")
 
     return payload
+
+
+@router.post("/{course_id}/classrooms/generate", summary="生成课件（P2-5 classroom_service，同步等待）")
+async def generate_classroom(
+    course_id: str,
+    payload: GenerateClassroomRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """打通"能生成+能落库+前端能播"这条主链路的手动触发入口。
+
+    **当前是同步等待版**：直接 await 到 job 完成才返回 HTTP 响应（sidecar
+    生成通常几十秒到几分钟）。job 状态机（SPEC-05）已在
+    `app/services/job_store.py` 落地，但把这个提交端点改成"提交即 202 +
+    前端轮询 edu_job 进度"的异步形状是独立的后续任务——本次先验证 AC-08-3
+    （真实课件前端播放）。
+    """
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    owner = current_user.get("username") if current_user else None
+    job = await generate_classroom_for_course(
+        course_id=course_id,
+        requirement=payload.requirement,
+        owner=owner,
+        course_storage_manager=mgr,
+        enable_web_search=payload.enable_web_search,
+    )
+    return job
+
+
+@router.get("/{course_id}/classrooms/{classroom_id}", summary="读取一份已落库的课件")
+def get_classroom(
+    course_id: str,
+    classroom_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    material = mgr.get_generated_material(course_id, "classroom", classroom_id)
+    if material is None:
+        raise HTTPException(status_code=404, detail="课件不存在")
+    return material
+
+
+@router.get("/{course_id}/classrooms", summary="列出课程下已落库的课件")
+def list_classrooms(
+    course_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+    return mgr.list_generated_materials(course_id, "classroom")

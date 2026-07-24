@@ -50,6 +50,15 @@ class PinMaterialRequest(BaseModel):
     is_pinned: bool = Field(..., description="是否置顶")
 
 
+class GenerateClassroomRequest(BaseModel):
+    """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（媒体/TTS flags 本轮不开放，见 §0.1 D1/D2）。"""
+
+    requirement: str = Field(..., description="课件需求文本")
+    enable_web_search: bool = Field(
+        default=False, description="是否启用 sidecar 内建 web search（edu_ai 默认走 SPEC-00 独立检索层，这里通常不开）"
+    )
+
+
 class KnowledgeGraphData(BaseModel):
     root: dict = Field(..., description="知识图谱根节点")
 

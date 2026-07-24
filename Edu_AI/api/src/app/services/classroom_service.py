@@ -16,9 +16,9 @@ from typing import Any, Optional
 
 import anyio
 
-from app.integrations.openmaic import OpenMaicClient
+from app.integrations.openmaic import OpenMaicClient, get_openmaic_client
 from app.services.classroom_job_service import start_generate_classroom_job
-from app.services.classroom_persistence import persist_classroom_result
+from app.services.classroom_persistence import ClassroomValidationError, persist_classroom_result
 from app.services.job_store import EduJob
 from app.services.knowledge_graph_context import fetch_knowledge_graph_context
 from core.course_storage import CourseStorageManager
@@ -124,6 +124,7 @@ async def generate_classroom_for_course(
 ) -> EduJob:
     """顶层入口：拼 researchContext（web+RAG+知识图谱 合并叠加）→ 提交
     sidecar job → sidecar 完成后校验+落库 → 返回最终 edu_job。"""
+    active_client = client or get_openmaic_client()
     rag_context = await anyio.to_thread.run_sync(
         partial(
             fetch_course_rag_snippets,
@@ -144,11 +145,20 @@ async def generate_classroom_for_course(
     research_context = merge_research_context(web_research_context, rag_context, kg_context)
 
     async def _on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
+        # `result` here is the job envelope's slim {classroomId, url,
+        # scenesCount} — NOT the full GenerateClassroomResult (see
+        # OpenMaicClient.get_classroom's docstring / patch 003). Must fetch
+        # the full {id, stage, scenes, createdAt} separately before validating
+        # and persisting.
+        classroom_id = result.get("classroomId")
+        if not classroom_id:
+            raise ClassroomValidationError([f"job succeeded but result has no classroomId: {result!r}"])
+        full_classroom = await active_client.get_classroom(classroom_id)
         return persist_classroom_result(
             course_storage_manager=course_storage_manager,
             course_id=course_id,
             owner=owner,
-            result=result,
+            result=full_classroom,
             scope_type=scope_type,
             scope_id=scope_id,
         )
@@ -159,6 +169,6 @@ async def generate_classroom_for_course(
         pdf_content=pdf_content,
         enable_web_search=enable_web_search,
         owner=owner,
-        client=client,
+        client=active_client,
         on_sidecar_succeeded=_on_sidecar_succeeded,
     )

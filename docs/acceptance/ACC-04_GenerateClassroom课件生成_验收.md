@@ -3,7 +3,11 @@
 > 对应 spec：[`../spec/SPEC-04_GenerateClassroom_课件生成与注入.md`](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)
 > 对应 Phase：2（课件生成）· 地图：[`../../项目总览地图.md`](../../项目总览地图.md) §2 / §8
 > 通用环境：见 [验收 README §2](README.md)
-> 状态：⏳ MVP 待实现（本轮范围见 §1；切割清单见 [SPEC-04 §0.1](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)）
+> 状态：✅ MVP 硬性验收（AC-04-1/2/3/4/5/7/9）已通过真实端到端验证（2026-07-24）：
+> 真实调用 `generate_classroom_for_course`（课程 `computational-thinking`，
+> DeepSeek 生成"冒泡排序算法入门"9 scene）→ 校验 → 落库 → 前端播放全链路打通，
+> 详见 ACC-08 与用户记忆 `edu-ai-phase3-player-p3-1.md`。切割清单见
+> [SPEC-04 §0.1](../spec/SPEC-04_GenerateClassroom_课件生成与注入.md)。
 
 ---
 

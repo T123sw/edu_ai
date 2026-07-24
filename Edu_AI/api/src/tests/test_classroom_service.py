@@ -25,6 +25,16 @@ from app.services.classroom_service import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _isolate_job_storage(monkeypatch, tmp_path):
+    """job_store.py 写 Config.STORAGE_ROOT/jobs，跟 CourseStorageManager 各自
+    独立的 root_path 无关——不隔离会一直污染真实项目的 storage/jobs/
+    （已实测发现：之前的测试运行留下了几十个 job_*.json 在真实目录里）。"""
+    from core import Config
+
+    monkeypatch.setattr(Config, "STORAGE_ROOT", tmp_path / f"jobs-{uuid.uuid4().hex}")
+
+
 def _make_manager() -> CourseStorageManager:
     root = Path("tests/.tmp") / f"classroom-service-{uuid.uuid4().hex}"
     root.mkdir(parents=True, exist_ok=True)
@@ -158,10 +168,16 @@ def test_fetch_rag_snippets_swallows_exceptions_and_returns_none(monkeypatch):
 
 
 class FakeClient:
+    """Models the real two-step completion flow (SPEC-04 §1.2 订正): the job
+    envelope's `result` is only `{classroomId, url, scenesCount}` — the full
+    `{id, stage, scenes, createdAt}` requires a separate `get_classroom` call.
+    """
+
     def __init__(self, *, final_status="succeeded", stage_id="stage-1"):
         self.final_status = final_status
         self.stage_id = stage_id
         self.submitted_body = {}
+        self.get_classroom_calls: list[str] = []
 
     async def generate_classroom(self, **kwargs):
         self.submitted_body = kwargs
@@ -186,26 +202,9 @@ class FakeClient:
                 "pollIntervalMs": 5000,
                 "done": True,
                 "result": {
-                    "id": self.stage_id,
+                    "classroomId": self.stage_id,
                     "url": "http://sidecar-test:3000/classroom/stage-1",
-                    "createdAt": "2026-07-24T00:00:00.000Z",
                     "scenesCount": 1,
-                    "stage": {"id": self.stage_id, "name": "Compound Interest"},
-                    "scenes": [
-                        {
-                            "id": "scene-1",
-                            "type": "slide",
-                            "content": {
-                                "type": "slide",
-                                "canvas": {
-                                    "id": "slide-1",
-                                    "viewportRatio": 0.5625,
-                                    "elements": [{"id": "el-1", "type": "text"}],
-                                },
-                            },
-                            "actions": [{"id": "act-1", "type": "speech", "text": "hi"}],
-                        }
-                    ],
                 },
             }
         return {
@@ -217,6 +216,30 @@ class FakeClient:
             "pollIntervalMs": 5000,
             "done": True,
             "error": "LLM error",
+        }
+
+    async def get_classroom(self, classroom_id: str) -> dict:
+        self.get_classroom_calls.append(classroom_id)
+        return {
+            "id": self.stage_id,
+            "url": "http://sidecar-test:3000/classroom/stage-1",
+            "createdAt": "2026-07-24T00:00:00.000Z",
+            "stage": {"id": self.stage_id, "name": "Compound Interest"},
+            "scenes": [
+                {
+                    "id": "scene-1",
+                    "type": "slide",
+                    "content": {
+                        "type": "slide",
+                        "canvas": {
+                            "id": "slide-1",
+                            "viewportRatio": 0.5625,
+                            "elements": [{"id": "el-1", "type": "text"}],
+                        },
+                    },
+                    "actions": [{"id": "act-1", "type": "speech", "text": "hi"}],
+                }
+            ],
         }
 
 
@@ -240,6 +263,7 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     assert job.status == JobStatus.SUCCEEDED
     assert job.result_ref == {"classroom_id": "stage-1", "course_id": "course-1", "scenes_count": 1}
     assert client.submitted_body["research_context"] == "web snippet\n\n[来源: textbook.pdf]\nRAG snippet"
+    assert client.get_classroom_calls == ["stage-1"]  # job.result.classroomId -> get_classroom(id)
 
     saved = manager.get_generated_material("course-1", "classroom", "stage-1")
     assert saved is not None

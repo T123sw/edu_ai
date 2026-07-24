@@ -26,6 +26,9 @@ export const routes = {
   edit: "edit",
   // Dev-only, not in any nav — Phase 3 player smoke test (SPEC-08 §6 / ACC-08 §3.2).
   playerSmoke: "player-smoke",
+  // Dev-only, not in any nav — real classroom playback (ACC-08 AC-08-3).
+  // Reached via #classroom-player?course_id=...&classroom_id=...
+  classroomPlayer: "classroom-player",
 } as const;
 
 export type RouteKey = (typeof routes)[keyof typeof routes];

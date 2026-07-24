@@ -65,7 +65,7 @@ GET {pollUrl}  (= /api/generate-classroom/{jobId})
 → 200 {
     jobId, status, step, progress, message, pollUrl, pollIntervalMs:5000,
     scenesGenerated, totalScenes,
-    result?,          // 完成时含 GenerateClassroomResult
+    result?,          // ⚠️ 完成时只含 {classroomId, url, scenesCount}，不是完整 GenerateClassroomResult
     error?,
     done: boolean     // status ∈ {succeeded, failed}
   }
@@ -73,6 +73,14 @@ GET {pollUrl}  (= /api/generate-classroom/{jobId})
 ```
 
 `status: 'queued'|'running'|'succeeded'|'failed'`；`step` 见 §3。
+
+> **订正（2026-07-24，真实生成一份课件后核对源码确认）**：`result` 字段实际只有
+> `{classroomId, url, scenesCount}`（见 `lib/server/classroom-job-store.ts` 的
+> `markClassroomGenerationJobSucceeded`），**不含** `stage`/`scenes`。要拿到完整
+> `Stage + Scene[]`，job 成功后必须再调 `GET /api/classroom?id={classroomId}`
+> （`app/api/classroom/route.ts`，返回 `{success, classroom:{id,stage,scenes,
+> createdAt}}`）。`OpenMaicClient.get_classroom()`（SPEC-07 §3）封装了这一步；
+> `classroom_service.py` 的 `_on_sidecar_succeeded` 已按此两步调用。
 
 ---
 

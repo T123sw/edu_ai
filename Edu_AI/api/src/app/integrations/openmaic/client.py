@@ -150,6 +150,28 @@ class OpenMaicClient:
         )
         return data  # type: ignore[return-value]
 
+    async def get_classroom(self, classroom_id: str) -> dict[str, Any]:
+        """GET /api/classroom?id={classroom_id} —— 取完整 `{id, stage, scenes,
+        createdAt}`。**必须在 job 成功后单独调用**：job 信封的 `result` 字段
+        只有 `{classroomId, url, scenesCount}`（sidecar
+        `lib/server/classroom-job-store.ts` 的
+        `markClassroomGenerationJobSucceeded` 只存这三个字段）——SPEC-04 §1.2
+        写的"完成时 result 含完整 GenerateClassroomResult"跟这份真实源码不
+        一致，已按源码实测结果订正（真实生成一份课件、核对 job 文件内容
+        后确认），见 SPEC-04 §1.2 的更新说明与 SPEC-07 §3 的方法列表。
+        """
+        data = await self._request_json(
+            "GET",
+            f"/api/classroom?id={classroom_id}",
+            timeout=self.config.request_timeout,
+            retryable=True,
+            kind="get_classroom",
+        )
+        classroom = data.get("classroom") if isinstance(data, dict) else None
+        if not isinstance(classroom, dict):
+            raise OpenMaicServerError(f"GET /api/classroom returned no classroom for id={classroom_id}")
+        return classroom
+
     async def wait_job(
         self,
         poll_url: str,

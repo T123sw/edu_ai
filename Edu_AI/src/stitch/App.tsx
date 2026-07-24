@@ -12,6 +12,7 @@ import { CourseEditPage } from "./pages/CourseEdit";
 import { ProfilePage } from "./pages/Profile";
 import { LoginPage } from "./pages/LoginPage";
 import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
+import { ClassroomPlayerPage } from "./pages/_dev/ClassroomPlayer";
 import {
   AppShellProvider,
   ThemeCustomizer,
@@ -38,6 +39,7 @@ const pages = [
   [routes.knowledge, "Knowledge Base", CourseKnowledgeBasePage],
   [routes.edit, "Course Edit", CourseEditPage],
   [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
+  [routes.classroomPlayer, "Classroom Player (dev)", ClassroomPlayerPage],
 ] as const;
 
 const AUTH_STORAGE_KEY = "edu-ai-auth";
