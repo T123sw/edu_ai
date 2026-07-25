@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import JSZip from 'jszip';
 import type { Slide } from '@openmaic/dsl';
+import { latexToOmml } from './latexToOmml.ts';
 import {
   buildClassroomPptx,
   type PptxExportScene,
@@ -311,6 +312,112 @@ test('embeds an image background and omits unsupported elements safely', async (
       .length,
     1,
   );
+});
+
+test('converts LaTeX to editable PowerPoint math', async () => {
+  const omml = latexToOmml(String.raw`\frac{-b\pm\sqrt{b^2-4ac}}{2a}`, 24);
+
+  assert.ok(omml);
+  assert.match(omml, /^<m:oMath/);
+  assert.match(omml, /<m:f>/);
+  assert.doesNotMatch(omml, /xmlns:w=/);
+  assert.match(omml, /typeface="Cambria Math"/);
+  assert.match(omml, /sz="2400"/);
+  assert.equal(latexToOmml(String.raw`\notARealCommand{`), null);
+});
+
+test('embeds editable formulas plus supported video and audio data', async () => {
+  const canvas = slide('formula-media-slide', 'FORMULA_MEDIA');
+  canvas.elements = [
+    {
+      id: 'formula',
+      type: 'latex',
+      left: 100,
+      top: 80,
+      width: 800,
+      height: 180,
+      rotate: 0,
+      latex: String.raw`x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}`,
+      align: 'center',
+      color: '#111827',
+    },
+    {
+      id: 'video',
+      type: 'video',
+      left: 100,
+      top: 300,
+      width: 360,
+      height: 200,
+      rotate: 0,
+      autoplay: false,
+      src: 'data:video/mp4;base64,AAAA',
+      ext: 'mp4',
+      poster: ONE_PIXEL_PNG,
+    },
+    {
+      id: 'audio',
+      type: 'audio',
+      left: 520,
+      top: 320,
+      width: 120,
+      height: 120,
+      rotate: 0,
+      fixedRatio: true,
+      color: '#2563EB',
+      loop: false,
+      autoplay: false,
+      src: 'data:audio/mpeg;base64,SUQz',
+      ext: 'mp3',
+    },
+  ];
+
+  const zip = await unzip(
+    await buildClassroomPptx({
+      title: 'formula-media',
+      scenes: [scene('scene-formula-media', 1, canvas)],
+    }),
+  );
+  const xml = await zip.file('ppt/slides/slide1.xml')!.async('string');
+  const files = Object.keys(zip.files);
+
+  assert.match(xml, /<m:oMath/);
+  assert.ok(files.some((name) => /^ppt\/media\/.+\.mp4$/.test(name)));
+  assert.ok(files.some((name) => /^ppt\/media\/.+\.mp3$/.test(name)));
+  assert.ok(files.some((name) => /^ppt\/media\/.+\.png$/.test(name)));
+});
+
+test('keeps a video poster when media retrieval fails', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response('missing', { status: 404 });
+  try {
+    const canvas = slide('poster-fallback-slide', 'AFTER_MEDIA_FAILURE');
+    canvas.elements.unshift({
+      id: 'failed-video',
+      type: 'video',
+      left: 100,
+      top: 100,
+      width: 640,
+      height: 360,
+      rotate: 0,
+      autoplay: false,
+      src: 'https://media.invalid/lecture.mp4',
+      poster: ONE_PIXEL_PNG,
+    });
+    const zip = await unzip(
+      await buildClassroomPptx({
+        title: 'poster-fallback',
+        scenes: [scene('scene-poster', 1, canvas)],
+      }),
+    );
+    const xml = await zip.file('ppt/slides/slide1.xml')!.async('string');
+    const files = Object.keys(zip.files);
+
+    assert.match(xml, /AFTER_MEDIA_FAILURE/);
+    assert.ok(files.some((name) => /^ppt\/media\/.+\.png$/.test(name)));
+    assert.ok(!files.some((name) => /^ppt\/media\/.+\.mp4$/.test(name)));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test('writes speech actions into speaker notes', async () => {

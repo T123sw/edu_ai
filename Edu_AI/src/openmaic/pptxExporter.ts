@@ -1,5 +1,6 @@
 import PptxGenJS from 'pptxgenjs';
 import type { Action, Slide } from '@openmaic/dsl';
+import { latexToOmml } from './latexToOmml.ts';
 
 export interface PptxExportScene {
   id: string;
@@ -276,6 +277,91 @@ export async function buildClassroomPptx(
               fontSize: 14 / pxPerPoint,
             },
           );
+          continue;
+        }
+
+        if (element.type === 'latex') {
+          const lineCount = (element.latex.match(/\\\\/g) ?? []).length + 1;
+          const boxHeightPoints = element.height / pxPerPoint;
+          const fontSize = Math.max(
+            8,
+            Math.round(boxHeightPoints / (lineCount * 3)),
+          );
+          const omml = latexToOmml(element.latex, fontSize);
+          if (omml) {
+            pptxSlide.addFormula({
+              omml,
+              x: element.left / pxPerInch,
+              y: element.top / pxPerInch,
+              w: element.width / pxPerInch,
+              h: element.height / pxPerInch,
+              fontSize,
+              color: normalizeHex(element.color || '#000000'),
+              align: element.align ?? 'center',
+            });
+          } else if (element.path && element.viewBox) {
+            const svg = formulaSvg(
+              element.path,
+              element.viewBox,
+              element.color || '#000000',
+              element.strokeWidth || 1,
+            );
+            pptxSlide.addImage({
+              data: svg,
+              x: element.left / pxPerInch,
+              y: element.top / pxPerInch,
+              w: element.width / pxPerInch,
+              h: element.height / pxPerInch,
+            });
+          }
+          continue;
+        }
+
+        if (element.type === 'video' || element.type === 'audio') {
+          let poster: string | undefined;
+          if (element.type === 'video' && element.poster) {
+            try {
+              const posterSource = await resolveImageSource(element.poster);
+              poster = 'data' in posterSource
+                ? posterSource.data
+                : posterSource.path;
+            } catch {
+              poster = undefined;
+            }
+          }
+
+          let embedded = false;
+          if (element.src) {
+            try {
+              const media = await resolveMediaSource(
+                element.src,
+                element.ext,
+                element.type,
+              );
+              pptxSlide.addMedia({
+                ...media,
+                type: element.type,
+                x: element.left / pxPerInch,
+                y: element.top / pxPerInch,
+                w: element.width / pxPerInch,
+                h: element.height / pxPerInch,
+                cover: poster,
+              });
+              embedded = true;
+            } catch {
+              embedded = false;
+            }
+          }
+
+          if (!embedded && element.type === 'video' && poster) {
+            pptxSlide.addImage({
+              data: poster,
+              x: element.left / pxPerInch,
+              y: element.top / pxPerInch,
+              w: element.width / pxPerInch,
+              h: element.height / pxPerInch,
+            });
+          }
         }
       } catch {
         // Unsupported or unavailable individual elements degrade by omission.
@@ -434,6 +520,98 @@ function bytesToBase64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
   }
   return btoa(binary);
+}
+
+async function resolveMediaSource(
+  source: string,
+  extension: string | undefined,
+  type: 'video' | 'audio',
+): Promise<
+  ({ data: string } | { path: string }) & { extn: string }
+> {
+  const dataMatch = source.match(/^data:([^;,]+);base64,/i);
+  if (dataMatch) {
+    return {
+      data: source,
+      extn: normalizeMediaExtension(
+        extension || extensionFromMime(dataMatch[1], type),
+      ),
+    };
+  }
+  if (!/^(?:https?:|blob:)/i.test(source)) {
+    return {
+      path: source,
+      extn: normalizeMediaExtension(
+        extension || extensionFromPath(source) || defaultMediaExtension(type),
+      ),
+    };
+  }
+
+  const response = await fetch(source);
+  if (!response.ok) {
+    throw new Error(`Unable to embed media (${response.status}): ${source}`);
+  }
+  const mime =
+    response.headers.get('content-type')?.split(';')[0] ||
+    (type === 'video' ? 'video/mp4' : 'audio/mpeg');
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  return {
+    data: `data:${mime};base64,${bytesToBase64(bytes)}`,
+    extn: normalizeMediaExtension(
+      extension ||
+        extensionFromPath(source) ||
+        extensionFromMime(mime, type),
+    ),
+  };
+}
+
+function extensionFromMime(
+  mime: string,
+  type: 'video' | 'audio',
+): string {
+  const subtype = mime.split('/')[1]?.toLowerCase();
+  if (subtype === 'mpeg') return type === 'video' ? 'mpeg' : 'mp3';
+  if (subtype === 'x-m4a') return 'm4a';
+  if (subtype === 'quicktime') return 'mov';
+  return subtype || defaultMediaExtension(type);
+}
+
+function extensionFromPath(path: string): string | undefined {
+  return path.match(/\.([a-z0-9]+)(?:[?#]|$)/i)?.[1];
+}
+
+function defaultMediaExtension(type: 'video' | 'audio'): string {
+  return type === 'video' ? 'mp4' : 'mp3';
+}
+
+function normalizeMediaExtension(extension: string): string {
+  return extension.replace(/^\./, '').toLowerCase();
+}
+
+function formulaSvg(
+  path: string,
+  viewBox: [number, number],
+  color: string,
+  strokeWidth: number,
+): string {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" ' +
+    `viewBox="0 0 ${viewBox[0]} ${viewBox[1]}" ` +
+    `fill="none" stroke="${escapeXml(color)}" ` +
+    `stroke-width="${strokeWidth}" stroke-linecap="round" ` +
+    'stroke-linejoin="round">' +
+    `<path d="${escapeXml(path)}"/></svg>`;
+  return `data:image/svg+xml;base64,${bytesToBase64(
+    new TextEncoder().encode(svg),
+  )}`;
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 interface InlineTextStyle {
