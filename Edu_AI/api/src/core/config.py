@@ -110,18 +110,6 @@ class Config:
         "SEARCHED_IMAGE_USER_AGENT",
         "Mozilla/5.0 (compatible; EduAI/1.0)",
     )
-    AI_LECTURER_AUTOSTART = os.getenv("AI_LECTURER_AUTOSTART", "1")
-    AI_LECTURER_OFFLINE_ENABLED = os.getenv("AI_LECTURER_OFFLINE_ENABLED", "1")
-    AI_LECTURER_TRANSFER_MODE = os.getenv("AI_LECTURER_TRANSFER_MODE", "upload").strip().lower()
-    AI_LECTURER_GATEWAY_URL = os.getenv("AI_LECTURER_GATEWAY_URL", "http://127.0.0.1:8008")
-    AI_LECTURER_LIVETALKING_URL = os.getenv("AI_LECTURER_LIVETALKING_URL", "http://127.0.0.1:8010")
-    AI_LECTURER_ENTRYPOINT = os.getenv(
-        "AI_LECTURER_ENTRYPOINT",
-        str(BASE_DIR / "modules" / "AI_Lecturer" / "start_unified.py"),
-    )
-    AI_LECTURER_STARTUP_TIMEOUT_SEC = float(os.getenv("AI_LECTURER_STARTUP_TIMEOUT_SEC", "15"))
-    HTML2PPT_JOBS_ROOT = Path(os.getenv("HTML2PPT_JOBS_ROOT", BASE_DIR / "modules" / "html2ppt" / "data" / "jobs"))
-    POWERPOINT_EXPORT_TIMEOUT_SEC = float(os.getenv("POWERPOINT_EXPORT_TIMEOUT_SEC", "120"))
     CONVERSATIONS_FILE = Path(
         os.getenv("CONVERSATIONS_FILE", STORAGE_ROOT / "conversations.json")
     )

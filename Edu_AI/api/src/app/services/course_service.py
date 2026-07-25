@@ -106,41 +106,6 @@ def _resolve_scope_ids_for_course(
     )
 
 
-def _hydrate_ppt_material_content(materials: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    if not materials:
-        return materials
-
-    from app.teaching_video_bridge import get_teaching_video_bridge_service
-
-    service = get_teaching_video_bridge_service()
-    hydrated: List[Dict[str, Any]] = []
-    for material in materials:
-        if str((material or {}).get("material_type") or "").strip() != "ppt":
-            hydrated.append(material)
-            continue
-
-        content = material.get("content")
-        if not isinstance(content, dict):
-            hydrated.append(material)
-            continue
-        if str(content.get("content_markdown") or content.get("markdown") or "").strip():
-            hydrated.append(material)
-            continue
-
-        resolved_markdown = service.resolve_material_content_markdown(material).strip()
-        if not resolved_markdown:
-            hydrated.append(material)
-            continue
-
-        next_material = dict(material)
-        next_content = dict(content)
-        next_content["content_markdown"] = resolved_markdown
-        next_material["content"] = next_content
-        hydrated.append(next_material)
-
-    return hydrated
-
-
 @contextmanager
 def _without_proxy_env():
     previous = {key: os.environ.get(key) for key in _PROXY_ENV_KEYS}

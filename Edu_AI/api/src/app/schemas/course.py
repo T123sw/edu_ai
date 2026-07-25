@@ -74,22 +74,3 @@ class KnowledgeGraphHourAllocationRequest(BaseModel):
 class KnowledgeGraphHourAllocationResponse(KnowledgeGraphData):
     allocation: Dict[str, Any] = Field(default_factory=dict, description="Hour allocation metadata")
 
-
-class TeachingVideoPptItem(BaseModel):
-    material_id: str
-    title: str
-    pptx_url: str
-    html_full_url: Optional[str] = None
-    slide_count: Optional[int] = None
-    updated_at: Optional[str] = None
-
-
-class CreateTeachingVideoTaskRequest(BaseModel):
-    ppt_material_id: str = Field(..., description="课程 PPT 资源 ID")
-
-
-class TeachingVideoTaskResponse(BaseModel):
-    task_id: str
-    material_id: Optional[str] = None
-    status: str
-    video_url: Optional[str] = None

@@ -8,14 +8,11 @@ from app.api import courses as _api
 from app.schemas.course import (
     AddRAGDocumentRequest,
     CourseInfo,
-    CreateTeachingVideoTaskRequest,
     KnowledgeBaseDocument,
     KnowledgeGraphData,
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
     PinMaterialRequest,
-    TeachingVideoPptItem,
-    TeachingVideoTaskResponse,
 )
 
 router = _api.router
@@ -30,16 +27,6 @@ delete_course = _api.delete_course
 get_course_materials = _api.get_course_materials
 delete_course_material = _api.delete_course_material
 pin_course_material = _api.pin_course_material
-list_teaching_video_ready_ppts = _api.list_teaching_video_ready_ppts
-create_teaching_video_task = _api.create_teaching_video_task
-get_teaching_video_task_status = _api.get_teaching_video_task_status
-create_ai_lecture_session = _api.create_ai_lecture_session
-get_ai_lecture_session = _api.get_ai_lecture_session
-patch_ai_lecture_session_snapshot = _api.patch_ai_lecture_session_snapshot
-start_ai_lecture_session_recording = _api.start_ai_lecture_session_recording
-stop_ai_lecture_session_recording = _api.stop_ai_lecture_session_recording
-get_ai_lecture_session_recording = _api.get_ai_lecture_session_recording
-get_ai_lecture_session_slide_image = _api.get_ai_lecture_session_slide_image
 get_knowledge_base_documents = _api.get_knowledge_base_documents
 upload_knowledge_base_document = _api.upload_knowledge_base_document
 import_textbook_knowledge_graph = _api.import_textbook_knowledge_graph

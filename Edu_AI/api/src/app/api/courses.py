@@ -15,12 +15,6 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.ai_lecture_sessions import get_ai_lecture_session_service
-from app.schemas.ai_lecture_sessions import (
-    AiLectureRecordingRequest,
-    CreateAiLectureSessionRequest,
-    PatchAiLectureSessionSnapshotRequest,
-)
 from app.knowledge_graph_hours import (
     KnowledgeGraphHourAllocationError,
     allocate_graph_hours_from_llm,
@@ -28,25 +22,18 @@ from app.knowledge_graph_hours import (
 from app.schemas.course import (
     AddRAGDocumentRequest,
     CourseInfo,
-    CreateTeachingVideoTaskRequest,
     GenerateClassroomRequest,
     KnowledgeBaseDocument,
     KnowledgeGraphData,
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
     PinMaterialRequest,
-    TeachingVideoPptItem,
-    TeachingVideoTaskResponse,
 )
 from app.services import course_service as _svc
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
     VIDEO_ARTIFACT_MEDIA_TYPES,
     submit_classroom_video_export_job,
-)
-from app.teaching_video_bridge import (
-    OfflineTeachingVideoDisabledError,
-    get_teaching_video_bridge_service,
 )
 from app.textbook_knowledge_graph import (
     TextbookKnowledgeGraphError,
@@ -186,7 +173,6 @@ def get_course_materials(
         scope_ids=scope_ids,
         aggregate=aggregate,
     )
-    materials = _svc._hydrate_ppt_material_content(materials)
     if limit is None:
         return materials
 
@@ -242,218 +228,6 @@ def pin_course_material(
     updated["material_id"] = material_id
     updated["material_type"] = updated.get("material_type") or material_type
     return updated
-
-
-# ---------------------------------------------------------------------------
-# teaching videos
-# ---------------------------------------------------------------------------
-
-
-@router.get(
-    "/{course_id}/teaching-videos/ppts",
-    response_model=List[TeachingVideoPptItem],
-    summary="获取可用于生成教学视频的 PPT 列表",
-)
-def list_teaching_video_ready_ppts(
-    course_id: str,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="课程不存在")
-
-    return get_teaching_video_bridge_service().list_available_ppts(course_id)
-
-
-@router.post(
-    "/{course_id}/teaching-videos",
-    response_model=TeachingVideoTaskResponse,
-    summary="为指定 PPT 创建教学视频任务",
-)
-def create_teaching_video_task(
-    course_id: str,
-    payload: CreateTeachingVideoTaskRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    mgr = _svc._get_manager()
-
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="课程不存在")
-
-    try:
-        return get_teaching_video_bridge_service().create_task(
-            course_id=course_id,
-            ppt_material_id=payload.ppt_material_id,
-            owner=str(current_user.get("username") or "").strip(),
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except OfflineTeachingVideoDisabledError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-@router.get(
-    "/{course_id}/teaching-videos/tasks/{task_id}",
-    response_model=TeachingVideoTaskResponse,
-    summary="查询教学视频任务状态",
-)
-def get_teaching_video_task_status(
-    course_id: str,
-    task_id: str,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="课程不存在")
-
-    try:
-        return get_teaching_video_bridge_service().get_task_status(course_id=course_id, task_id=task_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-
-# ---------------------------------------------------------------------------
-# AI lecture sessions
-# ---------------------------------------------------------------------------
-
-
-@router.post("/{course_id}/lecture-sessions", summary="Create an AI lecture session resource")
-def create_ai_lecture_session(
-    course_id: str,
-    payload: CreateAiLectureSessionRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    return get_ai_lecture_session_service().create_session(
-        course_id=course_id,
-        source_ppt_material_id=payload.source_ppt_material_id,
-        title=payload.title,
-        owner=str(current_user.get("username") or "").strip(),
-    )
-
-
-@router.get("/{course_id}/lecture-sessions/{session_id}", summary="Get an AI lecture session")
-def get_ai_lecture_session(
-    course_id: str,
-    session_id: str,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    try:
-        return get_ai_lecture_session_service().get_session(course_id, session_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-
-
-@router.patch("/{course_id}/lecture-sessions/{session_id}/snapshot", summary="Patch an AI lecture session snapshot")
-def patch_ai_lecture_session_snapshot(
-    course_id: str,
-    session_id: str,
-    payload: PatchAiLectureSessionSnapshotRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    try:
-        return get_ai_lecture_session_service().patch_snapshot(
-            course_id=course_id,
-            session_id=session_id,
-            payload=payload.model_dump(exclude_unset=True),
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-
-
-@router.post("/{course_id}/lecture-sessions/{session_id}/recording/start", summary="Start AI lecture recording")
-def start_ai_lecture_session_recording(
-    course_id: str,
-    session_id: str,
-    payload: AiLectureRecordingRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    try:
-        return get_ai_lecture_session_service().start_recording(
-            course_id,
-            session_id,
-            livetalking_session_id=payload.livetalking_session_id,
-        )
-    except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-@router.post("/{course_id}/lecture-sessions/{session_id}/recording/stop", summary="Stop AI lecture recording")
-def stop_ai_lecture_session_recording(
-    course_id: str,
-    session_id: str,
-    payload: AiLectureRecordingRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    try:
-        return get_ai_lecture_session_service().stop_recording(
-            course_id,
-            session_id,
-            livetalking_session_id=payload.livetalking_session_id,
-        )
-    except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-@router.get("/{course_id}/lecture-sessions/{session_id}/recording", response_class=FileResponse, summary="Download AI lecture recording")
-def get_ai_lecture_session_recording(
-    course_id: str,
-    session_id: str,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    try:
-        return get_ai_lecture_session_service().recording_response(course_id, session_id)
-    except FileNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-
-
-@router.get(
-    "/{course_id}/lecture-sessions/{session_id}/slides/{slide_name}",
-    response_class=FileResponse,
-    summary="Get an AI lecture session slide image",
-)
-def get_ai_lecture_session_slide_image(
-    course_id: str,
-    session_id: str,
-    slide_name: str,
-    current_user: dict = Depends(get_current_user),
-):
-    _ = current_user
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-    try:
-        return get_ai_lecture_session_service().slide_image_response(course_id, session_id, slide_name)
-    except FileNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 # ---------------------------------------------------------------------------

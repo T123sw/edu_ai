@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,39 +10,14 @@ from app.blog_agent import router as blog_agent_router
 from app.chat import router as chat_router
 from app.chat.api.routes_v2 import router as chat_v2_router
 from app.deepsearch import router as deepsearch_router
-from app.dependencies import get_ai_lecturer_process_manager
-from app.exceptions import log_bootstrap_exception
 from app.pipeline import router as pipeline_router
 from app.speech.routes import router as speech_router
 from app.video_routes import router as video_router
 from core import Config
 
 
-def _startup_ai_lecturer_bridge() -> None:
-    try:
-        get_ai_lecturer_process_manager().launch_background()
-    except Exception as exc:  # pragma: no cover - defensive logging only
-        log_bootstrap_exception("AI Lecturer startup", exc)
-
-
-def _shutdown_ai_lecturer_bridge() -> None:
-    try:
-        get_ai_lecturer_process_manager().shutdown()
-    except Exception as exc:  # pragma: no cover - defensive logging only
-        log_bootstrap_exception("AI Lecturer shutdown", exc)
-
-
-@asynccontextmanager
-async def _lifespan(app: FastAPI):
-    _startup_ai_lecturer_bridge()
-    try:
-        yield
-    finally:
-        _shutdown_ai_lecturer_bridge()
-
-
 def create_app() -> FastAPI:
-    app = FastAPI(title=Config.APP_NAME, version="1.0.0", lifespan=_lifespan)
+    app = FastAPI(title=Config.APP_NAME, version="1.0.0")
 
     app.include_router(auth_router)
     app.include_router(chat_router)
