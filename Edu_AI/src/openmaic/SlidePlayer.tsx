@@ -4,6 +4,8 @@ import type { Action } from '@openmaic/dsl';
 import { WallClockSource } from './clock';
 import { PlaybackEngine, type PlaybackMode, type PlayableScene } from './playbackEngine';
 import type { ActionEffectsState } from './actionEngine';
+import { compileLessonTimeline, type LessonTimeline } from './timeline';
+import { TimelineRecorder } from './timelineRecorder';
 
 export interface SlidePlayerProps {
   slide: Slide;
@@ -11,6 +13,7 @@ export interface SlidePlayerProps {
   sceneId?: string;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onTimelineChange?: (timeline: LessonTimeline) => void;
   className?: string;
 }
 
@@ -41,37 +44,76 @@ export function SlidePlayer({
   sceneId,
   autoPlay = true,
   onComplete,
+  onTimelineChange,
   className,
 }: SlidePlayerProps) {
   const [effects, setEffects] = useState<ActionEffectsState>({});
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const engineRef = useRef<PlaybackEngine | null>(null);
+  const callbacksRef = useRef({ onComplete, onTimelineChange });
+  callbacksRef.current = { onComplete, onTimelineChange };
 
   const scenes = useMemo<PlayableScene[]>(
-    () => [{ id: sceneId ?? slide.id, actions: actions ?? [] }],
+    () => [{ id: sceneId ?? slide.id, order: 0, actions: actions ?? [] }],
     [sceneId, slide.id, actions],
+  );
+  const timeline = useMemo(
+    () =>
+      compileLessonTimeline({
+        lessonId: sceneId ?? slide.id,
+        scenes: [
+          {
+            id: sceneId ?? slide.id,
+            order: 0,
+            slideRef: slide.id,
+            actions: actions ?? [],
+          },
+        ],
+        viewport: {
+          width: slide.viewportSize,
+          height: slide.viewportSize * slide.viewportRatio,
+          ratio: slide.viewportRatio,
+        },
+      }),
+    [actions, sceneId, slide.id, slide.viewportRatio, slide.viewportSize],
   );
 
   useEffect(() => {
     const clock = new WallClockSource();
+    const recorder = new TimelineRecorder(timeline);
     const engine = new PlaybackEngine(scenes, clock, {
       onModeChange: setMode,
       onEffectsChange: setEffects,
-      onComplete,
-    });
+      onActionStart: (action, timeMs, currentSceneId) => {
+        recorder.onActionStart(action.id, currentSceneId, timeMs);
+      },
+      onActionEnd: (action, timeMs, currentSceneId) => {
+        recorder.onActionEnd(action.id, currentSceneId, timeMs);
+        callbacksRef.current.onTimelineChange?.(recorder.snapshot());
+      },
+      onComplete: () => {
+        callbacksRef.current.onTimelineChange?.(recorder.snapshot());
+        callbacksRef.current.onComplete?.();
+      },
+    }, { timeline });
     engineRef.current = engine;
     if (autoPlay) engine.start();
     return () => {
       engine.dispose();
       engineRef.current = null;
     };
-    // scenes is memoized on the props that actually define it; autoPlay/onComplete
-    // intentionally excluded so toggling them doesn't restart an in-flight playback.
+    // scenes/timeline are memoized on playback data. Callback props are read
+    // through callbacksRef so parent renders do not restart an in-flight lesson.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenes]);
+  }, [scenes, timeline]);
 
   return (
-    <div className={className} style={{ width: '100%', height: '100%' }} data-playback-mode={mode}>
+    <div
+      className={className}
+      style={{ width: '100%', height: '100%' }}
+      data-playback-mode={mode}
+      data-timeline-version={timeline.version}
+    >
       <SlideCanvas
         slide={slide}
         effects={effects}

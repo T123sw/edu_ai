@@ -10,11 +10,13 @@
 import type { Action } from '@openmaic/dsl';
 import { ActionEngine, type ActionEffectsState } from './actionEngine';
 import type { ClockSource } from './clock';
+import { compileLessonTimeline, type LessonTimeline } from './timeline';
 
 export type PlaybackMode = 'idle' | 'playing';
 
 export interface PlayableScene {
   id: string;
+  order?: number;
   actions?: Action[];
 }
 
@@ -22,26 +24,66 @@ export interface PlaybackCallbacks {
   onModeChange?: (mode: PlaybackMode) => void;
   onEffectsChange?: (effects: ActionEffectsState) => void;
   onSceneChange?: (sceneId: string) => void;
-  onActionStart?: (action: Action) => void;
+  onActionStart?: (action: Action, timeMs: number, sceneId: string) => void;
+  onActionEnd?: (action: Action, timeMs: number, sceneId: string) => void;
   onComplete?: () => void;
+}
+
+export interface ActionExecutor {
+  execute(action: Action): Promise<void>;
+  clearEffects(): void;
+  dispose(): void;
+}
+
+export interface PlaybackEngineOptions {
+  timeline?: LessonTimeline;
+  actionExecutor?: ActionExecutor;
 }
 
 export class PlaybackEngine {
   private readonly scenes: PlayableScene[];
   private readonly clock: ClockSource;
   private readonly callbacks: PlaybackCallbacks;
-  private readonly actionEngine: ActionEngine;
+  private readonly actionEngine: ActionExecutor;
   private sceneIndex = 0;
   private actionIndex = 0;
   private mode: PlaybackMode = 'idle';
   /** Bumped by stop()/dispose() so an in-flight await from a stale run gives up. */
   private runToken = 0;
 
-  constructor(scenes: PlayableScene[], clock: ClockSource, callbacks: PlaybackCallbacks = {}) {
-    this.scenes = scenes;
+  constructor(
+    scenes: PlayableScene[],
+    clock: ClockSource,
+    callbacks: PlaybackCallbacks = {},
+    options: PlaybackEngineOptions = {},
+  ) {
+    const timeline =
+      options.timeline ??
+      compileLessonTimeline({
+        lessonId: 'playback',
+        scenes: scenes.map((scene, index) => ({
+          id: scene.id,
+          order: scene.order ?? index,
+          slideRef: scene.id,
+          actions: scene.actions,
+        })),
+      });
+    const sourceScenes = new Map(scenes.map((scene) => [scene.id, scene]));
+    this.scenes = timeline.scenes.map((segment) => {
+      const source = sourceScenes.get(segment.sceneId);
+      const actionsById = new Map((source?.actions ?? []).map((action) => [action.id, action]));
+      return {
+        id: segment.sceneId,
+        order: segment.sceneIndex,
+        actions: segment.clips
+          .map((clip) => actionsById.get(clip.actionId))
+          .filter((action): action is Action => action !== undefined),
+      };
+    });
     this.clock = clock;
     this.callbacks = callbacks;
-    this.actionEngine = new ActionEngine({ onEffectsChange: callbacks.onEffectsChange });
+    this.actionEngine =
+      options.actionExecutor ?? new ActionEngine({ onEffectsChange: callbacks.onEffectsChange });
   }
 
   start(): void {
@@ -88,11 +130,6 @@ export class PlaybackEngine {
     const token = this.runToken;
     if (this.mode !== 'playing') return;
 
-    if (this.actionIndex === 0 && this.sceneIndex < this.scenes.length) {
-      this.actionEngine.clearEffects();
-      this.callbacks.onSceneChange?.(this.scenes[this.sceneIndex].id);
-    }
-
     const current = this.getCurrentAction();
     if (!current) {
       this.actionEngine.clearEffects();
@@ -101,13 +138,19 @@ export class PlaybackEngine {
       return;
     }
 
-    const { action } = current;
-    void this.clock.currentTimeMs(); // observability hook only — see clock.ts docstring
-    this.callbacks.onActionStart?.(action);
+    const { action, sceneId } = current;
+    if (this.actionIndex === 0) {
+      this.actionEngine.clearEffects();
+      this.callbacks.onSceneChange?.(sceneId);
+    }
+    const startedAtMs = this.clock.currentTimeMs();
+    this.callbacks.onActionStart?.(action, startedAtMs, sceneId);
     this.actionIndex++;
 
     await this.actionEngine.execute(action);
     if (token !== this.runToken) return; // stop()/dispose() fired while awaiting
+    const endedAtMs = this.clock.currentTimeMs();
+    this.callbacks.onActionEnd?.(action, endedAtMs, sceneId);
     if (this.mode === 'playing') {
       void this.processNext();
     }
