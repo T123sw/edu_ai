@@ -1046,7 +1046,7 @@ def test_build_default_reply_service_v2_registers_lesson_plan_workflow(monkeypat
     assert seen["runtime_kwargs"]["lesson_plan_readiness_judge"] is not None
 
 
-def test_build_default_reply_service_v2_uses_fallback_llm_for_full_ppt_workflow(monkeypatch):
+def test_build_default_reply_service_v2_uses_lightweight_ppt_handoff(monkeypatch):
     seen = {}
     fallback_llm_marker = object()
 
@@ -1133,10 +1133,4 @@ def test_build_default_reply_service_v2_uses_fallback_llm_for_full_ppt_workflow(
     service.reply(payload)
 
     assert getattr(seen["report_runtime_kwargs"]["report_context_organizer"], "llm", None) is fallback_llm_marker
-    assert getattr(seen["ppt_runtime_kwargs"]["ppt_context_organizer"], "llm", None) is fallback_llm_marker
-    assert getattr(seen["ppt_runtime_kwargs"]["outline_builder"], "llm", None) is fallback_llm_marker
-    assert getattr(seen["ppt_runtime_kwargs"]["content_markdown_generator"], "llm", None) is fallback_llm_marker
-    assert "slide_plan_builder" not in seen["ppt_runtime_kwargs"]
-    assert "content_markdown_assembler" not in seen["ppt_runtime_kwargs"]
-    assert "content_reviewer" not in seen["ppt_runtime_kwargs"]
-    assert "content_optimizer" not in seen["ppt_runtime_kwargs"]
+    assert seen["ppt_runtime_kwargs"] == {}
