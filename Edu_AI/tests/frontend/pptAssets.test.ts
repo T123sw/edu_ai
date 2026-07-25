@@ -35,7 +35,7 @@ assert.equal(
 
 assert.equal(
   resolvePptAssetUrl('http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.html'),
-  'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0000/deck.html',
+  'http://127.0.0.1:8001/ppt/artifacts/job_001/rev_0000/deck.html',
 );
 
 if (previousWindow === undefined) {

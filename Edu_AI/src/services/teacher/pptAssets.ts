@@ -1,9 +1,9 @@
 const ABSOLUTE_URL_RE = /^https?:\/\//i;
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
 
-function getConfiguredPptBaseUrl(): string {
+function getConfiguredApiBaseUrl(): string {
   const configured =
-    typeof import.meta !== 'undefined' ? String((import.meta as any).env?.VITE_PPT_BASE_URL || '').trim() : '';
+    typeof import.meta !== 'undefined' ? String((import.meta as any).env?.VITE_API_BASE_URL || '').trim() : '';
   return configured;
 }
 
@@ -14,8 +14,16 @@ function getBrowserOrigin(): string {
   return String(window.location.origin || '').trim();
 }
 
-function getPptBaseUrl(): string {
-  return getConfiguredPptBaseUrl() || getBrowserOrigin() || 'http://127.0.0.1:46080';
+function getAssetBaseUrl(): string {
+  const configured = getConfiguredApiBaseUrl();
+  if (configured) {
+    return configured;
+  }
+  const browserOrigin = getBrowserOrigin();
+  if (browserOrigin && !LOOPBACK_HOSTS.has(String(window.location?.hostname || '').trim())) {
+    return browserOrigin;
+  }
+  return 'http://127.0.0.1:8001';
 }
 
 function rewriteLoopbackAbsoluteUrl(value: string): string {
@@ -29,11 +37,9 @@ function rewriteLoopbackAbsoluteUrl(value: string): string {
     }
 
     const currentHostname = String(window.location?.hostname || '').trim();
-    if (LOOPBACK_HOSTS.has(currentHostname)) {
-      return value;
-    }
-
-    const targetBase = getConfiguredPptBaseUrl() || getBrowserOrigin();
+    const targetBase =
+      getConfiguredApiBaseUrl() ||
+      (LOOPBACK_HOSTS.has(currentHostname) ? 'http://127.0.0.1:8001' : getBrowserOrigin());
     if (!targetBase) {
       return value;
     }
@@ -51,7 +57,7 @@ export function resolvePptAssetUrl(value: unknown): string | undefined {
   if (ABSOLUTE_URL_RE.test(text)) {
     return rewriteLoopbackAbsoluteUrl(text);
   }
-  const baseUrl = getPptBaseUrl();
+  const baseUrl = getAssetBaseUrl();
   if (text.startsWith('/')) {
     return `${baseUrl}${text}`;
   }
