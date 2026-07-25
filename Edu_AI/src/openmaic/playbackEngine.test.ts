@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Action } from '@openmaic/dsl';
-import type { ActionEffectsState } from './actionEngine.ts';
+import type {
+  ActionEffectsState,
+  ActionExecutionContext,
+} from './actionEngine.ts';
 import type { ClockSource } from './clock.ts';
 import { PlaybackEngine, type ActionExecutor } from './playbackEngine.ts';
 import { compileLessonTimeline } from './timeline.ts';
@@ -41,6 +44,20 @@ class DeferredExecutor implements ActionExecutor {
 
   release(): void {
     this.releaseFirst?.();
+  }
+
+  clearEffects(): void {}
+  dispose(): void {}
+}
+
+class ContextRecordingExecutor implements ActionExecutor {
+  readonly contexts = new Map<string, ActionExecutionContext | undefined>();
+
+  async execute(
+    action: Action,
+    context?: ActionExecutionContext,
+  ): Promise<void> {
+    this.contexts.set(action.id, context);
   }
 
   clearEffects(): void {}
@@ -152,4 +169,39 @@ test('stops stale runs without executing later actions or emitting their events'
 
   assert.deepEqual(executor.executed, ['speech-1']);
   assert.deepEqual(events, ['start:speech-1']);
+});
+
+test('passes compiled focus concurrency to the paired narration action', async () => {
+  const sourceScenes = [
+    {
+      id: 'scene-focus',
+      order: 1,
+      actions: [
+        { id: 'spot-1', type: 'spotlight', elementId: 'title' } as Action,
+        { id: 'speech-1', type: 'speech', text: 'paired' } as Action,
+      ],
+    },
+  ];
+  const timeline = compileLessonTimeline({
+    lessonId: 'lesson-focus',
+    scenes: sourceScenes,
+    actionDurationsMs: { 'speech-1': 1000 },
+  });
+  const executor = new ContextRecordingExecutor();
+  let complete!: () => void;
+  const completed = new Promise<void>((resolve) => {
+    complete = resolve;
+  });
+  const engine = new PlaybackEngine(
+    sourceScenes,
+    new SequenceClock([0, 0, 0, 1000]),
+    { onComplete: complete },
+    { timeline, actionExecutor: executor },
+  );
+
+  engine.start();
+  await completed;
+
+  assert.equal(executor.contexts.get('spot-1')?.hasConcurrentFocus, false);
+  assert.equal(executor.contexts.get('speech-1')?.hasConcurrentFocus, true);
 });

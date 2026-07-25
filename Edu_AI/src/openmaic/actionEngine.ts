@@ -1,24 +1,14 @@
 /**
- * ActionEngine — edu_ai port of OpenMAIC's `lib/action/engine.ts` (MIT),
- * trimmed to what Phase 3 needs: `speech` (sync) + `spotlight`/`laser`
- * (fire-and-forget). Other action types (whiteboard/discussion/widget/
- * play_video) are no-ops for now — none of them appear in Phase 2 MVP
- * generated classrooms (media/TTS/widgets all deferred, see SPEC-04 §0.1
- * D1/D2), so faithfully porting them is deferred until Phase 3 needs to
- * render a real generated lesson rather than the hand-written smoke sample.
+ * Executes the subset of OpenMAIC actions used by the lesson player.
  *
- * Mirrors the upstream semantics exactly for the two action kinds it does
- * implement: fire-and-forget actions set effect state and resolve
- * immediately (don't block the timeline); the caller advances to the next
- * action right away, so a spotlight authored immediately *before* a speech
- * action naturally overlaps that speech's duration — that's the whole
- * "concurrency semantics" (SPEC-02 §3.2), no explicit pairing logic needed.
+ * Spotlight and laser actions are fire-and-forget. Speech is synchronous and
+ * follows a deterministic fallback chain:
+ * generated audio -> browser speech synthesis -> reading-time dwell.
  */
 
 import type { Action, SpeechAction } from '@openmaic/dsl';
 
-/** Mirrors upstream ActionEngine's EFFECT_AUTO_CLEAR_MS. */
-const EFFECT_AUTO_CLEAR_MS = 5000;
+const DEFAULT_EFFECT_AUTO_CLEAR_MS = 5000;
 
 export interface SpotlightEffectState {
   elementId: string;
@@ -39,22 +29,54 @@ export interface ActionEngineCallbacks {
   onEffectsChange?: (effects: ActionEffectsState) => void;
 }
 
+export type ActionMediaResult = 'ended' | 'failed';
+
+export interface ActionMediaAdapter {
+  playAudio(
+    url: string,
+    onDurationKnown?: (durationMs: number) => void,
+  ): Promise<ActionMediaResult>;
+  speak(text: string, speed?: number, voice?: string): Promise<ActionMediaResult>;
+  wait(durationMs: number): Promise<void>;
+  cancel(): void;
+}
+
+export interface ActionExecutionContext {
+  /**
+   * The timeline compiler paired the current narration with a preceding
+   * spotlight/laser clip. Paired focus remains active for the exact narration
+   * lifetime instead of using the orphan safety timeout.
+   */
+  hasConcurrentFocus?: boolean;
+}
+
+export interface ActionEngineOptions {
+  media?: ActionMediaAdapter;
+  effectAutoClearMs?: number;
+}
+
 export class ActionEngine {
   private effects: ActionEffectsState = {};
   private effectTimer: ReturnType<typeof setTimeout> | null = null;
-  /** Wall-clock deadline the current `effectTimer` is armed for — lets
-   * {@link extendEffectClearFor} tell whether a proposed new deadline would
-   * actually push the clear out further, without needing to track a
-   * separate "armed at" timestamp. */
-  private effectClearDeadline: number | null = null;
   private readonly callbacks: ActionEngineCallbacks;
+  private readonly media: ActionMediaAdapter;
+  private readonly effectAutoClearMs: number;
+  private disposed = false;
 
-  constructor(callbacks: ActionEngineCallbacks = {}) {
+  constructor(
+    callbacks: ActionEngineCallbacks = {},
+    options: ActionEngineOptions = {},
+  ) {
     this.callbacks = callbacks;
+    this.media = options.media ?? new BrowserActionMediaAdapter();
+    this.effectAutoClearMs =
+      options.effectAutoClearMs ?? DEFAULT_EFFECT_AUTO_CLEAR_MS;
   }
 
   dispose(): void {
-    this.clearEffectTimer();
+    this.disposed = true;
+    this.media.cancel();
+    this.clearEffects();
   }
 
   clearEffects(): void {
@@ -63,129 +85,209 @@ export class ActionEngine {
     this.callbacks.onEffectsChange?.(this.effects);
   }
 
-  /**
-   * Execute a single action. Fire-and-forget actions (spotlight/laser)
-   * return immediately; `speech` returns a Promise that resolves when the
-   * narration finishes (real audio, browser TTS, or a reading-time
-   * estimate — same three-tier fallback as upstream).
-   */
-  async execute(action: Action): Promise<void> {
+  async execute(
+    action: Action,
+    context: ActionExecutionContext = {},
+  ): Promise<void> {
+    if (this.disposed) return;
+
     switch (action.type) {
       case 'spotlight':
-        this.effects = { ...this.effects, spotlight: { elementId: action.elementId, dimOpacity: action.dimOpacity } };
+        this.effects = {
+          ...this.effects,
+          spotlight: {
+            elementId: action.elementId,
+            dimOpacity: action.dimOpacity,
+          },
+        };
         this.callbacks.onEffectsChange?.(this.effects);
         this.scheduleEffectClear();
         return;
       case 'laser':
-        this.effects = { ...this.effects, laser: { elementId: action.elementId, color: action.color } };
+        this.effects = {
+          ...this.effects,
+          laser: { elementId: action.elementId, color: action.color },
+        };
         this.callbacks.onEffectsChange?.(this.effects);
         this.scheduleEffectClear();
         return;
       case 'speech':
-        return this.executeSpeech(action);
+        await this.executeSpeech(action, context);
+        return;
       default:
-        // Not yet ported — see module docstring.
         return;
     }
   }
 
-  private scheduleEffectClear(delayMs: number = EFFECT_AUTO_CLEAR_MS): void {
-    this.armEffectClearTimer(delayMs);
-  }
-
-  /**
-   * Push the currently-armed spotlight/laser auto-clear out to cover a
-   * speech that turns out to run longer than `EFFECT_AUTO_CLEAR_MS` —
-   * without this, any real TTS clip longer than 5s (verified: 8-14s is
-   * common with real Qwen TTS output) goes dark mid-narration, then the
-   * highlight only reappears when the *next* pair's spotlight fires. Only
-   * ever extends, never shortens, an already-armed clear — a spotlight/laser
-   * with nothing timed after it still auto-clears at the original delay
-   * (defends against a highlight lingering forever if a scene stalls on a
-   * lone fire-and-forget action).
-   */
-  private extendEffectClearFor(durationMs: number): void {
-    if (this.effectTimer === null) return; // no active spotlight/laser to extend
-    const buffer = 300; // covers audio decode/start jitter so the clear doesn't beat 'ended'
-    const proposedDeadline = Date.now() + durationMs + buffer;
-    if (this.effectClearDeadline !== null && proposedDeadline <= this.effectClearDeadline) return;
-    this.armEffectClearTimer(proposedDeadline - Date.now());
-  }
-
-  private armEffectClearTimer(delayMs: number): void {
+  private scheduleEffectClear(): void {
     this.clearEffectTimer();
-    this.effectClearDeadline = Date.now() + delayMs;
     this.effectTimer = setTimeout(() => {
+      this.effectTimer = null;
       this.effects = {};
       this.callbacks.onEffectsChange?.(this.effects);
-      this.effectTimer = null;
-      this.effectClearDeadline = null;
-    }, delayMs);
+    }, this.effectAutoClearMs);
   }
 
   private clearEffectTimer(): void {
-    if (this.effectTimer) {
+    if (this.effectTimer !== null) {
       clearTimeout(this.effectTimer);
       this.effectTimer = null;
-      this.effectClearDeadline = null;
     }
   }
 
-  /**
-   * Three-tier fallback, mirrors upstream: pre-generated `audioUrl` → browser
-   * TTS (Web Speech API) → estimated reading-time dwell (CJK ~150ms/char,
-   * min 2s). A spotlight/laser authored immediately before a speech action
-   * (SPEC-02 §3.2's overlap semantics) has its auto-clear extended to match
-   * whichever tier actually ends up running, so the highlight stays lit for
-   * the real narration length instead of the fixed 5s default.
-   */
-  private async executeSpeech(action: SpeechAction): Promise<void> {
-    if (action.audioUrl) {
-      await playAudioUrl(action.audioUrl, (durationMs) => this.extendEffectClearFor(durationMs));
-      return;
+  private async executeSpeech(
+    action: SpeechAction,
+    context: ActionExecutionContext,
+  ): Promise<void> {
+    const ownsConcurrentFocus =
+      context.hasConcurrentFocus === true &&
+      (this.effects.spotlight !== undefined || this.effects.laser !== undefined);
+
+    if (ownsConcurrentFocus) this.clearEffectTimer();
+
+    try {
+      if (action.audioUrl) {
+        const audioResult = await this.media.playAudio(action.audioUrl);
+        if (audioResult === 'ended' || this.disposed) return;
+      }
+
+      const speechResult = await this.media.speak(
+        action.text,
+        action.speed,
+        action.voice,
+      );
+      if (speechResult === 'ended' || this.disposed) return;
+
+      await this.media.wait(readingTimeMs(action.text));
+    } finally {
+      if (ownsConcurrentFocus) this.clearEffects();
     }
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window && action.text.trim()) {
-      await speakWithBrowserTts(action.text, action.speed);
-      return;
-    }
-    const dwellMs = readingTimeMs(action.text);
-    this.extendEffectClearFor(dwellMs);
-    await new Promise<void>((resolve) => setTimeout(resolve, dwellMs));
   }
 }
 
-function playAudioUrl(url: string, onDurationKnown?: (durationMs: number) => void): Promise<void> {
-  return new Promise((resolve) => {
-    const audio = new Audio(url);
-    audio.addEventListener(
-      'loadedmetadata',
-      () => {
-        if (Number.isFinite(audio.duration)) onDurationKnown?.(audio.duration * 1000);
-      },
-      { once: true },
-    );
-    audio.addEventListener('ended', () => resolve(), { once: true });
-    audio.addEventListener('error', () => resolve(), { once: true });
-    audio.play().catch(() => resolve());
-  });
+class BrowserActionMediaAdapter implements ActionMediaAdapter {
+  private cancelActive: (() => void) | null = null;
+
+  playAudio(
+    url: string,
+    onDurationKnown?: (durationMs: number) => void,
+  ): Promise<ActionMediaResult> {
+    if (typeof Audio === 'undefined') return Promise.resolve('failed');
+
+    this.cancel();
+    return new Promise((resolve) => {
+      const audio = new Audio(url);
+      let settled = false;
+
+      const settle = (result: ActionMediaResult) => {
+        if (settled) return;
+        settled = true;
+        audio.removeEventListener('loadedmetadata', handleMetadata);
+        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('error', handleError);
+        if (this.cancelActive === cancel) this.cancelActive = null;
+        resolve(result);
+      };
+      const handleMetadata = () => {
+        if (Number.isFinite(audio.duration)) {
+          onDurationKnown?.(audio.duration * 1000);
+        }
+      };
+      const handleEnded = () => settle('ended');
+      const handleError = () => settle('failed');
+      const cancel = () => {
+        audio.pause();
+        settle('failed');
+      };
+
+      this.cancelActive = cancel;
+      audio.addEventListener('loadedmetadata', handleMetadata);
+      audio.addEventListener('ended', handleEnded, { once: true });
+      audio.addEventListener('error', handleError, { once: true });
+      audio.play().catch(handleError);
+    });
+  }
+
+  speak(
+    text: string,
+    speed?: number,
+    voice?: string,
+  ): Promise<ActionMediaResult> {
+    if (
+      typeof window === 'undefined' ||
+      !('speechSynthesis' in window) ||
+      typeof SpeechSynthesisUtterance === 'undefined' ||
+      !text.trim()
+    ) {
+      return Promise.resolve('failed');
+    }
+
+    this.cancel();
+    return new Promise((resolve) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      let settled = false;
+      const settle = (result: ActionMediaResult) => {
+        if (settled) return;
+        settled = true;
+        utterance.onend = null;
+        utterance.onerror = null;
+        if (this.cancelActive === cancel) this.cancelActive = null;
+        resolve(result);
+      };
+      const cancel = () => {
+        window.speechSynthesis.cancel();
+        settle('failed');
+      };
+
+      if (speed !== undefined) utterance.rate = speed;
+      const isCjk = cjkCharacterCount(text) > text.length * 0.3;
+      utterance.lang = isCjk ? 'zh-CN' : 'en-US';
+      const matchingVoice = window.speechSynthesis
+        .getVoices()
+        .find(
+          (candidate) =>
+            candidate.name === voice ||
+            (!voice && candidate.lang.toLowerCase().startsWith(isCjk ? 'zh' : 'en')),
+        );
+      if (matchingVoice) utterance.voice = matchingVoice;
+
+      utterance.onend = () => settle('ended');
+      utterance.onerror = () => settle('failed');
+      this.cancelActive = cancel;
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  wait(durationMs: number): Promise<void> {
+    this.cancel();
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        if (this.cancelActive === cancel) this.cancelActive = null;
+        resolve();
+      }, durationMs);
+      const cancel = () => {
+        clearTimeout(timer);
+        if (this.cancelActive === cancel) this.cancelActive = null;
+        resolve();
+      };
+      this.cancelActive = cancel;
+    });
+  }
+
+  cancel(): void {
+    const cancel = this.cancelActive;
+    this.cancelActive = null;
+    cancel?.();
+  }
 }
 
-function speakWithBrowserTts(text: string, speed?: number): Promise<void> {
-  return new Promise((resolve) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (speed) utterance.rate = speed;
-    const cjkRatio = (text.match(/[一-鿿㐀-䶿]/g) || []).length / Math.max(text.length, 1);
-    utterance.lang = cjkRatio > 0.3 ? 'zh-CN' : 'en-US';
-    utterance.onend = () => resolve();
-    utterance.onerror = () => resolve();
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  });
+function cjkCharacterCount(text: string): number {
+  return (text.match(/[\u3400-\u9fff\u3040-\u30ff\uac00-\ud7af]/g) ?? [])
+    .length;
 }
 
 function readingTimeMs(text: string): number {
-  const cjkCount = (text.match(/[一-鿿㐀-䶿぀-ゟ゠-ヿ가-힯]/g) || []).length;
-  const isCjk = cjkCount > text.length * 0.3;
+  const isCjk = cjkCharacterCount(text) > text.length * 0.3;
   return isCjk
     ? Math.max(2000, text.length * 150)
     : Math.max(2000, text.split(/\s+/).filter(Boolean).length * 240);
