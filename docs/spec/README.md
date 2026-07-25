@@ -21,12 +21,13 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
   ├─ SPEC-06  Provider 配置与 BYOK 安全边界  ← 横切：托管优先/忽略客户端 key/SSRF
   ├─ SPEC-07  OpenMaicClient（Python 客户端）  ← edu_ai 侧 httpx 客户端的完整规格
   ├─ SPEC-08  前端集成 @openmaic/dsl + renderer  ← Phase 3：引包、播放、聚焦与 LessonTimeline
-  └─ SPEC-09  PPTX 导出                         ← Phase 4：同源课件、OMML、媒体、notes 与下载
+  ├─ SPEC-09  PPTX 导出                         ← Phase 4：同源课件、OMML、媒体、notes 与下载
+  └─ SPEC-10  视频 A 导出                       ← Phase 5：无头回放、TTS mux、SRT 与产品任务
 ```
 
-> **当前范围（聚焦「迁移」）**：SPEC-01 ~ SPEC-09。
-> **后续展开**：视频 A/B（Phase 5/B，细节已在时间线文档）与旧模块下线执行单
-> （Phase 6）分别补 `SPEC-10 / SPEC-11`。
+> **当前范围（聚焦「迁移」）**：SPEC-01 ~ SPEC-10。
+> **后续展开**：旧模块下线执行单（Phase 6）补 `SPEC-11`；视频 B 保留在统一时间线
+> 文档中，按产品需要择机启动。
 
 ---
 
@@ -52,7 +53,7 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | **job / poll** | 统一异步任务协议：提交返回 `{jobId, pollUrl, pollIntervalMs}`，轮询返回 `{status, step, progress, message, done, result}`。详见 SPEC-05。 |
 | **managed provider** | 运营方在 sidecar `.env` 配好的托管 provider；此时**忽略客户端传入的 key/baseUrl**。详见 SPEC-06。 |
 | **BYOK** | Bring Your Own Key，用户在前端配置页自带 provider key。 |
-| **LessonTimeline** | 由 `Scene.actions[]` 编译出的显式多轨时间线，视频 A/B 的共享地基（本轮不展开，见时间线文档）。 |
+| **LessonTimeline** | 由 `Scene.actions[]` 编译并实测记录的显式多轨时间线；视频 A 已落地，B 复用同一契约。 |
 
 ---
 
@@ -76,6 +77,8 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | 1 解析替换 | SPEC-03（依赖 SPEC-06/07）| RAG 入库改走 MinerU Cloud，结果对齐 |
 | 2 课件生成 | SPEC-04（依赖 SPEC-02/05/07）| 用 edu_ai 知识源生成一节结构化课件并落库 |
 | 3 交互课堂 | SPEC-08（依赖 SPEC-02）| 前端播一节课，聚焦+旁白同步 |
+| 4 PPTX 导出 | SPEC-09（依赖 SPEC-02/08）| 同源课堂导出可编辑 PPTX |
+| 5 视频 A | SPEC-10（依赖 SPEC-02/08）| 后台自动得到 MP4、SRT 与实测时间线 |
 | 横切 | SPEC-05 / SPEC-06 | 任务协议统一、provider 边界就位 |
 
 依赖关系：**SPEC-02（数据契约）与 SPEC-06/07（客户端/配置）是地基**，其余都依赖它们。建议阅读顺序：`README → 02 → 01 → 06 → 07 → 05 → 03 → 04 → 08`。
@@ -90,7 +93,8 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | `Edu_AI/api/src/app/integrations/openmaic/` | `OpenMaicClient` + 类型 stub + 错误映射 | SPEC-07 |
 | `Edu_AI/api/src/app/services/classroom_service.py` | 课件生成编排（拼 researchContext、落库 Stage/Scene）| SPEC-04 |
 | `Edu_AI/api/src/app/pipeline/`（已存在）| 承接统一 job/poll 任务模型 | SPEC-05 |
-| `Edu_AI/src/openmaic/`（前端）| dsl/renderer 播放器 + PPTX/OMML 导出与下载 | SPEC-08 / SPEC-09 |
+| `Edu_AI/src/openmaic/`（前端）| dsl/renderer 播放器 + PPTX/OMML + 视频渲染/导出交互 | SPEC-08 / SPEC-09 / SPEC-10 |
+| `Edu_AI/scripts/videoPipeline.ts` | Playwright 录屏、FFmpeg 合成、SRT/时间线落盘 | SPEC-10 |
 
 > 具体文件清单在各 spec 内。以上为总览，避免各 spec 各说各话。
 
@@ -102,3 +106,4 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | --- | --- | --- |
 | 2026-07-01 | v0.1 | 建立 spec 目录，写 README(总) + SPEC-01~08(分)，聚焦迁移核心面 |
 | 2026-07-25 | v0.2 | Phase 3/4 验收后补齐 SPEC-09 PPTX 导出并更新后续范围 |
+| 2026-07-25 | v0.3 | Phase 5 验收后补齐 SPEC-10 视频 A 导出、产品任务与部署契约 |

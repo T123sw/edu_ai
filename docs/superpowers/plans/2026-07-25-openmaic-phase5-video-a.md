@@ -1,5 +1,7 @@
 # OpenMAIC Phase 5 Video A Implementation Plan
 
+> Status: ✅ completed and accepted on 2026-07-25. See SPEC-10 / ACC-10.
+
 > **Execution:** follow test-driven development and commit after every task.
 
 **Goal:** Turn the same persisted OpenMAIC classroom used by the browser player
