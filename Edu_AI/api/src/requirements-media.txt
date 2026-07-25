@@ -1,6 +1,6 @@
 -r requirements.txt
 
-# AI Lecturer media processing (speech recognition, video)
+# Speech recognition and classroom media processing
 tqdm>=4.66.0
 faster-whisper>=1.0.0
 openai-whisper>=20240930

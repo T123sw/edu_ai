@@ -1,19 +1,15 @@
-#!/bin/bash
-# RAG问答API启动脚本
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "启动RAG问答API服务..."
-echo "确保已安装依赖: pip install -r requirements-media.txt"
-echo ""
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# 检查是否安装了uvicorn
-if ! command -v uvicorn &> /dev/null
-then
-    echo "未找到uvicorn，使用python直接启动..."
-    python -m app.main
-else
-    echo "使用uvicorn启动服务..."
-    # 确保在正确的目录下运行
-    cd "$(dirname "$0")"
-    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app --reload-dir core
-fi
+PYTHON_BIN="${PYTHON:-python3}"
+API_PORT="${API_PORT:-8001}"
 
+"$PYTHON_BIN" -c "import fastapi, uvicorn" >/dev/null
+exec "$PYTHON_BIN" -m uvicorn app.main:app \
+  --host 0.0.0.0 \
+  --port "$API_PORT" \
+  --reload \
+  --reload-dir app \
+  --reload-dir core

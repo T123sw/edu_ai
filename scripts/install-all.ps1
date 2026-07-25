@@ -12,9 +12,6 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $FrontendDir = Join-Path $RepoRoot "Edu_AI"
 $BackendDir = Join-Path $FrontendDir "api\src"
-$Html2PptDir = Join-Path $BackendDir "modules\html2ppt"
-$DomToPptxDir = Join-Path $Html2PptDir "dom-to-pptx"
-$AiLecturerDir = Join-Path $BackendDir "modules\AI_Lecturer"
 $EduAgentDir = Join-Path $RepoRoot "EduAgent"
 
 function Invoke-Step {
@@ -86,9 +83,6 @@ if (-not $SkipPython) {
         & $Python -m pip install -r (Join-Path $BackendDir "requirements-media.txt")
     }
     if (-not $SkipOptional) {
-        Invoke-Step "Install AI Lecturer offline-video Python dependencies" {
-            & $Python -m pip install -r (Join-Path $AiLecturerDir "requirements-offline-py312.txt")
-        }
         Invoke-Step "Install EduAgent Python dependencies" {
             & $Python -m pip install -r (Join-Path $EduAgentDir "requirements.txt")
         }
@@ -104,19 +98,12 @@ if (-not $SkipNode) {
     Invoke-Step "Install frontend Node dependencies" {
         Invoke-NpmCi $FrontendDir
     }
-    Invoke-Step "Install html2ppt service Node dependencies" {
-        Invoke-NpmCi $Html2PptDir
-    }
-    Invoke-Step "Install dom-to-pptx Node dependencies" {
-        Invoke-NpmCi $DomToPptxDir
-    }
 }
 
 if (-not $SkipEnvFiles) {
     Invoke-Step "Create local env/config files when missing" {
         Copy-IfMissing (Join-Path $FrontendDir ".env.example") (Join-Path $FrontendDir ".env")
         Copy-IfMissing (Join-Path $BackendDir ".env.example") (Join-Path $BackendDir ".env")
-        Copy-IfMissing (Join-Path $Html2PptDir ".env.example") (Join-Path $Html2PptDir ".env")
         Copy-IfMissing (Join-Path $EduAgentDir "config.toml.example") (Join-Path $EduAgentDir "config.toml")
     }
 }

@@ -26,9 +26,6 @@ done
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FRONTEND_DIR="$REPO_ROOT/Edu_AI"
 BACKEND_DIR="$FRONTEND_DIR/api/src"
-HTML2PPT_DIR="$BACKEND_DIR/modules/html2ppt"
-DOM_TO_PPTX_DIR="$HTML2PPT_DIR/dom-to-pptx"
-AI_LECTURER_DIR="$BACKEND_DIR/modules/AI_Lecturer"
 EDU_AGENT_DIR="$REPO_ROOT/EduAgent"
 
 step() {
@@ -73,9 +70,6 @@ if [[ "$SKIP_PYTHON" -eq 0 ]]; then
   "$PYTHON_BIN" -m pip install -r "$BACKEND_DIR/requirements-media.txt"
 
   if [[ "$SKIP_OPTIONAL" -eq 0 ]]; then
-    step "Install AI Lecturer offline-video Python dependencies"
-    "$PYTHON_BIN" -m pip install -r "$AI_LECTURER_DIR/requirements-offline-py312.txt"
-
     step "Install EduAgent Python dependencies"
     "$PYTHON_BIN" -m pip install -r "$EDU_AGENT_DIR/requirements.txt"
   fi
@@ -90,19 +84,12 @@ if [[ "$SKIP_NODE" -eq 0 ]]; then
   need_command npm
   step "Install frontend Node dependencies"
   npm ci --prefix "$FRONTEND_DIR"
-
-  step "Install html2ppt service Node dependencies"
-  npm ci --prefix "$HTML2PPT_DIR"
-
-  step "Install dom-to-pptx Node dependencies"
-  npm ci --prefix "$DOM_TO_PPTX_DIR"
 fi
 
 if [[ "$SKIP_ENV_FILES" -eq 0 ]]; then
   step "Create local env/config files when missing"
   copy_if_missing "$FRONTEND_DIR/.env.example" "$FRONTEND_DIR/.env"
   copy_if_missing "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
-  copy_if_missing "$HTML2PPT_DIR/.env.example" "$HTML2PPT_DIR/.env"
   copy_if_missing "$EDU_AGENT_DIR/config.toml.example" "$EDU_AGENT_DIR/config.toml"
 fi
 

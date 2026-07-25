@@ -78,17 +78,14 @@ echo.
 
 set "API_PORT=8001"
 set "FRONTEND_PORT=5173"
-set "PPT_PORT=46080"
-set "PPT_DIR=%API_DIR%modules\html2ppt"
 set "VITE_API_BASE_URL=http://localhost:%API_PORT%"
-set "VITE_PPT_BASE_URL=http://127.0.0.1:%PPT_PORT%"
 
-echo [1/6] Checking ports...
+echo [1/5] Checking ports...
 call :ensure_port_free "%API_PORT%" "API"
 call :ensure_port_free "%FRONTEND_PORT%" "frontend"
 echo.
 
-echo [2/6] Checking backend dependencies...
+echo [2/5] Checking backend dependencies...
 "%PYTHON_EXE%" -c "import uvicorn, fastapi" >nul 2>nul
 if !ERRORLEVEL! NEQ 0 (
     echo Uvicorn/FastAPI not found. Installing minimal backend packages...
@@ -102,7 +99,7 @@ if !ERRORLEVEL! NEQ 0 (
 echo Backend dependencies look available.
 echo.
 
-echo [3/6] Checking frontend dependencies...
+echo [3/5] Checking frontend dependencies...
 if not exist "%FRONTEND_DIR%\package.json" (
     echo [ERROR] Frontend package.json not found: "%FRONTEND_DIR%\package.json"
     pause
@@ -124,46 +121,18 @@ if not exist "%FRONTEND_DIR%\node_modules" (
 )
 echo.
 
-echo [4/6] Checking PPT engine...
-if exist "%PPT_DIR%\package.json" (
-    if not exist "%PPT_DIR%\node_modules" (
-        echo html2ppt node_modules not found. Running npm install...
-        pushd "%PPT_DIR%"
-        call npm.cmd install
-        set "PPT_NPM_RESULT=!ERRORLEVEL!"
-        popd
-        if !PPT_NPM_RESULT! NEQ 0 (
-            echo [ERROR] html2ppt npm install failed.
-            pause
-            exit /b 1
-        )
-    )
-
-    netstat -ano | findstr ":%PPT_PORT%" | findstr "LISTENING" >nul 2>nul
-    if !ERRORLEVEL! EQU 0 (
-        echo PPT engine is already listening on port %PPT_PORT%.
-    ) else (
-        echo Starting html2ppt service...
-        start "html2ppt-service" /D "%PPT_DIR%" cmd /k "npm.cmd start"
-    )
-) else (
-    echo Warning: html2ppt package.json not found at "%PPT_DIR%".
-)
-echo.
-
-echo [5/6] Starting frontend...
+echo [4/5] Starting frontend...
 start "edu-ai-frontend" /D "%FRONTEND_DIR%" cmd /k "npm.cmd run dev -- --host 0.0.0.0 --port %FRONTEND_PORT%"
 echo Frontend will run at: http://localhost:%FRONTEND_PORT%
 echo Frontend API base: %VITE_API_BASE_URL%
 echo.
 
-echo [6/6] Starting backend API...
+echo [5/5] Starting backend API...
 echo ========================================
 echo API service:      http://localhost:%API_PORT%
 echo Frontend:         http://localhost:%FRONTEND_PORT%
-echo PPT service:      http://127.0.0.1:%PPT_PORT%
 echo.
-echo Close the opened terminal windows to stop frontend/PPT services.
+echo Close the opened terminal window to stop the frontend.
 echo Press Ctrl+C in this window to stop the backend.
 echo ========================================
 echo.
