@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import type { SpeechAction } from '@openmaic/dsl';
 import {
   ActionEngine,
+  selectPreferredBrowserVoice,
   type ActionMediaAdapter,
   type ActionMediaResult,
   type ActionVideoController,
@@ -187,4 +188,28 @@ test('dispose cancels active embedded video playback', async () => {
   await playback;
 
   assert.equal(video.cancelled, true);
+});
+
+test('selects an exact requested voice before the language fallback', () => {
+  const voices = [
+    { name: '中文普通话', lang: 'zh-CN' },
+    { name: 'Requested Voice', lang: 'en-US' },
+  ] as SpeechSynthesisVoice[];
+
+  assert.equal(
+    selectPreferredBrowserVoice(voices, 'Requested Voice', 'zh')?.name,
+    'Requested Voice',
+  );
+});
+
+test('falls back to an available Chinese voice when the requested voice is absent', () => {
+  const voices = [
+    { name: 'English', lang: 'en-US' },
+    { name: '中文普通话', lang: 'zh-CN' },
+  ] as SpeechSynthesisVoice[];
+
+  assert.equal(
+    selectPreferredBrowserVoice(voices, 'missing-voice', 'zh')?.name,
+    '中文普通话',
+  );
 });

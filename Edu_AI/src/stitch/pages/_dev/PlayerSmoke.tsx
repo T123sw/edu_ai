@@ -1,5 +1,6 @@
 import type { Slide } from '@openmaic/renderer';
 import type { Action } from '@openmaic/dsl';
+import katex from 'katex';
 import { SlidePlayer } from '../../../openmaic/SlidePlayer';
 
 /**
@@ -17,6 +18,13 @@ import { SlidePlayer } from '../../../openmaic/SlidePlayer';
  * assertion this smoke test exists to check.
  */
 
+const chineseFontStack =
+  '"Noto Sans SC", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif';
+const formulaHtml = katex.renderToString(
+  String.raw`T(n)=\sum_{i=1}^{n-1}(n-i)=\frac{n(n-1)}{2}`,
+  { throwOnError: false, displayMode: true },
+);
+
 const slide: Slide = {
   id: 'smoke-slide-1',
   viewportSize: 1000,
@@ -25,29 +33,77 @@ const slide: Slide = {
     backgroundColor: '#ffffff',
     themeColors: ['#5b8def'],
     fontColor: '#222222',
-    fontName: 'sans-serif',
+    fontName: chineseFontStack,
   },
   elements: [
     {
       type: 'text',
       id: 'el-formula',
       left: 120,
-      top: 220,
+      top: 80,
       width: 760,
       height: 100,
       rotate: 0,
-      content: '<p style="font-size: 40px;">冒泡排序：相邻元素两两比较，大的往后冒泡</p>',
-      defaultFontName: 'sans-serif',
+      content:
+        `<p data-font-probe="primary" style="font-family:${chineseFontStack};font-size:40px;">` +
+        '冒泡排序：相邻元素两两比较，大的往后冒泡</p>',
+      defaultFontName: chineseFontStack,
       defaultColor: '#222',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
+    },
+    {
+      type: 'latex',
+      id: 'el-latex',
+      left: 170,
+      top: 205,
+      width: 660,
+      height: 105,
+      rotate: 0,
+      latex: String.raw`T(n)=\sum_{i=1}^{n-1}(n-i)=\frac{n(n-1)}{2}`,
+      html: formulaHtml,
+      color: '#1d4ed8',
+      align: 'center',
+    },
+    {
+      type: 'text',
+      id: 'el-explanation',
+      left: 160,
+      top: 330,
+      width: 680,
+      height: 70,
+      rotate: 0,
+      content:
+        `<p style="font-family:${chineseFontStack};font-size:28px;text-align:center;">` +
+        '相邻元素的比较次数形成等差数列，因此时间复杂度为 O(n²)。</p>',
+      defaultFontName: chineseFontStack,
+      defaultColor: '#334155',
+    },
+    {
+      type: 'text',
+      id: 'el-font-probe',
+      left: 100,
+      top: 470,
+      width: 800,
+      height: 42,
+      rotate: 0,
+      content:
+        `<p data-font-probe="fallback" style="font-family:${chineseFontStack};font-size:18px;text-align:center;">` +
+        '字体回退探针：中文标点【】、生僻字“龘”、Latin ABC、数字 123</p>',
+      defaultFontName: chineseFontStack,
+      defaultColor: '#64748b',
+    },
   ],
   background: { type: 'solid', color: '#ffffff' },
 };
 
 const actionsOverlap: Action[] = [
   { id: 'act-spot-1', type: 'spotlight', elementId: 'el-formula' },
-  { id: 'act-speech-1', type: 'speech', text: '这是冒泡排序' },
+  {
+    id: 'act-speech-1',
+    type: 'speech',
+    text: '这是冒泡排序。相邻元素依次比较，较大的元素向后移动。',
+    voice: 'zh-CN',
+    speed: 0.95,
+  },
 ];
 
 const actionsMissingElement: Action[] = [
@@ -80,7 +136,16 @@ const actionsVideo: Action[] = [
 
 export function PlayerSmokePage() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 32, padding: 24 }}>
+    <div
+      data-chinese-font-stack={chineseFontStack}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 32,
+        padding: 24,
+        fontFamily: chineseFontStack,
+      }}
+    >
       <section>
         <h2 style={{ marginBottom: 8 }}>AC-08-2 · spotlight + speech 时间窗重叠</h2>
         <p style={{ marginBottom: 8, color: '#667085', fontSize: 13 }}>

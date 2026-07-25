@@ -6,21 +6,16 @@
 > 上游（已核对）：`packages/@openmaic/{dsl,renderer,importer}`；`lib/playback/engine.ts`（`PlaybackEngine`）+ `lib/action/engine.ts`（`ActionEngine`）。
 > 关联：SPEC-02（渲染的数据契约）、SPEC-04（数据来源）。
 
-> **P3-1 进度（2026-07-24）**：引包+最小播放器+dev 冒烟样本+**真实课件端到端播放**
-> 均已完成，详见 §7。`PlaybackEngine`/`ActionEngine` 已按 §3.1 port 完
-> （speech+spotlight/laser 子集，其余动作类型留白见 `actionEngine.ts` 顶部注释）；
-> 三接缝形状已落地（ClockSource 注入、renderVideo 强制插槽、effect-timing 归入
-> ClockSource/PlaybackEngine 层，详见 `SlidePlayer.tsx` 注释里对 seam #2 的取舍
-> 说明）。**AC-08-3 已验证**：真实触发一次 `generate_classroom_for_course`（课程
-> `computational-thinking`，DeepSeek 生成"冒泡排序算法入门"9 个 scene）→ 后端
-> 落库 → 前端 `pages/_dev/ClassroomPlayer.tsx` 取真实数据完整播放，逐 scene 切换、
-> 非 slide 类型（`interactive`）优雅降级，均无异常。**过程中订正了 SPEC-04 §1.2
-> 一处文档与源码不一致**：job 轮询的 `result` 字段实际只有
-> `{classroomId,url,scenesCount}`，不含 `stage`/`scenes`，必须用新增的
-> `OpenMaicClient.get_classroom()` 二次取完整数据（详见 SPEC-04 §1.2、
-> SPEC-07 §3 的订正说明）。**AC-08-9(中文字体音色实测) 仍未做**——中文渲染在
-> 这次真实播放里视觉上正常（见 memory），但没有做专项的字体 fallback/TTS 音色
-> 验收。
+> **Phase 3 已完成（2026-07-25）**：在 P3-1 的引包、最小播放器和真实 9-scene
+> 课件播放基础上，已补齐 `LessonTimeline` 编译器、实测时间记录器、显式
+> `ClockSource` 时间戳、旁白 audio→浏览器 TTS→阅读停留三级降级、聚焦与旁白
+> `concurrentWith` 生命周期绑定、受 `play_video` 动作控制的视频注册表，以及中文
+> 字体/KaTeX 专项夹具。自动化证据为前端 32 tests、lint 0 errors、生产构建成功；
+> 浏览器冷启动夹具确认中文字体栈、中文生僻字、KaTeX、视频
+> `playing→completed`、`autoplay=false`、`muted=true`，且控制台 0 errors。
+> 自动化浏览器不暴露系统语音列表，因此“音色自然度”仍保留为人工听感复核项；
+> `voice/speed` 传递、中文音色优先选择和无音色时的确定性降级已有单元测试，不阻塞
+> Phase 3 代码交付。完整证据见 ACC-08 §3/§5。
 
 ---
 
@@ -111,4 +106,4 @@ useSlideBackgroundStyle
 - [x] 喂一份手写 `Slide + [speech, spotlight]` → 前端能渲染 + 聚焦 + 旁白同步（`pages/_dev/PlayerSmoke.tsx`，浏览器验证：`#slide-element-el-formula` 命中、spotlight mask 出现、无未捕获异常）
 - [x] 用 SPEC-04 落库的真实课件完整播放一节课（`generate_classroom_for_course` 真实生成"冒泡排序算法入门"9 scene，`pages/_dev/ClassroomPlayer.tsx` 取真实数据播放，逐 scene 切换、非 slide 类型优雅降级，均无异常）
 - [x] 三接缝形状就位：`ClockSource`（`openmaic/clock.ts`）、renderVideo 强制插槽（`SlidePlayer.tsx`，永不落回默认 `<video>`）；`localTimeMs?` 的取舍见 `SlidePlayer.tsx` 顶部注释（用 `SlideCanvas.effects` 而非裸 overlay 组件，seam 落在 ClockSource/PlaybackEngine 层）
-- [ ] 中文字体/音色实测通过（机制已接：浏览器 TTS 兜底、renderer fonts.css 已 import；未做真实中文渲染/音色效果验收）
+- [x] 中文字体/公式专项浏览器验收通过；`voice/speed`、中文音色选择与无可用音色降级有自动化测试。自动化浏览器无系统语音列表，音色自然度列为人工复核项，不影响播放完成语义

@@ -256,13 +256,11 @@ class BrowserActionMediaAdapter implements ActionMediaAdapter {
       if (speed !== undefined) utterance.rate = speed;
       const isCjk = cjkCharacterCount(text) > text.length * 0.3;
       utterance.lang = isCjk ? 'zh-CN' : 'en-US';
-      const matchingVoice = window.speechSynthesis
-        .getVoices()
-        .find(
-          (candidate) =>
-            candidate.name === voice ||
-            (!voice && candidate.lang.toLowerCase().startsWith(isCjk ? 'zh' : 'en')),
-        );
+      const matchingVoice = selectPreferredBrowserVoice(
+        window.speechSynthesis.getVoices(),
+        voice,
+        isCjk ? 'zh' : 'en',
+      );
       if (matchingVoice) utterance.voice = matchingVoice;
 
       utterance.onend = () => settle('ended');
@@ -298,6 +296,19 @@ class BrowserActionMediaAdapter implements ActionMediaAdapter {
 function cjkCharacterCount(text: string): number {
   return (text.match(/[\u3400-\u9fff\u3040-\u30ff\uac00-\ud7af]/g) ?? [])
     .length;
+}
+
+export function selectPreferredBrowserVoice(
+  voices: readonly SpeechSynthesisVoice[],
+  requestedName: string | undefined,
+  languagePrefix: 'zh' | 'en',
+): SpeechSynthesisVoice | undefined {
+  return (
+    voices.find((candidate) => candidate.name === requestedName) ??
+    voices.find((candidate) =>
+      candidate.lang.toLowerCase().startsWith(languagePrefix),
+    )
+  );
 }
 
 function readingTimeMs(text: string): number {
