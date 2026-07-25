@@ -4,7 +4,7 @@
 > 上层文档（不在本目录）：`../../项目总览地图.md`（全貌地图）、`../OpenMAIC复用_实施总纲_2026-06-30.md`（照着干的主计划）、`../OpenMAIC_对比分析与替换方案_v2_2026-06-30.md`（为什么换）、`../课件视频_统一时间线契约与AB演进预留设计_2026-06-30.md`（视频 A→B）。
 > **验收层**：每份 `SPEC-0x` 都有对应的 `../acceptance/ACC-0x`（实现什么/验收标准/怎么测）。索引见 [`../acceptance/README.md`](../acceptance/README.md)。三层指针：**地图 ↔ spec ↔ 验收** 互通。
 > **spec 与总纲的分工**：总纲说「搬什么、路线」；spec 说「一行行怎么接、字段叫什么、错误怎么处理、验收脚本是什么」。总纲变则 spec 跟。
-> 最近更新：2026-07-01 · 状态：草案 v0.1（本轮聚焦「把 OpenMAIC 迁进来」的核心面）
+> 最近更新：2026-07-25 · 状态：持续维护 v0.2
 
 ---
 
@@ -20,11 +20,13 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
   ├─ SPEC-05  异步任务协议                ← 横切：jobId/pollUrl 统一到 edu_ai 任务表
   ├─ SPEC-06  Provider 配置与 BYOK 安全边界  ← 横切：托管优先/忽略客户端 key/SSRF
   ├─ SPEC-07  OpenMaicClient（Python 客户端）  ← edu_ai 侧 httpx 客户端的完整规格
-  └─ SPEC-08  前端集成 @openmaic/dsl + renderer  ← Phase 3 起步：引包、播放、聚焦（LessonTimeline 编译器细节仍在时间线文档）
+  ├─ SPEC-08  前端集成 @openmaic/dsl + renderer  ← Phase 3：引包、播放、聚焦与 LessonTimeline
+  └─ SPEC-09  PPTX 导出                         ← Phase 4：同源课件、OMML、媒体、notes 与下载
 ```
 
-> **本轮范围（聚焦「迁移」）**：SPEC-01 ~ SPEC-08。
-> **本轮暂不展开**（迁移完成后再补，避免过度设计）：PPTX 导出（Phase 4，见总纲 §5.2 use-export-pptx）、视频 A/B（Phase 5/B，细节已在时间线文档）、旧模块下线执行单（Phase 6，见总纲 §5.1）。这三块在下一轮 spec 补 `SPEC-09 / SPEC-10 / SPEC-11`。
+> **当前范围（聚焦「迁移」）**：SPEC-01 ~ SPEC-09。
+> **后续展开**：视频 A/B（Phase 5/B，细节已在时间线文档）与旧模块下线执行单
+> （Phase 6）分别补 `SPEC-10 / SPEC-11`。
 
 ---
 
@@ -88,7 +90,7 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | `Edu_AI/api/src/app/integrations/openmaic/` | `OpenMaicClient` + 类型 stub + 错误映射 | SPEC-07 |
 | `Edu_AI/api/src/app/services/classroom_service.py` | 课件生成编排（拼 researchContext、落库 Stage/Scene）| SPEC-04 |
 | `Edu_AI/api/src/app/pipeline/`（已存在）| 承接统一 job/poll 任务模型 | SPEC-05 |
-| `Edu_AI/src/openmaic/`（前端）| 引入的 dsl/renderer 封装 + 播放器 | SPEC-08 |
+| `Edu_AI/src/openmaic/`（前端）| dsl/renderer 播放器 + PPTX/OMML 导出与下载 | SPEC-08 / SPEC-09 |
 
 > 具体文件清单在各 spec 内。以上为总览，避免各 spec 各说各话。
 
@@ -99,3 +101,4 @@ README.md (本文 = 总)                     ← 范围/术语/约定/横切原�
 | 日期 | 版本 | 变更 |
 | --- | --- | --- |
 | 2026-07-01 | v0.1 | 建立 spec 目录，写 README(总) + SPEC-01~08(分)，聚焦迁移核心面 |
+| 2026-07-25 | v0.2 | Phase 3/4 验收后补齐 SPEC-09 PPTX 导出并更新后续范围 |

@@ -22,6 +22,7 @@
 | [ACC-06 Provider 与 BYOK 安全边界](ACC-06_Provider与BYOK安全边界_验收.md) | SPEC-06 | 横切 | ⏳ 待做 |
 | [ACC-07 OpenMaicClient 客户端](ACC-07_OpenMaicClient客户端_验收.md) | SPEC-07 | 横切 | ⏳ 待做 |
 | [ACC-08 前端集成播放](ACC-08_前端集成播放_验收.md) | SPEC-08 | 3 | ✅ 已通过（2026-07-25；音色自然度保留人工复核） |
+| [ACC-09 PPTX 导出](ACC-09_PPTX导出_验收.md) | SPEC-09 | 4 | ✅ 已通过（2026-07-25） |
 
 ---
 
@@ -67,3 +68,4 @@
 | --- | --- | --- |
 | 2026-07-01 | v0.1 | 建立验收目录，对 SPEC-01~08 各写一份 ACC，打通 地图↔spec↔验收 指针 |
 | 2026-07-25 | v0.2 | ACC-08 完成 LessonTimeline、旁白/聚焦、受控视频和中文/公式专项验收 |
+| 2026-07-25 | v0.3 | ACC-09 完成同源 PPTX、editable OMML、媒体/notes 与浏览器下载验收 |
