@@ -1,7 +1,9 @@
 import type { Slide } from '@openmaic/renderer';
-import type { Action } from '@openmaic/dsl';
+import type { Action, Slide as DslSlide } from '@openmaic/dsl';
 import katex from 'katex';
 import { SlidePlayer } from '../../../openmaic/SlidePlayer';
+import { PptxExportButton } from '../../../openmaic/PptxExportButton';
+import type { PptxExportScene } from '../../../openmaic/pptxExporter';
 
 /**
  * Dev-only smoke test for the Phase 3 player (SPEC-08 §6 / ACC-08 §3.2).
@@ -134,6 +136,16 @@ const actionsVideo: Action[] = [
   { id: 'act-video-1', type: 'play_video', elementId: 'el-video' },
 ];
 
+const pptxSmokeScenes: PptxExportScene[] = [
+  {
+    id: 'pptx-smoke-scene',
+    order: 0,
+    type: 'slide',
+    content: { type: 'slide', canvas: slide as unknown as DslSlide },
+    actions: actionsOverlap,
+  },
+];
+
 export function PlayerSmokePage() {
   return (
     <div
@@ -146,6 +158,17 @@ export function PlayerSmokePage() {
         fontFamily: chineseFontStack,
       }}
     >
+      <section>
+        <h2 style={{ marginBottom: 8 }}>AC-09 · PPTX 浏览器下载</h2>
+        <p style={{ marginBottom: 8, color: '#667085', fontSize: 13 }}>
+          期望：点击后下载非空 PPTX，按钮恢复可用，页面仍可继续操作。
+        </p>
+        <PptxExportButton
+          title="PPTX 浏览器验收：冒泡排序"
+          scenes={pptxSmokeScenes}
+        />
+      </section>
+
       <section>
         <h2 style={{ marginBottom: 8 }}>AC-08-2 · spotlight + speech 时间窗重叠</h2>
         <p style={{ marginBottom: 8, color: '#667085', fontSize: 13 }}>

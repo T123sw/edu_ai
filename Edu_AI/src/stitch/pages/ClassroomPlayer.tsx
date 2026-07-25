@@ -4,6 +4,8 @@ import { getClassroom } from "../api/classroom";
 import type { ClassroomMaterial, ClassroomScene } from "../api/types";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes } from "../shared";
 import { SlidePlayer } from "../../openmaic/SlidePlayer";
+import { PptxExportButton } from "../../openmaic/PptxExportButton";
+import type { PptxExportScene } from "../../openmaic/pptxExporter";
 
 /**
  * 播放一份真实的、由 `classroom_service.generate_classroom_for_course` 生成
@@ -46,7 +48,15 @@ export function ClassroomPlayerPage() {
     };
   }, [courseId, classroomId]);
 
-  const scenes: ClassroomScene[] = material?.scenes ?? [];
+  const scenes: ClassroomScene[] = useMemo(() => material?.scenes ?? [], [material]);
+  const exportScenes = useMemo(
+    () =>
+      scenes.map((scene, order) => ({
+        ...scene,
+        order,
+      })) as unknown as PptxExportScene[],
+    [scenes],
+  );
   const currentScene = scenes[sceneIndex];
   const slideCount = scenes.filter((s) => s.content?.type === "slide" && s.content.canvas).length;
 
@@ -61,11 +71,19 @@ export function ClassroomPlayerPage() {
             <MaterialIcon name="arrow_back" className="text-sm" />
             返回课件列表
           </a>
-          <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课件播放</p>
+          <div className="flex items-center gap-5">
             {material ? (
-              <h2 className="mt-1 text-xl font-black text-(--app-text)">{material.title}</h2>
+              <PptxExportButton
+                title={material.title || "课堂课件"}
+                scenes={exportScenes}
+              />
             ) : null}
+            <div className="text-right">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课件播放</p>
+              {material ? (
+                <h2 className="mt-1 text-xl font-black text-(--app-text)">{material.title}</h2>
+              ) : null}
+            </div>
           </div>
         </div>
 
