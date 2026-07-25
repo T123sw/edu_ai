@@ -72,7 +72,7 @@ const DEFAULT_VIEWPORT = {
   ratio: 0.5625,
 } as const;
 
-function createRenderConfig(): RenderConfig {
+export function createDefaultRenderConfig(): RenderConfig {
   return {
     fps: 30,
     resolution: { width: 1920, height: 1080 },
@@ -217,6 +217,6 @@ export function compileLessonTimeline(input: CompileLessonTimelineInput): Lesson
     durationMs: lessonCursorMs,
     viewport: { ...(input.viewport ?? DEFAULT_VIEWPORT) },
     scenes,
-    render: createRenderConfig(),
+    render: createDefaultRenderConfig(),
   };
 }
