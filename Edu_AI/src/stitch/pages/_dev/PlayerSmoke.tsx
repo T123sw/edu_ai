@@ -55,6 +55,29 @@ const actionsMissingElement: Action[] = [
   { id: 'act-speech-2', type: 'speech', text: '聚焦指向不存在的元素，验证不崩溃' },
 ];
 
+const videoSlide: Slide = {
+  ...slide,
+  id: 'smoke-slide-video',
+  elements: [
+    {
+      type: 'video',
+      id: 'el-video',
+      left: 100,
+      top: 56,
+      width: 800,
+      height: 450,
+      rotate: 0,
+      autoplay: false,
+      src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+      ext: 'mp4',
+    },
+  ],
+};
+
+const actionsVideo: Action[] = [
+  { id: 'act-video-1', type: 'play_video', elementId: 'el-video' },
+];
+
 export function PlayerSmokePage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32, padding: 24 }}>
@@ -77,6 +100,17 @@ export function PlayerSmokePage() {
         </p>
         <div style={{ width: 800, height: 450, border: '1px solid #ddd' }}>
           <SlidePlayer slide={slide} actions={actionsMissingElement} />
+        </div>
+      </section>
+
+      <section>
+        <h2 style={{ marginBottom: 8 }}>AC-08-5 · play_video 受时间线控制</h2>
+        <p style={{ marginBottom: 8, color: '#667085', fontSize: 13 }}>
+          期望：视频挂载后带有 data-video-state="registered"，动作开始时变为
+          "playing"，播放结束后变为 "completed"；未执行动作前不应自动播放，且嵌入音频默认静音。
+        </p>
+        <div style={{ width: 800, height: 450, border: '1px solid #ddd' }}>
+          <SlidePlayer slide={videoSlide} actions={actionsVideo} />
         </div>
       </section>
     </div>

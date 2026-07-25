@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SlideCanvas, type Slide } from '@openmaic/renderer';
-import type { Action } from '@openmaic/dsl';
+import type { Action, PPTVideoElement } from '@openmaic/dsl';
 import { WallClockSource } from './clock';
 import { PlaybackEngine, type PlaybackMode, type PlayableScene } from './playbackEngine';
-import type { ActionEffectsState } from './actionEngine';
+import { ActionEngine, type ActionEffectsState } from './actionEngine';
 import { compileLessonTimeline, type LessonTimeline } from './timeline';
 import { TimelineRecorder } from './timelineRecorder';
+import { VideoRegistry } from './videoRegistry';
 
 export interface SlidePlayerProps {
   slide: Slide;
@@ -22,11 +23,9 @@ export interface SlidePlayerProps {
  * `@openmaic/renderer`'s `<SlideCanvas>`, driven by {@link PlaybackEngine}
  * (ClockSource-injected — SPEC-08 §3.1 seam #1).
  *
- * Video elements always go through `renderVideo` (seam #3): this phase
- * returns a plain native `<video autoplay>`, matching the wall-clock "A"
- * branch; it must never fall through to SlideCanvas's own default `<video>`
- * so that swapping in an `<OffthreadVideo>`-based "B" implementation later
- * is a one-line change here, not a rewrite.
+ * Video elements always go through `renderVideo` (seam #3) and register their
+ * native element by stable DSL ID. They never autoplay: a `play_video` action
+ * owns start/completion timing through the same playback engine as narration.
  *
  * Seam #2 (`localTimeMs?` optional prop on effect overlay components) does
  * not map cleanly onto this integration: `@openmaic/renderer` exposes
@@ -50,6 +49,7 @@ export function SlidePlayer({
   const [effects, setEffects] = useState<ActionEffectsState>({});
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const engineRef = useRef<PlaybackEngine | null>(null);
+  const videoRegistry = useMemo(() => new VideoRegistry(), []);
   const callbacksRef = useRef({ onComplete, onTimelineChange });
   callbacksRef.current = { onComplete, onTimelineChange };
 
@@ -81,9 +81,12 @@ export function SlidePlayer({
   useEffect(() => {
     const clock = new WallClockSource();
     const recorder = new TimelineRecorder(timeline);
+    const actionEngine = new ActionEngine(
+      { onEffectsChange: setEffects },
+      { video: videoRegistry },
+    );
     const engine = new PlaybackEngine(scenes, clock, {
       onModeChange: setMode,
-      onEffectsChange: setEffects,
       onActionStart: (action, timeMs, currentSceneId) => {
         recorder.onActionStart(action.id, currentSceneId, timeMs);
       },
@@ -95,7 +98,7 @@ export function SlidePlayer({
         callbacksRef.current.onTimelineChange?.(recorder.snapshot());
         callbacksRef.current.onComplete?.();
       },
-    }, { timeline });
+    }, { timeline, actionExecutor: actionEngine });
     engineRef.current = engine;
     if (autoPlay) engine.start();
     return () => {
@@ -118,14 +121,42 @@ export function SlidePlayer({
         slide={slide}
         effects={effects}
         renderVideo={(el) => (
-          <video
-            src={el.src}
-            autoPlay
-            playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-          />
+          <RegisteredVideo element={el} registry={videoRegistry} />
         )}
       />
     </div>
+  );
+}
+
+function RegisteredVideo({
+  element,
+  registry,
+}: {
+  element: PPTVideoElement;
+  registry: VideoRegistry;
+}) {
+  const unregisterRef = useRef<(() => void) | null>(null);
+  const attachVideo = useCallback(
+    (video: HTMLVideoElement | null) => {
+      unregisterRef.current?.();
+      unregisterRef.current = video
+        ? registry.register(element.id, video)
+        : null;
+    },
+    [element.id, registry],
+  );
+
+  return (
+    <video
+      ref={attachVideo}
+      src={element.src}
+      poster={element.poster}
+      muted
+      playsInline
+      preload="metadata"
+      controls={Boolean(element.src)}
+      data-video-element-id={element.id}
+      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+    />
   );
 }

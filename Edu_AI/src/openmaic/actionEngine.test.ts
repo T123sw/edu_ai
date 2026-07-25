@@ -5,6 +5,8 @@ import {
   ActionEngine,
   type ActionMediaAdapter,
   type ActionMediaResult,
+  type ActionVideoController,
+  type VideoPlaybackResult,
 } from './actionEngine.ts';
 
 class FakeMediaAdapter implements ActionMediaAdapter {
@@ -41,6 +43,28 @@ class FakeMediaAdapter implements ActionMediaAdapter {
   cancel(): void {
     this.cancelled = true;
     this.pendingSpeechResolve?.('failed');
+  }
+}
+
+class FakeVideoController implements ActionVideoController {
+  readonly calls: string[] = [];
+  cancelled = false;
+  private finishPlayback: ((result: VideoPlaybackResult) => void) | null = null;
+
+  play(elementId: string): Promise<VideoPlaybackResult> {
+    this.calls.push(elementId);
+    return new Promise((resolve) => {
+      this.finishPlayback = resolve;
+    });
+  }
+
+  finish(result: VideoPlaybackResult = 'ended'): void {
+    this.finishPlayback?.(result);
+  }
+
+  cancel(): void {
+    this.cancelled = true;
+    this.finishPlayback?.('failed');
   }
 }
 
@@ -128,4 +152,39 @@ test('dispose cancels active narration and releases paired focus', async () => {
 
   assert.equal(media.cancelled, true);
   assert.deepEqual(changes.at(-1), {});
+});
+
+test('waits for controlled embedded video completion', async () => {
+  const video = new FakeVideoController();
+  const engine = new ActionEngine({}, { video });
+  let settled = false;
+
+  const playback = engine
+    .execute({ id: 'play-1', type: 'play_video', elementId: 'video-1' })
+    .then(() => {
+      settled = true;
+    });
+  await Promise.resolve();
+
+  assert.deepEqual(video.calls, ['video-1']);
+  assert.equal(settled, false);
+
+  video.finish();
+  await playback;
+  assert.equal(settled, true);
+});
+
+test('dispose cancels active embedded video playback', async () => {
+  const video = new FakeVideoController();
+  const engine = new ActionEngine({}, { video });
+  const playback = engine.execute({
+    id: 'play-1',
+    type: 'play_video',
+    elementId: 'video-1',
+  });
+
+  engine.dispose();
+  await playback;
+
+  assert.equal(video.cancelled, true);
 });

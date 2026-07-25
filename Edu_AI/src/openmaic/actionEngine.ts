@@ -41,6 +41,13 @@ export interface ActionMediaAdapter {
   cancel(): void;
 }
 
+export type VideoPlaybackResult = 'ended' | 'failed' | 'missing';
+
+export interface ActionVideoController {
+  play(elementId: string): Promise<VideoPlaybackResult>;
+  cancel(): void;
+}
+
 export interface ActionExecutionContext {
   /**
    * The timeline compiler paired the current narration with a preceding
@@ -52,6 +59,7 @@ export interface ActionExecutionContext {
 
 export interface ActionEngineOptions {
   media?: ActionMediaAdapter;
+  video?: ActionVideoController;
   effectAutoClearMs?: number;
 }
 
@@ -60,6 +68,7 @@ export class ActionEngine {
   private effectTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly callbacks: ActionEngineCallbacks;
   private readonly media: ActionMediaAdapter;
+  private readonly video?: ActionVideoController;
   private readonly effectAutoClearMs: number;
   private disposed = false;
 
@@ -69,6 +78,7 @@ export class ActionEngine {
   ) {
     this.callbacks = callbacks;
     this.media = options.media ?? new BrowserActionMediaAdapter();
+    this.video = options.video;
     this.effectAutoClearMs =
       options.effectAutoClearMs ?? DEFAULT_EFFECT_AUTO_CLEAR_MS;
   }
@@ -76,6 +86,7 @@ export class ActionEngine {
   dispose(): void {
     this.disposed = true;
     this.media.cancel();
+    this.video?.cancel();
     this.clearEffects();
   }
 
@@ -113,6 +124,9 @@ export class ActionEngine {
         return;
       case 'speech':
         await this.executeSpeech(action, context);
+        return;
+      case 'play_video':
+        await this.video?.play(action.elementId);
         return;
       default:
         return;
