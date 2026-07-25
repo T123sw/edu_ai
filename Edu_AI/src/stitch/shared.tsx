@@ -26,6 +26,8 @@ export const routes = {
   edit: "edit",
   // Dev-only, not in any nav — Phase 3 player smoke test (SPEC-08 §6 / ACC-08 §3.2).
   playerSmoke: "player-smoke",
+  // Standalone 1920x1080 route consumed by the Phase 5 headless video recorder.
+  videoRender: "video-render",
   // Real feature (not dev-only): AI 课件生成 studio，从课程详情页进入。
   classroomStudio: "classroom-studio",
   // Real feature (not dev-only): 播放一份已生成的课件。

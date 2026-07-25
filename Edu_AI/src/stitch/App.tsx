@@ -12,6 +12,7 @@ import { CourseEditPage } from "./pages/CourseEdit";
 import { ProfilePage } from "./pages/Profile";
 import { LoginPage } from "./pages/LoginPage";
 import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
+import { ClassroomVideoRenderPage } from "./pages/_dev/ClassroomVideoRender";
 import { ClassroomStudioPage } from "./pages/ClassroomStudio";
 import { ClassroomPlayerPage } from "./pages/ClassroomPlayer";
 import {
@@ -40,6 +41,7 @@ const pages = [
   [routes.knowledge, "Knowledge Base", CourseKnowledgeBasePage],
   [routes.edit, "Course Edit", CourseEditPage],
   [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
+  [routes.videoRender, "Video Render", ClassroomVideoRenderPage],
   [routes.classroomStudio, "Classroom Studio", ClassroomStudioPage],
   [routes.classroomPlayer, "Classroom Player", ClassroomPlayerPage],
 ] as const;
@@ -50,6 +52,12 @@ function getCurrentRoute(): RouteKey {
   const hash = window.location.hash.replace(/^#/, "");
   const route = hash.split("?")[0] as RouteKey;
   return pages.some(([id]) => id === route) ? route : routes.home;
+}
+
+function isFixtureVideoRenderRoute(): boolean {
+  if (getCurrentRoute() !== routes.videoRender) return false;
+  const query = window.location.hash.split("?")[1] ?? "";
+  return new URLSearchParams(query).get("fixture") === "1";
 }
 
 function getStoredTheme(): ThemeName {
@@ -179,6 +187,8 @@ export default function App() {
   }, []);
 
   const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
+  const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
+  const isVideoRenderRoute = current === routes.videoRender;
 
   async function handleLogin(payload: { username: string; password: string }) {
     const result = await login(payload.username, payload.password);
@@ -202,9 +212,9 @@ export default function App() {
       setTheme={setTheme}
       logout={handleLogout}
     >
-      {current === routes.playerSmoke ? (
+      {isStandaloneDevRoute ? (
         // Dev-only: no backend dependency, so it skips the auth gate.
-        <PlayerSmokePage />
+        <ActivePage />
       ) : !authReady ? (
         <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
       ) : authenticated ? (
@@ -214,7 +224,7 @@ export default function App() {
       ) : (
         <LoginPage onLogin={handleLogin} />
       )}
-      <ThemeCustomizer />
+      {isVideoRenderRoute ? null : <ThemeCustomizer />}
     </AppShellProvider>
   );
 }
