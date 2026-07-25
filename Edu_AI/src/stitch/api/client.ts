@@ -46,3 +46,21 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
 
   return payload as T;
 }
+
+export async function apiBlob(path: string): Promise<Blob> {
+  const token = getAuthToken();
+  const headers = new Headers();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(`${API_BASE_URL}${path}`, { headers });
+  if (!response.ok) {
+    let detail = "下载失败";
+    try {
+      const payload = (await response.json()) as { detail?: unknown };
+      if (payload.detail) detail = String(payload.detail);
+    } catch {
+      // Keep the stable fallback for non-JSON proxy errors.
+    }
+    throw new ApiError(detail, response.status);
+  }
+  return response.blob();
+}

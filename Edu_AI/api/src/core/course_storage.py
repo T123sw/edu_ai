@@ -171,6 +171,11 @@ class CourseStorageManager:
         safe_classroom_id = self._normalize_material_id(classroom_id)
         return self._material_dir(course_id, "classroom") / f"{safe_classroom_id}_media" / "audio"
 
+    def get_classroom_video_dir(self, course_id: str, classroom_id: str) -> Path:
+        """Stable storage root for MP4/SRT/timeline artifacts derived from a classroom."""
+        safe_classroom_id = self._normalize_material_id(classroom_id)
+        return self._material_dir(course_id, "classroom") / f"{safe_classroom_id}_media" / "video"
+
     def _build_recovered_knowledge_base_entry(self, course_id: str, file_path: Path) -> Dict[str, Any]:
         relative_path = file_path.relative_to(self.get_course_dir(course_id)).as_posix()
         file_stat = file_path.stat()

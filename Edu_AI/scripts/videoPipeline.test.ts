@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   buildAudioMixArguments,
   buildRenderUrl,
+  createTimelineArtifact,
   parseVideoExportArguments,
   serializeConcatManifest,
 } from './videoPipeline.ts';
@@ -117,4 +118,39 @@ test('buildAudioMixArguments delays and mixes narration at global timeline offse
     ],
   );
   assert.deepEqual(buildAudioMixArguments([], 1), []);
+});
+
+test('createTimelineArtifact removes ephemeral audio URLs without mutating playback data', () => {
+  const timeline = {
+    version: 1,
+    lessonId: 'lesson',
+    durationMs: 500,
+    viewport: { width: 1920, height: 1080, ratio: 0.5625 },
+    scenes: [
+      {
+        sceneId: 'scene',
+        sceneIndex: 0,
+        startMs: 0,
+        durationMs: 500,
+        slideRef: 'slide',
+        clips: [
+          {
+            id: 'speech:clip',
+            actionId: 'speech',
+            type: 'speech' as const,
+            track: 'narration' as const,
+            startMs: 0,
+            durationMs: 500,
+            durationSource: 'measured' as const,
+            payload: { text: 'hello', audioUrl: 'blob:http://localhost/secret' },
+          },
+        ],
+      },
+    ],
+  };
+
+  const artifact = createTimelineArtifact(timeline);
+  assert.equal(artifact.scenes[0].clips[0].payload.audioUrl, undefined);
+  assert.equal(artifact.scenes[0].clips[0].payload.audioMixed, true);
+  assert.equal(timeline.scenes[0].clips[0].payload.audioUrl, 'blob:http://localhost/secret');
 });

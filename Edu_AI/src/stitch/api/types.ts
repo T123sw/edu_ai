@@ -405,7 +405,16 @@ export type EduJob = {
   step: string;
   progress: number;
   message: string;
-  result_ref?: { classroom_id: string; course_id: string; scenes_count: number } | null;
+  result_ref?: {
+    classroom_id: string;
+    course_id: string;
+    scenes_count?: number;
+    video_url?: string;
+    subtitle_url?: string;
+    timeline_url?: string;
+    duration_ms?: number;
+    scene_count?: number;
+  } | null;
   error?: string | null;
   error_code?: string | null;
   owner?: string | null;

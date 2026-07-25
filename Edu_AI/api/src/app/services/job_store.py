@@ -21,6 +21,7 @@ from core import Config
 
 class JobKind(str, Enum):
     GENERATE_CLASSROOM = "generate_classroom"
+    RENDER_VIDEO = "render_video"
 
 
 class JobStatus(str, Enum):

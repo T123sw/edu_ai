@@ -6,6 +6,7 @@ import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes } from "../shar
 import { SlidePlayer } from "../../openmaic/SlidePlayer";
 import { PptxExportButton } from "../../openmaic/PptxExportButton";
 import type { PptxExportScene } from "../../openmaic/pptxExporter";
+import { ClassroomVideoExportButton } from "../../openmaic/ClassroomVideoExportButton";
 
 /**
  * 播放一份真实的、由 `classroom_service.generate_classroom_for_course` 生成
@@ -73,10 +74,19 @@ export function ClassroomPlayerPage() {
           </a>
           <div className="flex items-center gap-5">
             {material ? (
-              <PptxExportButton
+              <div className="flex items-center gap-3">
+                {courseId && classroomId ? (
+                  <ClassroomVideoExportButton
+                    courseId={courseId}
+                    classroomId={classroomId}
+                    title={material.title || "课堂视频"}
+                  />
+                ) : null}
+                <PptxExportButton
                 title={material.title || "课堂课件"}
-                scenes={exportScenes}
-              />
+                  scenes={exportScenes}
+                />
+              </div>
             ) : null}
             <div className="text-right">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课件播放</p>

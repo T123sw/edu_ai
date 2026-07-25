@@ -1,4 +1,4 @@
-import { API_BASE_URL, apiRequest } from "./client";
+import { API_BASE_URL, apiBlob, apiRequest } from "./client";
 import type { ClassroomMaterial, EduJob } from "./types";
 
 const AUTH_STORAGE_KEY = "edu-ai-auth";
@@ -15,6 +15,17 @@ export function generateClassroom(
 
 export function getJobStatus(eduJobId: string) {
   return apiRequest<EduJob>(`/api/jobs/${eduJobId}`);
+}
+
+export function exportClassroomVideo(courseId: string, classroomId: string) {
+  return apiRequest<EduJob>(
+    `/api/courses/${encodeURIComponent(courseId)}/classrooms/${encodeURIComponent(classroomId)}/video/export`,
+    { method: "POST" },
+  );
+}
+
+export function downloadClassroomVideoArtifact(path: string) {
+  return apiBlob(path);
 }
 
 function readAuthToken() {

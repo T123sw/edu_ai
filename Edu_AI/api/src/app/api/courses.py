@@ -40,6 +40,10 @@ from app.schemas.course import (
 )
 from app.services import course_service as _svc
 from app.services.classroom_service import submit_classroom_generation_job
+from app.services.classroom_video_export import (
+    VIDEO_ARTIFACT_MEDIA_TYPES,
+    submit_classroom_video_export_job,
+)
 from app.teaching_video_bridge import (
     OfflineTeachingVideoDisabledError,
     get_teaching_video_bridge_service,
@@ -908,6 +912,34 @@ def get_classroom(
     return material
 
 
+@router.post(
+    "/{course_id}/classrooms/{classroom_id}/video/export",
+    status_code=202,
+    summary="提交 OpenMAIC 课堂 MP4 导出任务",
+)
+async def export_classroom_video(
+    course_id: str,
+    classroom_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    current_user = auth_manager.get_current_user(credentials.credentials)
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+    if mgr.get_generated_material(course_id, "classroom", classroom_id) is None:
+        raise HTTPException(status_code=404, detail="课件不存在")
+
+    owner = current_user.get("username") if current_user else None
+    return await submit_classroom_video_export_job(
+        course_id=course_id,
+        classroom_id=classroom_id,
+        auth_token=credentials.credentials,
+        current_user=current_user,
+        owner=owner,
+        course_storage_manager=mgr,
+    )
+
+
 @router.get("/{course_id}/classrooms", summary="列出课程下已落库的课件")
 def list_classrooms(
     course_id: str,
@@ -947,3 +979,33 @@ def get_classroom_audio(
 
     media_type, _ = mimetypes.guess_type(path.name)
     return FileResponse(path=path, filename=path.name, media_type=media_type or "application/octet-stream")
+
+
+@router.get(
+    "/{course_id}/classrooms/{classroom_id}/video/{filename}",
+    response_class=FileResponse,
+    summary="下载课堂 MP4、SRT 或实测时间线",
+)
+def get_classroom_video_artifact(
+    course_id: str,
+    classroom_id: str,
+    filename: str,
+    current_user: dict = Depends(get_current_user),
+):
+    _ = current_user
+    media_type = VIDEO_ARTIFACT_MEDIA_TYPES.get(filename)
+    if media_type is None:
+        raise HTTPException(status_code=404, detail="视频导出文件不存在")
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    video_root = mgr.get_classroom_video_dir(course_id, classroom_id).resolve()
+    path = (video_root / filename).resolve()
+    try:
+        path.relative_to(video_root)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="视频导出文件不存在")
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="视频导出文件不存在")
+    return FileResponse(path=path, filename=filename, media_type=media_type)

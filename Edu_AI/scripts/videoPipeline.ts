@@ -101,7 +101,8 @@ export function parseVideoExportArguments(args: readonly string[]): VideoExportO
   const fixture = args.includes('--fixture');
   const courseId = optionValue(args, '--course-id');
   const classroomId = optionValue(args, '--classroom-id');
-  const authJson = optionValue(args, '--auth-json');
+  const authJson =
+    optionValue(args, '--auth-json') ?? process.env.EDU_AI_EXPORT_AUTH_JSON;
   if (!fixture && (!courseId || !classroomId)) {
     throw new Error('--course-id and --classroom-id are required');
   }
@@ -167,6 +168,18 @@ export function buildAudioMixArguments(
     '-c:a',
     'aac',
   ];
+}
+
+export function createTimelineArtifact(timeline: LessonTimeline): LessonTimeline {
+  const artifact = structuredClone(timeline);
+  for (const scene of artifact.scenes) {
+    for (const clip of scene.clips) {
+      if (typeof clip.payload.audioUrl !== 'string') continue;
+      delete clip.payload.audioUrl;
+      clip.payload.audioMixed = true;
+    }
+  }
+  return artifact;
 }
 
 function resolveFfmpegPath(explicit?: string): string {
@@ -439,7 +452,11 @@ export async function exportClassroomVideo(
   );
   const timelinePath = join(outputDir, 'timeline.json');
   const subtitlePath = join(outputDir, 'classroom.srt');
-  await writeFile(timelinePath, `${JSON.stringify(timeline, null, 2)}\n`, 'utf8');
+  await writeFile(
+    timelinePath,
+    `${JSON.stringify(createTimelineArtifact(timeline), null, 2)}\n`,
+    'utf8',
+  );
   await writeFile(subtitlePath, timelineToSrt(timeline), 'utf8');
 
   emit({ step: 'encoding', progress: 55, message: '转码并拼接课堂画面' });
