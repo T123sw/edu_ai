@@ -77,7 +77,7 @@ assert.match(chatV2Source, /export type GameTypeV2 = 'category_sort' \| 'drag_ma
 assert.match(chatV2Source, /export interface KnowledgeBaseDirectGameRequestV2[\s\S]*game_type:\s*GameTypeV2/);
 assert.match(chatV2Source, /export async function generateKnowledgeBaseGameV2\(/);
 assert.match(chatV2Source, /\/api\/chat\/v2\/game\/direct/);
-assert.match(storeSource, /type:\s*'report' \| 'ppt' \| 'quiz' \| 'blog' \| 'lesson_plan' \| 'audio' \| 'graph' \| 'video' \| 'ai_lecture_session' \| 'flashcard' \| 'game'/);
+assert.match(storeSource, /type:\s*'report' \| 'ppt' \| 'quiz' \| 'blog' \| 'lesson_plan' \| 'audio' \| 'graph' \| 'video' \| 'flashcard' \| 'game'/);
 assert.match(previewSource, /iframe/, 'GameArtifactPreview should render an iframe for HTML preview');
 assert.match(previewSource, /全屏播放/, 'GameArtifactPreview should expose a play-mode button');
 assert.match(previewSource, /srcDoc/, 'GameArtifactPreview should render fetched HTML instead of navigating the iframe to the frontend app');

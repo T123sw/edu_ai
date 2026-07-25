@@ -1,17 +1,11 @@
 import { apiRequest } from "./client";
 import type {
-  AiLectureRecordingResponse,
-  AiLectureSessionDetailResponse,
-  AiLectureSessionMaterialResponse,
-  AiLectureSessionSnapshot,
   BackendCourse,
   CourseMaterial,
   KnowledgeBaseDocument,
   KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
   KnowledgeGraphTextbookImportResponse,
-  TeachingVideoPptItem,
-  TeachingVideoTaskResponse,
 } from "./types";
 import type { CourseSummary } from "../shared";
 
@@ -84,65 +78,6 @@ export function getCourseMaterials(courseId: string, options?: CourseMaterialsSc
 
   const search = params.toString();
   return apiRequest<CourseMaterial[]>(`/api/courses/${courseId}/materials${search ? `?${search}` : ""}`);
-}
-
-export function getTeachingVideoPpts(courseId: string) {
-  return apiRequest<TeachingVideoPptItem[]>(`/api/courses/${courseId}/teaching-videos/ppts`);
-}
-
-export function createTeachingVideoTask(courseId: string, payload: { ppt_material_id: string }) {
-  return apiRequest<TeachingVideoTaskResponse>(`/api/courses/${courseId}/teaching-videos`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function getTeachingVideoTaskStatus(courseId: string, taskId: string) {
-  return apiRequest<TeachingVideoTaskResponse>(`/api/courses/${courseId}/teaching-videos/tasks/${taskId}`);
-}
-
-export function createAiLectureSession(courseId: string, payload: { source_ppt_material_id: string; title?: string }) {
-  return apiRequest<AiLectureSessionMaterialResponse>(`/api/courses/${courseId}/lecture-sessions`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function getAiLectureSession(courseId: string, sessionId: string) {
-  return apiRequest<AiLectureSessionDetailResponse>(`/api/courses/${courseId}/lecture-sessions/${sessionId}`);
-}
-
-export function patchAiLectureSessionSnapshot(
-  courseId: string,
-  sessionId: string,
-  payload: Partial<AiLectureSessionSnapshot>,
-) {
-  return apiRequest<AiLectureSessionSnapshot>(`/api/courses/${courseId}/lecture-sessions/${sessionId}/snapshot`, {
-    method: "PATCH",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function startAiLectureSessionRecording(
-  courseId: string,
-  sessionId: string,
-  payload: { livetalking_session_id: number },
-) {
-  return apiRequest<AiLectureRecordingResponse>(`/api/courses/${courseId}/lecture-sessions/${sessionId}/recording/start`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function stopAiLectureSessionRecording(
-  courseId: string,
-  sessionId: string,
-  payload: { livetalking_session_id: number },
-) {
-  return apiRequest<AiLectureRecordingResponse>(`/api/courses/${courseId}/lecture-sessions/${sessionId}/recording/stop`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
 }
 
 export function getKnowledgeBaseDocuments(courseId: string, options?: KnowledgeBaseScopeOptions) {

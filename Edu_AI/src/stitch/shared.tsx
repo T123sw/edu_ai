@@ -15,7 +15,6 @@ export const routes = {
   workspace: "workspace",
   course: "course",
   courseDetail: "course-detail",
-  video: "video",
   ai: "ai",
   home: "home",
   profile: "profile",
@@ -75,7 +74,7 @@ const AppShellContext = createContext<AppShellContextValue | null>(null);
 const sidebarNavItems = [
   { route: routes.ai, label: "问答", icon: "quiz" },
   { route: routes.graph, label: "知识图谱", icon: "hub" },
-  { route: routes.video, label: "课程学习", icon: "play_circle" },
+  { route: routes.classroomStudio, label: "AI 课堂", icon: "play_circle" },
   { route: routes.knowledge, label: "课程知识库", icon: "menu_book" },
   { route: routes.edit, label: "详情编辑", icon: "settings_suggest" },
 ] as const;

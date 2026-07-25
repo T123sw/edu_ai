@@ -2,7 +2,7 @@ import { API_BASE_URL } from "./api/client";
 import type { CourseMaterial } from "./api/types";
 
 const WORD_EXPORTABLE_TYPES = new Set(["report", "lesson_plan", "quiz", "blog"]);
-const WORD_BLOCKED_TYPES = new Set(["ppt", "ai_lecture_session"]);
+const WORD_BLOCKED_TYPES = new Set(["ppt"]);
 
 function escapeHtml(value: string) {
   return value

@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
-import { VideoPlayerPage } from "./pages/VideoPlayer";
 import { CourseResourcesPage } from "./pages/CourseResources";
 import { AIWorkspacePage } from "./pages/AIWorkspace";
 import { HomeDashboardPage } from "./pages/HomeDashboard";
@@ -33,7 +32,6 @@ const pages = [
   [routes.course, "Course List", CourseListPage],
   [routes.courseDetail, "Course Detail", CourseDetailPage],
   [routes.workspace, "Workspace", WorkspaceOverviewPage],
-  [routes.video, "Video Player", VideoPlayerPage],
   [routes.resources, "Course Resources", CourseResourcesPage],
   [routes.ai, "AI Workspace", AIWorkspacePage],
   [routes.graph, "Knowledge Graph", KnowledgeGraphPage],

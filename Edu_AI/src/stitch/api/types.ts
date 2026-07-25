@@ -46,66 +46,6 @@ export type CourseMaterial = {
   scope_id?: string | null;
 };
 
-export type TeachingVideoPptItem = {
-  material_id: string;
-  title: string;
-  pptx_url: string;
-  html_full_url?: string | null;
-  slide_count?: number | null;
-  updated_at?: string | null;
-};
-
-export type TeachingVideoTaskResponse = {
-  task_id: string;
-  material_id?: string | null;
-  status: string;
-  video_url?: string | null;
-  error_message?: string | null;
-};
-
-export type AiLectureSessionMaterialResponse = {
-  material_id: string;
-  material_type: string;
-  title?: string | null;
-  summary?: string | null;
-  content?: {
-    source_ppt_material_id?: string;
-    session_snapshot_id?: string;
-    recording_asset_id?: string | null;
-    recording_url?: string | null;
-    can_continue_interactive?: boolean;
-    [key: string]: unknown;
-  };
-  generation_state?: Record<string, unknown>;
-};
-
-export type AiLectureSessionSnapshot = {
-  snapshot_id?: string;
-  course_id?: string;
-  source_ppt_material_id?: string;
-  ai_lecturer_course_id?: string | null;
-  outline?: AiLecturerCoursePage[];
-  script?: Array<{ page_index: number; sentences: string[] }>;
-  slide_image_urls?: string[];
-  slide_count?: number;
-  events?: Array<Record<string, unknown>>;
-  last_position?: { page_index?: number; sentence_index?: number };
-  [key: string]: unknown;
-};
-
-export type AiLectureSessionDetailResponse = {
-  material?: AiLectureSessionMaterialResponse;
-  snapshot?: AiLectureSessionSnapshot;
-  metadata?: Record<string, unknown>;
-};
-
-export type AiLectureRecordingResponse = {
-  recording_status?: string;
-  recording_url?: string | null;
-  livetalking_session_id?: number;
-  [key: string]: unknown;
-};
-
 export type KnowledgeBaseDocument = {
   id: string;
   name: string;
@@ -356,45 +296,6 @@ export type ApiEnvelope<T> = {
   code: number;
   message?: string;
   data: T;
-};
-
-export type AiLecturerCoursePage = {
-  title: string;
-  content: string;
-};
-
-export type AiLecturerCourse = {
-  course_id: string;
-  pages: AiLecturerCoursePage[];
-};
-
-export type AiLecturerCourseDetail = {
-  course_name: string;
-  outline: AiLecturerCoursePage[];
-};
-
-export type AiLecturerScriptResult = {
-  sentences: string[];
-};
-
-export type AiLecturerAskResult = {
-  answer: string;
-};
-
-export type AiLecturerOfferAnswer = {
-  sdp: string;
-  type: RTCSdpType;
-  sessionid: number;
-};
-
-export type AiLecturerOfflineTaskCreated = {
-  task_id: string;
-};
-
-export type AiLecturerOfflineTaskStatus = {
-  status: "processing" | "success" | "failed";
-  video_url?: string;
-  error?: string;
 };
 
 export type EduJob = {

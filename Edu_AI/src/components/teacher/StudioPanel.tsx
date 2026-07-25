@@ -28,15 +28,12 @@ import { useStore } from '../../store/teacher/useStore';
 import type { GeneratedFile } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
-  createAiLectureSession,
   getCourseMaterials,
   getCourseMaterialsPage,
   resumeBlogTaskChapters,
   resumeBlogTaskOutline,
   startBlogGenerate,
   getBlogTaskStatus,
-  createTeachingVideoTask,
-  getTeachingVideoTaskStatus,
   generateQuiz,
   type BlogResumeChaptersRequest,
   type BlogResumeOutlineRequest,
@@ -83,7 +80,6 @@ import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
 import QuizArtifactPreview from './QuizArtifactPreview';
 import QuizEntryModal from './QuizEntryModal';
 import ReportEntryModal from './ReportEntryModal';
-import TeachingVideoEntryModal from './TeachingVideoEntryModal';
 import ReportArtifactPreview from './ReportArtifactPreview';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
@@ -337,8 +333,6 @@ const getGeneratedFileIcon = (file: GeneratedFile, size = 20) => {
       return <AudioOutlined style={{ fontSize: size, color: '#722ed1' }} />;
     case 'video':
       return <VideoCameraOutlined style={{ fontSize: size, color: '#52c41a' }} />;
-    case 'ai_lecture_session':
-      return <VideoCameraOutlined style={{ fontSize: size, color: '#1677ff' }} />;
     case 'graph':
       return <ApartmentOutlined style={{ fontSize: size, color: '#4caf50' }} />;
     case 'flashcard':
@@ -464,14 +458,6 @@ const STUDIO_ACTIONS = [
     featured: true,
   },
   {
-    type: 'video' as const,
-    icon: <VideoCameraOutlined />,
-    title: '教学视频',
-    description: '复用已经生成完成的 PPT 与内容稿，快速生成授课视频。',
-    color: '#34a853',
-    featured: true,
-  },
-  {
     type: 'graph' as const,
     icon: <ApartmentOutlined />,
     title: '思维导图',
@@ -481,7 +467,7 @@ const STUDIO_ACTIONS = [
   },
 ] as const;
 
-const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'ppt', 'video', 'graph', 'game'] as const;
+const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'ppt', 'graph', 'game'] as const;
 
 const COURSE_MATERIAL_PAGE_SIZE = 20;
 
@@ -524,7 +510,6 @@ const StudioPanel: React.FC<Props> = ({
   const { addMaterial } = useCourseMaterialsStore();
   const [configModalVisible, setConfigModalVisible] = useState(false);
   const [configType, setConfigType] = useState<string>('');
-  const [teachingVideoGenerationMode, setTeachingVideoGenerationMode] = useState<'realtime' | 'offline'>('realtime');
 
   const [blogTaskId, setBlogTaskId] = useState<string | null>(null);
   const [blogTaskStatus, setBlogTaskStatus] = useState<BlogTaskStatusResponse | null>(null);
@@ -728,112 +713,6 @@ const StudioPanel: React.FC<Props> = ({
     return () => clearInterval(pollInterval);
   }, [blogPolling, blogTaskId, courseId, addGeneratedFile, setViewingFile, addMaterial, refreshCourseMaterials]);
 
-  const [teachingVideoEntryVisible, setTeachingVideoEntryVisible] = useState(false);
-  const [teachingVideoTaskId, setTeachingVideoTaskId] = useState<string | null>(null);
-  const [teachingVideoPolling, setTeachingVideoPolling] = useState(false);
-
-  useEffect(() => {
-    if (!teachingVideoPolling || !teachingVideoTaskId || !courseId) {
-      return;
-    }
-
-    const timer = window.setTimeout(async () => {
-      try {
-        const status = await getTeachingVideoTaskStatus(courseId, teachingVideoTaskId);
-        const normalizedStatus = String(status.status || '').trim().toLowerCase();
-        const generationStatus =
-          normalizedStatus === 'success' || normalizedStatus === 'succeeded' || normalizedStatus === 'completed'
-            ? 'completed'
-            : normalizedStatus === 'failed'
-              ? 'failed'
-              : 'processing';
-        const fileId = String(status.material_id || `teaching_video__${teachingVideoTaskId}`);
-        const existingFile = generatedFiles.find((item) => item.id === fileId);
-        const nextFile: GeneratedFile = {
-          id: fileId,
-          name: existingFile?.name || '教学视频.mp4',
-          type: 'video',
-          content: {
-            ...(existingFile?.content && typeof existingFile.content === 'object' ? existingFile.content : {}),
-            task_id: teachingVideoTaskId,
-            video_url: status.video_url || undefined,
-            error_message: status.error_message || undefined,
-          },
-          meta: {
-            ...(existingFile?.meta || {}),
-            generationState: {
-              status: generationStatus,
-              phase: generationStatus === 'completed' ? 'completed' : generationStatus === 'failed' ? 'failed' : 'polling',
-              message:
-                generationStatus === 'completed'
-                  ? '教学视频已生成完成'
-                  : generationStatus === 'failed'
-                    ? status.error_message || '教学视频生成失败'
-                    : '教学视频生成中',
-            },
-          },
-        };
-        addGeneratedFile(nextFile);
-
-        if (generationStatus === 'completed') {
-          await refreshCourseMaterials();
-          setViewingFile(nextFile);
-          setTeachingVideoPolling(false);
-          message.success('教学视频已生成完成');
-          return;
-        }
-
-        if (generationStatus === 'failed') {
-          setTeachingVideoPolling(false);
-          message.error(status.error_message || '教学视频生成失败，请稍后重试');
-        }
-      } catch (error) {
-        setTeachingVideoPolling(false);
-        message.error(error instanceof Error ? error.message : '查询教学视频任务失败');
-      }
-    }, 3000);
-
-    return () => window.clearTimeout(timer);
-  }, [teachingVideoPolling, teachingVideoTaskId, courseId, generatedFiles, addGeneratedFile, refreshCourseMaterials, setViewingFile]);
-
-  useEffect(() => {
-    if (teachingVideoPolling || teachingVideoTaskId || !courseId) {
-      return;
-    }
-
-    const resumableTeachingVideo = generatedFiles.find((item) => {
-      if (item.type !== 'video') {
-        return false;
-      }
-      const generationState =
-        item.meta?.generationState && typeof item.meta.generationState === 'object'
-          ? (item.meta.generationState as Record<string, any>)
-          : {};
-      const status = String(generationState.status || '').trim().toLowerCase();
-      const content = item.content && typeof item.content === 'object' ? (item.content as Record<string, any>) : {};
-      return status === 'processing' && Boolean(String(content.task_id || '').trim());
-    });
-
-    if (!resumableTeachingVideo) {
-      return;
-    }
-
-    const content =
-      resumableTeachingVideo.content && typeof resumableTeachingVideo.content === 'object'
-        ? (resumableTeachingVideo.content as Record<string, any>)
-        : {};
-    const resumableTaskId = String(content.task_id || '').trim();
-    if (!resumableTaskId) {
-      return;
-    }
-
-    setTeachingVideoTaskId(resumableTaskId);
-    setTeachingVideoPolling(true);
-    if (!viewingFile) {
-      setViewingFile(resumableTeachingVideo);
-    }
-  }, [courseId, generatedFiles, teachingVideoPolling, teachingVideoTaskId, viewingFile, setViewingFile]);
-
   const [directBgTasks, setDirectBgTasks] = useState<DirectBgTask[]>([]);
 
   useEffect(() => {
@@ -895,32 +774,7 @@ const StudioPanel: React.FC<Props> = ({
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
   const [pptFullscreenActive, setPptFullscreenActive] = useState(false);
-  const AI_LECTURE_AUTOSTART_REQUEST_KEY = 'stitch-ai-lecture-autostart-request';
-  const AI_LECTURE_AUTOSTART_EVENT = 'stitch-ai-lecture-autostart';
-
-  const buildPendingTeachingVideoFile = (taskId: string, videoName: string): GeneratedFile => ({
-    id: `teaching_video__${taskId}`,
-    name: videoName,
-    type: 'video',
-    content: {
-      task_id: taskId,
-    },
-    meta: {
-      origin: 'course_material',
-      generationState: {
-        status: 'processing',
-        phase: 'queued',
-        message: 'Offline teaching video generation queued.',
-      },
-    },
-  });
-
   const openGeneratedFile = (file: GeneratedFile) => {
-    if (file.type === 'ai_lecture_session') {
-      window.localStorage.setItem('stitch-ai-lecture-session-id', file.id);
-      window.location.hash = '#resources';
-      return;
-    }
     setViewingFile(file);
   };
 
@@ -1081,15 +935,6 @@ const StudioPanel: React.FC<Props> = ({
       return;
     }
 
-    if (type === 'video') {
-      if (!courseId) {
-        message.warning('请先进入具体课程后，再创建教学视频。');
-        return;
-      }
-      setTeachingVideoEntryVisible(true);
-      return;
-    }
-
     return handleGenerateLegacy(type);
   };
 
@@ -1138,15 +983,6 @@ const StudioPanel: React.FC<Props> = ({
         return;
       }
       setPptEntryVisible(true);
-      return;
-    }
-
-    if (type === 'video') {
-      if (!courseId) {
-        message.warning('请先进入具体课程后，再创建教学视频。');
-        return;
-      }
-      setTeachingVideoEntryVisible(true);
       return;
     }
 
@@ -1372,75 +1208,6 @@ const StudioPanel: React.FC<Props> = ({
     }
   };
 
-  const handleTeachingVideoSubmit = async ({
-    pptMaterialId,
-    pptTitle,
-    generationMode,
-  }: {
-    pptMaterialId: string;
-    pptTitle: string;
-    generationMode: 'realtime' | 'offline';
-  }) => {
-    if (!courseId) {
-      message.warning('请先进入具体课程后，再创建教学视频。');
-      return;
-    }
-
-    setGenerating(true);
-    try {
-      const normalizedPptTitle = pptTitle.replace(/\.pptx$/i, '');
-
-      if (generationMode === 'realtime') {
-        const response = await createAiLectureSession(courseId, {
-          source_ppt_material_id: pptMaterialId,
-          title: `${normalizedPptTitle}-AI lecture session`,
-        });
-        const sessionId = String(response.content?.session_snapshot_id || response.material_id || '').trim();
-        if (!sessionId) {
-          throw new Error('AI lecture session id was not returned.');
-        }
-        const autoStartPayload = {
-          autoPlay: true,
-          courseId,
-          pptMaterialId,
-          pptTitle,
-          sessionId,
-        };
-        window.localStorage.setItem(AI_LECTURE_AUTOSTART_REQUEST_KEY, JSON.stringify(autoStartPayload));
-        window.dispatchEvent(new CustomEvent(AI_LECTURE_AUTOSTART_EVENT, { detail: autoStartPayload }));
-        window.location.hash = '#video';
-        setTeachingVideoEntryVisible(false);
-        message.success('实时教学视频已创建，正在跳转播放。');
-        return;
-      }
-
-      if (generationMode === 'offline') {
-        const response = await createTeachingVideoTask(courseId, { ppt_material_id: pptMaterialId });
-        const teachingVideoTaskId = String(response.task_id || '').trim();
-        const videoName = `${normalizedPptTitle}-teaching-video.mp4`;
-        if (!teachingVideoTaskId) {
-          throw new Error('Offline teaching video task id was not returned.');
-        }
-        const pendingVideoFile = buildPendingTeachingVideoFile(teachingVideoTaskId, videoName);
-        addGeneratedFile(pendingVideoFile);
-        setViewingFile(pendingVideoFile);
-        setTeachingVideoTaskId(teachingVideoTaskId);
-        setTeachingVideoPolling(true);
-        await refreshCourseMaterials();
-        setTeachingVideoEntryVisible(false);
-        message.success('离线教学视频任务已提交，已加入文件列表。');
-        return;
-      }
-
-      setTeachingVideoEntryVisible(false);
-      message.warning('未识别的教学视频生成链路。');
-    } catch (error: any) {
-      message.error(`教学视频创建失败: ${error.message || '未知错误'}`);
-      throw error;
-    } finally {
-      setGenerating(false);
-    }
-  };
   const handleConfigSubmit = async () => {
     try {
       const values = await configForm.validateFields();
@@ -3245,15 +3012,6 @@ const StudioPanel: React.FC<Props> = ({
         onCancel={() => setPptEntryVisible(false)}
         onSubmitOutline={handleDirectPptOutlineSubmit}
         onSubmitGenerate={handleDirectPptGenerateSubmit}
-      />
-      <TeachingVideoEntryModal
-        open={teachingVideoEntryVisible}
-        courseId={courseId}
-        generationMode={teachingVideoGenerationMode}
-        onGenerationModeChange={setTeachingVideoGenerationMode}
-        submitting={generating}
-        onCancel={() => setTeachingVideoEntryVisible(false)}
-        onSubmit={handleTeachingVideoSubmit}
       />
       <Modal
         title="教学博客大纲审查"

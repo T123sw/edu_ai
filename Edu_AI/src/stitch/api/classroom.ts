@@ -42,7 +42,7 @@ function readAuthToken() {
 
 /**
  * 课件配音文件路由要求登录（跟其他 material 路由一致），`<audio>`/`new
- * Audio()` 标签发不出 Authorization 头——所以跟 VideoPlayer.tsx 里
+ * Audio()` 标签发不出 Authorization 头——所以跟课堂播放器里
  * `fetchAuthenticatedBlobUrl` 同样的做法：带 token 手动 fetch 一次，转成
  * blob object URL 再交给播放器，而不是直接把后端相对路径塞给 `<audio src>`。
  */
