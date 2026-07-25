@@ -6,8 +6,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "export:classroom-video": "tsx scripts/export-classroom-video.ts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "test": "node --import tsx --test \"src/**/*.test.ts\""
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\""
   },
   "dependencies": {
     "@antv/g6": "^5.0.51",
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "jszip": "^3.10.1",
+    "playwright": "^1.58.2",
     "postcss": "^8.5.9",
     "tailwindcss": "^4.3.3",
     "tsx": "4.21.0",
