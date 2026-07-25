@@ -1,5 +1,7 @@
 # OpenMAIC Phase 6 Legacy Retirement Implementation Plan
 
+**Status:** Completed and accepted by SPEC-11 / ACC-11 on 2026-07-25.
+
 > **For Codex:** Execute each task in order, run its focused regression gate, and
 > commit the task before continuing.
 
@@ -125,4 +127,3 @@ must stay green.
 4. Record repository-size reduction, exact tests, remaining historical-doc
    references, and Video B as optional future work.
 5. Commit as `docs(migration): close Phase 6 legacy retirement`.
-
