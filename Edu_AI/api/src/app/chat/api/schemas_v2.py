@@ -147,35 +147,6 @@ class KnowledgeBaseDirectGameRequestV2(BaseModel):
     game_type: GameType
 
 
-class DirectPptConfigV2(BaseModel):
-    deck_title: str
-    deck_subtitle: Optional[str] = None
-    audience: str = ""
-    objective: str = ""
-    theme_id: PptThemeId
-    length_option: PptLengthOption = "medium"
-    target_slide_count: int = 0
-    key_points: List[str] = Field(default_factory=list)
-    style_hint: Optional[str] = None
-    special_requirements: Optional[str] = None
-    general_requirements: Optional[str] = None
-    selected_card: Optional["PptEntryCardSelectionV2"] = None
-
-
-class KnowledgeBaseDirectPptOutlineRequestV2(BaseModel):
-    course_id: Optional[str] = None
-    scope_type: Optional[str] = None
-    scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(default_factory=list)
-    ppt_config: DirectPptConfigV2
-
-
-class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
-    draft_id: str
-    confirm: bool = False
-    outline: Optional[Dict[str, Any]] = None
-
-
 class PptEntryPrefillConfigV2(BaseModel):
     deck_title: str
     deck_subtitle: Optional[str] = None
@@ -329,20 +300,6 @@ class ChatDirectQuizResponseV2(BaseModel):
 
 class ChatDirectGameResponseV2(BaseModel):
     action: Dict[str, Any]
-    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
-    trace: DirectTraceMetaV2
-
-
-class ChatDirectPptOutlineResponseV2(BaseModel):
-    action: Dict[str, Any]
-    draft: Dict[str, Any]
-    artifacts: List[Dict[str, Any]] = Field(default_factory=list)
-    trace: DirectTraceMetaV2
-
-
-class ChatDirectPptGenerateResponseV2(BaseModel):
-    action: Dict[str, Any]
-    run: Dict[str, Any]
     artifacts: List[Dict[str, Any]] = Field(default_factory=list)
     trace: DirectTraceMetaV2
 

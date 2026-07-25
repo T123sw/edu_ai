@@ -105,7 +105,7 @@ class PptContentOptimizer:
                     "strategy": "regenerate_slide_content",
                     "slide_index": slide_index,
                     "field_path": f"slides[{slide_index}]",
-                    "reason": "repair placeholder content before html2ppt",
+                    "reason": "repair placeholder content before PPTX export",
                     "before": issue_codes,
                     "after": {
                         "layout_intent": slide.layout_intent,

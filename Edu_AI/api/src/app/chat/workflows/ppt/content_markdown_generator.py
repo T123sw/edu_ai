@@ -14,7 +14,7 @@ class PptContentMarkdownGenerator:
 
     @staticmethod
     def _default_protocol_path() -> Path:
-        return Path(__file__).resolve().parents[4] / "modules" / "html2ppt" / "content-protocol.md"
+        return Path(__file__).with_name("content_protocol.md")
 
     @staticmethod
     def _clean(value: object, default: str = "") -> str:
@@ -87,7 +87,7 @@ class PptContentMarkdownGenerator:
 
         prompt = (
             "请直接生成完整的最终 content_markdown，不要先输出提纲、解释、JSON 或其他中间结构。\n"
-            "你要根据下面的 PPT 大纲与备课信息，直接写出可交给 html2ppt 的最终 content.md。\n"
+            "你要根据下面的 PPT 大纲与备课信息，写出可交给课件导出适配器的最终 content.md。\n"
             "输出必须是可直接使用的最终稿，不要输出草稿、占位内容、写作说明或元注释。\n"
             "内容目标不是简单把标题扩写，而是生成一份适合课堂讲解、信息密度高、真正有教学价值的课件文稿。\n"
             "整体建议不少于 18 页；如果主题本身信息量较大，可以在不偏离大纲的前提下主动拆页展开。\n"

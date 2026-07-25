@@ -89,7 +89,7 @@ def test_content_markdown_assembler_keeps_slide_plan_slide_order():
     markdown = PptContentMarkdownAssembler().assemble(slide_plan=_slide_plan())
 
     assert markdown.index("## Slide 1") < markdown.index("## Slide 2") < markdown.index("## Slide 3") < markdown.index("## Slide 4")
-def test_content_markdown_assembler_matches_html2ppt_content_style_with_slide_separators():
+def test_content_markdown_assembler_keeps_slide_separators():
     markdown = PptContentMarkdownAssembler().assemble(slide_plan=_slide_plan())
 
     assert "\n---\n\n## Slide 1" in markdown

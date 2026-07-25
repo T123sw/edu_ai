@@ -53,7 +53,14 @@ def test_content_markdown_generator_prompt_includes_new_teaching_constraints_and
             prompts.append(prompt)
             return "# Deck\n"
 
-    protocol_path = Path(__file__).resolve().parents[2] / "modules" / "html2ppt" / "content-protocol.md"
+    protocol_path = (
+        Path(__file__).resolve().parents[2]
+        / "app"
+        / "chat"
+        / "workflows"
+        / "ppt"
+        / "content_protocol.md"
+    )
     protocol_text = protocol_path.read_text(encoding="utf-8")
 
     generator = PptContentMarkdownGenerator(llm=DummyLLM())
@@ -87,7 +94,7 @@ def test_content_markdown_generator_prompt_includes_new_teaching_constraints_and
 
 
 def test_content_markdown_generator_raises_when_protocol_missing():
-    missing_protocol_path = Path(__file__).resolve().parents[2] / "modules" / "html2ppt" / "missing-content-protocol.md"
+    missing_protocol_path = Path(__file__).with_name("missing-content-protocol.md")
     generator = PptContentMarkdownGenerator(protocol_path=missing_protocol_path)
 
     try:

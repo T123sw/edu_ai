@@ -50,8 +50,6 @@ import {
   type GameTypeV2,
   type LessonPlanEntryCard,
   generateKnowledgeBaseQuizV2,
-  generateKnowledgeBasePptOutlineV2,
-  generateKnowledgeBasePptV2,
   generateKnowledgeBaseReportV2,
   pollChatTask,
 } from '../../services/teacher/chatV2';
@@ -59,11 +57,6 @@ import { extractGeneratedFilesFromV2Response } from '../../services/teacher/chat
 import { buildKnowledgeBaseQuizRequest } from '../../services/teacher/quizEntry.helpers';
 import { buildKnowledgeBaseReportRequest } from '../../services/teacher/reportEntry.helpers';
 import { buildKnowledgeBaseLessonPlanReplyRequest, type LessonPlanEntryConfigInput } from '../../services/teacher/lessonPlanEntry.helpers';
-import {
-  buildDirectPptGenerateRequest,
-  buildDirectPptOutlineRequest,
-  type DirectPptEntryConfigInput,
-} from '../../services/teacher/pptEntry.helpers';
 import type { ReportEntryCard } from '../../services/teacher/chatV2';
 import { isArtifactReferenceEligible, toGeneratedFileFromCourseMaterial } from '../../services/teacher/materials.helpers';
 import { resolvePptAssetUrl } from '../../services/teacher/pptAssets';
@@ -74,7 +67,6 @@ import {
 } from '../../services/teacher/workspaceScope';
 import GameArtifactPreview from './GameArtifactPreview';
 import GameEntryModal from './GameEntryModal';
-import PptEntryPanel from './PptEntryPanel';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
 import QuizArtifactPreview from './QuizArtifactPreview';
@@ -442,14 +434,6 @@ const STUDIO_ACTIONS = [
     featured: true,
   },
   {
-    type: 'ppt' as const,
-    icon: <FilePptOutlined />,
-    title: 'PPT',
-    description: '把知识点整理成适合授课呈现的讲授结构。',
-    color: '#f08a33',
-    featured: true,
-  },
-  {
     type: 'game' as const,
     icon: <PlayCircleOutlined />,
     title: '小游戏生成',
@@ -467,7 +451,7 @@ const STUDIO_ACTIONS = [
   },
 ] as const;
 
-const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'ppt', 'graph', 'game'] as const;
+const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'graph', 'game'] as const;
 
 const COURSE_MATERIAL_PAGE_SIZE = 20;
 
@@ -767,7 +751,6 @@ const StudioPanel: React.FC<Props> = ({
   const [reportPreviewMode, setReportPreviewMode] = useState<'body' | 'outline-solid'>('body');
   const [reportEntryVisible, setReportEntryVisible] = useState(false);
   const [lessonPlanEntryVisible, setLessonPlanEntryVisible] = useState(false);
-  const [pptEntryVisible, setPptEntryVisible] = useState(false);
   const [quizEntryVisible, setQuizEntryVisible] = useState(false);
   const [gameEntryVisible, setGameEntryVisible] = useState(false);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
@@ -926,15 +909,6 @@ const StudioPanel: React.FC<Props> = ({
       return;
     }
 
-    if (type === 'ppt') {
-      if (!selectedDocs || selectedDocs.length === 0) {
-        message.warning('璇峰厛閫夋嫨鑷冲皯涓€浠界煡璇嗗簱鏂囨。');
-        return;
-      }
-      setPptEntryVisible(true);
-      return;
-    }
-
     return handleGenerateLegacy(type);
   };
 
@@ -974,15 +948,6 @@ const StudioPanel: React.FC<Props> = ({
         return;
       }
       setReportEntryVisible(true);
-      return;
-    }
-
-    if (type === 'ppt') {
-      if (!selectedDocs || selectedDocs.length === 0) {
-        message.warning('璇峰厛閫夋嫨鑷冲皯涓€浠界煡璇嗗簱鏂囨。');
-        return;
-      }
-      setPptEntryVisible(true);
       return;
     }
 
@@ -1148,60 +1113,6 @@ const StudioPanel: React.FC<Props> = ({
       message.success(generatedLessonPlanFiles.length > 0 ? '教案大纲已生成并在右侧打开。' : '教案流程已启动。');
     } catch (error: any) {
       message.error(`教案生成失败: ${error.message || '未知错误'}`);
-      throw error;
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleDirectPptOutlineSubmit = async ({
-    config,
-  }: {
-    config: DirectPptEntryConfigInput;
-  }) => {
-    setGenerating(true);
-    try {
-      return await generateKnowledgeBasePptOutlineV2(
-        buildDirectPptOutlineRequest({
-          courseId,
-          scopeType: workspaceScopeApiParams.scopeType,
-          scopeId: workspaceScopeApiParams.scopeId,
-          selectedDocIds: selectedDocs,
-          config,
-        }),
-      );
-    } catch (error: any) {
-      message.error(`PPT 大纲生成失败: ${error.message || '未知错误'}`);
-      throw error;
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleDirectPptGenerateSubmit = async ({
-    draftId,
-    outline,
-  }: {
-    draftId: string;
-    outline?: Record<string, unknown>;
-  }) => {
-    setGenerating(true);
-    try {
-      const task = await generateKnowledgeBasePptV2(
-        buildDirectPptGenerateRequest({
-          draftId,
-          outline,
-        }),
-      );
-      setDirectBgTasks((prev) => [
-        ...prev,
-        { taskId: task.task_id, workflowType: task.workflow_type, description: 'PPT', originMeta: { origin: 'knowledge_base_direct' }, courseId },
-      ]);
-      setPptEntryVisible(false);
-      message.success('PPT 生成任务已提交，后台处理中...');
-      return task;
-    } catch (error: any) {
-      message.error(`PPT 生成失败: ${error.message || '未知错误'}`);
       throw error;
     } finally {
       setGenerating(false);
@@ -3002,16 +2913,6 @@ const StudioPanel: React.FC<Props> = ({
         submitting={generating}
         onCancel={() => setGameEntryVisible(false)}
         onSubmit={handleGameEntrySubmit}
-      />
-      <PptEntryPanel
-        open={pptEntryVisible}
-        selectedDocIds={selectedDocs}
-        courseId={courseId}
-        workspaceScope={normalizedWorkspaceScope}
-        submitting={generating}
-        onCancel={() => setPptEntryVisible(false)}
-        onSubmitOutline={handleDirectPptOutlineSubmit}
-        onSubmitGenerate={handleDirectPptGenerateSubmit}
       />
       <Modal
         title="教学博客大纲审查"

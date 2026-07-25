@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from uuid import uuid4
 
 from app.chat.agents.report_generation import get_fallback_llm
@@ -11,7 +10,6 @@ from app.chat.orchestrator.generation_readiness_judge import GenerationReadiness
 from app.chat.orchestrator.lesson_plan_context_organizer import LessonPlanContextOrganizer
 from app.chat.orchestrator.lesson_plan_readiness_judge import LessonPlanReadinessJudge
 from app.chat.orchestrator.main_orchestrator import MainOrchestrator
-from app.chat.orchestrator.ppt_context_organizer import PptContextOrganizer
 from app.chat.orchestrator.quiz_context_organizer import QuizContextOrganizer
 from app.chat.orchestrator.quiz_readiness_judge import QuizReadinessJudge
 from app.chat.orchestrator.report_context_organizer import ReportContextOrganizer
@@ -23,12 +21,6 @@ from app.chat.runtime.react_agent import ReActAgent
 from app.chat.tasks import background_runner
 from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
 from app.chat.tools.video_search import video_search_tool
-from app.chat.workflows.ppt.content_validator import PptContentValidator
-from app.chat.workflows.ppt.edit_runtime import PptEditRuntime
-from app.chat.workflows.ppt.content_markdown_generator import PptContentMarkdownGenerator
-from app.chat.workflows.ppt.html2ppt_client import Html2PptClient
-from app.chat.workflows.ppt.outline_builder import PptOutlineBuilder
-from app.chat.workflows.ppt.readiness_judge import PptReadinessJudge
 from app.chat.workflows.ppt.runtime import PptWorkflowRuntime
 from app.chat.workflows.quiz.assembler import QuizAssembler
 from app.chat.workflows.quiz.generator import QuizGenerator
@@ -136,12 +128,8 @@ class ReplyServiceV2:
             return None
 
         artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
-        if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"} and self.ppt_edit_runtime is not None:
-            return self.ppt_edit_runtime.run_from_request(
-                request=request,
-                snapshot=snapshot,
-                course_storage_manager=self.course_storage_manager,
-            )
+        if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"}:
+            return PptWorkflowRuntime().run(request=request, snapshot=snapshot, decision=None)
         if self.report_edit_runtime is not None:
             return self.report_edit_runtime.run_from_request(
                 request=request,
@@ -261,17 +249,7 @@ def build_default_reply_service_v2():
                 report_context_organizer=ReportContextOrganizer(llm=get_fallback_llm()),
                 generation_readiness_judge=GenerationReadinessJudge(),
             ),
-            "ppt": PptWorkflowRuntime(
-                generation_context_builder=GenerationContextBuilder(),
-                ppt_context_organizer=PptContextOrganizer(llm=get_fallback_llm()),
-                readiness_judge=PptReadinessJudge(),
-                outline_builder=PptOutlineBuilder(llm=get_fallback_llm()),
-                content_markdown_generator=PptContentMarkdownGenerator(llm=get_fallback_llm()),
-                content_validator=PptContentValidator(),
-                html2ppt_client_factory=lambda: Html2PptClient(
-                    base_url=os.getenv("HTML2PPT_BASE_URL", "http://127.0.0.1:46080")
-                ),
-            ),
+            "ppt": PptWorkflowRuntime(),
             "lesson_plan": LessonPlanWorkflowRuntime(
                 engine_resolver=lambda *, request, snapshot, decision: build_default_lesson_plan_engine(
                     llm=get_fallback_llm()
@@ -324,9 +302,5 @@ def build_default_reply_service_v2():
         status_card_builder=StatusCardBuilder(),
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
-        ppt_edit_runtime=PptEditRuntime(
-            html2ppt_client_factory=lambda: Html2PptClient(
-                base_url=os.getenv("HTML2PPT_BASE_URL", "http://127.0.0.1:46080")
-            )
-        ),
+        ppt_edit_runtime=None,
     )

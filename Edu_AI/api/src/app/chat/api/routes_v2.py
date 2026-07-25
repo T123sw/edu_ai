@@ -13,7 +13,6 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from app.auth import get_current_user
 from app.chat.api.schemas_v2 import (
-    ChatDirectPptOutlineResponseV2,
     ChatDirectTaskSubmittedResponseV2,
     ChatQuizPrefillResponseV2,
     ChatLessonPlanCardsRequestV2,
@@ -27,9 +26,7 @@ from app.chat.api.schemas_v2 import (
     ChatResponseV2,
     KnowledgeBaseDirectQuizPrefillRequestV2,
     KnowledgeBaseDirectQuizRequestV2,
-    KnowledgeBaseDirectPptGenerateRequestV2,
     KnowledgeBaseDirectGameRequestV2,
-    KnowledgeBaseDirectPptOutlineRequestV2,
     KnowledgeBaseDirectReportRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
@@ -66,14 +63,6 @@ def _get_direct_report_service():
     return build_default_knowledge_base_direct_report_service_v2()
 
 
-def _get_direct_ppt_outline_service():
-    from app.chat.application.knowledge_base_direct_ppt_outline_service_v2 import (
-        build_default_knowledge_base_direct_ppt_outline_service_v2,
-    )
-
-    return build_default_knowledge_base_direct_ppt_outline_service_v2()
-
-
 def _get_direct_quiz_service():
     from app.chat.application.knowledge_base_direct_quiz_service_v2 import (
         build_default_knowledge_base_direct_quiz_service_v2,
@@ -94,14 +83,6 @@ def _get_ppt_entry_cards_service():
     from app.chat.application.ppt_entry_cards_service_v2 import build_default_ppt_entry_cards_service_v2
 
     return build_default_ppt_entry_cards_service_v2()
-
-
-def _get_direct_ppt_generation_service():
-    from app.chat.application.knowledge_base_direct_ppt_generation_service_v2 import (
-        build_default_knowledge_base_direct_ppt_generation_service_v2,
-    )
-
-    return build_default_knowledge_base_direct_ppt_generation_service_v2()
 
 
 def _get_lesson_plan_entry_cards_service():
@@ -464,33 +445,3 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
     )
     return {"task_id": task_id, "status": "pending", "workflow_type": "game_direct"}
 
-
-@router.post("/ppt/outline", response_model=ChatDirectPptOutlineResponseV2)
-async def direct_ppt_outline(
-    payload: KnowledgeBaseDirectPptOutlineRequestV2,
-    current_user: dict = Depends(get_current_user),
-):
-    try:
-        return _get_direct_ppt_outline_service().generate_outline(_with_owner(payload, current_user))
-    except Exception as exc:
-        body = build_v2_error_response(
-            code="workflow_failed",
-            message=str(exc),
-            conversation_id="",
-            trace_path="direct",
-            retryable=False,
-        )
-        return JSONResponse(status_code=500, content=body)
-
-
-@router.post("/ppt/generate", response_model=ChatDirectTaskSubmittedResponseV2)
-async def direct_ppt_generate(
-    payload: KnowledgeBaseDirectPptGenerateRequestV2,
-    current_user: dict = Depends(get_current_user),
-):
-    ns_payload = _with_owner(payload, current_user)
-    task_id = submit_callable_task(
-        fn=lambda: _get_direct_ppt_generation_service().generate(ns_payload),
-        workflow_type="ppt_direct",
-    )
-    return {"task_id": task_id, "status": "pending", "workflow_type": "ppt_direct"}
