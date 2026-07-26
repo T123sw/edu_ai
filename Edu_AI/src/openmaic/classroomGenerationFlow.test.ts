@@ -150,3 +150,16 @@ test('StudioPanel mounts the AI classroom entry before the generation grids', as
     'AI classroom entry must precede other generation cards',
   );
 });
+
+test('classroom generation modal uses the current Ant Design lifecycle prop', async () => {
+  const source = await readFile(
+    new URL(
+      '../components/teacher/ClassroomGenerationEntry.tsx',
+      import.meta.url,
+    ),
+    'utf8',
+  );
+
+  assert.match(source, /destroyOnHidden=\{false\}/);
+  assert.doesNotMatch(source, /destroyOnClose/);
+});

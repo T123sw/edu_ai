@@ -150,7 +150,7 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
         footer={null}
         closable={!submitting}
         maskClosable={!submitting}
-        destroyOnClose={false}
+        destroyOnHidden={false}
       >
         <div className="classroom-generation-entry__modal-body">
           <Text type="secondary">
