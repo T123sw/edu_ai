@@ -108,6 +108,35 @@ function patchLegacyWidgetScope(html: string): string {
     );
 }
 
+type WidgetMessageSender = (
+  type: string,
+  payload: Record<string, unknown>,
+) => void;
+
+export class WidgetMessageBuffer {
+  private sender: WidgetMessageSender | null = null;
+  private pending: Array<{
+    type: string;
+    payload: Record<string, unknown>;
+  }> = [];
+
+  postMessage(type: string, payload: Record<string, unknown>): void {
+    if (this.sender) {
+      this.sender(type, payload);
+      return;
+    }
+    this.pending.push({ type, payload });
+  }
+
+  setSender(sender: WidgetMessageSender | null): void {
+    this.sender = sender;
+    if (!sender || !this.pending.length) return;
+    const pending = this.pending;
+    this.pending = [];
+    pending.forEach((message) => sender(message.type, message.payload));
+  }
+}
+
 export type WidgetActionMessage = {
   type:
     | 'SET_WIDGET_STATE'

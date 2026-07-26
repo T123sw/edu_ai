@@ -3,6 +3,7 @@ import test from 'node:test';
 import type { Action } from '@openmaic/dsl';
 import {
   patchInteractiveHtml,
+  WidgetMessageBuffer,
   widgetMessageForAction,
 } from './interactiveScene.ts';
 
@@ -47,6 +48,39 @@ test('patchInteractiveHtml bridges legacy OpenMAIC widget state across scripts',
     patched,
     /window\.handleCardClick = function\(idx\) \{ simState\.pivotValue = idx; \}/,
   );
+});
+
+test('WidgetMessageBuffer preserves actions until the iframe is ready', () => {
+  const delivered: Array<{
+    type: string;
+    payload: Record<string, unknown>;
+  }> = [];
+  const buffer = new WidgetMessageBuffer();
+
+  buffer.postMessage('SET_WIDGET_STATE', { state: { pivot: 9 } });
+  assert.deepEqual(delivered, []);
+
+  buffer.setSender((type, payload) => delivered.push({ type, payload }));
+  buffer.postMessage('HIGHLIGHT_ELEMENT', { target: '#pivot' });
+  assert.deepEqual(delivered, [
+    {
+      type: 'SET_WIDGET_STATE',
+      payload: { state: { pivot: 9 } },
+    },
+    {
+      type: 'HIGHLIGHT_ELEMENT',
+      payload: { target: '#pivot' },
+    },
+  ]);
+
+  buffer.setSender(null);
+  buffer.postMessage('REVEAL_ELEMENT', { target: '#answer' });
+  assert.equal(delivered.length, 2);
+  buffer.setSender((type, payload) => delivered.push({ type, payload }));
+  assert.deepEqual(delivered[2], {
+    type: 'REVEAL_ELEMENT',
+    payload: { target: '#answer' },
+  });
 });
 
 test('widgetMessageForAction maps the OpenMAIC widget protocol', () => {

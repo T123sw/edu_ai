@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ActionWidgetController } from './actionEngine';
-import { patchInteractiveHtml } from './interactiveScene';
+import {
+  patchInteractiveHtml,
+  WidgetMessageBuffer,
+} from './interactiveScene';
 import { SceneActionPlayback } from './SceneActionPlayback';
 import type { InteractiveClassroomContent } from '../stitch/api/types';
 
@@ -24,6 +26,7 @@ export function InteractiveScenePlayer({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
+  const widget = useMemo(() => new WidgetMessageBuffer(), []);
   const srcDoc = useMemo(
     () => (content.html ? patchInteractiveHtml(content.html) : undefined),
     [content.html],
@@ -47,19 +50,10 @@ export function InteractiveScenePlayer({
     return () => window.removeEventListener('message', handleMessage);
   }, [reloadKey]);
 
-  const widget = useMemo<ActionWidgetController>(
-    () => ({
-      postMessage(type, payload) {
-        iframeRef.current?.contentWindow?.postMessage(
-          { type, ...payload },
-          '*',
-        );
-      },
-    }),
-    [],
-  );
+  useEffect(() => () => widget.setSender(null), [widget]);
 
   const reload = () => {
+    widget.setSender(null);
     setRuntimeError(null);
     setReloadKey((value) => value + 1);
   };
@@ -85,7 +79,13 @@ export function InteractiveScenePlayer({
           sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads"
           referrerPolicy="no-referrer"
           className="h-full w-full border-0"
-          onLoad={() => setRuntimeError(null)}
+          onLoad={() => {
+            const frame = iframeRef.current?.contentWindow;
+            if (!frame) return;
+            widget.setSender((type, payload) => {
+              frame.postMessage({ type, ...payload }, '*');
+            });
+          }}
         />
         {runtimeError ? (
           <div className="absolute inset-x-4 bottom-4 rounded-xl border border-rose-200 bg-white/95 p-4 shadow-lg">
