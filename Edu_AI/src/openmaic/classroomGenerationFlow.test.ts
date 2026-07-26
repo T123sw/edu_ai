@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import type { EduJob } from '../stitch/api/types.ts';
 import {
@@ -131,5 +132,21 @@ test('waitForClassroomGenerationJob stops polling when aborted', async () => {
       sleep: async () => undefined,
     }),
     /课堂生成已取消/,
+  );
+});
+
+test('StudioPanel mounts the AI classroom entry before the generation grids', async () => {
+  const source = await readFile(
+    new URL('../components/teacher/StudioPanel.tsx', import.meta.url),
+    'utf8',
+  );
+  const entryIndex = source.indexOf('<ClassroomGenerationEntry');
+  const gridIndex = source.indexOf('className="studio-panel__primary-grid"');
+
+  assert.ok(entryIndex >= 0, 'AI classroom entry is missing');
+  assert.ok(gridIndex >= 0, 'generation grid is missing');
+  assert.ok(
+    entryIndex < gridIndex,
+    'AI classroom entry must precede other generation cards',
   );
 });

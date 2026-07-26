@@ -67,6 +67,7 @@ import {
 } from '../../services/teacher/workspaceScope';
 import GameArtifactPreview from './GameArtifactPreview';
 import GameEntryModal from './GameEntryModal';
+import { ClassroomGenerationEntry } from './ClassroomGenerationEntry';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
 import QuizArtifactPreview from './QuizArtifactPreview';
@@ -2879,6 +2880,8 @@ const StudioPanel: React.FC<Props> = ({
       </div>
 
       <div className="studio-panel__divider" />
+
+      <ClassroomGenerationEntry courseId={courseId} />
 
       <ReportEntryModal
         open={reportEntryVisible}
