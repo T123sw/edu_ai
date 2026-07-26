@@ -92,6 +92,7 @@ set "FRONTEND_PORT=5173"
 set "SIDECAR_PORT=3000"
 set "VITE_API_BASE_URL=http://localhost:%API_PORT%"
 set "CLASSROOM_VIDEO_FRONTEND_URL=http://127.0.0.1:%FRONTEND_PORT%"
+set "FRONTEND_VITE_CMD=%FRONTEND_DIR%\node_modules\.bin\vite.cmd"
 
 echo [1/7] Checking Edu-AI ports...
 call :ensure_port_free "%API_PORT%" "API"
@@ -118,8 +119,8 @@ if not exist "%FRONTEND_DIR%\package.json" (
     pause
     exit /b 1
 )
-if not exist "%FRONTEND_DIR%\node_modules" (
-    echo Frontend node_modules not found. Running npm install...
+if not exist "%FRONTEND_VITE_CMD%" (
+    echo Frontend Vite launcher not found. Running npm install...
     pushd "%FRONTEND_DIR%"
     call npm.cmd install
     set "NPM_RESULT=!ERRORLEVEL!"
@@ -129,8 +130,13 @@ if not exist "%FRONTEND_DIR%\node_modules" (
         pause
         exit /b 1
     )
+    if not exist "%FRONTEND_VITE_CMD%" (
+        echo [ERROR] Frontend Vite launcher is still missing after npm install.
+        pause
+        exit /b 1
+    )
 ) else (
-    echo Frontend node_modules found.
+    echo Frontend Vite launcher found.
 )
 echo.
 
@@ -213,6 +219,14 @@ echo.
 
 echo [6/7] Starting frontend...
 start "edu-ai-frontend" /D "%FRONTEND_DIR%" cmd /k "npm.cmd run dev -- --host 0.0.0.0 --port %FRONTEND_PORT%"
+call :wait_for_frontend
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] Frontend did not become ready within 90 seconds.
+    echo Check the "edu-ai-frontend" terminal for the startup error.
+    pause
+    exit /b 1
+)
+echo Frontend is ready at http://localhost:%FRONTEND_PORT%.
 echo Frontend will run at: http://localhost:%FRONTEND_PORT%
 echo Frontend API base: %VITE_API_BASE_URL%
 echo.
@@ -248,6 +262,23 @@ set /a SIDECAR_HEALTH_ATTEMPTS+=1
 if !SIDECAR_HEALTH_ATTEMPTS! GEQ 45 exit /b 1
 timeout /t 2 /nobreak >nul
 goto :wait_for_sidecar_loop
+
+:frontend_health
+powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ^
+    "try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:%FRONTEND_PORT%/' -TimeoutSec 2; if ($response.StatusCode -lt 500) { exit 0 } } catch {}; exit 1" ^
+    >nul 2>nul
+exit /b %ERRORLEVEL%
+
+:wait_for_frontend
+set "FRONTEND_HEALTH_ATTEMPTS=0"
+
+:wait_for_frontend_loop
+call :frontend_health
+if !ERRORLEVEL! EQU 0 exit /b 0
+set /a FRONTEND_HEALTH_ATTEMPTS+=1
+if !FRONTEND_HEALTH_ATTEMPTS! GEQ 45 exit /b 1
+timeout /t 2 /nobreak >nul
+goto :wait_for_frontend_loop
 
 :ensure_port_free
 set "CHECK_PORT=%~1"
