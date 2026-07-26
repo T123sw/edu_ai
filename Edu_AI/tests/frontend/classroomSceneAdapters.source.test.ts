@@ -13,6 +13,10 @@ const interactivePlayer = readFileSync(
   new URL('../../src/openmaic/InteractiveScenePlayer.tsx', import.meta.url),
   'utf8',
 );
+const quizPlayer = readFileSync(
+  new URL('../../src/openmaic/QuizScenePlayer.tsx', import.meta.url),
+  'utf8',
+);
 
 assert.match(
   classroomPlayer,
@@ -43,6 +47,26 @@ assert.doesNotMatch(
   interactivePlayer,
   /allow-same-origin/,
   'inline interactive content must not share the application origin',
+);
+assert.match(
+  sceneRenderer,
+  /<QuizScenePlayer/,
+  'scene renderer should dispatch quiz scenes to a functional adapter',
+);
+assert.doesNotMatch(
+  sceneRenderer,
+  /测验场景适配器正在接入/,
+  'scene renderer should not retain the temporary quiz placeholder',
+);
+assert.match(
+  quizPlayer,
+  /localStorage/,
+  'quiz scenes should recover learner answers after a refresh',
+);
+assert.match(
+  quizPlayer,
+  /gradeQuizQuestions/,
+  'quiz scenes should grade supported objective questions',
 );
 
 console.log('classroom scene adapter source tests passed');

@@ -2,10 +2,12 @@ import type { Slide } from '@openmaic/renderer';
 import type {
   ClassroomScene,
   InteractiveClassroomContent,
+  QuizClassroomContent,
   SlideClassroomContent,
 } from '../stitch/api/types';
 import { resolveClassroomSceneKind } from './classroomScene';
 import { InteractiveScenePlayer } from './InteractiveScenePlayer';
+import { QuizScenePlayer } from './QuizScenePlayer';
 import { SlidePlayer } from './SlidePlayer';
 
 export interface ClassroomSceneRendererProps {
@@ -17,6 +19,8 @@ export interface ClassroomSceneRendererProps {
 
 export function ClassroomSceneRenderer({
   scene,
+  courseId,
+  classroomId,
   onSlideComplete,
 }: ClassroomSceneRendererProps) {
   const kind = resolveClassroomSceneKind(scene);
@@ -45,7 +49,16 @@ export function ClassroomSceneRenderer({
         />
       );
     case 'quiz':
-      return <SceneError message="测验场景适配器正在接入。" />;
+      return (
+        <QuizScenePlayer
+          courseId={courseId}
+          classroomId={classroomId}
+          sceneId={scene.id}
+          title={scene.title}
+          content={scene.content as QuizClassroomContent}
+          actions={scene.actions}
+        />
+      );
     case 'invalid':
       return (
         <SceneError
