@@ -88,3 +88,52 @@ def test_backend_env_example_matches_unified_video_frontend_port():
     env_example = _read(API_ROOT / ".env.example")
 
     assert "classroom_video_frontend_url=http://127.0.0.1:5173" in env_example
+
+
+def test_start_api_bat_checks_the_vite_launcher_not_only_node_modules():
+    script = _read(API_ROOT / "start_api.bat")
+
+    assert (
+        'set "frontend_vite_cmd=%frontend_dir%\\node_modules\\.bin\\vite.cmd"'
+        in script
+    )
+    assert 'if not exist "%frontend_vite_cmd%" (' in script
+    assert 'if not exist "%frontend_dir%\\node_modules" (' not in script
+
+
+def test_start_api_bat_verifies_vite_after_frontend_install():
+    script = _read(API_ROOT / "start_api.bat")
+
+    install_index = script.index("call npm.cmd install")
+    verify_index = script.index(
+        'if not exist "%frontend_vite_cmd%" (',
+        install_index,
+    )
+    assert install_index < verify_index
+    assert "vite launcher is still missing" in script
+
+
+def test_start_api_bat_waits_for_frontend_before_backend():
+    script = _read(API_ROOT / "start_api.bat")
+
+    start_index = script.index('start "edu-ai-frontend"')
+    wait_index = script.index("call :wait_for_frontend", start_index)
+    backend_index = script.rindex("-m uvicorn")
+
+    assert start_index < wait_index < backend_index
+    assert ":frontend_health" in script
+    assert "http://127.0.0.1:%frontend_port%/" in script
+
+
+def test_start_api_bat_stops_when_frontend_never_becomes_ready():
+    script = _read(API_ROOT / "start_api.bat")
+
+    wait_index = script.index("call :wait_for_frontend")
+    failure_index = script.index(
+        "frontend did not become ready within 90 seconds",
+        wait_index,
+    )
+    backend_index = script.rindex("-m uvicorn")
+    failure_block = script[failure_index:backend_index]
+
+    assert "exit /b 1" in failure_block
