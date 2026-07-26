@@ -133,7 +133,7 @@ test('buildAudioMixArguments delays and mixes narration at global timeline offse
       '-i',
       'speech-1.wav',
       '-filter_complex',
-      '[1:a]adelay=0|0,volume=0.8[n0];[2:a]adelay=1250|1250,volume=0.8[n1];[n0][n1]amix=inputs=2:duration=longest:dropout_transition=0[aout]',
+      '[1:a]adelay=0|0,volume=0.8[n0];[2:a]adelay=1250|1250,volume=0.8[n1];[n0][n1]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11[aout]',
       '-map',
       '0:v:0',
       '-map',
@@ -142,9 +142,30 @@ test('buildAudioMixArguments delays and mixes narration at global timeline offse
       'copy',
       '-c:a',
       'aac',
+      '-ar',
+      '48000',
+      '-b:a',
+      '128k',
     ],
   );
   assert.deepEqual(buildAudioMixArguments([], 1), []);
+});
+
+test('buildAudioMixArguments does not attenuate narration according to clip count', () => {
+  const audio = Array.from({ length: 47 }, (_, index) => ({
+    path: `speech-${index}.wav`,
+    startMs: index * 1000,
+  }));
+  const args = buildAudioMixArguments(audio, 1);
+  const filterIndex = args.indexOf('-filter_complex');
+  const filter = args[filterIndex + 1];
+
+  assert.match(
+    filter,
+    /amix=inputs=47:duration=longest:dropout_transition=0:normalize=0,loudnorm=I=-16:TP=-1\.5:LRA=11\[aout\]$/,
+  );
+  assert.equal(filter.match(/loudnorm=/g)?.length, 1);
+  assert.doesNotMatch(filter, /normalize=1/);
 });
 
 test('createTimelineArtifact removes ephemeral audio URLs without mutating playback data', () => {
