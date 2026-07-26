@@ -630,4 +630,3 @@ git branch -d codex/openmaic-migration-completion
 
 Expected: the merged worktree and local feature branch are removed; `main` retains all
 migration and classroom-entry commits.
-
