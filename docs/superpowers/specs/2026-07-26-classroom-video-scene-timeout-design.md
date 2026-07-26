@@ -67,3 +67,24 @@ sceneTimeoutMs = 600000
 ## 范围边界
 
 本次不改变可录制场景选择规则。MP4 仍只录制具备确定性时间线的 `slide` 场景；`interactive` 和 `quiz` 需要用户输入，将在课堂播放器中渲染，但不进入本轮自动视频。
+
+## 验收结果（2026-07-26）
+
+真实导出任务 `job_691e361aabb6` 已成功完成，并越过原先超过 120 秒的场景：
+
+- 共录制 8 个 slide 场景。
+- 总时长 `754500ms`（12 分 34.5 秒）。
+- `classroom.mp4`：`23,881,142` 字节。
+- `classroom.srt`：`12,505` 字节。
+- `timeline.json`：`50,139` 字节。
+- 视频流：H.264、1920×1080、30fps。
+- 音频流：AAC、单声道、24kHz。
+- `ffprobe` 读取的容器时长为 `754.5s`，音频时长为 `754.459s`。
+
+产物位于：
+
+```text
+Edu_AI/api/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/
+```
+
+因此 MP4 导出失败的两个根因均已关闭：渲染端口与实际 Vite 端口一致，长场景使用独立的 600 秒播放超时。

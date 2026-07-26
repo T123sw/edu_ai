@@ -10,6 +10,8 @@
 
 ---
 
+**执行状态（2026-07-26）：** Task 1–8 已完成并按小阶段提交；Task 9 的真实 MP4、interactive、quiz 与恢复验收已完成。剩余工作仅为最终新鲜验证和快进合并到 `main`。
+
 ## 文件结构
 
 - `Edu_AI/scripts/videoPipeline.ts`
