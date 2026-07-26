@@ -133,6 +133,7 @@ async def test_video_job_maps_process_progress_and_persists_artifact_urls(
     monkeypatch, tmp_path
 ):
     monkeypatch.setattr(Config, "STORAGE_ROOT", tmp_path / "jobs")
+    monkeypatch.delenv("CLASSROOM_VIDEO_FRONTEND_URL", raising=False)
     manager = CourseStorageManager(root_path=str(tmp_path / "courses"))
     output_dir = manager.get_classroom_video_dir("course-1", "classroom-1")
     captured = {}
@@ -160,7 +161,6 @@ async def test_video_job_maps_process_progress_and_persists_artifact_urls(
         current_user={"username": "teacher"},
         course_storage_manager=manager,
         frontend_root=tmp_path / "frontend",
-        base_url="http://frontend",
         node_executable="node-test",
         ffmpeg_path="ffmpeg-test",
     )
@@ -174,4 +174,6 @@ async def test_video_job_maps_process_progress_and_persists_artifact_urls(
     assert not captured["output_dir"].exists()
     assert "secret-token" not in " ".join(captured["command"])
     assert "secret-token" in captured["env"]["EDU_AI_EXPORT_AUTH_JSON"]
+    base_url_index = captured["command"].index("--base-url") + 1
+    assert captured["command"][base_url_index] == "http://127.0.0.1:5173"
     assert get_job(job.edu_job_id).status == JobStatus.SUCCEEDED

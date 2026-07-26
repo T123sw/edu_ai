@@ -101,7 +101,7 @@ async def run_classroom_video_export_job(
     active_base_url = (
         base_url
         or os.getenv("CLASSROOM_VIDEO_FRONTEND_URL", "").strip()
-        or "http://127.0.0.1:4173"
+        or "http://127.0.0.1:5173"
     )
     command = build_video_export_command(
         course_id=course_id,

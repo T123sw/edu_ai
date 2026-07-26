@@ -72,3 +72,19 @@ def test_start_api_bat_does_not_kill_unknown_sidecar_port_owner():
 
     assert 'call :ensure_port_free "%sidecar_port%"' not in script
     assert "sidecar port" in script
+
+
+def test_start_api_bat_routes_video_export_to_frontend_port():
+    script = _read(API_ROOT / "start_api.bat")
+
+    assert 'set "frontend_port=5173"' in script
+    assert (
+        'set "classroom_video_frontend_url=http://127.0.0.1:%frontend_port%"'
+        in script
+    )
+
+
+def test_backend_env_example_matches_unified_video_frontend_port():
+    env_example = _read(API_ROOT / ".env.example")
+
+    assert "classroom_video_frontend_url=http://127.0.0.1:5173" in env_example

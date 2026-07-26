@@ -91,6 +91,7 @@ set "API_PORT=8001"
 set "FRONTEND_PORT=5173"
 set "SIDECAR_PORT=3000"
 set "VITE_API_BASE_URL=http://localhost:%API_PORT%"
+set "CLASSROOM_VIDEO_FRONTEND_URL=http://127.0.0.1:%FRONTEND_PORT%"
 
 echo [1/7] Checking Edu-AI ports...
 call :ensure_port_free "%API_PORT%" "API"
