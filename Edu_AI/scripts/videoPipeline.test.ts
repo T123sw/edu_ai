@@ -47,6 +47,7 @@ test('parseVideoExportArguments enforces one source and an explicit output direc
       ffmpegPath: 'D:/tools/ffmpeg.exe',
       overwrite: true,
       timeoutMs: 120000,
+      sceneTimeoutMs: 600000,
     },
   );
 
@@ -74,6 +75,32 @@ test('parseVideoExportArguments enforces one source and an explicit output direc
       '--fixture',
     ]).outputDir,
     'artifacts/npm-video',
+  );
+});
+
+test('parseVideoExportArguments separates navigation and scene timeouts', () => {
+  const options = parseVideoExportArguments([
+    '--output-dir',
+    'out',
+    '--fixture',
+    '--timeout-ms',
+    '45000',
+    '--scene-timeout-ms',
+    '720000',
+  ]);
+
+  assert.equal(options.timeoutMs, 45000);
+  assert.equal(options.sceneTimeoutMs, 720000);
+  assert.throws(
+    () =>
+      parseVideoExportArguments([
+        '--output-dir',
+        'out',
+        '--fixture',
+        '--scene-timeout-ms',
+        '0',
+      ]),
+    /--scene-timeout-ms must be a positive integer/,
   );
 });
 

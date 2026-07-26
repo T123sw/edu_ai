@@ -27,6 +27,7 @@ export interface VideoExportOptions {
   ffmpegPath?: string;
   overwrite?: boolean;
   timeoutMs: number;
+  sceneTimeoutMs: number;
   onProgress?: (event: VideoExportProgress) => void;
 }
 
@@ -118,6 +119,13 @@ export function parseVideoExportArguments(args: readonly string[]): VideoExportO
   if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
     throw new Error('--timeout-ms must be a positive integer');
   }
+  const sceneTimeoutValue = optionValue(args, '--scene-timeout-ms');
+  const sceneTimeoutMs = sceneTimeoutValue
+    ? Number.parseInt(sceneTimeoutValue, 10)
+    : 600000;
+  if (!Number.isInteger(sceneTimeoutMs) || sceneTimeoutMs <= 0) {
+    throw new Error('--scene-timeout-ms must be a positive integer');
+  }
 
   return {
     baseUrl,
@@ -128,6 +136,7 @@ export function parseVideoExportArguments(args: readonly string[]): VideoExportO
       : {}),
     ...(args.includes('--overwrite') ? { overwrite: true } : {}),
     timeoutMs,
+    sceneTimeoutMs,
   };
 }
 
@@ -356,7 +365,7 @@ async function captureScene(
         return status === 'completed' || status === 'failed';
       },
       undefined,
-      { timeout: options.timeoutMs },
+      { timeout: options.sceneTimeoutMs },
     );
     const status = await root.getAttribute('data-export-status');
     if (status !== 'completed') {
