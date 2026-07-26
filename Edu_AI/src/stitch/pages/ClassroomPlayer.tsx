@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Slide } from "@openmaic/renderer";
 import { getClassroom } from "../api/classroom";
 import type { ClassroomMaterial, ClassroomScene } from "../api/types";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes } from "../shared";
-import { SlidePlayer } from "../../openmaic/SlidePlayer";
+import { ClassroomSceneRenderer } from "../../openmaic/ClassroomSceneRenderer";
 import { PptxExportButton } from "../../openmaic/PptxExportButton";
 import type { PptxExportScene } from "../../openmaic/pptxExporter";
 import { ClassroomVideoExportButton } from "../../openmaic/ClassroomVideoExportButton";
 
 /**
  * 播放一份真实的、由 `classroom_service.generate_classroom_for_course` 生成
- * 并落库的课件（SPEC-04/ACC-08 AC-08-3）。逐 scene 播放，`slide` 类型走
- * SlidePlayer；其余类型（如 `interactive`）暂不支持播放，优雅降级不崩溃
- * （P3-1 范围边界，见 SPEC-08）。
+ * 并落库的课件（SPEC-04/ACC-08 AC-08-3）。逐 scene 通过本地适配层播放
+ * `slide`、`interactive` 和 `quiz`，并对损坏或未知类型给出明确提示。
  *
  * 通过 `#classroom-player?course_id=...&classroom_id=...` 到达——用 hash
  * query 而不是 `useAppShell().selectedCourse`，因为这里同时需要
@@ -112,22 +110,18 @@ export function ClassroomPlayerPage() {
               {scenes.length}：{currentScene?.id}（type={currentScene?.type}）
             </p>
 
-            {currentScene?.content?.type === "slide" && currentScene.content.canvas ? (
-              <div className="mx-auto" style={{ width: 960, height: 540, border: "1px solid var(--shell-border)" }}>
-                <SlidePlayer
-                  key={currentScene.id}
-                  slide={currentScene.content.canvas as unknown as Slide}
-                  actions={currentScene.actions as never}
-                  sceneId={currentScene.id}
-                  onComplete={() => setSceneIndex((i) => Math.min(i + 1, scenes.length - 1))}
-                />
-              </div>
-            ) : currentScene ? (
+            {currentScene && courseId && classroomId ? (
               <div
-                className="mx-auto flex items-center justify-center rounded-2xl border border-(--shell-border) bg-(--surface-subtle) p-10 text-sm text-(--muted-text)"
-                style={{ width: 960, height: 540 }}
+                className="mx-auto overflow-hidden rounded-2xl"
+                style={{ width: 960, height: 540, border: "1px solid var(--shell-border)" }}
               >
-                scene 类型 "{currentScene.type}" 暂不支持播放（P3-1 只接了 slide 类型的渲染）
+                <ClassroomSceneRenderer
+                  key={currentScene.id}
+                  scene={currentScene}
+                  courseId={courseId}
+                  classroomId={classroomId}
+                  onSlideComplete={() => setSceneIndex((i) => Math.min(i + 1, scenes.length - 1))}
+                />
               </div>
             ) : null}
 
