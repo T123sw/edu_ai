@@ -27,6 +27,28 @@ test('patchInteractiveHtml prepends runtime support when the document has no hea
   assert.match(patched, /<main>demo<\/main>$/);
 });
 
+test('patchInteractiveHtml bridges legacy OpenMAIC widget state across scripts', () => {
+  const patched = patchInteractiveHtml(`
+    <script>
+      function applyStateFromMessage(state) {
+        if (state.pivotValue) handleCardClick(0);
+      }
+    </script>
+    <script>
+      (function () {
+        const simState = { pivotValue: null };
+        function handleCardClick(idx) { simState.pivotValue = idx; }
+      })();
+    </script>
+  `);
+
+  assert.match(patched, /window\.simState = \{ pivotValue: null \}/);
+  assert.match(
+    patched,
+    /window\.handleCardClick = function\(idx\) \{ simState\.pivotValue = idx; \}/,
+  );
+});
+
 test('widgetMessageForAction maps the OpenMAIC widget protocol', () => {
   const actions: Action[] = [
     {

@@ -79,11 +79,33 @@ body { min-height: 100vh; }
 </style>`;
 
 export function patchInteractiveHtml(html: string): string {
+  const compatibleHtml = patchLegacyWidgetScope(html);
   const injection = `${RUNTIME_ERROR_SHIM}\n${STORAGE_SHIM}\n${IFRAME_STYLE}\n`;
-  const headMatch = /<head(?:\s[^>]*)?>/i.exec(html);
-  if (!headMatch || headMatch.index === undefined) return injection + html;
+  const headMatch = /<head(?:\s[^>]*)?>/i.exec(compatibleHtml);
+  if (!headMatch || headMatch.index === undefined) {
+    return injection + compatibleHtml;
+  }
   const insertAt = headMatch.index + headMatch[0].length;
-  return html.slice(0, insertAt) + injection + html.slice(insertAt);
+  return (
+    compatibleHtml.slice(0, insertAt) +
+    injection +
+    compatibleHtml.slice(insertAt)
+  );
+}
+
+/**
+ * Some OpenMAIC-generated widgets register their message bridge in one script
+ * and keep `simState`/`handleCardClick` inside a later IIFE. Expose only those
+ * two established bridge symbols when that legacy pattern is present.
+ */
+function patchLegacyWidgetScope(html: string): string {
+  if (!/\bfunction\s+applyStateFromMessage\s*\(/.test(html)) return html;
+  return html
+    .replace(/\b(?:const|let)\s+simState\s*=/, 'window.simState =')
+    .replace(
+      /\bfunction\s+handleCardClick\s*\(/,
+      'window.handleCardClick = function(',
+    );
 }
 
 export type WidgetActionMessage = {
