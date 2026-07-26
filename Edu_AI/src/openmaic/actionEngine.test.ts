@@ -7,6 +7,7 @@ import {
   type ActionMediaAdapter,
   type ActionMediaResult,
   type ActionVideoController,
+  type ActionWidgetController,
   type VideoPlaybackResult,
 } from './actionEngine.ts';
 
@@ -66,6 +67,17 @@ class FakeVideoController implements ActionVideoController {
   cancel(): void {
     this.cancelled = true;
     this.finishPlayback?.('failed');
+  }
+}
+
+class FakeWidgetController implements ActionWidgetController {
+  readonly calls: Array<{
+    type: string;
+    payload: Record<string, unknown>;
+  }> = [];
+
+  postMessage(type: string, payload: Record<string, unknown>): void {
+    this.calls.push({ type, payload });
   }
 }
 
@@ -188,6 +200,57 @@ test('dispose cancels active embedded video playback', async () => {
   await playback;
 
   assert.equal(video.cancelled, true);
+});
+
+test('forwards widget actions through the active iframe controller', async () => {
+  const widget = new FakeWidgetController();
+  const media = new FakeMediaAdapter();
+  const engine = new ActionEngine({}, { widget, media });
+
+  await engine.execute({
+    id: 'state',
+    type: 'widget_setState',
+    state: { pivot: 6 },
+    content: '设置基准',
+  });
+  await engine.execute({
+    id: 'highlight',
+    type: 'widget_highlight',
+    target: '#pivot',
+    content: '观察基准',
+  });
+  await engine.execute({
+    id: 'annotation',
+    type: 'widget_annotation',
+    target: '#left',
+    content: '左指针',
+  });
+  await engine.execute({
+    id: 'reveal',
+    type: 'widget_reveal',
+    target: '#answer',
+    content: '显示结果',
+  });
+
+  assert.deepEqual(widget.calls, [
+    {
+      type: 'SET_WIDGET_STATE',
+      payload: { state: { pivot: 6 }, content: '设置基准' },
+    },
+    {
+      type: 'HIGHLIGHT_ELEMENT',
+      payload: { target: '#pivot', content: '观察基准' },
+    },
+    {
+      type: 'ANNOTATE_ELEMENT',
+      payload: { target: '#left', content: '左指针' },
+    },
+    {
+      type: 'REVEAL_ELEMENT',
+      payload: { target: '#answer', content: '显示结果' },
+    },
+  ]);
+  assert.deepEqual(media.waitedMs, [300, 300, 300, 300]);
 });
 
 test('selects an exact requested voice before the language fallback', () => {

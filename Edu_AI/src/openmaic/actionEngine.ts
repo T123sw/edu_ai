@@ -7,6 +7,7 @@
  */
 
 import type { Action, SpeechAction } from '@openmaic/dsl';
+import { widgetMessageForAction } from './interactiveScene';
 
 const DEFAULT_EFFECT_AUTO_CLEAR_MS = 5000;
 
@@ -48,6 +49,10 @@ export interface ActionVideoController {
   cancel(): void;
 }
 
+export interface ActionWidgetController {
+  postMessage(type: string, payload: Record<string, unknown>): void;
+}
+
 export interface ActionExecutionContext {
   /**
    * The timeline compiler paired the current narration with a preceding
@@ -60,6 +65,7 @@ export interface ActionExecutionContext {
 export interface ActionEngineOptions {
   media?: ActionMediaAdapter;
   video?: ActionVideoController;
+  widget?: ActionWidgetController;
   effectAutoClearMs?: number;
 }
 
@@ -69,6 +75,7 @@ export class ActionEngine {
   private readonly callbacks: ActionEngineCallbacks;
   private readonly media: ActionMediaAdapter;
   private readonly video?: ActionVideoController;
+  private readonly widget?: ActionWidgetController;
   private readonly effectAutoClearMs: number;
   private disposed = false;
 
@@ -79,6 +86,7 @@ export class ActionEngine {
     this.callbacks = callbacks;
     this.media = options.media ?? new BrowserActionMediaAdapter();
     this.video = options.video;
+    this.widget = options.widget;
     this.effectAutoClearMs =
       options.effectAutoClearMs ?? DEFAULT_EFFECT_AUTO_CLEAR_MS;
   }
@@ -128,6 +136,16 @@ export class ActionEngine {
       case 'play_video':
         await this.video?.play(action.elementId);
         return;
+      case 'widget_highlight':
+      case 'widget_setState':
+      case 'widget_annotation':
+      case 'widget_reveal': {
+        const message = widgetMessageForAction(action);
+        if (!message || !this.widget) return;
+        this.widget.postMessage(message.type, message.payload);
+        await this.media.wait(300);
+        return;
+      }
       default:
         return;
     }
