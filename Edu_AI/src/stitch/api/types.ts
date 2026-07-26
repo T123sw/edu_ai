@@ -323,10 +323,53 @@ export type EduJob = {
   updated_at: string;
 };
 
+export type ClassroomQuizQuestion = {
+  id: string;
+  type: "single" | "multiple" | "short_answer" | string;
+  question: string;
+  options?: Array<{ value: string; label: string }>;
+  answer?: string[];
+  analysis?: string;
+  commentPrompt?: string;
+  points?: number;
+  hasAnswer?: boolean;
+};
+
+export type SlideClassroomContent = {
+  type: "slide";
+  canvas: Record<string, unknown>;
+};
+
+export type InteractiveClassroomContent = {
+  type: "interactive";
+  url?: string;
+  html?: string;
+  widgetType?: string;
+  widgetConfig?: Record<string, unknown>;
+};
+
+export type QuizClassroomContent = {
+  type: "quiz";
+  questions: ClassroomQuizQuestion[];
+};
+
+export type UnknownClassroomContent = {
+  type?: string;
+  [key: string]: unknown;
+};
+
+export type ClassroomSceneContent =
+  | SlideClassroomContent
+  | InteractiveClassroomContent
+  | QuizClassroomContent
+  | UnknownClassroomContent;
+
 export type ClassroomScene = {
   id: string;
   type: string;
-  content?: { type?: string; canvas?: Record<string, unknown> };
+  title?: string;
+  order?: number;
+  content?: ClassroomSceneContent;
   actions?: Array<Record<string, unknown>>;
 };
 
