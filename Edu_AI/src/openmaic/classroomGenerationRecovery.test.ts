@@ -23,6 +23,20 @@ class MemoryStorage {
   }
 }
 
+class UnavailableStorage {
+  getItem(): string | null {
+    throw new Error('storage unavailable');
+  }
+
+  setItem(): void {
+    throw new Error('storage unavailable');
+  }
+
+  removeItem(): void {
+    throw new Error('storage unavailable');
+  }
+}
+
 function job(id: string, progress = 20): EduJob {
   return {
     edu_job_id: id,
@@ -123,4 +137,20 @@ test('ignores malformed recovery data', () => {
   storage.setItem('edu-ai-pending-classroom-generations-v1', '{bad json');
 
   assert.equal(readPendingClassroomGeneration(storage, 'course-1'), null);
+});
+
+test('storage failures never interrupt classroom generation', () => {
+  const storage = new UnavailableStorage();
+  const pending = {
+    courseId: 'course-1',
+    topic: '快速排序',
+    job: job('job-1'),
+    savedAt: 'now',
+  };
+
+  assert.equal(readPendingClassroomGeneration(storage, 'course-1'), null);
+  assert.doesNotThrow(() => savePendingClassroomGeneration(storage, pending));
+  assert.doesNotThrow(() =>
+    clearPendingClassroomGeneration(storage, 'course-1', 'job-1'),
+  );
 });

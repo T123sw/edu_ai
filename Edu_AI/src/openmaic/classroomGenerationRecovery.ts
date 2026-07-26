@@ -96,16 +96,24 @@ export function readPendingClassroomGeneration(
   storage: ClassroomGenerationStorage,
   courseId: string,
 ): PendingClassroomGeneration | null {
-  return readMap(storage)[courseId] ?? null;
+  try {
+    return readMap(storage)[courseId] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export function savePendingClassroomGeneration(
   storage: ClassroomGenerationStorage,
   pending: PendingClassroomGeneration,
 ): void {
-  const current = readMap(storage);
-  current[pending.courseId] = pending;
-  writeMap(storage, current);
+  try {
+    const current = readMap(storage);
+    current[pending.courseId] = pending;
+    writeMap(storage, current);
+  } catch {
+    // Recovery storage must never interrupt classroom generation itself.
+  }
 }
 
 export function clearPendingClassroomGeneration(
@@ -113,10 +121,14 @@ export function clearPendingClassroomGeneration(
   courseId: string,
   eduJobId: string,
 ): void {
-  const current = readMap(storage);
-  if (current[courseId]?.job.edu_job_id !== eduJobId) {
-    return;
+  try {
+    const current = readMap(storage);
+    if (current[courseId]?.job.edu_job_id !== eduJobId) {
+      return;
+    }
+    delete current[courseId];
+    writeMap(storage, current);
+  } catch {
+    // A cleanup failure can safely leave the record for the next page load.
   }
-  delete current[courseId];
-  writeMap(storage, current);
 }

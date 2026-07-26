@@ -163,3 +163,24 @@ test('classroom generation modal uses the current Ant Design lifecycle prop', as
   assert.match(source, /destroyOnHidden=\{false\}/);
   assert.doesNotMatch(source, /destroyOnClose/);
 });
+
+test('classroom generation entry persists and resumes an interrupted poll', async () => {
+  const source = await readFile(
+    new URL(
+      '../components/teacher/ClassroomGenerationEntry.tsx',
+      import.meta.url,
+    ),
+    'utf8',
+  );
+
+  assert.match(source, /readPendingClassroomGeneration/);
+  assert.match(source, /savePendingClassroomGeneration/);
+  assert.match(source, /clearPendingClassroomGeneration/);
+  assert.match(
+    source,
+    /readPendingClassroomGeneration\(\s*window\.localStorage,\s*courseId/,
+  );
+  assert.match(source, /setJob\(initialJob\)/);
+  assert.match(source, /onProgress:\s*handleProgress/);
+  assert.match(source, /恢复轮询/);
+});

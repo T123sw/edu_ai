@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Input,
@@ -19,6 +19,11 @@ import {
   buildClassroomPlayerHash,
   waitForClassroomGenerationJob,
 } from '../../openmaic/classroomGenerationFlow';
+import {
+  clearPendingClassroomGeneration,
+  readPendingClassroomGeneration,
+  savePendingClassroomGeneration,
+} from '../../openmaic/classroomGenerationRecovery';
 import './ClassroomGenerationEntry.css';
 
 const { Text } = Typography;
@@ -34,14 +39,104 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const activeJobIdRef = useRef<string | null>(null);
+  const latestJobRef = useRef<EduJob | null>(null);
 
-  useEffect(
-    () => () => {
-      abortRef.current?.abort();
-      abortRef.current = null;
+  const trackJob = useCallback(
+    async (
+      initialJob: EduJob,
+      activeCourseId: string,
+      activeTopic: string,
+      controller: AbortController,
+    ) => {
+      activeJobIdRef.current = initialJob.edu_job_id;
+      latestJobRef.current = initialJob;
+      setTopic(activeTopic);
+      setJob(initialJob);
+      setSubmitting(true);
+      setError(null);
+      setOpen(true);
+
+      const handleProgress = (currentJob: EduJob) => {
+        latestJobRef.current = currentJob;
+        setJob(currentJob);
+        savePendingClassroomGeneration(window.localStorage, {
+          courseId: activeCourseId,
+          topic: activeTopic,
+          job: currentJob,
+          savedAt: new Date().toISOString(),
+        });
+      };
+
+      try {
+        const result = await waitForClassroomGenerationJob(initialJob, {
+          getStatus: getJobStatus,
+          signal: controller.signal,
+          onProgress: handleProgress,
+        });
+
+        clearPendingClassroomGeneration(
+          window.localStorage,
+          activeCourseId,
+          initialJob.edu_job_id,
+        );
+        setOpen(false);
+        window.location.hash = buildClassroomPlayerHash(
+          result.course_id,
+          result.classroom_id,
+        );
+      } catch (caught) {
+        if (!controller.signal.aborted) {
+          const latestStatus = latestJobRef.current?.status;
+          if (latestStatus === 'failed' || latestStatus === 'succeeded') {
+            clearPendingClassroomGeneration(
+              window.localStorage,
+              activeCourseId,
+              initialJob.edu_job_id,
+            );
+          }
+          setError(
+            caught instanceof Error
+              ? caught.message
+              : 'AI 课堂生成失败，请重试',
+          );
+        }
+      } finally {
+        if (
+          activeJobIdRef.current === initialJob.edu_job_id &&
+          abortRef.current === controller
+        ) {
+          activeJobIdRef.current = null;
+        }
+        if (abortRef.current === controller) {
+          abortRef.current = null;
+          setSubmitting(false);
+        }
+      }
     },
     [],
   );
+
+  useEffect(() => {
+    if (courseId && !activeJobIdRef.current) {
+      const pending = readPendingClassroomGeneration(
+        window.localStorage,
+        courseId,
+      );
+      if (pending) {
+        const controller = new AbortController();
+        abortRef.current?.abort();
+        abortRef.current = controller;
+        void trackJob(pending.job, courseId, pending.topic, controller);
+      }
+    }
+
+    return () => {
+      abortRef.current?.abort();
+      abortRef.current = null;
+      activeJobIdRef.current = null;
+    };
+  }, [courseId, trackJob]);
 
   const openModal = () => {
     if (!courseId) {
@@ -77,22 +172,18 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
     setError(null);
     setJob(null);
 
+    let initialJob: EduJob;
     try {
-      const initialJob = await generateClassroom(courseId, {
+      initialJob = await generateClassroom(courseId, {
         requirement,
         enable_tts: true,
       });
-      const result = await waitForClassroomGenerationJob(initialJob, {
-        getStatus: getJobStatus,
-        signal: controller.signal,
-        onProgress: setJob,
+      savePendingClassroomGeneration(window.localStorage, {
+        courseId,
+        topic: requirement,
+        job: initialJob,
+        savedAt: new Date().toISOString(),
       });
-
-      setOpen(false);
-      window.location.hash = buildClassroomPlayerHash(
-        result.course_id,
-        result.classroom_id,
-      );
     } catch (caught) {
       if (!controller.signal.aborted) {
         setError(
@@ -101,13 +192,44 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
             : 'AI 课堂生成失败，请重试',
         );
       }
-    } finally {
       if (abortRef.current === controller) {
         abortRef.current = null;
         setSubmitting(false);
       }
+      return;
     }
+
+    if (controller.signal.aborted) {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    await trackJob(initialJob, courseId, requirement, controller);
   };
+
+  const resume = async () => {
+    if (
+      !courseId ||
+      !job ||
+      (job.status !== 'queued' && job.status !== 'running') ||
+      submitting
+    ) {
+      return;
+    }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    await trackJob(job, courseId, topic.trim(), controller);
+  };
+
+  const canResume =
+    Boolean(error) &&
+    (job?.status === 'queued' || job?.status === 'running') &&
+    !submitting;
 
   const progressStatus =
     job?.status === 'failed'
@@ -207,11 +329,13 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
             <Button
               type="primary"
               loading={submitting}
-              disabled={!topic.trim()}
-              onClick={() => void submit()}
+              disabled={!canResume && !topic.trim()}
+              onClick={() => void (canResume ? resume() : submit())}
             >
               {submitting
                 ? '正在生成课堂'
+                : canResume
+                  ? '恢复轮询'
                 : error
                   ? '重新生成'
                   : '开始生成'}
