@@ -49,3 +49,26 @@ def test_start_api_bat_validates_pip_before_selecting_venv():
     script = _read(API_ROOT / "start_api.bat")
 
     assert "import pip" in script
+
+
+def test_start_api_bat_declares_repository_openmaic_sidecar():
+    script = _read(API_ROOT / "start_api.bat")
+
+    assert "openmaic-sidecar" in script
+    assert 'set "sidecar_port=3000"' in script
+    assert "pnpm.cmd dev" in script
+
+
+def test_start_api_bat_waits_for_openmaic_health_before_backend():
+    script = _read(API_ROOT / "start_api.bat")
+
+    assert "/api/health" in script
+    assert "call :wait_for_sidecar" in script
+    assert script.index("call :wait_for_sidecar") < script.rindex("-m uvicorn")
+
+
+def test_start_api_bat_does_not_kill_unknown_sidecar_port_owner():
+    script = _read(API_ROOT / "start_api.bat")
+
+    assert 'call :ensure_port_free "%sidecar_port%"' not in script
+    assert "sidecar port" in script

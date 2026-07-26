@@ -9,6 +9,8 @@ echo.
 
 set "API_DIR=%~dp0"
 for %%I in ("%API_DIR%..\..") do set "FRONTEND_DIR=%%~fI"
+for %%I in ("%FRONTEND_DIR%\..") do set "REPO_ROOT=%%~fI"
+set "SIDECAR_DIR=%REPO_ROOT%\openmaic-sidecar"
 cd /d "%API_DIR%"
 
 set "PYTHON_EXE=python"
@@ -55,6 +57,7 @@ if defined CONDA_ENV_DIR (
 echo Using Python: %PYTHON_EXE%
 echo Frontend directory: %FRONTEND_DIR%
 echo API directory: %API_DIR%
+echo OpenMAIC sidecar directory: %SIDECAR_DIR%
 echo.
 
 if /I "%~1"=="--check" (
@@ -64,6 +67,14 @@ if /I "%~1"=="--check" (
     )
     if not exist "%API_DIR%app\main.py" (
         echo [ERROR] Backend app entry not found: "%API_DIR%app\main.py"
+        exit /b 1
+    )
+    if not exist "%SIDECAR_DIR%\package.json" (
+        echo [ERROR] OpenMAIC package.json not found: "%SIDECAR_DIR%\package.json"
+        exit /b 1
+    )
+    if not exist "%SIDECAR_DIR%\app\api\health\route.ts" (
+        echo [ERROR] OpenMAIC health endpoint not found: "%SIDECAR_DIR%\app\api\health\route.ts"
         exit /b 1
     )
     echo Startup script check passed.
@@ -78,14 +89,15 @@ echo.
 
 set "API_PORT=8001"
 set "FRONTEND_PORT=5173"
+set "SIDECAR_PORT=3000"
 set "VITE_API_BASE_URL=http://localhost:%API_PORT%"
 
-echo [1/5] Checking ports...
+echo [1/7] Checking Edu-AI ports...
 call :ensure_port_free "%API_PORT%" "API"
 call :ensure_port_free "%FRONTEND_PORT%" "frontend"
 echo.
 
-echo [2/5] Checking backend dependencies...
+echo [2/7] Checking backend dependencies...
 "%PYTHON_EXE%" -c "import uvicorn, fastapi" >nul 2>nul
 if !ERRORLEVEL! NEQ 0 (
     echo Uvicorn/FastAPI not found. Installing minimal backend packages...
@@ -99,7 +111,7 @@ if !ERRORLEVEL! NEQ 0 (
 echo Backend dependencies look available.
 echo.
 
-echo [3/5] Checking frontend dependencies...
+echo [3/7] Checking frontend dependencies...
 if not exist "%FRONTEND_DIR%\package.json" (
     echo [ERROR] Frontend package.json not found: "%FRONTEND_DIR%\package.json"
     pause
@@ -121,18 +133,96 @@ if not exist "%FRONTEND_DIR%\node_modules" (
 )
 echo.
 
-echo [4/5] Starting frontend...
+echo [4/7] Checking OpenMAIC dependencies...
+if not exist "%SIDECAR_DIR%\package.json" (
+    echo [ERROR] OpenMAIC package.json not found: "%SIDECAR_DIR%\package.json"
+    pause
+    exit /b 1
+)
+if not exist "%SIDECAR_DIR%\.env" if not exist "%SIDECAR_DIR%\.env.local" (
+    echo [ERROR] OpenMAIC requires "%SIDECAR_DIR%\.env" or ".env.local".
+    pause
+    exit /b 1
+)
+
+where pnpm.cmd >nul 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    for %%P in (
+        "D:\anaconda\envs\openmaic\pnpm.cmd"
+        "%USERPROFILE%\miniconda3\envs\openmaic\pnpm.cmd"
+        "%USERPROFILE%\anaconda3\envs\openmaic\pnpm.cmd"
+    ) do (
+        if exist "%%~fP" (
+            set "PATH=%%~dpP;%PATH%"
+            goto :pnpm_ready
+        )
+    )
+    echo [ERROR] pnpm.cmd was not found. Install pnpm 10 or the openmaic conda environment.
+    pause
+    exit /b 1
+)
+
+:pnpm_ready
+call pnpm.cmd --version >nul 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] pnpm.cmd is present but cannot run.
+    pause
+    exit /b 1
+)
+
+if not exist "%SIDECAR_DIR%\node_modules" (
+    echo OpenMAIC node_modules not found. Running pnpm install...
+    pushd "%SIDECAR_DIR%"
+    call pnpm.cmd install
+    set "PNPM_RESULT=!ERRORLEVEL!"
+    popd
+    if !PNPM_RESULT! NEQ 0 (
+        echo [ERROR] OpenMAIC dependency installation failed.
+        pause
+        exit /b 1
+    )
+)
+echo OpenMAIC dependencies look available.
+echo.
+
+echo [5/7] Starting OpenMAIC sidecar...
+call :sidecar_health
+if !ERRORLEVEL! EQU 0 (
+    echo OpenMAIC sidecar is already healthy at http://localhost:%SIDECAR_PORT%.
+) else (
+    netstat -ano | findstr ":%SIDECAR_PORT%" | findstr "LISTENING" >nul 2>nul
+    if !ERRORLEVEL! EQU 0 (
+        echo [ERROR] Sidecar port %SIDECAR_PORT% is occupied, but /api/health is not healthy.
+        echo Refusing to stop an unknown process. Free the port and run this script again.
+        pause
+        exit /b 1
+    )
+
+    start "edu-ai-openmaic-sidecar" /D "%SIDECAR_DIR%" cmd /k "set PORT=%SIDECAR_PORT%&&pnpm.cmd dev"
+    call :wait_for_sidecar
+    if !ERRORLEVEL! NEQ 0 (
+        echo [ERROR] OpenMAIC sidecar did not become healthy within 90 seconds.
+        echo Check the "edu-ai-openmaic-sidecar" terminal for the startup error.
+        pause
+        exit /b 1
+    )
+    echo OpenMAIC sidecar is healthy at http://localhost:%SIDECAR_PORT%.
+)
+echo.
+
+echo [6/7] Starting frontend...
 start "edu-ai-frontend" /D "%FRONTEND_DIR%" cmd /k "npm.cmd run dev -- --host 0.0.0.0 --port %FRONTEND_PORT%"
 echo Frontend will run at: http://localhost:%FRONTEND_PORT%
 echo Frontend API base: %VITE_API_BASE_URL%
 echo.
 
-echo [5/5] Starting backend API...
+echo [7/7] Starting backend API...
 echo ========================================
 echo API service:      http://localhost:%API_PORT%
 echo Frontend:         http://localhost:%FRONTEND_PORT%
+echo OpenMAIC sidecar: http://localhost:%SIDECAR_PORT%
 echo.
-echo Close the opened terminal window to stop the frontend.
+echo Close the opened terminal windows to stop the frontend and OpenMAIC.
 echo Press Ctrl+C in this window to stop the backend.
 echo ========================================
 echo.
@@ -140,6 +230,23 @@ echo.
 "%PYTHON_EXE%" -m uvicorn app.main:app --host 0.0.0.0 --port %API_PORT%
 pause
 exit /b %ERRORLEVEL%
+
+:sidecar_health
+powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ^
+    "try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:%SIDECAR_PORT%/api/health' -TimeoutSec 2; if ($response.StatusCode -eq 200) { exit 0 } } catch {}; exit 1" ^
+    >nul 2>nul
+exit /b %ERRORLEVEL%
+
+:wait_for_sidecar
+set "SIDECAR_HEALTH_ATTEMPTS=0"
+
+:wait_for_sidecar_loop
+call :sidecar_health
+if !ERRORLEVEL! EQU 0 exit /b 0
+set /a SIDECAR_HEALTH_ATTEMPTS+=1
+if !SIDECAR_HEALTH_ATTEMPTS! GEQ 45 exit /b 1
+timeout /t 2 /nobreak >nul
+goto :wait_for_sidecar_loop
 
 :ensure_port_free
 set "CHECK_PORT=%~1"
