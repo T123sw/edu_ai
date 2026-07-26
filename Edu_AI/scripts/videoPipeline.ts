@@ -162,7 +162,7 @@ export function buildAudioMixArguments(
   );
   const mixInputs = audio.map((_, index) => `[n${index}]`).join('');
   filters.push(
-    `${mixInputs}amix=inputs=${audio.length}:duration=longest:dropout_transition=0[aout]`,
+    `${mixInputs}amix=inputs=${audio.length}:duration=longest:dropout_transition=0:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11[aout]`,
   );
   return [
     ...audio.flatMap((asset) => ['-i', asset.path]),
@@ -176,6 +176,10 @@ export function buildAudioMixArguments(
     'copy',
     '-c:a',
     'aac',
+    '-ar',
+    '48000',
+    '-b:a',
+    '128k',
   ];
 }
 
