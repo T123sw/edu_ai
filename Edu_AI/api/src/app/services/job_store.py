@@ -31,6 +31,7 @@ class JobKind(str, Enum):
     GENERATE_FLASHCARD = "generate_flashcard"
     GENERATE_GRAPH = "generate_graph"
     GENERATE_GAME = "generate_game"
+    RAG_IMPORT = "rag_import"
     PARSE_DOCUMENT = "parse_document"
     BUILD_KNOWLEDGE_INDEX = "build_knowledge_index"
 

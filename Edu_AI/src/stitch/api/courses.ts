@@ -8,6 +8,7 @@ import type {
   KnowledgeGraphTextbookImportResponse,
 } from "./types";
 import type { CourseSummary } from "../shared";
+import type { JobRecord } from "../../jobs/types";
 
 const accentPalette = [
   "from-[#0f172a] via-[#1d4ed8] to-[#60a5fa]",
@@ -108,10 +109,24 @@ export function uploadKnowledgeBaseDocument(courseId: string, file: File, option
   if (options?.scopeId) formData.append("scope_id", options.scopeId);
   if (options?.libraryType) formData.append("library_type", options.libraryType);
 
-  return apiRequest<KnowledgeBaseDocument>(`/api/courses/${courseId}/knowledge-base/documents`, {
+  return apiRequest<{ document: KnowledgeBaseDocument; job: JobRecord }>(`/api/courses/${courseId}/knowledge-base/documents`, {
     method: "POST",
     body: formData,
   });
+}
+
+export function reindexKnowledgeBaseDocument(courseId: string, documentId: string) {
+  return apiRequest<JobRecord>(
+    `/api/courses/${courseId}/knowledge-base/documents/${documentId}/reindex`,
+    { method: "POST" },
+  );
+}
+
+export function retryKnowledgeBaseDocument(courseId: string, documentId: string) {
+  return apiRequest<JobRecord>(
+    `/api/courses/${courseId}/knowledge-base/documents/${documentId}/retry`,
+    { method: "POST" },
+  );
 }
 
 export function getKnowledgeGraph(courseId: string) {

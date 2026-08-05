@@ -18,6 +18,7 @@ import re
 import time
 import concurrent.futures
 import zipfile
+import uuid
 from urllib.parse import unquote, quote
 from typing import List, Dict, Optional, Any, Union, Callable
 from pathlib import Path
@@ -2256,6 +2257,7 @@ class RAGSystem:
 
         if not force_reimport and index_key in self.document_index:
             existing_entry = self.document_index[index_key]
+            existing_hash = None
             # 关键：同一路径可能被不同用户“各自导入”，因此增量判断必须同时校验 owner
             # 否则会出现：A 导入后，B 导入同一路径时被错误判定为“已导入”，导致 owner/索引混乱
             existing_owner = existing_entry.get("owner")
@@ -2311,7 +2313,21 @@ class RAGSystem:
         # 关键点：向量库删除/查询是按 metadata.source 做 where / 比较的。
         # 如果不同用户共享同一个 source=文件路径，那么 delete_by_source(source) 会把所有用户的 chunks 一起删掉。
         # 因此需要把 source 变成 owner 维度隔离的 source_key。
-        source_key = self._make_source_key(file_str, owner)
+        base_source_key = self._make_source_key(file_str, owner)
+        previous_index_entry = self.document_index.get(index_key)
+        previous_source_key = (
+            previous_index_entry.get("source_key")
+            if previous_index_entry
+            else None
+        )
+        # Rebuilds write to a new source first. The document index is switched
+        # only after all new chunks are durable, so a failed rebuild keeps the
+        # previous retrievable version intact.
+        source_key = (
+            f"{base_source_key}#rev_{uuid.uuid4().hex[:12]}"
+            if previous_index_entry
+            else base_source_key
+        )
         if owner:
             for doc in documents:
                 if doc.metadata is None:
@@ -2408,29 +2424,17 @@ class RAGSystem:
         embeddings: List[List[float]] = [vec for vec in all_embeddings if vec is not None]
         print(f"[RAG导入][Stage] embedding_done vectors={len(embeddings)}")
 
-        # 如果文件已存在：
-        # - 同一用户重复导入：需要清理旧 chunks
-        # - 不同用户同一路径：不能直接按 source 删除（会误删对方数据）
-        # 注意：索引现在是按 index_key（含 owner）存的，不能再用 file_str 直接查
-        existing_entry = self.document_index.get(index_key)
-        if existing_entry:
-            existing_owner = existing_entry.get("owner")
-            if owner is None or existing_owner == owner:
-                # 只有在“同一 owner（或无 owner 概念的旧数据）”时才清理
-                old_source_key = existing_entry.get("source_key") or self._make_source_key(
-                    existing_entry.get("physical_path") or file_str,
-                    existing_owner,
-                )
-                self.vector_store.delete_by_source(old_source_key)
-            else:
-                # 不同 owner：不删除，后续会用 owner 隔离的 source_key 写入
-                pass
-
         if progress_callback:
             progress_callback(80, "indexing")
         # 添加到向量数据库
         print(f"[RAG导入][Stage] vector_add_start docs={len(documents)} vectors={len(embeddings)}")
-        self.vector_store.add_documents(documents, embeddings)
+        try:
+            self.vector_store.add_documents(documents, embeddings)
+        except Exception:
+            # Some vector stores can partially write a batch before raising.
+            # This source is not active yet, so it is safe to clean it up.
+            self.vector_store.delete_by_source(source_key)
+            raise
         print("[RAG导入][Stage] vector_add_done")
 
         # 更新索引
@@ -2444,7 +2448,7 @@ class RAGSystem:
         else:
             page_count = len(page_numbers)
         
-        existing_entry = self.document_index.get(index_key, {})
+        existing_entry = previous_index_entry or {}
         include_flag = existing_entry.get("include_in_search", True)
 
         # 不再“优先保留旧 owner”。同一路径允许不同用户各自拥有一份索引，
@@ -2463,7 +2467,7 @@ class RAGSystem:
                 linked_image_keys.add(image_path)
                 linked_images.append(dict(linked_image))
 
-        self.document_index[index_key] = {
+        next_index_entry = {
             "hash": file_hash,
             "imported_at": datetime.now().isoformat(),
             "chunk_count": len(documents),
@@ -2486,9 +2490,27 @@ class RAGSystem:
             "image_storage_dir": str(image_storage_dir),
             "linked_images": linked_images,
         }
+        self.document_index[index_key] = next_index_entry
         print(f"[RAG导入][Stage] index_save_start key={index_key}")
-        self._save_index()
+        try:
+            self._save_index()
+        except Exception:
+            self.vector_store.delete_by_source(source_key)
+            if previous_index_entry is None:
+                self.document_index.pop(index_key, None)
+            else:
+                self.document_index[index_key] = previous_index_entry
+            raise
         print("[RAG导入][Stage] index_save_done")
+
+        if previous_source_key and previous_source_key != source_key:
+            try:
+                self.vector_store.delete_by_source(previous_source_key)
+            except Exception as cleanup_error:
+                print(
+                    "[RAG导入] 新索引已切换，但旧索引清理失败："
+                    f"source={previous_source_key}, err={cleanup_error}"
+                )
 
         if progress_callback:
             progress_callback(100, "completed")
@@ -3417,14 +3439,15 @@ class RAGSystem:
             file_path: 物理文件路径（绝对路径）
             owner: 文档所属用户；提供时只删除该用户的数据
         """
-        source_key = self._make_source_key(file_path, owner)
         index_key = self._make_index_key(file_path, owner)
+        record = self.document_index.get(index_key)
+        source_key = (record or {}).get("source_key") or self._make_source_key(
+            file_path, owner
+        )
 
         # 从向量数据库删除：使用隔离后的 source_key，避免误删其他用户 chunk
         deleted_count = self.vector_store.delete_by_source(source_key)
         print(f"[RAG] 从向量库删除文档: source_key={source_key}, 删除了 {deleted_count} 个chunks")
-
-        record = self.document_index.get(index_key)
 
         # 联动清理图片目录
         image_storage_dir = (record or {}).get("image_storage_dir")

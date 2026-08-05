@@ -80,6 +80,16 @@ export type KnowledgeBaseDocument = {
   promoted_from_document_id?: string | null;
   created_at: string;
   updated_at?: string | null;
+  status: "received" | "parsing" | "chunking" | "embedding" | "indexing" | "ready" | "partially_ready" | "failed";
+  active_index_version?: string | null;
+  pending_index_version?: string | null;
+  page_count: number;
+  chunk_count: number;
+  failed_units: number;
+  indexed_at?: string | null;
+  last_job_id?: string | null;
+  error_code?: string | null;
+  error_message?: string | null;
 };
 
 export type KnowledgeBaseScopeOptions = {

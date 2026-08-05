@@ -211,7 +211,8 @@ def test_get_knowledge_base_documents_returns_local_path_for_web_documents(monke
     assert documents[0].file_path == relative_path.replace("\\", "/")
 
 
-def test_add_rag_document_to_course_kb_accepts_course_relative_personal_document(monkeypatch):
+@pytest.mark.anyio
+async def test_add_rag_document_to_course_kb_accepts_course_relative_personal_document(monkeypatch):
     manager = _make_manager("course-doc-promote")
     relative_path = manager.save_knowledge_base_file(
         "course-1",
@@ -227,13 +228,21 @@ def test_add_rag_document_to_course_kb_accepts_course_relative_personal_document
         def list_documents(self, owner=None):
             return []
 
-        def import_document(self, path, force_reimport=False):
+        def import_document(
+            self,
+            path,
+            force_reimport=False,
+            progress_callback=None,
+            owner=None,
+        ):
+            if progress_callback:
+                progress_callback(100, "completed")
             return {"file": path}
 
     monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
     monkeypatch.setattr(courses_api, "get_rag_system", lambda: FakeRagSystem())
 
-    promoted = courses.add_rag_document_to_course_kb(
+    promoted = await courses.add_rag_document_to_course_kb(
         "course-1",
         courses.AddRAGDocumentRequest(
             rag_file_path=relative_path,
@@ -245,10 +254,12 @@ def test_add_rag_document_to_course_kb_accepts_course_relative_personal_document
         current_user={"username": "teacher-a"},
     )
 
-    assert promoted.name == "personal.md"
-    assert promoted.library_type == "course"
-    assert promoted.scope_id == "sorting"
-    assert promoted.promoted_from_document_id == "doc-personal-1"
+    document = promoted["document"]
+    assert document.name == "personal.md"
+    assert document.library_type == "course"
+    assert document.scope_id == "sorting"
+    assert document.promoted_from_document_id == "doc-personal-1"
+    assert promoted["job"]["kind"] == "rag_import"
 
     latest = manager.get_knowledge_base_index("course-1")[-1]
     assert latest["library_type"] == "course"
@@ -276,9 +287,12 @@ async def test_upload_knowledge_base_document_writes_selected_knowledge_point_sc
         current_user={"username": "teacher-a"},
     )
 
-    assert created.library_type == "course"
-    assert created.scope_type == "knowledge_point"
-    assert created.scope_id == "sorting"
+    document = created["document"]
+    assert document.library_type == "course"
+    assert document.scope_type == "knowledge_point"
+    assert document.scope_id == "sorting"
+    assert document.status in {"received", "parsing", "indexing"}
+    assert created["job"]["kind"] == "rag_import"
 
     latest = manager.get_knowledge_base_index("course-1")[-1]
     assert latest["scope_type"] == "knowledge_point"
@@ -307,9 +321,11 @@ async def test_upload_knowledge_base_document_writes_course_root_scope_for_graph
         current_user={"username": "teacher-a"},
     )
 
-    assert created.library_type == "course"
-    assert created.scope_type == "course"
-    assert created.scope_id is None
+    document = created["document"]
+    assert document.library_type == "course"
+    assert document.scope_type == "course"
+    assert document.scope_id is None
+    assert created["job"]["kind"] == "rag_import"
 
     latest = manager.get_knowledge_base_index("course-1")[-1]
     assert latest["scope_type"] == "course"
@@ -336,7 +352,7 @@ def test_delete_knowledge_base_document_removes_index_entry_by_document_id(monke
         def __init__(self):
             self.deleted = []
 
-        def delete_document(self, path):
+        def delete_document(self, path, owner=None):
             self.deleted.append(path)
 
     rag_system = FakeRagSystem()

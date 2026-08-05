@@ -34,6 +34,45 @@ class KnowledgeBaseDocument(BaseModel):
     promoted_from_document_id: Optional[str] = None
     created_at: str
     updated_at: Optional[str] = None
+    status: str = "received"
+    active_index_version: Optional[str] = None
+    pending_index_version: Optional[str] = None
+    page_count: int = 0
+    chunk_count: int = 0
+    failed_units: int = 0
+    parser_name: Optional[str] = None
+    embedding_profile_id: Optional[str] = None
+    indexed_at: Optional[str] = None
+    last_job_id: Optional[str] = None
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
+
+
+class KnowledgeBaseDocumentUploadResponse(BaseModel):
+    document: KnowledgeBaseDocument
+    job: Dict[str, Any]
+
+
+class KnowledgeBaseRetrievalTestRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=1000)
+    top_k: int = Field(default=5, ge=1, le=20)
+
+
+class KnowledgeBaseRetrievalHit(BaseModel):
+    chunk_id: str
+    content: str
+    score: float
+    page: Optional[int] = None
+    timestamp: Optional[str] = None
+    reranked: bool = False
+
+
+class KnowledgeBaseRetrievalTestResponse(BaseModel):
+    document_id: str
+    index_version: str
+    query: str
+    hits: List[KnowledgeBaseRetrievalHit] = Field(default_factory=list)
+    elapsed_ms: int
 
 
 class AddRAGDocumentRequest(BaseModel):

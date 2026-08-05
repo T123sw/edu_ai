@@ -6,8 +6,10 @@ from typing import Any
 
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import submit_classroom_video_export_job
+from app.services.knowledge_document_service import submit_index_job
 from app.services.job_store import EduJob, JobKind, JobStatus, update_job
 from core.course_storage import CourseStorageManager
+from modules.rag_v2.api import get_rag_system
 
 
 async def dispatch_retry_job(
@@ -52,6 +54,23 @@ async def dispatch_retry_job(
             course_storage_manager=course_storage_manager,
             existing_job=job,
         )
+
+    if job.kind == JobKind.RAG_IMPORT:
+        document_id = str(summary.get("document_id") or "").strip()
+        if not document_id:
+            return _dispatch_failure(job, "重试任务缺少知识库文档信息")
+        try:
+            return submit_index_job(
+                manager=course_storage_manager,
+                rag_system=get_rag_system(),
+                course_id=course_id,
+                document_id=document_id,
+                owner_user_id=owner,
+                force_reindex=bool(summary.get("force_reindex", False)),
+                existing_job=job,
+            )
+        except (KeyError, ValueError) as exc:
+            return _dispatch_failure(job, str(exc))
 
     return _dispatch_failure(job, "当前任务类型暂不支持自动重试")
 

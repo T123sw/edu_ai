@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getKnowledgeBaseDocuments, uploadKnowledgeBaseDocument } from "../api/courses";
+import {
+  getKnowledgeBaseDocuments,
+  reindexKnowledgeBaseDocument,
+  retryKnowledgeBaseDocument,
+  uploadKnowledgeBaseDocument,
+} from "../api/courses";
 import type { KnowledgeBaseDocument } from "../api/types";
+import { registerCreatedJob } from "../../jobs/jobStore";
 import {
   AppSurface,
   GlassPanel,
@@ -31,6 +37,20 @@ const knowledgeCategories: Array<{
   { key: "习题", icon: "quiz", accent: "text-rose-700", iconBg: "bg-rose-50", note: "练习题、作业、测验与答案解析" },
   { key: "实验手册", icon: "science", accent: "text-violet-700", iconBg: "bg-violet-50", note: "实验指导、步骤说明与实验记录模板" },
 ];
+
+const documentStatusMeta: Record<
+  KnowledgeBaseDocument["status"],
+  { label: string; className: string }
+> = {
+  received: { label: "已接收", className: "bg-slate-100 text-slate-600" },
+  parsing: { label: "解析中", className: "bg-blue-50 text-blue-700" },
+  chunking: { label: "切分中", className: "bg-blue-50 text-blue-700" },
+  embedding: { label: "向量化", className: "bg-blue-50 text-blue-700" },
+  indexing: { label: "建索引", className: "bg-blue-50 text-blue-700" },
+  ready: { label: "可检索", className: "bg-emerald-50 text-emerald-700" },
+  partially_ready: { label: "部分可用", className: "bg-amber-50 text-amber-700" },
+  failed: { label: "处理失败", className: "bg-rose-50 text-rose-700" },
+};
 
 function inferCategory(document: KnowledgeBaseDocument): KnowledgeCategory {
   const name = document.name.toLowerCase();
@@ -69,6 +89,8 @@ export function CourseKnowledgeBasePage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedUploadCategory, setSelectedUploadCategory] = useState<KnowledgeCategory>("教材");
   const [pendingFileNames, setPendingFileNames] = useState("");
+  const [reloadNonce, setReloadNonce] = useState(0);
+  const [busyDocumentId, setBusyDocumentId] = useState<string | null>(null);
 
   useEffect(() => {
     setCategoryMap(loadCategoryMap());
@@ -115,6 +137,17 @@ export function CourseKnowledgeBasePage() {
     return () => {
       cancelled = true;
     };
+  }, [course.id, reloadNonce]);
+
+  useEffect(() => {
+    const handleUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ courseId?: string }>).detail;
+      if (detail?.courseId === course.id) {
+        setReloadNonce((current) => current + 1);
+      }
+    };
+    window.addEventListener("edu-ai:knowledge-document-updated", handleUpdated);
+    return () => window.removeEventListener("edu-ai:knowledge-document-updated", handleUpdated);
   }, [course.id]);
 
   const groupedResources = useMemo(
@@ -140,9 +173,10 @@ export function CourseKnowledgeBasePage() {
       const nextCategoryMap = { ...categoryMap };
 
       for (const file of files) {
-        const uploaded = await uploadKnowledgeBaseDocument(course.id, file);
-        uploadedDocs.push(uploaded);
-        nextCategoryMap[uploaded.id] = selectedUploadCategory;
+        const result = await uploadKnowledgeBaseDocument(course.id, file);
+        registerCreatedJob(result.job);
+        uploadedDocs.push(result.document);
+        nextCategoryMap[result.document.id] = selectedUploadCategory;
       }
 
       saveCategoryMap(nextCategoryMap);
@@ -156,6 +190,22 @@ export function CourseKnowledgeBasePage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  }
+
+  async function handleDocumentAction(document: KnowledgeBaseDocument) {
+    setBusyDocumentId(document.id);
+    setUploadError(null);
+    try {
+      const job = document.status === "failed"
+        ? await retryKnowledgeBaseDocument(course.id, document.id)
+        : await reindexKnowledgeBaseDocument(course.id, document.id);
+      registerCreatedJob(job);
+      setReloadNonce((current) => current + 1);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "提交文档处理任务失败");
+    } finally {
+      setBusyDocumentId(null);
     }
   }
 
@@ -222,18 +272,49 @@ export function CourseKnowledgeBasePage() {
                                   <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-(--muted-text)">
                                     {item.type}
                                   </span>
+                                  <span className={cx(
+                                    "rounded-full px-2.5 py-1 text-[10px] font-bold",
+                                    documentStatusMeta[item.status].className,
+                                  )}>
+                                    {documentStatusMeta[item.status].label}
+                                  </span>
                                 </div>
                                 <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                                   <span>{new Date(item.created_at).toLocaleString("zh-CN")}</span>
                                   <span>{item.course_id}</span>
+                                  {item.status === "ready" || item.status === "partially_ready"
+                                    ? <span>{item.chunk_count} 个检索片段</span>
+                                    : null}
                                 </div>
                               </div>
                             </div>
 
                             <div className="flex shrink-0 gap-2">
-                              <button className="rounded-full bg-(--accent) px-4 py-2.5 text-sm font-bold text-white">
-                                {item.url ? "打开链接" : "查看记录"}
-                              </button>
+                              {item.url ? (
+                                <a
+                                  href={item.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded-full bg-(--accent) px-4 py-2.5 text-sm font-bold text-white"
+                                >
+                                  打开链接
+                                </a>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={busyDocumentId === item.id || ["parsing", "chunking", "embedding", "indexing"].includes(item.status)}
+                                  onClick={() => void handleDocumentAction(item)}
+                                  className="rounded-full bg-(--accent) px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {busyDocumentId === item.id
+                                    ? "提交中..."
+                                    : item.status === "failed"
+                                      ? "重试处理"
+                                      : ["parsing", "chunking", "embedding", "indexing"].includes(item.status)
+                                        ? "处理中"
+                                        : "重建索引"}
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))

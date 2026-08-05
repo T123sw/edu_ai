@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Button, Input, Space, Typography, Modal, Divider, Checkbox, Dropdown, MenuProps, Spin, message, Card } from 'antd';
+import { Button, Input, Space, Typography, Modal, Divider, Checkbox, Dropdown, MenuProps, Spin, message, Card, Tag } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import {
   FilePdfOutlined,
@@ -18,6 +18,7 @@ import {
   EyeOutlined,
   EditOutlined,
   ArrowLeftOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useAuth } from '../../context/AuthContext';
@@ -41,9 +42,14 @@ import {
   addRAGDocumentToCourseKB,
   deleteKnowledgeBaseDocument,
   getKnowledgeBaseDocuments,
+  reindexKnowledgeBaseDocument,
+  retryKnowledgeBaseDocument,
+  testKnowledgeBaseDocumentRetrieval,
   uploadKnowledgeBaseDocument,
   type KnowledgeBaseDocument,
+  type KnowledgeBaseRetrievalTestResponse,
 } from '../../services/knowledgeBase';
+import { registerCreatedJob } from '../../jobs/jobStore';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
 import { uploadVideo, getVideoJobStatus } from '../../services/video';
 import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
@@ -72,7 +78,26 @@ interface FileItem {
   libraryType?: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE;
   scopeType?: WorkspaceScope['scopeType'];
   scopeId?: string;
+  knowledgeStatus?: KnowledgeBaseDocument['status'];
+  chunkCount?: number;
+  pageCount?: number;
+  activeIndexVersion?: string | null;
+  knowledgeError?: string | null;
 }
+
+const KNOWLEDGE_STATUS_META: Record<
+  KnowledgeBaseDocument['status'],
+  { label: string; color: string }
+> = {
+  received: { label: '已接收', color: 'default' },
+  parsing: { label: '解析中', color: 'processing' },
+  chunking: { label: '切分中', color: 'processing' },
+  embedding: { label: '向量化', color: 'processing' },
+  indexing: { label: '建索引', color: 'processing' },
+  ready: { label: '可检索', color: 'success' },
+  partially_ready: { label: '部分可用', color: 'warning' },
+  failed: { label: '处理失败', color: 'error' },
+};
 
 const imageExts = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif'];
 
@@ -183,6 +208,11 @@ const toKnowledgeBaseFileItem = (
     libraryType: doc.library_type || fallbackLibraryType,
     scopeType: doc.scope_type,
     scopeId: doc.scope_id,
+    knowledgeStatus: doc.status,
+    chunkCount: doc.chunk_count,
+    pageCount: doc.page_count,
+    activeIndexVersion: doc.active_index_version,
+    knowledgeError: doc.error_message,
   };
 };
 
@@ -272,6 +302,10 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [renameTarget, setRenameTarget] = useState<FileItem | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [renameSubmitting, setRenameSubmitting] = useState(false);
+  const [retrievalTarget, setRetrievalTarget] = useState<FileItem | null>(null);
+  const [retrievalQuery, setRetrievalQuery] = useState('');
+  const [retrievalResult, setRetrievalResult] = useState<KnowledgeBaseRetrievalTestResponse | null>(null);
+  const [retrievalLoading, setRetrievalLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const researchAbortRef = useRef<AbortController | null>(null);
@@ -885,7 +919,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
   };
 
-  const reloadDocuments = async () => {
+  const reloadDocuments = React.useCallback(async () => {
     setLoading(true);
     try {
       const formattedFiles = await loadDocumentsForCurrentScope();
@@ -893,7 +927,20 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     } finally {
       setLoading(false);
     }
-  };
+  }, [applyScopedFileList, loadDocumentsForCurrentScope]);
+
+  useEffect(() => {
+    const handleKnowledgeDocumentUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ courseId?: string }>).detail;
+      if (!detail?.courseId || detail.courseId === courseId) {
+        void reloadDocuments();
+      }
+    };
+    window.addEventListener('edu-ai:knowledge-document-updated', handleKnowledgeDocumentUpdated);
+    return () => {
+      window.removeEventListener('edu-ai:knowledge-document-updated', handleKnowledgeDocumentUpdated);
+    };
+  }, [courseId, reloadDocuments]);
 
   const handleAddSourceClick = () => {
     fileInputRef.current?.click();
@@ -927,14 +974,18 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         message.loading({ content: `正在上传 ${file.name}...`, key: `upload-${i}`, duration: 0 });
 
         if (!videoExts.includes(ext) && courseId && token) {
-          await uploadKnowledgeBaseDocument(courseId, file, token, (progress) => {
+          const uploadResult = await uploadKnowledgeBaseDocument(courseId, file, token, (progress) => {
             console.log(`知识库上传进度: ${progress}%`);
           }, {
             scopeType: workspaceScope?.scopeType,
             scopeId: workspaceScope?.scopeId,
             libraryType: PERSONAL_LIBRARY_TYPE,
           });
-          message.success({ content: `${file.name} 已上传到当前知识库`, key: `upload-${i}` });
+          registerCreatedJob(uploadResult.job);
+          message.success({
+            content: `${file.name} 已接收，正在后台建立索引`,
+            key: `upload-${i}`,
+          });
         } else if (imageExts.includes(ext)) {
           await importImageDocument(file, (progress) => {
             console.log(`图片上传进度: ${progress}%`);
@@ -1099,13 +1150,15 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
 
     try {
-      await addRAGDocumentToCourseKB(courseId, file.filePath, token, {
+      const result = await addRAGDocumentToCourseKB(courseId, file.filePath, token, {
         scopeType: workspaceScope?.scopeType,
         scopeId: workspaceScope?.scopeId,
         libraryType: COURSE_LIBRARY_TYPE,
         promotedFromDocumentId: file.documentId,
       });
-      message.success('已添加到课程知识库');
+      registerCreatedJob(result.job);
+      message.success('已转入课程知识库，正在后台建立索引');
+      await reloadDocuments();
     } catch (error) {
       console.error('添加到课程知识库失败:', error);
       message.error(error instanceof Error ? error.message : '添加到课程知识库失败');
@@ -1419,10 +1472,89 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     )
     : null;
 
+  const handleKnowledgeAction = async (
+    file: FileItem,
+    action: 'retry' | 'reindex',
+  ) => {
+    if (!courseId || !token || !file.documentId) {
+      message.error('缺少文档任务信息');
+      return;
+    }
+    try {
+      const job = action === 'retry'
+        ? await retryKnowledgeBaseDocument(courseId, file.documentId, token)
+        : await reindexKnowledgeBaseDocument(courseId, file.documentId, token);
+      registerCreatedJob(job);
+      message.success(action === 'retry' ? '已重新提交处理任务' : '已提交重建索引任务');
+      await reloadDocuments();
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '提交任务失败');
+    }
+  };
+
+  const openRetrievalTest = (file: FileItem) => {
+    setRetrievalTarget(file);
+    setRetrievalQuery('');
+    setRetrievalResult(null);
+  };
+
+  const runRetrievalTest = async () => {
+    if (!courseId || !token || !retrievalTarget?.documentId || !retrievalQuery.trim()) {
+      message.warning('请输入要检索的问题');
+      return;
+    }
+    setRetrievalLoading(true);
+    try {
+      const result = await testKnowledgeBaseDocumentRetrieval(
+        courseId,
+        retrievalTarget.documentId,
+        token,
+        retrievalQuery.trim(),
+      );
+      setRetrievalResult(result);
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '检索测试失败');
+    } finally {
+      setRetrievalLoading(false);
+    }
+  };
+
   const renderFileItem = (file: FileItem) => {
+    const canRetrieve = file.knowledgeStatus === 'ready' || file.knowledgeStatus === 'partially_ready';
+    const canReindex = Boolean(
+      file.knowledgeStatus
+      && ['received', 'ready', 'partially_ready'].includes(file.knowledgeStatus),
+    );
+    const isKnowledgeDocument = Boolean(file.documentId && file.knowledgeStatus);
     const menuItems: MenuProps['items'] = [
       { key: 'preview', label: '预览文档', icon: <EyeOutlined />, onClick: () => openPreview(file.key) },
-      { key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) },
+      ...(!isKnowledgeDocument
+        ? [{ key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) }]
+        : []),
+      ...(canRetrieve
+        ? [{
+          key: 'test-retrieval',
+          label: '测试检索',
+          icon: <SearchOutlined />,
+          onClick: () => openRetrievalTest(file),
+        }]
+        : []),
+      ...(file.knowledgeStatus === 'failed'
+        ? [{
+          key: 'retry-index',
+          label: '重试处理',
+          icon: <ReloadOutlined />,
+          onClick: () => void handleKnowledgeAction(file, 'retry'),
+        }]
+        : []),
+      ...(canReindex
+        ? [{
+          key: 'reindex',
+          label: '重建索引',
+          icon: <ReloadOutlined />,
+          onClick: () => void handleKnowledgeAction(file, 'reindex'),
+        }]
+        : []),
       ...(file.libraryType === PERSONAL_LIBRARY_TYPE
         ? [{ key: 'add-to-course', label: '转入课程知识库', icon: <PlusOutlined />, onClick: () => handleAddToCourseKB(file.key) }]
         : []),
@@ -1444,7 +1576,19 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               file.sourceIconUrl ? listMediaUrls[file.sourceIconUrl] : undefined,
             )}
           </span>
-          <span className="source-panel__item-title">{file.title}</span>
+          <span className="source-panel__item-copy">
+            <span className="source-panel__item-title">{file.title}</span>
+            {file.knowledgeStatus ? (
+              <span className="source-panel__item-meta">
+                <Tag color={KNOWLEDGE_STATUS_META[file.knowledgeStatus].color}>
+                  {KNOWLEDGE_STATUS_META[file.knowledgeStatus].label}
+                </Tag>
+                {canRetrieve ? (
+                  <span>{file.chunkCount || 0} 个片段</span>
+                ) : null}
+              </span>
+            ) : null}
+          </span>
         </div>
         <div className="source-panel__item-actions">
           <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
@@ -1884,6 +2028,59 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             </div>
           )}
         </Spin>
+      </Modal>
+
+      <Modal
+        title={`测试检索${retrievalTarget ? ` · ${retrievalTarget.title}` : ''}`}
+        open={Boolean(retrievalTarget)}
+        onCancel={() => {
+          setRetrievalTarget(null);
+          setRetrievalResult(null);
+          setRetrievalQuery('');
+        }}
+        onOk={() => void runRetrievalTest()}
+        okText="开始检索"
+        cancelText="关闭"
+        confirmLoading={retrievalLoading}
+        width={720}
+      >
+        <Text type="secondary">
+          只在当前文档的活动索引版本中检索，不调用大模型生成答案。
+        </Text>
+        <Input.Search
+          value={retrievalQuery}
+          onChange={(event) => setRetrievalQuery(event.target.value)}
+          onSearch={() => void runRetrievalTest()}
+          placeholder="输入一个可以由该文档回答的问题"
+          enterButton="检索"
+          loading={retrievalLoading}
+          style={{ marginTop: 12 }}
+        />
+        {retrievalTarget ? (
+          <div className="source-panel__retrieval-summary">
+            <span>索引版本：{retrievalTarget.activeIndexVersion || '—'}</span>
+            <span>片段：{retrievalTarget.chunkCount || 0}</span>
+            <span>页数：{retrievalTarget.pageCount || 0}</span>
+          </div>
+        ) : null}
+        {retrievalResult ? (
+          <div className="source-panel__retrieval-results">
+            <Text strong>
+              命中 {retrievalResult.hits.length} 条 · {retrievalResult.elapsed_ms}ms
+            </Text>
+            {retrievalResult.hits.length > 0 ? retrievalResult.hits.map((hit, index) => (
+              <Card
+                key={hit.chunk_id || `${index}`}
+                size="small"
+                title={`#${index + 1} · 匹配度 ${Math.round(hit.score * 100)}%${hit.page ? ` · 第 ${hit.page} 页` : ''}`}
+              >
+                <Text>{hit.content}</Text>
+              </Card>
+            )) : (
+              <div className="source-panel__retrieval-empty">没有找到匹配片段，请换一个关键词测试。</div>
+            )}
+          </div>
+        ) : null}
       </Modal>
 
       <Modal title="重命名文档" open={renameModalVisible} confirmLoading={renameSubmitting} onOk={handleRenameConfirm} okText="确定" cancelText="取消" onCancel={() => { setRenameModalVisible(false); setRenameTarget(null); setRenameValue(''); }}>

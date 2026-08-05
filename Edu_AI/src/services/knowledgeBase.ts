@@ -1,4 +1,6 @@
 ﻿// 知识库文档 API 服务
+import type { JobRecord } from '../jobs/types';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
 
 export interface KnowledgeBaseDocument {
@@ -13,8 +15,50 @@ export interface KnowledgeBaseDocument {
   library_type?: 'course' | 'personal';
   owner_user_id?: string;
   promoted_from_document_id?: string;
+  status:
+    | 'received'
+    | 'parsing'
+    | 'chunking'
+    | 'embedding'
+    | 'indexing'
+    | 'ready'
+    | 'partially_ready'
+    | 'failed';
+  active_index_version?: string | null;
+  pending_index_version?: string | null;
+  page_count: number;
+  chunk_count: number;
+  failed_units: number;
+  parser_name?: string | null;
+  embedding_profile_id?: string | null;
+  indexed_at?: string | null;
+  last_job_id?: string | null;
+  error_code?: string | null;
+  error_message?: string | null;
   created_at: string;
   updated_at?: string;
+}
+
+export interface KnowledgeBaseDocumentUploadResponse {
+  document: KnowledgeBaseDocument;
+  job: JobRecord;
+}
+
+export interface KnowledgeBaseRetrievalHit {
+  chunk_id: string;
+  content: string;
+  score: number;
+  page?: number | null;
+  timestamp?: string | null;
+  reranked: boolean;
+}
+
+export interface KnowledgeBaseRetrievalTestResponse {
+  document_id: string;
+  index_version: string;
+  query: string;
+  hits: KnowledgeBaseRetrievalHit[];
+  elapsed_ms: number;
 }
 
 export interface KnowledgeBaseScopeOptions {
@@ -26,6 +70,9 @@ export interface KnowledgeBaseScopeOptions {
   limit?: number;
   offset?: number;
   promotedFromDocumentId?: string;
+  status?: KnowledgeBaseDocument['status'];
+  search?: string;
+  sort?: 'created_desc' | 'created_asc' | 'name_asc' | 'name_desc';
 }
 
 /**
@@ -66,6 +113,15 @@ export async function getKnowledgeBaseDocuments(
     if (typeof options?.offset === 'number') {
       params.set('offset', String(options.offset));
     }
+    if (options?.status) {
+      params.set('document_status', options.status);
+    }
+    if (options?.search) {
+      params.set('search', options.search);
+    }
+    if (options?.sort) {
+      params.set('sort', options.sort);
+    }
 
     const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/knowledge-base/documents?${params.toString()}`, {
       method: 'GET',
@@ -103,7 +159,7 @@ export async function addRAGDocumentToCourseKB(
   ragFilePath: string,
   token: string,
   options?: KnowledgeBaseScopeOptions,
-): Promise<KnowledgeBaseDocument> {
+): Promise<KnowledgeBaseDocumentUploadResponse> {
   if (!courseId || !ragFilePath) {
     throw new Error('课程ID和文件路径不能为空');
   }
@@ -155,7 +211,7 @@ export async function uploadKnowledgeBaseDocument(
   token: string,
   onProgress?: (progress: number) => void,
   options?: KnowledgeBaseScopeOptions,
-): Promise<KnowledgeBaseDocument> {
+): Promise<KnowledgeBaseDocumentUploadResponse> {
   if (!courseId || !file) {
     throw new Error('课程ID和文件不能为空');
   }
@@ -173,7 +229,7 @@ export async function uploadKnowledgeBaseDocument(
       formData.append('library_type', options.libraryType);
     }
 
-    return new Promise<KnowledgeBaseDocument>((resolve, reject) => {
+    return new Promise<KnowledgeBaseDocumentUploadResponse>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
       // 监听上传进度
@@ -187,9 +243,9 @@ export async function uploadKnowledgeBaseDocument(
       }
 
       xhr.addEventListener('load', () => {
-        if (xhr.status === 200 || xhr.status === 201) {
+        if (xhr.status === 200 || xhr.status === 201 || xhr.status === 202) {
           try {
-            const result = JSON.parse(xhr.responseText) as KnowledgeBaseDocument;
+            const result = JSON.parse(xhr.responseText) as KnowledgeBaseDocumentUploadResponse;
             resolve(result);
           } catch {
             reject(new Error('解析上传响应失败'));
@@ -225,6 +281,70 @@ export async function uploadKnowledgeBaseDocument(
     }
     throw new Error('上传文档失败，请稍后重试');
   }
+}
+
+async function submitKnowledgeDocumentAction(
+  courseId: string,
+  documentId: string,
+  token: string,
+  action: 'retry' | 'reindex',
+): Promise<JobRecord> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/courses/${courseId}/knowledge-base/documents/${documentId}/${action}`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: '提交任务失败' }));
+    throw new Error(errorData.detail || `提交任务失败: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export function retryKnowledgeBaseDocument(
+  courseId: string,
+  documentId: string,
+  token: string,
+): Promise<JobRecord> {
+  return submitKnowledgeDocumentAction(courseId, documentId, token, 'retry');
+}
+
+export function reindexKnowledgeBaseDocument(
+  courseId: string,
+  documentId: string,
+  token: string,
+): Promise<JobRecord> {
+  return submitKnowledgeDocumentAction(courseId, documentId, token, 'reindex');
+}
+
+export async function testKnowledgeBaseDocumentRetrieval(
+  courseId: string,
+  documentId: string,
+  token: string,
+  query: string,
+  topK = 5,
+): Promise<KnowledgeBaseRetrievalTestResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/courses/${courseId}/knowledge-base/documents/${documentId}/test-retrieval`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query, top_k: topK }),
+    },
+  );
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: '检索测试失败' }));
+    throw new Error(errorData.detail || `检索测试失败: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 /**

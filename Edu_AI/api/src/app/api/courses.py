@@ -11,7 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Dict, List, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -24,12 +24,16 @@ from app.schemas.course import (
     CourseInfo,
     GenerateClassroomRequest,
     KnowledgeBaseDocument,
+    KnowledgeBaseDocumentUploadResponse,
+    KnowledgeBaseRetrievalTestRequest,
+    KnowledgeBaseRetrievalTestResponse,
     KnowledgeGraphData,
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
     PinMaterialRequest,
 )
 from app.services import course_service as _svc
+from app.services import knowledge_document_service as _knowledge
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
     VIDEO_ARTIFACT_MEDIA_TYPES,
@@ -51,6 +55,45 @@ router = APIRouter(prefix="/api/courses", tags=["courses"])
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
     token = credentials.credentials
     return auth_manager.get_current_user(token)
+
+
+def _knowledge_document_model(
+    item: dict, course_id: str
+) -> KnowledgeBaseDocument:
+    doc_type = "web" if item.get("url") else "file"
+    return KnowledgeBaseDocument(
+        id=str(item.get("id") or f"doc-{datetime.now().timestamp()}"),
+        name=item.get("filename", item.get("name", "未命名文档")),
+        type=doc_type,
+        file_path=item.get("path"),
+        url=item.get("url") if doc_type == "web" else None,
+        course_id=course_id,
+        scope_type=str(item.get("scope_type") or "course"),
+        scope_id=str(item.get("scope_id") or "").strip() or None,
+        library_type=str(item.get("library_type") or LIBRARY_TYPE_COURSE),
+        owner_user_id=str(item.get("owner_user_id") or "").strip() or None,
+        promoted_from_document_id=str(
+            item.get("promoted_from_document_id") or ""
+        ).strip()
+        or None,
+        created_at=item.get("uploaded_at", datetime.now().isoformat()),
+        updated_at=item.get("updated_at"),
+        status=str(
+            item.get("status")
+            or ("ready" if item.get("rag_index_key") else "received")
+        ),
+        active_index_version=item.get("active_index_version"),
+        pending_index_version=item.get("pending_index_version"),
+        page_count=int(item.get("page_count") or 0),
+        chunk_count=int(item.get("chunk_count") or 0),
+        failed_units=int(item.get("failed_units") or 0),
+        parser_name=item.get("parser_name"),
+        embedding_profile_id=item.get("embedding_profile_id"),
+        indexed_at=item.get("indexed_at"),
+        last_job_id=item.get("last_job_id"),
+        error_code=item.get("error_code"),
+        error_message=item.get("error_message"),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -247,6 +290,9 @@ def get_knowledge_base_documents(
     aggregate: bool = False,
     library_type: str = LIBRARY_TYPE_COURSE,
     include_descendants: bool = True,
+    document_status: Optional[str] = None,
+    search: Optional[str] = None,
+    sort: Optional[str] = None,
     limit: int = 20,
     offset: int = 0,
     current_user: dict = Depends(get_current_user),
@@ -278,35 +324,51 @@ def get_knowledge_base_documents(
         library_type=library_type,
         owner_user_id=owner_user_id if library_type == LIBRARY_TYPE_PERSONAL else None,
     )
+    if document_status:
+        index = [
+            item
+            for item in index
+            if str(item.get("status") or "received") == document_status
+        ]
+    normalized_search = str(search or "").strip().casefold()
+    if normalized_search:
+        index = [
+            item
+            for item in index
+            if normalized_search
+            in str(item.get("filename") or item.get("name") or "").casefold()
+        ]
+    sorters = {
+        "created_desc": lambda item: str(
+            item.get("uploaded_at") or item.get("created_at") or ""
+        ),
+        "created_asc": lambda item: str(
+            item.get("uploaded_at") or item.get("created_at") or ""
+        ),
+        "name_asc": lambda item: str(
+            item.get("filename") or item.get("name") or ""
+        ).casefold(),
+        "name_desc": lambda item: str(
+            item.get("filename") or item.get("name") or ""
+        ).casefold(),
+    }
+    if sort is not None and sort not in sorters:
+        raise HTTPException(status_code=422, detail="不支持的排序方式")
+    if sort is not None:
+        index = sorted(
+            index,
+            key=sorters[sort],
+            reverse=sort in {"created_desc", "name_desc"},
+        )
     if offset > 0 or limit > 0:
         index = index[max(offset, 0): max(offset, 0) + max(limit, 0)]
-    documents: List[KnowledgeBaseDocument] = []
-    for item in index:
-        doc_type = "web" if "url" in item else "file"
-        documents.append(
-            KnowledgeBaseDocument(
-                id=item.get("id", f"doc-{datetime.now().timestamp()}"),
-                name=item.get("filename", item.get("name", "未命名文档")),
-                type=doc_type,
-                file_path=item.get("path"),
-                url=item.get("url") if doc_type == "web" else None,
-                course_id=course_id,
-                scope_type=str(item.get("scope_type") or "course"),
-                scope_id=str(item.get("scope_id") or "").strip() or None,
-                library_type=str(item.get("library_type") or LIBRARY_TYPE_COURSE),
-                owner_user_id=str(item.get("owner_user_id") or "").strip() or None,
-                promoted_from_document_id=str(item.get("promoted_from_document_id") or "").strip() or None,
-                created_at=item.get("uploaded_at", datetime.now().isoformat()),
-                updated_at=item.get("updated_at"),
-            )
-        )
-
-    return documents
+    return [_knowledge_document_model(item, course_id) for item in index]
 
 
 @router.post(
     "/{course_id}/knowledge-base/documents",
-    response_model=KnowledgeBaseDocument,
+    response_model=KnowledgeBaseDocumentUploadResponse,
+    status_code=status.HTTP_202_ACCEPTED,
     summary="上传文档到课程知识库",
 )
 async def upload_knowledge_base_document(
@@ -336,15 +398,6 @@ async def upload_knowledge_base_document(
     if not relative_path:
         raise HTTPException(status_code=500, detail="保存文档失败")
 
-    try:
-        course_dir = mgr.get_course_dir(course_id)
-        full_file_path = course_dir / relative_path
-        rag_system = get_rag_system()
-        rag_system.import_document(str(full_file_path), force_reimport=False, owner=owner_user_id)
-        print(f"[课程知识库] RAG导入成功 | 文件={relative_path} | 用户={owner_user_id}", flush=True)
-    except Exception as exc:
-        print(f"[课程知识库] RAG导入失败 | 文件={relative_path} | 错误={exc}", flush=True)
-
     latest = None
     for item in reversed(mgr.get_knowledge_base_index(course_id)):
         if item.get("filename") == file.filename:
@@ -354,19 +407,26 @@ async def upload_knowledge_base_document(
     if latest is None:
         raise HTTPException(status_code=500, detail="读取上传后的文档信息失败")
 
-    return KnowledgeBaseDocument(
-        id=latest.get("id", f"doc-{datetime.now().timestamp()}"),
-        name=latest.get("filename", file.filename),
-        type="file",
-        file_path=latest.get("path"),
+    document_id = str(latest.get("id") or "")
+    latest = _knowledge.initialize_document(mgr, course_id, document_id)
+    job = _knowledge.submit_index_job(
+        manager=mgr,
+        rag_system=get_rag_system(),
         course_id=course_id,
-        scope_type=str(latest.get("scope_type") or "course"),
-        scope_id=str(latest.get("scope_id") or "").strip() or None,
-        library_type=str(latest.get("library_type") or LIBRARY_TYPE_COURSE),
-        owner_user_id=str(latest.get("owner_user_id") or "").strip() or None,
-        promoted_from_document_id=str(latest.get("promoted_from_document_id") or "").strip() or None,
-        created_at=latest.get("uploaded_at", datetime.now().isoformat()),
+        document_id=document_id,
+        owner_user_id=str(owner_user_id or ""),
+        force_reindex=False,
     )
+    latest = _knowledge.get_document(
+        mgr,
+        course_id,
+        document_id,
+        owner_user_id=str(owner_user_id or ""),
+    ) or latest
+    return {
+        "document": _knowledge_document_model(latest, course_id),
+        "job": job.model_dump(mode="json"),
+    }
 
 
 @router.post(
@@ -405,10 +465,11 @@ async def import_textbook_knowledge_graph(
 
 @router.post(
     "/{course_id}/knowledge-base/documents/add-from-rag",
-    response_model=KnowledgeBaseDocument,
+    response_model=KnowledgeBaseDocumentUploadResponse,
+    status_code=status.HTTP_202_ACCEPTED,
     summary="把 RAG 文档加入课程知识库",
 )
-def add_rag_document_to_course_kb(
+async def add_rag_document_to_course_kb(
     course_id: str,
     request: AddRAGDocumentRequest,
     current_user: dict = Depends(get_current_user),
@@ -438,8 +499,6 @@ def add_rag_document_to_course_kb(
     if not rag_path.exists():
         raise HTTPException(status_code=404, detail="RAG 文档不存在")
 
-    all_docs = rag_system.list_documents(owner=owner) if owner else rag_system.list_documents()
-
     with open(rag_path, "rb") as f:
         file_data = f.read()
 
@@ -456,14 +515,6 @@ def add_rag_document_to_course_kb(
     if not relative_path:
         raise HTTPException(status_code=500, detail="保存文档失败")
 
-    try:
-        course_dir = mgr.get_course_dir(course_id)
-        full_file_path = course_dir / relative_path
-        if not any(doc.get("file_path") == str(full_file_path) for doc in all_docs):
-            rag_system.import_document(str(full_file_path), force_reimport=False)
-    except Exception as exc:
-        print(f"Warning: failed to sync added RAG document back into RAG index: {exc}")
-
     latest = None
     for item in reversed(mgr.get_knowledge_base_index(course_id)):
         if item.get("filename") == rag_path.name:
@@ -473,19 +524,148 @@ def add_rag_document_to_course_kb(
     if latest is None:
         raise HTTPException(status_code=500, detail="读取文档信息失败")
 
-    return KnowledgeBaseDocument(
-        id=latest.get("id", f"doc-{datetime.now().timestamp()}"),
-        name=latest.get("filename", rag_path.name),
-        type="file",
-        file_path=latest.get("path"),
+    document_id = str(latest.get("id") or "")
+    latest = _knowledge.initialize_document(mgr, course_id, document_id)
+    job = _knowledge.submit_index_job(
+        manager=mgr,
+        rag_system=rag_system,
         course_id=course_id,
-        scope_type=str(latest.get("scope_type") or "course"),
-        scope_id=str(latest.get("scope_id") or "").strip() or None,
-        library_type=str(latest.get("library_type") or LIBRARY_TYPE_COURSE),
-        owner_user_id=str(latest.get("owner_user_id") or "").strip() or None,
-        promoted_from_document_id=str(latest.get("promoted_from_document_id") or "").strip() or None,
-        created_at=latest.get("uploaded_at", datetime.now().isoformat()),
+        document_id=document_id,
+        owner_user_id=str(owner or ""),
+        force_reindex=False,
     )
+    latest = _knowledge.get_document(
+        mgr,
+        course_id,
+        document_id,
+        owner_user_id=str(owner or ""),
+    ) or latest
+    return {
+        "document": _knowledge_document_model(latest, course_id),
+        "job": job.model_dump(mode="json"),
+    }
+
+
+@router.get(
+    "/{course_id}/knowledge-base/documents/{document_id}",
+    response_model=KnowledgeBaseDocument,
+    summary="获取知识库文档处理详情",
+)
+def get_knowledge_base_document_detail(
+    course_id: str,
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    owner = str(current_user.get("username") or "")
+    document = _knowledge.get_document(
+        _svc._get_manager(),
+        course_id,
+        document_id,
+        owner_user_id=owner,
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="文档不存在或无权访问")
+    return _knowledge_document_model(document, course_id)
+
+
+def _submit_knowledge_document_job(
+    *,
+    course_id: str,
+    document_id: str,
+    current_user: dict,
+    force_reindex: bool,
+):
+    owner = str(current_user.get("username") or "")
+    try:
+        return _knowledge.submit_index_job(
+            manager=_svc._get_manager(),
+            rag_system=get_rag_system(),
+            course_id=course_id,
+            document_id=document_id,
+            owner_user_id=owner,
+            force_reindex=force_reindex,
+        ).model_dump(mode="json")
+    except KeyError as exc:
+        raise HTTPException(
+            status_code=404, detail="文档不存在或无权访问"
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{course_id}/knowledge-base/documents/{document_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="重试失败的知识库文档处理",
+)
+def retry_knowledge_base_document(
+    course_id: str,
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    document = _knowledge.get_document(
+        _svc._get_manager(),
+        course_id,
+        document_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="文档不存在或无权访问")
+    if document.get("status") != "failed":
+        raise HTTPException(status_code=409, detail="仅失败文档可以重试")
+    return _submit_knowledge_document_job(
+        course_id=course_id,
+        document_id=document_id,
+        current_user=current_user,
+        force_reindex=False,
+    )
+
+
+@router.post(
+    "/{course_id}/knowledge-base/documents/{document_id}/reindex",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="重建知识库文档索引",
+)
+def reindex_knowledge_base_document(
+    course_id: str,
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    return _submit_knowledge_document_job(
+        course_id=course_id,
+        document_id=document_id,
+        current_user=current_user,
+        force_reindex=True,
+    )
+
+
+@router.post(
+    "/{course_id}/knowledge-base/documents/{document_id}/test-retrieval",
+    response_model=KnowledgeBaseRetrievalTestResponse,
+    summary="在单个知识库文档内测试检索",
+)
+def test_knowledge_base_document_retrieval(
+    course_id: str,
+    document_id: str,
+    payload: KnowledgeBaseRetrievalTestRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        return _knowledge.test_retrieval(
+            manager=_svc._get_manager(),
+            rag_system=get_rag_system(),
+            course_id=course_id,
+            document_id=document_id,
+            owner_user_id=str(current_user.get("username") or ""),
+            query=payload.query,
+            top_k=payload.top_k,
+        )
+    except KeyError as exc:
+        raise HTTPException(
+            status_code=404, detail="文档不存在或无权访问"
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.delete(
@@ -497,29 +677,38 @@ def delete_knowledge_base_document(
     document_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
+    owner = str(current_user.get("username") or "")
     index = mgr.get_knowledge_base_index(course_id)
-    doc_to_delete = next((item for item in index if item.get("id") == document_id), None)
+    doc_to_delete = _knowledge.get_document(
+        mgr,
+        course_id,
+        document_id,
+        owner_user_id=owner,
+    )
     if not doc_to_delete:
-        raise HTTPException(status_code=404, detail="文档不存在")
+        raise HTTPException(status_code=404, detail="文档不存在或无权访问")
 
     if doc_to_delete.get("path"):
         file_path = mgr.get_file_path(course_id, doc_to_delete["path"])
+        try:
+            rag_system = get_rag_system()
+            rag_system.delete_document(str(file_path), owner=owner)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=f"删除检索索引失败，原文件已保留：{exc}",
+            ) from exc
         if file_path.exists():
             file_path.unlink()
-            try:
-                rag_system = get_rag_system()
-                rag_system.delete_document(str(file_path))
-            except Exception as exc:
-                print(f"Warning: failed to delete document from RAG system: {exc}")
 
     next_index = [item for item in index if item.get("id") != document_id]
-    mgr.save_knowledge_base_index(course_id, next_index)
+    if not mgr.save_knowledge_base_index(course_id, next_index):
+        raise HTTPException(status_code=500, detail="删除文档记录失败")
     return {"message": "文档已删除"}
 
 

@@ -29,6 +29,7 @@ import {
   type KnowledgeBaseDocument,
   uploadKnowledgeBaseDocument,
 } from '../services/knowledgeBase';
+import { registerCreatedJob } from '../jobs/jobStore';
 import './KnowledgeBasePage.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -188,11 +189,12 @@ export default function KnowledgeBasePage() {
     try {
       const uploaded: KnowledgeBaseDocument[] = [];
       for (const file of Array.from(fileList)) {
-        const document = await uploadKnowledgeBaseDocument(activeCourseId, file, token, undefined, {
+        const result = await uploadKnowledgeBaseDocument(activeCourseId, file, token, undefined, {
           scopeType: 'course',
           libraryType: 'course',
         });
-        uploaded.push(document);
+        registerCreatedJob(result.job);
+        uploaded.push(result.document);
       }
 
       setDocuments((current) => [...uploaded, ...current]);

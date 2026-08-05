@@ -180,4 +180,22 @@ function notifyJobTerminal(job: JobRecord) {
       }),
     );
   }
+
+  const knowledgeCourseId =
+    job.result_ref?.resource_type === "knowledge_document"
+      ? job.result_ref.course_id
+      : job.kind === "rag_import"
+        ? job.course_id
+        : undefined;
+  if (knowledgeCourseId) {
+    window.dispatchEvent(
+      new CustomEvent("edu-ai:knowledge-document-updated", {
+        detail: {
+          courseId: knowledgeCourseId,
+          documentId:
+            job.result_ref?.document_id || job.input_summary.document_id,
+        },
+      }),
+    );
+  }
 }
