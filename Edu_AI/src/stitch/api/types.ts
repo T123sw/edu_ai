@@ -318,30 +318,7 @@ export type ApiEnvelope<T> = {
   data: T;
 };
 
-export type EduJob = {
-  edu_job_id: string;
-  kind: string;
-  sidecar_job_id?: string | null;
-  status: "queued" | "running" | "succeeded" | "failed";
-  step: string;
-  progress: number;
-  message: string;
-  result_ref?: {
-    classroom_id: string;
-    course_id: string;
-    scenes_count?: number;
-    video_url?: string;
-    subtitle_url?: string;
-    timeline_url?: string;
-    duration_ms?: number;
-    scene_count?: number;
-  } | null;
-  error?: string | null;
-  error_code?: string | null;
-  owner?: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export type { JobRecord as EduJob } from "../../jobs/types";
 
 export type ClassroomQuizQuestion = {
   id: string;

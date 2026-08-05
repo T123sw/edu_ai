@@ -27,6 +27,7 @@ import {
   type ThemeName,
 } from "./shared";
 import { login, verifyToken, type User } from "../services/auth";
+import { GlobalJobManager } from "../jobs/GlobalJobManager";
 
 const pages = [
   [routes.profile, "Profile", ProfilePage],
@@ -243,9 +244,12 @@ export default function App() {
       ) : !authReady ? (
         <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
       ) : authenticated ? (
-        <div key={current} className="route-stage">
-          <ActivePage />
-        </div>
+        <>
+          <GlobalJobManager enabled={!isVideoRenderRoute} />
+          <div key={current} className="route-stage">
+            <ActivePage />
+          </div>
+        </>
       ) : (
         <LoginPage onLogin={handleLogin} />
       )}
