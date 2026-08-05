@@ -14,6 +14,8 @@ import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
 import { ClassroomVideoRenderPage } from "./pages/_dev/ClassroomVideoRender";
 import { ClassroomStudioPage } from "./pages/ClassroomStudio";
 import { ClassroomPlayerPage } from "./pages/ClassroomPlayer";
+import { backendCourseToSummary, getCourse } from "./api/courses";
+import { readTeacherCourseId } from "./teacherRoutes";
 import {
   AppShellProvider,
   ThemeCustomizer,
@@ -102,6 +104,7 @@ function resetRouteScrollPosition() {
 
 export default function App() {
   const [current, setCurrent] = useState<RouteKey>(getCurrentRoute);
+  const [routeCourseId, setRouteCourseId] = useState<string | null>(() => readTeacherCourseId(window.location.hash));
   const [selectedCourse, setSelectedCourse] = useState<CourseSummary | null>(getStoredCourse);
   const [theme, setTheme] = useState<ThemeName>(getStoredTheme);
   const [authReady, setAuthReady] = useState(false);
@@ -112,7 +115,10 @@ export default function App() {
       window.location.hash = routeHref(routes.home);
     }
 
-    const syncRoute = () => setCurrent(getCurrentRoute());
+    const syncRoute = () => {
+      setCurrent(getCurrentRoute());
+      setRouteCourseId(readTeacherCourseId(window.location.hash));
+    };
     window.addEventListener("hashchange", syncRoute);
     return () => window.removeEventListener("hashchange", syncRoute);
   }, []);
@@ -141,6 +147,27 @@ export default function App() {
       window.localStorage.setItem("stitch-course", JSON.stringify(selectedCourse));
     }
   }, [selectedCourse]);
+
+  useEffect(() => {
+    if (!authenticated || !routeCourseId || selectedCourse?.id === routeCourseId) {
+      return;
+    }
+
+    let cancelled = false;
+    void getCourse(routeCourseId)
+      .then((course) => {
+        if (!cancelled) {
+          setSelectedCourse(backendCourseToSummary(course, 0));
+        }
+      })
+      .catch(() => {
+        // The destination page owns its recoverable not-found/error state.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated, routeCourseId, selectedCourse?.id]);
 
   useEffect(() => {
     let cancelled = false;

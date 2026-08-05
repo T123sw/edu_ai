@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
   type ReactNode,
 } from "react";
+import { buildTeacherCourseHash, teacherSidebarItems } from "./teacherRoutes";
 
 export function cx(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
@@ -70,14 +71,6 @@ type AppShellContextValue = {
 };
 
 const AppShellContext = createContext<AppShellContextValue | null>(null);
-
-const sidebarNavItems = [
-  { route: routes.ai, label: "问答", icon: "quiz" },
-  { route: routes.graph, label: "知识图谱", icon: "hub" },
-  { route: routes.classroomStudio, label: "AI 课堂", icon: "play_circle" },
-  { route: routes.knowledge, label: "课程知识库", icon: "menu_book" },
-  { route: routes.edit, label: "详情编辑", icon: "settings_suggest" },
-] as const;
 
 export function routeHref(route: RouteKey) {
   return `#${route}`;
@@ -330,14 +323,16 @@ export function SidebarNav({
   activeRoute: RouteKey;
   className?: string;
 }) {
+  const { selectedCourse } = useAppShell();
+
   return (
     <nav className={cx("flex flex-1 flex-col gap-2", className)}>
-      {sidebarNavItems.map((item) => (
+      {teacherSidebarItems.map((item) => (
         <SidebarLink
           key={item.route}
           label={item.label}
           icon={item.icon}
-          href={routeHref(item.route)}
+          href={buildTeacherCourseHash(item.route, selectedCourse?.id)}
           active={activeRoute === item.route}
         />
       ))}

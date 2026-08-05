@@ -27,9 +27,9 @@
 - Add: `docs/superpowers/specs/2026-08-06-teacher-p1-trusted-generation-and-configuration-design.md`
 - Add: `docs/教师端基础可用性审计与整改优先级_2026-08-06.md`
 
-- [ ] 校验文档无未决占位标记、代码围栏平衡、PPT/闪卡口径一致。
-- [ ] 提交 `docs(teacher): define P0 and P1 delivery baseline`。
-- [ ] 推送功能分支。
+- [x] 校验文档无未决占位标记、代码围栏平衡、PPT/闪卡口径一致。
+- [x] 提交 `docs(teacher): define P0 and P1 delivery baseline`。
+- [x] 推送功能分支。
 
 ### Task 2：正式导航、路由和课程上下文
 
@@ -58,11 +58,11 @@ export function buildTeacherCourseHash(
 ): string;
 ```
 
-- [ ] RED：导航顺序必须是问答、课程知识库、知识图谱、AI 课堂、课程资源、课程设置。
-- [ ] RED：空课程 ID 不得生成含 `undefined` 的 href。
-- [ ] GREEN：实现唯一的路由构造函数并替换相关字符串拼接。
-- [ ] GREEN：课程资源进入侧栏，“详情编辑”更名为“课程设置”。
-- [ ] 验证定向测试、前端测试和构建。
+- [x] RED：导航顺序必须是问答、课程知识库、知识图谱、AI 课堂、课程资源、课程设置。
+- [x] RED：空课程 ID 不得生成含 `undefined` 的 href。
+- [x] GREEN：实现唯一的路由构造函数并替换相关字符串拼接。
+- [x] GREEN：课程资源进入侧栏，“详情编辑”更名为“课程设置”。
+- [x] 验证定向测试、前端测试和构建。
 - [ ] 提交并 push。
 
 ### Task 3：八类资源入口和响应式工作台

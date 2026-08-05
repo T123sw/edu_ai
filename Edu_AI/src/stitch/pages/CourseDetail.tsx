@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { backendCourseToSummary, listCourses } from "../api/courses";
 import type { BackendCourse } from "../api/types";
+import { buildTeacherCourseHash } from "../teacherRoutes";
 import {
   AppSurface,
   GlassPanel,
@@ -17,7 +18,7 @@ function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: 
   return (
     <div className="flex flex-wrap gap-3">
       <a
-        href={routeHref(routes.workspace)}
+        href={buildTeacherCourseHash(routes.ai, course.id)}
         onClick={() => onSelect(course)}
         className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-bold text-(--accent-strong) transition hover:-translate-y-px"
       >
@@ -25,15 +26,15 @@ function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: 
         <MaterialIcon name="arrow_forward" className="text-base" />
       </a>
       <a
-        href={routeHref(routes.video)}
+        href={buildTeacherCourseHash(routes.resources, course.id)}
         onClick={() => onSelect(course)}
         className="inline-flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
       >
-        打开视频与课程内容
-        <MaterialIcon name="play_circle" className="text-base" />
+        查看课程资源
+        <MaterialIcon name="folder_open" className="text-base" />
       </a>
       <a
-        href={routeHref(routes.classroomStudio)}
+        href={buildTeacherCourseHash(routes.classroomStudio, course.id)}
         onClick={() => onSelect(course)}
         className="inline-flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
       >
@@ -41,12 +42,12 @@ function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: 
         <MaterialIcon name="auto_awesome" className="text-base" />
       </a>
       <a
-        href={routeHref(routes.edit)}
+        href={buildTeacherCourseHash(routes.edit, course.id)}
         onClick={() => onSelect(course)}
         className="inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-slate-950/16 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
       >
-        编辑课程信息
-        <MaterialIcon name="edit_note" className="text-base" />
+        课程设置
+        <MaterialIcon name="settings" className="text-base" />
       </a>
     </div>
   );
