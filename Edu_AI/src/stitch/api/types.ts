@@ -11,6 +11,7 @@ export type BackendCourse = {
 export type CourseMaterial = {
   material_id: string;
   material_type: string;
+  course_id?: string;
   title?: string;
   topic?: string;
   summary?: string;
@@ -42,6 +43,25 @@ export type CourseMaterial = {
     homework?: string;
   };
   is_pinned?: boolean;
+  pinned_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  status?: string;
+  stage?: { id?: string; name?: string; [key: string]: unknown };
+  scenes?: ClassroomScene[];
+  scenes_count?: number;
+  source_count?: number;
+  voice_status?: string;
+  video_url?: string;
+  video_status?: string;
+  pptx_url?: string;
+  html_url?: string;
+  flashcards?: Array<{
+    front?: string;
+    back?: string;
+    category?: string;
+    source?: string;
+  }>;
   scope_type?: "course" | "knowledge_point";
   scope_id?: string | null;
 };

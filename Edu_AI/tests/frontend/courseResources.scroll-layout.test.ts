@@ -1,48 +1,38 @@
-import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
-const page = readFileSync(new URL('../../src/stitch/pages/CourseResources.tsx', import.meta.url), 'utf8');
+const page = readFileSync(
+  new URL("../../src/stitch/pages/CourseResources.tsx", import.meta.url),
+  "utf8",
+);
 
+assert.match(page, /min-h-0/, "resource columns should be allowed to shrink inside the page");
+assert.match(page, /min-w-0/, "resource preview should not force horizontal overflow");
 assert.match(
   page,
   /<AppSurface className="flex min-h-screen xl:h-screen xl:overflow-hidden">/,
-  'Course resources should lock the overall desktop workspace to the viewport height',
+  "desktop resource workspace should stay within the viewport",
 );
-
 assert.match(
   page,
-  /<main className="flex min-h-0 flex-1 flex-col xl:overflow-hidden">/,
-  'Course resources should keep the main content area from being stretched by the resource list',
+  /<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden xl:overflow-y-hidden">/,
+  "main content should reject horizontal overflow",
 );
-
 assert.match(
   page,
-  /xl:min-h-0 xl:grid-cols-\[360px_minmax\(0,1fr\)\] xl:overflow-hidden/,
-  'Course resources should make the desktop two-column content area fill the remaining viewport height',
+  /xl:grid-cols-\[340px_minmax\(0,1fr\)\] xl:overflow-hidden/,
+  "desktop resource list and preview should share the available width",
 );
-
 assert.match(
   page,
-  /<section className="flex min-h-0 flex-col overflow-hidden">/,
-  'Course resources should isolate the resource list column into its own fixed-height region',
+  /min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto pr-2/,
+  "resource list should own its vertical scrolling",
 );
-
 assert.match(
   page,
-  /min-h-0 flex-1 space-y-4 overflow-y-auto pr-2/,
-  'Course resources should render the resource list inside an independently scrollable area',
+  /mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto pr-2/,
+  "resource preview should own its vertical scrolling",
 );
+assert.doesNotMatch(page, /overflow-x-auto/, "resource center should not rely on horizontal scrolling");
 
-assert.match(
-  page,
-  /<GlassPanel className="flex h-full min-h-0 flex-col border border-\[var\(--shell-border\)\] bg-white\/90 p-6">/,
-  'Course resources should stretch the preview panel to match the fixed-height list column',
-);
-
-assert.match(
-  page,
-  /mt-6 min-h-0 flex-1 overflow-y-auto pr-2/,
-  'Course resources should keep the preview body inside its own scrollable viewport',
-);
-
-console.log('courseResources.scroll-layout tests passed');
+console.log("courseResources scroll layout tests passed");

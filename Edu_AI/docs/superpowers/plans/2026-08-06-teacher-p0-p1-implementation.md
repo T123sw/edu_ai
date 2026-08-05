@@ -112,13 +112,13 @@ export function getCourseMaterialOpenTarget(
 ): { kind: "route" | "preview"; value: string };
 ```
 
-- [ ] RED：`classroom`、`ppt`、`flashcard`、`graph`、`game` 均有明确标签和打开行为。
-- [ ] RED：未知类型不得跳到视频页。
-- [ ] GREEN：AI 课堂和其他资源进入同一列表，保留独立筛选。
-- [ ] GREEN：PPT/闪卡拥有独立筛选与正确预览。
-- [ ] GREEN：补齐加载、空、失败和重试状态。
-- [ ] 验证定向测试、前端测试、构建与浏览器操作。
-- [ ] 提交并 push。
+- [x] RED：`classroom`、`ppt`、`flashcard`、`graph`、`game` 均有明确标签和打开行为。
+- [x] RED：未知类型不得跳到视频页。
+- [x] GREEN：AI 课堂和其他资源进入同一列表，保留独立筛选。
+- [x] GREEN：PPT/闪卡拥有独立筛选与正确预览。
+- [x] GREEN：补齐加载、空、失败和重试状态。
+- [x] 验证定向测试、前端测试、构建与浏览器操作。
+- [x] 提交并 push。
 
 ### Task 5：在线课堂教师控制台
 

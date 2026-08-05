@@ -329,6 +329,53 @@ function formatLessonPlanMarkdown(material: CourseMaterial): string {
     .join("\n\n");
 }
 
+function formatFlashcardMarkdown(material: CourseMaterial): string {
+  const contentRecord = toPlainRecord(material.content);
+  const cards = Array.isArray(material.flashcards)
+    ? material.flashcards
+    : Array.isArray(contentRecord.cards)
+      ? contentRecord.cards
+      : Array.isArray(material.content)
+        ? material.content
+        : [];
+  if (cards.length === 0) return "";
+
+  const cardMarkdown = cards
+    .map((card, index) => {
+      const record = toPlainRecord(card);
+      const front =
+        textFromUnknown(record.front)
+        || textFromUnknown(record.question)
+        || textFromUnknown(record.term);
+      const back =
+        textFromUnknown(record.back)
+        || textFromUnknown(record.answer)
+        || textFromUnknown(record.definition);
+      const category = textFromUnknown(record.category);
+      const source = textFromUnknown(record.source);
+
+      return [
+        `## 第 ${index + 1} 张`,
+        category ? `**分类：** ${category}` : "",
+        front ? `**正面：** ${front}` : "",
+        back ? `**背面：** ${back}` : "",
+        source ? `**来源：** ${source}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+    })
+    .filter(Boolean)
+    .join("\n\n");
+
+  return [
+    `# ${material.title || material.topic || "闪卡"}`,
+    material.summary || "",
+    cardMarkdown,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export function courseMaterialToMarkdown(material: CourseMaterial) {
   const directMarkdown = extractDirectMaterialMarkdown(material);
   if (directMarkdown) return directMarkdown;
@@ -350,6 +397,11 @@ export function courseMaterialToMarkdown(material: CourseMaterial) {
   if (material.material_type === "lesson_plan") {
     const lessonPlanMarkdown = formatLessonPlanMarkdown(material);
     if (lessonPlanMarkdown) return lessonPlanMarkdown;
+  }
+
+  if (material.material_type === "flashcard") {
+    const flashcardMarkdown = formatFlashcardMarkdown(material);
+    if (flashcardMarkdown) return flashcardMarkdown;
   }
 
   if (material.material_type === "report" && Array.isArray(material.mainContent)) {
