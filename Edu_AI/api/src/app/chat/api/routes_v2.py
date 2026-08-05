@@ -30,6 +30,8 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectFlashcardRequestV2,
     KnowledgeBaseDirectPptGenerateRequestV2,
     KnowledgeBaseDirectPptOutlineRequestV2,
+    KnowledgeBaseDirectGraphRequestV2,
+    KnowledgeBaseDirectBlogRequestV2,
     KnowledgeBaseDirectReportRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
@@ -578,4 +580,80 @@ async def direct_ppt_generate(
         "status": "pending",
         "workflow_type": "ppt_direct",
     }
+
+
+@router.post("/graph/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+async def direct_graph(
+    payload: KnowledgeBaseDirectGraphRequestV2,
+    current_user: dict = Depends(get_current_user),
+):
+    from app.chat.application.knowledge_base_direct_graph_service_v2 import (
+        build_default_knowledge_base_direct_graph_service_v2,
+    )
+
+    owner = str(current_user.get("username") or "").strip()
+    command = GenerationCommand(
+        resource_type="graph",
+        owner_user_id=owner,
+        course_id=payload.course_id,
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        selected_doc_ids=payload.selected_doc_ids,
+        config={"title": payload.title, "max_depth": payload.max_depth},
+        idempotency_key=payload.idempotency_key,
+    )
+    service = build_default_knowledge_base_direct_graph_service_v2()
+
+    def _run(active_command, job_id, config_snapshot_id):
+        return service.generate(
+            SimpleNamespace(
+                owner=active_command.owner_user_id,
+                course_id=active_command.course_id,
+                scope_type=active_command.scope_type,
+                scope_id=active_command.scope_id,
+                selected_doc_ids=active_command.selected_doc_ids,
+                graph_config=active_command.config,
+            ),
+            job_id=job_id,
+            config_snapshot_id=config_snapshot_id,
+        )
+
+    job = generation_command_service.submit(command, _run)
+    return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "graph_direct"}
+
+
+@router.post("/blog/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+async def direct_blog(
+    payload: KnowledgeBaseDirectBlogRequestV2,
+    current_user: dict = Depends(get_current_user),
+):
+    from app.chat.application.blog_generation_adapter_v2 import BlogGenerationAdapterV2
+
+    owner = str(current_user.get("username") or "").strip()
+    selected_docs = payload.selected_doc_ids or [f"course:{payload.course_id}"]
+    command = GenerationCommand(
+        resource_type="blog",
+        owner_user_id=owner,
+        course_id=payload.course_id,
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        selected_doc_ids=selected_docs,
+        config={"title": payload.topic, "topic": payload.topic},
+        idempotency_key=payload.idempotency_key,
+    )
+    service = BlogGenerationAdapterV2()
+
+    def _run(active_command, job_id, config_snapshot_id):
+        return service.generate(
+            SimpleNamespace(
+                owner=active_command.owner_user_id,
+                course_id=active_command.course_id,
+                topic=active_command.config["topic"],
+            ),
+            job_id=job_id,
+            config_snapshot_id=config_snapshot_id,
+        )
+
+    job = generation_command_service.submit(command, _run)
+    return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "blog_direct"}
 

@@ -277,13 +277,13 @@ ready -> rebuilding -> ready (old index remains active until swap)
 - Create: `api/src/tests/chat/test_generation_command.py`
 - Create: `tests/frontend/studioPanel.flashcard.test.ts`
 
-- [ ] RED：统一命令校验来源、权限、幂等键和参数。
-- [ ] RED：PPT 和闪卡必须生成正式资源，禁止占位成功。
-- [ ] GREEN：八类生成器适配 EduJob 与 CourseMaterial，不重写业务引擎。
-- [ ] GREEN：恢复 PPT 配置/大纲确认，补闪卡配置和逐张预览。
-- [ ] GREEN：保存失败返回 `partially_succeeded` 并允许重新保存。
-- [ ] 验证每类固定样例、刷新恢复和结果来源。
-- [ ] 提交并 push。
+- [x] RED：统一命令校验来源、权限、幂等键和参数。
+- [x] RED：PPT 和闪卡必须生成正式资源，禁止占位成功。
+- [x] GREEN：八类生成器适配 EduJob 与 CourseMaterial，不重写业务引擎。
+- [x] GREEN：恢复 PPT 配置/大纲确认，补闪卡配置和逐张预览。
+- [x] GREEN：保存失败返回 `partially_succeeded` 并允许重新保存。
+- [x] 验证每类固定样例、刷新恢复和结果来源。
+- [x] 提交并 push。
 
 ### Task 12：运行配置后端与密钥安全
 

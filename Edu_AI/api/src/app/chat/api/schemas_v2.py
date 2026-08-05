@@ -193,6 +193,25 @@ class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 
+class KnowledgeBaseDirectGraphRequestV2(BaseModel):
+    course_id: str
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(min_length=1)
+    title: str = ""
+    max_depth: int = Field(default=3, ge=2, le=5)
+    idempotency_key: str = Field(min_length=1, max_length=160)
+
+
+class KnowledgeBaseDirectBlogRequestV2(BaseModel):
+    course_id: str
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(default_factory=list)
+    topic: str = Field(min_length=1, max_length=160)
+    idempotency_key: str = Field(min_length=1, max_length=160)
+
+
 class LessonPlanEntryPrefillConfigV2(BaseModel):
     topic: str
     audience: str = ""

@@ -24,6 +24,10 @@ from app.services.job_store import (
     list_job_page,
     update_job,
 )
+from core.course_storage import (
+    reset_generation_persistence_context,
+    set_generation_persistence_context,
+)
 
 
 GenerationResourceType = Literal[
@@ -181,11 +185,19 @@ class GenerationCommandService:
             message="正在根据课程资料生成内容",
         )
         try:
-            result = handler(
-                command,
-                job.edu_job_id,
-                command.config_snapshot_id,
+            context_token = set_generation_persistence_context(
+                owner_user_id=command.owner_user_id,
+                source_job_id=job.edu_job_id,
+                config_snapshot_id=command.config_snapshot_id,
             )
+            try:
+                result = handler(
+                    command,
+                    job.edu_job_id,
+                    command.config_snapshot_id,
+                )
+            finally:
+                reset_generation_persistence_context(context_token)
             saved = bool(result.get("saved", True))
             result_ref = dict(result.get("result_ref") or {})
             if saved:
@@ -222,4 +234,3 @@ class GenerationCommandService:
 
 
 generation_command_service = GenerationCommandService()
-

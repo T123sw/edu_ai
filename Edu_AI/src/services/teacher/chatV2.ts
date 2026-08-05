@@ -212,6 +212,25 @@ export interface KnowledgeBaseDirectPptGenerateRequestV2 {
   idempotency_key: string;
 }
 
+export interface KnowledgeBaseDirectGraphRequestV2 {
+  course_id: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
+  selected_doc_ids: string[];
+  title?: string;
+  max_depth: number;
+  idempotency_key: string;
+}
+
+export interface KnowledgeBaseDirectBlogRequestV2 {
+  course_id: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
+  selected_doc_ids?: string[];
+  topic: string;
+  idempotency_key: string;
+}
+
 export interface ChatDirectPptOutlineResponseV2 {
   action: { name: string };
   draft: { draft_id: string; status: string };
@@ -780,6 +799,24 @@ export async function generateKnowledgeBasePptV2(
 ): Promise<ChatDirectTaskSubmittedV2> {
   return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectPptGenerateRequestV2>(
     '/api/chat/v2/ppt/generate',
+    payload,
+  );
+}
+
+export async function generateKnowledgeBaseGraphV2(
+  payload: KnowledgeBaseDirectGraphRequestV2,
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectGraphRequestV2>(
+    '/api/chat/v2/graph/direct',
+    payload,
+  );
+}
+
+export async function generateKnowledgeBaseBlogV2(
+  payload: KnowledgeBaseDirectBlogRequestV2,
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectBlogRequestV2>(
+    '/api/chat/v2/blog/direct',
     payload,
   );
 }

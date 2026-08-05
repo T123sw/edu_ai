@@ -32,8 +32,6 @@ import {
   getCourseMaterialsPage,
   resumeBlogTaskChapters,
   resumeBlogTaskOutline,
-  startBlogGenerate,
-  getBlogTaskStatus,
   generateQuiz,
   type BlogResumeChaptersRequest,
   type BlogResumeOutlineRequest,
@@ -50,6 +48,8 @@ import {
   generateKnowledgeBaseFlashcardV2,
   generateKnowledgeBasePptOutlineV2,
   generateKnowledgeBasePptV2,
+  generateKnowledgeBaseGraphV2,
+  generateKnowledgeBaseBlogV2,
   type GameTypeV2,
   type LessonPlanEntryCard,
   generateKnowledgeBaseQuizV2,
@@ -72,6 +72,7 @@ import GameEntryModal from './GameEntryModal';
 import FlashcardArtifactPreview from './FlashcardArtifactPreview';
 import FlashcardEntryModal, { type FlashcardEntryValue } from './FlashcardEntryModal';
 import PptEntryPanel, { type PptEntryConfig } from './PptEntryPanel';
+import MindMapArtifactPreview from './MindMapArtifactPreview';
 import { ClassroomGenerationEntry } from './ClassroomGenerationEntry';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
@@ -586,101 +587,6 @@ const StudioPanel: React.FC<Props> = ({
     }
   }, [viewingFile, onPreviewStateChange]);
 
-  // 轮询博客生成状态
-  useEffect(() => {
-    if (!blogPolling || !blogTaskId) return;
-
-    const pollInterval = setInterval(async () => {
-      try {
-        const status = await getBlogTaskStatus(blogTaskId);
-        setBlogTaskStatus(status);
-
-        if (status.status === 'waiting_for_chapter_review') {
-          setBlogPolling(false);
-          setBlogReviewModalVisible(true);
-          try {
-            const outlineArr = Array.isArray(status.outline) ? status.outline : [];
-            const chaptersOnly = outlineArr.map((sec: any) => ({
-              id: sec?.id,
-              title: sec?.title,
-              estimated_word_count: sec?.estimated_word_count,
-            }));
-            const text = JSON.stringify(chaptersOnly, null, 2);
-            setBlogOutlineDraftText(text);
-            setBlogOutlineOriginalText(text);
-            blogOutlineForm.setFieldsValue({ outline: chaptersOnly });
-          } catch {
-            setBlogOutlineDraftText('[]');
-            setBlogOutlineOriginalText('[]');
-            blogOutlineForm.setFieldsValue({ outline: [] });
-          }
-          return;
-        }
-
-        if (status.status === 'waiting_for_outline_review') {
-          setBlogPolling(false);
-          setBlogReviewModalVisible(true);
-          try {
-            const outlineArr = Array.isArray(status.outline) ? status.outline : [];
-            const text = JSON.stringify(outlineArr, null, 2);
-            setBlogOutlineDraftText(text);
-            setBlogOutlineOriginalText(text);
-            blogOutlineForm.setFieldsValue({ outline: outlineArr });
-          } catch {
-            setBlogOutlineDraftText('[]');
-            setBlogOutlineOriginalText('[]');
-            blogOutlineForm.setFieldsValue({ outline: [] });
-          }
-          return;
-        }
-
-        if (status.status === 'completed' || status.status === 'failed') {
-          setBlogPolling(false);
-          
-          if (status.status === 'completed' && status.final_markdown) {
-            const newFile: GeneratedFile = {
-              id: blogTaskId,
-              name: `教学博客-${new Date().toLocaleDateString()}`,
-              type: 'blog',
-              content: {
-                markdown: status.final_markdown,
-                outline: status.outline || [],
-              },
-            };
-            
-            addGeneratedFile(newFile);
-            setViewingFile(newFile);
-            
-            if (courseId) {
-              const material = {
-                ...newFile,
-                addedAt: new Date().toISOString(),
-                courseId: courseId,
-              };
-              addMaterial(material);
-
-              // 从后端刷新课程资源，确保“教学资源”页面立刻可见且持久化一致
-              try {
-                await refreshCourseMaterials();
-              } catch (e) {
-                console.warn('[StudioPanel] 刷新课程资源失败:', e);
-              }
-            }
-            
-            message.success('教学博客生成完成！');
-          } else if (status.status === 'failed') {
-            message.error(`生成失败: ${status.error_message || '未知错误'}`);
-          }
-        }
-      } catch (error) {
-        console.error('轮询博客状态失败:', error);
-        setBlogPolling(false);
-      }
-    }, 1500);
-
-    return () => clearInterval(pollInterval);
-  }, [blogPolling, blogTaskId, courseId, addGeneratedFile, setViewingFile, addMaterial, refreshCourseMaterials]);
-
   const [directBgTasks, setDirectBgTasks] = useState<DirectBgTask[]>([]);
 
   useEffect(() => {
@@ -878,6 +784,15 @@ const StudioPanel: React.FC<Props> = ({
         return;
       }
       setPptEntryVisible(true);
+      return;
+    }
+
+    if (type === 'graph') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      handleConfigureLegacy('graph');
       return;
     }
 
@@ -1283,19 +1198,53 @@ const StudioPanel: React.FC<Props> = ({
 
         setGenerating(true);
         try {
-          const startResp = await startBlogGenerate({
+          const task = await generateKnowledgeBaseBlogV2({
             course_id: courseId,
             topic: values.topic,
+            scope_type: workspaceScopeApiParams.scopeType,
+            scope_id: workspaceScopeApiParams.scopeId,
+            selected_doc_ids: selectedDocs,
+            idempotency_key:
+              typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID()
+                : `blog-${Date.now()}-${Math.random().toString(16).slice(2)}`,
           });
-
-          setBlogTaskId(startResp.thread_id);
-          message.success('已启动教学博客生成任务');
+          setDirectBgTasks((current) => [...current, { taskId: task.task_id }]);
+          requestJobRefresh(task.task_id);
+          message.success('教学博客生成任务已提交，可在任务中心查看进度。');
           setConfigModalVisible(false);
           configForm.resetFields();
-
-          setBlogPolling(true);
         } catch (error: any) {
           message.error(`启动教学博客失败: ${error.message || '未知错误'}`);
+        } finally {
+          setGenerating(false);
+        }
+      } else if (configType === 'graph') {
+        if (!courseId || selectedDocs.length === 0) {
+          message.warning('请先进入课程并勾选至少一份知识库文档。');
+          return;
+        }
+        setGenerating(true);
+        try {
+          const task = await generateKnowledgeBaseGraphV2({
+            course_id: courseId,
+            scope_type: workspaceScopeApiParams.scopeType,
+            scope_id: workspaceScopeApiParams.scopeId,
+            selected_doc_ids: selectedDocs,
+            title: values.topic?.trim(),
+            max_depth: Number(values.levels || 3),
+            idempotency_key:
+              typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID()
+                : `graph-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          });
+          setDirectBgTasks((current) => [...current, { taskId: task.task_id }]);
+          requestJobRefresh(task.task_id);
+          setConfigModalVisible(false);
+          configForm.resetFields();
+          message.success('思维导图生成任务已提交，可在任务中心查看进度。');
+        } catch (error: any) {
+          message.error(`思维导图生成失败: ${error.message || '未知错误'}`);
         } finally {
           setGenerating(false);
         }
@@ -1949,6 +1898,16 @@ const StudioPanel: React.FC<Props> = ({
     if (viewingFile.type === 'flashcard') {
       return (
         <FlashcardArtifactPreview
+          file={viewingFile}
+          onBack={() => setViewingFile(null)}
+          onToggleCollapsed={onToggleCollapsed}
+        />
+      );
+    }
+
+    if (viewingFile.type === 'graph') {
+      return (
+        <MindMapArtifactPreview
           file={viewingFile}
           onBack={() => setViewingFile(null)}
           onToggleCollapsed={onToggleCollapsed}

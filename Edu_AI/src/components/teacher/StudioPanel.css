@@ -439,3 +439,63 @@
   place-items: center;
   color: #8c8c8c;
 }
+
+.mind-map-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 24px;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+}
+
+.mind-map-preview__toolbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mind-map-preview__canvas {
+  flex: 1;
+  min-height: 0;
+  margin-top: 20px;
+  padding: 24px;
+  overflow: auto;
+  background: linear-gradient(145deg, #f7fbff, #fff);
+  border: 1px solid #d8e7f6;
+  border-radius: 16px;
+}
+
+.mind-map-preview__canvas ul {
+  margin: 0;
+  padding-left: 28px;
+  list-style: none;
+  border-left: 1px solid #bdd3ea;
+}
+
+.mind-map-preview__node {
+  position: relative;
+  margin: 14px 0;
+}
+
+.mind-map-preview__node::before {
+  position: absolute;
+  top: 20px;
+  left: -28px;
+  width: 28px;
+  border-top: 1px solid #bdd3ea;
+  content: "";
+}
+
+.mind-map-preview__node-card {
+  display: inline-flex;
+  max-width: 520px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #c7dcf0;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(42, 89, 135, 0.08);
+}
