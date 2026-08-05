@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   Button,
   Input,
@@ -7,24 +7,19 @@ import {
   Tooltip,
   Typography,
   message,
-} from 'antd';
-import { PlayCircleOutlined } from '@ant-design/icons';
+} from "antd";
+import { PlayCircleOutlined } from "@ant-design/icons";
 import {
   CLASSROOM_STEP_LABELS,
   generateClassroom,
-  getJobStatus,
-} from '../../stitch/api/classroom';
-import type { EduJob } from '../../stitch/api/types';
+} from "../../stitch/api/classroom";
+import { buildClassroomPlayerHash } from "../../openmaic/classroomGenerationFlow";
 import {
-  buildClassroomPlayerHash,
-  waitForClassroomGenerationJob,
-} from '../../openmaic/classroomGenerationFlow';
-import {
-  clearPendingClassroomGeneration,
-  readPendingClassroomGeneration,
-  savePendingClassroomGeneration,
-} from '../../openmaic/classroomGenerationRecovery';
-import './ClassroomGenerationEntry.css';
+  registerCreatedJob,
+  useCourseJobs,
+} from "../../jobs/jobStore";
+import { isActiveJob } from "../../jobs/types";
+import "./ClassroomGenerationEntry.css";
 
 const { Text } = Typography;
 
@@ -34,216 +29,73 @@ type Props = {
 
 export function ClassroomGenerationEntry({ courseId }: Props) {
   const [open, setOpen] = useState(false);
-  const [topic, setTopic] = useState('');
-  const [job, setJob] = useState<EduJob | null>(null);
+  const [topic, setTopic] = useState("");
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
-  const activeJobIdRef = useRef<string | null>(null);
-  const latestJobRef = useRef<EduJob | null>(null);
-
-  const trackJob = useCallback(
-    async (
-      initialJob: EduJob,
-      activeCourseId: string,
-      activeTopic: string,
-      controller: AbortController,
-    ) => {
-      activeJobIdRef.current = initialJob.edu_job_id;
-      latestJobRef.current = initialJob;
-      setTopic(activeTopic);
-      setJob(initialJob);
-      setSubmitting(true);
-      setError(null);
-      setOpen(true);
-
-      const handleProgress = (currentJob: EduJob) => {
-        latestJobRef.current = currentJob;
-        setJob(currentJob);
-        savePendingClassroomGeneration(window.localStorage, {
-          courseId: activeCourseId,
-          topic: activeTopic,
-          job: currentJob,
-          savedAt: new Date().toISOString(),
-        });
-      };
-
-      try {
-        const result = await waitForClassroomGenerationJob(initialJob, {
-          getStatus: getJobStatus,
-          signal: controller.signal,
-          onProgress: handleProgress,
-        });
-
-        clearPendingClassroomGeneration(
-          window.localStorage,
-          activeCourseId,
-          initialJob.edu_job_id,
-        );
-        setOpen(false);
-        window.location.hash = buildClassroomPlayerHash(
-          result.course_id,
-          result.classroom_id,
-        );
-      } catch (caught) {
-        if (!controller.signal.aborted) {
-          const latestStatus = latestJobRef.current?.status;
-          if (latestStatus === 'failed' || latestStatus === 'succeeded') {
-            clearPendingClassroomGeneration(
-              window.localStorage,
-              activeCourseId,
-              initialJob.edu_job_id,
-            );
-          }
-          setError(
-            caught instanceof Error
-              ? caught.message
-              : 'AI 课堂生成失败，请重试',
-          );
-        }
-      } finally {
-        if (
-          activeJobIdRef.current === initialJob.edu_job_id &&
-          abortRef.current === controller
-        ) {
-          activeJobIdRef.current = null;
-        }
-        if (abortRef.current === controller) {
-          abortRef.current = null;
-          setSubmitting(false);
-        }
-      }
-    },
-    [],
+  const classroomJobs = useCourseJobs(courseId, "generate_classroom");
+  const job = useMemo(
+    () =>
+      classroomJobs.find((candidate) => candidate.edu_job_id === selectedJobId) ??
+      classroomJobs.find(isActiveJob) ??
+      null,
+    [classroomJobs, selectedJobId],
   );
-
-  useEffect(() => {
-    if (courseId && !activeJobIdRef.current) {
-      const pending = readPendingClassroomGeneration(
-        window.localStorage,
-        courseId,
-      );
-      if (pending) {
-        const controller = new AbortController();
-        abortRef.current?.abort();
-        abortRef.current = controller;
-        void trackJob(pending.job, courseId, pending.topic, controller);
-      }
-    }
-
-    return () => {
-      abortRef.current?.abort();
-      abortRef.current = null;
-      activeJobIdRef.current = null;
-    };
-  }, [courseId, trackJob]);
+  const isBusy = Boolean(job && isActiveJob(job));
+  const classroomId =
+    job?.status === "succeeded" &&
+    typeof job.result_ref?.classroom_id === "string"
+      ? job.result_ref.classroom_id
+      : null;
 
   const openModal = () => {
     if (!courseId) {
-      message.warning('请先选择一门课程');
+      message.warning("请先选择一门课程");
       return;
     }
-
     setError(null);
-    setJob(null);
     setOpen(true);
-  };
-
-  const closeModal = () => {
-    if (submitting) {
-      return;
-    }
-
-    abortRef.current?.abort();
-    abortRef.current = null;
-    setOpen(false);
   };
 
   const submit = async () => {
     const requirement = topic.trim();
-    if (!courseId || !requirement || submitting) {
-      return;
-    }
+    if (!courseId || !requirement || submitting || isBusy) return;
 
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
     setSubmitting(true);
     setError(null);
-    setJob(null);
-
-    let initialJob: EduJob;
     try {
-      initialJob = await generateClassroom(courseId, {
+      const created = await generateClassroom(courseId, {
         requirement,
         enable_tts: true,
       });
-      savePendingClassroomGeneration(window.localStorage, {
-        courseId,
-        topic: requirement,
-        job: initialJob,
-        savedAt: new Date().toISOString(),
-      });
+      registerCreatedJob(created);
+      setSelectedJobId(created.edu_job_id);
     } catch (caught) {
-      if (!controller.signal.aborted) {
-        setError(
-          caught instanceof Error
-            ? caught.message
-            : 'AI 课堂生成失败，请重试',
-        );
-      }
-      if (abortRef.current === controller) {
-        abortRef.current = null;
-        setSubmitting(false);
-      }
-      return;
+      setError(
+        caught instanceof Error ? caught.message : "AI 课堂生成失败，请重试",
+      );
+    } finally {
+      setSubmitting(false);
     }
-
-    if (controller.signal.aborted) {
-      if (abortRef.current === controller) {
-        abortRef.current = null;
-        setSubmitting(false);
-      }
-      return;
-    }
-
-    await trackJob(initialJob, courseId, requirement, controller);
   };
 
-  const resume = async () => {
-    if (
-      !courseId ||
-      !job ||
-      (job.status !== 'queued' && job.status !== 'running') ||
-      submitting
-    ) {
-      return;
-    }
-
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    await trackJob(job, courseId, topic.trim(), controller);
+  const openPlayer = () => {
+    if (!courseId || !classroomId) return;
+    setOpen(false);
+    window.location.hash = buildClassroomPlayerHash(courseId, classroomId);
   };
-
-  const canResume =
-    Boolean(error) &&
-    (job?.status === 'queued' || job?.status === 'running') &&
-    !submitting;
 
   const progressStatus =
-    job?.status === 'failed'
-      ? 'exception'
-      : job?.status === 'succeeded'
-        ? 'success'
-        : 'active';
+    job?.status === "failed"
+      ? "exception"
+      : job?.status === "succeeded"
+        ? "success"
+        : "active";
+  const jobError = job?.error_message || job?.error;
 
   return (
     <>
-      <section
-        className="classroom-generation-entry"
-        aria-label="AI 课堂生成"
-      >
+      <section className="classroom-generation-entry" aria-label="AI 课堂生成">
         <div className="classroom-generation-entry__icon" aria-hidden="true">
           <PlayCircleOutlined />
         </div>
@@ -251,7 +103,7 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
           <strong>AI 课堂</strong>
           <span>输入主题，自动生成可播放、可导出的课堂。</span>
         </div>
-        <Tooltip title={courseId ? undefined : '请先选择一门课程'}>
+        <Tooltip title={courseId ? undefined : "请先选择一门课程"}>
           <span className="classroom-generation-entry__button-wrap">
             <Button
               className="classroom-generation-entry__button"
@@ -259,7 +111,7 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
               onClick={openModal}
               disabled={!courseId}
             >
-              开始备课
+              {isBusy ? "查看进度" : "开始备课"}
             </Button>
           </span>
         </Tooltip>
@@ -268,22 +120,20 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
       <Modal
         title="生成 AI 课堂"
         open={open}
-        onCancel={closeModal}
+        onCancel={() => setOpen(false)}
         footer={null}
-        closable={!submitting}
-        maskClosable={!submitting}
         destroyOnHidden={false}
       >
         <div className="classroom-generation-entry__modal-body">
           <Text type="secondary">
-            输入本节课的主题和重点，系统会结合当前课程资料生成课件、配音并自动开始教学。
+            输入本节课的主题和重点。任务提交后可以关闭窗口或刷新页面，进度会保留在任务中心。
           </Text>
           <Input.TextArea
             value={topic}
             onChange={(event) => setTopic(event.target.value)}
             placeholder="例如：讲解冒泡排序的基本原理、执行过程和时间复杂度"
             rows={4}
-            disabled={submitting}
+            disabled={submitting || isBusy}
             maxLength={500}
             showCount
             autoFocus
@@ -307,8 +157,14 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
                 showInfo={false}
               />
               <Text type="secondary">
-                {job.message || '系统正在后台准备课堂，请稍候…'}
+                {job.message || "系统正在后台准备课堂，请稍候…"}
               </Text>
+              {job.status === "failed" ? (
+                <Text type="danger">{jobError || "生成失败，请在任务中心重试"}</Text>
+              ) : null}
+              {job.status === "canceled" ? (
+                <Text type="secondary">任务已取消，可以重新填写需求。</Text>
+              ) : null}
             </div>
           ) : null}
 
@@ -323,23 +179,23 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
           ) : null}
 
           <div className="classroom-generation-entry__modal-actions">
-            <Button onClick={closeModal} disabled={submitting}>
-              取消
+            <Button onClick={() => setOpen(false)}>
+              {isBusy ? "转到后台" : "关闭"}
             </Button>
-            <Button
-              type="primary"
-              loading={submitting}
-              disabled={!canResume && !topic.trim()}
-              onClick={() => void (canResume ? resume() : submit())}
-            >
-              {submitting
-                ? '正在生成课堂'
-                : canResume
-                  ? '恢复轮询'
-                : error
-                  ? '重新生成'
-                  : '开始生成'}
-            </Button>
+            {classroomId ? (
+              <Button type="primary" onClick={openPlayer}>
+                立即播放
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                loading={submitting}
+                disabled={isBusy || !topic.trim()}
+                onClick={() => void submit()}
+              >
+                {isBusy ? "正在后台生成" : error ? "重新提交" : "开始生成"}
+              </Button>
+            )}
           </div>
         </div>
       </Modal>

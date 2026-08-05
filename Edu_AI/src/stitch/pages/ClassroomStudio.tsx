@@ -1,16 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getCourseMaterials } from "../api/courses";
-import { CLASSROOM_STEP_LABELS, generateClassroom, getJobStatus } from "../api/classroom";
-import type { ClassroomMaterial, EduJob } from "../api/types";
+import { CLASSROOM_STEP_LABELS, generateClassroom } from "../api/classroom";
+import type { ClassroomMaterial } from "../api/types";
 import { AppSurface, GlassPanel, MaterialIcon, useAppShell } from "../shared";
 import { buildClassroomPlayerHash } from "../../openmaic/classroomGenerationFlow";
 import { buildTeacherCourseHash } from "../teacherRoutes";
-
-const POLL_INTERVAL_MS = 4000;
-
-function isTerminal(status: EduJob["status"]) {
-  return status === "succeeded" || status === "failed";
-}
+import { registerCreatedJob, useCourseJobs } from "../../jobs/jobStore";
+import { isActiveJob } from "../../jobs/types";
 
 function useClassroomList(courseId: string | undefined, reloadToken: number) {
   const [items, setItems] = useState<ClassroomMaterial[]>([]);
@@ -43,28 +39,30 @@ export function ClassroomStudioPage() {
   const { selectedCourse } = useAppShell();
   const courseId = selectedCourse?.id;
   const [requirement, setRequirement] = useState("");
-  const [job, setJob] = useState<EduJob | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const reloadedJobIdsRef = useRef(new Set<string>());
   const { items, loading, error } = useClassroomList(courseId, reloadToken);
+  const classroomJobs = useCourseJobs(courseId, "generate_classroom");
+  const job = useMemo(
+    () =>
+      classroomJobs.find((candidate) => candidate.edu_job_id === selectedJobId) ??
+      classroomJobs.find(isActiveJob) ??
+      classroomJobs[0] ??
+      null,
+    [classroomJobs, selectedJobId],
+  );
 
-  // 轮询 edu_job（SPEC-05 §3）：submit 立即返回 queued，真正的生成在后台跑，
-  // 前端只轮询这一个端点，不直连 sidecar。
   useEffect(() => {
-    if (!job || isTerminal(job.status)) return;
-    const timer = window.setInterval(async () => {
-      try {
-        const updated = await getJobStatus(job.edu_job_id);
-        setJob(updated);
-        if (updated.status === "succeeded") {
-          setReloadToken((t) => t + 1);
-        }
-      } catch {
-        // 轮询偶发失败不阻断，下一轮继续重试
-      }
-    }, POLL_INTERVAL_MS);
-    return () => window.clearInterval(timer);
+    if (
+      job?.status === "succeeded" &&
+      !reloadedJobIdsRef.current.has(job.edu_job_id)
+    ) {
+      reloadedJobIdsRef.current.add(job.edu_job_id);
+      setReloadToken((token) => token + 1);
+    }
   }, [job?.edu_job_id, job?.status]);
 
   async function handleGenerate() {
@@ -73,7 +71,8 @@ export function ClassroomStudioPage() {
     setSubmitError(null);
     try {
       const created = await generateClassroom(courseId, { requirement: requirement.trim() });
-      setJob(created);
+      registerCreatedJob(created);
+      setSelectedJobId(created.edu_job_id);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "提交生成任务失败");
     } finally {
@@ -98,7 +97,7 @@ export function ClassroomStudioPage() {
     );
   }
 
-  const isBusy = job !== null && !isTerminal(job.status);
+  const isBusy = Boolean(job && isActiveJob(job));
 
   return (
     <AppSurface className="min-h-screen">
@@ -156,12 +155,17 @@ export function ClassroomStudioPage() {
               </div>
               <p className="mt-2 text-xs text-(--muted-text)">{job.message}</p>
               {job.status === "failed" ? (
-                <p className="mt-2 text-xs text-rose-600">生成失败：{job.error}</p>
+                <p className="mt-2 text-xs text-rose-600">
+                  生成失败：{job.error_message || job.error || "请在任务中心重试"}
+                </p>
               ) : null}
-              {job.status === "succeeded" && job.result_ref ? (
+              {job.status === "canceled" ? (
+                <p className="mt-2 text-xs text-(--muted-text)">任务已取消</p>
+              ) : null}
+              {job.status === "succeeded" && typeof job.result_ref?.classroom_id === "string" ? (
                 <button
                   type="button"
-                  onClick={() => openPlayer(job.result_ref!.classroom_id)}
+                  onClick={() => openPlayer(job.result_ref!.classroom_id as string)}
                   className="mt-3 inline-flex items-center gap-2 rounded-xl bg-(--accent) px-4 py-2 text-xs font-bold text-white"
                 >
                   <MaterialIcon name="play_circle" className="text-sm" />
