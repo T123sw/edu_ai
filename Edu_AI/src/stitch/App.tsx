@@ -9,6 +9,7 @@ import { CourseKnowledgeBasePage } from "./pages/CourseKnowledgeBase";
 import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
 import { CourseEditPage } from "./pages/CourseEdit";
 import { ProfilePage } from "./pages/Profile";
+import { RuntimeSettingsPage } from "./pages/RuntimeSettings";
 import { LoginPage } from "./pages/LoginPage";
 import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
 import { ClassroomVideoRenderPage } from "./pages/_dev/ClassroomVideoRender";
@@ -31,6 +32,7 @@ import { GlobalJobManager } from "../jobs/GlobalJobManager";
 
 const pages = [
   [routes.profile, "Profile", ProfilePage],
+  [routes.settings, "Runtime Settings", RuntimeSettingsPage],
   [routes.home, "Home", HomeDashboardPage],
   [routes.course, "Course List", CourseListPage],
   [routes.courseDetail, "Course Detail", CourseDetailPage],

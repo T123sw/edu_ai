@@ -23,6 +23,7 @@ const securityItems = [
 ];
 
 const quickLinks = [
+  { title: "AI 服务配置", subtitle: "配置模型、语音、搜索与解析服务", href: routeHref(routes.settings), icon: "settings_suggest" },
   { title: "我的课程", subtitle: "继续查看课程与工作区", href: routeHref(routes.course), icon: "dashboard" },
   { title: "问答助手", subtitle: "进入教师 AI 工作台", href: routeHref(routes.ai), icon: "forum" },
   { title: "知识图谱", subtitle: "维护节点与课程关系", href: routeHref(routes.graph), icon: "hub" },

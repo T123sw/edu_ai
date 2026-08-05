@@ -320,12 +320,12 @@ active -> rollback to previous active
 - Modify: `src/stitch/pages/Profile.tsx`
 - Create: `tests/frontend/runtimeSettings.contract.test.ts`
 
-- [ ] RED：密钥不可回显，测试成功后才能启用。
-- [ ] RED：角色决定系统配置/个人配置可见性。
-- [ ] GREEN：实现模型、RAG、语音、搜索、PDF、课堂服务分组。
-- [ ] GREEN：实现草稿、测试、启用、回滚和健康状态。
-- [ ] 验证键盘操作、错误恢复和实际请求配置版本。
-- [ ] 提交并 push。
+- [x] RED：密钥不可回显，测试成功后才能启用。
+- [x] RED：角色决定系统配置/个人配置可见性。
+- [x] GREEN：实现模型、RAG、语音、搜索、PDF、课堂服务分组。
+- [x] GREEN：实现草稿、测试、启用、回滚和健康状态。
+- [x] 验证键盘操作、错误恢复和实际请求配置版本。
+- [x] 提交并 push。
 
 ### Task 14：真实用户中心
 

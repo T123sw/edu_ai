@@ -19,6 +19,7 @@ export const routes = {
   ai: "ai",
   home: "home",
   profile: "profile",
+  settings: "settings",
   graph: "graph",
   ppt: "ppt",
   resources: "resources",
