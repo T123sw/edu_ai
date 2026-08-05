@@ -48,6 +48,8 @@ import {
   sendReportV2,
   generateKnowledgeBaseGameV2,
   generateKnowledgeBaseFlashcardV2,
+  generateKnowledgeBasePptOutlineV2,
+  generateKnowledgeBasePptV2,
   type GameTypeV2,
   type LessonPlanEntryCard,
   generateKnowledgeBaseQuizV2,
@@ -69,6 +71,7 @@ import GameArtifactPreview from './GameArtifactPreview';
 import GameEntryModal from './GameEntryModal';
 import FlashcardArtifactPreview from './FlashcardArtifactPreview';
 import FlashcardEntryModal, { type FlashcardEntryValue } from './FlashcardEntryModal';
+import PptEntryPanel, { type PptEntryConfig } from './PptEntryPanel';
 import { ClassroomGenerationEntry } from './ClassroomGenerationEntry';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
@@ -712,6 +715,7 @@ const StudioPanel: React.FC<Props> = ({
   const [quizEntryVisible, setQuizEntryVisible] = useState(false);
   const [gameEntryVisible, setGameEntryVisible] = useState(false);
   const [flashcardEntryVisible, setFlashcardEntryVisible] = useState(false);
+  const [pptEntryVisible, setPptEntryVisible] = useState(false);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
@@ -868,6 +872,15 @@ const StudioPanel: React.FC<Props> = ({
       return;
     }
 
+    if (type === 'ppt') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setPptEntryVisible(true);
+      return;
+    }
+
     return handleGenerateLegacy(type);
   };
 
@@ -916,6 +929,15 @@ const StudioPanel: React.FC<Props> = ({
         return;
       }
       setFlashcardEntryVisible(true);
+      return;
+    }
+
+    if (type === 'ppt') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setPptEntryVisible(true);
       return;
     }
 
@@ -1051,6 +1073,60 @@ const StudioPanel: React.FC<Props> = ({
       message.success('闪卡生成任务已提交，可在任务中心查看进度。');
     } catch (error: any) {
       message.error(`闪卡生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handlePptOutlineSubmit = async (value: PptEntryConfig) => {
+    if (!courseId) {
+      throw new Error('请先进入具体课程。');
+    }
+    const keyPoints = String(value.keyPointsText || '')
+      .split(/\r?\n|,|，|;/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    return generateKnowledgeBasePptOutlineV2({
+      course_id: courseId,
+      scope_type: workspaceScopeApiParams.scopeType,
+      scope_id: workspaceScopeApiParams.scopeId,
+      selected_doc_ids: selectedDocs,
+      ppt_config: {
+        deck_title: value.deckTitle.trim(),
+        deck_subtitle: value.deckSubtitle?.trim(),
+        audience: value.audience?.trim(),
+        objective: value.objective?.trim(),
+        theme_id: value.themeId,
+        length_option: value.lengthOption,
+        key_points: keyPoints,
+        style_hint: value.styleHint?.trim(),
+        special_requirements: value.specialRequirements?.trim(),
+      },
+    });
+  };
+
+  const handlePptGenerateSubmit = async (
+    draftId: string,
+    outline: Record<string, unknown>,
+  ) => {
+    setGenerating(true);
+    try {
+      const task = await generateKnowledgeBasePptV2({
+        draft_id: draftId,
+        confirm: true,
+        outline,
+        idempotency_key:
+          typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `ppt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      });
+      setDirectBgTasks((current) => [...current, { taskId: task.task_id }]);
+      requestJobRefresh(task.task_id);
+      setPptEntryVisible(false);
+      message.success('PPT 生成任务已提交，可在任务中心查看进度。');
+    } catch (error: any) {
+      message.error(`PPT 生成失败: ${error.message || '未知错误'}`);
       throw error;
     } finally {
       setGenerating(false);
@@ -2935,6 +3011,13 @@ const StudioPanel: React.FC<Props> = ({
         submitting={generating}
         onCancel={() => setFlashcardEntryVisible(false)}
         onSubmit={handleFlashcardEntrySubmit}
+      />
+      <PptEntryPanel
+        open={pptEntryVisible}
+        submitting={generating}
+        onCancel={() => setPptEntryVisible(false)}
+        onBuildOutline={handlePptOutlineSubmit}
+        onGenerate={handlePptGenerateSubmit}
       />
       <Modal
         title="教学博客大纲审查"

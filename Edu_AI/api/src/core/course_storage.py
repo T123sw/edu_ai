@@ -17,6 +17,7 @@ import shutil
 import tempfile
 import threading
 import uuid
+from contextvars import ContextVar, Token
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
@@ -49,6 +50,29 @@ DIR_TO_TYPE = {value: key for key, value in TYPE_MAPPING.items()}
 FORMAL_MATERIAL_TYPES = frozenset(TYPE_MAPPING)
 _STORAGE_LOCKS: Dict[str, threading.RLock] = {}
 _STORAGE_LOCKS_GUARD = threading.Lock()
+_GENERATION_PERSISTENCE_CONTEXT: ContextVar[Dict[str, Optional[str]]] = ContextVar(
+    "generation_persistence_context",
+    default={},
+)
+
+
+def set_generation_persistence_context(
+    *,
+    owner_user_id: Optional[str],
+    source_job_id: Optional[str],
+    config_snapshot_id: Optional[str],
+) -> Token:
+    return _GENERATION_PERSISTENCE_CONTEXT.set(
+        {
+            "owner_user_id": str(owner_user_id or "").strip() or None,
+            "source_job_id": str(source_job_id or "").strip() or None,
+            "config_snapshot_id": str(config_snapshot_id or "").strip() or None,
+        }
+    )
+
+
+def reset_generation_persistence_context(token: Token) -> None:
+    _GENERATION_PERSISTENCE_CONTEXT.reset(token)
 
 
 class CourseStorageManager:
@@ -515,6 +539,23 @@ class CourseStorageManager:
         config_snapshot_id: Optional[str] = None,
     ) -> bool:
         try:
+            generation_context = _GENERATION_PERSISTENCE_CONTEXT.get()
+            owner_user_id = (
+                str(owner_user_id or generation_context.get("owner_user_id") or "").strip()
+                or None
+            )
+            source_job_id = (
+                str(source_job_id or generation_context.get("source_job_id") or "").strip()
+                or None
+            )
+            config_snapshot_id = (
+                str(
+                    config_snapshot_id
+                    or generation_context.get("config_snapshot_id")
+                    or ""
+                ).strip()
+                or None
+            )
             normalized_material_type = str(material_type or "").strip()
             if normalized_material_type not in FORMAL_MATERIAL_TYPES:
                 raise ValueError(f"unsupported material type: {normalized_material_type}")

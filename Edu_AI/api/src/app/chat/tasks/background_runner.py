@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import threading
 import time
 import uuid
@@ -14,6 +16,10 @@ from app.services.job_store import (
     create_job,
     get_job,
     update_job,
+)
+from core.course_storage import (
+    reset_generation_persistence_context,
+    set_generation_persistence_context,
 )
 
 
@@ -163,13 +169,24 @@ def _create_task(
     kind = _WORKFLOW_JOB_KINDS.get(workflow_type)
     if not normalized_owner or kind is None:
         return store.create(workflow_type=workflow_type, on_complete=on_complete)
+    normalized_summary = dict(input_summary or {})
+    if not normalized_summary.get("config_snapshot_id"):
+        serialized_summary = json.dumps(
+            normalized_summary,
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        )
+        normalized_summary["config_snapshot_id"] = (
+            f"cfg_{hashlib.sha256(serialized_summary.encode('utf-8')).hexdigest()[:16]}"
+        )
     job = create_job(
         kind=kind,
         owner_user_id=normalized_owner,
         course_id=course_id,
         scope_type=scope_type,
         scope_id=scope_id,
-        input_summary=input_summary,
+        input_summary=normalized_summary,
     )
     return store.create(
         task_id=job.edu_job_id,
@@ -191,6 +208,16 @@ def _run_workflow_task(
     if not _mark_running(task_store, task_id):
         return
     set_progress_callback(lambda p: _update_task_progress(task_store, task_id, p))
+    job = get_job(task_id)
+    context_token = set_generation_persistence_context(
+        owner_user_id=job.owner_user_id if job else None,
+        source_job_id=task_id if job else None,
+        config_snapshot_id=(
+            str(job.input_summary.get("config_snapshot_id") or "").strip() or None
+            if job
+            else None
+        ),
+    )
     t_start = time.perf_counter()
     try:
         result = workflow.run(request=request, snapshot=snapshot, decision=decision)
@@ -199,6 +226,7 @@ def _run_workflow_task(
     except Exception as exc:
         _mark_failed(task_store, task_id, exc)
     finally:
+        reset_generation_persistence_context(context_token)
         clear_progress_callback()
 
 
@@ -211,6 +239,16 @@ def _run_callable_task(
     if not _mark_running(task_store, task_id):
         return
     set_progress_callback(lambda p: _update_task_progress(task_store, task_id, p))
+    job = get_job(task_id)
+    context_token = set_generation_persistence_context(
+        owner_user_id=job.owner_user_id if job else None,
+        source_job_id=task_id if job else None,
+        config_snapshot_id=(
+            str(job.input_summary.get("config_snapshot_id") or "").strip() or None
+            if job
+            else None
+        ),
+    )
     t_start = time.perf_counter()
     try:
         result = fn()
@@ -219,6 +257,7 @@ def _run_callable_task(
     except Exception as exc:
         _mark_failed(task_store, task_id, exc)
     finally:
+        reset_generation_persistence_context(context_token)
         clear_progress_callback()
 
 

@@ -178,6 +178,21 @@ class PptEntryPrefillConfigV2(BaseModel):
     general_requirements: Optional[str] = None
 
 
+class KnowledgeBaseDirectPptOutlineRequestV2(BaseModel):
+    course_id: str
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(min_length=1)
+    ppt_config: PptEntryPrefillConfigV2
+
+
+class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
+    draft_id: str = Field(min_length=1)
+    confirm: bool = True
+    outline: Optional[Dict[str, Any]] = None
+    idempotency_key: str = Field(min_length=1, max_length=160)
+
+
 class LessonPlanEntryPrefillConfigV2(BaseModel):
     topic: str
     audience: str = ""

@@ -185,6 +185,40 @@ export interface KnowledgeBaseDirectFlashcardRequestV2 {
   idempotency_key: string;
 }
 
+export interface KnowledgeBaseDirectPptOutlineRequestV2 {
+  course_id: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
+  selected_doc_ids: string[];
+  ppt_config: {
+    deck_title: string;
+    deck_subtitle?: string;
+    audience?: string;
+    objective?: string;
+    theme_id: 'heu_academic_elegant' | 'heu_academic_basic';
+    length_option: 'short' | 'medium' | 'long';
+    target_slide_count?: number;
+    key_points: string[];
+    style_hint?: string;
+    special_requirements?: string;
+    general_requirements?: string;
+  };
+}
+
+export interface KnowledgeBaseDirectPptGenerateRequestV2 {
+  draft_id: string;
+  confirm: true;
+  outline?: Record<string, unknown>;
+  idempotency_key: string;
+}
+
+export interface ChatDirectPptOutlineResponseV2 {
+  action: { name: string };
+  draft: { draft_id: string; status: string };
+  artifacts: Array<Record<string, unknown>>;
+  trace: Record<string, unknown>;
+}
+
 export interface ReportEntryCardSelection {
   card_id: string;
   card_type: 'preset' | 'recommended';
@@ -728,6 +762,24 @@ export async function generateKnowledgeBaseFlashcardV2(
 ): Promise<ChatDirectTaskSubmittedV2> {
   return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectFlashcardRequestV2>(
     '/api/chat/v2/flashcard/direct',
+    payload,
+  );
+}
+
+export async function generateKnowledgeBasePptOutlineV2(
+  payload: KnowledgeBaseDirectPptOutlineRequestV2,
+): Promise<ChatDirectPptOutlineResponseV2> {
+  return postV2<ChatDirectPptOutlineResponseV2, KnowledgeBaseDirectPptOutlineRequestV2>(
+    '/api/chat/v2/ppt/outline',
+    payload,
+  );
+}
+
+export async function generateKnowledgeBasePptV2(
+  payload: KnowledgeBaseDirectPptGenerateRequestV2,
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectPptGenerateRequestV2>(
+    '/api/chat/v2/ppt/generate',
     payload,
   );
 }

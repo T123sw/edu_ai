@@ -28,6 +28,8 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectQuizRequestV2,
     KnowledgeBaseDirectGameRequestV2,
     KnowledgeBaseDirectFlashcardRequestV2,
+    KnowledgeBaseDirectPptGenerateRequestV2,
+    KnowledgeBaseDirectPptOutlineRequestV2,
     KnowledgeBaseDirectReportRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
@@ -90,6 +92,14 @@ def _get_direct_flashcard_service():
     )
 
     return build_default_knowledge_base_direct_flashcard_service_v2()
+
+
+def _get_direct_ppt_service():
+    from app.chat.application.knowledge_base_direct_ppt_service_v2 import (
+        build_default_knowledge_base_direct_ppt_service_v2,
+    )
+
+    return build_default_knowledge_base_direct_ppt_service_v2()
 
 
 def _get_ppt_entry_cards_service():
@@ -512,5 +522,60 @@ async def direct_flashcard(
         "task_id": job.edu_job_id,
         "status": "pending",
         "workflow_type": "flashcard_direct",
+    }
+
+
+@router.post("/ppt/outline")
+async def direct_ppt_outline(
+    payload: KnowledgeBaseDirectPptOutlineRequestV2,
+    current_user: dict = Depends(get_current_user),
+):
+    request = _with_owner(payload, current_user)
+    return _get_direct_ppt_service().generate_outline(request)
+
+
+@router.post("/ppt/generate", response_model=ChatDirectTaskSubmittedResponseV2)
+async def direct_ppt_generate(
+    payload: KnowledgeBaseDirectPptGenerateRequestV2,
+    current_user: dict = Depends(get_current_user),
+):
+    owner = str(current_user.get("username") or "").strip()
+    service = _get_direct_ppt_service()
+    try:
+        draft = service.get_draft(owner=owner, draft_id=payload.draft_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="ppt_draft_not_found") from exc
+    command = GenerationCommand(
+        resource_type="ppt",
+        owner_user_id=owner,
+        course_id=str(draft.get("course_id") or ""),
+        scope_type=str(draft.get("scope_type") or "course"),
+        scope_id=draft.get("scope_id"),
+        selected_doc_ids=list(draft.get("selected_doc_ids") or []),
+        config={
+            **dict(draft.get("normalized_ppt_config") or {}),
+            "draft_id": payload.draft_id,
+        },
+        idempotency_key=payload.idempotency_key,
+    )
+
+    def _run(active_command, job_id, config_snapshot_id):
+        request = SimpleNamespace(
+            owner=active_command.owner_user_id,
+            draft_id=payload.draft_id,
+            confirm=payload.confirm,
+            outline=payload.outline,
+        )
+        return service.generate(
+            request,
+            job_id=job_id,
+            config_snapshot_id=config_snapshot_id,
+        )
+
+    job = generation_command_service.submit(command, _run)
+    return {
+        "task_id": job.edu_job_id,
+        "status": "pending",
+        "workflow_type": "ppt_direct",
     }
 
