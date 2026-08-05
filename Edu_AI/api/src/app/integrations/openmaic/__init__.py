@@ -56,10 +56,19 @@ def get_openmaic_client(
     )
     base_url = str(resolved.get("base_url") or _default_openmaic_url())
     api_key = str(resolved.get("api_key") or "")
-    cache_key = f"{resolved.get('_revision_id') or 'environment'}:{base_url}:{bool(api_key)}"
+    timeout_seconds = float(resolved.get("timeout_seconds") or 60)
+    cache_key = (
+        f"{resolved.get('_revision_id') or 'environment'}:"
+        f"{base_url}:{bool(api_key)}:{timeout_seconds}"
+    )
     if cache_key not in _singletons:
         _singletons[cache_key] = OpenMaicClient(
-            OpenMaicConfig(base_url=base_url, api_key=api_key)
+            OpenMaicConfig(
+                base_url=base_url,
+                api_key=api_key,
+                connect_timeout=min(10.0, timeout_seconds),
+                request_timeout=timeout_seconds,
+            )
         )
     return _singletons[cache_key]
 

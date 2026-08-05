@@ -53,7 +53,9 @@ def make_ingester(
         temp_dir=chunk_dir,
         window_seconds=window_seconds,
         stride_seconds=stride_seconds,
-        embedding_timeout_sec=Config.EMBEDDING_TIMEOUT_SEC,
+        embedding_timeout_sec=int(
+            runtime_embedding.get("timeout_seconds") or Config.EMBEDDING_TIMEOUT_SEC
+        ),
         embedding_max_retries=Config.EMBEDDING_MAX_RETRIES,
         gemini_dimensions=int(
             runtime_embedding.get("dimensions")

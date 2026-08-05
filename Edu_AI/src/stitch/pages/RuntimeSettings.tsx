@@ -26,6 +26,7 @@ import {
 } from "@ant-design/icons";
 import {
   activateRuntimeConfig,
+  disableRuntimeConfig,
   getRuntimeConfigOverview,
   rollbackRuntimeConfig,
   saveRuntimeConfigDraft,
@@ -81,10 +82,13 @@ const fieldMeta: Record<string, { label: string; placeholder: string; secret?: b
   model: { label: "模型名称", placeholder: "例如 gpt-5-mini" },
   voice: { label: "默认音色", placeholder: "例如 alloy" },
   dimensions: { label: "向量维度", placeholder: "留空则使用服务默认值" },
+  provider_name: { label: "供应商", placeholder: "例如 OpenAI、Ollama、Bocha" },
+  timeout_seconds: { label: "请求超时（秒）", placeholder: "1～120 秒" },
 };
 
 const statusMeta = {
   active: { color: "success", label: "已启用" },
+  disabled: { color: "default", label: "已停用" },
   verified: { color: "processing", label: "测试通过" },
   invalid: { color: "error", label: "测试失败" },
   draft: { color: "default", label: "待测试" },
@@ -154,7 +158,7 @@ export function RuntimeSettingsPage() {
 
   async function runAction(
     item: RuntimeProviderStatus,
-    action: "verify" | "activate" | "rollback",
+    action: "verify" | "activate" | "rollback" | "disable",
     revisionId?: string,
   ) {
     const key = `${item.provider}:${action}`;
@@ -168,6 +172,9 @@ export function RuntimeSettingsPage() {
       } else if (action === "activate" && revisionId) {
         await activateRuntimeConfig(item.provider, scope, revisionId);
         message.success("配置已启用，新任务将使用该版本");
+      } else if (action === "disable") {
+        await disableRuntimeConfig(item.provider, scope);
+        message.success("配置已停用，已恢复使用下一层默认配置");
       } else {
         await rollbackRuntimeConfig(item.provider, scope);
         message.success("已回滚到上一条可用配置");
@@ -271,6 +278,19 @@ export function RuntimeSettingsPage() {
                         模型：{String(active.values.model)}
                       </Text>
                     ) : null}
+                    {active?.values.provider_name ? (
+                      <Text className="mt-1 block text-xs text-[#60738f]">
+                        供应商：{String(active.values.provider_name)}
+                      </Text>
+                    ) : null}
+                    {latest?.verified_at ? (
+                      <Text className="mt-1 block text-xs text-[#60738f]">
+                        最近验证：{new Date(latest.verified_at).toLocaleString()}
+                        {typeof latest.verification_latency_ms === "number"
+                          ? ` · ${latest.verification_latency_ms}ms`
+                          : ""}
+                      </Text>
+                    ) : null}
                   </div>
                   {latest?.validation_error ? (
                     <Alert
@@ -307,6 +327,15 @@ export function RuntimeSettingsPage() {
                         onClick={() => void runAction(item, "rollback")}
                       >
                         回滚
+                      </Button>
+                    ) : null}
+                    {active ? (
+                      <Button
+                        danger
+                        loading={busyKey === `${item.provider}:disable`}
+                        onClick={() => void runAction(item, "disable")}
+                      >
+                        停用并恢复默认
                       </Button>
                     ) : null}
                   </Space>
@@ -353,8 +382,13 @@ export function RuntimeSettingsPage() {
                     : []),
                 ]}
               >
-                {field === "dimensions" ? (
-                  <InputNumber className="w-full" min={1} placeholder={meta.placeholder} />
+                {field === "dimensions" || field === "timeout_seconds" ? (
+                  <InputNumber
+                    className="w-full"
+                    min={1}
+                    max={field === "timeout_seconds" ? 120 : undefined}
+                    placeholder={meta.placeholder}
+                  />
                 ) : meta.secret ? (
                   <Input.Password
                     autoComplete="new-password"

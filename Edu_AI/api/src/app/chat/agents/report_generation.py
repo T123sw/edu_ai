@@ -54,6 +54,7 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
             base_url=selected_base,
             model=selected_model,
             temperature=0.4,
+            request_timeout=float(runtime_cfg.get("timeout_seconds") or 120),
             **({"extra_body": extra_body} if extra_body else {}),
         )
     except Exception as e:

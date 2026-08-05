@@ -92,3 +92,30 @@ def test_failed_verification_marks_revision_invalid_without_leaking_secret(
     assert response.status_code == 200
     assert response.json()["status"] == "invalid"
     assert "sk-api-secret" not in response.text
+
+
+def test_active_configuration_can_be_disabled_to_restore_fallback(
+    tmp_path, monkeypatch
+):
+    client, _store = _client(tmp_path)
+    revision_id = _draft(client).json()["revision_id"]
+    monkeypatch.setattr(module, "_verify_provider", lambda *_args: None)
+    client.post(
+        "/api/runtime-config/llm/verify",
+        json={"scope": "user", "revision_id": revision_id},
+    )
+    client.post(
+        "/api/runtime-config/llm/activate",
+        json={"scope": "user", "revision_id": revision_id},
+    )
+
+    response = client.post(
+        "/api/runtime-config/llm/disable",
+        json={"scope": "user"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "disabled"
+    assert client.get("/api/runtime-config").json()["providers"][0][
+        "effective_source"
+    ] == "environment"

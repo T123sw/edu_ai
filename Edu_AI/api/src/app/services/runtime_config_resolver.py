@@ -18,29 +18,49 @@ _runtime_snapshot: ContextVar[dict[str, str] | None] = ContextVar(
 
 ENVIRONMENT_DEFAULTS: dict[str, dict[str, Any]] = {
     "llm": {
+        "provider_name": "environment",
         "base_url": Config.DEEP_MODEL_API_BASE,
         "api_key": Config.DEEP_MODEL_API_KEY,
         "model": Config.LLM_MODEL_DEEP,
+        "timeout_seconds": 120,
     },
     "embedding": {
+        "provider_name": "environment",
         "base_url": Config.EMBEDDING_API_BASE,
         "api_key": Config.OPENROUTER_API_KEY,
         "model": Config.EMBEDDING_MODEL,
         "dimensions": Config.GEMINI_EMBEDDING_DIMENSIONS,
+        "timeout_seconds": Config.EMBEDDING_TIMEOUT_SEC,
     },
     "tts": {
+        "provider_name": "environment",
         "base_url": "",
         "api_key": "",
         "model": "",
         "voice": "",
+        "timeout_seconds": 60,
     },
     "web_search": {
+        "provider_name": "environment",
         "base_url": "",
         "api_key": "",
         "model": Config.IMAGE_SEARCH_PROVIDER,
+        "timeout_seconds": 15,
     },
-    "pdf_parser": {"base_url": "", "api_key": "", "model": ""},
-    "classroom": {"base_url": "", "api_key": "", "model": ""},
+    "pdf_parser": {
+        "provider_name": "environment",
+        "base_url": "",
+        "api_key": "",
+        "model": "",
+        "timeout_seconds": 60,
+    },
+    "classroom": {
+        "provider_name": "environment",
+        "base_url": "",
+        "api_key": "",
+        "model": "",
+        "timeout_seconds": 60,
+    },
 }
 
 

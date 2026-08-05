@@ -13,8 +13,12 @@ test("configuration center implements save, verify, activate and rollback lifecy
   assert.match(page, /verifyRuntimeConfig/);
   assert.match(page, /activateRuntimeConfig/);
   assert.match(page, /rollbackRuntimeConfig/);
+  assert.match(page, /disableRuntimeConfig/);
   assert.match(page, /测试连接/);
   assert.match(page, /启用/);
+  assert.match(page, /停用并恢复默认/);
+  assert.match(page, /timeout_seconds/);
+  assert.match(page, /provider_name/);
   assert.match(profile, /routes\.settings/);
 });
 

@@ -160,7 +160,13 @@ class EmbeddingClient:
             or os.getenv("EMBEDDING_MODEL", "gemini-embedding-2-preview")
         )
 
-        self.timeout_sec = int(os.getenv("EMBEDDING_TIMEOUT_SEC", str(getattr(Config, "EMBEDDING_TIMEOUT_SEC", 120))))
+        self.timeout_sec = int(
+            runtime_override.get("timeout_seconds")
+            or os.getenv(
+                "EMBEDDING_TIMEOUT_SEC",
+                str(getattr(Config, "EMBEDDING_TIMEOUT_SEC", 120)),
+            )
+        )
         self.max_retries = int(os.getenv("EMBEDDING_MAX_RETRIES", str(getattr(Config, "EMBEDDING_MAX_RETRIES", 3))))
         self.batch_size = int(os.getenv("EMBEDDING_BATCH_SIZE", str(getattr(Config, "EMBEDDING_BATCH_SIZE", 64))))
         self.max_workers = int(os.getenv("EMBEDDING_MAX_WORKERS", str(getattr(Config, "EMBEDDING_MAX_WORKERS", 4))))

@@ -98,6 +98,7 @@ async def synthesize_classroom_speech_audio(
     api_key = str(resolved.get("api_key") or "")
     model = str(resolved.get("model") or "")
     voice = str(resolved.get("voice") or "alloy")
+    timeout_seconds = float(resolved.get("timeout_seconds") or 60)
     if not (base_url and api_key and model):
         return 0
 
@@ -120,7 +121,7 @@ async def synthesize_classroom_speech_audio(
                         "input": text,
                         "response_format": "mp3",
                     },
-                    timeout=60.0,
+                    timeout=timeout_seconds,
                 )
                 response.raise_for_status()
                 if audio_dir is None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Literal
 
 import httpx
@@ -42,28 +43,37 @@ def _provider(provider: str) -> str:
     return provider
 
 
+class ProviderVerificationError(ValueError):
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+
+
 def _verify_provider(provider: str, values: dict[str, Any]) -> None:
     base_url = str(values.get("base_url") or "").rstrip("/")
     api_key = str(values.get("api_key") or "")
     if not base_url.startswith(("http://", "https://")):
-        raise ValueError("服务地址必须以 http:// 或 https:// 开头")
+        raise ProviderVerificationError(
+            "invalid_endpoint", "服务地址必须以 http:// 或 https:// 开头"
+        )
+    timeout = max(1.0, min(120.0, float(values.get("timeout_seconds") or 15)))
     headers = {"Authorization": f"Bearer {api_key}"}
     try:
         if provider == "classroom":
             response = httpx.get(
-                f"{base_url}/api/health", headers=headers, timeout=10.0
+                f"{base_url}/api/health", headers=headers, timeout=timeout
             )
         elif provider == "web_search":
             response = httpx.post(
                 f"{base_url}/v1/web-search",
                 headers={**headers, "Content-Type": "application/json"},
                 json={"query": "教育", "count": 1},
-                timeout=10.0,
+                timeout=timeout,
             )
         elif provider == "pdf_parser":
             # MinerU and similar parsers do not expose a side-effect-free model
             # endpoint. A reachable, authenticated API root is the safest probe.
-            response = httpx.get(base_url, headers=headers, timeout=10.0)
+            response = httpx.get(base_url, headers=headers, timeout=timeout)
         elif provider == "tts":
             response = httpx.post(
                 f"{base_url}/audio/speech",
@@ -74,14 +84,32 @@ def _verify_provider(provider: str, values: dict[str, Any]) -> None:
                     "input": "配置测试",
                     "response_format": "mp3",
                 },
-                timeout=15.0,
+                timeout=timeout,
             )
         else:
-            response = httpx.get(f"{base_url}/models", headers=headers, timeout=10.0)
+            response = httpx.get(f"{base_url}/models", headers=headers, timeout=timeout)
         response.raise_for_status()
-    except httpx.HTTPError as exc:
+    except httpx.TimeoutException as exc:
+        raise ProviderVerificationError("timeout", f"{provider} 服务连接超时") from exc
+    except httpx.ConnectError as exc:
+        raise ProviderVerificationError(
+            "endpoint_unreachable", f"{provider} 服务地址不可达"
+        ) from exc
+    except httpx.HTTPStatusError as exc:
+        code = {
+            401: "authentication_failed",
+            403: "authentication_failed",
+            404: "model_not_found",
+            429: "quota_exceeded",
+        }.get(exc.response.status_code, "invalid_response")
         # Deliberately omit URL headers/body so provider errors cannot leak keys.
-        raise ValueError(f"{provider} 服务连接失败（HTTP 验证未通过）") from exc
+        raise ProviderVerificationError(
+            code, f"{provider} 服务连接失败（HTTP 验证未通过）"
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise ProviderVerificationError(
+            "invalid_response", f"{provider} 服务返回无效响应"
+        ) from exc
 
 
 @router.get("")
@@ -143,9 +171,11 @@ async def verify_runtime_config(
     )
     if revision is None:
         raise HTTPException(status_code=404, detail="配置版本不存在")
+    started = time.perf_counter()
     try:
         _verify_provider(provider, revision["values"])
     except ValueError as exc:
+        latency_ms = round((time.perf_counter() - started) * 1000)
         return runtime_config_store.mark_verification(
             scope=payload.scope,
             owner_id=owner_id,
@@ -153,13 +183,17 @@ async def verify_runtime_config(
             revision_id=payload.revision_id,
             ok=False,
             error=str(exc),
+            error_code=getattr(exc, "code", "invalid_response"),
+            latency_ms=latency_ms,
         )
+    latency_ms = round((time.perf_counter() - started) * 1000)
     return runtime_config_store.mark_verification(
         scope=payload.scope,
         owner_id=owner_id,
         provider=provider,
         revision_id=payload.revision_id,
         ok=True,
+        latency_ms=latency_ms,
     )
 
 
@@ -190,6 +224,22 @@ async def rollback_runtime_config(
 ):
     try:
         return runtime_config_store.rollback(
+            scope=payload.scope,
+            owner_id=_owner(payload.scope, current_user),
+            provider=_provider(provider),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/{provider}/disable")
+async def disable_runtime_config(
+    provider: str,
+    payload: ScopeRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        return runtime_config_store.disable(
             scope=payload.scope,
             owner_id=_owner(payload.scope, current_user),
             provider=_provider(provider),

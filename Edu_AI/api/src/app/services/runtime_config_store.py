@@ -33,15 +33,54 @@ ProviderKey = Literal[
 ScopeKey = Literal["user", "system"]
 
 PROVIDER_FIELDS: dict[str, tuple[str, ...]] = {
-    "llm": ("base_url", "api_key", "model"),
-    "embedding": ("base_url", "api_key", "model", "dimensions"),
-    "tts": ("base_url", "api_key", "model", "voice"),
-    "web_search": ("base_url", "api_key", "model"),
-    "pdf_parser": ("base_url", "api_key", "model"),
-    "classroom": ("base_url", "api_key", "model"),
+    "llm": ("provider_name", "base_url", "api_key", "model", "timeout_seconds"),
+    "embedding": (
+        "provider_name",
+        "base_url",
+        "api_key",
+        "model",
+        "dimensions",
+        "timeout_seconds",
+    ),
+    "tts": (
+        "provider_name",
+        "base_url",
+        "api_key",
+        "model",
+        "voice",
+        "timeout_seconds",
+    ),
+    "web_search": (
+        "provider_name",
+        "base_url",
+        "api_key",
+        "model",
+        "timeout_seconds",
+    ),
+    "pdf_parser": (
+        "provider_name",
+        "base_url",
+        "api_key",
+        "model",
+        "timeout_seconds",
+    ),
+    "classroom": (
+        "provider_name",
+        "base_url",
+        "api_key",
+        "model",
+        "timeout_seconds",
+    ),
 }
 SECRET_FIELDS = {"api_key", "secret_key", "access_token", "token"}
-VALID_STATES = {"draft", "verified", "invalid", "active", "superseded"}
+VALID_STATES = {
+    "draft",
+    "verified",
+    "invalid",
+    "active",
+    "disabled",
+    "superseded",
+}
 
 
 def _now_iso() -> str:
@@ -88,6 +127,8 @@ class RuntimeConfigStore:
             "status": "draft",
             "created_at": _now_iso(),
             "verified_at": None,
+            "verification_latency_ms": None,
+            "validation_error_code": None,
             "activated_at": None,
             "validation_error": None,
             "payload_fingerprint": hashlib.sha256(
@@ -155,6 +196,8 @@ class RuntimeConfigStore:
         revision_id: str,
         ok: bool,
         error: str | None = None,
+        error_code: str | None = None,
+        latency_ms: int | None = None,
     ) -> dict[str, Any]:
         with self._lock:
             record = self._load_record(scope, owner_id, provider)
@@ -163,7 +206,11 @@ class RuntimeConfigStore:
                 raise ValueError("active configuration cannot be re-verified")
             revision["status"] = "verified" if ok else "invalid"
             revision["verified_at"] = _now_iso()
+            revision["verification_latency_ms"] = (
+                max(0, int(latency_ms)) if latency_ms is not None else None
+            )
             revision["validation_error"] = None if ok else _clean(error)[:500]
+            revision["validation_error_code"] = None if ok else _clean(error_code)[:80]
             self._write_record(scope, owner_id, provider, record)
             return self._public_revision(
                 revision, self._decrypt(revision["encrypted_payload"])
@@ -208,7 +255,7 @@ class RuntimeConfigStore:
                 item
                 for item in reversed(record["revisions"])
                 if item["revision_id"] != current_id
-                and item["status"] in {"verified", "superseded"}
+                and item["status"] in {"verified", "superseded", "disabled"}
                 and item.get("verified_at")
             ]
             if not candidates:
@@ -222,6 +269,28 @@ class RuntimeConfigStore:
             self._write_record(scope, owner_id, provider, record)
             return self._public_revision(
                 previous, self._decrypt(previous["encrypted_payload"])
+            )
+
+    def disable(
+        self,
+        *,
+        scope: ScopeKey,
+        owner_id: str,
+        provider: ProviderKey,
+    ) -> dict[str, Any]:
+        """Stop the active override so resolution falls back to the next scope."""
+        with self._lock:
+            record = self._load_record(scope, owner_id, provider)
+            current_id = record.get("active_revision_id")
+            if not current_id:
+                raise ValueError("no active configuration is available to disable")
+            current = self._require_revision(record, current_id)
+            current["status"] = "disabled"
+            current["disabled_at"] = _now_iso()
+            record["active_revision_id"] = None
+            self._write_record(scope, owner_id, provider, record)
+            return self._public_revision(
+                current, self._decrypt(current["encrypted_payload"])
             )
 
     def get_active_values(
@@ -250,7 +319,12 @@ class RuntimeConfigStore:
         if unknown:
             raise ValueError(f"unsupported configuration fields: {', '.join(unknown)}")
         normalized = {
-            field: (int(value) if field == "dimensions" and value not in (None, "") else _clean(value))
+            field: (
+                int(value)
+                if field in {"dimensions", "timeout_seconds"}
+                and value not in (None, "")
+                else _clean(value)
+            )
             for field, value in values.items()
             if value not in (None, "")
         }
@@ -260,6 +334,15 @@ class RuntimeConfigStore:
             raise ValueError("api_key is required")
         if provider in {"llm", "embedding", "tts"} and not _clean(normalized.get("model")):
             raise ValueError("model is required")
+        timeout_seconds = int(
+            normalized["timeout_seconds"]
+            if "timeout_seconds" in normalized
+            else 15
+        )
+        if not 1 <= timeout_seconds <= 120:
+            raise ValueError("timeout_seconds must be between 1 and 120")
+        normalized.setdefault("provider_name", "custom")
+        normalized.setdefault("timeout_seconds", timeout_seconds)
         return normalized
 
     @staticmethod
@@ -349,7 +432,10 @@ class RuntimeConfigStore:
             "status": revision["status"],
             "created_at": revision["created_at"],
             "verified_at": revision.get("verified_at"),
+            "verification_latency_ms": revision.get("verification_latency_ms"),
+            "validation_error_code": revision.get("validation_error_code"),
             "activated_at": revision.get("activated_at"),
+            "disabled_at": revision.get("disabled_at"),
             "validation_error": revision.get("validation_error"),
             "values": public_values,
         }

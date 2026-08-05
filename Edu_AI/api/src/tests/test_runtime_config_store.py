@@ -136,3 +136,58 @@ def test_failed_activation_write_keeps_previous_active_revision(tmp_path, monkey
     )
     assert active[0] == first_id
     assert active[1]["model"] == "first"
+
+
+def test_provider_metadata_timeout_and_disable_are_versioned(tmp_path):
+    store = RuntimeConfigStore(root=tmp_path, master_key="test-master-key")
+    draft = store.create_draft(
+        scope="user",
+        owner_id="teacher-a",
+        provider="tts",
+        values={
+            "provider_name": "openai-compatible",
+            "base_url": "https://speech.example/v1",
+            "api_key": "sk-speech-secret",
+            "model": "tts-1",
+            "voice": "alloy",
+            "timeout_seconds": 25,
+        },
+    )
+    store.mark_verification(
+        scope="user",
+        owner_id="teacher-a",
+        provider="tts",
+        revision_id=draft["revision_id"],
+        ok=True,
+        latency_ms=123,
+    )
+    store.activate(
+        scope="user",
+        owner_id="teacher-a",
+        provider="tts",
+        revision_id=draft["revision_id"],
+    )
+
+    disabled = store.disable(
+        scope="user", owner_id="teacher-a", provider="tts"
+    )
+
+    assert disabled["status"] == "disabled"
+    assert disabled["verification_latency_ms"] == 123
+    assert disabled["values"]["provider_name"] == "openai-compatible"
+    assert disabled["values"]["timeout_seconds"] == 25
+    assert store.get_active_values(
+        scope="user", owner_id="teacher-a", provider="tts"
+    ) is None
+
+
+@pytest.mark.parametrize("timeout", [0, 121])
+def test_runtime_timeout_has_safe_bounds(tmp_path, timeout):
+    store = RuntimeConfigStore(root=tmp_path, master_key="test-master-key")
+    with pytest.raises(ValueError, match="timeout_seconds"):
+        store.create_draft(
+            scope="user",
+            owner_id="teacher-a",
+            provider="llm",
+            values={**_values(), "timeout_seconds": timeout},
+        )

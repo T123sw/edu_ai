@@ -79,6 +79,7 @@ def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
             runtime_search.get("base_url")
             or os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn")
         ),
+        timeout=float(runtime_search.get("timeout_seconds") or 15),
     )
     hits = _rerank_hits(query, hits, final_count)
     return hits[:final_count]
@@ -106,7 +107,11 @@ def _rerank_hits(query: str, hits: list[WebSearchHit], top_n: int) -> list[WebSe
                 runtime_search.get("model")
                 or os.getenv("BOCHA_RERANK_MODEL", "gte-rerank")
             ),
-            timeout=float(os.getenv("BOCHA_RERANK_TIMEOUT_S", "15") or "15"),
+            timeout=float(
+                runtime_search.get("timeout_seconds")
+                or os.getenv("BOCHA_RERANK_TIMEOUT_S", "15")
+                or "15"
+            ),
         )
     except Exception as exc:
         print(f"[DeepSearch] phase=rerank provider=bocha status=error error={type(exc).__name__}: {exc}")

@@ -13,6 +13,7 @@ export type RuntimeRevisionStatus =
   | "verified"
   | "invalid"
   | "active"
+  | "disabled"
   | "superseded";
 
 export type RuntimeConfigRevision = {
@@ -22,6 +23,8 @@ export type RuntimeConfigRevision = {
   verified_at?: string | null;
   activated_at?: string | null;
   validation_error?: string | null;
+  validation_error_code?: string | null;
+  verification_latency_ms?: number | null;
   values: Record<string, string | number>;
 };
 
@@ -86,6 +89,13 @@ export function activateRuntimeConfig(
 
 export function rollbackRuntimeConfig(provider: RuntimeProvider, scope: RuntimeConfigScope) {
   return apiRequest<RuntimeConfigRevision>(`/api/runtime-config/${provider}/rollback`, {
+    method: "POST",
+    body: JSON.stringify({ scope }),
+  });
+}
+
+export function disableRuntimeConfig(provider: RuntimeProvider, scope: RuntimeConfigScope) {
+  return apiRequest<RuntimeConfigRevision>(`/api/runtime-config/${provider}/disable`, {
     method: "POST",
     body: JSON.stringify({ scope }),
   });
