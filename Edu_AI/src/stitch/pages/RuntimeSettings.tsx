@@ -166,9 +166,11 @@ export function RuntimeSettingsPage() {
     try {
       if (action === "verify" && revisionId) {
         const result = await verifyRuntimeConfig(item.provider, scope, revisionId);
-        result.status === "verified"
-          ? message.success("连接测试通过，现在可以启用")
-          : message.error(result.validation_error || "连接测试失败");
+        if (result.status === "verified") {
+          message.success("连接测试通过，现在可以启用");
+        } else {
+          message.error(result.validation_error || "连接测试失败");
+        }
       } else if (action === "activate" && revisionId) {
         await activateRuntimeConfig(item.provider, scope, revisionId);
         message.success("配置已启用，新任务将使用该版本");

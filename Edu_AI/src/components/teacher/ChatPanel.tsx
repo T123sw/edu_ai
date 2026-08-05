@@ -1645,6 +1645,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           <List
             className="chat-panel__message-list"
             dataSource={messages}
+            locale={{
+              emptyText: (
+                <div className="chat-panel__conversation-empty">
+                  <strong>开始一段课程对话</strong>
+                  <span>从下方输入问题，或先从知识库选择资料作为回答依据。</span>
+                </div>
+              ),
+            }}
             renderItem={(item, index) => {
               const inlineSourcePlan = item.user === 'AI'
                 ? buildInlineSourcePlan(item.text, item.sources || [])

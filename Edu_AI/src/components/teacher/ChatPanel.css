@@ -209,6 +209,25 @@
   gap: 18px;
 }
 
+.chat-panel__conversation-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 40px 20px;
+  color: #65758d;
+  text-align: center;
+}
+
+.chat-panel__conversation-empty strong {
+  color: #17304a;
+  font-size: 15px;
+}
+
+.chat-panel__conversation-empty span {
+  max-width: 320px;
+  line-height: 1.6;
+}
+
 .chat-panel__message-row {
   border: none !important;
   padding: 0 !important;
