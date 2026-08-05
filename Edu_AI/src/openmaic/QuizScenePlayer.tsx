@@ -14,6 +14,7 @@ import {
   type QuizQuestionStatus,
 } from './quizScene';
 import { SceneActionPlayback } from './SceneActionPlayback';
+import type { PlaybackMode } from './playbackEngine';
 
 export interface QuizScenePlayerProps {
   courseId: string;
@@ -22,6 +23,9 @@ export interface QuizScenePlayerProps {
   title?: string;
   content: QuizClassroomContent;
   actions?: Array<Record<string, unknown>>;
+  autoPlay?: boolean;
+  onComplete?: () => void;
+  onModeChange?: (mode: PlaybackMode) => void;
 }
 
 export function QuizScenePlayer({
@@ -31,6 +35,9 @@ export function QuizScenePlayer({
   title,
   content,
   actions,
+  autoPlay,
+  onComplete,
+  onModeChange,
 }: QuizScenePlayerProps) {
   const storageKey = useMemo(
     () => quizStorageKey(courseId, classroomId, sceneId),
@@ -81,7 +88,13 @@ export function QuizScenePlayer({
   }
 
   return (
-    <SceneActionPlayback sceneId={sceneId} actions={actions}>
+    <SceneActionPlayback
+      sceneId={sceneId}
+      actions={actions}
+      autoPlay={autoPlay}
+      onComplete={onComplete}
+      onModeChange={onModeChange}
+    >
       <section className="h-full overflow-y-auto bg-[#f7f9fc] px-8 py-6">
         <header className="mb-5 flex items-start justify-between gap-4">
           <div>

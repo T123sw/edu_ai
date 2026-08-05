@@ -12,6 +12,9 @@ export interface SceneActionPlaybackProps {
   sceneId: string;
   actions?: Array<Record<string, unknown>>;
   widget?: ActionWidgetController;
+  autoPlay?: boolean;
+  onComplete?: () => void;
+  onModeChange?: (mode: PlaybackMode) => void;
   children: ReactNode;
 }
 
@@ -23,11 +26,16 @@ export function SceneActionPlayback({
   sceneId,
   actions,
   widget,
+  autoPlay = true,
+  onComplete,
+  onModeChange,
   children,
 }: SceneActionPlaybackProps) {
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const widgetRef = useRef(widget);
   widgetRef.current = widget;
+  const callbacksRef = useRef({ onComplete, onModeChange });
+  callbacksRef.current = { onComplete, onModeChange };
 
   useEffect(() => {
     const playableScene: PlayableScene = {
@@ -44,12 +52,18 @@ export function SceneActionPlayback({
     const engine = new PlaybackEngine(
       [playableScene],
       new WallClockSource(),
-      { onModeChange: setMode },
+      {
+        onModeChange: (nextMode) => {
+          setMode(nextMode);
+          callbacksRef.current.onModeChange?.(nextMode);
+        },
+        onComplete: () => callbacksRef.current.onComplete?.(),
+      },
       { actionExecutor: actionEngine },
     );
-    engine.start();
+    if (autoPlay) engine.start();
     return () => engine.dispose();
-  }, [actions, sceneId]);
+  }, [actions, autoPlay, sceneId]);
 
   return (
     <div className="h-full w-full" data-playback-mode={mode}>

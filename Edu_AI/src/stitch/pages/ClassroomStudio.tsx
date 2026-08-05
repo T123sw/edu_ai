@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { getCourseMaterials } from "../api/courses";
 import { CLASSROOM_STEP_LABELS, generateClassroom, getJobStatus } from "../api/classroom";
 import type { ClassroomMaterial, EduJob } from "../api/types";
-import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
+import { AppSurface, GlassPanel, MaterialIcon, useAppShell } from "../shared";
+import { buildClassroomPlayerHash } from "../../openmaic/classroomGenerationFlow";
+import { buildTeacherCourseHash } from "../teacherRoutes";
 
 const POLL_INTERVAL_MS = 4000;
 
@@ -81,9 +83,7 @@ export function ClassroomStudioPage() {
 
   function openPlayer(classroomId: string) {
     if (!courseId) return;
-    window.location.hash =
-      `${routeHref(routes.classroomPlayer)}?course_id=${encodeURIComponent(courseId)}` +
-      `&classroom_id=${encodeURIComponent(classroomId)}`;
+    window.location.hash = buildClassroomPlayerHash(courseId, classroomId);
   }
 
   if (!courseId) {
@@ -105,7 +105,7 @@ export function ClassroomStudioPage() {
       <main className="w-full px-8 py-10">
         <div className="mb-8 flex items-center justify-between gap-4">
           <a
-            href={routeHref(routes.courseDetail)}
+            href={buildTeacherCourseHash("ai", courseId)}
             className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--accent-strong)"
           >
             <MaterialIcon name="arrow_back" className="text-sm" />

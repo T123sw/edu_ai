@@ -5,11 +5,15 @@ import {
 } from './interactiveScene';
 import { SceneActionPlayback } from './SceneActionPlayback';
 import type { InteractiveClassroomContent } from '../stitch/api/types';
+import type { PlaybackMode } from './playbackEngine';
 
 export interface InteractiveScenePlayerProps {
   sceneId: string;
   content: InteractiveClassroomContent;
   actions?: Array<Record<string, unknown>>;
+  autoPlay?: boolean;
+  onComplete?: () => void;
+  onModeChange?: (mode: PlaybackMode) => void;
 }
 
 type InteractiveRuntimeMessage = {
@@ -22,6 +26,9 @@ export function InteractiveScenePlayer({
   sceneId,
   content,
   actions,
+  autoPlay,
+  onComplete,
+  onModeChange,
 }: InteractiveScenePlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -68,7 +75,14 @@ export function InteractiveScenePlayer({
   }
 
   return (
-    <SceneActionPlayback sceneId={sceneId} actions={actions} widget={widget}>
+    <SceneActionPlayback
+      sceneId={sceneId}
+      actions={actions}
+      widget={widget}
+      autoPlay={autoPlay}
+      onComplete={onComplete}
+      onModeChange={onModeChange}
+    >
       <div className="relative h-full w-full overflow-hidden bg-white">
         <iframe
           key={reloadKey}

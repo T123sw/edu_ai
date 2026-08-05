@@ -9,19 +9,24 @@ import { resolveClassroomSceneKind } from './classroomScene';
 import { InteractiveScenePlayer } from './InteractiveScenePlayer';
 import { QuizScenePlayer } from './QuizScenePlayer';
 import { SlidePlayer } from './SlidePlayer';
+import type { PlaybackMode } from './playbackEngine';
 
 export interface ClassroomSceneRendererProps {
   scene: ClassroomScene;
   courseId: string;
   classroomId: string;
-  onSlideComplete?: () => void;
+  autoPlay?: boolean;
+  onComplete?: () => void;
+  onModeChange?: (mode: PlaybackMode) => void;
 }
 
 export function ClassroomSceneRenderer({
   scene,
   courseId,
   classroomId,
-  onSlideComplete,
+  autoPlay = true,
+  onComplete,
+  onModeChange,
 }: ClassroomSceneRendererProps) {
   const kind = resolveClassroomSceneKind(scene);
 
@@ -36,7 +41,9 @@ export function ClassroomSceneRenderer({
           slide={content.canvas as unknown as Slide}
           actions={scene.actions as never}
           sceneId={scene.id}
-          onComplete={onSlideComplete}
+          autoPlay={autoPlay}
+          onComplete={onComplete}
+          onModeChange={onModeChange}
         />
       );
     }
@@ -46,6 +53,9 @@ export function ClassroomSceneRenderer({
           sceneId={scene.id}
           content={scene.content as InteractiveClassroomContent}
           actions={scene.actions}
+          autoPlay={autoPlay}
+          onComplete={onComplete}
+          onModeChange={onModeChange}
         />
       );
     case 'quiz':
@@ -57,16 +67,19 @@ export function ClassroomSceneRenderer({
           title={scene.title}
           content={scene.content as QuizClassroomContent}
           actions={scene.actions}
+          autoPlay={autoPlay}
+          onComplete={onComplete}
+          onModeChange={onModeChange}
         />
       );
     case 'invalid':
       return (
         <SceneError
-          message={`场景声明不一致：scene.type="${scene.type}"，content.type="${scene.content?.type ?? 'missing'}"。`}
+          message="这一页的数据不完整，暂时无法播放。请返回后重新生成课件。"
         />
       );
     default:
-      return <SceneError message={`暂不支持场景类型 "${scene.type}"。`} />;
+      return <SceneError message="这一页暂不支持在线播放，可尝试导出课件后查看。" />;
   }
 }
 

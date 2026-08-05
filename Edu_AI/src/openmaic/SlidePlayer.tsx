@@ -14,6 +14,7 @@ export interface SlidePlayerProps {
   sceneId?: string;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onModeChange?: (mode: PlaybackMode) => void;
   onTimelineChange?: (timeline: LessonTimeline) => void;
   className?: string;
 }
@@ -43,6 +44,7 @@ export function SlidePlayer({
   sceneId,
   autoPlay = true,
   onComplete,
+  onModeChange,
   onTimelineChange,
   className,
 }: SlidePlayerProps) {
@@ -50,8 +52,8 @@ export function SlidePlayer({
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const engineRef = useRef<PlaybackEngine | null>(null);
   const videoRegistry = useMemo(() => new VideoRegistry(), []);
-  const callbacksRef = useRef({ onComplete, onTimelineChange });
-  callbacksRef.current = { onComplete, onTimelineChange };
+  const callbacksRef = useRef({ onComplete, onModeChange, onTimelineChange });
+  callbacksRef.current = { onComplete, onModeChange, onTimelineChange };
 
   const scenes = useMemo<PlayableScene[]>(
     () => [{ id: sceneId ?? slide.id, order: 0, actions: actions ?? [] }],
@@ -86,7 +88,10 @@ export function SlidePlayer({
       { video: videoRegistry },
     );
     const engine = new PlaybackEngine(scenes, clock, {
-      onModeChange: setMode,
+      onModeChange: (nextMode) => {
+        setMode(nextMode);
+        callbacksRef.current.onModeChange?.(nextMode);
+      },
       onActionStart: (action, timeMs, currentSceneId) => {
         recorder.onActionStart(action.id, currentSceneId, timeMs);
       },
