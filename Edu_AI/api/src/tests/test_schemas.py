@@ -23,7 +23,9 @@ def test_auth_schema_fields_are_available():
     assert set(LoginRequest.model_fields) == {"username", "password"}
     assert set(RegisterRequest.model_fields) == {"username", "password", "role"}
     assert set(LoginResponse.model_fields) == {"token", "user"}
-    assert set(UserInfoResponse.model_fields) == {"username", "role"}
+    assert {"username", "role", "display_name", "email", "phone", "department", "bio", "avatar_url"} <= set(
+        UserInfoResponse.model_fields
+    )
 
 
 def test_chat_and_common_schema_fields_are_available():

@@ -2,10 +2,22 @@
 Authentication API routes.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+import hashlib
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.schemas.auth import LoginRequest, LoginResponse, RegisterRequest, UserInfoResponse
+from app.schemas.auth import (
+    ChangePasswordRequest,
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    UserInfoResponse,
+    UserProfileUpdateRequest,
+)
+from core.config import Config
 from core.auth import auth_manager
 from core.user_storage import user_storage
 
@@ -49,7 +61,8 @@ async def login(request: LoginRequest):
 
 @router.post("/register", response_model=LoginResponse, summary="User register")
 async def register(request: RegisterRequest):
-    valid_roles = ["admin", "teacher", "student"]
+    # Public registration must never grant the system-admin role.
+    valid_roles = ["teacher", "student"]
     if request.role not in valid_roles:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -84,10 +97,80 @@ async def register(request: RegisterRequest):
 
 @router.get("/me", response_model=UserInfoResponse, summary="Current user")
 async def get_me(current_user: dict = Depends(get_current_user)):
-    return UserInfoResponse(
-        username=current_user["username"],
-        role=current_user["role"],
+    user = user_storage.get_user(current_user["username"])
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    return UserInfoResponse(**user_storage.public_user(user))
+
+
+@router.put("/me", response_model=UserInfoResponse, summary="Update current profile")
+async def update_me(
+    request: UserProfileUpdateRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    updated = user_storage.update_user(
+        current_user["username"], **request.model_dump()
     )
+    if not updated:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    user = user_storage.get_user(current_user["username"])
+    return UserInfoResponse(**user_storage.public_user(user))
+
+
+@router.post("/change-password", summary="Change current password")
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    if request.current_password == request.new_password:
+        raise HTTPException(status_code=422, detail="新密码不能与当前密码相同")
+    if not user_storage.change_password(
+        current_user["username"],
+        current_password=request.current_password,
+        new_password=request.new_password,
+    ):
+        raise HTTPException(status_code=400, detail="当前密码不正确")
+    return {"changed": True}
+
+
+@router.post("/avatar", response_model=UserInfoResponse, summary="Upload current avatar")
+async def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+):
+    content_type = str(file.content_type or "").lower()
+    suffix_by_type = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+    }
+    if content_type not in suffix_by_type:
+        raise HTTPException(status_code=400, detail="头像仅支持 JPG、PNG 或 WebP")
+    data = await file.read(2 * 1024 * 1024 + 1)
+    await file.close()
+    if len(data) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="头像文件不能超过 2MB")
+    if not data:
+        raise HTTPException(status_code=400, detail="头像文件为空")
+    avatar_dir = Config.STORAGE_ROOT / "profile_avatars"
+    avatar_dir.mkdir(parents=True, exist_ok=True)
+    owner_hash = hashlib.sha256(current_user["username"].encode("utf-8")).hexdigest()[:24]
+    destination = avatar_dir / f"{owner_hash}{suffix_by_type[content_type]}"
+    temporary = destination.with_suffix(f"{destination.suffix}.tmp")
+    temporary.write_bytes(data)
+    temporary.replace(destination)
+    user_storage.update_user(current_user["username"], avatar_path=str(destination))
+    user = user_storage.get_user(current_user["username"])
+    return UserInfoResponse(**user_storage.public_user(user))
+
+
+@router.get("/avatar", summary="Current avatar")
+async def get_avatar(current_user: dict = Depends(get_current_user)):
+    user = user_storage.get_user(current_user["username"])
+    path = Path(str((user or {}).get("avatar_path") or ""))
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="尚未设置头像")
+    return FileResponse(path)
 
 
 @router.post("/verify", summary="Verify token")

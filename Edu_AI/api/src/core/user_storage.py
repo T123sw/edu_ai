@@ -5,6 +5,9 @@
 import os
 import json
 import hashlib
+import hmac
+import secrets
+import threading
 from typing import Optional, Dict, List
 from datetime import datetime
 from pathlib import Path
@@ -21,6 +24,7 @@ class UserStorage:
             storage_file: 用户数据存储文件路径
         """
         self.storage_file = Path(storage_file)
+        self._lock = threading.RLock()
         self.storage_file.parent.mkdir(parents=True, exist_ok=True)
         self._ensure_default_user()
     
@@ -70,7 +74,30 @@ class UserStorage:
         Returns:
             哈希后的密码
         """
-        return hashlib.sha256(password.encode('utf-8')).hexdigest()
+        iterations = 260_000
+        salt = secrets.token_hex(16)
+        digest = hashlib.pbkdf2_hmac(
+            "sha256", password.encode("utf-8"), salt.encode("ascii"), iterations
+        ).hex()
+        return f"pbkdf2_sha256${iterations}${salt}${digest}"
+
+    @staticmethod
+    def _verify_password_hash(password: str, stored_hash: str) -> bool:
+        if stored_hash.startswith("pbkdf2_sha256$"):
+            try:
+                _, raw_iterations, salt, expected = stored_hash.split("$", 3)
+                actual = hashlib.pbkdf2_hmac(
+                    "sha256",
+                    password.encode("utf-8"),
+                    salt.encode("ascii"),
+                    int(raw_iterations),
+                ).hex()
+                return hmac.compare_digest(actual, expected)
+            except (TypeError, ValueError):
+                return False
+        # Compatibility with legacy unsalted SHA-256 records; upgraded on login.
+        legacy = hashlib.sha256(password.encode("utf-8")).hexdigest()
+        return hmac.compare_digest(legacy, str(stored_hash or ""))
     
     def _load_users(self) -> List[Dict]:
         """加载用户数据"""
@@ -87,11 +114,19 @@ class UserStorage:
     def _save_users(self, users: List[Dict]):
         """保存用户数据"""
         data = {"users": users}
+        temporary = self.storage_file.with_name(
+            f".{self.storage_file.name}.{secrets.token_hex(8)}.tmp"
+        )
         try:
-            with open(self.storage_file, 'w', encoding='utf-8') as f:
+            with temporary.open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporary, self.storage_file)
         except IOError as e:
             raise Exception(f"保存用户数据失败: {str(e)}")
+        finally:
+            temporary.unlink(missing_ok=True)
     
     def get_user(self, username: str) -> Optional[Dict]:
         """
@@ -124,8 +159,16 @@ class UserStorage:
         if not user:
             return False
         
-        password_hash = self._hash_password(password)
-        return user.get("password_hash") == password_hash
+        valid = self._verify_password_hash(password, str(user.get("password_hash") or ""))
+        if valid and not str(user.get("password_hash") or "").startswith("pbkdf2_sha256$"):
+            with self._lock:
+                users = self._load_users()
+                for item in users:
+                    if item.get("username") == username:
+                        item["password_hash"] = self._hash_password(password)
+                        break
+                self._save_users(users)
+        return valid
     
     def create_user(self, username: str, password: str, role: str = "student") -> Dict:
         """
@@ -145,15 +188,23 @@ class UserStorage:
         if self.get_user(username):
             raise ValueError(f"用户名 {username} 已存在")
         
-        users = self._load_users()
-        new_user = {
-            "username": username,
-            "password_hash": self._hash_password(password),
-            "created_at": datetime.now().isoformat(),
-            "role": role
-        }
-        users.append(new_user)
-        self._save_users(users)
+        with self._lock:
+            users = self._load_users()
+            new_user = {
+                "username": username,
+                "password_hash": self._hash_password(password),
+                "created_at": datetime.now().isoformat(),
+                "role": role,
+                "display_name": username,
+                "email": "",
+                "phone": "",
+                "department": "",
+                "bio": "",
+                "avatar_path": "",
+                "password_updated_at": "",
+            }
+            users.append(new_user)
+            self._save_users(users)
         
         # 返回用户信息（不包含密码哈希）
         return {
@@ -173,27 +224,64 @@ class UserStorage:
         Returns:
             更新后的用户信息，如果用户不存在返回None
         """
-        users = self._load_users()
-        user_found = False
+        with self._lock:
+            users = self._load_users()
+            user_found = False
+            allowed_profile_fields = {
+                "display_name",
+                "email",
+                "phone",
+                "department",
+                "bio",
+                "avatar_path",
+            }
+            for user in users:
+                if user.get("username") == username:
+                    if "password" in kwargs:
+                        user["password_hash"] = self._hash_password(kwargs["password"])
+                        user["password_updated_at"] = datetime.now().isoformat()
+                    if "role" in kwargs:
+                        user["role"] = kwargs["role"]
+                    for field in allowed_profile_fields:
+                        if field in kwargs:
+                            user[field] = str(kwargs[field] or "")
+                    user_found = True
+                    break
         
-        for user in users:
-            if user.get("username") == username:
-                if "password" in kwargs:
-                    user["password_hash"] = self._hash_password(kwargs["password"])
-                if "role" in kwargs:
-                    user["role"] = kwargs["role"]
-                user_found = True
-                break
-        
-        if not user_found:
-            return None
-        
-        self._save_users(users)
+            if not user_found:
+                return None
+            self._save_users(users)
         updated_user = self.get_user(username)
         if updated_user:
             # 移除密码哈希
             updated_user.pop("password_hash", None)
         return updated_user
+
+    def change_password(
+        self, username: str, *, current_password: str, new_password: str
+    ) -> bool:
+        if not self.verify_password(username, current_password):
+            return False
+        self.update_user(username, password=new_password)
+        return True
+
+    @staticmethod
+    def public_user(user: Dict) -> Dict:
+        value = dict(user)
+        value.pop("password_hash", None)
+        value.pop("avatar_path", None)
+        value.setdefault("display_name", value.get("username", ""))
+        for field in (
+            "email",
+            "phone",
+            "department",
+            "bio",
+            "created_at",
+            "password_updated_at",
+        ):
+            value.setdefault(field, "")
+        value["avatar_url"] = "/api/auth/avatar" if user.get("avatar_path") else ""
+        return value
     
     def list_users(self) -> List[Dict]:
         """

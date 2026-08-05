@@ -337,11 +337,11 @@ active -> rollback to previous active
 - Modify: `api/src/tests/test_auth.py`
 - Create: `tests/frontend/profile.real-data.test.ts`
 
-- [ ] RED：错误旧密码不能成功，资料刷新来自后端。
-- [ ] GREEN：移除模拟资料和假改密，接真实账户接口。
-- [ ] GREEN：配置入口按角色显示。
-- [ ] 验证认证、错误文案和刷新恢复。
-- [ ] 提交并 push。
+- [x] RED：错误旧密码不能成功，资料刷新来自后端。
+- [x] GREEN：移除模拟资料和假改密，接真实账户接口。
+- [x] GREEN：配置入口按角色显示。
+- [x] 验证认证、错误文案和刷新恢复。
+- [x] 提交并 push。
 
 ### Task 15：P0/P1 总体验收与发布记录
 

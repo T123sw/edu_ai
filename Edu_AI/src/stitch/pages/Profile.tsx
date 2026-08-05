@@ -1,26 +1,15 @@
+import { useEffect, useRef, useState } from "react";
+import { Alert, Button, Form, Input, Modal, Skeleton, Tag, message } from "antd";
+import {
+  changeUserPassword,
+  getUserProfile,
+  loadUserAvatar,
+  updateUserProfile,
+  uploadUserAvatar,
+  type UserProfile,
+  type UserProfileUpdate,
+} from "../api/profile";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
-
-const profile = {
-  username: "林知夏",
-  role: "课程主理人 / 教学设计师",
-  email: "lin.zhixia@edu-ai.local",
-  phone: "+86 138 0000 1024",
-  department: "课程研发中心",
-  bio: "负责课程结构设计、知识图谱维护与教师问答工作流配置。当前个人主页以静态展示为主，用于集中展示账号信息、安全设置和常用入口。",
-};
-
-const accountFields = [
-  ["用户名", profile.username],
-  ["邮箱", profile.email],
-  ["手机号", profile.phone],
-  ["所属部门", profile.department],
-];
-
-const securityItems = [
-  ["登录密码", "上次更新于 2025-02-18"],
-  ["账号状态", "正常，可访问全部教师页面"],
-  ["头像设置", "当前使用静态默认头像"],
-];
 
 const quickLinks = [
   { title: "AI 服务配置", subtitle: "配置模型、语音、搜索与解析服务", href: routeHref(routes.settings), icon: "settings_suggest" },
@@ -29,152 +18,266 @@ const quickLinks = [
   { title: "知识图谱", subtitle: "维护节点与课程关系", href: routeHref(routes.graph), icon: "hub" },
 ];
 
+const roleLabels: Record<string, string> = {
+  admin: "系统管理员",
+  teacher: "教师",
+  student: "学生",
+};
+
+function formatDate(value: string) {
+  if (!value) return "尚未更新";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "尚未更新" : date.toLocaleString("zh-CN");
+}
+
 export function ProfilePage() {
   const { logout } = useAppShell();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const avatarUrlRef = useRef("");
+  const avatarInput = useRef<HTMLInputElement>(null);
+  const [profileForm] = Form.useForm<UserProfileUpdate>();
+  const [passwordForm] = Form.useForm<{
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }>();
+
+  async function refreshProfile() {
+    setLoading(true);
+    try {
+      const next = await getUserProfile();
+      setProfile(next);
+      if (next.avatar_url) {
+        const blob = await loadUserAvatar();
+        setAvatarUrl((previous) => {
+          if (previous) URL.revokeObjectURL(previous);
+          const nextUrl = URL.createObjectURL(blob);
+          avatarUrlRef.current = nextUrl;
+          return nextUrl;
+        });
+      }
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : "个人资料加载失败");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void refreshProfile();
+    return () => {
+      if (avatarUrlRef.current) URL.revokeObjectURL(avatarUrlRef.current);
+    };
+  }, []);
+
+  function openProfileEditor() {
+    if (!profile) return;
+    profileForm.setFieldsValue({
+      display_name: profile.display_name,
+      email: profile.email,
+      phone: profile.phone,
+      department: profile.department,
+      bio: profile.bio,
+    });
+    setEditOpen(true);
+  }
+
+  async function saveProfile() {
+    const values = await profileForm.validateFields();
+    setSaving(true);
+    try {
+      setProfile(await updateUserProfile(values));
+      setEditOpen(false);
+      message.success("个人资料已更新");
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : "保存失败");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function savePassword() {
+    const values = await passwordForm.validateFields();
+    setSaving(true);
+    try {
+      await changeUserPassword(values.currentPassword, values.newPassword);
+      passwordForm.resetFields();
+      setPasswordOpen(false);
+      message.success("密码已更新，下次登录请使用新密码");
+      await refreshProfile();
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : "密码修改失败");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleAvatar(file?: File) {
+    if (!file) return;
+    setSaving(true);
+    try {
+      const updated = await uploadUserAvatar(file);
+      setProfile(updated);
+      const blob = await loadUserAvatar();
+      setAvatarUrl((previous) => {
+        if (previous) URL.revokeObjectURL(previous);
+        const nextUrl = URL.createObjectURL(blob);
+        avatarUrlRef.current = nextUrl;
+        return nextUrl;
+      });
+      message.success("头像已更新");
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : "头像上传失败");
+    } finally {
+      setSaving(false);
+      if (avatarInput.current) avatarInput.current.value = "";
+    }
+  }
+
+  const displayName = profile?.display_name || profile?.username || "用户";
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const accountFields = [
+    ["用户名", profile?.username || "—"],
+    ["邮箱", profile?.email || "未填写"],
+    ["手机号", profile?.phone || "未填写"],
+    ["所属部门", profile?.department || "未填写"],
+  ];
 
   return (
-    <AppSurface className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(191,219,254,0.72),transparent_24%),radial-gradient(circle_at_top_right,rgba(147,197,253,0.22),transparent_18%),linear-gradient(180deg,#f4f8ff_0%,#e7eefc_100%)]">
-      <main className="w-full px-8 py-10">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <a
-            href={routeHref(routes.home)}
-            className="inline-flex items-center gap-2 rounded-full border border-[#c6d4ef] bg-white px-4 py-2 text-sm font-semibold text-[#17304a] shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-          >
-            <MaterialIcon name="arrow_back" className="text-base" />
+    <AppSurface className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(191,219,254,0.72),transparent_24%),linear-gradient(180deg,#f4f8ff_0%,#e7eefc_100%)]">
+      <main className="mx-auto w-full max-w-[1500px] px-5 py-7 sm:px-8 lg:px-10">
+        <div className="mb-7 flex items-center justify-between gap-4">
+          <a href={routeHref(routes.home)} className="inline-flex items-center gap-2 rounded-full border border-[#c6d4ef] bg-white px-4 py-2 text-sm font-semibold text-[#17304a] shadow-sm">
+            <MaterialIcon name="arrow_back" />
             返回首页
           </a>
-          <div className="rounded-full border border-[#c7d8ff] bg-[#eef4ff] px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-[#163a80]">
-            Personal Home
-          </div>
+          <Tag color="blue">真实账户资料</Tag>
         </div>
 
-        <section className="overflow-hidden rounded-[34px] border border-[#d4ddf3] bg-[linear-gradient(135deg,#0f172a_0%,#163a80_46%,#2563eb_100%)] text-white shadow-[0_28px_72px_rgba(15,23,42,0.22)]">
-          <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="p-10 lg:p-14">
-              <p className="text-xs font-bold uppercase tracking-[0.34em] text-white/82">Account Center</p>
-              <h1 className="mt-6 max-w-2xl text-5xl font-black leading-[0.95] tracking-tighter">{profile.username}</h1>
-              <p className="mt-4 text-lg font-semibold text-white">{profile.role}</p>
-              <p className="mt-8 max-w-2xl text-base leading-8 text-white/92">{profile.bio}</p>
-
-              <div className="mt-10 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-[#163a80] transition hover:-translate-y-px"
-                >
-                  <MaterialIcon name="manage_accounts" className="text-base" />
-                  重置密码
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/36 bg-white/18 px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-px"
-                >
-                  <MaterialIcon name="upload" className="text-base" />
-                  更换头像
-                </button>
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-700 transition hover:-translate-y-px"
-                >
-                  <MaterialIcon name="close" className="text-base" />
-                  退出登录
-                </button>
-              </div>
-            </div>
-
-            <div className="relative flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.22),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(15,23,42,0.08)_100%)] p-10">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.14),transparent_54%)]" />
-              <div className="relative text-center">
-                <div className="mx-auto grid h-44 w-44 place-items-center rounded-[40px] border border-white/34 bg-[linear-gradient(145deg,rgba(255,255,255,0.3),rgba(255,255,255,0.12))] text-5xl font-black tracking-[-0.08em] text-white shadow-[0_24px_48px_rgba(15,23,42,0.18)] backdrop-blur-xl">
-                  LX
+        {loading && !profile ? (
+          <GlassPanel className="border border-[#d6dfef] bg-white p-10"><Skeleton active avatar paragraph={{ rows: 6 }} /></GlassPanel>
+        ) : !profile ? (
+          <Alert type="error" showIcon message="个人资料暂时无法加载" action={<Button onClick={() => void refreshProfile()}>重试</Button>} />
+        ) : (
+          <>
+            <section className="overflow-hidden rounded-[34px] border border-[#d4ddf3] bg-[linear-gradient(135deg,#0f172a_0%,#163a80_46%,#2563eb_100%)] text-white shadow-[0_28px_72px_rgba(15,23,42,0.22)]">
+              <div className="grid lg:grid-cols-[1.2fr_0.8fr]">
+                <div className="p-8 lg:p-12">
+                  <p className="text-xs font-bold uppercase tracking-[0.34em] text-white/80">Account Center</p>
+                  <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">{displayName}</h1>
+                  <p className="mt-3 text-lg font-semibold">{roleLabels[profile.role] || profile.role}</p>
+                  <p className="mt-7 max-w-2xl text-base leading-8 text-white/90">
+                    {profile.bio || "补充个人简介，让账号中心更容易识别你的教学职责。"}
+                  </p>
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <Button onClick={openProfileEditor} icon={<MaterialIcon name="manage_accounts" />}>编辑资料</Button>
+                    <Button onClick={() => setPasswordOpen(true)}>修改密码</Button>
+                    <Button danger onClick={logout}>退出登录</Button>
+                  </div>
                 </div>
-                <div className="mt-6 rounded-full border border-white/28 bg-white/16 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
-                  当前头像
+                <div className="relative flex items-center justify-center bg-white/10 p-8">
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => avatarInput.current?.click()}
+                      className="mx-auto grid h-40 w-40 overflow-hidden rounded-[38px] border border-white/35 bg-white/20 text-4xl font-black shadow-xl"
+                      aria-label="更换头像"
+                    >
+                      {avatarUrl ? <img src={avatarUrl} alt={`${displayName}的头像`} className="h-full w-full object-cover" /> : <span className="self-center">{initials}</span>}
+                    </button>
+                    <button type="button" onClick={() => avatarInput.current?.click()} className="mt-4 text-sm font-semibold text-white">
+                      点击更换头像
+                    </button>
+                    <input
+                      ref={avatarInput}
+                      className="hidden"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(event) => void handleAvatar(event.target.files?.[0])}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <GlassPanel className="border border-[#d6dfef] bg-white p-8 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-            <div className="mb-8 flex items-center gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eaf1ff] text-[#2357b8]">
-                <MaterialIcon name="account_circle" className="text-xl" />
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#5b6f8d]">Profile Details</p>
-                <h2 className="mt-1 text-2xl font-black text-[#17304a]">个人资料</h2>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {accountFields.map(([label, value]) => (
-                <div key={label} className="rounded-[24px] border border-[#dde6f5] bg-[#f8fbff] p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#60738f]">{label}</p>
-                  <p className="mt-3 text-base font-bold text-[#17304a]">{value}</p>
+            <div className="mt-7 grid gap-7 lg:grid-cols-[1.1fr_0.9fr]">
+              <GlassPanel className="border border-[#d6dfef] bg-white p-7 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#5b6f8d]">Profile Details</p>
+                    <h2 className="mt-1 text-2xl font-black text-[#17304a]">个人资料</h2>
+                  </div>
+                  <Button onClick={openProfileEditor}>编辑</Button>
                 </div>
-              ))}
-            </div>
-          </GlassPanel>
-
-          <div className="space-y-8">
-            <GlassPanel className="border border-[#d6dfef] bg-white p-8 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-              <div className="mb-6 flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eaf1ff] text-[#2357b8]">
-                  <MaterialIcon name="settings" className="text-xl" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {accountFields.map(([label, value]) => (
+                    <div key={label} className="rounded-[22px] border border-[#dde6f5] bg-[#f8fbff] p-5">
+                      <p className="text-xs font-bold text-[#60738f]">{label}</p>
+                      <p className="mt-2 break-words text-base font-bold text-[#17304a]">{value}</p>
+                    </div>
+                  ))}
                 </div>
-                <div>
+              </GlassPanel>
+
+              <div className="space-y-7">
+                <GlassPanel className="border border-[#d6dfef] bg-white p-7 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#5b6f8d]">Security</p>
                   <h2 className="mt-1 text-2xl font-black text-[#17304a]">账号安全</h2>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {securityItems.map(([label, value]) => (
-                  <div key={label} className="rounded-[22px] border border-[#dde6f5] bg-[#f8fbff] px-5 py-4">
-                    <p className="text-sm font-bold text-[#17304a]">{label}</p>
-                    <p className="mt-1 text-sm text-[#5f7088]">{value}</p>
+                  <div className="mt-5 space-y-3">
+                    <div className="rounded-[20px] bg-[#f8fbff] p-4">
+                      <p className="font-bold text-[#17304a]">登录密码</p>
+                      <p className="mt-1 text-sm text-[#5f7088]">最近更新：{formatDate(profile.password_updated_at)}</p>
+                    </div>
+                    <div className="rounded-[20px] bg-[#f8fbff] p-4">
+                      <p className="font-bold text-[#17304a]">账号状态</p>
+                      <p className="mt-1 text-sm text-[#5f7088]">正常 · {roleLabels[profile.role] || profile.role}</p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </GlassPanel>
+                </GlassPanel>
 
-            <GlassPanel className="border border-[#d6dfef] bg-white p-8 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-              <div className="mb-6 flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eaf1ff] text-[#2357b8]">
-                  <MaterialIcon name="dashboard" className="text-xl" />
-                </div>
-                <div>
+                <GlassPanel className="border border-[#d6dfef] bg-white p-7 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#5b6f8d]">Quick Access</p>
                   <h2 className="mt-1 text-2xl font-black text-[#17304a]">快捷入口</h2>
-                </div>
+                  <div className="mt-5 space-y-3">
+                    {quickLinks.map((item) => (
+                      <a key={item.title} href={item.href} className="flex items-center justify-between rounded-[20px] border border-[#dde6f5] bg-[#f8fbff] px-5 py-4 transition hover:border-[#9cb9f2] hover:bg-white">
+                        <div className="flex items-center gap-3">
+                          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eaf1ff] text-[#2357b8]"><MaterialIcon name={item.icon} /></span>
+                          <span><span className="block text-sm font-bold text-[#17304a]">{item.title}</span><span className="mt-1 block text-xs text-[#5f7088]">{item.subtitle}</span></span>
+                        </div>
+                        <MaterialIcon name="arrow_forward" className="text-[#2357b8]" />
+                      </a>
+                    ))}
+                  </div>
+                </GlassPanel>
               </div>
-
-              <div className="space-y-3">
-                {quickLinks.map((item) => (
-                  <a
-                    key={item.title}
-                    href={item.href}
-                    className="flex items-center justify-between rounded-[22px] border border-[#dde6f5] bg-[#f8fbff] px-5 py-4 transition hover:-translate-y-px hover:border-[#9cb9f2] hover:bg-white"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eaf1ff] text-[#2357b8]">
-                        <MaterialIcon name={item.icon} className="text-lg" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-[#17304a]">{item.title}</p>
-                        <p className="mt-1 text-xs text-[#5f7088]">{item.subtitle}</p>
-                      </div>
-                    </div>
-                    <MaterialIcon name="arrow_forward" className="text-[#2357b8]" />
-                  </a>
-                ))}
-              </div>
-            </GlassPanel>
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </main>
+
+      <Modal title="编辑个人资料" open={editOpen} okText="保存" cancelText="取消" confirmLoading={saving} onOk={() => void saveProfile()} onCancel={() => setEditOpen(false)}>
+        <Form form={profileForm} layout="vertical" requiredMark={false}>
+          <Form.Item name="display_name" label="显示名称" rules={[{ required: true, message: "请填写显示名称" }]}><Input maxLength={80} /></Form.Item>
+          <Form.Item name="email" label="邮箱" rules={[{ type: "email", message: "邮箱格式不正确" }]}><Input maxLength={160} /></Form.Item>
+          <Form.Item name="phone" label="手机号"><Input maxLength={40} /></Form.Item>
+          <Form.Item name="department" label="所属部门"><Input maxLength={120} /></Form.Item>
+          <Form.Item name="bio" label="个人简介"><Input.TextArea rows={4} maxLength={600} showCount /></Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title="修改登录密码" open={passwordOpen} okText="确认修改" cancelText="取消" confirmLoading={saving} onOk={() => void savePassword()} onCancel={() => { setPasswordOpen(false); passwordForm.resetFields(); }}>
+        <Form form={passwordForm} layout="vertical" requiredMark={false}>
+          <Form.Item name="currentPassword" label="当前密码" rules={[{ required: true, message: "请输入当前密码" }]}><Input.Password autoComplete="current-password" /></Form.Item>
+          <Form.Item name="newPassword" label="新密码" rules={[{ required: true, min: 8, message: "新密码至少 8 位" }]}><Input.Password autoComplete="new-password" /></Form.Item>
+          <Form.Item name="confirmPassword" label="确认新密码" dependencies={["newPassword"]} rules={[{ required: true, message: "请再次输入新密码" }, ({ getFieldValue }) => ({ validator(_, value) { return !value || getFieldValue("newPassword") === value ? Promise.resolve() : Promise.reject(new Error("两次输入的密码不一致")); } })]}><Input.Password autoComplete="new-password" /></Form.Item>
+        </Form>
+      </Modal>
     </AppSurface>
   );
 }
