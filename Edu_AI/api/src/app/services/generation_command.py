@@ -24,6 +24,11 @@ from app.services.job_store import (
     list_job_page,
     update_job,
 )
+from app.services.runtime_config_resolver import (
+    reset_runtime_config_context,
+    runtime_config_resolver,
+    set_runtime_config_context,
+)
 from core.course_storage import (
     reset_generation_persistence_context,
     set_generation_persistence_context,
@@ -118,6 +123,13 @@ class GenerationCommandService:
         existing_job: EduJob | None = None,
     ) -> EduJob:
         with self._submission_lock:
+            if "_runtime_config_snapshot" not in command.config:
+                command.config = {
+                    **command.config,
+                    "_runtime_config_snapshot": runtime_config_resolver.capture_snapshot(
+                        command.owner_user_id
+                    ),
+                }
             if existing_job is None:
                 duplicate = self._find_duplicate(command)
                 if duplicate is not None:
@@ -185,6 +197,10 @@ class GenerationCommandService:
             message="正在根据课程资料生成内容",
         )
         try:
+            runtime_tokens = set_runtime_config_context(
+                owner_user_id=command.owner_user_id,
+                snapshot=dict(command.config.get("_runtime_config_snapshot") or {}),
+            )
             context_token = set_generation_persistence_context(
                 owner_user_id=command.owner_user_id,
                 source_job_id=job.edu_job_id,
@@ -198,6 +214,7 @@ class GenerationCommandService:
                 )
             finally:
                 reset_generation_persistence_context(context_token)
+                reset_runtime_config_context(runtime_tokens)
             saved = bool(result.get("saved", True))
             result_ref = dict(result.get("result_ref") or {})
             if saved:

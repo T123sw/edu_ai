@@ -304,12 +304,12 @@ draft -> verifying -> verified -> active
 active -> rollback to previous active
 ```
 
-- [ ] RED：密钥加密、响应掩码、owner 隔离、角色权限和日志脱敏。
-- [ ] RED：未验证配置不能激活，激活失败自动回滚。
-- [ ] GREEN：实现系统默认 + 用户覆盖 + 任务快照解析。
-- [ ] GREEN：先接入对话模型、Embedding、TTS，再接入 SPEC 其余服务。
-- [ ] 验证新任务使用新配置，旧任务保持原快照。
-- [ ] 提交并 push。
+- [x] RED：密钥加密、响应掩码、owner 隔离、角色权限和日志脱敏。
+- [x] RED：未验证配置不能激活，激活失败自动回滚。
+- [x] GREEN：实现系统默认 + 用户覆盖 + 任务快照解析。
+- [x] GREEN：先接入对话模型、Embedding、TTS，再接入 SPEC 其余服务。
+- [x] 验证新任务使用新配置，旧任务保持原快照。
+- [x] 提交并 push。
 
 ### Task 13：配置中心前端
 

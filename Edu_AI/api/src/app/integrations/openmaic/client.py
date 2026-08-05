@@ -43,6 +43,7 @@ class OpenMaicConfig:
     """见 SPEC-07 §1。所有超时单位秒。"""
 
     base_url: str = field(default_factory=_default_base_url)
+    api_key: str = ""
     connect_timeout: float = 10.0
     request_timeout: float = 60.0
     parse_timeout: float = 20 * 60
@@ -243,7 +244,14 @@ class OpenMaicClient:
         for attempt in range(1, attempts + 1):
             started = time.monotonic()
             try:
-                resp = await self._client.request(method, url, json=json, timeout=timeout)
+                headers = (
+                    {"Authorization": f"Bearer {self.config.api_key}"}
+                    if self.config.api_key
+                    else None
+                )
+                resp = await self._client.request(
+                    method, url, json=json, headers=headers, timeout=timeout
+                )
             except (httpx.TransportError, httpx.TimeoutException) as exc:
                 elapsed = time.monotonic() - started
                 last_error = OpenMaicUnavailable(f"sidecar unreachable: {exc}")

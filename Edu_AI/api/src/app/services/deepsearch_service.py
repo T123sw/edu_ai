@@ -18,6 +18,7 @@ from app.deepsearch_importer import (
 from app.chat.workflows.report.image_downloader import localize_image
 from app.integrations.websearch import ExtractResult, WebSearchHit, extract_tavily, rerank_bocha, search_bocha
 from app.services import crawl_batch_store
+from app.services.runtime_config_resolver import runtime_config_resolver
 from core import Config
 from modules.rag_v2.api import get_rag_system
 
@@ -64,6 +65,7 @@ class CrawlBatchResult:
 
 
 def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
+    runtime_search = runtime_config_resolver.resolve("web_search")
     final_count = max(1, int(max_urls or int(os.getenv("WEB_SEARCH_DEFAULT_COUNT", "10") or "10")))
     recall_count = max(final_count, int(os.getenv("BOCHA_SEARCH_RECALL_COUNT", "50") or "50"))
     recall_count = min(recall_count, 50)
@@ -72,8 +74,11 @@ def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
         query,
         count=recall_count,
         freshness=os.getenv("WEB_SEARCH_FRESHNESS", "noLimit"),
-        api_key=os.getenv("BOCHA_API_KEY", ""),
-        base_url=os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn"),
+        api_key=str(runtime_search.get("api_key") or os.getenv("BOCHA_API_KEY", "")),
+        base_url=str(
+            runtime_search.get("base_url")
+            or os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn")
+        ),
     )
     hits = _rerank_hits(query, hits, final_count)
     return hits[:final_count]
@@ -86,14 +91,21 @@ def _rerank_hits(query: str, hits: list[WebSearchHit], top_n: int) -> list[WebSe
     if enabled in {"0", "false", "no", "off"}:
         return hits
     documents = [_hit_rerank_text(hit) for hit in hits]
+    runtime_search = runtime_config_resolver.resolve("web_search")
     try:
         ranked = rerank_bocha(
             query,
             documents,
             top_n=min(max(1, int(top_n or len(hits))), len(hits)),
-            api_key=os.getenv("BOCHA_API_KEY", ""),
-            base_url=os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn"),
-            model=os.getenv("BOCHA_RERANK_MODEL", "gte-rerank"),
+            api_key=str(runtime_search.get("api_key") or os.getenv("BOCHA_API_KEY", "")),
+            base_url=str(
+                runtime_search.get("base_url")
+                or os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn")
+            ),
+            model=str(
+                runtime_search.get("model")
+                or os.getenv("BOCHA_RERANK_MODEL", "gte-rerank")
+            ),
             timeout=float(os.getenv("BOCHA_RERANK_TIMEOUT_S", "15") or "15"),
         )
     except Exception as exc:

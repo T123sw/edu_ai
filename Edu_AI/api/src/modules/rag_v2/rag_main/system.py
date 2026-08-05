@@ -30,6 +30,7 @@ import chromadb
 from chromadb.config import Settings
 from .core.config import Config
 from modules.rag_v2.document_resolver import resolve_rag_document
+from app.services.runtime_config_resolver import runtime_config_resolver
 
 # MinerU 解析已迁移为「直连 MinerU Cloud」provider（见 docs/spec/SPEC-03）。
 # 不再依赖本地 mineru CLI；可用性 = provider 是否配置了 API key。
@@ -124,12 +125,19 @@ class EmbeddingClient:
         model: str = "gemini-embedding-2-preview",
         backend: Optional[str] = None,
     ):
+        runtime_embedding = runtime_config_resolver.resolve("embedding")
+        runtime_override = (
+            runtime_embedding
+            if runtime_embedding.get("_source") in {"user", "system"}
+            else {}
+        )
         self.backend = (backend or os.getenv("EMBEDDING_BACKEND", "gemini")).lower()
         if self.backend not in {"gemini", "openai"}:
             raise ValueError(f"当前仅支持 EMBEDDING_BACKEND=gemini/openai，收到: {self.backend}")
 
         base = (
-            os.getenv("EMBEDDING_API_BASE")
+            runtime_override.get("base_url")
+            or os.getenv("EMBEDDING_API_BASE")
             or api_base
             or getattr(Config, "EMBEDDING_API_BASE", "")
             or getattr(Config, "OPENROUTER_BASE_URL", "")
@@ -139,15 +147,29 @@ class EmbeddingClient:
 
         self.api_base = base
         # embedding 优先使用独立密钥，默认回落到 OpenRouter key
-        self.api_key = os.getenv("EMBEDDING_API_KEY") or api_key or getattr(Config, "OPENROUTER_API_KEY", "") or "dummy-key"
-        self.model = model or os.getenv("EMBEDDING_MODEL", "gemini-embedding-2-preview")
+        self.api_key = (
+            runtime_override.get("api_key")
+            or os.getenv("EMBEDDING_API_KEY")
+            or api_key
+            or getattr(Config, "OPENROUTER_API_KEY", "")
+            or "dummy-key"
+        )
+        self.model = (
+            runtime_override.get("model")
+            or model
+            or os.getenv("EMBEDDING_MODEL", "gemini-embedding-2-preview")
+        )
 
         self.timeout_sec = int(os.getenv("EMBEDDING_TIMEOUT_SEC", str(getattr(Config, "EMBEDDING_TIMEOUT_SEC", 120))))
         self.max_retries = int(os.getenv("EMBEDDING_MAX_RETRIES", str(getattr(Config, "EMBEDDING_MAX_RETRIES", 3))))
         self.batch_size = int(os.getenv("EMBEDDING_BATCH_SIZE", str(getattr(Config, "EMBEDDING_BATCH_SIZE", 64))))
         self.max_workers = int(os.getenv("EMBEDDING_MAX_WORKERS", str(getattr(Config, "EMBEDDING_MAX_WORKERS", 4))))
         self.gemini_dimensions = int(
-            os.getenv("GEMINI_EMBEDDING_DIMENSIONS", str(getattr(Config, "GEMINI_EMBEDDING_DIMENSIONS", 0)))
+            runtime_override.get("dimensions")
+            or os.getenv(
+                "GEMINI_EMBEDDING_DIMENSIONS",
+                str(getattr(Config, "GEMINI_EMBEDDING_DIMENSIONS", 0)),
+            )
         )
 
     def _post_embeddings_batch(self, batch_texts: List[str]) -> List[List[float]]:

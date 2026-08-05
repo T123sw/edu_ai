@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from langchain_openai import ChatOpenAI
 
 from core.config import Config
+from app.services.runtime_config_resolver import runtime_config_resolver
 from ..report_domain import REPORT_DEFAULTS
 
 
@@ -29,17 +30,24 @@ def _thinking_extra_body(model_name: str) -> dict:
 
 def get_fallback_llm() -> Optional[ChatOpenAI]:
     try:
+        runtime_cfg = runtime_config_resolver.resolve("llm")
         model_cfg = Config.get_deep_model()
-        selected_model = str(model_cfg.get("model_name") or Config.LLM_MODEL_DEEP)
+        selected_model = str(
+            runtime_cfg.get("model")
+            or model_cfg.get("model_name")
+            or Config.LLM_MODEL_DEEP
+        )
         selected_base = _normalize_openai_compatible_base_url(
-            model_cfg.get("api_base")
+            runtime_cfg.get("base_url")
+            or model_cfg.get("api_base")
             or Config.DEEP_MODEL_API_BASE
             or Config.REMOTE_MODEL_API_BASE
         )
         extra_body = _thinking_extra_body(selected_model)
         return ChatOpenAI(
             api_key=str(
-                model_cfg.get("api_key")
+                runtime_cfg.get("api_key")
+                or model_cfg.get("api_key")
                 or Config.DEEP_MODEL_API_KEY
                 or Config.REMOTE_MODEL_API_KEY
             ),

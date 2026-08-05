@@ -86,6 +86,9 @@ class Config:
 
     # 存储路径
     STORAGE_ROOT = Path(os.getenv("STORAGE_ROOT", "storage"))
+    RUNTIME_CONFIG_ROOT = Path(
+        os.getenv("RUNTIME_CONFIG_ROOT", STORAGE_ROOT / "runtime_config")
+    )
     VECTOR_DB_PATH = Path(os.getenv("VECTOR_DB_PATH", STORAGE_ROOT / "vector_db"))
     DOCUMENT_INDEX_PATH = Path(
         os.getenv("DOCUMENT_INDEX_PATH", STORAGE_ROOT / "document_index.json")
@@ -197,6 +200,7 @@ class Config:
     @classmethod
     def ensure_directories(cls):
         cls.STORAGE_ROOT.mkdir(parents=True, exist_ok=True)
+        cls.RUNTIME_CONFIG_ROOT.mkdir(parents=True, exist_ok=True)
         cls.VECTOR_DB_PATH.mkdir(parents=True, exist_ok=True)
         cls.TEMP_DIR.mkdir(parents=True, exist_ok=True)
         cls.DOCUMENTS_ROOT.mkdir(parents=True, exist_ok=True)

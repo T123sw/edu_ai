@@ -23,7 +23,10 @@ from app.services.classroom_job_service import (
     run_generate_classroom_job,
     start_generate_classroom_job,
 )
-from app.services.classroom_media import migrate_classroom_speech_audio
+from app.services.classroom_media import (
+    migrate_classroom_speech_audio,
+    synthesize_classroom_speech_audio,
+)
 from app.services.classroom_persistence import ClassroomValidationError, persist_classroom_result
 from app.services.job_store import EduJob
 from app.services.knowledge_graph_context import fetch_knowledge_graph_context
@@ -176,6 +179,12 @@ def _make_on_sidecar_succeeded(
             active_client=active_client,
             course_storage_manager=course_storage_manager,
         )
+        await synthesize_classroom_speech_audio(
+            scenes=full_classroom.get("scenes") or [],
+            course_id=course_id,
+            classroom_id=classroom_id,
+            course_storage_manager=course_storage_manager,
+        )
         return persist_classroom_result(
             course_storage_manager=course_storage_manager,
             course_id=course_id,
@@ -218,7 +227,7 @@ async def generate_classroom_for_course(
     静默跳过配音生成（不报错，只是 audioUrl 不会出现），前端自动退回浏览器
     TTS/静音等待兜底，不影响功能完整性，只是没有真人配音。
     """
-    active_client = client or get_openmaic_client()
+    active_client = client or get_openmaic_client(owner_user_id=owner)
     research_context = await _build_research_context(
         course_storage_manager=course_storage_manager,
         course_id=course_id,
@@ -275,7 +284,7 @@ async def submit_classroom_generation_job(
 
     `enable_tts` 见 `generate_classroom_for_course` 的说明。
     """
-    active_client = client or get_openmaic_client()
+    active_client = client or get_openmaic_client(owner_user_id=owner)
     research_context = await _build_research_context(
         course_storage_manager=course_storage_manager,
         course_id=course_id,

@@ -14,10 +14,39 @@ from app.pipeline import router as pipeline_router
 from app.speech.routes import router as speech_router
 from app.video_routes import router as video_router
 from core import Config
+from core.auth import auth_manager
+from app.services.runtime_config_resolver import (
+    reset_runtime_config_context,
+    runtime_config_resolver,
+    set_runtime_config_context,
+)
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title=Config.APP_NAME, version="1.0.0")
+
+    @app.middleware("http")
+    async def bind_runtime_configuration(request, call_next):
+        """Freeze the authenticated user's provider revisions for this request."""
+        authorization = request.headers.get("authorization", "")
+        tokens = None
+        if authorization.lower().startswith("bearer "):
+            try:
+                current_user = auth_manager.get_current_user(authorization[7:].strip())
+                owner = str(current_user.get("username") or "").strip()
+                if owner:
+                    tokens = set_runtime_config_context(
+                        owner_user_id=owner,
+                        snapshot=runtime_config_resolver.capture_snapshot(owner),
+                    )
+            except Exception:
+                # Authentication dependencies still own the actual 401 response.
+                tokens = None
+        try:
+            return await call_next(request)
+        finally:
+            if tokens is not None:
+                reset_runtime_config_context(tokens)
 
     app.include_router(auth_router)
     app.include_router(chat_router)
@@ -32,6 +61,7 @@ def create_app() -> FastAPI:
     from app.api.courses import router as courses_router
     from app.api.health import router as health_router
     from app.api.jobs import router as jobs_router
+    from app.api.runtime_config import router as runtime_config_router
     from app.api.teacher import router as teacher_router
     from app.api.chat_legacy import router as chat_legacy_router
     from app.api.searched_images import router as searched_images_router
@@ -40,6 +70,7 @@ def create_app() -> FastAPI:
     app.include_router(courses_router)
     app.include_router(health_router)
     app.include_router(jobs_router)
+    app.include_router(runtime_config_router)
     app.include_router(teacher_router)
     app.include_router(chat_legacy_router)
     app.include_router(searched_images_router)
