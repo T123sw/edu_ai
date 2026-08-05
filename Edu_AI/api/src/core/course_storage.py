@@ -10,9 +10,13 @@ Handles:
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import shutil
+import tempfile
+import threading
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
@@ -36,10 +40,15 @@ TYPE_MAPPING = {
     "ai_lecture_session": "lecture_sessions",
     "blog": "blogs",
     "quiz": "quizzes",
+    "game": "games",
+    "flashcard": "flashcards",
     "classroom": "classrooms",
 }
 
 DIR_TO_TYPE = {value: key for key, value in TYPE_MAPPING.items()}
+FORMAL_MATERIAL_TYPES = frozenset(TYPE_MAPPING)
+_STORAGE_LOCKS: Dict[str, threading.RLock] = {}
+_STORAGE_LOCKS_GUARD = threading.Lock()
 
 
 class CourseStorageManager:
@@ -66,8 +75,30 @@ class CourseStorageManager:
 
     def _write_json(self, file_path: Path, payload: Dict[str, Any]) -> None:
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
+        serialized = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+        temp_path: Optional[Path] = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                dir=file_path.parent,
+                prefix=f".{file_path.stem}-",
+                suffix=".tmp",
+                delete=False,
+            ) as handle:
+                temp_path = Path(handle.name)
+                handle.write(serialized)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temp_path, file_path)
+        except Exception:
+            if temp_path is not None:
+                temp_path.unlink(missing_ok=True)
+            raise
+
+    def _storage_lock(self) -> threading.RLock:
+        key = str(self.root_path.resolve())
+        with _STORAGE_LOCKS_GUARD:
+            return _STORAGE_LOCKS.setdefault(key, threading.RLock())
 
     def _material_dir(self, course_id: str, material_type: str) -> Path:
         return self.get_course_dir(course_id) / "generated_materials" / TYPE_MAPPING.get(material_type, "others")
@@ -101,6 +132,56 @@ class CourseStorageManager:
                 -self._timestamp(item.get("updated_at") or item.get("created_at")),
             ),
         )
+
+    def _normalize_material_manifest(
+        self,
+        material_data: Dict[str, Any],
+        *,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+    ) -> Dict[str, Any]:
+        normalized = dict(material_data)
+        normalized["schema_version"] = int(normalized.get("schema_version") or 1)
+        normalized["version"] = int(normalized.get("version") or 1)
+        normalized["material_id"] = self._normalize_material_id(material_id)
+        normalized["course_id"] = str(normalized.get("course_id") or course_id)
+        normalized["material_type"] = str(
+            normalized.get("material_type") or material_type
+        )
+        normalized["scope_type"] = str(
+            normalized.get("scope_type") or SCOPE_TYPE_COURSE
+        )
+        normalized["scope_id"] = (
+            str(normalized.get("scope_id") or "").strip() or None
+        )
+        normalized["owner_user_id"] = (
+            str(normalized.get("owner_user_id") or "").strip() or None
+        )
+        normalized["source_job_id"] = (
+            str(normalized.get("source_job_id") or "").strip() or None
+        )
+        normalized["config_snapshot_id"] = (
+            str(normalized.get("config_snapshot_id") or "").strip() or None
+        )
+        normalized["source"] = dict(normalized.get("source") or {})
+        normalized["status"] = str(normalized.get("status") or "ready")
+        normalized["is_pinned"] = bool(normalized.get("is_pinned", False))
+        normalized["artifact_paths"] = list(
+            normalized.get("artifact_paths")
+            or ([normalized["file_path"]] if normalized.get("file_path") else [])
+        )
+        return normalized
+
+    @staticmethod
+    def _material_owner_matches(
+        material_data: Dict[str, Any], owner_user_id: Optional[str]
+    ) -> bool:
+        if owner_user_id is None:
+            return True
+        stored_owner = str(material_data.get("owner_user_id") or "").strip()
+        requested_owner = str(owner_user_id or "").strip()
+        return not stored_owner or (bool(requested_owner) and stored_owner == requested_owner)
 
     def _normalize_scope(self, *, course_id: str, scope_type: Optional[str], scope_id: Optional[str]) -> Dict[str, Any]:
         return normalize_workspace_scope(
@@ -429,55 +510,160 @@ class CourseStorageManager:
         *,
         scope_type: Optional[str] = None,
         scope_id: Optional[str] = None,
+        owner_user_id: Optional[str] = None,
+        source_job_id: Optional[str] = None,
+        config_snapshot_id: Optional[str] = None,
     ) -> bool:
         try:
+            normalized_material_type = str(material_type or "").strip()
+            if normalized_material_type not in FORMAL_MATERIAL_TYPES:
+                raise ValueError(f"unsupported material type: {normalized_material_type}")
+            safe_material_id = self._normalize_material_id(material_id)
+            if not safe_material_id:
+                raise ValueError("material_id is required")
             material_dir = self._material_dir(course_id, material_type)
             material_dir.mkdir(parents=True, exist_ok=True)
 
             material_file = self._material_file(course_id, material_type, material_id)
-            existing_data = self._read_json(material_file) or {}
-            next_data = dict(existing_data)
-            next_data.update(material_data or {})
-            normalized_scope = self._normalize_scope(
-                course_id=course_id,
-                scope_type=scope_type or next_data.get("scope_type"),
-                scope_id=scope_id if scope_id is not None else next_data.get("scope_id"),
-            )
-            next_data["material_type"] = material_type
-            next_data["material_id"] = self._normalize_material_id(material_id)
-            next_data["course_id"] = course_id
-            next_data["scope_type"] = normalized_scope["scope_type"]
-            next_data["scope_id"] = normalized_scope["scope_id"]
-            next_data["created_at"] = str(
-                next_data.get("created_at") or existing_data.get("created_at") or datetime.now().isoformat()
-            )
-            next_data["updated_at"] = datetime.now().isoformat()
-            next_data["is_pinned"] = bool(next_data.get("is_pinned", existing_data.get("is_pinned", False)))
-            next_data["pinned_at"] = (
-                str(next_data.get("pinned_at") or existing_data.get("pinned_at") or datetime.now().isoformat())
-                if next_data["is_pinned"]
-                else None
-            )
+            with self._storage_lock():
+                existing_data = self._read_json(material_file) or {}
+                next_data = dict(existing_data)
+                next_data.update(material_data or {})
+                normalized_scope = self._normalize_scope(
+                    course_id=course_id,
+                    scope_type=scope_type or next_data.get("scope_type"),
+                    scope_id=scope_id if scope_id is not None else next_data.get("scope_id"),
+                )
+                now = datetime.now().isoformat()
+                next_data["schema_version"] = 2
+                next_data["version"] = int(existing_data.get("version") or 0) + 1
+                next_data["material_type"] = normalized_material_type
+                next_data["material_id"] = safe_material_id
+                next_data["course_id"] = course_id
+                next_data["scope_type"] = normalized_scope["scope_type"]
+                next_data["scope_id"] = normalized_scope["scope_id"]
+                next_data["owner_user_id"] = (
+                    str(owner_user_id or next_data.get("owner_user_id") or "").strip()
+                    or None
+                )
+                next_data["source_job_id"] = (
+                    str(source_job_id or next_data.get("source_job_id") or "").strip()
+                    or None
+                )
+                next_data["config_snapshot_id"] = (
+                    str(
+                        config_snapshot_id
+                        or next_data.get("config_snapshot_id")
+                        or ""
+                    ).strip()
+                    or None
+                )
+                next_data["source"] = dict(next_data.get("source") or {})
+                next_data["status"] = str(next_data.get("status") or "ready")
+                next_data["created_at"] = str(
+                    next_data.get("created_at")
+                    or existing_data.get("created_at")
+                    or now
+                )
+                next_data["updated_at"] = now
+                next_data["is_pinned"] = bool(
+                    next_data.get(
+                        "is_pinned", existing_data.get("is_pinned", False)
+                    )
+                )
+                next_data["pinned_at"] = (
+                    str(
+                        next_data.get("pinned_at")
+                        or existing_data.get("pinned_at")
+                        or now
+                    )
+                    if next_data["is_pinned"]
+                    else None
+                )
 
-            if file_data:
-                file_ext = next_data.get("file_extension", ".txt")
-                attachment_path = material_dir / f"{material_id}{file_ext}"
-                with open(attachment_path, "wb") as f:
-                    f.write(file_data)
-                next_data["file_path"] = str(attachment_path.relative_to(self.get_course_dir(course_id)))
+                staged_attachment: Optional[Path] = None
+                attachment_path: Optional[Path] = None
+                if file_data is not None:
+                    file_ext = str(next_data.get("file_extension") or ".txt")
+                    if not file_ext.startswith("."):
+                        file_ext = f".{file_ext}"
+                    file_ext = re.sub(r"[^.a-zA-Z0-9_-]", "", file_ext) or ".bin"
+                    attachment_path = material_dir / f"{safe_material_id}{file_ext}"
+                    with tempfile.NamedTemporaryFile(
+                        mode="wb",
+                        dir=material_dir,
+                        prefix=f".{safe_material_id}-",
+                        suffix=".artifact.tmp",
+                        delete=False,
+                    ) as handle:
+                        staged_attachment = Path(handle.name)
+                        handle.write(file_data)
+                        handle.flush()
+                        os.fsync(handle.fileno())
+                    next_data["file_path"] = str(
+                        attachment_path.relative_to(self.get_course_dir(course_id))
+                    ).replace("\\", "/")
+                    next_data["artifact_paths"] = [next_data["file_path"]]
+                    next_data["content_hash"] = hashlib.sha256(file_data).hexdigest()
+                else:
+                    payload_for_hash = json.dumps(
+                        material_data or {},
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        default=str,
+                    ).encode("utf-8")
+                    next_data["content_hash"] = hashlib.sha256(
+                        payload_for_hash
+                    ).hexdigest()
 
-            self._write_json(material_file, next_data)
+                previous_attachment: Optional[bytes] = None
+                try:
+                    if staged_attachment is not None and attachment_path is not None:
+                        if attachment_path.exists():
+                            previous_attachment = attachment_path.read_bytes()
+                        os.replace(staged_attachment, attachment_path)
+                        staged_attachment = None
+                    self._write_json(material_file, next_data)
+                except Exception:
+                    if staged_attachment is not None:
+                        staged_attachment.unlink(missing_ok=True)
+                    if attachment_path is not None:
+                        if previous_attachment is None:
+                            attachment_path.unlink(missing_ok=True)
+                        else:
+                            attachment_path.write_bytes(previous_attachment)
+                    raise
             return True
         except Exception as e:
             print(f"Error saving generated material: {e}")
             return False
 
-    def get_generated_material(self, course_id: str, material_type: str, material_id: str) -> Optional[Dict[str, Any]]:
+    def get_generated_material(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        *,
+        owner_user_id: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
         try:
             material_file = self._material_file(course_id, material_type, material_id)
             if not material_file.exists():
                 return None
-            return self._read_json(material_file)
+            material_data = self._read_json(material_file)
+            if not material_data:
+                return None
+            normalized = self._normalize_material_manifest(
+                material_data,
+                course_id=course_id,
+                material_type=material_type,
+                material_id=material_id,
+            )
+            return (
+                normalized
+                if self._material_owner_matches(normalized, owner_user_id)
+                else None
+            )
         except Exception as e:
             print(f"Error loading generated material: {e}")
             return None
@@ -490,6 +676,7 @@ class CourseStorageManager:
         scope_type: Optional[str] = None,
         scope_ids: Optional[Set[str]] = None,
         aggregate: bool = False,
+        owner_user_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         materials: List[Dict[str, Any]] = []
 
@@ -510,12 +697,16 @@ class CourseStorageManager:
                     material_data = self._read_json(json_file)
                     if not material_data:
                         continue
-                    material_data["material_id"] = json_file.stem
-                    material_data["course_id"] = str(material_data.get("course_id") or course_id)
-                    material_data["material_type"] = material_data.get("material_type") or derived_type
-                    material_data["scope_type"] = str(material_data.get("scope_type") or SCOPE_TYPE_COURSE)
-                    material_data["scope_id"] = str(material_data.get("scope_id") or "").strip() or None
-                    material_data["is_pinned"] = bool(material_data.get("is_pinned", False))
+                    material_data = self._normalize_material_manifest(
+                        material_data,
+                        course_id=course_id,
+                        material_type=derived_type,
+                        material_id=json_file.stem,
+                    )
+                    if not self._material_owner_matches(
+                        material_data, owner_user_id
+                    ):
+                        continue
                     if self._matches_scope(
                         material_data,
                         scope_type=scope_type,
@@ -528,29 +719,64 @@ class CourseStorageManager:
 
         return self._sort_generated_materials(materials)
 
-    def delete_generated_material(self, course_id: str, material_type: str, material_id: str) -> bool:
+    def delete_generated_material(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        *,
+        owner_user_id: Optional[str] = None,
+    ) -> bool:
         try:
             material_file = self._material_file(course_id, material_type, material_id)
             stored = self._read_json(material_file) or {}
             if not material_file.exists():
                 return False
+            if not self._material_owner_matches(stored, owner_user_id):
+                return False
 
-            material_file.unlink()
-            relative_file_path = stored.get("file_path")
-            if relative_file_path:
-                attachment_path = self.get_file_path(course_id, str(relative_file_path))
-                if attachment_path.exists():
+            artifact_paths = set(stored.get("artifact_paths") or [])
+            if stored.get("file_path"):
+                artifact_paths.add(stored["file_path"])
+            for relative_file_path in artifact_paths:
+                attachment_path = self.get_file_path(
+                    course_id, str(relative_file_path)
+                ).resolve()
+                course_root = self.get_course_dir(course_id).resolve()
+                try:
+                    attachment_path.relative_to(course_root)
+                except ValueError:
+                    continue
+                if attachment_path.is_dir():
+                    shutil.rmtree(attachment_path)
+                elif attachment_path.exists():
                     attachment_path.unlink()
+            media_dir = self._material_dir(course_id, material_type) / (
+                f"{self._normalize_material_id(material_id)}_media"
+            )
+            if media_dir.exists():
+                shutil.rmtree(media_dir)
+            material_file.unlink()
             return True
         except Exception as e:
             print(f"Error deleting generated material: {e}")
             return False
 
-    def pin_generated_material(self, course_id: str, material_type: str, material_id: str, is_pinned: bool = True) -> bool:
+    def pin_generated_material(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        is_pinned: bool = True,
+        *,
+        owner_user_id: Optional[str] = None,
+    ) -> bool:
         try:
             material_file = self._material_file(course_id, material_type, material_id)
             material_data = self._read_json(material_file)
             if not material_data:
+                return False
+            if not self._material_owner_matches(material_data, owner_user_id):
                 return False
 
             material_data["is_pinned"] = bool(is_pinned)
@@ -561,6 +787,65 @@ class CourseStorageManager:
         except Exception as e:
             print(f"Error pinning generated material: {e}")
             return False
+
+    def rename_generated_material(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        title: str,
+        *,
+        owner_user_id: Optional[str] = None,
+    ) -> bool:
+        normalized_title = str(title or "").strip()
+        if not normalized_title:
+            return False
+        try:
+            material_file = self._material_file(
+                course_id, material_type, material_id
+            )
+            with self._storage_lock():
+                material_data = self._read_json(material_file)
+                if not material_data or not self._material_owner_matches(
+                    material_data, owner_user_id
+                ):
+                    return False
+                material_data["title"] = normalized_title
+                material_data["name"] = normalized_title
+                material_data["version"] = int(material_data.get("version") or 1) + 1
+                material_data["updated_at"] = datetime.now().isoformat()
+                self._write_json(material_file, material_data)
+            return True
+        except Exception as e:
+            print(f"Error renaming generated material: {e}")
+            return False
+
+    def check_generated_material_integrity(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        *,
+        owner_user_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        material = self.get_generated_material(
+            course_id,
+            material_type,
+            material_id,
+            owner_user_id=owner_user_id,
+        )
+        if material is None:
+            return {"ok": False, "missing": ["manifest"]}
+        missing: List[str] = []
+        for relative_path in material.get("artifact_paths") or []:
+            if not self.get_file_path(course_id, str(relative_path)).exists():
+                missing.append(str(relative_path))
+        return {
+            "ok": not missing,
+            "missing": missing,
+            "content_hash": material.get("content_hash"),
+            "version": material.get("version"),
+        }
 
     def delete_course(self, course_id: str) -> bool:
         try:

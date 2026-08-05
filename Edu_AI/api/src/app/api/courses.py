@@ -31,6 +31,7 @@ from app.schemas.course import (
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
     PinMaterialRequest,
+    RenameMaterialRequest,
 )
 from app.services import course_service as _svc
 from app.services import knowledge_document_service as _knowledge
@@ -215,6 +216,7 @@ def get_course_materials(
         scope_type=scope_type,
         scope_ids=scope_ids,
         aggregate=aggregate,
+        owner_user_id=str(owner_user_id or ""),
     )
     if limit is None:
         return materials
@@ -243,7 +245,12 @@ def delete_course_material(
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
-    if not mgr.delete_generated_material(course_id, material_type, material_id):
+    if not mgr.delete_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=str(owner_user_id or ""),
+    ):
         raise HTTPException(status_code=404, detail="资源不存在或删除失败")
     return {"ok": True}
 
@@ -256,21 +263,103 @@ def pin_course_material(
     payload: PinMaterialRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
+    owner_user_id = current_user.get("username") if current_user else None
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
-    if not mgr.pin_generated_material(course_id, material_type, material_id, payload.is_pinned):
+    if not mgr.pin_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        payload.is_pinned,
+        owner_user_id=str(owner_user_id or ""),
+    ):
         raise HTTPException(status_code=404, detail="资源不存在或置顶失败")
 
-    updated = mgr.get_generated_material(course_id, material_type, material_id)
+    updated = mgr.get_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=str(owner_user_id or ""),
+    )
     if not updated:
         raise HTTPException(status_code=404, detail="资源不存在")
 
     updated["material_id"] = material_id
     updated["material_type"] = updated.get("material_type") or material_type
     return updated
+
+
+@router.get(
+    "/{course_id}/materials/{material_type}/{material_id}",
+    summary="获取课程生成资源详情",
+)
+def get_course_material(
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    material = _svc._get_manager().get_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    )
+    if material is None:
+        raise HTTPException(status_code=404, detail="资源不存在或无权访问")
+    return material
+
+
+@router.patch(
+    "/{course_id}/materials/{material_type}/{material_id}",
+    summary="重命名课程生成资源",
+)
+def rename_course_material(
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    payload: RenameMaterialRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    manager = _svc._get_manager()
+    owner = str(current_user.get("username") or "")
+    if not manager.rename_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        payload.title,
+        owner_user_id=owner,
+    ):
+        raise HTTPException(status_code=404, detail="资源不存在或无权访问")
+    return manager.get_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=owner,
+    )
+
+
+@router.get(
+    "/{course_id}/materials/{material_type}/{material_id}/integrity",
+    summary="检查课程生成资源完整性",
+)
+def check_course_material_integrity(
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    result = _svc._get_manager().check_generated_material_integrity(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    )
+    if result.get("missing") == ["manifest"]:
+        raise HTTPException(status_code=404, detail="资源不存在或无权访问")
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -864,12 +953,16 @@ def get_classroom(
     classroom_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    material = mgr.get_generated_material(course_id, "classroom", classroom_id)
+    material = mgr.get_generated_material(
+        course_id,
+        "classroom",
+        classroom_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    )
     if material is None:
         raise HTTPException(status_code=404, detail="课件不存在")
     return material
@@ -889,7 +982,12 @@ async def export_classroom_video(
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
-    if mgr.get_generated_material(course_id, "classroom", classroom_id) is None:
+    if mgr.get_generated_material(
+        course_id,
+        "classroom",
+        classroom_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    ) is None:
         raise HTTPException(status_code=404, detail="课件不存在")
 
     owner = current_user.get("username") if current_user else None
@@ -908,11 +1006,14 @@ def list_classrooms(
     course_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
-    return mgr.list_generated_materials(course_id, "classroom")
+    return mgr.list_generated_materials(
+        course_id,
+        "classroom",
+        owner_user_id=str(current_user.get("username") or ""),
+    )
 
 
 @router.get(
@@ -926,10 +1027,16 @@ def get_classroom_audio(
     filename: str,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
+    if mgr.get_generated_material(
+        course_id,
+        "classroom",
+        classroom_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    ) is None:
+        raise HTTPException(status_code=404, detail="课件不存在或无权访问")
 
     audio_root = mgr.get_classroom_audio_dir(course_id, classroom_id).resolve()
     path = (audio_root / filename).resolve()
@@ -955,11 +1062,17 @@ def get_classroom_video_artifact(
     filename: str,
     current_user: dict = Depends(get_current_user),
 ):
-    _ = current_user
     media_type = VIDEO_ARTIFACT_MEDIA_TYPES.get(filename)
     if media_type is None:
         raise HTTPException(status_code=404, detail="视频导出文件不存在")
     mgr = _svc._get_manager()
+    if mgr.get_generated_material(
+        course_id,
+        "classroom",
+        classroom_id,
+        owner_user_id=str(current_user.get("username") or ""),
+    ) is None:
+        raise HTTPException(status_code=404, detail="课件不存在或无权访问")
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 

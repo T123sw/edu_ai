@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { courseMaterialToMarkdown, getCourseMaterials } from "../api/courses";
+import {
+  courseMaterialToMarkdown,
+  deleteCourseMaterial,
+  getCourseMaterials,
+  pinCourseMaterial,
+  renameCourseMaterial,
+} from "../api/courses";
 import {
   COURSE_MATERIAL_FILTERS,
   getCourseMaterialOpenTarget,
@@ -64,6 +70,10 @@ export function CourseResourcesPage() {
   const [query, setQuery] = useState("");
   const [pinnedOnly, setPinnedOnly] = useState(false);
   const [sort, setSort] = useState<ResourceSort>("recent");
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -137,6 +147,11 @@ export function CourseResourcesPage() {
     setActiveId(filteredMaterials[0]?.material_id ?? null);
   }, [activeId, filteredMaterials]);
 
+  useEffect(() => {
+    setEditingTitle(false);
+    setActionError(null);
+  }, [activeId]);
+
   const activeMaterial =
     filteredMaterials.find((item) => item.material_id === activeId)
     ?? filteredMaterials[0]
@@ -152,6 +167,81 @@ export function CourseResourcesPage() {
       return;
     }
     setActiveId(target.value);
+  }
+
+  async function togglePinned(material: CourseMaterial) {
+    setActionBusy(true);
+    setActionError(null);
+    try {
+      const updated = await pinCourseMaterial(
+        course.id,
+        material.material_type,
+        material.material_id,
+        !material.is_pinned,
+      );
+      setMaterials((current) => current.map((item) => (
+        item.material_id === updated.material_id
+        && item.material_type === updated.material_type
+          ? updated
+          : item
+      )));
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "置顶操作失败");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function saveTitle(material: CourseMaterial) {
+    const title = titleDraft.trim();
+    if (!title) {
+      setActionError("资源名称不能为空");
+      return;
+    }
+    setActionBusy(true);
+    setActionError(null);
+    try {
+      const updated = await renameCourseMaterial(
+        course.id,
+        material.material_type,
+        material.material_id,
+        title,
+      );
+      setMaterials((current) => current.map((item) => (
+        item.material_id === updated.material_id
+        && item.material_type === updated.material_type
+          ? updated
+          : item
+      )));
+      setEditingTitle(false);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "重命名失败");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function removeMaterial(material: CourseMaterial) {
+    if (!window.confirm(`确定删除“${getMaterialTitle(material)}”及其全部导出文件吗？`)) {
+      return;
+    }
+    setActionBusy(true);
+    setActionError(null);
+    try {
+      await deleteCourseMaterial(
+        course.id,
+        material.material_type,
+        material.material_id,
+      );
+      setMaterials((current) => current.filter((item) => !(
+        item.material_id === material.material_id
+        && item.material_type === material.material_type
+      )));
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "删除资源失败");
+    } finally {
+      setActionBusy(false);
+    }
   }
 
   const activeMeta = activeMaterial
@@ -380,9 +470,40 @@ export function CourseResourcesPage() {
                       <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">
                         {activeMeta.label}
                       </p>
-                      <h2 className="mt-2 truncate text-2xl font-black text-(--accent-strong)">
-                        {getMaterialTitle(activeMaterial)}
-                      </h2>
+                      {editingTitle ? (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <input
+                            value={titleDraft}
+                            onChange={(event) => setTitleDraft(event.target.value)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") void saveTitle(activeMaterial);
+                              if (event.key === "Escape") setEditingTitle(false);
+                            }}
+                            autoFocus
+                            maxLength={200}
+                            className="h-11 min-w-64 rounded-2xl border border-(--accent-border) bg-white px-4 text-lg font-bold outline-hidden"
+                          />
+                          <button
+                            type="button"
+                            disabled={actionBusy}
+                            onClick={() => void saveTitle(activeMaterial)}
+                            className="rounded-full bg-(--accent) px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+                          >
+                            保存
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingTitle(false)}
+                            className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold"
+                          >
+                            取消
+                          </button>
+                        </div>
+                      ) : (
+                        <h2 className="mt-2 truncate text-2xl font-black text-(--accent-strong)">
+                          {getMaterialTitle(activeMaterial)}
+                        </h2>
+                      )}
                       <p className="mt-2 text-xs text-(--muted-text)">
                         {formatMaterialDate(activeMaterial)}
                         {activeMaterial.scope_id
@@ -390,20 +511,52 @@ export function CourseResourcesPage() {
                           : " · 课程级资源"}
                       </p>
                     </div>
-                    {activeMaterial.material_type === "classroom" ? (
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => openMaterial(activeMaterial)}
-                        className="inline-flex items-center gap-2 rounded-full bg-(--accent) px-5 py-3 text-sm font-bold text-white"
+                        disabled={actionBusy}
+                        onClick={() => void togglePinned(activeMaterial)}
+                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
                       >
-                        <MaterialIcon
-                          name="play_circle"
-                          className="text-base"
-                        />
-                        打开课堂
+                        {activeMaterial.is_pinned ? "取消置顶" : "置顶"}
                       </button>
-                    ) : null}
+                      <button
+                        type="button"
+                        disabled={actionBusy}
+                        onClick={() => {
+                          setTitleDraft(getMaterialTitle(activeMaterial));
+                          setEditingTitle(true);
+                        }}
+                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
+                      >
+                        重命名
+                      </button>
+                      <button
+                        type="button"
+                        disabled={actionBusy}
+                        onClick={() => void removeMaterial(activeMaterial)}
+                        className="rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-rose-600 disabled:opacity-50"
+                      >
+                        删除
+                      </button>
+                      {activeMaterial.material_type === "classroom" ? (
+                        <button
+                          type="button"
+                          onClick={() => openMaterial(activeMaterial)}
+                          className="inline-flex items-center gap-2 rounded-full bg-(--accent) px-5 py-3 text-sm font-bold text-white"
+                        >
+                          <MaterialIcon name="play_circle" className="text-base" />
+                          打开课堂
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
+
+                  {actionError ? (
+                    <p className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+                      {actionError}
+                    </p>
+                  ) : null}
 
                   <div className="mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto pr-2">
                     {activeMaterial.material_type === "classroom" ? (

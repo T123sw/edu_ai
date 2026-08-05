@@ -9,9 +9,17 @@ export type BackendCourse = {
 };
 
 export type CourseMaterial = {
+  schema_version?: number;
+  version?: number;
   material_id: string;
   material_type: string;
   course_id?: string;
+  owner_user_id?: string | null;
+  source_job_id?: string | null;
+  config_snapshot_id?: string | null;
+  source?: Record<string, unknown>;
+  content_hash?: string;
+  artifact_paths?: string[];
   title?: string;
   topic?: string;
   summary?: string;

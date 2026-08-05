@@ -79,6 +79,7 @@ def persist_classroom_result(
         material_data,
         scope_type=scope_type,
         scope_id=scope_id,
+        owner_user_id=owner,
     )
     if not saved:
         raise ClassroomPersistError(

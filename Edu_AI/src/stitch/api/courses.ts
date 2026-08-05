@@ -115,6 +115,47 @@ export function uploadKnowledgeBaseDocument(courseId: string, file: File, option
   });
 }
 
+export function deleteCourseMaterial(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+) {
+  return apiRequest<{ ok: boolean }>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}`,
+    { method: "DELETE" },
+  );
+}
+
+export function pinCourseMaterial(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+  isPinned: boolean,
+) {
+  return apiRequest<CourseMaterial>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}/pin`,
+    {
+      method: "POST",
+      body: JSON.stringify({ is_pinned: isPinned }),
+    },
+  );
+}
+
+export function renameCourseMaterial(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+  title: string,
+) {
+  return apiRequest<CourseMaterial>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ title }),
+    },
+  );
+}
+
 export function reindexKnowledgeBaseDocument(courseId: string, documentId: string) {
   return apiRequest<JobRecord>(
     `/api/courses/${courseId}/knowledge-base/documents/${documentId}/reindex`,

@@ -88,6 +88,9 @@ class AddRAGDocumentRequest(BaseModel):
 class PinMaterialRequest(BaseModel):
     is_pinned: bool = Field(..., description="是否置顶")
 
+class RenameMaterialRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+
 
 class GenerateClassroomRequest(BaseModel):
     """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（图片/视频生成 flags 仍不开放，见 §0.1 D2）。"""

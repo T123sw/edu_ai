@@ -580,6 +580,12 @@ export interface CourseMaterialItem {
   version?: Record<string, any>;
   generationState?: Record<string, any>;
   outline?: unknown;
+  manifestVersion?: number;
+  ownerUserId?: string;
+  sourceJobId?: string;
+  configSnapshotId?: string;
+  contentHash?: string;
+  artifactPaths?: string[];
 }
 
 export interface CourseMaterialsPageResponse {
@@ -638,6 +644,14 @@ const normalizeCourseMaterialItem = (courseId: string, item: Record<string, any>
           ? item.generationState
           : undefined,
     outline: item.outline,
+    manifestVersion: typeof item.version === 'number' ? item.version : undefined,
+    ownerUserId: typeof item.owner_user_id === 'string' ? item.owner_user_id : undefined,
+    sourceJobId: typeof item.source_job_id === 'string' ? item.source_job_id : undefined,
+    configSnapshotId: typeof item.config_snapshot_id === 'string' ? item.config_snapshot_id : undefined,
+    contentHash: typeof item.content_hash === 'string' ? item.content_hash : undefined,
+    artifactPaths: Array.isArray(item.artifact_paths)
+      ? item.artifact_paths.map((value: unknown) => String(value))
+      : undefined,
   };
 };
 
@@ -766,6 +780,31 @@ export const pinCourseMaterial = async (
   }
 
   return normalizeCourseMaterialItem(courseId, (await resp.json()) as Record<string, any>);
+};
+
+export const renameCourseMaterial = async (
+  courseId: string,
+  materialType: string,
+  materialId: string,
+  title: string,
+): Promise<CourseMaterialItem> => {
+  const token = getAuthToken();
+  const resp = await fetch(
+    `${BACKEND_BASE_URL}/api/courses/${courseId}/materials/${materialType}/${materialId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ title }),
+    },
+  );
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`重命名课程资源失败: ${resp.status} ${resp.statusText}\n${text}`);
+  }
+  return normalizeCourseMaterialItem(courseId, await resp.json());
 };
 
 // 知识图谱相关接口
