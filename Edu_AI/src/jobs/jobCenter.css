@@ -136,6 +136,36 @@
   padding: 18px 18px 28px;
 }
 
+.job-center-quality {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.job-center-quality div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid #dbe7f5;
+  border-radius: 14px;
+  padding: 10px;
+  background: white;
+}
+
+.job-center-quality span {
+  color: #64748b;
+  font-size: 0.66rem;
+}
+
+.job-center-quality strong {
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .job-center-group + .job-center-group {
   margin-top: 24px;
 }

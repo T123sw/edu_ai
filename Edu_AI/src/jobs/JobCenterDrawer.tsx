@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { cancelJob, retryJob } from "./api";
-import { jobKindLabel } from "./jobPresentation";
+import { jobKindLabel, summarizeJobs } from "./jobPresentation";
 import { registerCreatedJob, useJobStore } from "./jobStore";
 import { isActiveJob, type JobRecord } from "./types";
 import { buildClassroomPlayerHash } from "../openmaic/classroomGenerationFlow";
@@ -44,6 +44,7 @@ export function JobCenterDrawer() {
       jobsById[id]?.status === "failed" ||
       jobsById[id]?.status === "partially_succeeded",
   );
+  const qualitySummary = useMemo(() => summarizeJobs(jobs), [jobs]);
 
   const show = () => {
     setOpen(true);
@@ -132,6 +133,27 @@ export function JobCenterDrawer() {
             ) : null}
 
             <div className="job-center-content">
+              {qualitySummary.completedCount ? (
+                <section
+                  className="job-center-quality"
+                  aria-label="最近后台任务质量概览"
+                >
+                  <div>
+                    <span>已结束</span>
+                    <strong>{qualitySummary.completedCount}</strong>
+                  </div>
+                  <div>
+                    <span>需关注率</span>
+                    <strong>{qualitySummary.failureRate}%</strong>
+                  </div>
+                  <div>
+                    <span>平均耗时</span>
+                    <strong>
+                      {formatDuration(qualitySummary.averageDurationMs)}
+                    </strong>
+                  </div>
+                </section>
+              ) : null}
               {!hydrated ? (
                 <JobEmpty
                   title="正在恢复后台任务"
@@ -285,6 +307,15 @@ function JobEmpty({ title, detail }: { title: string; detail: string }) {
       <p>{detail}</p>
     </div>
   );
+}
+
+function formatDuration(durationMs: number): string {
+  if (durationMs <= 0) return "—";
+  if (durationMs < 1000) return `${durationMs}ms`;
+  if (durationMs < 60_000) return `${Math.round(durationMs / 100) / 10}s`;
+  const minutes = Math.floor(durationMs / 60_000);
+  const seconds = Math.round((durationMs % 60_000) / 1000);
+  return `${minutes}m ${seconds}s`;
 }
 
 function getResultHash(job: JobRecord): string | null {
