@@ -74,6 +74,11 @@ import QuizArtifactPreview from './QuizArtifactPreview';
 import QuizEntryModal from './QuizEntryModal';
 import ReportEntryModal from './ReportEntryModal';
 import ReportArtifactPreview from './ReportArtifactPreview';
+import {
+  TEACHER_STUDIO_ACTIONS,
+  TEACHER_STUDIO_ACTION_ORDER,
+  type TeacherStudioActionType,
+} from './studioActions';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
 import './StudioPanel.css';
@@ -365,7 +370,16 @@ const GenerativeCard: React.FC<GenerativeCardProps> = ({
     <div
       className={`studio-panel__action-card${featured ? ' studio-panel__action-card--featured' : ''}`}
       style={accentStyles}
+      role="button"
+      tabIndex={0}
+      aria-label={`${title}：${description}`}
       onClick={onGenerate}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onGenerate();
+        }
+      }}
     >
       <div className="studio-panel__action-card-head">
         <div className="studio-panel__action-icon">
@@ -401,58 +415,23 @@ const GenerativeCard: React.FC<GenerativeCardProps> = ({
   );
 };
 
-const STUDIO_ACTIONS = [
-  {
-    type: 'report' as const,
-    icon: <FileTextOutlined />,
-    title: '报告',
-    description: '把资料与课堂重点归纳成可复用的结构化文稿。',
-    color: '#d6a83d',
-    featured: true,
-  },
-  {
-    type: 'lesson_plan' as const,
-    icon: <BookOutlined />,
-    title: '教案生成',
-    description: '围绕当前课时快速整理教学流程与课堂结构。',
-    color: '#7c8cf8',
-    featured: true,
-  },
-  {
-    type: 'blog' as const,
-    icon: <EditOutlined />,
-    title: '教学博客',
-    description: '把课堂内容转成可沉淀、可分享的长文。',
-    color: '#f07d73',
-    featured: true,
-  },
-  {
-    type: 'quiz' as const,
-    icon: <QuestionCircleOutlined />,
-    title: '习题',
-    description: '围绕当前知识点快速生成课堂练习内容。',
-    color: '#4a8df5',
-    featured: true,
-  },
-  {
-    type: 'game' as const,
-    icon: <PlayCircleOutlined />,
-    title: '小游戏生成',
-    description: '把当前资料快速转成可预览、可播放的互动小游戏。',
-    color: '#2f8f6b',
-    featured: true,
-  },
-  {
-    type: 'graph' as const,
-    icon: <ApartmentOutlined />,
-    title: '思维导图',
-    description: '抽出主干知识关系，便于课堂讲解与复盘。',
-    color: '#e25aa6',
-    featured: true,
-  },
-] as const;
+const STUDIO_ACTION_ICONS: Record<TeacherStudioActionType, React.ReactNode> = {
+  report: <FileTextOutlined />,
+  lesson_plan: <BookOutlined />,
+  blog: <EditOutlined />,
+  quiz: <QuestionCircleOutlined />,
+  ppt: <FilePptOutlined />,
+  flashcard: <BookOutlined />,
+  graph: <ApartmentOutlined />,
+  game: <PlayCircleOutlined />,
+};
 
-const STUDIO_ACTION_DISPLAY_ORDER = ['report', 'lesson_plan', 'blog', 'quiz', 'graph', 'game'] as const;
+const STUDIO_ACTIONS = TEACHER_STUDIO_ACTIONS.map((action) => ({
+  ...action,
+  icon: STUDIO_ACTION_ICONS[action.type],
+}));
+
+const STUDIO_ACTION_DISPLAY_ORDER = [...TEACHER_STUDIO_ACTION_ORDER];
 
 const COURSE_MATERIAL_PAGE_SIZE = 20;
 
@@ -1310,13 +1289,10 @@ const StudioPanel: React.FC<Props> = ({
     message.success('已添加到对话');
   };
 
-  const primaryStudioActions = STUDIO_ACTIONS
-    .filter((item) => item.featured)
-    .sort(
-      (left, right) =>
-        STUDIO_ACTION_DISPLAY_ORDER.indexOf(left.type as any) - STUDIO_ACTION_DISPLAY_ORDER.indexOf(right.type as any),
+  const primaryStudioActions = [...STUDIO_ACTIONS].sort(
+    (left, right) =>
+      STUDIO_ACTION_DISPLAY_ORDER.indexOf(left.type) - STUDIO_ACTION_DISPLAY_ORDER.indexOf(right.type),
   );
-  const secondaryStudioActions = STUDIO_ACTIONS.filter((item) => !item.featured);
   const selectedDocCount = selectedDocs.length;
   const visibleGeneratedFiles = generatedFiles;
 
@@ -3181,7 +3157,7 @@ const StudioPanel: React.FC<Props> = ({
       )}
 
       
-      {/* 六个功能：两行，每行三个 */}
+      {/* 生成入口：按右侧面板宽度自适应为三列、两列或一列 */}
       <div className="studio-panel__summary-card">
         <div className="studio-panel__summary-copy">
           <div className="studio-panel__summary-eyebrow">工作摘要</div>
@@ -3226,29 +3202,6 @@ const StudioPanel: React.FC<Props> = ({
           />
         ))}
       </div>
-
-      <div className="studio-panel__section-headline studio-panel__section-headline--secondary">
-        <div>
-          <div className="studio-panel__section-title">更多生成</div>
-          <div className="studio-panel__section-note">补充延展讲解、沉淀内容与课堂检测。</div>
-        </div>
-      </div>
-
-      {secondaryStudioActions.length > 0 && (
-        <div className="studio-panel__secondary-grid">
-          {secondaryStudioActions.map((item) => (
-            <GenerativeCard
-              key={item.type}
-              icon={item.icon}
-              title={item.title}
-              description={item.description}
-              color={item.color}
-              onGenerate={() => handleGenerate(item.type)}
-              onConfigure={() => handleConfigure(item.type)}
-            />
-          ))}
-        </div>
-      )}
 
       <div className="studio-panel__divider" />
 
@@ -3324,7 +3277,7 @@ const StudioPanel: React.FC<Props> = ({
         {visibleGeneratedFiles.length === 0 && (
           <div className="studio-panel__empty-state">
             <div className="studio-panel__empty-title">还没有生成内容</div>
-            <div className="studio-panel__empty-copy">从上方入口开始，生成后的报告、教案、博客、习题、PPT、视频和思维导图会集中出现在这里。</div>
+            <div className="studio-panel__empty-copy">从上方入口开始，生成后的报告、教案、博客、习题、PPT、闪卡、思维导图和小游戏会集中出现在这里。</div>
           </div>
         )}
       </div>

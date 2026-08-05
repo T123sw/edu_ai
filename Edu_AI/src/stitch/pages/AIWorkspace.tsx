@@ -12,12 +12,11 @@ import {
   writeWorkspaceScopeToSearch,
   type WorkspaceScope,
 } from "../../services/teacher/workspaceScope";
-
-const COLLAPSED_WIDTH = "72px";
-const EXPANDED_WIDTH_FORMULA = "clamp(320px, 24vw, 520px)";
-const LEFT_PREVIEW_WIDTH_FORMULA = "clamp(420px, 32vw, 720px)";
-const RIGHT_PREVIEW_WIDTH_FORMULA = "clamp(420px, 32vw, 720px)";
-const CENTER_COLUMN_FORMULA = "minmax(520px, 1fr)";
+import {
+  getAiStudioGridTemplate,
+  resolveCompactPanelState,
+} from "../../pages/teacher/aiStudioLayout";
+import { useAiStudioLayout } from "../../pages/teacher/useAiStudioLayout";
 
 function getHashSearchParams(hash = window.location.hash): URLSearchParams {
   const normalized = hash.replace(/^#/, "");
@@ -38,6 +37,8 @@ export function AIWorkspacePage() {
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
+  const [drawerPanel, setDrawerPanel] = useState<"source" | "studio" | null>(null);
+  const { workspaceRef, layoutMode } = useAiStudioLayout<HTMLDivElement>();
 
   const courseLabel = selectedCourse?.title?.trim() || "未指定课程";
   const workspaceScope = useMemo(() => {
@@ -59,20 +60,61 @@ export function AIWorkspacePage() {
     return () => window.removeEventListener("hashchange", syncHash);
   }, []);
 
-  const pageStyle = useMemo<React.CSSProperties>(() => {
-    const leftColumn = leftCollapsed
-      ? COLLAPSED_WIDTH
-      : (kbPreviewOpen ? LEFT_PREVIEW_WIDTH_FORMULA : EXPANDED_WIDTH_FORMULA);
+  useEffect(() => {
+    if (layoutMode !== "drawer") {
+      setDrawerPanel(null);
+    }
+  }, [layoutMode]);
 
-    const rightColumn = rightCollapsed
-      ? COLLAPSED_WIDTH
-      : (studioPreviewOpen ? RIGHT_PREVIEW_WIDTH_FORMULA : EXPANDED_WIDTH_FORMULA);
+  const pageStyle = useMemo<React.CSSProperties>(() => {
+    const effectiveState =
+      layoutMode === "compact"
+        ? resolveCompactPanelState({ leftCollapsed, rightCollapsed })
+        : { leftCollapsed, rightCollapsed };
 
     return {
-      gridTemplateColumns: `${leftColumn} ${CENTER_COLUMN_FORMULA} ${rightColumn}`,
+      gridTemplateColumns: getAiStudioGridTemplate({
+        mode: layoutMode,
+        ...effectiveState,
+        leftPreviewOpen: kbPreviewOpen,
+        rightPreviewOpen: studioPreviewOpen,
+      }),
       transition: "grid-template-columns 0.2s ease-in-out",
     };
-  }, [kbPreviewOpen, leftCollapsed, rightCollapsed, studioPreviewOpen]);
+  }, [kbPreviewOpen, layoutMode, leftCollapsed, rightCollapsed, studioPreviewOpen]);
+
+  const effectivePanelState =
+    layoutMode === "compact"
+      ? resolveCompactPanelState({ leftCollapsed, rightCollapsed })
+      : { leftCollapsed, rightCollapsed };
+
+  const toggleLeftPanel = () => {
+    if (layoutMode === "drawer") {
+      setDrawerPanel((current) => current === "source" ? null : "source");
+      return;
+    }
+    if (effectivePanelState.leftCollapsed) {
+      setLeftCollapsed(false);
+      if (layoutMode === "compact") setRightCollapsed(true);
+    } else {
+      setLeftCollapsed(true);
+      setKbPreviewOpen(false);
+    }
+  };
+
+  const toggleRightPanel = () => {
+    if (layoutMode === "drawer") {
+      setDrawerPanel((current) => current === "studio" ? null : "studio");
+      return;
+    }
+    if (effectivePanelState.rightCollapsed) {
+      setRightCollapsed(false);
+      if (layoutMode === "compact") setLeftCollapsed(true);
+    } else {
+      setRightCollapsed(true);
+      setStudioPreviewOpen(false);
+    }
+  };
 
   return (
     <AppSurface className="ai-workspace-shell flex min-h-screen">
@@ -107,15 +149,45 @@ export function AIWorkspacePage() {
         </section>
 
         <div className="ai-workspace-shell__frame">
-          <div className="ai-studio-page workspace-ai-studio-page h-full min-h-0" style={pageStyle}>
-            <div className="ai-studio-sider">
+          <div
+            ref={workspaceRef}
+            className={`ai-studio-page workspace-ai-studio-page h-full min-h-0 ai-studio-page--${layoutMode}`}
+            style={pageStyle}
+          >
+            {layoutMode === "drawer" && (
+              <>
+                <div className="ai-studio-panel-switcher" aria-label="工作台面板切换">
+                  <button
+                    type="button"
+                    aria-pressed={drawerPanel === "source"}
+                    onClick={toggleLeftPanel}
+                  >
+                    知识库
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={drawerPanel === "studio"}
+                    onClick={toggleRightPanel}
+                  >
+                    生成工厂
+                  </button>
+                </div>
+                {drawerPanel && (
+                  <button
+                    type="button"
+                    className="ai-studio-drawer-backdrop"
+                    aria-label="关闭侧边面板"
+                    onClick={() => setDrawerPanel(null)}
+                  />
+                )}
+              </>
+            )}
+
+            <div className={`ai-studio-sider ai-studio-sider--left${drawerPanel === "source" ? " is-open" : ""}`}>
               <div className="ai-panel">
                 <SourcePanel
-                  collapsed={leftCollapsed}
-                  onToggleCollapsed={() => {
-                    setLeftCollapsed((current) => !current);
-                    if (!leftCollapsed) setKbPreviewOpen(false);
-                  }}
+                  collapsed={layoutMode === "drawer" ? false : effectivePanelState.leftCollapsed}
+                  onToggleCollapsed={toggleLeftPanel}
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
                   onPreviewStateChange={(open) => setKbPreviewOpen(open)}
@@ -135,14 +207,11 @@ export function AIWorkspacePage() {
               </div>
             </div>
 
-            <div className="ai-studio-sider">
+            <div className={`ai-studio-sider ai-studio-sider--right${drawerPanel === "studio" ? " is-open" : ""}`}>
               <div className="ai-panel">
                 <StudioPanel
-                  collapsed={rightCollapsed}
-                  onToggleCollapsed={() => {
-                    setRightCollapsed((current) => !current);
-                    if (!rightCollapsed) setStudioPreviewOpen(false);
-                  }}
+                  collapsed={layoutMode === "drawer" ? false : effectivePanelState.rightCollapsed}
+                  onToggleCollapsed={toggleRightPanel}
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
                   onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
