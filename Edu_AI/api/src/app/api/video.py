@@ -23,6 +23,8 @@ from app.schemas.video import (
     VideoUploadResponse,
 )
 from app.services import video_service as _svc
+from app.services.job_store import JobKind, get_job
+from app.services.runtime_config_resolver import runtime_config_resolver
 from core.config import Config
 
 router = APIRouter(prefix="/api/video", tags=["Video Ingestion"])
@@ -110,37 +112,42 @@ async def upload_video(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"保存视频失败: {exc}") from exc
 
-    job_id = _svc.create_job(video_path=str(save_path), course_id=course_id, owner=username)
+    job = _svc.create_video_ingestion_job(
+        video_path=save_path,
+        course_id=course_id,
+        owner=username,
+        original_filename=file.filename or save_name,
+        window_seconds=window_seconds,
+        stride_seconds=stride_seconds,
+        config_snapshot=runtime_config_resolver.capture_snapshot(username),
+    )
 
     bg.add_task(
         _svc.run_video_ingestion_job,
-        job_id,
-        video_path=str(save_path),
-        course_id=course_id,
-        owner=username,
-        window_seconds=window_seconds,
-        stride_seconds=stride_seconds,
+        job.edu_job_id,
     )
 
     return VideoUploadResponse(
-        job_id=job_id,
+        job_id=job.edu_job_id,
         status="queued",
-        message="上传成功，已开始后台入库",
-        saved_video_path=str(save_path),
+        message="上传成功，已提交后台入库任务",
+        saved_video_path=str(
+            save_path.relative_to(Config.VIDEOS_ROOT / username)
+        ).replace("\\", "/"),
     )
 
 
 @router.get("/jobs/{job_id}", response_model=VideoJobStatusResponse, summary="查询视频入库任务状态")
 async def get_video_job_status(job_id: str, current_user: dict = Depends(get_current_user)):
-    job = _svc.get_job(job_id)
-    if not job:
+    job = get_job(job_id)
+    if not job or job.kind != JobKind.INGEST_VIDEO:
         raise HTTPException(status_code=404, detail="任务不存在")
 
     username = current_user.get("username") or "anonymous"
-    if job.get("owner") != username:
+    if job.owner_user_id != username:
         raise HTTPException(status_code=403, detail="无权查看该任务")
 
-    return VideoJobStatusResponse(**{k: job.get(k) for k in ["job_id", "status", "stage", "progress", "message", "result"]})
+    return VideoJobStatusResponse(**_svc.as_legacy_video_job(job))
 
 
 @router.post("/search", response_model=VideoSearchResponse, summary="视频片段语义检索")

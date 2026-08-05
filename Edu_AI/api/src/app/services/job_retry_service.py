@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from app.services.classroom_service import submit_classroom_generation_job
@@ -75,6 +76,14 @@ async def dispatch_retry_job(
             )
         except (KeyError, ValueError) as exc:
             return _dispatch_failure(job, str(exc))
+
+    if job.kind == JobKind.INGEST_VIDEO:
+        from app.services.video_service import run_video_ingestion_job
+
+        asyncio.create_task(
+            asyncio.to_thread(run_video_ingestion_job, job.edu_job_id)
+        )
+        return job
 
     if job.kind == JobKind.GENERATE_FLASHCARD:
         from types import SimpleNamespace

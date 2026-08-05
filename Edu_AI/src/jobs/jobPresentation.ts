@@ -9,6 +9,7 @@ const JOB_KIND_LABELS: Record<string, string> = {
   generate_flashcard: "闪卡生成",
   generate_graph: "思维导图生成",
   generate_game: "小游戏生成",
+  ingest_video: "视频入库",
   rag_import: "知识库索引",
   parse_document: "文档解析",
   build_knowledge_index: "知识库索引",

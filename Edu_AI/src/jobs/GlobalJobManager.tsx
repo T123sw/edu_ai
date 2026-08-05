@@ -198,4 +198,18 @@ function notifyJobTerminal(job: JobRecord) {
       }),
     );
   }
+
+  if (
+    job.result_ref?.resource_type === "video_document" &&
+    job.result_ref.course_id
+  ) {
+    window.dispatchEvent(
+      new CustomEvent("edu-ai:knowledge-document-updated", {
+        detail: {
+          courseId: job.result_ref.course_id,
+          videoPath: job.result_ref.video_rel_path,
+        },
+      }),
+    );
+  }
 }

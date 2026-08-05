@@ -49,9 +49,9 @@ import {
   type KnowledgeBaseDocument,
   type KnowledgeBaseRetrievalTestResponse,
 } from '../../services/knowledgeBase';
-import { registerCreatedJob } from '../../jobs/jobStore';
+import { registerCreatedJob, requestJobRefresh } from '../../jobs/jobStore';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
-import { uploadVideo, getVideoJobStatus } from '../../services/video';
+import { uploadVideo } from '../../services/video';
 import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 import './SourcePanel.css';
 
@@ -946,21 +946,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     fileInputRef.current?.click();
   };
 
-  const pollVideoJobUntilDone = async (jobId: string) => {
-    const maxAttempts = 300;
-    for (let i = 0; i < maxAttempts; i++) {
-      const status = await getVideoJobStatus(jobId);
-      if (status.status === 'completed') {
-        return status;
-      }
-      if (status.status === 'failed') {
-        throw new Error(status.message || '视频入库失败');
-      }
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    }
-    throw new Error('视频入库超时，请稍后在任务页查看状态');
-  };
-
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -1002,13 +987,11 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
             windowSeconds: 30,
             strideSeconds: 20,
           });
-          message.loading({
-            content: `${file.name} 已上传，正在后台切片与向量化...`,
+          requestJobRefresh(uploadRes.job_id);
+          message.success({
+            content: `${file.name} 已上传，后台入库任务可在任务中心查看`,
             key: `upload-${i}`,
-            duration: 0,
           });
-          await pollVideoJobUntilDone(uploadRes.job_id);
-          message.success({ content: `${file.name} 视频入库完成`, key: `upload-${i}` });
         } else {
           await importDocument(file, false, (progress) => {
             console.log(`上传进度: ${progress}%`);
