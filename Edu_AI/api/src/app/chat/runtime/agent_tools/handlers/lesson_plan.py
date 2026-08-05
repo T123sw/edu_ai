@@ -18,6 +18,8 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
         return error_result(name, "missing_subject", "课题不能为空")
 
     conversation_id = str(getattr(ctx.request, "conversation_id", "") or "lesson-plan")
+    owner = getattr(ctx.request, "owner", None)
+    course_id = getattr(ctx.request, "course_id", None)
 
     def _run():
         from app.chat.application.lesson_plan_service_v2 import LessonPlanGenerationEngine
@@ -48,7 +50,15 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
 
     try:
         from app.chat.tasks.background_runner import submit_callable_task
-        task_id = submit_callable_task(fn=_run, workflow_type="lesson_plan")
+        task_id = submit_callable_task(
+            fn=_run,
+            workflow_type="lesson_plan",
+            owner_user_id=owner,
+            course_id=course_id,
+            scope_type=str(getattr(ctx.request, "scope_type", None) or "course"),
+            scope_id=getattr(ctx.request, "scope_id", None),
+            input_summary={"title": subject},
+        )
     except Exception as exc:
         return error_result(name, str(exc), f"任务提交失败: {exc}")
 

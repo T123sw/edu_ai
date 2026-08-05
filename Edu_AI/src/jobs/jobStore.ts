@@ -147,9 +147,13 @@ export function useJobStore<T>(selector: (state: JobStoreState) => T): T {
 
 export function registerCreatedJob(job: JobRecord): void {
   jobStore.getState().mergeJobs([job]);
+  requestJobRefresh(job.edu_job_id);
+}
+
+export function requestJobRefresh(jobId?: string): void {
   if (typeof window !== "undefined") {
     window.dispatchEvent(
-      new CustomEvent("edu-ai:job-created", { detail: { jobId: job.edu_job_id } }),
+      new CustomEvent("edu-ai:job-created", { detail: { jobId } }),
     );
   }
 }

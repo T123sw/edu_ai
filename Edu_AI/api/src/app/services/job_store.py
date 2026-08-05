@@ -220,6 +220,7 @@ def _sanitize_input(value: Any) -> Any:
 def create_job(
     *,
     kind: JobKind,
+    edu_job_id: Optional[str] = None,
     owner: Optional[str] = None,
     owner_user_id: Optional[str] = None,
     course_id: Optional[str] = None,
@@ -233,7 +234,7 @@ def create_job(
     normalized_owner = str(owner_user_id or owner or "").strip()
     job = EduJob(
         schema_version=2,
-        edu_job_id=f"job_{uuid.uuid4().hex[:16]}",
+        edu_job_id=str(edu_job_id or f"job_{uuid.uuid4().hex[:16]}"),
         kind=kind,
         owner_user_id=normalized_owner,
         owner=normalized_owner or None,

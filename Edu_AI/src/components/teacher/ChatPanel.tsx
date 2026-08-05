@@ -39,6 +39,8 @@ import 'katex/dist/katex.min.css';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
+import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
+import { isTerminalJob } from '../../jobs/types';
 import './ChatPanel.css';
 
 const { TextArea } = Input;
@@ -366,6 +368,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setStatusCard,
   } = useStore();
   const { addMaterial } = useCourseMaterialsStore();
+  const jobsById = useJobStore((state) => state.jobs);
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -1203,6 +1206,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         },
         onTaskSubmitted: (taskId) => {
           pendingTaskId = taskId;
+          requestJobRefresh(taskId);
           // Tag the AI message with the task ID so the background poller can find and update it
           updateLastMessage({ id: taskId });
         },
@@ -1329,19 +1333,33 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     return () => window.clearInterval(timer);
   }, [currentConversationId, isLoading, workflowStatus, workflowType]);
 
-  // Non-blocking background task poller: runs independently of isLoading
+  // Consume the result once the global task manager observes a terminal state.
   useEffect(() => {
     if (!backgroundTaskId) return undefined;
 
     const taskId = backgroundTaskId;
-    const timer = window.setInterval(() => {
-      void (async () => {
+    const globalJob = jobsById[taskId];
+    if (!globalJob || !isTerminalJob(globalJob)) return undefined;
+    setBackgroundTaskId(null);
+    if (globalJob.status !== 'succeeded') {
+      updateMessageById(taskId, {
+        text:
+          globalJob.error_message ||
+          globalJob.error ||
+          (globalJob.status === 'canceled'
+            ? '生成任务已取消。'
+            : '生成失败，请重试。'),
+        statusText: '',
+        status: 'error',
+      });
+      return undefined;
+    }
+
+    void (async () => {
         try {
           const status = await pollChatTask(taskId);
 
           if (status.status === 'completed') {
-            window.clearInterval(timer);
-            setBackgroundTaskId(null);
             if (!status.result) {
               updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done' });
               return;
@@ -1396,19 +1414,20 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
             updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done' });
             void refreshHistoryList();
           } else if (status.status === 'failed') {
-            window.clearInterval(timer);
-            setBackgroundTaskId(null);
             updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error' });
           }
         } catch {
-          // transient network error — keep polling
+          updateMessageById(taskId, {
+            text: '生成已完成，结果已保存到课程资源。',
+            statusText: '',
+            status: 'done',
+          });
+          void refreshHistoryList();
         }
-      })();
-    }, 2000);
-
-    return () => window.clearInterval(timer);
+    })();
+    return undefined;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backgroundTaskId]);
+  }, [backgroundTaskId, jobsById]);
 
   const handleSourceClick = (source: any) => {
     const path =

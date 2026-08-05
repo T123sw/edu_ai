@@ -23,6 +23,7 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
 
     conversation_id = str(getattr(ctx.request, "conversation_id", "") or "")
     owner = getattr(ctx.request, "owner", None)
+    course_id = getattr(ctx.request, "course_id", None)
     allow_rag = bool(getattr(ctx.capability, "allow_rag", False))
     selected_doc_ids = list(getattr(ctx.capability, "selected_doc_ids", []) or [])
     rag_fetcher = ctx.rag_retriever
@@ -56,7 +57,15 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
 
     try:
         from app.chat.tasks.background_runner import submit_callable_task
-        task_id = submit_callable_task(fn=_run, workflow_type="quiz")
+        task_id = submit_callable_task(
+            fn=_run,
+            workflow_type="quiz",
+            owner_user_id=owner,
+            course_id=course_id,
+            scope_type=str(getattr(ctx.request, "scope_type", None) or "course"),
+            scope_id=getattr(ctx.request, "scope_id", None),
+            input_summary={"title": subject},
+        )
     except Exception as exc:
         return error_result(name, str(exc), f"任务提交失败: {exc}")
 

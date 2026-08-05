@@ -44,6 +44,7 @@ class TaskStore:
             CREATE TABLE IF NOT EXISTS tasks (
                 task_id      TEXT PRIMARY KEY,
                 workflow_type TEXT NOT NULL DEFAULT '',
+                owner_user_id TEXT NOT NULL DEFAULT '',
                 status       TEXT NOT NULL DEFAULT 'pending',
                 result_json  TEXT,
                 error        TEXT,
@@ -52,21 +53,36 @@ class TaskStore:
                 updated_at   REAL NOT NULL
             )
         """)
+        columns = {
+            str(row[1])
+            for row in self._conn.execute("PRAGMA table_info(tasks)").fetchall()
+        }
+        if "owner_user_id" not in columns:
+            self._conn.execute(
+                "ALTER TABLE tasks ADD COLUMN owner_user_id TEXT NOT NULL DEFAULT ''"
+            )
         self._conn.commit()
 
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
 
-    def create(self, *, workflow_type: str = "", on_complete: Optional[Callable] = None) -> str:
-        task_id = str(uuid.uuid4())
+    def create(
+        self,
+        *,
+        workflow_type: str = "",
+        owner_user_id: str = "",
+        task_id: Optional[str] = None,
+        on_complete: Optional[Callable] = None,
+    ) -> str:
+        task_id = str(task_id or uuid.uuid4())
         now_iso = _now_iso()
         now_ts = _now_ts()
         with self._lock:
             self._conn.execute(
-                "INSERT INTO tasks (task_id, workflow_type, status, created_at, updated_at)"
-                " VALUES (?, ?, 'pending', ?, ?)",
-                (task_id, workflow_type, now_iso, now_ts),
+                "INSERT INTO tasks (task_id, workflow_type, owner_user_id, status, created_at, updated_at)"
+                " VALUES (?, ?, ?, 'pending', ?, ?)",
+                (task_id, workflow_type, str(owner_user_id or "").strip(), now_iso, now_ts),
             )
             self._conn.commit()
             if on_complete:
@@ -116,11 +132,19 @@ class TaskStore:
             )
             self._conn.commit()
 
-    def get(self, task_id: str) -> Optional[dict]:
+    def get(
+        self, task_id: str, *, owner_user_id: Optional[str] = None
+    ) -> Optional[dict]:
         with self._lock:
-            row = self._conn.execute(
-                "SELECT * FROM tasks WHERE task_id=?", (task_id,)
-            ).fetchone()
+            if owner_user_id is None:
+                row = self._conn.execute(
+                    "SELECT * FROM tasks WHERE task_id=?", (task_id,)
+                ).fetchone()
+            else:
+                row = self._conn.execute(
+                    "SELECT * FROM tasks WHERE task_id=? AND owner_user_id=?",
+                    (task_id, str(owner_user_id or "").strip()),
+                ).fetchone()
         if row is None:
             return None
         result = json.loads(row["result_json"]) if row["result_json"] else None
@@ -128,6 +152,7 @@ class TaskStore:
         out: dict[str, Any] = {
             "task_id": row["task_id"],
             "workflow_type": row["workflow_type"],
+            "owner_user_id": row["owner_user_id"],
             "status": row["status"],
             "result": result,
             "error": row["error"],

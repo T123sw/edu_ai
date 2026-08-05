@@ -114,7 +114,15 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
 
     try:
         from app.chat.tasks.background_runner import submit_callable_task
-        task_id = submit_callable_task(fn=_run, workflow_type="report")
+        task_id = submit_callable_task(
+            fn=_run,
+            workflow_type="report",
+            owner_user_id=owner,
+            course_id=course_id,
+            scope_type=str(getattr(ctx.request, "scope_type", None) or "course"),
+            scope_id=getattr(ctx.request, "scope_id", None),
+            input_summary={"title": subject},
+        )
     except Exception as exc:
         return error_result(name, str(exc), f"任务提交失败: {exc}")
 

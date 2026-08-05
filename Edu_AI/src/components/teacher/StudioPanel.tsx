@@ -51,7 +51,6 @@ import {
   type LessonPlanEntryCard,
   generateKnowledgeBaseQuizV2,
   generateKnowledgeBaseReportV2,
-  pollChatTask,
 } from '../../services/teacher/chatV2';
 import { extractGeneratedFilesFromV2Response } from '../../services/teacher/chatV2.helpers';
 import { buildKnowledgeBaseQuizRequest } from '../../services/teacher/quizEntry.helpers';
@@ -79,6 +78,8 @@ import {
   TEACHER_STUDIO_ACTION_ORDER,
   type TeacherStudioActionType,
 } from './studioActions';
+import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
+import { isTerminalJob } from '../../jobs/types';
 
 import MarkdownPreview from '../shared/MarkdownPreview';
 import './StudioPanel.css';
@@ -437,10 +438,6 @@ const COURSE_MATERIAL_PAGE_SIZE = 20;
 
 type DirectBgTask = {
   taskId: string;
-  workflowType: string;
-  description: string;
-  originMeta: Record<string, string>;
-  courseId?: string | null;
 };
 
 const StudioPanel: React.FC<Props> = ({
@@ -472,6 +469,7 @@ const StudioPanel: React.FC<Props> = ({
     setQueuedMessage,
   } = useStore();
   const { addMaterial } = useCourseMaterialsStore();
+  const jobsById = useJobStore((state) => state.jobs);
   const [configModalVisible, setConfigModalVisible] = useState(false);
   const [configType, setConfigType] = useState<string>('');
 
@@ -681,47 +679,24 @@ const StudioPanel: React.FC<Props> = ({
 
   useEffect(() => {
     if (directBgTasks.length === 0) return;
-    const interval = setInterval(async () => {
-      const remaining: DirectBgTask[] = [];
-      for (const task of directBgTasks) {
-        try {
-          const status = await pollChatTask(task.taskId);
-          if (status.status === 'completed' && status.result) {
-            const files = extractGeneratedFilesFromV2Response(status.result as any).map((f) => ({
-              ...f,
-              meta: { ...(f.meta || {}), ...task.originMeta },
-            }));
-            files.forEach((f) => addGeneratedFile(f as GeneratedFile));
-            if (files.length > 0) {
-              const latest = files[files.length - 1] as GeneratedFile;
-              setViewingFile(latest);
-              if (task.courseId) {
-                addMaterial({ ...latest, addedAt: new Date().toISOString(), courseId: task.courseId });
-                refreshCourseMaterials();
-              }
-            }
-            notification.success({
-              message: `${task.description}已生成`,
-              description: files.length > 0 ? '已在右侧面板打开。' : '请在资源列表中查看。',
-              duration: 6,
-            });
-          } else if (status.status === 'failed') {
-            notification.error({
-              message: `${task.description}生成失败`,
-              description: status.error || '未知错误',
-              duration: 8,
-            });
-          } else {
-            remaining.push(task);
-          }
-        } catch {
-          remaining.push(task);
-        }
-      }
-      setDirectBgTasks(remaining);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [directBgTasks, addGeneratedFile, setViewingFile, addMaterial, refreshCourseMaterials]);
+    const completedIds = directBgTasks
+      .filter((task) => {
+        const globalJob = jobsById[task.taskId];
+        return globalJob && isTerminalJob(globalJob);
+      })
+      .map((task) => task.taskId);
+    if (completedIds.length === 0) return;
+    if (
+      completedIds.some(
+        (taskId) => jobsById[taskId]?.status === 'succeeded',
+      )
+    ) {
+      void refreshCourseMaterials();
+    }
+    setDirectBgTasks((current) =>
+      current.filter((task) => !completedIds.includes(task.taskId)),
+    );
+  }, [directBgTasks, jobsById, refreshCourseMaterials]);
 
   const [configForm] = Form.useForm();
   const [generating, setGenerating] = useState(false);
@@ -960,8 +935,9 @@ const StudioPanel: React.FC<Props> = ({
       );
       setDirectBgTasks((prev) => [
         ...prev,
-        { taskId: task.task_id, workflowType: task.workflow_type, description: '报告', originMeta: { origin: 'knowledge_base_direct' }, courseId },
+        { taskId: task.task_id },
       ]);
+      requestJobRefresh(task.task_id);
       setReportEntryVisible(false);
       message.success('报告生成任务已提交，后台处理中...');
     } catch (error: any) {
@@ -990,8 +966,9 @@ const StudioPanel: React.FC<Props> = ({
       );
       setDirectBgTasks((prev) => [
         ...prev,
-        { taskId: task.task_id, workflowType: task.workflow_type, description: '习题', originMeta: { origin: 'knowledge_base_direct', entryMode: 'knowledge_base_quiz' }, courseId },
+        { taskId: task.task_id },
       ]);
+      requestJobRefresh(task.task_id);
       setQuizEntryVisible(false);
       message.success('习题生成任务已提交，后台处理中...');
     } catch (error: any) {
@@ -1018,8 +995,9 @@ const StudioPanel: React.FC<Props> = ({
       });
       setDirectBgTasks((prev) => [
         ...prev,
-        { taskId: task.task_id, workflowType: task.workflow_type, description: '小游戏', originMeta: { origin: 'knowledge_base_direct', entryMode: 'knowledge_base_game' }, courseId },
+        { taskId: task.task_id },
       ]);
+      requestJobRefresh(task.task_id);
       setGameEntryVisible(false);
       message.success('小游戏生成任务已提交，后台处理中...');
     } catch (error: any) {

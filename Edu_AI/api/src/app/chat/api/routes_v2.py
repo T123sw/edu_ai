@@ -407,6 +407,11 @@ async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_use
     task_id = submit_callable_task(
         fn=lambda: _get_direct_report_service().generate(ns_payload),
         workflow_type="report_direct",
+        owner_user_id=ns_payload.owner,
+        course_id=ns_payload.course_id,
+        scope_type=ns_payload.scope_type or "course",
+        scope_id=ns_payload.scope_id,
+        input_summary={"title": payload.question[:160]},
     )
     return {"task_id": task_id, "status": "pending", "workflow_type": "report_direct"}
 
@@ -432,6 +437,11 @@ async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: d
     task_id = submit_callable_task(
         fn=lambda: _get_direct_quiz_service().generate(ns_payload),
         workflow_type="quiz_direct",
+        owner_user_id=ns_payload.owner,
+        course_id=ns_payload.course_id,
+        scope_type=ns_payload.scope_type or "course",
+        scope_id=ns_payload.scope_id,
+        input_summary={"title": payload.quiz_config.topic[:160]},
     )
     return {"task_id": task_id, "status": "pending", "workflow_type": "quiz_direct"}
 
@@ -442,6 +452,11 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
     task_id = submit_callable_task(
         fn=lambda: _get_direct_game_service().generate(ns_payload),
         workflow_type="game_direct",
+        owner_user_id=ns_payload.owner,
+        course_id=ns_payload.course_id,
+        scope_type=ns_payload.scope_type or "course",
+        scope_id=ns_payload.scope_id,
+        input_summary={"title": f"{payload.game_type} 小游戏"},
     )
     return {"task_id": task_id, "status": "pending", "workflow_type": "game_direct"}
 
