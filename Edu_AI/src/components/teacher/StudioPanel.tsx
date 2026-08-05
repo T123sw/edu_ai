@@ -47,6 +47,7 @@ import {
   sendChatReplyV2,
   sendReportV2,
   generateKnowledgeBaseGameV2,
+  generateKnowledgeBaseFlashcardV2,
   type GameTypeV2,
   type LessonPlanEntryCard,
   generateKnowledgeBaseQuizV2,
@@ -66,6 +67,8 @@ import {
 } from '../../services/teacher/workspaceScope';
 import GameArtifactPreview from './GameArtifactPreview';
 import GameEntryModal from './GameEntryModal';
+import FlashcardArtifactPreview from './FlashcardArtifactPreview';
+import FlashcardEntryModal, { type FlashcardEntryValue } from './FlashcardEntryModal';
 import { ClassroomGenerationEntry } from './ClassroomGenerationEntry';
 import LessonPlanEntryModal from './LessonPlanEntryModal';
 import LessonPlanArtifactPreview from './LessonPlanArtifactPreview';
@@ -708,6 +711,7 @@ const StudioPanel: React.FC<Props> = ({
   const [lessonPlanEntryVisible, setLessonPlanEntryVisible] = useState(false);
   const [quizEntryVisible, setQuizEntryVisible] = useState(false);
   const [gameEntryVisible, setGameEntryVisible] = useState(false);
+  const [flashcardEntryVisible, setFlashcardEntryVisible] = useState(false);
   const pptPreviewFrameRef = useRef<HTMLDivElement | null>(null);
   const pptFullscreenRef = useRef<HTMLDivElement | null>(null);
   const [pptPreviewFrameWidth, setPptPreviewFrameWidth] = useState(PPT_PREVIEW_BASE_WIDTH);
@@ -855,12 +859,12 @@ const StudioPanel: React.FC<Props> = ({
       return;
     }
 
-    if (type === 'game') {
+    if (type === 'flashcard') {
       if (!selectedDocs || selectedDocs.length === 0) {
         message.warning('请先勾选至少一份知识库文档。');
         return;
       }
-      setGameEntryVisible(true);
+      setFlashcardEntryVisible(true);
       return;
     }
 
@@ -903,6 +907,15 @@ const StudioPanel: React.FC<Props> = ({
         return;
       }
       setReportEntryVisible(true);
+      return;
+    }
+
+    if (type === 'flashcard') {
+      if (!selectedDocs || selectedDocs.length === 0) {
+        message.warning('请先勾选至少一份知识库文档。');
+        return;
+      }
+      setFlashcardEntryVisible(true);
       return;
     }
 
@@ -1002,6 +1015,42 @@ const StudioPanel: React.FC<Props> = ({
       message.success('小游戏生成任务已提交，后台处理中...');
     } catch (error: any) {
       message.error(`小游戏生成失败: ${error.message || '未知错误'}`);
+      throw error;
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleFlashcardEntrySubmit = async (value: FlashcardEntryValue) => {
+    if (!courseId) {
+      message.warning('请先进入具体课程。');
+      return;
+    }
+    setGenerating(true);
+    try {
+      const task = await generateKnowledgeBaseFlashcardV2({
+        course_id: courseId,
+        scope_type: workspaceScopeApiParams.scopeType,
+        scope_id: workspaceScopeApiParams.scopeId,
+        selected_doc_ids: selectedDocs,
+        flashcard_config: {
+          title: value.title?.trim(),
+          count: value.count,
+          difficulty: value.difficulty,
+          category: value.category?.trim(),
+          show_sources: value.showSources,
+        },
+        idempotency_key:
+          typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `flashcard-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      });
+      setDirectBgTasks((current) => [...current, { taskId: task.task_id }]);
+      requestJobRefresh(task.task_id);
+      setFlashcardEntryVisible(false);
+      message.success('闪卡生成任务已提交，可在任务中心查看进度。');
+    } catch (error: any) {
+      message.error(`闪卡生成失败: ${error.message || '未知错误'}`);
       throw error;
     } finally {
       setGenerating(false);
@@ -1821,6 +1870,16 @@ const StudioPanel: React.FC<Props> = ({
     }
 
     // 报告预览
+    if (viewingFile.type === 'flashcard') {
+      return (
+        <FlashcardArtifactPreview
+          file={viewingFile}
+          onBack={() => setViewingFile(null)}
+          onToggleCollapsed={onToggleCollapsed}
+        />
+      );
+    }
+
     if (viewingFile.type === 'ppt') {
       const pptKind = String((viewingFile.meta as any)?.kind || '').trim();
       const pptPreviewUrl = String(resolvePptAssetUrl((viewingFile.meta as any)?.htmlPreviewUrl) || '').trim();
@@ -2870,6 +2929,12 @@ const StudioPanel: React.FC<Props> = ({
         submitting={generating}
         onCancel={() => setGameEntryVisible(false)}
         onSubmit={handleGameEntrySubmit}
+      />
+      <FlashcardEntryModal
+        open={flashcardEntryVisible}
+        submitting={generating}
+        onCancel={() => setFlashcardEntryVisible(false)}
+        onSubmit={handleFlashcardEntrySubmit}
       />
       <Modal
         title="教学博客大纲审查"

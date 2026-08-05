@@ -27,10 +27,15 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectQuizPrefillRequestV2,
     KnowledgeBaseDirectQuizRequestV2,
     KnowledgeBaseDirectGameRequestV2,
+    KnowledgeBaseDirectFlashcardRequestV2,
     KnowledgeBaseDirectReportRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
 from app.chat.tasks.background_runner import submit_callable_task
+from app.services.generation_command import (
+    GenerationCommand,
+    generation_command_service,
+)
 from core.config import Config
 
 
@@ -77,6 +82,14 @@ def _get_direct_game_service():
     )
 
     return build_default_knowledge_base_direct_game_service_v2()
+
+
+def _get_direct_flashcard_service():
+    from app.chat.application.knowledge_base_direct_flashcard_service_v2 import (
+        build_default_knowledge_base_direct_flashcard_service_v2,
+    )
+
+    return build_default_knowledge_base_direct_flashcard_service_v2()
 
 
 def _get_ppt_entry_cards_service():
@@ -459,4 +472,45 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
         input_summary={"title": f"{payload.game_type} 小游戏"},
     )
     return {"task_id": task_id, "status": "pending", "workflow_type": "game_direct"}
+
+
+@router.post("/flashcard/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+async def direct_flashcard(
+    payload: KnowledgeBaseDirectFlashcardRequestV2,
+    current_user: dict = Depends(get_current_user),
+):
+    owner = str(current_user.get("username") or "").strip()
+    command = GenerationCommand(
+        resource_type="flashcard",
+        owner_user_id=owner,
+        course_id=payload.course_id,
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        selected_doc_ids=payload.selected_doc_ids,
+        config=payload.flashcard_config.model_dump(),
+        idempotency_key=payload.idempotency_key,
+    )
+    service = _get_direct_flashcard_service()
+
+    def _run(active_command, job_id, config_snapshot_id):
+        request = SimpleNamespace(
+            owner=active_command.owner_user_id,
+            course_id=active_command.course_id,
+            scope_type=active_command.scope_type,
+            scope_id=active_command.scope_id,
+            selected_doc_ids=active_command.selected_doc_ids,
+            flashcard_config=active_command.config,
+        )
+        return service.generate(
+            request,
+            job_id=job_id,
+            config_snapshot_id=config_snapshot_id,
+        )
+
+    job = generation_command_service.submit(command, _run)
+    return {
+        "task_id": job.edu_job_id,
+        "status": "pending",
+        "workflow_type": "flashcard_direct",
+    }
 

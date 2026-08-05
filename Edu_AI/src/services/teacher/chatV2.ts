@@ -170,6 +170,21 @@ export interface KnowledgeBaseDirectGameRequestV2 {
   game_type: GameTypeV2;
 }
 
+export interface KnowledgeBaseDirectFlashcardRequestV2 {
+  course_id: string;
+  scope_type?: 'course' | 'knowledge_point';
+  scope_id?: string;
+  selected_doc_ids: string[];
+  flashcard_config: {
+    title?: string;
+    count: number;
+    difficulty: 'easy' | 'medium' | 'hard';
+    category?: string;
+    show_sources: boolean;
+  };
+  idempotency_key: string;
+}
+
 export interface ReportEntryCardSelection {
   card_id: string;
   card_type: 'preset' | 'recommended';
@@ -706,6 +721,15 @@ export async function generateKnowledgeBaseGameV2(
   payload: KnowledgeBaseDirectGameRequestV2,
 ): Promise<ChatDirectTaskSubmittedV2> {
   return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectGameRequestV2>('/api/chat/v2/game/direct', payload);
+}
+
+export async function generateKnowledgeBaseFlashcardV2(
+  payload: KnowledgeBaseDirectFlashcardRequestV2,
+): Promise<ChatDirectTaskSubmittedV2> {
+  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectFlashcardRequestV2>(
+    '/api/chat/v2/flashcard/direct',
+    payload,
+  );
 }
 
 export async function transcribeSpeechV2(file: Blob, filename: string): Promise<SpeechTranscriptResponseV2> {

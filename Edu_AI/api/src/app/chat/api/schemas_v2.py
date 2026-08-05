@@ -147,6 +147,23 @@ class KnowledgeBaseDirectGameRequestV2(BaseModel):
     game_type: GameType
 
 
+class DirectFlashcardConfigV2(BaseModel):
+    title: str = ""
+    count: int = Field(default=10, ge=3, le=30)
+    difficulty: Literal["easy", "medium", "hard"] = "medium"
+    category: str = ""
+    show_sources: bool = True
+
+
+class KnowledgeBaseDirectFlashcardRequestV2(BaseModel):
+    course_id: str
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    selected_doc_ids: List[str] = Field(min_length=1)
+    flashcard_config: DirectFlashcardConfigV2
+    idempotency_key: str = Field(min_length=1, max_length=160)
+
+
 class PptEntryPrefillConfigV2(BaseModel):
     deck_title: str
     deck_subtitle: Optional[str] = None
