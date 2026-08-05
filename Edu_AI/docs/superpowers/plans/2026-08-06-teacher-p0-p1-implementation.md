@@ -143,13 +143,13 @@ export interface PagePlaybackController {
 }
 ```
 
-- [ ] RED：翻页停止上一页语音、媒体、焦点和计时器。
-- [ ] RED：重播只重播当前页；不暴露全课程 scrubber。
-- [ ] GREEN：实现目录 + 自适应 16:9 舞台 + 当前页辅助面板。
-- [ ] GREEN：实现浏览、演示、全屏及当前页播放控制。
-- [ ] GREEN：保留内部 LessonTimeline 供 MP4 导出使用。
-- [ ] 验证单元测试、PPTX/视频既有回归和浏览器操作。
-- [ ] 提交并 push。
+- [x] RED：翻页停止上一页语音、媒体、焦点和计时器。
+- [x] RED：重播只重播当前页；不暴露全课程 scrubber。
+- [x] GREEN：实现目录 + 自适应 16:9 舞台 + 当前页辅助面板。
+- [x] GREEN：实现浏览、演示、全屏及当前页播放控制。
+- [x] GREEN：保留内部 LessonTimeline 供 MP4 导出使用。
+- [x] 验证单元测试、PPTX/视频既有回归和浏览器操作。
+- [x] 提交并 push。
 
 ### Task 6：后端 EduJob 账本
 
@@ -177,12 +177,12 @@ class EduJob(BaseModel):
     parent_job_id: str | None = None
 ```
 
-- [ ] RED：状态转换、owner 过滤、列表分页、取消、重试和旧记录兼容。
-- [ ] RED：并发写入和故障注入不能产生半个 JSON。
-- [ ] GREEN：原子写入、目录锁、版本化兼容读取。
-- [ ] GREEN：实现列表、详情、取消、重试接口；身份从后端注入。
-- [ ] 验证定向 pytest 与课堂任务回归。
-- [ ] 提交并 push。
+- [x] RED：状态转换、owner 过滤、列表分页、取消、重试和旧记录兼容。
+- [x] RED：并发写入和故障注入不能产生半个 JSON。
+- [x] GREEN：原子写入、目录锁、版本化兼容读取。
+- [x] GREEN：实现列表、详情、取消、重试接口；身份从后端注入。
+- [x] 验证定向 pytest 与课堂任务回归。
+- [x] 提交并 push。
 
 ### Task 7：前端全局任务管理器
 
@@ -195,13 +195,13 @@ class EduJob(BaseModel):
 - Modify: `src/stitch/App.tsx`
 - Create: `src/jobs/jobStore.test.ts`
 
-- [ ] RED：启动恢复、去重轮询、退避、终态通知和课程资源失效刷新。
-- [ ] RED：多标签页只有一个活动轮询领导者或等效去重保证。
-- [ ] GREEN：实现后端任务为唯一事实来源的 Zustand store。
-- [ ] GREEN：实现全局调度器、任务中心抽屉和页面查询 hook。
-- [ ] GREEN：组件卸载不删除任务，重新登录按用户恢复。
-- [ ] 验证定向测试、前端测试和浏览器刷新恢复。
-- [ ] 提交并 push。
+- [x] RED：启动恢复、去重轮询、退避、终态通知和课程资源失效刷新。
+- [x] RED：多标签页只有一个活动轮询领导者或等效去重保证。
+- [x] GREEN：实现后端任务为唯一事实来源的 Zustand store。
+- [x] GREEN：实现全局调度器、任务中心抽屉和页面查询 hook。
+- [x] GREEN：组件卸载不删除任务，重新登录按用户恢复。
+- [x] 验证定向测试、前端测试和浏览器刷新恢复。
+- [x] 提交并 push。
 
 ### Task 8：迁移现有长任务并统一状态
 
@@ -214,12 +214,12 @@ class EduJob(BaseModel):
 - Create: `src/components/shared/AsyncState.tsx`
 - Create: `tests/frontend/teacher-global-job-migration.test.ts`
 
-- [ ] RED：核心组件不得再以私有 interval 作为任务权威。
-- [ ] RED：加载、空、失败、部分成功、无权限均有教师可读文案和恢复动作。
-- [ ] GREEN：课堂、视频、报告、习题、游戏、博客、PPT、闪卡、RAG 接入全局任务。
-- [ ] GREEN：删除重复通知和本地任务权威状态。
-- [ ] 验证全局任务与核心页面回归。
-- [ ] 提交并 push，完成 P0 代码冻结。
+- [x] RED：核心组件不得再以私有 interval 作为任务权威。
+- [x] RED：加载、空、失败、部分成功、无权限均有教师可读文案和恢复动作。
+- [x] GREEN：课堂、视频、报告、习题、游戏、博客、PPT、闪卡、RAG 接入全局任务。
+- [x] GREEN：删除重复通知和本地任务权威状态。
+- [x] 验证全局任务与核心页面回归。
+- [x] 提交并 push，完成 P0 代码冻结。
 
 ### Task 9：RAG 文档状态和测试检索
 
@@ -240,12 +240,12 @@ uploaded -> parsing -> chunking -> embedding -> ready
 ready -> rebuilding -> ready (old index remains active until swap)
 ```
 
-- [ ] RED：上传返回 document + job，失败不标 ready。
-- [ ] RED：重建失败保留旧索引，删除清理 chunk 和派生物。
-- [ ] GREEN：持久化状态、阶段、错误、索引版本和统计。
-- [ ] GREEN：实现失败重试、单文档测试检索和引用定位。
-- [ ] 验证权限、生命周期和前端状态。
-- [ ] 提交并 push。
+- [x] RED：上传返回 document + job，失败不标 ready。
+- [x] RED：重建失败保留旧索引，删除清理 chunk 和派生物。
+- [x] GREEN：持久化状态、阶段、错误、索引版本和统计。
+- [x] GREEN：实现失败重试、单文档测试检索和引用定位。
+- [x] 验证权限、生命周期和前端状态。
+- [x] 提交并 push。
 
 ### Task 10：统一课程资源与原子存储
 
@@ -257,13 +257,13 @@ ready -> rebuilding -> ready (old index remains active until swap)
 - Create: `api/src/tests/core/test_course_material_manifest.py`
 - Create: `api/src/tests/core/test_course_material_permissions.py`
 
-- [ ] RED：统一 ID、owner、版本、来源、任务、配置快照和 manifest。
-- [ ] RED：并发写入、保存失败、完整删除、越权和旧数据读取。
-- [ ] GREEN：临时目录写入、校验、原子发布、索引更新。
-- [ ] GREEN：正式类型不落入 `others`，AI 课堂 ID 同源。
-- [ ] GREEN：列表、详情、重命名、置顶、删除和完整性检查。
-- [ ] 验证存储故障注入与 API 权限。
-- [ ] 提交并 push。
+- [x] RED：统一 ID、owner、版本、来源、任务、配置快照和 manifest。
+- [x] RED：并发写入、保存失败、完整删除、越权和旧数据读取。
+- [x] GREEN：临时目录写入、校验、原子发布、索引更新。
+- [x] GREEN：正式类型不落入 `others`，AI 课堂 ID 同源。
+- [x] GREEN：列表、详情、重命名、置顶、删除和完整性检查。
+- [x] 验证存储故障注入与 API 权限。
+- [x] 提交并 push。
 
 ### Task 11：八类可信生成与 PPT/闪卡闭环
 
@@ -349,9 +349,9 @@ active -> rollback to previous active
 - Update: `docs/superpowers/decisions/2026-08-06-teacher-p0-p1-decisions.md`
 - Create: `docs/acceptance/2026-08-06-teacher-p0-p1-acceptance.md`
 
-- [ ] 运行全部前端测试、lint、生产构建。
-- [ ] 运行全部后端测试。
-- [ ] 运行 1280/1366/1440/1600/1920 浏览器验收并保存截图。
-- [ ] 执行权限、密钥泄漏、并发写入和任务恢复检查。
-- [ ] 对照 P0/P1 SPEC 每一项完成定义并记录证据。
-- [ ] 提交并 push 最终验收记录。
+- [x] 运行全部前端测试、lint、生产构建。
+- [x] 运行全部后端测试。
+- [x] 运行 1280/1366/1440/1600/1920 浏览器验收并保存截图。
+- [x] 执行权限、密钥泄漏、并发写入和任务恢复检查。
+- [x] 对照 P0/P1 SPEC 每一项完成定义并记录证据。
+- [x] 提交并 push 最终验收记录。
