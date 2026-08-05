@@ -205,7 +205,174 @@ class CourseStorageManager:
             return True
         stored_owner = str(material_data.get("owner_user_id") or "").strip()
         requested_owner = str(owner_user_id or "").strip()
-        return not stored_owner or (bool(requested_owner) and stored_owner == requested_owner)
+        return bool(stored_owner) and bool(requested_owner) and stored_owner == requested_owner
+
+    def migrate_legacy_generated_materials(
+        self,
+        course_id: str,
+        *,
+        owner_user_id: Optional[str] = None,
+        dry_run: bool = True,
+    ) -> Dict[str, Any]:
+        """Plan or apply the explicit migration of legacy course materials.
+
+        A dry run is side-effect free and is the default. Applying a migration
+        never makes an unowned record public: records without an explicit
+        ``owner_user_id`` are marked ``pending_owner`` and remain available only
+        to internal/admin callers until an owner is assigned.
+        """
+
+        generated_root = self.get_course_dir(course_id) / "generated_materials"
+        assigned_owner = str(owner_user_id or "").strip() or None
+        report: Dict[str, Any] = {
+            "course_id": course_id,
+            "dry_run": bool(dry_run),
+            "owner_user_id": assigned_owner,
+            "scanned": 0,
+            "would_change": 0,
+            "applied": 0,
+            "pending_owner": 0,
+            "legacy_partial": 0,
+            "actions": [],
+        }
+        if not generated_root.exists():
+            return report
+
+        with self._storage_lock():
+            for source_path in sorted(generated_root.rglob("*.json")):
+                report["scanned"] += 1
+                relative_source = source_path.relative_to(
+                    self.get_course_dir(course_id)
+                ).as_posix()
+                payload = self._read_json(source_path)
+                if not isinstance(payload, dict):
+                    report["legacy_partial"] += 1
+                    report["actions"].append(
+                        {
+                            "source": relative_source,
+                            "target": relative_source,
+                            "status": "legacy_partial",
+                            "reason": "invalid_json",
+                            "changes": [],
+                        }
+                    )
+                    continue
+
+                derived_type = DIR_TO_TYPE.get(source_path.parent.name)
+                material_type = str(
+                    payload.get("material_type") or derived_type or ""
+                ).strip()
+                raw_material_id = str(
+                    payload.get("material_id")
+                    or payload.get("id")
+                    or source_path.stem
+                ).strip()
+                material_id = self._normalize_material_id(raw_material_id)
+
+                if material_type not in FORMAL_MATERIAL_TYPES or not material_id:
+                    report["legacy_partial"] += 1
+                    report["actions"].append(
+                        {
+                            "source": relative_source,
+                            "target": relative_source,
+                            "status": "legacy_partial",
+                            "reason": "unsupported_material_type_or_id",
+                            "changes": [],
+                        }
+                    )
+                    if not dry_run:
+                        payload["status"] = "legacy_partial"
+                        payload["updated_at"] = datetime.now().isoformat()
+                        self._write_json(source_path, payload)
+                    continue
+
+                target_path = self._material_file(
+                    course_id, material_type, material_id
+                )
+                changes: List[str] = []
+                stored_owner = str(payload.get("owner_user_id") or "").strip()
+                if not stored_owner:
+                    if assigned_owner:
+                        changes.append("assign_owner")
+                    else:
+                        changes.append("mark_pending_owner")
+                        report["pending_owner"] += 1
+                if target_path.resolve() != source_path.resolve():
+                    changes.append("move_to_formal_type")
+
+                needs_upgrade = (
+                    int(payload.get("schema_version") or 1) < 2
+                    or not payload.get("material_id")
+                    or not payload.get("course_id")
+                    or "artifact_paths" not in payload
+                    or not payload.get("content_hash")
+                )
+                if needs_upgrade:
+                    changes.append("upgrade_manifest")
+
+                action = {
+                    "source": relative_source,
+                    "target": target_path.relative_to(
+                        self.get_course_dir(course_id)
+                    ).as_posix(),
+                    "status": "planned" if dry_run else "unchanged",
+                    "reason": None,
+                    "changes": changes,
+                }
+                report["actions"].append(action)
+                if not changes:
+                    continue
+
+                report["would_change"] += 1
+                if dry_run:
+                    continue
+                if target_path.exists() and target_path.resolve() != source_path.resolve():
+                    action["status"] = "legacy_partial"
+                    action["reason"] = "target_exists"
+                    report["legacy_partial"] += 1
+                    continue
+
+                now = datetime.now().isoformat()
+                upgraded = self._normalize_material_manifest(
+                    payload,
+                    course_id=course_id,
+                    material_type=material_type,
+                    material_id=material_id,
+                )
+                upgraded["schema_version"] = 2
+                upgraded["material_type"] = material_type
+                upgraded["material_id"] = material_id
+                upgraded["course_id"] = course_id
+                upgraded["owner_user_id"] = stored_owner or assigned_owner
+                upgraded["status"] = (
+                    str(payload.get("status") or "ready")
+                    if upgraded["owner_user_id"]
+                    else "pending_owner"
+                )
+                upgraded["created_at"] = str(payload.get("created_at") or now)
+                upgraded["updated_at"] = now
+                if not upgraded.get("content_hash"):
+                    hash_payload = {
+                        key: value
+                        for key, value in upgraded.items()
+                        if key != "content_hash"
+                    }
+                    upgraded["content_hash"] = hashlib.sha256(
+                        json.dumps(
+                            hash_payload,
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            default=str,
+                        ).encode("utf-8")
+                    ).hexdigest()
+
+                self._write_json(target_path, upgraded)
+                if target_path.resolve() != source_path.resolve():
+                    source_path.unlink(missing_ok=True)
+                action["status"] = "applied"
+                report["applied"] += 1
+
+        return report
 
     def _normalize_scope(self, *, course_id: str, scope_type: Optional[str], scope_id: Optional[str]) -> Dict[str, Any]:
         return normalize_workspace_scope(

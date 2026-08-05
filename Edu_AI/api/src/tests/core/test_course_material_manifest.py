@@ -95,3 +95,80 @@ def test_formal_types_never_fall_back_to_others(tmp_path):
             manager._material_file("course-1", material_type, f"{material_type}-1")
         )
 
+
+def test_legacy_material_migration_dry_run_then_assigns_owner_and_type(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    legacy_dir = (
+        manager.get_course_dir("course-1") / "generated_materials" / "others"
+    )
+    legacy_dir.mkdir(parents=True, exist_ok=True)
+    legacy_file = legacy_dir / "game-legacy.json"
+    legacy_file.write_text(
+        json.dumps(
+            {
+                "id": "game-legacy",
+                "material_type": "game",
+                "title": "历史小游戏",
+                "content": {"kind": "quiz"},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    report = manager.migrate_legacy_generated_materials(
+        "course-1",
+        owner_user_id="teacher-a",
+        dry_run=True,
+    )
+
+    assert report["dry_run"] is True
+    assert report["scanned"] == 1
+    assert report["would_change"] == 1
+    assert report["applied"] == 0
+    assert report["actions"][0]["changes"] == [
+        "assign_owner",
+        "move_to_formal_type",
+        "upgrade_manifest",
+    ]
+    assert legacy_file.exists()
+    assert not manager._material_file(
+        "course-1", "game", "game-legacy"
+    ).exists()
+
+    applied = manager.migrate_legacy_generated_materials(
+        "course-1",
+        owner_user_id="teacher-a",
+        dry_run=False,
+    )
+
+    assert applied["applied"] == 1
+    assert not legacy_file.exists()
+    material = manager.get_generated_material(
+        "course-1", "game", "game-legacy", owner_user_id="teacher-a"
+    )
+    assert material["schema_version"] == 2
+    assert material["owner_user_id"] == "teacher-a"
+    assert material["material_type"] == "game"
+    assert material["status"] == "ready"
+    assert material["content_hash"]
+
+
+def test_legacy_material_migration_reports_unreadable_records(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    legacy_dir = (
+        manager.get_course_dir("course-1") / "generated_materials" / "others"
+    )
+    legacy_dir.mkdir(parents=True, exist_ok=True)
+    (legacy_dir / "broken.json").write_text("{not-json", encoding="utf-8")
+
+    report = manager.migrate_legacy_generated_materials(
+        "course-1",
+        dry_run=True,
+    )
+
+    assert report["legacy_partial"] == 1
+    assert report["actions"][0]["status"] == "legacy_partial"
+    assert report["actions"][0]["reason"] == "invalid_json"
