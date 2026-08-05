@@ -276,7 +276,14 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     )
 
     assert job.status == JobStatus.SUCCEEDED
-    assert job.result_ref == {"classroom_id": "stage-1", "course_id": "course-1", "scenes_count": 1}
+    assert job.result_ref == {
+        "classroom_id": "stage-1",
+        "course_id": "course-1",
+        "scenes_count": 1,
+        "resource_type": "course_material",
+        "material_type": "classroom",
+        "material_id": "stage-1",
+    }
     assert client.submitted_body["research_context"] == "web snippet\n\n[来源: textbook.pdf]\nRAG snippet"
     assert client.get_classroom_calls == ["stage-1"]  # job.result.classroomId -> get_classroom(id)
 
@@ -427,7 +434,14 @@ async def test_submit_classroom_generation_job_returns_queued_immediately_then_c
         pytest.fail("background generation task did not finish in time")
 
     assert current.status == JobStatus.SUCCEEDED
-    assert current.result_ref == {"classroom_id": "stage-1", "course_id": "course-1", "scenes_count": 1}
+    assert current.result_ref == {
+        "classroom_id": "stage-1",
+        "course_id": "course-1",
+        "scenes_count": 1,
+        "resource_type": "course_material",
+        "material_type": "classroom",
+        "material_id": "stage-1",
+    }
     assert client.get_classroom_calls == ["stage-1"]
 
 

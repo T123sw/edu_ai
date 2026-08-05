@@ -30,7 +30,14 @@ from app.integrations.openmaic import (
     OpenMaicUnavailable,
     get_openmaic_client,
 )
-from app.services.job_store import EduJob, JobKind, JobStatus, create_job, update_job
+from app.services.job_store import (
+    EduJob,
+    JobKind,
+    JobStatus,
+    create_job,
+    get_job,
+    update_job,
+)
 
 log = logging.getLogger("classroom_job_service")
 
@@ -83,11 +90,25 @@ def _fail(edu_job_id: str, *, step: str, message: str, error: str, error_code: s
     return updated
 
 
-def create_classroom_job(*, owner: Optional[str] = None) -> EduJob:
+def create_classroom_job(
+    *,
+    owner: Optional[str] = None,
+    course_id: Optional[str] = None,
+    scope_type: str = "course",
+    scope_id: Optional[str] = None,
+    input_summary: Optional[dict[str, Any]] = None,
+) -> EduJob:
     """只建 job（queued），不提交给 sidecar。给需要"立即拿到 edu_job_id 再
     在后台跑生成"的调用方用（P3-2 异步提交），见
     `classroom_service.submit_classroom_generation_job`。"""
-    return create_job(kind=JobKind.GENERATE_CLASSROOM, owner=owner)
+    return create_job(
+        kind=JobKind.GENERATE_CLASSROOM,
+        owner_user_id=owner,
+        course_id=course_id,
+        scope_type=scope_type,
+        scope_id=scope_id,
+        input_summary=input_summary,
+    )
 
 
 async def run_generate_classroom_job(
@@ -172,6 +193,18 @@ async def run_generate_classroom_job(
             error=final_envelope.get("error") or "sidecar reported failure",
             error_code="INTERNAL_ERROR",
         )
+
+    current = get_job(job.edu_job_id)
+    if current and current.status == JobStatus.CANCEL_REQUESTED:
+        canceled = update_job(
+            job.edu_job_id,
+            status=JobStatus.CANCELED,
+            step="canceled",
+            message="任务已取消",
+            result_ref=None,
+        )
+        assert canceled is not None
+        return canceled
 
     # 完成语义差异（SPEC-05 §2.2、AC-05-4/5）：sidecar succeeded 只是前置条件，
     # 还要后处理（P2-5 起=拉媒体+改写url+校验+落库）全部成功才置 edu_job=succeeded；

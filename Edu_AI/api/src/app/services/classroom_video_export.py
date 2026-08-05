@@ -15,6 +15,7 @@ from app.services.job_store import (
     JobKind,
     JobStatus,
     create_job,
+    get_job,
     update_job,
 )
 from core.course_storage import CourseStorageManager
@@ -175,6 +176,18 @@ async def run_classroom_video_export_job(
         if missing:
             raise RuntimeError(f"video exporter omitted artifacts: {', '.join(missing)}")
 
+        current = get_job(job.edu_job_id)
+        if current and current.status == JobStatus.CANCEL_REQUESTED:
+            shutil.rmtree(output_dir, ignore_errors=True)
+            return update_job(
+                job.edu_job_id,
+                status=JobStatus.CANCELED,
+                step="canceled",
+                progress=100,
+                message="任务已取消",
+                result_ref=None,
+            ) or job
+
         artifact_root.mkdir(parents=True, exist_ok=True)
         for filename in VIDEO_ARTIFACT_MEDIA_TYPES:
             os.replace(output_dir / filename, artifact_root / filename)
@@ -218,8 +231,19 @@ async def submit_classroom_video_export_job(
     current_user: dict[str, Any],
     owner: Optional[str],
     course_storage_manager: CourseStorageManager,
+    existing_job: Optional[EduJob] = None,
 ) -> EduJob:
-    job = create_job(kind=JobKind.RENDER_VIDEO, owner=owner)
+    job = existing_job or create_job(
+            kind=JobKind.RENDER_VIDEO,
+            owner_user_id=owner,
+            course_id=course_id,
+            input_summary={
+                "title": f"课堂视频 · {classroom_id}",
+                "resource_type": "classroom_video",
+                "classroom_id": classroom_id,
+                "source": "classroom-player",
+            },
+        )
 
     async def _run() -> None:
         await run_classroom_video_export_job(

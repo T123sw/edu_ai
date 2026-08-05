@@ -263,6 +263,7 @@ async def submit_classroom_generation_job(
     scope_id: Optional[str] = None,
     client: Optional[OpenMaicClient] = None,
     rag_system: Optional[Any] = None,
+    existing_job: Optional[EduJob] = None,
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -292,7 +293,20 @@ async def submit_classroom_generation_job(
         scope_id=scope_id,
     )
 
-    job = create_classroom_job(owner=owner)
+    job = existing_job or create_classroom_job(
+            owner=owner,
+            course_id=course_id,
+            scope_type=scope_type or "course",
+            scope_id=scope_id,
+            input_summary={
+                "title": requirement[:120],
+                "requirement": requirement,
+                "resource_type": "classroom",
+                "enable_web_search": enable_web_search,
+                "enable_tts": enable_tts,
+                "source": "classroom-studio",
+            },
+        )
 
     async def _run() -> None:
         await run_generate_classroom_job(
