@@ -12,9 +12,9 @@ export const teacherSidebarItems: ReadonlyArray<{
   label: string;
   icon: string;
 }> = [
-  { route: "ai", label: "问答", icon: "quiz" },
-  { route: "knowledge", label: "课程知识库", icon: "menu_book" },
-  { route: "graph", label: "知识图谱", icon: "hub" },
+  { route: "course-detail", label: "课程概览", icon: "dashboard" },
+  { route: "ai", label: "问答与生成", icon: "auto_awesome" },
+  { route: "knowledge", label: "课程知识", icon: "menu_book" },
   { route: "classroom-studio", label: "AI 课堂", icon: "play_circle" },
   { route: "resources", label: "课程资源", icon: "folder_open" },
   { route: "edit", label: "课程设置", icon: "settings" },
@@ -51,4 +51,28 @@ export function buildTeacherCourseHash(
 export function readTeacherCourseId(hash: string): string | null {
   const query = String(hash || "").split("?")[1] ?? "";
   return normalizeCourseId(new URLSearchParams(query).get("course_id"));
+}
+
+export type CourseKnowledgeView = "documents" | "structure";
+
+export function readTeacherCourseLocation(hash: string): {
+  route: TeacherCourseRoute | null;
+  courseId: string | null;
+  view?: CourseKnowledgeView;
+} {
+  const normalized = String(hash || "").replace(/^#/, "");
+  const [routeName, query = ""] = normalized.split("?");
+  const route = ["course-detail", "ai", "knowledge", "graph", "classroom-studio", "resources", "edit"].includes(routeName)
+    ? routeName as TeacherCourseRoute
+    : null;
+  const params = new URLSearchParams(query);
+  const courseId = normalizeCourseId(params.get("course_id"));
+  if (route === "knowledge") {
+    return {
+      route,
+      courseId,
+      view: params.get("view") === "structure" ? "structure" : "documents",
+    };
+  }
+  return { route, courseId };
 }

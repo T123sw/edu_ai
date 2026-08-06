@@ -342,7 +342,7 @@ git commit -m "feat: clarify teacher core page hierarchy"
 - Consumes: the single knowledge-document API and knowledge-graph evidence links from Plan 2.
 - Produces: `#knowledge?course_id={course_id}&view=documents|structure` with no duplicate uploader.
 
-- [ ] **Step 1: Add route and source assertions for the unified page**
+- [x] **Step 1: Add route and source assertions for the unified page**
 
 ```typescript
 test("course knowledge view is encoded without losing course identity", () => {
@@ -353,7 +353,7 @@ test("course knowledge view is encoded without losing course identity", () => {
 });
 ```
 
-- [ ] **Step 2: Run and expose the two-page/two-upload structure**
+- [x] **Step 2: Run and expose the two-page/two-upload structure**
 
 ```powershell
 pnpm test -- src/stitch/teacherRoutes.test.ts
@@ -362,7 +362,7 @@ pnpm test:e2e -- tests/e2e/course-knowledge.spec.ts
 
 Expected: current routes separate knowledge base/graph and browser test finds more than one upload entry.
 
-- [ ] **Step 3: Implement two views with distinct responsibilities**
+- [x] **Step 3: Implement two views with distinct responsibilities**
 
 Documents view: discoverable upload action above the list, compact rows, filename/type/status/chunks/updated time, preview, indexing retry, and error detail. Processing/failed documents cannot be selected as evidence.
 
@@ -370,7 +370,7 @@ Structure view: graph canvas, structure settings, node detail, and evidence-docu
 
 Keep old `knowledge-base` and `graph` hashes as transition redirects to the appropriate `knowledge` view; all new navigation and writes target only the unified route.
 
-- [ ] **Step 4: Verify one uploader, linked evidence, canvas size, and deep-link refresh**
+- [x] **Step 4: Verify one uploader, linked evidence, canvas size, and deep-link refresh**
 
 ```powershell
 pnpm test -- src/stitch/teacherRoutes.test.ts
@@ -379,7 +379,7 @@ pnpm test:e2e -- tests/e2e/course-knowledge.spec.ts
 
 Expected: exactly one course-document uploader, structure links existing documents, copied URLs preserve course/view, and the canvas remains operable at 1024×768.
 
-- [ ] **Step 5: Commit unified course knowledge**
+- [x] **Step 5: Commit unified course knowledge**
 
 ```powershell
 git add Edu_AI/src/stitch/pages/CourseKnowledge.tsx Edu_AI/src/stitch/course/knowledge Edu_AI/src/stitch/pages/CourseKnowledgeBase.tsx Edu_AI/src/stitch/pages/KnowledgeGraph.tsx Edu_AI/src/stitch/teacherRoutes.ts Edu_AI/src/stitch/teacherRoutes.test.ts Edu_AI/tests/e2e/course-knowledge.spec.ts

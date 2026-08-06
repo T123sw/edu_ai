@@ -241,6 +241,7 @@ export function KnowledgeGraphPage() {
   const [importing, setImporting] = useState(false);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [panMode, setPanMode] = useState(false);
+  const [compactPanel, setCompactPanel] = useState<"settings" | "canvas" | "detail">("canvas");
   const [error, setError] = useState<string | null>(null);
   const [importSummary, setImportSummary] = useState<KnowledgeGraphTextbookImportResponse | null>(null);
   const [nodeDocuments, setNodeDocuments] = useState<KnowledgeBaseDocument[]>([]);
@@ -345,12 +346,7 @@ export function KnowledgeGraphPage() {
   }, [course?.id, activeNodeId]);
 
   useEffect(() => {
-    setKnowledgeBaseFeedback(null);
-    setKnowledgeBaseFeedbackTone(null);
-  }, [activeNodeId]);
-
-  useEffect(() => {
-    if (!canEdit || !course?.id || !rootNode || loading || importing || !didHydrateRef.current) return;
+    if (!canEdit || !course?.id || !rootNode || loading || !didHydrateRef.current) return;
 
     const nextSignature = JSON.stringify(buildGraph(nodes, rootNode.id));
     if (nextSignature === lastSavedSignatureRef.current) return;
@@ -376,7 +372,7 @@ export function KnowledgeGraphPage() {
         window.clearTimeout(saveTimerRef.current);
       }
     };
-  }, [canEdit, course?.id, importing, loading, nodes, rootNode]);
+  }, [canEdit, course?.id, loading, nodes, rootNode]);
 
   function updateNode(nodeId: string, patch: Partial<FlatNode>) {
     setNodes((current) => current.map((node) => (node.id === nodeId ? { ...node, ...patch } : node)));
@@ -520,6 +516,13 @@ export function KnowledgeGraphPage() {
             <h1 className="text-xl font-bold text-(--accent-strong)">{course?.title ?? "课程"} 知识图谱</h1>
           </div>
           <div className="flex items-center gap-3">
+            <a
+              href={buildTeacherCourseHash("knowledge", courseId, { view: "documents" })}
+              className="inline-flex items-center gap-2 rounded-full border border-(--accent-border) bg-(--accent-soft) px-4 py-2.5 text-sm font-semibold text-(--accent-strong)"
+            >
+              <MaterialIcon name="article" className="text-base" />
+              关联课程资料
+            </a>
             <button
               type="button"
               onClick={() => setPanMode((current) => !current)}
@@ -539,18 +542,28 @@ export function KnowledgeGraphPage() {
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-6 p-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] xl:grid-cols-[300px_minmax(0,1.2fr)_340px]">
-          <GlassPanel className="h-[calc(100vh-116px)] overflow-y-auto border border-(--shell-border) p-6">
+        <nav className="knowledge-structure-panel-tabs" aria-label="知识结构面板">
+          {([
+            ["settings", "设置"],
+            ["canvas", "画布"],
+            ["detail", "节点详情"],
+          ] as const).map(([id, label]) => (
+            <button key={id} type="button" className={compactPanel === id ? "is-active" : ""} onClick={() => setCompactPanel(id)}>{label}</button>
+          ))}
+        </nav>
+
+        <div className="knowledge-structure-layout grid min-h-0 flex-1 gap-6 p-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] xl:grid-cols-[300px_minmax(0,1.2fr)_340px]">
+          <GlassPanel className={cx("knowledge-structure-layout__settings h-[calc(100vh-116px)] overflow-y-auto border border-(--shell-border) p-6", compactPanel === "settings" && "is-compact-active")}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">图谱设置</p>
                 <h3 className="mt-2 text-2xl font-black text-(--accent-strong)">教材与学时</h3>
               </div>
-              <MaterialIcon name="upload_file" className="text-(--accent)" />
+              <MaterialIcon name="settings" className="text-(--accent)" />
             </div>
 
             <div className="mt-5 space-y-4">
-              <div className="space-y-4">
+              <div className="hidden" aria-hidden="true">
                 <p className="text-sm font-semibold text-(--app-text)">教材上传</p>
                 <input
                   ref={fileInputRef}
@@ -608,7 +621,7 @@ export function KnowledgeGraphPage() {
             </div>
           </GlassPanel>
 
-          <section className="flex min-h-0 flex-col overflow-hidden rounded-[32px] border border-(--shell-border) bg-(--panel-surface)">
+          <section className={cx("knowledge-structure-layout__canvas flex min-h-0 flex-col overflow-hidden rounded-[32px] border border-(--shell-border) bg-(--panel-surface)", compactPanel === "canvas" && "is-compact-active")}>
             <div className="flex items-center justify-between border-b border-(--shell-border) px-6 py-5">
               <div>
                 <h3 className="text-2xl font-black text-(--accent-strong)">知识图谱画布</h3>
@@ -735,7 +748,7 @@ export function KnowledgeGraphPage() {
             </div>
           </section>
 
-          <aside className="h-[calc(100vh-116px)]">
+          <aside className={cx("knowledge-structure-layout__detail h-[calc(100vh-116px)]", compactPanel === "detail" && "is-compact-active")}>
             <GlassPanel className="h-full overflow-y-auto border border-(--shell-border) p-6">
               <div className="mb-6 flex items-start justify-between">
                 <span className="rounded-full bg-(--accent-soft) px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-(--accent-strong)">
@@ -785,11 +798,18 @@ export function KnowledgeGraphPage() {
                   <div>
                     <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">当前节点资源</label>
                     <div className="mb-3">
+                      <a
+                        href={buildTeacherCourseHash("knowledge", courseId, { view: "documents" })}
+                        className="hidden"
+                      >
+                        <MaterialIcon name="article" className="text-base" />
+                        关联课程资料
+                      </a>
                       <button
                         type="button"
                         onClick={() => knowledgeBaseUploadInputRef.current?.click()}
                         disabled={uploadingKnowledgeBase || !course?.id || !canEdit}
-                        className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-(--accent) py-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(29,78,216,0.22)] transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                        className="hidden"
                       >
                         <MaterialIcon name="upload_file" className="text-base" />
                         {uploadingKnowledgeBase

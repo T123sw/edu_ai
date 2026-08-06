@@ -3,9 +3,8 @@ import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
 import { CourseResourcesPage } from "./pages/CourseResources";
 import { AIWorkspacePage } from "./pages/AIWorkspace";
 import { HomeDashboardPage } from "./pages/HomeDashboard";
-import { KnowledgeGraphPage } from "./pages/KnowledgeGraph";
 import { PptStudioPage } from "./pages/PptStudio";
-import { CourseKnowledgeBasePage } from "./pages/CourseKnowledgeBase";
+import { CourseKnowledgePage, LegacyKnowledgeGraphRedirect } from "./pages/CourseKnowledge";
 import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
 import { CourseEditPage } from "./pages/CourseEdit";
 import { ProfilePage } from "./pages/Profile";
@@ -50,9 +49,9 @@ const pages = [
   [routes.workspace, "Workspace", WorkspaceOverviewPage],
   [routes.resources, "Course Resources", CourseResourcesPage],
   [routes.ai, "AI Workspace", AIWorkspacePage],
-  [routes.graph, "Knowledge Graph", KnowledgeGraphPage],
+  [routes.graph, "Knowledge Graph", LegacyKnowledgeGraphRedirect],
   [routes.ppt, "PPT Studio", PptStudioPage],
-  [routes.knowledge, "Knowledge Base", CourseKnowledgeBasePage],
+  [routes.knowledge, "Course Knowledge", CourseKnowledgePage],
   [routes.edit, "Course Edit", CourseEditPage],
   [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
   [routes.videoRender, "Video Render", ClassroomVideoRenderPage],

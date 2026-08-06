@@ -221,3 +221,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: the overview removes the duplicated full-height image hero. It prioritizes description, objectives, indexing readiness, latest resources, active tasks, course revision, one primary action, and the six stable course destinations.
 - Decision: 409 settings conflicts preserve a copyable local draft while loading the newest server revision. Viewers receive only factual read-only fields; system runtime settings are linked from the profile only for administrators.
 - Result: login copy now explains the teacher role and reports errors inline; demo-account help is absent unless explicitly enabled by `VITE_SHOW_DEMO_ACCOUNT`; course cards contain no randomized progress and remain searchable without horizontal overflow.
+
+### Plan 3 / Task 4 — Unified course knowledge
+
+- Red evidence: the teacher-route suite showed separate knowledge-base and graph destinations and had no view-aware route reader. The browser baseline exposed a textbook parser plus a second node-file uploader inside the graph.
+- Green evidence: the frontend unit gate has `147 passed`; the production build passes. The five-viewport browser run produced `14 passed` with one compact-only association-action visibility failure; moving the association action to the structure header and adding compact panel tabs produced `3 passed` on the 1024px rerun.
+- Decision: `#knowledge?course_id=...&view=documents|structure` is the only new course-knowledge route. The legacy `#graph` hash redirects to `view=structure` and preserves course identity.
+- Decision: document upload exists only in the documents view. The structure view links back to existing course documents through “关联课程资料”; its legacy textbook and node upload controls are no longer visible or actionable.
+- Decision: below 1180px, structure settings, canvas, and node detail are explicit tabs. The canvas is the default and receives the full available width; desktop keeps the three-panel arrangement.
+- Result: course navigation now has one “课程知识” destination with two durable subviews, one visible uploader, deep-link refresh, legacy redirect compatibility, and an operable 1024px canvas.

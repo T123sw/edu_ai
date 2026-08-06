@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   buildTeacherCourseHash,
+  readTeacherCourseLocation,
   readTeacherCourseId,
   teacherSidebarItems,
 } from "./teacherRoutes.ts";
@@ -11,9 +12,9 @@ test("teacher sidebar exposes the approved six destinations in order", () => {
   assert.deepEqual(
     teacherSidebarItems.map(({ route, label }) => [route, label]),
     [
-      ["ai", "问答"],
-      ["knowledge", "课程知识库"],
-      ["graph", "知识图谱"],
+      ["course-detail", "课程概览"],
+      ["ai", "问答与生成"],
+      ["knowledge", "课程知识"],
       ["classroom-studio", "AI 课堂"],
       ["resources", "课程资源"],
       ["edit", "课程设置"],
@@ -33,6 +34,17 @@ test("teacher course hashes carry an encoded course id", () => {
   assert.equal(
     readTeacherCourseId("#resources?course_id=course+%2F+%E4%B8%AD%E6%96%87"),
     "course / 中文",
+  );
+});
+
+test("course knowledge view is encoded without losing course identity", () => {
+  assert.equal(
+    buildTeacherCourseHash("knowledge", "c1", { view: "structure" }),
+    "#knowledge?course_id=c1&view=structure",
+  );
+  assert.deepEqual(
+    readTeacherCourseLocation("#knowledge?course_id=c1&view=documents"),
+    { route: "knowledge", courseId: "c1", view: "documents" },
   );
 });
 
