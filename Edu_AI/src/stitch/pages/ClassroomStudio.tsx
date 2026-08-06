@@ -7,6 +7,8 @@ import { buildClassroomPlayerHash } from "../../openmaic/classroomGenerationFlow
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { registerCreatedJob, useCourseJobs } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
+import { useCourseRoute } from "../course/CourseRouteProvider";
+import { canCourse } from "../course/coursePermissions";
 
 function useClassroomList(courseId: string | undefined, reloadToken: number) {
   const [items, setItems] = useState<ClassroomMaterial[]>([]);
@@ -37,7 +39,9 @@ function useClassroomList(courseId: string | undefined, reloadToken: number) {
 
 export function ClassroomStudioPage() {
   const { selectedCourse } = useAppShell();
-  const courseId = selectedCourse?.id;
+  const { courseId: routeCourseId, courseRole } = useCourseRoute();
+  const courseId = routeCourseId ?? undefined;
+  const canGenerate = canCourse(courseRole, "generate");
   const [requirement, setRequirement] = useState("");
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -66,7 +70,7 @@ export function ClassroomStudioPage() {
   }, [job?.edu_job_id, job?.status]);
 
   async function handleGenerate() {
-    if (!courseId || !requirement.trim()) return;
+    if (!courseId || !canGenerate || !requirement.trim()) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -104,7 +108,7 @@ export function ClassroomStudioPage() {
       <main className="w-full px-8 py-10">
         <div className="mb-8 flex items-center justify-between gap-4">
           <a
-            href={buildTeacherCourseHash("ai", courseId)}
+            href={buildTeacherCourseHash("course-detail", courseId)}
             className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--accent-strong)"
           >
             <MaterialIcon name="arrow_back" className="text-sm" />
@@ -118,19 +122,24 @@ export function ClassroomStudioPage() {
 
         <GlassPanel className="mb-6 border border-(--shell-border) bg-white/88 p-6">
           <p className="mb-3 text-sm font-bold text-(--accent-strong)">生成新课件</p>
+          {!canGenerate ? (
+            <p className="mb-4 rounded-2xl bg-sky-50 px-4 py-3 text-sm text-sky-800">
+              当前为只读课程角色，可以查看和播放已有课件，但不能提交新的生成任务。
+            </p>
+          ) : null}
           <textarea
             value={requirement}
             onChange={(event) => setRequirement(event.target.value)}
             placeholder="描述这节课要讲什么，例如：讲一节课，介绍冒泡排序算法的基本原理和时间复杂度"
             rows={3}
-            disabled={isBusy}
+            disabled={isBusy || !canGenerate}
             className="w-full resize-none rounded-2xl border border-(--shell-border) bg-(--surface-subtle) p-4 text-sm outline-hidden focus:border-(--accent-border)"
           />
           <div className="mt-3 flex items-center gap-3">
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={submitting || isBusy || !requirement.trim()}
+              disabled={submitting || isBusy || !requirement.trim() || !canGenerate}
               className="inline-flex items-center gap-2 rounded-2xl bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
             >
               <MaterialIcon name="auto_awesome" className="text-base" />

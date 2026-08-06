@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { backendCourseToSummary, listCourses } from "../api/courses";
 import type { BackendCourse } from "../api/types";
 import { buildTeacherCourseHash } from "../teacherRoutes";
+import { useCourseRoute } from "../course/CourseRouteProvider";
 import {
   AppSurface,
   GlassPanel,
@@ -102,7 +103,7 @@ export function CourseListPage() {
 
   function openDetail(course: CourseSummary) {
     setSelectedCourse(course);
-    window.location.hash = routeHref(routes.courseDetail);
+    window.location.hash = buildTeacherCourseHash(routes.courseDetail, course.id);
   }
 
   return (
@@ -176,9 +177,9 @@ export function CourseListPage() {
 }
 
 export function CourseDetailPage() {
-  const { selectedCourse, setSelectedCourse } = useAppShell();
-  const { summaries, loading, error } = useCourseSummaries();
-  const activeCourse = resolveActiveCourse(summaries, selectedCourse);
+  const { setSelectedCourse } = useAppShell();
+  const { course, loading, error } = useCourseRoute();
+  const activeCourse = course ? backendCourseToSummary(course) : null;
 
   function handleSelect(course: CourseSummary) {
     setSelectedCourse(course);
@@ -206,9 +207,9 @@ export function CourseDetailPage() {
           </GlassPanel>
         ) : error ? (
           <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-rose-600">
-            {error}
+            {error.message}
           </GlassPanel>
-        ) : (
+        ) : activeCourse ? (
           <GlassPanel className="overflow-hidden border border-(--shell-border) bg-white/85">
             <div className="grid min-h-[720px] gap-0 lg:grid-cols-[0.95fr_1.25fr]">
               <section className="flex flex-col justify-between bg-[linear-gradient(160deg,var(--accent-strong),var(--accent))] p-10 text-white lg:p-14">
@@ -236,6 +237,10 @@ export function CourseDetailPage() {
                 </div>
               </section>
             </div>
+          </GlassPanel>
+        ) : (
+          <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-(--muted-text)">
+            当前链接没有有效课程，请返回课程列表重新选择。
           </GlassPanel>
         )}
       </main>

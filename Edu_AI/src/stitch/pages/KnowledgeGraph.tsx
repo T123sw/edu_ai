@@ -19,6 +19,9 @@ import {
   routes,
   useAppShell,
 } from "../shared";
+import { buildTeacherCourseHash } from "../teacherRoutes";
+import { useCourseRoute } from "../course/CourseRouteProvider";
+import { canCourse } from "../course/coursePermissions";
 import { writeWorkspaceScopeToSearch } from "../../services/teacher/workspaceScope";
 
 type FlatNode = {
@@ -217,6 +220,8 @@ function formatDocumentMeta(document: KnowledgeBaseDocument) {
 
 export function KnowledgeGraphPage() {
   const { selectedCourse, theme } = useAppShell();
+  const { courseId, courseRole } = useCourseRoute();
+  const canEdit = canCourse(courseRole, "edit");
   const course = selectedCourse;
   const isDark = theme === "dark";
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -289,9 +294,8 @@ export function KnowledgeGraphPage() {
   const layout = useMemo(() => buildTreeLayout(rootNode, childrenMap, expandedIds), [rootNode, childrenMap, expandedIds]);
   const isCourseRootSelected = activeNode?.parentId === null;
   const aiWorkspaceHref = useMemo(() => {
-    if (!activeNode) {
-      return routeHref(routes.ai);
-    }
+    if (!courseId) return routeHref(routes.course);
+    if (!activeNode) return buildTeacherCourseHash("ai", courseId);
 
     const isCourseRootScope = activeNode.parentId === null;
     const nextSearch = writeWorkspaceScopeToSearch(new URLSearchParams(), {
@@ -299,8 +303,12 @@ export function KnowledgeGraphPage() {
       scopeId: isCourseRootScope ? undefined : activeNode.id,
       scopeLabel: isCourseRootScope ? undefined : activeNode.label,
     });
-    return `${routeHref(routes.ai)}?${nextSearch.toString()}`;
-  }, [activeNode]);
+    return buildTeacherCourseHash(
+      "ai",
+      courseId,
+      Object.fromEntries(nextSearch.entries()),
+    );
+  }, [activeNode, courseId]);
   const activeNodeResources = useMemo(
     () =>
       nodeDocuments.length
@@ -342,7 +350,7 @@ export function KnowledgeGraphPage() {
   }, [activeNodeId]);
 
   useEffect(() => {
-    if (!course?.id || !rootNode || loading || importing || !didHydrateRef.current) return;
+    if (!canEdit || !course?.id || !rootNode || loading || importing || !didHydrateRef.current) return;
 
     const nextSignature = JSON.stringify(buildGraph(nodes, rootNode.id));
     if (nextSignature === lastSavedSignatureRef.current) return;
@@ -368,7 +376,7 @@ export function KnowledgeGraphPage() {
         window.clearTimeout(saveTimerRef.current);
       }
     };
-  }, [course?.id, importing, loading, nodes, rootNode]);
+  }, [canEdit, course?.id, importing, loading, nodes, rootNode]);
 
   function updateNode(nodeId: string, patch: Partial<FlatNode>) {
     setNodes((current) => current.map((node) => (node.id === nodeId ? { ...node, ...patch } : node)));
@@ -526,7 +534,7 @@ export function KnowledgeGraphPage() {
               手型拖动
             </button>
             <div className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--muted-text)">
-              {savingState === "saving" ? "自动保存中..." : savingState === "error" ? "自动保存失败" : "已自动保存"}
+              {!canEdit ? "只读模式" : savingState === "saving" ? "自动保存中..." : savingState === "error" ? "自动保存失败" : "已自动保存"}
             </div>
           </div>
         </header>
@@ -557,7 +565,7 @@ export function KnowledgeGraphPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={importing}
+                    disabled={importing || !canEdit}
                     className="w-full rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     {importing ? "导入教材中..." : "上传教材并解析"}
@@ -580,6 +588,7 @@ export function KnowledgeGraphPage() {
                 <div className="mt-3 flex items-center gap-2">
                   <input
                     value={totalHours}
+                    readOnly={!canEdit}
                     onChange={(event) => setTotalHours(event.target.value)}
                     className="min-w-0 flex-1 rounded-2xl border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm text-(--app-text) outline-hidden"
                     placeholder="输入总学时"
@@ -589,6 +598,7 @@ export function KnowledgeGraphPage() {
                 <button
                   type="button"
                   onClick={() => setNodes((current) => generateHours(Number(totalHours) || 32, current))}
+                  disabled={!canEdit}
                   className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-(--accent) px-4 py-3 text-sm font-bold text-white"
                 >
                   <MaterialIcon name="auto_graph" className="text-base" />
@@ -681,7 +691,7 @@ export function KnowledgeGraphPage() {
                           ) : null}
                         </button>
 
-                        {active ? (
+                        {active && canEdit ? (
                           <div className="mt-3 flex items-center justify-end gap-2">
                             <button
                               type="button"
@@ -738,6 +748,7 @@ export function KnowledgeGraphPage() {
                     <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">节点名称</label>
                     <input
                       value={activeNode.label}
+                      readOnly={!canEdit}
                       onChange={(event) => updateNode(activeNode.id, { label: event.target.value })}
                       className="w-full rounded-[20px] border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm font-semibold text-(--app-text) outline-hidden"
                     />
@@ -747,6 +758,7 @@ export function KnowledgeGraphPage() {
                     <div className="flex gap-3">
                       <input
                         value={activeNode.hours ?? ""}
+                        readOnly={!canEdit}
                         onChange={(event) =>
                           updateNode(activeNode.id, {
                             hours: event.target.value === "" ? null : Math.max(0, Number(event.target.value) || 0),
@@ -765,6 +777,7 @@ export function KnowledgeGraphPage() {
                     <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-(--muted-text)">节点说明</label>
                     <textarea
                       value={activeNode.summary}
+                      readOnly={!canEdit}
                       onChange={(event) => updateNode(activeNode.id, { summary: event.target.value })}
                       className="min-h-[140px] w-full rounded-[20px] border border-(--shell-border) bg-(--input-surface) px-4 py-3 text-sm leading-7 text-(--app-text) outline-hidden"
                     />
@@ -775,7 +788,7 @@ export function KnowledgeGraphPage() {
                       <button
                         type="button"
                         onClick={() => knowledgeBaseUploadInputRef.current?.click()}
-                        disabled={uploadingKnowledgeBase || !course?.id}
+                        disabled={uploadingKnowledgeBase || !course?.id || !canEdit}
                         className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-(--accent) py-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(29,78,216,0.22)] transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                       >
                         <MaterialIcon name="upload_file" className="text-base" />

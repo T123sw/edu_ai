@@ -23,6 +23,10 @@ test("teacher sidebar exposes the approved six destinations in order", () => {
 
 test("teacher course hashes carry an encoded course id", () => {
   assert.equal(
+    buildTeacherCourseHash("course-detail", "course / 中文"),
+    "#course-detail?course_id=course+%2F+%E4%B8%AD%E6%96%87",
+  );
+  assert.equal(
     buildTeacherCourseHash("resources", "course / 中文"),
     "#resources?course_id=course+%2F+%E4%B8%AD%E6%96%87",
   );

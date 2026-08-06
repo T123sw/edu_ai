@@ -67,6 +67,19 @@ export function getCourse(courseId: string) {
   return apiRequest<BackendCourse>(`/api/courses/${courseId}`);
 }
 
+export function updateCourse(
+  courseId: string,
+  payload: Pick<
+    BackendCourse,
+    "title" | "description" | "icon" | "color" | "objectives" | "knowledgeGraph"
+  > & { expected_revision: number },
+) {
+  return apiRequest<BackendCourse>(`/api/courses/${courseId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function getCourseMaterials(courseId: string, options?: CourseMaterialsScopeOptions) {
   const params = new URLSearchParams();
 

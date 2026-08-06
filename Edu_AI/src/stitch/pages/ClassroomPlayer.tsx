@@ -15,6 +15,8 @@ import { getClassroom } from "../api/classroom";
 import type { ClassroomMaterial, ClassroomScene } from "../api/types";
 import { AppSurface, MaterialIcon } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
+import { useCourseRoute } from "../course/CourseRouteProvider";
+import { canCourse } from "../course/coursePermissions";
 
 function getQueryParams(): { courseId: string | null; classroomId: string | null } {
   const query = window.location.hash.split("?")[1] ?? "";
@@ -44,6 +46,8 @@ function playbackLabel(
 
 export function ClassroomPlayerPage() {
   const { courseId, classroomId } = useMemo(getQueryParams, []);
+  const { courseRole } = useCourseRoute();
+  const canGenerate = canCourse(courseRole, "generate");
   const [material, setMaterial] = useState<ClassroomMaterial | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadToken, setLoadToken] = useState(0);
@@ -230,7 +234,7 @@ export function ClassroomPlayerPage() {
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {material && !presentationMode ? (
               <>
-                {courseId && classroomId ? (
+                {courseId && classroomId && canGenerate ? (
                   <ClassroomVideoExportButton
                     courseId={courseId}
                     classroomId={classroomId}

@@ -94,3 +94,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: a remembered course is consulted only on `#home`. Course detail/workspace routes without `course_id` have no active course, while any valid URL ID wins over remembered state.
 - Decision: the authenticated user is normalized into an application context after login or token verification. Invalid stored sessions are removed instead of partially restoring a user.
 - Result: course loading, membership role, loading/error state, and reload now live in `CourseRouteProvider`; the sidebar constructs links from the provider's URL-derived identity rather than mutable page state.
+
+### Plan 1 / Task 8 — Canonical links and viewer-safe rendering
+
+- Red evidence: source-contract tests showed course-list detail navigation dropped `course_id`, knowledge-graph workspace jumps rebuilt an AI hash without course identity, classroom studio returned to AI instead of course detail, and course settings always mounted editable controls.
+- Green evidence: `6 passed` for canonical/source permission contracts; full frontend suite `141 passed`; production build passed.
+- Decision: course settings now writes through the revision-aware Stitch API instead of the legacy Zustand update path. A 409 reloads the newest course and asks the teacher to review before retrying rather than overwriting another teacher's edit.
+- Decision: viewers retain knowledge-graph, classroom, and player reading/playback. Graph mutation/auto-save, classroom generation, and server-side video export are disabled or unmounted according to capability.
+- Result: every course-list/detail/workspace transition preserves `course_id`; copied URLs load the requested course; viewer course settings render semantic text instead of disabled edit controls.

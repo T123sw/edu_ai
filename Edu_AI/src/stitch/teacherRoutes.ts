@@ -1,4 +1,5 @@
 export type TeacherCourseRoute =
+  | "course-detail"
   | "ai"
   | "knowledge"
   | "graph"

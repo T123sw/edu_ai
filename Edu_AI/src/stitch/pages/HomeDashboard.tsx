@@ -13,6 +13,7 @@ import {
 import { backendCourseToSummary, listCourses } from "../api/courses";
 import type { BackendCourse } from "../api/types";
 import { AppSurface, routeHref, routes, useAppShell } from "../shared";
+import { buildTeacherCourseHash } from "../teacherRoutes";
 import "./HomeDashboard.css";
 
 const { Title, Paragraph, Text } = Typography;
@@ -103,7 +104,7 @@ export function HomeDashboardPage() {
 
   const handleCourseClick = (course: BackendCourse, globalIndex: number) => {
     setSelectedCourse(backendCourseToSummary(course, globalIndex));
-    window.location.hash = routeHref(routes.courseDetail);
+    window.location.hash = buildTeacherCourseHash(routes.courseDetail, course.id);
   };
 
   const handlePrevPage = () => {

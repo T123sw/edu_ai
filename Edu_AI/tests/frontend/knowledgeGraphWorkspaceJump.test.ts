@@ -5,6 +5,10 @@ const graphPageFile = readFileSync(
   new URL('../../src/pages/teacher/KnowledgeGraphPage.tsx', import.meta.url),
   'utf8',
 );
+const stitchGraphPageFile = readFileSync(
+  new URL('../../src/stitch/pages/KnowledgeGraph.tsx', import.meta.url),
+  'utf8',
+);
 
 assert.match(
   graphPageFile,
@@ -28,6 +32,12 @@ assert.doesNotMatch(
   graphPageFile,
   /const handleJumpToAiStudio = \(\) => \{[\s\S]*scopeType:\s*'knowledge_point'[\s\S]*scopeId:\s*selectedNodeId/,
   'KnowledgeGraphPage should not hard-code every AI workspace jump as a knowledge-point scope',
+);
+
+assert.match(
+  stitchGraphPageFile,
+  /buildTeacherCourseHash\("ai", courseId/,
+  'Stitch knowledge graph jumps should preserve the URL-derived course identity',
 );
 
 console.log('knowledgeGraphWorkspaceJump frontend tests passed');
