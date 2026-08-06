@@ -1,11 +1,12 @@
-"""Agent tool handler: generate_quiz.
-
-Calls QuizGenerator.generate() directly via submit_callable_task.
-No outline step required — agent calls this directly on user request.
-"""
+"""Agent tool handler: enqueue a durable quiz-generation command."""
 from __future__ import annotations
 
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.services.generation_command import (
+    GenerationCommand,
+    generation_command_service,
+)
+from uuid import uuid4
 
 
 def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
@@ -26,46 +27,30 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
     course_id = getattr(ctx.request, "course_id", None)
     allow_rag = bool(getattr(ctx.capability, "allow_rag", False))
     selected_doc_ids = list(getattr(ctx.capability, "selected_doc_ids", []) or [])
-    rag_fetcher = ctx.rag_retriever
-
-    def _run():
-        from app.chat.agents.report_generation import get_fallback_llm
-        from app.chat.workflows.quiz.generator import QuizGenerator
-
-        generator = QuizGenerator(
-            llm=get_fallback_llm(),
-            rag_fetcher=rag_fetcher,
-        )
-        preparation = {
-            "topic": subject,
-            "question_count": question_count,
-            "question_types": question_types,
-            "difficulty": difficulty,
-            "knowledge_points": [],
-            "weak_points": [],
-            "source_scope": selected_doc_ids,
-        }
-        artifact = generator.generate(
-            preparation=preparation,
-            context_summary="",
-            conversation_id=conversation_id,
-            owner=owner,
-            allow_rag=allow_rag,
-            selected_doc_ids=selected_doc_ids,
-        )
-        return {"status": "completed", "artifacts": [artifact]}
-
     try:
-        from app.chat.tasks.background_runner import submit_callable_task
-        task_id = submit_callable_task(
-            fn=_run,
-            workflow_type="quiz",
-            owner_user_id=owner,
-            course_id=course_id,
-            scope_type=str(getattr(ctx.request, "scope_type", None) or "course"),
+        command = GenerationCommand(
+            resource_type="quiz",
+            owner_user_id=str(owner or ""),
+            course_id=str(course_id or ""),
+            scope_type=str(
+                getattr(ctx.request, "scope_type", None) or "course"
+            ),
             scope_id=getattr(ctx.request, "scope_id", None),
-            input_summary={"title": subject},
+            selected_doc_ids=selected_doc_ids,
+            config={
+                "entrypoint": "agent",
+                "title": subject,
+                "subject": subject,
+                "question_count": question_count,
+                "difficulty": difficulty,
+                "question_types": question_types,
+                "conversation_id": conversation_id,
+                "allow_rag": allow_rag,
+            },
+            idempotency_key=f"agent-quiz-{uuid4()}",
         )
+        job = generation_command_service.submit(command)
+        task_id = job.edu_job_id
     except Exception as exc:
         return error_result(name, str(exc), f"任务提交失败: {exc}")
 

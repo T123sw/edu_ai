@@ -122,7 +122,7 @@ def create_video_ingestion_job(
     if user_root not in resolved_path.parents:
         raise PermissionError("视频文件不属于当前用户")
     video_rel_path = str(resolved_path.relative_to(user_root)).replace("\\", "/")
-    return create_job(
+    job = create_job(
         kind=JobKind.INGEST_VIDEO,
         owner_user_id=owner,
         course_id=course_id,
@@ -133,6 +133,19 @@ def create_video_ingestion_job(
             "stride_seconds": stride_seconds,
             "config_snapshot": dict(config_snapshot or {}),
         },
+    )
+    from app.services.platform_task_handlers import enqueue_platform_task
+
+    return enqueue_platform_task(
+        job=job,
+        workflow_type="video_ingest",
+        command={
+            "course_id": course_id,
+            "video_rel_path": video_rel_path,
+            "window_seconds": window_seconds,
+            "stride_seconds": stride_seconds,
+        },
+        runtime_config_snapshot=dict(config_snapshot or {}),
     )
 
 

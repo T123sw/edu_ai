@@ -27,7 +27,6 @@ VIDEO_ARTIFACT_MEDIA_TYPES = {
 }
 
 _FRONTEND_ROOT = Path(__file__).resolve().parents[4]
-_background_video_tasks: set[asyncio.Task[None]] = set()
 
 
 def build_video_export_command(
@@ -245,17 +244,14 @@ async def submit_classroom_video_export_job(
             },
         )
 
-    async def _run() -> None:
-        await run_classroom_video_export_job(
-            job,
-            course_id=course_id,
-            classroom_id=classroom_id,
-            auth_token=auth_token,
-            current_user=current_user,
-            course_storage_manager=course_storage_manager,
-        )
+    from app.services.platform_task_handlers import enqueue_platform_task
 
-    task = asyncio.create_task(_run())
-    _background_video_tasks.add(task)
-    task.add_done_callback(_background_video_tasks.discard)
-    return job
+    return enqueue_platform_task(
+        job=job,
+        workflow_type="classroom_video_export",
+        command={
+            "course_id": course_id,
+            "classroom_id": classroom_id,
+            "owner_role": str(current_user.get("role") or "teacher"),
+        },
+    )

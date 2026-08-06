@@ -11,6 +11,146 @@ from app.services.durable_task_handlers import (
 from core.course_storage import CourseStorageManager
 
 
+class _AgentReportGenerationAdapter:
+    def generate(
+        self,
+        payload,
+        *,
+        job_id: str,
+        config_snapshot_id: str,
+    ) -> dict[str, Any]:
+        from app.chat.agents.report_generation import build_report_markdown
+        from app.chat.runtime.agent_tools.handlers.outline_parser import (
+            parse_report_outline,
+        )
+        from app.chat.skill_manager import SkillManager
+        from app.chat.workflows.report.image_downloader import (
+            resolve_async_localization,
+            start_async_localization,
+        )
+        from app.chat.workflows.report.image_injector import (
+            inject_images_into_report,
+            inject_report_images_from_rag,
+        )
+
+        subject = str(getattr(payload, "subject", "") or "").strip()
+        images = list(getattr(payload, "accumulated_images", []) or [])
+        already_localized = bool(images) and all(
+            item.get("_localized") for item in images
+        )
+        localization_future = None
+        if images and not already_localized:
+            localization_future = start_async_localization(
+                images,
+                owner=getattr(payload, "owner", None),
+                course_id=getattr(payload, "course_id", None),
+            )
+        body, checkpoint = build_report_markdown(
+            skill_manager=SkillManager(),
+            slots={
+                "core_topic": subject,
+                "focus_area": str(
+                    getattr(payload, "focus", "") or ""
+                ).strip(),
+                "length_requirement": str(
+                    getattr(payload, "length_hint", "") or ""
+                ).strip(),
+            },
+            outline=parse_report_outline(
+                str(getattr(payload, "confirmed_outline", "") or "")
+            ),
+            mode="fast",
+        )
+        if already_localized:
+            assets = images
+        elif localization_future is not None:
+            assets = resolve_async_localization(
+                localization_future,
+                images,
+                extra_timeout_s=5.0,
+            )
+        else:
+            assets = []
+        if body and assets:
+            body = inject_images_into_report(
+                body,
+                assets,
+                max_images=min(len(assets), 6),
+            )
+        elif (
+            body
+            and bool(getattr(payload, "allow_rag", False))
+            and list(getattr(payload, "selected_doc_ids", []) or [])
+        ):
+            body = inject_report_images_from_rag(
+                body,
+                allow_rag=True,
+                selected_doc_ids=list(payload.selected_doc_ids),
+                owner=getattr(payload, "owner", None),
+                query_text=subject,
+            )
+        localized_count = sum(
+            1
+            for item in assets
+            if str(item.get("url") or "").startswith("/api/images/")
+        )
+        return {
+            "status": "completed",
+            "artifacts": [
+                {
+                    "artifact_type": "report",
+                    "title": subject,
+                    "content": body,
+                    "generation_state": checkpoint,
+                    "visual_assets_count": len(images),
+                    "visual_assets_localized": localized_count,
+                }
+            ],
+        }
+
+
+class _AgentQuizGenerationAdapter:
+    def generate(
+        self,
+        payload,
+        *,
+        job_id: str,
+        config_snapshot_id: str,
+    ) -> dict[str, Any]:
+        from app.chat.agents.report_generation import get_fallback_llm
+        from app.chat.workflows.quiz.generator import QuizGenerator
+
+        selected_doc_ids = list(
+            getattr(payload, "selected_doc_ids", []) or []
+        )
+        generator = QuizGenerator(llm=get_fallback_llm())
+        artifact = generator.generate(
+            preparation={
+                "topic": str(getattr(payload, "subject", "") or ""),
+                "question_count": int(
+                    getattr(payload, "question_count", 10) or 10
+                ),
+                "question_types": list(
+                    getattr(payload, "question_types", []) or []
+                ),
+                "difficulty": str(
+                    getattr(payload, "difficulty", "medium") or "medium"
+                ),
+                "knowledge_points": [],
+                "weak_points": [],
+                "source_scope": selected_doc_ids,
+            },
+            context_summary="",
+            conversation_id=str(
+                getattr(payload, "conversation_id", "") or job_id
+            ),
+            owner=getattr(payload, "owner", None),
+            allow_rag=bool(getattr(payload, "allow_rag", False)),
+            selected_doc_ids=selected_doc_ids,
+        )
+        return {"status": "completed", "artifacts": [artifact]}
+
+
 def _default_service_factories() -> dict[str, Callable[[], Any]]:
     from app.chat.application.blog_generation_adapter_v2 import (
         BlogGenerationAdapterV2,
@@ -93,12 +233,23 @@ class GenerationTaskHandler:
         *,
         course_storage_manager: CourseStorageManager | None = None,
         service_factories: Mapping[str, Callable[[], Any]] | None = None,
+        agent_service_factories: Mapping[
+            str, Callable[[], Any]
+        ] | None = None,
     ) -> None:
         self.course_storage_manager = (
             course_storage_manager or CourseStorageManager()
         )
         self.service_factories = dict(
             service_factories or _default_service_factories()
+        )
+        self.agent_service_factories = dict(
+            agent_service_factories
+            or {
+                "report": _AgentReportGenerationAdapter,
+                "quiz": _AgentQuizGenerationAdapter,
+                "lesson_plan": _LessonPlanGenerationAdapter,
+            }
         )
 
     def __call__(
@@ -107,7 +258,13 @@ class GenerationTaskHandler:
         context: DurableExecutionContext,
     ) -> dict[str, Any]:
         resource_type = str(command.get("resource_type") or "").strip()
-        factory = self.service_factories.get(resource_type)
+        config = dict(command.get("config") or {})
+        is_agent_entrypoint = config.get("entrypoint") == "agent"
+        factory = (
+            self.agent_service_factories.get(resource_type)
+            if is_agent_entrypoint
+            else self.service_factories.get(resource_type)
+        )
         if factory is None:
             raise ValueError(f"unsupported generation resource {resource_type}")
         payload = self._build_payload(command, context)
@@ -177,6 +334,8 @@ class GenerationTaskHandler:
                 }
             )
         elif resource_type == "lesson_plan":
+            base.update(config)
+        if config.get("entrypoint") == "agent":
             base.update(config)
         return SimpleNamespace(**base)
 

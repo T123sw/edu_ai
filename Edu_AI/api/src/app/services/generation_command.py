@@ -80,7 +80,10 @@ class GenerationCommand(BaseModel):
             raise ValueError("owner_user_id is required")
         if not self.course_id:
             raise ValueError("course_id is required")
-        if not self.selected_doc_ids:
+        if (
+            not self.selected_doc_ids
+            and str(self.config.get("entrypoint") or "") != "agent"
+        ):
             raise ValueError("selected_doc_ids is required")
         if not self.idempotency_key:
             raise ValueError("idempotency_key is required")

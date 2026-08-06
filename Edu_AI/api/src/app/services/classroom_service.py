@@ -10,7 +10,6 @@ job（P2-4 `classroom_job_service`）→ sidecar 完成后校验 + 落库
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from functools import partial
 from typing import Any, Optional
@@ -35,12 +34,6 @@ from core.course_storage import CourseStorageManager
 log = logging.getLogger("classroom_service")
 
 DEFAULT_RAG_TOP_K = 5
-
-# 持有 submit_classroom_generation_job() 派生的后台任务的强引用——
-# asyncio 文档明确警告 create_task() 不会自动保留强引用，没人拿着的话
-# 任务可能在跑到一半时被垃圾回收。任务结束后自动从集合里摘除。
-_background_generation_tasks: set[asyncio.Task[None]] = set()
-
 
 def fetch_course_rag_snippets(
     *,
@@ -284,24 +277,6 @@ async def submit_classroom_generation_job(
 
     `enable_tts` 见 `generate_classroom_for_course` 的说明。
     """
-    active_client = client or get_openmaic_client(owner_user_id=owner)
-    research_context = await _build_research_context(
-        course_storage_manager=course_storage_manager,
-        course_id=course_id,
-        requirement=requirement,
-        web_research_context=web_research_context,
-        rag_top_k=rag_top_k,
-        rag_system=rag_system,
-    )
-    on_sidecar_succeeded = _make_on_sidecar_succeeded(
-        active_client=active_client,
-        course_storage_manager=course_storage_manager,
-        course_id=course_id,
-        owner=owner,
-        scope_type=scope_type,
-        scope_id=scope_id,
-    )
-
     job = existing_job or create_classroom_job(
             owner=owner,
             course_id=course_id,
@@ -317,20 +292,24 @@ async def submit_classroom_generation_job(
             },
         )
 
-    async def _run() -> None:
-        await run_generate_classroom_job(
-            job,
-            requirement=requirement,
-            research_context=research_context,
-            pdf_content=pdf_content,
-            enable_web_search=enable_web_search,
-            enable_tts=enable_tts,
-            client=active_client,
-            on_sidecar_succeeded=on_sidecar_succeeded,
-        )
+    from app.services.platform_task_handlers import enqueue_platform_task
+    from app.services.runtime_config_resolver import runtime_config_resolver
 
-    task = asyncio.create_task(_run())
-    _background_generation_tasks.add(task)
-    task.add_done_callback(_background_generation_tasks.discard)
-
-    return job
+    return enqueue_platform_task(
+        job=job,
+        workflow_type="classroom_generate",
+        command={
+            "course_id": course_id,
+            "requirement": requirement,
+            "scope_type": scope_type or "course",
+            "scope_id": scope_id,
+            "web_research_context": web_research_context,
+            "pdf_content": pdf_content,
+            "enable_web_search": enable_web_search,
+            "enable_tts": enable_tts,
+            "rag_top_k": rag_top_k,
+        },
+        runtime_config_snapshot=runtime_config_resolver.capture_snapshot(
+            str(owner or "")
+        ),
+    )

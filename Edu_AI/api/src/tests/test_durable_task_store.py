@@ -306,6 +306,32 @@ def test_command_payload_allows_nonsecret_model_token_limits(tmp_path):
     store.close()
 
 
+def test_command_payload_allows_text_and_internal_urls_that_start_with_slash(
+    tmp_path,
+):
+    store = TaskStore(str(tmp_path / "tasks.db"))
+
+    task = store.enqueue(
+        task_id="job-1",
+        workflow_type="classroom_generate",
+        handler_version=1,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        scope_type="course",
+        scope_id=None,
+        command={
+            "requirement": "/ 用图示解释除法",
+            "media_url": "/api/courses/course-1/audio/clip.mp3",
+        },
+        config_snapshot_id="cfg-1",
+        idempotency_key=None,
+        max_attempts=3,
+    )
+
+    assert task.command["media_url"].startswith("/api/")
+    store.close()
+
+
 def test_durable_result_fields_round_trip_as_json(tmp_path):
     store = TaskStore(str(tmp_path / "tasks.db"))
     enqueue_task(store, "job-1")

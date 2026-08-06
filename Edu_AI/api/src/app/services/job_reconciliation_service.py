@@ -96,8 +96,24 @@ class JobReconciliationService:
         resource_type = str(command.get("resource_type") or "").strip()
         course_id = str(command.get("course_id") or task.course_id or "").strip()
         material_id = str(command.get("material_id") or "").strip()
-        if not resource_type or not course_id or not material_id:
+        if not resource_type or not course_id:
             return None
+        if not material_id:
+            matches = [
+                item
+                for item in self.course_storage_manager.list_generated_materials(
+                    course_id,
+                    resource_type,
+                    owner_user_id=task.owner_user_id,
+                )
+                if str(item.get("source_job_id") or "").strip()
+                == task.task_id
+            ]
+            if len(matches) != 1:
+                return None
+            material_id = str(matches[0].get("material_id") or "").strip()
+            if not material_id:
+                return None
         material = self.course_storage_manager.get_generated_material(
             course_id,
             resource_type,

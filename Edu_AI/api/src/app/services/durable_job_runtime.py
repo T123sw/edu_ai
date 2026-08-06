@@ -12,6 +12,7 @@ from app.services.generation_task_handlers import (
 )
 from app.services.job_completion_service import JobCompletionService
 from app.services.job_reconciliation_service import JobReconciliationService
+from app.services.platform_task_handlers import register_platform_task_handlers
 from core.course_storage import CourseStorageManager
 
 
@@ -61,6 +62,7 @@ def build_durable_job_runtime(
         registry,
         handler=generation_handler,
     )
+    register_platform_task_handlers(registry)
     completion = JobCompletionService(
         task_store=store,
         course_storage_manager=manager,

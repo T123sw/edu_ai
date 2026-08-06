@@ -61,7 +61,12 @@ def _json_load(value: Any) -> Any:
     return json.loads(str(value))
 
 
-def _validate_command_payload(value: Any, *, path: str = "command") -> None:
+def _validate_command_payload(
+    value: Any,
+    *,
+    path: str = "command",
+    field_name: str = "",
+) -> None:
     if isinstance(value, Mapping):
         for raw_key, item in value.items():
             key = str(raw_key)
@@ -73,17 +78,34 @@ def _validate_command_payload(value: Any, *, path: str = "command") -> None:
                 raise ValueError(
                     f"command payload contains sensitive field at {path}.{key}"
                 )
-            _validate_command_payload(item, path=f"{path}.{key}")
+            _validate_command_payload(
+                item,
+                path=f"{path}.{key}",
+                field_name=normalized_key,
+            )
         return
     if isinstance(value, (list, tuple)):
         for index, item in enumerate(value):
-            _validate_command_payload(item, path=f"{path}[{index}]")
+            _validate_command_payload(
+                item,
+                path=f"{path}[{index}]",
+                field_name=field_name,
+            )
         return
     if isinstance(value, str):
+        path_field = (
+            "path" in field_name
+            or field_name.endswith(
+                ("file", "filename", "directory", "dir", "root")
+            )
+        )
         if (
-            value.startswith(("/", "\\"))
-            or Path(value).is_absolute()
-            or PureWindowsPath(value).is_absolute()
+            path_field
+            and (
+                value.startswith(("/", "\\"))
+                or Path(value).is_absolute()
+                or PureWindowsPath(value).is_absolute()
+            )
         ):
             raise ValueError(
                 f"command payload contains an absolute path at {path}"

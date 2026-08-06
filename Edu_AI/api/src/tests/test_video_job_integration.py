@@ -14,9 +14,18 @@ from core import Config
 
 @pytest.fixture(autouse=True)
 def _isolated_storage(monkeypatch, tmp_path):
+    from app.chat.tasks.task_store import TaskStore
+
     monkeypatch.setattr(Config, "STORAGE_ROOT", tmp_path / "storage")
     monkeypatch.setattr(Config, "VIDEOS_ROOT", tmp_path / "videos")
     monkeypatch.setattr(Config, "VIDEO_CHUNKS_ROOT", tmp_path / "chunks")
+    task_store = TaskStore(str(tmp_path / "tasks.db"))
+    monkeypatch.setattr(
+        "app.services.platform_task_handlers.get_task_store",
+        lambda: task_store,
+    )
+    yield task_store
+    task_store.close()
 
 
 def test_video_ingestion_uses_durable_global_job_and_relative_path():

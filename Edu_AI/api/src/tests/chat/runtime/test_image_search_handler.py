@@ -917,9 +917,19 @@ class _FakeFastRuntime:
 
 def _e2e_request_snapshot():
     capability = SimpleNamespace(
-        allow_rag=False, allow_web=False, allow_image_search=True,
+        allow_rag=False,
+        allow_web=False,
+        allow_image_search=True,
+        selected_doc_ids=[],
     )
-    request = SimpleNamespace(question="给我搜张 RAG 架构图", conversation_id="conv-img-e2e", owner="alice")
+    request = SimpleNamespace(
+        question="给我搜张 RAG 架构图",
+        conversation_id="conv-img-e2e",
+        owner="alice",
+        course_id="course-1",
+        scope_type="course",
+        scope_id=None,
+    )
     snapshot = SimpleNamespace(capability=capability, recent_messages=[], workflow_state=None)
     return request, snapshot
 
@@ -1091,12 +1101,12 @@ def test_full_pipeline_image_search_to_report_artifact_contains_images():
                 yield {"type": "text_delta", "content": "已提交。"}
             yield {"type": "done"}
 
-    captured_fn: dict = {}
+    captured_command: dict = {}
 
-    def _fake_submit(fn, workflow_type="", on_complete=None):
-        captured_fn["fn"] = fn
-        captured_fn["workflow_type"] = workflow_type
-        return "task-img-test-1"
+    class _FakeCommandService:
+        def submit(self, command):
+            captured_command["command"] = command
+            return SimpleNamespace(edu_job_id="task-img-test-1")
 
     # Stub out build_report_markdown so we don't need RAG/LLM stack
     def _fake_build_report_markdown(*, skill_manager, slots, outline=None, mode="fast"):
@@ -1120,19 +1130,45 @@ def test_full_pipeline_image_search_to_report_artifact_contains_images():
         max_steps=6, timeout_seconds=10,
     )
 
-    with patch("app.chat.tasks.background_runner.submit_callable_task", side_effect=_fake_submit), \
+    with patch.object(
+             report_handler,
+             "generation_command_service",
+             _FakeCommandService(),
+         ), \
          patch("app.chat.agents.report_generation.build_report_markdown",
                side_effect=_fake_build_report_markdown), \
          patch("app.chat.agents.report_generation.get_fallback_llm", return_value=None), \
          patch("app.chat.skill_manager.SkillManager"):
         events = list(agent.run_stream(request=request, snapshot=snapshot))
 
-    # The submit_callable_task should have received the report runner fn
-    assert "fn" in captured_fn, "generate_report handler did not submit a callable"
-    assert captured_fn["workflow_type"] == "report"
+    assert captured_command["command"].resource_type == "report"
+    assert captured_command["command"].config["entrypoint"] == "agent"
 
-    # Execute the captured fn synchronously and inspect the artifact
-    result = captured_fn["fn"]()
+    from app.services.durable_task_handlers import DurableExecutionContext
+    from app.services.generation_task_handlers import (
+        GenerationTaskHandler,
+        _AgentReportGenerationAdapter,
+    )
+
+    command = captured_command["command"].model_dump(mode="json")
+    context = DurableExecutionContext(
+        task_id="task-img-test-1",
+        owner_user_id="alice",
+        course_id="course-1",
+        config_snapshot_id="cfg-1",
+        progress=lambda *_: None,
+        is_cancel_requested=lambda: False,
+    )
+    payload = GenerationTaskHandler._build_payload(command, context)
+    with patch(
+        "app.chat.agents.report_generation.build_report_markdown",
+        side_effect=_fake_build_report_markdown,
+    ), patch("app.chat.skill_manager.SkillManager"):
+        result = _AgentReportGenerationAdapter().generate(
+            payload,
+            job_id=context.task_id,
+            config_snapshot_id="cfg-1",
+        )
     artifact = result["artifacts"][0]
 
     # Real image injector should have placed at least one searched image into the body

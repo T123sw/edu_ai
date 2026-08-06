@@ -33,8 +33,16 @@ def _isolate_job_storage(monkeypatch, tmp_path):
     独立的 root_path 无关——不隔离会一直污染真实项目的 storage/jobs/
     （已实测发现：之前的测试运行留下了几十个 job_*.json 在真实目录里）。"""
     from core import Config
+    from app.chat.tasks.task_store import TaskStore
 
     monkeypatch.setattr(Config, "STORAGE_ROOT", tmp_path / f"jobs-{uuid.uuid4().hex}")
+    task_store = TaskStore(str(tmp_path / f"tasks-{uuid.uuid4().hex}.db"))
+    monkeypatch.setattr(
+        "app.services.platform_task_handlers.get_task_store",
+        lambda: task_store,
+    )
+    yield task_store
+    task_store.close()
 
 
 def _make_manager() -> CourseStorageManager:
@@ -406,7 +414,10 @@ async def test_generate_classroom_for_course_marks_internal_error_when_sidecar_f
 
 
 @pytest.mark.parametrize("anyio_backend", ["asyncio"])
-async def test_submit_classroom_generation_job_returns_queued_immediately_then_completes(monkeypatch):
+async def test_submit_classroom_generation_job_persists_recoverable_command(
+    monkeypatch,
+    _isolate_job_storage,
+):
     manager = _make_manager()
     monkeypatch.setattr(
         "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
@@ -421,32 +432,20 @@ async def test_submit_classroom_generation_job_returns_queued_immediately_then_c
         client=client,
     )
 
-    # 提交立即返回，后台任务这时大概率还没跑完——不该已经是终态。
     assert job.status == JobStatus.QUEUED
-
-    current = job
-    for _ in range(200):
-        current = get_job(job.edu_job_id)
-        if current and current.status in (JobStatus.SUCCEEDED, JobStatus.FAILED):
-            break
-        await anyio.sleep(0.01)
-    else:
-        pytest.fail("background generation task did not finish in time")
-
-    assert current.status == JobStatus.SUCCEEDED
-    assert current.result_ref == {
-        "classroom_id": "stage-1",
-        "course_id": "course-1",
-        "scenes_count": 1,
-        "resource_type": "course_material",
-        "material_type": "classroom",
-        "material_id": "stage-1",
-    }
-    assert client.get_classroom_calls == ["stage-1"]
+    durable = _isolate_job_storage.get_durable(job.edu_job_id)
+    assert durable is not None
+    assert durable.status == "pending"
+    assert durable.workflow_type == "classroom_generate"
+    assert durable.command["requirement"] == "Teach compound interest"
+    assert client.get_classroom_calls == []
 
 
 @pytest.mark.parametrize("anyio_backend", ["asyncio"])
-async def test_submit_classroom_generation_job_background_failure_reflected_in_job_store(monkeypatch):
+async def test_submit_classroom_generation_job_does_not_depend_on_request_client(
+    monkeypatch,
+    _isolate_job_storage,
+):
     manager = _make_manager()
     monkeypatch.setattr(
         "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
@@ -461,14 +460,8 @@ async def test_submit_classroom_generation_job_background_failure_reflected_in_j
         client=client,
     )
 
-    current = job
-    for _ in range(200):
-        current = get_job(job.edu_job_id)
-        if current and current.status in (JobStatus.SUCCEEDED, JobStatus.FAILED):
-            break
-        await anyio.sleep(0.01)
-    else:
-        pytest.fail("background generation task did not finish in time")
-
-    assert current.status == JobStatus.FAILED
-    assert current.error == "LLM error"
+    durable = _isolate_job_storage.get_durable(job.edu_job_id)
+    assert durable is not None
+    assert durable.status == "pending"
+    assert "client" not in durable.command
+    assert client.submitted_body == {}

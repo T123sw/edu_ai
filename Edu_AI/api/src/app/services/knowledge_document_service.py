@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import re
 import threading
 import time
@@ -23,7 +22,6 @@ from app.services.job_store import (
 from modules.rag_v2.document_resolver import resolve_rag_document
 
 _lock = threading.RLock()
-_background_tasks: set[asyncio.Task[None]] = set()
 
 
 def _now() -> str:
@@ -149,23 +147,22 @@ def submit_index_job(
         error_message=None,
     )
 
-    async def _run() -> None:
-        await asyncio.to_thread(
-            run_index_job,
-            manager=manager,
-            rag_system=rag_system,
-            course_id=course_id,
-            document_id=document_id,
-            owner_user_id=owner_user_id,
-            force_reindex=force_reindex,
-            pending_version=pending_version,
-            job_id=job.edu_job_id,
-        )
+    from app.services.platform_task_handlers import enqueue_platform_task
+    from app.services.runtime_config_resolver import runtime_config_resolver
 
-    task = asyncio.create_task(_run())
-    _background_tasks.add(task)
-    task.add_done_callback(_background_tasks.discard)
-    return job
+    return enqueue_platform_task(
+        job=job,
+        workflow_type="rag_document_index",
+        command={
+            "course_id": course_id,
+            "document_id": document_id,
+            "force_reindex": force_reindex,
+            "pending_version": pending_version,
+        },
+        runtime_config_snapshot=runtime_config_resolver.capture_snapshot(
+            owner_user_id
+        ),
+    )
 
 
 def _stage_status(stage: str) -> str:

@@ -1,4 +1,3 @@
-import asyncio
 import sys
 from pathlib import Path
 
@@ -89,6 +88,8 @@ class FakeRagSystem:
 
 @pytest.fixture()
 def document_fixture(monkeypatch, tmp_path):
+    from app.chat.tasks.task_store import TaskStore
+
     monkeypatch.setattr(Config, "STORAGE_ROOT", tmp_path / "job-storage")
     manager = CourseStorageManager(str(tmp_path / "courses"))
     manager.create_course_structure("course-1")
@@ -110,12 +111,18 @@ def document_fixture(monkeypatch, tmp_path):
     )
     document_id = manager.get_knowledge_base_index("course-1")[0]["id"]
     service.initialize_document(manager, "course-1", document_id)
-    return manager, document_id
+    task_store = TaskStore(str(tmp_path / "tasks.db"))
+    monkeypatch.setattr(
+        "app.services.platform_task_handlers.get_task_store",
+        lambda: task_store,
+    )
+    yield manager, document_id, task_store
+    task_store.close()
 
 
 @pytest.mark.anyio
 async def test_upload_index_lifecycle_becomes_ready_and_retrievable(document_fixture):
-    manager, document_id = document_fixture
+    manager, document_id, task_store = document_fixture
     rag = FakeRagSystem()
     job = service.submit_index_job(
         manager=manager,
@@ -126,11 +133,19 @@ async def test_upload_index_lifecycle_becomes_ready_and_retrievable(document_fix
         force_reindex=False,
     )
 
-    for _ in range(100):
-        current = job_store.get_job(job.edu_job_id)
-        if current and current.status == JobStatus.SUCCEEDED:
-            break
-        await asyncio.sleep(0.01)
+    durable = task_store.get_durable(job.edu_job_id)
+    assert durable is not None
+    service.run_index_job(
+        manager=manager,
+        rag_system=rag,
+        course_id="course-1",
+        document_id=document_id,
+        owner_user_id="teacher-a",
+        force_reindex=False,
+        pending_version=durable.command["pending_version"],
+        job_id=job.edu_job_id,
+    )
+    assert job_store.get_job(job.edu_job_id).status == JobStatus.SUCCEEDED
 
     document = service.get_document(
         manager, "course-1", document_id, owner_user_id="teacher-a"
@@ -156,7 +171,7 @@ async def test_upload_index_lifecycle_becomes_ready_and_retrievable(document_fix
 
 @pytest.mark.anyio
 async def test_failed_reindex_preserves_the_active_version(document_fixture):
-    manager, document_id = document_fixture
+    manager, document_id, task_store = document_fixture
     service.patch_document(
         manager,
         "course-1",
@@ -165,20 +180,29 @@ async def test_failed_reindex_preserves_the_active_version(document_fixture):
         active_index_version="idx_active",
         rag_index_key="existing",
     )
+    rag = FakeRagSystem(fail=True)
     job = service.submit_index_job(
         manager=manager,
-        rag_system=FakeRagSystem(fail=True),
+        rag_system=rag,
         course_id="course-1",
         document_id=document_id,
         owner_user_id="teacher-a",
         force_reindex=True,
     )
 
-    for _ in range(100):
-        current = job_store.get_job(job.edu_job_id)
-        if current and current.status == JobStatus.FAILED:
-            break
-        await asyncio.sleep(0.01)
+    durable = task_store.get_durable(job.edu_job_id)
+    assert durable is not None
+    service.run_index_job(
+        manager=manager,
+        rag_system=rag,
+        course_id="course-1",
+        document_id=document_id,
+        owner_user_id="teacher-a",
+        force_reindex=True,
+        pending_version=durable.command["pending_version"],
+        job_id=job.edu_job_id,
+    )
+    assert job_store.get_job(job.edu_job_id).status == JobStatus.FAILED
 
     document = service.get_document(
         manager, "course-1", document_id, owner_user_id="teacher-a"

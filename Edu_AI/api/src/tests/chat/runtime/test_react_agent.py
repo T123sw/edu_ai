@@ -51,8 +51,19 @@ class FakeFastRuntime:
 
 
 def _request_snapshot():
-    capability = SimpleNamespace(allow_rag=False, allow_web=False)
-    request = SimpleNamespace(question="hello", conversation_id="conv-1")
+    capability = SimpleNamespace(
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+    )
+    request = SimpleNamespace(
+        question="hello",
+        conversation_id="conv-1",
+        owner="teacher-a",
+        course_id="course-1",
+        scope_type="course",
+        scope_id=None,
+    )
     snapshot = SimpleNamespace(capability=capability, recent_messages=[], workflow_state=None)
     return request, snapshot
 
@@ -68,7 +79,17 @@ def test_react_agent_streams_plain_text_and_final_result():
     assert events[-1]["payload"]["trace"]["path"] == "agent"
 
 
-def test_react_agent_executes_generate_tool_and_emits_task_submitted():
+def test_react_agent_executes_generate_tool_and_emits_task_submitted(
+    monkeypatch,
+):
+    class CommandService:
+        def submit(self, command):
+            return SimpleNamespace(edu_job_id="job-quiz-1")
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.quiz.generation_command_service",
+        CommandService(),
+    )
     request, snapshot = _request_snapshot()
     agent = ReActAgent(agent_gateway=FakeToolGateway(), fast_runtime=FakeFastRuntime(), max_steps=4, timeout_seconds=5)
 

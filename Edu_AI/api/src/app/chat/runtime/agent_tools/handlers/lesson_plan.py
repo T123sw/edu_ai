@@ -1,11 +1,12 @@
-"""Agent tool handler: generate_lesson_plan.
-
-Calls LessonPlanGenerationEngine._generate_content() directly via submit_callable_task.
-State dict is constructed from agent tool args — skips asking/outlining phases.
-"""
+"""Agent tool handler: enqueue a durable lesson-plan command."""
 from __future__ import annotations
 
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.services.generation_command import (
+    GenerationCommand,
+    generation_command_service,
+)
+from uuid import uuid4
 
 
 def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
@@ -21,44 +22,37 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
     owner = getattr(ctx.request, "owner", None)
     course_id = getattr(ctx.request, "course_id", None)
 
-    def _run():
-        from app.chat.application.lesson_plan_service_v2 import LessonPlanGenerationEngine
-        from app.chat.agents.report_generation import get_fallback_llm
-
-        engine = LessonPlanGenerationEngine(llm=get_fallback_llm())
-        state = {
-            "lesson_plan_slots": {
-                "topic": subject,
-                "audience": grade,
-                "duration": f"{duration_minutes}分钟",
-                "lesson_type": "知识讲解",
-            },
-            "lesson_plan_preparation_result": {},
-            # Pass confirmed_outline as the outline dict so _build_content_prompt
-            # includes it verbatim when serialising to the LLM prompt.
-            "lesson_plan_outline": {
-                "topic": subject,
-                "outline_markdown": confirmed_outline,
-            },
-            "conversation_id": conversation_id,
-        }
-        result = engine._generate_content(state=state)
-        return {
-            "status": result.get("status", "completed"),
-            "artifacts": result.get("artifacts", []),
-        }
-
     try:
-        from app.chat.tasks.background_runner import submit_callable_task
-        task_id = submit_callable_task(
-            fn=_run,
-            workflow_type="lesson_plan",
-            owner_user_id=owner,
-            course_id=course_id,
-            scope_type=str(getattr(ctx.request, "scope_type", None) or "course"),
-            scope_id=getattr(ctx.request, "scope_id", None),
-            input_summary={"title": subject},
+        selected_doc_ids = list(
+            getattr(
+                getattr(ctx, "capability", None),
+                "selected_doc_ids",
+                [],
+            )
+            or []
         )
+        command = GenerationCommand(
+            resource_type="lesson_plan",
+            owner_user_id=str(owner or ""),
+            course_id=str(course_id or ""),
+            scope_type=str(
+                getattr(ctx.request, "scope_type", None) or "course"
+            ),
+            scope_id=getattr(ctx.request, "scope_id", None),
+            selected_doc_ids=selected_doc_ids,
+            config={
+                "entrypoint": "agent",
+                "title": subject,
+                "subject": subject,
+                "confirmed_outline": confirmed_outline,
+                "grade": grade,
+                "duration_minutes": duration_minutes,
+                "conversation_id": conversation_id,
+            },
+            idempotency_key=f"agent-lesson-{uuid4()}",
+        )
+        job = generation_command_service.submit(command)
+        task_id = job.edu_job_id
     except Exception as exc:
         return error_result(name, str(exc), f"任务提交失败: {exc}")
 

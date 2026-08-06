@@ -11,7 +11,7 @@ import uuid
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Header, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, UploadFile, status
 from fastapi.responses import Response, StreamingResponse
 
 from app.auth import get_current_user
@@ -85,7 +85,6 @@ async def stream_video(
 
 @router.post("/upload", response_model=VideoUploadResponse, summary="上传视频并异步入库")
 async def upload_video(
-    bg: BackgroundTasks,
     file: UploadFile = File(..., description="视频文件，建议 .mp4"),
     course_id: str = Query(..., description="课程ID"),
     window_seconds: int = Query(30, ge=10, le=120),
@@ -120,11 +119,6 @@ async def upload_video(
         window_seconds=window_seconds,
         stride_seconds=stride_seconds,
         config_snapshot=runtime_config_resolver.capture_snapshot(username),
-    )
-
-    bg.add_task(
-        _svc.run_video_ingestion_job,
-        job.edu_job_id,
     )
 
     return VideoUploadResponse(

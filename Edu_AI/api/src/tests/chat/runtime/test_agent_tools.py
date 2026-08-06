@@ -31,8 +31,34 @@ def test_tool_workflow_mapping_is_available_from_constants_module():
     }
 
 
-def test_execute_tool_returns_stub_task_for_generate_quiz():
-    ctx = ToolExecutionContext(capability=SimpleNamespace(allow_rag=False, allow_web=False), max_steps=4)
+def _generation_context():
+    return ToolExecutionContext(
+        capability=SimpleNamespace(
+            allow_rag=False,
+            allow_web=False,
+            selected_doc_ids=[],
+        ),
+        request=SimpleNamespace(
+            owner="teacher-a",
+            course_id="course-1",
+            conversation_id="conv-1",
+            scope_type="course",
+            scope_id=None,
+        ),
+        max_steps=4,
+    )
+
+
+def test_execute_tool_returns_stub_task_for_generate_quiz(monkeypatch):
+    class CommandService:
+        def submit(self, command):
+            return SimpleNamespace(edu_job_id="job-quiz-1")
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.quiz.generation_command_service",
+        CommandService(),
+    )
+    ctx = _generation_context()
 
     result = execute_tool("generate_quiz", {"subject": "Python 基础"}, ctx)
 
@@ -44,8 +70,18 @@ def test_execute_tool_returns_stub_task_for_generate_quiz():
     assert ctx.trace["agent_steps"][0]["tool"] == "generate_quiz"
 
 
-def test_execute_tool_reuses_cached_result_for_same_call_without_incrementing_budget():
-    ctx = ToolExecutionContext(capability=SimpleNamespace(allow_rag=False, allow_web=False), max_steps=4)
+def test_execute_tool_reuses_cached_result_for_same_call_without_incrementing_budget(
+    monkeypatch,
+):
+    class CommandService:
+        def submit(self, command):
+            return SimpleNamespace(edu_job_id="job-quiz-1")
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.quiz.generation_command_service",
+        CommandService(),
+    )
+    ctx = _generation_context()
 
     first = execute_tool("generate_quiz", {"subject": "Python 基础"}, ctx)
     second = execute_tool("generate_quiz", {"subject": "Python 基础"}, ctx)
