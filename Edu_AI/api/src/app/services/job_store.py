@@ -316,6 +316,42 @@ def update_job(
         return updated
 
 
+def reconcile_succeeded_job(
+    edu_job_id: str,
+    *,
+    error_code: str,
+    error_message: str,
+) -> Optional[EduJob]:
+    """Audit-only downgrade when a recorded result can no longer be read."""
+    with _lock():
+        job = _read_path(_path(edu_job_id))
+        if job is None:
+            return None
+        if job.status != JobStatus.SUCCEEDED:
+            return job
+        now = _now()
+        summary = dict(job.input_summary or {})
+        summary["reconciled_from"] = JobStatus.SUCCEEDED.value
+        updated = job.model_copy(
+            update={
+                "status": JobStatus.PARTIALLY_SUCCEEDED,
+                "step": "resource_verification_failed",
+                "progress": 100,
+                "message": "任务曾完成，但结果资源当前无法读取",
+                "input_summary": _sanitize_input(summary),
+                "error_code": str(error_code or "RESOURCE_READBACK_FAILED"),
+                "error_message": str(error_message or ""),
+                "error": str(error_message or ""),
+                "retryable": True,
+                "cancelable": False,
+                "updated_at": now,
+                "version": job.version + 1,
+            }
+        )
+        _write(updated)
+        return updated
+
+
 def list_job_page(
     *,
     owner_user_id: Optional[str] = None,

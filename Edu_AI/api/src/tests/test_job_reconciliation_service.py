@@ -166,3 +166,79 @@ def test_another_owners_resource_cannot_finish_the_task(
     assert durable.status == "pending"
     assert public is not None
     assert public.status == JobStatus.QUEUED
+
+
+def test_active_public_job_without_a_recoverable_command_is_failed(
+    reconciliation_runtime,
+):
+    service, _, _ = reconciliation_runtime
+    legacy = create_job(
+        kind=JobKind.GENERATE_REPORT,
+        edu_job_id="legacy-job",
+        owner_user_id="teacher-a",
+        course_id="course-1",
+    )
+
+    service.reconcile_startup()
+
+    public = get_job(legacy.edu_job_id)
+    assert public is not None
+    assert public.status == JobStatus.FAILED
+    assert public.error_code == "LEGACY_TASK_NOT_RECOVERABLE"
+
+
+def test_succeeded_durable_job_is_downgraded_when_resource_disappeared(
+    reconciliation_runtime,
+):
+    service, store, manager = reconciliation_runtime
+    enqueue_report(store)
+    create_report_job()
+    task = store.claim_next(
+        lease_owner="worker-a",
+        lease_seconds=10,
+        now=100,
+    )
+    assert task is not None
+    result_ref = {
+        "resource_type": "course_material",
+        "course_id": "course-1",
+        "material_type": "report",
+        "material_id": "report-1",
+    }
+    assert manager.save_generated_material(
+        "course-1",
+        "report",
+        "report-1",
+        {"title": "Temporary"},
+        owner_user_id="teacher-a",
+        source_job_id="job-1",
+    )
+    assert store.mark_succeeded(
+        "job-1",
+        lease_owner="worker-a",
+        result={"saved": True, "result_ref": result_ref},
+        result_ref=result_ref,
+        now=120,
+    )
+    from app.services.job_store import update_job
+
+    update_job(
+        "job-1",
+        status=JobStatus.SUCCEEDED,
+        progress=100,
+        result_ref=result_ref,
+    )
+    assert manager.delete_generated_material(
+        "course-1",
+        "report",
+        "report-1",
+        owner_user_id="teacher-a",
+    )
+
+    service.reconcile_startup()
+
+    public = get_job("job-1")
+    assert public is not None
+    assert public.status == JobStatus.PARTIALLY_SUCCEEDED
+    assert public.error_code == "RESOURCE_READBACK_FAILED"
+    assert public.input_summary["reconciled_from"] == "succeeded"
