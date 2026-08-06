@@ -17,6 +17,16 @@ function dep(name: string) {
   return path.resolve(process.cwd(), 'node_modules', name);
 }
 
+// Vite watches the whole project root in development. Backend jobs update
+// SQLite/WAL files and generated resources inside that root; without these
+// exclusions every heartbeat can be interpreted as a page reload.
+export const BACKEND_RUNTIME_WATCH_IGNORES = [
+  '**/api/data/**',
+  '**/api/course_data/**',
+  '**/api/storage/**',
+  '**/storage/**',
+];
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -36,6 +46,9 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    watch: {
+      ignored: BACKEND_RUNTIME_WATCH_IGNORES,
+    },
     proxy: {
       '/ppt': {
         target: 'http://127.0.0.1:46080',
