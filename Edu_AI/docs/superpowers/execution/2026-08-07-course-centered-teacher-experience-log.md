@@ -157,3 +157,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: source intent is persisted at submission and resolved exactly once in the durable worker. The HTTP request does no RAG lookup.
 - Decision: `none` excludes both RAG document content and course knowledge-graph context, so it genuinely generates from the teacher's topic/configuration (plus explicitly enabled external web research) rather than silently using course evidence.
 - Result: `course_auto`, `selected_documents`, and `none` share the same validation rules as other resources; the final course-visible classroom records `source_snapshot` and `source_job_id`.
+
+### Plan 2 / Task 7 — Bounded durable executor pool
+
+- Red evidence: the pool test initially failed collection because no pool existed; after implementation, the first concurrency assertion exposed that durable terminal status is named `succeeded`, not the legacy callback status `completed`.
+- Green evidence: `20 passed` across pool isolation, once-only leasing, executor lifecycle, durable runtime, platform tasks, and application lifespan; the focused pool suite has `4 passed`.
+- Decision: the pool defaults to three workers (`DURABLE_JOB_WORKERS`, minimum one) and reuses the existing atomic SQLite lease rather than adding nested model-call thread pools.
+- Decision: shutdown signals all workers first and then joins them against one shared deadline; worker IDs that miss the deadline are returned for operational reporting.
+- Result: a blocked generation no longer prevents a second queued task from completing, while two workers still execute one leased task exactly once and startup/shutdown remain idempotent.

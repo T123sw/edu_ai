@@ -579,7 +579,7 @@ git commit -m "feat: standardize classroom generation sources"
 - Consumes: existing `DurableTaskExecutor` and shared SQLite `TaskStore` leasing.
 - Produces: `DurableExecutorPool.start()`, `.stop(timeout_seconds)`, `.worker_count`.
 
-- [ ] **Step 1: Write a fault-isolation test using synchronization events**
+- [x] **Step 1: Write a fault-isolation test using synchronization events**
 
 ```python
 def test_blocked_job_does_not_block_second_job(task_store, executor_pool):
@@ -599,7 +599,7 @@ Define `enqueue_test_task()` in the same test file. It calls the existing keywor
 
 The `executor_pool` fixture uses two workers, a 10 ms poll interval, a temporary SQLite task store, and explicit `start()`/`stop()` teardown. `blocking_handler()` sets the start event before waiting and always observes the release event in a `finally`-safe test teardown.
 
-- [ ] **Step 2: Run the pool test and demonstrate head-of-line blocking**
+- [x] **Step 2: Run the pool test and demonstrate head-of-line blocking**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_durable_executor_pool.py -q
@@ -607,7 +607,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_durable_executor_pool.py
 
 Expected: the second task cannot complete while the only worker is blocked.
 
-- [ ] **Step 3: Implement a bounded pool over existing atomic leasing**
+- [x] **Step 3: Implement a bounded pool over existing atomic leasing**
 
 Add configuration:
 
@@ -617,7 +617,7 @@ DURABLE_JOB_WORKERS = max(1, int(os.getenv("DURABLE_JOB_WORKERS", "3")))
 
 `DurableExecutorPool` creates N executors with unique worker IDs, shares the task store/handlers, and owns lifecycle ordering. Startup is idempotent. Shutdown requests every worker to stop, joins each with the remaining shared timeout, then reports worker IDs that did not stop. Do not create nested model-call thread pools inside handlers.
 
-- [ ] **Step 4: Run pool, runtime, and lifespan tests**
+- [x] **Step 4: Run pool, runtime, and lifespan tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_durable_executor_pool.py tests/test_durable_job_runtime.py tests/test_job_worker_lifespan.py -q
@@ -625,7 +625,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_durable_executor_pool.py
 
 Expected: the fast task completes while the blocker runs, leasing prevents duplicate execution, and app shutdown terminates all test workers.
 
-- [ ] **Step 5: Commit bounded job concurrency**
+- [x] **Step 5: Commit bounded job concurrency**
 
 ```powershell
 git add Edu_AI/api/src/app/services/durable_executor_pool.py Edu_AI/api/src/app/services/durable_job_runtime.py Edu_AI/api/src/app/services/durable_task_executor.py Edu_AI/api/src/core/config.py Edu_AI/api/src/tests/test_durable_executor_pool.py Edu_AI/api/src/tests/test_durable_job_runtime.py Edu_AI/api/src/tests/test_job_worker_lifespan.py

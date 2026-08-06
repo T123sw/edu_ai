@@ -4,7 +4,7 @@ import threading
 from typing import Any
 
 from app.chat.tasks.task_store import TaskStore, get_task_store
-from app.services.durable_task_executor import DurableTaskExecutor
+from app.services.durable_executor_pool import DurableExecutorPool
 from app.services.durable_task_handlers import DurableTaskHandlerRegistry
 from app.services.generation_task_handlers import (
     GenerationTaskHandler,
@@ -14,6 +14,7 @@ from app.services.job_completion_service import JobCompletionService
 from app.services.job_reconciliation_service import JobReconciliationService
 from app.services.platform_task_handlers import register_platform_task_handlers
 from core.course_storage import CourseStorageManager
+from core.config import Config
 
 
 class DurableJobRuntime:
@@ -44,7 +45,7 @@ class DurableJobRuntime:
         with self._lock:
             if not self._started:
                 return
-            self.executor.stop(grace_seconds=grace_seconds)
+            self.executor.stop(timeout_seconds=grace_seconds)
             self._started = False
 
 
@@ -67,10 +68,11 @@ def build_durable_job_runtime(
         task_store=store,
         course_storage_manager=manager,
     )
-    executor = DurableTaskExecutor(
+    executor = DurableExecutorPool(
         task_store=store,
         handler_registry=registry,
         completion_service=completion,
+        worker_count=Config.DURABLE_JOB_WORKERS,
     )
     reconciler = JobReconciliationService(
         task_store=store,

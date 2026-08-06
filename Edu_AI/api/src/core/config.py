@@ -88,6 +88,7 @@ class Config:
     EMBEDDING_MAX_RETRIES = int(os.getenv("EMBEDDING_MAX_RETRIES", "3"))
     EMBEDDING_BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "64"))
     EMBEDDING_MAX_WORKERS = int(os.getenv("EMBEDDING_MAX_WORKERS", "4"))
+    DURABLE_JOB_WORKERS = max(1, int(os.getenv("DURABLE_JOB_WORKERS", "3")))
 
     # 存储路径
     STORAGE_ROOT = Path(os.getenv("STORAGE_ROOT", "storage"))

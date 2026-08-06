@@ -13,9 +13,10 @@ class FakeExecutor:
     def start(self) -> None:
         self.started += 1
 
-    def stop(self, *, grace_seconds: float = 10) -> None:
-        assert grace_seconds == 3
+    def stop(self, *, timeout_seconds: float = 10):
+        assert timeout_seconds == 3
         self.stopped += 1
+        return ()
 
 
 class FakeReconciler:
@@ -63,4 +64,5 @@ def test_default_runtime_registers_all_generation_workflows(tmp_path):
         "game_direct",
     ):
         assert runtime.handler_registry.resolve(workflow, 1) is not None
+    assert runtime.executor.worker_count >= 1
     store.close()

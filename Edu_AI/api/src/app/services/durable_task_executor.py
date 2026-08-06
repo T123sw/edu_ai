@@ -61,23 +61,37 @@ class DurableTaskExecutor:
         self.poll_interval = float(poll_interval)
         self._stop_event = threading.Event()
         self._worker_thread: threading.Thread | None = None
+        self._lifecycle_lock = threading.RLock()
 
     def start(self) -> None:
-        if self._worker_thread and self._worker_thread.is_alive():
-            return
-        self._stop_event.clear()
-        self._worker_thread = threading.Thread(
-            target=self.run_forever,
-            daemon=True,
-            name=self.worker_id,
-        )
-        self._worker_thread.start()
+        with self._lifecycle_lock:
+            if self._worker_thread and self._worker_thread.is_alive():
+                return
+            self._stop_event.clear()
+            self._worker_thread = threading.Thread(
+                target=self.run_forever,
+                daemon=True,
+                name=self.worker_id,
+            )
+            self._worker_thread.start()
 
-    def stop(self, *, grace_seconds: float = 10) -> None:
+    def request_stop(self) -> None:
         self._stop_event.set()
+
+    def join(self, *, timeout_seconds: float = 10) -> bool:
         worker = self._worker_thread
         if worker and worker.is_alive():
-            worker.join(timeout=max(0, float(grace_seconds)))
+            worker.join(timeout=max(0, float(timeout_seconds)))
+        return worker is None or not worker.is_alive()
+
+    @property
+    def is_running(self) -> bool:
+        worker = self._worker_thread
+        return bool(worker and worker.is_alive())
+
+    def stop(self, *, grace_seconds: float = 10) -> None:
+        self.request_stop()
+        self.join(timeout_seconds=grace_seconds)
 
     def run_forever(self) -> None:
         while not self._stop_event.is_set():
