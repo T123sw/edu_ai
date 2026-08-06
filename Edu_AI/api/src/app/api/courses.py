@@ -17,6 +17,7 @@ from app.auth import get_current_user
 from app.api.course_dependencies import (
     get_course_membership_store,
     require_course_edit,
+    require_course_manage_resources,
     require_course_owner,
     require_course_read,
 )
@@ -257,9 +258,9 @@ def get_course_materials(
     aggregate: bool = False,
     limit: Optional[int] = None,
     offset: int = 0,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
-    owner_user_id = current_user.get("username") if current_user else None
+    owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -299,9 +300,9 @@ def delete_course_material(
     course_id: str,
     material_type: str,
     material_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_manage_resources),
 ):
-    owner_user_id = current_user.get("username") if current_user else None
+    owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -322,9 +323,9 @@ def pin_course_material(
     material_type: str,
     material_id: str,
     payload: PinMaterialRequest,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_manage_resources),
 ):
-    owner_user_id = current_user.get("username") if current_user else None
+    owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -360,13 +361,13 @@ def get_course_material(
     course_id: str,
     material_type: str,
     material_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     material = _svc._get_manager().get_generated_material(
         course_id,
         material_type,
         material_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     )
     if material is None:
         raise HTTPException(status_code=404, detail="资源不存在或无权访问")
@@ -382,10 +383,10 @@ def rename_course_material(
     material_type: str,
     material_id: str,
     payload: RenameMaterialRequest,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_manage_resources),
 ):
     manager = _svc._get_manager()
-    owner = str(current_user.get("username") or "")
+    owner = principal.user_id
     if not manager.rename_generated_material(
         course_id,
         material_type,
@@ -410,13 +411,13 @@ def check_course_material_integrity(
     course_id: str,
     material_type: str,
     material_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     result = _svc._get_manager().check_generated_material_integrity(
         course_id,
         material_type,
         material_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     )
     if result.get("missing") == ["manifest"]:
         raise HTTPException(status_code=404, detail="资源不存在或无权访问")

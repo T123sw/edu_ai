@@ -188,4 +188,11 @@ class JobCompletionService:
                 "RESOURCE_PROVENANCE_MISMATCH",
                 "结果资源来源任务与当前任务不一致",
             )
+        if str(material.get("created_by") or "").strip() != str(
+            task.owner_user_id or ""
+        ).strip():
+            return (
+                "RESOURCE_PROVENANCE_MISMATCH",
+                "结果资源创建者与当前任务所有者不一致",
+            )
         return None, ""

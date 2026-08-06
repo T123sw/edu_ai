@@ -127,6 +127,8 @@ class JobReconciliationService:
                 )
                 if str(item.get("source_job_id") or "").strip()
                 == task.task_id
+                and str(item.get("created_by") or "").strip()
+                == str(task.owner_user_id or "").strip()
             ]
             if len(matches) != 1:
                 return None
@@ -142,6 +144,10 @@ class JobReconciliationService:
         if material is None:
             return None
         if str(material.get("source_job_id") or "").strip() != task.task_id:
+            return None
+        if str(material.get("created_by") or "").strip() != str(
+            task.owner_user_id or ""
+        ).strip():
             return None
         return {
             "resource_type": "course_material",
@@ -264,6 +270,8 @@ class JobReconciliationService:
             elif (
                 str(material.get("source_job_id") or "").strip()
                 != job.edu_job_id
+                or str(material.get("created_by") or "").strip()
+                != str(job.owner_user_id or "").strip()
             ):
                 reconcile_succeeded_job(
                     job.edu_job_id,

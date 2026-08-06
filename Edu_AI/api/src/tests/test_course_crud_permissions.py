@@ -71,3 +71,24 @@ def test_new_course_owner_and_development_memberships_are_created(course_api):
     assert course_api.memberships.get("course-2", "teacher-a").role == "owner"
     assert course_api.memberships.get("course-2", "teacher-b").role == "editor"
     assert course_api.memberships.get("course-2", "student-a").role == "viewer"
+
+
+def test_shared_material_is_readable_by_editor_but_viewer_cannot_delete(course_api):
+    assert course_api.manager.save_generated_material(
+        "course-1",
+        "report",
+        "report-1",
+        {"title": "Shared report"},
+        owner_user_id="teacher-a",
+    )
+    editor = course_api.client_for("teacher-b", "teacher")
+    viewer = course_api.client_for("student-a", "student")
+
+    detail = editor.get("/api/courses/course-1/materials/report/report-1")
+    denied = viewer.delete(
+        "/api/courses/course-1/materials/report/report-1"
+    )
+
+    assert detail.status_code == 200
+    assert detail.json()["created_by"] == "teacher-a"
+    assert denied.status_code == 403

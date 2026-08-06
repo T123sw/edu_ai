@@ -11,6 +11,7 @@ if str(API_ROOT) not in sys.path:
 
 from app import courses
 from app.api import courses as courses_api
+from app.services.course_access import CoursePrincipal
 from app.services import course_service
 from core.course_storage import CourseStorageManager
 
@@ -46,7 +47,12 @@ def test_get_course_materials_returns_paginated_aggregate_scope(monkeypatch):
         aggregate=True,
         limit=20,
         offset=20,
-        current_user={"username": "teacher-a"},
+        principal=CoursePrincipal(
+            course_id="course-1",
+            user_id="teacher-a",
+            system_role="teacher",
+            course_role="editor",
+        ),
     )
 
     assert payload["total"] == 25

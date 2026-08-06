@@ -21,7 +21,7 @@ import uuid
 from contextvars import ContextVar, Token
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Literal, Optional, Set
 
 from app.workspace_scope import SCOPE_TYPE_COURSE, normalize_workspace_scope
 
@@ -204,6 +204,18 @@ class CourseStorageManager:
         normalized["owner_user_id"] = (
             str(normalized.get("owner_user_id") or "").strip() or None
         )
+        normalized["created_by"] = (
+            str(
+                normalized.get("created_by")
+                or normalized.get("owner_user_id")
+                or ""
+            ).strip()
+            or None
+        )
+        visibility = str(normalized.get("visibility") or "course").strip()
+        normalized["visibility"] = (
+            visibility if visibility in {"course", "private"} else "course"
+        )
         normalized["source_job_id"] = (
             str(normalized.get("source_job_id") or "").strip() or None
         )
@@ -223,9 +235,16 @@ class CourseStorageManager:
     def _material_owner_matches(
         material_data: Dict[str, Any], owner_user_id: Optional[str]
     ) -> bool:
+        visibility = str(material_data.get("visibility") or "course").strip()
+        if visibility != "private":
+            return True
         if owner_user_id is None:
             return True
-        stored_owner = str(material_data.get("owner_user_id") or "").strip()
+        stored_owner = str(
+            material_data.get("created_by")
+            or material_data.get("owner_user_id")
+            or ""
+        ).strip()
         requested_owner = str(owner_user_id or "").strip()
         return bool(stored_owner) and bool(requested_owner) and stored_owner == requested_owner
 
@@ -772,6 +791,7 @@ class CourseStorageManager:
         scope_type: Optional[str] = None,
         scope_id: Optional[str] = None,
         owner_user_id: Optional[str] = None,
+        visibility: Optional[Literal["course", "private"]] = None,
         source_job_id: Optional[str] = None,
         config_snapshot_id: Optional[str] = None,
     ) -> bool:
@@ -824,6 +844,22 @@ class CourseStorageManager:
                     str(owner_user_id or next_data.get("owner_user_id") or "").strip()
                     or None
                 )
+                next_data["created_by"] = (
+                    str(
+                        next_data.get("created_by")
+                        or next_data.get("owner_user_id")
+                        or ""
+                    ).strip()
+                    or None
+                )
+                normalized_visibility = str(
+                    visibility or next_data.get("visibility") or "course"
+                ).strip()
+                if normalized_visibility not in {"course", "private"}:
+                    raise ValueError(
+                        f"unsupported material visibility: {normalized_visibility}"
+                    )
+                next_data["visibility"] = normalized_visibility
                 next_data["source_job_id"] = (
                     str(source_job_id or next_data.get("source_job_id") or "").strip()
                     or None

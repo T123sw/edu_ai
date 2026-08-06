@@ -31,6 +31,8 @@ def test_formal_material_manifest_contains_stable_provenance_and_artifact(tmp_pa
     assert material["version"] == 1
     assert material["material_id"] == "deck__1"
     assert material["owner_user_id"] == "teacher-a"
+    assert material["created_by"] == "teacher-a"
+    assert material["visibility"] == "course"
     assert material["source_job_id"] == "job-1"
     assert material["config_snapshot_id"] == "cfg-1"
     assert material["source"]["document_ids"] == ["doc-1"]

@@ -70,3 +70,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Red evidence: anonymous course listing returned 200, legacy responses lacked revision, stale writes were accepted, viewer writes were unguarded, and new courses created no memberships.
 - Green evidence: `4 passed` for authenticated membership-filtered listing, 409 compare-and-swap behavior, viewer denial, and owner/development membership creation; combined course/lifespan run had `17 passed` plus the already-recorded material-visibility failure assigned to Task 5.
 - Result: legacy course files normalize to revision 0; updates are atomic under the course storage lock; course responses include audit/membership fields; public registration/auth dependencies now return 401 when credentials are absent.
+
+### Plan 1 / Task 5 — Course-shared generated materials
+
+- Red evidence: materials created by teacher A were filtered out for teacher B, legacy manifests had no explicit visibility metadata, and viewer mutation routes did not consistently use course capabilities.
+- Green evidence: `38 passed` across material permissions/manifests, course CRUD integration, course-scoped chat routes, job completion, and job reconciliation.
+- Decision: generated materials default to `course` visibility and record `created_by`; `private` remains available for creator-only artifacts. Legacy manifests normalize to course visibility for compatibility.
+- Decision: durable job completion and reconciliation stay creator-scoped even though completed course artifacts are shared. This prevents one teacher's worker task from being satisfied by another teacher's artifact.
+- Result: all course members can read course-visible artifacts, editors/owners can manage them, viewers receive 403 for mutations, and task ownership semantics remain intact.
