@@ -1008,6 +1008,11 @@ async def generate_classroom(
         course_storage_manager=mgr,
         enable_web_search=payload.enable_web_search,
         enable_tts=payload.enable_tts,
+        source_mode=payload.source_mode,
+        selected_doc_ids=payload.selected_doc_ids,
+        topic=payload.topic,
+        audience=payload.audience,
+        scene_count=payload.scene_count,
     )
     return job
 

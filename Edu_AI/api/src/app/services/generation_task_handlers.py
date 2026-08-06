@@ -90,7 +90,7 @@ class _ResolvedDocumentContentReader:
         )
 
 
-def _build_default_source_resolver(
+def build_default_generation_source_resolver(
     manager: CourseStorageManager,
 ) -> GenerationSourceResolver:
     return GenerationSourceResolver(
@@ -343,8 +343,11 @@ class GenerationTaskHandler:
                 "lesson_plan": _LessonPlanGenerationAdapter,
             }
         )
-        self.source_resolver = source_resolver or _build_default_source_resolver(
-            self.course_storage_manager
+        self.source_resolver = (
+            source_resolver
+            or build_default_generation_source_resolver(
+                self.course_storage_manager
+            )
         )
 
     def __call__(

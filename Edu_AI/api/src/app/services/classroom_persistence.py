@@ -42,6 +42,8 @@ def persist_classroom_result(
     scope_type: Optional[str] = None,
     scope_id: Optional[str] = None,
     sidecar_base_url: Optional[str] = None,
+    source_snapshot: Optional[dict[str, Any]] = None,
+    source_job_id: Optional[str] = None,
 ) -> dict[str, Any]:
     """校验 + 落库一份 generate_classroom 的产出，返回 edu_job.result_ref 用的引用。
 
@@ -80,6 +82,8 @@ def persist_classroom_result(
         scope_type=scope_type,
         scope_id=scope_id,
         owner_user_id=owner,
+        source_snapshot=source_snapshot,
+        source_job_id=source_job_id,
     )
     if not saved:
         raise ClassroomPersistError(

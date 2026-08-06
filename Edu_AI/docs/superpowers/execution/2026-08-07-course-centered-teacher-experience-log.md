@@ -149,3 +149,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: the response retains the existing standard durable envelope field `task_id` rather than introducing a lesson-plan-only `job_id`; this keeps all generation routes consistent.
 - Decision: the direct service runs outline and final-content phases inside the worker, using the immutable resolved source context. The HTTP route only validates and enqueues.
 - Result: `/api/chat/v2/lesson-plan/direct` returns 202, persists a recoverable `lesson_plan_direct` command, and publishes a course-visible lesson-plan artifact with source/job provenance.
+
+### Plan 2 / Task 6 — Unified AI classroom sources
+
+- Red evidence: `8 failed` showed the classroom request had no source fields, contradictory selections were ignored, workers had no injectable resolver, and classroom manifests could not persist provenance.
+- Green evidence: `58 passed` across all source modes, durable submission, worker resolution, classroom manifests, job orchestration, course authorization, and existing classroom generation/persistence behavior.
+- Decision: source intent is persisted at submission and resolved exactly once in the durable worker. The HTTP request does no RAG lookup.
+- Decision: `none` excludes both RAG document content and course knowledge-graph context, so it genuinely generates from the teacher's topic/configuration (plus explicitly enabled external web research) rather than silently using course evidence.
+- Result: `course_auto`, `selected_documents`, and `none` share the same validation rules as other resources; the final course-visible classroom records `source_snapshot` and `source_job_id`.

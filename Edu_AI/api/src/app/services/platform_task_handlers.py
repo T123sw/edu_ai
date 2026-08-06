@@ -63,9 +63,22 @@ class PlatformTaskHandlers:
         self,
         *,
         course_storage_factory: Callable[[], CourseStorageManager] | None = None,
+        generation_source_resolver_factory: Callable[[CourseStorageManager], Any]
+        | None = None,
     ) -> None:
         self.course_storage_factory = (
             course_storage_factory or CourseStorageManager
+        )
+        if generation_source_resolver_factory is None:
+            from app.services.generation_task_handlers import (
+                build_default_generation_source_resolver,
+            )
+
+            generation_source_resolver_factory = (
+                build_default_generation_source_resolver
+            )
+        self.generation_source_resolver_factory = (
+            generation_source_resolver_factory
         )
 
     def classroom_generate(
@@ -87,6 +100,16 @@ class PlatformTaskHandlers:
         requirement = str(command.get("requirement") or "").strip()
         client = get_openmaic_client(owner_user_id=context.owner_user_id)
         job = self._require_job(context.task_id)
+        selected_doc_ids = list(command.get("selected_doc_ids") or [])
+        source_mode = str(
+            command.get("source_mode")
+            or ("selected_documents" if selected_doc_ids else "course_auto")
+        )
+        resolved_source = self.generation_source_resolver_factory(manager).resolve(
+            course_id,
+            source_mode,
+            selected_doc_ids,
+        )
 
         async def run() -> None:
             research_context = await _build_research_context(
@@ -96,6 +119,7 @@ class PlatformTaskHandlers:
                 web_research_context=command.get("web_research_context"),
                 rag_top_k=int(command.get("rag_top_k") or 5),
                 rag_system=None,
+                resolved_source=resolved_source,
             )
             callback = _make_on_sidecar_succeeded(
                 active_client=client,
@@ -104,6 +128,8 @@ class PlatformTaskHandlers:
                 owner=context.owner_user_id,
                 scope_type=str(command.get("scope_type") or "course"),
                 scope_id=command.get("scope_id"),
+                source_snapshot=resolved_source.to_snapshot(),
+                source_job_id=context.task_id,
             )
             await run_generate_classroom_job(
                 job,

@@ -525,7 +525,7 @@ git commit -m "feat: add durable lesson plan generation"
 - Consumes: `GenerationSourceResolver`.
 - Produces: classroom generation request fields `source_mode` and `selected_doc_ids`, plus a persisted `source_snapshot`.
 
-- [ ] **Step 1: Write classroom source-mode tests**
+- [x] **Step 1: Write classroom source-mode tests**
 
 ```python
 @pytest.mark.parametrize("mode,ids", [("course_auto", []), ("selected_documents", ["doc-1"]), ("none", [])])
@@ -537,7 +537,7 @@ def test_classroom_generation_uses_shared_source_contract(classroom_jobs, resolv
 
 Build `classroom_jobs` with the real `ClassroomJobService`, a temporary course store, a synchronous fake executor, and the same spy resolver used by the general handler tests. `valid_classroom_config()` returns a fully typed minimum configuration including topic, audience, scene count, and explicit voice-enabled state.
 
-- [ ] **Step 2: Run and reproduce the classroom contract mismatch**
+- [x] **Step 2: Run and reproduce the classroom contract mismatch**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_classroom_generation_sources.py tests/test_classroom_job_service.py -q
@@ -545,11 +545,11 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_classroom_generation_sou
 
 Expected: current classroom requests do not expose all three modes or provenance.
 
-- [ ] **Step 3: Reuse the resolver instead of classroom-specific document parsing**
+- [x] **Step 3: Reuse the resolver instead of classroom-specific document parsing**
 
 Validate the request with the same rules as `GenerationSourceRequest`. Store source intent in the job payload, resolve in the worker, and persist the snapshot with the classroom manifest. `none` must produce a valid classroom from topic and configuration only.
 
-- [ ] **Step 4: Run classroom and course authorization tests**
+- [x] **Step 4: Run classroom and course authorization tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_classroom_generation_sources.py tests/test_classroom_job_service.py tests/test_course_route_authorization.py -q
@@ -557,7 +557,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_classroom_generation_sou
 
 Expected: editors can generate in every source mode; viewers receive 403; source snapshots are readable with classroom detail.
 
-- [ ] **Step 5: Commit the classroom source contract**
+- [x] **Step 5: Commit the classroom source contract**
 
 ```powershell
 git add Edu_AI/api/src/app/schemas/course.py Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/app/services/classroom_job_service.py Edu_AI/api/src/app/services/classroom_service.py Edu_AI/api/src/tests/test_classroom_generation_sources.py

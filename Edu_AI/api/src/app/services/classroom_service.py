@@ -18,6 +18,7 @@ import anyio
 
 from app.integrations.openmaic import OpenMaicClient, get_openmaic_client
 from app.services.classroom_job_service import (
+    ClassroomSourceIntent,
     create_classroom_job,
     run_generate_classroom_job,
     start_generate_classroom_job,
@@ -122,23 +123,31 @@ async def _build_research_context(
     web_research_context: Optional[str],
     rag_top_k: int,
     rag_system: Optional[Any],
+    resolved_source: Optional[Any] = None,
 ) -> Optional[str]:
-    rag_context = await anyio.to_thread.run_sync(
-        partial(
-            fetch_course_rag_snippets,
+    if resolved_source is None:
+        rag_context = await anyio.to_thread.run_sync(
+            partial(
+                fetch_course_rag_snippets,
+                course_storage_manager=course_storage_manager,
+                course_id=course_id,
+                query=requirement,
+                top_k=rag_top_k,
+                rag_system=rag_system,
+            )
+        )
+    else:
+        rag_context = str(resolved_source.context_text or "").strip() or None
+    # 知识图谱是本地小 JSON 树的一次内存遍历，不是网络/向量库调用，
+    # 不需要像 RAG 那样丢线程池（不会有明显阻塞）。
+    kg_context = (
+        None
+        if resolved_source is not None and resolved_source.mode == "none"
+        else fetch_knowledge_graph_context(
             course_storage_manager=course_storage_manager,
             course_id=course_id,
             query=requirement,
-            top_k=rag_top_k,
-            rag_system=rag_system,
         )
-    )
-    # 知识图谱是本地小 JSON 树的一次内存遍历，不是网络/向量库调用，
-    # 不需要像 RAG 那样丢线程池（不会有明显阻塞）。
-    kg_context = fetch_knowledge_graph_context(
-        course_storage_manager=course_storage_manager,
-        course_id=course_id,
-        query=requirement,
     )
     return merge_research_context(web_research_context, rag_context, kg_context)
 
@@ -151,6 +160,8 @@ def _make_on_sidecar_succeeded(
     owner: Optional[str],
     scope_type: Optional[str],
     scope_id: Optional[str],
+    source_snapshot: Optional[dict[str, Any]] = None,
+    source_job_id: Optional[str] = None,
 ):
     async def _on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
         # `result` here is the job envelope's slim {classroomId, url,
@@ -186,6 +197,8 @@ def _make_on_sidecar_succeeded(
             scope_type=scope_type,
             scope_id=scope_id,
             sidecar_base_url=active_client.config.base_url,
+            source_snapshot=source_snapshot,
+            source_job_id=source_job_id,
         )
 
     return _on_sidecar_succeeded
@@ -266,6 +279,11 @@ async def submit_classroom_generation_job(
     client: Optional[OpenMaicClient] = None,
     rag_system: Optional[Any] = None,
     existing_job: Optional[EduJob] = None,
+    source_mode: str = "course_auto",
+    selected_doc_ids: Optional[list[str]] = None,
+    topic: Optional[str] = None,
+    audience: str = "",
+    scene_count: int = 6,
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -277,6 +295,10 @@ async def submit_classroom_generation_job(
 
     `enable_tts` 见 `generate_classroom_for_course` 的说明。
     """
+    source_intent = ClassroomSourceIntent.create(
+        source_mode,
+        list(selected_doc_ids or []),
+    )
     job = existing_job or create_classroom_job(
             owner=owner,
             course_id=course_id,
@@ -288,6 +310,8 @@ async def submit_classroom_generation_job(
                 "resource_type": "classroom",
                 "enable_web_search": enable_web_search,
                 "enable_tts": enable_tts,
+                "source_mode": source_intent.mode,
+                "selected_doc_ids": list(source_intent.selected_document_ids),
                 "source": "classroom-studio",
             },
         )
@@ -308,6 +332,11 @@ async def submit_classroom_generation_job(
             "enable_web_search": enable_web_search,
             "enable_tts": enable_tts,
             "rag_top_k": rag_top_k,
+            "source_mode": source_intent.mode,
+            "selected_doc_ids": list(source_intent.selected_document_ids),
+            "topic": topic,
+            "audience": audience,
+            "scene_count": scene_count,
         },
         runtime_config_snapshot=runtime_config_resolver.capture_snapshot(
             str(owner or "")

@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Self
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import LIBRARY_TYPE_COURSE, LIBRARY_TYPE_PERSONAL
+from app.services.generation_source_resolver import GenerationSourceMode
 
 
 class CourseInfo(BaseModel):
@@ -118,6 +119,11 @@ class RenameMaterialRequest(BaseModel):
 
 
 class GenerateClassroomRequest(BaseModel):
+    topic: Optional[str] = Field(default=None, max_length=200)
+    audience: str = Field(default="", max_length=200)
+    scene_count: int = Field(default=6, ge=1, le=30)
+    source_mode: GenerationSourceMode = "course_auto"
+    selected_doc_ids: List[str] = Field(default_factory=list)
     """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（图片/视频生成 flags 仍不开放，见 §0.1 D2）。"""
 
     requirement: str = Field(..., description="课件需求文本")
@@ -128,6 +134,33 @@ class GenerateClassroomRequest(BaseModel):
         default=True,
         description="是否生成真人配音（D1，SPEC-04 §5）。sidecar 未配置 TTS provider 时会静默跳过，自动退回前端浏览器 TTS/静音等待兜底",
     )
+
+
+    @model_validator(mode="before")
+    @classmethod
+    def infer_legacy_source_mode(cls, value):
+        if isinstance(value, dict) and "source_mode" not in value:
+            value = dict(value)
+            if value.get("selected_doc_ids"):
+                value["source_mode"] = "selected_documents"
+        return value
+
+    @model_validator(mode="after")
+    def validate_source_selection(self) -> Self:
+        self.selected_doc_ids = list(
+            dict.fromkeys(
+                str(item or "").strip()
+                for item in self.selected_doc_ids
+                if str(item or "").strip()
+            )
+        )
+        if self.source_mode == "selected_documents" and not self.selected_doc_ids:
+            raise ValueError("selected_documents requires at least one document")
+        if self.source_mode != "selected_documents" and self.selected_doc_ids:
+            raise ValueError(
+                "selected_doc_ids is only valid for selected_documents"
+            )
+        return self
 
 
 class KnowledgeGraphData(BaseModel):

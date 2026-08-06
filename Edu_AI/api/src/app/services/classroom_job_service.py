@@ -17,6 +17,7 @@ PERSIST_FAILED)一起测好，P2-5 只需要把 `on_sidecar_succeeded` 换成真
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Optional
 
 from app.integrations.openmaic import (
@@ -38,6 +39,7 @@ from app.services.job_store import (
     get_job,
     update_job,
 )
+from app.services.generation_source_resolver import GenerationSourceMode
 
 log = logging.getLogger("classroom_job_service")
 
@@ -56,6 +58,33 @@ CLASSROOM_STEP_LABELS: dict[str, str] = {
 }
 
 OnSidecarSucceeded = Callable[[dict[str, Any]], Awaitable[dict[str, Any]]]
+
+
+@dataclass(frozen=True)
+class ClassroomSourceIntent:
+    mode: GenerationSourceMode
+    selected_document_ids: tuple[str, ...]
+
+    @classmethod
+    def create(
+        cls,
+        mode: GenerationSourceMode,
+        selected_document_ids: list[str] | tuple[str, ...],
+    ) -> "ClassroomSourceIntent":
+        normalized = tuple(
+            dict.fromkeys(
+                str(item or "").strip()
+                for item in selected_document_ids
+                if str(item or "").strip()
+            )
+        )
+        if mode == "selected_documents" and not normalized:
+            raise ValueError("selected_documents requires at least one document")
+        if mode != "selected_documents" and normalized:
+            raise ValueError(
+                "selected_doc_ids is only valid for selected_documents"
+            )
+        return cls(mode=mode, selected_document_ids=normalized)
 
 
 async def _default_on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
