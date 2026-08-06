@@ -43,6 +43,17 @@ PptLengthOption = Literal["short", "medium", "long"]
 PptThemeId = Literal["heu_academic_elegant", "heu_academic_basic"]
 QuizDifficulty = Literal["easy", "medium", "hard"]
 QuizQuestionType = Literal["choice", "blank", "short", "judge"]
+GenerationPreflightResourceType = Literal[
+    "report",
+    "lesson_plan",
+    "blog",
+    "quiz",
+    "ppt",
+    "flashcard",
+    "graph",
+    "game",
+    "classroom",
+]
 
 
 class GenerationSourceRequest(BaseModel):
@@ -74,6 +85,27 @@ class GenerationSourceRequest(BaseModel):
                 "selected_doc_ids is only valid for selected_documents"
             )
         return self
+
+
+class GenerationPreflightRequestV2(GenerationSourceRequest):
+    course_id: str = Field(min_length=1)
+    resource_type: GenerationPreflightResourceType
+
+
+class GenerationPreflightDocumentV2(BaseModel):
+    document_id: str
+    name: str
+    chunk_count: int = Field(ge=0)
+
+
+class GenerationPreflightResponseV2(BaseModel):
+    valid: Literal[True] = True
+    source_mode: GenerationSourceMode
+    ready_document_count: int = Field(ge=0)
+    documents: List[GenerationPreflightDocumentV2] = Field(
+        default_factory=list
+    )
+    warnings: List[str] = Field(default_factory=list)
 
 
 class ChatReplyRequestV2(BaseModel):

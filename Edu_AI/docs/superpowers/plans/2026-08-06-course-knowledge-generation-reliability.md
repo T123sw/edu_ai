@@ -711,7 +711,7 @@ git commit -m "fix: converge job deadlines and cancellation"
 - Consumes: course authorization and `GenerationSourceResolver` validation.
 - Produces: `POST /api/chat/v2/generation/preflight` with no model call and no durable job.
 
-- [ ] **Step 1: Write preflight success and error tests**
+- [x] **Step 1: Write preflight success and error tests**
 
 ```python
 def test_preflight_returns_ready_document_summary(client):
@@ -731,7 +731,7 @@ def test_preflight_returns_ready_document_summary(client):
     }
 ```
 
-- [ ] **Step 2: Run and verify the endpoint is absent**
+- [x] **Step 2: Run and verify the endpoint is absent**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_preflight.py -q
@@ -739,11 +739,11 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_prefligh
 
 Expected: 404.
 
-- [ ] **Step 3: Implement validation-only preflight**
+- [x] **Step 3: Implement validation-only preflight**
 
 The endpoint requires course `generate` capability, uses catalog validation but does not read full document content, create a task, or call a model. Return warnings for `course_auto` with zero ready documents and stable errors for explicit invalid selections.
 
-- [ ] **Step 4: Run preflight and authorization tests**
+- [x] **Step 4: Run preflight and authorization tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_preflight.py tests/test_course_route_authorization.py -q
@@ -751,7 +751,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_prefligh
 
 Expected: editor success, viewer 403, invalid document errors, and zero task-store writes.
 
-- [ ] **Step 5: Commit preflight validation**
+- [x] **Step 5: Commit preflight validation**
 
 ```powershell
 git add Edu_AI/api/src/app/chat/api/schemas_v2.py Edu_AI/api/src/app/chat/api/routes_v2.py Edu_AI/api/src/tests/chat/test_generation_preflight.py

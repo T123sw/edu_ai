@@ -174,3 +174,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: cancellation wins over timeout during stale-lease recovery. Cancellation persists `GENERATION_CANCELLED`; deadline expiry persists `GENERATION_DEADLINE_EXCEEDED`. Both codes are synchronized to the owner-scoped public job ledger.
 - Decision: success and partial-success transitions include an atomic cancellation/deadline guard. Reconciliation also refuses to adopt a previously published result for a canceled or expired task.
 - Result: expired queued work never invokes its handler, stale cancellation converges after restart, active leases retry only while their deadline remains valid, and a late cancellation cannot be overwritten by a success transition.
+
+### Plan 2 / Task 9 — Generation source preflight
+
+- Red evidence: all `7` endpoint-contract tests returned 404 before implementation.
+- Green evidence: the focused preflight suite has `7 passed`; the combined preflight, course authorization, source-contract/resolver, and lesson-plan route gate has `47 passed`.
+- Decision: preflight accepts the same nine resource identifiers used by the reliability matrix, but resource type does not change source validation. This keeps one source contract across report, lesson plan, blog, quiz, PPT, flashcard, graph, game, and classroom.
+- Decision: `course_auto` with zero ready documents is valid and returns `NO_READY_COURSE_DOCUMENTS` as a non-blocking warning. Explicit missing, cross-course, or non-ready selections remain blocking 422 responses with stable source error codes.
+- Result: `POST /api/chat/v2/generation/preflight` requires course `generate`, reads only catalog metadata through `GenerationSourceResolver.validate`, exposes no RAG keys, creates no durable job, and never reads document content or invokes a model.

@@ -12,6 +12,10 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from app.auth import get_current_user
+from app.api.course_dependencies import (
+    get_course_access_service,
+    require_course_capability,
+)
 from app.chat.api.schemas_v2 import (
     ChatDirectTaskSubmittedResponseV2,
     ChatQuizPrefillResponseV2,
@@ -34,22 +38,83 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectBlogRequestV2,
     KnowledgeBaseDirectReportRequestV2,
     KnowledgeBaseDirectLessonPlanRequestV2,
+    GenerationPreflightRequestV2,
+    GenerationPreflightResponseV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
 )
+from app.services.generation_source_errors import GenerationSourceError
+from app.services.course_access import CourseAccessService
 from core.config import Config
+from core.course_storage import CourseStorageManager
 
 
 router = APIRouter(prefix="/api/chat/v2", tags=["chat-v2"])
+
+
+def _get_generation_source_resolver():
+    from app.services.generation_task_handlers import (
+        build_default_generation_source_resolver,
+    )
+
+    return build_default_generation_source_resolver(CourseStorageManager())
 
 
 def _get_reply_service():
     from app.chat.application.reply_service_v2 import build_default_reply_service_v2
 
     return build_default_reply_service_v2()
+
+
+@router.post(
+    "/generation/preflight",
+    response_model=GenerationPreflightResponseV2,
+)
+def generation_preflight(
+    payload: GenerationPreflightRequestV2,
+    current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
+):
+    require_course_capability(
+        payload.course_id,
+        current_user,
+        "generate",
+        access_service,
+    )
+    try:
+        documents = _get_generation_source_resolver().validate(
+            payload.course_id,
+            payload.source_mode,
+            payload.selected_doc_ids,
+        )
+    except GenerationSourceError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": exc.code, "message": exc.message},
+        ) from exc
+
+    warnings = (
+        ["NO_READY_COURSE_DOCUMENTS"]
+        if payload.source_mode == "course_auto" and not documents
+        else []
+    )
+    return {
+        "valid": True,
+        "source_mode": payload.source_mode,
+        "ready_document_count": len(documents),
+        "documents": [
+            {
+                "document_id": item.document_id,
+                "name": item.name,
+                "chunk_count": item.chunk_count,
+            }
+            for item in documents
+        ],
+        "warnings": warnings,
+    }
 
 
 def _get_report_service():
