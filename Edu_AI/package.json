@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "export:classroom-video": "tsx scripts/export-classroom-video.ts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\""
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\"",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@antv/g6": "^5.0.51",

@@ -136,7 +136,7 @@ export type GenerationConfigDefinition<TConfig> = {
 **Interfaces:**
 - Produces: `pnpm test:e2e`, deterministic teacher login, fixed course/resource fixtures, and five viewport projects.
 
-- [ ] **Step 1: Add a failing smoke test for the current page set**
+- [x] **Step 1: Add a failing smoke test for the current page set**
 
 ```typescript
 import { expect, test } from "./fixtures/teacherApp";
@@ -152,7 +152,7 @@ test("teacher can traverse every core course page", async ({ teacherPage }) => {
 });
 ```
 
-- [ ] **Step 2: Add the browser test command and verify the smoke test exposes current navigation mismatches**
+- [x] **Step 2: Add the browser test command and verify the smoke test exposes current navigation mismatches**
 
 Add scripts:
 
@@ -169,7 +169,7 @@ pnpm test:e2e -- tests/e2e/page-baseline.spec.ts
 
 Expected: failure because the target navigation hierarchy and stable fixtures are not yet implemented.
 
-- [ ] **Step 3: Configure deterministic five-viewport projects**
+- [x] **Step 3: Configure deterministic five-viewport projects**
 
 ```typescript
 const viewports = {
@@ -183,11 +183,11 @@ const viewports = {
 
 Use one project per viewport, `colorScheme: "light"`, reduced motion, fixed locale `zh-CN`, fixed timezone `Asia/Shanghai`, and `webServer.command = "pnpm dev --host 127.0.0.1"`. The API fixture must intercept auth, course, knowledge, job, classroom, and resource calls with stable timestamps and IDs.
 
-- [ ] **Step 4: Capture an evidence inventory, not approval snapshots**
+- [x] **Step 4: Capture an evidence inventory, not approval snapshots**
 
 In `docs/qa/frontend-baseline-2026-08-06.md`, record each route, fixture, known defect, viewport, and initial screenshot filename. Baseline images are diagnostic; they do not become accepted golden snapshots until the corresponding task is complete.
 
-- [ ] **Step 5: Commit the reproducible browser harness**
+- [x] **Step 5: Commit the reproducible browser harness**
 
 ```powershell
 git add Edu_AI/package.json Edu_AI/playwright.config.ts Edu_AI/tests/e2e Edu_AI/docs/qa/frontend-baseline-2026-08-06.md
