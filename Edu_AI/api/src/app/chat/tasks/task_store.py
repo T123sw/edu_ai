@@ -6,9 +6,10 @@ import sqlite3
 import threading
 import time
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Callable, Optional
+from pathlib import Path, PureWindowsPath
+from typing import Any, Callable, Mapping, Optional
 
 # Default DB path: <repo>/api/data/tasks.db, overridable via env var.
 _DEFAULT_DB_PATH = os.getenv(
@@ -16,7 +17,34 @@ _DEFAULT_DB_PATH = os.getenv(
     str(Path(__file__).resolve().parents[4] / "data" / "tasks.db"),
 )
 
-TTL_SECONDS = 3600  # tasks expire after 1 hour
+TTL_SECONDS = 3600
+TERMINAL_TASK_STATUSES = (
+    "completed",
+    "succeeded",
+    "partially_succeeded",
+    "failed",
+    "canceled",
+)
+_SENSITIVE_COMMAND_KEYS = {
+    "api_key",
+    "apikey",
+    "authorization",
+    "credential",
+    "password",
+    "secret",
+    "token",
+    "access_token",
+    "refresh_token",
+}
+_SENSITIVE_COMMAND_SUFFIXES = (
+    "_api_key",
+    "_authorization",
+    "_credential",
+    "_password",
+    "_secret",
+    "_access_token",
+    "_refresh_token",
+)
 
 
 def _now_ts() -> float:
@@ -27,44 +55,612 @@ def _now_iso() -> str:
     return datetime.now().isoformat()
 
 
+def _json_load(value: Any) -> Any:
+    if not value:
+        return None
+    return json.loads(str(value))
+
+
+def _validate_command_payload(value: Any, *, path: str = "command") -> None:
+    if isinstance(value, Mapping):
+        for raw_key, item in value.items():
+            key = str(raw_key)
+            normalized_key = key.lower().replace("-", "_")
+            if (
+                normalized_key in _SENSITIVE_COMMAND_KEYS
+                or normalized_key.endswith(_SENSITIVE_COMMAND_SUFFIXES)
+            ):
+                raise ValueError(
+                    f"command payload contains sensitive field at {path}.{key}"
+                )
+            _validate_command_payload(item, path=f"{path}.{key}")
+        return
+    if isinstance(value, (list, tuple)):
+        for index, item in enumerate(value):
+            _validate_command_payload(item, path=f"{path}[{index}]")
+        return
+    if isinstance(value, str):
+        if (
+            value.startswith(("/", "\\"))
+            or Path(value).is_absolute()
+            or PureWindowsPath(value).is_absolute()
+        ):
+            raise ValueError(
+                f"command payload contains an absolute path at {path}"
+            )
+        return
+    if value is not None and not isinstance(value, (bool, int, float)):
+        raise ValueError(f"command payload is not JSON-safe at {path}")
+
+
+@dataclass(frozen=True)
+class DurableTask:
+    task_id: str
+    workflow_type: str
+    handler_version: int
+    owner_user_id: str
+    course_id: str | None
+    scope_type: str
+    scope_id: str | None
+    command: dict[str, Any] | None
+    config_snapshot_id: str | None
+    idempotency_key: str | None
+    status: str
+    attempt_count: int
+    max_attempts: int
+    available_at: float
+    lease_owner: str | None
+    lease_expires_at: float | None
+    heartbeat_at: float | None
+    cancel_requested: bool
+    progress: dict[str, Any] | None
+    result: dict[str, Any] | None
+    result_ref: dict[str, Any] | None
+    error_code: str | None
+    error: str | None
+    created_at: str
+    started_at: float | None
+    finished_at: float | None
+    updated_at: float
+
+
+@dataclass(frozen=True)
+class LeaseRecoverySummary:
+    requeued: int = 0
+    failed: int = 0
+
+
 class TaskStore:
     TTL_SECONDS = TTL_SECONDS
 
+    _MIGRATION_COLUMNS: dict[str, str] = {
+        "handler_version": "INTEGER NOT NULL DEFAULT 1",
+        "course_id": "TEXT",
+        "scope_type": "TEXT NOT NULL DEFAULT 'course'",
+        "scope_id": "TEXT",
+        "command_json": "TEXT",
+        "config_snapshot_id": "TEXT",
+        "idempotency_key": "TEXT",
+        "attempt_count": "INTEGER NOT NULL DEFAULT 0",
+        "max_attempts": "INTEGER NOT NULL DEFAULT 3",
+        "available_at": "REAL NOT NULL DEFAULT 0",
+        "lease_owner": "TEXT",
+        "lease_expires_at": "REAL",
+        "heartbeat_at": "REAL",
+        "cancel_requested": "INTEGER NOT NULL DEFAULT 0",
+        "result_ref_json": "TEXT",
+        "error_code": "TEXT",
+        "started_at": "REAL",
+        "finished_at": "REAL",
+    }
+
     def __init__(self, db_path: str = _DEFAULT_DB_PATH):
         self._db_path = str(db_path)
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._callbacks: dict[str, Callable] = {}
         Path(self._db_path).parent.mkdir(parents=True, exist_ok=True)
-        self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
+        self._conn = sqlite3.connect(
+            self._db_path,
+            check_same_thread=False,
+            timeout=5,
+        )
         self._conn.row_factory = sqlite3.Row
+        self._conn.execute("PRAGMA busy_timeout=5000")
+        self._conn.execute("PRAGMA journal_mode=WAL")
         self._init_db()
 
     def _init_db(self) -> None:
-        self._conn.execute("""
-            CREATE TABLE IF NOT EXISTS tasks (
-                task_id      TEXT PRIMARY KEY,
-                workflow_type TEXT NOT NULL DEFAULT '',
-                owner_user_id TEXT NOT NULL DEFAULT '',
-                status       TEXT NOT NULL DEFAULT 'pending',
-                result_json  TEXT,
-                error        TEXT,
-                progress_json TEXT,
-                created_at   TEXT NOT NULL,
-                updated_at   REAL NOT NULL
-            )
-        """)
-        columns = {
-            str(row[1])
-            for row in self._conn.execute("PRAGMA table_info(tasks)").fetchall()
-        }
-        if "owner_user_id" not in columns:
+        with self._lock:
             self._conn.execute(
-                "ALTER TABLE tasks ADD COLUMN owner_user_id TEXT NOT NULL DEFAULT ''"
+                """
+                CREATE TABLE IF NOT EXISTS tasks (
+                    task_id TEXT PRIMARY KEY,
+                    workflow_type TEXT NOT NULL DEFAULT '',
+                    owner_user_id TEXT NOT NULL DEFAULT '',
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    result_json TEXT,
+                    error TEXT,
+                    progress_json TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at REAL NOT NULL
+                )
+                """
             )
-        self._conn.commit()
+            columns = {
+                str(row[1])
+                for row in self._conn.execute(
+                    "PRAGMA table_info(tasks)"
+                ).fetchall()
+            }
+            if "owner_user_id" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE tasks ADD COLUMN "
+                    "owner_user_id TEXT NOT NULL DEFAULT ''"
+                )
+                columns.add("owner_user_id")
+            for name, declaration in self._MIGRATION_COLUMNS.items():
+                if name not in columns:
+                    self._conn.execute(
+                        f"ALTER TABLE tasks ADD COLUMN {name} {declaration}"
+                    )
+            self._conn.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS uq_tasks_idempotency
+                ON tasks(owner_user_id, workflow_type, idempotency_key)
+                WHERE idempotency_key IS NOT NULL AND idempotency_key <> ''
+                """
+            )
+            self._conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS ix_tasks_claim
+                ON tasks(status, available_at, created_at)
+                """
+            )
+            self._conn.commit()
 
     # ------------------------------------------------------------------
-    # Public interface
+    # Durable execution interface
+    # ------------------------------------------------------------------
+
+    def enqueue(
+        self,
+        *,
+        task_id: str,
+        workflow_type: str,
+        handler_version: int,
+        owner_user_id: str,
+        course_id: str | None,
+        scope_type: str,
+        scope_id: str | None,
+        command: dict[str, Any],
+        config_snapshot_id: str | None,
+        idempotency_key: str | None,
+        max_attempts: int = 3,
+        available_at: float | None = None,
+    ) -> DurableTask:
+        normalized_task_id = str(task_id or "").strip()
+        normalized_workflow = str(workflow_type or "").strip()
+        normalized_owner = str(owner_user_id or "").strip()
+        if not normalized_task_id:
+            raise ValueError("task_id is required")
+        if not normalized_workflow:
+            raise ValueError("workflow_type is required")
+        if not normalized_owner:
+            raise ValueError("owner_user_id is required")
+        if int(handler_version) < 1:
+            raise ValueError("handler_version must be positive")
+        if int(max_attempts) < 1:
+            raise ValueError("max_attempts must be positive")
+        _validate_command_payload(command)
+        try:
+            command_json = json.dumps(
+                command,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("command payload is not JSON-safe") from exc
+
+        normalized_idempotency_key = (
+            str(idempotency_key or "").strip() or None
+        )
+        now = _now_ts()
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                if normalized_idempotency_key:
+                    existing = self._conn.execute(
+                        """
+                        SELECT * FROM tasks
+                        WHERE owner_user_id=?
+                          AND workflow_type=?
+                          AND idempotency_key=?
+                        """,
+                        (
+                            normalized_owner,
+                            normalized_workflow,
+                            normalized_idempotency_key,
+                        ),
+                    ).fetchone()
+                    if existing is not None:
+                        self._conn.commit()
+                        return self._row_to_durable(existing)
+                self._conn.execute(
+                    """
+                    INSERT INTO tasks (
+                        task_id, workflow_type, handler_version,
+                        owner_user_id, course_id, scope_type, scope_id,
+                        command_json, config_snapshot_id, idempotency_key,
+                        status, attempt_count, max_attempts, available_at,
+                        cancel_requested, created_at, updated_at
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        'pending', 0, ?, ?, 0, ?, ?
+                    )
+                    """,
+                    (
+                        normalized_task_id,
+                        normalized_workflow,
+                        int(handler_version),
+                        normalized_owner,
+                        str(course_id or "").strip() or None,
+                        str(scope_type or "course").strip() or "course",
+                        str(scope_id or "").strip() or None,
+                        command_json,
+                        str(config_snapshot_id or "").strip() or None,
+                        normalized_idempotency_key,
+                        int(max_attempts),
+                        float(available_at if available_at is not None else now),
+                        _now_iso(),
+                        now,
+                    ),
+                )
+                row = self._conn.execute(
+                    "SELECT * FROM tasks WHERE task_id=?",
+                    (normalized_task_id,),
+                ).fetchone()
+                self._conn.commit()
+            except Exception:
+                self._conn.rollback()
+                raise
+        if row is None:
+            raise RuntimeError("durable task enqueue did not persist a row")
+        return self._row_to_durable(row)
+
+    def claim_next(
+        self,
+        *,
+        lease_owner: str,
+        lease_seconds: float,
+        now: float | None = None,
+    ) -> DurableTask | None:
+        normalized_owner = str(lease_owner or "").strip()
+        if not normalized_owner:
+            raise ValueError("lease_owner is required")
+        if float(lease_seconds) <= 0:
+            raise ValueError("lease_seconds must be positive")
+        active_now = float(now if now is not None else _now_ts())
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                candidate = self._conn.execute(
+                    """
+                    SELECT task_id FROM tasks
+                    WHERE status='pending'
+                      AND command_json IS NOT NULL
+                      AND cancel_requested=0
+                      AND available_at<=?
+                      AND attempt_count<max_attempts
+                    ORDER BY available_at ASC, created_at ASC, task_id ASC
+                    LIMIT 1
+                    """,
+                    (active_now,),
+                ).fetchone()
+                if candidate is None:
+                    self._conn.commit()
+                    return None
+                cursor = self._conn.execute(
+                    """
+                    UPDATE tasks
+                    SET status='leased',
+                        lease_owner=?,
+                        lease_expires_at=?,
+                        heartbeat_at=?,
+                        attempt_count=attempt_count+1,
+                        started_at=COALESCE(started_at, ?),
+                        updated_at=?
+                    WHERE task_id=? AND status='pending'
+                    """,
+                    (
+                        normalized_owner,
+                        active_now + float(lease_seconds),
+                        active_now,
+                        active_now,
+                        active_now,
+                        candidate["task_id"],
+                    ),
+                )
+                if cursor.rowcount != 1:
+                    self._conn.rollback()
+                    return None
+                row = self._conn.execute(
+                    "SELECT * FROM tasks WHERE task_id=?",
+                    (candidate["task_id"],),
+                ).fetchone()
+                self._conn.commit()
+            except Exception:
+                self._conn.rollback()
+                raise
+        return self._row_to_durable(row) if row is not None else None
+
+    def heartbeat(
+        self,
+        task_id: str,
+        *,
+        lease_owner: str,
+        lease_seconds: float,
+        now: float | None = None,
+    ) -> bool:
+        active_now = float(now if now is not None else _now_ts())
+        with self._lock:
+            cursor = self._conn.execute(
+                """
+                UPDATE tasks
+                SET heartbeat_at=?, lease_expires_at=?, updated_at=?
+                WHERE task_id=? AND status='leased' AND lease_owner=?
+                """,
+                (
+                    active_now,
+                    active_now + float(lease_seconds),
+                    active_now,
+                    task_id,
+                    str(lease_owner or "").strip(),
+                ),
+            )
+            self._conn.commit()
+        return cursor.rowcount == 1
+
+    def request_cancel(self, task_id: str, *, owner_user_id: str) -> bool:
+        owner = str(owner_user_id or "").strip()
+        now = _now_ts()
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                row = self._conn.execute(
+                    """
+                    SELECT status FROM tasks
+                    WHERE task_id=? AND owner_user_id=?
+                    """,
+                    (task_id, owner),
+                ).fetchone()
+                if row is None:
+                    self._conn.commit()
+                    return False
+                status = str(row["status"])
+                if status == "pending":
+                    self._conn.execute(
+                        """
+                        UPDATE tasks
+                        SET status='canceled', cancel_requested=1,
+                            finished_at=?, updated_at=?
+                        WHERE task_id=? AND status='pending'
+                        """,
+                        (now, now, task_id),
+                    )
+                elif status == "leased":
+                    self._conn.execute(
+                        """
+                        UPDATE tasks
+                        SET cancel_requested=1, updated_at=?
+                        WHERE task_id=? AND status='leased'
+                        """,
+                        (now, task_id),
+                    )
+                else:
+                    self._conn.commit()
+                    return False
+                self._conn.commit()
+                return True
+            except Exception:
+                self._conn.rollback()
+                raise
+
+    def is_cancel_requested(self, task_id: str) -> bool:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT cancel_requested FROM tasks WHERE task_id=?",
+                (task_id,),
+            ).fetchone()
+        return bool(row and row["cancel_requested"])
+
+    def mark_succeeded(
+        self,
+        task_id: str,
+        *,
+        lease_owner: str,
+        result: dict[str, Any],
+        result_ref: dict[str, Any],
+        now: float | None = None,
+    ) -> bool:
+        return self._finish_leased(
+            task_id,
+            lease_owner=lease_owner,
+            status="succeeded",
+            result=result,
+            result_ref=result_ref,
+            error_code=None,
+            error=None,
+            now=now,
+        )
+
+    def mark_partially_succeeded(
+        self,
+        task_id: str,
+        *,
+        lease_owner: str,
+        result: dict[str, Any],
+        result_ref: dict[str, Any],
+        error_code: str,
+        error: str,
+        now: float | None = None,
+    ) -> bool:
+        return self._finish_leased(
+            task_id,
+            lease_owner=lease_owner,
+            status="partially_succeeded",
+            result=result,
+            result_ref=result_ref,
+            error_code=error_code,
+            error=error,
+            now=now,
+        )
+
+    def mark_canceled(
+        self,
+        task_id: str,
+        *,
+        lease_owner: str,
+        now: float | None = None,
+    ) -> bool:
+        return self._finish_leased(
+            task_id,
+            lease_owner=lease_owner,
+            status="canceled",
+            result=None,
+            result_ref=None,
+            error_code=None,
+            error=None,
+            now=now,
+        )
+
+    def release_for_retry(
+        self,
+        task_id: str,
+        *,
+        lease_owner: str,
+        available_at: float,
+        error_code: str,
+        error: str,
+        now: float | None = None,
+    ) -> bool:
+        active_now = float(now if now is not None else _now_ts())
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                row = self._conn.execute(
+                    """
+                    SELECT attempt_count, max_attempts FROM tasks
+                    WHERE task_id=? AND status='leased' AND lease_owner=?
+                    """,
+                    (task_id, lease_owner),
+                ).fetchone()
+                if row is None:
+                    self._conn.commit()
+                    return False
+                exhausted = int(row["attempt_count"]) >= int(row["max_attempts"])
+                if exhausted:
+                    self._conn.execute(
+                        """
+                        UPDATE tasks
+                        SET status='failed', error_code='MAX_ATTEMPTS_EXCEEDED',
+                            error=?, lease_owner=NULL, lease_expires_at=NULL,
+                            heartbeat_at=NULL, finished_at=?, updated_at=?
+                        WHERE task_id=? AND status='leased' AND lease_owner=?
+                        """,
+                        (error, active_now, active_now, task_id, lease_owner),
+                    )
+                else:
+                    self._conn.execute(
+                        """
+                        UPDATE tasks
+                        SET status='pending', available_at=?,
+                            error_code=?, error=?, lease_owner=NULL,
+                            lease_expires_at=NULL, heartbeat_at=NULL,
+                            updated_at=?
+                        WHERE task_id=? AND status='leased' AND lease_owner=?
+                        """,
+                        (
+                            float(available_at),
+                            str(error_code or ""),
+                            str(error or ""),
+                            active_now,
+                            task_id,
+                            lease_owner,
+                        ),
+                    )
+                self._conn.commit()
+                return True
+            except Exception:
+                self._conn.rollback()
+                raise
+
+    def recover_expired_leases(
+        self,
+        *,
+        now: float | None = None,
+    ) -> LeaseRecoverySummary:
+        active_now = float(now if now is not None else _now_ts())
+        requeued = 0
+        failed = 0
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                rows = self._conn.execute(
+                    """
+                    SELECT task_id, attempt_count, max_attempts
+                    FROM tasks
+                    WHERE status='leased'
+                      AND lease_expires_at IS NOT NULL
+                      AND lease_expires_at<=?
+                    """,
+                    (active_now,),
+                ).fetchall()
+                for row in rows:
+                    if int(row["attempt_count"]) >= int(row["max_attempts"]):
+                        self._conn.execute(
+                            """
+                            UPDATE tasks
+                            SET status='failed', error_code='WORKER_LOST',
+                                error='Worker lease expired after maximum attempts',
+                                lease_owner=NULL, lease_expires_at=NULL,
+                                heartbeat_at=NULL, finished_at=?, updated_at=?
+                            WHERE task_id=? AND status='leased'
+                            """,
+                            (active_now, active_now, row["task_id"]),
+                        )
+                        failed += 1
+                    else:
+                        self._conn.execute(
+                            """
+                            UPDATE tasks
+                            SET status='pending', available_at=?,
+                                error_code='LEASE_EXPIRED',
+                                error='Worker lease expired; task requeued',
+                                lease_owner=NULL, lease_expires_at=NULL,
+                                heartbeat_at=NULL, updated_at=?
+                            WHERE task_id=? AND status='leased'
+                            """,
+                            (active_now, active_now, row["task_id"]),
+                        )
+                        requeued += 1
+                self._conn.commit()
+            except Exception:
+                self._conn.rollback()
+                raise
+        return LeaseRecoverySummary(requeued=requeued, failed=failed)
+
+    def get_durable(self, task_id: str) -> DurableTask | None:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM tasks WHERE task_id=?",
+                (task_id,),
+            ).fetchone()
+        return self._row_to_durable(row) if row is not None else None
+
+    # ------------------------------------------------------------------
+    # Legacy chat task compatibility interface
     # ------------------------------------------------------------------
 
     def create(
@@ -80,9 +676,20 @@ class TaskStore:
         now_ts = _now_ts()
         with self._lock:
             self._conn.execute(
-                "INSERT INTO tasks (task_id, workflow_type, owner_user_id, status, created_at, updated_at)"
-                " VALUES (?, ?, ?, 'pending', ?, ?)",
-                (task_id, workflow_type, str(owner_user_id or "").strip(), now_iso, now_ts),
+                """
+                INSERT INTO tasks (
+                    task_id, workflow_type, owner_user_id, status,
+                    available_at, created_at, updated_at
+                ) VALUES (?, ?, ?, 'pending', ?, ?, ?)
+                """,
+                (
+                    task_id,
+                    workflow_type,
+                    str(owner_user_id or "").strip(),
+                    now_ts,
+                    now_iso,
+                    now_ts,
+                ),
             )
             self._conn.commit()
             if on_complete:
@@ -99,12 +706,16 @@ class TaskStore:
             self._conn.commit()
 
     def mark_complete(self, task_id: str, result: dict) -> None:
-        callback = None
         result_json = json.dumps(result, ensure_ascii=False, default=str)
         with self._lock:
             self._conn.execute(
-                "UPDATE tasks SET status='completed', result_json=?, progress_json=NULL, updated_at=? WHERE task_id=?",
-                (result_json, _now_ts(), task_id),
+                """
+                UPDATE tasks
+                SET status='completed', result_json=?, progress_json=NULL,
+                    finished_at=?, updated_at=?
+                WHERE task_id=?
+                """,
+                (result_json, _now_ts(), _now_ts(), task_id),
             )
             self._conn.commit()
             callback = self._callbacks.pop(task_id, None)
@@ -114,41 +725,82 @@ class TaskStore:
             except Exception:
                 pass
 
-    def mark_failed(self, task_id: str, error: str) -> None:
+    def mark_failed(
+        self,
+        task_id: str,
+        error: str | None = None,
+        *,
+        lease_owner: str | None = None,
+        error_code: str | None = None,
+        now: float | None = None,
+    ) -> bool | None:
+        if lease_owner is not None:
+            return self._finish_leased(
+                task_id,
+                lease_owner=lease_owner,
+                status="failed",
+                result=None,
+                result_ref=None,
+                error_code=error_code or "TASK_FAILED",
+                error=error or "Task failed",
+                now=now,
+            )
+        active_now = float(now if now is not None else _now_ts())
         with self._lock:
             self._conn.execute(
-                "UPDATE tasks SET status='failed', error=?, updated_at=? WHERE task_id=?",
-                (str(error), _now_ts(), task_id),
+                """
+                UPDATE tasks
+                SET status='failed', error_code=?, error=?,
+                    finished_at=?, updated_at=?
+                WHERE task_id=?
+                """,
+                (
+                    str(error_code or "") or None,
+                    str(error or ""),
+                    active_now,
+                    active_now,
+                    task_id,
+                ),
             )
             self._conn.commit()
+        return None
 
     def update_progress(self, task_id: str, progress: dict) -> None:
-        """Write intermediate progress without changing the task status."""
         progress_json = json.dumps(progress, ensure_ascii=False, default=str)
         with self._lock:
             self._conn.execute(
-                "UPDATE tasks SET progress_json=?, updated_at=? WHERE task_id=? AND status='running'",
+                """
+                UPDATE tasks SET progress_json=?, updated_at=?
+                WHERE task_id=? AND status IN ('running', 'leased')
+                """,
                 (progress_json, _now_ts(), task_id),
             )
             self._conn.commit()
 
     def get(
-        self, task_id: str, *, owner_user_id: Optional[str] = None
+        self,
+        task_id: str,
+        *,
+        owner_user_id: Optional[str] = None,
     ) -> Optional[dict]:
         with self._lock:
             if owner_user_id is None:
                 row = self._conn.execute(
-                    "SELECT * FROM tasks WHERE task_id=?", (task_id,)
+                    "SELECT * FROM tasks WHERE task_id=?",
+                    (task_id,),
                 ).fetchone()
             else:
                 row = self._conn.execute(
-                    "SELECT * FROM tasks WHERE task_id=? AND owner_user_id=?",
+                    """
+                    SELECT * FROM tasks
+                    WHERE task_id=? AND owner_user_id=?
+                    """,
                     (task_id, str(owner_user_id or "").strip()),
                 ).fetchone()
         if row is None:
             return None
-        result = json.loads(row["result_json"]) if row["result_json"] else None
-        progress = json.loads(row["progress_json"]) if row["progress_json"] else None
+        result = _json_load(row["result_json"])
+        progress = _json_load(row["progress_json"])
         out: dict[str, Any] = {
             "task_id": row["task_id"],
             "workflow_type": row["workflow_type"],
@@ -163,27 +815,138 @@ class TaskStore:
         return out
 
     # ------------------------------------------------------------------
-    # Internal
+    # Internal helpers
     # ------------------------------------------------------------------
 
-    def _cleanup(self) -> None:
-        cutoff = _now_ts() - self.TTL_SECONDS
+    def _finish_leased(
+        self,
+        task_id: str,
+        *,
+        lease_owner: str,
+        status: str,
+        result: dict[str, Any] | None,
+        result_ref: dict[str, Any] | None,
+        error_code: str | None,
+        error: str | None,
+        now: float | None,
+    ) -> bool:
+        active_now = float(now if now is not None else _now_ts())
+        result_json = (
+            json.dumps(result, ensure_ascii=False, default=str)
+            if result is not None
+            else None
+        )
+        result_ref_json = (
+            json.dumps(result_ref, ensure_ascii=False, default=str)
+            if result_ref is not None
+            else None
+        )
+        with self._lock:
+            cursor = self._conn.execute(
+                """
+                UPDATE tasks
+                SET status=?, result_json=?, result_ref_json=?,
+                    error_code=?, error=?, lease_owner=NULL,
+                    lease_expires_at=NULL, heartbeat_at=NULL,
+                    finished_at=?, updated_at=?
+                WHERE task_id=? AND status='leased' AND lease_owner=?
+                """,
+                (
+                    status,
+                    result_json,
+                    result_ref_json,
+                    error_code,
+                    error,
+                    active_now,
+                    active_now,
+                    task_id,
+                    str(lease_owner or "").strip(),
+                ),
+            )
+            self._conn.commit()
+        return cursor.rowcount == 1
+
+    @staticmethod
+    def _row_to_durable(row: sqlite3.Row) -> DurableTask:
+        return DurableTask(
+            task_id=str(row["task_id"]),
+            workflow_type=str(row["workflow_type"] or ""),
+            handler_version=int(row["handler_version"] or 1),
+            owner_user_id=str(row["owner_user_id"] or ""),
+            course_id=str(row["course_id"] or "").strip() or None,
+            scope_type=str(row["scope_type"] or "course"),
+            scope_id=str(row["scope_id"] or "").strip() or None,
+            command=_json_load(row["command_json"]),
+            config_snapshot_id=(
+                str(row["config_snapshot_id"] or "").strip() or None
+            ),
+            idempotency_key=(
+                str(row["idempotency_key"] or "").strip() or None
+            ),
+            status=str(row["status"]),
+            attempt_count=int(row["attempt_count"] or 0),
+            max_attempts=int(row["max_attempts"] or 3),
+            available_at=float(row["available_at"] or 0),
+            lease_owner=str(row["lease_owner"] or "").strip() or None,
+            lease_expires_at=(
+                float(row["lease_expires_at"])
+                if row["lease_expires_at"] is not None
+                else None
+            ),
+            heartbeat_at=(
+                float(row["heartbeat_at"])
+                if row["heartbeat_at"] is not None
+                else None
+            ),
+            cancel_requested=bool(row["cancel_requested"]),
+            progress=_json_load(row["progress_json"]),
+            result=_json_load(row["result_json"]),
+            result_ref=_json_load(row["result_ref_json"]),
+            error_code=str(row["error_code"] or "").strip() or None,
+            error=str(row["error"] or "").strip() or None,
+            created_at=str(row["created_at"]),
+            started_at=(
+                float(row["started_at"])
+                if row["started_at"] is not None
+                else None
+            ),
+            finished_at=(
+                float(row["finished_at"])
+                if row["finished_at"] is not None
+                else None
+            ),
+            updated_at=float(row["updated_at"]),
+        )
+
+    def _cleanup(self, *, now: float | None = None) -> None:
+        cutoff = float(now if now is not None else _now_ts()) - self.TTL_SECONDS
+        placeholders = ",".join("?" for _ in TERMINAL_TASK_STATUSES)
         with self._lock:
             expired = [
                 row[0]
                 for row in self._conn.execute(
-                    "SELECT task_id FROM tasks WHERE updated_at < ?", (cutoff,)
+                    f"""
+                    SELECT task_id FROM tasks
+                    WHERE status IN ({placeholders}) AND updated_at < ?
+                    """,
+                    (*TERMINAL_TASK_STATUSES, cutoff),
                 ).fetchall()
             ]
-            for tid in expired:
-                self._callbacks.pop(tid, None)
-            self._conn.execute("DELETE FROM tasks WHERE updated_at < ?", (cutoff,))
+            for task_id in expired:
+                self._callbacks.pop(task_id, None)
+            self._conn.execute(
+                f"""
+                DELETE FROM tasks
+                WHERE status IN ({placeholders}) AND updated_at < ?
+                """,
+                (*TERMINAL_TASK_STATUSES, cutoff),
+            )
             self._conn.commit()
 
+    def close(self) -> None:
+        with self._lock:
+            self._conn.close()
 
-# ------------------------------------------------------------------
-# Singleton — lazy so DB is created on first use, not at import time.
-# ------------------------------------------------------------------
 
 _store: Optional[TaskStore] = None
 _store_init_lock = threading.Lock()
