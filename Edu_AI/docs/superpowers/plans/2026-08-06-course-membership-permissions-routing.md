@@ -62,7 +62,7 @@
 - Produces: `CourseRole`, `CourseMembership`, `CourseMembershipStore.get()`, `.upsert()`, `.list_for_user()`, `.list_for_course()`, `.delete()`.
 - Storage shape: `{ "schema_version": 1, "memberships": [{ "course_id": "course-1", "user_id": "teacher-a", "role": "editor", "joined_at": "2026-08-06T09:00:00+08:00", "added_by": "system" }] }` at `Config.STORAGE_ROOT / "course_memberships.json"`.
 
-- [ ] **Step 1: Write failing repository tests**
+- [x] **Step 1: Write failing repository tests**
 
 ```python
 from app.services.course_membership_store import CourseMembershipStore
@@ -88,7 +88,7 @@ def test_list_for_user_does_not_leak_other_users(tmp_path):
     assert [item.course_id for item in store.list_for_user("teacher-a")] == ["course-1"]
 ```
 
-- [ ] **Step 2: Run the tests and confirm the module is missing**
+- [x] **Step 2: Run the tests and confirm the module is missing**
 
 Run from `Edu_AI/api/src`:
 
@@ -98,7 +98,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_store.
 
 Expected: collection fails because `app.services.course_membership_store` does not exist.
 
-- [ ] **Step 3: Implement the repository with atomic replacement**
+- [x] **Step 3: Implement the repository with atomic replacement**
 
 ```python
 CourseRole = Literal["owner", "editor", "viewer"]
@@ -152,7 +152,7 @@ class CourseMembershipStore:
 
 Implement `_read()`, `_read_unlocked()`, and `_write_unlocked()` in the same file. `_write_unlocked()` serializes the exact schema above to `.<name>.<uuid>.tmp`, calls `flush()` and `os.fsync()`, then `os.replace()`. Normalize IDs with `strip()` and sort stored records by `(course_id, user_id)`.
 
-- [ ] **Step 4: Run repository tests**
+- [x] **Step 4: Run repository tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_store.py -q
@@ -160,7 +160,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_store.
 
 Expected: all tests pass and a reopened store sees the same record.
 
-- [ ] **Step 5: Commit the repository**
+- [x] **Step 5: Commit the repository**
 
 ```powershell
 git add Edu_AI/api/src/app/services/course_membership_store.py Edu_AI/api/src/tests/test_course_membership_store.py
@@ -178,7 +178,7 @@ git commit -m "feat: add course membership repository"
 - Consumes: `CourseMembershipStore.get(course_id, user_id)` from Task 1.
 - Produces: `CourseCapability`, `CourseAccessService.require()`, `CoursePrincipal`, `require_course_read`, `require_course_edit`, `require_course_owner`.
 
-- [ ] **Step 1: Write the access matrix tests**
+- [x] **Step 1: Write the access matrix tests**
 
 ```python
 import pytest
@@ -212,7 +212,7 @@ def test_course_access_matrix(store, role, capability, allowed):
             service.require("course-1", {"username": "user-a", "role": "teacher"}, capability)
 ```
 
-- [ ] **Step 2: Verify the access tests fail**
+- [x] **Step 2: Verify the access tests fail**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_access.py -q
@@ -220,7 +220,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_access.py -q
 
 Expected: import failure for `course_access`.
 
-- [ ] **Step 3: Implement the service and HTTP adapters**
+- [x] **Step 3: Implement the service and HTTP adapters**
 
 ```python
 CourseCapability = Literal["read", "edit", "generate", "manage_resources", "manage_members", "delete_course"]
@@ -257,7 +257,7 @@ class CourseAccessService:
 
 In `course_dependencies.py`, map missing membership and denied capability to HTTP 403. Authentication continues to come from `app.auth.get_current_user`; do not return 404 to conceal courses in this small development environment.
 
-- [ ] **Step 4: Run access and dependency tests**
+- [x] **Step 4: Run access and dependency tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_access.py -q
@@ -265,7 +265,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_access.py -q
 
 Expected: the full role/capability matrix passes.
 
-- [ ] **Step 5: Commit the authorization boundary**
+- [x] **Step 5: Commit the authorization boundary**
 
 ```powershell
 git add Edu_AI/api/src/app/services/course_access.py Edu_AI/api/src/app/api/course_dependencies.py Edu_AI/api/src/tests/test_course_access.py
@@ -286,7 +286,7 @@ git commit -m "feat: enforce course capabilities"
 - Consumes: `CourseMembershipStore` and `user_storage.list_users()`.
 - Produces: `CourseMembershipBootstrap.sync_existing()`, `.on_user_created()`, `.on_course_created()`.
 
-- [ ] **Step 1: Write auto-enrollment tests**
+- [x] **Step 1: Write auto-enrollment tests**
 
 ```python
 def test_sync_existing_assigns_development_roles(tmp_path):
@@ -307,7 +307,7 @@ def test_disabled_mode_creates_nothing(tmp_path):
     assert bootstrap.sync_existing(users=[{"username": "t1", "role": "teacher"}], course_ids=["c1"]).created == 0
 ```
 
-- [ ] **Step 2: Run and observe the missing bootstrap class**
+- [x] **Step 2: Run and observe the missing bootstrap class**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_bootstrap.py -q
@@ -315,7 +315,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_bootst
 
 Expected: import failure.
 
-- [ ] **Step 3: Implement configuration, hooks, and migration CLI**
+- [x] **Step 3: Implement configuration, hooks, and migration CLI**
 
 Add to `Config`:
 
@@ -333,7 +333,7 @@ D:\anaconda\envs\edu-ai\python.exe -m scripts.migrate_course_memberships --apply
 
 Call `sync_existing()` once during FastAPI lifespan startup, after default courses exist and before workers start. After a successful public registration call `on_user_created(user)`. Course creation integration is added in Task 4.
 
-- [ ] **Step 4: Verify idempotency and disabled behavior**
+- [x] **Step 4: Verify idempotency and disabled behavior**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_bootstrap.py -q
@@ -341,7 +341,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_bootst
 
 Expected: running `sync_existing()` twice produces zero new records on the second run.
 
-- [ ] **Step 5: Commit auto-enrollment**
+- [x] **Step 5: Commit auto-enrollment**
 
 ```powershell
 git add Edu_AI/api/src/core/config.py Edu_AI/api/src/app/services/course_membership_bootstrap.py Edu_AI/api/src/scripts/migrate_course_memberships.py Edu_AI/api/src/app/bootstrap.py Edu_AI/api/src/app/auth.py Edu_AI/api/src/tests/test_course_membership_bootstrap.py
@@ -362,7 +362,7 @@ git commit -m "feat: auto enroll development course members"
 - Consumes: `CourseAccessService`, membership bootstrap from Tasks 2–3.
 - Produces: course response fields `revision`, `membership_role`, `created_by`, `created_at`, `updated_at`; `CourseUpdateRequest` with editable fields plus `expected_revision`; compare-and-swap update.
 
-- [ ] **Step 1: Write secured CRUD and stale revision tests**
+- [x] **Step 1: Write secured CRUD and stale revision tests**
 
 ```python
 def test_course_list_requires_auth_and_returns_membership_role(course_api):
@@ -383,7 +383,7 @@ def test_stale_course_revision_returns_409(course_api):
     assert stale.json()["detail"]["code"] == "COURSE_REVISION_CONFLICT"
 ```
 
-- [ ] **Step 2: Run the CRUD tests and confirm current public access fails expectations**
+- [x] **Step 2: Run the CRUD tests and confirm current public access fails expectations**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_crud_permissions.py -q
@@ -391,7 +391,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_crud_permissions.
 
 Expected: anonymous list currently returns 200 and stale writes overwrite.
 
-- [ ] **Step 3: Implement compare-and-swap and membership-filtered responses**
+- [x] **Step 3: Implement compare-and-swap and membership-filtered responses**
 
 Add a storage result instead of a boolean-only write:
 
@@ -418,7 +418,7 @@ Legacy courses normalize to revision `0`. `list_courses()` filters through `list
 
 In `course_api_test_support.py`, implement `CourseApiTestFactory` with one shared temporary `CourseStorageManager`, membership store, and access service. `client_for(username, system_role)` builds a small FastAPI app containing `courses.router`, overrides `get_current_user` with that identity, and injects the shared stores; `anonymous()` builds the same app without an auth override. Also implement `course_update_payload(course, title=course["title"])` to copy only `title`, `description`, `icon`, `color`, `objectives`, `knowledgeGraph`, and `expected_revision=course["revision"]`. Expose a local pytest fixture as `course_api = CourseApiTestFactory(tmp_path)` in each test file that uses it.
 
-- [ ] **Step 4: Run CRUD and existing course scope tests**
+- [x] **Step 4: Run CRUD and existing course scope tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_crud_permissions.py tests/chat/test_course_scope_routes.py -q
@@ -426,7 +426,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_crud_permissions.
 
 Expected: 401/403/409 behavior passes and existing scope filters remain green.
 
-- [ ] **Step 5: Commit secured course CRUD**
+- [x] **Step 5: Commit secured course CRUD**
 
 ```powershell
 git add Edu_AI/api/src/core/course_storage.py Edu_AI/api/src/app/schemas/course.py Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/app/services/course_service.py Edu_AI/api/src/tests/course_api_test_support.py Edu_AI/api/src/tests/test_course_crud_permissions.py
@@ -448,7 +448,7 @@ git commit -m "feat: secure revisioned course CRUD"
 - Consumes: course authorization from Task 2.
 - Produces: manifest fields `created_by`, `visibility`, `source_mode`, `source_snapshot`; storage queries no longer use owner as the course visibility filter.
 
-- [ ] **Step 1: Replace owner-isolation tests with course visibility tests**
+- [x] **Step 1: Replace owner-isolation tests with course visibility tests**
 
 ```python
 def test_course_material_is_readable_by_another_course_editor(tmp_path):
@@ -473,7 +473,7 @@ def test_private_material_still_requires_creator(tmp_path):
     assert manager.get_generated_material("course-1", "quiz", "draft-1", requester_user_id="teacher-b") is None
 ```
 
-- [ ] **Step 2: Run the material tests and confirm current owner filtering fails**
+- [x] **Step 2: Run the material tests and confirm current owner filtering fails**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/core/test_course_material_permissions.py -q
@@ -481,7 +481,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/core/test_course_material_per
 
 Expected: the shared editor read fails under current `_material_owner_matches` behavior.
 
-- [ ] **Step 3: Implement new manifest semantics and legacy normalization**
+- [x] **Step 3: Implement new manifest semantics and legacy normalization**
 
 Extend `save_generated_material()` with:
 
@@ -491,7 +491,7 @@ visibility: Literal["course", "private"] = "course"
 
 Normalize legacy `owner_user_id` to `created_by`, retain `owner_user_id` as a read-compatible alias for one release, and treat legacy owned formal materials as `visibility="course"`. API routes call `course_access.require(course_id, current_user, "read")` or `course_access.require(course_id, current_user, "manage_resources")` before storage access. Private lookup additionally supplies `requester_user_id`.
 
-- [ ] **Step 4: Run material, manifest, completion, and reconciliation tests**
+- [x] **Step 4: Run material, manifest, completion, and reconciliation tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/core/test_course_material_permissions.py tests/core/test_course_material_manifest.py tests/test_job_completion_service.py tests/test_job_reconciliation_service.py -q
@@ -499,7 +499,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/core/test_course_material_per
 
 Expected: shared materials are visible to course editors; provenance and read-back validation still pass.
 
-- [ ] **Step 5: Commit shared course resources**
+- [x] **Step 5: Commit shared course resources**
 
 ```powershell
 git add Edu_AI/api/src/core/course_storage.py Edu_AI/api/src/app/schemas/course.py Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/app/services/generation_task_handlers.py Edu_AI/api/src/app/services/job_reconciliation_service.py Edu_AI/api/src/tests/core/test_course_material_permissions.py Edu_AI/api/src/tests/core/test_course_material_manifest.py
@@ -518,7 +518,7 @@ git commit -m "feat: share generated materials with course members"
 - Consumes: `CourseAccessService.require()` and `CoursePrincipal`.
 - Produces: consistent 401/403 behavior for every endpoint under `/api/courses/{course_id}/`.
 
-- [ ] **Step 1: Add a parameterized route authorization test**
+- [x] **Step 1: Add a parameterized route authorization test**
 
 ```python
 @pytest.mark.parametrize(
@@ -536,7 +536,7 @@ def test_viewer_cannot_mutate_course_content(course_api, method, path):
     assert response.status_code == 403
 ```
 
-- [ ] **Step 2: Run the authorization test and capture currently open routes**
+- [x] **Step 2: Run the authorization test and capture currently open routes**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_route_authorization.py -q
@@ -544,7 +544,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_route_authorizati
 
 Expected: at least knowledge graph or course CRUD mutation is incorrectly allowed.
 
-- [ ] **Step 3: Add read/edit/generate/manage checks route by route**
+- [x] **Step 3: Add read/edit/generate/manage checks route by route**
 
 Use this mapping:
 
@@ -558,7 +558,7 @@ DELETE course or membership mutation -> owner-only capability
 
 Do not pass `owner_user_id` to filter course resources. Continue recording it as the creator of tasks and artifacts.
 
-- [ ] **Step 4: Run all course, classroom, graph, and material tests**
+- [x] **Step 4: Run all course, classroom, graph, and material tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_route_authorization.py tests/chat/test_course_scope_routes.py tests/chat/test_textbook_knowledge_graph_routes.py tests/test_classroom_job_service.py tests/core/test_course_material_permissions.py -q
@@ -566,7 +566,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_route_authorizati
 
 Expected: viewer writes return 403 and editor workflows remain successful.
 
-- [ ] **Step 5: Commit complete course route authorization**
+- [x] **Step 5: Commit complete course route authorization**
 
 ```powershell
 git add Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/app/services/classroom_service.py Edu_AI/api/src/app/services/classroom_job_service.py Edu_AI/api/src/tests/test_course_route_authorization.py
@@ -589,7 +589,7 @@ git commit -m "feat: authorize all course content routes"
 - Consumes: course response `membership_role` and login response `user`.
 - Produces: `useCourseRoute()` and `canCourse(role, capability)`.
 
-- [ ] **Step 1: Write route authority and permission tests**
+- [x] **Step 1: Write route authority and permission tests**
 
 ```typescript
 import assert from "node:assert/strict";
@@ -607,7 +607,7 @@ test("viewer is read-only", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused frontend tests**
+- [x] **Step 2: Run the focused frontend tests**
 
 ```powershell
 pnpm --dir Edu_AI test -- src/stitch/course/CourseRouteProvider.test.ts
@@ -615,7 +615,7 @@ pnpm --dir Edu_AI test -- src/stitch/course/CourseRouteProvider.test.ts
 
 Expected: missing module failure.
 
-- [ ] **Step 3: Implement session and course route contexts**
+- [x] **Step 3: Implement session and course route contexts**
 
 ```typescript
 export type CourseRole = "owner" | "editor" | "viewer";
@@ -633,7 +633,7 @@ export type CourseRouteValue = {
 
 `App.tsx` initializes `AuthUser` from verified token/login response, mounts `CourseRouteProvider`, and removes the effect that asynchronously overwrites `selectedCourse` after a route is already rendered. Remembered course is only consulted when navigating from `#home` without a course ID.
 
-- [ ] **Step 4: Run route, auth restore, and production build checks**
+- [x] **Step 4: Run route, auth restore, and production build checks**
 
 ```powershell
 pnpm --dir Edu_AI test -- src/stitch/course/CourseRouteProvider.test.ts src/stitch/teacherRoutes.test.ts
@@ -642,7 +642,7 @@ pnpm --dir Edu_AI build
 
 Expected: tests pass and TypeScript build succeeds.
 
-- [ ] **Step 5: Commit the route contexts**
+- [x] **Step 5: Commit the route contexts**
 
 ```powershell
 git add Edu_AI/src/stitch/authSession.ts Edu_AI/src/stitch/course/CourseRouteProvider.tsx Edu_AI/src/stitch/course/coursePermissions.ts Edu_AI/src/stitch/App.tsx Edu_AI/src/stitch/shared.tsx Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/api/courses.ts Edu_AI/src/stitch/course/CourseRouteProvider.test.ts
@@ -666,7 +666,7 @@ git commit -m "feat: derive course context from route"
 - Consumes: `useCourseRoute()`, `canCourse()`, `buildTeacherCourseHash()`.
 - Produces: stable deep links and read-only viewer rendering.
 
-- [ ] **Step 1: Extend route tests for every course page**
+- [x] **Step 1: Extend route tests for every course page**
 
 ```typescript
 test("course detail and graph workspace links preserve course identity", () => {
@@ -677,7 +677,7 @@ test("course detail and graph workspace links preserve course identity", () => {
 
 Add source assertions proving `KnowledgeGraph.tsx` passes `course_id`, `ClassroomStudio.tsx` returns to `course-detail`, and viewer pages do not render a save trigger.
 
-- [ ] **Step 2: Run route and rendering tests to reproduce failures**
+- [x] **Step 2: Run route and rendering tests to reproduce failures**
 
 ```powershell
 pnpm --dir Edu_AI test -- src/stitch/teacherRoutes.test.ts tests/frontend/knowledgeGraphWorkspaceJump.test.ts tests/frontend/coursePermissionRendering.test.ts
@@ -685,11 +685,11 @@ pnpm --dir Edu_AI test -- src/stitch/teacherRoutes.test.ts tests/frontend/knowle
 
 Expected: `course-detail` is not accepted by the current route type; return targets or viewer controls fail assertions.
 
-- [ ] **Step 3: Replace implicit/fallback links and gate mutations**
+- [x] **Step 3: Replace implicit/fallback links and gate mutations**
 
 Add `course-detail` to `TeacherCourseRoute`. Build every course link with `buildTeacherCourseHash`. In `CourseEdit`, render values as text for viewers and do not mount the submit button. If a role changes while the page is open, discard unsaved editor state and switch to read-only.
 
-- [ ] **Step 4: Run frontend regression and build**
+- [x] **Step 4: Run frontend regression and build**
 
 ```powershell
 pnpm --dir Edu_AI test
@@ -698,7 +698,7 @@ pnpm --dir Edu_AI build
 
 Expected: all Node tests and the Vite production build pass.
 
-- [ ] **Step 5: Commit canonical navigation and permission rendering**
+- [x] **Step 5: Commit canonical navigation and permission rendering**
 
 ```powershell
 git add Edu_AI/src/stitch/teacherRoutes.ts Edu_AI/src/stitch/teacherRoutes.test.ts Edu_AI/src/stitch/pages/CourseDetail.tsx Edu_AI/src/stitch/pages/CourseEdit.tsx Edu_AI/src/stitch/pages/KnowledgeGraph.tsx Edu_AI/src/stitch/pages/ClassroomStudio.tsx Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/tests/frontend/knowledgeGraphWorkspaceJump.test.ts Edu_AI/tests/frontend/coursePermissionRendering.test.ts
@@ -716,7 +716,7 @@ git commit -m "fix: preserve course identity across teacher routes"
 - Consumes: all previous tasks.
 - Produces: executable acceptance coverage for shared edits, shared resources, viewer denial, and route reload behavior.
 
-- [ ] **Step 1: Write the backend collaboration scenario**
+- [x] **Step 1: Write the backend collaboration scenario**
 
 ```python
 def test_two_teachers_share_course_and_student_is_read_only(course_api):
@@ -732,7 +732,7 @@ def test_two_teachers_share_course_and_student_is_read_only(course_api):
 
 Extend it with a saved report material created by A and read by B.
 
-- [ ] **Step 2: Run focused acceptance tests**
+- [x] **Step 2: Run focused acceptance tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_collaboration_acceptance.py -q
@@ -741,7 +741,7 @@ pnpm --dir Edu_AI test -- tests/frontend/courseRouteAcceptance.test.ts
 
 Expected: both acceptance files pass.
 
-- [ ] **Step 3: Run the full affected backend suite**
+- [x] **Step 3: Run the full affected backend suite**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_store.py tests/test_course_access.py tests/test_course_membership_bootstrap.py tests/test_course_crud_permissions.py tests/test_course_route_authorization.py tests/test_course_collaboration_acceptance.py tests/core/test_course_material_permissions.py tests/chat/test_course_scope_routes.py -q
@@ -749,7 +749,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_membership_store.
 
 Expected: all tests pass with no live server or network dependency.
 
-- [ ] **Step 4: Run the full frontend quality gate**
+- [x] **Step 4: Run the full frontend quality gate**
 
 ```powershell
 pnpm --dir Edu_AI test
@@ -759,7 +759,7 @@ pnpm --dir Edu_AI build
 
 Expected: tests, lint, and build pass; any pre-existing unrelated warning is recorded separately and not hidden.
 
-- [ ] **Step 5: Commit acceptance evidence**
+- [x] **Step 5: Commit acceptance evidence**
 
 ```powershell
 git add Edu_AI/api/src/tests/test_course_collaboration_acceptance.py Edu_AI/tests/frontend/courseRouteAcceptance.test.ts Edu_AI/docs/superpowers/specs/2026-08-06-course-centered-teacher-experience-design.md

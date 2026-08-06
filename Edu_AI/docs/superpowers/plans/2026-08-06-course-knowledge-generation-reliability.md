@@ -126,7 +126,7 @@ API error codes introduced by this plan:
 - Consumes: `KnowledgeDocumentService.list_documents(course_id)` and document content providers.
 - Produces: `GenerationSourceResolver.resolve(course_id, mode, selected_document_ids)` returning `ResolvedGenerationSource`.
 
-- [ ] **Step 1: Write failing source-resolution tests**
+- [x] **Step 1: Write failing source-resolution tests**
 
 ```python
 def test_selected_documents_resolve_public_ids_to_rag_keys(resolver, catalog):
@@ -154,7 +154,7 @@ def test_selected_processing_document_fails_with_stable_code(resolver, catalog):
 
 Define `FakeDocumentCatalog` and `FakeDocumentContentReader` in this test file. The `resolver` fixture injects both and a fixed UTC clock; the fakes expose `calls` lists so the `none` test proves there were no hidden reads.
 
-- [ ] **Step 2: Run the focused test and verify the module is absent**
+- [x] **Step 2: Run the focused test and verify the module is absent**
 
 Run from `Edu_AI/api/src`:
 
@@ -164,7 +164,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_resolv
 
 Expected: collection fails because `generation_source_resolver` does not exist.
 
-- [ ] **Step 3: Implement strict mode validation and deterministic ordering**
+- [x] **Step 3: Implement strict mode validation and deterministic ordering**
 
 Implement:
 
@@ -228,7 +228,7 @@ class GenerationSourceResolver:
 
 For `course_auto`, call `ready_documents(course_id, None)` and include all ready documents in stable public-ID order. Limit concatenated context with the existing RAG budget rather than truncating individual files at arbitrary byte boundaries.
 
-- [ ] **Step 4: Verify all source modes and error codes**
+- [x] **Step 4: Verify all source modes and error codes**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_resolver.py tests/chat/test_rag_v2_document_resolver.py tests/chat/test_rag_v2_provider_document_resolution.py -q
@@ -236,7 +236,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_resolv
 
 Expected: public IDs resolve to RAG keys, `none` performs no reads, and invalid selections fail before generation.
 
-- [ ] **Step 5: Commit the resolver boundary**
+- [x] **Step 5: Commit the resolver boundary**
 
 ```powershell
 git add Edu_AI/api/src/app/services/generation_source_errors.py Edu_AI/api/src/app/services/generation_source_resolver.py Edu_AI/api/src/tests/test_generation_source_resolver.py
@@ -256,7 +256,7 @@ git commit -m "feat: resolve course generation sources"
 - Consumes: `GenerationSourceMode` from Task 1.
 - Produces: one `GenerationSourceRequest` mixed into report, lesson plan, blog, quiz, PPT, flashcard, graph, and game requests.
 
-- [ ] **Step 1: Add contract tests for valid and invalid request combinations**
+- [x] **Step 1: Add contract tests for valid and invalid request combinations**
 
 ```python
 @pytest.mark.parametrize("path", DIRECT_GENERATION_PATHS)
@@ -281,7 +281,7 @@ def test_selected_mode_requires_documents(client, path):
 
 For this task, `DIRECT_GENERATION_PATHS` enumerates the eight existing direct routes. Task 5 adds `/api/chat/v2/lesson-plan/direct` to the same constant and reruns this contract after the endpoint exists.
 
-- [ ] **Step 2: Run the request contract and observe current minimum-length failures**
+- [x] **Step 2: Run the request contract and observe current minimum-length failures**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_source_contract.py tests/chat/test_generation_command.py -q
@@ -289,7 +289,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_source_c
 
 Expected: `none` fails for schemas that currently require at least one selected document.
 
-- [ ] **Step 3: Add a shared request model and command fields**
+- [x] **Step 3: Add a shared request model and command fields**
 
 ```python
 class GenerationSourceRequest(BaseModel):
@@ -307,7 +307,7 @@ class GenerationSourceRequest(BaseModel):
 
 Extend `GenerationCommand` with `source_mode`, `selected_doc_ids`, and `deadline_seconds`. Default old persisted commands to `selected_documents` when they contain document IDs, otherwise `course_auto`. Do not rewrite existing SQLite task payloads in place.
 
-- [ ] **Step 4: Run schema, command, and direct-route tests**
+- [x] **Step 4: Run schema, command, and direct-route tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_source_contract.py tests/chat/test_generation_command.py tests/test_jobs_api_v2.py -q
@@ -315,7 +315,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_generation_source_c
 
 Expected: every resource accepts the same three source modes and old command payloads still deserialize.
 
-- [ ] **Step 5: Commit the shared source contract**
+- [x] **Step 5: Commit the shared source contract**
 
 ```powershell
 git add Edu_AI/api/src/app/chat/api/schemas_v2.py Edu_AI/api/src/app/chat/api/routes_v2.py Edu_AI/api/src/app/services/generation_command.py Edu_AI/api/src/tests/chat/test_generation_command.py Edu_AI/api/src/tests/chat/test_generation_source_contract.py
