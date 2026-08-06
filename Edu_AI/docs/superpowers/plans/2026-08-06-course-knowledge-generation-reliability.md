@@ -769,7 +769,7 @@ git commit -m "feat: add generation source preflight"
 - Consumes: all previous tasks.
 - Produces: executable coverage for report, lesson plan, blog, quiz, PPT, flashcard, mind map, game, and AI classroom.
 
-- [ ] **Step 1: Define the complete acceptance matrix**
+- [x] **Step 1: Define the complete acceptance matrix**
 
 ```python
 @dataclass(frozen=True)
@@ -792,11 +792,11 @@ RESOURCE_CASES = (
 
 For each case verify `course_auto`, `selected_documents`, and `none`; correct source snapshot; successful artifact read-back; wrong-course rejection; and no live network.
 
-- [ ] **Step 2: Add a concurrency/cancellation scenario to the matrix**
+- [x] **Step 2: Add a concurrency/cancellation scenario to the matrix**
 
 Block one fake blog provider, enqueue quiz and flashcard jobs, cancel the blog, and assert quiz/flashcard finish within two seconds while the blog converges to `canceled` without an artifact.
 
-- [ ] **Step 3: Run the focused acceptance suite**
+- [x] **Step 3: Run the focused acceptance suite**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/acceptance/test_generation_reliability_matrix.py -q
@@ -804,7 +804,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/acceptance/test_generation_re
 
 Expected: 27 source-mode cases plus fault-isolation scenarios pass deterministically.
 
-- [ ] **Step 4: Run the complete affected backend gate**
+- [x] **Step 4: Run the complete affected backend gate**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_resolver.py tests/chat/test_generation_source_contract.py tests/test_generation_source_provenance.py tests/test_course_document_id_migration.py tests/chat/test_lesson_plan_direct.py tests/test_classroom_generation_sources.py tests/test_durable_executor_pool.py tests/test_job_deadlines_and_cancellation.py tests/chat/test_generation_preflight.py tests/acceptance/test_generation_reliability_matrix.py -q
@@ -812,7 +812,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_resolv
 
 Expected: all tests pass with deterministic fake providers.
 
-- [ ] **Step 5: Run regression, record evidence, and commit**
+- [x] **Step 5: Run regression, record evidence, and commit**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_jobs_api_v2.py tests/test_job_completion_service.py tests/test_job_reconciliation_service.py tests/test_rag_document_lifecycle.py tests/chat/test_course_scope_routes.py -q

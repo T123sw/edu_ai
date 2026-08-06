@@ -192,7 +192,7 @@ def test_get_knowledge_base_documents_keeps_personal_library_current_node_only(m
     assert [item.name for item in personal_documents] == ["personal-parent.md"]
 
 
-def test_get_knowledge_base_documents_returns_local_path_for_web_documents(monkeypatch):
+def test_get_knowledge_base_documents_hides_local_path_for_web_documents(monkeypatch):
     manager = _make_manager("course-doc-web-path")
     relative_path = manager.save_knowledge_base_file(
         "course-1",
@@ -223,7 +223,8 @@ def test_get_knowledge_base_documents_returns_local_path_for_web_documents(monke
     assert len(documents) == 1
     assert documents[0].type == "web"
     assert documents[0].url == "https://support.microsoft.com/example"
-    assert documents[0].file_path == relative_path.replace("\\", "/")
+    assert relative_path.replace("\\", "/").endswith("support-page.md")
+    assert documents[0].file_path is None
 
 
 @pytest.mark.anyio

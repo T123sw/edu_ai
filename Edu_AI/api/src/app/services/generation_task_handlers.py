@@ -390,6 +390,12 @@ class GenerationTaskHandler:
             source=source,
             config=_freeze(deepcopy(config)),
         )
+        if context.is_cancel_requested():
+            return {
+                "saved": False,
+                "canceled": True,
+                "result_ref": {},
+            }
         payload = self._build_payload(command, context, execution_context)
         context.progress(5, "generating", "正在根据课程资料生成内容")
         generator = factory()
@@ -407,6 +413,12 @@ class GenerationTaskHandler:
         ):
             generate_kwargs["execution_context"] = execution_context
         result = dict(generator.generate(payload, **generate_kwargs))
+        if context.is_cancel_requested():
+            return {
+                "saved": False,
+                "canceled": True,
+                "result_ref": {},
+            }
         if result.get("result_ref"):
             self._persist_existing_result_provenance(
                 command=command,
