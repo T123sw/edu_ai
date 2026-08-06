@@ -37,3 +37,9 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Frontend lint: **0 errors, 82 warnings**. Warnings are recorded as the pre-change baseline and must not increase; stage 6 will address in-scope warnings.
 - Focused backend baseline: **25 passed, 1 failed**. The failure is `test_get_course_materials_returns_paginated_aggregate_scope` (`total` expected 25, got 0), caused by the current creator/owner visibility filter. This is an explicit Plan 1 Task 5 target, not an environmental failure.
 - Worktree source status after dependency setup: clean before the log update.
+
+### Plan 1 / Task 1 — Atomic course membership store
+
+- Red evidence: `tests/test_course_membership_store.py` failed collection with `ModuleNotFoundError` before production code existed.
+- Green evidence: `3 passed` using the isolated `edu-ai` Python environment.
+- Result: versioned membership JSON, unique upsert, deterministic queries, idempotent delete, and same-directory atomic replacement are implemented.
