@@ -52,7 +52,7 @@ export default function FlashcardArtifactPreview({
   };
 
   return (
-    <div className="flashcard-preview">
+    <div className="flashcard-preview edu-rich-preview">
       <div className="flashcard-preview__toolbar">
         <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack}>返回</Button>
         <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作室" />

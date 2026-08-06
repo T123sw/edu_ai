@@ -677,7 +677,7 @@ git commit -m "feat: align visual generation configs"
 - Consumes: course-shared artifact manifests from Plans 1–2.
 - Produces: type-aware resource previews, factual metadata, constrained content, and a first-screen-operable classroom player.
 
-- [ ] **Step 1: Write presentation and hostile-content constraint tests**
+- [x] **Step 1: Write presentation and hostile-content constraint tests**
 
 ```typescript
 test("resource metadata exposes provenance without internal IDs", () => {
@@ -691,7 +691,7 @@ test("preview constraint class is applied to rich content", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and reproduce medium-width overflow or generic previews**
+- [x] **Step 2: Run tests and reproduce medium-width overflow or generic previews**
 
 ```powershell
 pnpm test -- src/stitch/pages/resourcePreviewConstraints.test.ts src/stitch/api/courseMaterialPresentation.test.ts
@@ -699,7 +699,7 @@ pnpm test -- src/stitch/pages/resourcePreviewConstraints.test.ts src/stitch/api/
 
 Expected: missing constraints or incomplete type-specific presentation.
 
-- [ ] **Step 3: Implement responsive list/preview behavior**
+- [x] **Step 3: Implement responsive list/preview behavior**
 
 Desktop retains filter/list/preview columns. Below 1180px, show list above preview or open preview in a drawer; never compress three columns into unreadable widths. Display title, type, creator, source mode, created time, and status. Apply `.edu-rich-preview` rules to Markdown, tables, code, links, images, long words, and citations:
 
@@ -712,11 +712,11 @@ Desktop retains filter/list/preview columns. Below 1180px, show list above previ
 
 Previews: report/blog/lesson as structured rich text; quiz answers collapsible; flashcards flip individually; PPT paged; mind map zoom/pan; game playable; classroom opens the player.
 
-- [ ] **Step 4: Recompose the classroom player first screen**
+- [x] **Step 4: Recompose the classroom player first screen**
 
 At 1280×720, keep stage, play/pause, previous/next, progress, scene title, and volume/voice status visible without scrolling. Move scene catalog, transcript, export detail, and technical metadata into collapsible side/bottom panels. Do not show raw internal IDs or renderer type names to teachers. The back link always targets the current course’s AI-classroom list.
 
-- [ ] **Step 5: Verify hostile samples and classroom controls**
+- [x] **Step 5: Verify hostile samples and classroom controls**
 
 ```powershell
 pnpm test -- src/stitch/pages/resourcePreviewConstraints.test.ts src/stitch/api/courseMaterialPresentation.test.ts
@@ -725,7 +725,7 @@ pnpm test:e2e -- tests/e2e/resources-and-classroom.spec.ts
 
 Use fixtures containing a 200-character unbroken title, wide table, long URL, code block, large image, and long citation. Expected: page root does not overflow; only table/code containers scroll internally; core classroom controls are visible at 1280×720.
 
-- [ ] **Step 6: Commit responsive resource and classroom presentation**
+- [x] **Step 6: Commit responsive resource and classroom presentation**
 
 ```powershell
 git add Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/src/stitch/api/courseMaterialPresentation.ts Edu_AI/src/components/teacher/ReportArtifactPreview.tsx Edu_AI/src/components/teacher/LessonPlanArtifactPreview.tsx Edu_AI/src/components/teacher/QuizArtifactPreview.tsx Edu_AI/src/components/teacher/FlashcardArtifactPreview.tsx Edu_AI/src/components/teacher/MindMapArtifactPreview.tsx Edu_AI/src/components/teacher/GameArtifactPreview.tsx Edu_AI/src/components/teacher/generation/previews/BlogArtifactPreview.tsx Edu_AI/src/components/teacher/generation/previews/PptArtifactPreview.tsx Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/src/stitch/pages/resourcePreviewConstraints.test.ts Edu_AI/tests/e2e/resources-and-classroom.spec.ts

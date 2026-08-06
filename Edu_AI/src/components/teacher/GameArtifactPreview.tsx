@@ -77,6 +77,7 @@ export default function GameArtifactPreview({ file, onBack, onToggleCollapsed }:
 
   return (
     <div
+      className="edu-rich-preview"
       style={{
         display: 'flex',
         flexDirection: 'column',

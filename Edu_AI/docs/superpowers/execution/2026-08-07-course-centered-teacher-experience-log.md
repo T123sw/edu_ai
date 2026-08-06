@@ -266,3 +266,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: a generated mind map is an independent course resource named “思维导图”. It never changes the course knowledge structure implicitly.
 - Decision: the factory and standalone classroom page reference the exact same generation definition and form. Voice selection is persisted with the job and applied to that classroom's runtime snapshot when speech is enabled.
 - Result: all three visual resources preserve their visible configuration end to end, PPT slides support accessible add/remove/reorder operations, and the confirmation footer remains reachable at 1024×768.
+
+### Plan 3 / Task 9 — Responsive resources and classroom playback
+
+- Red evidence: the constraint suite failed on the missing preview boundary. Course resources rendered every known non-classroom artifact as generic Markdown, exposed no consistent factual provenance block, and used the 1280px framework breakpoint instead of the specified 1180px content threshold.
+- Green evidence: the frontend gate has `167 passed`; the production build passes. The hostile-content and classroom browser suite has `10 passed` across all five release viewports.
+- Decision: report and lesson-plan content retain a constrained rich-text presentation, while blog, quiz, flashcard, PPT, mind map, and game use type-aware interactions. Tables and code may scroll inside their own containers; links, images, citations, and unbroken strings cannot widen the page root.
+- Decision: resource metadata is limited to type, creator, teacher-facing source range, creation time, and status. RAG keys, storage paths, renderer names, and material IDs are not presented to teachers.
+- Decision: below 1180px the resource list sits above the preview instead of compressing both. At 1390px and below, classroom catalog and transcript become explicit overlay panels so a 1280×720 first screen retains the stage, previous/play/next, progress, scene title, and voice state.
+- Result: hostile 200-character titles, wide tables, long URLs, code, large images, and long citations remain inside the resource surface; all core classroom controls stay visible without page scrolling.

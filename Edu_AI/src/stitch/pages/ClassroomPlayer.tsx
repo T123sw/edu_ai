@@ -57,6 +57,7 @@ export function ClassroomPlayerPage() {
   const [presentationMode, setPresentationMode] = useState(false);
   const [subtitlesVisible, setSubtitlesVisible] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
+  const [secondaryPanel, setSecondaryPanel] = useState<"catalog" | "transcript" | null>(null);
   const consoleRef = useRef<HTMLElement | null>(null);
   const controllerRef = useRef<ManagedPagePlaybackController | null>(null);
 
@@ -234,6 +235,28 @@ export function ClassroomPlayerPage() {
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {material && !presentationMode ? (
               <>
+                <button
+                  type="button"
+                  className="classroom-secondary-toggle classroom-icon-button"
+                  aria-label="打开课堂目录"
+                  aria-expanded={secondaryPanel === "catalog"}
+                  onClick={() => setSecondaryPanel((value) => value === "catalog" ? null : "catalog")}
+                >
+                  <MaterialIcon name="view_list" />
+                </button>
+                <button
+                  type="button"
+                  className="classroom-secondary-toggle classroom-icon-button"
+                  aria-label="打开教学提示"
+                  aria-expanded={secondaryPanel === "transcript"}
+                  onClick={() => setSecondaryPanel((value) => value === "transcript" ? null : "transcript")}
+                >
+                  <MaterialIcon name="notes" />
+                </button>
+              </>
+            ) : null}
+            {material && !presentationMode ? (
+              <>
                 {courseId && classroomId && canGenerate ? (
                   <ClassroomVideoExportButton
                     courseId={courseId}
@@ -301,7 +324,7 @@ export function ClassroomPlayerPage() {
           <>
             <div className="classroom-console__workspace">
               {!presentationMode ? (
-                <aside className="classroom-console__catalog" aria-label="课堂页面目录">
+                <aside className={`classroom-console__catalog ${secondaryPanel === "catalog" ? "is-open" : ""}`} aria-label="课堂页面目录">
                   <div className="classroom-panel-heading">
                     <div>
                       <p className="font-bold text-(--app-text)">课堂目录</p>
@@ -362,7 +385,7 @@ export function ClassroomPlayerPage() {
               </section>
 
               {!presentationMode ? (
-                <aside className="classroom-console__assistant" aria-label="当前页教学提示">
+                <aside className={`classroom-console__assistant ${secondaryPanel === "transcript" ? "is-open" : ""}`} aria-label="当前页教学提示">
                   <div className="classroom-panel-heading">
                     <div>
                       <p className="font-bold text-(--app-text)">当前页提示</p>
@@ -413,7 +436,7 @@ export function ClassroomPlayerPage() {
               ) : null}
             </div>
 
-            <footer className="classroom-console__controls">
+            <footer className="classroom-console__controls" data-testid="classroom-core-controls">
               <button
                 type="button"
                 onClick={() => goTo(currentIndex - 1)}
@@ -440,6 +463,9 @@ export function ClassroomPlayerPage() {
                 />
                 {playbackLabel(currentPresentation, playback)}
               </button>
+              <span className="classroom-current-scene" title={currentPresentation?.title}>
+                {currentPresentation?.title || `第 ${currentIndex + 1} 页`}
+              </span>
               <button
                 type="button"
                 onClick={() => setSubtitlesVisible((value) => !value)}
@@ -453,6 +479,10 @@ export function ClassroomPlayerPage() {
               </button>
               <span className="classroom-page-count">
                 {currentIndex + 1} / {scenes.length}
+              </span>
+              <span className="classroom-voice-status" aria-label="语音状态">
+                <MaterialIcon name={material.voice_status === "disabled" ? "volume_off" : "volume_up"} />
+                {material.voice_status === "disabled" ? "语音关闭" : "语音可用"}
               </span>
               <button
                 type="button"

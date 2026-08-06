@@ -42,6 +42,39 @@ const readyDocument = {
 
 const materials = [
   {
+    material_id: "report-hostile-content",
+    material_type: "report",
+    course_id: physicsCourse.id,
+    title: `极端内容边界验收报告${"连续超长标题".repeat(32)}`,
+    summary: "验证长标题、宽表格、长链接、代码、图片和引用不会撑破课程资源页。",
+    content: [
+      "# 极端内容边界验收",
+      "",
+      "不可分隔文本：" + "UnbrokenBoundaryToken".repeat(24),
+      "",
+      "| 第一列 | 第二列 | 第三列 | 第四列 | 第五列 | 第六列 | 第七列 | 第八列 | 第九列 | 第十列 |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| 甲 | 乙 | 丙 | 丁 | 戊 | 己 | 庚 | 辛 | 壬 | 癸 |",
+      "",
+      "```typescript",
+      `const veryLongValue = \"${"code-token-".repeat(40)}\";`,
+      "```",
+      "",
+      `[超长资料链接](https://example.com/${"long-path-segment/".repeat(28)})`,
+      "",
+      "![大图](https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=2400)",
+      "",
+      `> 引用：${"这是一段需要在预览容器内自动换行的课程资料引用。".repeat(18)}`,
+    ].join("\n"),
+    created_by: "唐老师",
+    source_job_id: "job-report-hostile",
+    source_snapshot: { mode: "selected_documents" },
+    visibility: "course",
+    status: "completed",
+    created_at: "2026-08-06T09:30:00+08:00",
+    updated_at: "2026-08-06T09:35:00+08:00",
+  },
+  {
     material_id: "report-mechanics",
     material_type: "report",
     course_id: physicsCourse.id,
@@ -65,7 +98,30 @@ const materials = [
     visibility: "course",
     scenes_count: 1,
     stage: { id: "classroom-mechanics", name: "牛顿定律互动课堂" },
-    scenes: [],
+    voice_status: "ready",
+    scenes: [
+      {
+        id: "scene-internal-mechanics-1",
+        type: "quiz",
+        title: "从受力图判断运动状态",
+        content: {
+          type: "quiz",
+          questions: [
+            {
+              id: "question-1",
+              type: "single",
+              question: "合力为零时，物体可能处于什么状态？",
+              options: [
+                { value: "A", label: "静止或匀速直线运动" },
+                { value: "B", label: "只能静止" },
+              ],
+              answer: ["A"],
+            },
+          ],
+        },
+        actions: [{ id: "speech-1", type: "speech", text: "先观察受力，再判断加速度。" }],
+      },
+    ],
     created_at: "2026-08-05T11:00:00+08:00",
     updated_at: "2026-08-05T11:08:00+08:00",
   },
@@ -141,6 +197,9 @@ export async function installTeacherApiRoutes(page: Page) {
           ],
         },
       });
+    }
+    if (path === `/api/courses/${physicsCourse.id}/classrooms/classroom-mechanics`) {
+      return json(route, materials.find((item) => item.material_id === "classroom-mechanics"));
     }
     if (path.endsWith("/materials")) {
       const materialType = url.searchParams.get("material_type");

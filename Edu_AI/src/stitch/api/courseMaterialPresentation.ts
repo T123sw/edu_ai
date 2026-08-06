@@ -91,3 +91,56 @@ export function getCourseMaterialOpenTarget(
 
   return { kind: "preview", value: materialId };
 }
+
+export type CourseMaterialPresentation = {
+  title: string;
+  typeLabel: string;
+  statusLabel: string;
+  meta: ReadonlyArray<{ label: string; value: string }>;
+};
+
+function formatCreatedTime(value: string | undefined): string {
+  if (!value) return "未记录";
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) return "未记录";
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
+}
+
+function sourceScopeLabel(material: CourseMaterial): string {
+  const snapshot = material.source_snapshot ?? material.source ?? {};
+  const mode = String(snapshot.mode ?? snapshot.source_mode ?? "");
+  if (mode === "selected_documents") return "已选课程资料";
+  if (mode === "course_auto") return "课程资料（自动）";
+  if (mode === "none") return "未使用课程资料";
+  if (material.scope_type === "knowledge_point") return "指定知识点";
+  return "课程级资源";
+}
+
+export function toCourseMaterialPresentation(
+  material: CourseMaterial,
+): CourseMaterialPresentation {
+  const typeLabel = getCourseMaterialTypeMeta(material.material_type).label;
+  const status = String(material.status || "completed");
+  const statusLabel = status === "failed"
+    ? "生成失败"
+    : status === "processing" || status === "pending"
+      ? "生成中"
+      : "可使用";
+  return {
+    title: material.title || material.topic || "未命名资源",
+    typeLabel,
+    statusLabel,
+    meta: [
+      { label: "类型", value: typeLabel },
+      { label: "创建者", value: material.created_by || material.owner_user_id || "未记录" },
+      { label: "资料范围", value: sourceScopeLabel(material) },
+      { label: "创建时间", value: formatCreatedTime(material.created_at) },
+    ],
+  };
+}

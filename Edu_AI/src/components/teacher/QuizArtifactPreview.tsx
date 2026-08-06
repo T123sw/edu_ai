@@ -109,7 +109,7 @@ export default function QuizArtifactPreview({
   const isJudge = currentQuestionType === 'judge';
 
   return (
-    <div className="quiz-artifact-preview">
+    <div className="quiz-artifact-preview edu-rich-preview">
       <div className="quiz-artifact-preview__toolbar">
         <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} className="quiz-artifact-preview__back">
           返回

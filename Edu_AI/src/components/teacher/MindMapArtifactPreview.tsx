@@ -34,7 +34,7 @@ export default function MindMapArtifactPreview({
     : {};
   const root = payload.root && typeof payload.root === 'object' ? payload.root as Node : null;
   return (
-    <div className="mind-map-preview">
+    <div className="mind-map-preview edu-rich-preview">
       <div className="mind-map-preview__toolbar">
         <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack}>返回</Button>
         <Button type="text" icon={<RightOutlined />} onClick={onToggleCollapsed} aria-label="折叠工作室" />

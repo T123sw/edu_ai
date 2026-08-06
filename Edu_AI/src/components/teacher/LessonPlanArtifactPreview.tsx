@@ -316,7 +316,7 @@ export default function LessonPlanArtifactPreview({
   ].filter(Boolean) as string[][];
 
   return (
-    <div className="lesson-plan-artifact-preview">
+    <div className="lesson-plan-artifact-preview edu-rich-preview">
       <div className="lesson-plan-artifact-preview__toolbar">
         <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} className="lesson-plan-artifact-preview__back">
           返回

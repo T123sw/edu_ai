@@ -20,9 +20,12 @@ export type CourseMaterial = {
   material_type: string;
   course_id?: string;
   owner_user_id?: string | null;
+  created_by?: string | null;
+  visibility?: string;
   source_job_id?: string | null;
   config_snapshot_id?: string | null;
   source?: Record<string, unknown>;
+  source_snapshot?: Record<string, unknown>;
   content_hash?: string;
   artifact_paths?: string[];
   title?: string;
@@ -401,6 +404,7 @@ export type ClassroomMaterial = {
   stage?: { id: string; name?: string; [key: string]: unknown };
   scenes?: ClassroomScene[];
   scenes_count?: number;
+  voice_status?: string;
   sidecar_url?: string;
   sidecar_created_at?: string;
   course_id?: string;

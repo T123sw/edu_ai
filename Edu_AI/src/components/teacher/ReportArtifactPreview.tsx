@@ -493,7 +493,7 @@ export default function ReportArtifactPreview({
   );
 
   return (
-    <div className="report-artifact-preview">
+    <div className="report-artifact-preview edu-rich-preview">
       <div className="report-artifact-preview__toolbar">
         <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} className="report-artifact-preview__back">
           返回

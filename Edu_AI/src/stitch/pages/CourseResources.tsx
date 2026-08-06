@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  courseMaterialToMarkdown,
   deleteCourseMaterial,
   getCourseMaterial,
   getCourseMaterials,
@@ -12,6 +11,7 @@ import {
   getCourseMaterialOpenTarget,
   getCourseMaterialTypeMeta,
   isCourseMaterialInFilter,
+  toCourseMaterialPresentation,
   type CourseMaterialFilterKey,
 } from "../api/courseMaterialPresentation";
 import {
@@ -19,7 +19,6 @@ import {
   readCourseMaterialTarget,
 } from "../api/courseMaterialTarget";
 import type { CourseMaterial } from "../api/types";
-import { MarkdownPreview } from "../components/MarkdownPreview";
 import {
   AppSurface,
   GlassPanel,
@@ -32,6 +31,7 @@ import {
   useAppShell,
 } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
+import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
 
 type ResourceSort = "recent" | "title";
 
@@ -228,9 +228,6 @@ export function CourseResourcesPage() {
         ?? filteredMaterials[0]
         ?? null
       );
-  const markdown = activeMaterial
-    ? courseMaterialToMarkdown(activeMaterial)
-    : "";
 
   function openMaterial(material: CourseMaterial) {
     const target = getCourseMaterialOpenTarget(material);
@@ -320,13 +317,16 @@ export function CourseResourcesPage() {
   const activeMeta = activeMaterial
     ? getCourseMaterialTypeMeta(activeMaterial.material_type)
     : null;
+  const activePresentation = activeMaterial
+    ? toCourseMaterialPresentation(activeMaterial)
+    : null;
   const previewSupported =
     activeMaterial
     && activeMaterial.material_type !== "classroom"
     && activeMeta?.known;
 
   return (
-    <AppSurface className="flex min-h-screen xl:h-screen xl:overflow-hidden">
+    <AppSurface className="flex min-h-screen min-[1180px]:h-screen min-[1180px]:overflow-hidden">
       <SidebarDock className="h-screen gap-3 bg-[linear-gradient(180deg,#fcfdff_0%,#f2f6ff_100%)] p-4">
         <div className="mb-2 px-2 py-4">
           <SidebarBackLink />
@@ -359,7 +359,7 @@ export function CourseResourcesPage() {
         </div>
       </SidebarDock>
 
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden xl:overflow-y-hidden">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[1180px]:overflow-y-hidden">
         <header className="border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -430,8 +430,8 @@ export function CourseResourcesPage() {
           </div>
         </header>
 
-        <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 xl:grid-cols-[340px_minmax(0,1fr)] xl:overflow-hidden">
-          <section className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+        <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden">
+          <section className="flex max-h-[360px] min-h-0 min-w-0 flex-col overflow-hidden min-[1180px]:max-h-none">
             {loading ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 text-sm text-(--muted-text)">
                 正在加载资源...
@@ -591,16 +591,13 @@ export function CourseResourcesPage() {
                           </button>
                         </div>
                       ) : (
-                        <h2 className="mt-2 truncate text-2xl font-black text-(--accent-strong)">
+                        <h2 className="mt-2 break-words text-2xl font-black text-(--accent-strong)">
                           {getMaterialTitle(activeMaterial)}
                         </h2>
                       )}
-                      <p className="mt-2 text-xs text-(--muted-text)">
-                        {formatMaterialDate(activeMaterial)}
-                        {activeMaterial.scope_id
-                          ? ` · 知识点 ${activeMaterial.scope_id}`
-                          : " · 课程级资源"}
-                      </p>
+                      <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                        {activePresentation?.statusLabel}
+                      </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <button
@@ -649,7 +646,15 @@ export function CourseResourcesPage() {
                     </p>
                   ) : null}
 
-                  <div className="mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto pr-2">
+                  {activePresentation ? (
+                    <dl className="resource-factual-meta">
+                      {activePresentation.meta.map((item) => (
+                        <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>
+                      ))}
+                    </dl>
+                  ) : null}
+
+                  <div className="mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-2">
                     {activeMaterial.material_type === "classroom" ? (
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="rounded-2xl bg-(--surface-subtle) p-5">
@@ -688,7 +693,7 @@ export function CourseResourcesPage() {
                         </div>
                       </div>
                     ) : previewSupported ? (
-                      <MarkdownPreview content={markdown} />
+                      <CourseMaterialArtifactPreview material={activeMaterial} />
                     ) : (
                       <div className="rounded-2xl border border-dashed border-(--shell-border) bg-(--surface-subtle) p-6">
                         <h3 className="font-bold text-(--app-text)">
@@ -701,13 +706,7 @@ export function CourseResourcesPage() {
                           <div>
                             <dt className="text-(--muted-text)">资源类型</dt>
                             <dd className="mt-1 font-semibold text-(--app-text)">
-                              {activeMaterial.material_type || "unknown"}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="text-(--muted-text)">资源 ID</dt>
-                            <dd className="mt-1 break-all font-semibold text-(--app-text)">
-                              {activeMaterial.material_id}
+                              {activeMeta.label}
                             </dd>
                           </div>
                         </dl>
