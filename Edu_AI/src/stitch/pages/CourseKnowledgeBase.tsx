@@ -270,7 +270,7 @@ export function CourseKnowledgeBasePage() {
                                 <div className="flex flex-wrap items-center gap-2">
                                   <h4 className="text-base font-bold text-(--app-text)">{item.name}</h4>
                                   <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-(--muted-text)">
-                                    {item.type}
+                                    {item.type === "web" ? "网页" : "文件"}
                                   </span>
                                   <span className={cx(
                                     "rounded-full px-2.5 py-1 text-[10px] font-bold",
@@ -281,7 +281,7 @@ export function CourseKnowledgeBasePage() {
                                 </div>
                                 <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                                   <span>{new Date(item.created_at).toLocaleString("zh-CN")}</span>
-                                  <span>{item.course_id}</span>
+                                  <span>{item.scope_type === "knowledge_point" ? "知识点资料" : "课程资料"}</span>
                                   {item.status === "ready" || item.status === "partially_ready"
                                     ? <span>{item.chunk_count} 个检索片段</span>
                                     : null}

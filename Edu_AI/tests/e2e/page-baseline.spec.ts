@@ -22,7 +22,10 @@ test("teacher can traverse every core course page", async ({ teacherPage }, test
         .getByRole("link", { name })
         .click();
     } else {
-      await teacherPage.getByRole("link", { name }).click();
+      await teacherPage
+        .getByRole("navigation", { name: "课程工作区" })
+        .getByRole("link", { name })
+        .click();
     }
     await expect(teacherPage.getByRole("heading", { name, exact: true })).toBeVisible();
   }

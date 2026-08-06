@@ -18,7 +18,7 @@ test("generation factory is keyboard operable and keeps its footer reachable", a
   const noSource = teacherPage.getByRole("radio", { name: "不使用资料", exact: false });
   await noSource.check();
   await teacherPage.getByRole("button", { name: "下一步" }).click();
-  await teacherPage.getByPlaceholder("输入本次资源的主题").fill("牛顿运动定律复习");
+  await teacherPage.getByLabel("报告主题 *").fill("牛顿运动定律复习");
   await teacherPage.getByRole("button", { name: "下一步" }).click();
   const submit = teacherPage.getByRole("button", { name: "开始后台生成" });
   await expect(submit).toBeVisible();
@@ -34,7 +34,21 @@ test("generation draft and active job recover after refresh", async ({ teacherPa
   await teacherPage.addInitScript(() => {
     window.localStorage.setItem("edu-ai:generation-draft:course-physics", JSON.stringify({
       jobId: "job-restored",
-      draft: { resourceType: "report", topic: "恢复主题", audience: "本科生", requirements: "", source: { mode: "none", selectedDocumentIds: [] } },
+      draft: {
+        resourceType: "report",
+        topic: "恢复主题",
+        audience: "本科生",
+        requirements: "",
+        source: { mode: "none", selectedDocumentIds: [] },
+        config: {
+          template: "detailed",
+          topic: "恢复主题",
+          audience: "本科生",
+          depth: "standard",
+          structureEmphasis: "结论、依据与可执行建议",
+          specialRequirements: "",
+        },
+      },
     }));
   });
   await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
@@ -43,5 +57,5 @@ test("generation draft and active job recover after refresh", async ({ teacherPa
   await teacherPage.getByRole("button", { name: "下一步" }).click();
   await teacherPage.getByRole("radio", { name: "不使用资料", exact: false }).check();
   await teacherPage.getByRole("button", { name: "下一步" }).click();
-  await expect(teacherPage.getByPlaceholder("输入本次资源的主题")).toHaveValue("恢复主题");
+  await expect(teacherPage.getByLabel("报告主题 *")).toHaveValue("恢复主题");
 });

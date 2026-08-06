@@ -26,3 +26,14 @@
 | 课程设置 | `#edit?course_id=course-physics` | `baseline-settings.png` | 尚未使用统一课程外壳和共享状态组件 |
 
 每个项目的实际截图保存在 Playwright `test-results/e2e/<project>/` 输出目录。只有对应优化任务通过结构、溢出、键盘与人工复核后，才允许建立批准快照。
+
+## 优化后批准基线（2026-08-07）
+
+优化后的批准快照由 `tests/e2e/visual-regression.spec.ts` 维护，固定存放在
+`tests/e2e/visual-regression.spec.ts-snapshots/`。浅色主题覆盖上述五个视口和 11 个核心页面；
+深色主题覆盖 1366×768 与 1024×768。截图只作为变化检测基线，是否批准仍以
+`docs/qa/teacher-frontend-release-checklist.md` 的人工复核记录为准。
+
+与诊断基线相比，批准基线已经具备统一课程工作空间、课程知识双视图、共享生成工厂、
+类型化资源预览与紧凑视口课堂控制。登录页通过无效鉴权响应与本地会话清理双重隔离，
+保证截图确实为未登录状态，而不是初始化脚本恢复出的课程首页。

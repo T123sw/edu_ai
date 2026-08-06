@@ -45,13 +45,14 @@ function useClassroomList(courseId: string | undefined, reloadToken: number) {
 
 export function ClassroomStudioPage() {
   const { selectedCourse } = useAppShell();
-  const { courseId: routeCourseId, courseRole } = useCourseRoute();
+  const { courseId: routeCourseId, courseRole, course: routeCourse } = useCourseRoute();
   const courseId = routeCourseId ?? undefined;
   const canGenerate = canCourse(courseRole, "generate");
   const [classroomConfig, setClassroomConfig] = useState(() => classroomPageDefinition.defaultConfig());
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showErrors, setShowErrors] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const reloadedJobIdsRef = useRef(new Set<string>());
   const { items, loading, error } = useClassroomList(courseId, reloadToken);
@@ -76,7 +77,11 @@ export function ClassroomStudioPage() {
   }, [job?.edu_job_id, job?.status]);
 
   async function handleGenerate() {
-    if (!courseId || !canGenerate || Object.keys(classroomDefinition.validate(classroomConfig)).length > 0) return;
+    if (!courseId || !canGenerate) return;
+    if (Object.keys(classroomDefinition.validate(classroomConfig)).length > 0) {
+      setShowErrors(true);
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -123,7 +128,7 @@ export function ClassroomStudioPage() {
           </a>
           <div className="text-right">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">AI 课件生成</p>
-            <h2 className="mt-1 text-xl font-black text-(--app-text)">{selectedCourse?.title}</h2>
+            <h2 className="mt-1 text-xl font-black text-(--app-text)">{routeCourse?.title || selectedCourse?.title}</h2>
           </div>
         </div>
 
@@ -135,13 +140,13 @@ export function ClassroomStudioPage() {
             </p>
           ) : null}
           <div aria-disabled={isBusy || !canGenerate}>
-            <ClassroomForm value={classroomConfig} onChange={setClassroomConfig} errors={classroomDefinition.validate(classroomConfig)} />
+            <ClassroomForm value={classroomConfig} onChange={setClassroomConfig} errors={showErrors ? classroomDefinition.validate(classroomConfig) : {}} />
           </div>
           <div className="mt-3 flex items-center gap-3">
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={submitting || isBusy || Object.keys(classroomDefinition.validate(classroomConfig)).length > 0 || !canGenerate}
+              disabled={submitting || isBusy || !canGenerate}
               className="inline-flex items-center gap-2 rounded-2xl bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
             >
               <MaterialIcon name="auto_awesome" className="text-base" />

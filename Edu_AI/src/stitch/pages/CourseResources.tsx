@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  backendCourseToSummary,
   deleteCourseMaterial,
   getCourseMaterial,
   getCourseMaterials,
@@ -31,6 +32,7 @@ import {
   useAppShell,
 } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
+import { useCourseRoute } from "../course/CourseRouteProvider";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
 
 type ResourceSort = "recent" | "title";
@@ -64,7 +66,12 @@ function getMaterialSummary(material: CourseMaterial): string {
 
 export function CourseResourcesPage() {
   const { selectedCourse } = useAppShell();
-  const course = selectedCourse ?? defaultCourse;
+  const { course: routeCourse, courseId } = useCourseRoute();
+  const course = routeCourse?.id === courseId
+    ? backendCourseToSummary(routeCourse)
+    : selectedCourse?.id === courseId
+      ? selectedCourse
+      : { ...defaultCourse, id: courseId || defaultCourse.id };
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

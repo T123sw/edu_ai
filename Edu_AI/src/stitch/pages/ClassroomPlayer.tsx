@@ -242,7 +242,7 @@ export function ClassroomPlayerPage() {
                   aria-expanded={secondaryPanel === "catalog"}
                   onClick={() => setSecondaryPanel((value) => value === "catalog" ? null : "catalog")}
                 >
-                  <MaterialIcon name="view_list" />
+                  <span>目录</span>
                 </button>
                 <button
                   type="button"
@@ -251,7 +251,7 @@ export function ClassroomPlayerPage() {
                   aria-expanded={secondaryPanel === "transcript"}
                   onClick={() => setSecondaryPanel((value) => value === "transcript" ? null : "transcript")}
                 >
-                  <MaterialIcon name="notes" />
+                  <span>提示</span>
                 </button>
               </>
             ) : null}

@@ -75,6 +75,22 @@ const materials = [
     updated_at: "2026-08-06T09:35:00+08:00",
   },
   {
+    material_id: "flashcard-mechanics",
+    material_type: "flashcard",
+    course_id: physicsCourse.id,
+    title: "力学核心概念闪卡",
+    summary: "逐张复习惯性、合力与加速度。",
+    flashcards: [
+      { front: "惯性是什么？", back: "物体保持原有运动状态的性质。", category: "牛顿第一定律" },
+      { front: "合力与加速度的关系", back: "同质量下，加速度与合力成正比。", category: "牛顿第二定律" },
+    ],
+    created_by: "唐老师",
+    source_snapshot: { mode: "course_auto" },
+    status: "completed",
+    created_at: "2026-08-06T08:30:00+08:00",
+    updated_at: "2026-08-06T08:35:00+08:00",
+  },
+  {
     material_id: "report-mechanics",
     material_type: "report",
     course_id: physicsCourse.id,
@@ -161,6 +177,12 @@ export async function installTeacherApiRoutes(page: Page) {
     if (path === "/api/auth/verify") {
       return json(route, {
         valid: true,
+        user: { username: "teacher-a", role: "teacher" },
+      });
+    }
+    if (path === "/api/auth/login") {
+      return json(route, {
+        token: "teacher-fixture-token",
         user: { username: "teacher-a", role: "teacher" },
       });
     }

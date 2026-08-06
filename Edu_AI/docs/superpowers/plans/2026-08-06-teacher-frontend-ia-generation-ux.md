@@ -747,13 +747,13 @@ git commit -m "feat: improve course resource previews"
 - Consumes: all previous tasks.
 - Produces: accepted screenshots, automated layout assertions, keyboard evidence, and an explicit legacy-removal list.
 
-- [ ] **Step 1: Enumerate the page/state/viewport matrix**
+- [x] **Step 1: Enumerate the page/state/viewport matrix**
 
 Test these pages: login, course home, course overview, question/generation, course knowledge documents, course knowledge structure, AI classroom list, classroom player, course resources, course settings, and profile.
 
 For data pages cover loaded, loading, empty, error, and permission-denied where applicable. For generation cover each of nine configuration shells plus success, failed, canceled, and recovered-job states. Run light theme on every viewport and dark theme on 1366×768 and 1024×768.
 
-- [ ] **Step 2: Add structural overflow assertions**
+- [x] **Step 2: Add structural overflow assertions**
 
 ```typescript
 await expect.poll(() => page.evaluate(() => ({
@@ -764,11 +764,11 @@ await expect.poll(() => page.evaluate(() => ({
 
 For every open dialog/drawer, assert the title and primary action intersect the viewport. Assert no page contains three nested independently scrollable ancestors above the focused control.
 
-- [ ] **Step 3: Add keyboard and accessibility checks**
+- [x] **Step 3: Add keyboard and accessibility checks**
 
 Without pointer input, perform login, enter a course, switch course-knowledge views, select a document, choose a generation type/source mode, complete a minimum form, submit, cancel a job, open a resource, flip a flashcard, select a game type, and operate classroom playback. Check visible focus and accessible names for icon buttons. Check critical text/background color pairs with a WCAG contrast helper at AA thresholds.
 
-- [ ] **Step 4: Remove legacy mainline code and assert it stays removed**
+- [x] **Step 4: Remove legacy mainline code and assert it stays removed**
 
 Update `legacyRetirement.test.ts` to fail if the following return:
 
@@ -780,7 +780,7 @@ Update `legacyRetirement.test.ts` to fail if the following return:
 - page-local course fallback from `localStorage`;
 - random/decorative course progress generation.
 
-- [ ] **Step 5: Run the complete frontend gate**
+- [x] **Step 5: Run the complete frontend gate**
 
 ```powershell
 pnpm test
@@ -791,11 +791,11 @@ pnpm test:e2e
 
 Expected: unit/contract tests, lint, production build, five-viewport browser suite, visual snapshots, overflow assertions, and keyboard scenarios all pass. Console assertions permit no new React key, invalid DOM nesting, uncontrolled/controlled form, or deprecated-property warnings.
 
-- [ ] **Step 6: Perform human visual review and record decisions**
+- [x] **Step 6: Perform human visual review and record decisions**
 
 Review the accepted screenshots page by page. Record reviewer/date, viewport, light/dark result, defects found, fix commit, and final disposition in `docs/qa/teacher-frontend-release-checklist.md`. Automated snapshots detect change; human review decides whether hierarchy, clarity, and visual quality are acceptable.
 
-- [ ] **Step 7: Check Spec items backed by evidence and commit the gate**
+- [x] **Step 7: Check Spec items backed by evidence and commit the gate**
 
 ```powershell
 git add Edu_AI/tests/e2e Edu_AI/src/stitch/legacyRetirement.test.ts Edu_AI/docs/qa/frontend-baseline-2026-08-06.md Edu_AI/docs/qa/teacher-frontend-release-checklist.md Edu_AI/docs/superpowers/specs/2026-08-06-course-centered-teacher-experience-design.md
