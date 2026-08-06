@@ -81,6 +81,16 @@ export function getCourseMaterials(courseId: string, options?: CourseMaterialsSc
   return apiRequest<CourseMaterial[]>(`/api/courses/${courseId}/materials${search ? `?${search}` : ""}`);
 }
 
+export function getCourseMaterial(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+) {
+  return apiRequest<CourseMaterial>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}`,
+  );
+}
+
 export function getKnowledgeBaseDocuments(courseId: string, options?: KnowledgeBaseScopeOptions) {
   const params = new URLSearchParams();
 

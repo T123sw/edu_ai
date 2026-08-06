@@ -11,6 +11,18 @@ test("course resources expose explicit rename pin and complete delete actions", 
   assert.match(source, /打开课堂/);
 });
 
+test("course resources recover the exact material selected by a task result", async () => {
+  const source = await readFile(
+    new URL("./CourseResources.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(source, /readCourseMaterialTarget/);
+  assert.match(source, /getCourseMaterial/);
+  assert.match(source, /courseMaterialKey/);
+  assert.match(source, /结果资源不存在或无权访问/);
+});
+
 test("formal generated types have dedicated storage directories", async () => {
   const source = await readFile(
     new URL("../../../api/src/core/course_storage.py", import.meta.url),

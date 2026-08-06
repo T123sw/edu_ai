@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   courseMaterialToMarkdown,
   deleteCourseMaterial,
+  getCourseMaterial,
   getCourseMaterials,
   pinCourseMaterial,
   renameCourseMaterial,
@@ -13,6 +14,10 @@ import {
   isCourseMaterialInFilter,
   type CourseMaterialFilterKey,
 } from "../api/courseMaterialPresentation";
+import {
+  courseMaterialKey,
+  readCourseMaterialTarget,
+} from "../api/courseMaterialTarget";
 import type { CourseMaterial } from "../api/types";
 import { MarkdownPreview } from "../components/MarkdownPreview";
 import {
@@ -64,7 +69,7 @@ export function CourseResourcesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] =
     useState<CourseMaterialFilterKey>("all");
   const [query, setQuery] = useState("");
@@ -72,6 +77,7 @@ export function CourseResourcesPage() {
   const [sort, setSort] = useState<ResourceSort>("recent");
   const [actionBusy, setActionBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
 
@@ -82,14 +88,64 @@ export function CourseResourcesPage() {
       try {
         setLoading(true);
         setError(null);
+        setRecoveryError(null);
         const data = await getCourseMaterials(course.id);
-        if (!cancelled) {
-          setMaterials(data);
-          setActiveId((current) =>
-            data.some((item) => item.material_id === current)
-              ? current
-              : (data[0]?.material_id ?? null),
+        const requestedTarget = readCourseMaterialTarget(
+          typeof window === "undefined" ? "" : window.location.hash,
+        );
+        let nextMaterials = data;
+        let requestedKey: string | null = null;
+        if (requestedTarget) {
+          requestedKey = courseMaterialKey(
+            requestedTarget.materialType,
+            requestedTarget.materialId,
           );
+          const listed = data.some(
+            (item) =>
+              courseMaterialKey(item.material_type, item.material_id)
+              === requestedKey,
+          );
+          if (!listed) {
+            try {
+              const detail = await getCourseMaterial(
+                course.id,
+                requestedTarget.materialType,
+                requestedTarget.materialId,
+              );
+              nextMaterials = [detail, ...data];
+            } catch {
+              if (!cancelled) {
+                setMaterials(data);
+                setActiveKey(null);
+                setRecoveryError("结果资源不存在或无权访问");
+              }
+              return;
+            }
+          }
+        }
+        if (!cancelled) {
+          setMaterials(nextMaterials);
+          if (requestedKey) {
+            setActiveFilter("all");
+            setActiveKey(requestedKey);
+          } else {
+            setActiveKey((current) =>
+              nextMaterials.some(
+                (item) =>
+                  courseMaterialKey(item.material_type, item.material_id)
+                  === current,
+              )
+                ? current
+                : (
+                  nextMaterials[0]
+                    ? courseMaterialKey(
+                        nextMaterials[0].material_type,
+                        nextMaterials[0].material_id,
+                      )
+                    : null
+                ),
+            );
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -139,23 +195,39 @@ export function CourseResourcesPage() {
 
   useEffect(() => {
     if (
-      activeId &&
-      filteredMaterials.some((material) => material.material_id === activeId)
+      activeKey &&
+      filteredMaterials.some(
+        (material) =>
+          courseMaterialKey(material.material_type, material.material_id)
+          === activeKey,
+      )
     ) {
       return;
     }
-    setActiveId(filteredMaterials[0]?.material_id ?? null);
-  }, [activeId, filteredMaterials]);
+    if (recoveryError) return;
+    const first = filteredMaterials[0];
+    setActiveKey(
+      first ? courseMaterialKey(first.material_type, first.material_id) : null,
+    );
+  }, [activeKey, filteredMaterials, recoveryError]);
 
   useEffect(() => {
     setEditingTitle(false);
     setActionError(null);
-  }, [activeId]);
+  }, [activeKey]);
 
   const activeMaterial =
-    filteredMaterials.find((item) => item.material_id === activeId)
-    ?? filteredMaterials[0]
-    ?? null;
+    recoveryError
+      ? null
+      : (
+        filteredMaterials.find(
+          (item) =>
+            courseMaterialKey(item.material_type, item.material_id)
+            === activeKey,
+        )
+        ?? filteredMaterials[0]
+        ?? null
+      );
   const markdown = activeMaterial
     ? courseMaterialToMarkdown(activeMaterial)
     : "";
@@ -166,7 +238,8 @@ export function CourseResourcesPage() {
       window.location.hash = target.value;
       return;
     }
-    setActiveId(target.value);
+    setRecoveryError(null);
+    setActiveKey(courseMaterialKey(material.material_type, target.value));
   }
 
   async function togglePinned(material: CourseMaterial) {
@@ -411,7 +484,10 @@ export function CourseResourcesPage() {
                     material.material_type,
                   );
                   const active =
-                    material.material_id === activeMaterial?.material_id;
+                    courseMaterialKey(
+                      material.material_type,
+                      material.material_id,
+                    ) === activeKey;
                   return (
                     <button
                       key={`${material.material_type}:${material.material_id}`}
@@ -463,7 +539,22 @@ export function CourseResourcesPage() {
 
           <section className="min-h-0 min-w-0">
             <GlassPanel className="flex h-full min-h-0 min-w-0 flex-col border border-(--shell-border) bg-white/90 p-6">
-              {activeMaterial && activeMeta ? (
+              {recoveryError ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="max-w-md rounded-[22px] border border-rose-200 bg-rose-50 p-6 text-center">
+                    <MaterialIcon
+                      name="error"
+                      className="text-3xl text-rose-500"
+                    />
+                    <h2 className="mt-3 font-black text-rose-700">
+                      无法恢复任务结果
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-rose-600">
+                      {recoveryError}
+                    </p>
+                  </div>
+                </div>
+              ) : activeMaterial && activeMeta ? (
                 <>
                   <div className="flex flex-wrap items-center justify-between gap-4 border-b border-(--shell-border) pb-4">
                     <div className="min-w-0">
