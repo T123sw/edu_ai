@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,8 +25,30 @@ from app.services.runtime_config_resolver import (
 )
 
 
-def create_app() -> FastAPI:
-    app = FastAPI(title=Config.APP_NAME, version="1.0.0")
+def create_app(
+    *,
+    durable_runtime_factory: Callable[[], object] | None = None,
+) -> FastAPI:
+    if durable_runtime_factory is None:
+        from app.services.durable_job_runtime import build_durable_job_runtime
+
+        durable_runtime_factory = build_durable_job_runtime
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        runtime = durable_runtime_factory()
+        runtime.start()
+        app.state.durable_job_runtime = runtime
+        try:
+            yield
+        finally:
+            runtime.stop(grace_seconds=10)
+
+    app = FastAPI(
+        title=Config.APP_NAME,
+        version="1.0.0",
+        lifespan=lifespan,
+    )
 
     @app.middleware("http")
     async def bind_runtime_configuration(request, call_next):

@@ -651,6 +651,51 @@ class TaskStore:
                 raise
         return LeaseRecoverySummary(requeued=requeued, failed=failed)
 
+    def mark_reconciled_succeeded(
+        self,
+        task_id: str,
+        *,
+        result: Mapping[str, Any],
+        result_ref: Mapping[str, Any],
+        now: float | None = None,
+    ) -> bool:
+        """Finish a task whose resource was published before its worker stopped."""
+        active_now = float(now if now is not None else _now_ts())
+        result_json = json.dumps(
+            dict(result),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        result_ref_json = json.dumps(
+            dict(result_ref),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        with self._lock:
+            cursor = self._conn.execute(
+                """
+                UPDATE tasks
+                SET status='succeeded', result_json=?, result_ref_json=?,
+                    error_code=NULL, error=NULL,
+                    lease_owner=NULL, lease_expires_at=NULL,
+                    heartbeat_at=NULL, finished_at=?, updated_at=?
+                WHERE task_id=? AND status IN ('pending', 'leased')
+                """,
+                (
+                    result_json,
+                    result_ref_json,
+                    active_now,
+                    active_now,
+                    str(task_id or "").strip(),
+                ),
+            )
+            self._conn.commit()
+        return cursor.rowcount == 1
+
     def get_durable(self, task_id: str) -> DurableTask | None:
         with self._lock:
             row = self._conn.execute(
