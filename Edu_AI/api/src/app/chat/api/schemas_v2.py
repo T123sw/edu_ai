@@ -110,6 +110,7 @@ class KnowledgeBaseDirectReportRequestV2(BaseModel):
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
     selected_card: Optional["ReportEntryCardSelectionV2"] = None
+    idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 
 class KnowledgeBaseDirectQuizPrefillRequestV2(BaseModel):
@@ -137,6 +138,7 @@ class KnowledgeBaseDirectQuizRequestV2(BaseModel):
     quiz_config: DirectQuizConfigV2
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
+    idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 
 class KnowledgeBaseDirectGameRequestV2(BaseModel):
@@ -145,6 +147,7 @@ class KnowledgeBaseDirectGameRequestV2(BaseModel):
     scope_id: Optional[str] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
     game_type: GameType
+    idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 
 class DirectFlashcardConfigV2(BaseModel):

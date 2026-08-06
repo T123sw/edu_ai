@@ -67,7 +67,10 @@ class KnowledgeBaseDirectFlashcardServiceV2:
             show_sources=bool(config.get("show_sources", True)),
             selected_doc_ids=selected_doc_ids,
         )
-        material_id = f"flashcard-{uuid4().hex[:16]}"
+        material_id = (
+            _clean(getattr(payload, "material_id", ""))
+            or f"flashcard-{uuid4().hex[:16]}"
+        )
         content = {
             "title": title,
             "cards": cards,

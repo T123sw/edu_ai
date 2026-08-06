@@ -32,7 +32,13 @@ class KnowledgeBaseDirectReportServiceV2:
         self.llm = llm or get_fallback_llm()
         self.course_storage_manager = course_storage_manager or default_course_storage_manager
 
-    def generate(self, payload):
+    def generate(
+        self,
+        payload,
+        *,
+        job_id: str | None = None,
+        config_snapshot_id: str | None = None,
+    ):
         selected_doc_ids = [
             str(item or "").strip()
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
@@ -57,7 +63,10 @@ class KnowledgeBaseDirectReportServiceV2:
             "action": {"name": "generate.report.direct"},
             "artifacts": [
                 {
-                    "artifact_id": f"report-{uuid4().hex[:12]}",
+                    "artifact_id": str(
+                        getattr(payload, "material_id", "") or ""
+                    ).strip()
+                    or f"report-{uuid4().hex[:12]}",
                     "artifact_type": "report",
                     "title": "报告.md",
                     "content": report_markdown,

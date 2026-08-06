@@ -81,7 +81,13 @@ class KnowledgeBaseDirectQuizServiceV2:
             },
         }
 
-    def generate(self, payload):
+    def generate(
+        self,
+        payload,
+        *,
+        job_id: str | None = None,
+        config_snapshot_id: str | None = None,
+    ):
         selected_doc_ids = [
             _clean(item)
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
@@ -120,6 +126,9 @@ class KnowledgeBaseDirectQuizServiceV2:
             preparation=preparation,
             conversation_id=f"direct-quiz-{uuid4().hex[:12]}",
         )
+        requested_material_id = _clean(getattr(payload, "material_id", ""))
+        if requested_material_id:
+            artifact["artifact_id"] = requested_material_id
         artifact["generation_state"] = {
             **dict(artifact.get("generation_state") or {}),
             "status": "completed",

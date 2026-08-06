@@ -86,63 +86,19 @@ async def dispatch_retry_job(
         return job
 
     if job.kind == JobKind.GENERATE_FLASHCARD:
-        from types import SimpleNamespace
-
-        from app.chat.application.knowledge_base_direct_flashcard_service_v2 import (
-            build_default_knowledge_base_direct_flashcard_service_v2,
-        )
-
         command = _generation_command_from_retry(job, owner=owner)
-        service = build_default_knowledge_base_direct_flashcard_service_v2()
-
-        def _run(active_command, job_id, config_snapshot_id):
-            return service.generate(
-                SimpleNamespace(
-                    owner=active_command.owner_user_id,
-                    course_id=active_command.course_id,
-                    scope_type=active_command.scope_type,
-                    scope_id=active_command.scope_id,
-                    selected_doc_ids=active_command.selected_doc_ids,
-                    flashcard_config=active_command.config,
-                ),
-                job_id=job_id,
-                config_snapshot_id=config_snapshot_id,
-            )
-
         return generation_command_service.submit(
             command,
-            _run,
             existing_job=job,
         )
 
     if job.kind == JobKind.GENERATE_PPT:
-        from types import SimpleNamespace
-
-        from app.chat.application.knowledge_base_direct_ppt_service_v2 import (
-            build_default_knowledge_base_direct_ppt_service_v2,
-        )
-
         command = _generation_command_from_retry(job, owner=owner)
         draft_id = str(command.config.get("draft_id") or "").strip()
         if not draft_id:
             return _dispatch_failure(job, "重试任务缺少 PPT 草稿信息")
-        service = build_default_knowledge_base_direct_ppt_service_v2()
-
-        def _run(active_command, job_id, config_snapshot_id):
-            return service.generate(
-                SimpleNamespace(
-                    owner=active_command.owner_user_id,
-                    draft_id=draft_id,
-                    confirm=True,
-                    outline=None,
-                ),
-                job_id=job_id,
-                config_snapshot_id=config_snapshot_id,
-            )
-
         return generation_command_service.submit(
             command,
-            _run,
             existing_job=job,
         )
 

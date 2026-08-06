@@ -35,7 +35,6 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectReportRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
-from app.chat.tasks.background_runner import submit_callable_task
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
@@ -428,17 +427,30 @@ async def lesson_plan_cards(payload: ChatLessonPlanCardsRequestV2, current_user:
 
 @router.post("/report/direct", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_user: dict = Depends(get_current_user)):
-    ns_payload = _with_owner(payload, current_user)
-    task_id = submit_callable_task(
-        fn=lambda: _get_direct_report_service().generate(ns_payload),
-        workflow_type="report_direct",
-        owner_user_id=ns_payload.owner,
-        course_id=ns_payload.course_id,
-        scope_type=ns_payload.scope_type or "course",
-        scope_id=ns_payload.scope_id,
-        input_summary={"title": payload.question[:160]},
+    owner = str(current_user.get("username") or "").strip()
+    command = GenerationCommand(
+        resource_type="report",
+        owner_user_id=owner,
+        course_id=str(payload.course_id or ""),
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        selected_doc_ids=payload.selected_doc_ids,
+        config={
+            "title": payload.question[:160],
+            "question": payload.question,
+            "report_config": payload.report_config,
+            "prompt_draft": payload.prompt_draft,
+            "final_user_prompt": payload.final_user_prompt,
+            "selected_card": (
+                payload.selected_card.model_dump(mode="json")
+                if payload.selected_card is not None
+                else None
+            ),
+        },
+        idempotency_key=payload.idempotency_key or str(uuid4()),
     )
-    return {"task_id": task_id, "status": "pending", "workflow_type": "report_direct"}
+    job = generation_command_service.submit(command)
+    return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "report_direct"}
 
 
 @router.post("/quiz/prefill", response_model=ChatQuizPrefillResponseV2)
@@ -458,32 +470,44 @@ async def quiz_prefill(payload: KnowledgeBaseDirectQuizPrefillRequestV2, current
 
 @router.post("/quiz/direct", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: dict = Depends(get_current_user)):
-    ns_payload = _with_owner(payload, current_user)
-    task_id = submit_callable_task(
-        fn=lambda: _get_direct_quiz_service().generate(ns_payload),
-        workflow_type="quiz_direct",
-        owner_user_id=ns_payload.owner,
-        course_id=ns_payload.course_id,
-        scope_type=ns_payload.scope_type or "course",
-        scope_id=ns_payload.scope_id,
-        input_summary={"title": payload.quiz_config.topic[:160]},
+    owner = str(current_user.get("username") or "").strip()
+    command = GenerationCommand(
+        resource_type="quiz",
+        owner_user_id=owner,
+        course_id=str(payload.course_id or ""),
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        selected_doc_ids=payload.selected_doc_ids,
+        config={
+            "title": payload.quiz_config.topic[:160],
+            "quiz_config": payload.quiz_config.model_dump(mode="json"),
+            "prompt_draft": payload.prompt_draft,
+            "final_user_prompt": payload.final_user_prompt,
+        },
+        idempotency_key=payload.idempotency_key or str(uuid4()),
     )
-    return {"task_id": task_id, "status": "pending", "workflow_type": "quiz_direct"}
+    job = generation_command_service.submit(command)
+    return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "quiz_direct"}
 
 
 @router.post("/game/direct", response_model=ChatDirectTaskSubmittedResponseV2)
 async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: dict = Depends(get_current_user)):
-    ns_payload = _with_owner(payload, current_user)
-    task_id = submit_callable_task(
-        fn=lambda: _get_direct_game_service().generate(ns_payload),
-        workflow_type="game_direct",
-        owner_user_id=ns_payload.owner,
-        course_id=ns_payload.course_id,
-        scope_type=ns_payload.scope_type or "course",
-        scope_id=ns_payload.scope_id,
-        input_summary={"title": f"{payload.game_type} 小游戏"},
+    owner = str(current_user.get("username") or "").strip()
+    command = GenerationCommand(
+        resource_type="game",
+        owner_user_id=owner,
+        course_id=str(payload.course_id or ""),
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        selected_doc_ids=payload.selected_doc_ids,
+        config={
+            "title": f"{payload.game_type} 小游戏",
+            "game_type": payload.game_type,
+        },
+        idempotency_key=payload.idempotency_key or str(uuid4()),
     )
-    return {"task_id": task_id, "status": "pending", "workflow_type": "game_direct"}
+    job = generation_command_service.submit(command)
+    return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "game_direct"}
 
 
 @router.post("/flashcard/direct", response_model=ChatDirectTaskSubmittedResponseV2)
@@ -499,27 +523,13 @@ async def direct_flashcard(
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
         selected_doc_ids=payload.selected_doc_ids,
-        config=payload.flashcard_config.model_dump(),
+        config={
+            "title": payload.flashcard_config.title,
+            "flashcard_config": payload.flashcard_config.model_dump(mode="json"),
+        },
         idempotency_key=payload.idempotency_key,
     )
-    service = _get_direct_flashcard_service()
-
-    def _run(active_command, job_id, config_snapshot_id):
-        request = SimpleNamespace(
-            owner=active_command.owner_user_id,
-            course_id=active_command.course_id,
-            scope_type=active_command.scope_type,
-            scope_id=active_command.scope_id,
-            selected_doc_ids=active_command.selected_doc_ids,
-            flashcard_config=active_command.config,
-        )
-        return service.generate(
-            request,
-            job_id=job_id,
-            config_snapshot_id=config_snapshot_id,
-        )
-
-    job = generation_command_service.submit(command, _run)
+    job = generation_command_service.submit(command)
     return {
         "task_id": job.edu_job_id,
         "status": "pending",
@@ -556,25 +566,17 @@ async def direct_ppt_generate(
         selected_doc_ids=list(draft.get("selected_doc_ids") or []),
         config={
             **dict(draft.get("normalized_ppt_config") or {}),
+            "title": str(
+                dict(draft.get("normalized_ppt_config") or {}).get("deck_title")
+                or "PPT"
+            ),
             "draft_id": payload.draft_id,
+            "confirm": payload.confirm,
+            "outline": payload.outline,
         },
         idempotency_key=payload.idempotency_key,
     )
-
-    def _run(active_command, job_id, config_snapshot_id):
-        request = SimpleNamespace(
-            owner=active_command.owner_user_id,
-            draft_id=payload.draft_id,
-            confirm=payload.confirm,
-            outline=payload.outline,
-        )
-        return service.generate(
-            request,
-            job_id=job_id,
-            config_snapshot_id=config_snapshot_id,
-        )
-
-    job = generation_command_service.submit(command, _run)
+    job = generation_command_service.submit(command)
     return {
         "task_id": job.edu_job_id,
         "status": "pending",
@@ -587,10 +589,6 @@ async def direct_graph(
     payload: KnowledgeBaseDirectGraphRequestV2,
     current_user: dict = Depends(get_current_user),
 ):
-    from app.chat.application.knowledge_base_direct_graph_service_v2 import (
-        build_default_knowledge_base_direct_graph_service_v2,
-    )
-
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="graph",
@@ -602,23 +600,7 @@ async def direct_graph(
         config={"title": payload.title, "max_depth": payload.max_depth},
         idempotency_key=payload.idempotency_key,
     )
-    service = build_default_knowledge_base_direct_graph_service_v2()
-
-    def _run(active_command, job_id, config_snapshot_id):
-        return service.generate(
-            SimpleNamespace(
-                owner=active_command.owner_user_id,
-                course_id=active_command.course_id,
-                scope_type=active_command.scope_type,
-                scope_id=active_command.scope_id,
-                selected_doc_ids=active_command.selected_doc_ids,
-                graph_config=active_command.config,
-            ),
-            job_id=job_id,
-            config_snapshot_id=config_snapshot_id,
-        )
-
-    job = generation_command_service.submit(command, _run)
+    job = generation_command_service.submit(command)
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "graph_direct"}
 
 
@@ -627,8 +609,6 @@ async def direct_blog(
     payload: KnowledgeBaseDirectBlogRequestV2,
     current_user: dict = Depends(get_current_user),
 ):
-    from app.chat.application.blog_generation_adapter_v2 import BlogGenerationAdapterV2
-
     owner = str(current_user.get("username") or "").strip()
     selected_docs = payload.selected_doc_ids or [f"course:{payload.course_id}"]
     command = GenerationCommand(
@@ -641,19 +621,6 @@ async def direct_blog(
         config={"title": payload.topic, "topic": payload.topic},
         idempotency_key=payload.idempotency_key,
     )
-    service = BlogGenerationAdapterV2()
-
-    def _run(active_command, job_id, config_snapshot_id):
-        return service.generate(
-            SimpleNamespace(
-                owner=active_command.owner_user_id,
-                course_id=active_command.course_id,
-                topic=active_command.config["topic"],
-            ),
-            job_id=job_id,
-            config_snapshot_id=config_snapshot_id,
-        )
-
-    job = generation_command_service.submit(command, _run)
+    job = generation_command_service.submit(command)
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "blog_direct"}
 

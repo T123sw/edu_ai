@@ -871,17 +871,23 @@ const StudioPanel: React.FC<Props> = ({
     setGenerating(true);
     try {
       const task = await generateKnowledgeBaseReportV2(
-        buildKnowledgeBaseReportRequest({
-          question,
-          promptDraft,
-          card,
-          courseId,
-          scopeType: workspaceScopeApiParams.scopeType,
-          scopeId: workspaceScopeApiParams.scopeId,
-          selectedDocIds: selectedDocs,
-          allowRag,
-          allowWeb,
-        }),
+        {
+          ...buildKnowledgeBaseReportRequest({
+            question,
+            promptDraft,
+            card,
+            courseId,
+            scopeType: workspaceScopeApiParams.scopeType,
+            scopeId: workspaceScopeApiParams.scopeId,
+            selectedDocIds: selectedDocs,
+            allowRag,
+            allowWeb,
+          }),
+          idempotency_key:
+            typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+              ? crypto.randomUUID()
+              : `report-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        },
       );
       setDirectBgTasks((prev) => [
         ...prev,
@@ -906,13 +912,19 @@ const StudioPanel: React.FC<Props> = ({
     setGenerating(true);
     try {
       const task = await generateKnowledgeBaseQuizV2(
-        buildKnowledgeBaseQuizRequest({
-          courseId,
-          scopeType: workspaceScopeApiParams.scopeType,
-          scopeId: workspaceScopeApiParams.scopeId,
-          selectedDocIds: selectedDocs,
-          config,
-        }),
+        {
+          ...buildKnowledgeBaseQuizRequest({
+            courseId,
+            scopeType: workspaceScopeApiParams.scopeType,
+            scopeId: workspaceScopeApiParams.scopeId,
+            selectedDocIds: selectedDocs,
+            config,
+          }),
+          idempotency_key:
+            typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+              ? crypto.randomUUID()
+              : `quiz-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        },
       );
       setDirectBgTasks((prev) => [
         ...prev,
@@ -942,6 +954,10 @@ const StudioPanel: React.FC<Props> = ({
         scope_id: workspaceScopeApiParams.scopeId,
         selected_doc_ids: selectedDocs,
         game_type: gameType,
+        idempotency_key:
+          typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `game-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       });
       setDirectBgTasks((prev) => [
         ...prev,

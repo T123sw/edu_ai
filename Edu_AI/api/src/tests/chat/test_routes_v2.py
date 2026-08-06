@@ -456,11 +456,23 @@ def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
 
-    class DummyService:
-        def generate(self, payload):
-            return {"action": {"name": "generate.report.direct"}, "artifacts": [], "trace": {"path": "direct"}}
+    captured = {}
 
-    monkeypatch.setattr("app.chat.api.routes_v2._get_direct_report_service", lambda: DummyService())
+    class DummyCommandService:
+        def submit(self, command):
+            captured["command"] = command
+            return type("Job", (), {"edu_job_id": "job-report-1"})()
+
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2.generation_command_service",
+        DummyCommandService(),
+    )
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2._get_direct_report_service",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("HTTP request must not build the generator service")
+        ),
+    )
     client = TestClient(app)
     response = client.post(
         "/api/chat/v2/report/direct",
@@ -468,6 +480,7 @@ def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
             "question": "generate report",
             "course_id": "course-1",
             "selected_doc_ids": ["doc-1"],
+            "idempotency_key": "report-request-1",
         },
     )
 
@@ -475,7 +488,10 @@ def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
     data = response.json()
     assert data["status"] == "pending"
     assert data["workflow_type"] == "report_direct"
-    assert data["task_id"]
+    assert data["task_id"] == "job-report-1"
+    assert captured["command"].resource_type == "report"
+    assert captured["command"].config["question"] == "generate report"
+    assert captured["command"].idempotency_key == "report-request-1"
 
 
 def test_game_direct_route_returns_task_submitted_payload(monkeypatch):
@@ -483,22 +499,42 @@ def test_game_direct_route_returns_task_submitted_payload(monkeypatch):
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
 
-    class DummyService:
-        def generate(self, payload):
-            return {"action": {"name": "generate.game.direct"}, "artifacts": [], "trace": {"path": "direct"}}
+    captured = {}
 
-    monkeypatch.setattr("app.chat.api.routes_v2._get_direct_game_service", lambda: DummyService(), raising=False)
+    class DummyCommandService:
+        def submit(self, command):
+            captured["command"] = command
+            return type("Job", (), {"edu_job_id": "job-game-1"})()
+
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2.generation_command_service",
+        DummyCommandService(),
+    )
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2._get_direct_game_service",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("HTTP request must not build the generator service")
+        ),
+        raising=False,
+    )
     client = TestClient(app)
     response = client.post(
         "/api/chat/v2/game/direct",
-        json={"course_id": "course-1", "selected_doc_ids": ["doc-1"], "game_type": "drag_match"},
+        json={
+            "course_id": "course-1",
+            "selected_doc_ids": ["doc-1"],
+            "game_type": "drag_match",
+            "idempotency_key": "game-request-1",
+        },
     )
 
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "pending"
     assert data["workflow_type"] == "game_direct"
-    assert data["task_id"]
+    assert data["task_id"] == "job-game-1"
+    assert captured["command"].resource_type == "game"
+    assert captured["command"].config["game_type"] == "drag_match"
 
 
 def test_game_html_route_uses_authenticated_path_resolution(monkeypatch):

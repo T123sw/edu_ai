@@ -266,7 +266,10 @@ class KnowledgeBaseDirectPptServiceV2:
                 "content_markdown": final_markdown,
             }
         )
-        material_id = f"ppt-{uuid4().hex[:16]}"
+        material_id = (
+            _clean(getattr(payload, "material_id", ""))
+            or f"ppt-{uuid4().hex[:16]}"
+        )
         generation_state = {
             "status": "completed",
             "phase": "completed",

@@ -128,6 +128,7 @@ export interface KnowledgeBaseDirectReportRequestV2 {
   prompt_draft?: string;
   final_user_prompt?: string;
   selected_card?: ReportEntryCardSelection | null;
+  idempotency_key?: string;
 }
 
 export type QuizQuestionTypeV2 = 'choice' | 'blank' | 'short' | 'judge';
@@ -158,6 +159,7 @@ export interface KnowledgeBaseDirectQuizRequestV2 {
   quiz_config: DirectQuizConfigV2;
   prompt_draft?: string;
   final_user_prompt?: string;
+  idempotency_key?: string;
 }
 
 export type GameTypeV2 = 'category_sort' | 'drag_match' | 'memory_flip';
@@ -168,6 +170,7 @@ export interface KnowledgeBaseDirectGameRequestV2 {
   scope_id?: string;
   selected_doc_ids?: string[];
   game_type: GameTypeV2;
+  idempotency_key?: string;
 }
 
 export interface KnowledgeBaseDirectFlashcardRequestV2 {

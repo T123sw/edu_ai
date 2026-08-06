@@ -1,9 +1,4 @@
-"""Shared command boundary for teacher-facing generated resources.
-
-The business generators stay independent.  This module owns the concerns that
-must be identical for every entry point: validation, owner scoping,
-idempotency, job lifecycle, configuration snapshots and persistence failures.
-"""
+"""Durable command boundary for teacher-facing generated resources."""
 
 from __future__ import annotations
 
@@ -15,24 +10,18 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.chat.tasks.task_store import TaskStore, get_task_store
 from app.services.job_store import (
     ACTIVE_JOB_STATUSES,
+    EduJob,
     JobKind,
     JobStatus,
-    EduJob,
     create_job,
+    get_job,
     list_job_page,
     update_job,
 )
-from app.services.runtime_config_resolver import (
-    reset_runtime_config_context,
-    runtime_config_resolver,
-    set_runtime_config_context,
-)
-from core.course_storage import (
-    reset_generation_persistence_context,
-    set_generation_persistence_context,
-)
+from app.services.runtime_config_resolver import runtime_config_resolver
 
 
 GenerationResourceType = Literal[
@@ -56,6 +45,10 @@ _JOB_KIND_BY_RESOURCE: dict[str, JobKind] = {
     "graph": JobKind.GENERATE_GRAPH,
     "game": JobKind.GENERATE_GAME,
 }
+_WORKFLOW_BY_RESOURCE = {
+    resource_type: f"{resource_type}_direct"
+    for resource_type in _JOB_KIND_BY_RESOURCE
+}
 
 
 class GenerationCommand(BaseModel):
@@ -67,6 +60,7 @@ class GenerationCommand(BaseModel):
     selected_doc_ids: list[str] = Field(default_factory=list)
     config: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str
+    material_id: str | None = None
 
     @model_validator(mode="after")
     def _validate_required_context(self):
@@ -92,6 +86,22 @@ class GenerationCommand(BaseModel):
             raise ValueError("idempotency_key is required")
         if len(self.idempotency_key) > 160:
             raise ValueError("idempotency_key is too long")
+        if not str(self.material_id or "").strip():
+            identity = json.dumps(
+                {
+                    "owner": self.owner_user_id,
+                    "course": self.course_id,
+                    "resource": self.resource_type,
+                    "idempotency_key": self.idempotency_key,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:16]
+            self.material_id = f"{self.resource_type}-{digest}"
+        else:
+            self.material_id = str(self.material_id).strip()
         return self
 
     @property
@@ -105,31 +115,32 @@ class GenerationCommand(BaseModel):
         )
         return f"cfg_{hashlib.sha256(payload.encode('utf-8')).hexdigest()[:16]}"
 
-
-GenerationHandler = Callable[
-    [GenerationCommand, str, str],
-    dict[str, Any],
-]
+    @property
+    def workflow_type(self) -> str:
+        return _WORKFLOW_BY_RESOURCE[self.resource_type]
 
 
 class GenerationCommandService:
     _submission_lock = threading.RLock()
 
+    def __init__(
+        self,
+        *,
+        task_store: TaskStore | None = None,
+        snapshot_provider: Callable[[str], dict[str, str]] | None = None,
+    ) -> None:
+        self.task_store = task_store or get_task_store()
+        self.snapshot_provider = (
+            snapshot_provider or runtime_config_resolver.capture_snapshot
+        )
+
     def submit(
         self,
         command: GenerationCommand,
-        handler: GenerationHandler,
         *,
         existing_job: EduJob | None = None,
     ) -> EduJob:
         with self._submission_lock:
-            if "_runtime_config_snapshot" not in command.config:
-                command.config = {
-                    **command.config,
-                    "_runtime_config_snapshot": runtime_config_resolver.capture_snapshot(
-                        command.owner_user_id
-                    ),
-                }
             if existing_job is None:
                 duplicate = self._find_duplicate(command)
                 if duplicate is not None:
@@ -141,7 +152,11 @@ class GenerationCommandService:
                     scope_type=command.scope_type,
                     scope_id=command.scope_id,
                     input_summary={
-                        "title": str(command.config.get("title") or command.resource_type)[:160],
+                        "title": str(
+                            command.config.get("title")
+                            or command.config.get("topic")
+                            or command.resource_type
+                        )[:160],
                         "resource_type": command.resource_type,
                         "selected_doc_ids": command.selected_doc_ids,
                         "config": command.config,
@@ -153,13 +168,50 @@ class GenerationCommandService:
             else:
                 job = existing_job
 
-            worker = threading.Thread(
-                target=self._run,
-                args=(job, command, handler),
-                daemon=True,
-                name=f"generation-{job.edu_job_id}",
+            payload = command.model_dump(mode="json")
+            payload["runtime_config_snapshot"] = dict(
+                self.snapshot_provider(command.owner_user_id)
             )
-            worker.start()
+            if command.resource_type == "blog":
+                payload["material_id"] = job.edu_job_id
+            try:
+                durable = self.task_store.enqueue(
+                    task_id=job.edu_job_id,
+                    workflow_type=command.workflow_type,
+                    handler_version=1,
+                    owner_user_id=command.owner_user_id,
+                    course_id=command.course_id,
+                    scope_type=command.scope_type,
+                    scope_id=command.scope_id,
+                    command=payload,
+                    config_snapshot_id=command.config_snapshot_id,
+                    idempotency_key=command.idempotency_key,
+                    max_attempts=3,
+                )
+            except Exception as exc:
+                failed = update_job(
+                    job.edu_job_id,
+                    status=JobStatus.FAILED,
+                    step="enqueue_failed",
+                    progress=100,
+                    message="后台任务入队失败",
+                    error_code="TASK_ENQUEUE_FAILED",
+                    error_message=str(exc),
+                )
+                return failed or job
+
+            if durable.task_id != job.edu_job_id:
+                duplicate_job = get_job(durable.task_id)
+                if duplicate_job is not None:
+                    update_job(
+                        job.edu_job_id,
+                        status=JobStatus.FAILED,
+                        step="duplicate_submission",
+                        progress=100,
+                        message="请求已由另一任务接收",
+                        error_code="DUPLICATE_SUBMISSION",
+                    )
+                    return duplicate_job
             return job
 
     def _find_duplicate(self, command: GenerationCommand) -> EduJob | None:
@@ -182,72 +234,6 @@ class GenerationCommandService:
             ):
                 return job
         return None
-
-    @staticmethod
-    def _run(
-        job: EduJob,
-        command: GenerationCommand,
-        handler: GenerationHandler,
-    ) -> None:
-        update_job(
-            job.edu_job_id,
-            status=JobStatus.RUNNING,
-            step="generating",
-            progress=5,
-            message="正在根据课程资料生成内容",
-        )
-        try:
-            runtime_tokens = set_runtime_config_context(
-                owner_user_id=command.owner_user_id,
-                snapshot=dict(command.config.get("_runtime_config_snapshot") or {}),
-            )
-            context_token = set_generation_persistence_context(
-                owner_user_id=command.owner_user_id,
-                source_job_id=job.edu_job_id,
-                config_snapshot_id=command.config_snapshot_id,
-            )
-            try:
-                result = handler(
-                    command,
-                    job.edu_job_id,
-                    command.config_snapshot_id,
-                )
-            finally:
-                reset_generation_persistence_context(context_token)
-                reset_runtime_config_context(runtime_tokens)
-            saved = bool(result.get("saved", True))
-            result_ref = dict(result.get("result_ref") or {})
-            if saved:
-                update_job(
-                    job.edu_job_id,
-                    status=JobStatus.SUCCEEDED,
-                    step="completed",
-                    progress=100,
-                    message="生成完成，结果已保存到课程资源",
-                    result_ref=result_ref,
-                )
-            else:
-                error = str(result.get("error") or "资源保存失败")
-                update_job(
-                    job.edu_job_id,
-                    status=JobStatus.PARTIALLY_SUCCEEDED,
-                    step="save_failed",
-                    progress=100,
-                    message="内容已生成，但保存课程资源失败",
-                    result_ref=result_ref,
-                    error_message=error,
-                    error_code="RESOURCE_SAVE_FAILED",
-                )
-        except Exception as exc:  # worker boundary: publish a durable failure
-            update_job(
-                job.edu_job_id,
-                status=JobStatus.FAILED,
-                step="failed",
-                progress=100,
-                message="生成失败",
-                error_message=str(exc),
-                error_code="GENERATION_FAILED",
-            )
 
 
 generation_command_service = GenerationCommandService()

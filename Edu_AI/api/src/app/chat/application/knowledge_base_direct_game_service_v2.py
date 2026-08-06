@@ -50,7 +50,13 @@ class KnowledgeBaseDirectGameServiceV2:
         self.course_storage_manager = course_storage_manager or default_course_storage_manager
         self.storage_root = Path(storage_root or (Config.STORAGE_ROOT / "chat_games")).resolve()
 
-    def generate(self, payload):
+    def generate(
+        self,
+        payload,
+        *,
+        job_id: str | None = None,
+        config_snapshot_id: str | None = None,
+    ):
         selected_doc_ids = [
             _clean(item)
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
@@ -65,7 +71,10 @@ class KnowledgeBaseDirectGameServiceV2:
         owner = _clean(getattr(payload, "owner", "")) or "anonymous"
         documents = self._load_documents(selected_doc_ids=selected_doc_ids, owner=owner)
         game_data = self._generate_validated_game_data(template=template, documents=documents)
-        artifact_id = f"game-{uuid4().hex[:12]}"
+        artifact_id = (
+            _clean(getattr(payload, "material_id", ""))
+            or f"game-{uuid4().hex[:12]}"
+        )
         html_relative_path, html_url = self._render_html(
             owner=owner,
             course_id=_clean(getattr(payload, "course_id", "")) or "direct",

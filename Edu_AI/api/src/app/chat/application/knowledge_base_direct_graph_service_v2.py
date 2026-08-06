@@ -70,7 +70,10 @@ class KnowledgeBaseDirectGraphServiceV2:
         except Exception as exc:
             raise ValueError("graph response is not valid JSON") from exc
         normalized_root = self._normalize_node(root, depth=1, max_depth=max_depth)
-        material_id = f"graph-{uuid4().hex[:16]}"
+        material_id = (
+            _clean(getattr(payload, "material_id", ""))
+            or f"graph-{uuid4().hex[:16]}"
+        )
         content = {"root": normalized_root, "max_depth": max_depth}
         saved = bool(
             self.course_storage_manager.save_generated_material(
