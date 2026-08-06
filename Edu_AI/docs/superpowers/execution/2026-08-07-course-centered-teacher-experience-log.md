@@ -124,3 +124,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: source-bearing API models infer `selected_documents` only for legacy requests that omit `source_mode` but include IDs. New explicit contradictory combinations are rejected. Persisted commands use the same legacy inference without rewriting stored task rows.
 - Decision: durable task-submission routes return HTTP 202; synchronous chat and prefill/outline operations retain their existing synchronous status.
 - Result: report, quiz, game, flashcard, PPT outline/draft, graph, and blog now carry the same source contract; durable commands persist `source_mode`, public IDs, and bounded `deadline_seconds`.
+
+### Plan 2 / Task 3 — Single-pass source provenance
+
+- Red evidence: provenance tests failed because the task handler accepted no source resolver and material persistence accepted no source/config snapshots.
+- Green evidence: `28 passed` across task handlers, provenance, formal material manifests, direct/legacy RAG providers, and job completion.
+- Decision: a frozen `GenerationExecutionContext` carries one resolved source and recursively immutable configuration to adapters that opt into the new keyword; existing adapters remain compatible during staged migration.
+- Decision: downstream payloads receive canonical RAG keys and the already-resolved context text. Providers expose direct RAG-key reads so public document IDs are not resolved a second time.
+- Result: every durable generation resolves source intent once, preserves the same source/config snapshot in both handler-published and generator-published course materials, and records `created_by` plus `source_job_id`.

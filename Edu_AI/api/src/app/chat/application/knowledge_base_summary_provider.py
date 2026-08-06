@@ -66,6 +66,58 @@ class KnowledgeBaseSummaryProvider:
             "fallback_used": len(resolved_documents) == 0,
         }
 
+    def get_resolved_document_summaries(
+        self,
+        *,
+        rag_index_keys: list[str],
+    ) -> dict[str, Any]:
+        """Read summaries by canonical RAG key without public-ID resolution."""
+        rag_system = self._rag_system_factory()
+        documents: list[dict[str, Any]] = []
+        timestamps: list[str] = []
+        for rag_index_key in list(rag_index_keys or []):
+            normalized_key = str(rag_index_key or "").strip()
+            if not normalized_key:
+                continue
+            record = dict(
+                getattr(rag_system, "document_index", {}).get(normalized_key)
+                or {}
+            )
+            if not record:
+                continue
+            summary = str(record.get("summary") or "").strip()
+            updated_at = str(record.get("summary_updated_at") or "").strip()
+            if not summary:
+                try:
+                    generated = rag_system.summarize_document(
+                        normalized_key,
+                        force_refresh=False,
+                        owner=record.get("owner"),
+                    )
+                except Exception:
+                    generated = {}
+                summary = str((generated or {}).get("summary") or "").strip()
+                updated_at = str(
+                    (generated or {}).get("summary_updated_at") or ""
+                ).strip()
+            if not summary:
+                continue
+            documents.append(
+                {
+                    "rag_index_key": normalized_key,
+                    "title": str(record.get("file_name") or normalized_key),
+                    "summary": summary,
+                    "summary_updated_at": updated_at or None,
+                }
+            )
+            if updated_at:
+                timestamps.append(updated_at)
+        return {
+            "documents": documents,
+            "summary_updated_at_snapshot": sorted(timestamps),
+            "fallback_used": len(documents) == 0,
+        }
+
     def get_document_image_sources(
         self,
         *,

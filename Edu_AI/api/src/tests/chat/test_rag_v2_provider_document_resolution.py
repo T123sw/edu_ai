@@ -128,6 +128,32 @@ def test_content_provider_resolves_legacy_physical_path_against_public_index_key
     assert result["documents"][0]["content"] == "first chunk\n\nsecond chunk"
 
 
+def test_content_provider_reads_resolved_rag_key_without_public_id_lookup():
+    rag_system = FakeRAGSystem()
+    provider = KnowledgeBaseDocumentContentProvider(
+        rag_system_factory=lambda: rag_system
+    )
+
+    result = provider.get_resolved_document_contents(
+        rag_index_keys=[rag_system.index_key]
+    )
+
+    assert result["documents"][0]["rag_index_key"] == rag_system.index_key
+    assert result["documents"][0]["content"] == "first chunk\n\nsecond chunk"
+
+
+def test_summary_provider_reads_resolved_rag_key_without_public_id_lookup():
+    rag_system = FakeRAGSystem()
+    provider = KnowledgeBaseSummaryProvider(rag_system_factory=lambda: rag_system)
+
+    result = provider.get_resolved_document_summaries(
+        rag_index_keys=[rag_system.index_key]
+    )
+
+    assert result["documents"][0]["rag_index_key"] == rag_system.index_key
+    assert result["documents"][0]["summary"] == "stored summary"
+
+
 def test_summary_provider_generates_summary_for_public_legacy_relative_path_without_user_prefix():
     rag_system = FakeRAGSystem()
     provider = KnowledgeBaseSummaryProvider(rag_system_factory=lambda: rag_system)

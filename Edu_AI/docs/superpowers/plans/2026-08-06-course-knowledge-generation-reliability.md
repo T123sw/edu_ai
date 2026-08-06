@@ -336,7 +336,7 @@ git commit -m "feat: standardize generation source modes"
 - Consumes: `GenerationSourceResolver` and `GenerationCommand` from Tasks 1–2.
 - Produces: `GenerationExecutionContext` and artifact `source_snapshot`.
 
-- [ ] **Step 1: Write a test proving resolution happens once**
+- [x] **Step 1: Write a test proving resolution happens once**
 
 ```python
 def test_handler_resolves_once_and_publishes_same_snapshot(handler, resolver, generator, storage):
@@ -350,7 +350,7 @@ def test_handler_resolves_once_and_publishes_same_snapshot(handler, resolver, ge
 
 The test file defines `SpyGenerationSourceResolver`, `SpyResourceGenerator`, and an in-memory-compatible temporary `CourseStorageManager`. The `handler` fixture injects these exact objects so call counts and the persisted manifest are observed through public methods.
 
-- [ ] **Step 2: Run provenance tests and confirm duplicate provider lookup or missing snapshot**
+- [x] **Step 2: Run provenance tests and confirm duplicate provider lookup or missing snapshot**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_provenance.py tests/core/test_course_material_manifest.py -q
@@ -358,7 +358,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_proven
 
 Expected: the current handler lacks a resolved-source execution context and complete source snapshot.
 
-- [ ] **Step 3: Add an immutable execution context**
+- [x] **Step 3: Add an immutable execution context**
 
 ```python
 @dataclass(frozen=True)
@@ -372,7 +372,7 @@ class GenerationExecutionContext:
 
 At the start of `GenerationTaskHandler.handle()`, resolve the source and pass the same context object to the resource-specific adapter. Update content and summary providers to accept resolved RAG keys directly; they must not reinterpret course document IDs. Persist `source_snapshot`, `config_snapshot`, `created_by`, and `source_job_id` with the final artifact.
 
-- [ ] **Step 4: Verify provider and manifest compatibility**
+- [x] **Step 4: Verify provider and manifest compatibility**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_provenance.py tests/core/test_course_material_manifest.py tests/chat/test_rag_v2_provider_document_resolution.py tests/test_job_completion_service.py -q
@@ -380,7 +380,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_generation_source_proven
 
 Expected: one resolver call per job, immutable provenance, and successful legacy manifest reads.
 
-- [ ] **Step 5: Commit single-pass source resolution**
+- [x] **Step 5: Commit single-pass source resolution**
 
 ```powershell
 git add Edu_AI/api/src/app/services/generation_task_handlers.py Edu_AI/api/src/app/chat/application/knowledge_base_document_content_provider.py Edu_AI/api/src/app/chat/application/knowledge_base_summary_provider.py Edu_AI/api/src/core/course_storage.py Edu_AI/api/src/tests/test_generation_source_provenance.py Edu_AI/api/src/tests/core/test_course_material_manifest.py

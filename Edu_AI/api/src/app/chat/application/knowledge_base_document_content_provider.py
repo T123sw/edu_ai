@@ -86,3 +86,68 @@ class KnowledgeBaseDocumentContentProvider:
             "fallback_used": len(resolved_documents) == 0,
             "truncated": truncated,
         }
+
+    def get_resolved_document_contents(
+        self,
+        *,
+        rag_index_keys: list[str],
+    ) -> dict[str, Any]:
+        """Read already-authorized RAG keys without resolving public IDs again."""
+        rag_system = self._rag_system_factory()
+        resolved_documents: list[dict[str, Any]] = []
+        content_timestamps: list[str] = []
+        total_chars = 0
+        truncated = False
+        for rag_index_key in list(rag_index_keys or []):
+            normalized_key = str(rag_index_key or "").strip()
+            if not normalized_key or total_chars >= self.max_total_chars:
+                continue
+            record = dict(
+                getattr(rag_system, "document_index", {}).get(normalized_key)
+                or {}
+            )
+            if not record:
+                continue
+            source_key = str(record.get("source_key") or normalized_key)
+            documents = list(
+                rag_system.vector_store.get_documents_by_source(source_key) or []
+            )
+            documents.sort(
+                key=lambda item: int((item.get("metadata") or {}).get("page", 0))
+            )
+            full_content = "\n\n".join(
+                str(item.get("content") or "").strip()
+                for item in documents
+                if str(item.get("content") or "").strip()
+            )
+            if not full_content:
+                continue
+            limited_content = full_content[: self.max_chars_per_doc].rstrip()
+            truncated = truncated or len(full_content) > len(limited_content)
+            remaining_chars = self.max_total_chars - total_chars
+            if len(limited_content) > remaining_chars:
+                limited_content = limited_content[:remaining_chars].rstrip()
+                truncated = True
+            updated_at = str(
+                record.get("summary_updated_at")
+                or record.get("imported_at")
+                or ""
+            ).strip()
+            resolved_documents.append(
+                {
+                    "rag_index_key": normalized_key,
+                    "title": str(record.get("file_name") or normalized_key),
+                    "summary": str(record.get("summary") or ""),
+                    "content": limited_content,
+                    "content_updated_at": updated_at or None,
+                }
+            )
+            if updated_at:
+                content_timestamps.append(updated_at)
+            total_chars += len(limited_content)
+        return {
+            "documents": resolved_documents,
+            "content_updated_at_snapshot": sorted(content_timestamps),
+            "fallback_used": len(resolved_documents) == 0,
+            "truncated": truncated,
+        }

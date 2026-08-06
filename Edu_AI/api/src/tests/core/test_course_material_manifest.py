@@ -21,6 +21,8 @@ def test_formal_material_manifest_contains_stable_provenance_and_artifact(tmp_pa
         owner_user_id="teacher-a",
         source_job_id="job-1",
         config_snapshot_id="cfg-1",
+        source_snapshot={"mode": "selected_documents", "documents": []},
+        config_snapshot={"count": 12, "difficulty": "medium"},
     )
 
     assert saved is True
@@ -35,6 +37,14 @@ def test_formal_material_manifest_contains_stable_provenance_and_artifact(tmp_pa
     assert material["visibility"] == "course"
     assert material["source_job_id"] == "job-1"
     assert material["config_snapshot_id"] == "cfg-1"
+    assert material["source_snapshot"] == {
+        "mode": "selected_documents",
+        "documents": [],
+    }
+    assert material["config_snapshot"] == {
+        "count": 12,
+        "difficulty": "medium",
+    }
     assert material["source"]["document_ids"] == ["doc-1"]
     assert material["content_hash"]
     assert manager.check_generated_material_integrity(

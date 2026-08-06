@@ -9,6 +9,7 @@ Handles:
 
 from __future__ import annotations
 
+import copy
 import json
 import hashlib
 import logging
@@ -794,6 +795,8 @@ class CourseStorageManager:
         visibility: Optional[Literal["course", "private"]] = None,
         source_job_id: Optional[str] = None,
         config_snapshot_id: Optional[str] = None,
+        source_snapshot: Optional[Dict[str, Any]] = None,
+        config_snapshot: Optional[Dict[str, Any]] = None,
     ) -> bool:
         try:
             generation_context = _GENERATION_PERSISTENCE_CONTEXT.get()
@@ -872,6 +875,18 @@ class CourseStorageManager:
                     ).strip()
                     or None
                 )
+                if source_snapshot is not None:
+                    next_data["source_snapshot"] = copy.deepcopy(source_snapshot)
+                else:
+                    next_data["source_snapshot"] = copy.deepcopy(
+                        next_data.get("source_snapshot") or {}
+                    )
+                if config_snapshot is not None:
+                    next_data["config_snapshot"] = copy.deepcopy(config_snapshot)
+                else:
+                    next_data["config_snapshot"] = copy.deepcopy(
+                        next_data.get("config_snapshot") or {}
+                    )
                 next_data["source"] = dict(next_data.get("source") or {})
                 next_data["status"] = str(next_data.get("status") or "ready")
                 next_data["created_at"] = str(

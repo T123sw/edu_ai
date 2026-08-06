@@ -75,7 +75,8 @@ def test_generation_handler_rebuilds_requests_and_publishes_stable_resource(
         "course_id": "course-1",
         "scope_type": "course",
         "scope_id": None,
-        "selected_doc_ids": ["doc-1"],
+        "source_mode": "none",
+        "selected_doc_ids": [],
         "config": config,
         "material_id": f"{resource_type}-stable",
     }
@@ -148,7 +149,8 @@ def test_generation_handler_preserves_a_verified_service_result(tmp_path):
             "course_id": "course-1",
             "scope_type": "course",
             "scope_id": None,
-            "selected_doc_ids": ["doc-1"],
+            "source_mode": "none",
+            "selected_doc_ids": [],
             "config": {"question": "Report"},
             "material_id": "report-stable",
         },
@@ -156,3 +158,8 @@ def test_generation_handler_preserves_a_verified_service_result(tmp_path):
     )
 
     assert result["result_ref"]["material_id"] == "report-stable"
+    material = manager.get_generated_material(
+        "course-1", "report", "report-stable", owner_user_id="teacher-a"
+    )
+    assert material["source_snapshot"]["mode"] == "none"
+    assert material["config_snapshot"] == {"question": "Report"}

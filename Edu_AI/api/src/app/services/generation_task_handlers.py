@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
-from types import SimpleNamespace
+import inspect
+from collections.abc import Callable, Mapping, Sequence
+from copy import deepcopy
+from dataclasses import dataclass
+from types import MappingProxyType, SimpleNamespace
 from typing import Any
 
 from app.services.durable_task_handlers import (
@@ -9,6 +12,91 @@ from app.services.durable_task_handlers import (
     DurableTaskHandlerRegistry,
 )
 from core.course_storage import CourseStorageManager
+from app.services.generation_source_resolver import (
+    GenerationSourceResolver,
+    ResolvedGenerationSource,
+    SourceDocumentRecord,
+)
+
+
+def _freeze(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return MappingProxyType(
+            {str(key): _freeze(item) for key, item in value.items()}
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return frozenset(_freeze(item) for item in value)
+    return value
+
+
+@dataclass(frozen=True)
+class GenerationExecutionContext:
+    job_id: str
+    course_id: str
+    user_id: str
+    source: ResolvedGenerationSource
+    config: Mapping[str, object]
+
+
+class _CourseDocumentCatalog:
+    def __init__(self, manager: CourseStorageManager) -> None:
+        self._manager = manager
+
+    @staticmethod
+    def _record(course_id: str, item: Mapping[str, Any]) -> SourceDocumentRecord:
+        return SourceDocumentRecord(
+            course_id=course_id,
+            document_id=str(item.get("id") or ""),
+            name=str(item.get("filename") or item.get("name") or ""),
+            status=str(item.get("status") or ""),
+            rag_index_key=str(item.get("rag_index_key") or ""),
+            chunk_count=int(item.get("chunk_count") or 0),
+        )
+
+    def list_for_course(self, course_id: str) -> list[SourceDocumentRecord]:
+        return [
+            self._record(course_id, item)
+            for item in self._manager.get_knowledge_base_index(course_id)
+            if str(item.get("id") or "").strip()
+        ]
+
+    def get_by_public_id(self, document_id: str) -> SourceDocumentRecord | None:
+        normalized = str(document_id or "").strip()
+        for course_dir in self._manager.courses_dir.iterdir():
+            if not course_dir.is_dir():
+                continue
+            course_id = course_dir.name
+            for item in self._manager.get_knowledge_base_index(course_id):
+                if str(item.get("id") or "").strip() == normalized:
+                    return self._record(course_id, item)
+        return None
+
+
+class _ResolvedDocumentContentReader:
+    def read_many(self, rag_index_keys: Sequence[str]) -> str:
+        from app.chat.application.knowledge_base_document_content_provider import (
+            KnowledgeBaseDocumentContentProvider,
+        )
+
+        result = KnowledgeBaseDocumentContentProvider().get_resolved_document_contents(
+            rag_index_keys=list(rag_index_keys)
+        )
+        return "\n\n".join(
+            f"## {item.get('title') or 'Document'}\n{item.get('content') or ''}"
+            for item in list(result.get("documents") or [])
+            if str(item.get("content") or "").strip()
+        )
+
+
+def _build_default_source_resolver(
+    manager: CourseStorageManager,
+) -> GenerationSourceResolver:
+    return GenerationSourceResolver(
+        _CourseDocumentCatalog(manager),
+        _ResolvedDocumentContentReader(),
+    )
 
 
 class _AgentReportGenerationAdapter:
@@ -236,6 +324,7 @@ class GenerationTaskHandler:
         agent_service_factories: Mapping[
             str, Callable[[], Any]
         ] | None = None,
+        source_resolver: Any | None = None,
     ) -> None:
         self.course_storage_manager = (
             course_storage_manager or CourseStorageManager()
@@ -251,8 +340,18 @@ class GenerationTaskHandler:
                 "lesson_plan": _LessonPlanGenerationAdapter,
             }
         )
+        self.source_resolver = source_resolver or _build_default_source_resolver(
+            self.course_storage_manager
+        )
 
     def __call__(
+        self,
+        command: Mapping[str, Any],
+        context: DurableExecutionContext,
+    ) -> dict[str, Any]:
+        return self.handle(command, context)
+
+    def handle(
         self,
         command: Mapping[str, Any],
         context: DurableExecutionContext,
@@ -267,28 +366,62 @@ class GenerationTaskHandler:
         )
         if factory is None:
             raise ValueError(f"unsupported generation resource {resource_type}")
-        payload = self._build_payload(command, context)
-        context.progress(5, "generating", "正在根据课程资料生成内容")
-        result = dict(
-            factory().generate(
-                payload,
-                job_id=context.task_id,
-                config_snapshot_id=context.config_snapshot_id or "",
-            )
+        selected_doc_ids = list(command.get("selected_doc_ids") or [])
+        source_mode = str(
+            command.get("source_mode")
+            or ("selected_documents" if selected_doc_ids else "course_auto")
         )
+        course_id = str(command.get("course_id") or context.course_id or "").strip()
+        source = self.source_resolver.resolve(
+            course_id,
+            source_mode,
+            selected_doc_ids,
+        )
+        execution_context = GenerationExecutionContext(
+            job_id=context.task_id,
+            course_id=course_id,
+            user_id=context.owner_user_id,
+            source=source,
+            config=_freeze(deepcopy(config)),
+        )
+        payload = self._build_payload(command, context, execution_context)
+        context.progress(5, "generating", "正在根据课程资料生成内容")
+        generator = factory()
+        generate_kwargs: dict[str, Any] = {
+            "job_id": context.task_id,
+            "config_snapshot_id": context.config_snapshot_id or "",
+        }
+        signature = inspect.signature(generator.generate)
+        if (
+            "execution_context" in signature.parameters
+            or any(
+                parameter.kind is inspect.Parameter.VAR_KEYWORD
+                for parameter in signature.parameters.values()
+            )
+        ):
+            generate_kwargs["execution_context"] = execution_context
+        result = dict(generator.generate(payload, **generate_kwargs))
         if result.get("result_ref"):
+            self._persist_existing_result_provenance(
+                command=command,
+                context=context,
+                result=result,
+                execution_context=execution_context,
+            )
             return result
         return self._publish_artifact(
             command=command,
             context=context,
             resource_type=resource_type,
             result=result,
+            execution_context=execution_context,
         )
 
     @staticmethod
     def _build_payload(
         command: Mapping[str, Any],
         context: DurableExecutionContext,
+        execution_context: GenerationExecutionContext,
     ) -> SimpleNamespace:
         resource_type = str(command.get("resource_type") or "").strip()
         config = dict(command.get("config") or {})
@@ -297,7 +430,13 @@ class GenerationTaskHandler:
             "course_id": str(command.get("course_id") or context.course_id or ""),
             "scope_type": str(command.get("scope_type") or "course"),
             "scope_id": command.get("scope_id"),
-            "selected_doc_ids": list(command.get("selected_doc_ids") or []),
+            "selected_doc_ids": [
+                item.rag_index_key for item in execution_context.source.documents
+            ],
+            "source_context": execution_context.source.context_text,
+            "source_snapshot": execution_context.source.to_snapshot(),
+            "source_mode": execution_context.source.mode,
+            "allow_rag": bool(execution_context.source.documents),
             "material_id": str(command.get("material_id") or ""),
         }
         if resource_type == "report":
@@ -337,7 +476,57 @@ class GenerationTaskHandler:
             base.update(config)
         if config.get("entrypoint") == "agent":
             base.update(config)
+        base.update(
+            {
+                "selected_doc_ids": [
+                    item.rag_index_key
+                    for item in execution_context.source.documents
+                ],
+                "source_context": execution_context.source.context_text,
+                "source_snapshot": execution_context.source.to_snapshot(),
+                "source_mode": execution_context.source.mode,
+                "allow_rag": bool(execution_context.source.documents),
+            }
+        )
         return SimpleNamespace(**base)
+
+    def _persist_existing_result_provenance(
+        self,
+        *,
+        command: Mapping[str, Any],
+        context: DurableExecutionContext,
+        result: Mapping[str, Any],
+        execution_context: GenerationExecutionContext,
+    ) -> None:
+        result_ref = dict(result.get("result_ref") or {})
+        if result_ref.get("resource_type") != "course_material":
+            return
+        course_id = str(result_ref.get("course_id") or "").strip()
+        material_type = str(result_ref.get("material_type") or "").strip()
+        material_id = str(result_ref.get("material_id") or "").strip()
+        if not all((course_id, material_type, material_id)):
+            return
+        existing = self.course_storage_manager.get_generated_material(
+            course_id,
+            material_type,
+            material_id,
+            owner_user_id=context.owner_user_id,
+        )
+        if existing is None:
+            return
+        self.course_storage_manager.save_generated_material(
+            course_id=course_id,
+            material_type=material_type,
+            material_id=material_id,
+            material_data={},
+            scope_type=str(existing.get("scope_type") or "course"),
+            scope_id=existing.get("scope_id"),
+            owner_user_id=context.owner_user_id,
+            source_job_id=context.task_id,
+            config_snapshot_id=context.config_snapshot_id,
+            source_snapshot=execution_context.source.to_snapshot(),
+            config_snapshot=deepcopy(dict(command.get("config") or {})),
+        )
 
     def _publish_artifact(
         self,
@@ -346,6 +535,7 @@ class GenerationTaskHandler:
         context: DurableExecutionContext,
         resource_type: str,
         result: dict[str, Any],
+        execution_context: GenerationExecutionContext,
     ) -> dict[str, Any]:
         artifacts = [
             item
@@ -373,6 +563,8 @@ class GenerationTaskHandler:
                 owner_user_id=context.owner_user_id,
                 source_job_id=context.task_id,
                 config_snapshot_id=context.config_snapshot_id,
+                source_snapshot=execution_context.source.to_snapshot(),
+                config_snapshot=deepcopy(dict(command.get("config") or {})),
                 material_data={
                     "title": str(artifact.get("title") or resource_type),
                     "content": artifact.get("content"),
@@ -381,8 +573,12 @@ class GenerationTaskHandler:
                     ),
                     "source": {
                         "selected_doc_ids": list(
-                            command.get("selected_doc_ids") or []
-                        )
+                            execution_context.source.requested_document_ids
+                        ),
+                        "rag_index_keys": [
+                            item.rag_index_key
+                            for item in execution_context.source.documents
+                        ],
                     },
                 },
             )
