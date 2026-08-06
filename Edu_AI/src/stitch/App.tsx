@@ -258,10 +258,11 @@ function AppPresentation({
     : null;
 
   useEffect(() => {
-    if (!selectedCourse) return;
-    window.localStorage.setItem("stitch-course", JSON.stringify(selectedCourse));
-    setRememberedCourse(selectedCourse);
-  }, [routeCourse.courseId, selectedCourse?.id]);
+    if (!routeCourse.course) return;
+    const remembered = backendCourseToSummary(routeCourse.course, 0);
+    window.localStorage.setItem("stitch-course", JSON.stringify(remembered));
+    setRememberedCourse(remembered);
+  }, [routeCourse.course, setRememberedCourse]);
 
   const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
   const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();

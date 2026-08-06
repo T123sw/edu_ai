@@ -102,3 +102,10 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: course settings now writes through the revision-aware Stitch API instead of the legacy Zustand update path. A 409 reloads the newest course and asks the teacher to review before retrying rather than overwriting another teacher's edit.
 - Decision: viewers retain knowledge-graph, classroom, and player reading/playback. Graph mutation/auto-save, classroom generation, and server-side video export are disabled or unmounted according to capability.
 - Result: every course-list/detail/workspace transition preserves `course_id`; copied URLs load the requested course; viewer course settings render semantic text instead of disabled edit controls.
+
+### Plan 1 / Task 9 — Collaboration acceptance gate
+
+- Focused acceptance: backend `2 passed`; frontend copied-link acceptance `1 passed`.
+- Affected backend gate: `52 passed` across membership persistence/access/bootstrap/migration, CRUD/revision, all course route capabilities, collaboration, shared materials, and course scopes.
+- Frontend gate: `141 passed`; lint completed with `0 errors, 82 warnings`, exactly matching the recorded baseline; production build passed in the preceding full gate and is rerun after this log/spec update before commit.
+- Result: executable evidence covers two-teacher shared edits/resources, student backend denial, anonymous denial, stale-write protection, auto-enrollment modes, and URL authority. Verified Stage 0 link and all Stage 1 acceptance boxes are checked in the Spec; unverified visual Stage 0 items remain open.
