@@ -1,248 +1,101 @@
 import { useEffect, useMemo, useState } from "react";
-import { backendCourseToSummary, listCourses } from "../api/courses";
-import type { BackendCourse } from "../api/types";
-import { buildTeacherCourseHash } from "../teacherRoutes";
+
+import { useJobStore } from "../../jobs/jobStore";
+import { isActiveJob } from "../../jobs/types";
+import { getCourseMaterials, getKnowledgeBaseDocuments } from "../api/courses";
+import type { CourseMaterial, KnowledgeBaseDocument } from "../api/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
-import {
-  AppSurface,
-  GlassPanel,
-  MaterialIcon,
-  SidebarBackLink,
-  defaultCourse,
-  routeHref,
-  routes,
-  useAppShell,
-  type CourseSummary,
-} from "../shared";
-
-function CourseActions({ course, onSelect }: { course: CourseSummary; onSelect: (course: CourseSummary) => void }) {
-  return (
-    <div className="flex flex-wrap gap-3">
-      <a
-        href={buildTeacherCourseHash(routes.ai, course.id)}
-        onClick={() => onSelect(course)}
-        className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-bold text-(--accent-strong) transition hover:-translate-y-px"
-      >
-        进入问答工作台
-        <MaterialIcon name="arrow_forward" className="text-base" />
-      </a>
-      <a
-        href={buildTeacherCourseHash(routes.resources, course.id)}
-        onClick={() => onSelect(course)}
-        className="inline-flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
-      >
-        查看课程资源
-        <MaterialIcon name="folder_open" className="text-base" />
-      </a>
-      <a
-        href={buildTeacherCourseHash(routes.classroomStudio, course.id)}
-        onClick={() => onSelect(course)}
-        className="inline-flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
-      >
-        AI 生成课件
-        <MaterialIcon name="auto_awesome" className="text-base" />
-      </a>
-      <a
-        href={buildTeacherCourseHash(routes.edit, course.id)}
-        onClick={() => onSelect(course)}
-        className="inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-slate-950/16 px-5 py-4 text-sm font-bold text-white transition hover:-translate-y-px"
-      >
-        课程设置
-        <MaterialIcon name="settings" className="text-base" />
-      </a>
-    </div>
-  );
-}
-
-function useCourseSummaries() {
-  const [courses, setCourses] = useState<BackendCourse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function run() {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await listCourses();
-        if (!cancelled) {
-          setCourses(data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "课程列表加载失败");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void run();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const summaries = useMemo(() => courses.map((course, index) => backendCourseToSummary(course, index)), [courses]);
-
-  return { summaries, loading, error };
-}
-
-function resolveActiveCourse(summaries: CourseSummary[], selectedCourse: CourseSummary | null) {
-  return summaries.find((course) => course.id === selectedCourse?.id) ?? summaries[0] ?? selectedCourse ?? defaultCourse;
-}
+import { canCourse } from "../course/coursePermissions";
+import { AppSurface, GlassPanel, MaterialIcon, routes } from "../shared";
+import { buildTeacherCourseHash } from "../teacherRoutes";
+import { HomeDashboardPage } from "./HomeDashboard";
 
 export function CourseListPage() {
-  const { selectedCourse, setSelectedCourse } = useAppShell();
-  const { summaries, loading, error } = useCourseSummaries();
-  const activeCourse = resolveActiveCourse(summaries, selectedCourse);
+  return <HomeDashboardPage />;
+}
 
-  function openDetail(course: CourseSummary) {
-    setSelectedCourse(course);
-    window.location.hash = buildTeacherCourseHash(routes.courseDetail, course.id);
-  }
+const entries = [
+  { route: routes.courseDetail, label: "课程概览", note: "查看课程状态和最近更新", icon: "dashboard" },
+  { route: routes.ai, label: "问答与生成", note: "围绕课程资料问答或生成教学资源", icon: "auto_awesome" },
+  { route: routes.knowledge, label: "课程知识", note: "管理课程资料和知识结构", icon: "menu_book" },
+  { route: routes.classroomStudio, label: "AI 课堂", note: "生成和播放互动课堂", icon: "play_circle" },
+  { route: routes.resources, label: "课程资源", note: "查看课程内已发布成果", icon: "folder_open" },
+  { route: routes.edit, label: "课程设置", note: "维护课程介绍与教学目标", icon: "settings" },
+] as const;
 
-  return (
-    <AppSurface className="min-h-screen">
-      <main className="w-full px-8 py-10">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <SidebarBackLink />
-          <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">我的课程</p>
-            <p className="mt-1 text-sm text-(--muted-text)">这里只显示课程列表，点击课程后进入课程详情页。</p>
-          </div>
-        </div>
-
-        {loading ? (
-          <GlassPanel className="w-full border border-(--shell-border) bg-white/85 p-8 text-sm text-(--muted-text)">
-            正在加载课程列表...
-          </GlassPanel>
-        ) : error ? (
-          <GlassPanel className="w-full border border-(--shell-border) bg-white/85 p-8 text-sm text-rose-600">
-            {error}
-          </GlassPanel>
-        ) : (
-          <div className="w-full">
-            <GlassPanel className="border border-(--shell-border) bg-white/88 p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课程清单</p>
-                  <h2 className="mt-2 text-2xl font-black text-(--accent-strong)">全部课程</h2>
-                </div>
-                <div className="rounded-full bg-(--accent-soft) px-3 py-1 text-xs font-semibold text-(--accent-strong)">
-                  {summaries.length} 门
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {summaries.map((course) => {
-                  const active = course.id === activeCourse.id;
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => openDetail(course)}
-                      className={`w-full rounded-[22px] border p-4 text-left transition ${
-                        active
-                          ? "border-(--accent-border) bg-(--accent-soft) shadow-[0_16px_32px_var(--accent-shadow)]"
-                          : "border-(--shell-border) bg-(--surface-subtle) hover:border-(--accent-border) hover:bg-white"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <h3 className="mt-2 truncate text-base font-bold text-(--app-text)">{course.title}</h3>
-                          <p className="mt-2 line-clamp-2 text-sm leading-6 text-(--muted-text)">{course.summary}</p>
-                        </div>
-                        <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold text-(--accent-strong)">
-                          {course.progress}%
-                        </span>
-                      </div>
-                      <div className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-(--accent)">
-                        进入课程详情
-                        <MaterialIcon name="arrow_forward" className="text-sm" />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </GlassPanel>
-          </div>
-        )}
-      </main>
-    </AppSurface>
-  );
+function materialTitle(material: CourseMaterial) {
+  return material.title || material.topic || "未命名资源";
 }
 
 export function CourseDetailPage() {
-  const { setSelectedCourse } = useAppShell();
-  const { course, loading, error } = useCourseRoute();
-  const activeCourse = course ? backendCourseToSummary(course) : null;
+  const { course, courseRole } = useCourseRoute();
+  const jobs = useJobStore((state) => state.jobs);
+  const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
+  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
 
-  function handleSelect(course: CourseSummary) {
-    setSelectedCourse(course);
-  }
+  useEffect(() => {
+    if (!course) return;
+    let cancelled = false;
+    void Promise.all([
+      getKnowledgeBaseDocuments(course.id).catch(() => []),
+      getCourseMaterials(course.id, { limit: 6 }).catch(() => []),
+    ]).then(([nextDocuments, nextMaterials]) => {
+      if (!cancelled) {
+        setDocuments(nextDocuments);
+        setMaterials(nextMaterials);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [course]);
+
+  const activeJobs = useMemo(
+    () => Object.values(jobs).filter((job) => job.course_id === course?.id && isActiveJob(job)),
+    [course?.id, jobs],
+  );
+  const readyDocuments = documents.filter((document) => document.status === "ready").length;
+  const visibleEntries = entries.filter((entry) => entry.route !== routes.edit || canCourse(courseRole, "edit"));
+
+  if (!course) return <AppSurface><main /></AppSurface>;
 
   return (
     <AppSurface className="min-h-screen">
-      <main className="w-full px-8 py-10">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <a
-            href={routeHref(routes.course)}
-            className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--accent-strong)"
-          >
-            <MaterialIcon name="arrow_back" className="text-sm" />
-            返回我的课程
-          </a>
-          <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">课程详情</p>
+      <main className="course-overview">
+        <section className="course-overview__summary">
+          <div>
+            <span className="course-overview__role">{courseRole === "owner" ? "课程负责人" : courseRole === "editor" ? "课程编辑者" : "课程查看者"}</span>
+            <h2>{course.title}</h2>
+            <p>{course.description || "暂未填写课程简介。"}</p>
           </div>
+          <a className="course-overview__primary" href={buildTeacherCourseHash(routes.ai, course.id)}>
+            开始问答或生成 <MaterialIcon name="arrow_forward" />
+          </a>
+        </section>
+
+        <section className="course-overview__facts" aria-label="课程状态">
+          <article><span>课程资料</span><strong>{documents.length}</strong><small>{readyDocuments} 份可用于检索</small></article>
+          <article><span>课程资源</span><strong>{materials.length}</strong><small>最近生成与发布成果</small></article>
+          <article><span>进行中任务</span><strong>{activeJobs.length}</strong><small>可在右上角任务中心查看</small></article>
+          <article><span>课程版本</span><strong>{course.revision}</strong><small>{course.updated_at ? `更新于 ${new Date(course.updated_at).toLocaleString("zh-CN")}` : "暂无更新时间"}</small></article>
+        </section>
+
+        <div className="course-overview__columns">
+          <GlassPanel className="course-overview__panel">
+            <div className="course-overview__panel-head"><div><p>教学方向</p><h3>课程目标</h3></div></div>
+            {course.objectives?.length ? (
+              <ol className="course-overview__objectives">{course.objectives.map((objective, index) => <li key={`${index}-${objective}`}><span>{index + 1}</span>{objective}</li>)}</ol>
+            ) : <p className="course-overview__empty">尚未设置教学目标，可在课程设置中补充。</p>}
+          </GlassPanel>
+
+          <GlassPanel className="course-overview__panel">
+            <div className="course-overview__panel-head"><div><p>最近更新</p><h3>最新课程资源</h3></div><a href={buildTeacherCourseHash(routes.resources, course.id)}>查看全部</a></div>
+            {materials.length ? <ul className="course-overview__resources">{materials.slice(0, 4).map((material) => <li key={`${material.material_type}-${material.material_id}`}><span><strong>{materialTitle(material)}</strong><small>{material.material_type}</small></span><MaterialIcon name="arrow_forward" /></li>)}</ul> : <p className="course-overview__empty">暂无生成资源，从问答与生成开始创建。</p>}
+          </GlassPanel>
         </div>
 
-        {loading ? (
-          <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-(--muted-text)">
-            正在加载课程详情...
-          </GlassPanel>
-        ) : error ? (
-          <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-rose-600">
-            {error.message}
-          </GlassPanel>
-        ) : activeCourse ? (
-          <GlassPanel className="overflow-hidden border border-(--shell-border) bg-white/85">
-            <div className="grid min-h-[720px] gap-0 lg:grid-cols-[0.95fr_1.25fr]">
-              <section className="flex flex-col justify-between bg-[linear-gradient(160deg,var(--accent-strong),var(--accent))] p-10 text-white lg:p-14">
-                <div>
-                  <h1 className="mt-5 max-w-md text-5xl font-black leading-[0.95] tracking-tighter lg:text-6xl">
-                    {activeCourse.uppercaseTitle}
-                  </h1>
-                  <p className="mt-8 max-w-md text-base leading-7 text-white/82">{activeCourse.summary}</p>
-                </div>
-
-                <div className="space-y-5">
-                  
-                 
-                  <CourseActions course={activeCourse} onSelect={handleSelect} />
-                </div>
-              </section>
-
-              <section className="relative min-h-[360px] overflow-hidden bg-slate-100">
-                <img alt={activeCourse.title} className="h-full w-full object-cover" src={activeCourse.image} />
-                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-slate-950/70 via-slate-950/14 to-transparent p-8 text-white">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-white/14 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]">
-                 
-                  </div>
-                  <h2 className="mt-4 text-3xl font-black">{activeCourse.title}</h2>
-                </div>
-              </section>
-            </div>
-          </GlassPanel>
-        ) : (
-          <GlassPanel className="border border-(--shell-border) bg-white/85 p-8 text-sm text-(--muted-text)">
-            当前链接没有有效课程，请返回课程列表重新选择。
-          </GlassPanel>
-        )}
+        <section className="course-overview__entries" aria-labelledby="quick-entry-title">
+          <div className="course-overview__section-title"><p>课程工作区</p><h3 id="quick-entry-title">常用入口</h3></div>
+          <div>{visibleEntries.map((entry) => <a key={entry.route} href={buildTeacherCourseHash(entry.route, course.id)}><span><MaterialIcon name={entry.icon} /></span><strong>{entry.label}</strong><small>{entry.note}</small></a>)}</div>
+        </section>
       </main>
     </AppSurface>
   );

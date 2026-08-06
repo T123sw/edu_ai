@@ -44,7 +44,6 @@ export function backendCourseToSummary(course: BackendCourse, index = 0): Course
       ? course.knowledgeGraph.trim()
       : "";
   const image = persistedImage || courseImages[index % courseImages.length];
-  const progressSeed = course.id.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
 
   return {
     id: course.id,
@@ -52,7 +51,8 @@ export function backendCourseToSummary(course: BackendCourse, index = 0): Course
     title: course.title,
     uppercaseTitle: course.title.toUpperCase(),
     instructor: "Edu AI Teacher",
-    progress: 20 + (progressSeed % 70),
+    // Legacy presentation field; course cards and overview use factual counters.
+    progress: 0,
     image,
     accent,
     summary: course.description,

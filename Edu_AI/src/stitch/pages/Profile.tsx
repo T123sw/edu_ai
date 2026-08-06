@@ -139,6 +139,8 @@ export function ProfilePage() {
     ["邮箱", profile?.email || "未填写"],
     ["手机号", profile?.phone || "未填写"],
     ["所属部门", profile?.department || "未填写"],
+    ["可访问课程", String(profile?.course_count ?? 0)],
+    ["系统角色", profile ? (roleLabels[profile.role] || profile.role) : "—"],
   ];
 
   return (
@@ -230,7 +232,7 @@ export function ProfilePage() {
                       <p className="font-bold text-[#17304a]">账号状态</p>
                       <p className="mt-1 text-sm text-[#5f7088]">正常 · {roleLabels[profile.role] || profile.role}</p>
                     </div>
-                    <a
+                    {profile.role === "admin" ? <a
                       href={routeHref(routes.settings)}
                       className="flex items-center justify-between rounded-[20px] border border-[#d8e4f6] bg-[#f8fbff] p-4 transition hover:border-[#9cb9f2] hover:bg-white"
                     >
@@ -244,7 +246,7 @@ export function ProfilePage() {
                         </span>
                       </span>
                       <MaterialIcon name="arrow_forward" className="text-[#2357b8]" />
-                    </a>
+                    </a> : null}
                   </div>
                 </GlassPanel>
               </div>

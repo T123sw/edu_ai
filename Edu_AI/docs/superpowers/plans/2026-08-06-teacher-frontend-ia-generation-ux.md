@@ -279,7 +279,7 @@ git commit -m "feat: add unified course workspace shell"
 - Consumes: real course counters, user identity, membership role, and course revision from Plan 1.
 - Produces: one course list, factual overview cards, teacher-oriented copy, and permission-aware settings.
 
-- [ ] **Step 1: Write tests rejecting decorative progress and duplicate course entry points**
+- [x] **Step 1: Write tests rejecting decorative progress and duplicate course entry points**
 
 ```typescript
 test("course card presentation contains only factual metrics", () => {
@@ -293,7 +293,7 @@ test("course card presentation contains only factual metrics", () => {
 });
 ```
 
-- [ ] **Step 2: Run and reproduce the current decorative/randomized output**
+- [x] **Step 2: Run and reproduce the current decorative/randomized output**
 
 ```powershell
 pnpm test -- src/stitch/pages/courseCardPresentation.test.ts
@@ -301,7 +301,7 @@ pnpm test -- src/stitch/pages/courseCardPresentation.test.ts
 
 Expected: current adapter still creates non-business progress values or the presentation helper is absent.
 
-- [ ] **Step 3: Implement page-specific hierarchy**
+- [x] **Step 3: Implement page-specific hierarchy**
 
 - Login: retain split layout; show system name, role explanation, account help, concrete login error, and development demo-account hint only when runtime config explicitly enables it.
 - Home: one searchable course grid; remove the separate carousel/list duplication; show role, last update, document/resource counts, and active jobs.
@@ -309,7 +309,7 @@ Expected: current adapter still creates non-business progress values or the pres
 - Settings: editor form for owner/editor, factual read-only view for viewer, and explicit 409 conflict recovery actions “重新加载最新版本” and “复制我的修改”.
 - Profile: show actual username, display name, system role, and course count; expose runtime/system settings only to permitted roles.
 
-- [ ] **Step 4: Run browser checks at all five viewports**
+- [x] **Step 4: Run browser checks at all five viewports**
 
 ```powershell
 pnpm test -- src/stitch/pages/courseCardPresentation.test.ts
@@ -318,7 +318,7 @@ pnpm test:e2e -- tests/e2e/core-pages.spec.ts
 
 Expected: one course entry, no random progress, readable primary actions in light/dark theme, correct viewer settings, and no page-level horizontal scroll.
 
-- [ ] **Step 5: Commit the core-page hierarchy**
+- [x] **Step 5: Commit the core-page hierarchy**
 
 ```powershell
 git add Edu_AI/src/stitch/pages/LoginPage.tsx Edu_AI/src/stitch/pages/LoginPage.css Edu_AI/src/stitch/pages/HomeDashboard.tsx Edu_AI/src/stitch/pages/HomeDashboard.css Edu_AI/src/stitch/pages/CourseDetail.tsx Edu_AI/src/stitch/pages/CourseEdit.tsx Edu_AI/src/stitch/pages/Profile.tsx Edu_AI/src/stitch/api/courses.ts Edu_AI/src/stitch/pages/courseCardPresentation.test.ts Edu_AI/tests/e2e/core-pages.spec.ts

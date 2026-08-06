@@ -11,6 +11,7 @@ export type UserProfile = {
   avatar_url: string;
   created_at: string;
   password_updated_at: string;
+  course_count?: number;
 };
 
 export type UserProfileUpdate = Pick<

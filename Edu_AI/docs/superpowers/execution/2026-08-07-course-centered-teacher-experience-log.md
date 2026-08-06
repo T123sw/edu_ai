@@ -211,3 +211,13 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: below 1180px the sidebar becomes an explicit drawer instead of reducing the existing pages' working width. URL-derived `course_id` remains the navigation identity, and remembered course state remains only a home-page convenience.
 - Decision: the global job store stays mounted once in `App`; its floating launcher is disabled on course routes and the shell supplies the single inline task-center trigger. Legacy page sidebars are suppressed through shell context during staged migration.
 - Result: every core course route now has a stable breadcrumb, course identity, page title, active navigation item, task center, responsive menu, shared loading/empty/error/offline/forbidden/conflict presentation, and no root horizontal overflow in the browser acceptance suite.
+
+### Plan 3 / Task 3 — Teacher core-page hierarchy
+
+- Red evidence: the course-card test failed on the missing factual presentation boundary; the previous adapter synthesized a decorative progress percentage from course-ID character codes.
+- Green evidence: the frontend unit suite has `146 passed`, the production build passes, and `20 passed` across login, course home, overview, and viewer settings in all five target viewports. The in-app browser render was also inspected directly after implementation.
+- Decision: the course home owns the only course list. The old course-list route reuses that page instead of maintaining a carousel/list variant.
+- Decision: card counts are loaded from the course document and course material APIs, while active task counts come from the shared job store. Failed counter requests degrade to factual zero rather than guessed progress.
+- Decision: the overview removes the duplicated full-height image hero. It prioritizes description, objectives, indexing readiness, latest resources, active tasks, course revision, one primary action, and the six stable course destinations.
+- Decision: 409 settings conflicts preserve a copyable local draft while loading the newest server revision. Viewers receive only factual read-only fields; system runtime settings are linked from the profile only for administrators.
+- Result: login copy now explains the teacher role and reports errors inline; demo-account help is absent unless explicitly enabled by `VITE_SHOW_DEMO_ACCOUNT`; course cards contain no randomized progress and remain searchable without horizontal overflow.

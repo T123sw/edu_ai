@@ -45,6 +45,7 @@ export function CourseEditPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [conflictDraft, setConflictDraft] = useState<CourseFormState | null>(null);
 
   useEffect(() => {
     if (!course) {
@@ -99,6 +100,7 @@ export function CourseEditPage() {
         expected_revision: course.revision,
       });
       await reload();
+      setConflictDraft(null);
       setFeedback("课程信息已保存，其他协作教师刷新后可立即看到更新。");
     } catch (reason) {
       const status =
@@ -106,8 +108,9 @@ export function CourseEditPage() {
           ? Number(reason.status)
           : 0;
       if (status === 409) {
+        setConflictDraft(formState);
         await reload();
-        setFeedback("课程刚刚被其他教师更新，已载入最新版本，请确认后重新保存。");
+        setFeedback("课程刚刚被其他教师更新。系统已保护你的修改，并载入服务器上的最新版本。");
       } else {
         setFeedback(reason instanceof Error ? reason.message : "保存失败");
       }
@@ -177,6 +180,24 @@ export function CourseEditPage() {
             <p className="mb-5 rounded-2xl border border-(--shell-border) bg-white px-4 py-3 text-sm text-(--muted-text)">
               {feedback}
             </p>
+          ) : null}
+          {conflictDraft ? (
+            <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" role="alert">
+              <strong className="block">发现协作编辑冲突</strong>
+              <p className="mt-1 text-xs leading-6 text-amber-800">请先检查最新版本。你可以重新加载最新版本，或复制本次修改用于对照和合并。</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" className="rounded-lg bg-amber-900 px-3 py-2 text-xs font-bold text-white" onClick={() => { setConflictDraft(null); void reload(); }}>
+                  重新加载最新版本
+                </button>
+                <button type="button" className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-bold" onClick={() => void navigator.clipboard.writeText([
+                  `课程名称：${conflictDraft.title}`,
+                  `课程简介：${conflictDraft.description}`,
+                  `教学目标：\n${conflictDraft.objectives}`,
+                ].join("\n\n"))}>
+                  复制我的修改
+                </button>
+              </div>
+            </div>
           ) : null}
 
           <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 sm:p-7">

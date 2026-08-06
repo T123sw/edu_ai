@@ -1,269 +1,144 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Avatar, Button, Card, Space, Typography } from "antd";
+import { useEffect, useMemo, useState } from "react";
+
+import { useJobStore } from "../../jobs/jobStore";
+import { isActiveJob } from "../../jobs/types";
 import {
-  ArrowRightOutlined,
-  CloudServerOutlined,
-  CommentOutlined,
-  DatabaseOutlined,
-  FileTextOutlined,
-  LeftOutlined,
-  RightOutlined,
-  RocketOutlined,
-} from "@ant-design/icons";
-import { backendCourseToSummary, listCourses } from "../api/courses";
+  backendCourseToSummary,
+  getCourseMaterials,
+  getKnowledgeBaseDocuments,
+  listCourses,
+} from "../api/courses";
 import type { BackendCourse } from "../api/types";
-import { AppSurface, routeHref, routes, useAppShell } from "../shared";
+import { AppSurface, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
+import { toCourseCardPresentation, type CourseCardFacts } from "./courseCardPresentation";
 import "./HomeDashboard.css";
 
-const { Title, Paragraph, Text } = Typography;
-
-const AUTH_STORAGE_KEY = "edu-ai-auth";
-const COURSES_PER_PAGE = 4;
-
-const iconMap: Record<string, ReactNode> = {
-  CommentOutlined: <CommentOutlined />,
-  FileTextOutlined: <FileTextOutlined />,
-  CloudServerOutlined: <CloudServerOutlined />,
-  DatabaseOutlined: <DatabaseOutlined />,
-};
+const emptyFacts: CourseCardFacts = { documentCount: 0, resourceCount: 0, activeJobCount: 0 };
 
 function getStoredUsername() {
   try {
-    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return "用户";
-    const parsed = JSON.parse(raw) as { user?: { username?: string } };
-    return parsed.user?.username?.trim() || "用户";
+    const raw = window.localStorage.getItem("edu-ai-auth");
+    const parsed = raw ? JSON.parse(raw) as { user?: { username?: string } } : null;
+    return parsed?.user?.username?.trim() || "教师";
   } catch {
-    return "用户";
+    return "教师";
   }
-}
-
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 6) return "凌晨好";
-  if (hour < 9) return "早上好";
-  if (hour < 12) return "上午好";
-  if (hour < 14) return "中午好";
-  if (hour < 18) return "下午好";
-  if (hour < 22) return "晚上好";
-  return "夜深了";
 }
 
 export function HomeDashboardPage() {
   const { setSelectedCourse } = useAppShell();
+  const jobs = useJobStore((state) => state.jobs);
   const [courses, setCourses] = useState<BackendCourse[]>([]);
+  const [facts, setFacts] = useState<Record<string, CourseCardFacts>>({});
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const username = useMemo(() => getStoredUsername(), []);
+  const username = useMemo(getStoredUsername, []);
 
   useEffect(() => {
     let cancelled = false;
-
-    async function run() {
+    async function load() {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        setError(null);
-        const data = await listCourses();
-        if (!cancelled) {
-          setCourses(data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "课程列表加载失败");
-        }
+        const loaded = await listCourses();
+        if (cancelled) return;
+        setCourses(loaded);
+        const entries = await Promise.all(loaded.map(async (course) => {
+          const [documents, resources] = await Promise.all([
+            getKnowledgeBaseDocuments(course.id).catch(() => []),
+            getCourseMaterials(course.id).catch(() => []),
+          ]);
+          return [course.id, { documentCount: documents.length, resourceCount: resources.length, activeJobCount: 0 }] as const;
+        }));
+        if (!cancelled) setFacts(Object.fromEntries(entries));
+      } catch (reason) {
+        if (!cancelled) setError(reason instanceof Error ? reason.message : "课程列表加载失败");
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
-
-    void run();
-    return () => {
-      cancelled = true;
-    };
+    void load();
+    return () => { cancelled = true; };
   }, []);
 
-  const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
+  const visibleCourses = useMemo(() => {
+    const normalized = query.trim().toLocaleLowerCase();
+    return normalized
+      ? courses.filter((course) => `${course.title} ${course.description}`.toLocaleLowerCase().includes(normalized))
+      : courses;
+  }, [courses, query]);
 
-  useEffect(() => {
-    if (totalPages <= 0) {
-      setCurrentPage(0);
-      return;
-    }
-    setCurrentPage((prev) => Math.min(prev, totalPages - 1));
-  }, [totalPages]);
-
-  const currentCourses = useMemo(() => {
-    const start = currentPage * COURSES_PER_PAGE;
-    const end = start + COURSES_PER_PAGE;
-    return courses.slice(start, end);
-  }, [currentPage, courses]);
-
-  const handleCourseClick = (course: BackendCourse, globalIndex: number) => {
-    setSelectedCourse(backendCourseToSummary(course, globalIndex));
-    window.location.hash = buildTeacherCourseHash(routes.courseDetail, course.id);
-  };
-
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
-  };
-
-  if (!loading && !error && courses.length === 0) {
-    return (
-      <AppSurface>
-        <div className="welcome-page welcome-page-empty">
-          <div className="welcome-empty-card">
-            <Title level={3}>暂无课程</Title>
-            <Text type="secondary">请前往课程管理页面创建课程</Text>
-          </div>
-        </div>
-      </AppSurface>
-    );
+  function cardFacts(courseId: string): CourseCardFacts {
+    const activeJobCount = Object.values(jobs).filter((job) => job.course_id === courseId && isActiveJob(job)).length;
+    return { ...(facts[courseId] ?? emptyFacts), activeJobCount };
   }
 
   return (
-    <AppSurface>
-      <div className="welcome-page">
-        <div className="welcome-topbar">
-          <a href={routeHref(routes.home)} className="welcome-brand">
-            Edu AI
-          </a>
-          <div className="welcome-topbar-actions">
-            <a href={routeHref(routes.profile)} className="welcome-user-pill">
-              <span className="welcome-user-avatar">{username[0]?.toUpperCase() || "U"}</span>
-              <span className="welcome-user-name">{username}</span>
-            </a>
+    <AppSurface className="teacher-home">
+      <header className="teacher-home__topbar">
+        <a href={routeHref(routes.home)} className="teacher-home__brand">Edu AI</a>
+        <a href={routeHref(routes.profile)} className="teacher-home__account">
+          <span>{username.slice(0, 1).toUpperCase()}</span>
+          <strong>{username}</strong>
+        </a>
+      </header>
+
+      <main className="teacher-home__main">
+        <section className="teacher-home__intro">
+          <div>
+            <p className="teacher-home__eyebrow">教师课程工作台</p>
+            <h1>选择课程，继续今天的教学工作</h1>
+            <p>课程资料、知识结构、生成任务与教学成果都归属于课程，并对课程成员保持同步。</p>
           </div>
-        </div>
+          <label className="teacher-home__search">
+            <MaterialIcon name="search" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
+          </label>
+        </section>
 
-        <div className="welcome-hero">
-          <div className="welcome-content">
-            <Space direction="vertical" size="large" align="center" style={{ width: "100%" }}>
-              <Avatar
-                size={80}
-                style={{
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  fontSize: 32,
-                  marginBottom: 16,
-                  boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
-                }}
-              >
-                {username[0]?.toUpperCase() || "U"}
-              </Avatar>
-              <Title level={1} className="welcome-title">
-                {getGreeting()}，{username}！
-              </Title>
-              <Paragraph className="welcome-subtitle">欢迎使用 知学启思 教学平台</Paragraph>
-              <Text type="secondary" className="welcome-description">
-                融合前沿 AI 技术，赋能教育创新。选择下方课程开始你的智能学习之旅。
-              </Text>
-            </Space>
+        <section aria-labelledby="course-grid-title">
+          <div className="teacher-home__section-head">
+            <div><h2 id="course-grid-title">全部课程</h2><p>{courses.length} 门可访问课程</p></div>
           </div>
-        </div>
 
-        <div className="welcome-features">
-          <Title level={2} className="features-title">
-            <RocketOutlined style={{ marginRight: 12, color: "#1890ff" }} />
-            我的课程
-          </Title>
+          {loading ? <div className="teacher-home__state">正在加载课程…</div> : null}
+          {error ? <div className="teacher-home__state is-error">{error}</div> : null}
+          {!loading && !error && visibleCourses.length === 0 ? (
+            <div className="teacher-home__state">没有找到匹配的课程。</div>
+          ) : null}
 
-          {loading ? (
-            <div className="welcome-status-card">
-              <Text type="secondary">正在加载课程...</Text>
-            </div>
-          ) : error ? (
-            <div className="welcome-status-card">
-              <Text type="danger">{error}</Text>
-            </div>
-          ) : (
-            <>
-              <div className="courses-container">
-                <Button
-                  type="text"
-                  icon={<LeftOutlined />}
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 0}
-                  className="page-nav-button page-nav-left"
-                  size="large"
-                />
-                <div className="courses-row">
-                  {currentCourses.map((course, index) => {
-                    const globalIndex = currentPage * COURSES_PER_PAGE + index;
-                    return (
-                      <div className="course-col" key={course.id}>
-                        <a
-                          className="course-card-access-link"
-                          href={buildTeacherCourseHash(routes.courseDetail, course.id)}
-                          aria-label={course.title}
-                          onClick={() => setSelectedCourse(backendCourseToSummary(course, globalIndex))}
-                        />
-                        <Card
-                          className="course-card"
-                          hoverable
-                          onClick={() => handleCourseClick(course, globalIndex)}
-                          style={{
-                            borderTop: `4px solid ${course.color}`,
-                            height: "100%",
-                            transition: "all 0.3s ease",
-                          }}
-                        >
-                          <div className="course-icon" style={{ color: course.color }}>
-                            {iconMap[course.icon] || <CommentOutlined />}
-                          </div>
-                          <Title level={4} className="course-title">
-                            {course.title}
-                          </Title>
-                          <Paragraph className="course-description" type="secondary">
-                            {course.description}
-                          </Paragraph>
-                          <Button
-                            type="link"
-                            className="course-link"
-                            style={{ color: course.color, padding: 0 }}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleCourseClick(course, globalIndex);
-                            }}
-                          >
-                            进入课程 <ArrowRightOutlined />
-                          </Button>
-                        </Card>
-                      </div>
-                    );
-                  })}
-                </div>
-                <Button
-                  type="text"
-                  icon={<RightOutlined />}
-                  onClick={handleNextPage}
-                  disabled={currentPage >= totalPages - 1}
-                  className="page-nav-button page-nav-right"
-                  size="large"
-                />
-              </div>
-
-              {totalPages > 1 && (
-                <div className="page-indicator">
-                  <Text type="secondary">
-                    第 {currentPage + 1} 页 / 共 {totalPages} 页
-                  </Text>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        <div className="welcome-footer">
-          <Text type="secondary">如有任何问题或建议，请联系系统管理员</Text>
-        </div>
-      </div>
+          <div className="teacher-course-grid">
+            {visibleCourses.map((course, index) => {
+              const card = toCourseCardPresentation(course, cardFacts(course.id));
+              return (
+                <a
+                  key={course.id}
+                  className="teacher-course-card"
+                  href={buildTeacherCourseHash("course-detail", course.id)}
+                  aria-label={course.title}
+                  onClick={() => setSelectedCourse(backendCourseToSummary(course, index))}
+                >
+                  <div className="teacher-course-card__top">
+                    <span className="teacher-course-card__role">{card.roleLabel}</span>
+                    <span>{card.revisionLabel}</span>
+                  </div>
+                  <h3>{card.title}</h3>
+                  <p className="teacher-course-card__description">{card.description}</p>
+                  <dl className="teacher-course-card__metrics">
+                    {card.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}</dd></div>)}
+                  </dl>
+                  <div className="teacher-course-card__footer">
+                    <span>{card.updatedLabel}</span>
+                    <strong>进入课程 <MaterialIcon name="arrow_forward" /></strong>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      </main>
     </AppSurface>
   );
 }
