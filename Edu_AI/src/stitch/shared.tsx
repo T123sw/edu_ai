@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { buildTeacherCourseHash, teacherSidebarItems } from "./teacherRoutes";
+import { useCourseRoute } from "./course/CourseRouteProvider";
 
 export function cx(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
@@ -324,16 +325,20 @@ export function SidebarNav({
   activeRoute: RouteKey;
   className?: string;
 }) {
-  const { selectedCourse } = useAppShell();
+  const { courseId, courseRole } = useCourseRoute();
 
   return (
     <nav className={cx("flex flex-1 flex-col gap-2", className)}>
       {teacherSidebarItems.map((item) => (
         <SidebarLink
           key={item.route}
-          label={item.label}
+          label={
+            item.route === routes.edit && courseRole === "viewer"
+              ? "课程信息"
+              : item.label
+          }
           icon={item.icon}
-          href={buildTeacherCourseHash(item.route, selectedCourse?.id)}
+          href={buildTeacherCourseHash(item.route, courseId)}
           active={activeRoute === item.route}
         />
       ))}

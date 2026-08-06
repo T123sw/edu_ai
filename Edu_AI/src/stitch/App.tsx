@@ -15,19 +15,28 @@ import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
 import { ClassroomVideoRenderPage } from "./pages/_dev/ClassroomVideoRender";
 import { ClassroomStudioPage } from "./pages/ClassroomStudio";
 import { ClassroomPlayerPage } from "./pages/ClassroomPlayer";
-import { backendCourseToSummary, getCourse } from "./api/courses";
-import { readTeacherCourseId } from "./teacherRoutes";
+import { backendCourseToSummary } from "./api/courses";
+import {
+  AuthSessionProvider,
+  AUTH_STORAGE_KEY,
+  normalizeAuthUser,
+  parseStoredAuthSession,
+  type AuthUser,
+} from "./authSession";
+import {
+  CourseRouteProvider,
+  useCourseRoute,
+} from "./course/CourseRouteProvider";
 import {
   AppShellProvider,
   ThemeCustomizer,
-  defaultCourse,
   routeHref,
   routes,
   type CourseSummary,
   type RouteKey,
   type ThemeName,
 } from "./shared";
-import { login, verifyToken, type User } from "../services/auth";
+import { login, verifyToken } from "../services/auth";
 import { GlobalJobManager } from "../jobs/GlobalJobManager";
 
 const pages = [
@@ -49,8 +58,6 @@ const pages = [
   [routes.classroomPlayer, "Classroom Player", ClassroomPlayerPage],
 ] as const;
 
-const AUTH_STORAGE_KEY = "edu-ai-auth";
-
 function getCurrentRoute(): RouteKey {
   const hash = window.location.hash.replace(/^#/, "");
   const route = hash.split("?")[0] as RouteKey;
@@ -71,26 +78,23 @@ function getStoredTheme(): ThemeName {
 function getStoredCourse(): CourseSummary | null {
   const raw = window.localStorage.getItem("stitch-course");
 
-  if (!raw) return defaultCourse;
+  if (!raw) return null;
 
   try {
     return JSON.parse(raw) as CourseSummary;
   } catch {
-    return defaultCourse;
+    return null;
   }
 }
 
 function getStoredAuth() {
-  const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
-
-  if (!raw) return null;
-
-  try {
-    return JSON.parse(raw) as { user: User; token: string };
-  } catch {
+  const session = parseStoredAuthSession(
+    window.localStorage.getItem(AUTH_STORAGE_KEY),
+  );
+  if (!session) {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
-    return null;
   }
+  return session;
 }
 
 function resetRouteScrollPosition() {
@@ -107,11 +111,11 @@ function resetRouteScrollPosition() {
 
 export default function App() {
   const [current, setCurrent] = useState<RouteKey>(getCurrentRoute);
-  const [routeCourseId, setRouteCourseId] = useState<string | null>(() => readTeacherCourseId(window.location.hash));
-  const [selectedCourse, setSelectedCourse] = useState<CourseSummary | null>(getStoredCourse);
+  const [rememberedCourse, setRememberedCourse] = useState<CourseSummary | null>(getStoredCourse);
   const [theme, setTheme] = useState<ThemeName>(getStoredTheme);
   const [authReady, setAuthReady] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -120,7 +124,6 @@ export default function App() {
 
     const syncRoute = () => {
       setCurrent(getCurrentRoute());
-      setRouteCourseId(readTeacherCourseId(window.location.hash));
     };
     window.addEventListener("hashchange", syncRoute);
     return () => window.removeEventListener("hashchange", syncRoute);
@@ -146,33 +149,6 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    if (selectedCourse) {
-      window.localStorage.setItem("stitch-course", JSON.stringify(selectedCourse));
-    }
-  }, [selectedCourse]);
-
-  useEffect(() => {
-    if (!authenticated || !routeCourseId || selectedCourse?.id === routeCourseId) {
-      return;
-    }
-
-    let cancelled = false;
-    void getCourse(routeCourseId)
-      .then((course) => {
-        if (!cancelled) {
-          setSelectedCourse(backendCourseToSummary(course, 0));
-        }
-      })
-      .catch(() => {
-        // The destination page owns its recoverable not-found/error state.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [authenticated, routeCourseId, selectedCourse?.id]);
-
-  useEffect(() => {
     let cancelled = false;
 
     async function run() {
@@ -190,15 +166,18 @@ export default function App() {
         const result = await verifyToken(stored.token);
         if (!cancelled) {
           if (result.valid) {
+            setAuthUser(normalizeAuthUser(result.user));
             setAuthenticated(true);
           } else {
             window.localStorage.removeItem(AUTH_STORAGE_KEY);
+            setAuthUser(null);
             setAuthenticated(false);
           }
         }
       } catch {
         if (!cancelled) {
           window.localStorage.removeItem(AUTH_STORAGE_KEY);
+          setAuthUser(null);
           setAuthenticated(false);
         }
       } finally {
@@ -214,28 +193,96 @@ export default function App() {
     };
   }, []);
 
-  const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
-  const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
-  const isVideoRenderRoute = current === routes.videoRender;
-
   async function handleLogin(payload: { username: string; password: string }) {
     const result = await login(payload.username, payload.password);
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(result));
+    setAuthUser(normalizeAuthUser(result.user));
     setAuthenticated(true);
     setAuthReady(true);
   }
 
   function handleLogout() {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    setAuthUser(null);
     setAuthenticated(false);
     setAuthReady(true);
     window.location.hash = routeHref(routes.home);
   }
 
   return (
+    <AuthSessionProvider user={authUser} authenticated={authenticated}>
+      <CourseRouteProvider
+        enabled={authenticated}
+        rememberedCourseId={rememberedCourse?.id}
+      >
+        <AppPresentation
+          current={current}
+          rememberedCourse={rememberedCourse}
+          setRememberedCourse={setRememberedCourse}
+          theme={theme}
+          setTheme={setTheme}
+          authReady={authReady}
+          authenticated={authenticated}
+          handleLogin={handleLogin}
+          handleLogout={handleLogout}
+        />
+      </CourseRouteProvider>
+    </AuthSessionProvider>
+  );
+}
+
+function AppPresentation({
+  current,
+  rememberedCourse,
+  setRememberedCourse,
+  theme,
+  setTheme,
+  authReady,
+  authenticated,
+  handleLogin,
+  handleLogout,
+}: {
+  current: RouteKey;
+  rememberedCourse: CourseSummary | null;
+  setRememberedCourse: (course: CourseSummary | null) => void;
+  theme: ThemeName;
+  setTheme: (theme: ThemeName) => void;
+  authReady: boolean;
+  authenticated: boolean;
+  handleLogin: (payload: { username: string; password: string }) => Promise<void>;
+  handleLogout: () => void;
+}) {
+  const routeCourse = useCourseRoute();
+  const selectedCourse = routeCourse.course
+    ? backendCourseToSummary(routeCourse.course, 0)
+    : null;
+
+  useEffect(() => {
+    if (!selectedCourse) return;
+    window.localStorage.setItem("stitch-course", JSON.stringify(selectedCourse));
+    setRememberedCourse(selectedCourse);
+  }, [routeCourse.courseId, selectedCourse?.id]);
+
+  const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
+  const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
+  const isVideoRenderRoute = current === routes.videoRender;
+  const shellCourse = routeCourse.courseId
+    ? selectedCourse
+    : current === routes.home
+      ? selectedCourse ?? rememberedCourse
+      : null;
+
+  function rememberCourse(course: CourseSummary | null) {
+    setRememberedCourse(course);
+    if (course) {
+      window.localStorage.setItem("stitch-course", JSON.stringify(course));
+    }
+  }
+
+  return (
     <AppShellProvider
-      selectedCourse={selectedCourse}
-      setSelectedCourse={setSelectedCourse}
+      selectedCourse={shellCourse}
+      setSelectedCourse={rememberCourse}
       theme={theme}
       setTheme={setTheme}
       logout={handleLogout}

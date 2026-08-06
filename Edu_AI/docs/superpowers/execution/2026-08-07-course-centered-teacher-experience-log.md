@@ -86,3 +86,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: read-only retrieval testing remains a `read` capability even though it uses POST; indexing/reindexing, textbook graph import, graph-hour allocation, classroom generation, and video export require `generate`; knowledge-base and graph content mutation require `edit`.
 - Decision: classroom-video export reconstructs the already-authorized principal context and no longer references undeclared request credential variables. The queued export implementation does not consume the raw token.
 - Result: every course-scoped content route now enters through a single read/edit/generate/manage/owner capability boundary with stable 401/403 behavior.
+
+### Plan 1 / Task 7 — URL-derived frontend course context
+
+- Red evidence: the focused Node run failed on the missing route provider and permission modules; the previous App implementation restored a local course first and later overwrote it asynchronously from the URL.
+- Green evidence: `8 passed` across route authority, malformed IDs, the permission matrix, and existing teacher-route contracts; the production Vite build passed.
+- Decision: a remembered course is consulted only on `#home`. Course detail/workspace routes without `course_id` have no active course, while any valid URL ID wins over remembered state.
+- Decision: the authenticated user is normalized into an application context after login or token verification. Invalid stored sessions are removed instead of partially restoring a user.
+- Result: course loading, membership role, loading/error state, and reload now live in `CourseRouteProvider`; the sidebar constructs links from the provider's URL-derived identity rather than mutable page state.

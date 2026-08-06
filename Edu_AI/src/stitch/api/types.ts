@@ -6,6 +6,11 @@ export type BackendCourse = {
   color: string;
   objectives?: string[];
   knowledgeGraph?: string;
+  revision: number;
+  membership_role: "owner" | "editor" | "viewer";
+  created_by?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
 export type CourseMaterial = {
