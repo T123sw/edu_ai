@@ -198,10 +198,13 @@
 
 .job-center-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
 
 .job-card {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid #dbe7f5;
   border-radius: 17px;
   padding: 14px;
@@ -216,6 +219,8 @@
 
 .job-card__top {
   display: flex;
+  min-width: 0;
+  max-width: 100%;
   align-items: flex-start;
   gap: 11px;
 }
@@ -303,6 +308,8 @@
 
 .job-card__detail {
   display: flex;
+  min-width: 0;
+  max-width: 100%;
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
@@ -319,6 +326,8 @@
 
 .job-card__actions {
   display: flex;
+  min-width: 0;
+  max-width: 100%;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 7px;

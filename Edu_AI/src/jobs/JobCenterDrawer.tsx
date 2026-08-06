@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
 import { cancelJob, retryJob } from "./api";
 import { jobKindLabel, summarizeJobs } from "./jobPresentation";
+import { getJobResultHash } from "./jobResultTarget";
 import { registerCreatedJob, useJobStore } from "./jobStore";
 import { isActiveJob, type JobRecord } from "./types";
-import { buildClassroomPlayerHash } from "../openmaic/classroomGenerationFlow";
 import { MaterialIcon } from "../stitch/shared";
-import { buildTeacherCourseHash } from "../stitch/teacherRoutes";
 import "./jobCenter.css";
 
 export function JobCenterDrawer() {
@@ -239,7 +238,7 @@ function JobCard({
     typeof job.input_summary.title === "string"
       ? job.input_summary.title
       : jobKindLabel(job.kind);
-  const resultHash = getResultHash(job);
+  const resultHash = getJobResultHash(job);
   return (
     <article className={`job-card is-${job.status}`}>
       <div className="job-card__top">
@@ -316,28 +315,6 @@ function formatDuration(durationMs: number): string {
   const minutes = Math.floor(durationMs / 60_000);
   const seconds = Math.round((durationMs % 60_000) / 1000);
   return `${minutes}m ${seconds}s`;
-}
-
-function getResultHash(job: JobRecord): string | null {
-  const result = job.result_ref;
-  const courseId = String(result?.course_id || job.course_id || "").trim();
-  const materialId = String(
-    result?.material_id || result?.classroom_id || "",
-  ).trim();
-  if (!courseId) return null;
-  if (
-    result?.material_type === "classroom" &&
-    materialId
-  ) {
-    return buildClassroomPlayerHash(courseId, materialId);
-  }
-  if (result?.resource_type === "course_material") {
-    return buildTeacherCourseHash("resources", courseId);
-  }
-  if (result?.resource_type === "classroom_video" && materialId) {
-    return buildClassroomPlayerHash(courseId, materialId);
-  }
-  return null;
 }
 
 function jobIcon(kind: string) {

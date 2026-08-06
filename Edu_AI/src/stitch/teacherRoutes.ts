@@ -30,6 +30,7 @@ function normalizeCourseId(courseId: string | null | undefined): string | null {
 export function buildTeacherCourseHash(
   route: TeacherCourseRoute,
   courseId: string | null | undefined,
+  target?: Readonly<Record<string, string | null | undefined>>,
 ): string {
   const normalizedCourseId = normalizeCourseId(courseId);
   if (!normalizedCourseId) {
@@ -37,6 +38,12 @@ export function buildTeacherCourseHash(
   }
 
   const params = new URLSearchParams({ course_id: normalizedCourseId });
+  for (const [key, value] of Object.entries(target ?? {})) {
+    const normalizedValue = String(value ?? "").trim();
+    if (normalizedValue) {
+      params.set(key, normalizedValue);
+    }
+  }
   return `#${route}?${params.toString()}`;
 }
 

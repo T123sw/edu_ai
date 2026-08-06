@@ -32,6 +32,16 @@ test("teacher course hashes carry an encoded course id", () => {
   );
 });
 
+test("teacher course hashes carry an exact generated material target", () => {
+  assert.equal(
+    buildTeacherCourseHash("resources", "course / 中文", {
+      material_type: "report",
+      material_id: "报告/1",
+    }),
+    "#resources?course_id=course+%2F+%E4%B8%AD%E6%96%87&material_type=report&material_id=%E6%8A%A5%E5%91%8A%2F1",
+  );
+});
+
 test("teacher course hashes fall back safely when the course id is unavailable", () => {
   assert.equal(buildTeacherCourseHash("resources", undefined), "#course");
   assert.equal(buildTeacherCourseHash("resources", " undefined "), "#course");
