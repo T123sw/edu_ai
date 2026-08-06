@@ -22,6 +22,7 @@ from app.services.job_store import (
     update_job,
 )
 from app.services.runtime_config_resolver import runtime_config_resolver
+from app.services.generation_source_resolver import GenerationSourceMode
 
 
 GenerationResourceType = Literal[
@@ -57,10 +58,24 @@ class GenerationCommand(BaseModel):
     course_id: str
     scope_type: str = "course"
     scope_id: str | None = None
+    source_mode: GenerationSourceMode = "course_auto"
     selected_doc_ids: list[str] = Field(default_factory=list)
+    deadline_seconds: int = Field(default=300, ge=1, le=3600)
     config: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str
     material_id: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _infer_legacy_source_mode(cls, value):
+        if isinstance(value, dict) and "source_mode" not in value:
+            value = dict(value)
+            value["source_mode"] = (
+                "selected_documents"
+                if value.get("selected_doc_ids")
+                else "course_auto"
+            )
+        return value
 
     @model_validator(mode="after")
     def _validate_required_context(self):
@@ -80,11 +95,12 @@ class GenerationCommand(BaseModel):
             raise ValueError("owner_user_id is required")
         if not self.course_id:
             raise ValueError("course_id is required")
-        if (
-            not self.selected_doc_ids
-            and str(self.config.get("entrypoint") or "") != "agent"
-        ):
-            raise ValueError("selected_doc_ids is required")
+        if self.source_mode == "selected_documents" and not self.selected_doc_ids:
+            raise ValueError("selected_documents requires selected_doc_ids")
+        if self.source_mode != "selected_documents" and self.selected_doc_ids:
+            raise ValueError(
+                "selected_doc_ids is only valid for selected_documents"
+            )
         if not self.idempotency_key:
             raise ValueError("idempotency_key is required")
         if len(self.idempotency_key) > 160:
@@ -161,6 +177,7 @@ class GenerationCommandService:
                             or command.resource_type
                         )[:160],
                         "resource_type": command.resource_type,
+                        "source_mode": command.source_mode,
                         "selected_doc_ids": command.selected_doc_ids,
                         "config": command.config,
                         "config_snapshot_id": command.config_snapshot_id,

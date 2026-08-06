@@ -12,7 +12,7 @@ from app.services.generation_command import (
 from app.services.job_store import JobKind, JobStatus, get_job
 
 
-def test_generation_command_requires_owner_course_sources_and_idempotency_key():
+def test_generation_command_requires_owner_course_and_idempotency_key():
     with pytest.raises(ValueError):
         GenerationCommand(
             resource_type="flashcard",
@@ -29,14 +29,45 @@ def test_generation_command_requires_owner_course_sources_and_idempotency_key():
             selected_doc_ids=["doc-1"],
             idempotency_key="request-1",
         )
-    with pytest.raises(ValueError):
-        GenerationCommand(
-            resource_type="flashcard",
-            owner_user_id="teacher",
-            course_id="course-1",
-            selected_doc_ids=[],
-            idempotency_key="request-1",
-        )
+
+
+def test_generation_command_preserves_explicit_source_intent_and_deadline():
+    command = GenerationCommand(
+        resource_type="flashcard",
+        owner_user_id="teacher",
+        course_id="course-1",
+        source_mode="none",
+        selected_doc_ids=[],
+        deadline_seconds=45,
+        idempotency_key="request-1",
+    )
+
+    assert command.source_mode == "none"
+    assert command.deadline_seconds == 45
+
+
+def test_generation_command_infers_source_mode_for_legacy_payloads():
+    selected = GenerationCommand.model_validate(
+        {
+            "resource_type": "quiz",
+            "owner_user_id": "teacher",
+            "course_id": "course-1",
+            "selected_doc_ids": ["doc-1"],
+            "idempotency_key": "selected",
+        }
+    )
+    automatic = GenerationCommand.model_validate(
+        {
+            "resource_type": "quiz",
+            "owner_user_id": "teacher",
+            "course_id": "course-1",
+            "selected_doc_ids": [],
+            "idempotency_key": "automatic",
+        }
+    )
+
+    assert selected.source_mode == "selected_documents"
+    assert automatic.source_mode == "course_auto"
 
 
 def test_generation_submit_persists_recoverable_owner_scoped_command(

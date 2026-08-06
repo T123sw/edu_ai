@@ -116,3 +116,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Green evidence: `21 passed` across all source modes and legacy RAG document/provider resolution.
 - Decision: `course_auto` with explicit document IDs is rejected as contradictory, matching the strict handling already required for `none`; callers must choose `selected_documents` when IDs are supplied.
 - Result: public course document IDs resolve deterministically to ready RAG keys, `none` proves zero catalog/content reads, cross-course and non-ready selections fail with stable codes, and immutable provenance snapshots exclude generated context text.
+
+### Plan 2 / Task 2 — Shared source intent for direct generation
+
+- Red evidence: `20 failed` showed missing `source_mode`, three schemas requiring documents unconditionally, invalid mode/ID combinations being silently accepted, and durable commands refusing no-source generation.
+- Green evidence: `46 passed` across shared source contracts, command persistence/backward compatibility, v2 routes, and jobs API.
+- Decision: source-bearing API models infer `selected_documents` only for legacy requests that omit `source_mode` but include IDs. New explicit contradictory combinations are rejected. Persisted commands use the same legacy inference without rewriting stored task rows.
+- Decision: durable task-submission routes return HTTP 202; synchronous chat and prefill/outline operations retain their existing synchronous status.
+- Result: report, quiz, game, flashcard, PPT outline/draft, graph, and blog now carry the same source contract; durable commands persist `source_mode`, public IDs, and bounded `deadline_seconds`.

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.chat.domain.artifact_reference import ArtifactReferencePayload
 from app.chat.domain.contracts import ChatInputImagePayload, ChatInputVideoPayload
 from app.chat.domain.conversation_reference import ConversationReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
+from app.services.generation_source_resolver import GenerationSourceMode
 
 TracePath = Literal["fast", "workflow"]
 DirectTracePath = Literal["direct"]
@@ -42,6 +43,37 @@ PptLengthOption = Literal["short", "medium", "long"]
 PptThemeId = Literal["heu_academic_elegant", "heu_academic_basic"]
 QuizDifficulty = Literal["easy", "medium", "hard"]
 QuizQuestionType = Literal["choice", "blank", "short", "judge"]
+
+
+class GenerationSourceRequest(BaseModel):
+    source_mode: GenerationSourceMode = "course_auto"
+    selected_doc_ids: List[str] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def infer_legacy_selected_mode(cls, value):
+        if isinstance(value, dict) and "source_mode" not in value:
+            value = dict(value)
+            if value.get("selected_doc_ids"):
+                value["source_mode"] = "selected_documents"
+        return value
+
+    @model_validator(mode="after")
+    def validate_source_selection(self) -> Self:
+        self.selected_doc_ids = list(
+            dict.fromkeys(
+                str(item or "").strip()
+                for item in self.selected_doc_ids
+                if str(item or "").strip()
+            )
+        )
+        if self.source_mode == "selected_documents" and not self.selected_doc_ids:
+            raise ValueError("selected_documents requires at least one document")
+        if self.source_mode != "selected_documents" and self.selected_doc_ids:
+            raise ValueError(
+                "selected_doc_ids is only valid for selected_documents"
+            )
+        return self
 
 
 class ChatReplyRequestV2(BaseModel):
@@ -100,12 +132,11 @@ class ChatLessonPlanCardsRequestV2(BaseModel):
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
-class KnowledgeBaseDirectReportRequestV2(BaseModel):
+class KnowledgeBaseDirectReportRequestV2(GenerationSourceRequest):
     question: str
     course_id: Optional[str] = None
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(default_factory=list)
     report_config: Optional[Dict[str, Any]] = None
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
@@ -130,22 +161,20 @@ class DirectQuizConfigV2(BaseModel):
     include_explanations: bool = True
 
 
-class KnowledgeBaseDirectQuizRequestV2(BaseModel):
+class KnowledgeBaseDirectQuizRequestV2(GenerationSourceRequest):
     course_id: Optional[str] = None
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(default_factory=list)
     quiz_config: DirectQuizConfigV2
     prompt_draft: Optional[str] = None
     final_user_prompt: Optional[str] = None
     idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 
-class KnowledgeBaseDirectGameRequestV2(BaseModel):
+class KnowledgeBaseDirectGameRequestV2(GenerationSourceRequest):
     course_id: Optional[str] = None
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(default_factory=list)
     game_type: GameType
     idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
@@ -158,11 +187,10 @@ class DirectFlashcardConfigV2(BaseModel):
     show_sources: bool = True
 
 
-class KnowledgeBaseDirectFlashcardRequestV2(BaseModel):
+class KnowledgeBaseDirectFlashcardRequestV2(GenerationSourceRequest):
     course_id: str
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(min_length=1)
     flashcard_config: DirectFlashcardConfigV2
     idempotency_key: str = Field(min_length=1, max_length=160)
 
@@ -181,11 +209,10 @@ class PptEntryPrefillConfigV2(BaseModel):
     general_requirements: Optional[str] = None
 
 
-class KnowledgeBaseDirectPptOutlineRequestV2(BaseModel):
+class KnowledgeBaseDirectPptOutlineRequestV2(GenerationSourceRequest):
     course_id: str
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(min_length=1)
     ppt_config: PptEntryPrefillConfigV2
 
 
@@ -196,21 +223,19 @@ class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 
-class KnowledgeBaseDirectGraphRequestV2(BaseModel):
+class KnowledgeBaseDirectGraphRequestV2(GenerationSourceRequest):
     course_id: str
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(min_length=1)
     title: str = ""
     max_depth: int = Field(default=3, ge=2, le=5)
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 
-class KnowledgeBaseDirectBlogRequestV2(BaseModel):
+class KnowledgeBaseDirectBlogRequestV2(GenerationSourceRequest):
     course_id: str
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(default_factory=list)
     topic: str = Field(min_length=1, max_length=160)
     idempotency_key: str = Field(min_length=1, max_length=160)
 

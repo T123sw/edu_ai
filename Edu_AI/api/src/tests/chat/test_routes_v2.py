@@ -484,12 +484,13 @@ def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
         },
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     data = response.json()
     assert data["status"] == "pending"
     assert data["workflow_type"] == "report_direct"
     assert data["task_id"] == "job-report-1"
     assert captured["command"].resource_type == "report"
+    assert captured["command"].source_mode == "selected_documents"
     assert captured["command"].config["question"] == "generate report"
     assert captured["command"].idempotency_key == "report-request-1"
 
@@ -528,12 +529,13 @@ def test_game_direct_route_returns_task_submitted_payload(monkeypatch):
         },
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     data = response.json()
     assert data["status"] == "pending"
     assert data["workflow_type"] == "game_direct"
     assert data["task_id"] == "job-game-1"
     assert captured["command"].resource_type == "game"
+    assert captured["command"].source_mode == "selected_documents"
     assert captured["command"].config["game_type"] == "drag_match"
 
 

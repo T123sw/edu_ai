@@ -425,7 +425,7 @@ async def lesson_plan_cards(payload: ChatLessonPlanCardsRequestV2, current_user:
         return JSONResponse(status_code=500, content=body)
 
 
-@router.post("/report/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/report/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_user: dict = Depends(get_current_user)):
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
@@ -434,6 +434,7 @@ async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_use
         course_id=str(payload.course_id or ""),
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
+        source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
         config={
             "title": payload.question[:160],
@@ -468,7 +469,7 @@ async def quiz_prefill(payload: KnowledgeBaseDirectQuizPrefillRequestV2, current
         return JSONResponse(status_code=500, content=body)
 
 
-@router.post("/quiz/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/quiz/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: dict = Depends(get_current_user)):
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
@@ -477,6 +478,7 @@ async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: d
         course_id=str(payload.course_id or ""),
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
+        source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
         config={
             "title": payload.quiz_config.topic[:160],
@@ -490,7 +492,7 @@ async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: d
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "quiz_direct"}
 
 
-@router.post("/game/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/game/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: dict = Depends(get_current_user)):
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
@@ -499,6 +501,7 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
         course_id=str(payload.course_id or ""),
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
+        source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
         config={
             "title": f"{payload.game_type} 小游戏",
@@ -510,7 +513,7 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "game_direct"}
 
 
-@router.post("/flashcard/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/flashcard/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_flashcard(
     payload: KnowledgeBaseDirectFlashcardRequestV2,
     current_user: dict = Depends(get_current_user),
@@ -522,6 +525,7 @@ async def direct_flashcard(
         course_id=payload.course_id,
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
+        source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
         config={
             "title": payload.flashcard_config.title,
@@ -546,7 +550,7 @@ async def direct_ppt_outline(
     return _get_direct_ppt_service().generate_outline(request)
 
 
-@router.post("/ppt/generate", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/ppt/generate", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_ppt_generate(
     payload: KnowledgeBaseDirectPptGenerateRequestV2,
     current_user: dict = Depends(get_current_user),
@@ -563,6 +567,14 @@ async def direct_ppt_generate(
         course_id=str(draft.get("course_id") or ""),
         scope_type=str(draft.get("scope_type") or "course"),
         scope_id=draft.get("scope_id"),
+        source_mode=str(
+            draft.get("source_mode")
+            or (
+                "selected_documents"
+                if draft.get("selected_doc_ids")
+                else "course_auto"
+            )
+        ),
         selected_doc_ids=list(draft.get("selected_doc_ids") or []),
         config={
             **dict(draft.get("normalized_ppt_config") or {}),
@@ -584,7 +596,7 @@ async def direct_ppt_generate(
     }
 
 
-@router.post("/graph/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/graph/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_graph(
     payload: KnowledgeBaseDirectGraphRequestV2,
     current_user: dict = Depends(get_current_user),
@@ -596,6 +608,7 @@ async def direct_graph(
         course_id=payload.course_id,
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
+        source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
         config={"title": payload.title, "max_depth": payload.max_depth},
         idempotency_key=payload.idempotency_key,
@@ -604,20 +617,20 @@ async def direct_graph(
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "graph_direct"}
 
 
-@router.post("/blog/direct", response_model=ChatDirectTaskSubmittedResponseV2)
+@router.post("/blog/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
 async def direct_blog(
     payload: KnowledgeBaseDirectBlogRequestV2,
     current_user: dict = Depends(get_current_user),
 ):
     owner = str(current_user.get("username") or "").strip()
-    selected_docs = payload.selected_doc_ids or [f"course:{payload.course_id}"]
     command = GenerationCommand(
         resource_type="blog",
         owner_user_id=owner,
         course_id=payload.course_id,
         scope_type=payload.scope_type or "course",
         scope_id=payload.scope_id,
-        selected_doc_ids=selected_docs,
+        source_mode=payload.source_mode,
+        selected_doc_ids=payload.selected_doc_ids,
         config={"title": payload.topic, "topic": payload.topic},
         idempotency_key=payload.idempotency_key,
     )
