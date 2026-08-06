@@ -21,3 +21,9 @@ test("profile API uses authenticated account endpoints without persisting passwo
   assert.match(api, /\/api\/auth\/avatar/);
   assert.doesNotMatch(api, /localStorage.*password|sessionStorage.*password/s);
 });
+
+test("profile keeps AI service configuration under account security without a quick-access section", () => {
+  assert.match(page, /账号安全[\s\S]*AI 服务配置/);
+  assert.match(page, /routeHref\(routes\.settings\)/);
+  assert.doesNotMatch(page, /快捷入口|Quick Access|quickLinks/);
+});

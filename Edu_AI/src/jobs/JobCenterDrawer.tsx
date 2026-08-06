@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cancelJob, retryJob } from "./api";
 import { jobKindLabel, summarizeJobs } from "./jobPresentation";
 import { getJobResultHash } from "./jobResultTarget";
@@ -7,14 +7,50 @@ import { isActiveJob, type JobRecord } from "./types";
 import { MaterialIcon } from "../stitch/shared";
 import "./jobCenter.css";
 
-export function JobCenterDrawer() {
+const OPEN_JOB_CENTER_EVENT = "edu-ai:open-job-center";
+
+export function JobCenterTrigger({
+  placement = "floating",
+}: {
+  placement?: "floating" | "inline";
+}) {
+  const activeCount = useJobStore((state) => state.activeCount);
+  const unreadIds = useJobStore((state) => state.unreadTerminalIds);
+  const jobsById = useJobStore((state) => state.jobs);
+  const hasUnreadFailure = unreadIds.some(
+    (id) =>
+      jobsById[id]?.status === "failed" ||
+      jobsById[id]?.status === "partially_succeeded",
+  );
+
+  return (
+    <button
+      type="button"
+      className={`job-center-launcher job-center-launcher--${placement}`}
+      onClick={() => window.dispatchEvent(new Event(OPEN_JOB_CENTER_EVENT))}
+      aria-label={`任务中心${activeCount ? `，${activeCount} 个进行中` : ""}`}
+    >
+      <MaterialIcon name="notifications" />
+      {placement === "inline" ? (
+        <span className="job-center-launcher__label">后台任务</span>
+      ) : null}
+      {activeCount ? (
+        <span className="job-center-launcher__badge">{activeCount}</span>
+      ) : null}
+      {hasUnreadFailure ? (
+        <span className="job-center-launcher__failure" aria-label="有失败任务" />
+      ) : null}
+    </button>
+  );
+}
+
+export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolean }) {
   const [open, setOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const jobsById = useJobStore((state) => state.jobs);
   const orderedIds = useJobStore((state) => state.orderedIds);
   const activeCount = useJobStore((state) => state.activeCount);
-  const unreadIds = useJobStore((state) => state.unreadTerminalIds);
   const hydrated = useJobStore((state) => state.hydrated);
   const pollFailures = useJobStore((state) => state.pollFailures);
   const markAllRead = useJobStore((state) => state.markAllRead);
@@ -38,17 +74,16 @@ export function JobCenterDrawer() {
     }),
     [jobs],
   );
-  const hasUnreadFailure = unreadIds.some(
-    (id) =>
-      jobsById[id]?.status === "failed" ||
-      jobsById[id]?.status === "partially_succeeded",
-  );
   const qualitySummary = useMemo(() => summarizeJobs(jobs), [jobs]);
 
-  const show = () => {
-    setOpen(true);
-    markAllRead();
-  };
+  useEffect(() => {
+    const handleOpen = () => {
+      setOpen(true);
+      markAllRead();
+    };
+    window.addEventListener(OPEN_JOB_CENTER_EVENT, handleOpen);
+    return () => window.removeEventListener(OPEN_JOB_CENTER_EVENT, handleOpen);
+  }, [markAllRead]);
 
   const runAction = async (
     job: JobRecord,
@@ -74,20 +109,7 @@ export function JobCenterDrawer() {
 
   return (
     <>
-      <button
-        type="button"
-        className="job-center-launcher"
-        onClick={show}
-        aria-label={`任务中心${activeCount ? `，${activeCount} 个进行中` : ""}`}
-      >
-        <MaterialIcon name="notifications" />
-        {activeCount ? (
-          <span className="job-center-launcher__badge">{activeCount}</span>
-        ) : null}
-        {hasUnreadFailure ? (
-          <span className="job-center-launcher__failure" aria-label="有失败任务" />
-        ) : null}
-      </button>
+      {showLauncher ? <JobCenterTrigger /> : null}
 
       {open ? (
         <div className="job-center-layer" role="presentation">

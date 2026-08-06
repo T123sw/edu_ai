@@ -59,6 +59,7 @@
 .ai-studio-context-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 14px;
   min-height: 52px;
   padding: 0 16px;
@@ -66,6 +67,50 @@
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.9);
   box-sizing: border-box;
+}
+
+.ai-studio-context-bar__scope,
+.ai-studio-context-bar__actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+}
+
+.ai-studio-context-bar__actions {
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.ai-studio-profile-entry {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dbe7f5;
+  border-radius: 12px;
+  padding: 5px 11px 5px 6px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.ai-studio-profile-entry:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.ai-studio-profile-entry__icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 9px;
+  background: white;
+  color: #2563eb;
 }
 
 .ai-studio-context-bar__item {
@@ -267,6 +312,17 @@
     row-gap: 8px;
     min-height: auto;
     padding: 12px 14px;
+  }
+
+  .ai-studio-context-bar__scope {
+    width: 100%;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .ai-studio-context-bar__actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .ai-studio-context-bar__item {

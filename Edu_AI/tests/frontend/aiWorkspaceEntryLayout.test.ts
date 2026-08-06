@@ -42,6 +42,24 @@ assert.match(
   'AIWorkspace should show a visible 当前知识点 label in the entry header',
 );
 
+assert.match(
+  aiWorkspaceFile,
+  /ai-studio-context-bar__actions/,
+  'AIWorkspace should use the empty right side of the context bar for global actions',
+);
+
+assert.match(
+  aiWorkspaceFile,
+  /JobCenterTrigger/,
+  'AIWorkspace should place the shared background task trigger in the context bar',
+);
+
+assert.match(
+  aiWorkspaceFile,
+  /routeHref\(routes\.profile\)/,
+  'AIWorkspace should expose a compact personal-center entry in the context bar',
+);
+
 assert.doesNotMatch(
   aiWorkspaceFile,
   /Teacher Panels/,

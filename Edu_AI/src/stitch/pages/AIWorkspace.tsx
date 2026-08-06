@@ -4,7 +4,17 @@ import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
 import "../../pages/teacher/AiStudioPage.css";
 import { useStore } from "../../store/teacher/useStore";
-import { AppSurface, SidebarBackLink, SidebarDock, SidebarNav, routes, useAppShell } from "../shared";
+import {
+  AppSurface,
+  MaterialIcon,
+  SidebarBackLink,
+  SidebarDock,
+  SidebarNav,
+  routeHref,
+  routes,
+  useAppShell,
+} from "../shared";
+import { JobCenterTrigger } from "../../jobs/JobCenterDrawer";
 import {
   getWorkspaceScopeLabel,
   normalizeWorkspaceScope,
@@ -131,20 +141,36 @@ export function AIWorkspacePage() {
 
       <main className="ai-workspace-shell__main flex h-screen min-h-0 flex-1 flex-col overflow-hidden">
         <section className="ai-studio-context-bar ai-workspace-shell__context" aria-label="当前问答上下文">
-          <div className="ai-studio-context-bar__item">
-            <span className="ai-studio-context-bar__label">当前课程</span>
-            <span className="ai-studio-context-bar__value" title={courseLabel}>
-              {courseLabel}
-            </span>
+          <div className="ai-studio-context-bar__scope">
+            <div className="ai-studio-context-bar__item">
+              <span className="ai-studio-context-bar__label">当前课程</span>
+              <span className="ai-studio-context-bar__value" title={courseLabel}>
+                {courseLabel}
+              </span>
+            </div>
+
+            <span className="ai-studio-context-bar__divider" aria-hidden="true" />
+
+            <div className="ai-studio-context-bar__item">
+              <span className="ai-studio-context-bar__label">当前知识点</span>
+              <span className="ai-studio-context-bar__value" title={knowledgePointLabel}>
+                {knowledgePointLabel}
+              </span>
+            </div>
           </div>
 
-          <span className="ai-studio-context-bar__divider" aria-hidden="true" />
-
-          <div className="ai-studio-context-bar__item">
-            <span className="ai-studio-context-bar__label">当前知识点</span>
-            <span className="ai-studio-context-bar__value" title={knowledgePointLabel}>
-              {knowledgePointLabel}
-            </span>
+          <div className="ai-studio-context-bar__actions" aria-label="全局操作">
+            <JobCenterTrigger placement="inline" />
+            <a
+              href={routeHref(routes.profile)}
+              className="ai-studio-profile-entry"
+              aria-label="进入个人中心"
+            >
+              <span className="ai-studio-profile-entry__icon">
+                <MaterialIcon name="person" />
+              </span>
+              <span>个人中心</span>
+            </a>
           </div>
         </section>
 

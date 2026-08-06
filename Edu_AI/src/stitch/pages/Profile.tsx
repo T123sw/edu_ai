@@ -11,13 +11,6 @@ import {
 } from "../api/profile";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 
-const quickLinks = [
-  { title: "AI 服务配置", subtitle: "配置模型、语音、搜索与解析服务", href: routeHref(routes.settings), icon: "settings_suggest" },
-  { title: "我的课程", subtitle: "继续查看课程与工作区", href: routeHref(routes.course), icon: "dashboard" },
-  { title: "问答助手", subtitle: "进入教师 AI 工作台", href: routeHref(routes.ai), icon: "forum" },
-  { title: "知识图谱", subtitle: "维护节点与课程关系", href: routeHref(routes.graph), icon: "hub" },
-];
-
 const roleLabels: Record<string, string> = {
   admin: "系统管理员",
   teacher: "教师",
@@ -237,22 +230,21 @@ export function ProfilePage() {
                       <p className="font-bold text-[#17304a]">账号状态</p>
                       <p className="mt-1 text-sm text-[#5f7088]">正常 · {roleLabels[profile.role] || profile.role}</p>
                     </div>
-                  </div>
-                </GlassPanel>
-
-                <GlassPanel className="border border-[#d6dfef] bg-white p-7 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#5b6f8d]">Quick Access</p>
-                  <h2 className="mt-1 text-2xl font-black text-[#17304a]">快捷入口</h2>
-                  <div className="mt-5 space-y-3">
-                    {quickLinks.map((item) => (
-                      <a key={item.title} href={item.href} className="flex items-center justify-between rounded-[20px] border border-[#dde6f5] bg-[#f8fbff] px-5 py-4 transition hover:border-[#9cb9f2] hover:bg-white">
-                        <div className="flex items-center gap-3">
-                          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eaf1ff] text-[#2357b8]"><MaterialIcon name={item.icon} /></span>
-                          <span><span className="block text-sm font-bold text-[#17304a]">{item.title}</span><span className="mt-1 block text-xs text-[#5f7088]">{item.subtitle}</span></span>
-                        </div>
-                        <MaterialIcon name="arrow_forward" className="text-[#2357b8]" />
-                      </a>
-                    ))}
+                    <a
+                      href={routeHref(routes.settings)}
+                      className="flex items-center justify-between rounded-[20px] border border-[#d8e4f6] bg-[#f8fbff] p-4 transition hover:border-[#9cb9f2] hover:bg-white"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eaf1ff] text-[#2357b8]">
+                          <MaterialIcon name="settings_suggest" />
+                        </span>
+                        <span>
+                          <span className="block font-bold text-[#17304a]">AI 服务配置</span>
+                          <span className="mt-1 block text-sm text-[#5f7088]">配置对话、知识库、语音及外部服务</span>
+                        </span>
+                      </span>
+                      <MaterialIcon name="arrow_forward" className="text-[#2357b8]" />
+                    </a>
                   </div>
                 </GlassPanel>
               </div>

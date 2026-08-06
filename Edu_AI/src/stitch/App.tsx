@@ -247,7 +247,10 @@ export default function App() {
         <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
       ) : authenticated ? (
         <>
-          <GlobalJobManager enabled={!isVideoRenderRoute} />
+          <GlobalJobManager
+            enabled={!isVideoRenderRoute}
+            showLauncher={current !== routes.ai}
+          />
           <div key={current} className="route-stage">
             <ActivePage />
           </div>

@@ -14,7 +14,13 @@ type JobBroadcastMessage = {
   payload: JobListResponse;
 };
 
-export function GlobalJobManager({ enabled }: { enabled: boolean }) {
+export function GlobalJobManager({
+  enabled,
+  showLauncher = true,
+}: {
+  enabled: boolean;
+  showLauncher?: boolean;
+}) {
   useEffect(() => {
     if (!enabled) {
       jobStore.getState().reset();
@@ -139,7 +145,7 @@ export function GlobalJobManager({ enabled }: { enabled: boolean }) {
     };
   }, [enabled]);
 
-  return enabled ? <JobCenterDrawer /> : null;
+  return enabled ? <JobCenterDrawer showLauncher={showLauncher} /> : null;
 }
 
 function notifyJobTerminal(job: JobRecord) {
