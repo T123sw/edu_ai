@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.auth import get_current_user
+from app.chat.tasks.task_store import get_task_store
 from app.services.job_store import (
     EduJob,
     JobKind,
@@ -18,7 +19,10 @@ from app.services.job_store import (
     list_job_page,
     retry_job,
 )
-from app.services.job_retry_service import dispatch_retry_job
+from app.services.job_retry_service import (
+    dispatch_retry_job,
+    retry_durable_job,
+)
 
 from app.api import courses as courses_api
 
@@ -91,7 +95,17 @@ def get_job_status(
 def cancel_user_job(
     edu_job_id: str, current_user: dict = Depends(get_current_user)
 ):
-    _owned_job(edu_job_id, current_user)
+    job = _owned_job(edu_job_id, current_user)
+    task_store = get_task_store()
+    durable = task_store.get_durable(edu_job_id)
+    if durable is not None and not task_store.request_cancel(
+        edu_job_id,
+        owner_user_id=job.owner_user_id,
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="后台任务已结束，不能取消",
+        )
     try:
         return _public_job(
             cancel_job(edu_job_id, owner_user_id=_owner(current_user))
@@ -110,9 +124,17 @@ async def retry_user_job(
     current_user: dict = Depends(get_current_user),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security),
 ):
-    _owned_job(edu_job_id, current_user)
+    original = _owned_job(edu_job_id, current_user)
+    owner = _owner(current_user)
     try:
-        retried = retry_job(edu_job_id, owner_user_id=_owner(current_user))
+        durable_retried = retry_durable_job(
+            original,
+            owner_user_id=owner,
+            task_store=get_task_store(),
+        )
+        if durable_retried is not None:
+            return _public_job(durable_retried)
+        retried = retry_job(edu_job_id, owner_user_id=owner)
         dispatched = await dispatch_retry_job(
             retried,
             auth_token=credentials.credentials if credentials else "",

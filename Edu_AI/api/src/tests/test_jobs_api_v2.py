@@ -10,6 +10,7 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app.api import jobs as jobs_api
+from app.chat.tasks.task_store import TaskStore
 from app.services import job_store
 from app.services.job_store import JobKind, JobStatus
 from core import Config
@@ -29,10 +30,15 @@ def client(monkeypatch, tmp_path):
         "username": "teacher-a",
         "role": "teacher",
     }
-    return TestClient(app)
+    task_store = TaskStore(str(tmp_path / "tasks.db"))
+    monkeypatch.setattr(jobs_api, "get_task_store", lambda: task_store)
+    with TestClient(app) as active_client:
+        yield active_client, task_store
+    task_store.close()
 
 
 def test_list_api_is_owner_scoped_and_paginated(client):
+    client, _ = client
     visible = job_store.create_job(
         kind=JobKind.GENERATE_CLASSROOM,
         owner_user_id="teacher-a",
@@ -56,6 +62,7 @@ def test_list_api_is_owner_scoped_and_paginated(client):
 
 
 def test_detail_cancel_retry_and_cross_owner_protection(client):
+    client, _ = client
     running = job_store.create_job(
         kind=JobKind.GENERATE_CLASSROOM, owner_user_id="teacher-a"
     )
@@ -86,3 +93,81 @@ def test_detail_cancel_retry_and_cross_owner_protection(client):
     assert retried.status_code == 202
     assert retried.json()["retry_of_job_id"] == failed.edu_job_id
     assert retried.json()["edu_job_id"] != failed.edu_job_id
+
+
+def test_cancel_updates_the_durable_task_before_public_status(client):
+    client, task_store = client
+    queued = job_store.create_job(
+        kind=JobKind.GENERATE_REPORT,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+    )
+    task_store.enqueue(
+        task_id=queued.edu_job_id,
+        workflow_type="report_direct",
+        handler_version=1,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        scope_type="course",
+        scope_id=None,
+        command={"resource_type": "report", "title": "Report"},
+        config_snapshot_id="cfg-1",
+        idempotency_key="request-1",
+    )
+
+    response = client.post(f"/api/jobs/{queued.edu_job_id}/cancel")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "canceled"
+    assert task_store.get_durable(queued.edu_job_id).status == "canceled"
+
+
+def test_retry_copies_the_durable_command_to_a_new_task(client):
+    client, task_store = client
+    failed = job_store.create_job(
+        kind=JobKind.GENERATE_REPORT,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        input_summary={"title": "Report"},
+    )
+    original_command = {
+        "resource_type": "report",
+        "course_id": "course-1",
+        "material_id": "report-stable",
+        "selected_doc_ids": ["doc-1"],
+        "runtime_config_snapshot": {"llm": "revision-1"},
+    }
+    task_store.enqueue(
+        task_id=failed.edu_job_id,
+        workflow_type="report_direct",
+        handler_version=1,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        scope_type="course",
+        scope_id=None,
+        command=original_command,
+        config_snapshot_id="cfg-1",
+        idempotency_key="request-failed",
+    )
+    leased = task_store.claim_next(
+        lease_owner="worker-a",
+        lease_seconds=10,
+    )
+    assert leased is not None
+    assert task_store.mark_failed(
+        failed.edu_job_id,
+        "provider failed",
+        lease_owner="worker-a",
+        error_code="PROVIDER_FAILED",
+    )
+    job_store.update_job(failed.edu_job_id, status=JobStatus.FAILED)
+
+    response = client.post(f"/api/jobs/{failed.edu_job_id}/retry")
+
+    assert response.status_code == 202
+    retried_id = response.json()["edu_job_id"]
+    assert retried_id != failed.edu_job_id
+    retried_task = task_store.get_durable(retried_id)
+    assert retried_task is not None
+    assert retried_task.status == "pending"
+    assert retried_task.command == original_command

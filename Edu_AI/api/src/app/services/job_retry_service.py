@@ -9,12 +9,58 @@ from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import submit_classroom_video_export_job
 from app.services.knowledge_document_service import submit_index_job
 from app.services.job_store import EduJob, JobKind, JobStatus, update_job
+from app.services.job_store import retry_job
+from app.chat.tasks.task_store import TaskStore
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
 )
 from core.course_storage import CourseStorageManager
 from modules.rag_v2.api import get_rag_system
+
+
+def retry_durable_job(
+    original: EduJob,
+    *,
+    owner_user_id: str,
+    task_store: TaskStore,
+) -> EduJob | None:
+    """Copy a persisted command to a new public job and durable task."""
+    original_task = task_store.get_durable(original.edu_job_id)
+    if original_task is None or original_task.command is None:
+        return None
+    retried = retry_job(
+        original.edu_job_id,
+        owner_user_id=owner_user_id,
+    )
+    try:
+        task_store.enqueue(
+            task_id=retried.edu_job_id,
+            workflow_type=original_task.workflow_type,
+            handler_version=original_task.handler_version,
+            owner_user_id=owner_user_id,
+            course_id=original_task.course_id,
+            scope_type=original_task.scope_type,
+            scope_id=original_task.scope_id,
+            command=dict(original_task.command),
+            config_snapshot_id=original_task.config_snapshot_id,
+            idempotency_key=retried.edu_job_id,
+            max_attempts=original_task.max_attempts,
+        )
+    except Exception as exc:
+        return (
+            update_job(
+                retried.edu_job_id,
+                status=JobStatus.FAILED,
+                step="retry_enqueue_failed",
+                progress=100,
+                message="重试任务入队失败",
+                error_code="TASK_ENQUEUE_FAILED",
+                error_message=str(exc),
+            )
+            or retried
+        )
+    return retried
 
 
 async def dispatch_retry_job(
