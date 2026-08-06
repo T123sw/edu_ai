@@ -16,6 +16,15 @@ from app.services import course_service
 from core.course_storage import CourseStorageManager
 
 
+def _teacher_principal() -> CoursePrincipal:
+    return CoursePrincipal(
+        course_id="course-1",
+        user_id="teacher-a",
+        system_role="teacher",
+        course_role="editor",
+    )
+
+
 def _make_manager(name: str) -> CourseStorageManager:
     root = Path("tests/.tmp") / f"{name}-{uuid.uuid4().hex}"
     root.mkdir(parents=True, exist_ok=True)
@@ -112,7 +121,7 @@ def test_get_knowledge_base_documents_filters_descendant_scope(monkeypatch):
         scope_type="knowledge_point",
         scope_id="sorting",
         aggregate=False,
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     assert [item.name for item in documents] == ["sorting.md", "bubble.md"]
@@ -168,7 +177,7 @@ def test_get_knowledge_base_documents_keeps_personal_library_current_node_only(m
         scope_id="sorting",
         library_type="course",
         include_descendants=True,
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
     personal_documents = courses.get_knowledge_base_documents(
         "course-1",
@@ -176,7 +185,7 @@ def test_get_knowledge_base_documents_keeps_personal_library_current_node_only(m
         scope_id="sorting",
         library_type="personal",
         include_descendants=False,
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     assert [item.name for item in course_documents] == ["course-child.md"]
@@ -208,7 +217,7 @@ def test_get_knowledge_base_documents_returns_local_path_for_web_documents(monke
         scope_id="variables",
         library_type="personal",
         include_descendants=False,
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     assert len(documents) == 1
@@ -257,7 +266,7 @@ async def test_add_rag_document_to_course_kb_accepts_course_relative_personal_do
             library_type="course",
             promoted_from_document_id="doc-personal-1",
         ),
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     document = promoted["document"]
@@ -290,7 +299,7 @@ async def test_upload_knowledge_base_document_writes_selected_knowledge_point_sc
         scope_id="sorting",
         library_type="course",
         file=upload,
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     document = created["document"]
@@ -324,7 +333,7 @@ async def test_upload_knowledge_base_document_writes_course_root_scope_for_graph
         scope_id=None,
         library_type="course",
         file=upload,
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     document = created["document"]
@@ -368,7 +377,7 @@ def test_delete_knowledge_base_document_removes_index_entry_by_document_id(monke
     result = courses.delete_knowledge_base_document(
         "course-1",
         document["id"],
-        current_user={"username": "teacher-a"},
+        principal=_teacher_principal(),
     )
 
     assert result["message"]

@@ -78,3 +78,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: generated materials default to `course` visibility and record `created_by`; `private` remains available for creator-only artifacts. Legacy manifests normalize to course visibility for compatibility.
 - Decision: durable job completion and reconciliation stay creator-scoped even though completed course artifacts are shared. This prevents one teacher's worker task from being satisfied by another teacher's artifact.
 - Result: all course members can read course-visible artifacts, editors/owners can manage them, viewers receive 403 for mutations, and task ownership semantics remain intact.
+
+### Plan 1 / Task 6 — Course-wide route authorization
+
+- Red evidence: the new authorization suite produced five viewer-write failures: knowledge-graph save and classroom generation succeeded, while graph allocation and knowledge-document mutations reached resource-level 404 responses instead of failing at the course boundary.
+- Green evidence: `67 passed` across the authorization matrix, course scopes, textbook graph import, graph-hour allocation, classroom services/jobs, and material permissions.
+- Decision: read-only retrieval testing remains a `read` capability even though it uses POST; indexing/reindexing, textbook graph import, graph-hour allocation, classroom generation, and video export require `generate`; knowledge-base and graph content mutation require `edit`.
+- Decision: classroom-video export reconstructs the already-authorized principal context and no longer references undeclared request credential variables. The queued export implementation does not consume the raw token.
+- Result: every course-scoped content route now enters through a single read/edit/generate/manage/owner capability boundary with stable 401/403 behavior.

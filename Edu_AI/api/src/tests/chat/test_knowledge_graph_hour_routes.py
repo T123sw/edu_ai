@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app import courses as courses_module
 from app.api import courses as courses_api
+from app.services.course_access import CoursePrincipal
 from app.services import course_service
 from app.knowledge_graph_hours import KnowledgeGraphHourAllocationError
 import modules.rag_v2.api as rag_api
@@ -39,6 +40,12 @@ def make_client(manager: DummyManager):
     app = FastAPI()
     app.include_router(courses_module.router)
     app.dependency_overrides[courses_module.get_current_user] = lambda: {"username": "teacher-a"}
+    app.dependency_overrides[courses_api.require_course_generate] = lambda: CoursePrincipal(
+        course_id="course-1",
+        user_id="teacher-a",
+        system_role="teacher",
+        course_role="editor",
+    )
     return TestClient(app)
 
 

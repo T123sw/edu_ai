@@ -17,6 +17,7 @@ from app.auth import get_current_user
 from app.api.course_dependencies import (
     get_course_membership_store,
     require_course_edit,
+    require_course_generate,
     require_course_manage_resources,
     require_course_owner,
     require_course_read,
@@ -446,9 +447,9 @@ def get_knowledge_base_documents(
     sort: Optional[str] = None,
     limit: int = 20,
     offset: int = 0,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
-    owner_user_id = current_user.get("username") if current_user else None
+    owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -528,9 +529,9 @@ async def upload_knowledge_base_document(
     scope_id: Optional[str] = Form(default=None),
     library_type: str = Form(default=LIBRARY_TYPE_COURSE),
     file: UploadFile = File(..., description="文档文件"),
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_edit),
 ):
-    owner_user_id = current_user.get("username") if current_user else None
+    owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -587,9 +588,9 @@ async def upload_knowledge_base_document(
 async def import_textbook_knowledge_graph(
     course_id: str,
     file: UploadFile = File(..., description="Textbook file"),
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    _ = current_user
+    _ = principal
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -623,11 +624,11 @@ async def import_textbook_knowledge_graph(
 async def add_rag_document_to_course_kb(
     course_id: str,
     request: AddRAGDocumentRequest,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_edit),
 ):
     mgr = _svc._get_manager()
     rag_system = get_rag_system()
-    owner = current_user.get("username") if current_user else None
+    owner = principal.user_id
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
@@ -705,9 +706,9 @@ async def add_rag_document_to_course_kb(
 def get_knowledge_base_document_detail(
     course_id: str,
     document_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
-    owner = str(current_user.get("username") or "")
+    owner = principal.user_id
     document = _knowledge.get_document(
         _svc._get_manager(),
         course_id,
@@ -723,10 +724,10 @@ def _submit_knowledge_document_job(
     *,
     course_id: str,
     document_id: str,
-    current_user: dict,
+    principal: CoursePrincipal,
     force_reindex: bool,
 ):
-    owner = str(current_user.get("username") or "")
+    owner = principal.user_id
     try:
         return _knowledge.submit_index_job(
             manager=_svc._get_manager(),
@@ -752,13 +753,13 @@ def _submit_knowledge_document_job(
 def retry_knowledge_base_document(
     course_id: str,
     document_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_generate),
 ):
     document = _knowledge.get_document(
         _svc._get_manager(),
         course_id,
         document_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     )
     if document is None:
         raise HTTPException(status_code=404, detail="文档不存在或无权访问")
@@ -767,7 +768,7 @@ def retry_knowledge_base_document(
     return _submit_knowledge_document_job(
         course_id=course_id,
         document_id=document_id,
-        current_user=current_user,
+        principal=principal,
         force_reindex=False,
     )
 
@@ -780,12 +781,12 @@ def retry_knowledge_base_document(
 def reindex_knowledge_base_document(
     course_id: str,
     document_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_generate),
 ):
     return _submit_knowledge_document_job(
         course_id=course_id,
         document_id=document_id,
-        current_user=current_user,
+        principal=principal,
         force_reindex=True,
     )
 
@@ -799,7 +800,7 @@ def test_knowledge_base_document_retrieval(
     course_id: str,
     document_id: str,
     payload: KnowledgeBaseRetrievalTestRequest,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     try:
         return _knowledge.test_retrieval(
@@ -807,7 +808,7 @@ def test_knowledge_base_document_retrieval(
             rag_system=get_rag_system(),
             course_id=course_id,
             document_id=document_id,
-            owner_user_id=str(current_user.get("username") or ""),
+            owner_user_id=principal.user_id,
             query=payload.query,
             top_k=payload.top_k,
         )
@@ -826,14 +827,14 @@ def test_knowledge_base_document_retrieval(
 def delete_knowledge_base_document(
     course_id: str,
     document_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_edit),
 ):
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    owner = str(current_user.get("username") or "")
+    owner = principal.user_id
     index = mgr.get_knowledge_base_index(course_id)
     doc_to_delete = _knowledge.get_document(
         mgr,
@@ -871,9 +872,9 @@ def delete_knowledge_base_document(
 @router.get("/{course_id}/knowledge-graph", response_model=KnowledgeGraphData, summary="获取课程知识图谱")
 def get_knowledge_graph(
     course_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
-    _ = current_user
+    _ = principal
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -906,9 +907,9 @@ def get_knowledge_graph(
 def get_knowledge_graph_subtree(
     course_id: str,
     node_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
-    _ = current_user
+    _ = principal
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -933,9 +934,9 @@ def get_knowledge_graph_subtree(
 def allocate_knowledge_graph_hours(
     course_id: str,
     payload: KnowledgeGraphHourAllocationRequest,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    _ = current_user
+    _ = principal
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -966,9 +967,9 @@ def allocate_knowledge_graph_hours(
 def save_knowledge_graph(
     course_id: str,
     payload: KnowledgeGraphData,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_edit),
 ):
-    _ = current_user
+    _ = principal
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
@@ -987,7 +988,7 @@ def save_knowledge_graph(
 async def generate_classroom(
     course_id: str,
     payload: GenerateClassroomRequest,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_generate),
 ):
     """提交即返回（202 + queued 状态的 edu_job），真正的生成/校验/落库在
     后台任务里跑（真实实测一份 9-scene 课件约 20 分钟，不适合同步 await）。
@@ -997,7 +998,7 @@ async def generate_classroom(
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
-    owner = current_user.get("username") if current_user else None
+    owner = principal.user_id
     job = await submit_classroom_generation_job(
         course_id=course_id,
         requirement=payload.requirement,
@@ -1013,7 +1014,7 @@ async def generate_classroom(
 def get_classroom(
     course_id: str,
     classroom_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
@@ -1023,7 +1024,7 @@ def get_classroom(
         course_id,
         "classroom",
         classroom_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     )
     if material is None:
         raise HTTPException(status_code=404, detail="课件不存在")
@@ -1038,7 +1039,7 @@ def get_classroom(
 async def export_classroom_video(
     course_id: str,
     classroom_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_generate),
 ):
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
@@ -1047,17 +1048,19 @@ async def export_classroom_video(
         course_id,
         "classroom",
         classroom_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     ) is None:
         raise HTTPException(status_code=404, detail="课件不存在")
 
-    owner = current_user.get("username") if current_user else None
     return await submit_classroom_video_export_job(
         course_id=course_id,
         classroom_id=classroom_id,
-        auth_token=credentials.credentials,
-        current_user=current_user,
-        owner=owner,
+        auth_token="",
+        current_user={
+            "username": principal.user_id,
+            "role": principal.system_role,
+        },
+        owner=principal.user_id,
         course_storage_manager=mgr,
     )
 
@@ -1065,7 +1068,7 @@ async def export_classroom_video(
 @router.get("/{course_id}/classrooms", summary="列出课程下已落库的课件")
 def list_classrooms(
     course_id: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
@@ -1073,7 +1076,7 @@ def list_classrooms(
     return mgr.list_generated_materials(
         course_id,
         "classroom",
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     )
 
 
@@ -1086,7 +1089,7 @@ def get_classroom_audio(
     course_id: str,
     classroom_id: str,
     filename: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
@@ -1095,7 +1098,7 @@ def get_classroom_audio(
         course_id,
         "classroom",
         classroom_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     ) is None:
         raise HTTPException(status_code=404, detail="课件不存在或无权访问")
 
@@ -1121,7 +1124,7 @@ def get_classroom_video_artifact(
     course_id: str,
     classroom_id: str,
     filename: str,
-    current_user: dict = Depends(get_current_user),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     media_type = VIDEO_ARTIFACT_MEDIA_TYPES.get(filename)
     if media_type is None:
@@ -1131,7 +1134,7 @@ def get_classroom_video_artifact(
         course_id,
         "classroom",
         classroom_id,
-        owner_user_id=str(current_user.get("username") or ""),
+        owner_user_id=principal.user_id,
     ) is None:
         raise HTTPException(status_code=404, detail="课件不存在或无权访问")
     if not mgr.get_course_info(course_id):
