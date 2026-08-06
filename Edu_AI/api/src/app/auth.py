@@ -23,10 +23,17 @@ from core.user_storage import user_storage
 from app.services.course_membership_bootstrap import get_course_membership_bootstrap
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+) -> dict:
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+        )
     token = credentials.credentials
     return auth_manager.get_current_user(token)
 

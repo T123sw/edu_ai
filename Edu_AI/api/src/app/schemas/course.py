@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -18,6 +18,31 @@ class CourseInfo(BaseModel):
     color: str = Field(..., description="主题色")
     objectives: Optional[List[str]] = Field(default=None, description="教学目标")
     knowledgeGraph: Optional[str] = Field(default=None, description="知识图谱")
+    revision: int = 0
+    membership_role: Optional[Literal["owner", "editor", "viewer"]] = None
+    created_by: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class CourseCreateRequest(BaseModel):
+    id: str = Field(..., min_length=1)
+    title: str = Field(..., min_length=1)
+    description: str
+    icon: str
+    color: str
+    objectives: Optional[List[str]] = None
+    knowledgeGraph: Optional[str] = None
+
+
+class CourseUpdateRequest(BaseModel):
+    title: str = Field(..., min_length=1)
+    description: str
+    icon: str
+    color: str
+    objectives: Optional[List[str]] = None
+    knowledgeGraph: Optional[str] = None
+    expected_revision: int = Field(..., ge=0)
 
 
 class KnowledgeBaseDocument(BaseModel):

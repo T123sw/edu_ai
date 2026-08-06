@@ -64,3 +64,9 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Green evidence: `10 passed` across sync/idempotency/disabled mode, dry-run/apply migration, startup ordering, runtime lifecycle, and registration enrollment.
 - CLI evidence: `python -m scripts.migrate_course_memberships --dry-run` completed with `applied=false` and no membership writes.
 - Result: defaults exist before membership backfill, membership sync completes before durable workers start, and new users are enrolled immediately.
+
+### Plan 1 / Task 4 — Authenticated, revision-safe course CRUD
+
+- Red evidence: anonymous course listing returned 200, legacy responses lacked revision, stale writes were accepted, viewer writes were unguarded, and new courses created no memberships.
+- Green evidence: `4 passed` for authenticated membership-filtered listing, 409 compare-and-swap behavior, viewer denial, and owner/development membership creation; combined course/lifespan run had `17 passed` plus the already-recorded material-visibility failure assigned to Task 5.
+- Result: legacy course files normalize to revision 0; updates are atomic under the course storage lock; course responses include audit/membership fields; public registration/auth dependencies now return 401 when credentials are absent.

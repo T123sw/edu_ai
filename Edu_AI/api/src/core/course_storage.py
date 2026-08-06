@@ -79,6 +79,16 @@ def reset_generation_persistence_context(token: Token) -> None:
     _GENERATION_PERSISTENCE_CONTEXT.reset(token)
 
 
+class CourseRevisionConflict(RuntimeError):
+    def __init__(self, *, course_id: str, expected: int, actual: int) -> None:
+        super().__init__(
+            f"course {course_id} revision conflict: expected {expected}, actual {actual}"
+        )
+        self.course_id = course_id
+        self.expected = expected
+        self.actual = actual
+
+
 class CourseStorageManager:
     """Manage persisted course assets on disk."""
 
@@ -535,9 +545,14 @@ class CourseStorageManager:
     def save_course_info(self, course_id: str, course_info: Dict[str, Any]) -> bool:
         try:
             info_file = self.get_course_dir(course_id) / "course_info.json"
-            self._write_json(info_file, course_info)
             metadata = self.get_course_metadata(course_id)
-            metadata["updated_at"] = datetime.now().isoformat()
+            now = datetime.now().isoformat()
+            payload = dict(course_info)
+            payload.setdefault("revision", 0)
+            payload.setdefault("created_at", metadata.get("created_at") or now)
+            payload["updated_at"] = payload.get("updated_at") or now
+            self._write_json(info_file, payload)
+            metadata["updated_at"] = now
             self.save_course_metadata(course_id, metadata)
             return True
         except Exception as e:
@@ -549,10 +564,53 @@ class CourseStorageManager:
             info_file = self.get_course_dir(course_id) / "course_info.json"
             if not info_file.exists():
                 return None
-            return self._read_json(info_file)
+            info = self._read_json(info_file)
+            if not info:
+                return None
+            metadata = self.get_course_metadata(course_id)
+            normalized = dict(info)
+            normalized["revision"] = int(normalized.get("revision") or 0)
+            normalized.setdefault("created_by", None)
+            normalized.setdefault("created_at", metadata.get("created_at"))
+            normalized.setdefault("updated_at", metadata.get("updated_at"))
+            return normalized
         except Exception as e:
             print(f"Error loading course info: {e}")
             return None
+
+    def update_course_info(
+        self,
+        course_id: str,
+        course_info: Dict[str, Any],
+        *,
+        expected_revision: int,
+    ) -> Dict[str, Any]:
+        with self._storage_lock():
+            current = self.get_course_info(course_id)
+            if current is None:
+                raise KeyError(course_id)
+            actual_revision = int(current.get("revision") or 0)
+            if actual_revision != int(expected_revision):
+                raise CourseRevisionConflict(
+                    course_id=course_id,
+                    expected=int(expected_revision),
+                    actual=actual_revision,
+                )
+            now = datetime.now().isoformat()
+            updated = {
+                **current,
+                **dict(course_info),
+                "id": course_id,
+                "revision": actual_revision + 1,
+                "updated_at": now,
+            }
+            self._write_json(
+                self.get_course_dir(course_id) / "course_info.json", updated
+            )
+            metadata = self.get_course_metadata(course_id)
+            metadata["updated_at"] = now
+            self.save_course_metadata(course_id, metadata)
+            return updated
 
     def save_course_metadata(self, course_id: str, metadata: Dict[str, Any]) -> bool:
         try:

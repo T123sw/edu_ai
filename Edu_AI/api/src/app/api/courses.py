@@ -13,7 +13,15 @@ from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from app.auth import get_current_user
+from app.api.course_dependencies import (
+    get_course_membership_store,
+    require_course_edit,
+    require_course_owner,
+    require_course_read,
+)
+from app.services.course_access import CoursePrincipal
+from app.services.course_membership_bootstrap import get_course_membership_bootstrap
 
 from app.knowledge_graph_hours import (
     KnowledgeGraphHourAllocationError,
@@ -21,7 +29,9 @@ from app.knowledge_graph_hours import (
 )
 from app.schemas.course import (
     AddRAGDocumentRequest,
+    CourseCreateRequest,
     CourseInfo,
+    CourseUpdateRequest,
     GenerateClassroomRequest,
     KnowledgeBaseDocument,
     KnowledgeBaseDocumentUploadResponse,
@@ -44,18 +54,15 @@ from app.textbook_knowledge_graph import (
     TextbookKnowledgeGraphError,
     import_textbook_into_knowledge_graph,
 )
-from core.auth import auth_manager
-from core.course_storage import LIBRARY_TYPE_COURSE, LIBRARY_TYPE_PERSONAL
+from core.course_storage import (
+    LIBRARY_TYPE_COURSE,
+    LIBRARY_TYPE_PERSONAL,
+    CourseRevisionConflict,
+)
 from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.document_resolver import resolve_rag_document
 
-security = HTTPBearer()
 router = APIRouter(prefix="/api/courses", tags=["courses"])
-
-
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
-    token = credentials.credentials
-    return auth_manager.get_current_user(token)
 
 
 def _knowledge_document_model(
@@ -113,72 +120,126 @@ def _init_default_courses() -> None:
 
 
 @router.get("", response_model=List[CourseInfo], summary="获取课程列表")
-def list_courses() -> List[CourseInfo]:
+def list_courses(
+    current_user: dict = Depends(get_current_user),
+) -> List[CourseInfo]:
     mgr = _svc._get_manager()
     results: List[CourseInfo] = []
 
     if not mgr.courses_dir.exists():
         _svc.ensure_default_courses()
 
+    memberships = {
+        item.course_id: item
+        for item in get_course_membership_store().list_for_user(
+            str(current_user.get("username") or "")
+        )
+    }
     for course_dir in mgr.courses_dir.iterdir():
         if not course_dir.is_dir():
+            continue
+        membership = memberships.get(course_dir.name)
+        if membership is None:
             continue
         info = mgr.get_course_info(course_dir.name)
         if not info:
             continue
         try:
-            results.append(CourseInfo(**info))
+            results.append(
+                CourseInfo(**{**info, "membership_role": membership.role})
+            )
         except Exception:
             continue
-
-    if not results:
-        _svc.ensure_default_courses()
-        results = [CourseInfo(**c) for c in _svc.DEFAULT_COURSES]
 
     return results
 
 
 @router.get("/{course_id}", response_model=CourseInfo, summary="获取课程详情")
-def get_course(course_id: str) -> CourseInfo:
+def get_course(
+    course_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+) -> CourseInfo:
     mgr = _svc._get_manager()
     info = mgr.get_course_info(course_id)
     if not info:
         raise HTTPException(status_code=404, detail="课程不存在")
     try:
-        return CourseInfo(**info)
+        return CourseInfo(
+            **{**info, "membership_role": principal.course_role}
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"课程数据格式错误: {exc}") from exc
 
 
 @router.put("/{course_id}", response_model=CourseInfo, summary="更新课程信息")
-def update_course(course_id: str, payload: CourseInfo) -> CourseInfo:
-    if payload.id != course_id:
-        raise HTTPException(status_code=400, detail="课程 ID 不一致")
-
+def update_course(
+    course_id: str,
+    payload: CourseUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_edit),
+) -> CourseInfo:
     mgr = _svc._get_manager()
-    mgr.create_course_structure(course_id)
-    if not mgr.save_course_info(course_id, payload.model_dump()):
-        raise HTTPException(status_code=500, detail="保存课程信息失败")
-    return payload
+    try:
+        updated = mgr.update_course_info(
+            course_id,
+            payload.model_dump(exclude={"expected_revision"}),
+            expected_revision=payload.expected_revision,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="课程不存在") from exc
+    except CourseRevisionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "COURSE_REVISION_CONFLICT",
+                "expected_revision": exc.expected,
+                "actual_revision": exc.actual,
+            },
+        ) from exc
+    return CourseInfo(
+        **{**updated, "membership_role": principal.course_role}
+    )
 
 
 @router.post("", response_model=CourseInfo, summary="新建课程")
-def create_course(payload: CourseInfo) -> CourseInfo:
+def create_course(
+    payload: CourseCreateRequest,
+    current_user: dict = Depends(get_current_user),
+) -> CourseInfo:
+    if str(current_user.get("role") or "").lower() not in {"teacher", "admin"}:
+        raise HTTPException(status_code=403, detail="仅教师可以新建课程")
     mgr = _svc._get_manager()
     if mgr.get_course_info(payload.id) is not None:
         raise HTTPException(status_code=400, detail="课程 ID 已存在")
 
+    creator_id = str(current_user.get("username") or "").strip()
+    now = datetime.now().isoformat()
+    course_info = {
+        **payload.model_dump(),
+        "revision": 0,
+        "created_by": creator_id,
+        "created_at": now,
+        "updated_at": now,
+    }
     mgr.create_course_structure(payload.id)
-    if not mgr.save_course_info(payload.id, payload.model_dump()):
+    if not mgr.save_course_info(payload.id, course_info):
         raise HTTPException(status_code=500, detail="保存课程信息失败")
-    return payload
+    store = get_course_membership_store()
+    store.upsert(payload.id, creator_id, "owner", added_by=creator_id)
+    get_course_membership_bootstrap().on_course_created(payload.id)
+    return CourseInfo(**{**course_info, "membership_role": "owner"})
 
 
 @router.delete("/{course_id}", summary="删除课程")
-def delete_course(course_id: str):
+def delete_course(
+    course_id: str,
+    principal: CoursePrincipal = Depends(require_course_owner),
+):
     mgr = _svc._get_manager()
     if not mgr.delete_course(course_id):
         raise HTTPException(status_code=500, detail="删除课程失败")
+    membership_store = get_course_membership_store()
+    for membership in membership_store.list_for_course(course_id):
+        membership_store.delete(course_id, membership.user_id)
     return {"message": "课程已删除"}
 
 
@@ -976,9 +1037,8 @@ def get_classroom(
 async def export_classroom_video(
     course_id: str,
     classroom_id: str,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    current_user: dict = Depends(get_current_user),
 ):
-    current_user = auth_manager.get_current_user(credentials.credentials)
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
