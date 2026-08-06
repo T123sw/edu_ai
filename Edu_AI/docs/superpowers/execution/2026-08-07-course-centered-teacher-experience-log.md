@@ -248,3 +248,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: backend request schemas now explicitly accept and persist the visible lesson process/outline intent and blog audience/tone/length/structure/requirements fields. This avoids a visually successful form whose extra fields Pydantic would silently discard.
 - Decision: unreachable report and lesson-plan legacy modal implementations were removed after the shared factory gained equivalent typed forms and browser coverage.
 - Result: every visible long-form field has a named validation rule, one auditable serializer, an accepted API field, and intercepted end-to-end request evidence.
+
+### Plan 3 / Task 7 — Practice generation configurations
+
+- Red evidence: the practice serialization suite failed because quiz, flashcard, and game definitions did not exist. The previous game endpoint accepted only `game_type`, so topic, count, difficulty, and classroom duration could not survive submission.
+- Green evidence: all five frontend definition tests pass; two backend schema/boundary tests pass; the production build passes. The browser suite has `5 passed` across all release viewports and intercepts exact quiz, flashcard, and game request bodies.
+- Decision: quiz uses only the four question types accepted by the backend (`choice`, `blank`, `short`, `judge`). Answer and explanation switches are independent. Flashcard titles are plain text, including URL-shaped text, and are never opened as links.
+- Decision: game type choices are real buttons with `aria-pressed`, so arrow/tab navigation and Enter activation use browser semantics. A compact preview summarizes selected template, count, difficulty, and duration before submission.
+- Decision: backend schemas and durable command snapshots now preserve quiz audience plus the complete game configuration. Unused quiz, flashcard, and game legacy entry modals were removed after the shared forms gained coverage.
+- Result: all practice resource settings are bounded, retry-safe through the retained shared draft, keyboard-operable, and auditable from form through request payload.

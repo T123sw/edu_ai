@@ -8,13 +8,19 @@ import { GenerationSourceSelector, type GenerationSourceSelection } from "./Gene
 import { GenerationTaskStatus } from "./GenerationTaskStatus";
 import { generationRegistry, getGenerationResource, type GenerationResourceType } from "./generationRegistry";
 import { useGenerationSubmission, type GenerationDraft } from "./useGenerationSubmission";
-import { defaultGenerationConfig, generationConfigAudience, generationConfigRequirements, generationConfigTopic, getTextDefinition, validateGenerationConfig } from "./definitions";
+import { defaultGenerationConfig, generationConfigAudience, generationConfigRequirements, generationConfigTopic, getGenerationDefinition, validateGenerationConfig } from "./definitions";
 import type { ReportConfig } from "./definitions/report";
 import type { LessonPlanConfig } from "./definitions/lessonPlan";
 import type { BlogConfig } from "./definitions/blog";
 import { ReportForm } from "./forms/ReportForm";
 import { LessonPlanForm } from "./forms/LessonPlanForm";
 import { BlogForm } from "./forms/BlogForm";
+import type { QuizConfig } from "./definitions/quiz";
+import type { FlashcardConfig } from "./definitions/flashcard";
+import type { GameConfig } from "./definitions/game";
+import { QuizForm } from "./forms/QuizForm";
+import { FlashcardForm } from "./forms/FlashcardForm";
+import { GameForm } from "./forms/GameForm";
 import "./generationFactory.css";
 
 export function GenerationFactory({ courseId }: { courseId?: string }) {
@@ -69,8 +75,8 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
       ) : step === 2 ? (
         <GenerationConfigShell step={step} title="确认资料范围" description={`为“${resource.label}”选择本次生成可以使用的课程资料。`} footer={footer}><GenerationSourceSelector documents={documents} value={source} onChange={setSource} /></GenerationConfigShell>
       ) : step === 3 ? (
-        <GenerationConfigShell step={step} title={getTextDefinition(resourceType)?.title || `配置${resource.label}`} description={getTextDefinition(resourceType)?.description || "填写本次生成所需的最小信息。"} footer={footer}>
-          {resourceType === "report" ? <ReportForm value={config as ReportConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "lesson_plan" ? <LessonPlanForm value={config as LessonPlanConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "blog" ? <BlogForm value={config as BlogConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : <div className="generation-factory__form"><label><span>主题 *</span><input value={topic} onChange={(event) => updateConfig({ ...config, topic: event.target.value })} placeholder="输入本次资源的主题" /></label><label><span>适用对象</span><input value={audience} onChange={(event) => updateConfig({ ...config, audience: event.target.value })} /></label><label><span>补充要求</span><textarea value={requirements} onChange={(event) => updateConfig({ ...config, requirements: event.target.value })} placeholder="可选：重点、结构、风格或课堂要求" /></label></div>}
+        <GenerationConfigShell step={step} title={getGenerationDefinition(resourceType)?.title || `配置${resource.label}`} description={getGenerationDefinition(resourceType)?.description || "填写本次生成所需的最小信息。"} footer={footer}>
+          {resourceType === "report" ? <ReportForm value={config as ReportConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "lesson_plan" ? <LessonPlanForm value={config as LessonPlanConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "blog" ? <BlogForm value={config as BlogConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "quiz" ? <QuizForm value={config as QuizConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "flashcard" ? <FlashcardForm value={config as FlashcardConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : resourceType === "game" ? <GameForm value={config as GameConfig} onChange={(next) => updateConfig(next as unknown as Record<string, unknown>)} errors={showErrors ? errors : {}} /> : <div className="generation-factory__form"><label><span>主题 *</span><input value={topic} onChange={(event) => updateConfig({ ...config, topic: event.target.value })} placeholder="输入本次资源的主题" /></label><label><span>适用对象</span><input value={audience} onChange={(event) => updateConfig({ ...config, audience: event.target.value })} /></label><label><span>补充要求</span><textarea value={requirements} onChange={(event) => updateConfig({ ...config, requirements: event.target.value })} placeholder="可选：重点、结构、风格或课堂要求" /></label></div>}
         </GenerationConfigShell>
       ) : (
         <GenerationConfigShell step={step} title="确认并生成" description="任务提交后可以关闭页面；进度和结果会保留在课程任务中心。" footer={footer}>

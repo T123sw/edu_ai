@@ -610,8 +610,12 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
         source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
         config={
-            "title": f"{payload.game_type} 小游戏",
+            "title": payload.topic or f"{payload.game_type} 小游戏",
             "game_type": payload.game_type,
+            "topic": payload.topic,
+            "card_count": payload.card_count,
+            "difficulty": payload.difficulty,
+            "duration_minutes": payload.duration_minutes,
         },
         idempotency_key=payload.idempotency_key or str(uuid4()),
     )

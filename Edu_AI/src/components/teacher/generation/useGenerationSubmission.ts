@@ -9,6 +9,9 @@ import type { GenerationSourceSelection } from "./GenerationSourceSelector";
 import { blogDefinition } from "./definitions/blog";
 import { lessonPlanDefinition } from "./definitions/lessonPlan";
 import { reportDefinition } from "./definitions/report";
+import { quizDefinition } from "./definitions/quiz";
+import { flashcardDefinition } from "./definitions/flashcard";
+import { gameDefinition } from "./definitions/game";
 
 export type GenerationDraft = {
   resourceType: GenerationResourceType;
@@ -37,10 +40,10 @@ export function buildGenerationRequest(draft: GenerationDraft, courseId: string,
     case "report": return { path: "/api/chat/v2/report/direct", body: { ...source, ...reportDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "lesson_plan": return { path: "/api/chat/v2/lesson-plan/direct", body: { ...source, ...lessonPlanDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "blog": return { path: "/api/chat/v2/blog/direct", body: { ...source, ...blogDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
-    case "quiz": return { path: "/api/chat/v2/quiz/direct", body: { ...source, quiz_config: { topic: commonTopic, audience: draft.audience, difficulty: "medium", question_count: 10, question_types: ["single_choice"], include_answers: true, include_explanations: true, ...draft.config } } };
-    case "flashcard": return { path: "/api/chat/v2/flashcard/direct", body: { ...source, flashcard_config: { title: commonTopic, count: 12, difficulty: "medium", show_source: true, ...draft.config } } };
+    case "quiz": return { path: "/api/chat/v2/quiz/direct", body: { ...source, ...quizDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
+    case "flashcard": return { path: "/api/chat/v2/flashcard/direct", body: { ...source, ...flashcardDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "mind_map": return { path: "/api/chat/v2/graph/direct", body: { ...source, title: commonTopic, max_depth: Number(draft.config?.depth ?? 3), description: draft.requirements } };
-    case "game": return { path: "/api/chat/v2/game/direct", body: { ...source, game_type: String(draft.config?.gameType ?? "classification"), topic: commonTopic, card_count: Number(draft.config?.cardCount ?? 8) } };
+    case "game": return { path: "/api/chat/v2/game/direct", body: { ...source, ...gameDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, topic: commonTopic, audience: draft.audience, requirement: draft.requirements || commonTopic, scene_count: Number(draft.config?.sceneCount ?? 6), enable_web_search: false, enable_tts: Boolean(draft.config?.voiceEnabled ?? true), idempotency_key: idempotencyKey } };
     case "ppt": return { path: "/api/chat/v2/ppt/outline", body: { ...source, ppt_config: { deck_title: commonTopic, audience: draft.audience, slide_count: Number(draft.config?.slideCount ?? 10), special_requirements: draft.requirements, ...draft.config } } };
   }

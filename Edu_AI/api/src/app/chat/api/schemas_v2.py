@@ -203,6 +203,7 @@ class KnowledgeBaseDirectQuizPrefillRequestV2(BaseModel):
 
 class DirectQuizConfigV2(BaseModel):
     topic: str
+    audience: str = Field(default="", max_length=200)
     hard_points: List[str] = Field(default_factory=list)
     difficulty: QuizDifficulty = "medium"
     question_count: int = 5
@@ -226,6 +227,10 @@ class KnowledgeBaseDirectGameRequestV2(GenerationSourceRequest):
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
     game_type: GameType
+    topic: str = Field(default="", max_length=200)
+    card_count: int = Field(default=8, ge=4, le=30)
+    difficulty: Literal["easy", "medium", "hard"] = "medium"
+    duration_minutes: int = Field(default=5, ge=1, le=60)
     idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 

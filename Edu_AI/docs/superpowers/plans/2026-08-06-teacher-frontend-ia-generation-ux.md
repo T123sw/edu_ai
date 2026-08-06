@@ -545,7 +545,7 @@ git commit -m "feat: align long-form generation configs"
 **Interfaces:**
 - Produces: typed configs and interactive previews for three practice resources.
 
-- [ ] **Step 1: Write validation and serialization tests**
+- [x] **Step 1: Write validation and serialization tests**
 
 ```typescript
 test("quiz answer and explanation switches are independent", () => {
@@ -562,7 +562,7 @@ test("game card count is required and bounded", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and identify duplicate quiz behavior**
+- [x] **Step 2: Run tests and identify duplicate quiz behavior**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/definitions/practiceResources.test.ts
@@ -570,13 +570,13 @@ pnpm test -- src/components/teacher/generation/definitions/practiceResources.tes
 
 Expected: missing definitions and current duplicate quiz branches cannot share one validation result.
 
-- [ ] **Step 3: Implement precise practice configurations**
+- [x] **Step 3: Implement precise practice configurations**
 
 - Quiz: topic, audience, difficulty, count, question types, answers, explanations. When source mode is `none`, topic remains sufficient. Count/type selections must be preserved exactly.
 - Flashcard: title, count, difficulty, category, and show-source setting. Validate title as plain text; never interpret it as an external URL.
 - Game: selectable keyboard-operable buttons for classification, drag-match, and memory; topic, card/question count, difficulty, classroom duration, and a short configuration preview. Preserve draft and error when retrying.
 
-- [ ] **Step 4: Verify keyboard selection, payloads, and previews**
+- [x] **Step 4: Verify keyboard selection, payloads, and previews**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/definitions/practiceResources.test.ts
@@ -585,7 +585,7 @@ pnpm test:e2e -- tests/e2e/generation-practice-resources.spec.ts
 
 Expected: all cards have button semantics/focus, configurations match intercepted payloads, quiz answers can collapse, flashcards flip one at a time, and game previews are playable.
 
-- [ ] **Step 5: Commit practice-resource configurations**
+- [x] **Step 5: Commit practice-resource configurations**
 
 ```powershell
 git add Edu_AI/src/components/teacher/generation/definitions/quiz.ts Edu_AI/src/components/teacher/generation/definitions/flashcard.ts Edu_AI/src/components/teacher/generation/definitions/game.ts Edu_AI/src/components/teacher/generation/forms/QuizForm.tsx Edu_AI/src/components/teacher/generation/forms/FlashcardForm.tsx Edu_AI/src/components/teacher/generation/forms/GameForm.tsx Edu_AI/src/components/teacher/QuizEntryModal.tsx Edu_AI/src/components/teacher/FlashcardEntryModal.tsx Edu_AI/src/components/teacher/GameEntryModal.tsx Edu_AI/src/components/teacher/generation/definitions/practiceResources.test.ts Edu_AI/tests/e2e/generation-practice-resources.spec.ts

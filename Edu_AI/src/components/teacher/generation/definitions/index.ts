@@ -3,6 +3,9 @@ import { lessonPlanDefinition, type LessonPlanConfig } from "./lessonPlan";
 import { reportDefinition, type ReportConfig } from "./report";
 import type { GenerationValidation } from "./types";
 import type { GenerationResourceType } from "../generationRegistry";
+import { quizDefinition, type QuizConfig } from "./quiz";
+import { flashcardDefinition, type FlashcardConfig } from "./flashcard";
+import { gameDefinition, type GameConfig } from "./game";
 
 export type TextGenerationConfig = ReportConfig | LessonPlanConfig | BlogConfig;
 
@@ -13,8 +16,15 @@ export function getTextDefinition(type: GenerationResourceType) {
   return null;
 }
 
+export function getGenerationDefinition(type: GenerationResourceType) {
+  return getTextDefinition(type)
+    || (type === "quiz" ? quizDefinition : null)
+    || (type === "flashcard" ? flashcardDefinition : null)
+    || (type === "game" ? gameDefinition : null);
+}
+
 export function defaultGenerationConfig(type: GenerationResourceType): Record<string, unknown> {
-  const definition = getTextDefinition(type);
+  const definition = getGenerationDefinition(type);
   if (definition) return definition.defaultConfig();
   return { topic: "", audience: "本科生", requirements: "" };
 }
@@ -23,6 +33,9 @@ export function validateGenerationConfig(type: GenerationResourceType, config: R
   if (type === "report") return reportDefinition.validate(config as ReportConfig);
   if (type === "lesson_plan") return lessonPlanDefinition.validate(config as LessonPlanConfig);
   if (type === "blog") return blogDefinition.validate(config as BlogConfig);
+  if (type === "quiz") return quizDefinition.validate(config as QuizConfig);
+  if (type === "flashcard") return flashcardDefinition.validate(config as FlashcardConfig);
+  if (type === "game") return gameDefinition.validate(config as GameConfig);
   return String(config.topic || "").trim() ? {} : { topic: "请输入本次资源的主题" };
 }
 
