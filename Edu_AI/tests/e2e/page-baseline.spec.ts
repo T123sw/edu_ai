@@ -1,10 +1,6 @@
 import { expect, test } from "./fixtures/teacherApp";
 
-test("teacher can traverse every core course page", async ({ teacherPage }) => {
-  test.fail(
-    true,
-    "统一课程导航将在 Plan 3 / Task 2 实现；当前失败作为结构基线。",
-  );
+test("teacher can traverse every core course page", async ({ teacherPage }, testInfo) => {
   await teacherPage.goto("/#home", { waitUntil: "domcontentloaded" });
   const courseLink = teacherPage.getByRole("link", { name: "大学物理" });
   await expect(courseLink).toBeVisible({ timeout: 2_000 });
@@ -19,8 +15,16 @@ test("teacher can traverse every core course page", async ({ teacherPage }) => {
     "课程资源",
     "课程设置",
   ]) {
-    await teacherPage.getByRole("link", { name }).click();
-    await expect(teacherPage.getByRole("heading", { name })).toBeVisible();
+    if (testInfo.project.name === "compact1024") {
+      await teacherPage.getByRole("button", { name: "打开课程导航" }).click();
+      await teacherPage
+        .getByTestId("course-navigation-drawer")
+        .getByRole("link", { name })
+        .click();
+    } else {
+      await teacherPage.getByRole("link", { name }).click();
+    }
+    await expect(teacherPage.getByRole("heading", { name, exact: true })).toBeVisible();
   }
 });
 

@@ -210,7 +210,7 @@ git commit -m "test: add teacher frontend browser baseline"
 - Consumes: `useCourseRoute()` and permission helpers from Plan 1.
 - Produces: one course shell and navigation definition used by all course pages.
 
-- [ ] **Step 1: Write navigation and state tests**
+- [x] **Step 1: Write navigation and state tests**
 
 ```typescript
 test("course navigation has one destination per teacher concept", () => {
@@ -224,7 +224,7 @@ test("viewer navigation excludes mutation-only settings", () => {
 });
 ```
 
-- [ ] **Step 2: Run focused tests and observe duplicated/ad hoc navigation**
+- [x] **Step 2: Run focused tests and observe duplicated/ad hoc navigation**
 
 ```powershell
 pnpm test -- src/stitch/course/courseNavigation.test.ts
@@ -232,7 +232,7 @@ pnpm test -- src/stitch/course/courseNavigation.test.ts
 
 Expected: missing module.
 
-- [ ] **Step 3: Implement the shell and semantic tokens**
+- [x] **Step 3: Implement the shell and semantic tokens**
 
 `CourseShell` owns the course breadcrumb, title, membership badge, sidebar, task-center trigger, page main landmark, and compact navigation drawer. Pages supply only `title`, `description`, optional secondary actions, and content. At widths below 1180px, collapse the sidebar to a drawer; do not squeeze the page content beneath a fixed sidebar.
 
@@ -245,7 +245,7 @@ type PageStateProps =
   | { kind: "error" | "offline" | "forbidden" | "conflict"; title: string; description: string; action?: ReactNode };
 ```
 
-- [ ] **Step 4: Verify shell navigation, landmark structure, and overflow**
+- [x] **Step 4: Verify shell navigation, landmark structure, and overflow**
 
 ```powershell
 pnpm test -- src/stitch/course/courseNavigation.test.ts
@@ -254,7 +254,7 @@ pnpm test:e2e -- tests/e2e/course-shell.spec.ts
 
 Browser assertions: one `main` landmark, one active navigation item, no duplicate course title blocks, `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, and keyboard-openable compact menu.
 
-- [ ] **Step 5: Commit the shared course shell**
+- [x] **Step 5: Commit the shared course shell**
 
 ```powershell
 git add Edu_AI/src/stitch/course/CourseShell.tsx Edu_AI/src/stitch/course/courseNavigation.ts Edu_AI/src/stitch/components/PageState.tsx Edu_AI/src/stitch/shared.tsx Edu_AI/src/stitch/App.tsx Edu_AI/src/stitch/styles.css Edu_AI/src/stitch/course/courseNavigation.test.ts Edu_AI/tests/e2e/course-shell.spec.ts

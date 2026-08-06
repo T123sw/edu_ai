@@ -73,6 +73,19 @@ type AppShellContextValue = {
 };
 
 const AppShellContext = createContext<AppShellContextValue | null>(null);
+const UnifiedCourseShellContext = createContext(false);
+
+export function UnifiedCourseShellProvider({ children }: PropsWithChildren) {
+  return (
+    <UnifiedCourseShellContext.Provider value={true}>
+      {children}
+    </UnifiedCourseShellContext.Provider>
+  );
+}
+
+export function useUnifiedCourseShell() {
+  return useContext(UnifiedCourseShellContext);
+}
 
 export function routeHref(route: RouteKey) {
   return `#${route}`;
@@ -200,6 +213,9 @@ export function SidebarDock({
   spacerClassName,
 }: PropsWithChildren<{ className?: string; spacerClassName?: string }>) {
   const [collapsed, setCollapsed] = useState(false);
+  const unifiedCourseShell = useUnifiedCourseShell();
+
+  if (unifiedCourseShell) return null;
 
   return (
     <>

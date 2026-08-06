@@ -38,6 +38,8 @@ import {
 } from "./shared";
 import { login, verifyToken } from "../services/auth";
 import { GlobalJobManager } from "../jobs/GlobalJobManager";
+import { CourseShell } from "./course/CourseShell";
+import { isCourseWorkspaceRoute } from "./course/courseNavigation";
 
 const pages = [
   [routes.profile, "Profile", ProfilePage],
@@ -267,6 +269,7 @@ function AppPresentation({
   const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
   const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
   const isVideoRenderRoute = current === routes.videoRender;
+  const isCourseRoute = isCourseWorkspaceRoute(current);
   const shellCourse = routeCourse.courseId
     ? selectedCourse
     : current === routes.home
@@ -297,10 +300,16 @@ function AppPresentation({
         <>
           <GlobalJobManager
             enabled={!isVideoRenderRoute}
-            showLauncher={current !== routes.ai}
+            showLauncher={!isCourseRoute}
           />
           <div key={current} className="route-stage">
-            <ActivePage />
+            {isCourseRoute ? (
+              <CourseShell activeRoute={current}>
+                <ActivePage />
+              </CourseShell>
+            ) : (
+              <ActivePage />
+            )}
           </div>
         </>
       ) : (

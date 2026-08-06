@@ -201,3 +201,13 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: fixed API interception covers authentication, courses, documents, knowledge structure, jobs, classroom materials, resources, runtime configuration, and chat. Internal Playwright outputs are ignored; the durable evidence is the fixture, route/viewport inventory, and repeatable command.
 - Visual evidence: real 1366×768 renders confirmed a nearly invisible primary action on course detail, a non-link course card and student-oriented home copy, mixed knowledge/generation language in the workspace, and a second textbook-upload workflow in the knowledge graph. A fixture-only RAG response-shape warning was corrected before the final capture.
 - Result: five deterministic viewport projects now render the real frontend against stable local data with no backend dependency, providing a repeatable before/after surface for every remaining Plan 3 task.
+
+### Plan 3 / Task 2 — Unified course workspace shell
+
+- Red evidence: the navigation unit test failed on the missing `courseNavigation` module; the committed traversal baseline could not find a semantic course link or the six target destinations.
+- Green evidence: the frontend unit gate has `144 passed`; the production build passes. The browser matrix produced `14 passed` across five viewports, with the only failure showing that 1024px correctly hid the desktop sidebar; after teaching the traversal acceptance test to use the compact drawer, the 1024px rerun passed.
+- Decision: the six teacher concepts are course overview, Q&A/generation, course knowledge, AI classroom, course resources, and settings. Knowledge documents and knowledge graph share one active top-level destination; Task 4 will complete their in-page unification.
+- Decision: viewers do not receive a settings destination. Owners and editors share the same workspace shell, while the membership badge makes their capability context visible.
+- Decision: below 1180px the sidebar becomes an explicit drawer instead of reducing the existing pages' working width. URL-derived `course_id` remains the navigation identity, and remembered course state remains only a home-page convenience.
+- Decision: the global job store stays mounted once in `App`; its floating launcher is disabled on course routes and the shell supplies the single inline task-center trigger. Legacy page sidebars are suppressed through shell context during staged migration.
+- Result: every core course route now has a stable breadcrumb, course identity, page title, active navigation item, task center, responsive menu, shared loading/empty/error/offline/forbidden/conflict presentation, and no root horizontal overflow in the browser acceptance suite.

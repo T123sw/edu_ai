@@ -14,7 +14,6 @@ import {
   routes,
   useAppShell,
 } from "../shared";
-import { JobCenterTrigger } from "../../jobs/JobCenterDrawer";
 import {
   getWorkspaceScopeLabel,
   normalizeWorkspaceScope,
@@ -160,7 +159,6 @@ export function AIWorkspacePage() {
           </div>
 
           <div className="ai-studio-context-bar__actions" aria-label="全局操作">
-            <JobCenterTrigger placement="inline" />
             <a
               href={routeHref(routes.profile)}
               className="ai-studio-profile-entry"

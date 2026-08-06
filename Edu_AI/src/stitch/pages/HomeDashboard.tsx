@@ -198,6 +198,12 @@ export function HomeDashboardPage() {
                     const globalIndex = currentPage * COURSES_PER_PAGE + index;
                     return (
                       <div className="course-col" key={course.id}>
+                        <a
+                          className="course-card-access-link"
+                          href={buildTeacherCourseHash(routes.courseDetail, course.id)}
+                          aria-label={course.title}
+                          onClick={() => setSelectedCourse(backendCourseToSummary(course, globalIndex))}
+                        />
                         <Card
                           className="course-card"
                           hoverable

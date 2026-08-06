@@ -387,3 +387,18 @@
     margin-top: 32px;
   }
 }
+.course-col {
+  position: relative;
+}
+
+.course-card-access-link {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 16px;
+}
+
+.course-card-access-link:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 4px;
+}
