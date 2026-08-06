@@ -7,7 +7,7 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
 from typing import Any, Callable, Mapping, Optional
 
@@ -53,6 +53,20 @@ def _now_ts() -> float:
 
 def _now_iso() -> str:
     return datetime.now().isoformat()
+
+
+def _coerce_timestamp(value: float | datetime | str | None) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        active = value
+    elif isinstance(value, str):
+        active = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    else:
+        return float(value)
+    if active.tzinfo is None:
+        active = active.replace(tzinfo=timezone.utc)
+    return active.timestamp()
 
 
 def _json_load(value: Any) -> Any:
@@ -134,6 +148,7 @@ class DurableTask:
     lease_owner: str | None
     lease_expires_at: float | None
     heartbeat_at: float | None
+    deadline_at: float | None
     cancel_requested: bool
     progress: dict[str, Any] | None
     result: dict[str, Any] | None
@@ -150,6 +165,7 @@ class DurableTask:
 class LeaseRecoverySummary:
     requeued: int = 0
     failed: int = 0
+    canceled: int = 0
 
 
 class TaskStore:
@@ -169,6 +185,7 @@ class TaskStore:
         "lease_owner": "TEXT",
         "lease_expires_at": "REAL",
         "heartbeat_at": "REAL",
+        "deadline_at": "REAL",
         "cancel_requested": "INTEGER NOT NULL DEFAULT 0",
         "result_ref_json": "TEXT",
         "error_code": "TEXT",
@@ -259,6 +276,7 @@ class TaskStore:
         idempotency_key: str | None,
         max_attempts: int = 3,
         available_at: float | None = None,
+        deadline_at: float | datetime | str | None = None,
     ) -> DurableTask:
         normalized_task_id = str(task_id or "").strip()
         normalized_workflow = str(workflow_type or "").strip()
@@ -289,6 +307,12 @@ class TaskStore:
             str(idempotency_key or "").strip() or None
         )
         now = _now_ts()
+        normalized_deadline = _coerce_timestamp(deadline_at)
+        if normalized_deadline is None and command.get("deadline_seconds") is not None:
+            deadline_seconds = float(command["deadline_seconds"])
+            if deadline_seconds <= 0:
+                raise ValueError("deadline_seconds must be positive")
+            normalized_deadline = now + deadline_seconds
         with self._lock:
             try:
                 self._conn.execute("BEGIN IMMEDIATE")
@@ -316,10 +340,10 @@ class TaskStore:
                         owner_user_id, course_id, scope_type, scope_id,
                         command_json, config_snapshot_id, idempotency_key,
                         status, attempt_count, max_attempts, available_at,
-                        cancel_requested, created_at, updated_at
+                        deadline_at, cancel_requested, created_at, updated_at
                     ) VALUES (
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                        'pending', 0, ?, ?, 0, ?, ?
+                        'pending', 0, ?, ?, ?, 0, ?, ?
                     )
                     """,
                     (
@@ -335,6 +359,7 @@ class TaskStore:
                         normalized_idempotency_key,
                         int(max_attempts),
                         float(available_at if available_at is not None else now),
+                        normalized_deadline,
                         _now_iso(),
                         now,
                     ),
@@ -466,6 +491,8 @@ class TaskStore:
                         """
                         UPDATE tasks
                         SET status='canceled', cancel_requested=1,
+                            error_code='GENERATION_CANCELLED',
+                            error='Generation was canceled',
                             finished_at=?, updated_at=?
                         WHERE task_id=? AND status='pending'
                         """,
@@ -475,7 +502,10 @@ class TaskStore:
                     self._conn.execute(
                         """
                         UPDATE tasks
-                        SET cancel_requested=1, updated_at=?
+                        SET cancel_requested=1,
+                            error_code='GENERATION_CANCELLED',
+                            error='Generation cancellation requested',
+                            updated_at=?
                         WHERE task_id=? AND status='leased'
                         """,
                         (now, task_id),
@@ -552,8 +582,8 @@ class TaskStore:
             status="canceled",
             result=None,
             result_ref=None,
-            error_code=None,
-            error=None,
+            error_code="GENERATION_CANCELLED",
+            error="Generation was canceled",
             now=now,
         )
 
@@ -626,12 +656,28 @@ class TaskStore:
         active_now = float(now if now is not None else _now_ts())
         requeued = 0
         failed = 0
+        canceled = 0
         with self._lock:
             try:
                 self._conn.execute("BEGIN IMMEDIATE")
+                pending_timeouts = self._conn.execute(
+                    """
+                    UPDATE tasks
+                    SET status='failed',
+                        error_code='GENERATION_DEADLINE_EXCEEDED',
+                        error='Generation deadline exceeded before execution',
+                        finished_at=?, updated_at=?
+                    WHERE status='pending'
+                      AND deadline_at IS NOT NULL
+                      AND deadline_at<=?
+                    """,
+                    (active_now, active_now, active_now),
+                )
+                failed += int(pending_timeouts.rowcount)
                 rows = self._conn.execute(
                     """
-                    SELECT task_id, attempt_count, max_attempts
+                    SELECT task_id, attempt_count, max_attempts,
+                           cancel_requested, deadline_at
                     FROM tasks
                     WHERE status='leased'
                       AND lease_expires_at IS NOT NULL
@@ -640,7 +686,38 @@ class TaskStore:
                     (active_now,),
                 ).fetchall()
                 for row in rows:
-                    if int(row["attempt_count"]) >= int(row["max_attempts"]):
+                    if bool(row["cancel_requested"]):
+                        self._conn.execute(
+                            """
+                            UPDATE tasks
+                            SET status='canceled',
+                                error_code='GENERATION_CANCELLED',
+                                error='Generation was canceled after worker restart',
+                                lease_owner=NULL, lease_expires_at=NULL,
+                                heartbeat_at=NULL, finished_at=?, updated_at=?
+                            WHERE task_id=? AND status='leased'
+                            """,
+                            (active_now, active_now, row["task_id"]),
+                        )
+                        canceled += 1
+                    elif (
+                        row["deadline_at"] is not None
+                        and float(row["deadline_at"]) <= active_now
+                    ):
+                        self._conn.execute(
+                            """
+                            UPDATE tasks
+                            SET status='failed',
+                                error_code='GENERATION_DEADLINE_EXCEEDED',
+                                error='Generation deadline exceeded while worker was unavailable',
+                                lease_owner=NULL, lease_expires_at=NULL,
+                                heartbeat_at=NULL, finished_at=?, updated_at=?
+                            WHERE task_id=? AND status='leased'
+                            """,
+                            (active_now, active_now, row["task_id"]),
+                        )
+                        failed += 1
+                    elif int(row["attempt_count"]) >= int(row["max_attempts"]):
                         self._conn.execute(
                             """
                             UPDATE tasks
@@ -671,7 +748,11 @@ class TaskStore:
             except Exception:
                 self._conn.rollback()
                 raise
-        return LeaseRecoverySummary(requeued=requeued, failed=failed)
+        return LeaseRecoverySummary(
+            requeued=requeued,
+            failed=failed,
+            canceled=canceled,
+        )
 
     def mark_reconciled_succeeded(
         self,
@@ -706,6 +787,8 @@ class TaskStore:
                     lease_owner=NULL, lease_expires_at=NULL,
                     heartbeat_at=NULL, finished_at=?, updated_at=?
                 WHERE task_id=? AND status IN ('pending', 'leased')
+                  AND cancel_requested=0
+                  AND (deadline_at IS NULL OR deadline_at>?)
                 """,
                 (
                     result_json,
@@ -713,6 +796,7 @@ class TaskStore:
                     active_now,
                     active_now,
                     str(task_id or "").strip(),
+                    active_now,
                 ),
             )
             self._conn.commit()
@@ -827,6 +911,7 @@ class TaskStore:
                     active_now,
                     active_now,
                     task_id,
+                    active_now,
                 ),
             )
             self._conn.commit()
@@ -909,26 +994,35 @@ class TaskStore:
             else None
         )
         with self._lock:
+            terminal_guard = ""
+            parameters: list[Any] = [
+                status,
+                result_json,
+                result_ref_json,
+                error_code,
+                error,
+                active_now,
+                active_now,
+                task_id,
+                str(lease_owner or "").strip(),
+            ]
+            if status in {"succeeded", "partially_succeeded"}:
+                terminal_guard = (
+                    " AND cancel_requested=0"
+                    " AND (deadline_at IS NULL OR deadline_at>?)"
+                )
+                parameters.append(active_now)
             cursor = self._conn.execute(
-                """
+                f"""
                 UPDATE tasks
                 SET status=?, result_json=?, result_ref_json=?,
                     error_code=?, error=?, lease_owner=NULL,
                     lease_expires_at=NULL, heartbeat_at=NULL,
                     finished_at=?, updated_at=?
                 WHERE task_id=? AND status='leased' AND lease_owner=?
+                {terminal_guard}
                 """,
-                (
-                    status,
-                    result_json,
-                    result_ref_json,
-                    error_code,
-                    error,
-                    active_now,
-                    active_now,
-                    task_id,
-                    str(lease_owner or "").strip(),
-                ),
+                parameters,
             )
             self._conn.commit()
         return cursor.rowcount == 1
@@ -963,6 +1057,11 @@ class TaskStore:
             heartbeat_at=(
                 float(row["heartbeat_at"])
                 if row["heartbeat_at"] is not None
+                else None
+            ),
+            deadline_at=(
+                float(row["deadline_at"])
+                if row["deadline_at"] is not None
                 else None
             ),
             cancel_requested=bool(row["cancel_requested"]),

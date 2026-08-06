@@ -4,6 +4,7 @@ import threading
 import time
 import uuid
 from collections.abc import Mapping
+from datetime import datetime, timezone
 from typing import Any
 
 from app.chat.tasks.task_store import DurableTask, TaskStore
@@ -98,17 +99,34 @@ class DurableTaskExecutor:
             if not self.run_once():
                 self._stop_event.wait(self.poll_interval)
 
-    def run_once(self) -> bool:
+    def run_once(self, *, now: float | datetime | None = None) -> bool:
+        active_now = self._timestamp(now)
         task = self.task_store.claim_next(
             lease_owner=self.worker_id,
             lease_seconds=self.lease_seconds,
+            now=active_now,
         )
         if task is None:
             return False
-        self._execute(task)
+        self._execute(task, fixed_now=active_now if now is not None else None)
         return True
 
-    def _execute(self, task: DurableTask) -> None:
+    def _execute(
+        self,
+        task: DurableTask,
+        *,
+        fixed_now: float | None = None,
+    ) -> None:
+        if self.task_store.is_cancel_requested(task.task_id):
+            self.completion_service.cancel(
+                task,
+                lease_owner=self.worker_id,
+                now=fixed_now,
+            )
+            return
+        if self._deadline_exceeded(task, now=fixed_now):
+            self._fail_deadline(task, now=fixed_now)
+            return
         update_job(
             task.task_id,
             status=JobStatus.RUNNING,
@@ -116,12 +134,6 @@ class DurableTaskExecutor:
             progress=1,
             message="任务已由后台工作器接管",
         )
-        if self.task_store.is_cancel_requested(task.task_id):
-            self.completion_service.cancel(
-                task,
-                lease_owner=self.worker_id,
-            )
-            return
         try:
             handler = self.handler_registry.resolve(
                 task.workflow_type,
@@ -181,13 +193,20 @@ class DurableTaskExecutor:
                 self.completion_service.cancel(
                     task,
                     lease_owner=self.worker_id,
+                    now=fixed_now,
                 )
                 return
-            self.completion_service.finish(
+            if self._deadline_exceeded(task, now=fixed_now):
+                self._fail_deadline(task, now=fixed_now)
+                return
+            finished = self.completion_service.finish(
                 task,
                 lease_owner=self.worker_id,
                 generated_result=generated_result,
+                now=fixed_now,
             )
+            if not finished:
+                self._converge_terminal_request(task, now=fixed_now)
         except RetryableTaskError as exc:
             self._requeue_retryable(task, exc)
         except Exception as exc:
@@ -200,6 +219,57 @@ class DurableTaskExecutor:
         finally:
             heartbeat_stop.set()
             heartbeat_thread.join(timeout=self.heartbeat_interval + 0.5)
+
+    def _converge_terminal_request(
+        self,
+        task: DurableTask,
+        *,
+        now: float | None,
+    ) -> None:
+        if self.task_store.is_cancel_requested(task.task_id):
+            self.completion_service.cancel(
+                task,
+                lease_owner=self.worker_id,
+                now=now,
+            )
+        elif self._deadline_exceeded(task, now=now):
+            self._fail_deadline(task, now=now)
+
+    def _fail_deadline(
+        self,
+        task: DurableTask,
+        *,
+        now: float | None = None,
+    ) -> bool:
+        return self.completion_service.fail(
+            task,
+            lease_owner=self.worker_id,
+            error_code="GENERATION_DEADLINE_EXCEEDED",
+            error="Generation deadline exceeded",
+            now=now,
+        )
+
+    @staticmethod
+    def _deadline_exceeded(
+        task: DurableTask,
+        *,
+        now: float | None,
+    ) -> bool:
+        if task.deadline_at is None:
+            return False
+        active_now = float(now if now is not None else time.time())
+        return task.deadline_at <= active_now
+
+    @staticmethod
+    def _timestamp(value: float | datetime | None) -> float:
+        if value is None:
+            return time.time()
+        if isinstance(value, datetime):
+            active = value
+            if active.tzinfo is None:
+                active = active.replace(tzinfo=timezone.utc)
+            return active.timestamp()
+        return float(value)
 
     def _heartbeat_loop(
         self,

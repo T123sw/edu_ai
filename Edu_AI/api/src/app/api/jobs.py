@@ -18,6 +18,7 @@ from app.services.job_store import (
     get_job,
     list_job_page,
     retry_job,
+    update_job,
 )
 from app.services.job_retry_service import (
     dispatch_retry_job,
@@ -107,9 +108,20 @@ def cancel_user_job(
             detail="后台任务已结束，不能取消",
         )
     try:
-        return _public_job(
-            cancel_job(edu_job_id, owner_user_id=_owner(current_user))
+        canceled = cancel_job(
+            edu_job_id,
+            owner_user_id=_owner(current_user),
         )
+        if durable is not None:
+            canceled = (
+                update_job(
+                    edu_job_id,
+                    error_code="GENERATION_CANCELLED",
+                    error_message="Generation cancellation requested",
+                )
+                or canceled
+            )
+        return _public_job(canceled)
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 

@@ -26,6 +26,7 @@ class JobCompletionService:
         *,
         lease_owner: str,
         generated_result: Mapping[str, Any],
+        now: float | None = None,
     ) -> bool:
         result = dict(generated_result)
         result_ref = dict(result.get("result_ref") or {})
@@ -37,6 +38,7 @@ class JobCompletionService:
                 result_ref=result_ref,
                 error_code="RESOURCE_SAVE_FAILED",
                 error=str(result.get("error") or "结果资源保存失败"),
+                now=now,
             )
 
         error_code, error = self._verify_result(task, result_ref)
@@ -48,6 +50,7 @@ class JobCompletionService:
                 result_ref=result_ref,
                 error_code=error_code,
                 error=error,
+                now=now,
             )
 
         persisted = self.task_store.mark_succeeded(
@@ -55,6 +58,7 @@ class JobCompletionService:
             lease_owner=lease_owner,
             result=result,
             result_ref=result_ref,
+            now=now,
         )
         if not persisted:
             return False
@@ -77,12 +81,14 @@ class JobCompletionService:
         lease_owner: str,
         error_code: str,
         error: str,
+        now: float | None = None,
     ) -> bool:
         persisted = self.task_store.mark_failed(
             task.task_id,
             error,
             lease_owner=lease_owner,
             error_code=error_code,
+            now=now,
         )
         if not persisted:
             return False
@@ -97,10 +103,17 @@ class JobCompletionService:
         )
         return True
 
-    def cancel(self, task: DurableTask, *, lease_owner: str) -> bool:
+    def cancel(
+        self,
+        task: DurableTask,
+        *,
+        lease_owner: str,
+        now: float | None = None,
+    ) -> bool:
         persisted = self.task_store.mark_canceled(
             task.task_id,
             lease_owner=lease_owner,
+            now=now,
         )
         if not persisted:
             return False
@@ -111,6 +124,8 @@ class JobCompletionService:
             progress=100,
             message="任务已取消",
             result_ref=None,
+            error_code="GENERATION_CANCELLED",
+            error_message="Generation was canceled",
         )
         return True
 
@@ -123,6 +138,7 @@ class JobCompletionService:
         result_ref: dict[str, Any],
         error_code: str,
         error: str,
+        now: float | None,
     ) -> bool:
         persisted = self.task_store.mark_partially_succeeded(
             task.task_id,
@@ -131,6 +147,7 @@ class JobCompletionService:
             result_ref=result_ref,
             error_code=error_code,
             error=error,
+            now=now,
         )
         if not persisted:
             return False

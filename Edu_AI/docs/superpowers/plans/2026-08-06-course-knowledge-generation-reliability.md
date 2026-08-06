@@ -645,7 +645,7 @@ git commit -m "feat: run durable jobs in bounded pool"
 - Consumes: command `deadline_seconds` and existing `cancel_requested` flag.
 - Produces: persisted `deadline_at`, terminal `canceled` convergence, and stable timeout/cancel error codes.
 
-- [ ] **Step 1: Write deadline and restart-recovery tests**
+- [x] **Step 1: Write deadline and restart-recovery tests**
 
 ```python
 def test_expired_queued_job_fails_without_handler_call(runtime, task_store, handler):
@@ -664,7 +664,7 @@ def test_reconciliation_finishes_cancel_requested_job(task_store, reconciliation
 
 Define both helpers in this test file. `enqueue_deadlined_task()` uses the production enqueue method after the new deadline column is added. `seed_cancel_requested_task()` enqueues, claims, requests cancellation through the store API, and then updates only the lease timestamp through a test fixture connection so the scenario matches a process restart.
 
-- [ ] **Step 2: Run and capture non-terminal cancellation behavior**
+- [x] **Step 2: Run and capture non-terminal cancellation behavior**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_job_deadlines_and_cancellation.py tests/test_job_reconciliation_service.py -q
@@ -672,7 +672,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_job_deadlines_and_cancel
 
 Expected: expired work may execute and stale `cancel_requested` may remain non-terminal.
 
-- [ ] **Step 3: Migrate the task schema and enforce transitions**
+- [x] **Step 3: Migrate the task schema and enforce transitions**
 
 Add nullable `deadline_at` and `error_code` columns using `PRAGMA table_info` plus idempotent `ALTER TABLE`. Before invoking a handler and before publishing an artifact, the executor checks cancellation and deadline. Reconciliation applies:
 
@@ -685,7 +685,7 @@ running + expired lease + deadline active -> queued for retry
 
 A canceled/timed-out job must never publish an artifact after its terminal transition. Keep the jobs API owner-scoped.
 
-- [ ] **Step 4: Run task-store, jobs API, runtime, and reconciliation tests**
+- [x] **Step 4: Run task-store, jobs API, runtime, and reconciliation tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_job_deadlines_and_cancellation.py tests/test_jobs_api_v2.py tests/test_job_reconciliation_service.py tests/test_durable_job_runtime.py -q
@@ -693,7 +693,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_job_deadlines_and_cancel
 
 Expected: every cancellation converges, timeout codes persist, and retries remain available before the deadline.
 
-- [ ] **Step 5: Commit reliable terminal-state handling**
+- [x] **Step 5: Commit reliable terminal-state handling**
 
 ```powershell
 git add Edu_AI/api/src/app/chat/tasks/task_store.py Edu_AI/api/src/app/services/durable_task_executor.py Edu_AI/api/src/app/services/job_reconciliation_service.py Edu_AI/api/src/app/api/jobs.py Edu_AI/api/src/tests/test_job_deadlines_and_cancellation.py

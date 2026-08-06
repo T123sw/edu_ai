@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
+from datetime import datetime, timezone
 
 from app.chat.tasks.task_store import DurableTask, TaskStore
 from app.services.job_store import (
@@ -49,12 +50,26 @@ class JobReconciliationService:
         self.now_provider = now_provider or time.time
 
     def reconcile_startup(self) -> None:
-        now = float(self.now_provider())
+        self.run()
+
+    def run(self, *, now: float | datetime | None = None) -> None:
+        active_now = self._timestamp(
+            self.now_provider() if now is None else now
+        )
         active_jobs = self._active_jobs()
-        self._finish_published_results(active_jobs, now=now)
-        self.task_store.recover_expired_leases(now=now)
+        self._finish_published_results(active_jobs, now=active_now)
+        self.task_store.recover_expired_leases(now=active_now)
         self._sync_public_ledger(self._active_jobs())
         self._audit_succeeded_results()
+
+    @staticmethod
+    def _timestamp(value: float | datetime) -> float:
+        if isinstance(value, datetime):
+            active = value
+            if active.tzinfo is None:
+                active = active.replace(tzinfo=timezone.utc)
+            return active.timestamp()
+        return float(value)
 
     @staticmethod
     def _active_jobs() -> list[EduJob]:
@@ -79,7 +94,7 @@ class JobReconciliationService:
     ) -> None:
         for job in jobs:
             task = self.task_store.get_durable(job.edu_job_id)
-            result_ref = self._published_result_ref(task)
+            result_ref = self._published_result_ref(task, now=now)
             if task is None or result_ref is None:
                 continue
             result = {
@@ -108,8 +123,14 @@ class JobReconciliationService:
     def _published_result_ref(
         self,
         task: DurableTask | None,
+        *,
+        now: float,
     ) -> dict[str, str] | None:
         if task is None or task.status not in {"pending", "leased"}:
+            return None
+        if task.cancel_requested:
+            return None
+        if task.deadline_at is not None and task.deadline_at <= now:
             return None
         command = dict(task.command or {})
         resource_type = str(command.get("resource_type") or "").strip()
@@ -220,6 +241,8 @@ class JobReconciliationService:
                     step="canceled",
                     progress=100,
                     message="任务已取消",
+                    error_code="GENERATION_CANCELLED",
+                    error_message=task.error or "Generation was canceled",
                 )
 
     def _audit_succeeded_results(self) -> None:

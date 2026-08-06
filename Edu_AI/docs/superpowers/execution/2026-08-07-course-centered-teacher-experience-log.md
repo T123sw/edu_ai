@@ -165,3 +165,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: the pool defaults to three workers (`DURABLE_JOB_WORKERS`, minimum one) and reuses the existing atomic SQLite lease rather than adding nested model-call thread pools.
 - Decision: shutdown signals all workers first and then joins them against one shared deadline; worker IDs that miss the deadline are returned for operational reporting.
 - Result: a blocked generation no longer prevents a second queued task from completing, while two workers still execute one leased task exactly once and startup/shutdown remain idempotent.
+
+### Plan 2 / Task 8 — Deadlines and deterministic cancellation recovery
+
+- Red evidence: the focused suite initially produced `5 failed`; the task schema had no `deadline_at`, the executor could not accept a deterministic clock, and a stale leased task with `cancel_requested=1` was only requeued or failed as a lost worker.
+- Green evidence: `11 passed` for the first deadline/reconciliation gate, followed by `47 passed` across deadlines, jobs API, reconciliation, runtime, task store/executor, completion, and generation command submission. The final focused gate includes deadline derivation and the cancel-during-completion race.
+- Decision: durable rows store an absolute `deadline_at` timestamp. A command's bounded `deadline_seconds` is converted at enqueue time; a retry therefore receives a fresh deadline instead of inheriting an already-expired timestamp.
+- Decision: cancellation wins over timeout during stale-lease recovery. Cancellation persists `GENERATION_CANCELLED`; deadline expiry persists `GENERATION_DEADLINE_EXCEEDED`. Both codes are synchronized to the owner-scoped public job ledger.
+- Decision: success and partial-success transitions include an atomic cancellation/deadline guard. Reconciliation also refuses to adopt a previously published result for a canceled or expired task.
+- Result: expired queued work never invokes its handler, stale cancellation converges after restart, active leases retry only while their deadline remains valid, and a late cancellation cannot be overwritten by a success transition.
