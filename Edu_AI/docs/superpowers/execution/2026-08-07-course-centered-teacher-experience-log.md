@@ -132,3 +132,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: a frozen `GenerationExecutionContext` carries one resolved source and recursively immutable configuration to adapters that opt into the new keyword; existing adapters remain compatible during staged migration.
 - Decision: downstream payloads receive canonical RAG keys and the already-resolved context text. Providers expose direct RAG-key reads so public document IDs are not resolved a second time.
 - Result: every durable generation resolves source intent once, preserves the same source/config snapshot in both handler-published and generator-published course materials, and records `created_by` plus `source_job_id`.
+
+### Plan 2 / Task 4 — Stable course document identity
+
+- Red evidence: the migration module and lifecycle-ready boundary did not exist; an additional dry-run test proved that constructing the storage manager would create directories during inspection.
+- Green evidence: `21 passed` across migration dry-run/apply/idempotency, document lifecycle, stable reindex identity, public response privacy, and legacy RAG resolution.
+- Decision: new uploads use opaque UUID public IDs. Migration-only backfills use deterministic UUIDv5 values derived from course ID and normalized legacy path so repeated repair is stable without exposing paths.
+- Decision: missing or ambiguous RAG links are never presented as ready; records remain visible with `status=failed` and `error_code=RAG_INDEX_MISSING` so teachers can reindex them.
+- Decision: the course document API no longer returns its internal relative filesystem path; subsequent actions use the public document ID.
+- Result: dry-run performs zero filesystem writes, apply uses atomic replacement, a second apply reports zero changes, and reindex updates only mutable RAG metadata while preserving the public ID.

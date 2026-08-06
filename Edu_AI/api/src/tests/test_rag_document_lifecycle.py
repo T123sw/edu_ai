@@ -211,3 +211,27 @@ async def test_failed_reindex_preserves_the_active_version(document_fixture):
     assert document["active_index_version"] == "idx_active"
     assert document["pending_index_version"] is None
     assert document["error_code"] == "RAG_INDEX_FAILED"
+
+
+def test_ready_document_keeps_public_id_when_rag_key_changes(document_fixture):
+    manager, document_id, _task_store = document_fixture
+
+    first = service.mark_document_ready(
+        manager,
+        "course-1",
+        document_id,
+        rag_index_key="rag/key/1",
+        chunk_count=12,
+    )
+    second = service.mark_document_ready(
+        manager,
+        "course-1",
+        document_id,
+        rag_index_key="rag/key/2",
+        chunk_count=15,
+    )
+
+    assert first["id"] == document_id
+    assert second["id"] == document_id
+    assert second["rag_index_key"] == "rag/key/2"
+    assert second["chunk_count"] == 15

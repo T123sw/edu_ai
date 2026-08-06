@@ -493,9 +493,14 @@ class CourseStorageManager:
     def _build_recovered_knowledge_base_entry(self, course_id: str, file_path: Path) -> Dict[str, Any]:
         relative_path = file_path.relative_to(self.get_course_dir(course_id)).as_posix()
         file_stat = file_path.stat()
-        safe_relative_path = relative_path.replace("/", "__").replace("\\", "__")
         return {
-            "id": f"recovered-{safe_relative_path}",
+            "id": (
+                "doc-"
+                + uuid.uuid5(
+                    uuid.NAMESPACE_URL,
+                    f"edu-ai/course-document/{course_id}/{relative_path.casefold()}",
+                ).hex
+            ),
             "filename": file_path.name,
             "path": relative_path,
             "size": file_stat.st_size,
@@ -685,7 +690,7 @@ class CourseStorageManager:
                 if str(item.get("path") or "").replace("\\", "/").strip() != relative_path
             ]
             file_info = {
-                "id": f"doc-{datetime.now().timestamp()}",
+                "id": f"doc-{uuid.uuid4().hex}",
                 "filename": filename,
                 "path": relative_path,
                 "size": len(file_data),

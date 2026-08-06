@@ -69,6 +69,54 @@ def _owner_matches(record: Mapping[str, Any], owner: Optional[str]) -> bool:
     return record_owner == owner
 
 
+def find_rag_record_for_legacy_identifiers(
+    document_index: Mapping[str, Any],
+    identifiers: list[Any],
+    *,
+    owner: Optional[str] = None,
+    allow_basename_fallback: bool = True,
+) -> tuple[str, Mapping[str, Any]] | None:
+    """Find one unambiguous RAG record for old path-based identifiers."""
+    normalized = {
+        _normalize_path_for_compare(item)
+        for item in identifiers
+        if _normalize_identifier(item)
+    }
+    basenames = {_basename_for_compare(item) for item in identifiers}
+    basenames.discard("")
+    exact: list[tuple[str, Mapping[str, Any]]] = []
+    basename_matches: list[tuple[str, Mapping[str, Any]]] = []
+    for index_key, value in (document_index or {}).items():
+        if not isinstance(value, Mapping) or not _owner_matches(value, owner):
+            continue
+        record_identifiers = (
+            index_key,
+            value.get("physical_path"),
+            value.get("path"),
+        )
+        record_paths = {
+            _normalize_path_for_compare(item)
+            for item in record_identifiers
+            if _normalize_identifier(item)
+        }
+        match = (str(index_key), value)
+        if normalized & record_paths:
+            exact.append(match)
+            continue
+        record_basenames = {
+            _basename_for_compare(item)
+            for item in (*record_identifiers, value.get("file_name"))
+        }
+        record_basenames.discard("")
+        if allow_basename_fallback and basenames & record_basenames:
+            basename_matches.append(match)
+    if len(exact) == 1:
+        return exact[0]
+    if not exact and len(basename_matches) == 1:
+        return basename_matches[0]
+    return None
+
+
 def _make_key(rag_system: Any, method_name: str, document_id: str, owner: Optional[str]) -> str | None:
     method = getattr(rag_system, method_name, None)
     if method is None:
@@ -128,44 +176,25 @@ def resolve_rag_document(rag_system: Any, document_id: Any, owner: Optional[str]
         and not requested_norm.startswith("user_")
         and ":" not in requested_norm
     )
-    for index_key, record in document_index.items():
-        if not isinstance(record, Mapping) or not _owner_matches(record, owner):
-            continue
-
-        physical_path = _normalize_identifier(record.get("physical_path"))
-        record_path = _normalize_identifier(record.get("path"))
-        file_name = _normalize_identifier(record.get("file_name"))
-        comparable_paths = [value for value in (physical_path, record_path) if value]
-        comparable_basenames = [
-            value
-            for value in (
-                _basename_for_compare(physical_path),
-                _basename_for_compare(record_path),
-                _basename_for_compare(file_name),
-            )
-            if value
-        ]
-        if not comparable_paths and not comparable_basenames:
-            continue
-
-        if any(requested_norm == _normalize_path_for_compare(candidate) for candidate in comparable_paths):
-            return _build_resolved_document(
-                rag_system=rag_system,
-                requested_id=requested_id,
-                index_key=str(index_key),
-                record=record,
-                owner=owner,
-                listed_document=listed_by_id.get(str(index_key)),
-            )
-        if allow_basename_fallback and requested_basename in comparable_basenames:
-            return _build_resolved_document(
-                rag_system=rag_system,
-                requested_id=requested_id,
-                index_key=str(index_key),
-                record=record,
-                owner=owner,
-                listed_document=listed_by_id.get(str(index_key)),
-            )
+    legacy_identifiers = [requested_id]
+    legacy_match = find_rag_record_for_legacy_identifiers(
+        document_index,
+        legacy_identifiers,
+        owner=owner,
+        allow_basename_fallback=allow_basename_fallback,
+    )
+    if legacy_match is not None and (
+        requested_norm or (allow_basename_fallback and requested_basename)
+    ):
+        index_key, record = legacy_match
+        return _build_resolved_document(
+            rag_system=rag_system,
+            requested_id=requested_id,
+            index_key=index_key,
+            record=record,
+            owner=owner,
+            listed_document=listed_by_id.get(index_key),
+        )
 
     return None
 

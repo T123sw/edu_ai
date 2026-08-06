@@ -400,7 +400,7 @@ git commit -m "feat: preserve generation source provenance"
 - Consumes: existing knowledge-base index records and RAG metadata.
 - Produces: stable `document_id`, `rag_index_key`, `status`, `chunk_count`, and migration report.
 
-- [ ] **Step 1: Add lifecycle and migration tests**
+- [x] **Step 1: Add lifecycle and migration tests**
 
 ```python
 def test_ready_document_keeps_public_id_across_reindex(service):
@@ -418,7 +418,7 @@ def test_migration_dry_run_does_not_write(tmp_path):
     assert snapshot_tree(tmp_path) == before
 ```
 
-- [ ] **Step 2: Run lifecycle tests against legacy records**
+- [x] **Step 2: Run lifecycle tests against legacy records**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_document_id_migration.py tests/test_rag_document_lifecycle.py -q
@@ -426,7 +426,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_document_id_migra
 
 Expected: inconsistent legacy IDs or missing RAG keys are exposed by the new assertions.
 
-- [ ] **Step 3: Implement safe normalization and a two-mode migration command**
+- [x] **Step 3: Implement safe normalization and a two-mode migration command**
 
 The migration reads every course knowledge index, reports missing/duplicate public IDs and broken RAG keys, and writes only with `--apply`:
 
@@ -437,7 +437,7 @@ D:\anaconda\envs\edu-ai\python.exe -m scripts.migrate_course_document_ids --appl
 
 Backfill IDs with a deterministic UUIDv5 derived from `(course_id, normalized legacy relative path)`. Never expose the relative path through new API responses. If no matching RAG record exists, retain the document and set `status="failed"` with `error_code="RAG_INDEX_MISSING"` so it cannot be selected as ready.
 
-- [ ] **Step 4: Verify dry-run, apply, rerun idempotency, and counts**
+- [x] **Step 4: Verify dry-run, apply, rerun idempotency, and counts**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_document_id_migration.py tests/test_rag_document_lifecycle.py tests/chat/test_rag_v2_document_resolver.py -q
@@ -445,7 +445,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/test_course_document_id_migra
 
 Expected: a second apply reports zero changes; list/detail/status endpoints agree on status and chunk count.
 
-- [ ] **Step 5: Commit document identity repair**
+- [x] **Step 5: Commit document identity repair**
 
 ```powershell
 git add Edu_AI/api/src/app/services/knowledge_document_service.py Edu_AI/api/src/modules/rag_v2/document_resolver.py Edu_AI/api/src/scripts/migrate_course_document_ids.py Edu_AI/api/src/tests/test_course_document_id_migration.py Edu_AI/api/src/tests/test_rag_document_lifecycle.py

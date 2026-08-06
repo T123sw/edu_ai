@@ -75,7 +75,9 @@ def _knowledge_document_model(
         id=str(item.get("id") or f"doc-{datetime.now().timestamp()}"),
         name=item.get("filename", item.get("name", "未命名文档")),
         type=doc_type,
-        file_path=item.get("path"),
+        # Filesystem-relative paths are internal implementation details. Public
+        # course APIs use the stable document ID for all subsequent actions.
+        file_path=None,
         url=item.get("url") if doc_type == "web" else None,
         course_id=course_id,
         scope_type=str(item.get("scope_type") or "course"),

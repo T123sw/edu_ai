@@ -96,6 +96,38 @@ def initialize_document(
     )
 
 
+def mark_document_ready(
+    manager: Any,
+    course_id: str,
+    document_id: str,
+    *,
+    rag_index_key: str,
+    chunk_count: int,
+    page_count: int = 0,
+    active_index_version: str | None = None,
+    parser_name: str | None = None,
+    embedding_profile_id: str | None = None,
+) -> dict[str, Any]:
+    """Update mutable index metadata without ever changing the public ID."""
+    return patch_document(
+        manager,
+        course_id,
+        document_id,
+        status="ready",
+        rag_index_key=str(rag_index_key or "").strip(),
+        active_index_version=active_index_version,
+        pending_index_version=None,
+        page_count=max(0, int(page_count or 0)),
+        chunk_count=max(0, int(chunk_count or 0)),
+        failed_units=0,
+        parser_name=parser_name,
+        embedding_profile_id=embedding_profile_id,
+        indexed_at=_now(),
+        error_code=None,
+        error_message=None,
+    )
+
+
 def submit_index_job(
     *,
     manager: Any,
@@ -242,25 +274,19 @@ def run_index_job(
             rag_record.get("chunk_count") or result.get("chunk_count") or 0
         )
         page_count = int(rag_record.get("page_count") or 0)
-        updated = patch_document(
+        updated = mark_document_ready(
             manager,
             course_id,
             document_id,
-            status="ready",
-            active_index_version=pending_version,
-            pending_index_version=None,
-            rag_index_key=resolved.index_key if resolved is not None else None,
-            page_count=page_count,
+            rag_index_key=resolved.index_key if resolved is not None else "",
             chunk_count=chunk_count,
-            failed_units=0,
+            page_count=page_count,
+            active_index_version=pending_version,
             parser_name="rag_v2",
             embedding_profile_id=str(
                 getattr(getattr(rag_system, "embedding_client", None), "model", "")
                 or "default"
             ),
-            indexed_at=_now(),
-            error_code=None,
-            error_message=None,
         )
         update_job(
             job_id,
