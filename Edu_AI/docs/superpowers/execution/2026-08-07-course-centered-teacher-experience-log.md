@@ -109,3 +109,10 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Affected backend gate: `52 passed` across membership persistence/access/bootstrap/migration, CRUD/revision, all course route capabilities, collaboration, shared materials, and course scopes.
 - Frontend gate: `141 passed`; lint completed with `0 errors, 82 warnings`, exactly matching the recorded baseline; production build passed in the preceding full gate and is rerun after this log/spec update before commit.
 - Result: executable evidence covers two-teacher shared edits/resources, student backend denial, anonymous denial, stale-write protection, auto-enrollment modes, and URL authority. Verified Stage 0 link and all Stage 1 acceptance boxes are checked in the Spec; unverified visual Stage 0 items remain open.
+
+### Plan 2 / Task 1 — Canonical generation source resolver
+
+- Red evidence: focused collection failed because the generation source boundary did not exist.
+- Green evidence: `21 passed` across all source modes and legacy RAG document/provider resolution.
+- Decision: `course_auto` with explicit document IDs is rejected as contradictory, matching the strict handling already required for `none`; callers must choose `selected_documents` when IDs are supplied.
+- Result: public course document IDs resolve deterministically to ready RAG keys, `none` proves zero catalog/content reads, cross-course and non-ready selections fail with stable codes, and immutable provenance snapshots exclude generated context text.
