@@ -6,6 +6,9 @@ import type { JobRecord } from "../../../jobs/types";
 import { apiRequest } from "../../../stitch/api/client";
 import type { GenerationResourceType } from "./generationRegistry";
 import type { GenerationSourceSelection } from "./GenerationSourceSelector";
+import { blogDefinition } from "./definitions/blog";
+import { lessonPlanDefinition } from "./definitions/lessonPlan";
+import { reportDefinition } from "./definitions/report";
 
 export type GenerationDraft = {
   resourceType: GenerationResourceType;
@@ -27,18 +30,18 @@ function sourcePayload(draft: GenerationDraft, courseId: string) {
   };
 }
 
-export function buildGenerationRequest(draft: GenerationDraft, courseId: string): { path: string; body: Record<string, unknown> } {
-  const source = sourcePayload(draft, courseId);
+export function buildGenerationRequest(draft: GenerationDraft, courseId: string, idempotencyKey = `ui-${draft.resourceType}-${courseId}`): { path: string; body: Record<string, unknown> } {
+  const source = { ...sourcePayload(draft, courseId), idempotency_key: idempotencyKey };
   const commonTopic = draft.topic.trim();
   switch (draft.resourceType) {
-    case "report": return { path: "/api/chat/v2/report/direct", body: { ...source, question: commonTopic, report_config: { audience: draft.audience, special_requirements: draft.requirements, ...draft.config } } };
-    case "lesson_plan": return { path: "/api/chat/v2/lesson-plan/direct", body: { ...source, topic: commonTopic, audience: draft.audience, duration_minutes: 45, objectives: [draft.requirements || commonTopic], lesson_type: "new_lesson", special_requirements: draft.requirements } };
-    case "blog": return { path: "/api/chat/v2/blog/direct", body: { ...source, topic: commonTopic, audience: draft.audience, ...draft.config } };
+    case "report": return { path: "/api/chat/v2/report/direct", body: { ...source, ...reportDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
+    case "lesson_plan": return { path: "/api/chat/v2/lesson-plan/direct", body: { ...source, ...lessonPlanDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
+    case "blog": return { path: "/api/chat/v2/blog/direct", body: { ...source, ...blogDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "quiz": return { path: "/api/chat/v2/quiz/direct", body: { ...source, quiz_config: { topic: commonTopic, audience: draft.audience, difficulty: "medium", question_count: 10, question_types: ["single_choice"], include_answers: true, include_explanations: true, ...draft.config } } };
     case "flashcard": return { path: "/api/chat/v2/flashcard/direct", body: { ...source, flashcard_config: { title: commonTopic, count: 12, difficulty: "medium", show_source: true, ...draft.config } } };
     case "mind_map": return { path: "/api/chat/v2/graph/direct", body: { ...source, title: commonTopic, max_depth: Number(draft.config?.depth ?? 3), description: draft.requirements } };
     case "game": return { path: "/api/chat/v2/game/direct", body: { ...source, game_type: String(draft.config?.gameType ?? "classification"), topic: commonTopic, card_count: Number(draft.config?.cardCount ?? 8) } };
-    case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, topic: commonTopic, audience: draft.audience, requirement: draft.requirements || commonTopic, scene_count: Number(draft.config?.sceneCount ?? 6), enable_web_search: false, enable_tts: Boolean(draft.config?.voiceEnabled ?? true) } };
+    case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, topic: commonTopic, audience: draft.audience, requirement: draft.requirements || commonTopic, scene_count: Number(draft.config?.sceneCount ?? 6), enable_web_search: false, enable_tts: Boolean(draft.config?.voiceEnabled ?? true), idempotency_key: idempotencyKey } };
     case "ppt": return { path: "/api/chat/v2/ppt/outline", body: { ...source, ppt_config: { deck_title: commonTopic, audience: draft.audience, slide_count: Number(draft.config?.slideCount ?? 10), special_requirements: draft.requirements, ...draft.config } } };
   }
 }
@@ -71,10 +74,11 @@ export function useGenerationSubmission(courseId: string | undefined) {
         method: "POST",
         body: JSON.stringify({ course_id: courseId, resource_type: draft.resourceType, source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds }),
       });
-      const request = buildGenerationRequest(draft, courseId);
+      const idempotencyKey = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `ui-${draft.resourceType}-${Date.now()}`;
+      const request = buildGenerationRequest(draft, courseId, idempotencyKey);
       let submitted = await apiRequest<Submitted>(request.path, { method: "POST", body: JSON.stringify(request.body) });
       if (draft.resourceType === "ppt" && submitted.draft_id) {
-        submitted = await apiRequest<Submitted>("/api/chat/v2/ppt/generate", { method: "POST", body: JSON.stringify({ draft_id: submitted.draft_id, outline: submitted.outline, confirm: true }) });
+        submitted = await apiRequest<Submitted>("/api/chat/v2/ppt/generate", { method: "POST", body: JSON.stringify({ draft_id: submitted.draft_id, outline: submitted.outline, confirm: true, idempotency_key: `${idempotencyKey}-generate` }) });
       }
       const nextJobId = submitted.edu_job_id || submitted.task_id;
       if (!nextJobId) throw new Error("生成任务未返回可恢复的任务编号");

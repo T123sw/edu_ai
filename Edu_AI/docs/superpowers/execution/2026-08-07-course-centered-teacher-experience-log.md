@@ -239,3 +239,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: `StudioPanel` is now a thin compatibility adapter. The current Stitch workspace exposes a stable top-bar “生成工厂” action so loading timing and responsive layout no longer determine whether the factory can be opened; the legacy routed workspace receives the same affordance for compatibility.
 - Decision: drafts cache only resource type, source identifiers, and editable configuration by course. Tokens and generated content are not stored. Leaving selected-document mode clears stale document IDs.
 - Result: chat remains the primary surface, opening the factory never applies an opaque chat-blocking overlay, 1024px uses the existing responsive panel behavior, and submitted jobs remain visible/recoverable through the single global task center.
+
+### Plan 3 / Task 6 — Long-form generation configurations
+
+- Red evidence: the exact serialization suite failed on missing report, lesson-plan, and blog definitions. The former generic form could not prove that report depth, lesson process, or blog tone/length reached a durable command.
+- Green evidence: all four definition/validation tests pass; the two backend request-schema tests pass; the production build passes. The browser request-interception suite has `5 passed` across every release viewport and proves all three forms keep their primary action reachable at 1024×768.
+- Decision: fixed report templates are local immediate choices; optional recommendation failures do not own or overwrite form state. Lesson-plan objectives use one editable line per objective and the primary action reflects whether outline confirmation is enabled.
+- Decision: backend request schemas now explicitly accept and persist the visible lesson process/outline intent and blog audience/tone/length/structure/requirements fields. This avoids a visually successful form whose extra fields Pydantic would silently discard.
+- Decision: unreachable report and lesson-plan legacy modal implementations were removed after the shared factory gained equivalent typed forms and browser coverage.
+- Result: every visible long-form field has a named validation rule, one auditable serializer, an accepted API field, and intercepted end-to-end request evidence.

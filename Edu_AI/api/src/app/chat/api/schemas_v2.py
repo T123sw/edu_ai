@@ -173,7 +173,9 @@ class KnowledgeBaseDirectLessonPlanRequestV2(GenerationSourceRequest):
     duration_minutes: int = Field(default=45, ge=10, le=480)
     objectives: List[str] = Field(default_factory=list, max_length=12)
     lesson_type: str = Field(default="knowledge_building", max_length=80)
+    teaching_process: str = Field(default="", max_length=4000)
     special_requirements: str = Field(default="", max_length=2000)
+    outline_preview: bool = True
     deadline_seconds: int = Field(default=300, ge=1, le=3600)
     idempotency_key: Optional[str] = Field(
         default=None, min_length=1, max_length=160
@@ -285,6 +287,11 @@ class KnowledgeBaseDirectBlogRequestV2(GenerationSourceRequest):
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
     topic: str = Field(min_length=1, max_length=160)
+    audience: str = Field(default="", max_length=200)
+    tone: Literal["academic", "popular", "narrative"] = "popular"
+    length: Literal["short", "medium", "long"] = "medium"
+    structure: str = Field(default="", max_length=1000)
+    special_requirements: str = Field(default="", max_length=2000)
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 

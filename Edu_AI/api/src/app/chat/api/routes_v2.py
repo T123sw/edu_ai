@@ -546,7 +546,9 @@ async def direct_lesson_plan(
             "duration_minutes": payload.duration_minutes,
             "objectives": payload.objectives,
             "lesson_type": payload.lesson_type,
+            "teaching_process": payload.teaching_process,
             "special_requirements": payload.special_requirements,
+            "outline_preview": payload.outline_preview,
         },
         idempotency_key=payload.idempotency_key or str(uuid4()),
     )
@@ -735,7 +737,15 @@ async def direct_blog(
         scope_id=payload.scope_id,
         source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
-        config={"title": payload.topic, "topic": payload.topic},
+        config={
+            "title": payload.topic,
+            "topic": payload.topic,
+            "audience": payload.audience,
+            "tone": payload.tone,
+            "length": payload.length,
+            "structure": payload.structure,
+            "special_requirements": payload.special_requirements,
+        },
         idempotency_key=payload.idempotency_key,
     )
     job = generation_command_service.submit(command)

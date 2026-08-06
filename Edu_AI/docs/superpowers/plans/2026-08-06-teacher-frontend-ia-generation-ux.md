@@ -483,7 +483,7 @@ git commit -m "feat: add shared teacher generation workflow"
 **Interfaces:**
 - Produces: typed configs and exact API mappings for three long-form resources.
 
-- [ ] **Step 1: Write exact field-to-payload tests**
+- [x] **Step 1: Write exact field-to-payload tests**
 
 ```typescript
 test("blog tone and length reach the durable command", () => {
@@ -497,7 +497,7 @@ test("blog tone and length reach the durable command", () => {
 });
 ```
 
-- [ ] **Step 2: Run and reproduce dropped or ambiguous fields**
+- [x] **Step 2: Run and reproduce dropped or ambiguous fields**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/definitions/textResources.test.ts
@@ -505,13 +505,13 @@ pnpm test -- src/components/teacher/generation/definitions/textResources.test.ts
 
 Expected: definitions do not exist and current blog/lesson paths do not provide a single auditable mapping.
 
-- [ ] **Step 3: Implement the three configurations**
+- [x] **Step 3: Implement the three configurations**
 
 - Report: template (`brief`, `detailed`, `study_plan`, `custom`), topic, audience, depth, structure emphasis, special requirements. Fixed templates are immediate; recommended directions populate asynchronously without replacing user edits.
 - Lesson plan: group into basic information, teaching objectives, teaching process, and supplementary requirements. Required: topic, audience/grade, duration, objectives. Any extracted suggestion is editable and labeled “根据资料建议”. The primary action is “生成教案大纲” when outline preview is enabled, otherwise “开始生成”.
 - Blog: topic, audience, tone, length, structure, and special requirements. Remove any UI field not supported by the Plan 2 command. Closing and reopening during the same workflow restores the draft.
 
-- [ ] **Step 4: Verify payload snapshots and long-form dialog layout**
+- [x] **Step 4: Verify payload snapshots and long-form dialog layout**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/definitions/textResources.test.ts
@@ -520,7 +520,7 @@ pnpm test:e2e -- tests/e2e/generation-text-resources.spec.ts
 
 Expected: every visible field appears in the intercepted request and job configuration snapshot; 1024×768 footers are reachable; recommendation failures retain manual forms.
 
-- [ ] **Step 5: Commit text-resource configurations**
+- [x] **Step 5: Commit text-resource configurations**
 
 ```powershell
 git add Edu_AI/src/components/teacher/generation/definitions/report.ts Edu_AI/src/components/teacher/generation/definitions/lessonPlan.ts Edu_AI/src/components/teacher/generation/definitions/blog.ts Edu_AI/src/components/teacher/generation/forms/ReportForm.tsx Edu_AI/src/components/teacher/generation/forms/LessonPlanForm.tsx Edu_AI/src/components/teacher/generation/forms/BlogForm.tsx Edu_AI/src/components/teacher/ReportEntryModal.tsx Edu_AI/src/components/teacher/LessonPlanEntryModal.tsx Edu_AI/src/components/teacher/generation/definitions/textResources.test.ts Edu_AI/tests/e2e/generation-text-resources.spec.ts
