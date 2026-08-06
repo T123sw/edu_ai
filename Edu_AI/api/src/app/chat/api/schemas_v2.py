@@ -132,6 +132,22 @@ class ChatLessonPlanCardsRequestV2(BaseModel):
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
+class KnowledgeBaseDirectLessonPlanRequestV2(GenerationSourceRequest):
+    course_id: str = Field(min_length=1)
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    topic: str = Field(min_length=1, max_length=200)
+    audience: str = Field(default="", max_length=200)
+    duration_minutes: int = Field(default=45, ge=10, le=480)
+    objectives: List[str] = Field(default_factory=list, max_length=12)
+    lesson_type: str = Field(default="knowledge_building", max_length=80)
+    special_requirements: str = Field(default="", max_length=2000)
+    deadline_seconds: int = Field(default=300, ge=1, le=3600)
+    idempotency_key: Optional[str] = Field(
+        default=None, min_length=1, max_length=160
+    )
+
+
 class KnowledgeBaseDirectReportRequestV2(GenerationSourceRequest):
     question: str
     course_id: Optional[str] = None

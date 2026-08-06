@@ -33,6 +33,7 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectGraphRequestV2,
     KnowledgeBaseDirectBlogRequestV2,
     KnowledgeBaseDirectReportRequestV2,
+    KnowledgeBaseDirectLessonPlanRequestV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
 from app.services.generation_command import (
@@ -452,6 +453,44 @@ async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_use
     )
     job = generation_command_service.submit(command)
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "report_direct"}
+
+
+@router.post(
+    "/lesson-plan/direct",
+    response_model=ChatDirectTaskSubmittedResponseV2,
+    status_code=202,
+)
+async def direct_lesson_plan(
+    payload: KnowledgeBaseDirectLessonPlanRequestV2,
+    current_user: dict = Depends(get_current_user),
+):
+    owner = str(current_user.get("username") or "").strip()
+    command = GenerationCommand(
+        resource_type="lesson_plan",
+        owner_user_id=owner,
+        course_id=payload.course_id,
+        scope_type=payload.scope_type or "course",
+        scope_id=payload.scope_id,
+        source_mode=payload.source_mode,
+        selected_doc_ids=payload.selected_doc_ids,
+        deadline_seconds=payload.deadline_seconds,
+        config={
+            "title": payload.topic,
+            "topic": payload.topic,
+            "audience": payload.audience,
+            "duration_minutes": payload.duration_minutes,
+            "objectives": payload.objectives,
+            "lesson_type": payload.lesson_type,
+            "special_requirements": payload.special_requirements,
+        },
+        idempotency_key=payload.idempotency_key or str(uuid4()),
+    )
+    job = generation_command_service.submit(command)
+    return {
+        "task_id": job.edu_job_id,
+        "status": "pending",
+        "workflow_type": "lesson_plan_direct",
+    }
 
 
 @router.post("/quiz/prefill", response_model=ChatQuizPrefillResponseV2)

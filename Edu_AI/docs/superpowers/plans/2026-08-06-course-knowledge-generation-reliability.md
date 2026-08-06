@@ -466,7 +466,7 @@ git commit -m "fix: normalize course document identities"
 - Consumes: shared source contract and durable generation handler.
 - Produces: `POST /api/chat/v2/lesson-plan/direct` returning the standard 202 job envelope.
 
-- [ ] **Step 1: Write request, job, and publication tests**
+- [x] **Step 1: Write request, job, and publication tests**
 
 ```python
 def test_lesson_plan_direct_creates_durable_job(client, task_store):
@@ -485,7 +485,7 @@ def test_lesson_plan_direct_creates_durable_job(client, task_store):
 
 In this test file, expose `task_store.get_command(job_id)` as a small test-only adapter over the existing durable row so the assertion reads the deserialized command rather than depending on private SQLite columns.
 
-- [ ] **Step 2: Run and verify the endpoint is absent**
+- [x] **Step 2: Run and verify the endpoint is absent**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_lesson_plan_direct.py -q
@@ -493,11 +493,11 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_lesson_plan_direct.
 
 Expected: 404 for `/lesson-plan/direct`.
 
-- [ ] **Step 3: Implement the service and register it in the existing handler map**
+- [x] **Step 3: Implement the service and register it in the existing handler map**
 
 The direct service accepts `GenerationExecutionContext`, builds a typed lesson-plan prompt from topic, audience, duration, objectives, and resolved source context, then returns the same artifact shape used by the current lesson-plan preview. The route only validates/enqueues; it must not call the model in the HTTP request thread.
 
-- [ ] **Step 4: Run lesson-plan, command, and publication tests**
+- [x] **Step 4: Run lesson-plan, command, and publication tests**
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_lesson_plan_direct.py tests/chat/test_generation_command.py tests/test_job_completion_service.py -q
@@ -505,7 +505,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest tests/chat/test_lesson_plan_direct.
 
 Expected: 202 response, durable execution, and a course-shared lesson-plan artifact.
 
-- [ ] **Step 5: Commit durable lesson-plan generation**
+- [x] **Step 5: Commit durable lesson-plan generation**
 
 ```powershell
 git add Edu_AI/api/src/app/services/direct_lesson_plan_service.py Edu_AI/api/src/app/chat/api/schemas_v2.py Edu_AI/api/src/app/chat/api/routes_v2.py Edu_AI/api/src/app/services/generation_command.py Edu_AI/api/src/app/services/generation_task_handlers.py Edu_AI/api/src/tests/chat/test_lesson_plan_direct.py

@@ -141,3 +141,11 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: missing or ambiguous RAG links are never presented as ready; records remain visible with `status=failed` and `error_code=RAG_INDEX_MISSING` so teachers can reindex them.
 - Decision: the course document API no longer returns its internal relative filesystem path; subsequent actions use the public document ID.
 - Result: dry-run performs zero filesystem writes, apply uses atomic replacement, a second apply reports zero changes, and reindex updates only mutable RAG metadata while preserving the public ID.
+
+### Plan 2 / Task 5 — Durable direct lesson-plan generation
+
+- Red evidence: all three focused tests failed with 404 or a missing service module before implementation.
+- Green evidence: `58 passed` across the lesson-plan route/service/publication path, shared source contracts, durable commands, routes, task handlers, and job completion.
+- Decision: the response retains the existing standard durable envelope field `task_id` rather than introducing a lesson-plan-only `job_id`; this keeps all generation routes consistent.
+- Decision: the direct service runs outline and final-content phases inside the worker, using the immutable resolved source context. The HTTP route only validates and enqueues.
+- Result: `/api/chat/v2/lesson-plan/direct` returns 202, persists a recoverable `lesson_plan_direct` command, and publishes a course-visible lesson-plan artifact with source/job provenance.

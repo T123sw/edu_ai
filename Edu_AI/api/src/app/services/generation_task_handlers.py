@@ -261,6 +261,9 @@ def _default_service_factories() -> dict[str, Callable[[], Any]]:
     from app.chat.application.knowledge_base_direct_report_service_v2 import (
         build_default_knowledge_base_direct_report_service_v2,
     )
+    from app.services.direct_lesson_plan_service import (
+        build_default_direct_lesson_plan_service,
+    )
 
     return {
         "report": build_default_knowledge_base_direct_report_service_v2,
@@ -270,7 +273,7 @@ def _default_service_factories() -> dict[str, Callable[[], Any]]:
         "flashcard": build_default_knowledge_base_direct_flashcard_service_v2,
         "graph": build_default_knowledge_base_direct_graph_service_v2,
         "game": build_default_knowledge_base_direct_game_service_v2,
-        "lesson_plan": _LessonPlanGenerationAdapter,
+        "lesson_plan": build_default_direct_lesson_plan_service,
     }
 
 
