@@ -28,6 +28,14 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - **Impact:** Frontend tests and build can run in the isolated worktree. No generated package output is staged.
 - **Status:** Applied.
 
+### D003 — Treat system administrators as development editors, not course owners
+
+- **Context:** Development auto-enrollment needs a course role for existing `admin` accounts, while course ownership must remain an explicit creator/audit concept.
+- **Choice:** Auto-enroll both `teacher` and `admin` system roles as course `editor`; enroll all other roles as `viewer`. Never overwrite an existing `owner` membership.
+- **Reason:** Administrators can exercise teacher workflows during small-scale development without silently becoming the business owner of every course.
+- **Impact:** Member-management and course-deletion capabilities still require an explicit owner membership.
+- **Status:** Applied.
+
 ## Phase Evidence
 
 ### Baseline — 2026-08-07
@@ -49,3 +57,10 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Red evidence: access-service and HTTP-adapter tests each failed with the expected missing-module error before their implementation.
 - Green evidence: `16 passed` across membership storage, the full role/capability matrix, missing membership, and stable HTTP 403 mapping.
 - Result: backend roles now resolve to explicit `read`, `edit`, `generate`, resource-management, member-management, and course-deletion capabilities through one service.
+
+### Plan 1 / Task 3 — Development membership bootstrap and migration
+
+- Red evidence: bootstrap and migration imports failed before implementation; lifespan rejected the membership factory; registration lacked the enrollment hook.
+- Green evidence: `10 passed` across sync/idempotency/disabled mode, dry-run/apply migration, startup ordering, runtime lifecycle, and registration enrollment.
+- CLI evidence: `python -m scripts.migrate_course_memberships --dry-run` completed with `applied=false` and no membership writes.
+- Result: defaults exist before membership backfill, membership sync completes before durable workers start, and new users are enrolled immediately.

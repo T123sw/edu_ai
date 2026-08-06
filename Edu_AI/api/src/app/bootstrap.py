@@ -28,14 +28,27 @@ from app.services.runtime_config_resolver import (
 def create_app(
     *,
     durable_runtime_factory: Callable[[], object] | None = None,
+    membership_bootstrap_factory: Callable[[], object] | None = None,
 ) -> FastAPI:
     if durable_runtime_factory is None:
         from app.services.durable_job_runtime import build_durable_job_runtime
 
         durable_runtime_factory = build_durable_job_runtime
+    if membership_bootstrap_factory is None:
+        from app.services.course_membership_bootstrap import (
+            get_course_membership_bootstrap,
+        )
+
+        membership_bootstrap_factory = get_course_membership_bootstrap
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        from app.services.course_service import ensure_default_courses
+
+        ensure_default_courses()
+        membership_bootstrap = membership_bootstrap_factory()
+        membership_bootstrap.sync_existing()
+        app.state.course_membership_bootstrap = membership_bootstrap
         runtime = durable_runtime_factory()
         runtime.start()
         app.state.durable_job_runtime = runtime

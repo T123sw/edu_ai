@@ -20,6 +20,7 @@ from app.schemas.auth import (
 from core.config import Config
 from core.auth import auth_manager
 from core.user_storage import user_storage
+from app.services.course_membership_bootstrap import get_course_membership_bootstrap
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
 security = HTTPBearer()
@@ -75,6 +76,8 @@ async def register(request: RegisterRequest):
             password=request.password,
             role=request.role,
         )
+
+        get_course_membership_bootstrap().on_user_created(user)
 
         token = auth_manager.create_token(
             username=user["username"],

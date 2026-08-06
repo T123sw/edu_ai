@@ -14,6 +14,16 @@ class FakeRuntime:
         self.stopped += 1
 
 
+class FakeMembershipBootstrap:
+    def __init__(self, events: list[str]) -> None:
+        self.events = events
+        self.sync_calls = 0
+
+    def sync_existing(self):
+        self.sync_calls += 1
+        self.events.append("memberships")
+
+
 def test_app_lifespan_starts_and_stops_one_runtime():
     from app.bootstrap import create_app
 
@@ -46,3 +56,25 @@ def test_each_app_build_gets_an_independent_runtime():
         assert [runtime.started for runtime in runtimes] == [1, 1]
 
     assert [runtime.stopped for runtime in runtimes] == [1, 1]
+
+
+def test_memberships_are_backfilled_before_workers_start():
+    from app.bootstrap import create_app
+
+    events: list[str] = []
+    membership_bootstrap = FakeMembershipBootstrap(events)
+
+    class OrderedRuntime(FakeRuntime):
+        def start(self) -> None:
+            events.append("runtime")
+            super().start()
+
+    runtime = OrderedRuntime()
+    app = create_app(
+        durable_runtime_factory=lambda: runtime,
+        membership_bootstrap_factory=lambda: membership_bootstrap,
+    )
+
+    with TestClient(app):
+        assert events == ["memberships", "runtime"]
+        assert membership_bootstrap.sync_calls == 1

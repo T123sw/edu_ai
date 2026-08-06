@@ -26,6 +26,11 @@ def _default_allow_origins() -> List[str]:
     return origins or ["*"]
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    fallback = "1" if default else "0"
+    return os.getenv(name, fallback).strip().lower() in {"1", "true", "yes", "on"}
+
+
 class Config:
     """项目全局配置：三脑架构（planner/deep/vision）。"""
 
@@ -97,6 +102,12 @@ class Config:
     VIDEOS_ROOT = Path(os.getenv("VIDEOS_ROOT", STORAGE_ROOT / "videos"))
     VIDEO_CHUNKS_ROOT = Path(os.getenv("VIDEO_CHUNKS_ROOT", STORAGE_ROOT / "video_chunks"))
     COURSE_STORAGE_ROOT = Path(os.getenv("COURSE_STORAGE_ROOT", BASE_DIR.parent / "course_data"))
+    COURSE_MEMBERSHIPS_FILE = Path(
+        os.getenv("COURSE_MEMBERSHIPS_FILE", str(STORAGE_ROOT / "course_memberships.json"))
+    )
+    DEV_AUTO_ENROLL_ALL_COURSES = _env_bool(
+        "DEV_AUTO_ENROLL_ALL_COURSES", True
+    )
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
 
     # Phase 6-A.2 — agent 搜来的图片本地化存储
@@ -214,6 +225,8 @@ class Config:
             cls.USER_PROFILES_FILE.parent.mkdir(parents=True, exist_ok=True)
         if cls.LESSON_PLANS_FILE.parent:
             cls.LESSON_PLANS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        if cls.COURSE_MEMBERSHIPS_FILE.parent:
+            cls.COURSE_MEMBERSHIPS_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def get_llm_model(cls, model_id: Optional[str]) -> Dict[str, Any]:
