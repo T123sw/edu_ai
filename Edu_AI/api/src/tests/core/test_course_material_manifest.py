@@ -172,3 +172,78 @@ def test_legacy_material_migration_reports_unreadable_records(tmp_path):
     assert report["legacy_partial"] == 1
     assert report["actions"][0]["status"] == "legacy_partial"
     assert report["actions"][0]["reason"] == "invalid_json"
+
+
+def test_legacy_artifact_version_does_not_hide_other_materials(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    reports_dir = (
+        manager.get_course_dir("course-1")
+        / "generated_materials"
+        / "reports"
+    )
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    (reports_dir / "legacy-report.json").write_text(
+        json.dumps(
+            {
+                "owner_user_id": "teacher-a",
+                "title": "Legacy report",
+                "version": {"content": "revision two", "revision": 2},
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert manager.save_generated_material(
+        "course-1",
+        "quiz",
+        "quiz-good",
+        {"title": "Valid quiz"},
+        owner_user_id="teacher-a",
+    )
+
+    materials = manager.list_generated_materials(
+        "course-1",
+        owner_user_id="teacher-a",
+    )
+
+    assert {item["material_id"] for item in materials} == {
+        "legacy-report",
+        "quiz-good",
+    }
+    legacy = next(
+        item for item in materials if item["material_id"] == "legacy-report"
+    )
+    assert legacy["version"] == 1
+    assert legacy["artifact_version"] == {
+        "content": "revision two",
+        "revision": 2,
+    }
+
+
+def test_invalid_manifest_record_only_skips_that_material(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    reports_dir = (
+        manager.get_course_dir("course-1")
+        / "generated_materials"
+        / "reports"
+    )
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    (reports_dir / "a-invalid-record.json").write_text(
+        json.dumps(["not", "a", "manifest"]),
+        encoding="utf-8",
+    )
+    assert manager.save_generated_material(
+        "course-1",
+        "report",
+        "z-valid-report",
+        {"title": "Valid report"},
+        owner_user_id="teacher-a",
+    )
+
+    materials = manager.list_generated_materials(
+        "course-1",
+        owner_user_id="teacher-a",
+    )
+
+    assert [item["material_id"] for item in materials] == ["z-valid-report"]

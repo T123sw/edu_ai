@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import logging
 import os
 import re
 import shutil
@@ -23,6 +24,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
 from app.workspace_scope import SCOPE_TYPE_COURSE, normalize_workspace_scope
+
+
+log = logging.getLogger(__name__)
 
 
 LIBRARY_TYPE_COURSE = "course"
@@ -167,7 +171,15 @@ class CourseStorageManager:
     ) -> Dict[str, Any]:
         normalized = dict(material_data)
         normalized["schema_version"] = int(normalized.get("schema_version") or 1)
-        normalized["version"] = int(normalized.get("version") or 1)
+        raw_version = normalized.get("version")
+        if isinstance(raw_version, (dict, list)):
+            normalized.setdefault("artifact_version", raw_version)
+            normalized["version"] = 1
+        else:
+            try:
+                normalized["version"] = int(raw_version or 1)
+            except (TypeError, ValueError):
+                normalized["version"] = 1
         normalized["material_id"] = self._normalize_material_id(material_id)
         normalized["course_id"] = str(normalized.get("course_id") or course_id)
         normalized["material_type"] = str(
@@ -902,26 +914,34 @@ class CourseStorageManager:
             for type_dir in type_dirs:
                 derived_type = DIR_TO_TYPE.get(type_dir.name, material_type or "unknown")
                 for json_file in type_dir.glob("*.json"):
-                    material_data = self._read_json(json_file)
-                    if not material_data:
-                        continue
-                    material_data = self._normalize_material_manifest(
-                        material_data,
-                        course_id=course_id,
-                        material_type=derived_type,
-                        material_id=json_file.stem,
-                    )
-                    if not self._material_owner_matches(
-                        material_data, owner_user_id
-                    ):
-                        continue
-                    if self._matches_scope(
-                        material_data,
-                        scope_type=scope_type,
-                        scope_ids=scope_ids,
-                        aggregate=aggregate,
-                    ):
-                        materials.append(material_data)
+                    try:
+                        material_data = self._read_json(json_file)
+                        if not material_data:
+                            continue
+                        material_data = self._normalize_material_manifest(
+                            material_data,
+                            course_id=course_id,
+                            material_type=derived_type,
+                            material_id=json_file.stem,
+                        )
+                        if not self._material_owner_matches(
+                            material_data, owner_user_id
+                        ):
+                            continue
+                        if self._matches_scope(
+                            material_data,
+                            scope_type=scope_type,
+                            scope_ids=scope_ids,
+                            aggregate=aggregate,
+                        ):
+                            materials.append(material_data)
+                    except Exception as exc:
+                        log.warning(
+                            "Skipping invalid generated material %s for course %s: %s",
+                            json_file,
+                            course_id,
+                            exc,
+                        )
         except Exception as e:
             print(f"Error listing generated materials: {e}")
 
