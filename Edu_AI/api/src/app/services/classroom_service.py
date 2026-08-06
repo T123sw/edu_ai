@@ -284,6 +284,10 @@ async def submit_classroom_generation_job(
     topic: Optional[str] = None,
     audience: str = "",
     scene_count: int = 6,
+    objectives: Optional[list[str]] = None,
+    duration_minutes: int = 25,
+    teaching_style: str = "guided",
+    voice: str = "alloy",
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -312,12 +316,20 @@ async def submit_classroom_generation_job(
                 "enable_tts": enable_tts,
                 "source_mode": source_intent.mode,
                 "selected_doc_ids": list(source_intent.selected_document_ids),
+                "objectives": list(objectives or []),
+                "duration_minutes": duration_minutes,
+                "teaching_style": teaching_style,
+                "voice": voice if enable_tts else "",
                 "source": "classroom-studio",
             },
         )
 
     from app.services.platform_task_handlers import enqueue_platform_task
     from app.services.runtime_config_resolver import runtime_config_resolver
+
+    runtime_snapshot = runtime_config_resolver.capture_snapshot(str(owner or ""))
+    if enable_tts and voice:
+        runtime_snapshot["voice"] = voice
 
     return enqueue_platform_task(
         job=job,
@@ -337,8 +349,10 @@ async def submit_classroom_generation_job(
             "topic": topic,
             "audience": audience,
             "scene_count": scene_count,
+            "objectives": list(objectives or []),
+            "duration_minutes": duration_minutes,
+            "teaching_style": teaching_style,
+            "voice": voice if enable_tts else "",
         },
-        runtime_config_snapshot=runtime_config_resolver.capture_snapshot(
-            str(owner or "")
-        ),
+        runtime_config_snapshot=runtime_snapshot,
     )

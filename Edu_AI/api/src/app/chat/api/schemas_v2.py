@@ -283,6 +283,7 @@ class KnowledgeBaseDirectGraphRequestV2(GenerationSourceRequest):
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
     title: str = ""
+    description: str = Field(default="", max_length=2000)
     max_depth: int = Field(default=3, ge=2, le=5)
     idempotency_key: str = Field(min_length=1, max_length=160)
 

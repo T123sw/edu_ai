@@ -611,7 +611,7 @@ git commit -m "feat: align practice generation configs"
 **Interfaces:**
 - Produces: typed visual-resource configs, structured PPT outline editing, and one classroom entry implementation.
 
-- [ ] **Step 1: Write exact mapping and shared-entry tests**
+- [x] **Step 1: Write exact mapping and shared-entry tests**
 
 ```typescript
 test("mind-map description and depth are serialized", () => {
@@ -626,7 +626,7 @@ test("factory and classroom page use the same definition", () => {
 });
 ```
 
-- [ ] **Step 2: Run and reproduce dropped visual-resource fields**
+- [x] **Step 2: Run and reproduce dropped visual-resource fields**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/definitions/visualResources.test.ts
@@ -634,13 +634,13 @@ pnpm test -- src/components/teacher/generation/definitions/visualResources.test.
 
 Expected: current PPT style, mind-map description, classroom voice, or source mode lacks one shared audited mapping.
 
-- [ ] **Step 3: Implement visual-resource configurations**
+- [x] **Step 3: Implement visual-resource configurations**
 
 - PPT: title, subtitle, audience, objective, slide count, focus, style, and template with recognizable visual thumbnails. Generate an outline first; edit slides through fields for title, key points, speaker notes, and visual instruction. Never expose raw JSON. Add/remove/reorder slides with keyboard-accessible controls.
 - Mind map: topic, description, depth, source mode. Label every UI/result as “思维导图”; do not write into the course knowledge structure unless a separate explicit future action is invoked.
 - AI classroom: topic, audience, objectives, scene count/duration, teaching style, voice enabled, voice choice when enabled, and source mode. The generation-factory entry and standalone classroom page render the same form and submit hook.
 
-- [ ] **Step 4: Verify structured editing, shared classroom behavior, and no dialog overflow**
+- [x] **Step 4: Verify structured editing, shared classroom behavior, and no dialog overflow**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/definitions/visualResources.test.ts
@@ -649,7 +649,7 @@ pnpm test:e2e -- tests/e2e/generation-visual-resources.spec.ts
 
 Expected: PPT outline edits survive submission, no JSON textarea exists, mind-map fields reach payload, classroom entries emit identical requests, and every footer is reachable at 1024×768.
 
-- [ ] **Step 5: Commit visual-resource configurations**
+- [x] **Step 5: Commit visual-resource configurations**
 
 ```powershell
 git add Edu_AI/src/components/teacher/generation/definitions/ppt.ts Edu_AI/src/components/teacher/generation/definitions/mindMap.ts Edu_AI/src/components/teacher/generation/definitions/classroom.ts Edu_AI/src/components/teacher/generation/forms/PptForm.tsx Edu_AI/src/components/teacher/generation/forms/MindMapForm.tsx Edu_AI/src/components/teacher/generation/forms/ClassroomForm.tsx Edu_AI/src/components/teacher/generation/previews/PptOutlineEditor.tsx Edu_AI/src/components/teacher/PptEntryPanel.tsx Edu_AI/src/components/teacher/ClassroomGenerationEntry.tsx Edu_AI/src/stitch/pages/ClassroomStudio.tsx Edu_AI/src/components/teacher/generation/definitions/visualResources.test.ts Edu_AI/tests/e2e/generation-visual-resources.spec.ts

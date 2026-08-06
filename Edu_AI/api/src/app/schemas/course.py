@@ -121,7 +121,10 @@ class RenameMaterialRequest(BaseModel):
 class GenerateClassroomRequest(BaseModel):
     topic: Optional[str] = Field(default=None, max_length=200)
     audience: str = Field(default="", max_length=200)
+    objectives: List[str] = Field(default_factory=list, max_length=12)
     scene_count: int = Field(default=6, ge=1, le=30)
+    duration_minutes: int = Field(default=25, ge=5, le=180)
+    teaching_style: Literal["guided", "lecture", "inquiry"] = "guided"
     source_mode: GenerationSourceMode = "course_auto"
     selected_doc_ids: List[str] = Field(default_factory=list)
     """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（图片/视频生成 flags 仍不开放，见 §0.1 D2）。"""
@@ -134,6 +137,8 @@ class GenerateClassroomRequest(BaseModel):
         default=True,
         description="是否生成真人配音（D1，SPEC-04 §5）。sidecar 未配置 TTS provider 时会静默跳过，自动退回前端浏览器 TTS/静音等待兜底",
     )
+    voice: Literal["", "alloy", "nova", "shimmer"] = "alloy"
+    idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 
     @model_validator(mode="before")

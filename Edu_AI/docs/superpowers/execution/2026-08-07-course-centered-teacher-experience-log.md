@@ -257,3 +257,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: game type choices are real buttons with `aria-pressed`, so arrow/tab navigation and Enter activation use browser semantics. A compact preview summarizes selected template, count, difficulty, and duration before submission.
 - Decision: backend schemas and durable command snapshots now preserve quiz audience plus the complete game configuration. Unused quiz, flashcard, and game legacy entry modals were removed after the shared forms gained coverage.
 - Result: all practice resource settings are bounded, retry-safe through the retained shared draft, keyboard-operable, and auditable from form through request payload.
+
+### Plan 3 / Task 8 — Visual generation configurations
+
+- Red evidence: the focused definition suite failed because PPT, mind-map, and classroom definitions did not exist. The previous PPT entry exposed a raw JSON outline, the mind-map request dropped its description, and the standalone classroom page used a separate one-textarea configuration path.
+- Green evidence: all four visual-resource definition tests pass; the two backend contract tests pass; the production build passes. The browser suite has `5 passed` across all release viewports and verifies edited PPT slides, mind-map depth/description, classroom voice/scene settings, and the shared standalone classroom form.
+- Decision: PPT outline editing uses structured slide fields for title, key points, speaker notes, and visual instructions. The outline endpoint supplies the durable draft identity, while the final generate request sends the explicitly edited slide array; raw JSON is not exposed.
+- Decision: a generated mind map is an independent course resource named “思维导图”. It never changes the course knowledge structure implicitly.
+- Decision: the factory and standalone classroom page reference the exact same generation definition and form. Voice selection is persisted with the job and applied to that classroom's runtime snapshot when speech is enabled.
+- Result: all three visual resources preserve their visible configuration end to end, PPT slides support accessible add/remove/reorder operations, and the confirmation footer remains reachable at 1024×768.

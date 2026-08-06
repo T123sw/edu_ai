@@ -1013,6 +1013,10 @@ async def generate_classroom(
         topic=payload.topic,
         audience=payload.audience,
         scene_count=payload.scene_count,
+        objectives=payload.objectives,
+        duration_minutes=payload.duration_minutes,
+        teaching_style=payload.teaching_style,
+        voice=payload.voice,
     )
     return job
 

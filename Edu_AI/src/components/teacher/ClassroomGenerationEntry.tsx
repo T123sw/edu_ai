@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   Button,
-  Input,
   Modal,
   Progress,
   Tooltip,
@@ -20,6 +19,8 @@ import {
 } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
 import "./ClassroomGenerationEntry.css";
+import { classroomDefinition } from "./generation/definitions/classroom";
+import { ClassroomForm } from "./generation/forms/ClassroomForm";
 
 const { Text } = Typography;
 
@@ -29,7 +30,7 @@ type Props = {
 
 export function ClassroomGenerationEntry({ courseId }: Props) {
   const [open, setOpen] = useState(false);
-  const [topic, setTopic] = useState("");
+  const [config, setConfig] = useState(() => classroomDefinition.defaultConfig());
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,16 +59,12 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
   };
 
   const submit = async () => {
-    const requirement = topic.trim();
-    if (!courseId || !requirement || submitting || isBusy) return;
+    if (!courseId || Object.keys(classroomDefinition.validate(config)).length > 0 || submitting || isBusy) return;
 
     setSubmitting(true);
     setError(null);
     try {
-      const created = await generateClassroom(courseId, {
-        requirement,
-        enable_tts: true,
-      });
+      const created = await generateClassroom(courseId, classroomDefinition.serialize({ courseId, source: { mode: "course_auto", selectedDocumentIds: [] }, config }) as Parameters<typeof generateClassroom>[1]);
       registerCreatedJob(created);
       setSelectedJobId(created.edu_job_id);
     } catch (caught) {
@@ -128,16 +125,7 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
           <Text type="secondary">
             输入本节课的主题和重点。任务提交后可以关闭窗口或刷新页面，进度会保留在任务中心。
           </Text>
-          <Input.TextArea
-            value={topic}
-            onChange={(event) => setTopic(event.target.value)}
-            placeholder="例如：讲解冒泡排序的基本原理、执行过程和时间复杂度"
-            rows={4}
-            disabled={submitting || isBusy}
-            maxLength={500}
-            showCount
-            autoFocus
-          />
+          <ClassroomForm value={config} onChange={setConfig} errors={classroomDefinition.validate(config)} />
 
           {job ? (
             <div
@@ -190,7 +178,7 @@ export function ClassroomGenerationEntry({ courseId }: Props) {
               <Button
                 type="primary"
                 loading={submitting}
-                disabled={isBusy || !topic.trim()}
+                disabled={isBusy || Object.keys(classroomDefinition.validate(config)).length > 0}
                 onClick={() => void submit()}
               >
                 {isBusy ? "正在后台生成" : error ? "重新提交" : "开始生成"}

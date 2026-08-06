@@ -167,6 +167,12 @@ export async function installTeacherApiRoutes(page: Page) {
         warnings: [],
       });
     }
+    if (path === "/api/chat/v2/ppt/outline") {
+      return json(route, { draft: { draft_id: "ppt-draft-fixture", status: "outline_ready" }, artifacts: [], trace: { path: "direct" } });
+    }
+    if (path === "/api/chat/v2/ppt/generate") {
+      return json(route, { task_id: "job-generated-fixture", status: "pending" }, 202);
+    }
     if (path.includes("/classrooms/generate") || (path.startsWith("/api/chat/v2/") && path.endsWith("/direct"))) {
       return json(route, { task_id: "job-generated-fixture", status: "pending" }, 202);
     }

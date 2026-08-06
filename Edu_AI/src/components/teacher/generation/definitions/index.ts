@@ -6,6 +6,9 @@ import type { GenerationResourceType } from "../generationRegistry";
 import { quizDefinition, type QuizConfig } from "./quiz";
 import { flashcardDefinition, type FlashcardConfig } from "./flashcard";
 import { gameDefinition, type GameConfig } from "./game";
+import { pptDefinition, type PptConfig } from "./ppt";
+import { mindMapDefinition, type MindMapConfig } from "./mindMap";
+import { classroomDefinition, type ClassroomConfig } from "./classroom";
 
 export type TextGenerationConfig = ReportConfig | LessonPlanConfig | BlogConfig;
 
@@ -20,7 +23,10 @@ export function getGenerationDefinition(type: GenerationResourceType) {
   return getTextDefinition(type)
     || (type === "quiz" ? quizDefinition : null)
     || (type === "flashcard" ? flashcardDefinition : null)
-    || (type === "game" ? gameDefinition : null);
+    || (type === "game" ? gameDefinition : null)
+    || (type === "ppt" ? pptDefinition : null)
+    || (type === "mind_map" ? mindMapDefinition : null)
+    || (type === "classroom" ? classroomDefinition : null);
 }
 
 export function defaultGenerationConfig(type: GenerationResourceType): Record<string, unknown> {
@@ -36,6 +42,9 @@ export function validateGenerationConfig(type: GenerationResourceType, config: R
   if (type === "quiz") return quizDefinition.validate(config as QuizConfig);
   if (type === "flashcard") return flashcardDefinition.validate(config as FlashcardConfig);
   if (type === "game") return gameDefinition.validate(config as GameConfig);
+  if (type === "ppt") return pptDefinition.validate(config as PptConfig);
+  if (type === "mind_map") return mindMapDefinition.validate(config as MindMapConfig);
+  if (type === "classroom") return classroomDefinition.validate(config as ClassroomConfig);
   return String(config.topic || "").trim() ? {} : { topic: "请输入本次资源的主题" };
 }
 

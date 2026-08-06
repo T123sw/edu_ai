@@ -720,7 +720,7 @@ async def direct_graph(
         scope_id=payload.scope_id,
         source_mode=payload.source_mode,
         selected_doc_ids=payload.selected_doc_ids,
-        config={"title": payload.title, "max_depth": payload.max_depth},
+        config={"title": payload.title, "description": payload.description, "max_depth": payload.max_depth},
         idempotency_key=payload.idempotency_key,
     )
     job = generation_command_service.submit(command)

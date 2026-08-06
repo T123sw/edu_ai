@@ -5,7 +5,21 @@ const AUTH_STORAGE_KEY = "edu-ai-auth";
 
 export function generateClassroom(
   courseId: string,
-  payload: { requirement: string; enable_web_search?: boolean; enable_tts?: boolean },
+  payload: {
+    requirement: string;
+    topic?: string;
+    audience?: string;
+    objectives?: string[];
+    scene_count?: number;
+    duration_minutes?: number;
+    teaching_style?: string;
+    source_mode?: "course_auto" | "selected_documents" | "none";
+    selected_doc_ids?: string[];
+    enable_web_search?: boolean;
+    enable_tts?: boolean;
+    voice?: string;
+    idempotency_key?: string;
+  },
 ) {
   return apiRequest<EduJob>(`/api/courses/${courseId}/classrooms/generate`, {
     method: "POST",

@@ -9,6 +9,12 @@ import { registerCreatedJob, useCourseJobs } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
+import { classroomDefinition } from "../../components/teacher/generation/definitions/classroom";
+import { ClassroomForm } from "../../components/teacher/generation/forms/ClassroomForm";
+import "../../components/teacher/generation/generationFactory.css";
+import { classroomPageDefinition } from "./classroomPageDefinition";
+
+export { classroomPageDefinition } from "./classroomPageDefinition";
 
 function useClassroomList(courseId: string | undefined, reloadToken: number) {
   const [items, setItems] = useState<ClassroomMaterial[]>([]);
@@ -42,7 +48,7 @@ export function ClassroomStudioPage() {
   const { courseId: routeCourseId, courseRole } = useCourseRoute();
   const courseId = routeCourseId ?? undefined;
   const canGenerate = canCourse(courseRole, "generate");
-  const [requirement, setRequirement] = useState("");
+  const [classroomConfig, setClassroomConfig] = useState(() => classroomPageDefinition.defaultConfig());
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -70,11 +76,12 @@ export function ClassroomStudioPage() {
   }, [job?.edu_job_id, job?.status]);
 
   async function handleGenerate() {
-    if (!courseId || !canGenerate || !requirement.trim()) return;
+    if (!courseId || !canGenerate || Object.keys(classroomDefinition.validate(classroomConfig)).length > 0) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const created = await generateClassroom(courseId, { requirement: requirement.trim() });
+      const request = classroomDefinition.serialize({ courseId, source: { mode: "course_auto", selectedDocumentIds: [] }, config: classroomConfig }) as Parameters<typeof generateClassroom>[1];
+      const created = await generateClassroom(courseId, request);
       registerCreatedJob(created);
       setSelectedJobId(created.edu_job_id);
     } catch (err) {
@@ -127,19 +134,14 @@ export function ClassroomStudioPage() {
               当前为只读课程角色，可以查看和播放已有课件，但不能提交新的生成任务。
             </p>
           ) : null}
-          <textarea
-            value={requirement}
-            onChange={(event) => setRequirement(event.target.value)}
-            placeholder="描述这节课要讲什么，例如：讲一节课，介绍冒泡排序算法的基本原理和时间复杂度"
-            rows={3}
-            disabled={isBusy || !canGenerate}
-            className="w-full resize-none rounded-2xl border border-(--shell-border) bg-(--surface-subtle) p-4 text-sm outline-hidden focus:border-(--accent-border)"
-          />
+          <div aria-disabled={isBusy || !canGenerate}>
+            <ClassroomForm value={classroomConfig} onChange={setClassroomConfig} errors={classroomDefinition.validate(classroomConfig)} />
+          </div>
           <div className="mt-3 flex items-center gap-3">
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={submitting || isBusy || !requirement.trim() || !canGenerate}
+              disabled={submitting || isBusy || Object.keys(classroomDefinition.validate(classroomConfig)).length > 0 || !canGenerate}
               className="inline-flex items-center gap-2 rounded-2xl bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
             >
               <MaterialIcon name="auto_awesome" className="text-base" />

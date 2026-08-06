@@ -12,6 +12,9 @@ import { reportDefinition } from "./definitions/report";
 import { quizDefinition } from "./definitions/quiz";
 import { flashcardDefinition } from "./definitions/flashcard";
 import { gameDefinition } from "./definitions/game";
+import { pptDefinition } from "./definitions/ppt";
+import { mindMapDefinition } from "./definitions/mindMap";
+import { classroomDefinition } from "./definitions/classroom";
 
 export type GenerationDraft = {
   resourceType: GenerationResourceType;
@@ -22,7 +25,7 @@ export type GenerationDraft = {
   config?: Record<string, unknown>;
 };
 
-type Submitted = { task_id?: string; edu_job_id?: string; draft_id?: string; outline?: unknown; [key: string]: unknown };
+type Submitted = { task_id?: string; edu_job_id?: string; draft_id?: string; draft?: { draft_id?: string }; outline?: unknown; [key: string]: unknown };
 
 function sourcePayload(draft: GenerationDraft, courseId: string) {
   return {
@@ -35,17 +38,16 @@ function sourcePayload(draft: GenerationDraft, courseId: string) {
 
 export function buildGenerationRequest(draft: GenerationDraft, courseId: string, idempotencyKey = `ui-${draft.resourceType}-${courseId}`): { path: string; body: Record<string, unknown> } {
   const source = { ...sourcePayload(draft, courseId), idempotency_key: idempotencyKey };
-  const commonTopic = draft.topic.trim();
   switch (draft.resourceType) {
     case "report": return { path: "/api/chat/v2/report/direct", body: { ...source, ...reportDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "lesson_plan": return { path: "/api/chat/v2/lesson-plan/direct", body: { ...source, ...lessonPlanDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "blog": return { path: "/api/chat/v2/blog/direct", body: { ...source, ...blogDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "quiz": return { path: "/api/chat/v2/quiz/direct", body: { ...source, ...quizDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "flashcard": return { path: "/api/chat/v2/flashcard/direct", body: { ...source, ...flashcardDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
-    case "mind_map": return { path: "/api/chat/v2/graph/direct", body: { ...source, title: commonTopic, max_depth: Number(draft.config?.depth ?? 3), description: draft.requirements } };
+    case "mind_map": return { path: "/api/chat/v2/graph/direct", body: { ...source, ...mindMapDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "game": return { path: "/api/chat/v2/game/direct", body: { ...source, ...gameDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
-    case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, topic: commonTopic, audience: draft.audience, requirement: draft.requirements || commonTopic, scene_count: Number(draft.config?.sceneCount ?? 6), enable_web_search: false, enable_tts: Boolean(draft.config?.voiceEnabled ?? true), idempotency_key: idempotencyKey } };
-    case "ppt": return { path: "/api/chat/v2/ppt/outline", body: { ...source, ppt_config: { deck_title: commonTopic, audience: draft.audience, slide_count: Number(draft.config?.slideCount ?? 10), special_requirements: draft.requirements, ...draft.config } } };
+    case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, ...classroomDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }), idempotency_key: idempotencyKey } };
+    case "ppt": { const serialized = pptDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }); return { path: "/api/chat/v2/ppt/outline", body: { ...source, ppt_config: serialized.ppt_config } }; }
   }
 }
 
@@ -80,8 +82,10 @@ export function useGenerationSubmission(courseId: string | undefined) {
       const idempotencyKey = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `ui-${draft.resourceType}-${Date.now()}`;
       const request = buildGenerationRequest(draft, courseId, idempotencyKey);
       let submitted = await apiRequest<Submitted>(request.path, { method: "POST", body: JSON.stringify(request.body) });
-      if (draft.resourceType === "ppt" && submitted.draft_id) {
-        submitted = await apiRequest<Submitted>("/api/chat/v2/ppt/generate", { method: "POST", body: JSON.stringify({ draft_id: submitted.draft_id, outline: submitted.outline, confirm: true, idempotency_key: `${idempotencyKey}-generate` }) });
+      const pptDraftId = submitted.draft_id || submitted.draft?.draft_id;
+      if (draft.resourceType === "ppt" && pptDraftId) {
+        const configuredOutline = Array.isArray(draft.config?.outline) ? { slides: draft.config.outline } : submitted.outline;
+        submitted = await apiRequest<Submitted>("/api/chat/v2/ppt/generate", { method: "POST", body: JSON.stringify({ draft_id: pptDraftId, outline: configuredOutline, confirm: true, idempotency_key: `${idempotencyKey}-generate` }) });
       }
       const nextJobId = submitted.edu_job_id || submitted.task_id;
       if (!nextJobId) throw new Error("生成任务未返回可恢复的任务编号");
