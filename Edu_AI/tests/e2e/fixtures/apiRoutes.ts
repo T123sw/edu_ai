@@ -158,6 +158,18 @@ export async function installTeacherApiRoutes(page: Page) {
     if (path.startsWith("/api/jobs")) {
       return json(route, jobs);
     }
+    if (path === "/api/chat/v2/generation/preflight") {
+      return json(route, {
+        valid: true,
+        source_mode: "none",
+        ready_document_count: 0,
+        documents: [],
+        warnings: [],
+      });
+    }
+    if (path.includes("/classrooms/generate") || (path.startsWith("/api/chat/v2/") && path.endsWith("/direct"))) {
+      return json(route, { task_id: "job-generated-fixture", status: "pending" }, 202);
+    }
     if (path === "/api/rag/documents") {
       return json(route, []);
     }

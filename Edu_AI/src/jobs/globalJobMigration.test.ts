@@ -32,18 +32,17 @@ test("the global manager is mounted outside the keyed route subtree", async () =
 });
 
 test("chat and direct generation no longer poll chat tasks on private intervals", async () => {
-  for (const path of [
-    "../components/teacher/ChatPanel.tsx",
-    "../components/teacher/StudioPanel.tsx",
-  ]) {
+  for (const path of ["../components/teacher/ChatPanel.tsx"]) {
     const source = await readFile(new URL(path, import.meta.url), "utf8");
     assert.match(source, /useJobStore/);
     assert.match(source, /requestJobRefresh/);
   }
   const studioSource = await readFile(
-    new URL("../components/teacher/StudioPanel.tsx", import.meta.url),
+    new URL("../components/teacher/generation/useGenerationSubmission.ts", import.meta.url),
     "utf8",
   );
+  assert.match(studioSource, /useJobStore/);
+  assert.match(studioSource, /requestJobRefresh/);
   assert.doesNotMatch(studioSource, /pollChatTask/);
   const chatSource = await readFile(
     new URL("../components/teacher/ChatPanel.tsx", import.meta.url),

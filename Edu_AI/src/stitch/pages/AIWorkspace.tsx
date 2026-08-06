@@ -125,6 +125,15 @@ export function AIWorkspacePage() {
     }
   };
 
+  const openRightPanel = () => {
+    if (layoutMode === "drawer") {
+      setDrawerPanel("studio");
+      return;
+    }
+    setRightCollapsed(false);
+    if (layoutMode === "compact") setLeftCollapsed(true);
+  };
+
   return (
     <AppSurface className="ai-workspace-shell flex min-h-screen">
       <SidebarDock className="ai-workspace-shell__sidebar h-screen px-5 py-6">
@@ -159,6 +168,14 @@ export function AIWorkspacePage() {
           </div>
 
           <div className="ai-studio-context-bar__actions" aria-label="全局操作">
+            <button
+              type="button"
+              className="ai-studio-context-bar__factory-trigger"
+              aria-label="打开生成工厂面板"
+              onClick={openRightPanel}
+            >
+              生成工厂
+            </button>
             <a
               href={routeHref(routes.profile)}
               className="ai-studio-profile-entry"

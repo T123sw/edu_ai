@@ -406,7 +406,7 @@ git commit -m "feat: unify course knowledge experience"
 - Consumes: Plan 2 preflight/direct-job APIs.
 - Produces: shared source selector, registry, responsive configuration shell, and job lifecycle hook.
 
-- [ ] **Step 1: Write source, registry, and serialization tests**
+- [x] **Step 1: Write source, registry, and serialization tests**
 
 ```typescript
 test("switching away from selected documents clears stale IDs", () => {
@@ -422,7 +422,7 @@ test("registry contains exactly nine distinct resources", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and prove the factory is currently branch-driven**
+- [x] **Step 2: Run tests and prove the factory is currently branch-driven**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/generationSourceSelection.test.ts src/components/teacher/generation/generationRegistry.test.ts
@@ -430,7 +430,7 @@ pnpm test -- src/components/teacher/generation/generationSourceSelection.test.ts
 
 Expected: missing modules; `StudioPanel.tsx` remains the source of duplicated resource branches.
 
-- [ ] **Step 3: Implement the five-step workflow and responsive workspace**
+- [x] **Step 3: Implement the five-step workflow and responsive workspace**
 
 ```text
 选择资源类型 → 确认资料范围 → 配置内容 → 可选预览/确认 → 后台生成并进入课程资源
@@ -446,11 +446,11 @@ On submit, `useGenerationSubmission` calls preflight, enqueues the job, stores `
 
 At desktop width, question/chat remains primary and source/factory are switchable side panels. At medium width, render one drawer/tab panel rather than three fixed columns. Opening the factory must not apply an opaque overlay that visually disables the chat.
 
-- [ ] **Step 4: Retire duplicate branches with characterization coverage**
+- [x] **Step 4: Retire duplicate branches with characterization coverage**
 
 Keep `StudioPanel.tsx` temporarily as a compatibility adapter that renders `GenerationFactory`. Delete the duplicated quiz branch, unreachable legacy configuration modal, and resource-specific source validation only after registry tests prove all nine entries. Record deleted branches in the commit description.
 
-- [ ] **Step 5: Verify keyboard flow, 1024×768 footer reachability, and job recovery**
+- [x] **Step 5: Verify keyboard flow, 1024×768 footer reachability, and job recovery**
 
 ```powershell
 pnpm test -- src/components/teacher/generation/generationSourceSelection.test.ts src/components/teacher/generation/generationRegistry.test.ts
@@ -459,7 +459,7 @@ pnpm test:e2e -- tests/e2e/generation-factory-shell.spec.ts
 
 Expected: keyboard can select type/source and submit; fixed header/footer stay visible; refresh restores the active job; one failed recommendation does not block manual configuration.
 
-- [ ] **Step 6: Commit the shared generation shell**
+- [x] **Step 6: Commit the shared generation shell**
 
 ```powershell
 git add Edu_AI/src/components/teacher/generation Edu_AI/src/stitch/pages/AIWorkspace.tsx Edu_AI/src/components/teacher/SourcePanel.tsx Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/tests/e2e/generation-factory-shell.spec.ts

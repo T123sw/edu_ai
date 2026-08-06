@@ -230,3 +230,12 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Decision: document upload exists only in the documents view. The structure view links back to existing course documents through “关联课程资料”; its legacy textbook and node upload controls are no longer visible or actionable.
 - Decision: below 1180px, structure settings, canvas, and node detail are explicit tabs. The canvas is the default and receives the full available width; desktop keeps the three-panel arrangement.
 - Result: course navigation now has one “课程知识” destination with two durable subviews, one visible uploader, deep-link refresh, legacy redirect compatibility, and an operable 1024px canvas.
+
+### Plan 3 / Task 5 — Shared generation workflow
+
+- Red evidence: the source-selection and registry tests initially failed because no shared generation modules existed; the previous `StudioPanel` contained thousands of lines of resource-specific branches. The first 1920px browser run also exposed an unstable assumption that the generation panel was already rendered immediately after navigation.
+- Green evidence: the frontend unit gate has `151 passed`; the production build passes; lint has no errors. The generation browser suite has `10 passed` across all five release viewports, including keyboard progression, reachable confirmation footer, durable submission, and refresh recovery.
+- Decision: nine resource types share one registry, three source modes, one four-screen configuration/confirmation flow, one preflight/submission hook, and the global owner-scoped job store. The background-job state is the fifth conceptual workflow stage rather than a separate modal page.
+- Decision: `StudioPanel` is now a thin compatibility adapter. The current Stitch workspace exposes a stable top-bar “生成工厂” action so loading timing and responsive layout no longer determine whether the factory can be opened; the legacy routed workspace receives the same affordance for compatibility.
+- Decision: drafts cache only resource type, source identifiers, and editable configuration by course. Tokens and generated content are not stored. Leaving selected-document mode clears stale document IDs.
+- Result: chat remains the primary surface, opening the factory never applies an opaque chat-blocking overlay, 1024px uses the existing responsive panel behavior, and submitted jobs remain visible/recoverable through the single global task center.

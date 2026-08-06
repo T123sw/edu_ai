@@ -135,20 +135,9 @@ test('waitForClassroomGenerationJob stops polling when aborted', async () => {
   );
 });
 
-test('StudioPanel mounts the AI classroom entry before the generation grids', async () => {
-  const source = await readFile(
-    new URL('../components/teacher/StudioPanel.tsx', import.meta.url),
-    'utf8',
-  );
-  const entryIndex = source.indexOf('<ClassroomGenerationEntry');
-  const gridIndex = source.indexOf('className="studio-panel__primary-grid"');
-
-  assert.ok(entryIndex >= 0, 'AI classroom entry is missing');
-  assert.ok(gridIndex >= 0, 'generation grid is missing');
-  assert.ok(
-    entryIndex < gridIndex,
-    'AI classroom entry must precede other generation cards',
-  );
+test('shared generation registry exposes one AI classroom entry', async () => {
+  const { generationRegistry } = await import('../components/teacher/generation/generationRegistry.ts');
+  assert.equal(generationRegistry.filter((entry) => entry.resourceType === 'classroom').length, 1);
 });
 
 test('classroom generation modal uses the current Ant Design lifecycle prop', async () => {

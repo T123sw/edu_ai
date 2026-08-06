@@ -69,6 +69,26 @@
   box-sizing: border-box;
 }
 
+.ai-studio-context-bar__factory-trigger {
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(49, 87, 213, 0.2);
+  border-radius: 10px;
+  background: rgba(49, 87, 213, 0.08);
+  color: #2647b8;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-studio-context-bar__factory-trigger:hover,
+.ai-studio-context-bar__factory-trigger:focus-visible {
+  background: rgba(49, 87, 213, 0.14);
+  outline: 2px solid rgba(49, 87, 213, 0.22);
+  outline-offset: 2px;
+}
+
 .ai-studio-context-bar__scope,
 .ai-studio-context-bar__actions {
   display: flex;
@@ -191,7 +211,7 @@
   z-index: 10;
   inset: 0;
   border: 0;
-  background: rgba(15, 23, 42, 0.2);
+  background: transparent;
   cursor: pointer;
 }
 

@@ -81,6 +81,15 @@ export default function AiStudioPage() {
             {knowledgePointLabel}
           </span>
         </div>
+
+        <button
+          type="button"
+          className="ai-studio-context-bar__factory-trigger"
+          aria-label="打开生成工厂面板"
+          onClick={() => setRightCollapsed(false)}
+        >
+          生成工厂
+        </button>
       </section>
 
       <div className="ai-studio-page" style={pageStyle}>
