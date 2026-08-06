@@ -43,3 +43,9 @@ Each entry records a decision made without pausing for confirmation, the recomme
 - Red evidence: `tests/test_course_membership_store.py` failed collection with `ModuleNotFoundError` before production code existed.
 - Green evidence: `3 passed` using the isolated `edu-ai` Python environment.
 - Result: versioned membership JSON, unique upsert, deterministic queries, idempotent delete, and same-directory atomic replacement are implemented.
+
+### Plan 1 / Task 2 — Capability authorization boundary
+
+- Red evidence: access-service and HTTP-adapter tests each failed with the expected missing-module error before their implementation.
+- Green evidence: `16 passed` across membership storage, the full role/capability matrix, missing membership, and stable HTTP 403 mapping.
+- Result: backend roles now resolve to explicit `read`, `edit`, `generate`, resource-management, member-management, and course-deletion capabilities through one service.
