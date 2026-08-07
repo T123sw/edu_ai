@@ -481,31 +481,82 @@ class MaterialPublicationService:
                 raise MaterialPublicationError(
                     "MATERIAL_PUBLICATION_INVALID", "publication not found"
                 )
-            if not self._manager.delete_generated_material(
-                course_id, material_type, published_material_id
-            ):
-                raise MaterialPublicationError(
-                    "MATERIAL_PUBLICATION_INVALID", "publication removal failed"
-                )
             source = self._manager.get_stored_generated_material(
                 course_id,
                 material_type,
                 str(published["published_from_material_id"]),
             )
-            if (
+            linked_source = bool(
                 source
                 and source.get("visibility") == "private"
                 and source.get("owner_user_id")
                 == published.get("published_from_owner_user_id")
-            ):
-                self._manager.update_generated_material_metadata(
-                    course_id,
-                    material_type,
-                    source["material_id"],
-                    {
-                        "published_material_id": None,
-                        "published_version": None,
-                        "published_at": None,
-                    },
+            )
+            publication_file = self._manager._material_file(
+                course_id, material_type, published_material_id
+            )
+            publication_manifest = publication_file.read_bytes()
+            source_file = (
+                self._manager._material_file(
+                    course_id, material_type, str(source["material_id"])
                 )
+                if linked_source
+                else None
+            )
+            source_manifest = (
+                source_file.read_bytes()
+                if source_file is not None and source_file.exists()
+                else None
+            )
+            course_root = self._manager.get_course_dir(course_id).resolve()
+            final_dir = (
+                course_root
+                / "generated_materials"
+                / "published"
+                / material_type
+                / published_material_id
+            )
+            artifact_backup = final_dir.parent / (
+                f".{published_material_id}-{uuid.uuid4().hex}.withdraw.bak"
+            )
+            if final_dir.exists():
+                shutil.copytree(final_dir, artifact_backup, symlinks=True)
+            try:
+                if not self._manager.delete_generated_material(
+                    course_id, material_type, published_material_id
+                ):
+                    raise MaterialPublicationError(
+                        "MATERIAL_PUBLICATION_INVALID", "publication removal failed"
+                    )
+                if linked_source:
+                    cleared = self._manager.update_generated_material_metadata(
+                        course_id,
+                        material_type,
+                        source["material_id"],
+                        {
+                            "published_material_id": None,
+                            "published_version": None,
+                            "published_at": None,
+                        },
+                    )
+                    if not cleared:
+                        raise MaterialPublicationError(
+                            "MATERIAL_PUBLICATION_INVALID",
+                            "source publication link removal failed",
+                        )
+            except Exception as exc:
+                self._restore_manifest(publication_file, publication_manifest)
+                if source_file is not None:
+                    self._restore_manifest(source_file, source_manifest)
+                if final_dir.exists():
+                    shutil.rmtree(final_dir, ignore_errors=True)
+                if artifact_backup.exists():
+                    os.replace(artifact_backup, final_dir)
+                if isinstance(exc, MaterialPublicationError):
+                    raise
+                raise MaterialPublicationError(
+                    "MATERIAL_PUBLICATION_INVALID", "publication withdrawal failed"
+                ) from exc
+            if artifact_backup.exists():
+                shutil.rmtree(artifact_backup, ignore_errors=True)
             return published

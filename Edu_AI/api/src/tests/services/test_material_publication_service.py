@@ -403,6 +403,77 @@ def test_withdraw_removes_snapshot_and_published_files_but_keeps_private_source(
     assert source_after.get("published_at") is None
 
 
+def test_withdraw_rolls_back_when_source_link_clear_fails(tmp_path, monkeypatch):
+    manager, source = _private_report_with_attachment(tmp_path)
+    service = MaterialPublicationService(manager)
+    published = service.publish(
+        course_id="course-1",
+        material_type="report",
+        material_id=source["material_id"],
+        owner_user_id="teacher-a",
+    )
+    published_path = manager.get_file_path(
+        "course-1", published.material["artifact_paths"][0]
+    )
+    published_bytes = published_path.read_bytes()
+    source_file = manager._material_file("course-1", "report", source["material_id"])
+    source_before = source_file.read_bytes()
+    monkeypatch.setattr(
+        manager,
+        "update_generated_material_metadata",
+        lambda *args, **kwargs: None,
+    )
+
+    with pytest.raises(MaterialPublicationError) as raised:
+        service.withdraw(
+            course_id="course-1",
+            material_type="report",
+            published_material_id=published.material["material_id"],
+        )
+
+    assert raised.value.code == "MATERIAL_PUBLICATION_INVALID"
+    assert manager.get_stored_generated_material(
+        "course-1", "report", published.material["material_id"]
+    ) is not None
+    assert published_path.read_bytes() == published_bytes
+    assert source_file.read_bytes() == source_before
+
+
+def test_withdraw_rolls_back_a_partial_publication_delete(tmp_path, monkeypatch):
+    manager, source = _private_report_with_attachment(tmp_path)
+    service = MaterialPublicationService(manager)
+    published = service.publish(
+        course_id="course-1",
+        material_type="report",
+        material_id=source["material_id"],
+        owner_user_id="teacher-a",
+    )
+    published_path = manager.get_file_path(
+        "course-1", published.material["artifact_paths"][0]
+    )
+    published_bytes = published_path.read_bytes()
+    original_delete = manager.delete_generated_material
+
+    def partial_delete(*args, **kwargs):
+        assert original_delete(*args, **kwargs) is True
+        return False
+
+    monkeypatch.setattr(manager, "delete_generated_material", partial_delete)
+
+    with pytest.raises(MaterialPublicationError) as raised:
+        service.withdraw(
+            course_id="course-1",
+            material_type="report",
+            published_material_id=published.material["material_id"],
+        )
+
+    assert raised.value.code == "MATERIAL_PUBLICATION_INVALID"
+    assert manager.get_stored_generated_material(
+        "course-1", "report", published.material["material_id"]
+    ) is not None
+    assert published_path.read_bytes() == published_bytes
+
+
 def test_failed_source_link_update_restores_previous_publication(tmp_path, monkeypatch):
     manager, source = _private_report_with_attachment(tmp_path)
     service = MaterialPublicationService(manager)
