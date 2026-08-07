@@ -1,4 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Barrier
 
 import pytest
 
@@ -233,3 +235,29 @@ def test_failed_source_link_update_restores_previous_publication(tmp_path, monke
     assert raised.value.code == "MATERIAL_PUBLICATION_INVALID"
     assert published_file.read_bytes() == previous_manifest
     assert previous_artifact_path.read_bytes() == previous_artifact
+
+
+def test_concurrent_publish_creates_one_stable_course_snapshot(tmp_path):
+    manager, source = _private_report_with_attachment(tmp_path)
+    service = MaterialPublicationService(manager)
+    start = Barrier(2)
+
+    def publish_once():
+        start.wait()
+        return service.publish(
+            course_id="course-1",
+            material_type="report",
+            material_id=source["material_id"],
+            owner_user_id="teacher-a",
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(lambda _: publish_once(), range(2)))
+
+    assert {result.action for result in results} == {"published", "unchanged"}
+    assert len({result.material["material_id"] for result in results}) == 1
+    snapshots = manager.list_generated_materials(
+        "course-1", owner_user_id="teacher-a", space="course"
+    )
+    assert len(snapshots) == 1
+    assert snapshots[0]["material_id"] == results[0].material["material_id"]
