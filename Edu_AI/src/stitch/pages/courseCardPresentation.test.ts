@@ -27,13 +27,13 @@ test("course card presentation contains only factual metrics", () => {
   ]);
 });
 
-test("course card explains permissions without exposing internal revisions", () => {
+test("course card omits developer-facing permission and revision fields", () => {
   const card = toCourseCardPresentation(courseFixture, {
     documentCount: 0,
     resourceCount: 0,
     activeJobCount: 0,
   });
-  assert.equal(card.roleLabel, "可编辑");
+  assert.equal("roleLabel" in card, false);
   assert.equal("revisionLabel" in card, false);
   assert.match(card.updatedLabel, /^最近更新 /);
 });

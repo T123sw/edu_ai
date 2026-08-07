@@ -5,7 +5,7 @@
 .teacher-home__account span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: #e8edff; color: #3157d5; font-weight: 800; }
 .teacher-home__main { width: min(1380px,100%); margin: 0 auto; padding: 48px clamp(22px,5vw,72px) 72px; }
 .teacher-home__intro { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 44px; }
-.teacher-home__eyebrow { color: #3157d5 !important; font-size: 13px !important; font-weight: 800; letter-spacing: .14em; }
+.teacher-home__eyebrow { color: #3157d5 !important; font-size: 17px !important; font-weight: 850; letter-spacing: .08em; }
 .teacher-home__intro h1 { max-width: 720px; margin-top: 10px; color: #172033; font-size: clamp(30px,4vw,48px); font-weight: 850; letter-spacing: -.045em; line-height: 1.1; }
 .teacher-home__intro p { max-width: 720px; margin-top: 14px; color: #64748b; font-size: 15px; line-height: 1.8; }
 .teacher-home__search { display: flex; width: min(380px,100%); align-items: center; gap: 10px; border: 1px solid #d9e1ec; border-radius: 12px; background: white; padding: 0 14px; color: #64748b; box-shadow: 0 9px 24px rgba(30,41,59,.05); }
@@ -17,9 +17,7 @@
 .teacher-course-card { display: flex; min-width: 0; min-height: 310px; flex-direction: column; border: 1px solid #dde4ed; border-radius: 17px; background: white; padding: 22px; color: #172033; box-shadow: 0 10px 28px rgba(30,41,59,.055); transition: 160ms ease; }
 .teacher-course-card:hover { transform: translateY(-2px); border-color: #b9c8fa; box-shadow: 0 16px 36px rgba(49,87,213,.11); }
 .teacher-course-card:focus-visible { outline: 3px solid #3157d5; outline-offset: 3px; }
-.teacher-course-card__top { display: flex; min-height: 28px; align-items: center; color: #7b8799; font-size: 12px; font-weight: 700; }
-.teacher-course-card__role { border-radius: 999px; background: #edf2ff; padding: 6px 10px; color: #3157d5; }
-.teacher-course-card h3 { margin-top: 20px; overflow: hidden; color: #172033; font-size: 21px; font-weight: 820; text-overflow: ellipsis; white-space: nowrap; }
+.teacher-course-card h3 { margin-top: 0; overflow: hidden; color: #172033; font-size: 21px; font-weight: 820; text-overflow: ellipsis; white-space: nowrap; }
 .teacher-course-card__description { display: -webkit-box; overflow: hidden; min-height: 50px; margin-top: 9px; color: #64748b; font-size: 14px; line-height: 1.75; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .teacher-course-card__metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 22px; }
 .teacher-course-card__metrics div { border-radius: 11px; background: #f5f7fa; padding: 11px; }

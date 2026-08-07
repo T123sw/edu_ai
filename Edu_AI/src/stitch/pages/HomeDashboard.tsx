@@ -90,7 +90,6 @@ export function HomeDashboardPage() {
           <div>
             <p className="teacher-home__eyebrow">教师课程工作台</p>
             <h1>选择课程，继续今天的教学工作</h1>
-            <p>课程资料、知识结构、生成任务与教学成果都归属于课程，并对课程成员保持同步。</p>
           </div>
           <label className="teacher-home__search">
             <MaterialIcon name="search" />
@@ -120,9 +119,6 @@ export function HomeDashboardPage() {
                   aria-label={course.title}
                   onClick={() => setSelectedCourse(backendCourseToSummary(course, index))}
                 >
-                  <div className="teacher-course-card__top">
-                    <span className="teacher-course-card__role">{card.roleLabel}</span>
-                  </div>
                   <h3>{card.title}</h3>
                   <p className="teacher-course-card__description">{card.description}</p>
                   <dl className="teacher-course-card__metrics">
