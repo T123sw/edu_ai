@@ -41,6 +41,7 @@ import rehypeKatex from 'rehype-katex';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
 import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
 import { isTerminalJob } from '../../jobs/types';
+import { buildGenerationSavedMessage } from './generationSavedMessage';
 import './ChatPanel.css';
 
 const { TextArea } = Input;
@@ -1418,7 +1419,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           }
         } catch {
           updateMessageById(taskId, {
-            text: '生成已完成，结果已保存到课程资源。',
+            text: buildGenerationSavedMessage({ visibility: 'private' }),
             statusText: '',
             status: 'done',
           });
