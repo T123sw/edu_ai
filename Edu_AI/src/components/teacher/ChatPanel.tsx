@@ -41,7 +41,7 @@ import rehypeKatex from 'rehype-katex';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
 import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
 import { isTerminalJob } from '../../jobs/types';
-import { buildGenerationSavedMessage } from './generationSavedMessage';
+import { buildGenerationSavedMessage, resolveGenerationReply } from './generationSavedMessage';
 import './ChatPanel.css';
 
 const { TextArea } = Input;
@@ -1294,8 +1294,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         setViewingFile(generatedFiles[generatedFiles.length - 1]);
       }
 
-      const hasFinalReport = generatedFiles.some((file) => file.meta?.kind === 'final_report');
-      const replyText = hasFinalReport ? '已生成，请在右侧查看。' : String(response.message?.content || '');
+      const replyText = resolveGenerationReply({
+        generatedResourceCount: generatedFiles.length,
+        fallbackMessage: String(response.message?.content || ''),
+      });
 
       updateLastMessage({
         text: replyText,
@@ -1410,8 +1412,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
             }
             if (genFiles.length > 0) setViewingFile(genFiles[genFiles.length - 1]);
 
-            const hasFinalReport = genFiles.some((f) => f.meta?.kind === 'final_report');
-            const replyText = hasFinalReport ? '已生成，请在右侧查看。' : String(result.message?.content || '');
+            const replyText = resolveGenerationReply({
+              generatedResourceCount: genFiles.length,
+              fallbackMessage: String(result.message?.content || ''),
+            });
             updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done' });
             void refreshHistoryList();
           } else if (status.status === 'failed') {

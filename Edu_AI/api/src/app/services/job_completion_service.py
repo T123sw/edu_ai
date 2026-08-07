@@ -67,7 +67,7 @@ class JobCompletionService:
             status=JobStatus.SUCCEEDED,
             step="completed",
             progress=100,
-            message="生成完成，结果已保存到课程资源",
+            message="生成完成，已保存到“我的资源”，仅你可见。",
             result_ref=result_ref,
             error_code=None,
             error_message=None,

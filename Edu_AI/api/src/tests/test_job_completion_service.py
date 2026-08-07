@@ -80,6 +80,7 @@ def test_success_requires_owner_scoped_material_readback(completion_runtime):
     assert public is not None
     assert public.status == JobStatus.SUCCEEDED
     assert public.result_ref == result_ref()
+    assert public.message == "生成完成，已保存到“我的资源”，仅你可见。"
 
 
 def test_missing_material_becomes_partial_success(completion_runtime):
