@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from app.services.course_access import CourseAccessDenied, CourseAccessService
+from app.services.course_access import (
+    CourseAccessDenied,
+    CourseAccessService,
+    CoursePrincipal,
+    can_manage_course_resources,
+)
 from app.services.course_membership_store import CourseMembershipStore
 
 
@@ -57,3 +62,18 @@ def test_missing_authenticated_identity_is_denied(store):
 
     with pytest.raises(CourseAccessDenied):
         service.require("course-1", {"role": "teacher"}, "read")
+
+
+def test_course_resource_management_capability_is_derived_from_course_role():
+    assert can_manage_course_resources(CoursePrincipal(
+        course_id="course-1",
+        user_id="teacher-a",
+        system_role="teacher",
+        course_role="editor",
+    )) is True
+    assert can_manage_course_resources(CoursePrincipal(
+        course_id="course-1",
+        user_id="student-a",
+        system_role="student",
+        course_role="viewer",
+    )) is False

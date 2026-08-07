@@ -13,10 +13,12 @@ from app.schemas.course import (
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
     PinMaterialRequest,
+    RenameMaterialRequest,
 )
 
 router = _api.router
 get_current_user = _api.get_current_user
+HTTPException = _api.HTTPException
 
 # route handlers for test compat (tests call these directly)
 list_courses = _api.list_courses
@@ -27,6 +29,9 @@ delete_course = _api.delete_course
 get_course_materials = _api.get_course_materials
 delete_course_material = _api.delete_course_material
 pin_course_material = _api.pin_course_material
+rename_course_material = _api.rename_course_material
+publish_course_material = _api.publish_course_material
+withdraw_course_material = _api.withdraw_course_material
 get_knowledge_base_documents = _api.get_knowledge_base_documents
 upload_knowledge_base_document = _api.upload_knowledge_base_document
 import_textbook_knowledge_graph = _api.import_textbook_knowledge_graph

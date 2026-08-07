@@ -9,7 +9,7 @@ import mimetypes
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
@@ -22,7 +22,10 @@ from app.api.course_dependencies import (
     require_course_owner,
     require_course_read,
 )
-from app.services.course_access import CoursePrincipal
+from app.services.course_access import (
+    CoursePrincipal,
+    can_manage_course_resources,
+)
 from app.services.course_membership_bootstrap import get_course_membership_bootstrap
 
 from app.knowledge_graph_hours import (
@@ -42,6 +45,7 @@ from app.schemas.course import (
     KnowledgeGraphData,
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
+    MaterialPublicationResponse,
     PinMaterialRequest,
     RenameMaterialRequest,
 )
@@ -51,6 +55,10 @@ from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
     VIDEO_ARTIFACT_MEDIA_TYPES,
     submit_classroom_video_export_job,
+)
+from app.services.material_publication_service import (
+    MaterialPublicationError,
+    MaterialPublicationService,
 )
 from app.textbook_knowledge_graph import (
     TextbookKnowledgeGraphError,
@@ -65,6 +73,55 @@ from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.document_resolver import resolve_rag_document
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
+
+
+def _material_publications() -> MaterialPublicationService:
+    return MaterialPublicationService(_svc._get_manager())
+
+
+def _material_http_error(
+    status_code: int, code: str, message: str
+) -> HTTPException:
+    return HTTPException(
+        status_code=status_code,
+        detail={"code": code, "message": message},
+    )
+
+
+def _publication_http_error(error: MaterialPublicationError) -> HTTPException:
+    status_by_code = {
+        "MATERIAL_NOT_FOUND": 404,
+        "MATERIAL_ARTIFACT_UNSAFE": 422,
+        "MATERIAL_PUBLICATION_INVALID": 409,
+    }
+    return _material_http_error(
+        status_by_code.get(error.code, 409), error.code, str(error)
+    )
+
+
+def _mutable_material_or_raise(
+    *,
+    manager,
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    principal: CoursePrincipal,
+):
+    material = manager.get_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=principal.user_id,
+    )
+    if material is None:
+        raise _material_http_error(404, "MATERIAL_NOT_FOUND", "资源不存在或无权访问")
+    if material.get("visibility") == "course" and not can_manage_course_resources(
+        principal
+    ):
+        raise _material_http_error(
+            403, "MATERIAL_MANAGE_FORBIDDEN", "无权管理课程共享资源"
+        )
+    return material
 
 
 def _knowledge_document_model(
@@ -261,6 +318,7 @@ def get_course_materials(
     aggregate: bool = False,
     limit: Optional[int] = None,
     offset: int = 0,
+    space: Literal["mine", "course", "all"] = "all",
     principal: CoursePrincipal = Depends(require_course_read),
 ):
     owner_user_id = principal.user_id
@@ -282,6 +340,7 @@ def get_course_materials(
         scope_ids=scope_ids,
         aggregate=aggregate,
         owner_user_id=str(owner_user_id or ""),
+        space=space,
     )
     if limit is None:
         return materials
@@ -303,13 +362,20 @@ def delete_course_material(
     course_id: str,
     material_type: str,
     material_id: str,
-    principal: CoursePrincipal = Depends(require_course_manage_resources),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
+    _mutable_material_or_raise(
+        manager=mgr,
+        course_id=course_id,
+        material_type=material_type,
+        material_id=material_id,
+        principal=principal,
+    )
     if not mgr.delete_generated_material(
         course_id,
         material_type,
@@ -326,13 +392,20 @@ def pin_course_material(
     material_type: str,
     material_id: str,
     payload: PinMaterialRequest,
-    principal: CoursePrincipal = Depends(require_course_manage_resources),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     owner_user_id = principal.user_id
     mgr = _svc._get_manager()
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
+    _mutable_material_or_raise(
+        manager=mgr,
+        course_id=course_id,
+        material_type=material_type,
+        material_id=material_id,
+        principal=principal,
+    )
     if not mgr.pin_generated_material(
         course_id,
         material_type,
@@ -386,10 +459,17 @@ def rename_course_material(
     material_type: str,
     material_id: str,
     payload: RenameMaterialRequest,
-    principal: CoursePrincipal = Depends(require_course_manage_resources),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     manager = _svc._get_manager()
     owner = principal.user_id
+    _mutable_material_or_raise(
+        manager=manager,
+        course_id=course_id,
+        material_type=material_type,
+        material_id=material_id,
+        principal=principal,
+    )
     if not manager.rename_generated_material(
         course_id,
         material_type,
@@ -404,6 +484,66 @@ def rename_course_material(
         material_id,
         owner_user_id=owner,
     )
+
+
+@router.post(
+    "/{course_id}/materials/{material_type}/{material_id}/publish",
+    response_model=MaterialPublicationResponse,
+    summary="发布个人资源到课程",
+)
+def publish_course_material(
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    principal: CoursePrincipal = Depends(require_course_manage_resources),
+) -> MaterialPublicationResponse:
+    if not can_manage_course_resources(principal):
+        raise _material_http_error(
+            403, "MATERIAL_PUBLISH_FORBIDDEN", "无权发布课程资源"
+        )
+    try:
+        result = _material_publications().publish(
+            course_id=course_id,
+            material_type=material_type,
+            material_id=material_id,
+            owner_user_id=principal.user_id,
+        )
+    except MaterialPublicationError as error:
+        raise _publication_http_error(error) from error
+    return MaterialPublicationResponse(
+        action=result.action,
+        source_material_id=result.source_material_id,
+        material=result.material,
+    )
+
+
+@router.delete(
+    "/{course_id}/materials/{material_type}/{material_id}/publication",
+    summary="撤回课程共享资源",
+)
+def withdraw_course_material(
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    principal: CoursePrincipal = Depends(require_course_manage_resources),
+):
+    manager = _svc._get_manager()
+    _mutable_material_or_raise(
+        manager=manager,
+        course_id=course_id,
+        material_type=material_type,
+        material_id=material_id,
+        principal=principal,
+    )
+    try:
+        _material_publications().withdraw(
+            course_id=course_id,
+            material_type=material_type,
+            published_material_id=material_id,
+        )
+    except MaterialPublicationError as error:
+        raise _publication_http_error(error) from error
+    return {"ok": True}
 
 
 @router.get(

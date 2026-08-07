@@ -118,6 +118,12 @@ class RenameMaterialRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
 
 
+class MaterialPublicationResponse(BaseModel):
+    action: Literal["published", "updated", "unchanged"]
+    source_material_id: str
+    material: Dict[str, Any]
+
+
 class GenerateClassroomRequest(BaseModel):
     topic: Optional[str] = Field(default=None, max_length=200)
     audience: str = Field(default="", max_length=200)

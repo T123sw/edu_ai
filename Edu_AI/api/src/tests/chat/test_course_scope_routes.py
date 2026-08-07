@@ -25,6 +25,15 @@ def _teacher_principal() -> CoursePrincipal:
     )
 
 
+def _principal(user_id: str, course_role: str) -> CoursePrincipal:
+    return CoursePrincipal(
+        course_id="course-1",
+        user_id=user_id,
+        system_role="student" if course_role == "viewer" else "teacher",
+        course_role=course_role,
+    )
+
+
 def _make_manager(name: str) -> CourseStorageManager:
     root = Path("tests/.tmp") / f"{name}-{uuid.uuid4().hex}"
     root.mkdir(parents=True, exist_ok=True)
@@ -68,6 +77,151 @@ def test_get_course_materials_returns_paginated_aggregate_scope(monkeypatch):
     assert payload["count"] == 5
     assert payload["limit"] == 20
     assert payload["offset"] == 20
+
+
+def test_get_course_materials_filters_explicit_personal_and_course_spaces(monkeypatch):
+    manager = _make_manager("course-material-spaces")
+    assert manager.save_generated_material(
+        "course-1", "report", "private-a", {"title": "我的报告"},
+        owner_user_id="teacher-a", visibility="private",
+    )
+    assert manager.save_generated_material(
+        "course-1", "report", "private-b", {"title": "他人报告"},
+        owner_user_id="teacher-b", visibility="private",
+    )
+    assert manager.save_generated_material(
+        "course-1", "report", "shared", {"title": "课程报告"},
+        owner_user_id="teacher-a", visibility="course",
+    )
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+
+    mine = courses.get_course_materials(
+        "course-1", space="mine", principal=_principal("teacher-a", "editor")
+    )
+    shared = courses.get_course_materials(
+        "course-1", space="course", principal=_principal("teacher-b", "editor")
+    )
+
+    assert [item["material_id"] for item in mine] == ["private-a"]
+    assert [item["material_id"] for item in shared] == ["shared"]
+
+
+def test_publish_route_requires_owner_and_course_resource_capability(monkeypatch):
+    manager = _make_manager("course-material-publish-route")
+    assert manager.save_generated_material(
+        "course-1", "report", "private-a", {"title": "我的报告"},
+        owner_user_id="teacher-a",
+    )
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+
+    published = courses.publish_course_material(
+        "course-1",
+        "report",
+        "private-a",
+        principal=_principal("teacher-a", "editor"),
+    )
+    assert published.action == "published"
+    assert published.material["visibility"] == "course"
+
+    with pytest.raises(courses.HTTPException) as other_teacher_error:
+        courses.publish_course_material(
+            "course-1",
+            "report",
+            "private-a",
+            principal=_principal("teacher-b", "editor"),
+        )
+    assert other_teacher_error.value.status_code == 404
+    assert other_teacher_error.value.detail["code"] == "MATERIAL_NOT_FOUND"
+
+    with pytest.raises(courses.HTTPException) as viewer_error:
+        courses.publish_course_material(
+            "course-1",
+            "report",
+            "private-a",
+            principal=_principal("student-a", "viewer"),
+        )
+    assert viewer_error.value.status_code == 403
+
+
+def test_material_mutations_distinguish_private_owner_and_course_manager(monkeypatch):
+    manager = _make_manager("course-material-aware-mutations")
+    assert manager.save_generated_material(
+        "course-1", "report", "private-a", {"title": "个人报告"},
+        owner_user_id="teacher-a",
+    )
+    assert manager.save_generated_material(
+        "course-1", "report", "shared", {"title": "课程报告"},
+        owner_user_id="teacher-a", visibility="course",
+    )
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+
+    renamed_private = courses.rename_course_material(
+        "course-1",
+        "report",
+        "private-a",
+        courses.RenameMaterialRequest(title="我的修订"),
+        principal=_principal("teacher-a", "editor"),
+    )
+    assert renamed_private["title"] == "我的修订"
+
+    with pytest.raises(courses.HTTPException) as private_error:
+        courses.rename_course_material(
+            "course-1",
+            "report",
+            "private-a",
+            courses.RenameMaterialRequest(title="越权修订"),
+            principal=_principal("teacher-b", "editor"),
+        )
+    assert private_error.value.status_code == 404
+
+    renamed_shared = courses.rename_course_material(
+        "course-1",
+        "report",
+        "shared",
+        courses.RenameMaterialRequest(title="协作修订"),
+        principal=_principal("teacher-b", "editor"),
+    )
+    assert renamed_shared["title"] == "协作修订"
+
+    with pytest.raises(courses.HTTPException) as viewer_error:
+        courses.rename_course_material(
+            "course-1",
+            "report",
+            "shared",
+            courses.RenameMaterialRequest(title="学生修订"),
+            principal=_principal("student-a", "viewer"),
+        )
+    assert viewer_error.value.status_code == 403
+
+
+def test_withdraw_route_removes_publication_but_keeps_private_source(monkeypatch):
+    manager = _make_manager("course-material-withdraw-route")
+    assert manager.save_generated_material(
+        "course-1", "report", "private-a", {"title": "个人报告"},
+        owner_user_id="teacher-a",
+    )
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    published = courses.publish_course_material(
+        "course-1",
+        "report",
+        "private-a",
+        principal=_principal("teacher-a", "editor"),
+    )
+
+    result = courses.withdraw_course_material(
+        "course-1",
+        "report",
+        published.material["material_id"],
+        principal=_principal("teacher-b", "editor"),
+    )
+
+    assert result == {"ok": True}
+    assert manager.get_generated_material(
+        "course-1", "report", "private-a", owner_user_id="teacher-a"
+    ) is not None
+    assert manager.list_generated_materials(
+        "course-1", owner_user_id="teacher-a", space="course"
+    ) == []
 
 
 def test_get_knowledge_base_documents_filters_descendant_scope(monkeypatch):

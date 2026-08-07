@@ -44,6 +44,10 @@ class CoursePrincipal:
     course_role: CourseRole
 
 
+def can_manage_course_resources(principal: CoursePrincipal) -> bool:
+    return "manage_resources" in ROLE_CAPABILITIES[principal.course_role]
+
+
 class CourseAccessDenied(PermissionError):
     def __init__(
         self,
