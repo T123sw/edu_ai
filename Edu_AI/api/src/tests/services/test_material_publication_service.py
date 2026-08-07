@@ -76,6 +76,221 @@ def test_publish_creates_sanitized_independent_course_snapshot(tmp_path):
     assert result.material["artifact_paths"] != source["artifact_paths"]
 
 
+@pytest.mark.parametrize(
+    ("material_type", "material_data", "expected_public_values"),
+    [
+        (
+            "report",
+            {
+                "title": "报告",
+                "report": {
+                    "summary": "公开摘要",
+                    "mainContent": [
+                        {
+                            "title": "公开章节",
+                            "content": "公开正文",
+                            "model_trace": "PRIVATE_TRACE",
+                        }
+                    ],
+                    "private_notes": "PRIVATE_NOTES",
+                },
+            },
+            ["公开摘要", "公开章节", "公开正文"],
+        ),
+        (
+            "quiz",
+            {
+                "title": "测验",
+                "content": {
+                    "difficulty": "medium",
+                    "questions": [
+                        {
+                            "id": "q1",
+                            "type": "choice",
+                            "question": "公开题干",
+                            "choices": ["A", "B"],
+                            "correct_answer": "A",
+                            "private_rationale": "PRIVATE_RATIONALE",
+                        }
+                    ],
+                    "draft_context": "PRIVATE_DRAFT_CONTEXT",
+                },
+            },
+            ["公开题干", "A", "B"],
+        ),
+        (
+            "ppt",
+            {
+                "title": "课件",
+                "content": {
+                    "pptx_url": "/files/deck.pptx",
+                    "content_markdown": "# 公开课件",
+                    "provider_debug": "PRIVATE_PROVIDER_DEBUG",
+                },
+                "outline": {
+                    "deck_title": "公开大纲",
+                    "slides": [
+                        {
+                            "slide_index": 1,
+                            "title": "公开页面",
+                            "goal": "公开目标",
+                            "chain_of_thought": "PRIVATE_REASONING",
+                        }
+                    ],
+                },
+            },
+            ["/files/deck.pptx", "# 公开课件", "公开大纲", "公开页面"],
+        ),
+        (
+            "classroom",
+            {
+                "title": "课堂",
+                "stage": {"id": "stage-1", "name": "公开课堂", "internal": "PRIVATE_INTERNAL"},
+                "scenes": [
+                    {
+                        "id": "scene-1",
+                        "type": "slide",
+                        "content": {
+                            "type": "slide",
+                            "canvas": {
+                                "id": "canvas-1",
+                                "viewportRatio": 0.5625,
+                                "elements": [
+                                    {
+                                        "id": "text-1",
+                                        "type": "text",
+                                        "content": "公开画面",
+                                        "private_payload": "PRIVATE_CANVAS",
+                                    }
+                                ],
+                            },
+                        },
+                        "actions": [
+                            {
+                                "id": "speech-1",
+                                "type": "speech",
+                                "text": "公开讲解",
+                                "diagnostic": "PRIVATE_DIAGNOSTIC",
+                            }
+                        ],
+                    }
+                ],
+            },
+            ["公开课堂", "公开画面", "公开讲解"],
+        ),
+    ],
+)
+def test_publication_uses_positive_nested_schema_per_material_type(
+    tmp_path, material_type, material_data, expected_public_values
+):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    assert manager.save_generated_material(
+        "course-1",
+        material_type,
+        "draft-1",
+        material_data,
+        owner_user_id="teacher-a",
+    )
+
+    result = MaterialPublicationService(manager).publish(
+        course_id="course-1",
+        material_type=material_type,
+        material_id="draft-1",
+        owner_user_id="teacher-a",
+    )
+
+    serialized = str(result.material)
+    for expected in expected_public_values:
+        assert expected in serialized
+    assert "PRIVATE_" not in serialized
+
+
+@pytest.mark.parametrize("target_is_directory", [False, True])
+def test_publish_rejects_nested_symlinks_in_artifact_directories(
+    tmp_path, target_is_directory
+):
+    manager = CourseStorageManager(root_path=str(tmp_path / "storage"))
+    manager.create_course_structure("course-1")
+    course_root = manager.get_course_dir("course-1")
+    artifact_dir = course_root / "generated_materials" / "draft-tree"
+    artifact_dir.mkdir(parents=True)
+    outside = tmp_path / ("outside-dir" if target_is_directory else "outside.txt")
+    if target_is_directory:
+        outside.mkdir()
+        (outside / "secret.txt").write_text("PRIVATE_SYMLINK", encoding="utf-8")
+    else:
+        outside.write_text("PRIVATE_SYMLINK", encoding="utf-8")
+    link = artifact_dir / ("linked-dir" if target_is_directory else "linked.txt")
+    try:
+        link.symlink_to(outside, target_is_directory=target_is_directory)
+    except OSError as exc:
+        pytest.skip(f"symlink creation unavailable: {exc}")
+
+    assert manager.save_generated_material(
+        "course-1",
+        "report",
+        "draft-1",
+        {"title": "报告", "final_markdown": "# 公开报告"},
+        owner_user_id="teacher-a",
+    )
+    manifest = manager._material_file("course-1", "report", "draft-1")
+    stored = manager._read_json(manifest)
+    stored["artifact_paths"] = [
+        str(artifact_dir.relative_to(course_root)).replace("\\", "/")
+    ]
+    manager._write_json(manifest, stored)
+
+    with pytest.raises(MaterialPublicationError) as raised:
+        MaterialPublicationService(manager).publish(
+            course_id="course-1",
+            material_type="report",
+            material_id="draft-1",
+            owner_user_id="teacher-a",
+        )
+
+    assert raised.value.code == "MATERIAL_ARTIFACT_UNSAFE"
+
+
+def test_publish_checks_every_artifact_descendant_for_links(tmp_path, monkeypatch):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    course_root = manager.get_course_dir("course-1")
+    artifact_dir = course_root / "generated_materials" / "draft-tree"
+    artifact_dir.mkdir(parents=True)
+    nested_file = artifact_dir / "nested.txt"
+    nested_file.write_text("public artifact", encoding="utf-8")
+    assert manager.save_generated_material(
+        "course-1",
+        "report",
+        "draft-1",
+        {"title": "报告", "final_markdown": "# 公开报告"},
+        owner_user_id="teacher-a",
+    )
+    manifest = manager._material_file("course-1", "report", "draft-1")
+    stored = manager._read_json(manifest)
+    stored["artifact_paths"] = [
+        str(artifact_dir.relative_to(course_root)).replace("\\", "/")
+    ]
+    manager._write_json(manifest, stored)
+    original_is_symlink = Path.is_symlink
+
+    def simulated_is_symlink(path):
+        return path.name == "nested.txt" or original_is_symlink(path)
+
+    monkeypatch.setattr(Path, "is_symlink", simulated_is_symlink)
+
+    with pytest.raises(MaterialPublicationError) as raised:
+        MaterialPublicationService(manager).publish(
+            course_id="course-1",
+            material_type="report",
+            material_id="draft-1",
+            owner_user_id="teacher-a",
+        )
+
+    assert raised.value.code == "MATERIAL_ARTIFACT_UNSAFE"
+
+
 def test_republish_is_unchanged_then_updates_same_snapshot(tmp_path):
     manager, source = _private_report_with_attachment(tmp_path)
     service = MaterialPublicationService(manager)

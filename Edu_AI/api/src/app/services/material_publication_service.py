@@ -62,36 +62,99 @@ _PUBLICATION_FIELDS = frozenset(
     }
 )
 
-_PRIVATE_NESTED_KEYS = frozenset(
+_COMMON_PUBLIC_KEYS = frozenset(
     {
-        "api_key",
-        "apikey",
-        "authorization",
-        "config_snapshot",
-        "conversation",
-        "conversation_history",
-        "messages",
-        "password",
-        "prompt",
-        "rag_file_path",
-        "source_snapshot",
-        "system_prompt",
-        "token",
+        "id", "type", "title", "name", "topic", "summary", "text", "content",
+        "status", "count", "duration", "difficulty", "category", "description",
     }
 )
 
+_PUBLIC_NESTED_KEYS_BY_TYPE: dict[str, frozenset[str]] = {
+    "report": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "introduction", "mainContent", "keyFindings", "conclusions",
+            "recommendations", "subsections", "sections", "outline", "markdown",
+            "final_markdown", "report_content",
+        }
+    ),
+    "lesson_plan": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "objectives", "keyPoints", "hardPoints", "process", "homework", "step",
+            "knowledge_points", "key_points", "hard_points", "plan",
+        }
+    ),
+    "quiz": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "question_type", "questions", "question", "stem", "choices", "options",
+            "answer", "correct_answer", "analysis", "explanation", "score", "tags",
+        }
+    ),
+    "flashcard": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "cards", "flashcards", "front", "back", "source_doc_id", "show_sources",
+        }
+    ),
+    "graph": _COMMON_PUBLIC_KEYS
+    | frozenset({"root", "children", "max_depth", "label", "value"}),
+    "game": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "game_type", "template_id", "game_data", "html_path", "html_url",
+            "categories", "items", "categoryId", "pairs", "left", "right", "matches",
+            "pair_id", "card_a", "card_b",
+        }
+    ),
+    "ppt": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "pptx_url", "html_full_url", "html_url", "preview_url", "download_url",
+            "job_id", "slide_count", "content_markdown", "outline", "deck_title",
+            "deck_subtitle", "theme_id", "confirmation_status", "chapters", "slides",
+            "chapter_index", "chapter_title", "chapter_goal", "slide_index", "role",
+            "goal", "key_points", "presenter_notes", "layout_intent", "lead", "bullets",
+            "cards", "process_steps", "comparison", "items", "left", "right",
+        }
+    ),
+    "classroom": _COMMON_PUBLIC_KEYS
+    | frozenset(
+        {
+            "stage", "scenes", "scenes_count", "mode", "metadata", "settings", "theme",
+            "createdAt", "updatedAt", "version", "actions", "notes", "transition", "canvas",
+            "viewportSize", "viewportRatio", "themeColors", "backgroundColor", "fontColor",
+            "fontName", "elements", "background", "color", "left", "top", "width", "height",
+            "rotate", "defaultFontName", "defaultColor", "opacity", "flipH", "flipV", "locked",
+            "groupId", "link", "shadow", "outline", "fill", "line", "points", "src", "poster",
+            "autoplay", "loop", "muted", "volume", "elementId", "audioUrl", "start", "end",
+            "shape", "latex", "rows", "columns", "data", "code", "language", "state", "key",
+            "value", "question", "options", "answer", "explanation",
+        }
+    ),
+    "blog": _COMMON_PUBLIC_KEYS
+    | frozenset({"outline", "markdown", "final_markdown", "sections", "subsections"}),
+    "audio": _COMMON_PUBLIC_KEYS
+    | frozenset({"url", "file_url", "mime_type", "transcript", "voice_status"}),
+    "video": _COMMON_PUBLIC_KEYS
+    | frozenset({"url", "file_url", "mime_type", "poster", "video_status", "transcript"}),
+    "ai_lecture_session": _COMMON_PUBLIC_KEYS
+    | frozenset({"stage", "scenes", "scenes_count", "session_id"}),
+}
 
-def _sanitize_nested(value: Any) -> Any:
+
+def _sanitize_nested(value: Any, *, allowed_keys: frozenset[str]) -> Any:
     if isinstance(value, dict):
         return {
-            str(key): _sanitize_nested(item)
+            str(key): _sanitize_nested(item, allowed_keys=allowed_keys)
             for key, item in value.items()
-            if str(key).strip().lower() not in _PRIVATE_NESTED_KEYS
+            if str(key) in allowed_keys
         }
     if isinstance(value, list):
-        return [_sanitize_nested(item) for item in value]
+        return [_sanitize_nested(item, allowed_keys=allowed_keys) for item in value]
     if isinstance(value, tuple):
-        return [_sanitize_nested(item) for item in value]
+        return [_sanitize_nested(item, allowed_keys=allowed_keys) for item in value]
     return copy.deepcopy(value)
 
 
@@ -163,6 +226,25 @@ class MaterialPublicationService:
             resolved_paths.append(resolved)
         return resolved_paths
 
+    @staticmethod
+    def _validate_artifact_tree(source: Path, course_root: Path) -> None:
+        candidates = [source]
+        if source.is_dir():
+            for root, dirnames, filenames in os.walk(source, followlinks=False):
+                candidates.extend(Path(root) / name for name in (*dirnames, *filenames))
+        for candidate in candidates:
+            is_junction = getattr(candidate, "is_junction", lambda: False)
+            if candidate.is_symlink() or is_junction():
+                raise MaterialPublicationError(
+                    "MATERIAL_ARTIFACT_UNSAFE", "artifact tree contains a link"
+                )
+            try:
+                candidate.resolve().relative_to(course_root)
+            except ValueError as exc:
+                raise MaterialPublicationError(
+                    "MATERIAL_ARTIFACT_UNSAFE", "artifact tree leaves course root"
+                ) from exc
+
     def _stage_artifacts(
         self,
         *,
@@ -184,6 +266,7 @@ class MaterialPublicationService:
         published_paths: list[str] = []
         try:
             for index, source in enumerate(sources):
+                self._validate_artifact_tree(source, course_root)
                 target_name = source.name
                 target = staging / target_name
                 if target.exists():
@@ -254,11 +337,15 @@ class MaterialPublicationService:
         self,
         *,
         source: dict[str, Any],
+        material_type: str,
         owner_user_id: str,
         published_paths: list[str],
     ) -> dict[str, Any]:
+        allowed_nested_keys = _PUBLIC_NESTED_KEYS_BY_TYPE.get(
+            material_type, _COMMON_PUBLIC_KEYS
+        )
         payload = {
-            key: _sanitize_nested(source[key])
+            key: _sanitize_nested(source[key], allowed_keys=allowed_nested_keys)
             for key in _PUBLICATION_FIELDS
             if key in source
         }
@@ -329,6 +416,7 @@ class MaterialPublicationService:
                 backup = self._swap_artifact_directory(staging, final_dir)
                 payload = self._snapshot_payload(
                     source=source,
+                    material_type=material_type,
                     owner_user_id=normalized_owner,
                     published_paths=published_paths,
                 )
