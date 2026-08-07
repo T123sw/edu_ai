@@ -8,6 +8,13 @@ test("keyboard publication flow preserves the personal source", async ({ teacher
   const mineTab = page.getByRole("tab", { name: /我的资源/u });
   const courseTab = page.getByRole("tab", { name: /课程共享/u });
   await expect(mineTab).toHaveAttribute("aria-selected", "true");
+  await expect(mineTab).toHaveAttribute("tabindex", "0");
+  await expect(courseTab).toHaveAttribute("tabindex", "-1");
+  await expect(mineTab).toHaveAttribute("aria-controls", "resource-space-panel-mine");
+  await expect(page.getByRole("tabpanel")).toHaveAttribute(
+    "aria-labelledby",
+    "resource-space-tab-mine",
+  );
   await expect(page.getByRole("heading", { name: "牛顿运动定律教学报告" })).toBeVisible();
 
   const publishButton = page.getByRole("button", { name: "发布到课程" });
@@ -16,9 +23,15 @@ test("keyboard publication flow preserves the personal source", async ({ teacher
   await expect(page.getByText("已发布", { exact: true })).toBeVisible();
   await expect(mineTab).toContainText("1");
 
-  await courseTab.focus();
-  await courseTab.press("Enter");
+  await mineTab.focus();
+  await mineTab.press("ArrowRight");
   await expect(courseTab).toHaveAttribute("aria-selected", "true");
+  await expect(courseTab).toBeFocused();
+  await expect(courseTab).toHaveAttribute("tabindex", "0");
+  await expect(page.getByRole("tabpanel")).toHaveAttribute(
+    "aria-labelledby",
+    "resource-space-tab-course",
+  );
   const publishedCard = page.getByRole("button", {
     name: /报告 课程共享 牛顿运动定律教学报告/u,
   });
@@ -31,8 +44,9 @@ test("keyboard publication flow preserves the personal source", async ({ teacher
   await withdrawButton.press("Enter");
   await expect(publishedCard).toHaveCount(0);
 
-  await mineTab.focus();
-  await mineTab.press("Enter");
+  await courseTab.press("Home");
+  await expect(mineTab).toBeFocused();
+  await expect(mineTab).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { name: "牛顿运动定律教学报告" })).toBeVisible();
   await expect(page.getByRole("button", { name: "发布到课程" })).toBeVisible();
 });

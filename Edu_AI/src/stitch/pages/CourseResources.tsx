@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import {
   backendCourseToSummary,
   deleteCourseMaterial,
@@ -44,6 +44,28 @@ import { canCourse } from "../course/coursePermissions";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
 
 type ResourceSort = "recent" | "title";
+
+const RESOURCE_SPACES = [
+  { key: "mine" as const, label: "我的资源" },
+  { key: "course" as const, label: "课程共享" },
+] as const;
+
+function getKeyboardSelection<T extends string>(
+  key: string,
+  current: T,
+  choices: readonly T[],
+): T | null {
+  const currentIndex = Math.max(choices.indexOf(current), 0);
+  if (key === "ArrowRight" || key === "ArrowDown") {
+    return choices[(currentIndex + 1) % choices.length];
+  }
+  if (key === "ArrowLeft" || key === "ArrowUp") {
+    return choices[(currentIndex - 1 + choices.length) % choices.length];
+  }
+  if (key === "Home") return choices[0];
+  if (key === "End") return choices[choices.length - 1];
+  return null;
+}
 
 function getMaterialTitle(material: CourseMaterial): string {
   return material.title || material.topic || material.material_id;
@@ -428,6 +450,46 @@ export function CourseResourcesPage() {
   const activePresentation = activeMaterial
     ? toCourseMaterialPresentation(activeMaterial)
     : null;
+
+  function selectResourceSpace(space: CourseMaterialSpace) {
+    setResourceSpace(space);
+    setRecoveryError(null);
+    setActiveFilter("all");
+  }
+
+  function handleResourceSpaceKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    current: CourseMaterialSpace,
+  ) {
+    const next = getKeyboardSelection(
+      event.key,
+      current,
+      RESOURCE_SPACES.map((space) => space.key),
+    );
+    if (!next) return;
+    event.preventDefault();
+    selectResourceSpace(next);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`resource-space-tab-${next}`)?.focus();
+    });
+  }
+
+  function handleFilterKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    current: CourseMaterialFilterKey,
+  ) {
+    const next = getKeyboardSelection(
+      event.key,
+      current,
+      COURSE_MATERIAL_FILTERS.map((filter) => filter.key),
+    );
+    if (!next) return;
+    event.preventDefault();
+    setActiveFilter(next);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`resource-filter-${next}`)?.focus();
+    });
+  }
   const publicationPresentation = activeMaterial
     ? getMaterialPublicationPresentation(activeMaterial, courseRole)
     : null;
@@ -520,20 +582,17 @@ export function CourseResourcesPage() {
             role="tablist"
             aria-label="资源空间"
           >
-            {([
-              { key: "mine" as const, label: "我的资源", count: personalMaterials.length },
-              { key: "course" as const, label: "课程共享", count: sharedMaterials.length },
-            ]).map((space) => (
+            {RESOURCE_SPACES.map((space) => (
               <button
                 key={space.key}
+                id={`resource-space-tab-${space.key}`}
                 type="button"
                 role="tab"
                 aria-selected={resourceSpace === space.key}
-                onClick={() => {
-                  setResourceSpace(space.key);
-                  setRecoveryError(null);
-                  setActiveFilter("all");
-                }}
+                aria-controls={`resource-space-panel-${space.key}`}
+                tabIndex={resourceSpace === space.key ? 0 : -1}
+                onClick={() => selectResourceSpace(space.key)}
+                onKeyDown={(event) => handleResourceSpaceKeyDown(event, space.key)}
                 className={`rounded-[14px] px-5 py-2.5 text-sm font-bold transition ${
                   resourceSpace === space.key
                     ? "bg-(--accent) text-white shadow-sm"
@@ -544,7 +603,7 @@ export function CourseResourcesPage() {
                 <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
                   resourceSpace === space.key ? "bg-white/20" : "bg-(--surface-subtle)"
                 }`}>
-                  {space.count}
+                  {space.key === "mine" ? personalMaterials.length : sharedMaterials.length}
                 </span>
               </button>
             ))}
@@ -557,16 +616,19 @@ export function CourseResourcesPage() {
 
           <div
             className="mt-4 flex flex-wrap gap-2"
-            role="tablist"
+            role="radiogroup"
             aria-label="资源类型筛选"
           >
             {COURSE_MATERIAL_FILTERS.map((filter) => (
               <button
                 key={filter.key}
+                id={`resource-filter-${filter.key}`}
                 type="button"
-                role="tab"
-                aria-selected={activeFilter === filter.key}
+                role="radio"
+                aria-checked={activeFilter === filter.key}
+                tabIndex={activeFilter === filter.key ? 0 : -1}
                 onClick={() => setActiveFilter(filter.key)}
+                onKeyDown={(event) => handleFilterKeyDown(event, filter.key)}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   activeFilter === filter.key
                     ? "bg-(--accent) text-white"
@@ -579,7 +641,12 @@ export function CourseResourcesPage() {
           </div>
         </header>
 
-        <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden">
+        <div
+          id={`resource-space-panel-${resourceSpace}`}
+          role="tabpanel"
+          aria-labelledby={`resource-space-tab-${resourceSpace}`}
+          className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden"
+        >
           <section className="flex max-h-[360px] min-h-0 min-w-0 flex-col overflow-hidden min-[1180px]:max-h-none">
             {loading ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 text-sm text-(--muted-text)">
