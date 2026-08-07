@@ -15,6 +15,7 @@ const fixture = {
   created_by: "张老师",
   created_at: "2026-08-05T10:00:00+08:00",
   status: "completed",
+  visibility: "course" as const,
   scope_type: "course" as const,
   source_snapshot: {
     mode: "selected_documents",
@@ -26,7 +27,11 @@ test("resource metadata exposes provenance without internal IDs", () => {
   const view = toCourseMaterialPresentation(fixture);
   assert.deepEqual(
     view.meta.map((item) => item.label),
-    ["类型", "创建者", "资料范围", "创建时间"],
+    ["类型", "创建者", "可见范围", "资料来源", "创建时间"],
+  );
+  assert.deepEqual(
+    view.meta.find((item) => item.label === "可见范围"),
+    { label: "可见范围", value: "课程成员可见" },
   );
   assert.equal(JSON.stringify(view).includes("rag_index_key"), false);
   assert.equal(JSON.stringify(view).includes("private-rag-key"), false);
