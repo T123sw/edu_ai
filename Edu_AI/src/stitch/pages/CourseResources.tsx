@@ -5,8 +5,15 @@ import {
   getCourseMaterial,
   getCourseMaterials,
   pinCourseMaterial,
+  publishCourseMaterial,
   renameCourseMaterial,
+  withdrawCourseMaterial,
 } from "../api/courses";
+import {
+  applyPublicationResult,
+  applyPublicationWithdrawal,
+  getMaterialPublicationPresentation,
+} from "../api/courseResourceSpaces";
 import {
   COURSE_MATERIAL_FILTERS,
   getCourseMaterialOpenTarget,
@@ -19,7 +26,7 @@ import {
   courseMaterialKey,
   readCourseMaterialTarget,
 } from "../api/courseMaterialTarget";
-import type { CourseMaterial } from "../api/types";
+import type { CourseMaterial, CourseMaterialSpace } from "../api/types";
 import {
   AppSurface,
   GlassPanel,
@@ -33,6 +40,7 @@ import {
 } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { useCourseRoute } from "../course/CourseRouteProvider";
+import { canCourse } from "../course/coursePermissions";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
 
 type ResourceSort = "recent" | "title";
@@ -66,13 +74,16 @@ function getMaterialSummary(material: CourseMaterial): string {
 
 export function CourseResourcesPage() {
   const { selectedCourse } = useAppShell();
-  const { course: routeCourse, courseId } = useCourseRoute();
+  const { course: routeCourse, courseId, courseRole } = useCourseRoute();
   const course = routeCourse?.id === courseId
     ? backendCourseToSummary(routeCourse)
     : selectedCourse?.id === courseId
       ? selectedCourse
       : { ...defaultCourse, id: courseId || defaultCourse.id };
-  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [resourceSpace, setResourceSpace] =
+    useState<CourseMaterialSpace>("mine");
+  const [personalMaterials, setPersonalMaterials] = useState<CourseMaterial[]>([]);
+  const [sharedMaterials, setSharedMaterials] = useState<CourseMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
@@ -84,9 +95,11 @@ export function CourseResourcesPage() {
   const [sort, setSort] = useState<ResourceSort>("recent");
   const [actionBusy, setActionBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [recoveryError, setRecoveryError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
+  const materials = resourceSpace === "mine" ? personalMaterials : sharedMaterials;
 
   useEffect(() => {
     let cancelled = false;
@@ -96,22 +109,34 @@ export function CourseResourcesPage() {
         setLoading(true);
         setError(null);
         setRecoveryError(null);
-        const data = await getCourseMaterials(course.id);
+        const [personalData, sharedData] = await Promise.all([
+          getCourseMaterials(course.id, { space: "mine" }),
+          getCourseMaterials(course.id, { space: "course" }),
+        ]);
         const requestedTarget = readCourseMaterialTarget(
           typeof window === "undefined" ? "" : window.location.hash,
         );
-        let nextMaterials = data;
+        let nextPersonal = personalData;
+        let nextShared = sharedData;
+        let nextSpace: CourseMaterialSpace = personalData.length > 0 ? "mine" : "course";
         let requestedKey: string | null = null;
         if (requestedTarget) {
           requestedKey = courseMaterialKey(
             requestedTarget.materialType,
             requestedTarget.materialId,
           );
-          const listed = data.some(
+          const listed = [...personalData, ...sharedData].some(
             (item) =>
               courseMaterialKey(item.material_type, item.material_id)
               === requestedKey,
           );
+          if (personalData.some(
+            (item) => courseMaterialKey(item.material_type, item.material_id) === requestedKey,
+          )) {
+            nextSpace = "mine";
+          } else if (listed) {
+            nextSpace = "course";
+          }
           if (!listed) {
             try {
               const detail = await getCourseMaterial(
@@ -119,10 +144,17 @@ export function CourseResourcesPage() {
                 requestedTarget.materialType,
                 requestedTarget.materialId,
               );
-              nextMaterials = [detail, ...data];
+              if (detail.visibility === "private") {
+                nextPersonal = [detail, ...personalData];
+                nextSpace = "mine";
+              } else {
+                nextShared = [detail, ...sharedData];
+                nextSpace = "course";
+              }
             } catch {
               if (!cancelled) {
-                setMaterials(data);
+                setPersonalMaterials(personalData);
+                setSharedMaterials(sharedData);
                 setActiveKey(null);
                 setRecoveryError("结果资源不存在或无权访问");
               }
@@ -131,7 +163,10 @@ export function CourseResourcesPage() {
           }
         }
         if (!cancelled) {
-          setMaterials(nextMaterials);
+          setPersonalMaterials(nextPersonal);
+          setSharedMaterials(nextShared);
+          setResourceSpace(nextSpace);
+          const nextMaterials = nextSpace === "mine" ? nextPersonal : nextShared;
           if (requestedKey) {
             setActiveFilter("all");
             setActiveKey(requestedKey);
@@ -221,6 +256,7 @@ export function CourseResourcesPage() {
   useEffect(() => {
     setEditingTitle(false);
     setActionError(null);
+    setActionNotice(null);
   }, [activeKey]);
 
   const activeMaterial =
@@ -256,7 +292,10 @@ export function CourseResourcesPage() {
         material.material_id,
         !material.is_pinned,
       );
-      setMaterials((current) => current.map((item) => (
+      const setCurrentMaterials = resourceSpace === "mine"
+        ? setPersonalMaterials
+        : setSharedMaterials;
+      setCurrentMaterials((current) => current.map((item) => (
         item.material_id === updated.material_id
         && item.material_type === updated.material_type
           ? updated
@@ -284,7 +323,10 @@ export function CourseResourcesPage() {
         material.material_id,
         title,
       );
-      setMaterials((current) => current.map((item) => (
+      const setCurrentMaterials = resourceSpace === "mine"
+        ? setPersonalMaterials
+        : setSharedMaterials;
+      setCurrentMaterials((current) => current.map((item) => (
         item.material_id === updated.material_id
         && item.material_type === updated.material_type
           ? updated
@@ -310,12 +352,71 @@ export function CourseResourcesPage() {
         material.material_type,
         material.material_id,
       );
-      setMaterials((current) => current.filter((item) => !(
+      setPersonalMaterials((current) => current.filter((item) => !(
         item.material_id === material.material_id
         && item.material_type === material.material_type
       )));
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "删除资源失败");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function publishMaterial(material: CourseMaterial) {
+    setActionBusy(true);
+    setActionError(null);
+    setActionNotice(null);
+    try {
+      const result = await publishCourseMaterial(
+        course.id,
+        material.material_type,
+        material.material_id,
+      );
+      const next = applyPublicationResult(
+        personalMaterials,
+        sharedMaterials,
+        result,
+      );
+      setPersonalMaterials(next.personal);
+      setSharedMaterials(next.shared);
+      setActionNotice(
+        result.action === "updated"
+          ? "课程共享版本已更新。"
+          : result.action === "unchanged"
+            ? "当前版本已经发布，无需重复操作。"
+            : "已发布到课程，所有课程成员现在都能看到。",
+      );
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "发布资源失败");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function withdrawPublication(material: CourseMaterial) {
+    if (!window.confirm(`确定从课程共享中撤回“${getMaterialTitle(material)}”吗？你的个人原件不会被删除。`)) {
+      return;
+    }
+    setActionBusy(true);
+    setActionError(null);
+    setActionNotice(null);
+    try {
+      await withdrawCourseMaterial(
+        course.id,
+        material.material_type,
+        material.material_id,
+      );
+      const next = applyPublicationWithdrawal(
+        personalMaterials,
+        sharedMaterials,
+        material,
+      );
+      setPersonalMaterials(next.personal);
+      setSharedMaterials(next.shared);
+      setActionNotice("已从课程共享中撤回，个人原件仍保留在“我的资源”。");
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "撤回资源失败");
     } finally {
       setActionBusy(false);
     }
@@ -327,6 +428,13 @@ export function CourseResourcesPage() {
   const activePresentation = activeMaterial
     ? toCourseMaterialPresentation(activeMaterial)
     : null;
+  const publicationPresentation = activeMaterial
+    ? getMaterialPublicationPresentation(activeMaterial, courseRole)
+    : null;
+  const canManageActiveMaterial = activeMaterial
+    ? activeMaterial.visibility === "private"
+      || canCourse(courseRole, "manage_resources")
+    : false;
   const previewSupported =
     activeMaterial
     && activeMaterial.material_type !== "classroom"
@@ -349,18 +457,12 @@ export function CourseResourcesPage() {
           </p>
           <div className="mt-3 space-y-2 text-sm text-(--accent-strong)">
             <div className="flex items-center justify-between rounded-2xl bg-white px-4 py-3">
-              <span>资源总数</span>
-              <span className="font-bold">{materials.length}</span>
+              <span>我的资源</span>
+              <span className="font-bold">{personalMaterials.length}</span>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-(--shell-border) px-4 py-3">
-              <span>AI 课堂</span>
-              <span className="font-bold">
-                {
-                  materials.filter(
-                    (material) => material.material_type === "classroom",
-                  ).length
-                }
-              </span>
+              <span>课程共享</span>
+              <span className="font-bold">{sharedMaterials.length}</span>
             </div>
           </div>
         </div>
@@ -377,7 +479,7 @@ export function CourseResourcesPage() {
                 课程资源中心
               </h1>
               <p className="mt-2 text-sm text-(--muted-text)">
-                AI 课堂与所有生成结果共用同一份课程资源记录。
+                个人生成结果默认仅自己可见，需要时可发布给课程成员。
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -412,6 +514,46 @@ export function CourseResourcesPage() {
               </label>
             </div>
           </div>
+
+          <div
+            className="mt-5 inline-flex rounded-[18px] border border-(--shell-border) bg-white p-1"
+            role="tablist"
+            aria-label="资源空间"
+          >
+            {([
+              { key: "mine" as const, label: "我的资源", count: personalMaterials.length },
+              { key: "course" as const, label: "课程共享", count: sharedMaterials.length },
+            ]).map((space) => (
+              <button
+                key={space.key}
+                type="button"
+                role="tab"
+                aria-selected={resourceSpace === space.key}
+                onClick={() => {
+                  setResourceSpace(space.key);
+                  setRecoveryError(null);
+                  setActiveFilter("all");
+                }}
+                className={`rounded-[14px] px-5 py-2.5 text-sm font-bold transition ${
+                  resourceSpace === space.key
+                    ? "bg-(--accent) text-white shadow-sm"
+                    : "text-(--muted-text) hover:bg-(--surface-subtle) hover:text-(--accent-strong)"
+                }`}
+              >
+                {space.label}
+                <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
+                  resourceSpace === space.key ? "bg-white/20" : "bg-(--surface-subtle)"
+                }`}>
+                  {space.count}
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-sm text-(--muted-text)">
+            {resourceSpace === "mine"
+              ? "这里的资源只有你能看到；发布后会生成独立的课程共享版本。"
+              : "这里的资源对所有课程成员可见，教师可以更新或撤回发布。"}
+          </p>
 
           <div
             className="mt-4 flex flex-wrap gap-2"
@@ -457,12 +599,14 @@ export function CourseResourcesPage() {
             ) : materials.length === 0 ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6">
                 <h2 className="font-bold text-(--app-text)">
-                  当前课程还没有生成资源
+                  {resourceSpace === "mine" ? "你还没有生成资源" : "课程还没有共享资源"}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-(--muted-text)">
-                  可以前往问答／生成工厂创建教学资源，或进入 AI 课堂开始备课。
+                  {resourceSpace === "mine"
+                    ? "可以前往问答／生成工厂创建教学资源，生成后默认仅自己可见。"
+                    : "教师可以从“我的资源”中选择合适的内容发布到这里。"}
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
+                {resourceSpace === "mine" ? <div className="mt-4 flex flex-wrap gap-2">
                   <a
                     href={buildTeacherCourseHash(routes.ai, course.id)}
                     className="rounded-full bg-(--accent) px-4 py-2 text-sm font-bold text-white"
@@ -478,7 +622,7 @@ export function CourseResourcesPage() {
                   >
                     创建 AI 课堂
                   </a>
-                </div>
+                </div> : null}
               </GlassPanel>
             ) : filteredMaterials.length === 0 ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 text-sm text-(--muted-text)">
@@ -495,6 +639,10 @@ export function CourseResourcesPage() {
                       material.material_type,
                       material.material_id,
                     ) === activeKey;
+                  const publication = getMaterialPublicationPresentation(
+                    material,
+                    courseRole,
+                  );
                   return (
                     <button
                       key={`${material.material_type}:${material.material_id}`}
@@ -520,6 +668,13 @@ export function CourseResourcesPage() {
                                 置顶
                               </span>
                             ) : null}
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              material.visibility === "private"
+                                ? "bg-slate-100 text-slate-600"
+                                : "bg-blue-50 text-blue-700"
+                            }`}>
+                              {publication.visibilityLabel}
+                            </span>
                           </span>
                           <span className="mt-1 block truncate text-sm font-bold text-(--app-text)">
                             {getMaterialTitle(material)}
@@ -605,35 +760,74 @@ export function CourseResourcesPage() {
                       <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                         {activePresentation?.statusLabel}
                       </span>
+                      {publicationPresentation ? (
+                        <span className={`ml-2 mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
+                          activeMaterial.visibility === "private"
+                            ? "bg-slate-100 text-slate-600"
+                            : "bg-blue-50 text-blue-700"
+                        }`}>
+                          {publicationPresentation.visibilityLabel}
+                        </span>
+                      ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        disabled={actionBusy}
-                        onClick={() => void togglePinned(activeMaterial)}
-                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
-                      >
-                        {activeMaterial.is_pinned ? "取消置顶" : "置顶"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={actionBusy}
-                        onClick={() => {
-                          setTitleDraft(getMaterialTitle(activeMaterial));
-                          setEditingTitle(true);
-                        }}
-                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
-                      >
-                        重命名
-                      </button>
-                      <button
-                        type="button"
-                        disabled={actionBusy}
-                        onClick={() => void removeMaterial(activeMaterial)}
-                        className="rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-rose-600 disabled:opacity-50"
-                      >
-                        删除
-                      </button>
+                      {publicationPresentation?.primaryAction ? (
+                        <button
+                          type="button"
+                          disabled={actionBusy}
+                          onClick={() => void publishMaterial(activeMaterial)}
+                          className="rounded-full bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+                        >
+                          {publicationPresentation.primaryLabel}
+                        </button>
+                      ) : publicationPresentation?.primaryLabel ? (
+                        <span className="rounded-full bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700">
+                          {publicationPresentation.primaryLabel}
+                        </span>
+                      ) : null}
+                      {canManageActiveMaterial ? (
+                        <>
+                          <button
+                            type="button"
+                            disabled={actionBusy}
+                            onClick={() => void togglePinned(activeMaterial)}
+                            className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
+                          >
+                            {activeMaterial.is_pinned ? "取消置顶" : "置顶"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={actionBusy}
+                            onClick={() => {
+                              setTitleDraft(getMaterialTitle(activeMaterial));
+                              setEditingTitle(true);
+                            }}
+                            className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
+                          >
+                            重命名
+                          </button>
+                        </>
+                      ) : null}
+                      {activeMaterial.visibility === "private" && canManageActiveMaterial ? (
+                        <button
+                          type="button"
+                          disabled={actionBusy}
+                          onClick={() => void removeMaterial(activeMaterial)}
+                          className="rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-rose-600 disabled:opacity-50"
+                        >
+                          删除
+                        </button>
+                      ) : null}
+                      {publicationPresentation?.canWithdraw ? (
+                        <button
+                          type="button"
+                          disabled={actionBusy}
+                          onClick={() => void withdrawPublication(activeMaterial)}
+                          className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-700 disabled:opacity-50"
+                        >
+                          从课程撤回
+                        </button>
+                      ) : null}
                       {activeMaterial.material_type === "classroom" ? (
                         <button
                           type="button"
@@ -650,6 +844,12 @@ export function CourseResourcesPage() {
                   {actionError ? (
                     <p className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
                       {actionError}
+                    </p>
+                  ) : null}
+
+                  {actionNotice ? (
+                    <p className="mt-3 rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                      {actionNotice}
                     </p>
                   ) : null}
 

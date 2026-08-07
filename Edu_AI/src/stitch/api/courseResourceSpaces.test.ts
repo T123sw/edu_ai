@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   applyPublicationResult,
+  applyPublicationWithdrawal,
   getMaterialPublicationPresentation,
 } from "./courseResourceSpaces.ts";
 import type {
@@ -126,4 +127,32 @@ test("applying a publication keeps the private source and upserts the shared sna
     next.shared.map((material) => material.material_id),
     ["published-1", "published-old"],
   );
+});
+
+test("withdrawing a course snapshot keeps its personal source and clears publication state", () => {
+  const personalSource: CourseMaterial = {
+    ...privateV1,
+    published_material_id: "published-1",
+    published_version: 1,
+    published_at: "2026-08-07T10:00:00Z",
+  };
+  const sharedSnapshot: CourseMaterial = {
+    ...privateV1,
+    material_id: "published-1",
+    visibility: "course",
+    owner_user_id: null,
+    published_from_material_id: "draft-1",
+  };
+
+  const next = applyPublicationWithdrawal(
+    [personalSource],
+    [sharedSnapshot],
+    sharedSnapshot,
+  );
+
+  assert.equal(next.personal.length, 1);
+  assert.equal(next.personal[0].material_id, "draft-1");
+  assert.equal(next.personal[0].published_material_id, null);
+  assert.equal(next.personal[0].published_version, null);
+  assert.deepEqual(next.shared, []);
 });

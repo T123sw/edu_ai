@@ -87,3 +87,30 @@ export function applyPublicationResult(
     : [published, ...sharedMaterials];
   return { personal, shared };
 }
+
+export function applyPublicationWithdrawal(
+  personalMaterials: readonly CourseMaterial[],
+  sharedMaterials: readonly CourseMaterial[],
+  publishedMaterial: CourseMaterial,
+): { personal: CourseMaterial[]; shared: CourseMaterial[] } {
+  const sourceMaterialId = publishedMaterial.published_from_material_id;
+  const personal = personalMaterials.map((material) => (
+    material.material_type === publishedMaterial.material_type
+      && (
+        material.material_id === sourceMaterialId
+        || material.published_material_id === publishedMaterial.material_id
+      )
+      ? {
+          ...material,
+          published_material_id: null,
+          published_version: null,
+          published_at: null,
+        }
+      : material
+  ));
+  const shared = sharedMaterials.filter((material) => !(
+    material.material_type === publishedMaterial.material_type
+    && material.material_id === publishedMaterial.material_id
+  ));
+  return { personal, shared };
+}
