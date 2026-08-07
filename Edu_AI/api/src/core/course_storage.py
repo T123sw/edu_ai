@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
 
 LIBRARY_TYPE_COURSE = "course"
 LIBRARY_TYPE_PERSONAL = "personal"
+MaterialSpace = Literal["mine", "course", "all"]
 
 
 COURSE_STORAGE_ROOT = Path(__file__).resolve().parents[2] / "course_data"
@@ -248,6 +249,17 @@ class CourseStorageManager:
         ).strip()
         requested_owner = str(owner_user_id or "").strip()
         return bool(stored_owner) and bool(requested_owner) and stored_owner == requested_owner
+
+    @staticmethod
+    def _matches_material_space(
+        material_data: Dict[str, Any], space: MaterialSpace
+    ) -> bool:
+        visibility = str(material_data.get("visibility") or "course").strip()
+        if space == "mine":
+            return visibility == "private"
+        if space == "course":
+            return visibility == "course"
+        return True
 
     def migrate_legacy_generated_materials(
         self,
@@ -861,7 +873,9 @@ class CourseStorageManager:
                     or None
                 )
                 normalized_visibility = str(
-                    visibility or next_data.get("visibility") or "course"
+                    visibility
+                    or next_data.get("visibility")
+                    or ("private" if next_data["owner_user_id"] else "course")
                 ).strip()
                 if normalized_visibility not in {"course", "private"}:
                     raise ValueError(
@@ -972,13 +986,11 @@ class CourseStorageManager:
             print(f"Error saving generated material: {e}")
             return False
 
-    def get_generated_material(
+    def get_stored_generated_material(
         self,
         course_id: str,
         material_type: str,
         material_id: str,
-        *,
-        owner_user_id: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         try:
             material_file = self._material_file(course_id, material_type, material_id)
@@ -993,6 +1005,25 @@ class CourseStorageManager:
                 material_type=material_type,
                 material_id=material_id,
             )
+            return normalized
+        except Exception as e:
+            print(f"Error loading stored generated material: {e}")
+            return None
+
+    def get_generated_material(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        *,
+        owner_user_id: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        try:
+            normalized = self.get_stored_generated_material(
+                course_id, material_type, material_id
+            )
+            if not normalized:
+                return None
             return (
                 normalized
                 if self._material_owner_matches(normalized, owner_user_id)
@@ -1011,7 +1042,10 @@ class CourseStorageManager:
         scope_ids: Optional[Set[str]] = None,
         aggregate: bool = False,
         owner_user_id: Optional[str] = None,
+        space: MaterialSpace = "all",
     ) -> List[Dict[str, Any]]:
+        if space not in {"mine", "course", "all"}:
+            raise ValueError(f"unsupported material space: {space}")
         materials: List[Dict[str, Any]] = []
 
         try:
@@ -1041,6 +1075,8 @@ class CourseStorageManager:
                         if not self._material_owner_matches(
                             material_data, owner_user_id
                         ):
+                            continue
+                        if not self._matches_material_space(material_data, space):
                             continue
                         if self._matches_scope(
                             material_data,
