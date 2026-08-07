@@ -630,38 +630,54 @@ def get_lesson_plan_detail(plan_id: str) -> dict:
     return record
 
 
-def delete_lesson_plan(plan_id: str, course_id: Optional[str] = None) -> None:
+def delete_lesson_plan(
+    plan_id: str,
+    course_id: Optional[str] = None,
+    *,
+    owner_user_id: str,
+) -> None:
     """Delete a lesson plan and optionally its course material."""
-    lesson_plan_storage.delete_plan(plan_id)
     if course_id:
-        try:
-            from core.course_storage import CourseStorageManager
-            CourseStorageManager().delete_generated_material(
-                course_id=course_id, material_type="lesson_plan", material_id=plan_id,
-            )
-            print(f"[LessonPlan] 已从课程资源删除: {course_id}/{plan_id}")
-        except Exception as e:
-            print(f"[LessonPlan] 从课程资源删除时出错: {e}")
+        from core.course_storage import CourseStorageManager
+
+        deleted = CourseStorageManager().delete_generated_material(
+            course_id=course_id,
+            material_type="lesson_plan",
+            material_id=plan_id,
+            owner_user_id=owner_user_id,
+        )
+        if not deleted:
+            raise KeyError("教案不存在或无权删除")
+        print(f"[LessonPlan] 已从课程资源删除: {course_id}/{plan_id}")
+    lesson_plan_storage.delete_plan(plan_id)
 
 
-def delete_report(report_id: str, course_id: str) -> None:
+def delete_report(report_id: str, course_id: str, *, owner_user_id: str) -> None:
     """Delete a report from course materials."""
     if not course_id:
         raise ValueError("必须提供course_id")
     from core.course_storage import CourseStorageManager
-    CourseStorageManager().delete_generated_material(
-        course_id=course_id, material_type="report", material_id=report_id,
+    deleted = CourseStorageManager().delete_generated_material(
+        course_id=course_id,
+        material_type="report",
+        material_id=report_id,
+        owner_user_id=owner_user_id,
     )
+    if not deleted:
+        raise KeyError("报告不存在或无权删除")
     print(f"[Report] 已从课程资源删除: {course_id}/{report_id}")
 
 
-def delete_quiz(quiz_id: str, course_id: str) -> None:
+def delete_quiz(quiz_id: str, course_id: str, *, owner_user_id: str) -> None:
     """Delete a quiz from course materials."""
     if not course_id:
         raise ValueError("必须提供course_id")
     from core.course_storage import CourseStorageManager
     ok = CourseStorageManager().delete_generated_material(
-        course_id=course_id, material_type="quiz", material_id=quiz_id,
+        course_id=course_id,
+        material_type="quiz",
+        material_id=quiz_id,
+        owner_user_id=owner_user_id,
     )
     if not ok:
         raise KeyError("测验不存在或删除失败")

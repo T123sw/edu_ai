@@ -224,6 +224,38 @@ def test_withdraw_route_removes_publication_but_keeps_private_source(monkeypatch
     ) == []
 
 
+def test_generic_delete_routes_publication_through_withdraw(monkeypatch):
+    manager = _make_manager("course-material-generic-withdraw")
+    assert manager.save_generated_material(
+        "course-1", "report", "private-a", {"title": "个人报告"},
+        owner_user_id="teacher-a",
+    )
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+    published = courses.publish_course_material(
+        "course-1",
+        "report",
+        "private-a",
+        principal=_principal("teacher-a", "editor"),
+    )
+
+    result = courses.delete_course_material(
+        "course-1",
+        "report",
+        published.material["material_id"],
+        principal=_principal("teacher-b", "editor"),
+    )
+
+    assert result == {"ok": True}
+    source = manager.get_generated_material(
+        "course-1", "report", "private-a", owner_user_id="teacher-a"
+    )
+    assert source["published_material_id"] is None
+    assert source["published_version"] is None
+    assert manager.get_stored_generated_material(
+        "course-1", "report", published.material["material_id"]
+    ) is None
+
+
 def test_get_knowledge_base_documents_filters_descendant_scope(monkeypatch):
     manager = _make_manager("course-doc-scope")
     manager.save_knowledge_graph(

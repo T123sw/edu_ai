@@ -369,13 +369,23 @@ def delete_course_material(
 
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
-    _mutable_material_or_raise(
+    material = _mutable_material_or_raise(
         manager=mgr,
         course_id=course_id,
         material_type=material_type,
         material_id=material_id,
         principal=principal,
     )
+    if material.get("published_from_material_id"):
+        try:
+            _material_publications().withdraw(
+                course_id=course_id,
+                material_type=material_type,
+                published_material_id=material_id,
+            )
+        except MaterialPublicationError as error:
+            raise _publication_http_error(error) from error
+        return {"ok": True}
     if not mgr.delete_generated_material(
         course_id,
         material_type,

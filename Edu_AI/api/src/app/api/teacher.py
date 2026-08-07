@@ -205,8 +205,14 @@ async def delete_lesson_plan_endpoint(
     current_user: dict = Depends(get_current_user),
 ):
     try:
-        _svc_delete_lesson_plan(plan_id, course_id)
+        _svc_delete_lesson_plan(
+            plan_id,
+            course_id,
+            owner_user_id=str(current_user.get("username") or ""),
+        )
         return {"message": "教案已删除"}
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"删除教案失败: {exc}") from exc
 
@@ -220,10 +226,16 @@ async def delete_report_endpoint(
     try:
         if not course_id:
             raise HTTPException(status_code=400, detail="必须提供course_id")
-        _svc_delete_report(report_id, course_id)
+        _svc_delete_report(
+            report_id,
+            course_id,
+            owner_user_id=str(current_user.get("username") or ""),
+        )
         return {"message": "报告已删除"}
     except HTTPException:
         raise
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"删除报告失败: {exc}") from exc
 
@@ -237,7 +249,11 @@ async def delete_quiz_endpoint(
     try:
         if not course_id:
             raise HTTPException(status_code=400, detail="必须提供course_id")
-        _svc_delete_quiz(quiz_id, course_id)
+        _svc_delete_quiz(
+            quiz_id,
+            course_id,
+            owner_user_id=str(current_user.get("username") or ""),
+        )
         return {"message": "测验已删除"}
     except HTTPException:
         raise

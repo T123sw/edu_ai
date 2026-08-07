@@ -241,7 +241,7 @@ class CourseStorageManager:
         if visibility != "private":
             return True
         if owner_user_id is None:
-            return True
+            return False
         stored_owner = str(
             material_data.get("created_by")
             or material_data.get("owner_user_id")

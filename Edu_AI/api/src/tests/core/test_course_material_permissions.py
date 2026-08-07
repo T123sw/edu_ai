@@ -119,6 +119,32 @@ def test_private_material_still_requires_creator(tmp_path):
     )["visibility"] == "private"
 
 
+def test_private_material_mutations_fail_closed_without_an_owner(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    assert manager.save_generated_material(
+        "course-1",
+        "quiz",
+        "draft-1",
+        {"title": "Private draft"},
+        owner_user_id="teacher-a",
+        visibility="private",
+    )
+
+    assert manager.delete_generated_material(
+        "course-1", "quiz", "draft-1"
+    ) is False
+    assert manager.pin_generated_material(
+        "course-1", "quiz", "draft-1"
+    ) is False
+    assert manager.rename_generated_material(
+        "course-1", "quiz", "draft-1", "Missing principal"
+    ) is False
+    assert manager.get_generated_material(
+        "course-1", "quiz", "draft-1", owner_user_id="teacher-a"
+    ) is not None
+
+
 def test_trusted_storage_getter_can_load_private_manifest_for_domain_services(tmp_path):
     manager = CourseStorageManager(root_path=str(tmp_path))
     manager.create_course_structure("course-1")
