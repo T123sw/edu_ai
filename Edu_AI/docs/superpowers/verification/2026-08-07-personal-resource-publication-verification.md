@@ -1,7 +1,9 @@
 # 个人资源发布机制验收记录
 
-**日期：** 2026-08-07  
-**分支：** `feat/personal-resource-publication`  
+**日期：** 2026-08-07
+
+**分支：** `feat/personal-resource-publication`
+
 **对应 SPEC：** `docs/superpowers/specs/2026-08-07-personal-to-course-resource-publishing-design.md`
 
 ## 1. 验收结论
