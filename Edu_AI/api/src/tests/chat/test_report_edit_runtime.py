@@ -1,6 +1,9 @@
 from types import SimpleNamespace
 
+import pytest
+
 from app.chat.workflows.report.edit_runtime import ReportEditRuntime
+from core.course_storage import CourseStorageManager
 
 
 REPORT_MD = """# 李白性格分析
@@ -77,7 +80,7 @@ def test_report_edit_runtime_regenerates_report_from_outline():
 def test_report_edit_runtime_loads_source_artifact_from_course_storage():
     runtime = ReportEditRuntime(llm=FakeLLM("重写后的结论。"))
     course_storage = SimpleNamespace(
-        get_generated_material=lambda course_id, material_type, material_id: {
+        get_generated_material=lambda course_id, material_type, material_id, *, owner_user_id: {
             "material_id": material_id,
             "material_type": material_type,
             "title": "李白性格分析.md",
@@ -89,6 +92,7 @@ def test_report_edit_runtime_loads_source_artifact_from_course_storage():
         request=SimpleNamespace(
             question="保留结构，重写结论",
             course_id="course-1",
+            owner="teacher-a",
             artifact_reference=SimpleNamespace(
                 artifact_id="report-1",
                 artifact_type="report",
@@ -102,6 +106,50 @@ def test_report_edit_runtime_loads_source_artifact_from_course_storage():
 
     assert result["action"]["name"] == "report.edit"
     assert any(artifact["artifact_type"] == "report" for artifact in result["artifacts"])
+
+
+def test_report_edit_runtime_reads_private_source_with_authenticated_owner(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    assert manager.save_generated_material(
+        "course-1",
+        "report",
+        "report-1",
+        {"title": "李白性格分析.md", "report": REPORT_MD},
+        owner_user_id="teacher-a",
+    )
+    runtime = ReportEditRuntime(llm=FakeLLM("重写后的结论。"))
+    reference = SimpleNamespace(
+        artifact_id="report-1",
+        artifact_type="report",
+        version_id="v1",
+        title="李白性格分析.md",
+    )
+
+    result = runtime.run_from_request(
+        request=SimpleNamespace(
+            question="保留结构，重写结论",
+            course_id="course-1",
+            owner="teacher-a",
+            artifact_reference=reference,
+        ),
+        snapshot=None,
+        course_storage_manager=manager,
+    )
+
+    assert result["action"]["name"] == "report.edit"
+
+    with pytest.raises(ValueError, match="referenced artifact not found"):
+        runtime.run_from_request(
+            request=SimpleNamespace(
+                question="保留结构，重写结论",
+                course_id="course-1",
+                owner="teacher-b",
+                artifact_reference=reference,
+            ),
+            snapshot=None,
+            course_storage_manager=manager,
+        )
 
 
 def test_report_edit_runtime_returns_disambiguation_prompt_instead_of_blind_edit():

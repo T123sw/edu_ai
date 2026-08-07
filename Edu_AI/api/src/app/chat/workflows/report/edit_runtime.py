@@ -42,6 +42,21 @@ def _normalize_material_source(material_type: str, material: dict) -> dict:
     return normalized
 
 
+def _normalize_version(value) -> dict:
+    if isinstance(value, dict):
+        return dict(value)
+    try:
+        version_number = int(value)
+    except (TypeError, ValueError):
+        return {}
+    if version_number < 1:
+        return {}
+    return {
+        "version_id": f"v{version_number}",
+        "version_number": version_number,
+    }
+
+
 class ReportEditRuntime:
     def __init__(self, *, llm=None):
         self.llm = llm
@@ -67,7 +82,7 @@ class ReportEditRuntime:
 
     @staticmethod
     def _build_version_metadata(source_artifact: dict) -> dict:
-        source_version = dict(source_artifact.get("version") or {})
+        source_version = _normalize_version(source_artifact.get("version"))
         source_artifact_id = str(source_artifact.get("artifact_id") or "").strip()
         root_artifact_id = str(source_version.get("root_artifact_id") or source_artifact_id)
         version_number = int(source_version.get("version_number") or 1) + 1
@@ -85,7 +100,10 @@ class ReportEditRuntime:
         title = _extract_main_title(content)
         nodes = parse_report_nodes(
             artifact_id=str(source_artifact.get("artifact_id") or ""),
-            version_id=str((source_artifact.get("version") or {}).get("version_id") or ""),
+            version_id=str(
+                _normalize_version(source_artifact.get("version")).get("version_id")
+                or ""
+            ),
             artifact_type="report",
             content=content,
         )
@@ -140,7 +158,10 @@ class ReportEditRuntime:
             "references": [],
             "source_outline_artifact_id": source_outline_id or "",
             "source_report_artifact_id": str(source_artifact.get("artifact_id") or "") if str(source_artifact.get("artifact_type") or "") == "report" else "",
-            "source_version_id": str((source_artifact.get("version") or {}).get("version_id") or ""),
+            "source_version_id": str(
+                _normalize_version(source_artifact.get("version")).get("version_id")
+                or ""
+            ),
             "generated_at": "",
             "generation_mode": mode,
             "model_name": getattr(self.llm, "model_name", "") if self.llm is not None else "",
@@ -154,7 +175,11 @@ class ReportEditRuntime:
         source_artifact["artifact_type"] = source_artifact_type
         nodes = parse_report_nodes(
             artifact_id=str(source_artifact.get("artifact_id") or artifact_reference.get("artifact_id") or ""),
-            version_id=str((source_artifact.get("version") or {}).get("version_id") or artifact_reference.get("version_id") or ""),
+            version_id=str(
+                _normalize_version(source_artifact.get("version")).get("version_id")
+                or artifact_reference.get("version_id")
+                or ""
+            ),
             artifact_type=source_artifact_type,
             content=source_artifact.get("content"),
         )
@@ -276,9 +301,15 @@ class ReportEditRuntime:
             raise ValueError("artifact_reference is required")
         source_artifact = None
         course_id = str(getattr(request, "course_id", "") or "").strip()
+        owner_user_id = str(getattr(request, "owner", "") or "").strip()
         artifact_type = str(artifact_reference.get("artifact_type") or "").strip()
         if course_storage_manager is not None and course_id:
-            material = course_storage_manager.get_generated_material(course_id, "report", artifact_reference.get("artifact_id"))
+            material = course_storage_manager.get_generated_material(
+                course_id,
+                "report",
+                artifact_reference.get("artifact_id"),
+                owner_user_id=owner_user_id,
+            )
             if material:
                 source_artifact = _normalize_material_source(artifact_type, material)
                 source_artifact["artifact_id"] = artifact_reference.get("artifact_id")
