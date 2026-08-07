@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Any
 
-from app.chat.tasks.task_store import DurableTask, TaskStore
+from app.chat.tasks.task_store import DurableTask, LeaseRecoverySummary, TaskStore
 from app.services.durable_task_handlers import (
     DurableExecutionContext,
     DurableTaskHandlerRegistry,
@@ -119,7 +119,8 @@ class DurableTaskExecutor:
     def run_once(self, *, now: float | datetime | None = None) -> bool:
         active_now = self._timestamp(now)
         if active_now >= self._next_recovery_at:
-            self.task_store.recover_expired_leases(now=active_now)
+            recovery = self.task_store.recover_expired_leases(now=active_now)
+            self._publish_recovery(recovery)
             self._next_recovery_at = active_now + self.recovery_interval
         task = self.task_store.claim_next(
             lease_owner=self.worker_id,
@@ -130,6 +131,40 @@ class DurableTaskExecutor:
             return False
         self._execute(task, fixed_now=active_now if now is not None else None)
         return True
+
+    def _publish_recovery(self, recovery: LeaseRecoverySummary) -> None:
+        for task_id in recovery.requeued_task_ids:
+            update_job(
+                task_id,
+                status=JobStatus.QUEUED,
+                step="recovered",
+                progress=0,
+                message="后台任务已恢复，正在重新排队",
+                error_code=None,
+                error_message=None,
+            )
+        for task_id in recovery.failed_task_ids:
+            task = self.task_store.get_durable(task_id)
+            update_job(
+                task_id,
+                status=JobStatus.FAILED,
+                step="failed",
+                progress=100,
+                message="任务未能在规定时间内完成",
+                error_code=(task.error_code if task else None) or "WORKER_LOST",
+                error_message=(task.error if task else None)
+                or "后台任务已停止，请重新提交",
+            )
+        for task_id in recovery.canceled_task_ids:
+            update_job(
+                task_id,
+                status=JobStatus.CANCELED,
+                step="canceled",
+                progress=100,
+                message="任务已取消",
+                error_code="GENERATION_CANCELLED",
+                error_message="任务已取消",
+            )
 
     def _execute(
         self,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { getKnowledgeBaseDocuments } from "../../../stitch/api/courses";
 import type { KnowledgeBaseDocument } from "../../../stitch/api/types";
@@ -151,7 +152,7 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
         </div>
       </section>
 
-      {resourceType && resource && (
+      {resourceType && resource && typeof document !== "undefined" && createPortal((
         <div className="generation-factory__modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setResourceType(null)}>
           <section className="generation-factory__modal" role="dialog" aria-modal="true" aria-label={`配置${resource.label}`}>
             <header>
@@ -172,7 +173,7 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
             </footer>
           </section>
         </div>
-      )}
+      ), document.body)}
     </div>
   );
 }

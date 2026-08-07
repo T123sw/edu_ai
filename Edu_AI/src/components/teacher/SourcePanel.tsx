@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Button, Input, Space, Typography, Modal, Divider, Checkbox, Dropdown, MenuProps, Spin, message, Card, Tag } from 'antd';
+import { Button, Input, Space, Typography, Modal, Checkbox, Dropdown, MenuProps, Spin, message, Card, Tag } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import {
   FilePdfOutlined,
@@ -53,6 +53,10 @@ import { registerCreatedJob, requestJobRefresh } from '../../jobs/jobStore';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
 import { uploadVideo } from '../../services/video';
 import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
+import {
+  collectKnowledgeSubtreeNodeIds,
+  collectScopedKnowledgeNodeIds,
+} from './knowledgeScopeSelection';
 import './SourcePanel.css';
 
 const { Title, Text } = Typography;
@@ -425,6 +429,19 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       current.includes(activeNodeId) ? current : [...current, activeNodeId]
     ));
   }, [courseKnowledgeGraphRoot?.id, workspaceScope?.scopeId, workspaceScope?.scopeType]);
+
+  useEffect(() => {
+    if (workspaceScope?.scopeType !== 'knowledge_point') {
+      setCheckedCourseNodeIds([]);
+      return;
+    }
+    setCheckedCourseNodeIds(
+      collectScopedKnowledgeNodeIds(
+        courseKnowledgeGraphRoot,
+        workspaceScope.scopeId,
+      ),
+    );
+  }, [courseKnowledgeGraphRoot, workspaceScope?.scopeId, workspaceScope?.scopeType]);
 
   useEffect(() => {
     return () => {
@@ -1333,8 +1350,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   };
 
   const collectCourseNodeIdsForNode = (node: KnowledgeGraphNode): string[] => {
-    const descendantNodeIds = (node.children || []).flatMap((childNode) => collectCourseNodeIdsForNode(childNode));
-    return [node.id, ...descendantNodeIds];
+    return collectKnowledgeSubtreeNodeIds(node);
   };
 
   const collectCourseFileKeysForNode = (node: KnowledgeGraphNode): React.Key[] => {

@@ -42,30 +42,30 @@ test("every approved page stays within the viewport without new React warnings",
 
 test("all nine generation configuration shells keep title and action reachable", async ({ teacherPage }) => {
   const resources = [
-    ["报告", "report"],
+    ["教学报告", "report"],
     ["教案", "lesson_plan"],
     ["教学博客", "blog"],
     ["习题", "quiz"],
     ["闪卡", "flashcard"],
     ["PPT", "ppt"],
     ["思维导图", "mind_map"],
-    ["小游戏", "game"],
+    ["课堂小游戏", "game"],
     ["AI 课堂", "classroom"],
   ] as const;
 
   for (const [label, type] of resources) {
     await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
-    await teacherPage.evaluate(() => window.localStorage.removeItem("edu-ai:generation-draft:course-physics"));
-    await teacherPage.reload({ waitUntil: "domcontentloaded" });
-    await teacherPage.getByRole("button", { name: "打开生成工厂面板" }).click();
-    await teacherPage.locator(".generation-factory__registry").getByRole("button", { name: label, exact: false }).click();
-    await teacherPage.getByRole("button", { name: "下一步" }).click();
-    await teacherPage.getByRole("radio", { name: "不使用资料", exact: false }).check();
-    await teacherPage.getByRole("button", { name: "下一步" }).click();
+    await teacherPage.waitForTimeout(500);
+    const factory = teacherPage.getByTestId("generation-factory");
+    const switcher = teacherPage.getByRole("button", { name: "生成工厂", exact: true });
+    if (!(await factory.isVisible()) && await switcher.isVisible()) await switcher.click();
+    await expect(factory).toBeVisible();
+    await teacherPage.locator(".generation-factory__registry").getByRole("button", { name: label, exact: true }).click();
 
     const form = teacherPage.locator(`[data-resource-form="${type}"]`);
-    const title = teacherPage.locator(".generation-config-shell h2");
-    const primary = teacherPage.locator(".generation-config-shell footer .is-primary");
+    const dialog = teacherPage.getByRole("dialog", { name: `配置${label}` });
+    const title = dialog.getByRole("heading", { name: label, exact: true });
+    const primary = dialog.getByRole("button", { name: "开始后台生成" });
     await expect(form).toBeVisible();
     await expect(title).toBeInViewport();
     await expect(primary).toBeInViewport();
@@ -82,6 +82,7 @@ test("all nine generation configuration shells keep title and action reachable",
       return count;
     });
     expect(scrollableAncestors).toBeLessThanOrEqual(2);
+    await dialog.getByRole("button", { name: "关闭" }).click();
   }
 });
 
@@ -101,7 +102,7 @@ test("loading, empty, error, and permission states remain usable", async ({ teac
   const emptyMaterials = (route: import("playwright/test").Route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" });
   await teacherPage.route("**/api/courses/course-physics/materials*", emptyMaterials);
   await teacherPage.goto("/#resources?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await expect(teacherPage.getByText("当前课程还没有生成资源", { exact: true })).toBeVisible();
+  await expect(teacherPage.getByText("你还没有生成资源", { exact: true })).toBeVisible();
   await expectNoPageOverflow(teacherPage);
   await teacherPage.unroute("**/api/courses/course-physics/materials*", emptyMaterials);
 

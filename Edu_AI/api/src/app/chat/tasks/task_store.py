@@ -167,6 +167,9 @@ class LeaseRecoverySummary:
     requeued: int = 0
     failed: int = 0
     canceled: int = 0
+    requeued_task_ids: tuple[str, ...] = ()
+    failed_task_ids: tuple[str, ...] = ()
+    canceled_task_ids: tuple[str, ...] = ()
 
 
 class TaskStore:
@@ -660,6 +663,9 @@ class TaskStore:
         requeued = 0
         failed = 0
         canceled = 0
+        requeued_task_ids: list[str] = []
+        failed_task_ids: list[str] = []
+        canceled_task_ids: list[str] = []
         with self._lock:
             try:
                 self._conn.execute("BEGIN IMMEDIATE")
@@ -673,6 +679,15 @@ class TaskStore:
                     """,
                     (float(DEFAULT_TASK_DEADLINE_SECONDS),),
                 )
+                pending_timeout_rows = self._conn.execute(
+                    """
+                    SELECT task_id FROM tasks
+                    WHERE status='pending'
+                      AND deadline_at IS NOT NULL
+                      AND deadline_at<=?
+                    """,
+                    (active_now,),
+                ).fetchall()
                 pending_timeouts = self._conn.execute(
                     """
                     UPDATE tasks
@@ -687,6 +702,9 @@ class TaskStore:
                     (active_now, active_now, active_now),
                 )
                 failed += int(pending_timeouts.rowcount)
+                failed_task_ids.extend(
+                    str(row["task_id"]) for row in pending_timeout_rows
+                )
                 rows = self._conn.execute(
                     """
                     SELECT task_id, attempt_count, max_attempts,
@@ -713,6 +731,7 @@ class TaskStore:
                             (active_now, active_now, row["task_id"]),
                         )
                         canceled += 1
+                        canceled_task_ids.append(str(row["task_id"]))
                     elif (
                         row["deadline_at"] is not None
                         and float(row["deadline_at"]) <= active_now
@@ -730,6 +749,7 @@ class TaskStore:
                             (active_now, active_now, row["task_id"]),
                         )
                         failed += 1
+                        failed_task_ids.append(str(row["task_id"]))
                     elif int(row["attempt_count"]) >= int(row["max_attempts"]):
                         self._conn.execute(
                             """
@@ -743,6 +763,7 @@ class TaskStore:
                             (active_now, active_now, row["task_id"]),
                         )
                         failed += 1
+                        failed_task_ids.append(str(row["task_id"]))
                     else:
                         self._conn.execute(
                             """
@@ -757,6 +778,7 @@ class TaskStore:
                             (active_now, active_now, row["task_id"]),
                         )
                         requeued += 1
+                        requeued_task_ids.append(str(row["task_id"]))
                 self._conn.commit()
             except Exception:
                 self._conn.rollback()
@@ -765,6 +787,9 @@ class TaskStore:
             requeued=requeued,
             failed=failed,
             canceled=canceled,
+            requeued_task_ids=tuple(requeued_task_ids),
+            failed_task_ids=tuple(failed_task_ids),
+            canceled_task_ids=tuple(canceled_task_ids),
         )
 
     def mark_reconciled_succeeded(
@@ -924,7 +949,6 @@ class TaskStore:
                     active_now,
                     active_now,
                     task_id,
-                    active_now,
                 ),
             )
             self._conn.commit()

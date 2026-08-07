@@ -89,6 +89,29 @@ export function presentJobError(job: JobRecord): JobUserMessage {
   };
 }
 
+/**
+ * Keep the task center user-facing even when an older worker stored an English
+ * implementation message in `job.message` or `job.step`.
+ */
+export function presentJobDetail(job: JobRecord): string {
+  if (job.status === "failed" || job.status === "partially_succeeded") {
+    const error = presentJobError(job);
+    return `${error.title}：${error.detail}`;
+  }
+
+  if (job.status === "succeeded") {
+    return job.kind === "render_video"
+      ? "导出完成，可以打开结果。"
+      : "生成完成，结果已保存到课程资源。";
+  }
+
+  if (job.status === "canceled") return "任务已取消。";
+  if (job.status === "cancel_requested") return "正在安全停止任务…";
+  if (job.status === "queued") return "任务已提交，正在等待后台处理。";
+  if (job.status === "running") return "后台正在处理中，请稍候。";
+  return "任务状态已更新。";
+}
+
 export type JobQualitySummary = {
   completedCount: number;
   failureCount: number;

@@ -2,13 +2,21 @@ import sys
 from pathlib import Path
 import uuid
 
+import pytest
+
 API_ROOT = Path(__file__).resolve().parents[2]
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app import courses
 from app.api import courses as courses_api
+from app.services.course_access import CoursePrincipal
 from app.services import course_service
+
+
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
 
 
 def _make_workspace_tmp(name: str) -> Path:
@@ -52,6 +60,15 @@ class FakeCourseManager:
     def get_knowledge_base_index(self, course_id):
         return list(self.index)
 
+    def save_knowledge_base_index(self, course_id, records):
+        self.index = list(records)
+        return True
+
+
+class FakeJob:
+    def model_dump(self, mode="json"):
+        return {"edu_job_id": "job-test", "kind": "rag_import", "status": "queued"}
+
 
 class FakeRAGSystem:
     def __init__(self, physical_path: Path, owner: str):
@@ -86,7 +103,8 @@ class FakeRAGSystem:
         return {"status": "success", "file": file_path, "chunk_count": 1}
 
 
-def test_add_rag_document_to_course_accepts_public_index_key(monkeypatch):
+@pytest.mark.anyio
+async def test_add_rag_document_to_course_accepts_public_index_key(monkeypatch):
     tmp_path = _make_workspace_tmp("courses_rag_resolution")
     rag_file = tmp_path / "rag-source" / "lesson.md"
     rag_file.parent.mkdir(parents=True, exist_ok=True)
@@ -96,14 +114,25 @@ def test_add_rag_document_to_course_accepts_public_index_key(monkeypatch):
 
     monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
     monkeypatch.setattr(courses_api, "get_rag_system", lambda: rag_system)
-
-    result = courses.add_rag_document_to_course_kb(
-        "course-1",
-        courses.AddRAGDocumentRequest(rag_file_path=rag_system.index_key),
-        current_user={"username": "alice"},
+    monkeypatch.setattr(
+        courses_api._knowledge,
+        "submit_index_job",
+        lambda **_kwargs: FakeJob(),
     )
 
-    assert result.name == "lesson.md"
-    assert result.file_path == "knowledge_base/lesson.md"
-    saved_path = manager.get_course_dir("course-1") / result.file_path
+    result = await courses.add_rag_document_to_course_kb(
+        "course-1",
+        courses.AddRAGDocumentRequest(rag_file_path=rag_system.index_key),
+        principal=CoursePrincipal(
+            course_id="course-1",
+            user_id="alice",
+            system_role="teacher",
+            course_role="editor",
+        ),
+    )
+
+    document = result["document"]
+    assert document.name == "lesson.md"
+    assert document.file_path is None
+    saved_path = manager.get_course_dir("course-1") / "knowledge_base" / "lesson.md"
     assert saved_path.read_text(encoding="utf-8") == "lesson content"

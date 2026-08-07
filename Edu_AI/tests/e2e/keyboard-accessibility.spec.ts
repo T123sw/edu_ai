@@ -30,17 +30,17 @@ async function keyboardActivate(locator: Locator, page: Page, key = "Enter") {
 
 test("teacher completes the core workflow with the keyboard only", async ({ teacherPage }, testInfo) => {
   let currentJobStatus: "running" | "canceled" = "running";
-  await teacherPage.route("http://localhost:8001/api/jobs/job-generated-fixture", (route) => route.fulfill({
+  await teacherPage.route("**/api/jobs/job-generated-fixture", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
     body: JSON.stringify(job(currentJobStatus)),
   }));
-  await teacherPage.route("http://localhost:8001/api/chat/v2/report/direct", (route) => route.fulfill({
+  await teacherPage.route("**/api/chat/v2/report/direct", (route) => route.fulfill({
     status: 202,
     contentType: "application/json",
     body: JSON.stringify(job("running")),
   }));
-  await teacherPage.route("http://localhost:8001/api/jobs/job-generated-fixture/cancel", (route: Route) => {
+  await teacherPage.route("**/api/jobs/job-generated-fixture/cancel", (route: Route) => {
     currentJobStatus = "canceled";
     return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(job("canceled")) });
   });
@@ -51,14 +51,14 @@ test("teacher completes the core workflow with the keyboard only", async ({ teac
     contentType: "application/json",
     body: JSON.stringify({ valid: false, user: null }),
   });
-  await teacherPage.route("http://localhost:8001/api/auth/verify", rejectVerify);
+  await teacherPage.route("**/api/auth/verify", rejectVerify);
   await teacherPage.reload({ waitUntil: "domcontentloaded" });
   await teacherPage.getByRole("textbox", { name: "账号", exact: true }).focus();
   await teacherPage.keyboard.type("teacher-a");
   await teacherPage.getByLabel("密码").focus();
   await teacherPage.keyboard.type("fixture-password");
   await keyboardActivate(teacherPage.getByRole("button", { name: /登\s*录/u }), teacherPage);
-  await teacherPage.unroute("http://localhost:8001/api/auth/verify", rejectVerify);
+  await teacherPage.unroute("**/api/auth/verify", rejectVerify);
   await expect(teacherPage.getByRole("link", { name: "大学物理" })).toBeVisible();
 
   await keyboardActivate(teacherPage.getByRole("link", { name: "大学物理" }), teacherPage);
@@ -73,44 +73,38 @@ test("teacher completes the core workflow with the keyboard only", async ({ teac
       teacherPage,
     );
   }
-  await keyboardActivate(teacherPage.getByRole("link", { name: "知识结构", exact: true }), teacherPage);
+  await keyboardActivate(teacherPage.getByRole("link", { name: "知识图谱", exact: true }), teacherPage);
   await expect(teacherPage).toHaveURL(/view=structure/u);
-  await keyboardActivate(teacherPage.getByRole("link", { name: "课程资料", exact: true }), teacherPage);
+  await keyboardActivate(teacherPage.getByRole("link", { name: "课程知识库", exact: true }), teacherPage);
   await expect(teacherPage).toHaveURL(/view=documents/u);
 
   await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await teacherPage.evaluate(() => window.localStorage.removeItem("edu-ai:generation-draft:course-physics"));
-  await teacherPage.reload({ waitUntil: "domcontentloaded" });
-  await keyboardActivate(teacherPage.getByRole("button", { name: "打开生成工厂面板" }), teacherPage);
-  await keyboardActivate(teacherPage.locator(".generation-factory__registry").getByRole("button", { name: "报告", exact: false }), teacherPage);
-  await keyboardActivate(teacherPage.getByRole("button", { name: "下一步" }), teacherPage);
-  await keyboardActivate(teacherPage.getByRole("radio", { name: "仅使用选中文档", exact: false }), teacherPage, "Space");
-  await keyboardActivate(teacherPage.getByRole("checkbox", { name: /大学物理·力学/u }), teacherPage, "Space");
-  await keyboardActivate(teacherPage.getByRole("button", { name: "下一步" }), teacherPage);
+  await teacherPage.waitForTimeout(500);
+  const factory = teacherPage.getByTestId("generation-factory");
+  const factorySwitcher = teacherPage.getByRole("button", { name: "生成工厂", exact: true });
+  if (!(await factory.isVisible()) && await factorySwitcher.isVisible()) await keyboardActivate(factorySwitcher, teacherPage);
+  await expect(factory).toBeVisible();
+  await keyboardActivate(teacherPage.locator(".generation-factory__registry").getByRole("button", { name: "教学报告", exact: true }), teacherPage);
   await teacherPage.getByLabel("报告主题 *").focus();
   await teacherPage.keyboard.press("Control+A");
   await teacherPage.keyboard.type("键盘验收报告");
-  await keyboardActivate(teacherPage.getByRole("button", { name: "下一步" }), teacherPage);
   await keyboardActivate(teacherPage.getByRole("button", { name: "开始后台生成" }), teacherPage);
-  const cancel = teacherPage.getByRole("button", { name: "取消任务" });
+  await keyboardActivate(teacherPage.getByRole("button", { name: /任务中心/ }), teacherPage);
+  const cancel = teacherPage.getByRole("dialog", { name: "任务中心" }).getByRole("button", { name: "取消", exact: true });
   await expect(cancel).toBeVisible();
   await keyboardActivate(cancel, teacherPage);
   await expect.poll(() => currentJobStatus).toBe("canceled");
+  await teacherPage.getByRole("dialog", { name: "任务中心" }).getByLabel("关闭任务中心").click();
 
-  await teacherPage.evaluate(() => window.localStorage.removeItem("edu-ai:generation-draft:course-physics"));
-  await teacherPage.reload({ waitUntil: "domcontentloaded" });
-  if (!(await teacherPage.getByTestId("generation-factory").isVisible())) {
-    await keyboardActivate(teacherPage.getByRole("button", { name: "打开生成工厂面板" }), teacherPage);
-  }
-  await keyboardActivate(teacherPage.locator(".generation-factory__registry").getByRole("button", { name: "小游戏", exact: false }), teacherPage);
-  await keyboardActivate(teacherPage.getByRole("button", { name: "下一步" }), teacherPage);
-  await keyboardActivate(teacherPage.getByRole("radio", { name: "不使用资料", exact: false }), teacherPage, "Space");
-  await keyboardActivate(teacherPage.getByRole("button", { name: "下一步" }), teacherPage);
+  if (!(await factory.isVisible()) && await factorySwitcher.isVisible()) await keyboardActivate(factorySwitcher, teacherPage);
+  await keyboardActivate(teacherPage.locator(".generation-factory__registry").getByRole("button", { name: "课堂小游戏", exact: true }), teacherPage);
   const memoryGame = teacherPage.getByRole("button", { name: "记忆翻牌", exact: false });
   await keyboardActivate(memoryGame, teacherPage);
   await expect(memoryGame).toHaveAttribute("aria-pressed", "true");
+  await teacherPage.getByRole("dialog", { name: "配置课堂小游戏" }).getByRole("button", { name: "取消" }).click();
 
   await teacherPage.goto("/#resources?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await keyboardActivate(teacherPage.getByRole("tab", { name: /课程共享/ }), teacherPage);
   const flashcardResource = teacherPage.getByRole("button", { name: /力学核心概念闪卡/u });
   await keyboardActivate(flashcardResource, teacherPage);
   const firstCard = teacherPage.locator(".resource-flashcard-grid button").first();
@@ -133,8 +127,13 @@ test("teacher completes the core workflow with the keyboard only", async ({ teac
 
 test("critical text and primary actions meet WCAG AA contrast", async ({ teacherPage }) => {
   await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await teacherPage.getByRole("button", { name: "打开生成工厂面板" }).click();
-  const primary = teacherPage.locator(".generation-config-shell footer .is-primary");
+  await teacherPage.waitForTimeout(500);
+  const factory = teacherPage.getByTestId("generation-factory");
+  const switcher = teacherPage.getByRole("button", { name: "生成工厂", exact: true });
+  if (!(await factory.isVisible()) && await switcher.isVisible()) await switcher.click();
+  await expect(factory).toBeVisible();
+  await teacherPage.getByRole("button", { name: "教学报告", exact: true }).click();
+  const primary = teacherPage.locator(".generation-factory__modal footer .is-primary");
   await expect(primary).toBeVisible();
   const ratio = await primary.evaluate((element) => {
     const parse = (value: string) => (value.match(/[\d.]+/gu) || []).slice(0, 3).map(Number);

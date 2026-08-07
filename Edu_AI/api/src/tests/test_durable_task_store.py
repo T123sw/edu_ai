@@ -130,6 +130,7 @@ def test_expired_lease_returns_to_pending_until_max_attempts(tmp_path):
 
     assert summary.requeued == 1
     assert summary.failed == 0
+    assert summary.requeued_task_ids == ("job-1",)
     assert recovered is not None
     assert recovered.status == "pending"
     assert recovered.lease_owner is None
@@ -151,6 +152,7 @@ def test_expired_lease_fails_after_max_attempts(tmp_path):
 
     assert summary.requeued == 0
     assert summary.failed == 1
+    assert summary.failed_task_ids == ("job-1",)
     assert recovered is not None
     assert recovered.status == "failed"
     assert recovered.error_code == "WORKER_LOST"
@@ -186,9 +188,30 @@ def test_recovery_fails_legacy_pending_task_after_bounded_deadline(tmp_path):
     recovered = store.get_durable("job-legacy")
 
     assert summary.failed == 1
+    assert summary.failed_task_ids == ("job-legacy",)
     assert recovered is not None
     assert recovered.status == "failed"
     assert recovered.error_code == "GENERATION_DEADLINE_EXCEEDED"
+    store.close()
+
+
+def test_mark_failed_without_a_lease_persists_user_visible_failure(tmp_path):
+    store = TaskStore(str(tmp_path / "tasks.db"))
+    enqueue_task(store, "job-failed")
+
+    store.mark_failed(
+        "job-failed",
+        "provider unavailable",
+        error_code="TASK_EXECUTION_FAILED",
+        now=123.0,
+    )
+
+    failed = store.get_durable("job-failed")
+    assert failed is not None
+    assert failed.status == "failed"
+    assert failed.error_code == "TASK_EXECUTION_FAILED"
+    assert failed.error == "provider unavailable"
+    assert failed.finished_at == 123.0
     store.close()
 
 

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { presentJobError, summarizeJobs } from "./jobPresentation.ts";
+import {
+  presentJobDetail,
+  presentJobError,
+  summarizeJobs,
+} from "./jobPresentation.ts";
 import type { JobRecord } from "./types.ts";
 
 function terminalJob(
@@ -122,4 +126,28 @@ test("presentJobError never exposes unknown technical error text", () => {
   assert.equal(presented.title, "任务暂时未完成");
   assert.match(presented.detail, /任务 ID：unknown/);
   assert.doesNotMatch(presented.detail, /Traceback|provider|internal\.py/);
+});
+
+test("presentJobDetail replaces legacy English worker messages", () => {
+  const succeeded = {
+    ...terminalJob(
+      "legacy-success",
+      "succeeded",
+      "2026-08-06T10:00:00.000Z",
+      "2026-08-06T10:00:01.000Z",
+    ),
+    message: "Classroom generation completed",
+  };
+  const queued = {
+    ...terminalJob(
+      "legacy-queued",
+      "queued",
+      "2026-08-06T10:00:00.000Z",
+      "2026-08-06T10:00:01.000Z",
+    ),
+    message: "Task recovered and requeued",
+  };
+
+  assert.equal(presentJobDetail(succeeded), "生成完成，结果已保存到课程资源。");
+  assert.equal(presentJobDetail(queued), "任务已提交，正在等待后台处理。");
 });

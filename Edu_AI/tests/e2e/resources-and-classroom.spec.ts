@@ -1,7 +1,10 @@
 import { expect, test } from "./fixtures/teacherApp";
 
 test("course resources constrain hostile content and expose factual metadata", async ({ teacherPage }) => {
-  await teacherPage.goto("/#resources?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await teacherPage.goto(
+    "/#resources?course_id=course-physics&material_type=report&material_id=report-hostile-content",
+    { waitUntil: "domcontentloaded" },
+  );
 
   await expect(teacherPage.getByRole("heading", { name: /极端内容边界验收报告/ })).toBeVisible();
   await expect(teacherPage.getByText("唐老师", { exact: true })).toBeVisible();

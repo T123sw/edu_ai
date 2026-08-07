@@ -9,8 +9,10 @@ test("course workspace has one stable navigation and main landmark", async ({
 
   await expect(teacherPage.getByTestId("course-shell")).toBeVisible();
   await expect(teacherPage.locator("main")).toHaveCount(1);
-  await expect(teacherPage.locator("[data-course-title]")) .toHaveCount(1);
   await expect(teacherPage.locator("[aria-current='page']")).toHaveCount(1);
+  await expect(teacherPage.getByText("当前课程")).toHaveCount(0);
+  await expect(teacherPage.getByRole("button", { name: /任务中心/ })).toBeVisible();
+  await expect(teacherPage.getByRole("link", { name: "个人中心" })).toBeVisible();
 
   const overflows = await teacherPage.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
@@ -25,7 +27,7 @@ test("course workspace has one stable navigation and main landmark", async ({
   }
 });
 
-test("course navigation keeps the course identity and changes the task page", async ({
+test("course navigation keeps global actions and changes the task page", async ({
   teacherPage,
 }) => {
   await teacherPage.goto("/#course-detail?course_id=course-physics", {
@@ -35,5 +37,7 @@ test("course navigation keeps the course identity and changes the task page", as
   await teacherPage.getByRole("link", { name: "课程资源" }).click();
   await expect(teacherPage).toHaveURL(/#resources\?course_id=course-physics/);
   await expect(teacherPage.getByRole("heading", { name: "课程资源", exact: true })).toBeVisible();
-  await expect(teacherPage.getByTestId("course-shell")).toContainText("大学物理");
+  await expect(teacherPage.getByRole("button", { name: /任务中心/ })).toBeVisible();
+  await expect(teacherPage.getByRole("link", { name: "个人中心" })).toBeVisible();
+  await expect(teacherPage.getByText("当前课程")).toHaveCount(0);
 });

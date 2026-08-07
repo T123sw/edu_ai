@@ -86,9 +86,9 @@ function formatMaterialDate(material: CourseMaterial): string {
 function getMaterialSummary(material: CourseMaterial): string {
   if (material.material_type === "classroom") {
     const scenes = material.scenes_count ?? material.scenes?.length ?? 0;
-    return `${scenes} 个场景 · ${formatMaterialDate(material)}`;
+    return `${scenes} 个场景 · 更新于 ${formatMaterialDate(material)}`;
   }
-  return material.summary || `更新于 ${formatMaterialDate(material)}`;
+  return `更新于 ${formatMaterialDate(material)}`;
 }
 
 export function CourseResourcesPage() {
@@ -143,7 +143,12 @@ export function CourseResourcesPage() {
         );
         let nextPersonal = personalData;
         let nextShared = sharedData;
-        let nextSpace: CourseMaterialSpace = personalData.length > 0 ? "mine" : "course";
+        let nextSpace: CourseMaterialSpace = resourceSpace;
+        if (nextSpace === "mine" && personalData.length === 0 && sharedData.length > 0) {
+          nextSpace = "course";
+        } else if (nextSpace === "course" && sharedData.length === 0 && personalData.length > 0) {
+          nextSpace = "mine";
+        }
         let requestedKey: string | null = null;
         if (requestedTarget) {
           requestedKey = courseMaterialKey(
@@ -229,7 +234,7 @@ export function CourseResourcesPage() {
     return () => {
       cancelled = true;
     };
-  }, [course.id, reloadToken, sort]);
+  }, [course.id, reloadToken, resourceSpace, sort]);
 
   const filteredMaterials = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
