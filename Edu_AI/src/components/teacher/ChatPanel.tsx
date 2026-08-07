@@ -403,6 +403,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     () => getWorkspaceScopeApiParams(normalizedWorkspaceScope),
     [normalizedWorkspaceScope],
   );
+
+  useEffect(() => {
+    if (workspaceScopeApiParams.scopeType === 'knowledge_point') {
+      setAllowRag(true);
+    }
+  }, [setAllowRag, workspaceScopeApiParams.scopeType]);
   const workspaceKnowledgeBaseLabel = useMemo(
     () => getWorkspaceKnowledgeBaseLabel(normalizedWorkspaceScope),
     [normalizedWorkspaceScope],

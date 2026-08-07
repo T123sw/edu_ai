@@ -73,3 +73,47 @@
 .generation-task-status p { margin-top: 4px; color: #64748b; font-size: 9px; line-height: 1.5; }
 .generation-task-status progress { width: 100%; margin-top: 8px; }
 @media (max-width: 1180px) { .generation-factory__registry { grid-template-columns: minmax(0,1fr); } }
+
+.generation-factory--direct { position: relative; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+.generation-factory__header { flex: none; border-bottom: 1px solid #e8edf5; padding: 17px 18px 13px; }
+.generation-factory__header > span { color: #3157d5; font-size: 10px; font-weight: 850; letter-spacing: .08em; }
+.generation-factory__header h2 { margin: 4px 0 0; color: #172033; font-size: 17px; font-weight: 850; }
+.generation-factory--direct > .generation-factory__registry { flex: none; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; padding: 14px; }
+.generation-factory--direct > .generation-factory__registry button { display: flex; min-height: 74px; align-items: center; justify-content: center; gap: 7px; border-radius: 13px; padding: 9px 6px; text-align: center; cursor: pointer; }
+.generation-factory--direct > .generation-factory__registry button:hover { border-color: var(--resource-accent); background: #fafcff; transform: translateY(-1px); }
+.generation-factory--direct > .generation-factory__registry .app-icon { font-size: 20px; }
+.generation-factory--direct > .generation-factory__registry strong { margin: 0; font-size: 13px; }
+.generation-factory__recent { display: flex; min-height: 0; flex: 1; flex-direction: column; border-top: 1px solid #e8edf5; padding: 14px; }
+.generation-factory__recent-title { display: flex; flex: none; align-items: center; justify-content: space-between; padding: 0 2px 10px; }
+.generation-factory__recent-title strong { font-size: 14px; }
+.generation-factory__recent-title span { color: #7b8799; font-size: 10px; }
+.generation-factory__recent-list { min-height: 0; flex: 1; overflow-y: auto; }
+.generation-factory__recent-list > p { border-radius: 12px; background: #f5f7fa; padding: 16px; color: #78869a; font-size: 11px; text-align: center; }
+.generation-factory__job { display: flex; align-items: center; gap: 9px; border-bottom: 1px solid #edf1f6; padding: 11px 2px; color: inherit; }
+.generation-factory__job-icon { display: grid; width: 32px; height: 32px; flex: none; place-items: center; border-radius: 10px; background: #edf3ff; color: #3157d5; }
+.generation-factory__job-icon.is-failed { background: #fff0f0; color: #c73636; }
+.generation-factory__job > div { min-width: 0; flex: 1; }
+.generation-factory__job strong,.generation-factory__job small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.generation-factory__job strong { font-size: 12px; }
+.generation-factory__job small { margin-top: 4px; color: #7b8799; font-size: 10px; }
+.generation-factory__job-state { flex: none; border-radius: 99px; background: #eef3ff; padding: 4px 7px; color: #3157d5; font-size: 9px; font-weight: 800; }
+.generation-factory__job-state.is-succeeded { background: #eaf8ef; color: #257448; }
+.generation-factory__job-state.is-failed,.generation-factory__job-state.is-canceled { background: #fff0f0; color: #b63232; }
+.generation-factory__modal-backdrop { position: fixed; z-index: 160; inset: 0; display: grid; place-items: center; background: rgba(14,25,44,.4); padding: 24px; backdrop-filter: blur(3px); }
+.generation-factory__modal { display: flex; width: min(680px,calc(100vw - 32px)); max-height: min(780px,calc(100vh - 40px)); flex-direction: column; overflow: hidden; border: 1px solid #dce4f1; border-radius: 22px; background: #fff; box-shadow: 0 30px 90px rgba(19,38,75,.26); }
+.generation-factory__modal > header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4eaf3; padding: 18px 22px; }
+.generation-factory__modal > header span { color: #3157d5; font-size: 10px; font-weight: 850; }
+.generation-factory__modal > header h2 { margin: 3px 0 0; font-size: 22px; }
+.generation-factory__modal > header button { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid #dce4ee; border-radius: 11px; background: #fff; cursor: pointer; }
+.generation-factory__modal-body { min-height: 0; overflow-y: auto; padding: 20px 22px; }
+.generation-factory__modal .generation-factory__form label span { font-size: 12px; }
+.generation-factory__modal .generation-factory__form input,.generation-factory__modal .generation-factory__form textarea,.generation-factory__modal .generation-factory__form select { font-size: 13px; }
+.generation-factory__source-details { margin-top: 18px; border-top: 1px solid #e6ebf2; padding-top: 14px; }
+.generation-factory__source-details summary { color: #43516a; font-size: 12px; font-weight: 800; cursor: pointer; }
+.generation-factory__source-details .generation-source { margin-top: 13px; }
+.generation-factory__modal > footer { display: flex; justify-content: flex-end; gap: 9px; border-top: 1px solid #e4eaf3; padding: 13px 20px; }
+.generation-factory__modal > footer button { border: 1px solid #d5ddea; border-radius: 10px; background: #fff; padding: 10px 16px; color: #44536a; font-size: 12px; font-weight: 800; cursor: pointer; }
+.generation-factory__modal > footer button.is-primary { border-color: #3157d5; background: #3157d5; color: #fff; }
+.generation-factory__modal > footer button:disabled { opacity: .55; cursor: wait; }
+
+@media (max-width: 1180px) { .generation-factory--direct > .generation-factory__registry { grid-template-columns: repeat(3,minmax(0,1fr)); } }

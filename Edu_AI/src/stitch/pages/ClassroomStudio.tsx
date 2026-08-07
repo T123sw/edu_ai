@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getCourseMaterials } from "../api/courses";
-import { CLASSROOM_STEP_LABELS, generateClassroom } from "../api/classroom";
+import { generateClassroom } from "../api/classroom";
 import type { ClassroomMaterial } from "../api/types";
-import { AppSurface, GlassPanel, MaterialIcon, useAppShell } from "../shared";
+import { AppSurface, GlassPanel, MaterialIcon } from "../shared";
 import { buildClassroomPlayerHash } from "../../openmaic/classroomGenerationFlow";
-import { buildTeacherCourseHash } from "../teacherRoutes";
 import { registerCreatedJob, useCourseJobs } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
@@ -13,6 +12,7 @@ import { classroomDefinition } from "../../components/teacher/generation/definit
 import { ClassroomForm } from "../../components/teacher/generation/forms/ClassroomForm";
 import "../../components/teacher/generation/generationFactory.css";
 import { classroomPageDefinition } from "./classroomPageDefinition";
+import { presentJobError } from "../../jobs/jobPresentation";
 
 export { classroomPageDefinition } from "./classroomPageDefinition";
 
@@ -25,7 +25,7 @@ function useClassroomList(courseId: string | undefined, reloadToken: number) {
     if (!courseId) return;
     let cancelled = false;
     setLoading(true);
-    getCourseMaterials(courseId, { materialType: "classroom" })
+    getCourseMaterials(courseId, { materialType: "classroom", sort: "updated_desc" })
       .then((data) => {
         if (!cancelled) setItems(data as unknown as ClassroomMaterial[]);
       })
@@ -44,8 +44,7 @@ function useClassroomList(courseId: string | undefined, reloadToken: number) {
 }
 
 export function ClassroomStudioPage() {
-  const { selectedCourse } = useAppShell();
-  const { courseId: routeCourseId, courseRole, course: routeCourse } = useCourseRoute();
+  const { courseId: routeCourseId, courseRole } = useCourseRoute();
   const courseId = routeCourseId ?? undefined;
   const canGenerate = canCourse(courseRole, "generate");
   const [classroomConfig, setClassroomConfig] = useState(() => classroomPageDefinition.defaultConfig());
@@ -53,6 +52,7 @@ export function ClassroomStudioPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showErrors, setShowErrors] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const reloadedJobIdsRef = useRef(new Set<string>());
   const { items, loading, error } = useClassroomList(courseId, reloadToken);
@@ -89,6 +89,7 @@ export function ClassroomStudioPage() {
       const created = await generateClassroom(courseId, request);
       registerCreatedJob(created);
       setSelectedJobId(created.edu_job_id);
+      setConfigOpen(false);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "提交生成任务失败");
     } finally {
@@ -116,81 +117,24 @@ export function ClassroomStudioPage() {
   const isBusy = Boolean(job && isActiveJob(job));
 
   return (
-    <AppSurface className="min-h-screen">
-      <main className="w-full px-8 py-10">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <a
-            href={buildTeacherCourseHash("course-detail", courseId)}
-            className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-semibold text-(--accent-strong)"
-          >
-            <MaterialIcon name="arrow_back" className="text-sm" />
-            返回课程详情
-          </a>
-          <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent-strong)">AI 课件生成</p>
-            <h2 className="mt-1 text-xl font-black text-(--app-text)">{routeCourse?.title || selectedCourse?.title}</h2>
+    <AppSurface className="min-h-[calc(100vh-var(--course-header-height))]">
+      <main className="mx-auto w-full max-w-6xl px-6 py-7 sm:px-8">
+        <GlassPanel className="mb-6 flex items-center justify-between gap-6 border border-(--shell-border) bg-white/88 p-6">
+          <div>
+            <p className="text-xs font-bold tracking-[0.12em] text-(--accent-strong)">互动课堂</p>
+            <h2 className="mt-2 text-2xl font-black text-(--app-text)">把一个研究主题变成可播放课堂</h2>
+            <p className="mt-2 text-sm text-(--muted-text)">系统会自动组织讲解、提问与课堂场景，你只需提供主题。</p>
           </div>
-        </div>
-
-        <GlassPanel className="mb-6 border border-(--shell-border) bg-white/88 p-6">
-          <p className="mb-3 text-sm font-bold text-(--accent-strong)">生成新课件</p>
-          {!canGenerate ? (
-            <p className="mb-4 rounded-2xl bg-sky-50 px-4 py-3 text-sm text-sky-800">
-              当前为只读课程角色，可以查看和播放已有课件，但不能提交新的生成任务。
-            </p>
-          ) : null}
-          <div aria-disabled={isBusy || !canGenerate}>
-            <ClassroomForm value={classroomConfig} onChange={setClassroomConfig} errors={showErrors ? classroomDefinition.validate(classroomConfig) : {}} />
-          </div>
-          <div className="mt-3 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={submitting || isBusy || !canGenerate}
-              className="inline-flex items-center gap-2 rounded-2xl bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
-            >
-              <MaterialIcon name="auto_awesome" className="text-base" />
-              {submitting ? "提交中..." : "开始生成"}
-            </button>
-            {submitError ? <span className="text-sm text-rose-600">{submitError}</span> : null}
-          </div>
-
-          {job ? (
-            <div className="mt-5 rounded-2xl border border-(--shell-border) bg-(--surface-subtle) p-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-(--accent-strong)">
-                  {CLASSROOM_STEP_LABELS[job.step] ?? job.step}
-                </span>
-                <span className="text-(--muted-text)">{job.progress}%</span>
-              </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-(--track-color)">
-                <div
-                  className={`h-full rounded-full transition-all ${job.status === "failed" ? "bg-rose-500" : "bg-(--accent)"}`}
-                  style={{ width: `${Math.max(job.status === "failed" ? 100 : job.progress, 4)}%` }}
-                />
-              </div>
-              <p className="mt-2 text-xs text-(--muted-text)">{job.message}</p>
-              {job.status === "failed" ? (
-                <p className="mt-2 text-xs text-rose-600">
-                  生成失败：{job.error_message || job.error || "请在任务中心重试"}
-                </p>
-              ) : null}
-              {job.status === "canceled" ? (
-                <p className="mt-2 text-xs text-(--muted-text)">任务已取消</p>
-              ) : null}
-              {job.status === "succeeded" && typeof job.result_ref?.classroom_id === "string" ? (
-                <button
-                  type="button"
-                  onClick={() => openPlayer(job.result_ref!.classroom_id as string)}
-                  className="mt-3 inline-flex items-center gap-2 rounded-xl bg-(--accent) px-4 py-2 text-xs font-bold text-white"
-                >
-                  <MaterialIcon name="play_circle" className="text-sm" />
-                  立即播放
-                </button>
-              ) : null}
-            </div>
-          ) : null}
+          {canGenerate && <button type="button" disabled={isBusy} onClick={() => setConfigOpen(true)} className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-(--accent) px-5 py-3 text-sm font-bold text-white disabled:opacity-50"><MaterialIcon name="add" />创建 AI 课堂</button>}
         </GlassPanel>
+
+        {job && isActiveJob(job) ? <GlassPanel className="mb-6 border border-blue-200 bg-blue-50/80 p-5">
+          <div className="flex items-center justify-between"><strong className="text-sm text-blue-900">课堂正在后台生成</strong><span className="text-sm text-blue-700">{job.progress}%</span></div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${Math.max(job.progress, 4)}%` }} /></div>
+          <p className="mt-2 text-xs text-blue-700">可以离开本页，完成后会出现在下方列表和后台任务中心。</p>
+        </GlassPanel> : null}
+
+        {job?.status === "failed" ? <div className="mb-6 rounded-2xl bg-rose-50 px-5 py-4 text-sm text-rose-700">{presentJobError(job).title}：{presentJobError(job).detail}</div> : null}
 
         <GlassPanel className="border border-(--shell-border) bg-white/88 p-6">
           <div className="mb-4 flex items-center justify-between">
@@ -226,6 +170,17 @@ export function ClassroomStudioPage() {
             </div>
           )}
         </GlassPanel>
+
+        {configOpen ? <div className="generation-factory__modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfigOpen(false)}>
+          <section className="generation-factory__modal" role="dialog" aria-modal="true" aria-label="创建 AI 课堂">
+            <header><div><span>创建资源</span><h2>AI 课堂</h2></div><button type="button" aria-label="关闭" onClick={() => setConfigOpen(false)}><MaterialIcon name="close" /></button></header>
+            <div className="generation-factory__modal-body">
+              <ClassroomForm value={classroomConfig} onChange={setClassroomConfig} errors={showErrors ? classroomDefinition.validate(classroomConfig) : {}} />
+              {submitError ? <p className="generation-factory__error">{submitError}</p> : null}
+            </div>
+            <footer><button type="button" onClick={() => setConfigOpen(false)}>取消</button><button type="button" className="is-primary" disabled={submitting} onClick={() => void handleGenerate()}>{submitting ? "正在提交…" : "开始后台生成"}</button></footer>
+          </section>
+        </div> : null}
       </main>
     </AppSurface>
   );

@@ -6,16 +6,10 @@ import "../../pages/teacher/AiStudioPage.css";
 import { useStore } from "../../store/teacher/useStore";
 import {
   AppSurface,
-  MaterialIcon,
-  SidebarBackLink,
-  SidebarDock,
-  SidebarNav,
-  routeHref,
   routes,
   useAppShell,
 } from "../shared";
 import {
-  getWorkspaceScopeLabel,
   normalizeWorkspaceScope,
   readWorkspaceScopeFromSearch,
   writeWorkspaceScopeToSearch,
@@ -49,7 +43,6 @@ export function AIWorkspacePage() {
   const [drawerPanel, setDrawerPanel] = useState<"source" | "studio" | null>(null);
   const { workspaceRef, layoutMode } = useAiStudioLayout<HTMLDivElement>();
 
-  const courseLabel = selectedCourse?.title?.trim() || "未指定课程";
   const workspaceScope = useMemo(() => {
     const current = readWorkspaceScopeFromSearch(getHashSearchParams(hash));
     const firstTopic = Array.isArray(statusCard?.topics)
@@ -61,8 +54,6 @@ export function AIWorkspacePage() {
       scopeLabel: current.scopeLabel || (current.scopeType === "knowledge_point" ? firstTopic : "课程总目录"),
     });
   }, [hash, statusCard]);
-  const knowledgePointLabel = getWorkspaceScopeLabel(workspaceScope);
-
   useEffect(() => {
     const syncHash = () => setHash(window.location.hash);
     window.addEventListener("hashchange", syncHash);
@@ -125,70 +116,9 @@ export function AIWorkspacePage() {
     }
   };
 
-  const openRightPanel = () => {
-    if (layoutMode === "drawer") {
-      setDrawerPanel("studio");
-      return;
-    }
-    setRightCollapsed(false);
-    if (layoutMode === "compact") setLeftCollapsed(true);
-  };
-
   return (
-    <AppSurface className="ai-workspace-shell flex min-h-screen">
-      <SidebarDock className="ai-workspace-shell__sidebar h-screen px-5 py-6">
-        <div className="mb-6">
-          <SidebarBackLink />
-          <h1 className="text-xl font-black tracking-tight text-(--accent-strong)">
-            {courseLabel}
-          </h1>
-          <p className="mt-1 text-sm text-(--muted-text)">教师 AI 工作台</p>
-        </div>
-        <SidebarNav activeRoute={routes.ai} />
-      </SidebarDock>
-
-      <main className="ai-workspace-shell__main flex h-screen min-h-0 flex-1 flex-col overflow-hidden">
-        <section className="ai-studio-context-bar ai-workspace-shell__context" aria-label="当前问答上下文">
-          <div className="ai-studio-context-bar__scope">
-            <div className="ai-studio-context-bar__item">
-              <span className="ai-studio-context-bar__label">当前课程</span>
-              <span className="ai-studio-context-bar__value" title={courseLabel}>
-                {courseLabel}
-              </span>
-            </div>
-
-            <span className="ai-studio-context-bar__divider" aria-hidden="true" />
-
-            <div className="ai-studio-context-bar__item">
-              <span className="ai-studio-context-bar__label">当前知识点</span>
-              <span className="ai-studio-context-bar__value" title={knowledgePointLabel}>
-                {knowledgePointLabel}
-              </span>
-            </div>
-          </div>
-
-          <div className="ai-studio-context-bar__actions" aria-label="全局操作">
-            <button
-              type="button"
-              className="ai-studio-context-bar__factory-trigger"
-              aria-label="打开生成工厂面板"
-              onClick={openRightPanel}
-            >
-              生成工厂
-            </button>
-            <a
-              href={routeHref(routes.profile)}
-              className="ai-studio-profile-entry"
-              aria-label="进入个人中心"
-            >
-              <span className="ai-studio-profile-entry__icon">
-                <MaterialIcon name="person" />
-              </span>
-              <span>个人中心</span>
-            </a>
-          </div>
-        </section>
-
+    <AppSurface className="ai-workspace-shell h-[calc(100vh-var(--course-header-height))] overflow-hidden">
+      <main className="ai-workspace-shell__main flex h-full min-h-0 flex-1 flex-col overflow-hidden">
         <div className="ai-workspace-shell__frame">
           <div
             ref={workspaceRef}

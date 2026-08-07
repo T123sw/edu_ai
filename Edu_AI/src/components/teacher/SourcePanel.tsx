@@ -283,6 +283,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [researchLoading, setResearchLoading] = useState(false);
   const [researchResults, setResearchResults] = useState<CrawlResult[]>([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [libraryTab, setLibraryTab] = useState<typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE>(COURSE_LIBRARY_TYPE);
 
   // 预览（覆盖列表）
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -323,6 +324,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           aggregate: scopeType === 'course',
           libraryType: COURSE_LIBRARY_TYPE,
           includeDescendants: true,
+          sort: 'created_desc',
+          limit: 200,
         }),
         getKnowledgeBaseDocuments(courseId, token, {
           scopeType,
@@ -330,6 +333,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           aggregate: false,
           libraryType: PERSONAL_LIBRARY_TYPE,
           includeDescendants: false,
+          sort: 'created_desc',
+          limit: 200,
         }),
         shouldLoadLegacyRagDocuments ? listDocuments() : Promise.resolve([]),
       ]);
@@ -361,11 +366,13 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
     const visibleKeys = new Set(combinedFiles.map((file) => file.key));
     const currentSelectedDocs = useStore.getState().selectedDocs;
-    const nextSelectedDocs = currentSelectedDocs.filter((docId) => visibleKeys.has(docId));
-    if (nextSelectedDocs.length !== currentSelectedDocs.length) {
+    const nextSelectedDocs = workspaceScope?.scopeType === 'knowledge_point'
+      ? formattedFiles.courseFiles.map((file) => file.key)
+      : currentSelectedDocs.filter((docId) => visibleKeys.has(docId));
+    if (nextSelectedDocs.length !== currentSelectedDocs.length || nextSelectedDocs.some((id, index) => id !== currentSelectedDocs[index])) {
       setSelectedDocs(nextSelectedDocs);
     }
-  }, [setScopedSourceDocIds, setSelectedDocs]);
+  }, [setScopedSourceDocIds, setSelectedDocs, workspaceScope?.scopeType]);
 
   useEffect(() => {
     if (!courseId) {
@@ -1561,7 +1568,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           </span>
           <span className="source-panel__item-copy">
             <span className="source-panel__item-title">{file.title}</span>
-            {file.knowledgeStatus ? (
+            {file.knowledgeStatus && file.knowledgeStatus !== 'received' ? (
               <span className="source-panel__item-meta">
                 <Tag color={KNOWLEDGE_STATUS_META[file.knowledgeStatus].color}>
                   {KNOWLEDGE_STATUS_META[file.knowledgeStatus].label}
@@ -1815,6 +1822,14 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       </div>
 
       <div className="source-panel__tools">
+        <div className="source-panel__library-tabs" role="tablist" aria-label="知识库范围">
+          <button type="button" role="tab" aria-selected={libraryTab === COURSE_LIBRARY_TYPE} onClick={() => setLibraryTab(COURSE_LIBRARY_TYPE)}>
+            课程知识库 <span>{courseFileList.length}</span>
+          </button>
+          <button type="button" role="tab" aria-selected={libraryTab === PERSONAL_LIBRARY_TYPE} onClick={() => setLibraryTab(PERSONAL_LIBRARY_TYPE)}>
+            个人知识库 <span>{personalFileList.length}</span>
+          </button>
+        </div>
         <div className="source-panel__search-shell">
           <Input
             value={searchDraftValue}
@@ -1901,7 +1916,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                     </div>
                   );
                 })}
-                <div className="source-panel__library-group">
+                {libraryTab === COURSE_LIBRARY_TYPE ? <div className="source-panel__library-group">
                   <div className="source-panel__library-heading">
                     <span>课程知识库</span>
                     <Text type="secondary">{courseFileList.length} 项</Text>
@@ -1913,8 +1928,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   ) : (
                     <div className="source-panel__empty"><Text type="secondary">暂无课程资料</Text></div>
                   )}
-                </div>
-                <div className="source-panel__library-group">
+                </div> : null}
+                {libraryTab === PERSONAL_LIBRARY_TYPE ? <div className="source-panel__library-group">
                   <div className="source-panel__library-heading">
                     <span>个人知识库</span>
                     <Text type="secondary">{personalFileList.length} 项</Text>
@@ -1924,7 +1939,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   ) : (
                     <div className="source-panel__empty"><Text type="secondary">暂无个人资料</Text></div>
                   )}
-                </div>
+                </div> : null}
               </div>
           </Spin>
         </div>
