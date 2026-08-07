@@ -1010,6 +1010,74 @@ class CourseStorageManager:
             print(f"Error loading stored generated material: {e}")
             return None
 
+    def save_published_material_manifest(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        material_data: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        normalized_material_type = str(material_type or "").strip()
+        if normalized_material_type not in FORMAL_MATERIAL_TYPES:
+            raise ValueError(f"unsupported material type: {normalized_material_type}")
+        safe_material_id = self._normalize_material_id(material_id)
+        if not safe_material_id:
+            raise ValueError("material_id is required")
+        material_file = self._material_file(
+            course_id, normalized_material_type, safe_material_id
+        )
+        with self._storage_lock():
+            existing = self._read_json(material_file) or {}
+            now = datetime.now().isoformat()
+            payload = copy.deepcopy(dict(material_data or {}))
+            payload.update(
+                {
+                    "schema_version": 2,
+                    "version": int(existing.get("version") or 0) + 1,
+                    "material_id": safe_material_id,
+                    "material_type": normalized_material_type,
+                    "course_id": course_id,
+                    "visibility": "course",
+                    "owner_user_id": None,
+                    "created_at": str(existing.get("created_at") or now),
+                    "updated_at": now,
+                }
+            )
+            payload.setdefault("scope_type", SCOPE_TYPE_COURSE)
+            payload.setdefault("scope_id", None)
+            payload.setdefault("status", "ready")
+            payload.setdefault("is_pinned", bool(existing.get("is_pinned", False)))
+            payload.setdefault("pinned_at", existing.get("pinned_at"))
+            self._write_json(material_file, payload)
+        return self._normalize_material_manifest(
+            payload,
+            course_id=course_id,
+            material_type=normalized_material_type,
+            material_id=safe_material_id,
+        )
+
+    def update_generated_material_metadata(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        updates: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        material_file = self._material_file(course_id, material_type, material_id)
+        with self._storage_lock():
+            stored = self._read_json(material_file)
+            if not stored:
+                return None
+            stored.update(copy.deepcopy(dict(updates or {})))
+            stored["updated_at"] = datetime.now().isoformat()
+            self._write_json(material_file, stored)
+        return self._normalize_material_manifest(
+            stored,
+            course_id=course_id,
+            material_type=material_type,
+            material_id=material_id,
+        )
+
     def get_generated_material(
         self,
         course_id: str,
