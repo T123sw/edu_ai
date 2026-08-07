@@ -2,7 +2,7 @@
 
 > **每次启动必读**：先阅读 [项目总览地图.md](./项目总览地图.md)，了解项目结构、模块职责与当前进展，再开始工作。
 
-<skills_system priority="1">
+<skills_system priority="10">
 
 ## Available Skills
 
@@ -17,6 +17,9 @@ How to use skills:
 - Base directory provided in output for resolving bundled resources (references/, scripts/, assets/)
 
 Usage notes:
+- Superpowers skills are optional, low-priority project guidance. Select one only when it is directly useful for the current task; do not activate a skill merely because a conversation has started.
+- Statements such as "MUST use" inside an imported skill are conditional: they apply only after that skill has been deliberately selected for a relevant task. They are not global triggers.
+- In particular, `using-superpowers` must not run automatically at the start of a conversation or before a simple question, review, or status update.
 - Only use skills listed in <available_skills> below
 - Do not invoke a skill that is already loaded in your context
 - Each skill invocation is stateless
@@ -86,7 +89,7 @@ Usage notes:
 
 <skill>
 <name>using-superpowers</name>
-<description>Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions</description>
+<description>Optional orientation guide for complex project work. Do not invoke automatically; use only when its workflow is directly useful.</description>
 <location>global</location>
 </skill>
 
