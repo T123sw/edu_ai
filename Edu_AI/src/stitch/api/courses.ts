@@ -97,6 +97,7 @@ export function getCourseMaterials(courseId: string, options?: CourseMaterialsSc
   if (typeof options?.aggregate === "boolean") params.set("aggregate", options.aggregate ? "true" : "false");
   if (typeof options?.limit === "number") params.set("limit", String(options.limit));
   if (typeof options?.offset === "number") params.set("offset", String(options.offset));
+  if (options?.sort) params.set("sort", options.sort);
   if (options?.space) params.set("space", options.space);
   if (options?.sort) params.set("sort", options.sort);
 

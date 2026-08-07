@@ -134,6 +134,7 @@ export type KnowledgeBaseScopeOptions = {
   includeDescendants?: boolean;
   limit?: number;
   offset?: number;
+  sort?: "created_desc" | "created_asc" | "name_asc" | "name_desc";
 };
 
 export type KnowledgeGraphNode = {

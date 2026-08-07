@@ -71,7 +71,7 @@ export function readTeacherCourseLocation(hash: string): {
     return {
       route,
       courseId,
-      view: params.get("view") === "structure" ? "structure" : "documents",
+      view: params.get("view") === "documents" ? "documents" : "structure",
     };
   }
   return { route, courseId };
