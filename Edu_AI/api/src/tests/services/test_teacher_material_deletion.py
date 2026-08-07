@@ -1,5 +1,8 @@
+import asyncio
+
 import pytest
 
+from app.api import teacher as teacher_api
 from app.services import teacher_service
 from core import course_storage
 from core.course_storage import CourseStorageManager
@@ -73,3 +76,34 @@ def test_legacy_lesson_plan_delete_checks_course_owner_before_local_delete(
     assert manager.get_generated_material(
         "course-1", "lesson_plan", "private-a", owner_user_id="teacher-a"
     ) is None
+
+
+@pytest.mark.parametrize(
+    ("endpoint_name", "service_alias"),
+    [
+        ("delete_lesson_plan_endpoint", "_svc_delete_lesson_plan"),
+        ("delete_report_endpoint", "_svc_delete_report"),
+        ("delete_quiz_endpoint", "_svc_delete_quiz"),
+    ],
+)
+def test_legacy_delete_endpoints_forward_authenticated_username(
+    monkeypatch, endpoint_name, service_alias
+):
+    calls: list[tuple[str, str, str]] = []
+
+    def fake_delete(material_id, course_id, *, owner_user_id):
+        calls.append((material_id, course_id, owner_user_id))
+
+    monkeypatch.setattr(teacher_api, service_alias, fake_delete)
+    endpoint = getattr(teacher_api, endpoint_name)
+
+    result = asyncio.run(
+        endpoint(
+            "private-a",
+            course_id="course-1",
+            current_user={"username": "teacher-b", "role": "teacher"},
+        )
+    )
+
+    assert calls == [("private-a", "course-1", "teacher-b")]
+    assert "message" in result
