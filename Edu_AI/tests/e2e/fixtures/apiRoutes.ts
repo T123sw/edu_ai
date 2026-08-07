@@ -100,7 +100,9 @@ const materials = [
     created_by: "teacher-a",
     source_job_id: "job-report-mechanics",
     source_snapshot: { mode: "selected_documents" },
-    visibility: "course",
+    visibility: "private",
+    owner_user_id: "teacher-a",
+    version: 1,
     created_at: "2026-08-05T10:00:00+08:00",
     updated_at: "2026-08-05T10:03:00+08:00",
   },
@@ -225,11 +227,17 @@ export async function installTeacherApiRoutes(page: Page) {
     }
     if (path.endsWith("/materials")) {
       const materialType = url.searchParams.get("material_type");
+      const space = url.searchParams.get("space");
+      const visibleMaterials = space === "mine"
+        ? materials.filter((item) => item.visibility === "private")
+        : space === "course"
+          ? materials.filter((item) => item.visibility !== "private")
+          : materials;
       return json(
         route,
         materialType
-          ? materials.filter((item) => item.material_type === materialType)
-          : materials,
+          ? visibleMaterials.filter((item) => item.material_type === materialType)
+          : visibleMaterials,
       );
     }
     if (path.includes("/materials/")) {
