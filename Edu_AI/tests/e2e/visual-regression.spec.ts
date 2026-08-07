@@ -29,8 +29,25 @@ async function setSession(page: Page, authenticated: boolean, theme: "ocean" | "
   }, { authenticated, theme });
 }
 
+async function waitForCssBackground(page: Page, selector: string) {
+  await page.locator(selector).evaluate(async (element) => {
+    const match = getComputedStyle(element).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/u);
+    if (!match?.[1]) return;
+    const background = new Image();
+    background.src = match[1];
+    if (background.complete && background.naturalWidth > 0) return;
+    await new Promise<void>((resolve) => {
+      background.onload = () => resolve();
+      background.onerror = () => resolve();
+    });
+  });
+}
+
 async function captureMatrix(page: Page, theme: "light" | "dark") {
   for (const [name, url, authenticated] of approvedPages) {
+    if (process.env.PLAYWRIGHT_VISUAL_PAGE && process.env.PLAYWRIGHT_VISUAL_PAGE !== name) {
+      continue;
+    }
     const rejectVerify = (route: Route) => route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -44,6 +61,9 @@ async function captureMatrix(page: Page, theme: "light" | "dark") {
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.locator("body")).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
+    if (name === "login") {
+      await waitForCssBackground(page, ".login-page");
+    }
     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
       animations: "disabled",
       caret: "hide",

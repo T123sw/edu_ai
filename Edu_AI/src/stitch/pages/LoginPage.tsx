@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Card, Checkbox, Form, Input } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import "./LoginPage.css";
 
@@ -40,42 +40,49 @@ export function LoginPage({ onLogin }: { onLogin: (payload: { username: string; 
 
   return (
     <main className="login-page">
-      <section className="login-introduction">
-        <a className="login-wordmark" href="#home">Edu AI</a>
-        <div>
-          <p className="login-kicker">课程中心 · 教师工作台</p>
-          <h1>让课程资料、AI 生成与教学成果保持在同一个上下文中</h1>
-          <p className="login-lead">教师进入课程后，可以共同维护资料和知识结构，并在同一课程空间中完成问答、资源生成与课堂制作。</p>
-          <ul className="login-capabilities">
-            <li><strong>以课程组织</strong><span>课程成员看到同一份信息和资源</span></li>
-            <li><strong>教师工作流</strong><span>从资料准备到成果发布保持连续</span></li>
-            <li><strong>可恢复任务</strong><span>生成过程进入后台任务中心</span></li>
-          </ul>
+      <section className="login-left-content" aria-label="平台介绍">
+        <div className="login-brand">
+          <div className="login-logo-circle" aria-hidden="true">
+            <div className="login-logo-mark">
+              <span className="login-logo-main">AI</span>
+              <span className="login-logo-sub">EDU</span>
+            </div>
+          </div>
+          <h1 className="login-main-title">知学启思</h1>
+          <h2 className="login-sub-title">大模型驱动的智能教学平台</h2>
+          <p className="login-slogan">融合前沿 AI 技术，赋能课程建设与教学创新</p>
+        </div>
+        <div className="login-features" aria-label="平台能力">
+          <div className="login-feature-item"><span className="login-feature-icon" aria-hidden="true">🧠</span><span className="login-feature-text">智能问答</span></div>
+          <div className="login-feature-item"><span className="login-feature-icon" aria-hidden="true">📚</span><span className="login-feature-text">课程知识</span></div>
+          <div className="login-feature-item"><span className="login-feature-icon" aria-hidden="true">🎓</span><span className="login-feature-text">教学工具</span></div>
         </div>
       </section>
 
-      <section className="login-card" aria-labelledby="login-title">
-        <div className="login-form-header">
-          <p>教师账号</p>
-          <h2 id="login-title">登录 Edu AI</h2>
-          <span>使用系统分配的账号进入你有权访问的全部课程。</span>
-        </div>
-        {loginError ? <div className="login-error" role="alert"><strong>未能登录</strong><span>{loginError}</span></div> : null}
-        <Form layout="vertical" form={form} onFinish={onFinish} requiredMark={false}>
-          <Form.Item name="username" label="账号" rules={[{ required: true, message: "请输入账号" }]}>
-            <Input size="large" prefix={<UserOutlined />} placeholder="请输入账号" autoComplete="username" />
-          </Form.Item>
-          <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码" }]}>
-            <Input.Password size="large" prefix={<LockOutlined />} placeholder="请输入密码" autoComplete="current-password" />
-          </Form.Item>
-          <div className="login-form-options">
-            <Form.Item name="rememberMe" valuePropName="checked" noStyle><Checkbox>记住账号</Checkbox></Form.Item>
-            <span>账号或权限有问题，请联系系统管理员</span>
+      <Card className="login-card">
+        <div className="login-form-wrapper">
+          <div className="login-form-header">
+            <p className="login-form-kicker">教师账号</p>
+            <h2 id="login-title" className="login-form-title">登录 Edu AI</h2>
+            <p className="login-form-desc">使用系统分配的账号进入你有权访问的全部课程</p>
           </div>
-          <Button type="primary" htmlType="submit" block size="large" loading={loading}>登录</Button>
-        </Form>
-        {showDemoAccount ? <p className="login-demo-hint">开发演示账号已启用，请使用项目运行配置中提供的测试账号。</p> : null}
-      </section>
+          {loginError ? <div className="login-error" role="alert"><strong>未能登录</strong><span>{loginError}</span></div> : null}
+          <Form layout="vertical" form={form} onFinish={onFinish} requiredMark={false} aria-labelledby="login-title">
+            <Form.Item name="username" label="账号" rules={[{ required: true, message: "请输入账号" }]}>
+              <Input size="large" prefix={<UserOutlined />} placeholder="请输入账号" autoComplete="username" />
+            </Form.Item>
+            <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码" }]}>
+              <Input.Password size="large" prefix={<LockOutlined />} placeholder="请输入密码" autoComplete="current-password" />
+            </Form.Item>
+            <div className="login-form-options">
+              <Form.Item name="rememberMe" valuePropName="checked" noStyle><Checkbox>记住账号</Checkbox></Form.Item>
+              <span>账号或权限有问题，请联系系统管理员</span>
+            </div>
+            <Button type="primary" htmlType="submit" block size="large" loading={loading}>登录</Button>
+          </Form>
+          {showDemoAccount ? <p className="login-demo-hint">开发演示账号已启用，请使用项目运行配置中提供的测试账号。</p> : null}
+        </div>
+      </Card>
     </main>
   );
 }
