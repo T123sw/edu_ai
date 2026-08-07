@@ -240,6 +240,31 @@ export async function installTeacherApiRoutes(page: Page) {
           : visibleMaterials,
       );
     }
+    if (
+      request.method() === "POST"
+      && path === `/api/courses/${physicsCourse.id}/materials/report/report-mechanics/publish`
+    ) {
+      const source = materials.find((item) => item.material_id === "report-mechanics");
+      return json(route, {
+        action: "published",
+        source_material_id: "report-mechanics",
+        material: {
+          ...source,
+          material_id: "published-report-mechanics",
+          visibility: "course",
+          owner_user_id: null,
+          version: 1,
+          published_from_material_id: "report-mechanics",
+          published_from_owner_user_id: "teacher-a",
+          published_from_version: 1,
+          published_by: "teacher-a",
+          published_at: "2026-08-07T10:00:00+08:00",
+        },
+      });
+    }
+    if (request.method() === "DELETE" && path.endsWith("/publication")) {
+      return json(route, { ok: true });
+    }
     if (path.includes("/materials/")) {
       const material = materials.find((item) => path.includes(item.material_id));
       return json(route, material ?? { detail: "not found" }, material ? 200 : 404);
