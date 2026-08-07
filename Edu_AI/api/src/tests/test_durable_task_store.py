@@ -157,6 +157,41 @@ def test_expired_lease_fails_after_max_attempts(tmp_path):
     store.close()
 
 
+def test_durable_enqueue_assigns_a_default_deadline(tmp_path, monkeypatch):
+    store = TaskStore(str(tmp_path / "tasks.db"))
+    monkeypatch.setattr(
+        "app.chat.tasks.task_store._now_ts",
+        lambda: 100.0,
+    )
+
+    task = enqueue_task(store, "job-default-deadline")
+
+    assert task.deadline_at == 400.0
+    store.close()
+
+
+def test_recovery_fails_legacy_pending_task_after_bounded_deadline(tmp_path):
+    db_path = tmp_path / "tasks.db"
+    store = TaskStore(str(db_path))
+    enqueue_task(store, "job-legacy")
+    connection = sqlite3.connect(db_path)
+    connection.execute(
+        "UPDATE tasks SET deadline_at=NULL, updated_at=100 WHERE task_id=?",
+        ("job-legacy",),
+    )
+    connection.commit()
+    connection.close()
+
+    summary = store.recover_expired_leases(now=401.0)
+    recovered = store.get_durable("job-legacy")
+
+    assert summary.failed == 1
+    assert recovered is not None
+    assert recovered.status == "failed"
+    assert recovered.error_code == "GENERATION_DEADLINE_EXCEEDED"
+    store.close()
+
+
 def test_heartbeat_only_extends_the_current_lease_owner(tmp_path):
     store = TaskStore(str(tmp_path / "tasks.db"))
     enqueue_task(store, "job-1")

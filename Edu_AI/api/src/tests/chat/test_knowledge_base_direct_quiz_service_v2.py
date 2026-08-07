@@ -28,6 +28,11 @@ class StubLlm:
         return SimpleNamespace(content=self.responses.pop(0))
 
 
+class NoSourceContentProvider:
+    def get_selected_document_contents(self, **_kwargs):
+        raise AssertionError("none source mode must not read the knowledge base")
+
+
 def test_direct_quiz_service_prefill_extracts_topic_and_hard_points():
     service = KnowledgeBaseDirectQuizServiceV2(
         content_provider=StubContentProvider(),
@@ -98,3 +103,39 @@ def test_direct_quiz_service_generate_returns_quiz_artifact():
     assert result["trace"]["path"] == "direct"
     assert result["artifacts"][0]["artifact_type"] == "quiz"
     assert result["artifacts"][0]["content"]["questions"][0]["stem"] == "以下哪一项属于关羽的正史核心战绩？"
+
+
+def test_direct_quiz_service_generates_from_topic_without_documents():
+    llm = StubLlm(
+        [
+            '{"questions":[{"question":"What is an agent?","type":"short","correct_answer":"An autonomous system.","analysis":"Core definition."}]}'
+        ]
+    )
+    service = KnowledgeBaseDirectQuizServiceV2(
+        content_provider=NoSourceContentProvider(),
+        llm=llm,
+        course_storage_manager=None,
+    )
+
+    result = service.generate(
+        SimpleNamespace(
+            selected_doc_ids=[],
+            source_mode="none",
+            course_id="course-1",
+            owner="u1",
+            prompt_draft="",
+            final_user_prompt="",
+            quiz_config={
+                "topic": "Agent principles",
+                "difficulty": "medium",
+                "question_count": 1,
+                "question_types": ["short"],
+                "include_answers": True,
+                "include_explanations": True,
+            },
+        )
+    )
+
+    assert result["artifacts"][0]["artifact_type"] == "quiz"
+    assert result["trace"]["selected_doc_count"] == 0
+    assert "Agent principles" in str(llm.messages[0])

@@ -44,6 +44,11 @@ class StubCourseStorageManager:
         return True
 
 
+class NoSourceContentProvider:
+    def get_selected_document_contents(self, **_kwargs):
+        raise AssertionError("none source mode must not read the knowledge base")
+
+
 def _make_storage_root() -> Path:
     root = Path(__file__).resolve().parent / f"_mini_game_storage_{uuid4().hex[:8]}"
     root.mkdir(parents=True, exist_ok=True)
@@ -143,5 +148,44 @@ def test_direct_game_service_raises_after_second_invalid_payload():
                     owner="tester",
                 )
             )
+    finally:
+        rmtree(storage_root, ignore_errors=True)
+
+
+def test_direct_game_service_generates_from_topic_without_documents():
+    storage_root = _make_storage_root()
+    llm = StubLlm(
+        [
+            '{"title":"Agent matching","pairs":[{"id":"p1","left":"Perception","right":"Observe the environment"},{"id":"p2","left":"Action","right":"Affect the environment"}]}'
+        ]
+    )
+    try:
+        service = KnowledgeBaseDirectGameServiceV2(
+            content_provider=NoSourceContentProvider(),
+            llm=llm,
+            course_storage_manager=StubCourseStorageManager(),
+            storage_root=storage_root,
+        )
+
+        result = service.generate(
+            SimpleNamespace(
+                selected_doc_ids=[],
+                source_mode="none",
+                game_type="drag_match",
+                topic="Agent principles",
+                card_count=12,
+                difficulty="hard",
+                duration_minutes=8,
+                course_id="course-1",
+                owner="tester",
+            )
+        )
+
+        assert result["artifacts"][0]["artifact_type"] == "game"
+        assert result["trace"]["selected_doc_count"] == 0
+        assert "Agent principles" in str(llm.messages[0])
+        assert "12" in str(llm.messages[0])
+        assert "hard" in str(llm.messages[0])
+        assert "8" in str(llm.messages[0])
     finally:
         rmtree(storage_root, ignore_errors=True)

@@ -18,6 +18,7 @@ _DEFAULT_DB_PATH = os.getenv(
 )
 
 TTL_SECONDS = 3600
+DEFAULT_TASK_DEADLINE_SECONDS = 300
 TERMINAL_TASK_STATUSES = (
     "completed",
     "succeeded",
@@ -313,6 +314,8 @@ class TaskStore:
             if deadline_seconds <= 0:
                 raise ValueError("deadline_seconds must be positive")
             normalized_deadline = now + deadline_seconds
+        if normalized_deadline is None:
+            normalized_deadline = now + DEFAULT_TASK_DEADLINE_SECONDS
         with self._lock:
             try:
                 self._conn.execute("BEGIN IMMEDIATE")
@@ -660,6 +663,16 @@ class TaskStore:
         with self._lock:
             try:
                 self._conn.execute("BEGIN IMMEDIATE")
+                self._conn.execute(
+                    """
+                    UPDATE tasks
+                    SET deadline_at=updated_at+?
+                    WHERE status IN ('pending', 'leased')
+                      AND command_json IS NOT NULL
+                      AND deadline_at IS NULL
+                    """,
+                    (float(DEFAULT_TASK_DEADLINE_SECONDS),),
+                )
                 pending_timeouts = self._conn.execute(
                     """
                     UPDATE tasks

@@ -163,15 +163,64 @@ class CourseStorageManager:
         except Exception:
             return 0.0
 
-    def _sort_generated_materials(self, materials: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        return sorted(
-            materials,
-            key=lambda item: (
-                0 if item.get("is_pinned") else 1,
-                -self._timestamp(item.get("pinned_at")),
-                -self._timestamp(item.get("updated_at") or item.get("created_at")),
-            ),
+    @staticmethod
+    def _material_name(item: Dict[str, Any]) -> str:
+        return str(
+            item.get("title")
+            or item.get("topic")
+            or item.get("material_id")
+            or ""
+        ).strip()
+
+    @classmethod
+    def _natural_name_key(cls, item: Dict[str, Any]) -> tuple[Any, ...]:
+        parts = re.split(r"(\d+)", cls._material_name(item).casefold())
+        return tuple(
+            int(part) if index % 2 else part
+            for index, part in enumerate(parts)
         )
+
+    def _sort_generated_materials(
+        self,
+        materials: List[Dict[str, Any]],
+        *,
+        sort: str = "pinned",
+    ) -> List[Dict[str, Any]]:
+        if sort == "pinned":
+            return sorted(
+                materials,
+                key=lambda item: (
+                    0 if item.get("is_pinned") else 1,
+                    -self._timestamp(item.get("pinned_at")),
+                    -self._timestamp(
+                        item.get("updated_at") or item.get("created_at")
+                    ),
+                    str(item.get("material_id") or ""),
+                ),
+            )
+        if sort in {"updated_desc", "updated_asc"}:
+            reverse = sort == "updated_desc"
+            return sorted(
+                materials,
+                key=lambda item: (
+                    self._timestamp(
+                        item.get("updated_at") or item.get("created_at")
+                    ),
+                    self._timestamp(item.get("created_at")),
+                    str(item.get("material_id") or ""),
+                ),
+                reverse=reverse,
+            )
+        if sort in {"name_asc", "name_desc"}:
+            return sorted(
+                materials,
+                key=lambda item: (
+                    self._natural_name_key(item),
+                    str(item.get("material_id") or ""),
+                ),
+                reverse=sort == "name_desc",
+            )
+        raise ValueError(f"unsupported material sort: {sort}")
 
     def _normalize_material_manifest(
         self,
@@ -1111,6 +1160,7 @@ class CourseStorageManager:
         aggregate: bool = False,
         owner_user_id: Optional[str] = None,
         space: MaterialSpace = "all",
+        sort: str = "pinned",
     ) -> List[Dict[str, Any]]:
         if space not in {"mine", "course", "all"}:
             raise ValueError(f"unsupported material space: {space}")
@@ -1163,7 +1213,7 @@ class CourseStorageManager:
         except Exception as e:
             print(f"Error listing generated materials: {e}")
 
-        return self._sort_generated_materials(materials)
+        return self._sort_generated_materials(materials, sort=sort)
 
     def delete_generated_material(
         self,

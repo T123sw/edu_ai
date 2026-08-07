@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { cancelJob, retryJob } from "./api";
-import { jobKindLabel, summarizeJobs } from "./jobPresentation";
+import {
+  jobKindLabel,
+  presentJobError,
+  summarizeJobs,
+} from "./jobPresentation";
 import { getJobResultHash } from "./jobResultTarget";
 import { registerCreatedJob, useJobStore } from "./jobStore";
 import { isActiveJob, type JobRecord } from "./types";
@@ -99,9 +103,7 @@ export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolea
       if (action === "retry") registerCreatedJob(updated);
       else mergeJobs([updated]);
     } catch (error) {
-      setActionError(
-        error instanceof Error ? error.message : "任务操作失败，请稍后重试",
-      );
+      setActionError("任务操作失败，请稍后重试");
     } finally {
       setBusyId(null);
     }
@@ -261,6 +263,10 @@ function JobCard({
       ? job.input_summary.title
       : jobKindLabel(job.kind);
   const resultHash = getJobResultHash(job);
+  const userError =
+    job.status === "failed" || job.status === "partially_succeeded"
+      ? presentJobError(job)
+      : null;
   return (
     <article className={`job-card is-${job.status}`}>
       <div className="job-card__top">
@@ -282,7 +288,7 @@ function JobCard({
         <span style={{ width: `${Math.max(job.progress, isActiveJob(job) ? 4 : 0)}%` }} />
       </div>
       <div className="job-card__detail">
-        <p>{job.error_message || job.message || job.step}</p>
+        <p>{userError ? `${userError.title}：${userError.detail}` : job.message || job.step}</p>
         <time dateTime={job.updated_at}>{formatTime(job.updated_at)}</time>
       </div>
       <div className="job-card__actions">

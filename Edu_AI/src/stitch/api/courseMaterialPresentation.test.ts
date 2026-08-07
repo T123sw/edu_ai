@@ -18,11 +18,11 @@ const material = (materialType: string) => ({
 test("all formal resource types have explicit labels", () => {
   const expected = {
     classroom: "AI 课堂",
-    report: "报告",
+    report: "教学报告",
     lesson_plan: "教案",
     blog: "教学博客",
     quiz: "习题",
-    game: "小游戏",
+    game: "课堂小游戏",
     graph: "思维导图",
     ppt: "PPT",
     flashcard: "闪卡",
@@ -49,27 +49,30 @@ test("unknown materials stay in metadata preview and never route to video", () =
   assert.equal(getCourseMaterialTypeMeta("future_resource").known, false);
 });
 
-test("filters cover classroom, ppt, flashcard and interactive resources", () => {
+test("filters mirror every formal generation type without invented groups", () => {
   assert.deepEqual(
     COURSE_MATERIAL_FILTERS.map((filter) => filter.key),
     [
       "all",
       "classroom",
-      "document",
+      "report",
       "lesson_plan",
+      "blog",
+      "quiz",
       "ppt",
       "flashcard",
-      "quiz",
-      "interactive",
-      "other",
+      "mind_map",
+      "game",
     ],
   );
   assert.equal(isCourseMaterialInFilter(material("classroom"), "classroom"), true);
+  assert.equal(isCourseMaterialInFilter(material("report"), "report"), true);
+  assert.equal(isCourseMaterialInFilter(material("blog"), "blog"), true);
   assert.equal(isCourseMaterialInFilter(material("ppt"), "ppt"), true);
   assert.equal(isCourseMaterialInFilter(material("flashcard"), "flashcard"), true);
-  assert.equal(isCourseMaterialInFilter(material("game"), "interactive"), true);
-  assert.equal(isCourseMaterialInFilter(material("graph"), "interactive"), true);
-  assert.equal(isCourseMaterialInFilter(material("classroom"), "other"), false);
+  assert.equal(isCourseMaterialInFilter(material("game"), "game"), true);
+  assert.equal(isCourseMaterialInFilter(material("graph"), "mind_map"), true);
+  assert.equal(isCourseMaterialInFilter(material("mind_map"), "mind_map"), true);
 });
 
 test("private resources describe personal visibility instead of course scope", () => {

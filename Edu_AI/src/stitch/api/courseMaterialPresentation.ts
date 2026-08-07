@@ -4,13 +4,14 @@ import type { CourseMaterial } from "./types";
 export type CourseMaterialFilterKey =
   | "all"
   | "classroom"
-  | "document"
+  | "report"
   | "lesson_plan"
+  | "blog"
+  | "quiz"
   | "ppt"
   | "flashcard"
-  | "quiz"
-  | "interactive"
-  | "other";
+  | "mind_map"
+  | "game";
 
 export const COURSE_MATERIAL_FILTERS: ReadonlyArray<{
   key: CourseMaterialFilterKey;
@@ -18,13 +19,14 @@ export const COURSE_MATERIAL_FILTERS: ReadonlyArray<{
 }> = [
   { key: "all", label: "全部" },
   { key: "classroom", label: "AI 课堂" },
-  { key: "document", label: "文稿" },
+  { key: "report", label: "教学报告" },
   { key: "lesson_plan", label: "教案" },
+  { key: "blog", label: "教学博客" },
+  { key: "quiz", label: "习题" },
   { key: "ppt", label: "PPT" },
   { key: "flashcard", label: "闪卡" },
-  { key: "quiz", label: "习题" },
-  { key: "interactive", label: "互动" },
-  { key: "other", label: "其他" },
+  { key: "mind_map", label: "思维导图" },
+  { key: "game", label: "课堂小游戏" },
 ] as const;
 
 const MATERIAL_TYPE_META: Record<
@@ -32,12 +34,13 @@ const MATERIAL_TYPE_META: Record<
   { label: string; icon: string; known: true }
 > = {
   classroom: { label: "AI 课堂", icon: "slideshow", known: true },
-  report: { label: "报告", icon: "description", known: true },
+  report: { label: "教学报告", icon: "description", known: true },
   lesson_plan: { label: "教案", icon: "menu_book", known: true },
   blog: { label: "教学博客", icon: "article", known: true },
   quiz: { label: "习题", icon: "quiz", known: true },
-  game: { label: "小游戏", icon: "sports_esports", known: true },
+  game: { label: "课堂小游戏", icon: "sports_esports", known: true },
   graph: { label: "思维导图", icon: "account_tree", known: true },
+  mind_map: { label: "思维导图", icon: "account_tree", known: true },
   ppt: { label: "PPT", icon: "co_present", known: true },
   flashcard: { label: "闪卡", icon: "style", known: true },
   video: { label: "视频", icon: "movie", known: true },
@@ -66,13 +69,14 @@ export function isCourseMaterialInFilter(
   const type = String(material.material_type || "").trim();
   if (filter === "all") return true;
   if (filter === "classroom") return type === "classroom";
-  if (filter === "document") return type === "report" || type === "blog";
+  if (filter === "report") return type === "report";
   if (filter === "lesson_plan") return type === "lesson_plan";
+  if (filter === "blog") return type === "blog";
+  if (filter === "quiz") return type === "quiz";
   if (filter === "ppt") return type === "ppt";
   if (filter === "flashcard") return type === "flashcard";
-  if (filter === "quiz") return type === "quiz";
-  if (filter === "interactive") return type === "game" || type === "graph";
-  return !MATERIAL_TYPE_META[type];
+  if (filter === "mind_map") return type === "mind_map" || type === "graph";
+  return type === "game";
 }
 
 export function getCourseMaterialOpenTarget(

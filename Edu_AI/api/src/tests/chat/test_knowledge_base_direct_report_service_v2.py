@@ -27,7 +27,16 @@ class DummyCourseStorageManager:
     def __init__(self):
         self.saved = []
 
-    def save_generated_material(self, *, course_id, material_type, material_id, material_data, file_data=None):
+    def save_generated_material(
+        self,
+        *,
+        course_id,
+        material_type,
+        material_id,
+        material_data,
+        file_data=None,
+        **_kwargs,
+    ):
         self.saved.append(
             {
                 "course_id": course_id,
@@ -92,21 +101,27 @@ def test_direct_report_service_generates_report_artifact_without_workflow(monkey
     assert storage.saved[0]["course_id"] == "course-1"
 
 
-def test_direct_report_service_raises_when_selected_docs_missing():
+def test_direct_report_service_generates_from_topic_when_source_mode_is_none():
+    content_provider = DummyContentProvider(
+        {"documents": [], "fallback_used": True, "truncated": False}
+    )
     service = KnowledgeBaseDirectReportServiceV2(
-        content_provider=DummyContentProvider({"documents": [], "fallback_used": True}),
-        llm=DummyLlm("# 标题\n\n正文"),
+        content_provider=content_provider,
+        llm=DummyLlm("# Agent principles\n\nGenerated report."),
+        course_storage_manager=DummyCourseStorageManager(),
     )
 
-    try:
-        service.generate(
-            SimpleNamespace(
-                question="请生成报告",
-                selected_doc_ids=[],
-                owner="tester",
-            )
+    result = service.generate(
+        SimpleNamespace(
+            question="Agent principles",
+            selected_doc_ids=[],
+            source_mode="none",
+            owner="tester",
+            course_id="course-1",
+            report_config={},
         )
-    except ValueError as exc:
-        assert str(exc) == "selected_doc_ids is required"
-    else:
-        raise AssertionError("expected ValueError")
+    )
+
+    assert content_provider.calls == []
+    assert result["artifacts"][0]["content"] == "# Agent principles\n\nGenerated report."
+    assert result["trace"]["selected_doc_count"] == 0

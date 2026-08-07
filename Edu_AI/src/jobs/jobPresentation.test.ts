@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { summarizeJobs } from "./jobPresentation.ts";
+import { presentJobError, summarizeJobs } from "./jobPresentation.ts";
 import type { JobRecord } from "./types.ts";
 
 function terminalJob(
@@ -85,4 +85,41 @@ test("summarizeJobs excludes canceled and active jobs from quality metrics", () 
     failureRate: 0,
     averageDurationMs: 0,
   });
+});
+
+test("presentJobError maps stable codes to concise Chinese guidance", () => {
+  const job = {
+    ...terminalJob(
+      "source-required",
+      "failed",
+      "2026-08-06T10:00:00.000Z",
+      "2026-08-06T10:00:01.000Z",
+    ),
+    error_code: "SOURCE_SELECTION_REQUIRED",
+    error_message: "selected_doc_ids is required",
+  };
+
+  assert.deepEqual(presentJobError(job), {
+    title: "没有可用的参考资料",
+    detail: "请选择课程知识或个人资料后再试。",
+  });
+});
+
+test("presentJobError never exposes unknown technical error text", () => {
+  const job = {
+    ...terminalJob(
+      "unknown",
+      "failed",
+      "2026-08-06T10:00:00.000Z",
+      "2026-08-06T10:00:01.000Z",
+    ),
+    error_code: "VENDOR_INTERNAL_500",
+    error_message: "Traceback: provider exploded at internal.py:42",
+  };
+
+  const presented = presentJobError(job);
+
+  assert.equal(presented.title, "任务暂时未完成");
+  assert.match(presented.detail, /任务 ID：unknown/);
+  assert.doesNotMatch(presented.detail, /Traceback|provider|internal\.py/);
 });

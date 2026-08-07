@@ -44,18 +44,18 @@ class KnowledgeBaseDirectReportServiceV2:
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
             if str(item or "").strip()
         ]
-        if not selected_doc_ids:
-            raise ValueError("selected_doc_ids is required")
         if self.llm is None:
             raise RuntimeError("report_llm_unavailable")
 
         owner = str(getattr(payload, "owner", "") or "").strip() or None
-        document_result = self.content_provider.get_selected_document_contents(
-            selected_doc_ids=selected_doc_ids,
-            owner=owner,
-        )
+        document_result = {"documents": [], "truncated": False}
+        if selected_doc_ids:
+            document_result = self.content_provider.get_selected_document_contents(
+                selected_doc_ids=selected_doc_ids,
+                owner=owner,
+            )
         documents = list(document_result.get("documents") or [])
-        if not documents:
+        if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
 
         report_markdown = self._generate_markdown(payload=payload, documents=documents)
@@ -87,7 +87,11 @@ class KnowledgeBaseDirectReportServiceV2:
                 "selected_doc_count": len(selected_doc_ids),
                 "content_doc_count": len(documents),
                 "content_truncated": bool(document_result.get("truncated")),
-                "generation_mode": "knowledge_base_direct_llm",
+                "generation_mode": (
+                    "knowledge_base_direct_llm"
+                    if documents
+                    else "topic_direct_llm"
+                ),
             },
         }
         finalize_report_result(
@@ -121,12 +125,27 @@ class KnowledgeBaseDirectReportServiceV2:
                 )
             )
 
+        has_documents = bool(document_blocks)
+        grounding_instruction = (
+            "现在要基于知识库中已选文档直接生成报告正文。"
+            "不得编造文档中不存在的信息。"
+            if has_documents
+            else "本次未提供课程资料，请围绕用户给出的主题和要求，基于通用知识生成报告。"
+            "不要声称引用了未提供的课程资料。"
+        )
+        source_section = (
+            "请严格基于以下已选文档内容生成一份中文 Markdown 报告。\n\n"
+            + "\n".join(document_blocks)
+            if has_documents
+            else "本次不使用课程资料，请直接围绕主题完成报告。"
+        )
+
         messages = [
             {
                 "role": "system",
                 "content": (
                     "你是一名专业中文报告写作助手。"
-                    "现在要基于知识库中已选文档直接生成报告正文。"
+                    f"{grounding_instruction}"
                     "不要引用对话历史，不要要求确认，不要输出解释过程。"
                     "请直接输出完整 Markdown 报告正文。"
                     "如果用户给了明确标题，就使用该标题作为一级标题；否则自行概括一个准确标题。"
@@ -139,9 +158,8 @@ class KnowledgeBaseDirectReportServiceV2:
                     f"默认提示草稿：{prompt_draft}\n"
                     f"所选卡片：{card_title or '未指定'}\n"
                     f"期望标题：{report_title or '未指定'}\n\n"
-                    "请严格基于以下已选文档内容生成一份中文 Markdown 报告。\n"
-                    "报告应当结构完整、内容具体、避免空泛，不得编造文档中不存在的信息。\n\n"
-                    f"{chr(10).join(document_blocks)}"
+                    "报告应当结构完整、内容具体、避免空泛。\n\n"
+                    f"{source_section}"
                 ),
             },
         ]

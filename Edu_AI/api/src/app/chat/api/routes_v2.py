@@ -656,7 +656,23 @@ async def direct_ppt_outline(
     payload: KnowledgeBaseDirectPptOutlineRequestV2,
     current_user: dict = Depends(get_current_user),
 ):
-    request = _with_owner(payload, current_user)
+    try:
+        source = _get_generation_source_resolver().resolve(
+            payload.course_id,
+            payload.source_mode,
+            payload.selected_doc_ids,
+        )
+    except GenerationSourceError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": exc.code, "message": exc.message},
+        ) from exc
+    request_data = payload.model_dump()
+    request_data["owner"] = current_user.get("username")
+    request_data["resolved_doc_ids"] = [
+        item.rag_index_key for item in source.documents
+    ]
+    request = SimpleNamespace(**request_data)
     return _get_direct_ppt_service().generate_outline(request)
 
 

@@ -41,18 +41,18 @@ class KnowledgeBaseDirectFlashcardServiceV2:
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
             if _clean(item)
         ]
-        if not selected_doc_ids:
-            raise ValueError("selected_doc_ids is required")
         if self.llm is None:
             raise RuntimeError("flashcard_llm_unavailable")
 
         owner = _clean(getattr(payload, "owner", ""))
-        document_result = self.content_provider.get_selected_document_contents(
-            selected_doc_ids=selected_doc_ids,
-            owner=owner or None,
-        )
+        document_result = {"documents": [], "truncated": False}
+        if selected_doc_ids:
+            document_result = self.content_provider.get_selected_document_contents(
+                selected_doc_ids=selected_doc_ids,
+                owner=owner or None,
+            )
         documents = list(document_result.get("documents") or [])
-        if not documents:
+        if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
 
         config = dict(getattr(payload, "flashcard_config", {}) or {})
@@ -158,12 +158,24 @@ class KnowledgeBaseDirectFlashcardServiceV2:
                     ]
                 )
             )
+        grounding_instruction = (
+            "严格依据提供的文档生成复习卡。不得编造文档外事实。"
+            if document_blocks
+            else "本次未提供课程资料，请围绕用户指定的标题生成复习卡。"
+            "不要声称内容来自未提供的课程资料。"
+        )
+        source_section = (
+            "\n\n".join(document_blocks)
+            if document_blocks
+            else "本次不使用课程资料。"
+        )
         response = self.llm.invoke(
             [
                 {
                     "role": "system",
                     "content": (
-                        "你是一名教师闪卡设计助手。严格依据提供的文档生成复习卡。"
+                        "你是一名教师闪卡设计助手。"
+                        f"{grounding_instruction}"
                         "只返回 JSON：{\"cards\":[{\"front\":\"问题\","
                         "\"back\":\"简洁准确的答案\",\"category\":\"分类\","
                         "\"source_doc_id\":\"文档ID\"}]}。"
@@ -175,7 +187,7 @@ class KnowledgeBaseDirectFlashcardServiceV2:
                     "content": (
                         f"标题：{title}\n数量：{count}\n难度：{difficulty}\n"
                         f"分类偏好：{category or '自动分类'}\n\n"
-                        + "\n\n".join(document_blocks)
+                        + source_section
                     ),
                 },
             ]

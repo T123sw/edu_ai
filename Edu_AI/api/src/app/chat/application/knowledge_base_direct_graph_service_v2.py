@@ -29,37 +29,57 @@ class KnowledgeBaseDirectGraphServiceV2:
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
             if _clean(item)
         ]
-        if not selected_doc_ids:
-            raise ValueError("selected_doc_ids is required")
-        documents = list(
-            self.content_provider.get_selected_document_contents(
+        document_result = {"documents": []}
+        if selected_doc_ids:
+            document_result = self.content_provider.get_selected_document_contents(
                 selected_doc_ids=selected_doc_ids,
                 owner=owner or None,
-            ).get("documents")
-            or []
-        )
-        if not documents or self.llm is None:
+            )
+        documents = list(document_result.get("documents") or [])
+        if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
+        if self.llm is None:
+            raise RuntimeError("graph_llm_unavailable")
         config = dict(getattr(payload, "graph_config", {}) or {})
-        title = _clean(config.get("title")) or f"{_clean(documents[0].get('title'))}思维导图"
+        first_document_title = (
+            _clean(documents[0].get("title")) if documents else ""
+        )
+        title = _clean(config.get("title")) or (
+            f"{first_document_title}思维导图"
+            if first_document_title
+            else ""
+        )
+        if not title:
+            raise ValueError("graph title is required when no documents are selected")
+        description = _clean(config.get("description"))
         max_depth = max(2, min(5, int(config.get("max_depth") or 3)))
         prompt_docs = "\n\n".join(
             f"文档：{_clean(item.get('title'))}\n{_clean(item.get('content'))}"
             for item in documents
         )
+        grounding_instruction = (
+            "严格基于资料生成教学思维导图，不得编造资料外事实。"
+            if documents
+            else "本次未提供课程资料，请围绕用户指定主题生成教学思维导图。"
+            "不要声称内容来自未提供的课程资料。"
+        )
+        source_section = prompt_docs or "本次不使用课程资料。"
         raw = self.llm.invoke(
             [
                 {
                     "role": "system",
                     "content": (
-                        "严格基于资料生成教学思维导图，只返回 JSON。"
+                        f"{grounding_instruction}只返回 JSON。"
                         '结构固定为 {"title":"根节点","children":[{"title":"节点","summary":"说明","children":[]}]}。'
-                        "节点标题非空、同级不重复，不得编造资料外事实。"
+                        "节点标题非空、同级不重复。"
                     ),
                 },
                 {
                     "role": "user",
-                    "content": f"标题：{title}\n最大层级：{max_depth}\n{prompt_docs}",
+                    "content": (
+                        f"标题：{title}\n说明：{description}\n最大层级：{max_depth}\n"
+                        f"{source_section}"
+                    ),
                 },
             ]
         )

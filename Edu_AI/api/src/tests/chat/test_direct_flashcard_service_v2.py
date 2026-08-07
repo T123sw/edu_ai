@@ -46,6 +46,11 @@ class _Storage:
         return True
 
 
+class _NoSourceProvider:
+    def get_selected_document_contents(self, **_kwargs):
+        raise AssertionError("none source mode must not read the knowledge base")
+
+
 def test_flashcard_generation_validates_and_persists_formal_resource():
     storage = _Storage()
     service = KnowledgeBaseDirectFlashcardServiceV2(
@@ -80,3 +85,35 @@ def test_flashcard_generation_validates_and_persists_formal_resource():
     assert storage.saved["owner_user_id"] == "teacher-a"
     assert storage.saved["source_job_id"] == "job-1"
     assert result["saved"] is True
+
+
+def test_flashcard_generation_uses_title_when_documents_are_disabled():
+    storage = _Storage()
+    service = KnowledgeBaseDirectFlashcardServiceV2(
+        content_provider=_NoSourceProvider(),
+        llm=_Llm(),
+        course_storage_manager=storage,
+    )
+
+    result = service.generate(
+        SimpleNamespace(
+            owner="teacher-a",
+            course_id="course-1",
+            scope_type="course",
+            scope_id=None,
+            source_mode="none",
+            selected_doc_ids=[],
+            flashcard_config={
+                "title": "Variable review",
+                "count": 3,
+                "difficulty": "medium",
+                "category": "concept",
+                "show_sources": False,
+            },
+        ),
+        job_id="job-none",
+        config_snapshot_id="cfg-none",
+    )
+
+    assert result["artifacts"][0]["title"] == "Variable review"
+    assert result["trace"]["selected_doc_count"] == 0

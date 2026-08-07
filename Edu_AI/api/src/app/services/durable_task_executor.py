@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import threading
 import time
 import uuid
@@ -23,6 +24,9 @@ from core.course_storage import (
     reset_generation_persistence_context,
     set_generation_persistence_context,
 )
+
+
+log = logging.getLogger(__name__)
 
 
 class RetryableTaskError(RuntimeError):
@@ -60,6 +64,11 @@ class DurableTaskExecutor:
         self.lease_seconds = float(lease_seconds)
         self.heartbeat_interval = float(heartbeat_interval)
         self.poll_interval = float(poll_interval)
+        self.recovery_interval = max(
+            self.poll_interval,
+            min(self.lease_seconds / 2, 5.0),
+        )
+        self._next_recovery_at = 0.0
         self._stop_event = threading.Event()
         self._worker_thread: threading.Thread | None = None
         self._lifecycle_lock = threading.RLock()
@@ -96,11 +105,22 @@ class DurableTaskExecutor:
 
     def run_forever(self) -> None:
         while not self._stop_event.is_set():
-            if not self.run_once():
+            try:
+                processed = self.run_once()
+            except Exception:
+                log.exception(
+                    "Durable worker %s failed during its polling loop",
+                    self.worker_id,
+                )
+                processed = False
+            if not processed:
                 self._stop_event.wait(self.poll_interval)
 
     def run_once(self, *, now: float | datetime | None = None) -> bool:
         active_now = self._timestamp(now)
+        if active_now >= self._next_recovery_at:
+            self.task_store.recover_expired_leases(now=active_now)
+            self._next_recovery_at = active_now + self.recovery_interval
         task = self.task_store.claim_next(
             lease_owner=self.worker_id,
             lease_seconds=self.lease_seconds,

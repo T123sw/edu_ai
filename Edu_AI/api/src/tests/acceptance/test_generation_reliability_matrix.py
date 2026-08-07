@@ -136,9 +136,15 @@ def assert_material(
         "c1",
         material_type,
         material_id,
-        owner_user_id="teacher-b",
+        owner_user_id="teacher-a",
     )
     assert material is not None
+    assert manager.get_generated_material(
+        "c1",
+        material_type,
+        material_id,
+        owner_user_id="teacher-b",
+    ) is None
     assert material["source_snapshot"]["mode"] == source_mode
     assert material["source_job_id"]
     if source_mode == "none":

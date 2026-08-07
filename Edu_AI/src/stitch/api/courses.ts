@@ -11,6 +11,10 @@ import type {
 } from "./types";
 import type { CourseSummary } from "../shared";
 import type { JobRecord } from "../../jobs/types";
+import {
+  type CourseMaterialPage,
+  unwrapCourseMaterials,
+} from "./courseMaterialsResponse";
 
 const accentPalette = [
   "from-[#0f172a] via-[#1d4ed8] to-[#60a5fa]",
@@ -38,6 +42,7 @@ type CourseMaterialsScopeOptions = {
   limit?: number;
   offset?: number;
   space?: CourseMaterialSpace | "all";
+  sort?: "updated_desc" | "updated_asc" | "name_asc" | "name_desc";
 };
 
 export function backendCourseToSummary(course: BackendCourse, index = 0): CourseSummary {
@@ -93,9 +98,12 @@ export function getCourseMaterials(courseId: string, options?: CourseMaterialsSc
   if (typeof options?.limit === "number") params.set("limit", String(options.limit));
   if (typeof options?.offset === "number") params.set("offset", String(options.offset));
   if (options?.space) params.set("space", options.space);
+  if (options?.sort) params.set("sort", options.sort);
 
   const search = params.toString();
-  return apiRequest<CourseMaterial[]>(`/api/courses/${courseId}/materials${search ? `?${search}` : ""}`);
+  return apiRequest<CourseMaterial[] | CourseMaterialPage>(
+    `/api/courses/${courseId}/materials${search ? `?${search}` : ""}`,
+  ).then(unwrapCourseMaterials);
 }
 
 export function getCourseMaterial(

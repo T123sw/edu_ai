@@ -319,6 +319,12 @@ def get_course_materials(
     limit: Optional[int] = None,
     offset: int = 0,
     space: Literal["mine", "course", "all"] = "all",
+    sort: Literal[
+        "updated_desc",
+        "updated_asc",
+        "name_asc",
+        "name_desc",
+    ] = "updated_desc",
     principal: CoursePrincipal = Depends(require_course_read),
 ):
     owner_user_id = principal.user_id
@@ -341,6 +347,7 @@ def get_course_materials(
         aggregate=aggregate,
         owner_user_id=str(owner_user_id or ""),
         space=space,
+        sort=sort,
     )
     if limit is None:
         return materials

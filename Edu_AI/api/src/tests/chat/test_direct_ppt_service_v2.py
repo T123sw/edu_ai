@@ -42,6 +42,11 @@ class _SummaryProvider:
         }
 
 
+class _NoSourceSummaryProvider:
+    def get_selected_document_summaries(self, **_kwargs):
+        raise AssertionError("none source mode must not read the knowledge base")
+
+
 class _OutlineBuilder:
     def build(self, *, preparation):
         assert preparation.slide_count == 8
@@ -133,4 +138,39 @@ def test_ppt_draft_is_owner_scoped_and_generation_persists_job_metadata(tmp_path
         pass
     else:
         raise AssertionError("another owner must not read the PPT draft")
+
+
+def test_ppt_outline_preserves_none_source_mode_and_uses_deck_title(tmp_path):
+    service = KnowledgeBaseDirectPptServiceV2(
+        summary_provider=_NoSourceSummaryProvider(),
+        outline_builder=_OutlineBuilder(),
+        content_generator=_ContentGenerator(),
+        content_gate=_Gate(),
+        draft_store=PptDirectDraftStore(tmp_path / "drafts"),
+        html2ppt_client=_Engine(),
+        course_storage_manager=_Storage(),
+        poll_interval_seconds=0,
+    )
+
+    response = service.generate_outline(
+        SimpleNamespace(
+            owner="teacher-a",
+            course_id="course-1",
+            scope_type="course",
+            scope_id=None,
+            source_mode="none",
+            selected_doc_ids=[],
+            ppt_config={
+                "deck_title": "Agent principles",
+                "length_option": "short",
+                "theme_id": "heu_academic_elegant",
+            },
+        )
+    )
+
+    draft = service.get_draft(
+        owner="teacher-a", draft_id=response["draft"]["draft_id"]
+    )
+    assert draft["source_mode"] == "none"
+    assert draft["selected_doc_ids"] == []
 

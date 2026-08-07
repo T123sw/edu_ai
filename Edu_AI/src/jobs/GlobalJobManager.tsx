@@ -3,7 +3,7 @@ import { notification } from "antd";
 import { listJobs } from "./api";
 import { JobCenterDrawer } from "./JobCenterDrawer";
 import { JobLeaderLease, getJobPollDelay } from "./jobPolling";
-import { jobKindLabel } from "./jobPresentation";
+import { jobKindLabel, presentJobError } from "./jobPresentation";
 import { jobStore } from "./jobStore";
 import type { JobRecord, JobListResponse } from "./types";
 
@@ -160,15 +160,17 @@ function notifyJobTerminal(job: JobRecord) {
       placement: "topRight",
     });
   } else if (job.status === "partially_succeeded") {
+    const userMessage = presentJobError(job);
     notification.warning({
-      message: `${jobKindLabel(job.kind)}部分完成`,
-      description: job.message || `${title} 有部分结果需要处理。`,
+      message: userMessage.title,
+      description: userMessage.detail,
       placement: "topRight",
     });
   } else if (job.status === "failed") {
+    const userMessage = presentJobError(job);
     notification.error({
-      message: `${jobKindLabel(job.kind)}失败`,
-      description: job.error_message || job.message || `${title} 生成失败。`,
+      message: userMessage.title,
+      description: userMessage.detail,
       placement: "topRight",
     });
   }

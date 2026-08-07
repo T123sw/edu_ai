@@ -62,15 +62,32 @@ class KnowledgeBaseDirectGameServiceV2:
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
             if _clean(item)
         ]
-        if not selected_doc_ids:
-            raise ValueError("selected_doc_ids is required")
         if self.llm is None:
             raise RuntimeError("game_llm_unavailable")
 
         template = get_game_template_spec(_clean(getattr(payload, "game_type", "")))
         owner = _clean(getattr(payload, "owner", "")) or "anonymous"
-        documents = self._load_documents(selected_doc_ids=selected_doc_ids, owner=owner)
-        game_data = self._generate_validated_game_data(template=template, documents=documents)
+        topic = _clean(getattr(payload, "topic", ""))
+        generation_options = {
+            "card_count": int(getattr(payload, "card_count", 8) or 8),
+            "difficulty": _clean(getattr(payload, "difficulty", "")) or "medium",
+            "duration_minutes": int(
+                getattr(payload, "duration_minutes", 5) or 5
+            ),
+        }
+        documents = (
+            self._load_documents(selected_doc_ids=selected_doc_ids, owner=owner)
+            if selected_doc_ids
+            else []
+        )
+        if not documents and not topic:
+            raise ValueError("game topic is required when no documents are selected")
+        game_data = self._generate_validated_game_data(
+            template=template,
+            documents=documents,
+            topic=topic,
+            generation_options=generation_options,
+        )
         artifact_id = (
             _clean(getattr(payload, "material_id", ""))
             or f"game-{uuid4().hex[:12]}"
@@ -97,6 +114,7 @@ class KnowledgeBaseDirectGameServiceV2:
                 "status": "completed",
                 "mode": "knowledge_base_direct",
                 "selected_doc_count": len(selected_doc_ids),
+                **generation_options,
             },
         }
         self._persist_game(payload=payload, artifact=artifact, selected_doc_ids=selected_doc_ids, documents=documents)
@@ -121,9 +139,22 @@ class KnowledgeBaseDirectGameServiceV2:
             raise ValueError("selected documents content is empty")
         return documents
 
-    def _generate_validated_game_data(self, *, template, documents: list[dict[str, Any]]) -> dict[str, Any]:
+    def _generate_validated_game_data(
+        self,
+        *,
+        template,
+        documents: list[dict[str, Any]],
+        topic: str = "",
+        generation_options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         schema = json.loads(template.schema_path.read_text(encoding="utf-8"))
-        messages = self._build_generate_messages(template=template, documents=documents, schema=schema)
+        messages = self._build_generate_messages(
+            template=template,
+            documents=documents,
+            schema=schema,
+            topic=topic,
+            generation_options=generation_options,
+        )
         first_text = _extract_text_from_response(self.llm.invoke(messages))
         try:
             return self._parse_and_validate_json(first_text, schema=schema)
@@ -131,6 +162,8 @@ class KnowledgeBaseDirectGameServiceV2:
             repair_messages = self._build_repair_messages(
                 template=template,
                 documents=documents,
+                topic=topic,
+                generation_options=generation_options,
                 schema=schema,
                 invalid_json=first_text,
                 error_text=str(exc),
@@ -141,7 +174,15 @@ class KnowledgeBaseDirectGameServiceV2:
             except ValueError as repair_exc:
                 raise ValueError("game_generation_invalid_schema") from repair_exc
 
-    def _build_generate_messages(self, *, template, documents: list[dict[str, Any]], schema: dict[str, Any]) -> list[dict[str, str]]:
+    def _build_generate_messages(
+        self,
+        *,
+        template,
+        documents: list[dict[str, Any]],
+        schema: dict[str, Any],
+        topic: str = "",
+        generation_options: dict[str, Any] | None = None,
+    ) -> list[dict[str, str]]:
         document_blocks = []
         for index, document in enumerate(documents, start=1):
             document_blocks.append(
@@ -153,12 +194,24 @@ class KnowledgeBaseDirectGameServiceV2:
                     ]
                 )
             )
+        grounding_instruction = (
+            "请严格基于已选文档生成小游戏内容，不要编造文档之外的信息。"
+            if document_blocks
+            else "本次未提供课程资料，请围绕用户指定主题生成小游戏内容。"
+            "不要声称内容来自未提供的课程资料。"
+        )
+        source_section = (
+            "\n".join(document_blocks)
+            if document_blocks
+            else "本次不使用课程资料。"
+        )
+        options = dict(generation_options or {})
         return [
             {
                 "role": "system",
                 "content": (
                     "你是一个教学小游戏数据生成助手。"
-                    "请严格基于已选文档生成小游戏内容，不要编造文档之外的信息。"
+                    f"{grounding_instruction}"
                     "你只能输出 JSON，且必须严格符合给定 schema。"
                     f"目标游戏类型：{template.display_name}。"
                 ),
@@ -167,7 +220,11 @@ class KnowledgeBaseDirectGameServiceV2:
                 "role": "user",
                 "content": (
                     f"JSON Schema:\n{json.dumps(schema, ensure_ascii=False)}\n\n"
-                    f"{chr(10).join(document_blocks)}"
+                    f"主题：{topic or '根据资料自动概括'}\n"
+                    f"内容数量：{options.get('card_count', 8)}\n"
+                    f"难度：{options.get('difficulty', 'medium')}\n"
+                    f"预计时长：{options.get('duration_minutes', 5)} 分钟\n"
+                    f"{source_section}"
                 ),
             },
         ]
@@ -177,10 +234,13 @@ class KnowledgeBaseDirectGameServiceV2:
         *,
         template,
         documents: list[dict[str, Any]],
+        topic: str = "",
+        generation_options: dict[str, Any] | None = None,
         schema: dict[str, Any],
         invalid_json: str,
         error_text: str,
     ) -> list[dict[str, str]]:
+        options = dict(generation_options or {})
         return [
             {
                 "role": "system",
@@ -195,6 +255,10 @@ class KnowledgeBaseDirectGameServiceV2:
                 "content": (
                     f"校验错误：{error_text}\n"
                     f"目标 Schema：{json.dumps(schema, ensure_ascii=False)}\n"
+                    f"主题：{topic or '根据资料自动概括'}\n"
+                    f"内容数量：{options.get('card_count', 8)}\n"
+                    f"难度：{options.get('difficulty', 'medium')}\n"
+                    f"预计时长：{options.get('duration_minutes', 5)} 分钟\n"
                     f"原始 JSON：{invalid_json}\n"
                     f"文档标题：{'；'.join(_clean(item.get('title')) for item in documents if _clean(item.get('title')))}"
                 ),

@@ -132,8 +132,14 @@ export function CourseResourcesPage() {
         setError(null);
         setRecoveryError(null);
         const [personalData, sharedData] = await Promise.all([
-          getCourseMaterials(course.id, { space: "mine" }),
-          getCourseMaterials(course.id, { space: "course" }),
+          getCourseMaterials(course.id, {
+            space: "mine",
+            sort: sort === "recent" ? "updated_desc" : "name_asc",
+          }),
+          getCourseMaterials(course.id, {
+            space: "course",
+            sort: sort === "recent" ? "updated_desc" : "name_asc",
+          }),
         ]);
         const requestedTarget = readCourseMaterialTarget(
           typeof window === "undefined" ? "" : window.location.hash,
@@ -226,7 +232,7 @@ export function CourseResourcesPage() {
     return () => {
       cancelled = true;
     };
-  }, [course.id, reloadToken]);
+  }, [course.id, reloadToken, sort]);
 
   const filteredMaterials = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -245,17 +251,8 @@ export function CourseResourcesPage() {
       return searchText.includes(normalizedQuery);
     });
 
-    return [...filtered].sort((left, right) => {
-      if (left.is_pinned !== right.is_pinned) return left.is_pinned ? -1 : 1;
-      if (sort === "title") {
-        return getMaterialTitle(left).localeCompare(
-          getMaterialTitle(right),
-          "zh-CN",
-        );
-      }
-      return getMaterialTimestamp(right) - getMaterialTimestamp(left);
-    });
-  }, [activeFilter, materials, pinnedOnly, query, sort]);
+    return filtered;
+  }, [activeFilter, materials, pinnedOnly, query]);
 
   useEffect(() => {
     if (
@@ -355,6 +352,7 @@ export function CourseResourcesPage() {
           : item
       )));
       setEditingTitle(false);
+      setReloadToken((current) => current + 1);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "重命名失败");
     } finally {
@@ -564,7 +562,7 @@ export function CourseResourcesPage() {
                 className="h-10 rounded-full border border-(--shell-border) bg-white px-4 text-sm text-(--app-text)"
               >
                 <option value="recent">最近更新</option>
-                <option value="title">按标题</option>
+                <option value="title">按名称</option>
               </select>
               <label className="inline-flex h-10 items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 text-sm text-(--app-text)">
                 <input

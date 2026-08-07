@@ -1,4 +1,5 @@
 import threading
+import time
 
 import pytest
 
@@ -178,4 +179,57 @@ def test_executor_heartbeats_while_handler_is_blocked(monkeypatch, tmp_path):
     assert executor.run_once() is True
     assert store.heartbeat_seen.is_set()
     assert store.get_durable("job-1").status == "succeeded"
+    store.close()
+
+
+def test_run_once_recovers_an_expired_lease_before_claiming(
+    monkeypatch,
+    tmp_path,
+):
+    store, _, _, executor = build_runtime(monkeypatch, tmp_path)
+    connection = store._conn
+    connection.execute(
+        "UPDATE tasks SET max_attempts=1, available_at=100, deadline_at=500 "
+        "WHERE task_id='job-1'"
+    )
+    connection.commit()
+    assert store.claim_next(
+        lease_owner="dead-worker",
+        lease_seconds=10,
+        now=100.0,
+    )
+
+    assert executor.run_once(now=111.0) is False
+
+    task = store.get_durable("job-1")
+    assert task is not None
+    assert task.status == "failed"
+    assert task.error_code == "WORKER_LOST"
+    store.close()
+
+
+def test_worker_loop_survives_a_transient_claim_failure(
+    monkeypatch,
+    tmp_path,
+):
+    store, _, _, executor = build_runtime(monkeypatch, tmp_path)
+    original_claim = store.claim_next
+    claim_attempts = 0
+
+    def flaky_claim(*args, **kwargs):
+        nonlocal claim_attempts
+        claim_attempts += 1
+        if claim_attempts == 1:
+            raise RuntimeError("temporary sqlite failure")
+        return original_claim(*args, **kwargs)
+
+    monkeypatch.setattr(store, "claim_next", flaky_claim)
+    executor.start()
+    deadline = time.monotonic() + 1
+    while claim_attempts < 2 and time.monotonic() < deadline:
+        time.sleep(0.01)
+
+    assert claim_attempts >= 2
+    assert executor.is_running is True
+    executor.stop(grace_seconds=1)
     store.close()

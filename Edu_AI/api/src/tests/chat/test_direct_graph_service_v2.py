@@ -43,6 +43,11 @@ class _Storage:
         return True
 
 
+class _NoSourceProvider:
+    def get_selected_document_contents(self, **_kwargs):
+        raise AssertionError("none source mode must not read the knowledge base")
+
+
 def test_graph_generation_validates_tree_and_persists_formal_resource():
     storage = _Storage()
     service = KnowledgeBaseDirectGraphServiceV2(
@@ -94,3 +99,31 @@ def test_graph_generation_drops_duplicate_siblings_and_caps_depth():
     )
     assert len(normalized["children"]) == 1
     assert normalized["children"][0]["children"] == []
+
+
+def test_graph_generation_uses_configured_topic_without_documents():
+    service = KnowledgeBaseDirectGraphServiceV2(
+        content_provider=_NoSourceProvider(),
+        llm=_Llm(),
+        course_storage_manager=_Storage(),
+    )
+
+    result = service.generate(
+        SimpleNamespace(
+            owner="teacher-a",
+            course_id="course-1",
+            scope_type="course",
+            scope_id=None,
+            source_mode="none",
+            selected_doc_ids=[],
+            graph_config={
+                "title": "Variable knowledge map",
+                "description": "Show definitions and relationships",
+                "max_depth": 3,
+            },
+        ),
+        job_id="job-none",
+        config_snapshot_id="cfg-none",
+    )
+
+    assert result["artifacts"][0]["title"] == "Variable knowledge map"

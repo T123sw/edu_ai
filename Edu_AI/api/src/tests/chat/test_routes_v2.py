@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import SimpleNamespace
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -7,6 +8,61 @@ from app.auth import get_current_user
 from app.chat.api import routes_v2 as routes_v2_module
 from app.chat.api.routes_v2 import router as v2_router
 from core.config import Config
+
+
+def test_ppt_outline_resolves_course_auto_documents_without_changing_source_intent(
+    monkeypatch,
+):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+
+    class DummyResolver:
+        def resolve(self, course_id, source_mode, selected_doc_ids):
+            assert (course_id, source_mode, selected_doc_ids) == (
+                "course-1",
+                "course_auto",
+                [],
+            )
+            return SimpleNamespace(
+                documents=[SimpleNamespace(rag_index_key="rag/course-1/doc-1")]
+            )
+
+    class DummyPptService:
+        def generate_outline(self, payload):
+            assert payload.owner == "tester"
+            assert payload.source_mode == "course_auto"
+            assert payload.selected_doc_ids == []
+            assert payload.resolved_doc_ids == ["rag/course-1/doc-1"]
+            return {"draft": {"draft_id": "draft-1", "status": "outline_ready"}}
+
+    monkeypatch.setattr(
+        routes_v2_module,
+        "_get_generation_source_resolver",
+        lambda: DummyResolver(),
+    )
+    monkeypatch.setattr(
+        routes_v2_module,
+        "_get_direct_ppt_service",
+        lambda: DummyPptService(),
+    )
+
+    response = TestClient(app).post(
+        "/api/chat/v2/ppt/outline",
+        json={
+            "course_id": "course-1",
+            "source_mode": "course_auto",
+            "selected_doc_ids": [],
+            "ppt_config": {
+                "deck_title": "Agent principles",
+                "theme_id": "heu_academic_elegant",
+                "length_option": "short",
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["draft"]["draft_id"] == "draft-1"
 
 
 def test_reply_v2_route_returns_v2_payload(monkeypatch):

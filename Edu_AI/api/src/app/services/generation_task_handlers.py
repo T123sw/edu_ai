@@ -470,7 +470,15 @@ class GenerationTaskHandler:
                 }
             )
         elif resource_type == "game":
-            base["game_type"] = config.get("game_type")
+            base.update(
+                {
+                    "game_type": config.get("game_type"),
+                    "topic": config.get("topic") or config.get("title"),
+                    "card_count": config.get("card_count"),
+                    "difficulty": config.get("difficulty"),
+                    "duration_minutes": config.get("duration_minutes"),
+                }
+            )
         elif resource_type == "flashcard":
             base["flashcard_config"] = dict(
                 config.get("flashcard_config") or config
@@ -478,6 +486,7 @@ class GenerationTaskHandler:
         elif resource_type == "graph":
             base["graph_config"] = {
                 "title": config.get("title"),
+                "description": config.get("description"),
                 "max_depth": config.get("max_depth"),
             }
         elif resource_type == "blog":

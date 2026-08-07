@@ -73,8 +73,18 @@ class KnowledgeBaseDirectPptServiceV2:
         )
         if not owner:
             raise ValueError("owner is required")
-        if not selected_doc_ids:
-            raise ValueError("selected_doc_ids is required")
+        source_mode = _clean(getattr(payload, "source_mode", "")) or (
+            "selected_documents" if selected_doc_ids else "course_auto"
+        )
+        resolved_doc_ids = list(
+            dict.fromkeys(
+                _clean(item)
+                for item in list(
+                    getattr(payload, "resolved_doc_ids", selected_doc_ids) or []
+                )
+                if _clean(item)
+            )
+        )
         config = dict(getattr(payload, "ppt_config", {}) or {})
         length = _clean(config.get("length_option")).lower()
         if length not in _LENGTH_TO_SLIDE_COUNT:
@@ -85,14 +95,27 @@ class KnowledgeBaseDirectPptServiceV2:
         if theme_id not in _SUPPORTED_THEMES:
             theme_id = "heu_academic_elegant"
 
-        summary_result = self.summary_provider.get_selected_document_summaries(
-            selected_doc_ids=selected_doc_ids,
-            owner=owner,
-        )
+        summary_result = {"documents": []}
+        if resolved_doc_ids:
+            resolved_reader = getattr(
+                self.summary_provider,
+                "get_resolved_document_summaries",
+                None,
+            )
+            if callable(resolved_reader) and hasattr(payload, "resolved_doc_ids"):
+                summary_result = resolved_reader(rag_index_keys=resolved_doc_ids)
+            else:
+                summary_result = self.summary_provider.get_selected_document_summaries(
+                    selected_doc_ids=resolved_doc_ids,
+                    owner=owner,
+                )
         documents = list(summary_result.get("documents") or [])
-        if not documents:
+        if resolved_doc_ids and not documents:
             raise ValueError("selected documents summary is empty")
-        title = _clean(config.get("deck_title")) or _clean(documents[0].get("title")) or "课程课件"
+        first_document_title = (
+            _clean(documents[0].get("title")) if documents else ""
+        )
+        title = _clean(config.get("deck_title")) or first_document_title or "课程课件"
         key_points = [
             _clean(item)
             for item in list(config.get("key_points") or [])
@@ -135,6 +158,7 @@ class KnowledgeBaseDirectPptServiceV2:
                 "scope_type": _clean(getattr(payload, "scope_type", ""))
                 or SCOPE_TYPE_COURSE,
                 "scope_id": _clean(getattr(payload, "scope_id", "")) or None,
+                "source_mode": source_mode,
                 "selected_doc_ids": selected_doc_ids,
                 "selected_doc_snapshot": documents,
                 "normalized_ppt_config": normalized_config,
@@ -156,7 +180,7 @@ class KnowledgeBaseDirectPptServiceV2:
             "trace": {
                 "path": "direct",
                 "selected_doc_count": len(selected_doc_ids),
-                "source_scope": "selected_documents_only",
+                "source_scope": source_mode,
             },
         }
 

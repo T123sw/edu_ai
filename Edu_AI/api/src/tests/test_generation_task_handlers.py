@@ -163,3 +163,47 @@ def test_generation_handler_preserves_a_verified_service_result(tmp_path):
     )
     assert material["source_snapshot"]["mode"] == "none"
     assert material["config_snapshot"] == {"question": "Report"}
+
+
+def test_game_handler_preserves_topic_and_generation_options(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    fake = FakeGenerationService("game")
+    handler = GenerationTaskHandler(
+        course_storage_manager=manager,
+        service_factories={"game": lambda: fake},
+    )
+    context = DurableExecutionContext(
+        task_id="job-game",
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        config_snapshot_id="cfg-game",
+        progress=lambda progress, step, message: None,
+        is_cancel_requested=lambda: False,
+    )
+
+    handler(
+        {
+            "resource_type": "game",
+            "owner_user_id": "teacher-a",
+            "course_id": "course-1",
+            "scope_type": "course",
+            "source_mode": "none",
+            "selected_doc_ids": [],
+            "config": {
+                "title": "Agent matching",
+                "game_type": "drag_match",
+                "topic": "Agent principles",
+                "card_count": 12,
+                "difficulty": "hard",
+                "duration_minutes": 8,
+            },
+            "material_id": "game-stable",
+        },
+        context,
+    )
+
+    assert fake.payload.topic == "Agent principles"
+    assert fake.payload.card_count == 12
+    assert fake.payload.difficulty == "hard"
+    assert fake.payload.duration_minutes == 8

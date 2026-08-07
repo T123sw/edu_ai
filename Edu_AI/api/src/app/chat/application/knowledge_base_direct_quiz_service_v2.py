@@ -93,29 +93,36 @@ class KnowledgeBaseDirectQuizServiceV2:
             for item in list(getattr(payload, "selected_doc_ids", []) or [])
             if _clean(item)
         ]
-        if not selected_doc_ids:
-            raise ValueError("selected_doc_ids is required")
         if self.llm is None:
             raise RuntimeError("quiz_llm_unavailable")
 
         owner = _clean(getattr(payload, "owner", "")) or None
-        document_result = self.content_provider.get_selected_document_contents(
-            selected_doc_ids=selected_doc_ids,
-            owner=owner,
-        )
+        document_result = {"documents": [], "truncated": False}
+        if selected_doc_ids:
+            document_result = self.content_provider.get_selected_document_contents(
+                selected_doc_ids=selected_doc_ids,
+                owner=owner,
+            )
         documents = list(document_result.get("documents") or [])
-        if not documents:
+        if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
 
         quiz_config = dict(getattr(payload, "quiz_config", {}) or {})
+        topic = _clean(quiz_config.get("topic")) or self._fallback_topic(documents)
+        if not topic:
+            raise ValueError("quiz topic is required when no documents are selected")
         preparation = {
-            "topic": _clean(quiz_config.get("topic")) or self._fallback_topic(documents),
+            "topic": topic,
             "question_count": int(quiz_config.get("question_count") or 5),
             "question_types": _coerce_list(quiz_config.get("question_types")) or ["choice"],
             "difficulty": _clean(quiz_config.get("difficulty")) or "medium",
             "knowledge_points": _coerce_list(quiz_config.get("hard_points")),
             "weak_points": [],
-            "source_scope": ["selected_docs", "direct_prompt"],
+            "source_scope": (
+                ["selected_docs", "direct_prompt"]
+                if documents
+                else ["direct_prompt"]
+            ),
         }
 
         prompt = self._build_generate_messages(payload=payload, documents=documents, preparation=preparation)
@@ -144,7 +151,11 @@ class KnowledgeBaseDirectQuizServiceV2:
                 "selected_doc_count": len(selected_doc_ids),
                 "content_doc_count": len(documents),
                 "content_truncated": bool(document_result.get("truncated")),
-                "generation_mode": "knowledge_base_direct_llm",
+                "generation_mode": (
+                    "knowledge_base_direct_llm"
+                    if documents
+                    else "topic_direct_llm"
+                ),
             },
         }
         self._persist_quiz(payload=payload, artifact=artifact, selected_doc_ids=selected_doc_ids, documents=documents)
@@ -201,12 +212,24 @@ class KnowledgeBaseDirectQuizServiceV2:
                 )
             )
 
+        grounding_instruction = (
+            "请严格基于已选文档生成题目，不要脱离文档编造事实。"
+            if document_blocks
+            else "本次未提供课程资料，请围绕用户指定主题生成题目，"
+            "不要声称题目来自未提供的课程资料。"
+        )
+        source_section = (
+            "\n".join(document_blocks)
+            if document_blocks
+            else "本次不使用课程资料。"
+        )
+
         return [
             {
                 "role": "system",
                 "content": (
                     "你是一名中文习题生成助手。"
-                    "请严格基于已选文档生成题目，不要脱离文档编造事实。"
+                    f"{grounding_instruction}"
                     "只输出 JSON，顶层字段为 questions。"
                     "每道题字段尽量使用 id、type、question、choices、correct_answer、analysis。"
                     "type 只能是 choice / blank / short / judge。"
@@ -224,7 +247,7 @@ class KnowledgeBaseDirectQuizServiceV2:
                     f"学习难点：{'、'.join(list(preparation.get('knowledge_points') or [])) or '未指定'}\n"
                     f"是否附答案：{'是' if include_answers else '否'}\n"
                     f"是否附解析：{'是' if include_explanations else '否'}\n\n"
-                    f"{chr(10).join(document_blocks)}"
+                    f"{source_section}"
                 ),
             },
         ]
