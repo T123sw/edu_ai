@@ -1,32 +1,32 @@
 .teacher-home { min-height: 100vh; background: #f4f7fb; }
 .teacher-home__topbar { display: flex; height: 68px; align-items: center; justify-content: space-between; border-bottom: 1px solid #dfe6f0; background: rgba(255,255,255,.94); padding: 0 clamp(22px,5vw,72px); }
 .teacher-home__brand { color: #3157d5; font-size: 21px; font-weight: 900; letter-spacing: -.04em; }
-.teacher-home__account { display: flex; align-items: center; gap: 10px; color: #334155; font-size: 13px; }
+.teacher-home__account { display: flex; align-items: center; gap: 10px; color: #334155; font-size: 14px; }
 .teacher-home__account span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: #e8edff; color: #3157d5; font-weight: 800; }
 .teacher-home__main { width: min(1380px,100%); margin: 0 auto; padding: 48px clamp(22px,5vw,72px) 72px; }
 .teacher-home__intro { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 44px; }
-.teacher-home__eyebrow { color: #3157d5 !important; font-size: 12px !important; font-weight: 800; letter-spacing: .16em; }
+.teacher-home__eyebrow { color: #3157d5 !important; font-size: 13px !important; font-weight: 800; letter-spacing: .14em; }
 .teacher-home__intro h1 { max-width: 720px; margin-top: 10px; color: #172033; font-size: clamp(30px,4vw,48px); font-weight: 850; letter-spacing: -.045em; line-height: 1.1; }
-.teacher-home__intro p { max-width: 690px; margin-top: 13px; color: #64748b; font-size: 14px; line-height: 1.8; }
+.teacher-home__intro p { max-width: 720px; margin-top: 14px; color: #64748b; font-size: 15px; line-height: 1.8; }
 .teacher-home__search { display: flex; width: min(380px,100%); align-items: center; gap: 10px; border: 1px solid #d9e1ec; border-radius: 12px; background: white; padding: 0 14px; color: #64748b; box-shadow: 0 9px 24px rgba(30,41,59,.05); }
-.teacher-home__search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; padding: 13px 0; font-size: 13px; }
+.teacher-home__search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; padding: 15px 0; font-size: 14px; }
 .teacher-home__section-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px; }
 .teacher-home__section-head h2 { color: #172033; font-size: 22px; font-weight: 820; }
-.teacher-home__section-head p { margin-top: 4px; color: #64748b; font-size: 12px; }
+.teacher-home__section-head p { margin-top: 5px; color: #64748b; font-size: 14px; }
 .teacher-course-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
-.teacher-course-card { display: flex; min-width: 0; min-height: 292px; flex-direction: column; border: 1px solid #dde4ed; border-radius: 17px; background: white; padding: 22px; color: #172033; box-shadow: 0 10px 28px rgba(30,41,59,.055); transition: 160ms ease; }
+.teacher-course-card { display: flex; min-width: 0; min-height: 310px; flex-direction: column; border: 1px solid #dde4ed; border-radius: 17px; background: white; padding: 22px; color: #172033; box-shadow: 0 10px 28px rgba(30,41,59,.055); transition: 160ms ease; }
 .teacher-course-card:hover { transform: translateY(-2px); border-color: #b9c8fa; box-shadow: 0 16px 36px rgba(49,87,213,.11); }
 .teacher-course-card:focus-visible { outline: 3px solid #3157d5; outline-offset: 3px; }
-.teacher-course-card__top { display: flex; align-items: center; justify-content: space-between; color: #7b8799; font-size: 10px; font-weight: 700; }
-.teacher-course-card__role { border-radius: 999px; background: #edf2ff; padding: 5px 8px; color: #3157d5; }
+.teacher-course-card__top { display: flex; min-height: 28px; align-items: center; color: #7b8799; font-size: 12px; font-weight: 700; }
+.teacher-course-card__role { border-radius: 999px; background: #edf2ff; padding: 6px 10px; color: #3157d5; }
 .teacher-course-card h3 { margin-top: 20px; overflow: hidden; color: #172033; font-size: 21px; font-weight: 820; text-overflow: ellipsis; white-space: nowrap; }
-.teacher-course-card__description { display: -webkit-box; overflow: hidden; min-height: 44px; margin-top: 8px; color: #64748b; font-size: 12px; line-height: 1.8; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.teacher-course-card__description { display: -webkit-box; overflow: hidden; min-height: 50px; margin-top: 9px; color: #64748b; font-size: 14px; line-height: 1.75; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .teacher-course-card__metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 22px; }
-.teacher-course-card__metrics div { border-radius: 10px; background: #f5f7fa; padding: 10px; }
-.teacher-course-card__metrics dt { color: #7b8799; font-size: 9px; white-space: nowrap; }
-.teacher-course-card__metrics dd { margin-top: 4px; color: #1e293b; font-size: 17px; font-weight: 800; }
-.teacher-course-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; border-top: 1px solid #edf0f4; padding-top: 16px; color: #7b8799; font-size: 10px; }
-.teacher-course-card__footer strong { display: inline-flex; align-items: center; gap: 5px; color: #3157d5; font-size: 11px; }
+.teacher-course-card__metrics div { border-radius: 11px; background: #f5f7fa; padding: 11px; }
+.teacher-course-card__metrics dt { color: #6b778b; font-size: 12px; line-height: 1.35; white-space: nowrap; }
+.teacher-course-card__metrics dd { margin-top: 5px; color: #1e293b; font-size: 19px; font-weight: 800; }
+.teacher-course-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; border-top: 1px solid #edf0f4; padding-top: 16px; color: #6f7c90; font-size: 12px; }
+.teacher-course-card__footer strong { display: inline-flex; align-items: center; gap: 5px; color: #3157d5; font-size: 13px; }
 .teacher-home__state { border: 1px dashed #cbd5e1; border-radius: 14px; background: rgba(255,255,255,.7); padding: 32px; color: #64748b; text-align: center; }
 .teacher-home__state.is-error { border-color: #fecaca; color: #b91c1c; }
 @media (max-width: 1100px) { .teacher-course-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }

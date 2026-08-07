@@ -122,7 +122,6 @@ export function HomeDashboardPage() {
                 >
                   <div className="teacher-course-card__top">
                     <span className="teacher-course-card__role">{card.roleLabel}</span>
-                    <span>{card.revisionLabel}</span>
                   </div>
                   <h3>{card.title}</h3>
                   <p className="teacher-course-card__description">{card.description}</p>

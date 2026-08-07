@@ -27,13 +27,13 @@ test("course card presentation contains only factual metrics", () => {
   ]);
 });
 
-test("course card explains role and revision using stable business data", () => {
+test("course card explains permissions without exposing internal revisions", () => {
   const card = toCourseCardPresentation(courseFixture, {
     documentCount: 0,
     resourceCount: 0,
     activeJobCount: 0,
   });
-  assert.equal(card.roleLabel, "课程编辑者");
-  assert.equal(card.revisionLabel, "版本 4");
-  assert.match(card.updatedLabel, /^更新于 /);
+  assert.equal(card.roleLabel, "可编辑");
+  assert.equal("revisionLabel" in card, false);
+  assert.match(card.updatedLabel, /^最近更新 /);
 });
