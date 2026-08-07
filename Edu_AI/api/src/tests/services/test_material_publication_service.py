@@ -206,6 +206,43 @@ def test_publication_uses_positive_nested_schema_per_material_type(
     assert "PRIVATE_" not in serialized
 
 
+@pytest.mark.parametrize(
+    ("material_type", "cross_type_field"),
+    [
+        ("report", "questions"),
+        ("quiz", "stage"),
+        ("ppt", "report"),
+        ("classroom", "flashcards"),
+    ],
+)
+def test_publication_rejects_top_level_fields_from_other_material_types(
+    tmp_path, material_type, cross_type_field
+):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    assert manager.save_generated_material(
+        "course-1",
+        material_type,
+        "draft-1",
+        {
+            "title": "公开标题",
+            "summary": "公开摘要",
+            cross_type_field: "PRIVATE_CROSS_TYPE_BODY",
+        },
+        owner_user_id="teacher-a",
+    )
+
+    result = MaterialPublicationService(manager).publish(
+        course_id="course-1",
+        material_type=material_type,
+        material_id="draft-1",
+        owner_user_id="teacher-a",
+    )
+
+    assert cross_type_field not in result.material
+    assert "PRIVATE_CROSS_TYPE_BODY" not in str(result.material)
+
+
 @pytest.mark.parametrize("target_is_directory", [False, True])
 def test_publish_rejects_nested_symlinks_in_artifact_directories(
     tmp_path, target_is_directory

@@ -32,35 +32,46 @@ class PublicationResult:
     material: dict[str, Any]
 
 
-_PUBLICATION_FIELDS = frozenset(
+_COMMON_PUBLICATION_FIELDS = frozenset(
     {
         "title",
         "name",
         "topic",
         "summary",
-        "final_markdown",
-        "markdown",
-        "report",
-        "report_content",
         "text",
-        "content",
-        "mainContent",
-        "outline",
-        "questions",
-        "plan",
-        "stage",
-        "scenes",
-        "scenes_count",
-        "source_count",
-        "voice_status",
-        "video_status",
-        "flashcards",
         "status",
         "scope_type",
         "scope_id",
         "file_extension",
     }
 )
+
+_PUBLICATION_FIELDS_BY_TYPE: dict[str, frozenset[str]] = {
+    "report": _COMMON_PUBLICATION_FIELDS
+    | frozenset(
+        {
+            "content", "final_markdown", "markdown", "report", "report_content",
+            "mainContent", "outline", "source_count",
+        }
+    ),
+    "lesson_plan": _COMMON_PUBLICATION_FIELDS | frozenset({"content", "plan"}),
+    "quiz": _COMMON_PUBLICATION_FIELDS | frozenset({"content", "questions"}),
+    "flashcard": _COMMON_PUBLICATION_FIELDS
+    | frozenset({"content", "flashcards"}),
+    "graph": _COMMON_PUBLICATION_FIELDS | frozenset({"content"}),
+    "game": _COMMON_PUBLICATION_FIELDS | frozenset({"content"}),
+    "ppt": _COMMON_PUBLICATION_FIELDS | frozenset({"content", "outline"}),
+    "classroom": _COMMON_PUBLICATION_FIELDS
+    | frozenset(
+        {"content", "stage", "scenes", "scenes_count", "voice_status", "video_status"}
+    ),
+    "blog": _COMMON_PUBLICATION_FIELDS
+    | frozenset({"content", "final_markdown", "markdown", "outline"}),
+    "audio": _COMMON_PUBLICATION_FIELDS | frozenset({"content", "voice_status"}),
+    "video": _COMMON_PUBLICATION_FIELDS | frozenset({"content", "video_status"}),
+    "ai_lecture_session": _COMMON_PUBLICATION_FIELDS
+    | frozenset({"content", "stage", "scenes", "scenes_count"}),
+}
 
 _COMMON_PUBLIC_KEYS = frozenset(
     {
@@ -344,9 +355,12 @@ class MaterialPublicationService:
         allowed_nested_keys = _PUBLIC_NESTED_KEYS_BY_TYPE.get(
             material_type, _COMMON_PUBLIC_KEYS
         )
+        allowed_top_level_fields = _PUBLICATION_FIELDS_BY_TYPE.get(
+            material_type, _COMMON_PUBLICATION_FIELDS
+        )
         payload = {
             key: _sanitize_nested(source[key], allowed_keys=allowed_nested_keys)
-            for key in _PUBLICATION_FIELDS
+            for key in allowed_top_level_fields
             if key in source
         }
         now = datetime.now().isoformat()
