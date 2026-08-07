@@ -67,6 +67,7 @@ P2 发布历史、版本恢复、批量发布和审批流不在本期范围，�
 - ESLint：`0 error, 72 warnings`；警告均为仓库既有非阻断项。
 - 生产构建：成功，Vite 转换 5532 个模块。
 - Playwright：键盘发布流程 5/5；视觉回归 7 passed / 3 policy-skipped。
+- 最终独立代码复核：Critical 0、Important 0、Minor 0；结论为 `Ready to merge: Yes`。
 - 最终 `git diff --check`、工作树清洁和复审结论在收尾提交后再次确认。
 
 ## 6. 阶段提交
