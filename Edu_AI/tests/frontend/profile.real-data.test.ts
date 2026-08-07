@@ -22,8 +22,9 @@ test("profile API uses authenticated account endpoints without persisting passwo
   assert.doesNotMatch(api, /localStorage.*password|sessionStorage.*password/s);
 });
 
-test("profile keeps AI service configuration under account security without a quick-access section", () => {
-  assert.match(page, /账号安全[\s\S]*AI 服务配置/);
+test("profile keeps one edit action and AI service configuration under account services", () => {
+  assert.equal(page.match(/>编辑资料</g)?.length, 1);
+  assert.match(page, /账号与服务[\s\S]*AI 服务配置/);
   assert.match(page, /routeHref\(routes\.settings\)/);
   assert.doesNotMatch(page, /profile\.role\s*===\s*["']admin["'][\s\S]*AI 服务配置/);
   assert.doesNotMatch(page, /快捷入口|Quick Access|quickLinks/);
