@@ -6,6 +6,7 @@ import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsS
 import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
 import {
   buildChatReplyPayload,
+  resolveChatRetrievalDocIds,
   sendChatReplyV2Stream,
   pollChatTask,
   transcribeSpeechV2,
@@ -1135,9 +1136,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     addMessage(aiResponse);
 
     try {
-      const effectiveSelectedDocIds = allowRag
-        ? (selectedDocs.length > 0 ? selectedDocs : scopedSourceDocIds)
-        : selectedDocs;
+      // Checked documents are always a mandatory, scoped RAG source.
+      // Enabling the RAG knowledge-base button expands that scope to every
+      // document currently mounted in the workspace, regardless of which
+      // individual rows are checked.
+      const effectiveSelectedDocIds = resolveChatRetrievalDocIds({
+        mountFullKnowledgeBase: allowRag,
+        selectedDocIds: selectedDocs,
+        scopedDocIds: scopedSourceDocIds,
+      });
       const payload = buildChatReplyPayload({
         question: userMessage.text,
         conversationId: currentConversationId,
@@ -2095,22 +2102,26 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               </Popover>
 
               <div className="chat-panel__composer-toggle-group">
-                <Button
-                  size="large"
-                  className={`chat-panel__composer-mode-button ${allowRag ? 'chat-panel__composer-mode-button--active' : ''}`}
-                  onClick={() => setAllowRag(!allowRag)}
-                  disabled={isLoading}
-                >
-                  RAG检索
-                </Button>
-                <Button
-                  size="large"
-                  className={`chat-panel__composer-mode-button ${allowWeb ? 'chat-panel__composer-mode-button--active' : ''}`}
-                  onClick={() => setAllowWeb(!allowWeb)}
-                  disabled={isLoading}
-                >
-                  Web搜索
-                </Button>
+                <Tooltip title="开启后，本轮强制检索当前工作区的整个知识库">
+                  <Button
+                    size="large"
+                    className={`chat-panel__composer-mode-button ${allowRag ? 'chat-panel__composer-mode-button--active' : ''}`}
+                    onClick={() => setAllowRag(!allowRag)}
+                    disabled={isLoading}
+                  >
+                    RAG知识库
+                  </Button>
+                </Tooltip>
+                <Tooltip title="开启后，本轮强制进行联网搜索">
+                  <Button
+                    size="large"
+                    className={`chat-panel__composer-mode-button ${allowWeb ? 'chat-panel__composer-mode-button--active' : ''}`}
+                    onClick={() => setAllowWeb(!allowWeb)}
+                    disabled={isLoading}
+                  >
+                    Web搜索
+                  </Button>
+                </Tooltip>
               </div>
             </div>
 

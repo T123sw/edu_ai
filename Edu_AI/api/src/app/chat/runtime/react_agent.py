@@ -135,6 +135,7 @@ class ReActAgent:
         initial_input = {
             "messages": messages,
             "tool_exchange": [],
+            "retrieval_sources": [],
             "fallback_reason": "",
             "needs_planning": needs_planning,
             "active_draft_outline": active_draft_outline,

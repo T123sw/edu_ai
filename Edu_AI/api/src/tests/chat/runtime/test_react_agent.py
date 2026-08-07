@@ -79,6 +79,101 @@ def test_react_agent_streams_plain_text_and_final_result():
     assert events[-1]["payload"]["trace"]["path"] == "agent"
 
 
+def test_react_agent_forces_selected_document_rag_before_plain_answer():
+    seen = {}
+
+    def rag_retriever(*, query, top_k, selected_doc_ids, owner):
+        seen.update(
+            query=query,
+            top_k=top_k,
+            selected_doc_ids=selected_doc_ids,
+            owner=owner,
+        )
+        return {
+            "ok": True,
+            "payload": {
+                "answer": "冒泡排序会反复交换相邻逆序元素。",
+                "sources": [{"document_id": "doc-1", "title": "冒泡排序资料"}],
+            },
+        }
+
+    request, snapshot = _request_snapshot()
+    request.question = "冒泡排序的原理"
+    snapshot.capability.allow_rag = True
+    snapshot.capability.selected_doc_ids = ["doc-1"]
+    agent = ReActAgent(
+        agent_gateway=FakeTextGateway(),
+        fast_runtime=FakeFastRuntime(),
+        rag_retriever=rag_retriever,
+        max_steps=4,
+        timeout_seconds=5,
+    )
+
+    events = list(agent.run_stream(request=request, snapshot=snapshot))
+
+    assert seen == {
+        "query": "冒泡排序的原理",
+        "top_k": 5,
+        "selected_doc_ids": ["doc-1"],
+        "owner": "teacher-a",
+    }
+    assert [event["type"] for event in events].count("tool_call") == 1
+    assert next(event for event in events if event["type"] == "tool_call")["payload"]["tool"] == "rag_search"
+    assert events[-1]["payload"]["sources"] == [
+        {"document_id": "doc-1", "title": "冒泡排序资料"}
+    ]
+
+
+def test_react_agent_forces_rag_and_web_when_both_are_enabled():
+    calls = []
+
+    def rag_retriever(*, query, top_k, selected_doc_ids, owner):
+        calls.append(("rag_search", query, list(selected_doc_ids)))
+        return {
+            "ok": True,
+            "payload": {
+                "answer": "知识库答案",
+                "sources": [{"document_id": "doc-1", "title": "课程资料"}],
+            },
+        }
+
+    def web_retriever(*, query, owner):
+        calls.append(("web_search", query, owner))
+        return {
+            "ok": True,
+            "payload": {
+                "summary": "网络答案",
+                "sources": [{"url": "https://example.com/source", "title": "网络来源"}],
+            },
+        }
+
+    request, snapshot = _request_snapshot()
+    snapshot.capability.allow_rag = True
+    snapshot.capability.allow_web = True
+    snapshot.capability.selected_doc_ids = ["doc-1", "doc-2"]
+    agent = ReActAgent(
+        agent_gateway=FakeTextGateway(),
+        fast_runtime=FakeFastRuntime(),
+        rag_retriever=rag_retriever,
+        web_retriever=web_retriever,
+        max_steps=4,
+        timeout_seconds=5,
+    )
+
+    events = list(agent.run_stream(request=request, snapshot=snapshot))
+
+    assert [call[0] for call in calls] == ["rag_search", "web_search"]
+    assert [
+        event["payload"]["tool"]
+        for event in events
+        if event["type"] == "tool_call"
+    ] == ["rag_search", "web_search"]
+    assert events[-1]["payload"]["sources"] == [
+        {"document_id": "doc-1", "title": "课程资料"},
+        {"url": "https://example.com/source", "title": "网络来源"},
+    ]
+
+
 def test_react_agent_executes_generate_tool_and_emits_task_submitted(
     monkeypatch,
 ):

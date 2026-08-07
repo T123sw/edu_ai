@@ -7,6 +7,7 @@ class AgentState(TypedDict):
     # ── Per-turn (reset via initial_input each call) ──────────────────────────
     messages: list          # full message list rebuilt from snapshot
     tool_exchange: list     # tool call/result msgs for persistence
+    retrieval_sources: list # RAG/Web citations accumulated during this turn
     fallback_reason: str    # non-empty triggers fallback in run_stream
     needs_planning: bool    # set by run_stream() via should_plan(), cleared by planner_node
 

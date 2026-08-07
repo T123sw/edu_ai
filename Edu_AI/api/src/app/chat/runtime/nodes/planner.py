@@ -28,6 +28,7 @@ def planner_node(state: AgentState) -> dict:
         print("[规划器] LLM未调用工具，使用关键词回退计划", flush=True)
 
     if plan_dict and plan_dict.get("steps"):
+        _ensure_mandatory_retrieval_when_enabled(plan_dict, capability)
         _ensure_fetch_visuals_when_needed(plan_dict, question, capability, state)
         _attach_step_constraints(plan_dict)
         plan = Plan.from_dict(plan_dict)
@@ -103,6 +104,67 @@ def _attach_step_constraints(plan_dict: dict) -> None:
                 constraints.setdefault("min_chapters", 3)
 
         step["constraints"] = constraints
+
+
+def _ensure_mandatory_retrieval_when_enabled(plan_dict: dict, capability) -> None:
+    """Ensure generated plans cannot omit retrieval enabled by the user."""
+    required_tools = [
+        tool_name
+        for tool_name, enabled in (
+            ("rag_search", bool(getattr(capability, "allow_rag", False))),
+            ("web_search", bool(getattr(capability, "allow_web", False))),
+        )
+        if enabled
+    ]
+    if not required_tools:
+        return
+
+    steps = plan_dict.get("steps") or []
+    retrieval_step = next(
+        (
+            step
+            for step in steps
+            if step.get("internal_action") == "retrieve_context"
+            or any(
+                tool_name in (step.get("expected_tools") or [])
+                for tool_name in ("rag_search", "web_search")
+            )
+        ),
+        None,
+    )
+    if retrieval_step is not None:
+        expected_tools = list(retrieval_step.get("expected_tools") or [])
+        for tool_name in required_tools:
+            if tool_name not in expected_tools:
+                expected_tools.append(tool_name)
+        retrieval_step["expected_tools"] = expected_tools
+        retrieval_step["internal_action"] = "retrieve_context"
+    else:
+        insertion_index = next(
+            (
+                index
+                for index, step in enumerate(steps)
+                if step.get("internal_action") in {"confirm_outline", "generate_resource"}
+                or any(
+                    str(tool_name).startswith("generate_")
+                    for tool_name in (step.get("expected_tools") or [])
+                )
+            ),
+            len(steps),
+        )
+        steps.insert(
+            insertion_index,
+            {
+                "index": insertion_index + 1,
+                "user_title": "检索已启用的资料来源",
+                "internal_action": "retrieve_context",
+                "expected_tools": required_tools,
+            },
+        )
+
+    for index, step in enumerate(steps, start=1):
+        step["index"] = index
+    plan_dict["steps"] = steps
 
 
 def _build_planner_messages(

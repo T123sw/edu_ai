@@ -96,6 +96,7 @@ def tools_node(state: AgentState) -> dict:
 
     tool_results_msgs: list[dict] = []
     new_tool_exchange = list(state["tool_exchange"])
+    new_retrieval_sources = list(state.get("retrieval_sources") or [])
     new_tool_exchange.append(last_msg)
 
     new_active_draft_outline = state.get("active_draft_outline")
@@ -142,6 +143,27 @@ def tools_node(state: AgentState) -> dict:
         ok_label = "成功" if result.get("ok") else "失败"
         summary = str(result.get("summary", ""))[:40]
         payload = result.get("payload") or {}
+        if result.get("ok") and tool_name in {"rag_search", "web_search"}:
+            known_source_keys = {
+                (
+                    str(source.get("document_id") or ""),
+                    str(source.get("url") or ""),
+                    str(source.get("title") or ""),
+                )
+                for source in new_retrieval_sources
+                if isinstance(source, dict)
+            }
+            for source in payload.get("sources") or []:
+                if not isinstance(source, dict):
+                    continue
+                source_key = (
+                    str(source.get("document_id") or ""),
+                    str(source.get("url") or ""),
+                    str(source.get("title") or ""),
+                )
+                if source_key not in known_source_keys:
+                    new_retrieval_sources.append(source)
+                    known_source_keys.add(source_key)
         task_hint = (
             f"  任务={str(payload.get('task_id', ''))[:10]}"
             if isinstance(payload, dict) and payload.get("task_id")
@@ -208,6 +230,7 @@ def tools_node(state: AgentState) -> dict:
     updates: dict = {
         "messages": state["messages"] + tool_results_msgs,
         "tool_exchange": new_tool_exchange,
+        "retrieval_sources": new_retrieval_sources,
         "active_draft_outline": new_active_draft_outline,
         "pending_tasks": new_pending_tasks,
         "last_tool_results": raw_results_for_reflect,

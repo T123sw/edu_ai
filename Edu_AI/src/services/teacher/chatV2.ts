@@ -867,6 +867,19 @@ interface BuildChatReplyPayloadOptions {
   conversationReference?: ChatConversationReference | null;
 }
 
+export function resolveChatRetrievalDocIds(options: {
+  mountFullKnowledgeBase: boolean;
+  selectedDocIds: string[];
+  scopedDocIds: string[];
+}): string[] {
+  if (!options.mountFullKnowledgeBase) {
+    return options.selectedDocIds;
+  }
+  return options.scopedDocIds.length > 0
+    ? options.scopedDocIds
+    : options.selectedDocIds;
+}
+
 export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): ChatReplyRequestV2 {
   const payload: ChatReplyRequestV2 = {
     question: options.question,

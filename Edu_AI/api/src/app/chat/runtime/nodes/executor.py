@@ -26,6 +26,38 @@ def executor_node(state: AgentState) -> dict:
     # Emit plan step "running" at start of each executor turn (guided mode)
     _emit_step_running(writer, state)
 
+    mandatory_retrieval_calls = _build_mandatory_retrieval_calls(state, rt, ctx)
+    if mandatory_retrieval_calls:
+        tool_names_cn = [
+            _TOOL_NAMES_CN.get(call["name"], call["name"])
+            for call in mandatory_retrieval_calls
+        ]
+        print(
+            f"[智能体] 强制检索 | {'、'.join(tool_names_cn)}",
+            flush=True,
+        )
+        for call in mandatory_retrieval_calls:
+            writer({
+                "type": "tool_call",
+                "payload": {"tool": call["name"], "args": call["args"]},
+            })
+        assistant_msg = {
+            "role": "assistant",
+            "content": None,
+            "tool_calls": [
+                {
+                    "id": call["id"],
+                    "type": "function",
+                    "function": {
+                        "name": call["name"],
+                        "arguments": json.dumps(call["args"], ensure_ascii=False),
+                    },
+                }
+                for call in mandatory_retrieval_calls
+            ],
+        }
+        return {"messages": state["messages"] + [assistant_msg]}
+
     if (time.perf_counter() - t_start) > timeout_seconds:
         writer({"type": "__internal_fallback__", "reason": "react_timeout"})
         return {"fallback_reason": "react_timeout"}
@@ -129,7 +161,7 @@ def executor_node(state: AgentState) -> dict:
             "action": {"name": "agent.reply"},
             "artifacts": [],
             "workflow": None,
-            "sources": [],
+            "sources": list(state.get("retrieval_sources") or []),
             "trace": ctx.trace,
             "tool_exchange": state["tool_exchange"],
         },
@@ -141,6 +173,68 @@ def executor_node(state: AgentState) -> dict:
         "reflect_hint": "",
         "reflect_filtered": {},
     }
+
+
+def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecutionContext) -> list[dict]:
+    """Return deterministic retrieval calls required by the current UI state.
+
+    Retrieval toggles are execution directives, not optional tool permissions:
+    selected documents imply mandatory RAG, the full knowledge-base toggle
+    implies mandatory RAG over all mounted document ids, and Web implies a
+    mandatory web search. Planned generation tasks execute retrieval only when
+    their current plan step reaches ``retrieve_context``.
+    """
+    capability = ctx.capability
+    enabled_tools = {
+        "rag_search": bool(getattr(capability, "allow_rag", False)),
+        "web_search": bool(getattr(capability, "allow_web", False)),
+    }
+    already_executed = {
+        str(step.get("tool") or "")
+        for step in (ctx.trace.get("agent_steps") or [])
+        if isinstance(step, dict)
+    }
+
+    current_plan = state.get("current_plan")
+    if current_plan:
+        steps = current_plan.get("steps") or []
+        step_index = int(state.get("plan_step_index") or 0)
+        if not (0 <= step_index < len(steps)):
+            return []
+        current_step = steps[step_index]
+        expected_tools = set(current_step.get("expected_tools") or [])
+        required_tools = [
+            tool_name
+            for tool_name in ("rag_search", "web_search")
+            if enabled_tools[tool_name]
+            and tool_name in expected_tools
+            and tool_name not in already_executed
+        ]
+        query = str(current_plan.get("subject") or "").strip()
+    else:
+        required_tools = [
+            tool_name
+            for tool_name in ("rag_search", "web_search")
+            if enabled_tools[tool_name] and tool_name not in already_executed
+        ]
+        query = ""
+
+    request = rt["request"]
+    query = query or str(getattr(request, "question", "") or "").strip()
+    if not query:
+        return []
+
+    calls = []
+    for tool_name in required_tools:
+        args = {"query": query}
+        if tool_name == "rag_search":
+            args["top_k"] = 5
+        calls.append({
+            "id": f"forced_{tool_name}_{len(already_executed) + len(calls) + 1}",
+            "name": tool_name,
+            "args": args,
+        })
+    return calls
 
 
 def _maybe_outline_to_append(answer: str, state: dict) -> str:
