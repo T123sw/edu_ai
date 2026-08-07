@@ -13,6 +13,10 @@ export type BackendCourse = {
   updated_at?: string | null;
 };
 
+export type CourseMaterialVisibility = "private" | "course";
+export type CourseMaterialSpace = "mine" | "course";
+export type PublicationAction = "published" | "updated" | "unchanged";
+
 export type CourseMaterial = {
   schema_version?: number;
   version?: number;
@@ -21,13 +25,21 @@ export type CourseMaterial = {
   course_id?: string;
   owner_user_id?: string | null;
   created_by?: string | null;
-  visibility?: string;
+  visibility?: CourseMaterialVisibility;
   source_job_id?: string | null;
   config_snapshot_id?: string | null;
   source?: Record<string, unknown>;
   source_snapshot?: Record<string, unknown>;
   content_hash?: string;
   artifact_paths?: string[];
+  published_material_id?: string | null;
+  published_version?: number | null;
+  published_at?: string | null;
+  published_by?: string | null;
+  published_from_material_id?: string | null;
+  published_from_owner_user_id?: string | null;
+  published_from_version?: number | null;
+  publication_status?: "published" | null;
   title?: string;
   topic?: string;
   summary?: string;
@@ -80,6 +92,12 @@ export type CourseMaterial = {
   }>;
   scope_type?: "course" | "knowledge_point";
   scope_id?: string | null;
+};
+
+export type MaterialPublicationResponse = {
+  action: PublicationAction;
+  source_material_id: string;
+  material: CourseMaterial;
 };
 
 export type KnowledgeBaseDocument = {

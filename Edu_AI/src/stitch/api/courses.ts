@@ -2,10 +2,12 @@ import { apiRequest } from "./client";
 import type {
   BackendCourse,
   CourseMaterial,
+  CourseMaterialSpace,
   KnowledgeBaseDocument,
   KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
   KnowledgeGraphTextbookImportResponse,
+  MaterialPublicationResponse,
 } from "./types";
 import type { CourseSummary } from "../shared";
 import type { JobRecord } from "../../jobs/types";
@@ -35,6 +37,7 @@ type CourseMaterialsScopeOptions = {
   aggregate?: boolean;
   limit?: number;
   offset?: number;
+  space?: CourseMaterialSpace | "all";
 };
 
 export function backendCourseToSummary(course: BackendCourse, index = 0): CourseSummary {
@@ -89,6 +92,7 @@ export function getCourseMaterials(courseId: string, options?: CourseMaterialsSc
   if (typeof options?.aggregate === "boolean") params.set("aggregate", options.aggregate ? "true" : "false");
   if (typeof options?.limit === "number") params.set("limit", String(options.limit));
   if (typeof options?.offset === "number") params.set("offset", String(options.offset));
+  if (options?.space) params.set("space", options.space);
 
   const search = params.toString();
   return apiRequest<CourseMaterial[]>(`/api/courses/${courseId}/materials${search ? `?${search}` : ""}`);
@@ -176,6 +180,28 @@ export function renameCourseMaterial(
       method: "PATCH",
       body: JSON.stringify({ title }),
     },
+  );
+}
+
+export function publishCourseMaterial(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+) {
+  return apiRequest<MaterialPublicationResponse>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}/publish`,
+    { method: "POST" },
+  );
+}
+
+export function withdrawCourseMaterial(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+) {
+  return apiRequest<{ ok: boolean }>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}/publication`,
+    { method: "DELETE" },
   );
 }
 
