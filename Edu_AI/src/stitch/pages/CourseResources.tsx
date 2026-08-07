@@ -589,7 +589,7 @@ export function CourseResourcesPage() {
                 type="button"
                 role="tab"
                 aria-selected={resourceSpace === space.key}
-                aria-controls={`resource-space-panel-${space.key}`}
+                aria-controls="resource-space-panel"
                 tabIndex={resourceSpace === space.key ? 0 : -1}
                 onClick={() => selectResourceSpace(space.key)}
                 onKeyDown={(event) => handleResourceSpaceKeyDown(event, space.key)}
@@ -642,7 +642,7 @@ export function CourseResourcesPage() {
         </header>
 
         <div
-          id={`resource-space-panel-${resourceSpace}`}
+          id="resource-space-panel"
           role="tabpanel"
           aria-labelledby={`resource-space-tab-${resourceSpace}`}
           className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden"

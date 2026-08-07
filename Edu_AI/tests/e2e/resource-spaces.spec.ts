@@ -10,8 +10,11 @@ test("keyboard publication flow preserves the personal source", async ({ teacher
   await expect(mineTab).toHaveAttribute("aria-selected", "true");
   await expect(mineTab).toHaveAttribute("tabindex", "0");
   await expect(courseTab).toHaveAttribute("tabindex", "-1");
-  await expect(mineTab).toHaveAttribute("aria-controls", "resource-space-panel-mine");
-  await expect(page.getByRole("tabpanel")).toHaveAttribute(
+  await expect(mineTab).toHaveAttribute("aria-controls", "resource-space-panel");
+  await expect(courseTab).toHaveAttribute("aria-controls", "resource-space-panel");
+  const resourcePanel = page.locator("#resource-space-panel");
+  await expect(resourcePanel).toHaveRole("tabpanel");
+  await expect(resourcePanel).toHaveAttribute(
     "aria-labelledby",
     "resource-space-tab-mine",
   );
@@ -28,7 +31,7 @@ test("keyboard publication flow preserves the personal source", async ({ teacher
   await expect(courseTab).toHaveAttribute("aria-selected", "true");
   await expect(courseTab).toBeFocused();
   await expect(courseTab).toHaveAttribute("tabindex", "0");
-  await expect(page.getByRole("tabpanel")).toHaveAttribute(
+  await expect(resourcePanel).toHaveAttribute(
     "aria-labelledby",
     "resource-space-tab-course",
   );
