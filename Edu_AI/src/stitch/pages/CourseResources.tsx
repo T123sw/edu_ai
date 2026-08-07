@@ -31,9 +31,6 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
-  SidebarBackLink,
-  SidebarDock,
-  SidebarNav,
   defaultCourse,
   routes,
   useAppShell,
@@ -501,47 +498,11 @@ export function CourseResourcesPage() {
     && activeMeta?.known;
 
   return (
-    <AppSurface className="flex min-h-screen min-[1180px]:h-screen min-[1180px]:overflow-hidden">
-      <SidebarDock className="h-screen gap-3 bg-[linear-gradient(180deg,#fcfdff_0%,#f2f6ff_100%)] p-4">
-        <div className="mb-2 px-2 py-4">
-          <SidebarBackLink />
-          <h1 className="text-xl font-black tracking-tight text-(--accent-strong)">
-            {course.title}
-          </h1>
-          <p className="mt-1 text-sm text-(--muted-text)">课程资源</p>
-        </div>
-        <SidebarNav activeRoute={routes.resources} />
-        <div className="rounded-[24px] bg-(--accent-soft) p-4">
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--accent-strong)">
-            资源概览
-          </p>
-          <div className="mt-3 space-y-2 text-sm text-(--accent-strong)">
-            <div className="flex items-center justify-between rounded-2xl bg-white px-4 py-3">
-              <span>我的资源</span>
-              <span className="font-bold">{personalMaterials.length}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl border border-(--shell-border) px-4 py-3">
-              <span>课程共享</span>
-              <span className="font-bold">{sharedMaterials.length}</span>
-            </div>
-          </div>
-        </div>
-      </SidebarDock>
-
+    <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[1180px]:overflow-y-hidden">
         <header className="border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-(--accent-strong)">
-                {course.module}
-              </p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-(--accent-strong)">
-                课程资源中心
-              </h1>
-              <p className="mt-2 text-sm text-(--muted-text)">
-                个人生成结果默认仅自己可见，需要时可发布给课程成员。
-              </p>
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-(--muted-text)">个人结果默认仅自己可见，需要时可发布给课程成员。</p>
             <div className="flex flex-wrap items-center gap-2">
               <label className="relative">
                 <MaterialIcon

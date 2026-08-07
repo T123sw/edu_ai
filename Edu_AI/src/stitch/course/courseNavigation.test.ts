@@ -8,6 +8,10 @@ test("editors see the complete course workspace navigation", () => {
     getCourseNavigation("editor").map((item) => item.id),
     ["overview", "workspace", "knowledge", "classroom", "resources", "settings"],
   );
+  assert.equal(
+    getCourseNavigation("editor").some((item) => "description" in item),
+    false,
+  );
 });
 
 test("viewers cannot open course settings", () => {

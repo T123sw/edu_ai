@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useJobStore } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
+import { getCourseMaterialTypeMeta } from "../api/courseMaterialPresentation";
 import { getCourseMaterials, getKnowledgeBaseDocuments } from "../api/courses";
 import type { CourseMaterial, KnowledgeBaseDocument } from "../api/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
@@ -15,7 +16,6 @@ export function CourseListPage() {
 }
 
 const entries = [
-  { route: routes.courseDetail, label: "课程概览", note: "查看课程状态和最近更新", icon: "dashboard" },
   { route: routes.ai, label: "问答与生成", note: "围绕课程资料问答或生成教学资源", icon: "auto_awesome" },
   { route: routes.knowledge, label: "课程知识", note: "管理课程资料和知识结构", icon: "menu_book" },
   { route: routes.classroomStudio, label: "AI 课堂", note: "生成和播放互动课堂", icon: "play_circle" },
@@ -38,7 +38,7 @@ export function CourseDetailPage() {
     let cancelled = false;
     void Promise.all([
       getKnowledgeBaseDocuments(course.id).catch(() => []),
-      getCourseMaterials(course.id, { limit: 6 }).catch(() => []),
+      getCourseMaterials(course.id, { sort: "updated_desc" }).catch(() => []),
     ]).then(([nextDocuments, nextMaterials]) => {
       if (!cancelled) {
         setDocuments(nextDocuments);
@@ -52,6 +52,20 @@ export function CourseDetailPage() {
     () => Object.values(jobs).filter((job) => job.course_id === course?.id && isActiveJob(job)),
     [course?.id, jobs],
   );
+  const completedJobs = useMemo(
+    () => Object.values(jobs).filter(
+      (job) => job.course_id === course?.id && job.status === "succeeded",
+    ),
+    [course?.id, jobs],
+  );
+  const failedJobs = useMemo(
+    () => Object.values(jobs).filter(
+      (job) =>
+        job.course_id === course?.id
+        && (job.status === "failed" || job.status === "partially_succeeded"),
+    ),
+    [course?.id, jobs],
+  );
   const readyDocuments = documents.filter((document) => document.status === "ready").length;
   const visibleEntries = entries.filter((entry) => entry.route !== routes.edit || canCourse(courseRole, "edit"));
 
@@ -62,7 +76,6 @@ export function CourseDetailPage() {
       <main className="course-overview">
         <section className="course-overview__summary">
           <div>
-            <span className="course-overview__role">{courseRole === "owner" ? "课程负责人" : courseRole === "editor" ? "课程编辑者" : "课程查看者"}</span>
             <h2>{course.title}</h2>
             <p>{course.description || "暂未填写课程简介。"}</p>
           </div>
@@ -74,8 +87,9 @@ export function CourseDetailPage() {
         <section className="course-overview__facts" aria-label="课程状态">
           <article><span>课程资料</span><strong>{documents.length}</strong><small>{readyDocuments} 份可用于检索</small></article>
           <article><span>课程资源</span><strong>{materials.length}</strong><small>最近生成与发布成果</small></article>
+          <article><span>已完成任务</span><strong>{completedJobs.length}</strong><small>已成功生成资源</small></article>
           <article><span>进行中任务</span><strong>{activeJobs.length}</strong><small>可在右上角任务中心查看</small></article>
-          <article><span>课程版本</span><strong>{course.revision}</strong><small>{course.updated_at ? `更新于 ${new Date(course.updated_at).toLocaleString("zh-CN")}` : "暂无更新时间"}</small></article>
+          <article><span>失败任务</span><strong>{failedJobs.length}</strong><small>可在任务中心重试</small></article>
         </section>
 
         <div className="course-overview__columns">
@@ -88,7 +102,7 @@ export function CourseDetailPage() {
 
           <GlassPanel className="course-overview__panel">
             <div className="course-overview__panel-head"><div><p>最近更新</p><h3>最新课程资源</h3></div><a href={buildTeacherCourseHash(routes.resources, course.id)}>查看全部</a></div>
-            {materials.length ? <ul className="course-overview__resources">{materials.slice(0, 4).map((material) => <li key={`${material.material_type}-${material.material_id}`}><span><strong>{materialTitle(material)}</strong><small>{material.material_type}</small></span><MaterialIcon name="arrow_forward" /></li>)}</ul> : <p className="course-overview__empty">暂无生成资源，从问答与生成开始创建。</p>}
+            {materials.length ? <ul className="course-overview__resources">{materials.slice(0, 4).map((material) => <li key={`${material.material_type}-${material.material_id}`}><a href={buildTeacherCourseHash(routes.resources, course.id, { material_type: material.material_type, material_id: material.material_id })}><span><strong>{materialTitle(material)}</strong><small>{getCourseMaterialTypeMeta(material.material_type).label}</small></span><MaterialIcon name="arrow_forward" /></a></li>)}</ul> : <p className="course-overview__empty">暂无生成资源，从问答与生成开始创建。</p>}
           </GlassPanel>
         </div>
 

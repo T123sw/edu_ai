@@ -7,8 +7,6 @@ import { buildTeacherCourseHash, type TeacherCourseRoute } from "../teacherRoute
 import { useCourseRoute } from "./CourseRouteProvider";
 import { getCourseNavigation, getCoursePageTitle } from "./courseNavigation";
 
-const roleLabels = { owner: "课程负责人", editor: "课程编辑者", viewer: "课程查看者" } as const;
-
 export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: TeacherCourseRoute }>) {
   const { courseId, course, courseRole, loading, error, reload } = useCourseRoute();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -29,7 +27,7 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
             onClick={() => setDrawerOpen(false)}
           >
             <span className="course-navigation__icon"><MaterialIcon name={item.icon} /></span>
-            <span><strong>{item.label}</strong><small>{item.description}</small></span>
+            <strong>{item.label}</strong>
           </a>
         );
       })}
@@ -67,11 +65,6 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
       <div className="course-shell" data-testid="course-shell">
         <aside className="course-shell__sidebar">
           <a href={routeHref(routes.home)} className="course-shell__brand">Edu AI</a>
-          <div className="course-shell__identity">
-            <span>当前课程</span>
-            <strong data-course-title>{course?.title ?? "课程工作区"}</strong>
-            {courseRole ? <small>{roleLabels[courseRole]}</small> : null}
-          </div>
           {nav()}
           <a href={routeHref(routes.home)} className="course-shell__back"><MaterialIcon name="arrow_back" /> 返回全部课程</a>
         </aside>
@@ -89,7 +82,13 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
               <p><a href={routeHref(routes.home)}>全部课程</a><span>/</span>{course?.title ?? "课程"}</p>
               <h1>{getCoursePageTitle(activeRoute)}</h1>
             </div>
-            <JobCenterTrigger placement="inline" />
+            <div className="course-shell__actions">
+              <JobCenterTrigger placement="inline" />
+              <a className="course-shell__profile" href={routeHref(routes.profile)}>
+                <MaterialIcon name="person" />
+                <span>个人中心</span>
+              </a>
+            </div>
           </header>
           <div className="course-shell__page">{content}</div>
         </div>

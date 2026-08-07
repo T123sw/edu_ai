@@ -7,10 +7,6 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
-  SidebarBackLink,
-  SidebarDock,
-  SidebarNav,
-  routes,
 } from "../shared";
 
 type CourseFormState = {
@@ -83,7 +79,11 @@ export function CourseEditPage() {
   }
 
   async function handleSave() {
-    if (!course || !canEdit || !formState.title.trim()) return;
+    if (!course || !canEdit) return;
+    if (!formState.title.trim()) {
+      setFeedback("请填写课程名称后再保存。");
+      return;
+    }
     setSaving(true);
     setFeedback(null);
     try {
@@ -112,7 +112,11 @@ export function CourseEditPage() {
         await reload();
         setFeedback("课程刚刚被其他教师更新。系统已保护你的修改，并载入服务器上的最新版本。");
       } else {
-        setFeedback(reason instanceof Error ? reason.message : "保存失败");
+        setFeedback(
+          status === 0
+            ? "暂时无法连接服务器，请检查服务后重试。"
+            : "课程信息暂时无法保存，请稍后重试。",
+        );
       }
     } finally {
       setSaving(false);
@@ -131,46 +135,27 @@ export function CourseEditPage() {
   }
 
   return (
-    <AppSurface className="flex min-h-screen">
-      <SidebarDock className="h-screen gap-3 bg-[linear-gradient(180deg,#fcfdff_0%,#f2f6ff_100%)] p-4">
-        <div className="mb-2 px-2 py-4">
-          <SidebarBackLink />
-          <h1 className="text-xl font-black tracking-tight text-(--accent-strong)">
-            {course.title}
-          </h1>
-          <p className="mt-1 text-sm text-(--muted-text)">
-            {canEdit ? "课程设置" : "课程信息"}
-          </p>
-        </div>
-        <SidebarNav activeRoute={routes.edit} />
-      </SidebarDock>
-
-      <main className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-(--accent)">
-                {canEdit ? "Course settings" : "Read only"}
-              </p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-(--accent-strong)">
-                {course.title}
-              </h1>
-            </div>
-            {canEdit ? (
-              <button
-                type="button"
-                onClick={() => void handleSave()}
-                disabled={saving || uploadingImage}
-                className="inline-flex items-center gap-2 rounded-full bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
-              >
-                <MaterialIcon name="check_circle" className="text-sm" />
-                {saving ? "保存中…" : "保存更改"}
-              </button>
-            ) : null}
+    <AppSurface className="min-h-[calc(100vh-var(--course-header-height))]">
+      <main className="course-settings">
+        <section className="course-settings__toolbar">
+          <div>
+            <h2>{canEdit ? "维护课程信息" : "查看课程信息"}</h2>
+            <p>{canEdit ? "名称、简介和教学目标保存后会同步到整个课程工作区。" : "当前账号只有查看权限。"}</p>
           </div>
-        </header>
+          {canEdit ? (
+            <button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={saving || uploadingImage}
+              className="course-settings__save"
+            >
+              <MaterialIcon name="check_circle" />
+              {saving ? "保存中…" : "保存更改"}
+            </button>
+          ) : null}
+        </section>
 
-        <div className="flex-1 p-6 sm:p-8">
+        <div className="course-settings__content">
           {!canEdit ? (
             <p className="mb-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
               课程信息仅供查看。如需修改，请联系课程负责人调整你的课程角色。
@@ -200,7 +185,7 @@ export function CourseEditPage() {
             </div>
           ) : null}
 
-          <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 sm:p-7">
+          <GlassPanel className="course-settings__form">
             {canEdit ? (
               <div className="space-y-5">
                 <Field label="课程名称">
