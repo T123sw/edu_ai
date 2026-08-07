@@ -6,6 +6,7 @@ import {
   getCourseMaterialOpenTarget,
   getCourseMaterialTypeMeta,
   isCourseMaterialInFilter,
+  toCourseMaterialPresentation,
 } from "./courseMaterialPresentation.ts";
 
 const material = (materialType: string) => ({
@@ -69,4 +70,17 @@ test("filters cover classroom, ppt, flashcard and interactive resources", () => 
   assert.equal(isCourseMaterialInFilter(material("game"), "interactive"), true);
   assert.equal(isCourseMaterialInFilter(material("graph"), "interactive"), true);
   assert.equal(isCourseMaterialInFilter(material("classroom"), "other"), false);
+});
+
+test("private resources describe personal visibility instead of course scope", () => {
+  const presentation = toCourseMaterialPresentation({
+    ...material("report"),
+    visibility: "private",
+    owner_user_id: "teacher",
+  });
+
+  assert.deepEqual(
+    presentation.meta.find((item) => item.label === "可见范围"),
+    { label: "可见范围", value: "仅自己可见" },
+  );
 });

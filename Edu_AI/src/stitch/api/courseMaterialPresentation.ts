@@ -139,7 +139,11 @@ export function toCourseMaterialPresentation(
     meta: [
       { label: "类型", value: typeLabel },
       { label: "创建者", value: material.created_by || material.owner_user_id || "未记录" },
-      { label: "资料范围", value: sourceScopeLabel(material) },
+      {
+        label: "可见范围",
+        value: material.visibility === "private" ? "仅自己可见" : "课程成员可见",
+      },
+      { label: "资料来源", value: sourceScopeLabel(material) },
       { label: "创建时间", value: formatCreatedTime(material.created_at) },
     ],
   };
