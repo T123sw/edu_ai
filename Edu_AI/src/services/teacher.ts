@@ -127,17 +127,6 @@ export async function getLessonPlanDetails(id: string): Promise<LessonPlan> {
   return (await response.json()) as LessonPlan;
 }
 
-export async function deleteLessonPlan(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/teacher/lesson_plans/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: '删除教案失败' }));
-    throw new Error(error.detail || `删除教案失败: ${response.statusText}`);
-  }
-}
-
 export async function generateQuestions(payload: QuestionGenerateRequest): Promise<Question[]> {
   const body = {
     knowledge_points: payload.knowledgePoints ?? [],

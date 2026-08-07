@@ -26,9 +26,6 @@ from app.schemas.question import (
 from app.schemas.quiz import QuizRequest, QuizResponse
 from app.schemas.report import ReportRequest, ReportResponse
 from app.services.teacher_service import (
-    delete_lesson_plan as _svc_delete_lesson_plan,
-    delete_quiz as _svc_delete_quiz,
-    delete_report as _svc_delete_report,
     generate_lesson_plan,
     generate_quiz,
     generate_report,
@@ -41,6 +38,17 @@ from app.integrations.rag_client import load_selected_rag_documents
 from core import Config
 
 router = APIRouter(tags=["teacher"])
+
+
+def _legacy_delete_retired() -> None:
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "code": "LEGACY_MATERIAL_DELETE_RETIRED",
+            "message": "旧删除接口已停用，请使用课程资源删除接口",
+            "replacement": "/api/courses/{course_id}/materials/{material_type}/{material_id}",
+        },
+    )
 
 
 def _get_rag():
@@ -204,17 +212,8 @@ async def delete_lesson_plan_endpoint(
     course_id: Optional[str] = None,
     current_user: dict = Depends(get_current_user),
 ):
-    try:
-        _svc_delete_lesson_plan(
-            plan_id,
-            course_id,
-            owner_user_id=str(current_user.get("username") or ""),
-        )
-        return {"message": "教案已删除"}
-    except KeyError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"删除教案失败: {exc}") from exc
+    del plan_id, course_id, current_user
+    _legacy_delete_retired()
 
 
 @router.delete("/teacher/reports/{report_id}")
@@ -223,21 +222,8 @@ async def delete_report_endpoint(
     course_id: Optional[str] = None,
     current_user: dict = Depends(get_current_user),
 ):
-    try:
-        if not course_id:
-            raise HTTPException(status_code=400, detail="必须提供course_id")
-        _svc_delete_report(
-            report_id,
-            course_id,
-            owner_user_id=str(current_user.get("username") or ""),
-        )
-        return {"message": "报告已删除"}
-    except HTTPException:
-        raise
-    except KeyError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"删除报告失败: {exc}") from exc
+    del report_id, course_id, current_user
+    _legacy_delete_retired()
 
 
 @router.delete("/teacher/quizzes/{quiz_id}")
@@ -246,21 +232,8 @@ async def delete_quiz_endpoint(
     course_id: Optional[str] = None,
     current_user: dict = Depends(get_current_user),
 ):
-    try:
-        if not course_id:
-            raise HTTPException(status_code=400, detail="必须提供course_id")
-        _svc_delete_quiz(
-            quiz_id,
-            course_id,
-            owner_user_id=str(current_user.get("username") or ""),
-        )
-        return {"message": "测验已删除"}
-    except HTTPException:
-        raise
-    except KeyError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"删除测验失败: {exc}") from exc
+    del quiz_id, course_id, current_user
+    _legacy_delete_retired()
 
 
 # ---------------------------------------------------------------------------

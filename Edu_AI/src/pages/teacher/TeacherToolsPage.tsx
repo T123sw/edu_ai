@@ -17,8 +17,7 @@ import {
   message,
   Spin,
   Empty,
-  Modal,
-  Popconfirm
+  Modal
 } from 'antd';
 import {
   FileTextOutlined,
@@ -32,8 +31,7 @@ import {
   CheckCircleOutlined,
   CopyOutlined,
   DownloadOutlined,
-  EyeOutlined,
-  DeleteOutlined
+  EyeOutlined
 } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import './TeacherToolsPage.css';
@@ -44,7 +42,6 @@ import {
   type LessonPlanMeta,
   listLessonPlans,
   getLessonPlanDetails,
-  deleteLessonPlan,
   generateQuestions,
   type Question as APIQuestion
 } from '../../services/teacher';
@@ -251,17 +248,6 @@ export default function TeacherToolsPage() {
       setViewModalVisible(true);
     } catch (e) {
       const msg = e instanceof Error ? e.message : '获取教案详情失败';
-      message.error(msg);
-    }
-  };
-
-  const handleDeleteLessonPlan = async (meta: LessonPlanMeta) => {
-    try {
-      await deleteLessonPlan(meta.id);
-      message.success('教案已删除');
-      loadLessonPlans();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : '删除教案失败';
       message.error(msg);
     }
   };
@@ -841,15 +827,6 @@ export default function TeacherToolsPage() {
                   >
                     导出
                   </Button>,
-                  <Popconfirm
-                    key="delete"
-                    title="确认删除该教案？"
-                    onConfirm={() => handleDeleteLessonPlan(item)}
-                  >
-                    <Button type="link" danger icon={<DeleteOutlined />}>
-                      删除
-                    </Button>
-                  </Popconfirm>,
                 ]}
               >
                 <List.Item.Meta
