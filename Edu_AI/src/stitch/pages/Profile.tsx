@@ -232,7 +232,7 @@ export function ProfilePage() {
                       <p className="font-bold text-[#17304a]">账号状态</p>
                       <p className="mt-1 text-sm text-[#5f7088]">正常 · {roleLabels[profile.role] || profile.role}</p>
                     </div>
-                    {profile.role === "admin" ? <a
+                    <a
                       href={routeHref(routes.settings)}
                       className="flex items-center justify-between rounded-[20px] border border-[#d8e4f6] bg-[#f8fbff] p-4 transition hover:border-[#9cb9f2] hover:bg-white"
                     >
@@ -246,7 +246,7 @@ export function ProfilePage() {
                         </span>
                       </span>
                       <MaterialIcon name="arrow_forward" className="text-[#2357b8]" />
-                    </a> : null}
+                    </a>
                   </div>
                 </GlassPanel>
               </div>
