@@ -999,11 +999,16 @@ textarea {
 .knowledge-map__children::before { content: ""; position: absolute; inset: 0 auto 20px 0; width: 1px; background: #b8cdf8; }
 .knowledge-map__branch { position: relative; padding: 7px 0; }
 .knowledge-map__children > .knowledge-map__branch::before { content: ""; position: absolute; left: -28px; top: 34px; width: 28px; height: 1px; background: #b8cdf8; }
-.knowledge-map__node { display: flex; width: 270px; align-items: center; gap: 10px; border: 1px solid #d5def0; border-radius: 15px; background: #fff; padding: 11px 13px; color: #152238; text-align: left; box-shadow: 0 8px 24px rgba(36,76,143,.07); cursor: pointer; }
+.knowledge-map__node-row { display: flex; width: 310px; align-items: center; gap: 8px; }
+.knowledge-map__node { display: flex; min-width: 0; flex: 1; align-items: center; gap: 10px; border: 1px solid #d5def0; border-radius: 15px; background: #fff; padding: 11px 13px; color: #152238; text-align: left; box-shadow: 0 8px 24px rgba(36,76,143,.07); cursor: pointer; }
 .knowledge-map__node:hover, .knowledge-map__node[aria-pressed="true"] { border-color: #5c87ee; background: #eef4ff; color: #174dbf; }
 .knowledge-map__node > span:nth-child(2) { flex: 1; overflow: hidden; font-size: 14px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
 .knowledge-map__node small { border-radius: 99px; background: #e6eeff; padding: 3px 7px; font-size: 10px; }
 .knowledge-map__node-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 10px; background: #e8f0ff; color: #2e61dc; }
+.knowledge-tree__toggle { display: grid; flex: 0 0 auto; place-items: center; border: 1px solid #d5def0; background: #fff; color: #557092; cursor: pointer; transition: border-color .15s ease, background .15s ease, color .15s ease; }
+.knowledge-tree__toggle:hover, .knowledge-tree__toggle:focus-visible { border-color: #7a9bea; background: #edf3ff; color: #245edb; outline: none; }
+.knowledge-map__toggle { width: 32px; height: 32px; border-radius: 10px; box-shadow: 0 6px 16px rgba(36,76,143,.06); }
+.knowledge-map__toggle .material-symbols-rounded { font-size: 20px; }
 .knowledge-node-panel { display: flex; min-height: 0; flex-direction: column; padding: 22px; }
 .knowledge-node-panel__eyebrow { color: var(--course-shell-brand); font-size: 12px; font-weight: 800; }
 .knowledge-node-panel h2 { margin: 6px 0 8px; color: var(--course-shell-ink); font-size: 21px; }
@@ -1025,10 +1030,13 @@ textarea {
 .knowledge-library__nodes { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
 .knowledge-library__heading { border-bottom: 1px solid var(--course-shell-line); padding: 20px; }
 .knowledge-library__node-list { flex: 1; overflow-y: auto; padding: 10px; }
-.knowledge-library__node-list button { display: flex; width: 100%; align-items: center; gap: 9px; border: 0; border-radius: 11px; background: transparent; padding-block: 11px; color: #41516a; text-align: left; cursor: pointer; }
-.knowledge-library__node-list button:hover, .knowledge-library__node-list button[aria-pressed="true"] { background: #edf3ff; color: #245edb; }
-.knowledge-library__node-list button > span:nth-child(2) { min-width: 0; flex: 1; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.knowledge-library__node-list button .material-symbols-rounded { font-size: 17px; }
+.knowledge-library__node-row { display: flex; min-width: 0; align-items: center; gap: 3px; }
+.knowledge-library__node-select { display: flex; min-width: 0; flex: 1; align-items: center; gap: 9px; border: 0; border-radius: 11px; background: transparent; padding: 11px 8px; color: #41516a; text-align: left; cursor: pointer; }
+.knowledge-library__node-select:hover, .knowledge-library__node-select[aria-pressed="true"] { background: #edf3ff; color: #245edb; }
+.knowledge-library__node-select > span:nth-child(2) { min-width: 0; flex: 1; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.knowledge-library__node-select .material-symbols-rounded { font-size: 17px; }
+.knowledge-library__node-toggle { width: 28px; height: 28px; border: 0; border-radius: 8px; }
+.knowledge-library__node-toggle .material-symbols-rounded { font-size: 19px; }
 .knowledge-library__node-list small { color: #8a97aa; font-size: 10px; }
 .knowledge-library__content { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: hidden; }
 .knowledge-library__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--course-shell-line); padding: 20px 24px; }

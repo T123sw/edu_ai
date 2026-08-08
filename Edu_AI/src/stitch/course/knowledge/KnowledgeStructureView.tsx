@@ -5,36 +5,50 @@ import type { KnowledgeBaseDocument, KnowledgeGraphNode } from "../../api/types"
 import { useCourseRoute } from "../CourseRouteProvider";
 import { buildTeacherCourseHash } from "../../teacherRoutes";
 import { MaterialIcon } from "../../shared";
-
-type GraphEntry = KnowledgeGraphNode & { parentId: string | null; depth: number };
-
-function flatten(node: KnowledgeGraphNode, parentId: string | null = null, depth = 0): GraphEntry[] {
-  return [
-    { ...node, parentId, depth },
-    ...(node.children ?? []).flatMap((child) => flatten(child, node.id, depth + 1)),
-  ];
-}
+import {
+  defaultExpandedNodeIds,
+  descendantNodeIds,
+  flattenKnowledgeTree,
+  toggleExpandedNode,
+} from "./knowledgeTreeExpansion";
 
 function nodeTree(
   node: KnowledgeGraphNode,
   activeId: string,
+  expandedIds: ReadonlySet<string>,
   onSelect: (node: KnowledgeGraphNode) => void,
+  onToggle: (node: KnowledgeGraphNode) => void,
 ) {
+  const hasChildren = (node.children?.length ?? 0) > 0;
+  const expanded = expandedIds.has(node.id);
   return (
     <li key={node.id} className="knowledge-map__branch">
-      <button
-        type="button"
-        className="knowledge-map__node"
-        aria-pressed={node.id === activeId}
-        onClick={() => onSelect(node)}
-      >
-        <span className="knowledge-map__node-icon"><MaterialIcon name="hub" /></span>
-        <span>{node.label}</span>
-        {(node.children?.length ?? 0) > 0 && <small>{node.children!.length}</small>}
-      </button>
-      {(node.children?.length ?? 0) > 0 && (
+      <div className="knowledge-map__node-row">
+        <button
+          type="button"
+          className="knowledge-map__node"
+          aria-pressed={node.id === activeId}
+          onClick={() => onSelect(node)}
+        >
+          <span className="knowledge-map__node-icon"><MaterialIcon name="hub" /></span>
+          <span>{node.label}</span>
+          {hasChildren && <small>{node.children!.length}</small>}
+        </button>
+        {hasChildren && (
+          <button
+            type="button"
+            className="knowledge-tree__toggle knowledge-map__toggle"
+            aria-label={`${expanded ? "收起" : "展开"}${node.label}`}
+            aria-expanded={expanded}
+            onClick={() => onToggle(node)}
+          >
+            <MaterialIcon name={expanded ? "expand_more" : "chevron_right"} />
+          </button>
+        )}
+      </div>
+      {hasChildren && expanded && (
         <ul className="knowledge-map__children">
-          {node.children!.map((child) => nodeTree(child, activeId, onSelect))}
+          {node.children!.map((child) => nodeTree(child, activeId, expandedIds, onSelect, onToggle))}
         </ul>
       )}
     </li>
@@ -52,6 +66,7 @@ export function KnowledgeStructureView() {
   const { courseId } = useCourseRoute();
   const [root, setRoot] = useState<KnowledgeGraphNode | null>(null);
   const [activeId, setActiveId] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [documentLoading, setDocumentLoading] = useState(false);
@@ -66,6 +81,7 @@ export function KnowledgeStructureView() {
         if (cancelled) return;
         setRoot(data.root);
         setActiveId(data.root.id);
+        setExpandedIds(defaultExpandedNodeIds(data.root));
         setError("");
       })
       .catch(() => !cancelled && setError("知识图谱暂时无法加载，请稍后重试。"))
@@ -73,7 +89,7 @@ export function KnowledgeStructureView() {
     return () => { cancelled = true; };
   }, [courseId]);
 
-  const entries = useMemo(() => root ? flatten(root) : [], [root]);
+  const entries = useMemo(() => root ? flattenKnowledgeTree(root) : [], [root]);
   const activeNode = entries.find((item) => item.id === activeId) ?? entries[0] ?? null;
   const isRoot = Boolean(activeNode && activeNode.parentId === null);
 
@@ -107,6 +123,13 @@ export function KnowledgeStructureView() {
       })
     : buildTeacherCourseHash("ai", courseId);
 
+  function toggleNode(node: KnowledgeGraphNode) {
+    if (expandedIds.has(node.id) && descendantNodeIds(node).has(activeId)) {
+      setActiveId(node.id);
+    }
+    setExpandedIds((current) => toggleExpandedNode(current, node));
+  }
+
   if (loading) return <div className="knowledge-state">正在加载知识图谱…</div>;
   if (error || !root) return <div className="knowledge-state knowledge-state--error">{error || "课程尚未建立知识图谱。"}</div>;
 
@@ -121,7 +144,9 @@ export function KnowledgeStructureView() {
           <p>点击节点查看它及全部子节点中的课程资料</p>
         </header>
         <div className="knowledge-map__viewport">
-          <ul className="knowledge-map__root">{nodeTree(root, activeId, (node) => setActiveId(node.id))}</ul>
+          <ul className="knowledge-map__root">
+            {nodeTree(root, activeId, expandedIds, (node) => setActiveId(node.id), toggleNode)}
+          </ul>
         </div>
       </div>
 

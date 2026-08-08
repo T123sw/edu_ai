@@ -6,15 +6,13 @@ import { registerCreatedJob } from "../../../jobs/jobStore";
 import { MaterialIcon } from "../../shared";
 import { canCourse } from "../coursePermissions";
 import { useCourseRoute } from "../CourseRouteProvider";
-
-type NodeOption = KnowledgeGraphNode & { depth: number; parentId: string | null };
-
-function flatten(node: KnowledgeGraphNode, parentId: string | null = null, depth = 0): NodeOption[] {
-  return [
-    { ...node, parentId, depth },
-    ...(node.children ?? []).flatMap((child) => flatten(child, node.id, depth + 1)),
-  ];
-}
+import {
+  defaultExpandedNodeIds,
+  descendantNodeIds,
+  flattenKnowledgeTree,
+  toggleExpandedNode,
+  visibleKnowledgeTree,
+} from "./knowledgeTreeExpansion";
 
 function statusLabel(status: KnowledgeBaseDocument["status"]) {
   if (status === "failed") return "处理失败";
@@ -29,6 +27,7 @@ export function KnowledgeDocumentsView() {
   const canUpload = canCourse(courseRole, "edit");
   const [root, setRoot] = useState<KnowledgeGraphNode | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -41,11 +40,16 @@ export function KnowledgeDocumentsView() {
       .then((data) => {
         setRoot(data.root);
         setSelectedNodeId((current) => current || data.root.id);
+        setExpandedIds(defaultExpandedNodeIds(data.root));
       })
       .catch(() => setError("知识图谱暂时无法加载，请稍后重试。"));
   }, [courseId]);
 
-  const nodes = useMemo(() => root ? flatten(root) : [], [root]);
+  const nodes = useMemo(() => root ? flattenKnowledgeTree(root) : [], [root]);
+  const visibleNodes = useMemo(
+    () => root ? visibleKnowledgeTree(root, expandedIds) : [],
+    [expandedIds, root],
+  );
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? nodes[0] ?? null;
   const isRoot = Boolean(selectedNode && selectedNode.parentId === null);
   const isLeaf = Boolean(selectedNode && (selectedNode.children?.length ?? 0) === 0);
@@ -91,6 +95,13 @@ export function KnowledgeDocumentsView() {
     }
   }
 
+  function toggleNode(node: KnowledgeGraphNode) {
+    if (expandedIds.has(node.id) && descendantNodeIds(node).has(selectedNodeId)) {
+      setSelectedNodeId(node.id);
+    }
+    setExpandedIds((current) => toggleExpandedNode(current, node));
+  }
+
   return (
     <section className="knowledge-library">
       <aside className="knowledge-library__nodes">
@@ -99,19 +110,39 @@ export function KnowledgeDocumentsView() {
           <h2>选择知识节点</h2>
         </div>
         <div className="knowledge-library__node-list">
-          {nodes.map((node) => (
-            <button
-              key={node.id}
-              type="button"
-              aria-pressed={node.id === selectedNode?.id}
-              style={{ paddingLeft: `${16 + node.depth * 18}px` }}
-              onClick={() => setSelectedNodeId(node.id)}
-            >
-              <MaterialIcon name={(node.children?.length ?? 0) > 0 ? "account_tree" : "circle"} />
-              <span>{node.label}</span>
-              {(node.children?.length ?? 0) === 0 && <small>叶子</small>}
-            </button>
-          ))}
+          {visibleNodes.map((node) => {
+            const hasChildren = (node.children?.length ?? 0) > 0;
+            const expanded = expandedIds.has(node.id);
+            return (
+              <div
+                key={node.id}
+                className="knowledge-library__node-row"
+                style={{ paddingLeft: `${6 + node.depth * 18}px` }}
+              >
+                <button
+                  type="button"
+                  className="knowledge-library__node-select"
+                  aria-pressed={node.id === selectedNode?.id}
+                  onClick={() => setSelectedNodeId(node.id)}
+                >
+                  <MaterialIcon name={hasChildren ? "account_tree" : "circle"} />
+                  <span>{node.label}</span>
+                  {!hasChildren && <small>叶子</small>}
+                </button>
+                {hasChildren && (
+                  <button
+                    type="button"
+                    className="knowledge-tree__toggle knowledge-library__node-toggle"
+                    aria-label={`${expanded ? "收起" : "展开"}${node.label}`}
+                    aria-expanded={expanded}
+                    onClick={() => toggleNode(node)}
+                  >
+                    <MaterialIcon name={expanded ? "expand_more" : "chevron_right"} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </aside>
 
