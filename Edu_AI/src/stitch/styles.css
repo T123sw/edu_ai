@@ -1037,7 +1037,7 @@ textarea {
 .knowledge-node-document > span:last-child { border-radius: 99px; background: #fff4e5; padding: 4px 7px; color: #a15c00; font-size: 10px; }
 .knowledge-node-panel__chat { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 13px; background: #2460df; padding: 13px; color: #fff; font-size: 14px; font-weight: 800; }
 
-.knowledge-library { display: grid; grid-template-columns: 300px minmax(0,1fr); height: calc(100vh - var(--course-header-height) - 55px); min-height: 620px; gap: 18px; padding: 20px clamp(18px,3vw,32px); overflow: hidden; }
+.knowledge-library { display: grid; grid-template-columns: clamp(360px,24vw,430px) minmax(0,1fr); height: calc(100vh - var(--course-header-height) - 55px); min-height: 620px; gap: 18px; padding: 20px clamp(18px,3vw,32px); overflow: hidden; }
 .knowledge-library__nodes { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
 .knowledge-library__heading { border-bottom: 1px solid var(--course-shell-line); padding: 20px; }
 .knowledge-library__node-list { flex: 1; overflow-y: auto; padding: 10px; }

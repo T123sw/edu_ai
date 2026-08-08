@@ -48,6 +48,8 @@ test("knowledge graph reveals one level at a time", async ({ teacherPage }) => {
 test("course knowledge directory uses the same collapsed tree behavior", async ({ teacherPage }) => {
   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
 
+  const directoryWidth = await teacherPage.locator(".knowledge-library__nodes").evaluate((element) => element.getBoundingClientRect().width);
+  expect(directoryWidth).toBeGreaterThanOrEqual(360);
   await expect(teacherPage.locator(".knowledge-library__node-select")).toHaveCount(3);
   await expect(teacherPage.getByText("运动学", { exact: true })).toHaveCount(0);
 
