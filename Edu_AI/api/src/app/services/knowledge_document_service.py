@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 import threading
 import time
 import uuid
@@ -253,6 +252,14 @@ def run_index_job(
             force_reimport=force_reindex,
             progress_callback=on_progress,
             owner=owner_user_id,
+            metadata_overrides={
+                "course_id": course_id,
+                "library_type": str(document.get("library_type") or "personal"),
+                "scope_type": str(document.get("scope_type") or "course"),
+                "scope_id": str(document.get("scope_id") or ""),
+                "knowledge_node_id": str(document.get("scope_id") or ""),
+                "course_document_id": document_id,
+            },
         )
         current = get_job(job_id)
         if current is None or current.status not in ACTIVE_JOB_STATUSES:
@@ -352,35 +359,31 @@ def test_retrieval(
     )
     if resolved is None:
         raise ValueError("当前索引版本不可用，请重建索引")
-    chunks = rag_system.vector_store.get_documents_by_source(resolved.source_key)
-    query_tokens = _tokens(query)
-    ranked: list[tuple[float, dict[str, Any]]] = []
-    for chunk in chunks:
-        content = str(chunk.get("content") or "")
-        content_tokens = _tokens(content)
-        overlap = len(query_tokens & content_tokens)
-        score = overlap / max(1, len(query_tokens))
-        if str(query).strip().lower() in content.lower():
-            score = max(score, 1.0)
-        ranked.append((round(score, 4), chunk))
-    ranked.sort(key=lambda item: item[0], reverse=True)
+    ranked = rag_system.retrieve_documents(
+        query,
+        top_k=top_k,
+        allowed_sources=[resolved.source_key],
+    )
     hits = []
-    for score, chunk in ranked[:top_k]:
+    for chunk in ranked[:top_k]:
         metadata = chunk.get("metadata") or {}
         page = metadata.get("page")
         try:
             normalized_page = int(page) + 1 if page is not None else None
         except (TypeError, ValueError):
             normalized_page = None
+        score = chunk.get("rerank_score")
+        if score is None:
+            score = chunk.get("rrf_score", chunk.get("combined_score", 0.0))
         hits.append(
             {
                 "chunk_id": str(chunk.get("id") or ""),
                 "content": str(chunk.get("content") or "")[:1200],
-                "score": score,
+                "score": round(float(score or 0.0), 6),
                 "page": normalized_page,
                 "timestamp": metadata.get("timestamp")
                 or metadata.get("timecode"),
-                "reranked": False,
+                "reranked": chunk.get("rerank_score") is not None,
             }
         )
     return {
@@ -390,14 +393,3 @@ def test_retrieval(
         "hits": hits,
         "elapsed_ms": max(0, round((time.perf_counter() - started) * 1000)),
     }
-
-
-def _tokens(value: str) -> set[str]:
-    normalized = str(value or "").lower()
-    latin = set(re.findall(r"[a-z0-9_]{2,}", normalized))
-    chinese = re.findall(r"[\u4e00-\u9fff]", normalized)
-    bigrams = {
-        "".join(chinese[index : index + 2])
-        for index in range(max(0, len(chinese) - 1))
-    }
-    return latin | bigrams

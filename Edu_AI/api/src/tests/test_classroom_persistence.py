@@ -64,7 +64,9 @@ def test_persist_valid_result_returns_result_ref_and_saves_material():
 
     assert result_ref == {"classroom_id": "stage-1", "course_id": "course-1", "scenes_count": 1}
 
-    saved = manager.get_generated_material("course-1", "classroom", "stage-1")
+    saved = manager.get_generated_material(
+        "course-1", "classroom", "stage-1", owner_user_id="teacher-a"
+    )
     assert saved is not None
     assert saved["title"] == "Retry Basics"
     assert saved["stage"]["id"] == "stage-1"
@@ -104,5 +106,7 @@ def test_persist_same_stage_id_twice_upserts_not_duplicates():
         course_storage_manager=manager, course_id="course-1", owner="teacher-a", result=_valid_result()
     )
 
-    materials = manager.list_generated_materials("course-1", "classroom")
+    materials = manager.list_generated_materials(
+        "course-1", "classroom", owner_user_id="teacher-a"
+    )
     assert len(materials) == 1

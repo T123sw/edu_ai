@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.auth import get_current_user
+from app.api.course_dependencies import get_course_access_service
 from app.chat.api.routes_v2 import router
 from app.chat.tasks.task_store import TaskStore
 from app.services.durable_task_handlers import DurableExecutionContext
@@ -39,6 +41,11 @@ def test_lesson_plan_direct_creates_durable_job(tmp_path, monkeypatch):
     app.dependency_overrides[get_current_user] = lambda: {
         "username": "teacher-a"
     }
+    app.dependency_overrides[get_course_access_service] = lambda: type(
+        "AllowGenerate",
+        (),
+        {"require": lambda self, course_id, user, capability: None},
+    )()
     client = TestClient(app)
 
     response = client.post(
@@ -126,7 +133,7 @@ class _NoSourceResolver:
         )
 
 
-def test_lesson_plan_handler_uses_resolved_context_and_publishes_shared_artifact(
+def test_lesson_plan_handler_uses_resolved_context_and_saves_private_artifact(
     tmp_path,
 ):
     from app.services.direct_lesson_plan_service import DirectLessonPlanService
@@ -161,6 +168,8 @@ def test_lesson_plan_handler_uses_resolved_context_and_publishes_shared_artifact
                 "audience": "first-year undergraduate",
                 "duration_minutes": 45,
                 "objectives": ["Explain force and acceleration"],
+                "teaching_process": "引入—探究—练习",
+                "special_requirements": "加入受力图活动",
             },
             "material_id": "lesson-plan-1",
         },
@@ -171,12 +180,85 @@ def test_lesson_plan_handler_uses_resolved_context_and_publishes_shared_artifact
     assert engine.states[0]["gathered_context"]["source_context"] == (
         "resolved mechanics evidence"
     )
+    assert engine.states[0]["lesson_plan_slots"]["teaching_process"] == (
+        "引入—探究—练习"
+    )
+    assert engine.states[0]["gathered_context"]["special_requirements"] == (
+        "加入受力图活动"
+    )
     artifact = manager.get_generated_material(
         "course-1",
         "lesson_plan",
         "lesson-plan-1",
-        owner_user_id="teacher-b",
+        owner_user_id="teacher-a",
     )
     assert artifact is not None
-    assert artifact["visibility"] == "course"
+    assert artifact["visibility"] == "private"
     assert artifact["source_job_id"] == "job-lesson-1"
+
+
+def test_lesson_plan_plans_visuals_before_body_and_keeps_selected_assets():
+    from app.services.direct_lesson_plan_service import DirectLessonPlanService
+    from app.services.generation_task_handlers import GenerationExecutionContext
+
+    events = []
+
+    class Pipeline:
+        def plan_with_model(self, llm, **kwargs):
+            events.append("plan_visuals")
+            return object()
+
+        def run(self, brief, **kwargs):
+            events.append("select_visuals")
+            return type(
+                "Result",
+                (),
+                {
+                    "selected": (),
+                    "to_snapshot": lambda self: {
+                        "selected": [
+                            {
+                                "slot_id": "force-diagram",
+                                "local_url": "/api/images/searched/force.png",
+                                "caption": "受力图",
+                            }
+                        ]
+                    },
+                },
+            )()
+
+    engine = _FakeLessonPlanEngine()
+    service = DirectLessonPlanService(
+        engine=engine,
+        visual_pipeline=Pipeline(),
+        llm=object(),
+    )
+    source = ResolvedGenerationSource(
+        course_id="course-1",
+        mode="selected_documents",
+        requested_document_ids=("doc-1",),
+        documents=(),
+        context_text="牛顿定律资料",
+        resolved_at=datetime(2026, 8, 9, tzinfo=timezone.utc).isoformat(),
+    )
+    result = service.generate(
+        SimpleNamespace(
+            topic="牛顿第二定律",
+            include_visuals=True,
+            selected_doc_ids=["doc-1"],
+            owner="teacher-a",
+        ),
+        job_id="lesson-visual",
+        config_snapshot_id="cfg-visual",
+        execution_context=GenerationExecutionContext(
+            job_id="lesson-visual",
+            course_id="course-1",
+            user_id="teacher-a",
+            source=source,
+            config={},
+        ),
+    )
+
+    assert events == ["plan_visuals", "select_visuals"]
+    assert engine.states[0]["gathered_context"]["visual_plan"]["selected"][0]["slot_id"] == "force-diagram"
+    assert result["artifacts"][0]["content"]["visuals"][0]["local_url"].endswith("force.png")

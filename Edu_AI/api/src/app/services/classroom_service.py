@@ -288,6 +288,7 @@ async def submit_classroom_generation_job(
     duration_minutes: int = 25,
     teaching_style: str = "guided",
     voice: str = "alloy",
+    include_visuals: bool = True,
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -320,6 +321,7 @@ async def submit_classroom_generation_job(
                 "duration_minutes": duration_minutes,
                 "teaching_style": teaching_style,
                 "voice": voice if enable_tts else "",
+                "include_visuals": include_visuals,
                 "source": "classroom-studio",
             },
         )
@@ -353,6 +355,7 @@ async def submit_classroom_generation_job(
             "duration_minutes": duration_minutes,
             "teaching_style": teaching_style,
             "voice": voice if enable_tts else "",
+            "include_visuals": include_visuals,
         },
         runtime_config_snapshot=runtime_snapshot,
     )

@@ -1,0 +1,35 @@
+{
+  "status": "failed",
+  "requested_document_count": 147,
+  "imported_document_count": 90,
+  "skipped_document_count": 53,
+  "failed_document_count": 4,
+  "failures": [
+    {
+      "scope_id": "elementary-sort",
+      "material_id": "curated-7984b4a9f362",
+      "path": "D:\\github\\edu_ai\\Edu_AI\\api\\src\\evaluation\\shadow\\computational-thinking-v2\\curated-web\\v1\\documents\\shadow-curated-elementary-sort-7984b4a9f362.md",
+      "error": "Embedding API错误: HTTP 429 - {\"error\":{\"message\":\"当前分组上游负载已饱和，请稍后再试 (request id: 20260808193356130772334nktgZqQP)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":null}}"
+    },
+    {
+      "scope_id": "graph",
+      "material_id": "shadow-8532e41f5a4f",
+      "path": "D:\\github\\edu_ai\\Edu_AI\\api\\src\\evaluation\\shadow\\computational-thinking-v2\\think-and-compute-zh\\0c6a477bcdb5\\documents\\shadow-think-compute-graph-8532e41f5a4f.md",
+      "error": "Embedding API错误: HTTP 429 - {\"error\":{\"message\":\"当前分组上游负载已饱和，请稍后再试 (request id: 20260808193614439627468momsWjwA)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":null}}"
+    },
+    {
+      "scope_id": "functions-modularity",
+      "material_id": "curated-54d939ced0e8",
+      "path": "D:\\github\\edu_ai\\Edu_AI\\api\\src\\evaluation\\shadow\\computational-thinking-v2\\curated-web\\v1\\documents\\shadow-curated-functions-modularity-54d939ced0e8.md",
+      "error": "Embedding API错误: HTTP 429 - {\"error\":{\"message\":\"当前分组上游负载已饱和，请稍后再试 (request id: 20260808193747766352537RRSfVGXM)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":null}}"
+    },
+    {
+      "scope_id": "model-abstraction",
+      "material_id": "shadow-fa6ddf116920",
+      "path": "D:\\github\\edu_ai\\Edu_AI\\api\\src\\evaluation\\shadow\\computational-thinking-v2\\think-and-compute-zh\\0c6a477bcdb5\\documents\\shadow-think-compute-model-abstraction-fa6ddf116920.md",
+      "error": "Embedding API错误: HTTP 429 - {\"error\":{\"message\":\"当前分组上游负载已饱和，请稍后再试 (request id: 20260808194552498202706v6unq5lG)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":null}}"
+    }
+  ],
+  "vector_db_path": "D:\\github\\edu_ai\\Edu_AI\\api\\src\\evaluation\\shadow\\computational-thinking-v2\\rag-index-v1\\chroma",
+  "document_index_path": "D:\\github\\edu_ai\\Edu_AI\\api\\src\\evaluation\\shadow\\computational-thinking-v2\\rag-index-v1\\document-index.json"
+}

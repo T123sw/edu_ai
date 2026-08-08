@@ -111,6 +111,8 @@ class ReportEditRuntime:
         for node in nodes:
             body = str(node.get("content") or "")
             if node.get("node_id") == edit_request.get("target_node_id"):
+                if edit_request.get("action_type") == "delete":
+                    continue
                 prompt = (
                     f"你正在修改报告《{title}》中的章节《{node.get('title') or ''}》。\n"
                     f"用户要求：{edit_request.get('instruction') or ''}\n"
@@ -118,7 +120,10 @@ class ReportEditRuntime:
                     "请只输出修改后的章节正文，不要额外解释。"
                 )
                 body = self._invoke_model(prompt).strip() or body
-            rewritten.append(f"## {node.get('title')}\n{body}".strip())
+            heading_level = max(2, min(int(node.get("heading_level") or 2), 6))
+            rewritten.append(
+                f"{'#' * heading_level} {node.get('title')}\n{body}".strip()
+            )
         return f"# {title}\n\n" + "\n\n".join(rewritten).strip()
 
     def _rewrite_outline(self, *, source_artifact: dict, edit_request: dict) -> list[dict]:

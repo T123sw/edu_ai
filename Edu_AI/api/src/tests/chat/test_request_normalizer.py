@@ -95,3 +95,35 @@ def test_normalize_request_preserves_workspace_scope():
     assert result.course_id == "course-1"
     assert result.scope_type == "knowledge_point"
     assert result.scope_id == "kp-1"
+
+
+def test_normalize_request_preserves_selected_document_source_mode():
+    payload = SimpleNamespace(
+        question="链表如何实现",
+        source_mode="selected_documents",
+        selected_doc_ids=["doc-linked-list"],
+        allow_rag=False,
+        allow_web=False,
+    )
+
+    result = normalize_chat_request(payload)
+
+    assert result.capability.source_mode == "selected_documents"
+    assert result.capability.allow_rag is True
+    assert result.capability.selected_doc_ids == ["doc-linked-list"]
+
+
+def test_normalize_request_preserves_course_auto_source_mode_without_document_ids():
+    payload = SimpleNamespace(
+        question="链表如何实现",
+        source_mode="course_auto",
+        selected_doc_ids=[],
+        allow_rag=True,
+        allow_web=False,
+    )
+
+    result = normalize_chat_request(payload)
+
+    assert result.capability.source_mode == "course_auto"
+    assert result.capability.allow_rag is True
+    assert result.capability.selected_doc_ids == []

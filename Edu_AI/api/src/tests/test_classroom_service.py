@@ -295,7 +295,9 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     assert client.submitted_body["research_context"] == "web snippet\n\n[来源: textbook.pdf]\nRAG snippet"
     assert client.get_classroom_calls == ["stage-1"]  # job.result.classroomId -> get_classroom(id)
 
-    saved = manager.get_generated_material("course-1", "classroom", "stage-1")
+    saved = manager.get_generated_material(
+        "course-1", "classroom", "stage-1", owner_user_id="teacher-a"
+    )
     assert saved is not None
     assert saved["title"] == "Compound Interest"
 
@@ -323,7 +325,9 @@ async def test_generate_classroom_for_course_migrates_tts_audio_before_persistin
         "http://sidecar-test:3000/api/classroom-media/stage-1/audio/tts_s1_act-1.mp3"
     ]
 
-    saved = manager.get_generated_material("course-1", "classroom", "stage-1")
+    saved = manager.get_generated_material(
+        "course-1", "classroom", "stage-1", owner_user_id="teacher-a"
+    )
     assert saved is not None
     migrated_url = saved["scenes"][0]["actions"][0]["audioUrl"]
     assert migrated_url == "/api/courses/course-1/classrooms/stage-1/audio/tts_s1_act-1.mp3"

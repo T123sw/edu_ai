@@ -59,6 +59,13 @@ class DocumentCatalog(Protocol):
 class DocumentContentReader(Protocol):
     def read_many(self, rag_index_keys: Sequence[str]) -> str: ...
 
+    def search_many(
+        self,
+        rag_index_keys: Sequence[str],
+        query_text: str,
+        top_k: int = 12,
+    ) -> str: ...
+
 
 class GenerationSourceResolver:
     def __init__(
@@ -84,6 +91,8 @@ class GenerationSourceResolver:
         course_id: str,
         mode: GenerationSourceMode,
         selected_document_ids: Sequence[str],
+        *,
+        query_text: str = "",
     ) -> ResolvedGenerationSource:
         normalized_course_id = str(course_id or "").strip()
         normalized = self._normalize_ids(selected_document_ids)
@@ -99,13 +108,27 @@ class GenerationSourceResolver:
             )
 
         documents = self.validate(normalized_course_id, mode, normalized)
-        context = (
-            self._content_reader.read_many(
-                [item.rag_index_key for item in documents]
+        rag_index_keys = [item.rag_index_key for item in documents]
+        if mode == "course_auto":
+            normalized_query = str(query_text or "").strip()
+            if not normalized_query:
+                raise GenerationSourceError(
+                    "GENERATION_QUERY_REQUIRED",
+                    "course_auto mode requires a generation topic",
+                )
+            context = (
+                self._content_reader.search_many(
+                    rag_index_keys, normalized_query, top_k=12
+                )
+                if documents
+                else ""
             )
-            if documents
-            else ""
-        )
+        else:
+            context = (
+                self._content_reader.read_many(rag_index_keys)
+                if documents
+                else ""
+            )
         return ResolvedGenerationSource(
             normalized_course_id,
             mode,

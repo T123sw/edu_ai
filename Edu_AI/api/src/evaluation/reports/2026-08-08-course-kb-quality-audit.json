@@ -1,0 +1,4205 @@
+{
+  "course_dir": "D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking",
+  "graph": {
+    "node_count": 310,
+    "leaf_count": 227,
+    "duplicate_leaf_labels": [
+      "小结",
+      "复杂度分析",
+      "推算方法",
+      "常见类型",
+      "知识巩固",
+      "编程练习",
+      "优点与局限性",
+      "无重复元素的情况",
+      "算法特性",
+      "算法流程"
+    ],
+    "unwanted_nodes": []
+  },
+  "documents": {
+    "document_count": 244,
+    "valid_document_count": 160,
+    "invalid_document_count": 84,
+    "duplicate_content_group_count": 0,
+    "missing_media_count": 433,
+    "source_domains": {
+      "www.hello-algo.com": 227,
+      "oi-wiki.org": 17
+    }
+  },
+  "coverage": {
+    "qualified_leaf_count": 0,
+    "coverage_rate": 0.0,
+    "unqualified_leaf_count": 227
+  },
+  "unqualified_leaves": [
+    {
+      "node_id": "chapter-6",
+      "label": "初识算法",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-7",
+      "label": "算法无处不在",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-8-section-1",
+      "label": "算法定义",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-8-section-2",
+      "label": "数据结构定义",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-8-section-3",
+      "label": "数据结构与算法的关系",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-9",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-10",
+      "label": "复杂度分析",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-11-section-1",
+      "label": "实际测试",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-11-section-2",
+      "label": "理论估算",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-12-section-1",
+      "label": "迭代",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-12-section-2",
+      "label": "递归",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-12-section-3",
+      "label": "两者对比",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-13-section-1",
+      "label": "统计时间增长趋势",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-13-section-2",
+      "label": "函数渐近上界",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-13-section-3",
+      "label": "推算方法",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-13-section-4",
+      "label": "常见类型",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-13-section-5",
+      "label": "最差、最佳、平均时间复杂度",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-14-section-1",
+      "label": "算法相关空间",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-14-section-2",
+      "label": "推算方法",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-14-section-3",
+      "label": "常见类型",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-14-section-4",
+      "label": "权衡时间与空间",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-15",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-16-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-16-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-17",
+      "label": "数据结构",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-18-section-1",
+      "label": "逻辑结构：线性与非线性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-18-section-2",
+      "label": "物理结构：连续与分散",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-19",
+      "label": "基本数据类型",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-20-section-1",
+      "label": "原码、反码和补码",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-20-section-2",
+      "label": "浮点数编码",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-21-section-1",
+      "label": "ASCII 字符集",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-21-section-2",
+      "label": "GBK 字符集",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-21-section-3",
+      "label": "Unicode 字符集",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-21-section-4",
+      "label": "UTF-8 编码",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-21-section-5",
+      "label": "编程语言的字符编码",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-22",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-23-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-23-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-24",
+      "label": "数组与链表",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-25-section-1",
+      "label": "数组常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-25-section-2",
+      "label": "数组的优点与局限性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-25-section-3",
+      "label": "数组典型应用",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-26-section-1",
+      "label": "链表常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-26-section-2",
+      "label": "数组 vs. 链表",
+      "document_count": 2,
+      "quality_document_count": 2,
+      "chinese_quality_document_count": 2
+    },
+    {
+      "node_id": "chapter-26-section-3",
+      "label": "常见链表类型",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-26-section-4",
+      "label": "链表典型应用",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-27-section-1",
+      "label": "列表常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-27-section-2",
+      "label": "列表实现",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-28-section-1",
+      "label": "计算机存储设备",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-28-section-2",
+      "label": "数据结构的内存效率",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-28-section-3",
+      "label": "数据结构的缓存效率",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-29",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-30-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-30-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-31",
+      "label": "栈与队列",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-32-section-1",
+      "label": "栈的常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-32-section-2",
+      "label": "栈的实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-32-section-3",
+      "label": "两种实现对比",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-32-section-4",
+      "label": "栈的典型应用",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-33-section-1",
+      "label": "队列常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-33-section-2",
+      "label": "队列实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-33-section-3",
+      "label": "队列典型应用",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-34-section-1",
+      "label": "双向队列常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-34-section-2",
+      "label": "双向队列实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-34-section-3",
+      "label": "双向队列应用",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-35",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-36-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-36-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-37",
+      "label": "哈希表",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-38-section-1",
+      "label": "哈希表常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-38-section-2",
+      "label": "哈希表简单实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-38-section-3",
+      "label": "哈希冲突与扩容",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-39-section-1",
+      "label": "链式地址",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-39-section-2",
+      "label": "开放寻址",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-39-section-3",
+      "label": "编程语言的选择",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-40-section-1",
+      "label": "哈希算法的目标",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-40-section-2",
+      "label": "哈希算法的设计",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-40-section-3",
+      "label": "常见哈希算法",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-40-section-4",
+      "label": "数据结构的哈希值",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-41",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-42-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-42-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-43",
+      "label": "树",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-44-section-1",
+      "label": "二叉树常见术语",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-44-section-2",
+      "label": "二叉树基本操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-44-section-3",
+      "label": "常见二叉树类型",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-44-section-4",
+      "label": "二叉树的退化",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-45-section-1",
+      "label": "层序遍历",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-45-section-2",
+      "label": "前序、中序、后序遍历",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-46-section-1",
+      "label": "表示完美二叉树",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-46-section-2",
+      "label": "表示任意二叉树",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-46-section-3",
+      "label": "优点与局限性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-47-section-1",
+      "label": "二叉搜索树的操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-47-section-2",
+      "label": "二叉搜索树的效率",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-47-section-3",
+      "label": "二叉搜索树常见应用",
+      "document_count": 2,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-48-section-1",
+      "label": "AVL 树常见术语",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-48-section-2",
+      "label": "AVL 树旋转",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-48-section-3",
+      "label": "AVL 树常用操作",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-48-section-4",
+      "label": "AVL 树典型应用",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-49",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-50-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-50-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-51",
+      "label": "堆",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-52-section-1",
+      "label": "堆的常用操作",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-52-section-2",
+      "label": "堆的实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-52-section-3",
+      "label": "堆的常见应用",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-53-section-1",
+      "label": "借助入堆操作实现",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-53-section-2",
+      "label": "通过遍历堆化实现",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-53-section-3",
+      "label": "复杂度分析",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-54-section-1",
+      "label": "方法一：遍历选择",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-54-section-2",
+      "label": "方法二：排序",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-54-section-3",
+      "label": "方法三：堆",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-55",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-56-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-56-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-57",
+      "label": "图",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-58-section-1",
+      "label": "图的常见类型与术语",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-58-section-2",
+      "label": "图的表示",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-58-section-3",
+      "label": "图的常见应用",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-59-section-1",
+      "label": "基于邻接矩阵的实现",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-59-section-2",
+      "label": "基于邻接表的实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-59-section-3",
+      "label": "效率对比",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-60-section-1",
+      "label": "广度优先遍历",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-60-section-2",
+      "label": "深度优先遍历",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-61",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-62-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-62-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-63",
+      "label": "搜索",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-64-section-1",
+      "label": "区间表示方法",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-64-section-2",
+      "label": "优点与局限性",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-65-section-1",
+      "label": "无重复元素的情况",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-65-section-2",
+      "label": "存在重复元素的情况",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-66-section-1",
+      "label": "查找左边界",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-66-section-2",
+      "label": "查找右边界",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-67-section-1",
+      "label": "线性查找：以时间换空间",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-67-section-2",
+      "label": "哈希查找：以空间换时间",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-68-section-1",
+      "label": "暴力搜索",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-68-section-2",
+      "label": "自适应搜索",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-68-section-3",
+      "label": "搜索方法选取",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-69",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-70-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-70-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-71",
+      "label": "排序",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-72-section-1",
+      "label": "评价维度",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-72-section-2",
+      "label": "理想排序算法",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-73-section-1",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-74-section-1",
+      "label": "算法流程",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-74-section-2",
+      "label": "效率优化",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-74-section-3",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-75-section-1",
+      "label": "算法流程",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-75-section-2",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-75-section-3",
+      "label": "插入排序的优势",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-76-section-1",
+      "label": "算法流程",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-76-section-2",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-76-section-3",
+      "label": "快速排序为什么快",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-76-section-4",
+      "label": "基准数优化",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-76-section-5",
+      "label": "递归深度优化",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-77-section-1",
+      "label": "算法流程",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-77-section-2",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-77-section-3",
+      "label": "链表排序",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-78-section-1",
+      "label": "算法流程",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-78-section-2",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-79-section-1",
+      "label": "算法流程",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-79-section-2",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-79-section-3",
+      "label": "如何实现平均分配",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-80-section-1",
+      "label": "简单实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-80-section-2",
+      "label": "完整实现",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-80-section-3",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-80-section-4",
+      "label": "局限性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-81-section-1",
+      "label": "算法流程",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-81-section-2",
+      "label": "算法特性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-82",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-83-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-83-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-84",
+      "label": "分治",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-85-section-1",
+      "label": "如何判断分治问题",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-85-section-2",
+      "label": "通过分治提升效率",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-85-section-3",
+      "label": "分治常见应用",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-86",
+      "label": "分治搜索策略",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-87",
+      "label": "构建二叉树问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-88",
+      "label": "汉诺塔问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-89",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-90-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-90-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-91",
+      "label": "回溯",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-92-section-1",
+      "label": "尝试与回退",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-92-section-2",
+      "label": "剪枝",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-92-section-3",
+      "label": "框架代码",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-92-section-4",
+      "label": "常用术语",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-92-section-5",
+      "label": "优点与局限性",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-92-section-6",
+      "label": "回溯典型例题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-93-section-1",
+      "label": "无相等元素的情况",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-93-section-2",
+      "label": "考虑相等元素的情况",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-94-section-1",
+      "label": "无重复元素的情况",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-94-section-2",
+      "label": "考虑重复元素的情况",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-95",
+      "label": "n 皇后问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-96",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-97-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-97-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-98",
+      "label": "动态规划",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-99-section-1",
+      "label": "方法一：暴力搜索",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-99-section-2",
+      "label": "方法二：记忆化搜索",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-99-section-3",
+      "label": "方法三：动态规划",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-99-section-4",
+      "label": "空间优化",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-100-section-1",
+      "label": "最优子结构",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-100-section-2",
+      "label": "无后效性",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-101-section-1",
+      "label": "问题判断",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-101-section-2",
+      "label": "问题求解步骤",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-102",
+      "label": "0-1 背包问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-103-section-1",
+      "label": "完全背包问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-103-section-2",
+      "label": "零钱兑换问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-103-section-3",
+      "label": "零钱兑换问题 II",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-104",
+      "label": "编辑距离问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-105",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-106-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-106-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-107",
+      "label": "贪心",
+      "document_count": 2,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-108-section-1",
+      "label": "贪心算法的优点与局限性",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-108-section-2",
+      "label": "贪心算法特性",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-108-section-3",
+      "label": "贪心算法解题步骤",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-108-section-4",
+      "label": "贪心算法典型例题",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    },
+    {
+      "node_id": "chapter-109",
+      "label": "分数背包问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-110",
+      "label": "最大容量问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-111",
+      "label": "最大切分乘积问题",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-112",
+      "label": "小结",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-113-section-1",
+      "label": "知识巩固",
+      "document_count": 1,
+      "quality_document_count": 1,
+      "chinese_quality_document_count": 1
+    },
+    {
+      "node_id": "chapter-113-section-2",
+      "label": "编程练习",
+      "document_count": 1,
+      "quality_document_count": 0,
+      "chinese_quality_document_count": 0
+    }
+  ],
+  "invalid_documents": [
+    {
+      "document_id": "doc-2d86215f8ca1443d80c527e4e02d84a3",
+      "filename": "kbbuild-hello-algo-zh-初识算法-f09b453f62fc991c.md",
+      "scope_id": "chapter-6",
+      "substantive_chars": 354,
+      "chinese_chars": 124,
+      "reasons": [
+        "content_too_thin",
+        "placeholder_content"
+      ]
+    },
+    {
+      "document_id": "doc-9d22e385b5f0476fa9d2e8ec9919d74c",
+      "filename": "kbbuild-hello-algo-zh-算法是什么｜算法定义-190bd54eeaa7c7d2.md",
+      "scope_id": "chapter-8-section-1",
+      "substantive_chars": 442,
+      "chinese_chars": 170,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-1a692b6be6f242a8804353509af13977",
+      "filename": "kbbuild-hello-algo-zh-算法是什么｜数据结构定义-ec90e7c40a94980a.md",
+      "scope_id": "chapter-8-section-2",
+      "substantive_chars": 581,
+      "chinese_chars": 280,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-d317ca3d479f4c06a5786d5ff8f4c686",
+      "filename": "kbbuild-hello-algo-zh-复杂度分析-5b91e51548f13446.md",
+      "scope_id": "chapter-10",
+      "substantive_chars": 360,
+      "chinese_chars": 121,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-58763aaf9c6040468c0b08fbbe8830f9",
+      "filename": "kbbuild-hello-algo-zh-算法效率评估｜实际测试-fd5243027ff8f5ba.md",
+      "scope_id": "chapter-11-section-1",
+      "substantive_chars": 754,
+      "chinese_chars": 428,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-4e8df567d8de4614b873019d1f9ea08a",
+      "filename": "kbbuild-hello-algo-zh-空间复杂度｜权衡时间与空间-0e797fdc330a2c0b.md",
+      "scope_id": "chapter-14-section-4",
+      "substantive_chars": 548,
+      "chinese_chars": 268,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-83276c70f1864c24b5c76bafb08ba1b7",
+      "filename": "kbbuild-hello-algo-zh-数据结构-d04682f0d454de4f.md",
+      "scope_id": "chapter-17",
+      "substantive_chars": 342,
+      "chinese_chars": 113,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-aff3295a30c0403398361389be6ea444",
+      "filename": "kbbuild-hello-algo-zh-数据结构分类｜逻辑结构：线性与非线性-4099d4134dbba0ef.md",
+      "scope_id": "chapter-18-section-1",
+      "substantive_chars": 662,
+      "chinese_chars": 326,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-462f585f56b14e46a149cd561e5f17d7",
+      "filename": "kbbuild-hello-algo-zh-字符编码｜ASCII 字符集-12f2fe7124884010.md",
+      "scope_id": "chapter-21-section-1",
+      "substantive_chars": 707,
+      "chinese_chars": 280,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-bbae220bbff84c61aac9689f9171e0b8",
+      "filename": "kbbuild-hello-algo-zh-字符编码｜GBK 字符集-796665b1fc2e29dc.md",
+      "scope_id": "chapter-21-section-2",
+      "substantive_chars": 557,
+      "chinese_chars": 216,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-a4d07670a64c4a198243d8787f5530a8",
+      "filename": "kbbuild-hello-algo-zh-数组与链表-7652b84e1b2a6f6e.md",
+      "scope_id": "chapter-24",
+      "substantive_chars": 360,
+      "chinese_chars": 123,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-22023b95e3424f35be863a65d92f6b80",
+      "filename": "kbbuild-hello-algo-zh-数组｜数组的优点与局限性-e75c8c81cf98ebbb.md",
+      "scope_id": "chapter-25-section-2",
+      "substantive_chars": 664,
+      "chinese_chars": 350,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-4ba9b63c287e40c7ba6ef1e9fa3fd96f",
+      "filename": "kbbuild-hello-algo-zh-数组｜数组典型应用-fa587bceed8695de.md",
+      "scope_id": "chapter-25-section-3",
+      "substantive_chars": 705,
+      "chinese_chars": 386,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-78411981adce40b8bfc447dd6291bc54",
+      "filename": "kbbuild-hello-algo-zh-列表｜列表实现-edff92f8231638c4.md",
+      "scope_id": "chapter-27-section-2",
+      "substantive_chars": 712,
+      "chinese_chars": 341,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6ed5314e3027432589379eba3b0b70ac",
+      "filename": "kbbuild-hello-algo-zh-内存与缓存｜数据结构的内存效率-78529dff87d81ef4.md",
+      "scope_id": "chapter-28-section-2",
+      "substantive_chars": 650,
+      "chinese_chars": 364,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-213802f9637345bfa477444d072d0ba3",
+      "filename": "kbbuild-hello-algo-zh-栈与队列-86dcbe6dbc418e5c.md",
+      "scope_id": "chapter-31",
+      "substantive_chars": 335,
+      "chinese_chars": 105,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-f54f974fa73247848dd214d0f6a07318",
+      "filename": "kbbuild-hello-algo-zh-栈｜栈的典型应用-2976afd54303911e.md",
+      "scope_id": "chapter-32-section-4",
+      "substantive_chars": 508,
+      "chinese_chars": 248,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-84cbdf76131746b5a0db40f662703915",
+      "filename": "kbbuild-hello-algo-zh-队列｜队列典型应用-12d1c7f7169d2066.md",
+      "scope_id": "chapter-33-section-3",
+      "substantive_chars": 457,
+      "chinese_chars": 198,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-cdfbff17dfa8400d8708533824b77919",
+      "filename": "kbbuild-hello-algo-zh-双向队列｜双向队列应用-48ed3438092ee95f.md",
+      "scope_id": "chapter-34-section-3",
+      "substantive_chars": 564,
+      "chinese_chars": 271,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-eb457bc3df0647d1a1dfb42696781e61",
+      "filename": "kbbuild-hello-algo-zh-哈希表-182e527d77480c4c.md",
+      "scope_id": "chapter-37",
+      "substantive_chars": 337,
+      "chinese_chars": 114,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6eab9da66a8548e786d738f5dc1b4bf9",
+      "filename": "kbbuild-hello-algo-zh-哈希冲突｜编程语言的选择-d32623416b29a5f2.md",
+      "scope_id": "chapter-39-section-3",
+      "substantive_chars": 524,
+      "chinese_chars": 212,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-71501c9a57c443a3a57e772c0c654868",
+      "filename": "kbbuild-hello-algo-zh-树-b824574df3821a97.md",
+      "scope_id": "chapter-43",
+      "substantive_chars": 323,
+      "chinese_chars": 103,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-98a6bb6a6fbe4f2cb166e86a1f54ef21",
+      "filename": "kbbuild-hello-algo-zh-二叉树｜二叉树常见术语-bb950364fafd90dd.md",
+      "scope_id": "chapter-44-section-1",
+      "substantive_chars": 750,
+      "chinese_chars": 317,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-37b913847d26440d84a92fa076feabc6",
+      "filename": "kbbuild-hello-algo-zh-二叉树｜常见二叉树类型-8c74eccca7bd83fa.md",
+      "scope_id": "chapter-44-section-3",
+      "substantive_chars": 704,
+      "chinese_chars": 300,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-95c8f500ec4547b8b399dadcf54da7b5",
+      "filename": "kbbuild-hello-algo-zh-二叉树遍历｜层序遍历-ee151b7cf0c49378.md",
+      "scope_id": "chapter-45-section-1",
+      "substantive_chars": 777,
+      "chinese_chars": 282,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-4de7295cb1144546ae02ad535ac8a53f",
+      "filename": "kbbuild-hello-algo-zh-二叉树数组表示｜表示完美二叉树-d7e506d13cce342c.md",
+      "scope_id": "chapter-46-section-1",
+      "substantive_chars": 557,
+      "chinese_chars": 259,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-9d29358901e04e8092095a9de5e7908f",
+      "filename": "kbbuild-hello-algo-zh-二叉树数组表示｜优点与局限性-f8343c772545711d.md",
+      "scope_id": "chapter-46-section-3",
+      "substantive_chars": 514,
+      "chinese_chars": 227,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3b9e80febb8642feabc8261d726dfcb3",
+      "filename": "kbbuild-hello-algo-zh-二叉搜索树｜二叉搜索树的效率-6a0045a7667c004d.md",
+      "scope_id": "chapter-47-section-2",
+      "substantive_chars": 737,
+      "chinese_chars": 280,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3df15209907c4b1facef61033663c757",
+      "filename": "kbbuild-hello-algo-zh-二叉搜索树｜二叉搜索树常见应用-cee3fc440706c396.md",
+      "scope_id": "chapter-47-section-3",
+      "substantive_chars": 372,
+      "chinese_chars": 123,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-533b898169b34ff988587f2799c89191",
+      "filename": "kbbuild-hello-algo-zh-AVL 树｜AVL 树常用操作-2b881a28567ef7b9.md",
+      "scope_id": "chapter-48-section-3",
+      "substantive_chars": 635,
+      "chinese_chars": 240,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-f344852e2fcf49da87acdeea41e2f93a",
+      "filename": "kbbuild-hello-algo-zh-AVL 树｜AVL 树典型应用-dc08fb805adb3135.md",
+      "scope_id": "chapter-48-section-4",
+      "substantive_chars": 413,
+      "chinese_chars": 167,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-02108b7e4cbe445d9a6abd61431b50ac",
+      "filename": "kbbuild-hello-algo-zh-堆-ccbdd7a5911e24b1.md",
+      "scope_id": "chapter-51",
+      "substantive_chars": 329,
+      "chinese_chars": 108,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-10cbe1c955874cc99575ba818af82b1c",
+      "filename": "kbbuild-hello-algo-zh-堆｜堆的常见应用-84e0539b4fe4cd4e.md",
+      "scope_id": "chapter-52-section-3",
+      "substantive_chars": 542,
+      "chinese_chars": 248,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-9dc8b605e55e41139522dc37f8cb8589",
+      "filename": "kbbuild-hello-algo-zh-建堆操作｜借助入堆操作实现-54f1638f1ff8e187.md",
+      "scope_id": "chapter-53-section-1",
+      "substantive_chars": 482,
+      "chinese_chars": 202,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-0bac98efa71a4dc2a15b1e0f3b4e22dc",
+      "filename": "kbbuild-hello-algo-zh-建堆操作｜通过遍历堆化实现-d0a5b5b693704d60.md",
+      "scope_id": "chapter-53-section-2",
+      "substantive_chars": 658,
+      "chinese_chars": 324,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-7e5b02f9cc0741d9b5d1705457f58ff8",
+      "filename": "kbbuild-hello-algo-zh-Top-k 问题｜方法一：遍历选择-65dbac65f654ef1c.md",
+      "scope_id": "chapter-54-section-1",
+      "substantive_chars": 471,
+      "chinese_chars": 161,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-70cde48c5c274864a09c475ba95ed7d3",
+      "filename": "kbbuild-hello-algo-zh-Top-k 问题｜方法二：排序-20494959e0d85a0e.md",
+      "scope_id": "chapter-54-section-2",
+      "substantive_chars": 406,
+      "chinese_chars": 141,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "filename": "kbbuild-hello-algo-zh-Top-k 问题｜方法三：堆-1e4216d3a6955ed4.md",
+      "scope_id": "chapter-54-section-3",
+      "substantive_chars": 789,
+      "chinese_chars": 291,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-c33d2513149c47919b30227d3c7834ed",
+      "filename": "kbbuild-hello-algo-zh-图-6f211a76ca387c42.md",
+      "scope_id": "chapter-57",
+      "substantive_chars": 345,
+      "chinese_chars": 123,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3f9cf3333dbd43dab441f48a1932693c",
+      "filename": "kbbuild-hello-algo-zh-图｜图的常见应用-b97e2eb92c6d484c.md",
+      "scope_id": "chapter-58-section-3",
+      "substantive_chars": 603,
+      "chinese_chars": 178,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "filename": "kbbuild-hello-algo-zh-图的基础操作｜基于邻接矩阵的实现-ef5f5ffeb02603f4.md",
+      "scope_id": "chapter-59-section-1",
+      "substantive_chars": 796,
+      "chinese_chars": 274,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-21eb2d4f606b4a9c80ab188545b21620",
+      "filename": "kbbuild-hello-algo-zh-练习｜编程练习-46e377b9a2f8c85e.md",
+      "scope_id": "chapter-62-section-2",
+      "substantive_chars": 792,
+      "chinese_chars": 219,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-405e2e8a143b464d9830d3efd367e53e",
+      "filename": "kbbuild-hello-algo-zh-搜索-45f4d459e37ac54c.md",
+      "scope_id": "chapter-63",
+      "substantive_chars": 361,
+      "chinese_chars": 135,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-77c27d62f21546749e4f86a31a926148",
+      "filename": "kbbuild-hello-algo-zh-二分查找｜区间表示方法-cb6ddd65184bbfe8.md",
+      "scope_id": "chapter-64-section-1",
+      "substantive_chars": 625,
+      "chinese_chars": 253,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-2eefe361f9d84c9e9aa19ccc4ab3806a",
+      "filename": "kbbuild-hello-algo-zh-二分查找边界｜查找左边界-d246e1e1bdb1295d.md",
+      "scope_id": "chapter-66-section-1",
+      "substantive_chars": 689,
+      "chinese_chars": 244,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-c717fb6f20cc49a9a3105eaba1c64043",
+      "filename": "kbbuild-hello-algo-zh-哈希优化策略｜线性查找：以时间换空间-e4f76bcb22f64f04.md",
+      "scope_id": "chapter-67-section-1",
+      "substantive_chars": 506,
+      "chinese_chars": 155,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-d03fc2d85d97491ca486a61b759e3a39",
+      "filename": "kbbuild-hello-algo-zh-哈希优化策略｜哈希查找：以空间换时间-5255cbc31add9f19.md",
+      "scope_id": "chapter-67-section-2",
+      "substantive_chars": 677,
+      "chinese_chars": 243,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-29d25feaa7094131b32ef16ac0af337d",
+      "filename": "kbbuild-hello-algo-zh-重识搜索算法｜暴力搜索-3225ae65887a6e06.md",
+      "scope_id": "chapter-68-section-1",
+      "substantive_chars": 623,
+      "chinese_chars": 320,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-785d05b10f9e4a4081141fea86ad6d32",
+      "filename": "kbbuild-hello-algo-zh-重识搜索算法｜自适应搜索-ade9118cb4b90145.md",
+      "scope_id": "chapter-68-section-2",
+      "substantive_chars": 665,
+      "chinese_chars": 341,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-56409d35cbc949929998ab2861f6da53",
+      "filename": "kbbuild-hello-algo-zh-小结-30290b87a5534f9f.md",
+      "scope_id": "chapter-69",
+      "substantive_chars": 753,
+      "chinese_chars": 435,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-5bd93a1c0d76453e9d80b54688a79b71",
+      "filename": "kbbuild-hello-algo-zh-排序-38943173b886888d.md",
+      "scope_id": "chapter-71",
+      "substantive_chars": 363,
+      "chinese_chars": 139,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-e21c2e188a614b8ebb2146370bbabbca",
+      "filename": "kbbuild-hello-algo-zh-排序算法｜理想排序算法-61a69e9f4d528752.md",
+      "scope_id": "chapter-72-section-2",
+      "substantive_chars": 430,
+      "chinese_chars": 176,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-49bf5d86f0d149ffa1cf2c60c0b671a8",
+      "filename": "kbbuild-hello-algo-zh-选择排序｜算法特性-104487767c1e3987.md",
+      "scope_id": "chapter-73-section-1",
+      "substantive_chars": 575,
+      "chinese_chars": 195,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-21e9efc23b2f49d7bfe8209dc7da6b68",
+      "filename": "kbbuild-hello-algo-zh-冒泡排序｜算法流程-00833640c1c56947.md",
+      "scope_id": "chapter-74-section-1",
+      "substantive_chars": 574,
+      "chinese_chars": 196,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-26548327430a4769954fd878b06b0191",
+      "filename": "kbbuild-hello-algo-zh-冒泡排序｜效率优化-a1326557b0730d5f.md",
+      "scope_id": "chapter-74-section-2",
+      "substantive_chars": 523,
+      "chinese_chars": 182,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-e64bc387089d4e5ab6f683d923408678",
+      "filename": "kbbuild-hello-algo-zh-冒泡排序｜算法特性-54e373bd461954fb.md",
+      "scope_id": "chapter-74-section-3",
+      "substantive_chars": 514,
+      "chinese_chars": 157,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6c250dd71d604422a9095b05397a6fbe",
+      "filename": "kbbuild-hello-algo-zh-插入排序｜算法流程-36cd8164ce6ee42e.md",
+      "scope_id": "chapter-75-section-1",
+      "substantive_chars": 587,
+      "chinese_chars": 204,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-b079f0db85f441559ca915e17cd2ac73",
+      "filename": "kbbuild-hello-algo-zh-插入排序｜算法特性-d8ce2c25a7c3a68b.md",
+      "scope_id": "chapter-75-section-2",
+      "substantive_chars": 575,
+      "chinese_chars": 213,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-ea4988fe008146ca8f94f43dc8d952ad",
+      "filename": "kbbuild-hello-algo-zh-快速排序｜算法流程-b62a27ff1de446ae.md",
+      "scope_id": "chapter-76-section-1",
+      "substantive_chars": 487,
+      "chinese_chars": 161,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-60bd0355bd844c4d9a6ac200afc42d61",
+      "filename": "kbbuild-hello-algo-zh-快速排序｜算法特性-58308820d762b2d4.md",
+      "scope_id": "chapter-76-section-2",
+      "substantive_chars": 632,
+      "chinese_chars": 259,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-044a332c00f74768bf533abbfa208cff",
+      "filename": "kbbuild-hello-algo-zh-快速排序｜快速排序为什么快-bbf3ac7571074f64.md",
+      "scope_id": "chapter-76-section-3",
+      "substantive_chars": 628,
+      "chinese_chars": 321,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-62c881629e4e4d3b98d91830d19ae8e9",
+      "filename": "kbbuild-hello-algo-zh-归并排序｜算法特性-c8cab819bb5ab454.md",
+      "scope_id": "chapter-77-section-2",
+      "substantive_chars": 528,
+      "chinese_chars": 183,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-45882969bb2848bcbbbcda9ba6964d8c",
+      "filename": "kbbuild-hello-algo-zh-归并排序｜链表排序-f02b76da30c451b5.md",
+      "scope_id": "chapter-77-section-3",
+      "substantive_chars": 509,
+      "chinese_chars": 233,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-f5cfaf13a2e64b1e99fd56deabb07e8e",
+      "filename": "kbbuild-hello-algo-zh-堆排序｜算法特性-0b2cb8353a6ab920.md",
+      "scope_id": "chapter-78-section-2",
+      "substantive_chars": 501,
+      "chinese_chars": 182,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-1d2be8ec91ac4cf6a6e96ee8656b22e2",
+      "filename": "kbbuild-hello-algo-zh-桶排序｜算法流程-1dc31847dfd5d28a.md",
+      "scope_id": "chapter-79-section-1",
+      "substantive_chars": 506,
+      "chinese_chars": 162,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-630e20de93a448c59d4d6f5e939da969",
+      "filename": "kbbuild-hello-algo-zh-桶排序｜算法特性-bae2e05d2d13bbf8.md",
+      "scope_id": "chapter-79-section-2",
+      "substantive_chars": 742,
+      "chinese_chars": 314,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-51830d12801c4670a40054ccda34d298",
+      "filename": "kbbuild-hello-algo-zh-桶排序｜如何实现平均分配-7313bc1f5162de01.md",
+      "scope_id": "chapter-79-section-3",
+      "substantive_chars": 770,
+      "chinese_chars": 457,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-480fa830b7bc497f9d8677e4642c4f66",
+      "filename": "kbbuild-hello-algo-zh-计数排序｜算法特性-04dd255eb1ed25e2.md",
+      "scope_id": "chapter-80-section-3",
+      "substantive_chars": 593,
+      "chinese_chars": 211,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-ac9eb6862d024ce7b355cef9b4de617d",
+      "filename": "kbbuild-hello-algo-zh-基数排序｜算法特性-f0aa28ffbe788df4.md",
+      "scope_id": "chapter-81-section-2",
+      "substantive_chars": 714,
+      "chinese_chars": 298,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-69d8b61989254779b91054d1f6c415cf",
+      "filename": "kbbuild-hello-algo-zh-分治-94b2ce3e53e76f70.md",
+      "scope_id": "chapter-84",
+      "substantive_chars": 353,
+      "chinese_chars": 118,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-182c581595d941f58ca4fbfcd1e1872b",
+      "filename": "kbbuild-hello-algo-zh-分治算法｜如何判断分治问题-002fc8dc20ceb1f3.md",
+      "scope_id": "chapter-85-section-1",
+      "substantive_chars": 628,
+      "chinese_chars": 301,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-857b9c6cfa384383886cbfd82b866af2",
+      "filename": "kbbuild-hello-algo-zh-回溯-387eaaccf82bac64.md",
+      "scope_id": "chapter-91",
+      "substantive_chars": 353,
+      "chinese_chars": 124,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-ae2b0fb08767443cb5f15529e784b7a7",
+      "filename": "kbbuild-hello-algo-zh-回溯算法｜剪枝-e9777a7e5a49cdfa.md",
+      "scope_id": "chapter-92-section-2",
+      "substantive_chars": 635,
+      "chinese_chars": 253,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6366518344e249c5866edce551f99b86",
+      "filename": "kbbuild-hello-algo-zh-回溯算法｜优点与局限性-2bd90a7f64604d4e.md",
+      "scope_id": "chapter-92-section-5",
+      "substantive_chars": 751,
+      "chinese_chars": 431,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-dceacec4d50c4b4092a1f1eb89b03a19",
+      "filename": "kbbuild-hello-algo-zh-动态规划-0ba02f88a3ce5425.md",
+      "scope_id": "chapter-98",
+      "substantive_chars": 352,
+      "chinese_chars": 117,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-5e9726ea92c345fb8f09bd2a372ce6cc",
+      "filename": "kbbuild-hello-algo-zh-初探动态规划｜方法二：记忆化搜索-67c3fa4534b2b779.md",
+      "scope_id": "chapter-99-section-2",
+      "substantive_chars": 664,
+      "chinese_chars": 232,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-e379b52693c749d384d627807687b253",
+      "filename": "kbbuild-hello-algo-zh-初探动态规划｜空间优化-e06aec3e0f6df4ea.md",
+      "scope_id": "chapter-99-section-4",
+      "substantive_chars": 653,
+      "chinese_chars": 226,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-715800ca9532464fb0bba15130af77ea",
+      "filename": "kbbuild-hello-algo-zh-动态规划解题思路｜问题判断-1243e814170a51c6.md",
+      "scope_id": "chapter-101-section-1",
+      "substantive_chars": 792,
+      "chinese_chars": 468,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-8430aa71e06847188a9186b86513df29",
+      "filename": "kbbuild-hello-algo-zh-贪心-31804b0131168abb.md",
+      "scope_id": "chapter-107",
+      "substantive_chars": 336,
+      "chinese_chars": 114,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-9d2e5ee6b08c4edaa2f4f3b0754e5248",
+      "filename": "kbbuild-hello-algo-zh-贪心算法｜贪心算法典型例题-ebaa5d20d8e38738.md",
+      "scope_id": "chapter-108-section-4",
+      "substantive_chars": 779,
+      "chinese_chars": 456,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-734fa5376b9a4ec6a3f8e8ee7f271ba7",
+      "filename": "kbbuild-hello-algo-zh-练习｜编程练习-9c8ea6bbe592eaeb.md",
+      "scope_id": "chapter-113-section-2",
+      "substantive_chars": 549,
+      "chinese_chars": 219,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3c605b3301ea4ec9aea7ee0fb61be26c",
+      "filename": "kbbuild-hello-algo-zh-快速排序｜递归深度优化-5ff5fc0b6ddb1f55.md",
+      "scope_id": "chapter-76-section-5",
+      "substantive_chars": 689,
+      "chinese_chars": 286,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-1ebbcc5383da4fda83effcb187c32cc4",
+      "filename": "kbbuild-hello-algo-zh-计数排序｜局限性-39a5c05cd5f68b67.md",
+      "scope_id": "chapter-80-section-4",
+      "substantive_chars": 604,
+      "chinese_chars": 302,
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-48e4039f292e4cec97563584bb3bef18",
+      "filename": "kbbuild-supplement-二叉搜索树｜二叉搜索树常见应用｜补充阅读：搜索部分简介 - OI Wiki-39fe1e70b6be97c5.md",
+      "scope_id": "chapter-47-section-3",
+      "substantive_chars": 645,
+      "chinese_chars": 226,
+      "reasons": [
+        "content_too_thin"
+      ]
+    }
+  ],
+  "duplicate_content_groups": [],
+  "missing_media": [
+    {
+      "document_id": "doc-2d86215f8ca1443d80c527e4e02d84a3",
+      "target": "../assets/covers/chapter_introduction.jpg"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/binary_search_dictionary_step1.png"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/binary_search_dictionary_step2.png"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/binary_search_dictionary_step3.png"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/binary_search_dictionary_step4.png"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/binary_search_dictionary_step5.png"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/playing_cards_sorting.png"
+    },
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "target": "algorithms_are_everywhere.assets/greedy_change.png"
+    },
+    {
+      "document_id": "doc-4da33c77290d4b1ea7b18c11a09b8830",
+      "target": "what_is_dsa.assets/relationship_between_data_structure_and_algorithm.png"
+    },
+    {
+      "document_id": "doc-4da33c77290d4b1ea7b18c11a09b8830",
+      "target": "what_is_dsa.assets/assembling_blocks.png"
+    },
+    {
+      "document_id": "doc-d317ca3d479f4c06a5786d5ff8f4c686",
+      "target": "../assets/covers/chapter_complexity_analysis.jpg"
+    },
+    {
+      "document_id": "doc-c167627061f049c59957e458bfa981e2",
+      "target": "iteration_and_recursion.assets/iteration.png"
+    },
+    {
+      "document_id": "doc-c167627061f049c59957e458bfa981e2",
+      "target": "iteration_and_recursion.assets/nested_iteration.png"
+    },
+    {
+      "document_id": "doc-d4c610249d524f15ac2f2a9d307f16e6",
+      "target": "iteration_and_recursion.assets/recursion_sum.png"
+    },
+    {
+      "document_id": "doc-d4c610249d524f15ac2f2a9d307f16e6",
+      "target": "iteration_and_recursion.assets/recursion_sum_depth.png"
+    },
+    {
+      "document_id": "doc-d4c610249d524f15ac2f2a9d307f16e6",
+      "target": "iteration_and_recursion.assets/tail_recursion_sum.png"
+    },
+    {
+      "document_id": "doc-d4c610249d524f15ac2f2a9d307f16e6",
+      "target": "iteration_and_recursion.assets/recursion_tree.png"
+    },
+    {
+      "document_id": "doc-3ba22399c734409a90025b85d2f789db",
+      "target": "time_complexity.assets/time_complexity_simple_example.png"
+    },
+    {
+      "document_id": "doc-f7a88d08e81f409fb70792b27bfea02d",
+      "target": "time_complexity.assets/asymptotic_upper_bound.png"
+    },
+    {
+      "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+      "target": "time_complexity.assets/time_complexity_common_types.png"
+    },
+    {
+      "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+      "target": "time_complexity.assets/time_complexity_constant_linear_quadratic.png"
+    },
+    {
+      "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+      "target": "time_complexity.assets/time_complexity_exponential.png"
+    },
+    {
+      "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+      "target": "time_complexity.assets/time_complexity_logarithmic.png"
+    },
+    {
+      "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+      "target": "time_complexity.assets/time_complexity_logarithmic_linear.png"
+    },
+    {
+      "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+      "target": "time_complexity.assets/time_complexity_factorial.png"
+    },
+    {
+      "document_id": "doc-bacefb8fefb84f719de61807bb75494a",
+      "target": "space_complexity.assets/space_types.png"
+    },
+    {
+      "document_id": "doc-cdea83314a554687934a22fa007e26ce",
+      "target": "space_complexity.assets/space_complexity_common_types.png"
+    },
+    {
+      "document_id": "doc-cdea83314a554687934a22fa007e26ce",
+      "target": "space_complexity.assets/space_complexity_recursive_linear.png"
+    },
+    {
+      "document_id": "doc-cdea83314a554687934a22fa007e26ce",
+      "target": "space_complexity.assets/space_complexity_recursive_quadratic.png"
+    },
+    {
+      "document_id": "doc-cdea83314a554687934a22fa007e26ce",
+      "target": "space_complexity.assets/space_complexity_exponential.png"
+    },
+    {
+      "document_id": "doc-83276c70f1864c24b5c76bafb08ba1b7",
+      "target": "../assets/covers/chapter_data_structure.jpg"
+    },
+    {
+      "document_id": "doc-aff3295a30c0403398361389be6ea444",
+      "target": "classification_of_data_structure.assets/classification_logic_structure.png"
+    },
+    {
+      "document_id": "doc-a8338f7f78e148b4a4386a0c18f81056",
+      "target": "classification_of_data_structure.assets/computer_memory_location.png"
+    },
+    {
+      "document_id": "doc-a8338f7f78e148b4a4386a0c18f81056",
+      "target": "classification_of_data_structure.assets/classification_phisical_structure.png"
+    },
+    {
+      "document_id": "doc-ea8b4495bb8846a5a9b0d6fc0c4d72cc",
+      "target": "number_encoding.assets/1s_2s_complement.png"
+    },
+    {
+      "document_id": "doc-e9df7e53da294a33a64014647567abf7",
+      "target": "number_encoding.assets/ieee_754_float.png"
+    },
+    {
+      "document_id": "doc-462f585f56b14e46a149cd561e5f17d7",
+      "target": "character_encoding.assets/ascii_table.png"
+    },
+    {
+      "document_id": "doc-72f3240c1e314c11badbc820d27fc895",
+      "target": "character_encoding.assets/unicode_hello_algo.png"
+    },
+    {
+      "document_id": "doc-99ff5222a47f4d1aa8ec155b5de3795d",
+      "target": "character_encoding.assets/utf-8_hello_algo.png"
+    },
+    {
+      "document_id": "doc-a4d07670a64c4a198243d8787f5530a8",
+      "target": "../assets/covers/chapter_array_and_linkedlist.jpg"
+    },
+    {
+      "document_id": "doc-6f719a0571554b3eaa7d9637567d3107",
+      "target": "array.assets/array_memory_location_calculation.png"
+    },
+    {
+      "document_id": "doc-6f719a0571554b3eaa7d9637567d3107",
+      "target": "array.assets/array_insert_element.png"
+    },
+    {
+      "document_id": "doc-6f719a0571554b3eaa7d9637567d3107",
+      "target": "array.assets/array_remove_element.png"
+    },
+    {
+      "document_id": "doc-608c9c926a1543d0b198ad7903bcd946",
+      "target": "linked_list.assets/linkedlist_insert_node.png"
+    },
+    {
+      "document_id": "doc-608c9c926a1543d0b198ad7903bcd946",
+      "target": "linked_list.assets/linkedlist_remove_node.png"
+    },
+    {
+      "document_id": "doc-d4ba013ba8174632932f1929d3dc925a",
+      "target": "linked_list.assets/linkedlist_common_types.png"
+    },
+    {
+      "document_id": "doc-ba00f40a717f4f2ca5114e2541e69a6c",
+      "target": "ram_and_cache.assets/storage_pyramid.png"
+    },
+    {
+      "document_id": "doc-ba00f40a717f4f2ca5114e2541e69a6c",
+      "target": "ram_and_cache.assets/computer_storage_devices.png"
+    },
+    {
+      "document_id": "doc-213802f9637345bfa477444d072d0ba3",
+      "target": "../assets/covers/chapter_stack_and_queue.jpg"
+    },
+    {
+      "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "target": "stack.assets/linkedlist_stack_step1.png"
+    },
+    {
+      "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "target": "stack.assets/linkedlist_stack_step2_push.png"
+    },
+    {
+      "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "target": "stack.assets/linkedlist_stack_step3_pop.png"
+    },
+    {
+      "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "target": "stack.assets/array_stack_step1.png"
+    },
+    {
+      "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "target": "stack.assets/array_stack_step2_push.png"
+    },
+    {
+      "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "target": "stack.assets/array_stack_step3_pop.png"
+    },
+    {
+      "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+      "target": "queue.assets/linkedlist_queue_step1.png"
+    },
+    {
+      "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+      "target": "queue.assets/linkedlist_queue_step2_push.png"
+    },
+    {
+      "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+      "target": "queue.assets/linkedlist_queue_step3_pop.png"
+    },
+    {
+      "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+      "target": "queue.assets/array_queue_step1.png"
+    },
+    {
+      "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+      "target": "queue.assets/array_queue_step2_push.png"
+    },
+    {
+      "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+      "target": "queue.assets/array_queue_step3_pop.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/linkedlist_deque_step1.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/linkedlist_deque_step2_push_last.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/linkedlist_deque_step3_push_first.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/linkedlist_deque_step4_pop_last.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/linkedlist_deque_step5_pop_first.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/array_deque_step1.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/array_deque_step2_push_last.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/array_deque_step3_push_first.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/array_deque_step4_pop_last.png"
+    },
+    {
+      "document_id": "doc-51954d44243140b292f86db1288aa99b",
+      "target": "deque.assets/array_deque_step5_pop_first.png"
+    },
+    {
+      "document_id": "doc-eb457bc3df0647d1a1dfb42696781e61",
+      "target": "../assets/covers/chapter_hashing.jpg"
+    },
+    {
+      "document_id": "doc-a33c7d4d254e4f4da833aae0a311a0b0",
+      "target": "hash_map.assets/hash_function.png"
+    },
+    {
+      "document_id": "doc-f441bbb48f4b4ee1883f1ffb76e36462",
+      "target": "hash_map.assets/hash_collision.png"
+    },
+    {
+      "document_id": "doc-f441bbb48f4b4ee1883f1ffb76e36462",
+      "target": "hash_map.assets/hash_table_reshash.png"
+    },
+    {
+      "document_id": "doc-05b920d2946541ddb0055a2ee5c1d6d0",
+      "target": "hash_collision.assets/hash_table_chaining.png"
+    },
+    {
+      "document_id": "doc-8fed8dba19cc4f8487f5301142d26770",
+      "target": "hash_collision.assets/hash_table_linear_probing.png"
+    },
+    {
+      "document_id": "doc-8fed8dba19cc4f8487f5301142d26770",
+      "target": "hash_collision.assets/hash_table_open_addressing_deletion.png"
+    },
+    {
+      "document_id": "doc-71501c9a57c443a3a57e772c0c654868",
+      "target": "../assets/covers/chapter_tree.jpg"
+    },
+    {
+      "document_id": "doc-98a6bb6a6fbe4f2cb166e86a1f54ef21",
+      "target": "binary_tree.assets/binary_tree_terminology.png"
+    },
+    {
+      "document_id": "doc-a74f94a23f6f4cf799c91da9ea5146ff",
+      "target": "binary_tree.assets/binary_tree_add_remove.png"
+    },
+    {
+      "document_id": "doc-37b913847d26440d84a92fa076feabc6",
+      "target": "binary_tree.assets/perfect_binary_tree.png"
+    },
+    {
+      "document_id": "doc-37b913847d26440d84a92fa076feabc6",
+      "target": "binary_tree.assets/complete_binary_tree.png"
+    },
+    {
+      "document_id": "doc-37b913847d26440d84a92fa076feabc6",
+      "target": "binary_tree.assets/full_binary_tree.png"
+    },
+    {
+      "document_id": "doc-37b913847d26440d84a92fa076feabc6",
+      "target": "binary_tree.assets/balanced_binary_tree.png"
+    },
+    {
+      "document_id": "doc-84ba6b7a21b94c07a867c57369d536b5",
+      "target": "binary_tree.assets/binary_tree_best_worst_cases.png"
+    },
+    {
+      "document_id": "doc-95c8f500ec4547b8b399dadcf54da7b5",
+      "target": "binary_tree_traversal.assets/binary_tree_bfs.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/binary_tree_dfs.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step1.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step2.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step3.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step4.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step5.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step6.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step7.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step8.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step9.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step10.png"
+    },
+    {
+      "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "target": "binary_tree_traversal.assets/preorder_step11.png"
+    },
+    {
+      "document_id": "doc-4de7295cb1144546ae02ad535ac8a53f",
+      "target": "array_representation_of_tree.assets/array_representation_binary_tree.png"
+    },
+    {
+      "document_id": "doc-934d5214dc31493782a3fd0bdd57e326",
+      "target": "array_representation_of_tree.assets/array_representation_without_empty.png"
+    },
+    {
+      "document_id": "doc-934d5214dc31493782a3fd0bdd57e326",
+      "target": "array_representation_of_tree.assets/array_representation_with_empty.png"
+    },
+    {
+      "document_id": "doc-934d5214dc31493782a3fd0bdd57e326",
+      "target": "array_representation_of_tree.assets/array_representation_complete_binary_tree.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_search_step1.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_search_step2.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_search_step3.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_search_step4.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_insert.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_remove_case1.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_remove_case2.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_remove_case3_step1.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_remove_case3_step2.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_remove_case3_step3.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_remove_case3_step4.png"
+    },
+    {
+      "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+      "target": "binary_search_tree.assets/bst_inorder_traversal.png"
+    },
+    {
+      "document_id": "doc-3b9e80febb8642feabc8261d726dfcb3",
+      "target": "binary_search_tree.assets/bst_degradation.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_right_rotate_step1.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_right_rotate_step2.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_right_rotate_step3.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_right_rotate_step4.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_right_rotate_with_grandchild.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_left_rotate.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_left_rotate_with_grandchild.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_left_right_rotate.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_right_left_rotate.png"
+    },
+    {
+      "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+      "target": "avl_tree.assets/avltree_rotation_cases.png"
+    },
+    {
+      "document_id": "doc-02108b7e4cbe445d9a6abd61431b50ac",
+      "target": "../assets/covers/chapter_heap.jpg"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/representation_of_heap.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step1.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step2.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step3.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step4.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step5.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step6.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step7.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step8.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_push_step9.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step1.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step2.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step3.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step4.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step5.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step6.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step7.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step8.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step9.png"
+    },
+    {
+      "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "target": "heap.assets/heap_pop_step10.png"
+    },
+    {
+      "document_id": "doc-95397a2136da43c28984579ad3d3a69f",
+      "target": "build_heap.assets/heapify_operations_count.png"
+    },
+    {
+      "document_id": "doc-7e5b02f9cc0741d9b5d1705457f58ff8",
+      "target": "top_k.assets/top_k_traversal.png"
+    },
+    {
+      "document_id": "doc-70cde48c5c274864a09c475ba95ed7d3",
+      "target": "top_k.assets/top_k_sorting.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step1.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step2.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step3.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step4.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step5.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step6.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step7.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step8.png"
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "target": "top_k.assets/top_k_heap_step9.png"
+    },
+    {
+      "document_id": "doc-c33d2513149c47919b30227d3c7834ed",
+      "target": "../assets/covers/chapter_graph.jpg"
+    },
+    {
+      "document_id": "doc-a166e09ce45242da82a83a26918a1205",
+      "target": "graph.assets/directed_graph.png"
+    },
+    {
+      "document_id": "doc-a166e09ce45242da82a83a26918a1205",
+      "target": "graph.assets/connected_graph.png"
+    },
+    {
+      "document_id": "doc-a166e09ce45242da82a83a26918a1205",
+      "target": "graph.assets/weighted_graph.png"
+    },
+    {
+      "document_id": "doc-de949b3a3d0f4c40a42ba1d0a3972a57",
+      "target": "graph.assets/adjacency_matrix.png"
+    },
+    {
+      "document_id": "doc-de949b3a3d0f4c40a42ba1d0a3972a57",
+      "target": "graph.assets/adjacency_list.png"
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "target": "graph_operations.assets/adjacency_matrix_step1_initialization.png"
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "target": "graph_operations.assets/adjacency_matrix_step2_add_edge.png"
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "target": "graph_operations.assets/adjacency_matrix_step3_remove_edge.png"
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "target": "graph_operations.assets/adjacency_matrix_step4_add_vertex.png"
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "target": "graph_operations.assets/adjacency_matrix_step5_remove_vertex.png"
+    },
+    {
+      "document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+      "target": "graph_operations.assets/adjacency_list_step1_initialization.png"
+    },
+    {
+      "document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+      "target": "graph_operations.assets/adjacency_list_step2_add_edge.png"
+    },
+    {
+      "document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+      "target": "graph_operations.assets/adjacency_list_step3_remove_edge.png"
+    },
+    {
+      "document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+      "target": "graph_operations.assets/adjacency_list_step4_add_vertex.png"
+    },
+    {
+      "document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+      "target": "graph_operations.assets/adjacency_list_step5_remove_vertex.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step1.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step2.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step3.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step4.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step5.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step6.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step7.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step8.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step9.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step10.png"
+    },
+    {
+      "document_id": "doc-a532c874936f439791ff17e714806717",
+      "target": "graph_traversal.assets/graph_bfs_step11.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step1.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step2.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step3.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step4.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step5.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step6.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step7.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step8.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step9.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step10.png"
+    },
+    {
+      "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "target": "graph_traversal.assets/graph_dfs_step11.png"
+    },
+    {
+      "document_id": "doc-405e2e8a143b464d9830d3efd367e53e",
+      "target": "../assets/covers/chapter_searching.jpg"
+    },
+    {
+      "document_id": "doc-77c27d62f21546749e4f86a31a926148",
+      "target": "binary_search.assets/binary_search_ranges.png"
+    },
+    {
+      "document_id": "doc-fb046ea0ed054b988258f506ea34421a",
+      "target": "binary_search_insertion.assets/binary_search_insertion_example.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_naive.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step1.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step2.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step3.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step4.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step5.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step6.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step7.png"
+    },
+    {
+      "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "target": "binary_search_insertion.assets/binary_search_insertion_step8.png"
+    },
+    {
+      "document_id": "doc-6539150c6ae243d8b863137b5e927ce0",
+      "target": "binary_search_edge.assets/binary_search_right_edge_by_left_edge.png"
+    },
+    {
+      "document_id": "doc-6539150c6ae243d8b863137b5e927ce0",
+      "target": "binary_search_edge.assets/binary_search_edge_by_element.png"
+    },
+    {
+      "document_id": "doc-c717fb6f20cc49a9a3105eaba1c64043",
+      "target": "replace_linear_by_hashing.assets/two_sum_brute_force.png"
+    },
+    {
+      "document_id": "doc-d03fc2d85d97491ca486a61b759e3a39",
+      "target": "replace_linear_by_hashing.assets/two_sum_hashtable_step1.png"
+    },
+    {
+      "document_id": "doc-d03fc2d85d97491ca486a61b759e3a39",
+      "target": "replace_linear_by_hashing.assets/two_sum_hashtable_step2.png"
+    },
+    {
+      "document_id": "doc-d03fc2d85d97491ca486a61b759e3a39",
+      "target": "replace_linear_by_hashing.assets/two_sum_hashtable_step3.png"
+    },
+    {
+      "document_id": "doc-6ba6624a6bf04c7c8cdf169dc6448cae",
+      "target": "searching_algorithm_revisited.assets/searching_algorithms.png"
+    },
+    {
+      "document_id": "doc-5bd93a1c0d76453e9d80b54688a79b71",
+      "target": "../assets/covers/chapter_sorting.jpg"
+    },
+    {
+      "document_id": "doc-49bf5d86f0d149ffa1cf2c60c0b671a8",
+      "target": "selection_sort.assets/selection_sort_instability.png"
+    },
+    {
+      "document_id": "doc-21e9efc23b2f49d7bfe8209dc7da6b68",
+      "target": "bubble_sort.assets/bubble_sort_overview.png"
+    },
+    {
+      "document_id": "doc-6c250dd71d604422a9095b05397a6fbe",
+      "target": "insertion_sort.assets/insertion_sort_overview.png"
+    },
+    {
+      "document_id": "doc-ea4988fe008146ca8f94f43dc8d952ad",
+      "target": "quick_sort.assets/quick_sort_overview.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step1.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step2.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step3.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step4.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step5.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step6.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step7.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step8.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step9.png"
+    },
+    {
+      "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "target": "merge_sort.assets/merge_sort_step10.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step1.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step2.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step3.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step4.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step5.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step6.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step7.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step8.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step9.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step10.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step11.png"
+    },
+    {
+      "document_id": "doc-66875784478e43199c49b10d7a552890",
+      "target": "heap_sort.assets/heap_sort_step12.png"
+    },
+    {
+      "document_id": "doc-1d2be8ec91ac4cf6a6e96ee8656b22e2",
+      "target": "bucket_sort.assets/bucket_sort_overview.png"
+    },
+    {
+      "document_id": "doc-51830d12801c4670a40054ccda34d298",
+      "target": "bucket_sort.assets/scatter_in_buckets_recursively.png"
+    },
+    {
+      "document_id": "doc-51830d12801c4670a40054ccda34d298",
+      "target": "bucket_sort.assets/scatter_in_buckets_distribution.png"
+    },
+    {
+      "document_id": "doc-248341db6dae48b5bfa7e151a2687da9",
+      "target": "counting_sort.assets/counting_sort_overview.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step1.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step2.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step3.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step4.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step5.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step6.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step7.png"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "target": "counting_sort.assets/counting_sort_step8.png"
+    },
+    {
+      "document_id": "doc-26e4005e09c7497493dc198139fa8a1c",
+      "target": "radix_sort.assets/radix_sort_overview.png"
+    },
+    {
+      "document_id": "doc-0c5cd67f095841c1b935f9a9804ba4c9",
+      "target": "summary.assets/sorting_algorithms_comparison.png"
+    },
+    {
+      "document_id": "doc-69d8b61989254779b91054d1f6c415cf",
+      "target": "../assets/covers/chapter_divide_and_conquer.jpg"
+    },
+    {
+      "document_id": "doc-b103b1cfab9f4dcb8f74696a650f9e59",
+      "target": "divide_and_conquer.assets/divide_and_conquer_bubble_sort.png"
+    },
+    {
+      "document_id": "doc-b103b1cfab9f4dcb8f74696a650f9e59",
+      "target": "divide_and_conquer.assets/divide_and_conquer_parallel_computing.png"
+    },
+    {
+      "document_id": "doc-4bef8b04b8534a17afef4eb65dad5783",
+      "target": "binary_search_recur.assets/binary_search_recur.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/build_tree_example.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/build_tree_preorder_inorder_division.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/build_tree_division_pointers.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step1.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step2.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step3.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step4.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step5.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step6.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step7.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step8.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_step9.png"
+    },
+    {
+      "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+      "target": "build_binary_tree_problem.assets/built_tree_overall.png"
+    },
+    {
+      "document_id": "doc-857b9c6cfa384383886cbfd82b866af2",
+      "target": "../assets/covers/chapter_backtracking.jpg"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step1.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step2.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step3.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step4.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step5.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step6.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step7.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step8.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step9.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step10.png"
+    },
+    {
+      "document_id": "doc-76926605621841cf805124a65cb079b9",
+      "target": "backtracking_algorithm.assets/preorder_find_paths_step11.png"
+    },
+    {
+      "document_id": "doc-ae2b0fb08767443cb5f15529e784b7a7",
+      "target": "backtracking_algorithm.assets/preorder_find_constrained_paths.png"
+    },
+    {
+      "document_id": "doc-123b0e5c769940bd8b410688600645b7",
+      "target": "backtracking_algorithm.assets/backtrack_remove_return_or_not.png"
+    },
+    {
+      "document_id": "doc-69b36b7d08cc49a081fe88445854fe7b",
+      "target": "permutations_problem.assets/permutations_i.png"
+    },
+    {
+      "document_id": "doc-69b36b7d08cc49a081fe88445854fe7b",
+      "target": "permutations_problem.assets/permutations_i_pruning.png"
+    },
+    {
+      "document_id": "doc-eceb6386e34a4d74b0f51b3e107da78d",
+      "target": "permutations_problem.assets/permutations_ii.png"
+    },
+    {
+      "document_id": "doc-eceb6386e34a4d74b0f51b3e107da78d",
+      "target": "permutations_problem.assets/permutations_ii_pruning.png"
+    },
+    {
+      "document_id": "doc-eceb6386e34a4d74b0f51b3e107da78d",
+      "target": "permutations_problem.assets/permutations_ii_pruning_summary.png"
+    },
+    {
+      "document_id": "doc-8aae89ab48d24593a8d953e5d7c3af75",
+      "target": "subset_sum_problem.assets/subset_sum_i_naive.png"
+    },
+    {
+      "document_id": "doc-8aae89ab48d24593a8d953e5d7c3af75",
+      "target": "subset_sum_problem.assets/subset_sum_i_pruning.png"
+    },
+    {
+      "document_id": "doc-8aae89ab48d24593a8d953e5d7c3af75",
+      "target": "subset_sum_problem.assets/subset_sum_i.png"
+    },
+    {
+      "document_id": "doc-e2a227749b6d4518a47cda7ffec05e71",
+      "target": "subset_sum_problem.assets/subset_sum_ii_repeat.png"
+    },
+    {
+      "document_id": "doc-e2a227749b6d4518a47cda7ffec05e71",
+      "target": "subset_sum_problem.assets/subset_sum_ii.png"
+    },
+    {
+      "document_id": "doc-d1682f8bf9004e31a98e13e691ca9286",
+      "target": "n_queens_problem.assets/solution_4_queens.png"
+    },
+    {
+      "document_id": "doc-d1682f8bf9004e31a98e13e691ca9286",
+      "target": "n_queens_problem.assets/n_queens_constraints.png"
+    },
+    {
+      "document_id": "doc-d1682f8bf9004e31a98e13e691ca9286",
+      "target": "n_queens_problem.assets/n_queens_placing.png"
+    },
+    {
+      "document_id": "doc-d1682f8bf9004e31a98e13e691ca9286",
+      "target": "n_queens_problem.assets/n_queens_cols_diagonals.png"
+    },
+    {
+      "document_id": "doc-dceacec4d50c4b4092a1f1eb89b03a19",
+      "target": "../assets/covers/chapter_dynamic_programming.jpg"
+    },
+    {
+      "document_id": "doc-2bd4f603184340aeba1ee19e9a74029c",
+      "target": "intro_to_dynamic_programming.assets/climbing_stairs_state_transfer.png"
+    },
+    {
+      "document_id": "doc-2bd4f603184340aeba1ee19e9a74029c",
+      "target": "intro_to_dynamic_programming.assets/climbing_stairs_dfs_tree.png"
+    },
+    {
+      "document_id": "doc-5e9726ea92c345fb8f09bd2a372ce6cc",
+      "target": "intro_to_dynamic_programming.assets/climbing_stairs_dfs_memo_tree.png"
+    },
+    {
+      "document_id": "doc-dceb83ec46874d269325a73de745c9af",
+      "target": "intro_to_dynamic_programming.assets/climbing_stairs_dp.png"
+    },
+    {
+      "document_id": "doc-9b47113bb85f4807a8abd4eb2765ac31",
+      "target": "dp_problem_features.assets/min_cost_cs_example.png"
+    },
+    {
+      "document_id": "doc-9b47113bb85f4807a8abd4eb2765ac31",
+      "target": "dp_problem_features.assets/min_cost_cs_dp.png"
+    },
+    {
+      "document_id": "doc-8835940b5abd4aa99115061e5dc64c68",
+      "target": "dp_problem_features.assets/climbing_stairs_constraint_example.png"
+    },
+    {
+      "document_id": "doc-8835940b5abd4aa99115061e5dc64c68",
+      "target": "dp_problem_features.assets/climbing_stairs_constraint_state_transfer.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_example.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_solution_state_definition.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_solution_state_transition.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_solution_initial_state.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dfs.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dfs_mem.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step1.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step2.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step3.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step4.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step5.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step6.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step7.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step8.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step9.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step10.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step11.png"
+    },
+    {
+      "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+      "target": "dp_solution_pipeline.assets/min_path_sum_dp_step12.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_example.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dfs.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dfs_mem.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step1.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step2.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step3.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step4.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step5.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step6.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step7.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step8.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step9.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step10.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step11.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step12.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step13.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_step14.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_comp_step1.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_comp_step2.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_comp_step3.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_comp_step4.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_comp_step5.png"
+    },
+    {
+      "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+      "target": "knapsack_problem.assets/knapsack_dp_comp_step6.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_example.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_dp_comp_step1.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_dp_comp_step2.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_dp_comp_step3.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_dp_comp_step4.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_dp_comp_step5.png"
+    },
+    {
+      "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+      "target": "unbounded_knapsack_problem.assets/unbounded_knapsack_dp_comp_step6.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_example.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step1.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step2.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step3.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step4.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step5.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step6.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step7.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step8.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step9.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step10.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step11.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step12.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step13.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step14.png"
+    },
+    {
+      "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+      "target": "unbounded_knapsack_problem.assets/coin_change_dp_step15.png"
+    },
+    {
+      "document_id": "doc-2dd5dfda5c8943beaefe0039e9045c94",
+      "target": "unbounded_knapsack_problem.assets/coin_change_ii_example.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_example.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_decision_tree.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_state_transfer.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step1.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step2.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step3.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step4.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step5.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step6.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step7.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step8.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step9.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step10.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step11.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step12.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step13.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step14.png"
+    },
+    {
+      "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+      "target": "edit_distance_problem.assets/edit_distance_dp_step15.png"
+    },
+    {
+      "document_id": "doc-8430aa71e06847188a9186b86513df29",
+      "target": "../assets/covers/chapter_greedy.jpg"
+    },
+    {
+      "document_id": "doc-e2473ef5c25647c5adab8f03eed805ae",
+      "target": "greedy_algorithm.assets/coin_change_greedy_vs_dp.png"
+    },
+    {
+      "document_id": "doc-a18730ec0d3d4661a311ada80ea963e4",
+      "target": "fractional_knapsack_problem.assets/fractional_knapsack_example.png"
+    },
+    {
+      "document_id": "doc-a18730ec0d3d4661a311ada80ea963e4",
+      "target": "fractional_knapsack_problem.assets/fractional_knapsack_unit_value.png"
+    },
+    {
+      "document_id": "doc-a18730ec0d3d4661a311ada80ea963e4",
+      "target": "fractional_knapsack_problem.assets/fractional_knapsack_greedy_strategy.png"
+    },
+    {
+      "document_id": "doc-a18730ec0d3d4661a311ada80ea963e4",
+      "target": "fractional_knapsack_problem.assets/fractional_knapsack_area_chart.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_example.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_initial_state.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_moving_long_board.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_moving_short_board.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step1.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step2.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step3.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step4.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step5.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step6.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step7.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step8.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_greedy_step9.png"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "target": "max_capacity_problem.assets/max_capacity_skipped_states.png"
+    },
+    {
+      "document_id": "doc-9440eaa3b1ee4bf295fe5db6bb0b9608",
+      "target": "max_product_cutting_problem.assets/max_product_cutting_definition.png"
+    },
+    {
+      "document_id": "doc-9440eaa3b1ee4bf295fe5db6bb0b9608",
+      "target": "max_product_cutting_problem.assets/max_product_cutting_greedy_infer1.png"
+    },
+    {
+      "document_id": "doc-9440eaa3b1ee4bf295fe5db6bb0b9608",
+      "target": "max_product_cutting_problem.assets/max_product_cutting_greedy_infer2.png"
+    },
+    {
+      "document_id": "doc-9440eaa3b1ee4bf295fe5db6bb0b9608",
+      "target": "max_product_cutting_problem.assets/max_product_cutting_greedy_calculation.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_example.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f1_step1.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f1_step2.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f2_step1.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f2_step2.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f2_step3.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f2_step4.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f3_step1.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f3_step2.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f3_step3.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_f3_step4.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_divide_and_conquer.png"
+    },
+    {
+      "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+      "target": "hanota_problem.assets/hanota_recursive_tree.png"
+    }
+  ]
+}

@@ -1163,7 +1163,20 @@ def test_full_pipeline_image_search_to_report_artifact_contains_images():
     with patch(
         "app.chat.agents.report_generation.build_report_markdown",
         side_effect=_fake_build_report_markdown,
-    ), patch("app.chat.skill_manager.SkillManager"):
+    ), patch("app.chat.skill_manager.SkillManager"), patch(
+        "app.chat.workflows.report.image_downloader.start_async_localization",
+        return_value=object(),
+    ), patch(
+        "app.chat.workflows.report.image_downloader.resolve_async_localization",
+        return_value=[
+            {
+                "url": "/api/images/searched/rag-architecture.png",
+                "source_page": "https://example.com/rag",
+                "title": "RAG 架构",
+                "_localized": True,
+            }
+        ],
+    ):
         result = _AgentReportGenerationAdapter().generate(
             payload,
             job_id=context.task_id,
@@ -1173,8 +1186,8 @@ def test_full_pipeline_image_search_to_report_artifact_contains_images():
 
     # Real image injector should have placed at least one searched image into the body
     assert artifact["artifact_type"] == "report"
-    assert "https://example.com/rag-architecture.png" in artifact["content"] or \
-           "https://example.com/vector-db.png" in artifact["content"]
+    assert "/api/images/searched/rag-architecture.png" in artifact["content"]
+    assert "https://example.com/rag" in artifact["content"]
     assert artifact["visual_assets_count"] >= 1
 
     # Sanity-check SSE chain

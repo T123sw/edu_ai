@@ -40,8 +40,19 @@ import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
 import { CourseShellHeaderSlot } from "../course/CourseShell";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
+import { MaterialContentEditor } from "./MaterialContentEditor";
 
 type ResourceSort = "recent" | "title";
+
+const EDITABLE_MATERIAL_TYPES = new Set([
+  "report",
+  "blog",
+  "lesson_plan",
+  "quiz",
+  "flashcard",
+  "graph",
+  "classroom",
+]);
 
 const RESOURCE_SPACES = [
   { key: "mine" as const, label: "我的资源" },
@@ -118,6 +129,7 @@ export function CourseResourcesPage() {
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [recoveryError, setRecoveryError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingContent, setEditingContent] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const materials = resourceSpace === "mine" ? personalMaterials : sharedMaterials;
 
@@ -277,6 +289,7 @@ export function CourseResourcesPage() {
 
   useEffect(() => {
     setEditingTitle(false);
+    setEditingContent(false);
     setActionError(null);
     setActionNotice(null);
   }, [activeKey]);
@@ -805,6 +818,16 @@ export function CourseResourcesPage() {
                       ) : null}
                       {canManageActiveMaterial ? (
                         <>
+                          {EDITABLE_MATERIAL_TYPES.has(activeMaterial.material_type) ? (
+                            <button
+                              type="button"
+                              disabled={actionBusy}
+                              onClick={() => setEditingContent((current) => !current)}
+                              className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
+                            >
+                              {editingContent ? "返回预览" : "编辑内容"}
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             disabled={actionBusy}
@@ -880,7 +903,25 @@ export function CourseResourcesPage() {
                   ) : null}
 
                   <div className="mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-2">
-                    {activeMaterial.material_type === "classroom" ? (
+                    {editingContent ? (
+                      <MaterialContentEditor
+                        courseId={course.id}
+                        material={activeMaterial}
+                        onCancel={() => setEditingContent(false)}
+                        onSaved={(updated) => {
+                          const replace = (items: CourseMaterial[]) => items.map((item) => (
+                            item.material_id === updated.material_id
+                            && item.material_type === updated.material_type
+                              ? updated
+                              : item
+                          ));
+                          setPersonalMaterials(replace);
+                          setSharedMaterials(replace);
+                          setEditingContent(false);
+                          setActionNotice("资源内容已保存");
+                        }}
+                      />
+                    ) : activeMaterial.material_type === "classroom" ? (
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="rounded-2xl bg-(--surface-subtle) p-5">
                           <p className="text-xs font-semibold text-(--muted-text)">

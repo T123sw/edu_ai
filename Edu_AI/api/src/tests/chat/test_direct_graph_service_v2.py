@@ -73,6 +73,11 @@ def test_graph_generation_validates_tree_and_persists_formal_resource():
     assert artifact["artifact_type"] == "graph"
     assert artifact["content"]["root"]["title"] == "变量"
     assert len(artifact["content"]["root"]["children"]) == 2
+    assert artifact["content"]["root"]["id"] == "root"
+    assert [node["id"] for node in artifact["content"]["root"]["children"]] == [
+        "root-1",
+        "root-2",
+    ]
     assert storage.saved["material_type"] == "graph"
     assert storage.saved["owner_user_id"] == "teacher-a"
     assert storage.saved["source_job_id"] == "job-1"

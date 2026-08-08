@@ -47,7 +47,11 @@ export function HomeDashboardPage() {
         setCourses(loaded);
         const entries = await Promise.all(loaded.map(async (course) => {
           const [documents, resources] = await Promise.all([
-            getKnowledgeBaseDocuments(course.id).catch(() => []),
+            getKnowledgeBaseDocuments(course.id, {
+              aggregate: true,
+              libraryType: "course",
+              limit: 1000,
+            }).catch(() => []),
             getCourseMaterials(course.id).catch(() => []),
           ]);
           return [course.id, { documentCount: documents.length, resourceCount: resources.length, activeJobCount: 0 }] as const;

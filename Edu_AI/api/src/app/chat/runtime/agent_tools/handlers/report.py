@@ -20,12 +20,32 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
 
     allow_rag = bool(getattr(getattr(ctx, "capability", None), "allow_rag", False))
     selected_doc_ids = list(getattr(getattr(ctx, "capability", None), "selected_doc_ids", []) or [])
+    source_mode = (
+        "selected_documents"
+        if selected_doc_ids
+        else ("course_auto" if allow_rag else "none")
+    )
     owner = getattr(getattr(ctx, "request", None), "owner", None)
     course_id = getattr(getattr(ctx, "request", None), "course_id", None)
 
     # Phase 6-A: images accumulated by reflect_node from this turn's image_search calls.
     # tools_node sets ctx.accumulated_images before dispatch.
     accumulated_images = list(getattr(ctx, "accumulated_images", []) or [])
+    if not accumulated_images:
+        # LangGraph checkpoints may not expose a reflect-node list to a later
+        # tool batch in the same turn. The execution context still owns the
+        # successful image-search result, so recover it deterministically
+        # instead of silently dropping the user's selected visual evidence.
+        for cache_key, cached in dict(
+            getattr(ctx, "_call_cache", {}) or {}
+        ).items():
+            if not str(cache_key).startswith("image_search:"):
+                continue
+            if not isinstance(cached, dict) or not cached.get("ok"):
+                continue
+            accumulated_images.extend(
+                list((cached.get("payload") or {}).get("images") or [])
+            )
 
     # Phase 6-A.2: when VLM review is on, VisionReflector already downloaded +
     # reviewed these images, so they arrive already-localized (_localized=True,
@@ -39,6 +59,7 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
                 getattr(ctx.request, "scope_type", None) or "course"
             ),
             scope_id=getattr(ctx.request, "scope_id", None),
+            source_mode=source_mode,
             selected_doc_ids=selected_doc_ids,
             config={
                 "entrypoint": "agent",

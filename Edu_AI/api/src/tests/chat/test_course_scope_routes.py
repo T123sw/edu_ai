@@ -194,6 +194,37 @@ def test_material_mutations_distinguish_private_owner_and_course_manager(monkeyp
     assert viewer_error.value.status_code == 403
 
 
+def test_material_content_editing_persists_and_enforces_owner(monkeypatch):
+    manager = _make_manager("course-material-content-editing")
+    assert manager.save_generated_material(
+        "course-1",
+        "report",
+        "private-a",
+        {"title": "原报告", "content": "# 原内容"},
+        owner_user_id="teacher-a",
+    )
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+
+    updated = courses.update_course_material_content(
+        "course-1",
+        "report",
+        "private-a",
+        courses.MaterialContentUpdateRequest(content="# 更新内容"),
+        principal=_principal("teacher-a", "editor"),
+    )
+    assert updated["content"] == "# 更新内容"
+
+    with pytest.raises(courses.HTTPException) as other_teacher_error:
+        courses.update_course_material_content(
+            "course-1",
+            "report",
+            "private-a",
+            courses.MaterialContentUpdateRequest(content="# 越权内容"),
+            principal=_principal("teacher-b", "editor"),
+        )
+    assert other_teacher_error.value.status_code == 404
+
+
 def test_withdraw_route_removes_publication_but_keeps_private_source(monkeypatch):
     manager = _make_manager("course-material-withdraw-route")
     assert manager.save_generated_material(
@@ -416,8 +447,81 @@ def test_get_knowledge_base_documents_hides_local_path_for_web_documents(monkeyp
     assert documents[0].source_domain == "support.microsoft.com"
     assert documents[0].source_site_name == "Microsoft"
     assert documents[0].source_icon_url.endswith("microsoft.png")
+    assert documents[0].display_name == "Microsoft Support"
     assert relative_path.replace("\\", "/").endswith("support-page.md")
     assert documents[0].file_path is None
+
+
+def test_get_course_knowledge_base_document_content_uses_stable_document_id(monkeypatch):
+    manager = _make_manager("course-doc-content")
+    manager.save_knowledge_base_file(
+        "course-1",
+        "# 二分查找\n\n这是课程材料正文。".encode("utf-8"),
+        "generated-material.md",
+        scope_type="knowledge_point",
+        scope_id="binary-search",
+        library_type="course",
+    )
+    index = manager.get_knowledge_base_index("course-1")
+    index[-1]["source_title"] = "二分查找"
+    manager.save_knowledge_base_index("course-1", index)
+    document_id = index[-1]["id"]
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+
+    content = courses_api.get_knowledge_base_document_content(
+        "course-1",
+        document_id,
+        principal=_teacher_principal(),
+    )
+
+    assert content.document_id == document_id
+    assert content.file_name == "二分查找"
+    assert "课程材料正文" in content.content
+    assert content.total_chunks == 1
+
+
+def test_course_document_content_and_media_support_versioned_document_roots(monkeypatch):
+    manager = _make_manager("course-doc-versioned-content")
+    relative_path = manager.save_knowledge_base_file(
+        "course-1",
+        b"# Complexity\n\n$T(n)=O(n\\log n)$\n\n![chart](assets/chart.png)",
+        "versioned-material.md",
+        scope_type="knowledge_point",
+        scope_id="complexity",
+        library_type="course",
+    )
+    course_dir = manager.get_course_dir("course-1")
+    source_file = course_dir / relative_path
+    versioned_root = course_dir / "knowledge_base" / "documents-v2"
+    versioned_file = versioned_root / source_file.name
+    versioned_file.parent.mkdir(parents=True, exist_ok=True)
+    source_file.replace(versioned_file)
+    media_file = versioned_root / "assets" / "chart.png"
+    media_file.parent.mkdir(parents=True, exist_ok=True)
+    media_file.write_bytes(b"png")
+
+    index = manager.get_knowledge_base_index("course-1")
+    index[-1]["path"] = "knowledge_base/documents-v2/versioned-material.md"
+    manager.save_knowledge_base_index("course-1", index)
+    document_id = index[-1]["id"]
+    monkeypatch.setattr(course_service, "_get_manager", lambda: manager)
+
+    content = courses_api.get_knowledge_base_document_content(
+        "course-1",
+        document_id,
+        principal=_teacher_principal(),
+    )
+    media = courses_api.get_knowledge_base_document_media(
+        "course-1",
+        document_id,
+        "assets/chart.png",
+        principal=_teacher_principal(),
+    )
+
+    assert "$T(n)=O(n\\log n)$" in content.content
+    assert "/media?path=assets%2Fchart.png" in content.content
+    assert Path(media.path) == media_file.resolve()
+    assert media.media_type == "image/png"
 
 
 @pytest.mark.anyio

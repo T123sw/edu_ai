@@ -5,6 +5,8 @@ import { courseMaterialToMarkdown } from "../api/courses";
 import type { CourseMaterial } from "../api/types";
 import { MarkdownPreview } from "../components/MarkdownPreview";
 import { getCourseMaterialPreviewKind } from "./resourcePreviewConstraints";
+import { downloadMindMapJson } from "./mindMapExport";
+import { downloadMaterialFile } from "./materialExport";
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -52,7 +54,7 @@ function FlashcardPreview({ material }: { material: CourseMaterial }) {
   );
 }
 
-type MindNode = { title?: string; summary?: string; children?: MindNode[] };
+type MindNode = { id?: string; title?: string; summary?: string; children?: MindNode[] };
 
 function MindBranch({ node, depth = 0 }: { node: MindNode; depth?: number }) {
   return <li><span><strong>{node.title || "未命名节点"}</strong>{node.summary ? <small>{node.summary}</small> : null}</span>{node.children?.length ? <ul>{node.children.map((child, index) => <MindBranch key={`${child.title}-${index}`} node={child} depth={depth + 1} />)}</ul> : null}</li>;
@@ -63,7 +65,7 @@ function MindMapPreview({ material }: { material: CourseMaterial }) {
   const root = record(payload.root) as MindNode;
   const hasRoot = Boolean(root.title || root.children?.length);
   const [zoom, setZoom] = useState(1);
-  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button></div><div className="resource-mind-map__viewport"><div style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ul><MindBranch node={root} /></ul> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
+  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button><button type="button" disabled={!hasRoot} onClick={() => downloadMindMapJson(material.content, material.title || "思维导图")}>导出 JSON</button></div><div className="resource-mind-map__viewport"><div style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ul><MindBranch node={root} /></ul> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
 }
 
 function GamePreview({ material }: { material: CourseMaterial }) {
@@ -74,12 +76,13 @@ function GamePreview({ material }: { material: CourseMaterial }) {
 export function CourseMaterialArtifactPreview({ material }: { material: CourseMaterial }) {
   const previewKind = getCourseMaterialPreviewKind(material);
   const markdown = useMemo(() => courseMaterialToMarkdown(material), [material]);
-  if (previewKind === "blog") return <BlogArtifactPreview material={material} markdown={markdown} />;
+  const exportButton = <button type="button" onClick={() => downloadMaterialFile(material, markdown)} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">导出</button>;
+  if (previewKind === "blog") return <><div className="mb-3 flex justify-end">{exportButton}</div><BlogArtifactPreview material={material} markdown={markdown} /></>;
   if (previewKind === "ppt") return <PptArtifactPreview material={material} />;
-  if (previewKind === "quiz") return <QuizPreview material={material} />;
-  if (previewKind === "flashcard") return <FlashcardPreview material={material} />;
+  if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview material={material} /></>;
+  if (previewKind === "flashcard") return <><div className="mb-3 flex justify-end">{exportButton}</div><FlashcardPreview material={material} /></>;
   if (previewKind === "mind-map") return <MindMapPreview material={material} />;
   if (previewKind === "game") return <GamePreview material={material} />;
-  if (previewKind === "rich-text") return <div className="edu-rich-preview"><MarkdownPreview content={markdown} /></div>;
+  if (previewKind === "rich-text") return <><div className="mb-3 flex justify-end">{exportButton}</div><div className="edu-rich-preview"><MarkdownPreview content={markdown} /></div></>;
   return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>该资源仍保留在课程资源列表中，不会跳转到错误页面。</p></div>;
 }

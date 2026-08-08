@@ -1,0 +1,1737 @@
+{
+  "builder": "legacy-media-repair-v1",
+  "status": "staged",
+  "document_count": 48,
+  "failure_count": 0,
+  "failures": [],
+  "documents": [
+    {
+      "id": "repaired-doc-4da33c77290d4b1ea7b18c11a09b8830",
+      "legacy_document_id": "doc-4da33c77290d4b1ea7b18c11a09b8830",
+      "filename": "kbbuild-hello-algo-zh-算法是什么｜数据结构与算法的关系-dac147c95130e6fc.md",
+      "path": "documents/kbbuild-hello-algo-zh-算法是什么｜数据结构与算法的关系-dac147c95130e6fc.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "algorithm-properties",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_introduction/what_is_dsa/",
+      "source_title": "算法是什么｜数据结构与算法的关系",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "what_is_dsa.assets/relationship_between_data_structure_and_algorithm.png",
+          "content_type": "image/png",
+          "size": 14662
+        },
+        {
+          "relative_path": "what_is_dsa.assets/assembling_blocks.png",
+          "content_type": "image/png",
+          "size": 417130
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-6f719a0571554b3eaa7d9637567d3107",
+      "legacy_document_id": "doc-6f719a0571554b3eaa7d9637567d3107",
+      "filename": "kbbuild-hello-algo-zh-数组｜数组常用操作-d11933410690eef3.md",
+      "path": "documents/kbbuild-hello-algo-zh-数组｜数组常用操作-d11933410690eef3.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "array-linked-list",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/array/",
+      "source_title": "数组｜数组常用操作",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "array.assets/array_memory_location_calculation.png",
+          "content_type": "image/png",
+          "size": 16009
+        },
+        {
+          "relative_path": "array.assets/array_insert_element.png",
+          "content_type": "image/png",
+          "size": 20575
+        },
+        {
+          "relative_path": "array.assets/array_remove_element.png",
+          "content_type": "image/png",
+          "size": 19850
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-608c9c926a1543d0b198ad7903bcd946",
+      "legacy_document_id": "doc-608c9c926a1543d0b198ad7903bcd946",
+      "filename": "kbbuild-hello-algo-zh-链表｜链表常用操作-faa70ccb17e8c58a.md",
+      "path": "documents/kbbuild-hello-algo-zh-链表｜链表常用操作-faa70ccb17e8c58a.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "array-linked-list",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/",
+      "source_title": "链表｜链表常用操作",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "linked_list.assets/linkedlist_insert_node.png",
+          "content_type": "image/png",
+          "size": 15185
+        },
+        {
+          "relative_path": "linked_list.assets/linkedlist_remove_node.png",
+          "content_type": "image/png",
+          "size": 17482
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-811f78d4b43c4016ad0d33366827695a",
+      "legacy_document_id": "doc-811f78d4b43c4016ad0d33366827695a",
+      "filename": "kbbuild-hello-algo-zh-链表｜数组 vs. 链表-c19541f2e6468741.md",
+      "path": "documents/kbbuild-hello-algo-zh-链表｜数组 vs. 链表-c19541f2e6468741.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "array-linked-list",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/",
+      "source_title": "链表｜数组 vs. 链表",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-76926605621841cf805124a65cb079b9",
+      "legacy_document_id": "doc-76926605621841cf805124a65cb079b9",
+      "filename": "kbbuild-hello-algo-zh-回溯算法｜尝试与回退-d5b282daa8ea2573.md",
+      "path": "documents/kbbuild-hello-algo-zh-回溯算法｜尝试与回退-d5b282daa8ea2573.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "backtracking",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/",
+      "source_title": "回溯算法｜尝试与回退",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step1.png",
+          "content_type": "image/png",
+          "size": 12869
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step2.png",
+          "content_type": "image/png",
+          "size": 16646
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step3.png",
+          "content_type": "image/png",
+          "size": 16142
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step4.png",
+          "content_type": "image/png",
+          "size": 16277
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step5.png",
+          "content_type": "image/png",
+          "size": 17357
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step6.png",
+          "content_type": "image/png",
+          "size": 17450
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step7.png",
+          "content_type": "image/png",
+          "size": 18138
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step8.png",
+          "content_type": "image/png",
+          "size": 19344
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step9.png",
+          "content_type": "image/png",
+          "size": 19150
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step10.png",
+          "content_type": "image/png",
+          "size": 22891
+        },
+        {
+          "relative_path": "backtracking_algorithm.assets/preorder_find_paths_step11.png",
+          "content_type": "image/png",
+          "size": 20619
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-123b0e5c769940bd8b410688600645b7",
+      "legacy_document_id": "doc-123b0e5c769940bd8b410688600645b7",
+      "filename": "kbbuild-hello-algo-zh-回溯算法｜框架代码-318fac65c41c2590.md",
+      "path": "documents/kbbuild-hello-algo-zh-回溯算法｜框架代码-318fac65c41c2590.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "backtracking",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/",
+      "source_title": "回溯算法｜框架代码",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "backtracking_algorithm.assets/backtrack_remove_return_or_not.png",
+          "content_type": "image/png",
+          "size": 27696
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-a6a829681d964ffd956e0a0cb29ca147",
+      "legacy_document_id": "doc-a6a829681d964ffd956e0a0cb29ca147",
+      "filename": "kbbuild-hello-algo-zh-回溯算法｜常用术语-2dce47656885f976.md",
+      "path": "documents/kbbuild-hello-algo-zh-回溯算法｜常用术语-2dce47656885f976.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "backtracking",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/",
+      "source_title": "回溯算法｜常用术语",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-ea8b4495bb8846a5a9b0d6fc0c4d72cc",
+      "legacy_document_id": "doc-ea8b4495bb8846a5a9b0d6fc0c4d72cc",
+      "filename": "kbbuild-hello-algo-zh-数字编码｜原码、反码和补码-0fa49be8edf2c786.md",
+      "path": "documents/kbbuild-hello-algo-zh-数字编码｜原码、反码和补码-0fa49be8edf2c786.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "binary-number",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_data_structure/number_encoding/",
+      "source_title": "数字编码｜原码、反码和补码",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "number_encoding.assets/1s_2s_complement.png",
+          "content_type": "image/png",
+          "size": 15975
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-f97ce801af7b462595ec62556773de86",
+      "legacy_document_id": "doc-f97ce801af7b462595ec62556773de86",
+      "filename": "kbbuild-hello-algo-zh-算法效率评估｜理论估算-c175da9aea6b1479.md",
+      "path": "documents/kbbuild-hello-algo-zh-算法效率评估｜理论估算-c175da9aea6b1479.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "complexity",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_computational_complexity/performance_evaluation/",
+      "source_title": "算法效率评估｜理论估算",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-3ba22399c734409a90025b85d2f789db",
+      "legacy_document_id": "doc-3ba22399c734409a90025b85d2f789db",
+      "filename": "kbbuild-hello-algo-zh-时间复杂度｜统计时间增长趋势-b061e251c19db2dd.md",
+      "path": "documents/kbbuild-hello-algo-zh-时间复杂度｜统计时间增长趋势-b061e251c19db2dd.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "complexity",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/",
+      "source_title": "时间复杂度｜统计时间增长趋势",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "time_complexity.assets/time_complexity_simple_example.png",
+          "content_type": "image/png",
+          "size": 9706
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-f7a88d08e81f409fb70792b27bfea02d",
+      "legacy_document_id": "doc-f7a88d08e81f409fb70792b27bfea02d",
+      "filename": "kbbuild-hello-algo-zh-时间复杂度｜函数渐近上界-81674494085bded2.md",
+      "path": "documents/kbbuild-hello-algo-zh-时间复杂度｜函数渐近上界-81674494085bded2.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "complexity",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/",
+      "source_title": "时间复杂度｜函数渐近上界",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "time_complexity.assets/asymptotic_upper_bound.png",
+          "content_type": "image/png",
+          "size": 14425
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-72f3240c1e314c11badbc820d27fc895",
+      "legacy_document_id": "doc-72f3240c1e314c11badbc820d27fc895",
+      "filename": "kbbuild-hello-algo-zh-字符编码｜Unicode 字符集-c3d51fbc5d432ef5.md",
+      "path": "documents/kbbuild-hello-algo-zh-字符编码｜Unicode 字符集-c3d51fbc5d432ef5.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "data-encoding",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_data_structure/character_encoding/",
+      "source_title": "字符编码｜Unicode 字符集",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "character_encoding.assets/unicode_hello_algo.png",
+          "content_type": "image/png",
+          "size": 14772
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-99ff5222a47f4d1aa8ec155b5de3795d",
+      "legacy_document_id": "doc-99ff5222a47f4d1aa8ec155b5de3795d",
+      "filename": "kbbuild-hello-algo-zh-字符编码｜UTF-8 编码-252b39ba72e123e1.md",
+      "path": "documents/kbbuild-hello-algo-zh-字符编码｜UTF-8 编码-252b39ba72e123e1.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "data-encoding",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_data_structure/character_encoding/",
+      "source_title": "字符编码｜UTF-8 编码",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "character_encoding.assets/utf-8_hello_algo.png",
+          "content_type": "image/png",
+          "size": 19073
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-d3411b2a6ac14bcc8f553ee4c4524276",
+      "legacy_document_id": "doc-d3411b2a6ac14bcc8f553ee4c4524276",
+      "filename": "kbbuild-hello-algo-zh-字符编码｜编程语言的字符编码-d371bf39afb82172.md",
+      "path": "documents/kbbuild-hello-algo-zh-字符编码｜编程语言的字符编码-d371bf39afb82172.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "data-encoding",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_data_structure/character_encoding/",
+      "source_title": "字符编码｜编程语言的字符编码",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-2422aa5034794c308c7e3a92085c47c5",
+      "legacy_document_id": "doc-2422aa5034794c308c7e3a92085c47c5",
+      "filename": "kbbuild-hello-algo-zh-快速排序｜基准数优化-d148fc452396d22b.md",
+      "path": "documents/kbbuild-hello-algo-zh-快速排序｜基准数优化-d148fc452396d22b.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "divide-conquer",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_sorting/quick_sort/",
+      "source_title": "快速排序｜基准数优化",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-c61ffa56d8434056ac846ace249f5ae5",
+      "legacy_document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+      "filename": "kbbuild-hello-algo-zh-归并排序｜算法流程-f590687ef3902731.md",
+      "path": "documents/kbbuild-hello-algo-zh-归并排序｜算法流程-f590687ef3902731.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "divide-conquer",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_sorting/merge_sort/",
+      "source_title": "归并排序｜算法流程",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step1.png",
+          "content_type": "image/png",
+          "size": 5880
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step2.png",
+          "content_type": "image/png",
+          "size": 6750
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step3.png",
+          "content_type": "image/png",
+          "size": 6838
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step4.png",
+          "content_type": "image/png",
+          "size": 7310
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step5.png",
+          "content_type": "image/png",
+          "size": 8328
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step6.png",
+          "content_type": "image/png",
+          "size": 8578
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step7.png",
+          "content_type": "image/png",
+          "size": 8678
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step8.png",
+          "content_type": "image/png",
+          "size": 8915
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step9.png",
+          "content_type": "image/png",
+          "size": 9703
+        },
+        {
+          "relative_path": "merge_sort.assets/merge_sort_step10.png",
+          "content_type": "image/png",
+          "size": 11496
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-b103b1cfab9f4dcb8f74696a650f9e59",
+      "legacy_document_id": "doc-b103b1cfab9f4dcb8f74696a650f9e59",
+      "filename": "kbbuild-hello-algo-zh-分治算法｜通过分治提升效率-f7e204e475dd7667.md",
+      "path": "documents/kbbuild-hello-algo-zh-分治算法｜通过分治提升效率-f7e204e475dd7667.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "divide-conquer",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_divide_and_conquer/divide_and_conquer/",
+      "source_title": "分治算法｜通过分治提升效率",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "divide_and_conquer.assets/divide_and_conquer_bubble_sort.png",
+          "content_type": "image/png",
+          "size": 19405
+        },
+        {
+          "relative_path": "divide_and_conquer.assets/divide_and_conquer_parallel_computing.png",
+          "content_type": "image/png",
+          "size": 19035
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-2bd4f603184340aeba1ee19e9a74029c",
+      "legacy_document_id": "doc-2bd4f603184340aeba1ee19e9a74029c",
+      "filename": "kbbuild-hello-algo-zh-初探动态规划｜方法一：暴力搜索-a997fffdae78b3a6.md",
+      "path": "documents/kbbuild-hello-algo-zh-初探动态规划｜方法一：暴力搜索-a997fffdae78b3a6.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "dynamic-programming",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/intro_to_dynamic_programming/",
+      "source_title": "初探动态规划｜方法一：暴力搜索",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "intro_to_dynamic_programming.assets/climbing_stairs_state_transfer.png",
+          "content_type": "image/png",
+          "size": 13548
+        },
+        {
+          "relative_path": "intro_to_dynamic_programming.assets/climbing_stairs_dfs_tree.png",
+          "content_type": "image/png",
+          "size": 17501
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-dceb83ec46874d269325a73de745c9af",
+      "legacy_document_id": "doc-dceb83ec46874d269325a73de745c9af",
+      "filename": "kbbuild-hello-algo-zh-初探动态规划｜方法三：动态规划-85b094402fa32b2d.md",
+      "path": "documents/kbbuild-hello-algo-zh-初探动态规划｜方法三：动态规划-85b094402fa32b2d.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "dynamic-programming",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/intro_to_dynamic_programming/",
+      "source_title": "初探动态规划｜方法三：动态规划",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "intro_to_dynamic_programming.assets/climbing_stairs_dp.png",
+          "content_type": "image/png",
+          "size": 13660
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-9b47113bb85f4807a8abd4eb2765ac31",
+      "legacy_document_id": "doc-9b47113bb85f4807a8abd4eb2765ac31",
+      "filename": "kbbuild-hello-algo-zh-动态规划问题特性｜最优子结构-4386dd7ec943be41.md",
+      "path": "documents/kbbuild-hello-algo-zh-动态规划问题特性｜最优子结构-4386dd7ec943be41.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "dynamic-programming",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/dp_problem_features/",
+      "source_title": "动态规划问题特性｜最优子结构",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "dp_problem_features.assets/min_cost_cs_example.png",
+          "content_type": "image/png",
+          "size": 15395
+        },
+        {
+          "relative_path": "dp_problem_features.assets/min_cost_cs_dp.png",
+          "content_type": "image/png",
+          "size": 17379
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-5c408d60665f4e4fba36fc8900325c82",
+      "legacy_document_id": "doc-5c408d60665f4e4fba36fc8900325c82",
+      "filename": "kbbuild-hello-algo-zh-插入排序｜插入排序的优势-dd55664005083db1.md",
+      "path": "documents/kbbuild-hello-algo-zh-插入排序｜插入排序的优势-dd55664005083db1.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "elementary-sort",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_sorting/insertion_sort/",
+      "source_title": "插入排序｜插入排序的优势",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-a166e09ce45242da82a83a26918a1205",
+      "legacy_document_id": "doc-a166e09ce45242da82a83a26918a1205",
+      "filename": "kbbuild-hello-algo-zh-图｜图的常见类型与术语-da168b2b73dc8c94.md",
+      "path": "documents/kbbuild-hello-algo-zh-图｜图的常见类型与术语-da168b2b73dc8c94.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "graph",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_graph/graph/",
+      "source_title": "图｜图的常见类型与术语",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "graph.assets/directed_graph.png",
+          "content_type": "image/png",
+          "size": 10410
+        },
+        {
+          "relative_path": "graph.assets/connected_graph.png",
+          "content_type": "image/png",
+          "size": 10555
+        },
+        {
+          "relative_path": "graph.assets/weighted_graph.png",
+          "content_type": "image/png",
+          "size": 12426
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-de949b3a3d0f4c40a42ba1d0a3972a57",
+      "legacy_document_id": "doc-de949b3a3d0f4c40a42ba1d0a3972a57",
+      "filename": "kbbuild-hello-algo-zh-图｜图的表示-1137e3cf18f4ba8c.md",
+      "path": "documents/kbbuild-hello-algo-zh-图｜图的表示-1137e3cf18f4ba8c.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "graph",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_graph/graph/",
+      "source_title": "图｜图的表示",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "graph.assets/adjacency_matrix.png",
+          "content_type": "image/png",
+          "size": 16592
+        },
+        {
+          "relative_path": "graph.assets/adjacency_list.png",
+          "content_type": "image/png",
+          "size": 15814
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-add7d369feae4b2b918db338d2bdbfc3",
+      "legacy_document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+      "filename": "kbbuild-hello-algo-zh-图的基础操作｜基于邻接表的实现-44625aea7d155b4f.md",
+      "path": "documents/kbbuild-hello-algo-zh-图的基础操作｜基于邻接表的实现-44625aea7d155b4f.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "graph",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_graph/graph_operations/",
+      "source_title": "图的基础操作｜基于邻接表的实现",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "graph_operations.assets/adjacency_list_step1_initialization.png",
+          "content_type": "image/png",
+          "size": 17047
+        },
+        {
+          "relative_path": "graph_operations.assets/adjacency_list_step2_add_edge.png",
+          "content_type": "image/png",
+          "size": 18409
+        },
+        {
+          "relative_path": "graph_operations.assets/adjacency_list_step3_remove_edge.png",
+          "content_type": "image/png",
+          "size": 18026
+        },
+        {
+          "relative_path": "graph_operations.assets/adjacency_list_step4_add_vertex.png",
+          "content_type": "image/png",
+          "size": 18872
+        },
+        {
+          "relative_path": "graph_operations.assets/adjacency_list_step5_remove_vertex.png",
+          "content_type": "image/png",
+          "size": 16172
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-a532c874936f439791ff17e714806717",
+      "legacy_document_id": "doc-a532c874936f439791ff17e714806717",
+      "filename": "kbbuild-hello-algo-zh-图的遍历｜广度优先遍历-343e6134a55c42f9.md",
+      "path": "documents/kbbuild-hello-algo-zh-图的遍历｜广度优先遍历-343e6134a55c42f9.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "graph-traversal",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_graph/graph_traversal/",
+      "source_title": "图的遍历｜广度优先遍历",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs.png",
+          "content_type": "image/png",
+          "size": 20824
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step1.png",
+          "content_type": "image/png",
+          "size": 17354
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step2.png",
+          "content_type": "image/png",
+          "size": 25685
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step3.png",
+          "content_type": "image/png",
+          "size": 27597
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step4.png",
+          "content_type": "image/png",
+          "size": 28652
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step5.png",
+          "content_type": "image/png",
+          "size": 30132
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step6.png",
+          "content_type": "image/png",
+          "size": 30857
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step7.png",
+          "content_type": "image/png",
+          "size": 30730
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step8.png",
+          "content_type": "image/png",
+          "size": 31598
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step9.png",
+          "content_type": "image/png",
+          "size": 31869
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step10.png",
+          "content_type": "image/png",
+          "size": 34001
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_bfs_step11.png",
+          "content_type": "image/png",
+          "size": 24430
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "legacy_document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+      "filename": "kbbuild-hello-algo-zh-图的遍历｜深度优先遍历-3c6f05a6d32f76ce.md",
+      "path": "documents/kbbuild-hello-algo-zh-图的遍历｜深度优先遍历-3c6f05a6d32f76ce.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "graph-traversal",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_graph/graph_traversal/",
+      "source_title": "图的遍历｜深度优先遍历",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs.png",
+          "content_type": "image/png",
+          "size": 22719
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step1.png",
+          "content_type": "image/png",
+          "size": 13538
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step2.png",
+          "content_type": "image/png",
+          "size": 17387
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step3.png",
+          "content_type": "image/png",
+          "size": 18095
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step4.png",
+          "content_type": "image/png",
+          "size": 18886
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step5.png",
+          "content_type": "image/png",
+          "size": 19190
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step6.png",
+          "content_type": "image/png",
+          "size": 21507
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step7.png",
+          "content_type": "image/png",
+          "size": 20704
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step8.png",
+          "content_type": "image/png",
+          "size": 23380
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step9.png",
+          "content_type": "image/png",
+          "size": 27735
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step10.png",
+          "content_type": "image/png",
+          "size": 24959
+        },
+        {
+          "relative_path": "graph_traversal.assets/graph_dfs_step11.png",
+          "content_type": "image/png",
+          "size": 29261
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-2b2bd839eb4642a79f75798805cc33ff",
+      "legacy_document_id": "doc-2b2bd839eb4642a79f75798805cc33ff",
+      "filename": "kbbuild-supplement-搜索｜补充阅读：DFS（搜索） - OI Wiki-7ecc1f0c2b5dfa41.md",
+      "path": "documents/kbbuild-supplement-搜索｜补充阅读：DFS（搜索） - OI Wiki-7ecc1f0c2b5dfa41.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "graph-traversal",
+      "library_type": "course",
+      "source_url": "https://oi-wiki.org/search/dfs/",
+      "source_title": "DFS（搜索） - OI Wiki",
+      "source_site_name": "OI Wiki",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_revision": null,
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-e2473ef5c25647c5adab8f03eed805ae",
+      "legacy_document_id": "doc-e2473ef5c25647c5adab8f03eed805ae",
+      "filename": "kbbuild-hello-algo-zh-贪心算法｜贪心算法的优点与局限性-f5f1736c9f7fea03.md",
+      "path": "documents/kbbuild-hello-algo-zh-贪心算法｜贪心算法的优点与局限性-f5f1736c9f7fea03.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "greedy",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_greedy/greedy_algorithm/",
+      "source_title": "贪心算法｜贪心算法的优点与局限性",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "greedy_algorithm.assets/coin_change_greedy_vs_dp.png",
+          "content_type": "image/png",
+          "size": 17424
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-118f97e09a81437796725516b472e2f3",
+      "legacy_document_id": "doc-118f97e09a81437796725516b472e2f3",
+      "filename": "kbbuild-hello-algo-zh-贪心算法｜贪心算法特性-e02d006cefa1640d.md",
+      "path": "documents/kbbuild-hello-algo-zh-贪心算法｜贪心算法特性-e02d006cefa1640d.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "greedy",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_greedy/greedy_algorithm/",
+      "source_title": "贪心算法｜贪心算法特性",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-56f97574e6c24f6d8873e0eaac73016f",
+      "legacy_document_id": "doc-56f97574e6c24f6d8873e0eaac73016f",
+      "filename": "kbbuild-hello-algo-zh-贪心算法｜贪心算法解题步骤-b2b41694dd89e41f.md",
+      "path": "documents/kbbuild-hello-algo-zh-贪心算法｜贪心算法解题步骤-b2b41694dd89e41f.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "greedy",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_greedy/greedy_algorithm/",
+      "source_title": "贪心算法｜贪心算法解题步骤",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-0cc9dfa4968b4f639cfdf42e5109bb27",
+      "legacy_document_id": "doc-0cc9dfa4968b4f639cfdf42e5109bb27",
+      "filename": "kbbuild-hello-algo-zh-哈希表｜哈希表常用操作-8302bdcca5ca1f9e.md",
+      "path": "documents/kbbuild-hello-algo-zh-哈希表｜哈希表常用操作-8302bdcca5ca1f9e.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "hash",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_hashing/hash_map/",
+      "source_title": "哈希表｜哈希表常用操作",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-a33c7d4d254e4f4da833aae0a311a0b0",
+      "legacy_document_id": "doc-a33c7d4d254e4f4da833aae0a311a0b0",
+      "filename": "kbbuild-hello-algo-zh-哈希表｜哈希表简单实现-fa31492690b449a8.md",
+      "path": "documents/kbbuild-hello-algo-zh-哈希表｜哈希表简单实现-fa31492690b449a8.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "hash",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_hashing/hash_map/",
+      "source_title": "哈希表｜哈希表简单实现",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "hash_map.assets/hash_function.png",
+          "content_type": "image/png",
+          "size": 23883
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-f441bbb48f4b4ee1883f1ffb76e36462",
+      "legacy_document_id": "doc-f441bbb48f4b4ee1883f1ffb76e36462",
+      "filename": "kbbuild-hello-algo-zh-哈希表｜哈希冲突与扩容-303cf1be3441abed.md",
+      "path": "documents/kbbuild-hello-algo-zh-哈希表｜哈希冲突与扩容-303cf1be3441abed.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "hash",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_hashing/hash_map/",
+      "source_title": "哈希表｜哈希冲突与扩容",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "hash_map.assets/hash_collision.png",
+          "content_type": "image/png",
+          "size": 22911
+        },
+        {
+          "relative_path": "hash_map.assets/hash_table_reshash.png",
+          "content_type": "image/png",
+          "size": 20594
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-2222f8da853c4cc6aa350d4af3331be8",
+      "legacy_document_id": "doc-2222f8da853c4cc6aa350d4af3331be8",
+      "filename": "kbbuild-hello-algo-zh-堆｜堆的常用操作-797dd6ff7e3fd090.md",
+      "path": "documents/kbbuild-hello-algo-zh-堆｜堆的常用操作-797dd6ff7e3fd090.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "heap",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_heap/heap/",
+      "source_title": "堆｜堆的常用操作",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "legacy_document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+      "filename": "kbbuild-hello-algo-zh-堆｜堆的实现-9d2572338606a695.md",
+      "path": "documents/kbbuild-hello-algo-zh-堆｜堆的实现-9d2572338606a695.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "heap",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_heap/heap/",
+      "source_title": "堆｜堆的实现",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "heap.assets/representation_of_heap.png",
+          "content_type": "image/png",
+          "size": 28522
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step1.png",
+          "content_type": "image/png",
+          "size": 15059
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step2.png",
+          "content_type": "image/png",
+          "size": 15159
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step3.png",
+          "content_type": "image/png",
+          "size": 19580
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step4.png",
+          "content_type": "image/png",
+          "size": 22706
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step5.png",
+          "content_type": "image/png",
+          "size": 21196
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step6.png",
+          "content_type": "image/png",
+          "size": 24191
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step7.png",
+          "content_type": "image/png",
+          "size": 22704
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step8.png",
+          "content_type": "image/png",
+          "size": 22674
+        },
+        {
+          "relative_path": "heap.assets/heap_push_step9.png",
+          "content_type": "image/png",
+          "size": 19641
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step1.png",
+          "content_type": "image/png",
+          "size": 17554
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step2.png",
+          "content_type": "image/png",
+          "size": 16220
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step3.png",
+          "content_type": "image/png",
+          "size": 16639
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step4.png",
+          "content_type": "image/png",
+          "size": 21840
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step5.png",
+          "content_type": "image/png",
+          "size": 23954
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step6.png",
+          "content_type": "image/png",
+          "size": 23654
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step7.png",
+          "content_type": "image/png",
+          "size": 25528
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step8.png",
+          "content_type": "image/png",
+          "size": 27229
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step9.png",
+          "content_type": "image/png",
+          "size": 27946
+        },
+        {
+          "relative_path": "heap.assets/heap_pop_step10.png",
+          "content_type": "image/png",
+          "size": 20624
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-66875784478e43199c49b10d7a552890",
+      "legacy_document_id": "doc-66875784478e43199c49b10d7a552890",
+      "filename": "kbbuild-hello-algo-zh-堆排序｜算法流程-e55a60a8dbb14b70.md",
+      "path": "documents/kbbuild-hello-algo-zh-堆排序｜算法流程-e55a60a8dbb14b70.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "heap",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_sorting/heap_sort/",
+      "source_title": "堆排序｜算法流程",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step1.png",
+          "content_type": "image/png",
+          "size": 13857
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step2.png",
+          "content_type": "image/png",
+          "size": 17135
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step3.png",
+          "content_type": "image/png",
+          "size": 18120
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step4.png",
+          "content_type": "image/png",
+          "size": 16986
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step5.png",
+          "content_type": "image/png",
+          "size": 18164
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step6.png",
+          "content_type": "image/png",
+          "size": 16549
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step7.png",
+          "content_type": "image/png",
+          "size": 17316
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step8.png",
+          "content_type": "image/png",
+          "size": 14451
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step9.png",
+          "content_type": "image/png",
+          "size": 17072
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step10.png",
+          "content_type": "image/png",
+          "size": 13850
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step11.png",
+          "content_type": "image/png",
+          "size": 16075
+        },
+        {
+          "relative_path": "heap_sort.assets/heap_sort_step12.png",
+          "content_type": "image/png",
+          "size": 15936
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-c167627061f049c59957e458bfa981e2",
+      "legacy_document_id": "doc-c167627061f049c59957e458bfa981e2",
+      "filename": "kbbuild-hello-algo-zh-迭代与递归｜迭代-068172adb8381c1f.md",
+      "path": "documents/kbbuild-hello-algo-zh-迭代与递归｜迭代-068172adb8381c1f.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "iteration-recursion",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_computational_complexity/iteration_and_recursion/",
+      "source_title": "迭代与递归｜迭代",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "iteration_and_recursion.assets/iteration.png",
+          "content_type": "image/png",
+          "size": 6936
+        },
+        {
+          "relative_path": "iteration_and_recursion.assets/nested_iteration.png",
+          "content_type": "image/png",
+          "size": 8387
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-d4c610249d524f15ac2f2a9d307f16e6",
+      "legacy_document_id": "doc-d4c610249d524f15ac2f2a9d307f16e6",
+      "filename": "kbbuild-hello-algo-zh-迭代与递归｜递归-311b52b955cb5d39.md",
+      "path": "documents/kbbuild-hello-algo-zh-迭代与递归｜递归-311b52b955cb5d39.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "iteration-recursion",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_computational_complexity/iteration_and_recursion/",
+      "source_title": "迭代与递归｜递归",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "iteration_and_recursion.assets/recursion_sum.png",
+          "content_type": "image/png",
+          "size": 16273
+        },
+        {
+          "relative_path": "iteration_and_recursion.assets/recursion_sum_depth.png",
+          "content_type": "image/png",
+          "size": 19936
+        },
+        {
+          "relative_path": "iteration_and_recursion.assets/tail_recursion_sum.png",
+          "content_type": "image/png",
+          "size": 19507
+        },
+        {
+          "relative_path": "iteration_and_recursion.assets/recursion_tree.png",
+          "content_type": "image/png",
+          "size": 11010
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-88ce034f3a204bedaeb6f708f917d24a",
+      "legacy_document_id": "doc-88ce034f3a204bedaeb6f708f917d24a",
+      "filename": "kbbuild-hello-algo-zh-迭代与递归｜两者对比-2354db56ddef4e58.md",
+      "path": "documents/kbbuild-hello-algo-zh-迭代与递归｜两者对比-2354db56ddef4e58.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "iteration-recursion",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_computational_complexity/iteration_and_recursion/",
+      "source_title": "迭代与递归｜两者对比",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-d506707fbf974632a6e07fc4ba0722ab",
+      "legacy_document_id": "doc-d506707fbf974632a6e07fc4ba0722ab",
+      "filename": "kbbuild-hello-algo-zh-二分查找｜优点与局限性-c1b9edbddd04eefb.md",
+      "path": "documents/kbbuild-hello-algo-zh-二分查找｜优点与局限性-c1b9edbddd04eefb.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "linear-binary-search",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_searching/binary_search/",
+      "source_title": "二分查找｜优点与局限性",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-fb046ea0ed054b988258f506ea34421a",
+      "legacy_document_id": "doc-fb046ea0ed054b988258f506ea34421a",
+      "filename": "kbbuild-hello-algo-zh-二分查找插入点｜无重复元素的情况-96f849d8d8eaf20f.md",
+      "path": "documents/kbbuild-hello-algo-zh-二分查找插入点｜无重复元素的情况-96f849d8d8eaf20f.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "linear-binary-search",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_searching/binary_search_insertion/",
+      "source_title": "二分查找插入点｜无重复元素的情况",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_example.png",
+          "content_type": "image/png",
+          "size": 11011
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-bf296043bd9b4994a92421e6e9f84f47",
+      "legacy_document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+      "filename": "kbbuild-hello-algo-zh-二分查找插入点｜存在重复元素的情况-dc90cd7f49ddd4be.md",
+      "path": "documents/kbbuild-hello-algo-zh-二分查找插入点｜存在重复元素的情况-dc90cd7f49ddd4be.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "linear-binary-search",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_searching/binary_search_insertion/",
+      "source_title": "二分查找插入点｜存在重复元素的情况",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_naive.png",
+          "content_type": "image/png",
+          "size": 9298
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step1.png",
+          "content_type": "image/png",
+          "size": 11541
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step2.png",
+          "content_type": "image/png",
+          "size": 9662
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step3.png",
+          "content_type": "image/png",
+          "size": 13144
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step4.png",
+          "content_type": "image/png",
+          "size": 10252
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step5.png",
+          "content_type": "image/png",
+          "size": 13167
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step6.png",
+          "content_type": "image/png",
+          "size": 9413
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step7.png",
+          "content_type": "image/png",
+          "size": 12880
+        },
+        {
+          "relative_path": "binary_search_insertion.assets/binary_search_insertion_step8.png",
+          "content_type": "image/png",
+          "size": 10100
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-90fbb6a25a564bd297c87dab0ad4ae77",
+      "legacy_document_id": "doc-90fbb6a25a564bd297c87dab0ad4ae77",
+      "filename": "kbbuild-hello-algo-zh-栈｜栈的常用操作-e2d3133c0d29df2f.md",
+      "path": "documents/kbbuild-hello-algo-zh-栈｜栈的常用操作-e2d3133c0d29df2f.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "stack-queue",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/stack/",
+      "source_title": "栈｜栈的常用操作",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-31cc2d8fe8664107a5ee13281060790f",
+      "legacy_document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+      "filename": "kbbuild-hello-algo-zh-栈｜栈的实现-4bfa3a7762057014.md",
+      "path": "documents/kbbuild-hello-algo-zh-栈｜栈的实现-4bfa3a7762057014.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "stack-queue",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/stack/",
+      "source_title": "栈｜栈的实现",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "stack.assets/linkedlist_stack_step1.png",
+          "content_type": "image/png",
+          "size": 12459
+        },
+        {
+          "relative_path": "stack.assets/linkedlist_stack_step2_push.png",
+          "content_type": "image/png",
+          "size": 15728
+        },
+        {
+          "relative_path": "stack.assets/linkedlist_stack_step3_pop.png",
+          "content_type": "image/png",
+          "size": 12162
+        },
+        {
+          "relative_path": "stack.assets/array_stack_step1.png",
+          "content_type": "image/png",
+          "size": 12706
+        },
+        {
+          "relative_path": "stack.assets/array_stack_step2_push.png",
+          "content_type": "image/png",
+          "size": 14172
+        },
+        {
+          "relative_path": "stack.assets/array_stack_step3_pop.png",
+          "content_type": "image/png",
+          "size": 12223
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-e82c4b6e4fa24501895aa52154b9f43d",
+      "legacy_document_id": "doc-e82c4b6e4fa24501895aa52154b9f43d",
+      "filename": "kbbuild-hello-algo-zh-栈｜两种实现对比-77b312ed5d106923.md",
+      "path": "documents/kbbuild-hello-algo-zh-栈｜两种实现对比-77b312ed5d106923.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "stack-queue",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/stack/",
+      "source_title": "栈｜两种实现对比",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-a74f94a23f6f4cf799c91da9ea5146ff",
+      "legacy_document_id": "doc-a74f94a23f6f4cf799c91da9ea5146ff",
+      "filename": "kbbuild-hello-algo-zh-二叉树｜二叉树基本操作-bef0bb53dfa2c74a.md",
+      "path": "documents/kbbuild-hello-algo-zh-二叉树｜二叉树基本操作-bef0bb53dfa2c74a.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "tree",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_tree/binary_tree/",
+      "source_title": "二叉树｜二叉树基本操作",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "binary_tree.assets/binary_tree_add_remove.png",
+          "content_type": "image/png",
+          "size": 16476
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-84ba6b7a21b94c07a867c57369d536b5",
+      "legacy_document_id": "doc-84ba6b7a21b94c07a867c57369d536b5",
+      "filename": "kbbuild-hello-algo-zh-二叉树｜二叉树的退化-059e12498b284c36.md",
+      "path": "documents/kbbuild-hello-algo-zh-二叉树｜二叉树的退化-059e12498b284c36.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "tree",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_tree/binary_tree/",
+      "source_title": "二叉树｜二叉树的退化",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "binary_tree.assets/binary_tree_best_worst_cases.png",
+          "content_type": "image/png",
+          "size": 14071
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "repaired-doc-936b9b8f542f4a578d8fb6da47604794",
+      "legacy_document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+      "filename": "kbbuild-hello-algo-zh-二叉树遍历｜前序、中序、后序遍历-1339dcb665fa1bc6.md",
+      "path": "documents/kbbuild-hello-algo-zh-二叉树遍历｜前序、中序、后序遍历-1339dcb665fa1bc6.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "tree",
+      "library_type": "course",
+      "source_url": "https://www.hello-algo.com/chapter_tree/binary_tree_traversal/",
+      "source_title": "二叉树遍历｜前序、中序、后序遍历",
+      "source_site_name": "krahets 与《Hello 算法》开源贡献者",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "source_revision": "69932aed1891a7b7f6a0de88cd116d3fe13e7032",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_open_textbook",
+      "linked_assets": [
+        {
+          "relative_path": "binary_tree_traversal.assets/binary_tree_dfs.png",
+          "content_type": "image/png",
+          "size": 45583
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step1.png",
+          "content_type": "image/png",
+          "size": 12908
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step2.png",
+          "content_type": "image/png",
+          "size": 14214
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step3.png",
+          "content_type": "image/png",
+          "size": 15048
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step4.png",
+          "content_type": "image/png",
+          "size": 16460
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step5.png",
+          "content_type": "image/png",
+          "size": 17875
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step6.png",
+          "content_type": "image/png",
+          "size": 19352
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step7.png",
+          "content_type": "image/png",
+          "size": 20505
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step8.png",
+          "content_type": "image/png",
+          "size": 20793
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step9.png",
+          "content_type": "image/png",
+          "size": 21167
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step10.png",
+          "content_type": "image/png",
+          "size": 22698
+        },
+        {
+          "relative_path": "binary_tree_traversal.assets/preorder_step11.png",
+          "content_type": "image/png",
+          "size": 23984
+        }
+      ],
+      "status": "staged"
+    }
+  ]
+}

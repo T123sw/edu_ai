@@ -99,6 +99,18 @@ class ReActAgent:
         ctx.trace["path"] = "agent"
         ctx.trace["_t_start"] = t_start
         ctx.trace["needs_planning"] = needs_planning
+        source_mode = str(getattr(capability, "source_mode", "") or "")
+        if source_mode not in {"course_auto", "selected_documents", "none"}:
+            if list(getattr(capability, "selected_doc_ids", []) or []):
+                source_mode = "selected_documents"
+            elif bool(getattr(capability, "allow_rag", False)):
+                source_mode = "course_auto"
+            else:
+                source_mode = "none"
+        ctx.trace["source_mode"] = source_mode
+        ctx.trace["selected_doc_ids"] = list(
+            getattr(capability, "selected_doc_ids", []) or []
+        )
 
         effective_planner_gateway = self.planner_gateway or self.agent_gateway
         rt = {

@@ -125,7 +125,14 @@ class KnowledgeBaseDirectGraphServiceV2:
             },
         }
 
-    def _normalize_node(self, value: Any, *, depth: int, max_depth: int):
+    def _normalize_node(
+        self,
+        value: Any,
+        *,
+        depth: int,
+        max_depth: int,
+        node_id: str = "root",
+    ):
         if not isinstance(value, dict) or not _clean(value.get("title")):
             raise ValueError("graph contains an invalid node")
         children = []
@@ -136,8 +143,16 @@ class KnowledgeBaseDirectGraphServiceV2:
                 if not title or title in seen:
                     continue
                 seen.add(title)
-                children.append(self._normalize_node(item, depth=depth + 1, max_depth=max_depth))
+                children.append(
+                    self._normalize_node(
+                        item,
+                        depth=depth + 1,
+                        max_depth=max_depth,
+                        node_id=f"{node_id}-{len(children) + 1}",
+                    )
+                )
         return {
+            "id": node_id,
             "title": _clean(value.get("title")),
             "summary": _clean(value.get("summary")) or None,
             "children": children,

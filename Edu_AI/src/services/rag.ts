@@ -78,6 +78,12 @@ export interface KnowledgeDocument {
   modality?: string;
   image_url?: string;
   source_icon_url?: string;
+  course_id?: string;
+  library_type?: 'course' | 'personal' | string;
+  scope_type?: string;
+  scope_id?: string;
+  knowledge_node_id?: string;
+  course_document_id?: string;
 }
 
 export interface DocumentSample {

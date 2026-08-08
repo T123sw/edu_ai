@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
+import json
 from collections.abc import Callable, Mapping
 from typing import Any
 
@@ -11,6 +13,64 @@ from app.services.durable_task_handlers import (
 )
 from app.services.job_store import EduJob, JobStatus, get_job, update_job
 from core.course_storage import CourseStorageManager
+
+
+def _plan_classroom_visuals(
+    command: Mapping[str, Any],
+    resolved_source: Any,
+    *,
+    owner: str,
+    pipeline=None,
+    llm=None,
+) -> dict[str, Any]:
+    if not bool(command.get("include_visuals", False)):
+        return {}
+    if pipeline is None:
+        from app.chat.application.knowledge_base_direct_report_service_v2 import (
+            _build_default_visual_pipeline,
+        )
+
+        pipeline = _build_default_visual_pipeline()
+    if llm is None:
+        from app.chat.agents.report_generation import get_fallback_llm
+
+        llm = get_fallback_llm()
+    topic = str(command.get("topic") or command.get("requirement") or "").strip()
+    try:
+        brief = pipeline.plan_with_model(
+            llm,
+            resource_type="classroom",
+            topic=topic,
+            source_context=str(resolved_source.context_text or ""),
+        )
+        result = pipeline.run(
+            brief,
+            course_id=str(command.get("course_id") or ""),
+            owner=owner or None,
+            selected_document_ids=[
+                str(item.document_id)
+                for item in list(resolved_source.documents or [])
+            ],
+        )
+        return dict(result.to_snapshot())
+    except Exception as exc:
+        return {"selected": [], "error": str(exc)}
+
+
+def _classroom_requirement(command: Mapping[str, Any]) -> str:
+    requirement = str(command.get("requirement") or "").strip()
+    settings = {
+        "audience": str(command.get("audience") or "").strip(),
+        "objectives": list(command.get("objectives") or []),
+        "scene_count": int(command.get("scene_count") or 6),
+        "duration_minutes": int(command.get("duration_minutes") or 25),
+        "teaching_style": str(command.get("teaching_style") or "guided"),
+    }
+    return (
+        requirement
+        + "\n\n【课堂生成配置，必须实际执行】\n"
+        + json.dumps(settings, ensure_ascii=False)
+    ).strip()
 
 
 def enqueue_platform_task(
@@ -97,7 +157,7 @@ class PlatformTaskHandlers:
 
         manager = self.course_storage_factory()
         course_id = str(command.get("course_id") or context.course_id or "")
-        requirement = str(command.get("requirement") or "").strip()
+        requirement = _classroom_requirement(command)
         client = get_openmaic_client(owner_user_id=context.owner_user_id)
         job = self._require_job(context.task_id)
         selected_doc_ids = list(command.get("selected_doc_ids") or [])
@@ -105,10 +165,23 @@ class PlatformTaskHandlers:
             command.get("source_mode")
             or ("selected_documents" if selected_doc_ids else "course_auto")
         )
-        resolved_source = self.generation_source_resolver_factory(manager).resolve(
+        source_resolver = self.generation_source_resolver_factory(manager)
+        resolve_signature = inspect.signature(source_resolver.resolve)
+        resolve_kwargs = (
+            {"query_text": requirement}
+            if "query_text" in resolve_signature.parameters
+            else {}
+        )
+        resolved_source = source_resolver.resolve(
             course_id,
             source_mode,
             selected_doc_ids,
+            **resolve_kwargs,
+        )
+        visual_snapshot = _plan_classroom_visuals(
+            command,
+            resolved_source,
+            owner=context.owner_user_id,
         )
 
         async def run() -> None:
@@ -121,6 +194,21 @@ class PlatformTaskHandlers:
                 rag_system=None,
                 resolved_source=resolved_source,
             )
+            selected_visuals = list(visual_snapshot.get("selected") or [])
+            if selected_visuals:
+                visual_context = (
+                    "【已锁定课堂配图】\n"
+                    + json.dumps(selected_visuals, ensure_ascii=False)
+                    + "\n请围绕这些真实图片组织相应课堂场景，不得伪造其他图片 URL。"
+                )
+                research_context = "\n\n".join(
+                    item
+                    for item in (research_context, visual_context)
+                    if item
+                )
+            source_snapshot = resolved_source.to_snapshot()
+            if visual_snapshot:
+                source_snapshot["visuals"] = visual_snapshot
             callback = _make_on_sidecar_succeeded(
                 active_client=client,
                 course_storage_manager=manager,
@@ -128,7 +216,7 @@ class PlatformTaskHandlers:
                 owner=context.owner_user_id,
                 scope_type=str(command.get("scope_type") or "course"),
                 scope_id=command.get("scope_id"),
-                source_snapshot=resolved_source.to_snapshot(),
+                source_snapshot=source_snapshot,
                 source_job_id=context.task_id,
             )
             await run_generate_classroom_job(
@@ -203,6 +291,30 @@ class PlatformTaskHandlers:
         )
         return self._completed_public_result(context.task_id)
 
+    def course_knowledge_build(
+        self,
+        command: Mapping[str, Any],
+        context: DurableExecutionContext,
+    ) -> dict[str, Any]:
+        from app.services.course_knowledge_builder import (
+            run_course_knowledge_build_job,
+        )
+        from modules.rag_v2.api import get_rag_system
+
+        manager = self.course_storage_factory()
+        run_course_knowledge_build_job(
+            job_id=context.task_id,
+            manager=manager,
+            rag_system=get_rag_system(),
+            course_id=str(command.get("course_id") or context.course_id or ""),
+            owner_user_id=context.owner_user_id,
+            source_id=str(command.get("source_id") or "auto"),
+            max_pages=int(command.get("max_pages") or 48),
+            clean_placeholders=bool(command.get("clean_placeholders", True)),
+            progress=context.progress,
+        )
+        return self._completed_public_result(context.task_id)
+
     def video_ingest(
         self,
         command: Mapping[str, Any],
@@ -249,5 +361,6 @@ def register_platform_task_handlers(
         active.classroom_video_export,
     )
     registry.register("rag_document_index", 1, active.rag_document_index)
+    registry.register("course_knowledge_build", 1, active.course_knowledge_build)
     registry.register("video_ingest", 1, active.video_ingest)
     return active

@@ -12,7 +12,10 @@ class DummyStorage:
     def ensure_conversation(self, conversation_id, question=None, owner=None):
         return None
 
-    def append_message(self, conversation_id, role, content, sources=None, message_kind=None):
+    def append_message(
+        self, conversation_id, role, content, sources=None,
+        message_kind=None, **_metadata,
+    ):
         self.messages.append(
             {
                 "conversation_id": conversation_id,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+import time
 
 from app.chat.domain.extraction_trigger import ExtractionTrigger
 from app.chat.orchestrator.conversation_memory_extractor_v2 import ConversationMemoryExtractor
@@ -165,6 +166,21 @@ class ConversationStoreAdapter:
 
         def _run_enhancement():
             try:
+                # The rule-based patch is persisted by the caller immediately
+                # after this method returns. Wait for that baseline before
+                # writing the asynchronous LLM delta; otherwise a fast
+                # enhancer can be overwritten by the caller's later state
+                # update and silently disappear.
+                deadline = time.monotonic() + 2.0
+                while time.monotonic() < deadline:
+                    current_state = self.storage.get_state(conversation_id)
+                    baseline_ready = all(
+                        not value or current_state.get(key) == value
+                        for key, value in rule_patch.items()
+                    )
+                    if baseline_ready:
+                        break
+                    time.sleep(0.005)
                 merged_patch, _ = self.enhancement_router.apply_with_observation(
                     trigger=trigger,
                     existing_state=existing_state,

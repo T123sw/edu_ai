@@ -516,7 +516,7 @@ def extractor_node(
         _trace("extractor", [f"context_prefill_keys={list(prefilled_slots.keys())}"])
 
     # P1-B: Skip LLM if all required slots are already filled from gathered context
-    if all(
+    if extractor_llm is None and all(
         bool(str(prefilled_slots.get(s) or "").strip()) and not _is_low_signal_slot_value(str(prefilled_slots.get(s) or ""))
         for s in REQUIRED_SLOTS
     ):

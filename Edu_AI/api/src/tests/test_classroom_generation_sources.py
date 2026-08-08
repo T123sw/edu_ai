@@ -247,7 +247,7 @@ def test_classroom_manifest_persists_source_snapshot(tmp_path):
     )
 
     material = manager.get_generated_material(
-        "course-1", "classroom", "stage-1", owner_user_id="teacher-b"
+        "course-1", "classroom", "stage-1", owner_user_id="teacher-a"
     )
     assert material["source_snapshot"] == source_snapshot
     assert material["source_job_id"] == "job-classroom-1"

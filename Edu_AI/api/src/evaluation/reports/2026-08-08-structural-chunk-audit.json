@@ -1,0 +1,27 @@
+{
+  "document_count": 246,
+  "audited_document_count": 244,
+  "skipped_documents": [
+    "D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents\\www.imooc.com｜智能体基础入门与实践指南",
+    "D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents\\www.idcbest.hk｜全球云基础设施服务目录"
+  ],
+  "errors": [],
+  "chunk_count": 2699,
+  "token_min": 34,
+  "token_max": 800,
+  "token_average": 192.81,
+  "unexplained_tiny_chunks": 0,
+  "broken_code_fences": 0,
+  "broken_display_math": 0,
+  "empty_chunks": 0,
+  "unstable_chunk_ids": 0,
+  "chunk_kinds": {
+    "callout": 441,
+    "code": 666,
+    "formula": 45,
+    "image": 175,
+    "list": 37,
+    "table": 20,
+    "text": 1315
+  }
+}

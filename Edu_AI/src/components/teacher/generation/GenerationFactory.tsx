@@ -6,7 +6,8 @@ import type { KnowledgeBaseDocument } from "../../../stitch/api/types";
 import { MaterialIcon } from "../../../stitch/shared";
 import { buildTeacherCourseHash } from "../../../stitch/teacherRoutes";
 import { useCourseJobs } from "../../../jobs/jobStore";
-import { GenerationSourceSelector, type GenerationSourceSelection } from "./GenerationSourceSelector";
+import { useStore } from "../../../store/teacher/useStore";
+import { GenerationSourceSelector, initialGenerationSource, type GenerationSourceSelection } from "./GenerationSourceSelector";
 import { presentGenerationJob } from "./generationJobPresentation";
 import { generationRegistry, getGenerationResource, type GenerationResourceType } from "./generationRegistry";
 import { useGenerationSubmission, type GenerationDraft } from "./useGenerationSubmission";
@@ -64,7 +65,8 @@ function statusLabel(status: string) {
 
 export function GenerationFactory({ courseId }: { courseId?: string }) {
   const [resourceType, setResourceType] = useState<GenerationResourceType | null>(null);
-  const [source, setSource] = useState<GenerationSourceSelection>({ mode: "course_auto", selectedDocumentIds: [] });
+  const [source, setSource] = useState<GenerationSourceSelection>(() => initialGenerationSource([]));
+  const selectedDocs = useStore((state) => state.selectedDocs);
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [configs, setConfigs] = useState<Partial<Record<GenerationResourceType, Record<string, unknown>>>>({});
   const [showErrors, setShowErrors] = useState(false);
@@ -90,6 +92,7 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
   const errors = resourceType ? validateGenerationConfig(resourceType, config) : {};
 
   function open(type: GenerationResourceType) {
+    setSource(initialGenerationSource(selectedDocs));
     setResourceType(type);
     setShowErrors(false);
     setConfigs((current) => current[type] ? current : { ...current, [type]: defaultGenerationConfig(type) });
@@ -170,7 +173,7 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
             <div className="generation-factory__modal-body">
               <ConfigForm type={resourceType} config={config} errors={showErrors ? errors : {}} onChange={(next) => setConfigs((current) => ({ ...current, [resourceType]: next }))} />
               <details className="generation-factory__source-details">
-                <summary>资料范围（默认使用课程资料）</summary>
+                <summary>{source.mode === "selected_documents" ? `资料范围（已选 ${source.selectedDocumentIds.length} 份文档）` : source.mode === "course_auto" ? "资料范围（检索课程全部资料）" : "资料范围（不使用知识库）"}</summary>
                 <GenerationSourceSelector documents={documents} value={source} onChange={setSource} />
               </details>
               {submission.error && <p className="generation-factory__error" role="alert">{submission.error}</p>}

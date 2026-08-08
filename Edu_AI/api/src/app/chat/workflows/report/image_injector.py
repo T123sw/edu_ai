@@ -28,6 +28,16 @@ def _asset_alt(asset: Any) -> str:
     return alt or "图片"
 
 
+def _asset_source_page(asset: Any) -> str:
+    if isinstance(asset, dict):
+        return str(asset.get("source_page") or "").strip()
+    return str(
+        getattr(asset, "source_page", "")
+        or getattr(asset, "source_url", "")
+        or ""
+    ).strip()
+
+
 def inject_images_into_report(
     report_markdown: str,
     image_assets: list,
@@ -77,7 +87,13 @@ def inject_images_into_report(
         asset = assets[i]
         alt = _asset_alt(asset)
         url = _asset_url(asset)
-        img_block = f"\n![{alt}]({url})\n\n"
+        source_page = _asset_source_page(asset)
+        attribution = (
+            f"\n> {alt} · [图片来源]({source_page})\n"
+            if source_page.startswith(("http://", "https://"))
+            else ""
+        )
+        img_block = f"\n![{alt}]({url})\n{attribution}\n"
 
         result = result[:insert_at] + img_block + result[insert_at:]
         offset += len(img_block)

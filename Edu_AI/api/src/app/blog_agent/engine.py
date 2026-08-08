@@ -94,8 +94,91 @@ def _match_knowledge_graph_subtrees(
     return [p[1] for p in picked], [p[2] for p in picked]
 
 
-def _planner_chapters_prompt(topic: str, course_id: str, kg_subtrees: List[Dict[str, Any]]) -> str:
+def _generation_config_text(generation_config: Dict[str, Any] | None) -> str:
+    config = dict(generation_config or {})
+    effective = {
+        key: config.get(key)
+        for key in (
+            "audience",
+            "tone",
+            "length",
+            "structure",
+            "special_requirements",
+            "source_mode",
+        )
+        if config.get(key) not in (None, "")
+    }
+    source_context = str(config.get("source_context") or "").strip()
+    parts = ["【写作配置】", json.dumps(effective, ensure_ascii=False)]
+    if source_context:
+        parts.extend(
+            [
+                "【已检索课程资料】",
+                source_context,
+                "必须以以上资料为事实依据，不得编造资料中不存在的课程事实。",
+            ]
+        )
+    visual_plan = config.get("visual_plan")
+    selected_visuals = (
+        list(visual_plan.get("selected") or [])
+        if isinstance(visual_plan, dict)
+        else []
+    )
+    if selected_visuals:
+        slots = [
+            f"{{{{VISUAL:{str(item.get('slot_id') or '').strip()}}}}}"
+            for item in selected_visuals
+            if isinstance(item, dict) and str(item.get("slot_id") or "").strip()
+        ]
+        parts.extend(
+            [
+                "【已锁定配图】",
+                json.dumps(selected_visuals, ensure_ascii=False),
+                "请围绕图片组织相应段落，并只在合适位置原样输出以下图片槽位："
+                + "、".join(slots),
+                "不得创建其他图片槽位或图片 URL。",
+            ]
+        )
+    return "\n".join(parts)
+
+
+def _assemble_selected_visuals(
+    markdown: str,
+    generation_config: Dict[str, Any] | None,
+) -> str:
+    from app.services.visual_assets.models import SelectedVisual
+    from app.services.visual_assets.pipeline import VisualAssetPipeline
+
+    visual_plan = dict((generation_config or {}).get("visual_plan") or {})
+    selected: list[SelectedVisual] = []
+    for item in list(visual_plan.get("selected") or []):
+        if not isinstance(item, dict):
+            continue
+        try:
+            selected.append(
+                SelectedVisual(
+                    slot_id=str(item.get("slot_id") or ""),
+                    local_url=str(item.get("local_url") or ""),
+                    title=str(item.get("title") or ""),
+                    caption=str(item.get("caption") or ""),
+                    source_page=str(item.get("source_page") or ""),
+                    source_type=str(item.get("source_type") or "web"),
+                    score=float(item.get("score") or 0),
+                )
+            )
+        except (TypeError, ValueError):
+            continue
+    return VisualAssetPipeline.assemble(markdown, selected)
+
+
+def _planner_chapters_prompt(
+    topic: str,
+    course_id: str,
+    kg_subtrees: List[Dict[str, Any]],
+    generation_config: Dict[str, Any] | None = None,
+) -> str:
     kg_text = json.dumps(kg_subtrees, ensure_ascii=False) if kg_subtrees else "[]"
+    config_text = _generation_config_text(generation_config)
 
     return f"""
 你是一名经验丰富的教学助教，需要为教师生成一篇教学博客的一级目录（章节）写作大纲。
@@ -105,6 +188,8 @@ def _planner_chapters_prompt(topic: str, course_id: str, kg_subtrees: List[Dict[
 
 【博客主题】
 {topic}
+
+{config_text}
 
 【课程知识图谱（与主题相关的子树，作为结构化约束）】
 {kg_text}
@@ -130,7 +215,13 @@ def _planner_chapters_prompt(topic: str, course_id: str, kg_subtrees: List[Dict[
 """.strip()
 
 
-def _executor_prompt(topic: str, section_title: str, point: Dict[str, Any], prev_summary: str = "") -> str:
+def _executor_prompt(
+    topic: str,
+    section_title: str,
+    point: Dict[str, Any],
+    prev_summary: str = "",
+    generation_config: Dict[str, Any] | None = None,
+) -> str:
     pt_title = str(point.get("title") or "")
     key_concepts = point.get("key_concepts")
     if not isinstance(key_concepts, list):
@@ -140,12 +231,15 @@ def _executor_prompt(topic: str, section_title: str, point: Dict[str, Any], prev
     wc = point.get("estimated_word_count")
 
     prev_text = f"\n\n【上一小节摘要】\n{prev_summary}\n" if prev_summary else ""
+    config_text = _generation_config_text(generation_config)
 
     return f"""
 你是一名专业的课程助教，请围绕给定主题与小标题要求，撰写教学博客的一个小节内容。
 
 【博客主题】
 {topic}
+
+{config_text}
 
 【所属章节（大标题）】
 {section_title}
@@ -268,7 +362,9 @@ def run_blog_task(thread_id: str) -> None:
         st.status = "planning"
         save_task_state(st)
 
-        prompt = _planner_chapters_prompt(st.topic, st.course_id, subtrees)
+        prompt = _planner_chapters_prompt(
+            st.topic, st.course_id, subtrees, st.generation_config
+        )
 
         last_exc: Exception | None = None
         data: Dict[str, Any] | None = None
@@ -521,7 +617,9 @@ def run_blog_task(thread_id: str) -> None:
         st.status = "planning"
         save_task_state(st)
 
-        prompt = _planner_chapters_prompt(st.topic, st.course_id, subtrees)
+        prompt = _planner_chapters_prompt(
+            st.topic, st.course_id, subtrees, st.generation_config
+        )
 
         last_exc: Exception | None = None
         data: Dict[str, Any] | None = None
@@ -607,7 +705,13 @@ def run_blog_task(thread_id: str) -> None:
             if not isinstance(pt, dict):
                 continue
             pt_title = str(pt.get("title") or "").strip() or "知识点"
-            pt_prompt = _executor_prompt(st.topic, sec_title, pt, prev_summary=prev_summary)
+            pt_prompt = _executor_prompt(
+                st.topic,
+                sec_title,
+                pt,
+                prev_summary=prev_summary,
+                generation_config=st.generation_config,
+            )
 
             pt_last_exc: Exception | None = None
             pt_text = ""
@@ -661,7 +765,10 @@ def run_blog_task(thread_id: str) -> None:
         if not isinstance(drafts, dict):
             drafts = {}
 
-        st.final_markdown = _assemble_markdown(outline, drafts)
+        st.final_markdown = _assemble_selected_visuals(
+            _assemble_markdown(outline, drafts),
+            st.generation_config,
+        )
         st.status = "completed"
         st.progress.current_section_idx = len(outline)
         st.progress.total_sections = len(outline)
@@ -680,6 +787,9 @@ def run_blog_task(thread_id: str) -> None:
                 "created_at": datetime.now().isoformat(),
                 "outline": outline,
                 "markdown": st.final_markdown,
+                "generation_state": {
+                    "visuals": dict(st.generation_config.get("visual_plan") or {})
+                },
             }
             storage_manager.save_generated_material(
                 course_id=st.course_id,

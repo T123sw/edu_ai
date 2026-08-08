@@ -4,6 +4,7 @@ import type {
   CourseMaterial,
   CourseMaterialSpace,
   KnowledgeBaseDocument,
+  KnowledgeBaseDocumentContent,
   KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
   KnowledgeGraphTextbookImportResponse,
@@ -151,6 +152,23 @@ export function uploadKnowledgeBaseDocument(courseId: string, file: File, option
   });
 }
 
+export function getKnowledgeBaseDocumentContent(courseId: string, documentId: string) {
+  return apiRequest<KnowledgeBaseDocumentContent>(
+    `/api/courses/${courseId}/knowledge-base/documents/${documentId}/content`,
+  );
+}
+
+export function buildKnowledgeBaseFromOpenTextbook(courseId: string) {
+  return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-base/build-from-open-textbook`, {
+    method: "POST",
+    body: JSON.stringify({
+      source_id: "auto",
+      max_pages: 160,
+      clean_placeholders: true,
+    }),
+  });
+}
+
 export function deleteCourseMaterial(
   courseId: string,
   materialType: string,
@@ -188,6 +206,21 @@ export function renameCourseMaterial(
     {
       method: "PATCH",
       body: JSON.stringify({ title }),
+    },
+  );
+}
+
+export function updateCourseMaterialContent(
+  courseId: string,
+  materialType: string,
+  materialId: string,
+  content: unknown,
+) {
+  return apiRequest<CourseMaterial>(
+    `/api/courses/${courseId}/materials/${materialType}/${materialId}/content`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ content }),
     },
   );
 }

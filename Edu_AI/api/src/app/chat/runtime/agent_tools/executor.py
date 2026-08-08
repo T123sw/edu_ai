@@ -26,16 +26,18 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
             result = error_result(name, str(exc), f"工具执行失败: {exc}")
     elapsed_ms = round((time.perf_counter() - t0) * 1000)
 
-    ctx.trace["agent_steps"].append(
-        {
-            "step": ctx.step_count,
-            "tool": name,
-            "args": summarize_args(args),
-            "result_summary": result.get("summary", ""),
-            "ok": result.get("ok", False),
-            "duration_ms": elapsed_ms,
-        }
-    )
+    trace_step = {
+        "step": ctx.step_count,
+        "tool": name,
+        "args": summarize_args(args),
+        "result_summary": result.get("summary", ""),
+        "ok": result.get("ok", False),
+        "duration_ms": elapsed_ms,
+    }
+    if name in {"rag_search", "web_search"}:
+        payload = result.get("payload") or {}
+        trace_step["evidence_count"] = len(payload.get("sources") or [])
+    ctx.trace["agent_steps"].append(trace_step)
     ctx.step_count += 1
     if name not in NEVER_CACHE:
         ctx.cache_result(name, args, result)

@@ -5,11 +5,10 @@ async function enterConfig(page: Page, resourceName: string) {
   await page.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
   await page.evaluate(() => window.localStorage.removeItem("edu-ai:generation-draft:course-physics"));
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "打开生成工厂面板" }).click();
+  await page.getByRole("button", { name: "生成工厂", exact: true }).click();
   await page.getByRole("button", { name: resourceName, exact: false }).click();
-  await page.getByRole("button", { name: "下一步" }).click();
+  await page.getByText(/资料范围（/).click();
   await page.getByRole("radio", { name: "不使用资料", exact: false }).check();
-  await page.getByRole("button", { name: "下一步" }).click();
 }
 
 test("visual resources use structured, shared, non-overflowing forms", async ({ teacherPage }) => {
@@ -25,21 +24,20 @@ test("visual resources use structured, shared, non-overflowing forms", async ({ 
   const firstSlide = teacherPage.getByRole("region", { name: "第 1 页大纲" });
   await firstSlide.getByLabel("页面标题 *").fill("生活中的电磁感应");
   await expect(teacherPage.getByLabel("PPT 大纲")).toHaveCount(0);
-  await teacherPage.getByRole("button", { name: "下一步" }).click();
   await teacherPage.getByRole("button", { name: "开始后台生成" }).click();
 
   await enterConfig(teacherPage, "思维导图");
   await teacherPage.getByLabel("思维导图主题 *").fill("电磁学");
-  await teacherPage.getByLabel("关系说明").fill("突出概念关系");
-  await teacherPage.getByLabel("层级深度 *").fill("4");
-  await teacherPage.getByRole("button", { name: "下一步" }).click();
+  await teacherPage.getByLabel("层级深度").fill("4");
+  await teacherPage.getByText("更多设置").click();
+  await teacherPage.getByLabel("关系侧重点").fill("突出概念关系");
   await teacherPage.getByRole("button", { name: "开始后台生成" }).click();
 
   await enterConfig(teacherPage, "AI 课堂");
-  await teacherPage.getByLabel("课堂主题 *").fill("波的干涉");
-  await teacherPage.getByLabel("场景数量 *").fill("8");
-  await teacherPage.getByLabel("配音音色").selectOption("nova");
-  await teacherPage.getByRole("button", { name: "下一步" }).click();
+  await teacherPage.getByLabel("研究主题 *").fill("波的干涉");
+  await teacherPage.getByText("更多设置").click();
+  await teacherPage.getByLabel("场景数量").fill("8");
+  await teacherPage.getByLabel("声音").selectOption("nova");
   const submit = teacherPage.getByRole("button", { name: "开始后台生成" });
   await expect(submit).toBeInViewport();
   await submit.click();
@@ -56,6 +54,7 @@ test("visual resources use structured, shared, non-overflowing forms", async ({ 
   expect(classroom.body.scene_count).toBe(8);
 
   await teacherPage.goto("/#classroom-studio?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await teacherPage.getByRole("button", { name: "创建 AI 课堂" }).click();
   await expect(teacherPage.locator('[data-resource-form="classroom"]')).toBeVisible();
-  await expect(teacherPage.getByLabel("课堂主题 *")).toBeVisible();
+  await expect(teacherPage.getByLabel("研究主题 *")).toBeVisible();
 });

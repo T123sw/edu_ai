@@ -58,6 +58,39 @@ def executor_node(state: AgentState) -> dict:
         }
         return {"messages": state["messages"] + [assistant_msg]}
 
+    retrieval_failure = _required_retrieval_failure(state, ctx)
+    if retrieval_failure:
+        message = retrieval_failure["message"]
+        ctx.trace["retrieval_gate"] = {
+            "status": "blocked",
+            "tool": retrieval_failure["tool"],
+            "reason": retrieval_failure["reason"],
+        }
+        writer({"type": "delta", "payload": {"content": message}})
+        writer({
+            "type": "result",
+            "payload": {
+                "message": {"role": "assistant", "content": message},
+                "conversation": {
+                    "conversation_id": rt.get("conv_id")
+                    or (getattr(rt["request"], "conversation_id", "") or "")
+                },
+                "action": {"name": "agent.retrieval_incomplete"},
+                "artifacts": [],
+                "workflow": None,
+                "sources": list(state.get("retrieval_sources") or []),
+                "trace": ctx.trace,
+                "tool_exchange": state["tool_exchange"],
+            },
+        })
+        return {
+            "messages": state["messages"]
+            + [{"role": "assistant", "content": message}],
+            "reflect_verdict": "",
+            "reflect_hint": "",
+            "reflect_filtered": {},
+        }
+
     if (time.perf_counter() - t_start) > timeout_seconds:
         writer({"type": "__internal_fallback__", "reason": "react_timeout"})
         return {"fallback_reason": "react_timeout"}
@@ -203,11 +236,13 @@ def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecu
             return []
         current_step = steps[step_index]
         expected_tools = set(current_step.get("expected_tools") or [])
+        current_action = str(current_step.get("internal_action") or "")
+        is_content_step = current_action in {"answer_question", "generate_resource"}
         required_tools = [
             tool_name
             for tool_name in ("rag_search", "web_search")
             if enabled_tools[tool_name]
-            and tool_name in expected_tools
+            and (is_content_step or tool_name in expected_tools)
             and tool_name not in already_executed
         ]
         query = str(current_plan.get("subject") or "").strip()
@@ -235,6 +270,46 @@ def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecu
             "args": args,
         })
     return calls
+
+
+def _required_retrieval_failure(state: AgentState, ctx: ToolExecutionContext) -> dict | None:
+    """Block final answers when a user-required retrieval produced no evidence."""
+    required = [
+        tool_name
+        for tool_name, enabled in (
+            ("rag_search", bool(getattr(ctx.capability, "allow_rag", False))),
+            ("web_search", bool(getattr(ctx.capability, "allow_web", False))),
+        )
+        if enabled
+    ]
+    if not required:
+        return None
+
+    trace_steps = [
+        step
+        for step in (ctx.trace.get("agent_steps") or [])
+        if isinstance(step, dict)
+    ]
+    labels = {"rag_search": "知识库", "web_search": "网页"}
+    for tool_name in required:
+        matching = [step for step in trace_steps if step.get("tool") == tool_name]
+        if not matching:
+            continue
+        latest = matching[-1]
+        label = labels[tool_name]
+        if not latest.get("ok"):
+            return {
+                "tool": tool_name,
+                "reason": "tool_failed",
+                "message": f"{label}检索未完成，暂时不能依据该来源回答。请稍后重试。",
+            }
+        if int(latest.get("evidence_count") or 0) < 1:
+            return {
+                "tool": tool_name,
+                "reason": "no_evidence",
+                "message": f"未找到可用于回答的{label}证据。请调整问题或资料范围后重试。",
+            }
+    return None
 
 
 def _maybe_outline_to_append(answer: str, state: dict) -> str:

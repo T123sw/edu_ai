@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.auth import get_current_user
+from app.api.course_dependencies import get_course_access_service
 from app.chat.api import routes_v2 as routes_v2_module
 from app.chat.api.routes_v2 import router as v2_router
 from core.config import Config
@@ -511,8 +512,19 @@ def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+    app.dependency_overrides[get_course_access_service] = lambda: SimpleNamespace(
+        require=lambda course_id, user, capability: SimpleNamespace(
+            course_id=course_id,
+            user_id=user["username"],
+            course_role="editor",
+        )
+    )
 
     captured = {}
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2._get_generation_source_resolver",
+        lambda: SimpleNamespace(validate=lambda *_args, **_kwargs: ()),
+    )
 
     class DummyCommandService:
         def submit(self, command):
@@ -555,8 +567,19 @@ def test_game_direct_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
     app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+    app.dependency_overrides[get_course_access_service] = lambda: SimpleNamespace(
+        require=lambda course_id, user, capability: SimpleNamespace(
+            course_id=course_id,
+            user_id=user["username"],
+            course_role="editor",
+        )
+    )
 
     captured = {}
+    monkeypatch.setattr(
+        "app.chat.api.routes_v2._get_generation_source_resolver",
+        lambda: SimpleNamespace(validate=lambda *_args, **_kwargs: ()),
+    )
 
     class DummyCommandService:
         def submit(self, command):

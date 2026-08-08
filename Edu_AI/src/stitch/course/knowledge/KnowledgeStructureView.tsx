@@ -5,6 +5,7 @@ import type { KnowledgeBaseDocument, KnowledgeGraphNode } from "../../api/types"
 import { useCourseRoute } from "../CourseRouteProvider";
 import { buildTeacherCourseHash } from "../../teacherRoutes";
 import { MaterialIcon } from "../../shared";
+import { KnowledgeDocumentPreviewDialog } from "./KnowledgeDocumentPreviewDialog";
 import {
   defaultExpandedNodeIds,
   descendantNodeIds,
@@ -71,6 +72,7 @@ export function KnowledgeStructureView() {
   const [loading, setLoading] = useState(true);
   const [documentLoading, setDocumentLoading] = useState(false);
   const [error, setError] = useState("");
+  const [previewDocument, setPreviewDocument] = useState<KnowledgeBaseDocument | null>(null);
 
   useEffect(() => {
     if (!courseId) return;
@@ -166,10 +168,10 @@ export function KnowledgeStructureView() {
           ) : documents.map((document) => {
               const state = documentState(document);
               return (
-                <article key={document.id} className="knowledge-node-document">
+                <article key={document.id} className="knowledge-node-document" role="button" tabIndex={0} onClick={() => setPreviewDocument(document)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setPreviewDocument(document); }}>
                   <MaterialIcon name={document.type === "web" ? "language" : "description"} />
                   <div>
-                    <strong>{document.name}</strong>
+                    <strong>{document.display_name || document.source_title || document.name}</strong>
                     <small>{document.scope_id === activeNode?.id || isRoot ? "当前范围" : "来自子节点"}</small>
                   </div>
                   {state && <span>{state}</span>}
@@ -182,6 +184,7 @@ export function KnowledgeStructureView() {
           和 AI 聊一聊
         </a>
       </aside>
+      {previewDocument && courseId && <KnowledgeDocumentPreviewDialog courseId={courseId} document={previewDocument} onClose={() => setPreviewDocument(null)} />}
     </section>
   );
 }

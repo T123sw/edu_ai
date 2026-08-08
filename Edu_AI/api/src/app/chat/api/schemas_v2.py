@@ -120,6 +120,7 @@ class ChatReplyRequestV2(BaseModel):
     conversation_reference: Optional[ConversationReferencePayload] = None
     allow_rag: bool = False
     allow_web: bool = False
+    source_mode: Optional[GenerationSourceMode] = None
     selected_doc_ids: List[str] = Field(default_factory=list)
     input_images: List[ChatInputImagePayload] = Field(default_factory=list)
     input_videos: List[ChatInputVideoPayload] = Field(default_factory=list)
@@ -175,6 +176,7 @@ class KnowledgeBaseDirectLessonPlanRequestV2(GenerationSourceRequest):
     lesson_type: str = Field(default="knowledge_building", max_length=80)
     teaching_process: str = Field(default="", max_length=4000)
     special_requirements: str = Field(default="", max_length=2000)
+    include_visuals: bool = True
     outline_preview: bool = True
     deadline_seconds: int = Field(default=300, ge=1, le=3600)
     idempotency_key: Optional[str] = Field(
@@ -298,6 +300,7 @@ class KnowledgeBaseDirectBlogRequestV2(GenerationSourceRequest):
     length: Literal["short", "medium", "long"] = "medium"
     structure: str = Field(default="", max_length=1000)
     special_requirements: str = Field(default="", max_length=2000)
+    include_visuals: bool = True
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 

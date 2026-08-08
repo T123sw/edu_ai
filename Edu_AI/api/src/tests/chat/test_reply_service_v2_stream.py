@@ -4,7 +4,7 @@ from app.chat.application.reply_service_v2 import ReplyServiceV2
 
 
 class StreamOrchestrator:
-    def dispatch_stream(self, request):
+    def dispatch_stream(self, request, on_workflow_complete=None):
         yield {"type": "metadata", "payload": {"conversation_id": request.conversation_id, "sources": []}}
         yield {"type": "delta", "payload": {"content": "hello"}}
         yield {

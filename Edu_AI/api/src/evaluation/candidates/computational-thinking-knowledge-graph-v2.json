@@ -1,0 +1,123 @@
+{
+  "id": "ct-course-v2",
+  "label": "计算思维课程知识图谱",
+  "data": {
+    "version": "2.0.0-candidate",
+    "status": "shadow",
+    "design_principle": "课程能力体系，不复刻单一教材目录",
+    "basis_sources": [
+      "https://www.moe.gov.cn/srcsite/A26/s8001/202204/W020220420582361024968.pdf",
+      "https://xuanshu.hep.com.cn/front/book/findBookDetails?bookId=6679a65d74ce561611bda0d3",
+      "https://xuanshu.hep.com.cn/front/book/findBookDetails?bookId=67532e9f3e46f5f63ffe311a",
+      "https://www.hello-algo.com/",
+      "https://oi-wiki.org/"
+    ]
+  },
+  "children": [
+    {
+      "id": "ct-foundations",
+      "label": "计算思维基础与问题求解",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "ct-definition", "label": "计算思维的定义与边界", "data": {"level": 2, "type": "knowledge_point", "keywords": ["计算思维", "概念", "边界"]}, "children": []},
+        {"id": "problem-formulation", "label": "问题形式化与输入输出", "data": {"level": 2, "type": "knowledge_point", "keywords": ["问题定义", "输入", "输出", "约束"]}, "children": []},
+        {"id": "decomposition", "label": "问题分解与子问题边界", "data": {"level": 2, "type": "knowledge_point", "keywords": ["分解", "子问题", "接口"]}, "children": []},
+        {"id": "abstraction", "label": "抽象、建模与信息隐藏", "data": {"level": 2, "type": "knowledge_point", "keywords": ["抽象", "模型", "信息隐藏"]}, "children": []},
+        {"id": "pattern-generalization", "label": "模式识别与方法泛化", "data": {"level": 2, "type": "knowledge_point", "keywords": ["模式", "复用", "泛化"]}, "children": []},
+        {"id": "automation-evaluation", "label": "自动化方案设计与评价", "data": {"level": 2, "type": "knowledge_point", "keywords": ["自动化", "评价", "权衡"]}, "children": []}
+      ]
+    },
+    {
+      "id": "information-computation",
+      "label": "信息表示与计算系统",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "binary-number", "label": "数制、二进制与数值表示", "data": {"level": 2, "type": "knowledge_point", "keywords": ["二进制", "进制转换", "补码"]}, "children": []},
+        {"id": "data-encoding", "label": "文本、图像与声音编码", "data": {"level": 2, "type": "knowledge_point", "keywords": ["Unicode", "像素", "采样", "编码"]}, "children": []},
+        {"id": "boolean-logic", "label": "布尔逻辑与逻辑电路", "data": {"level": 2, "type": "knowledge_point", "keywords": ["布尔代数", "逻辑门", "真值表"]}, "children": []},
+        {"id": "computability-model", "label": "计算模型与可计算性", "data": {"level": 2, "type": "knowledge_point", "keywords": ["图灵机", "可计算性", "计算模型"]}, "children": []},
+        {"id": "von-neumann", "label": "冯·诺依曼体系与软硬件协同", "data": {"level": 2, "type": "knowledge_point", "keywords": ["存储程序", "CPU", "内存", "软硬件"]}, "children": []},
+        {"id": "program-execution", "label": "指令、程序与执行过程", "data": {"level": 2, "type": "knowledge_point", "keywords": ["指令", "程序", "编译", "解释"]}, "children": []}
+      ]
+    },
+    {
+      "id": "algorithm-programming",
+      "label": "算法表达与程序构造",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "algorithm-properties", "label": "算法的定义与基本性质", "data": {"level": 2, "type": "knowledge_point", "keywords": ["算法", "有穷性", "确定性", "可行性"]}, "children": []},
+        {"id": "algorithm-representation", "label": "自然语言、流程图与伪代码", "data": {"level": 2, "type": "knowledge_point", "keywords": ["流程图", "伪代码", "算法表示"]}, "children": []},
+        {"id": "sequence-selection-loop", "label": "顺序、分支与循环结构", "data": {"level": 2, "type": "knowledge_point", "keywords": ["顺序", "条件", "循环", "控制流"]}, "children": []},
+        {"id": "variables-data-types", "label": "变量、数据类型与表达式", "data": {"level": 2, "type": "knowledge_point", "keywords": ["变量", "类型", "表达式", "赋值"]}, "children": []},
+        {"id": "functions-modularity", "label": "函数、接口与模块化", "data": {"level": 2, "type": "knowledge_point", "keywords": ["函数", "参数", "返回值", "模块化"]}, "children": []},
+        {"id": "iteration-recursion", "label": "迭代、递归与终止条件", "data": {"level": 2, "type": "knowledge_point", "keywords": ["迭代", "递归", "基例", "调用栈"]}, "children": []},
+        {"id": "correctness-testing", "label": "正确性、测试与调试", "data": {"level": 2, "type": "knowledge_point", "keywords": ["正确性", "测试", "边界", "调试"]}, "children": []}
+      ]
+    },
+    {
+      "id": "data-organization",
+      "label": "数据组织与抽象结构",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "array-linked-list", "label": "数组与链表", "data": {"level": 2, "type": "knowledge_point", "keywords": ["数组", "链表", "连续内存", "指针"]}, "children": []},
+        {"id": "stack-queue", "label": "栈、队列与双端队列", "data": {"level": 2, "type": "knowledge_point", "keywords": ["栈", "队列", "LIFO", "FIFO"]}, "children": []},
+        {"id": "hash", "label": "哈希映射与冲突处理", "data": {"level": 2, "type": "knowledge_point", "keywords": ["哈希", "散列", "冲突", "负载因子"]}, "children": []},
+        {"id": "tree", "label": "树、二叉树与遍历", "data": {"level": 2, "type": "knowledge_point", "keywords": ["树", "二叉树", "遍历", "搜索树"]}, "children": []},
+        {"id": "heap", "label": "堆与优先队列", "data": {"level": 2, "type": "knowledge_point", "keywords": ["堆", "优先队列", "堆化"]}, "children": []},
+        {"id": "graph", "label": "图、关系与网络表示", "data": {"level": 2, "type": "knowledge_point", "keywords": ["图", "顶点", "边", "邻接表"]}, "children": []},
+        {"id": "relational-data", "label": "关系数据、表与查询", "data": {"level": 2, "type": "knowledge_point", "keywords": ["关系模型", "表", "主键", "查询"]}, "children": []}
+      ]
+    },
+    {
+      "id": "algorithmic-strategies",
+      "label": "算法分析与典型策略",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "complexity", "label": "时间空间复杂度与渐近分析", "data": {"level": 2, "type": "knowledge_point", "keywords": ["大O", "时间复杂度", "空间复杂度"]}, "children": []},
+        {"id": "linear-binary-search", "label": "线性查找与二分查找", "data": {"level": 2, "type": "knowledge_point", "keywords": ["查找", "二分", "有序"]}, "children": []},
+        {"id": "elementary-sort", "label": "基础排序与稳定性", "data": {"level": 2, "type": "knowledge_point", "keywords": ["冒泡", "选择", "插入", "稳定性"]}, "children": []},
+        {"id": "divide-conquer", "label": "分治、归并与快速排序", "data": {"level": 2, "type": "knowledge_point", "keywords": ["分治", "归并排序", "快速排序"]}, "children": []},
+        {"id": "greedy", "label": "贪心选择与适用条件", "data": {"level": 2, "type": "knowledge_point", "keywords": ["贪心", "局部最优", "交换论证"]}, "children": []},
+        {"id": "dynamic-programming", "label": "动态规划与状态转移", "data": {"level": 2, "type": "knowledge_point", "keywords": ["动态规划", "状态", "转移方程", "重叠子问题"]}, "children": []},
+        {"id": "backtracking", "label": "回溯搜索与剪枝", "data": {"level": 2, "type": "knowledge_point", "keywords": ["回溯", "决策树", "剪枝", "约束"]}, "children": []},
+        {"id": "graph-traversal", "label": "图的广度与深度优先搜索", "data": {"level": 2, "type": "knowledge_point", "keywords": ["BFS", "DFS", "图遍历"]}, "children": []}
+      ]
+    },
+    {
+      "id": "modeling-simulation",
+      "label": "计算建模、模拟与实验",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "model-abstraction", "label": "现实问题的计算模型", "data": {"level": 2, "type": "knowledge_point", "keywords": ["计算模型", "假设", "变量", "边界"]}, "children": []},
+        {"id": "state-transition", "label": "状态、规则与状态转移", "data": {"level": 2, "type": "knowledge_point", "keywords": ["状态", "规则", "状态机"]}, "children": []},
+        {"id": "simulation", "label": "离散模拟与实验设计", "data": {"level": 2, "type": "knowledge_point", "keywords": ["模拟", "实验", "验证"]}, "children": []},
+        {"id": "randomness-monte-carlo", "label": "随机性与蒙特卡洛方法", "data": {"level": 2, "type": "knowledge_point", "keywords": ["随机数", "概率", "蒙特卡洛"]}, "children": []},
+        {"id": "approximation-visualization", "label": "近似计算、误差与可视化", "data": {"level": 2, "type": "knowledge_point", "keywords": ["近似", "误差", "可视化"]}, "children": []}
+      ]
+    },
+    {
+      "id": "data-ai",
+      "label": "数据思维与人工智能",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "data-lifecycle", "label": "数据生命周期与问题驱动分析", "data": {"level": 2, "type": "knowledge_point", "keywords": ["数据采集", "分析", "解释", "生命周期"]}, "children": []},
+        {"id": "data-cleaning", "label": "数据质量、清洗与特征", "data": {"level": 2, "type": "knowledge_point", "keywords": ["缺失值", "异常值", "清洗", "特征"]}, "children": []},
+        {"id": "statistical-thinking", "label": "统计推断、相关与因果", "data": {"level": 2, "type": "knowledge_point", "keywords": ["统计", "相关", "因果", "不确定性"]}, "children": []},
+        {"id": "machine-learning", "label": "机器学习的基本流程", "data": {"level": 2, "type": "knowledge_point", "keywords": ["训练", "验证", "分类", "回归"]}, "children": []},
+        {"id": "ai-limitations", "label": "智能系统的能力、局限与评价", "data": {"level": 2, "type": "knowledge_point", "keywords": ["泛化", "幻觉", "偏差", "评价"]}, "children": []}
+      ]
+    },
+    {
+      "id": "networks-responsibility",
+      "label": "网络、安全与负责任计算",
+      "data": {"level": 1, "type": "module"},
+      "children": [
+        {"id": "network-principles", "label": "网络分层、寻址与互联网", "data": {"level": 2, "type": "knowledge_point", "keywords": ["网络", "协议", "分层", "IP"]}, "children": []},
+        {"id": "information-security", "label": "机密性、完整性与身份认证", "data": {"level": 2, "type": "knowledge_point", "keywords": ["信息安全", "加密", "认证"]}, "children": []},
+        {"id": "privacy-data", "label": "隐私保护与数据治理", "data": {"level": 2, "type": "knowledge_point", "keywords": ["隐私", "最小化", "授权", "治理"]}, "children": []},
+        {"id": "algorithm-ethics", "label": "算法公平、透明与责任", "data": {"level": 2, "type": "knowledge_point", "keywords": ["公平", "透明", "问责", "伦理"]}, "children": []},
+        {"id": "intellectual-property-collaboration", "label": "知识产权、开源许可与协作", "data": {"level": 2, "type": "knowledge_point", "keywords": ["著作权", "开源许可", "引用", "协作"]}, "children": []}
+      ]
+    }
+  ]
+}

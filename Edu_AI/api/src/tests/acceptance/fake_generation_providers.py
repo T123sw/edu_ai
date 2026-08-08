@@ -39,6 +39,9 @@ class FakeDocumentContentReader:
             if self.content_by_key.get(key)
         )
 
+    def search_many(self, rag_index_keys, query_text, top_k=12):
+        return self.read_many(rag_index_keys)
+
 
 class NoNetworkGenerationProvider:
     def __init__(

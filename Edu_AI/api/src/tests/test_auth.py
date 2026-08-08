@@ -5,6 +5,11 @@
 import requests
 import json
 
+# This file is an opt-in live smoke script, not an isolated pytest module.
+# Keep the existing `test_*` function names for manual readability while
+# preventing the unit-test runner from treating the token argument as a fixture.
+__test__ = False
+
 API_BASE_URL = "http://localhost:8000"
 
 def test_login():

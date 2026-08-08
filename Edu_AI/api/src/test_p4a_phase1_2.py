@@ -11,6 +11,7 @@ Tests:
 import json
 import sys
 import os
+from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -30,6 +31,9 @@ def _make_request(question):
     req.question = question
     req.conversation_id = "conv-test"
     req.owner = "test-user"
+    req.course_id = "course-test"
+    req.scope_type = "course"
+    req.scope_id = None
     req.action_hint = None
     return req
 
@@ -71,8 +75,14 @@ def test_plain_chat():
 
 # ── T2: generate_quiz stub ────────────────────────────────────────────────────
 
-def test_generate_quiz_stub():
+def test_generate_quiz_stub(monkeypatch):
     from app.chat.runtime.react_agent import ReActAgent
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.quiz.generation_command_service",
+        SimpleNamespace(
+            submit=lambda _command: SimpleNamespace(edu_job_id="job-quiz-1")
+        ),
+    )
     gw = MagicMock()
     # First LLM call: decide to call generate_quiz
     gw.stream_chat_with_tools.side_effect = [
@@ -103,47 +113,44 @@ def test_generate_quiz_stub():
 
 # ── T3: draft_outline → generate_report flow ─────────────────────────────────
 
-def test_draft_outline_then_generate():
-    from app.chat.runtime.react_agent import ReActAgent
+def test_draft_outline_then_generate(monkeypatch):
+    from app.chat.domain.capability_policy import CapabilityPolicy
+    from app.chat.runtime.agent_tools import ToolExecutionContext, execute_tool
+
     gw = MagicMock()
-    # Turn 1: call draft_outline
-    # Turn 2 (after outline shown): call generate_report
-    # Turn 3 (after task submitted): confirmation text
-    gw.stream_chat_with_tools.side_effect = [
-        [
-            _tool_calls_event({"name": "draft_outline", "args": {
-                "resource_type": "report", "subject": "量子计算"
-            }}),
-            _done(),
-        ],
-        [
-            _tool_calls_event({"name": "generate_report", "args": {
-                "subject": "量子计算", "confirmed_outline": "# 一、引言\n# 二、原理\n# 三、应用"
-            }}),
-            _done(),
-        ],
-        [_text_event("报告生成任务已提交。"), _done()],
-    ]
-    # draft_outline calls gateway.chat()
     gw.chat.return_value = "# 一、引言\n# 二、原理\n# 三、应用"
-
-    agent = ReActAgent(agent_gateway=gw, fast_runtime=MagicMock())
-    events = list(agent.run_stream(
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.report.generation_command_service",
+        SimpleNamespace(
+            submit=lambda _command: SimpleNamespace(edu_job_id="job-report-1")
+        ),
+    )
+    ctx = ToolExecutionContext(
+        capability=CapabilityPolicy(allow_rag=False, allow_web=False),
+        max_steps=4,
+        agent_gateway=gw,
         request=_make_request("帮我写一份量子计算报告"),
-        snapshot=_make_snapshot(),
-    ))
+    )
 
-    types = [e["type"] for e in events]
-    assert "tool_call" in types
-    tool_calls = [e["payload"]["tool"] for e in events if e["type"] == "tool_call"]
-    assert "draft_outline" in tool_calls, f"期望调用 draft_outline，实际: {tool_calls}"
-    assert "generate_report" in tool_calls, f"期望调用 generate_report，实际: {tool_calls}"
-    assert "task_submitted" in types
-    ts = next(e for e in events if e["type"] == "task_submitted")
-    task_id = ts["payload"]["task_id"]
-    assert task_id, f"task_id 不能为空: {ts}"
-    assert ts["payload"]["workflow_type"] == "report"
-    print(f"T3 PASS: draft_outline → generate_report real handler → task_id={task_id}")
+    outline = execute_tool(
+        "draft_outline",
+        {"resource_type": "report", "subject": "量子计算"},
+        ctx,
+    )
+    assert outline["ok"] is True
+    submitted = execute_tool(
+        "generate_report",
+        {
+            "subject": "量子计算",
+            "confirmed_outline": outline["payload"]["outline_markdown"],
+        },
+        ctx,
+    )
+
+    assert submitted["ok"] is True
+    assert submitted["payload"]["task_id"] == "job-report-1"
+    assert submitted["payload"]["workflow_type"] == "report"
+    print("T3 PASS: draft_outline → generate_report handler sequence")
 
 
 # ── T4: budget guard ──────────────────────────────────────────────────────────

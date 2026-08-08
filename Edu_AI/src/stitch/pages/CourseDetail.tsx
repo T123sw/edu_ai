@@ -37,7 +37,11 @@ export function CourseDetailPage() {
     if (!course) return;
     let cancelled = false;
     void Promise.all([
-      getKnowledgeBaseDocuments(course.id).catch(() => []),
+      getKnowledgeBaseDocuments(course.id, {
+        aggregate: true,
+        libraryType: "course",
+        limit: 1000,
+      }).catch(() => []),
       getCourseMaterials(course.id, { sort: "updated_desc" }).catch(() => []),
     ]).then(([nextDocuments, nextMaterials]) => {
       if (!cancelled) {

@@ -1,0 +1,11 @@
+{
+  "builder": "shadow-authored-zh-v6",
+  "documents": [],
+  "failures": [
+    {
+      "scope_id": "stack-queue",
+      "label": "栈、队列与双端队列",
+      "error": "core 质量不合格: chinese_content_below_800"
+    }
+  ]
+}

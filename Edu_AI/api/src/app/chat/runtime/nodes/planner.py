@@ -134,11 +134,49 @@ def _ensure_mandatory_retrieval_when_enabled(plan_dict: dict, capability) -> Non
     )
     if retrieval_step is not None:
         expected_tools = list(retrieval_step.get("expected_tools") or [])
+        duplicate_retrieval_steps = [
+            step
+            for step in steps
+            if step is not retrieval_step
+            and (
+                step.get("internal_action") == "retrieve_context"
+                or any(
+                    tool_name in (step.get("expected_tools") or [])
+                    for tool_name in ("rag_search", "web_search")
+                )
+            )
+        ]
+        for duplicate in duplicate_retrieval_steps:
+            for tool_name in duplicate.get("expected_tools") or []:
+                if tool_name in ("rag_search", "web_search") and tool_name not in expected_tools:
+                    expected_tools.append(tool_name)
+        if duplicate_retrieval_steps:
+            steps[:] = [step for step in steps if step not in duplicate_retrieval_steps]
         for tool_name in required_tools:
             if tool_name not in expected_tools:
                 expected_tools.append(tool_name)
         retrieval_step["expected_tools"] = expected_tools
         retrieval_step["internal_action"] = "retrieve_context"
+        retrieval_index = steps.index(retrieval_step)
+        first_content_index = next(
+            (
+                index
+                for index, step in enumerate(steps)
+                if step is not retrieval_step
+                and (
+                    step.get("internal_action")
+                    in {"answer_question", "confirm_outline", "generate_resource"}
+                    or any(
+                        str(tool_name).startswith("generate_")
+                        for tool_name in (step.get("expected_tools") or [])
+                    )
+                )
+            ),
+            len(steps),
+        )
+        if retrieval_index > first_content_index:
+            steps.pop(retrieval_index)
+            steps.insert(first_content_index, retrieval_step)
     else:
         insertion_index = next(
             (

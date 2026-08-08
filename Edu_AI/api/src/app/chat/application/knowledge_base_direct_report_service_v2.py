@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 from uuid import uuid4
 
@@ -27,10 +28,18 @@ def _extract_text_from_response(response: Any) -> str:
 
 
 class KnowledgeBaseDirectReportServiceV2:
-    def __init__(self, *, content_provider=None, llm=None, course_storage_manager=None):
+    def __init__(
+        self,
+        *,
+        content_provider=None,
+        llm=None,
+        course_storage_manager=None,
+        visual_pipeline=None,
+    ):
         self.content_provider = content_provider or KnowledgeBaseDocumentContentProvider()
         self.llm = llm or get_fallback_llm()
         self.course_storage_manager = course_storage_manager or default_course_storage_manager
+        self.visual_pipeline = visual_pipeline
 
     def generate(
         self,
@@ -58,7 +67,43 @@ class KnowledgeBaseDirectReportServiceV2:
         if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
 
-        report_markdown = self._generate_markdown(payload=payload, documents=documents)
+        report_config = getattr(payload, "report_config", None)
+        report_config = report_config if isinstance(report_config, dict) else {}
+        visual_result = None
+        visual_error = None
+        if bool(report_config.get("include_visuals")) and self.visual_pipeline is not None:
+            try:
+                topic = str(getattr(payload, "question", "") or "").strip()
+                source_context = str(getattr(payload, "source_context", "") or "").strip()
+                if not source_context:
+                    source_context = "\n\n".join(
+                        str(item.get("content") or "") for item in documents
+                    )
+                brief = self.visual_pipeline.plan_with_model(
+                    self.llm,
+                    resource_type="report",
+                    topic=topic,
+                    source_context=source_context,
+                )
+                visual_result = self.visual_pipeline.run(
+                    brief,
+                    course_id=str(getattr(payload, "course_id", "") or ""),
+                    owner=owner,
+                    selected_document_ids=selected_doc_ids,
+                )
+            except Exception as exc:
+                visual_error = str(exc)
+
+        report_markdown = self._generate_markdown(
+            payload=payload,
+            documents=documents,
+            visual_result=visual_result,
+        )
+        if visual_result is not None:
+            report_markdown = self.visual_pipeline.assemble(
+                report_markdown,
+                visual_result.selected,
+            )
         result = {
             "action": {"name": "generate.report.direct"},
             "artifacts": [
@@ -73,6 +118,11 @@ class KnowledgeBaseDirectReportServiceV2:
                     "generation_state": {
                         "status": "completed",
                         "mode": "knowledge_base_direct",
+                        "visuals": (
+                            visual_result.to_snapshot()
+                            if visual_result is not None
+                            else {"selected": [], "error": visual_error}
+                        ),
                     },
                     "version": {
                         "version_id": "v1",
@@ -92,6 +142,20 @@ class KnowledgeBaseDirectReportServiceV2:
                     if documents
                     else "topic_direct_llm"
                 ),
+                "visuals": {
+                    "requested": bool(report_config.get("include_visuals")),
+                    "selected_count": (
+                        len(visual_result.selected)
+                        if visual_result is not None
+                        else 0
+                    ),
+                    "candidate_count": (
+                        visual_result.candidate_count
+                        if visual_result is not None
+                        else 0
+                    ),
+                    "error": visual_error,
+                },
             },
         }
         finalize_report_result(
@@ -102,7 +166,13 @@ class KnowledgeBaseDirectReportServiceV2:
         )
         return result
 
-    def _generate_markdown(self, *, payload, documents: list[dict[str, Any]]) -> str:
+    def _generate_markdown(
+        self,
+        *,
+        payload,
+        documents: list[dict[str, Any]],
+        visual_result=None,
+    ) -> str:
         final_user_prompt = str(getattr(payload, "final_user_prompt", "") or "").strip()
         user_question = final_user_prompt or str(getattr(payload, "question", "") or "").strip()
         prompt_draft = str(getattr(payload, "prompt_draft", "") or "").strip()
@@ -112,6 +182,24 @@ class KnowledgeBaseDirectReportServiceV2:
         report_config = getattr(payload, "report_config", None)
         if isinstance(report_config, dict):
             report_title = str(report_config.get("title") or "").strip()
+        effective_config = {
+            key: report_config.get(key)
+            for key in (
+                "template",
+                "audience",
+                "depth",
+                "structure_emphasis",
+                "special_requirements",
+            )
+            if isinstance(report_config, dict)
+            and report_config.get(key) not in (None, "")
+        }
+        config_instruction = (
+            "\n以下报告配置必须实际体现在措辞、详略和结构中：\n"
+            + json.dumps(effective_config, ensure_ascii=False)
+            if effective_config
+            else ""
+        )
 
         document_blocks: list[str] = []
         for index, document in enumerate(documents, start=1):
@@ -139,6 +227,22 @@ class KnowledgeBaseDirectReportServiceV2:
             if has_documents
             else "本次不使用课程资料，请直接围绕主题完成报告。"
         )
+        visual_instruction = ""
+        if visual_result is not None and visual_result.selected:
+            locked_visuals = [
+                {
+                    "slot_id": item.slot_id,
+                    "caption": item.caption,
+                    "title": item.title,
+                    "source_type": item.source_type,
+                }
+                for item in visual_result.selected
+            ]
+            visual_instruction = (
+                "\n已锁定以下真实图片。请围绕这些图片组织相应段落，并在最合适位置"
+                "原样输出 {{VISUAL:slot_id}}；不得创造其他图片槽位或 URL：\n"
+                + json.dumps(locked_visuals, ensure_ascii=False)
+            )
 
         messages = [
             {
@@ -159,7 +263,7 @@ class KnowledgeBaseDirectReportServiceV2:
                     f"所选卡片：{card_title or '未指定'}\n"
                     f"期望标题：{report_title or '未指定'}\n\n"
                     "报告应当结构完整、内容具体、避免空泛。\n\n"
-                    f"{source_section}"
+                    f"{source_section}{config_instruction}{visual_instruction}"
                 ),
             },
         ]
@@ -171,8 +275,50 @@ class KnowledgeBaseDirectReportServiceV2:
 
 
 def build_default_knowledge_base_direct_report_service_v2() -> KnowledgeBaseDirectReportServiceV2:
+    visual_pipeline = _build_default_visual_pipeline()
     return KnowledgeBaseDirectReportServiceV2(
         content_provider=KnowledgeBaseDocumentContentProvider(),
         llm=get_fallback_llm(),
         course_storage_manager=default_course_storage_manager,
+        visual_pipeline=visual_pipeline,
+    )
+
+
+def _build_default_visual_pipeline():
+    from app.chat.runtime.agent_tools.handlers.providers import (
+        build_default_image_search_provider,
+    )
+    from app.services.visual_assets.pipeline import VisualAssetPipeline
+
+    def knowledge_search(*, query, selected_document_ids, owner, **_kwargs):
+        from app.chat.application.knowledge_base_summary_provider import (
+            KnowledgeBaseSummaryProvider,
+        )
+        from app.chat.workflows.ppt.rag_image_bridge import extract_image_assets
+
+        sources = KnowledgeBaseSummaryProvider().get_document_image_sources(
+            selected_doc_ids=list(selected_document_ids),
+            owner=owner,
+            query_text=query,
+            top_k=8,
+        )
+        return extract_image_assets(list(sources or []))
+
+    provider = build_default_image_search_provider()
+
+    def web_search(*, query, kind, owner, **_kwargs):
+        if provider is None:
+            return []
+        return provider.search(
+            query=query,
+            count=6,
+            style=kind,
+            safe=True,
+            license_="any",
+            owner=owner,
+        )
+
+    return VisualAssetPipeline(
+        knowledge_search=knowledge_search,
+        web_search=web_search,
     )

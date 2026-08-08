@@ -1,4 +1,5 @@
 from pathlib import Path
+import time
 from types import SimpleNamespace
 import uuid
 
@@ -163,7 +164,15 @@ def test_conversation_store_adapter_can_apply_llm_enhancement_candidates():
         },
     )
 
+    deadline = time.monotonic() + 2
     state = storage.get_state("conv-1")
+    while (
+        "后排学生多次走神"
+        not in list((state.get("conversation_memory") or {}).get("student_signals") or [])
+        and time.monotonic() < deadline
+    ):
+        time.sleep(0.01)
+        state = storage.get_state("conv-1")
     assert state["conversation_memory"]["student_signals"][0] == "后排学生多次走神"
     assert any("前10分钟" in item for item in state["conversation_memory"]["student_signals"])
 
@@ -217,7 +226,15 @@ def test_conversation_store_adapter_can_apply_semantic_llm_enhancement_candidate
         },
     )
 
+    deadline = time.monotonic() + 2
     state = storage.get_state("conv-semantic")
+    while (
+        "课堂前10分钟学生参与度下降"
+        not in list((state.get("conversation_memory") or {}).get("current_topics") or [])
+        and time.monotonic() < deadline
+    ):
+        time.sleep(0.01)
+        state = storage.get_state("conv-semantic")
     memory = state["conversation_memory"]
     assert "课堂前10分钟学生参与度下降" in memory["current_topics"]
     assert "分析问题" in memory["user_goals"]

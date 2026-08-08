@@ -1,0 +1,23 @@
+{
+  "builder": "shadow-authored-zh-v7",
+  "documents": [
+    {
+      "id": "authored-b315ecc39739",
+      "filename": "shadow-authored-stack-queue-core-b315ecc39739.md",
+      "path": "documents/shadow-authored-stack-queue-core-b315ecc39739.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "stack-queue",
+      "library_type": "course",
+      "source_title": "栈、队列与双端队列｜核心讲义",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 913
+    }
+  ],
+  "failures": []
+}

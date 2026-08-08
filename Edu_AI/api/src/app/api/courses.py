@@ -6,10 +6,13 @@ Delegates business logic to app.services.course_service and core storage.
 from __future__ import annotations
 
 import mimetypes
+import json
+import re
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
@@ -27,6 +30,7 @@ from app.services.course_access import (
     can_manage_course_resources,
 )
 from app.services.course_membership_bootstrap import get_course_membership_bootstrap
+from app.services.generation_source_errors import GenerationSourceError
 
 from app.knowledge_graph_hours import (
     KnowledgeGraphHourAllocationError,
@@ -36,9 +40,11 @@ from app.schemas.course import (
     AddRAGDocumentRequest,
     CourseCreateRequest,
     CourseInfo,
+    CourseKnowledgeBuildRequest,
     CourseUpdateRequest,
     GenerateClassroomRequest,
     KnowledgeBaseDocument,
+    KnowledgeBaseDocumentContent,
     KnowledgeBaseDocumentUploadResponse,
     KnowledgeBaseRetrievalTestRequest,
     KnowledgeBaseRetrievalTestResponse,
@@ -46,11 +52,13 @@ from app.schemas.course import (
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
     MaterialPublicationResponse,
+    MaterialContentUpdateRequest,
     PinMaterialRequest,
     RenameMaterialRequest,
 )
 from app.services import course_service as _svc
 from app.services import knowledge_document_service as _knowledge
+from app.services.course_knowledge_builder import submit_course_knowledge_build_job
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
     VIDEO_ARTIFACT_MEDIA_TYPES,
@@ -132,6 +140,10 @@ def _knowledge_document_model(
     return KnowledgeBaseDocument(
         id=str(item.get("id") or f"doc-{datetime.now().timestamp()}"),
         name=item.get("filename", item.get("name", "未命名文档")),
+        display_name=(
+            str(item.get("source_title") or "").strip()
+            or item.get("filename", item.get("name", "未命名文档"))
+        ),
         type=doc_type,
         # Filesystem-relative paths are internal implementation details. Public
         # course APIs use the stable document ID for all subsequent actions.
@@ -141,6 +153,15 @@ def _knowledge_document_model(
         source_domain=item.get("source_domain"),
         source_site_name=item.get("source_site_name"),
         source_icon_url=item.get("source_icon_url"),
+        source_license=item.get("source_license"),
+        source_license_url=item.get("source_license_url"),
+        source_revision=item.get("source_revision"),
+        source_language=item.get("source_language"),
+        content_language=item.get("content_language"),
+        translation_notice=item.get("translation_notice"),
+        usage_restriction=item.get("usage_restriction"),
+        authority_tier=item.get("authority_tier"),
+        retrieved_at=item.get("retrieved_at"),
         course_id=course_id,
         scope_type=str(item.get("scope_type") or "course"),
         scope_id=str(item.get("scope_id") or "").strip() or None,
@@ -369,6 +390,60 @@ def get_course_materials(
     }
 
 
+def _validate_mind_map_node(value: Any, *, is_root: bool = False) -> None:
+    if not isinstance(value, dict):
+        raise ValueError("思维导图节点必须是对象")
+    node_id = str(value.get("id") or "").strip()
+    title = str(value.get("title") or "").strip()
+    if not node_id or not title:
+        label = "根节点" if is_root else "节点"
+        raise ValueError(f"思维导图{label}必须包含 id 和 title")
+    children = value.get("children") or []
+    if not isinstance(children, list):
+        raise ValueError("思维导图 children 必须是数组")
+    sibling_ids: set[str] = set()
+    for child in children:
+        child_id = str(child.get("id") or "").strip() if isinstance(child, dict) else ""
+        if child_id in sibling_ids:
+            raise ValueError("思维导图同级节点 id 不能重复")
+        sibling_ids.add(child_id)
+        _validate_mind_map_node(child)
+
+
+def _validate_material_content(material_type: str, content: Any) -> dict[str, Any]:
+    normalized_type = str(material_type or "").strip()
+    if normalized_type in {"report", "blog", "lesson_plan"}:
+        if not isinstance(content, str):
+            raise ValueError("文本资源内容必须是 Markdown 文本")
+        if len(content) > 2_000_000:
+            raise ValueError("资源内容过大")
+        return {"content": content}
+
+    if normalized_type not in {"quiz", "flashcard", "graph", "game", "classroom"}:
+        raise ValueError("该资源暂不支持内容编辑")
+    if not isinstance(content, dict):
+        raise ValueError("结构化资源内容必须是对象")
+    if len(json.dumps(content, ensure_ascii=False, default=str)) > 2_000_000:
+        raise ValueError("资源内容过大")
+
+    if normalized_type == "graph":
+        root = content.get("root")
+        if not isinstance(root, dict):
+            raise ValueError("思维导图缺少根节点")
+        _validate_mind_map_node(root, is_root=True)
+    elif normalized_type == "quiz" and not isinstance(content.get("questions"), list):
+        raise ValueError("习题内容必须包含 questions 数组")
+    elif normalized_type == "flashcard" and not isinstance(content.get("cards"), list):
+        raise ValueError("闪卡内容必须包含 cards 数组")
+    elif normalized_type == "classroom" and not isinstance(content.get("scenes"), list):
+        raise ValueError("AI 课堂内容必须包含 scenes 数组")
+    elif normalized_type == "game":
+        blocked = {"html", "html_url", "script", "javascript"}
+        if blocked.intersection(content):
+            raise ValueError("小游戏编辑不允许写入任意 HTML 或脚本")
+    return {"content": content}
+
+
 @router.delete("/{course_id}/materials/{material_type}/{material_id}", summary="删除课程生成资源")
 def delete_course_material(
     course_id: str,
@@ -506,6 +581,54 @@ def rename_course_material(
         material_id,
         owner_user_id=owner,
     )
+
+
+@router.patch(
+    "/{course_id}/materials/{material_type}/{material_id}/content",
+    summary="保存课程生成资源内容",
+)
+def update_course_material_content(
+    course_id: str,
+    material_type: str,
+    material_id: str,
+    payload: MaterialContentUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_read),
+):
+    manager = _svc._get_manager()
+    owner = principal.user_id
+    _mutable_material_or_raise(
+        manager=manager,
+        course_id=course_id,
+        material_type=material_type,
+        material_id=material_id,
+        principal=principal,
+    )
+    try:
+        updates = _validate_material_content(material_type, payload.content)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    content = updates["content"]
+    if material_type == "quiz":
+        updates["questions"] = list(content.get("questions") or [])
+    elif material_type == "flashcard":
+        updates["flashcards"] = list(content.get("cards") or [])
+    elif material_type == "classroom":
+        updates["scenes"] = list(content.get("scenes") or [])
+        updates["scenes_count"] = len(updates["scenes"])
+    updated = manager.update_generated_material_metadata(
+        course_id,
+        material_type,
+        material_id,
+        updates,
+    )
+    if updated is None:
+        raise HTTPException(status_code=404, detail="资源不存在或无权访问")
+    return manager.get_generated_material(
+        course_id,
+        material_type,
+        material_id,
+        owner_user_id=owner,
+    ) or updated
 
 
 @router.post(
@@ -682,16 +805,42 @@ def get_knowledge_base_documents(
 
 
 @router.post(
+    "/{course_id}/knowledge-base/build-from-open-textbook",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="从已审核开放教材构建中文课程知识库",
+)
+def build_knowledge_base_from_open_textbook(
+    course_id: str,
+    payload: CourseKnowledgeBuildRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+    try:
+        job = submit_course_knowledge_build_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            source_id=payload.source_id,
+            max_pages=payload.max_pages,
+            clean_placeholders=payload.clean_placeholders,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return job.model_dump(mode="json")
+
+
+@router.post(
     "/{course_id}/knowledge-base/documents",
     response_model=KnowledgeBaseDocumentUploadResponse,
     status_code=status.HTTP_202_ACCEPTED,
-    summary="上传文档到课程知识库",
+    summary="上传文档到个人知识库",
 )
 async def upload_knowledge_base_document(
     course_id: str,
     scope_type: str = Form(default="course"),
     scope_id: Optional[str] = Form(default=None),
-    library_type: str = Form(default=LIBRARY_TYPE_COURSE),
+    library_type: str = Form(default=LIBRARY_TYPE_PERSONAL),
     file: UploadFile = File(..., description="文档文件"),
     principal: CoursePrincipal = Depends(require_course_edit),
 ):
@@ -882,6 +1031,159 @@ def get_knowledge_base_document_detail(
     if document is None:
         raise HTTPException(status_code=404, detail="文档不存在或无权访问")
     return _knowledge_document_model(document, course_id)
+
+
+def _knowledge_document_collection_root(course_dir: Path, file_path: Path) -> Path:
+    """Return the versioned document collection containing a knowledge file."""
+    knowledge_base_root = (course_dir / "knowledge_base").resolve()
+    try:
+        relative_file = file_path.relative_to(knowledge_base_root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="文档路径不合法") from exc
+    if not relative_file.parts or not re.fullmatch(
+        r"documents(?:-[A-Za-z0-9._-]+)?",
+        relative_file.parts[0],
+    ):
+        raise HTTPException(status_code=400, detail="文档路径不合法")
+    return (knowledge_base_root / relative_file.parts[0]).resolve()
+
+
+@router.get(
+    "/{course_id}/knowledge-base/documents/{document_id}/content",
+    response_model=KnowledgeBaseDocumentContent,
+    summary="读取课程知识库文档正文",
+)
+def get_knowledge_base_document_content(
+    course_id: str,
+    document_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+):
+    mgr = _svc._get_manager()
+    document = _knowledge.get_document(
+        mgr,
+        course_id,
+        document_id,
+        owner_user_id=principal.user_id,
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="文档不存在或无权访问")
+
+    relative_path = str(document.get("path") or "").replace("\\", "/").strip()
+    if not relative_path:
+        raise HTTPException(status_code=404, detail="文档没有可读取的正文文件")
+    course_dir = mgr.get_course_dir(course_id).resolve()
+    file_path = (course_dir / relative_path).resolve()
+    documents_root = _knowledge_document_collection_root(course_dir, file_path)
+    if not file_path.is_file():
+        raise HTTPException(status_code=404, detail="文档正文文件不存在")
+
+    if file_path.suffix.casefold() not in {
+        ".md", ".markdown", ".txt", ".html", ".htm", ".json", ".csv", ".py",
+    }:
+        raise HTTPException(status_code=415, detail="该文件类型暂不支持直接预览正文")
+    try:
+        content = file_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        content = file_path.read_text(encoding="utf-8", errors="replace")
+
+    def media_url(raw_source: str) -> str:
+        source = raw_source.strip().strip("<>")
+        if not source or re.match(r"^(?:https?:|data:|blob:|/api/)", source, re.I):
+            return raw_source
+        clean_source = source.split("#", 1)[0].split("?", 1)[0]
+        candidate = (file_path.parent / clean_source).resolve()
+        try:
+            relative_asset = candidate.relative_to(documents_root)
+        except ValueError:
+            return raw_source
+        if not candidate.is_file():
+            return raw_source
+        encoded = quote(relative_asset.as_posix(), safe="")
+        return (
+            f"/api/courses/{course_id}/knowledge-base/documents/"
+            f"{document_id}/media?path={encoded}"
+        )
+
+    content = re.sub(
+        r"(!\[[^\]]*\]\()(?P<src><[^>]+>|[^)\s]+)",
+        lambda match: f"{match.group(1)}{media_url(match.group('src'))}",
+        content,
+    )
+    content = re.sub(
+        r"(?P<prefix><img\b[^>]*?\bsrc=[\"'])(?P<src>[^\"']+)",
+        lambda match: f"{match.group('prefix')}{media_url(match.group('src'))}",
+        content,
+        flags=re.I,
+    )
+
+    chunk = {
+        "id": 0,
+        "content": content,
+        "page": 1,
+        "metadata": {
+            "document_id": document_id,
+            "scope_id": document.get("scope_id"),
+            "source_url": document.get("source_url") or document.get("url"),
+        },
+    }
+    return KnowledgeBaseDocumentContent(
+        document_id=document_id,
+        file_path=document_id,
+        file_name=str(document.get("source_title") or document.get("filename") or file_path.name),
+        content=content,
+        chunks=[chunk] if content.strip() else [],
+        total_chunks=1 if content.strip() else 0,
+    )
+
+
+@router.get(
+    "/{course_id}/knowledge-base/documents/{document_id}/media",
+    response_class=FileResponse,
+    summary="读取课程知识库文档内的图片或视频",
+)
+def get_knowledge_base_document_media(
+    course_id: str,
+    document_id: str,
+    path: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+):
+    mgr = _svc._get_manager()
+    document = _knowledge.get_document(
+        mgr,
+        course_id,
+        document_id,
+        owner_user_id=principal.user_id,
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="文档不存在或无权访问")
+
+    relative_path = str(document.get("path") or "").replace("\\", "/").strip()
+    if not relative_path:
+        raise HTTPException(status_code=404, detail="文档没有可读取的正文文件")
+    course_dir = mgr.get_course_dir(course_id).resolve()
+    document_file = (course_dir / relative_path).resolve()
+    documents_root = _knowledge_document_collection_root(course_dir, document_file)
+    media_path = (documents_root / path.replace("\\", "/")).resolve()
+    try:
+        media_path.relative_to(documents_root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="媒体路径不合法") from exc
+    if not media_path.is_file():
+        raise HTTPException(status_code=404, detail="媒体文件不存在")
+
+    media_type, _ = mimetypes.guess_type(media_path.name)
+    if not media_type or not (
+        media_type.startswith("image/") or media_type.startswith("video/")
+    ):
+        raise HTTPException(status_code=415, detail="不支持的媒体类型")
+    if media_type == "image/svg+xml":
+        raise HTTPException(status_code=415, detail="SVG 请在入库时转换为安全的位图格式")
+
+    return FileResponse(
+        path=media_path,
+        media_type=media_type,
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 def _submit_knowledge_document_job(
@@ -1162,6 +1464,22 @@ async def generate_classroom(
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
+    from app.services.generation_task_handlers import (
+        build_default_generation_source_resolver,
+    )
+
+    try:
+        build_default_generation_source_resolver(mgr).validate(
+            course_id,
+            payload.source_mode,
+            payload.selected_doc_ids,
+        )
+    except GenerationSourceError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": exc.code, "message": exc.message},
+        ) from exc
+
     owner = principal.user_id
     job = await submit_classroom_generation_job(
         course_id=course_id,
@@ -1179,6 +1497,7 @@ async def generate_classroom(
         duration_minutes=payload.duration_minutes,
         teaching_style=payload.teaching_style,
         voice=payload.voice,
+        include_visuals=payload.include_visuals,
     )
     return job
 

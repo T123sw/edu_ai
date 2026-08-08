@@ -6,6 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001
 export interface KnowledgeBaseDocument {
   id: string;
   name: string;
+  display_name?: string | null;
   type: 'file' | 'web';
   file_path?: string;
   url?: string;
@@ -37,6 +38,20 @@ export interface KnowledgeBaseDocument {
   error_message?: string | null;
   created_at: string;
   updated_at?: string;
+}
+
+export interface CourseKnowledgeBaseDocumentContent {
+  document_id: string;
+  file_path: string;
+  file_name: string;
+  content: string;
+  chunks: Array<{
+    id: number;
+    content: string;
+    page?: number;
+    metadata: Record<string, any>;
+  }>;
+  total_chunks: number;
 }
 
 export interface KnowledgeBaseDocumentUploadResponse {
@@ -148,6 +163,31 @@ export async function getKnowledgeBaseDocuments(
   }
 }
 
+export async function getKnowledgeBaseDocumentContent(
+  courseId: string,
+  documentId: string,
+  token: string,
+): Promise<CourseKnowledgeBaseDocumentContent> {
+  if (!courseId || !documentId) {
+    throw new Error('课程ID和文档ID不能为空');
+  }
+  const response = await fetch(
+    `${API_BASE_URL}/api/courses/${courseId}/knowledge-base/documents/${documentId}/content`,
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: '获取文档正文失败' }));
+    throw new Error(errorData.detail || `获取文档正文失败: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 /**
  * 将RAG系统的文档添加到课程知识库
  * @param courseId 课程ID
@@ -198,7 +238,7 @@ export async function addRAGDocumentToCourseKB(
 }
 
 /**
- * 上传文档到课程知识库（保留此接口用于直接上传到课程知识库的场景）
+ * 上传用户资料；后端默认归入当前用户的个人知识库。
  * @param courseId 课程ID
  * @param file 文件对象
  * @param token 认证token

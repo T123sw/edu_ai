@@ -19,6 +19,7 @@ test("generation factory is keyboard operable and keeps its footer reachable", a
   await expect(teacherPage.getByRole("dialog", { name: "配置教学报告" })).toBeVisible();
   await expect(teacherPage.getByRole("button", { name: /下一步|上一步/ })).toHaveCount(0);
   await teacherPage.getByLabel("报告主题 *").fill("牛顿运动定律复习");
+  await expect(teacherPage.getByText("资料范围（不使用知识库）")).toBeVisible();
   const submit = teacherPage.getByRole("button", { name: "开始后台生成" });
   await expect(submit).toBeVisible();
   expect(await submit.evaluate((element) => {
@@ -27,6 +28,21 @@ test("generation factory is keyboard operable and keeps its footer reachable", a
   })).toBe(true);
   await submit.click();
   await expect(teacherPage.getByRole("dialog", { name: "配置教学报告" })).toHaveCount(0);
+});
+
+test("documents checked on the left become the generation source automatically", async ({ teacherPage }) => {
+  await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await teacherPage.getByRole("button", { name: "知识库", exact: true }).click();
+  const documentRow = teacherPage.locator(".source-panel__item").filter({ hasText: "大学物理·力学.pdf" }).first();
+  await expect(documentRow).toBeVisible();
+  await documentRow.locator('input[type="checkbox"]').check();
+
+  await teacherPage.getByRole("button", { name: "生成工厂", exact: true }).click();
+  await teacherPage.getByRole("button", { name: "教学报告", exact: true }).click();
+  await expect(teacherPage.getByText("资料范围（已选 1 份文档）")).toBeVisible();
+  await teacherPage.getByText("资料范围（已选 1 份文档）").click();
+  await expect(teacherPage.getByRole("radio", { name: "仅使用选中文档", exact: false })).toBeChecked();
+  await expect(teacherPage.getByLabel("资料范围").getByText("大学物理·力学.pdf", { exact: true })).toBeVisible();
 });
 
 test("generation modal keeps a teacher's unfinished configuration", async ({ teacherPage }, testInfo) => {

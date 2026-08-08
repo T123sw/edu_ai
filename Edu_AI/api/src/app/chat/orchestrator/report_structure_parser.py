@@ -59,6 +59,7 @@ def parse_report_nodes(*, artifact_id: str, version_id: str | None, artifact_typ
                 "order_index": order_index,
                 "content": body,
                 "path": str(order_index),
+                "heading_level": len(match.group(0)) - len(match.group(0).lstrip("#")),
             }
         )
     return nodes

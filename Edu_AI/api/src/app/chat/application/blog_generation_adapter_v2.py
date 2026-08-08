@@ -16,12 +16,68 @@ class BlogGenerationAdapterV2:
     still use manual outline review.
     """
 
+    def __init__(self, *, visual_pipeline=None, llm=None) -> None:
+        self.visual_pipeline = visual_pipeline
+        self.llm = llm
+
     def generate(self, payload, *, job_id: str, config_snapshot_id: str):
         course_id = str(getattr(payload, "course_id", "") or "").strip()
         topic = str(getattr(payload, "topic", "") or "").strip()
         if not course_id or not topic:
             raise ValueError("course_id and topic are required")
-        create_task_state(thread_id=job_id, course_id=course_id, topic=topic)
+        generation_config = {
+            key: getattr(payload, key, None)
+            for key in (
+                "audience",
+                "tone",
+                "length",
+                "structure",
+                "special_requirements",
+                "source_context",
+                "source_mode",
+                "include_visuals",
+            )
+            if getattr(payload, key, None) not in (None, "")
+        }
+        if bool(getattr(payload, "include_visuals", False)):
+            pipeline = self.visual_pipeline
+            llm = self.llm
+            if pipeline is None:
+                from app.chat.application.knowledge_base_direct_report_service_v2 import (
+                    _build_default_visual_pipeline,
+                )
+
+                pipeline = _build_default_visual_pipeline()
+            if llm is None:
+                from app.chat.agents.report_generation import get_fallback_llm
+
+                llm = get_fallback_llm()
+            try:
+                brief = pipeline.plan_with_model(
+                    llm,
+                    resource_type="blog",
+                    topic=topic,
+                    source_context=str(
+                        getattr(payload, "source_context", "") or ""
+                    ),
+                )
+                visual_result = pipeline.run(
+                    brief,
+                    course_id=course_id,
+                    owner=str(getattr(payload, "owner", "") or "") or None,
+                    selected_document_ids=list(
+                        getattr(payload, "selected_doc_ids", []) or []
+                    ),
+                )
+                generation_config["visual_plan"] = visual_result.to_snapshot()
+            except Exception as exc:
+                generation_config["visual_error"] = str(exc)
+        create_task_state(
+            thread_id=job_id,
+            course_id=course_id,
+            topic=topic,
+            generation_config=generation_config,
+        )
         for _ in range(3):
             run_blog_task(job_id)
             state = load_task_state(job_id)

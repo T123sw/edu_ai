@@ -7,6 +7,7 @@ export type BlogConfig = {
   length: "short" | "medium" | "long";
   structure: string;
   specialRequirements: string;
+  includeVisuals: boolean;
 };
 
 export const blogDefinition: GenerationConfigDefinition<BlogConfig> = {
@@ -20,10 +21,10 @@ export const blogDefinition: GenerationConfigDefinition<BlogConfig> = {
     length: "medium",
     structure: "概念引入—核心解释—案例—总结",
     specialRequirements: "",
+    includeVisuals: true,
   }),
   validate: (config) => ({
     ...(config.topic.trim() ? {} : { topic: "请输入博客主题" }),
-    ...(config.audience.trim() ? {} : { audience: "请输入目标读者" }),
   }),
   serialize: ({ config }) => ({
     topic: config.topic.trim(),
@@ -32,5 +33,6 @@ export const blogDefinition: GenerationConfigDefinition<BlogConfig> = {
     length: config.length,
     structure: config.structure.trim(),
     special_requirements: config.specialRequirements.trim(),
+    include_visuals: config.includeVisuals !== false,
   }),
 };

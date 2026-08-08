@@ -122,6 +122,7 @@ def test_react_agent_forces_selected_document_rag_before_plain_answer():
     assert events[-1]["payload"]["sources"] == [
         {"document_id": "doc-1", "title": "冒泡排序资料"}
     ]
+    assert events[-1]["payload"]["trace"]["source_mode"] == "selected_documents"
 
 
 def test_react_agent_forces_rag_and_web_when_both_are_enabled():
@@ -172,6 +173,36 @@ def test_react_agent_forces_rag_and_web_when_both_are_enabled():
         {"document_id": "doc-1", "title": "课程资料"},
         {"url": "https://example.com/source", "title": "网络来源"},
     ]
+
+
+def test_react_agent_fails_closed_when_required_rag_has_no_evidence():
+    def rag_retriever(*, query, top_k, selected_doc_ids, owner):
+        return {
+            "ok": True,
+            "payload": {
+                "answer": "",
+                "sources": [],
+            },
+        }
+
+    request, snapshot = _request_snapshot()
+    request.question = "课程资料里的唯一事实是什么"
+    snapshot.capability.allow_rag = True
+    snapshot.capability.selected_doc_ids = ["doc-empty"]
+    agent = ReActAgent(
+        agent_gateway=FakeTextGateway(),
+        fast_runtime=FakeFastRuntime(),
+        rag_retriever=rag_retriever,
+        max_steps=4,
+        timeout_seconds=5,
+    )
+
+    events = list(agent.run_stream(request=request, snapshot=snapshot))
+
+    result = events[-1]["payload"]
+    assert result["action"]["name"] == "agent.retrieval_incomplete"
+    assert "未找到" in result["message"]["content"]
+    assert result["sources"] == []
 
 
 def test_react_agent_executes_generate_tool_and_emits_task_submitted(

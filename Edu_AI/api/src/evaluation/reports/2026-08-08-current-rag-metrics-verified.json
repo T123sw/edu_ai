@@ -1,0 +1,78 @@
+{
+  "case_count": 50,
+  "hit_at_1": 0.96,
+  "hit_at_3": 1.0,
+  "hit_at_5": 1.0,
+  "hit_at_10": 1.0,
+  "mrr_at_10": 0.98,
+  "macro_node_precision_at_5": 0.88,
+  "macro_node_precision_at_10": 0.882,
+  "mean_unique_documents_at_10": 3.24,
+  "visual_hit_at_10": 1.0,
+  "visual_cases": 4,
+  "scope_leakage_count": 0,
+  "returned_results": 500,
+  "latency_mean_ms": 1965,
+  "latency_p50_ms": 1847,
+  "latency_p95_ms": 2868,
+  "latency_min_ms": 1726,
+  "latency_max_ms": 3042,
+  "rank_distribution": {
+    "1": 48,
+    "2": 2
+  },
+  "not_rank1": [
+    {
+      "case_id": "ct-boundary",
+      "rank": 2,
+      "latency_ms": 2036
+    },
+    {
+      "case_id": "recursion-termination",
+      "rank": 2,
+      "latency_ms": 1746
+    }
+  ],
+  "slowest_5": [
+    {
+      "case_id": "abstraction-details",
+      "latency_ms": 3042
+    },
+    {
+      "case_id": "formalize-input-output",
+      "latency_ms": 3036
+    },
+    {
+      "case_id": "algorithm-properties",
+      "latency_ms": 2868
+    },
+    {
+      "case_id": "state-transition-model",
+      "latency_ms": 2478
+    },
+    {
+      "case_id": "hash-collision",
+      "latency_ms": 2429
+    }
+  ],
+  "script_metrics": {
+    "question_hit_at_1": 0.96,
+    "question_hit_at_3": 1.0,
+    "question_hit_at_5": 1.0,
+    "question_hit_at_10": 1.0,
+    "recall_at_10": 1.0,
+    "mrr_at_10": 0.98,
+    "node_hit_at_5": 1.0,
+    "macro_node_precision_at_5": 0.88,
+    "macro_node_precision_at_10": 0.882,
+    "mean_unique_documents_at_10": 3.24,
+    "visual_hit_at_10": 1.0,
+    "visual_case_count": 4,
+    "visual_hit_count": 4,
+    "scope_leakage_count": 0,
+    "scope_leakage_rate": 0.0,
+    "latency_mean_ms": 1965,
+    "latency_p50_ms": 1847,
+    "latency_p95_ms": 2868
+  }
+}

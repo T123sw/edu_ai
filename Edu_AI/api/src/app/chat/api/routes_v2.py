@@ -69,6 +69,33 @@ def _get_reply_service():
     return build_default_reply_service_v2()
 
 
+def _require_direct_generation_access(
+    course_id: str | None,
+    current_user: dict,
+    access_service: CourseAccessService,
+) -> None:
+    require_course_capability(
+        str(course_id or "").strip(),
+        current_user,
+        "generate",
+        access_service,
+    )
+
+
+def _validate_direct_generation_source(payload) -> None:
+    try:
+        _get_generation_source_resolver().validate(
+            str(getattr(payload, "course_id", "") or "").strip(),
+            getattr(payload, "source_mode", "course_auto"),
+            list(getattr(payload, "selected_doc_ids", []) or []),
+        )
+    except GenerationSourceError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": exc.code, "message": exc.message},
+        ) from exc
+
+
 @router.post(
     "/generation/preflight",
     response_model=GenerationPreflightResponseV2,
@@ -492,7 +519,13 @@ async def lesson_plan_cards(payload: ChatLessonPlanCardsRequestV2, current_user:
 
 
 @router.post("/report/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
-async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_user: dict = Depends(get_current_user)):
+async def direct_report(
+    payload: KnowledgeBaseDirectReportRequestV2,
+    current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
+):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="report",
@@ -528,7 +561,10 @@ async def direct_report(payload: KnowledgeBaseDirectReportRequestV2, current_use
 async def direct_lesson_plan(
     payload: KnowledgeBaseDirectLessonPlanRequestV2,
     current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
 ):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="lesson_plan",
@@ -548,6 +584,7 @@ async def direct_lesson_plan(
             "lesson_type": payload.lesson_type,
             "teaching_process": payload.teaching_process,
             "special_requirements": payload.special_requirements,
+            "include_visuals": payload.include_visuals,
             "outline_preview": payload.outline_preview,
         },
         idempotency_key=payload.idempotency_key or str(uuid4()),
@@ -576,7 +613,13 @@ async def quiz_prefill(payload: KnowledgeBaseDirectQuizPrefillRequestV2, current
 
 
 @router.post("/quiz/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
-async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: dict = Depends(get_current_user)):
+async def direct_quiz(
+    payload: KnowledgeBaseDirectQuizRequestV2,
+    current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
+):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="quiz",
@@ -599,7 +642,13 @@ async def direct_quiz(payload: KnowledgeBaseDirectQuizRequestV2, current_user: d
 
 
 @router.post("/game/direct", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
-async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: dict = Depends(get_current_user)):
+async def direct_game(
+    payload: KnowledgeBaseDirectGameRequestV2,
+    current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
+):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="game",
@@ -627,7 +676,10 @@ async def direct_game(payload: KnowledgeBaseDirectGameRequestV2, current_user: d
 async def direct_flashcard(
     payload: KnowledgeBaseDirectFlashcardRequestV2,
     current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
 ):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="flashcard",
@@ -726,7 +778,10 @@ async def direct_ppt_generate(
 async def direct_graph(
     payload: KnowledgeBaseDirectGraphRequestV2,
     current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
 ):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="graph",
@@ -747,7 +802,10 @@ async def direct_graph(
 async def direct_blog(
     payload: KnowledgeBaseDirectBlogRequestV2,
     current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
 ):
+    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
     command = GenerationCommand(
         resource_type="blog",
@@ -765,6 +823,7 @@ async def direct_blog(
             "length": payload.length,
             "structure": payload.structure,
             "special_requirements": payload.special_requirements,
+            "include_visuals": payload.include_visuals,
         },
         idempotency_key=payload.idempotency_key,
     )

@@ -16,8 +16,10 @@ from __future__ import annotations
 import dataclasses
 import datetime as _dt
 import hashlib
+import ipaddress
 import json
 import mimetypes
+import socket
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -256,9 +258,9 @@ def resolve_async_localization(
 ) -> list[dict]:
     """Wait for localization (with extra timeout) and produce a merged asset list.
 
-    Each output asset uses the localized URL on success; on failure (or timeout)
-    falls back to the original external URL. Preserves alt/title/source_page
-    from the original so image_injector renders the right caption.
+    Each output asset uses the localized URL on success. Failed or timed-out
+    downloads are omitted so unsafe, dead, or unverified external URLs never
+    leak back into generated resources.
     """
     import concurrent.futures
 
@@ -279,8 +281,7 @@ def resolve_async_localization(
             )
             merged.append(payload)
         else:
-            # Failure or no result — keep external URL so the image still appears
-            merged.append(dict(original))
+            continue
     return merged
 
 
@@ -300,6 +301,32 @@ class _NonRetryableError(Exception):
         self.reason = reason
 
 
+def _validate_public_image_url(value: str) -> None:
+    parsed = urlparse(str(value or ""))
+    hostname = (parsed.hostname or "").strip().lower()
+    if parsed.scheme not in {"http", "https"} or not hostname:
+        raise _NonRetryableError("unsafe_url")
+    if hostname == "localhost" or hostname.endswith(".localhost"):
+        raise _NonRetryableError("unsafe_url")
+
+    addresses: set[str] = set()
+    try:
+        addresses.add(str(ipaddress.ip_address(hostname)))
+    except ValueError:
+        try:
+            for info in socket.getaddrinfo(hostname, parsed.port or 443):
+                addresses.add(str(info[4][0]))
+        except OSError:
+            return
+    for address in addresses:
+        try:
+            ip = ipaddress.ip_address(address)
+        except ValueError:
+            continue
+        if not ip.is_global:
+            raise _NonRetryableError("unsafe_url")
+
+
 @dataclasses.dataclass
 class _DownloadOutcome:
     local_path: Path
@@ -317,6 +344,7 @@ def _do_download(
     timeout_s: float,
     max_bytes: int,
 ) -> _DownloadOutcome:
+    _validate_public_image_url(source_url)
     headers = {
         "User-Agent": getattr(Config, "SEARCHED_IMAGE_USER_AGENT", None) or _BROWSER_UA_FALLBACK,
         # Intentionally NO Referer — hotlink-protected sites care about it.
@@ -325,7 +353,16 @@ def _do_download(
 
     transport = httpx.HTTPTransport()
     try:
-        with httpx.Client(transport=transport, timeout=timeout_s, follow_redirects=True) as client:
+        def validate_redirect_request(request: httpx.Request) -> None:
+            _validate_public_image_url(str(request.url))
+
+        with httpx.Client(
+            transport=transport,
+            timeout=timeout_s,
+            follow_redirects=True,
+            max_redirects=3,
+            event_hooks={"request": [validate_redirect_request]},
+        ) as client:
             try:
                 # Preflight HEAD-ish: just look at headers via streaming GET.
                 with client.stream("GET", source_url, headers=headers) as resp:

@@ -3,6 +3,13 @@ import type { KnowledgeBaseDocument } from "../../../stitch/api/types";
 export type GenerationSourceMode = "course_auto" | "selected_documents" | "none";
 export type GenerationSourceSelection = { mode: GenerationSourceMode; selectedDocumentIds: string[] };
 
+export function initialGenerationSource(selectedDocumentIds: string[]): GenerationSourceSelection {
+  const normalized = [...new Set(selectedDocumentIds.map((id) => id.trim()).filter(Boolean))];
+  return normalized.length > 0
+    ? { mode: "selected_documents", selectedDocumentIds: normalized }
+    : { mode: "none", selectedDocumentIds: [] };
+}
+
 export function changeSourceMode(selection: GenerationSourceSelection, mode: GenerationSourceMode): GenerationSourceSelection {
   return { mode, selectedDocumentIds: mode === "selected_documents" ? selection.selectedDocumentIds : [] };
 }

@@ -38,6 +38,7 @@ def test_teacher_b_reads_and_manages_teacher_a_course_material(course_api):
         "report-1",
         {"title": "Teacher A report"},
         owner_user_id="teacher-a",
+        visibility="course",
     )
     teacher_b = course_api.client_for("teacher-b", "teacher")
     student = course_api.client_for("student-a", "student")

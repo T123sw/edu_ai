@@ -1,0 +1,50 @@
+{"case_id":"ct-boundary","query":"把题目写成 Python 程序就一定算使用了计算思维吗？计算思维和单纯会编程的边界在哪里？","expected_node_ids":["ct-definition"]}
+{"case_id":"formalize-input-output","query":"面对一个含糊的校园排课需求，怎样把目标、输入、输出和约束条件定义清楚？","expected_node_ids":["problem-formulation"]}
+{"case_id":"decompose-coupling","query":"大问题拆成子任务时，怎样避免子任务互相依赖得过紧而无法分别验证？","expected_node_ids":["decomposition"]}
+{"case_id":"abstraction-details","query":"建立模型时哪些现实细节应该保留，哪些可以隐藏？抽象过度有什么风险？","expected_node_ids":["abstraction","model-abstraction"]}
+{"case_id":"generalization-overfit","query":"从几个相似案例总结通用方法时，如何判断规律可以推广而不是只适合样例？","expected_node_ids":["pattern-generalization"]}
+{"case_id":"automation-worth","query":"一个人工流程是否值得自动化，应从正确性、成本、可维护性和收益哪些方面评价？","expected_node_ids":["automation-evaluation"]}
+{"case_id":"binary-negative","query":"计算机怎样用二进制补码表示负数，为什么补码能统一加减法？","expected_node_ids":["binary-number"]}
+{"case_id":"multimedia-encoding","query":"文字、位图和声音在计算机中分别怎样编码，采样率与量化位数有什么作用？","expected_node_ids":["data-encoding"]}
+{"case_id":"boolean-circuit","query":"如何把一个真假条件表达式化简并实现为与门、或门和非门组成的电路？","expected_node_ids":["boolean-logic"]}
+{"case_id":"computability-limit","query":"为什么有些问题不存在任何能保证停机并给出答案的算法？","expected_node_ids":["computability-model"]}
+{"case_id":"von-neumann-bottleneck","query":"冯·诺依曼计算机的存储程序思想是什么，处理器和内存之间为何会形成瓶颈？","expected_node_ids":["von-neumann"]}
+{"case_id":"program-execution","query":"一段高级语言程序从源代码到 CPU 执行指令，中间经历哪些步骤？","expected_node_ids":["program-execution"]}
+{"case_id":"algorithm-properties","query":"一个操作步骤的描述要称为算法，必须满足有穷性、确定性等哪些基本性质？","expected_node_ids":["algorithm-properties"]}
+{"case_id":"flowchart-pseudocode","query":"自然语言、流程图和伪代码表达算法各有什么优缺点，什么时候用哪一种？","expected_node_ids":["algorithm-representation"]}
+{"case_id":"control-structures","query":"顺序、条件分支和循环三种控制结构如何组合表达一个完整过程？","expected_node_ids":["sequence-selection-loop"]}
+{"case_id":"type-expression","query":"变量的类型为什么会限制可执行的运算，隐式类型转换可能造成什么错误？","expected_node_ids":["variables-data-types"]}
+{"case_id":"module-contract","query":"把程序拆成函数和模块时，接口契约、参数和返回值应该怎样设计？","expected_node_ids":["functions-modularity"]}
+{"case_id":"recursion-termination","query":"递归为什么必须有基例，怎样用循环不变式或递归关系说明它会终止？","expected_node_ids":["iteration-recursion"]}
+{"case_id":"test-boundary","query":"除了正常样例，怎样设计边界、异常和反例来验证程序正确性并定位缺陷？","expected_node_ids":["correctness-testing"]}
+{"case_id":"array-list-tradeoff","query":"需要频繁随机访问和频繁中间插入时，数组与链表该如何取舍？","expected_node_ids":["array-linked-list"]}
+{"case_id":"stack-queue-use","query":"函数调用、撤销操作和任务排队分别更适合栈还是队列，原因是什么？","expected_node_ids":["stack-queue"]}
+{"case_id":"hash-collision","query":"两个键映射到同一槽位时，链地址法和开放寻址法怎样处理冲突？","expected_node_ids":["hash"]}
+{"case_id":"tree-traversal","query":"二叉树前序、中序和后序遍历的访问次序有什么区别，各适合解决什么问题？","expected_node_ids":["tree"]}
+{"case_id":"heap-priority","query":"优先队列为什么常用堆实现，插入新元素后怎样通过上浮恢复性质？","expected_node_ids":["heap"]}
+{"case_id":"graph-representation","query":"稀疏关系网络应该用邻接表还是邻接矩阵表示，空间与查询效率如何权衡？","expected_node_ids":["graph"]}
+{"case_id":"relational-query","query":"关系表中的主键、外键和连接查询如何表达实体之间的联系？","expected_node_ids":["relational-data"]}
+{"case_id":"complexity-growth","query":"为什么渐近分析忽略常数和低阶项，时间复杂度与空间复杂度分别衡量什么？","expected_node_ids":["complexity"]}
+{"case_id":"binary-search-invariant","query":"二分查找的区间不变量是什么，为什么数据无序时不能直接使用？","expected_node_ids":["linear-binary-search"]}
+{"case_id":"sorting-stability","query":"冒泡、选择和插入排序哪些是稳定的，稳定性在多字段排序中为何重要？","expected_node_ids":["elementary-sort"]}
+{"case_id":"divide-conquer","query":"归并排序和快速排序怎样体现分治，它们在合并或划分阶段有什么不同？","expected_node_ids":["divide-conquer"]}
+{"case_id":"greedy-proof","query":"每一步选局部最优并不总能得到整体最优，使用贪心法需要证明哪些性质？","expected_node_ids":["greedy"]}
+{"case_id":"dp-state","query":"动态规划中怎样定义状态、写出转移方程，并识别重叠子问题和最优子结构？","expected_node_ids":["dynamic-programming"]}
+{"case_id":"backtracking-prune","query":"回溯搜索如何建立选择树，剪枝条件怎样减少无效分支又不漏解？","expected_node_ids":["backtracking"]}
+{"case_id":"bfs-dfs","query":"在无权图中找最短路径和遍历迷宫时，BFS 与 DFS 的数据结构和适用场景有何不同？","expected_node_ids":["graph-traversal"]}
+{"case_id":"state-transition-model","query":"怎样用状态、事件和转移规则描述交通灯或协议的行为，并检查不可达状态？","expected_node_ids":["state-transition"]}
+{"case_id":"monte-carlo","query":"用随机采样估计圆周率时如何设计实验，样本数增加为何能降低随机误差？","expected_node_ids":["randomness-monte-carlo","simulation"]}
+{"case_id":"approximation-error","query":"数值计算中的截断误差和舍入误差从哪里来，图表如何帮助判断近似是否可靠？","expected_node_ids":["approximation-visualization"]}
+{"case_id":"data-cleaning","query":"缺失值、异常值和重复记录应该怎样发现与处理，为什么不能盲目删除？","expected_node_ids":["data-cleaning"]}
+{"case_id":"data-lifecycle","query":"从提出分析问题到采集、存储、处理、解释和归档数据，一个完整的数据项目要经历哪些阶段？","expected_node_ids":["data-lifecycle"]}
+{"case_id":"correlation-causality","query":"观察到两个变量相关为什么不能断言因果，混杂因素会怎样误导结论？","expected_node_ids":["statistical-thinking"]}
+{"case_id":"ml-evaluation","query":"训练集、验证集和测试集分别做什么，为什么只看训练准确率会高估模型能力？","expected_node_ids":["machine-learning","ai-limitations"]}
+{"case_id":"network-layering","query":"浏览器访问网站时，域名解析、IP 寻址、传输和应用协议如何分层协作？","expected_node_ids":["network-principles"]}
+{"case_id":"security-triad","query":"机密性、完整性、可用性和身份认证分别防范什么风险？","expected_node_ids":["information-security"]}
+{"case_id":"privacy-minimization","query":"收集用户数据时怎样落实目的限定、最小必要和知情同意？","expected_node_ids":["privacy-data"]}
+{"case_id":"algorithm-fairness","query":"自动决策出现群体差异时，如何从数据、指标、透明度和问责角度审查算法公平？","expected_node_ids":["algorithm-ethics"]}
+{"case_id":"open-license","query":"使用开源代码时为什么要看许可证，署名、修改和再分发通常需要注意什么？","expected_node_ids":["intellectual-property-collaboration"]}
+{"case_id":"visual-tree","query":"请找出能够直观看出二叉树节点层次和遍历关系的图示。","expected_node_ids":["tree"],"requires_visual":true}
+{"case_id":"visual-graph-search","query":"我需要一张展示 BFS 或 DFS 在图上搜索顺序的示意图。","expected_node_ids":["graph-traversal"],"requires_visual":true}
+{"case_id":"visual-sorting","query":"请检索能展示排序过程中元素交换或移动步骤的图解。","expected_node_ids":["elementary-sort","divide-conquer"],"requires_visual":true}
+{"case_id":"visual-encoding","query":"找一张有助于理解图像像素或声音采样编码的图表。","expected_node_ids":["data-encoding"],"requires_visual":true}

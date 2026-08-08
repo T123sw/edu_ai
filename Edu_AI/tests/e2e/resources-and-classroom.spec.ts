@@ -51,3 +51,24 @@ test("classroom player keeps core controls on the first screen", async ({ teache
     await expect(teacherPage.getByRole("navigation").filter({ hasText: "从受力图判断运动状态" })).toBeVisible();
   }
 });
+
+test("teacher can edit and export a private generated report", async ({ teacherPage }) => {
+  await teacherPage.goto(
+    "/#resources?course_id=course-physics&space=mine&material_type=report&material_id=report-mechanics",
+    { waitUntil: "domcontentloaded" },
+  );
+
+  await teacherPage.getByRole("button", { name: "编辑内容" }).click();
+  const editor = teacherPage.getByLabel("资源内容");
+  await expect(editor).toBeVisible();
+  await editor.fill("# 已修订的牛顿定律\n\n这是教师保存后的内容。");
+  await teacherPage.getByRole("button", { name: "保存内容" }).click();
+
+  await expect(teacherPage.getByText("资源内容已保存")).toBeVisible();
+  await expect(teacherPage.getByRole("heading", { name: "已修订的牛顿定律" })).toBeVisible();
+
+  const downloadPromise = teacherPage.waitForEvent("download");
+  await teacherPage.getByRole("button", { name: "导出", exact: true }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/\.md$/);
+});

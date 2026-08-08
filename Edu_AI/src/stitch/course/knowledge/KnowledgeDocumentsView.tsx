@@ -6,6 +6,7 @@ import { registerCreatedJob } from "../../../jobs/jobStore";
 import { MaterialIcon } from "../../shared";
 import { canCourse } from "../coursePermissions";
 import { useCourseRoute } from "../CourseRouteProvider";
+import { KnowledgeDocumentPreviewDialog } from "./KnowledgeDocumentPreviewDialog";
 import {
   defaultExpandedNodeIds,
   descendantNodeIds,
@@ -33,6 +34,7 @@ export function KnowledgeDocumentsView() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
+  const [previewDocument, setPreviewDocument] = useState<KnowledgeBaseDocument | null>(null);
 
   useEffect(() => {
     if (!courseId) return;
@@ -82,8 +84,8 @@ export function KnowledgeDocumentsView() {
     try {
       for (const file of Array.from(files)) {
         const result = await uploadKnowledgeBaseDocument(courseId, file, isRoot
-          ? { scopeType: "course", libraryType: "course" }
-          : { scopeType: "knowledge_point", scopeId: selectedNode.id, libraryType: "course" });
+          ? { scopeType: "course", libraryType: "personal" }
+          : { scopeType: "knowledge_point", scopeId: selectedNode.id, libraryType: "personal" });
         registerCreatedJob(result.job);
       }
       setReload((value) => value + 1);
@@ -172,10 +174,10 @@ export function KnowledgeDocumentsView() {
           ) : documents.map((document) => {
               const status = statusLabel(document.status);
               return (
-                <article key={document.id} className="knowledge-library-document">
+                <article key={document.id} className="knowledge-library-document" role="button" tabIndex={0} onClick={() => setPreviewDocument(document)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setPreviewDocument(document); }}>
                   <span className="knowledge-library-document__icon"><MaterialIcon name={document.type === "web" ? "language" : "description"} /></span>
                   <div>
-                    <strong>{document.name}</strong>
+                    <strong>{document.display_name || document.source_title || document.name}</strong>
                     <small>{document.scope_id === selectedNode?.id || isRoot ? "当前节点" : "子节点资料"} · {new Date(document.created_at).toLocaleString("zh-CN")}</small>
                   </div>
                   {status && <span className={`knowledge-library-document__status knowledge-library-document__status--${document.status}`}>{status}</span>}
@@ -184,6 +186,7 @@ export function KnowledgeDocumentsView() {
             })}
         </div>
       </div>
+      {previewDocument && courseId && <KnowledgeDocumentPreviewDialog courseId={courseId} document={previewDocument} onClose={() => setPreviewDocument(null)} />}
     </section>
   );
 }

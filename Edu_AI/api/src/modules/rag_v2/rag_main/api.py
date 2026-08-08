@@ -3,9 +3,9 @@
 提供知识库增量导入和RAG问答功能
 """
 import os
+import re
 import time
 import json
-import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
@@ -890,6 +890,13 @@ class DocumentInfo(BaseModel):
     modality: Optional[str] = None
     image_url: Optional[str] = None
     source_icon_url: Optional[str] = None
+    course_id: Optional[str] = None
+    library_type: Optional[str] = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
+    knowledge_node_id: Optional[str] = None
+    course_document_id: Optional[str] = None
+    course_material_id: Optional[str] = None
 
 
 class DocumentParticipationRequest(BaseModel):
@@ -1552,6 +1559,28 @@ async def list_documents(current_user: dict = Depends(get_current_user)):
         owner = current_user.get("username")
         server_url = _get_server_url()
         raw_documents = list(rag_system.list_documents(owner=owner) or [])
+        # `/api/rag/documents` is the personal-library catalog.  Course records
+        # have their own scoped course endpoint and must never leak into this
+        # list.  The path fallback also protects legacy records created before
+        # library_type/course_id were persisted in document_index.json.
+        def is_course_document(document: Dict[str, Any]) -> bool:
+            if str(document.get("library_type") or "").strip().lower() == "course":
+                return True
+            if str(document.get("course_id") or "").strip():
+                return True
+            raw_path = str(
+                document.get("physical_path")
+                or document.get("file_path")
+                or document.get("source_path")
+                or ""
+            )
+            normalized = raw_path.replace("\\", "/").lower()
+            return (
+                "/course_data/courses/" in normalized
+                and re.search(r"/knowledge_base/documents(?:-[^/]+)?/", normalized) is not None
+            )
+
+        raw_documents = [document for document in raw_documents if not is_course_document(document)]
         raw_documents.extend(_list_owner_image_documents(owner))
         scrubbed_documents = []
         for document in raw_documents:

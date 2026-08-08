@@ -27,11 +27,17 @@ def now_iso() -> str:
     return datetime.now().isoformat()
 
 
-def create_task_state(thread_id: str, course_id: str, topic: str) -> BlogTaskState:
+def create_task_state(
+    thread_id: str,
+    course_id: str,
+    topic: str,
+    generation_config: Optional[Dict[str, Any]] = None,
+) -> BlogTaskState:
     state = BlogTaskState(
         thread_id=thread_id,
         course_id=course_id,
         topic=topic,
+        generation_config=dict(generation_config or {}),
         created_at=now_iso(),
         updated_at=now_iso(),
         status="planning",

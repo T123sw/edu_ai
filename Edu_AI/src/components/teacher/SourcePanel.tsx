@@ -1,6 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Button, Input, Space, Typography, Modal, Checkbox, Dropdown, MenuProps, Spin, message, Card, Tag } from 'antd';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import {
   FilePdfOutlined,
   FileWordOutlined,
@@ -41,6 +45,7 @@ import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import {
   addRAGDocumentToCourseKB,
   deleteKnowledgeBaseDocument,
+  getKnowledgeBaseDocumentContent,
   getKnowledgeBaseDocuments,
   reindexKnowledgeBaseDocument,
   retryKnowledgeBaseDocument,
@@ -62,6 +67,7 @@ import {
   inferWebsiteUrlFromFileName,
 } from './websiteIcon';
 import './SourcePanel.css';
+import { normalizeKnowledgeMarkdown } from '../../stitch/components/knowledgeMarkdown';
 
 const { Title, Text } = Typography;
 const COURSE_LIBRARY_TYPE = 'course';
@@ -79,6 +85,7 @@ interface FileItem {
   key: string;
   documentId?: string;
   title: string;
+  storageName?: string;
   type: 'file' | 'web' | 'image';
   filePath?: string;
   imageUrl?: string;
@@ -180,6 +187,12 @@ const normalizeFilePath = (raw: string): string => {
   return raw;
 };
 
+const isCourseKnowledgeStoragePath = (raw: string | null | undefined): boolean => {
+  const normalized = normalizeFilePath(String(raw || '')).replace(/\\/g, '/').toLowerCase();
+  return normalized.includes('/course_data/courses/')
+    && /\/knowledge_base\/documents(?:-[^/]+)?\//.test(normalized);
+};
+
 const toFileItem = (
   doc: any,
   libraryType: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE = PERSONAL_LIBRARY_TYPE,
@@ -225,7 +238,7 @@ const toKnowledgeBaseFileItem = (
   doc: KnowledgeBaseDocument,
   fallbackLibraryType: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE,
 ): FileItem => {
-  const title = decodeDisplayText(doc.name) || doc.name || doc.url || doc.id;
+  const title = decodeDisplayText(doc.display_name || doc.name) || doc.display_name || doc.name || doc.url || doc.id;
   const filePath = doc.file_path || doc.url || doc.id;
   const sourceUrl = doc.url || inferWebsiteUrlFromFileName(title);
   const type = doc.type === 'web' || sourceUrl
@@ -236,6 +249,7 @@ const toKnowledgeBaseFileItem = (
     key: filePath,
     documentId: doc.id,
     title,
+    storageName: doc.name,
     type,
     filePath,
     sourceIconUrl: doc.source_icon_url,
@@ -284,7 +298,7 @@ const buildPreviewTextContent = (content: DocumentContent | null): string => {
     return '';
   }
 
-  return textChunks.map((chunk) => chunk.content).join('\n\n').trim();
+  return normalizeKnowledgeMarkdown(textChunks.map((chunk) => chunk.content).join('\n\n'));
 };
 
 const extractMarkdownImageUrls = (markdownContent: string): string[] => {
@@ -360,7 +374,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           libraryType: COURSE_LIBRARY_TYPE,
           includeDescendants: true,
           sort: 'created_desc',
-          limit: 200,
+          limit: 500,
         }),
         getKnowledgeBaseDocuments(courseId, token, {
           scopeType,
@@ -369,7 +383,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           libraryType: PERSONAL_LIBRARY_TYPE,
           includeDescendants: false,
           sort: 'created_desc',
-          limit: 200,
+          limit: 500,
         }),
         shouldLoadLegacyRagDocuments ? listDocuments() : Promise.resolve([]),
       ]);
@@ -377,7 +391,13 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         courseFiles: courseDocuments.map((doc) => toKnowledgeBaseFileItem(doc, COURSE_LIBRARY_TYPE)),
         personalFiles: [
           ...personalDocuments.map((doc) => toKnowledgeBaseFileItem(doc, PERSONAL_LIBRARY_TYPE)),
-          ...legacyRagDocuments.map((doc) => toFileItem(doc, PERSONAL_LIBRARY_TYPE)),
+          ...legacyRagDocuments
+            .filter((doc) => (
+              doc.library_type !== COURSE_LIBRARY_TYPE
+              && !doc.course_id
+              && !isCourseKnowledgeStoragePath(doc.file_path || doc.source_path)
+            ))
+            .map((doc) => toFileItem(doc, PERSONAL_LIBRARY_TYPE)),
         ],
       };
     }
@@ -675,6 +695,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     const targetFile = fileList.find(f => {
       const filePath = f.filePath || f.key;
       const fileName = f.title;
+      const storageName = f.storageName || fileName;
       
       // 1. 直接匹配（完全一致）
       if (filePath === requestPath) {
@@ -683,8 +704,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       }
       
       // 2. 文件名匹配（requestPath 是文件名，filePath 是 source_key）
-      if (fileName && requestPath.includes(fileName)) {
-        console.log('SourcePanel: 文件名匹配成功:', fileName);
+      if ((fileName && requestPath.includes(fileName)) || (storageName && requestPath.includes(storageName))) {
+        console.log('SourcePanel: 文件名匹配成功:', storageName);
         return true;
       }
       if (filePath && requestPath.includes(fileName)) {
@@ -1229,9 +1250,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
       setPreviewLoading(true);
       // 并行加载文档内容和摘要
+      const isCourseKnowledgeDocument = Boolean(courseId && token && file.documentId && file.knowledgeStatus);
       const [content, summaryData] = await Promise.all([
-        getDocumentContent(file.filePath),
-        getDocumentSummary(file.filePath, false).catch(err => {
+        isCourseKnowledgeDocument
+          ? getKnowledgeBaseDocumentContent(courseId!, file.documentId!, token!)
+          : getDocumentContent(file.filePath),
+        isCourseKnowledgeDocument ? Promise.resolve(null) : getDocumentSummary(file.filePath, false).catch(err => {
           console.warn('获取文档摘要失败:', err);
           return null; // 摘要加载失败不影响预览
         })
@@ -1763,7 +1787,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                     loading={summaryLoading}
                   >
                     <div style={{ fontSize: 14, lineHeight: 1.8 }}>
-                      <ReactMarkdown>{previewSummary}</ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>{normalizeKnowledgeMarkdown(previewSummary)}</ReactMarkdown>
                     </div>
                   </Card>
                 )}
@@ -1837,7 +1861,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   </div>
                 ) : previewTextContent ? (
                   <div style={{ padding: '12px 0', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333' }}>
-                    <ReactMarkdown components={previewMarkdownComponents}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]} components={previewMarkdownComponents}>
                       {previewTextContent}
                     </ReactMarkdown>
                   </div>

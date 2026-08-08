@@ -1,0 +1,124 @@
+{
+  "builder": "shadow-authored-zh-v1",
+  "documents": [
+    {
+      "id": "authored-975dcf604d75",
+      "filename": "shadow-authored-problem-formulation-core-975dcf604d75.md",
+      "path": "documents/shadow-authored-problem-formulation-core-975dcf604d75.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "problem-formulation",
+      "library_type": "course",
+      "source_title": "问题形式化与输入输出｜核心讲义",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 946
+    },
+    {
+      "id": "authored-70936c1242cd",
+      "filename": "shadow-authored-stack-queue-core-70936c1242cd.md",
+      "path": "documents/shadow-authored-stack-queue-core-70936c1242cd.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "stack-queue",
+      "library_type": "course",
+      "source_title": "栈、队列与双端队列｜核心讲义",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 935
+    },
+    {
+      "id": "authored-af6bbbc239aa",
+      "filename": "shadow-authored-state-transition-core-af6bbbc239aa.md",
+      "path": "documents/shadow-authored-state-transition-core-af6bbbc239aa.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "state-transition",
+      "library_type": "course",
+      "source_title": "状态、规则与状态转移｜核心讲义",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 1064
+    },
+    {
+      "id": "authored-6f21d71f1852",
+      "filename": "shadow-authored-approximation-visualization-core-6f21d71f1852.md",
+      "path": "documents/shadow-authored-approximation-visualization-core-6f21d71f1852.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "approximation-visualization",
+      "library_type": "course",
+      "source_title": "近似计算、误差与可视化｜核心讲义",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 840
+    },
+    {
+      "id": "authored-c8b8897bef2c",
+      "filename": "shadow-authored-approximation-visualization-practice-c8b8897bef2c.md",
+      "path": "documents/shadow-authored-approximation-visualization-practice-c8b8897bef2c.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "approximation-visualization",
+      "library_type": "course",
+      "source_title": "近似计算、误差与可视化｜案例与实践",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 865
+    },
+    {
+      "id": "authored-c75e49cda2e8",
+      "filename": "shadow-authored-algorithm-ethics-core-c75e49cda2e8.md",
+      "path": "documents/shadow-authored-algorithm-ethics-core-c75e49cda2e8.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "algorithm-ethics",
+      "library_type": "course",
+      "source_title": "算法公平、透明与责任｜核心讲义",
+      "source_site_name": "Edu AI 计算思维课程知识库",
+      "source_license": "CC BY-NC-SA 4.0",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_authored_material",
+      "doc_kind": "authored",
+      "status": "staged",
+      "substantive_chinese_chars": 968
+    }
+  ],
+  "failures": [
+    {
+      "scope_id": "backtracking",
+      "label": "回溯搜索与剪枝",
+      "error": "模型未按 CORE/PRACTICE 协议返回两份文档"
+    },
+    {
+      "scope_id": "randomness-monte-carlo",
+      "label": "随机性与蒙特卡洛方法",
+      "error": "core 质量不合格: placeholder_or_refusal"
+    },
+    {
+      "scope_id": "ai-limitations",
+      "label": "智能系统的能力、局限与评价",
+      "error": "core 质量不合格: insufficient_structure"
+    }
+  ]
+}

@@ -11,6 +11,24 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         allow_rag = bool(getattr(payload, "use_rag", False))
     if not allow_rag and selected_doc_ids:
         allow_rag = True
+    requested_source_mode = getattr(payload, "source_mode", None)
+    if requested_source_mode in {"course_auto", "selected_documents", "none"}:
+        source_mode = requested_source_mode
+    elif selected_doc_ids:
+        source_mode = "selected_documents"
+    elif allow_rag:
+        source_mode = "course_auto"
+    else:
+        source_mode = "none"
+
+    if source_mode == "selected_documents":
+        allow_rag = True
+    elif source_mode == "course_auto":
+        allow_rag = True
+        selected_doc_ids = []
+    else:
+        allow_rag = False
+        selected_doc_ids = []
 
     allow_web = bool(getattr(payload, "allow_web", False))
     # Phase 6-A.2 (decoupling fix): image_search is a separate capability from
@@ -37,6 +55,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         input_images=list(getattr(payload, "input_images", None) or []),
         input_videos=list(getattr(payload, "input_videos", None) or []),
         capability=CapabilityPolicy(
+            source_mode=source_mode,
             allow_rag=bool(allow_rag),
             allow_web=allow_web,
             allow_image_search=allow_image_search,

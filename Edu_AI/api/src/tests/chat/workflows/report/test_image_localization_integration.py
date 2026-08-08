@@ -79,10 +79,10 @@ def test_async_localization_round_trip_replaces_external_urls_in_markdown(tmp_pa
 
 
 # ---------------------------------------------------------------------------
-# T2: partial failure — failed asset falls back to external URL
+# T2: partial failure — failed external asset is omitted
 # ---------------------------------------------------------------------------
 
-def test_async_localization_falls_back_to_external_url_for_failed_downloads(tmp_path):
+def test_async_localization_omits_failed_external_images(tmp_path):
     assets = [
         {"url": "https://example.com/ok.png", "title": "ok", "source_page": "https://p1"},
         {"url": "https://example.com/bad.png", "title": "bad", "source_page": "https://p2"},
@@ -98,19 +98,19 @@ def test_async_localization_falls_back_to_external_url_for_failed_downloads(tmp_
         injectable = resolve_async_localization(future, assets, extra_timeout_s=10.0)
 
     assert injectable[0]["url"].startswith("/api/images/searched/")
-    assert injectable[1]["url"] == "https://example.com/bad.png"  # fallback
+    assert len(injectable) == 1
 
     markdown = "# Report\n## 一\n\n## 二\n"
     final = inject_images_into_report(markdown, injectable, max_images=2)
     assert "/api/images/searched/" in final
-    assert "https://example.com/bad.png" in final
+    assert "https://example.com/bad.png" not in final
 
 
 # ---------------------------------------------------------------------------
-# T3: timeout join — future not done within extra_timeout_s → all fall back
+# T3: timeout join — future not done within extra_timeout_s → omit images
 # ---------------------------------------------------------------------------
 
-def test_resolve_falls_back_when_future_times_out():
+def test_resolve_omits_images_when_future_times_out():
     import concurrent.futures
     import time
     import threading
@@ -121,8 +121,7 @@ def test_resolve_falls_back_when_future_times_out():
     pending = concurrent.futures.Future()
 
     injectable = resolve_async_localization(pending, assets, extra_timeout_s=0.05)
-    assert len(injectable) == 1
-    assert injectable[0]["url"] == "https://example.com/x.png"
+    assert injectable == []
 
 
 # ---------------------------------------------------------------------------

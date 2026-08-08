@@ -1,0 +1,1014 @@
+{
+  "builder": "shadow-curated-web-v1",
+  "status": "staged",
+  "document_count": 37,
+  "failure_count": 0,
+  "failures": [],
+  "documents": [
+    {
+      "id": "curated-10662693e1bc",
+      "filename": "shadow-curated-ct-definition-10662693e1bc.md",
+      "path": "documents/shadow-curated-ct-definition-10662693e1bc.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "ct-definition",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%80%9D%E7%BB%B4",
+      "source_title": "计算思维",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-5088f3f4cdf5",
+      "filename": "shadow-curated-problem-formulation-5088f3f4cdf5.md",
+      "path": "documents/shadow-curated-problem-formulation-5088f3f4cdf5.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "problem-formulation",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3",
+      "source_title": "问题解决与形式化",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-47a44ce6b272",
+      "filename": "shadow-curated-decomposition-47a44ce6b272.md",
+      "path": "documents/shadow-curated-decomposition-47a44ce6b272.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "decomposition",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E5%85%B3%E6%B3%A8%E7%82%B9%E5%88%86%E7%A6%BB",
+      "source_title": "关注点分离",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-31e0242423c8",
+      "filename": "shadow-curated-abstraction-31e0242423c8.md",
+      "path": "documents/shadow-curated-abstraction-31e0242423c8.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "abstraction",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%8A%BD%E8%B1%A1%E5%8C%96_(%E8%A8%88%E7%AE%97%E6%A9%9F%E7%A7%91%E5%AD%B8)",
+      "source_title": "计算机科学中的抽象化",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-0db7ebcd00ac",
+      "filename": "shadow-curated-pattern-generalization-0db7ebcd00ac.md",
+      "path": "documents/shadow-curated-pattern-generalization-0db7ebcd00ac.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "pattern-generalization",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%A8%A1%E5%BC%8F%E8%AF%86%E5%88%AB",
+      "source_title": "模式识别",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-8a57967a02c5",
+      "filename": "shadow-curated-automation-evaluation-8a57967a02c5.md",
+      "path": "documents/shadow-curated-automation-evaluation-8a57967a02c5.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "automation-evaluation",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%87%AA%E5%8A%A8%E5%8C%96",
+      "source_title": "自动化",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Saturn_V_Instrument_Unit.jpg/330px-Saturn_V_Instrument_Unit.jpg?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-automation-evaluation-8a57967a02c5.assets/1d3b3afd6c18410b.jpg",
+          "content_type": "image/jpeg",
+          "size": 25739
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Factory_Automation_Robotics_Palettizing_Bread.jpg/250px-Factory_Automation_Robotics_Palettizing_Bread.jpg?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-automation-evaluation-8a57967a02c5.assets/1e37f02eb36481e1.jpg",
+          "content_type": "image/jpeg",
+          "size": 28442
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Caja_autoservicio_en_un_supermercado_Simply_de_Madrid.JPG/250px-Caja_autoservicio_en_un_supermercado_Simply_de_Madrid.JPG?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-automation-evaluation-8a57967a02c5.assets/c36f198b7a47e8a9.jpg",
+          "content_type": "image/jpeg",
+          "size": 22707
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/IFab_concept.png/250px-IFab_concept.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-automation-evaluation-8a57967a02c5.assets/0532fedb036608ae.png",
+          "content_type": "image/png",
+          "size": 50533
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/M1126_Stryker_top_close.jpg/250px-M1126_Stryker_top_close.jpg?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-automation-evaluation-8a57967a02c5.assets/dd1c88925373faf1.jpg",
+          "content_type": "image/jpeg",
+          "size": 18542
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-a52718b09908",
+      "filename": "shadow-curated-binary-number-a52718b09908.md",
+      "path": "documents/shadow-curated-binary-number-a52718b09908.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "binary-number",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E8%BF%9B%E5%88%B6",
+      "source_title": "二进制",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Eye_of_Ra_%28fractions%29.svg/250px-Eye_of_Ra_%28fractions%29.svg.png",
+          "relative_path": "shadow-curated-binary-number-a52718b09908.assets/af977adfec1dc220.png",
+          "content_type": "image/png",
+          "size": 16068
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gottfried_Wilhelm_von_Leibniz.jpg/250px-Gottfried_Wilhelm_von_Leibniz.jpg",
+          "relative_path": "shadow-curated-binary-number-a52718b09908.assets/d61661dc2904ef9d.jpg",
+          "content_type": "image/jpeg",
+          "size": 26358
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Diagram_of_I_Ching_hexagrams_owned_by_Gottfried_Wilhelm_Leibniz%2C_1701.jpg/250px-Diagram_of_I_Ching_hexagrams_owned_by_Gottfried_Wilhelm_Leibniz%2C_1701.jpg",
+          "relative_path": "shadow-curated-binary-number-a52718b09908.assets/6b378ea78b117cb9.jpg",
+          "content_type": "image/jpeg",
+          "size": 18973
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/George_Boole_color.jpg/250px-George_Boole_color.jpg",
+          "relative_path": "shadow-curated-binary-number-a52718b09908.assets/4ff5d4b5f4bfc7a8.jpg",
+          "content_type": "image/jpeg",
+          "size": 35868
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-83b1530007be",
+      "filename": "shadow-curated-data-encoding-83b1530007be.md",
+      "path": "documents/shadow-curated-data-encoding-83b1530007be.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "data-encoding",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81",
+      "source_title": "字符编码",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-bd8b67ddaf79",
+      "filename": "shadow-curated-boolean-logic-bd8b67ddaf79.md",
+      "path": "documents/shadow-curated-boolean-logic-bd8b67ddaf79.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "boolean-logic",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E5%B8%83%E5%B0%94%E4%BB%A3%E6%95%B0",
+      "source_title": "布尔代数",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Hasse_diagram_of_powerset_of_3.svg/250px-Hasse_diagram_of_powerset_of_3.svg.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-boolean-logic-bd8b67ddaf79.assets/0a038598fe8c5a20.png",
+          "content_type": "image/png",
+          "size": 6724
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-cc601998aaa1",
+      "filename": "shadow-curated-computability-model-cc601998aaa1.md",
+      "path": "documents/shadow-curated-computability-model-cc601998aaa1.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "computability-model",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E5%8F%AF%E8%AE%A1%E7%AE%97%E6%80%A7%E7%90%86%E8%AE%BA",
+      "source_title": "可计算性理论",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-6be722465fa0",
+      "filename": "shadow-curated-von-neumann-6be722465fa0.md",
+      "path": "documents/shadow-curated-von-neumann-6be722465fa0.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "von-neumann",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E5%86%AF%C2%B7%E8%AF%BA%E4%BC%8A%E6%9B%BC%E7%BB%93%E6%9E%84",
+      "source_title": "冯·诺伊曼结构",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Von_Neumann_Architecture.svg/330px-Von_Neumann_Architecture.svg.png",
+          "relative_path": "shadow-curated-von-neumann-6be722465fa0.assets/79ca991126f54f6d.png",
+          "content_type": "image/png",
+          "size": 9673
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-8bdd5e3e87c8",
+      "filename": "shadow-curated-program-execution-8bdd5e3e87c8.md",
+      "path": "documents/shadow-curated-program-execution-8bdd5e3e87c8.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "program-execution",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E9%9B%86%E6%9E%B6%E6%A7%8B",
+      "source_title": "指令集架构",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mips32_addi.svg/330px-Mips32_addi.svg.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-program-execution-8bdd5e3e87c8.assets/8e8c58e080832e6f.png",
+          "content_type": "image/png",
+          "size": 24488
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-d0b8196770c1",
+      "filename": "shadow-curated-algorithm-properties-d0b8196770c1.md",
+      "path": "documents/shadow-curated-algorithm-properties-d0b8196770c1.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "algorithm-properties",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E7%AE%97%E6%B3%95",
+      "source_title": "算法",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/LampFlowchart_ZhS.svg/250px-LampFlowchart_ZhS.svg.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-algorithm-properties-d0b8196770c1.assets/07b37f1696de70b4.png",
+          "content_type": "image/png",
+          "size": 23131
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/MerkleTree1.JPG/250px-MerkleTree1.JPG?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-algorithm-properties-d0b8196770c1.assets/8eeacf1f408a2450.jpg",
+          "content_type": "image/jpeg",
+          "size": 17343
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-c854a670191f",
+      "filename": "shadow-curated-algorithm-representation-c854a670191f.md",
+      "path": "documents/shadow-curated-algorithm-representation-c854a670191f.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "algorithm-representation",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%B5%81%E7%A8%8B%E5%9B%BE",
+      "source_title": "流程图",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/LampFlowchart_ZhS.svg/250px-LampFlowchart_ZhS.svg.png",
+          "relative_path": "shadow-curated-algorithm-representation-c854a670191f.assets/3bf1b13c5bc4564c.png",
+          "content_type": "image/png",
+          "size": 23131
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Technical_ruler_Logarex_%28002%29.jpg/250px-Technical_ruler_Logarex_%28002%29.jpg",
+          "relative_path": "shadow-curated-algorithm-representation-c854a670191f.assets/88e5f9503ae23b38.jpg",
+          "content_type": "image/jpeg",
+          "size": 11587
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flowgorithm_Editor.png/330px-Flowgorithm_Editor.png",
+          "relative_path": "shadow-curated-algorithm-representation-c854a670191f.assets/5fc0ffcf94b92e86.png",
+          "content_type": "image/png",
+          "size": 27405
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-508f0f2a5155",
+      "filename": "shadow-curated-sequence-selection-loop-508f0f2a5155.md",
+      "path": "documents/shadow-curated-sequence-selection-loop-508f0f2a5155.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "sequence-selection-loop",
+      "library_type": "course",
+      "source_url": "https://docs.python.org/zh-cn/3/tutorial/controlflow.html",
+      "source_title": "Python 控制流",
+      "source_site_name": "Python 官方中文文档",
+      "source_license": "PSF License Version 2",
+      "source_license_url": "https://docs.python.org/zh-cn/3/license.html",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-8fce21a4f506",
+      "filename": "shadow-curated-variables-data-types-8fce21a4f506.md",
+      "path": "documents/shadow-curated-variables-data-types-8fce21a4f506.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "variables-data-types",
+      "library_type": "course",
+      "source_url": "https://docs.python.org/zh-cn/3/tutorial/introduction.html",
+      "source_title": "Python 变量、类型与表达式",
+      "source_site_name": "Python 官方中文文档",
+      "source_license": "PSF License Version 2",
+      "source_license_url": "https://docs.python.org/zh-cn/3/license.html",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-54d939ced0e8",
+      "filename": "shadow-curated-functions-modularity-54d939ced0e8.md",
+      "path": "documents/shadow-curated-functions-modularity-54d939ced0e8.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "functions-modularity",
+      "library_type": "course",
+      "source_url": "https://docs.python.org/zh-cn/3/tutorial/modules.html",
+      "source_title": "Python 模块",
+      "source_site_name": "Python 官方中文文档",
+      "source_license": "PSF License Version 2",
+      "source_license_url": "https://docs.python.org/zh-cn/3/license.html",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-181d42e5bbf4",
+      "filename": "shadow-curated-correctness-testing-181d42e5bbf4.md",
+      "path": "documents/shadow-curated-correctness-testing-181d42e5bbf4.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "correctness-testing",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95",
+      "source_title": "软件测试",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-74884ba84f04",
+      "filename": "shadow-curated-relational-data-74884ba84f04.md",
+      "path": "documents/shadow-curated-relational-data-74884ba84f04.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "relational-data",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E5%85%B3%E7%B3%BB%E6%A8%A1%E5%9E%8B",
+      "source_title": "关系模型",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Emp_Tables_%28Database%29.PNG",
+          "relative_path": "shadow-curated-relational-data-74884ba84f04.assets/6bf9caccc5c0e523.png",
+          "content_type": "image/png",
+          "size": 6647
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-bc6138459336",
+      "filename": "shadow-curated-model-abstraction-bc6138459336.md",
+      "path": "documents/shadow-curated-model-abstraction-bc6138459336.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "model-abstraction",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%A8%A1%E5%9E%8B_(%E6%95%B0%E5%AD%A6)",
+      "source_title": "计算模型",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-695c50cfdca2",
+      "filename": "shadow-curated-state-transition-695c50cfdca2.md",
+      "path": "documents/shadow-curated-state-transition-695c50cfdca2.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "state-transition",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA",
+      "source_title": "有限状态机",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Finite_state_machine_example_with_comments.svg/250px-Finite_state_machine_example_with_comments.svg.png",
+          "relative_path": "shadow-curated-state-transition-695c50cfdca2.assets/d7f8cf29024f7e5f.png",
+          "content_type": "image/png",
+          "size": 25431
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Fsm_parsing_word_nice.svg/500px-Fsm_parsing_word_nice.svg.png",
+          "relative_path": "shadow-curated-state-transition-695c50cfdca2.assets/fd5565a2e3068902.png",
+          "content_type": "image/png",
+          "size": 33278
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/DFAexample.svg/250px-DFAexample.svg.png",
+          "relative_path": "shadow-curated-state-transition-695c50cfdca2.assets/f947431a943fb70a.png",
+          "content_type": "image/png",
+          "size": 5601
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Fsm_mealy_model_door_control.svg/500px-Fsm_mealy_model_door_control.svg.png",
+          "relative_path": "shadow-curated-state-transition-695c50cfdca2.assets/a357f39dadffb813.png",
+          "content_type": "image/png",
+          "size": 25508
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Finite_State_Machine_Logic.svg/250px-Finite_State_Machine_Logic.svg.png",
+          "relative_path": "shadow-curated-state-transition-695c50cfdca2.assets/b98a38c2c4946918.png",
+          "content_type": "image/png",
+          "size": 7092
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-43fcf311ed40",
+      "filename": "shadow-curated-simulation-43fcf311ed40.md",
+      "path": "documents/shadow-curated-simulation-43fcf311ed40.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "simulation",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%A8%A1%E6%8B%9F",
+      "source_title": "计算机模拟",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Typhoon_Mawar_2005_computer_simulation_thumbnail.gif?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+          "relative_path": "shadow-curated-simulation-43fcf311ed40.assets/29c71ad756a510b4.gif",
+          "content_type": "image/gif",
+          "size": 890339
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-6cc2855ffbf5",
+      "filename": "shadow-curated-randomness-monte-carlo-6cc2855ffbf5.md",
+      "path": "documents/shadow-curated-randomness-monte-carlo-6cc2855ffbf5.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "randomness-monte-carlo",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%96%B9%E6%B3%95",
+      "source_title": "蒙特卡洛方法",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Pi_30K.gif/250px-Pi_30K.gif?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-randomness-monte-carlo-6cc2855ffbf5.assets/81c380e5c8373d96.gif",
+          "content_type": "image/gif",
+          "size": 198002
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-fa9b02e425df",
+      "filename": "shadow-curated-approximation-visualization-fa9b02e425df.md",
+      "path": "documents/shadow-curated-approximation-visualization-fa9b02e425df.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "approximation-visualization",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%95%B0%E5%80%BC%E5%88%86%E6%9E%90",
+      "source_title": "数值分析与误差",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Ybc7289-bw.jpg/250px-Ybc7289-bw.jpg?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-approximation-visualization-fa9b02e425df.assets/8ed3525dbbdb17b8.jpg",
+          "content_type": "image/jpeg",
+          "size": 18440
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-4a01c9cd3d07",
+      "filename": "shadow-curated-data-lifecycle-4a01c9cd3d07.md",
+      "path": "documents/shadow-curated-data-lifecycle-4a01c9cd3d07.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "data-lifecycle",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86",
+      "source_title": "数据管理",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-28f67a9ffb32",
+      "filename": "shadow-curated-data-cleaning-28f67a9ffb32.md",
+      "path": "documents/shadow-curated-data-cleaning-28f67a9ffb32.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "data-cleaning",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97",
+      "source_title": "数据清洗",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-9c4589da47ea",
+      "filename": "shadow-curated-statistical-thinking-9c4589da47ea.md",
+      "path": "documents/shadow-curated-statistical-thinking-9c4589da47ea.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "statistical-thinking",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E7%BB%9F%E8%AE%A1%E6%8E%A8%E6%96%AD",
+      "source_title": "统计推断",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Fisher_iris_versicolor_sepalwidth.svg/250px-Fisher_iris_versicolor_sepalwidth.svg.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-statistical-thinking-9c4589da47ea.assets/5a4f77e2de8e8a12.png",
+          "content_type": "image/png",
+          "size": 16398
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Normality_Histogram.png/250px-Normality_Histogram.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-statistical-thinking-9c4589da47ea.assets/9eb7a9c04212a90a.png",
+          "content_type": "image/png",
+          "size": 10083
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-9924b5e2ca56",
+      "filename": "shadow-curated-machine-learning-9924b5e2ca56.md",
+      "path": "documents/shadow-curated-machine-learning-9924b5e2ca56.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "machine-learning",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0",
+      "source_title": "机器学习",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Supervised_and_unsupervised_learning.png/330px-Supervised_and_unsupervised_learning.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-machine-learning-9924b5e2ca56.assets/a8bd41edc6253812.png",
+          "content_type": "image/png",
+          "size": 27326
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Colored_neural_network.svg/330px-Colored_neural_network.svg.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-machine-learning-9924b5e2ca56.assets/4c0deafbaf156383.png",
+          "content_type": "image/png",
+          "size": 29255
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Decision_Tree.jpg/250px-Decision_Tree.jpg?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-machine-learning-9924b5e2ca56.assets/8550cd775f0132d2.jpg",
+          "content_type": "image/jpeg",
+          "size": 10966
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/SimpleBayesNetNodes.svg/250px-SimpleBayesNetNodes.svg.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-machine-learning-9924b5e2ca56.assets/bc48accf87f6c5e6.png",
+          "content_type": "image/png",
+          "size": 9859
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-cfac0b345a85",
+      "filename": "shadow-curated-ai-limitations-cfac0b345a85.md",
+      "path": "documents/shadow-curated-ai-limitations-cfac0b345a85.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "ai-limitations",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E4%BC%A6%E7%90%86",
+      "source_title": "人工智能伦理",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Kamala_Harris_speaks_about_racial_bias_in_artificial_intelligence_-_2020-04-23.ogv/250px--Kamala_Harris_speaks_about_racial_bias_in_artificial_intelligence_-_2020-04-23.ogv.jpg?utm_source=zh.wikipedia.org&utm_campaign=parser",
+          "relative_path": "shadow-curated-ai-limitations-cfac0b345a85.assets/d060afa776f217c3.jpg",
+          "content_type": "image/jpeg",
+          "size": 16631
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-216bb137b83a",
+      "filename": "shadow-curated-network-principles-216bb137b83a.md",
+      "path": "documents/shadow-curated-network-principles-216bb137b83a.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "network-principles",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/TCP/IP%E5%8D%8F%E8%AE%AE%E6%97%8F",
+      "source_title": "TCP/IP 协议族",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-39ac991da2f1",
+      "filename": "shadow-curated-information-security-39ac991da2f1.md",
+      "path": "documents/shadow-curated-information-security-39ac991da2f1.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "information-security",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8",
+      "source_title": "信息安全",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/2010-T10-ArchitectureDiagram.png/330px-2010-T10-ArchitectureDiagram.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-information-security-39ac991da2f1.assets/7d12cdd8a4c7ffb5.png",
+          "content_type": "image/png",
+          "size": 35440
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Tab_log.png/330px-Tab_log.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-information-security-39ac991da2f1.assets/9e584ed480e124dd.png",
+          "content_type": "image/png",
+          "size": 75574
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/CIAJMK1209.png/250px-CIAJMK1209.png?utm_source=zh.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+          "relative_path": "shadow-curated-information-security-39ac991da2f1.assets/301a63b67dabb0c4.png",
+          "content_type": "image/png",
+          "size": 65222
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-b2280dfdc792",
+      "filename": "shadow-curated-privacy-data-b2280dfdc792.md",
+      "path": "documents/shadow-curated-privacy-data-b2280dfdc792.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "privacy-data",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E9%9A%90%E7%A7%81",
+      "source_title": "网络隐私与个人数据保护",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [],
+      "status": "staged"
+    },
+    {
+      "id": "curated-31bb18f94f70",
+      "filename": "shadow-curated-algorithm-ethics-31bb18f94f70.md",
+      "path": "documents/shadow-curated-algorithm-ethics-31bb18f94f70.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "algorithm-ethics",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E4%BC%A6%E7%90%86",
+      "source_title": "网络与算法伦理",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Backlit_keyboard.jpg/330px-Backlit_keyboard.jpg",
+          "relative_path": "shadow-curated-algorithm-ethics-31bb18f94f70.assets/2b31387df9762e64.jpg",
+          "content_type": "image/jpeg",
+          "size": 18986
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-d07b20915ae7",
+      "filename": "shadow-curated-intellectual-property-collaboration-d07b20915ae7.md",
+      "path": "documents/shadow-curated-intellectual-property-collaboration-d07b20915ae7.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "intellectual-property-collaboration",
+      "library_type": "course",
+      "source_url": "https://zh.wikipedia.org/wiki/%E8%87%AA%E7%94%B1%E8%BD%AF%E4%BB%B6%E8%AE%B8%E5%8F%AF%E8%AF%81",
+      "source_title": "自由软件与开放许可证",
+      "source_site_name": "维基百科（中文）",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Heckert_GNU_white.svg/250px-Heckert_GNU_white.svg.png",
+          "relative_path": "shadow-curated-intellectual-property-collaboration-d07b20915ae7.assets/80c4a14c42876f0d.png",
+          "content_type": "image/png",
+          "size": 15879
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Fsmap-zh_tw.svg/500px-Fsmap-zh_tw.svg.png",
+          "relative_path": "shadow-curated-intellectual-property-collaboration-d07b20915ae7.assets/2ed9c1a0e9f39563.png",
+          "content_type": "image/png",
+          "size": 146206
+        },
+        {
+          "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Guix_System_with_KDE_Plasma_6.png/250px-Guix_System_with_KDE_Plasma_6.png",
+          "relative_path": "shadow-curated-intellectual-property-collaboration-d07b20915ae7.assets/5c51b165e39329eb.png",
+          "content_type": "image/png",
+          "size": 24896
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-7028092c6fba",
+      "filename": "shadow-curated-ct-definition-7028092c6fba.md",
+      "path": "documents/shadow-curated-ct-definition-7028092c6fba.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "ct-definition",
+      "library_type": "course",
+      "source_url": "https://www.csunplugged.org/zh-hans/computational-thinking/",
+      "source_title": "计算思维及 CS Unplugged",
+      "source_site_name": "CS Unplugged 中文开放课程",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://www.csunplugged.org/static/img/general/ct-algorithm.png",
+          "relative_path": "shadow-curated-ct-definition-7028092c6fba.assets/1485b374df5d5f61.png",
+          "content_type": "image/png",
+          "size": 1077
+        },
+        {
+          "source_url": "https://www.csunplugged.org/static/img/general/ct-abstraction.png",
+          "relative_path": "shadow-curated-ct-definition-7028092c6fba.assets/2b707398ca61230e.png",
+          "content_type": "image/png",
+          "size": 1269
+        },
+        {
+          "source_url": "https://www.csunplugged.org/static/img/topics/binary-picture-showing-bits.png",
+          "relative_path": "shadow-curated-ct-definition-7028092c6fba.assets/437ef28c786a8528.png",
+          "content_type": "image/png",
+          "size": 118435
+        },
+        {
+          "source_url": "https://www.csunplugged.org/static/img/general/ct-decomposition.png",
+          "relative_path": "shadow-curated-ct-definition-7028092c6fba.assets/96036917dd1e6186.png",
+          "content_type": "image/png",
+          "size": 1373
+        },
+        {
+          "source_url": "https://www.csunplugged.org/static/img/general/ct-pattern.png",
+          "relative_path": "shadow-curated-ct-definition-7028092c6fba.assets/62d0e8fb445c7086.png",
+          "content_type": "image/png",
+          "size": 1661
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-db55fa14d383",
+      "filename": "shadow-curated-binary-number-db55fa14d383.md",
+      "path": "documents/shadow-curated-binary-number-db55fa14d383.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "binary-number",
+      "library_type": "course",
+      "source_url": "https://www.csunplugged.org/zh-hans/topics/binary-numbers/",
+      "source_title": "二进制数开放课程",
+      "source_site_name": "CS Unplugged 中文开放课程",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "zh-CN",
+      "content_language": "zh-CN",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://www.csunplugged.org/static/img/general/video.png",
+          "relative_path": "shadow-curated-binary-number-db55fa14d383.assets/c713c58078caa464.png",
+          "content_type": "image/png",
+          "size": 749
+        },
+        {
+          "source_url": "https://www.csunplugged.org/static/img/topics/binary_fingers.png",
+          "relative_path": "shadow-curated-binary-number-db55fa14d383.assets/a3a5e5e8164aabd1.png",
+          "content_type": "image/png",
+          "size": 44135
+        },
+        {
+          "source_url": "https://www.csunplugged.org/static/img/topics/col_binary_01.png",
+          "relative_path": "shadow-curated-binary-number-db55fa14d383.assets/eeb2811fbfee8d4c.png",
+          "content_type": "image/png",
+          "size": 23538
+        }
+      ],
+      "status": "staged"
+    },
+    {
+      "id": "curated-7984b4a9f362",
+      "filename": "shadow-curated-elementary-sort-7984b4a9f362.md",
+      "path": "documents/shadow-curated-elementary-sort-7984b4a9f362.md",
+      "scope_type": "knowledge_point",
+      "scope_id": "elementary-sort",
+      "library_type": "course",
+      "source_url": "https://classic.csunplugged.org/activities/sorting-networks/",
+      "source_title": "Sorting Networks 开放课程活动",
+      "source_site_name": "CS Unplugged",
+      "source_license": "CC BY-SA 4.0",
+      "source_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "source_language": "en",
+      "content_language": "en",
+      "authority_tier": "reviewed_supplementary_source",
+      "linked_assets": [
+        {
+          "source_url": "https://classic.csunplugged.org/images/activities/sorting-networks/sorting-networks-photo-1_1.jpg",
+          "relative_path": "shadow-curated-elementary-sort-7984b4a9f362.assets/36ac63e8d3daef1d.jpg",
+          "content_type": "image/jpeg",
+          "size": 531301
+        },
+        {
+          "source_url": "https://classic.csunplugged.org/images/activities/sorting-networks/sorting-networks-photo-2_0.jpg",
+          "relative_path": "shadow-curated-elementary-sort-7984b4a9f362.assets/87a548d92dd39873.jpg",
+          "content_type": "image/jpeg",
+          "size": 871324
+        },
+        {
+          "source_url": "https://classic.csunplugged.org/images/activities/sorting-networks/sorting-networks-photo-3_0.jpg",
+          "relative_path": "shadow-curated-elementary-sort-7984b4a9f362.assets/68e3fc9fd63d11ab.jpg",
+          "content_type": "image/jpeg",
+          "size": 163554
+        },
+        {
+          "source_url": "https://classic.csunplugged.org/images/activities/sorting-networks/DSC24754.jpg",
+          "relative_path": "shadow-curated-elementary-sort-7984b4a9f362.assets/bf1ffd9885678595.jpg",
+          "content_type": "image/jpeg",
+          "size": 362514
+        },
+        {
+          "source_url": "https://classic.csunplugged.org/images/activities/sorting-networks/IMG_0680.jpg",
+          "relative_path": "shadow-curated-elementary-sort-7984b4a9f362.assets/e572e869442889fe.jpg",
+          "content_type": "image/jpeg",
+          "size": 59675
+        }
+      ],
+      "status": "staged"
+    }
+  ]
+}

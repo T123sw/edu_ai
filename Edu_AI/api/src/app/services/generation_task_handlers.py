@@ -89,6 +89,65 @@ class _ResolvedDocumentContentReader:
             if str(item.get("content") or "").strip()
         )
 
+    def search_many(
+        self,
+        rag_index_keys: Sequence[str],
+        query_text: str,
+        top_k: int = 12,
+    ) -> str:
+        from modules.rag_v2.api import get_rag_system
+
+        normalized_query = str(query_text or "").strip()
+        allowed_sources = [str(item).strip() for item in rag_index_keys if str(item).strip()]
+        if not normalized_query or not allowed_sources:
+            return ""
+        rag_system = get_rag_system()
+        query_embedding = rag_system.embedding_client.embed_query(normalized_query)
+        chunks = rag_system.vector_store.hybrid_search(
+            query=normalized_query,
+            query_embedding=query_embedding,
+            top_k=max(1, int(top_k)),
+            allowed_sources=allowed_sources,
+        )
+        blocks: list[str] = []
+        for chunk in list(chunks or []):
+            metadata = dict(chunk.get("metadata") or {})
+            source = metadata.get("source") or metadata.get("file_name") or "课程知识库"
+            content = str(chunk.get("document") or chunk.get("content") or "").strip()
+            if content:
+                blocks.append(f"[来源: {source}]\n{content}")
+        return "\n\n---\n\n".join(blocks)
+
+
+def _generation_query(config: Mapping[str, Any], resource_type: str) -> str:
+    candidates: list[Any] = [
+        config.get("topic"),
+        config.get("title"),
+        config.get("question"),
+        config.get("final_user_prompt"),
+        config.get("description"),
+        config.get("requirement"),
+        config.get("subject"),
+    ]
+    for nested_key in (
+        "report_config",
+        "quiz_config",
+        "flashcard_config",
+        "graph_config",
+        "classroom_config",
+    ):
+        nested = config.get(nested_key)
+        if isinstance(nested, Mapping):
+            candidates.extend(
+                nested.get(key)
+                for key in ("topic", "title", "question", "description")
+            )
+    query = next(
+        (str(item).strip() for item in candidates if str(item or "").strip()),
+        "",
+    )
+    return query or resource_type
+
 
 def build_default_generation_source_resolver(
     manager: CourseStorageManager,
@@ -378,10 +437,17 @@ class GenerationTaskHandler:
             or ("selected_documents" if selected_doc_ids else "course_auto")
         )
         course_id = str(command.get("course_id") or context.course_id or "").strip()
+        resolve_signature = inspect.signature(self.source_resolver.resolve)
+        resolve_kwargs = (
+            {"query_text": _generation_query(config, resource_type)}
+            if "query_text" in resolve_signature.parameters
+            else {}
+        )
         source = self.source_resolver.resolve(
             course_id,
             source_mode,
             selected_doc_ids,
+            **resolve_kwargs,
         )
         execution_context = GenerationExecutionContext(
             job_id=context.task_id,
@@ -439,10 +505,34 @@ class GenerationTaskHandler:
     def _build_payload(
         command: Mapping[str, Any],
         context: DurableExecutionContext,
-        execution_context: GenerationExecutionContext,
+        execution_context: GenerationExecutionContext | None = None,
     ) -> SimpleNamespace:
         resource_type = str(command.get("resource_type") or "").strip()
         config = dict(command.get("config") or {})
+        if execution_context is None:
+            course_id = str(command.get("course_id") or context.course_id or "")
+            source_mode = str(command.get("source_mode") or "none")
+            requested_document_ids = tuple(
+                str(item) for item in list(command.get("selected_doc_ids") or [])
+            )
+            execution_context = GenerationExecutionContext(
+                job_id=context.task_id,
+                course_id=course_id,
+                user_id=context.owner_user_id,
+                source=ResolvedGenerationSource(
+                    course_id=course_id,
+                    mode=source_mode if source_mode in {
+                        "none",
+                        "course_auto",
+                        "selected_documents",
+                    } else "none",
+                    requested_document_ids=requested_document_ids,
+                    documents=(),
+                    context_text="",
+                    resolved_at="",
+                ),
+                config=_freeze(deepcopy(config)),
+            )
         base: dict[str, Any] = {
             "owner": context.owner_user_id,
             "course_id": str(command.get("course_id") or context.course_id or ""),
@@ -490,6 +580,7 @@ class GenerationTaskHandler:
                 "max_depth": config.get("max_depth"),
             }
         elif resource_type == "blog":
+            base.update(config)
             base["topic"] = config.get("topic") or config.get("title")
         elif resource_type == "ppt":
             base.update(

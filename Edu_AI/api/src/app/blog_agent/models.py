@@ -54,6 +54,7 @@ class BlogTaskState(BaseModel):
     topic: str
     created_at: str
     updated_at: str
+    generation_config: Dict[str, Any] = Field(default_factory=dict)
 
     status: str
     progress: BlogTaskProgress = Field(default_factory=BlogTaskProgress)

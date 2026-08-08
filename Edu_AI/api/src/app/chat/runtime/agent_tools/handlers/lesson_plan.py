@@ -31,6 +31,14 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
             )
             or []
         )
+        allow_rag = bool(
+            getattr(getattr(ctx, "capability", None), "allow_rag", False)
+        )
+        source_mode = (
+            "selected_documents"
+            if selected_doc_ids
+            else ("course_auto" if allow_rag else "none")
+        )
         command = GenerationCommand(
             resource_type="lesson_plan",
             owner_user_id=str(owner or ""),
@@ -39,6 +47,7 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
                 getattr(ctx.request, "scope_type", None) or "course"
             ),
             scope_id=getattr(ctx.request, "scope_id", None),
+            source_mode=source_mode,
             selected_doc_ids=selected_doc_ids,
             config={
                 "entrypoint": "agent",

@@ -28,7 +28,10 @@ class DummyCourseStorageManager:
     def __init__(self):
         self.saved = []
 
-    def save_generated_material(self, *, course_id, material_type, material_id, material_data, file_data=None):
+    def save_generated_material(
+        self, *, course_id, material_type, material_id, material_data,
+        file_data=None, **_metadata,
+    ):
         self.saved.append(
             {
                 "course_id": course_id,

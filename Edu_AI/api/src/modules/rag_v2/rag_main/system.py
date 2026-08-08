@@ -17,6 +17,7 @@ import requests
 import re
 import time
 import concurrent.futures
+import threading
 import zipfile
 import uuid
 from urllib.parse import unquote, quote
@@ -25,11 +26,14 @@ from pathlib import Path
 from datetime import datetime
 from xml.etree import ElementTree as ET
 from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 import chromadb
 from chromadb.config import Settings
 from .core.config import Config
 from modules.rag_v2.document_resolver import resolve_rag_document
+from app.services.knowledge_ingestion.structural_chunker import (
+    CHUNKER_VERSION,
+    StructuralChunker,
+)
 from app.services.runtime_config_resolver import runtime_config_resolver
 
 # MinerU 解析已迁移为「直连 MinerU Cloud」provider（见 docs/spec/SPEC-03）。
@@ -84,6 +88,31 @@ def _match_allowed_source(
         return doc_source
 
     return None
+
+
+def _expand_parent_context(
+    document_index: Dict[str, Dict[str, Any]],
+    doc: Dict[str, Any],
+    index_key: str,
+) -> Dict[str, Any]:
+    """Expand a retrieved child to its persisted parent without changing rank metadata."""
+    expanded = doc.copy()
+    metadata = (doc.get("metadata") or {}).copy()
+    expanded["metadata"] = metadata
+    if str(metadata.get("modality", "text")).lower() == "image":
+        return expanded
+    parent_id = str(metadata.get("parent_id") or "")
+    parent_entry = ((document_index.get(index_key) or {}).get("parent_chunks") or {}).get(parent_id)
+    if not isinstance(parent_entry, dict):
+        return expanded
+    parent_content = str(parent_entry.get("content") or "").strip()
+    if not parent_content:
+        return expanded
+    heading_path = str(parent_entry.get("heading_path") or metadata.get("heading_path") or "")
+    prefix = f"【章节上下文】: {heading_path}\n\n" if heading_path else ""
+    expanded["content"] = f"{prefix}{parent_content}".strip()
+    metadata["context_expanded"] = "parent"
+    return expanded
 
 MINERU_AVAILABLE = _check_mineru_available()
 if MINERU_AVAILABLE:
@@ -183,7 +212,8 @@ class EmbeddingClient:
         if not self.api_base:
             raise ValueError("EMBEDDING_API_BASE 未配置")
 
-        # 防空输入 + 防超长输入（Gemini embedding 对上下文长度较敏感）
+        # 空输入显式替换；长度必须由统一结构化分块器控制，禁止在此静默截断，
+        # 否则索引内容与预览内容不一致，且长块尾部永远无法被召回。
         safe_texts: List[str] = []
         empty_count = 0
         for t in batch_texts:
@@ -191,7 +221,7 @@ class EmbeddingClient:
             if not s:
                 empty_count += 1
                 s = "[EMPTY_CHUNK]"
-            safe_texts.append(s[:1500])
+            safe_texts.append(s)
         if empty_count:
             print(f"[Embedding][Sanitize] empty_inputs={empty_count} replaced_with_placeholder")
 
@@ -551,7 +581,9 @@ class VectorStore:
         query_embedding: List[float], 
         top_k: int = 5, 
         distance_threshold: float = 1.5,
-        allowed_sources: Optional[List[str]] = None  # 允许检索的文档源列表（如果提供，只检索这些文档）
+        allowed_sources: Optional[List[str]] = None,  # 允许检索的文档源列表（如果提供，只检索这些文档）
+        modality_filter: Optional[str] = None,
+        knowledge_node_ids: Optional[List[str]] = None,
     ) -> List[Dict]:
         """
         搜索相似文档（自动去重、动态过滤）
@@ -565,6 +597,21 @@ class VectorStore:
         Returns:
             搜索结果列表（按相似度排序，已去重，只包含高质量结果）
         """
+        def build_where(source_condition: Optional[Any] = None) -> Optional[Dict[str, Any]]:
+            conditions: List[Dict[str, Any]] = []
+            if source_condition is not None:
+                conditions.append({"source": source_condition})
+            if modality_filter:
+                conditions.append({"modality": modality_filter})
+            nodes = sorted({str(value) for value in (knowledge_node_ids or []) if str(value)})
+            if len(nodes) == 1:
+                conditions.append({"knowledge_node_id": nodes[0]})
+            elif nodes:
+                conditions.append({"knowledge_node_id": {"$in": nodes}})
+            if not conditions:
+                return None
+            return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+
         # 如果指定了 allowed_sources，使用 where 条件过滤
         if allowed_sources and len(allowed_sources) > 0:
             # 使用 where 条件只检索指定文档的chunks
@@ -578,7 +625,7 @@ class VectorStore:
             
             if len(unique_sources) == 1:
                 # 单个源：直接使用 where
-                where_condition = {"source": unique_sources[0]}
+                where_condition = build_where(unique_sources[0])
                 print(f"[VectorSearch] 使用单个源 where 条件: {where_condition}")
                 results = self.collection.query(
                     query_embeddings=[query_embedding],
@@ -590,7 +637,7 @@ class VectorStore:
                 # 多个源：使用 $in 操作符（如果支持）或分别查询
                 try:
                     # 尝试使用 $in 操作符
-                    where_condition = {"source": {"$in": unique_sources}}
+                    where_condition = build_where({"$in": unique_sources})
                     print("[VectorSearch] 尝试使用 $in 操作符")
                     results = self.collection.query(
                         query_embeddings=[query_embedding],
@@ -604,7 +651,7 @@ class VectorStore:
                     all_results = {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
                     for source in unique_sources:
                         try:
-                            where_condition = {"source": source}
+                            where_condition = build_where(source)
                             print(f"[VectorSearch] 查询源: {source}")
                             source_results = self.collection.query(
                                 query_embeddings=[query_embedding],
@@ -630,10 +677,14 @@ class VectorStore:
         else:
             # 没有指定 allowed_sources，检索所有文档
             print(f"[VectorSearch] 未限制检索范围，检索所有文档")
-            results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=min(top_k * 5, 100)  # 检索更多候选，确保有足够的选择
-            )
+            query_kwargs: Dict[str, Any] = {
+                "query_embeddings": [query_embedding],
+                "n_results": min(top_k * 5, 100),
+            }
+            where_condition = build_where()
+            if where_condition:
+                query_kwargs["where"] = where_condition
+            results = self.collection.query(**query_kwargs)
             print(f"[VectorSearch] 查询结果数量: {len(results.get('documents', [[]])[0]) if results.get('documents') else 0}")
         
         # 格式化结果并过滤
@@ -650,6 +701,10 @@ class VectorStore:
                     if doc_source not in allowed_sources:
                         print(f"[VectorSearch] 过滤文档（source 不匹配）: {doc_source} 不在 allowed_sources 中")
                         continue
+                if modality_filter and str(metadata.get("modality") or "").lower() != modality_filter.lower():
+                    continue
+                if knowledge_node_ids and str(metadata.get("knowledge_node_id") or "") not in knowledge_node_ids:
+                    continue
                 
                 # 过滤：只保留相似度足够高的结果
                 # ChromaDB 使用 L2 距离，距离越小越相似
@@ -669,27 +724,16 @@ class VectorStore:
         # 按距离排序（距离越小越相似）
         documents.sort(key=lambda x: x.get("distance", float('inf')))
         
-        # 去重策略：多层去重确保结果多样性
-        # 1. 按来源去重：相同来源只保留最相似的一个
-        # 2. 按内容相似度去重：如果两个块的内容高度相似（重叠度>80%），只保留更相似的一个
-        seen_sources = set()
+        # 候选阶段仅删除完全相同的内容，不按来源去重。
         unique_documents = []
         seen_content_hashes = set()
         
         for doc in documents:
-            source = doc.get("metadata", {}).get("source", "")
             content = doc.get("content", "")
             
-            # 计算内容哈希（用于快速去重）
-            # 使用前100个字符的哈希，快速检测内容重复
-            content_preview = content[:100] if len(content) > 100 else content
-            content_hash = hash(content_preview)
+            content_hash = hashlib.sha256(str(content).encode("utf-8")).hexdigest()
             
-            # 检查来源是否已存在
-            if source and source in seen_sources:
-                continue
-            
-            # 检查内容是否高度相似（简单重叠检测）
+            # 哈希相同才进一步确认，避免 Python 进程级 hash 不稳定。
             is_duplicate = False
             if content_hash in seen_content_hashes:
                 # 如果哈希相同，进一步检查内容重叠度
@@ -707,34 +751,10 @@ class VectorStore:
                             break
             
             if not is_duplicate:
-                if source:
-                    seen_sources.add(source)
                 seen_content_hashes.add(content_hash)
                 unique_documents.append(doc)
-            elif not source:
-                # 如果没有 source，按 id 去重
-                doc_id = doc.get("id", "")
-                if doc_id and doc_id not in seen_sources:
-                    seen_sources.add(doc_id)
-                    seen_content_hashes.add(content_hash)
-                    unique_documents.append(doc)
         
-        # 动态调整：根据相似度自动确定返回数量
-        # 如果最相似的结果距离很小（< 0.8），说明非常相关，可以返回更多
-        # 如果最相似的结果距离较大（> 1.2），说明相关性一般，只返回最相关的几个
-        if unique_documents:
-            best_distance = unique_documents[0].get("distance", float('inf'))
-            if best_distance < 0.8:
-                # 非常相关，返回更多结果（但不超过 top_k）
-                return unique_documents[:min(top_k, len(unique_documents))]
-            elif best_distance < 1.2:
-                # 中等相关，返回中等数量
-                return unique_documents[:min(max(3, top_k // 2), len(unique_documents))]
-            else:
-                # 相关性一般，只返回最相关的1-2个
-                return unique_documents[:min(2, len(unique_documents))]
-        
-        return unique_documents
+        return unique_documents[:top_k]
     
     def delete_by_source(self, source: str):
         """
@@ -943,7 +963,8 @@ class VectorStore:
         distance_threshold: float = 1.5,
         keyword_weight: float = 0.4,  # 关键词检索权重（0-1），默认40%
         vector_weight: float = 0.6,    # 向量检索权重（0-1），默认60%
-        allowed_sources: Optional[List[str]] = None  # 允许检索的文档源列表（如果提供，只检索这些文档）
+        allowed_sources: Optional[List[str]] = None,  # 允许检索的文档源列表（如果提供，只检索这些文档）
+        additional_queries: Optional[List[tuple[str, List[float]]]] = None,
     ) -> List[Dict]:
         """
         混合检索：结合向量检索和关键词检索
@@ -960,47 +981,76 @@ class VectorStore:
         Returns:
             融合后的搜索结果列表
         """
-        # 1. 向量检索（如果指定了 allowed_sources，只检索这些文档）
+        candidate_k = max(40, top_k * 8)
+        visual_intent = bool(
+            re.search(r"(?:一张|1张|图示|图片|图解|示意图|可视化|直观看|图表|插图)", query)
+        )
+
+        # 1. 向量检索（宽召回；如果指定 allowed_sources 则在库内过滤）
         vector_results = self.search(
             query_embedding, 
-            top_k=top_k * 3, 
+            top_k=candidate_k,
             distance_threshold=distance_threshold,
             allowed_sources=allowed_sources
         )
+        visual_results = self.search(
+            query_embedding,
+            top_k=max(20, top_k * 4),
+            distance_threshold=1.9,
+            allowed_sources=allowed_sources,
+            modality_filter="image",
+        ) if visual_intent else []
         
         # 2. 关键词检索（如果可用，也只检索 allowed_sources 中的文档）
         keyword_results = self.keyword_search(
             query, 
-            top_k=top_k * 3,
+            top_k=candidate_k,
             allowed_sources=allowed_sources
         ) if BM25_AVAILABLE else []
+
+        # 指代消解后的查询只作为补充召回，原问题始终保留。对各查询变体先做
+        # 一次 RRF，避免重写错误把用户原始关键词完全覆盖。
+        if additional_queries:
+            vector_recall: Dict[str, List[Dict]] = {"original": vector_results}
+            keyword_recall: Dict[str, List[Dict]] = {"original": keyword_results}
+            variant_weights: Dict[str, float] = {"original": 1.0}
+            for index, (alternate_query, alternate_embedding) in enumerate(additional_queries):
+                name = f"rewrite_{index + 1}"
+                vector_recall[name] = self.search(
+                    alternate_embedding,
+                    top_k=candidate_k,
+                    distance_threshold=distance_threshold,
+                    allowed_sources=allowed_sources,
+                )
+                keyword_recall[name] = self.keyword_search(
+                    alternate_query,
+                    top_k=candidate_k,
+                    allowed_sources=allowed_sources,
+                ) if BM25_AVAILABLE else []
+                variant_weights[name] = 0.7
+            vector_results = self._weighted_reciprocal_rank_fusion(
+                vector_recall,
+                weights=variant_weights,
+            )
+            keyword_results = self._weighted_reciprocal_rank_fusion(
+                keyword_recall,
+                weights=variant_weights,
+            )
         
-        # 如果关键词检索不可用，直接返回向量检索结果
+        # 关键词不可用时仍继续走统一候选/重排链路。
         if not keyword_results:
             print(f"[Hybrid] 关键词检索不可用，仅使用向量检索: {len(vector_results)} 个结果")
-            return vector_results
         
         # 3. 融合结果
         # 构建文档ID到结果的映射
         doc_scores: Dict[str, Dict] = {}
         
         # 处理向量检索结果
-        max_vector_score = 1.0
         if vector_results:
-            # 将距离转换为相似度分数（距离越小，分数越高）
-            min_distance = min(doc.get("distance", 1.5) for doc in vector_results)
-            max_distance = max(doc.get("distance", 0.0) for doc in vector_results)
-            score_range = max_distance - min_distance if max_distance > min_distance else 1.0
-            
-            for doc in vector_results:
+            for rank, doc in enumerate(vector_results):
                 doc_id = doc.get("id") or doc.get("metadata", {}).get("source", "")
-                distance = doc.get("distance", 1.5)
-                # 将距离转换为相似度分数（0-1）
-                if score_range > 0:
-                    similarity_score = 1.0 - ((distance - min_distance) / score_range)
-                else:
-                    similarity_score = 1.0 - distance / 1.5  # 归一化
-                similarity_score = max(0.0, min(1.0, similarity_score))
+                # RRF 只使用名次，不混合不可比的 cosine distance 与 BM25 原始分。
+                similarity_score = 1.0 / (60 + rank + 1)
                 
                 if doc_id not in doc_scores:
                     doc_scores[doc_id] = {
@@ -1010,20 +1060,12 @@ class VectorStore:
                         "combined_score": 0.0
                     }
                 doc_scores[doc_id]["vector_score"] = similarity_score
-                max_vector_score = max(max_vector_score, similarity_score)
         
         # 处理关键词检索结果
-        max_keyword_score = 1.0
         if keyword_results:
-            max_keyword_score = max(doc.get("bm25_score", 0.0) for doc in keyword_results)
-            if max_keyword_score == 0:
-                max_keyword_score = 1.0
-            
-            for doc in keyword_results:
+            for rank, doc in enumerate(keyword_results):
                 doc_id = doc.get("id") or doc.get("metadata", {}).get("source", "")
-                bm25_score = doc.get("bm25_score", 0.0)
-                # 归一化BM25分数（0-1）
-                normalized_score = bm25_score / max_keyword_score if max_keyword_score > 0 else 0.0
+                normalized_score = 1.0 / (60 + rank + 1)
                 
                 if doc_id not in doc_scores:
                     doc_scores[doc_id] = {
@@ -1054,6 +1096,7 @@ class VectorStore:
         for item in sorted_results[: max(top_k * 4, top_k)]:
             doc = item["doc"].copy()
             doc["combined_score"] = item["combined_score"]
+            doc["rrf_score"] = item["combined_score"]
             doc["vector_score"] = item["vector_score"]
             doc["keyword_score"] = item["keyword_score"]
             final_results.append(doc)
@@ -1179,8 +1222,66 @@ class VectorStore:
                     final_results[0]["retrieval_metrics"] = retrieval_metrics
             # =========================================================================
 
+        # 重排后做软多样性约束：优先每份资料最多 3 块，但候选不足时再回填，
+        # 因此不会重现旧版“一份资料只能召回一块”的问题。
+        max_per_source = max(1, int(os.getenv("RAG_MAX_CHUNKS_PER_SOURCE", "3")))
+        diverse_results: List[Dict] = []
+        deferred_results: List[Dict] = []
+        source_counts: Dict[str, int] = {}
+        for doc in final_results:
+            source = str((doc.get("metadata") or {}).get("source") or "")
+            if not source or source_counts.get(source, 0) < max_per_source:
+                diverse_results.append(doc)
+                if source:
+                    source_counts[source] = source_counts.get(source, 0) + 1
+            else:
+                deferred_results.append(doc)
+        if len(diverse_results) < top_k:
+            diverse_results.extend(deferred_results[: top_k - len(diverse_results)])
+        final_results = diverse_results[:top_k]
+
+        # Text rerankers often remove every image even when the user explicitly
+        # asks for a diagram. Run a modality-filtered dense recall and reserve
+        # one image, preferring the knowledge node/source already supported by
+        # the top textual evidence.
+        if visual_intent and visual_results and not any(
+            str((doc.get("metadata") or {}).get("modality", "text")).lower() == "image"
+            for doc in final_results
+        ):
+            preferred_nodes = [
+                str((doc.get("metadata") or {}).get("knowledge_node_id") or "")
+                for doc in final_results
+            ]
+            preferred_sources = [
+                str((doc.get("metadata") or {}).get("source") or "")
+                for doc in final_results
+            ]
+            top_node = next((node_id for node_id in preferred_nodes if node_id), "")
+            node_visual_results = self.search(
+                query_embedding,
+                top_k=max(10, top_k),
+                distance_threshold=1.9,
+                allowed_sources=allowed_sources,
+                modality_filter="image",
+                knowledge_node_ids=[top_node],
+            ) if top_node else []
+            candidate_visuals = node_visual_results or visual_results
+
+            def visual_rank(item: tuple[int, Dict]) -> tuple[int, int, int]:
+                index, doc = item
+                metadata = doc.get("metadata") or {}
+                node_id = str(metadata.get("knowledge_node_id") or "")
+                source = str(metadata.get("source") or "")
+                node_rank = preferred_nodes.index(node_id) if node_id in preferred_nodes else len(preferred_nodes)
+                source_rank = preferred_sources.index(source) if source in preferred_sources else len(preferred_sources)
+                return node_rank, source_rank, index
+
+            selected_visual = min(enumerate(candidate_visuals), key=visual_rank)[1]
+            final_results.insert(min(2, len(final_results)), selected_visual)
+            final_results = final_results[:top_k]
+
         print(f"[Hybrid] 向量检索：{len(vector_results)} 个结果，关键词检索：{len(keyword_results)} 个结果，融合后：{len(final_results)} 个结果")
-        
+
         return final_results
     
     def enhanced_hybrid_search_with_hyde(
@@ -1531,7 +1632,7 @@ class VectorStore:
 
 
 class DocumentProcessor:
-    """文档处理类：PDF 使用 MinerU Cloud，其他文本类文档走本地读取与 Markdown 切分。"""
+    """所有导入入口共用的文档解析与结构化父子分块器。"""
 
     def __init__(
         self,
@@ -1542,25 +1643,12 @@ class DocumentProcessor:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.embedding_client = embedding_client
-        
-        # 1. 第一道防线：结构化切分器（基于 Markdown 标题 AST）
-        headers_to_split_on = [
-            ("#", "Header 1"),
-            ("##", "Header 2"),
-            ("###", "Header 3"),
-            ("####", "Header 4"),
-        ]
-        self.md_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=headers_to_split_on,
-            strip_headers=False,
-        )
-
-        # 2. 第二道防线：长度兜底切分器（防止某个结构块过长撑爆 LLM）
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
-            length_function=len,
-            separators=["\n\n", "\n", "。", "！", "？", "；", "，", " ", ""],
+        self.structural_chunker = StructuralChunker(
+            child_target_tokens=int(os.getenv("RAG_CHILD_TARGET_TOKENS", "500")),
+            child_max_tokens=int(os.getenv("RAG_CHILD_MAX_TOKENS", "800")),
+            parent_target_tokens=int(os.getenv("RAG_PARENT_TARGET_TOKENS", "1600")),
+            parent_max_tokens=int(os.getenv("RAG_PARENT_MAX_TOKENS", "2400")),
+            minimum_child_tokens=int(os.getenv("RAG_MINIMUM_CHILD_TOKENS", "120")),
         )
 
         self.image_exts = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"}
@@ -1722,11 +1810,36 @@ class DocumentProcessor:
         """解析并切分导入文件。PDF 只使用 MinerU Cloud，失败即失败。"""
         file_path_obj = Path(file_path)
 
+        if file_path_obj.suffix.lower() == ".doc":
+            raise ValueError(
+                f"不支持旧版 Word .doc 文件（{file_path_obj.name}），请先转换为 DOCX 后再导入。"
+            )
+
         if file_path_obj.suffix.lower() == ".docx":
             documents = self.load_doc(file_path)
             if not documents:
                 raise ValueError(f"Unable to extract text from Word document: {file_path_obj.name}")
-            return self._prepare_text_chunks(documents)
+            text_chunks = self._prepare_text_chunks(documents)
+            image_chunks = self._extract_docx_image_documents(
+                file_path_obj,
+                owner=owner,
+                doc_id=doc_id,
+                images_root=images_root,
+            )
+            if image_chunks:
+                linked_images = [
+                    {
+                        "image_path": str(doc.metadata.get("image_path") or ""),
+                        "image_name": str(doc.metadata.get("image_name") or ""),
+                        "image_alt": str(doc.metadata.get("image_alt") or ""),
+                        "page": 0,
+                        "source": "docx",
+                    }
+                    for doc in image_chunks
+                ]
+                for doc in text_chunks:
+                    doc.metadata["linked_images"] = linked_images
+            return text_chunks + image_chunks
 
         if file_path_obj.suffix.lower() != ".pdf":
             # 非 PDF 维持原有降级读取流程
@@ -1747,6 +1860,28 @@ class DocumentProcessor:
                 if doc.metadata is None:
                     doc.metadata = {}
                 doc.metadata["modality"] = "text"
+            if file_path_obj.suffix.lower() in {".md", ".markdown"}:
+                image_chunks = self._extract_image_documents(
+                    md_text,
+                    file_path_obj,
+                    owner=owner,
+                    doc_id=doc_id,
+                    images_root=images_root,
+                )
+                if image_chunks:
+                    linked_images = [
+                        {
+                            "image_path": str(doc.metadata.get("image_path") or ""),
+                            "image_name": str(doc.metadata.get("image_name") or ""),
+                            "image_alt": str(doc.metadata.get("image_alt") or ""),
+                            "page": int(doc.metadata.get("page") or 0),
+                            "source": "markdown",
+                        }
+                        for doc in image_chunks
+                    ]
+                    for doc in text_chunks:
+                        doc.metadata["linked_images"] = linked_images
+                return text_chunks + image_chunks
             return text_chunks
 
         if not MINERU_AVAILABLE:
@@ -1794,7 +1929,7 @@ class DocumentProcessor:
                 doc.metadata["image_doc_id"] = safe_doc_id
 
             print(f"[MinerU] 开始保存图片 ({len(mineru_images)} 张)...")
-            enable_image_embedding = os.getenv("RAG_ENABLE_IMAGE_EMBEDDING", "0").strip().lower() in {"1", "true", "yes"}
+            enable_image_embedding = os.getenv("RAG_ENABLE_IMAGE_EMBEDDING", "1").strip().lower() in {"1", "true", "yes"}
             linked_images: List[Dict[str, Any]] = []
 
             for img_info in mineru_images:
@@ -1895,7 +2030,13 @@ class DocumentProcessor:
                 pass
 
         image_size = image_path.stat().st_size if image_path.exists() else 0
-        image_rel_path = os.path.relpath(str(image_path), str(Config.STORAGE_ROOT.resolve()))
+        try:
+            image_rel_path = os.path.relpath(
+                str(image_path), str(Config.STORAGE_ROOT.resolve())
+            )
+        except ValueError:
+            # Windows cannot calculate relative paths across drive letters.
+            image_rel_path = image_path.name
         virtual_text = (
             f"[IMAGE_CHUNK] 文件名: {image_path.name}; alt: {alt_text or '无'}; "
             f"尺寸: {width}x{height}; 大小: {image_size} bytes"
@@ -1919,6 +2060,42 @@ class DocumentProcessor:
                 "image_doc_id": safe_doc_id,
             },
         )
+
+    def _extract_docx_image_documents(
+        self,
+        file_path_obj: Path,
+        *,
+        owner: Optional[str] = None,
+        doc_id: Optional[str] = None,
+        images_root: Optional[Path] = None,
+    ) -> List[Document]:
+        """Extract embedded DOCX media without loading a heavyweight parser."""
+
+        _, safe_doc_id, target_root = self._resolve_image_target_root(
+            file_path_obj, owner, doc_id, images_root
+        )
+        documents: List[Document] = []
+        with zipfile.ZipFile(file_path_obj) as archive:
+            media_names = sorted(
+                name
+                for name in archive.namelist()
+                if name.casefold().startswith("word/media/")
+                and Path(name).suffix.casefold() in self.image_exts
+            )
+            for index, archive_name in enumerate(media_names):
+                safe_name = f"{index:04d}_{Path(archive_name).name}"
+                destination = target_root / safe_name
+                destination.write_bytes(archive.read(archive_name))
+                documents.append(
+                    self._build_image_chunk_document(
+                        file_path_obj=file_path_obj,
+                        image_path=destination,
+                        image_index=index,
+                        alt_text=f"DOCX 内嵌图片 {Path(archive_name).name}",
+                        safe_doc_id=safe_doc_id,
+                    )
+                )
+        return documents
 
     def _extract_image_documents(
         self,
@@ -1982,45 +2159,61 @@ class DocumentProcessor:
         return image_docs
 
     def split_documents(self, documents: List[Document]) -> List[Document]:
-        """
-        核心智能切分逻辑：先按 Markdown 结构切，再按长度强制截断，并将标题链注入正文
-        """
-        all_chunks = []
-        
+        """按 Markdown 结构生成稳定的父子块；PDF/DOCX/网页/上传均调用此处。"""
+        all_chunks: List[Document] = []
+
         for doc in documents:
-            base_metadata = doc.metadata.copy()
-            
-            # 第一步：按 Markdown 标题层级切分
-            md_docs = self.md_splitter.split_text(doc.page_content)
-            
-            # 若文档没有任何标题，退化为普通切分
-            if not md_docs:
-                md_docs = [doc]
-            
-            # 第二步：长度兜底与上下文强化
-            for md_doc in md_docs:
-                merged_metadata = {**base_metadata, **md_doc.metadata}
-                
-                # 将 AST 标题层级（族谱）注入正文开头，防止 RAG 丢失上下文
-                h_parts = []
-                for h_key in ["Header 1", "Header 2", "Header 3", "Header 4"]:
-                    if h_key in merged_metadata:
-                        h_parts.append(merged_metadata[h_key])
-                
-                if h_parts:
-                    enriched_content = f"【章节上下文】: {' > '.join(h_parts)}\n\n{md_doc.page_content}"
-                else:
-                    enriched_content = md_doc.page_content
-                
-                temp_doc = Document(page_content=enriched_content, metadata=merged_metadata)
-                
-                # 第三步：长度防爆防线
-                if len(enriched_content) > self.chunk_size:
-                    sub_chunks = self.text_splitter.split_documents([temp_doc])
-                    all_chunks.extend(sub_chunks)
-                else:
-                    all_chunks.append(temp_doc)
-                    
+            base_metadata = (doc.metadata or {}).copy()
+            source = str(base_metadata.get("source") or "unknown")
+            title = str(base_metadata.get("document_name") or Path(source).name or "未命名文档")
+            document_id = hashlib.sha256(f"{source}\n{title}".encode("utf-8")).hexdigest()[:24]
+            result = self.structural_chunker.chunk_markdown(
+                doc.page_content,
+                document_id=document_id,
+                document_title=title,
+            )
+            parents = {parent.parent_id: parent for parent in result.parents}
+
+            for child in result.children:
+                metadata = base_metadata.copy()
+                heading_path = " > ".join(child.heading_path)
+                metadata.update(
+                    {
+                        "chunker_version": CHUNKER_VERSION,
+                        "chunk_id": child.chunk_id,
+                        "parent_id": child.parent_id,
+                        "previous_chunk_id": child.previous_id or "",
+                        "next_chunk_id": child.next_id or "",
+                        "heading_path": heading_path,
+                        "chunk_kind": child.kind,
+                        "token_count": child.token_count,
+                        "source_start_line": child.start_line,
+                        "source_end_line": child.end_line,
+                        "embedding_input_hash": hashlib.sha256(
+                            child.embedding_text.encode("utf-8")
+                        ).hexdigest(),
+                    }
+                )
+                if child.token_count < 120:
+                    metadata["small_chunk_reason"] = (
+                        f"structure_protected:{child.kind}"
+                        if child.kind in {"code", "formula", "table", "image", "video", "callout"}
+                        else "atomic_section_boundary"
+                    )
+                for level, heading in enumerate(child.heading_path[:6], start=1):
+                    metadata[f"Header {level}"] = heading
+
+                parent = parents.get(child.parent_id)
+                if parent is not None:
+                    # 仅在导入事务内携带，写索引清单前会取出，避免把整段父块
+                    # 重复写进每个 Chroma metadata。
+                    metadata["_parent_content_runtime"] = parent.display_content
+                    metadata["_parent_token_count_runtime"] = parent.token_count
+
+                all_chunks.append(
+                    Document(page_content=child.embedding_text, metadata=metadata)
+                )
+
         return all_chunks
 
 
@@ -2034,7 +2227,8 @@ class RAGSystem:
         embedding_model: str = "text-embedding-ada-002",
         llm_model: str = "qwen3.5-plus",
         vector_db_path: Union[str, Path] = Config.VECTOR_DB_PATH,
-        document_index_path: Optional[Union[str, Path]] = None
+        document_index_path: Optional[Union[str, Path]] = None,
+        storage_root: Optional[Union[str, Path]] = None,
     ):
         """
         初始化RAG系统
@@ -2049,6 +2243,7 @@ class RAGSystem:
         self.api_base = api_base
         self.api_key = api_key
         self.llm_model = os.getenv("LLM_MODEL") or llm_model or "qwen3.5-plus"
+        self.storage_root = Path(storage_root or Config.STORAGE_ROOT).resolve()
         # 统一“生成类”模型默认值：qwen3.5-plus
         self.summary_model = os.getenv("LLM_MODEL_SUMMARY") or "qwen3.5-plus"
         
@@ -2081,6 +2276,10 @@ class RAGSystem:
         
         # 文档索引（用于增量导入管理）
         self.index_file = Path(document_index_path or Config.DOCUMENT_INDEX_PATH)
+        # Embedding and parsing may run concurrently during bulk imports, while
+        # Chroma writes and the JSON registry must remain serialized.
+        self._vector_write_lock = threading.RLock()
+        self._index_write_lock = threading.RLock()
         self.document_index = self._load_index()
     
     def _load_index(self) -> Dict:
@@ -2095,9 +2294,16 @@ class RAGSystem:
     
     def _save_index(self):
         """保存文档索引"""
-        self.index_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.index_file, "w", encoding="utf-8") as f:
-            json.dump(self.document_index, f, ensure_ascii=False, indent=2)
+        with self._index_write_lock:
+            self.index_file.parent.mkdir(parents=True, exist_ok=True)
+            temp_index = self.index_file.with_suffix(
+                f"{self.index_file.suffix}.{uuid.uuid4().hex}.tmp"
+            )
+            with open(temp_index, "w", encoding="utf-8") as f:
+                json.dump(self.document_index, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_index, self.index_file)
     
     def _get_file_hash(self, file_path: str) -> str:
         """获取文件哈希值"""
@@ -2258,6 +2464,7 @@ class RAGSystem:
         force_reimport: bool = False,
         progress_callback: Optional[Callable[[int, str], None]] = None,  # 进度回调（可选）
         owner: Optional[str] = None,  # 文档所属用户（用户名），用于按用户隔离文档
+        metadata_overrides: Optional[Dict[str, Any]] = None,
     ) -> Dict:
         """
         增量导入文档
@@ -2283,6 +2490,16 @@ class RAGSystem:
         
         index_key = self._make_index_key(file_str, owner)
 
+        # Keep caller-provided classification metadata both on vector chunks and
+        # in the durable document catalog.  Previously it was only attached to
+        # chunks, so course documents looked like personal documents when the UI
+        # listed the catalog.
+        safe_overrides: Dict[str, Any] = {
+            str(key): value
+            for key, value in (metadata_overrides or {}).items()
+            if value is not None and isinstance(value, (str, int, float, bool))
+        }
+
         if not force_reimport and index_key in self.document_index:
             existing_entry = self.document_index[index_key]
             existing_hash = None
@@ -2294,7 +2511,11 @@ class RAGSystem:
                 pass
             else:
                 existing_hash = existing_entry.get("hash")
-            if existing_hash == file_hash:
+            metadata_changed = any(
+                existing_entry.get(key) != value
+                for key, value in safe_overrides.items()
+            )
+            if existing_hash == file_hash and not metadata_changed:
                 if progress_callback:
                     progress_callback(100, "completed")
                 return {
@@ -2312,13 +2533,21 @@ class RAGSystem:
         print(f"[RAG导入] 文件大小: {file_size} 字节")
         
         image_doc_id = hashlib.md5(index_key.encode("utf-8")).hexdigest()[:16]
-        images_root = Config.STORAGE_ROOT / "images"
+        images_root = self.storage_root / "images"
         documents = self.document_processor.process_file(
             file_str,
             owner=owner,
             doc_id=image_doc_id,
             images_root=images_root,
         )
+        if safe_overrides:
+            # Course/node identity must live on every text and media chunk. It
+            # enables node-aware evaluation, filtering and citations without
+            # relying on filenames or a second database lookup at query time.
+            for doc in documents:
+                if doc.metadata is None:
+                    doc.metadata = {}
+                doc.metadata.update(safe_overrides)
         
         print(f"[RAG导入] 文档处理完成，生成 {len(documents)} 个文档块")
         if documents:
@@ -2369,6 +2598,29 @@ class RAGSystem:
                 if doc.metadata is None:
                     doc.metadata = {}
                 doc.metadata["source"] = file_str
+
+        # 父块用于命中后的上下文扩展，保存在文档索引清单中；运行时临时字段
+        # 必须在写入 Chroma 前移除，避免每个子块重复存储整段父块。
+        parent_chunks: Dict[str, Dict[str, Any]] = {}
+        for doc in documents:
+            metadata = doc.metadata or {}
+            parent_id = str(metadata.get("parent_id") or "")
+            parent_content = metadata.pop("_parent_content_runtime", None)
+            parent_token_count = metadata.pop("_parent_token_count_runtime", None)
+            if not parent_id or parent_content is None:
+                continue
+            parent_entry = parent_chunks.setdefault(
+                parent_id,
+                {
+                    "content": str(parent_content),
+                    "heading_path": str(metadata.get("heading_path") or ""),
+                    "token_count": int(parent_token_count or 0),
+                    "child_ids": [],
+                },
+            )
+            chunk_id = str(metadata.get("chunk_id") or "")
+            if chunk_id and chunk_id not in parent_entry["child_ids"]:
+                parent_entry["child_ids"].append(chunk_id)
 
         # 生成 embeddings（图文双轨：文本走 text embedding，图片走 image embedding）
         if progress_callback:
@@ -2457,11 +2709,13 @@ class RAGSystem:
         # 添加到向量数据库
         print(f"[RAG导入][Stage] vector_add_start docs={len(documents)} vectors={len(embeddings)}")
         try:
-            self.vector_store.add_documents(documents, embeddings)
+            with self._vector_write_lock:
+                self.vector_store.add_documents(documents, embeddings)
         except Exception:
             # Some vector stores can partially write a batch before raising.
             # This source is not active yet, so it is safe to clean it up.
-            self.vector_store.delete_by_source(source_key)
+            with self._vector_write_lock:
+                self.vector_store.delete_by_source(source_key)
             raise
         print("[RAG导入][Stage] vector_add_done")
 
@@ -2483,7 +2737,7 @@ class RAGSystem:
         # 但索引键不能只用 file_str，否则会互相覆盖。
         index_key = self._make_index_key(file_str, owner)
 
-        image_storage_dir = (Config.STORAGE_ROOT / "images" / (owner or "anonymous") / image_doc_id).resolve()
+        image_storage_dir = (self.storage_root / "images" / (owner or "anonymous") / image_doc_id).resolve()
         image_chunk_count = sum(1 for d in documents if str((d.metadata or {}).get("modality", "text")).lower() == "image")
         linked_images: List[Dict[str, Any]] = []
         linked_image_keys: set[str] = set()
@@ -2513,27 +2767,50 @@ class RAGSystem:
             "physical_path": file_str,
             # 向量库中的 source（已按 owner 隔离）
             "source_key": source_key,
+            "chunker_version": CHUNKER_VERSION,
+            "parent_chunks": parent_chunks,
             # 图片统一存储目录（用于联动清理）
             "image_doc_id": image_doc_id,
             "image_storage_dir": str(image_storage_dir),
             "linked_images": linked_images,
         }
-        self.document_index[index_key] = next_index_entry
+        # These fields are intentionally persisted in the catalog.  Listing and
+        # authorization must never need to infer course/personal ownership from
+        # a filename.  Keep the allow-list narrow so callers cannot overwrite
+        # hashes, physical paths, owners, or other internal bookkeeping fields.
+        catalog_metadata_keys = {
+            "course_id",
+            "library_type",
+            "scope_type",
+            "scope_id",
+            "knowledge_node_id",
+            "course_document_id",
+            "course_material_id",
+            "content_language",
+            "authority_tier",
+        }
+        next_index_entry.update(
+            {key: value for key, value in safe_overrides.items() if key in catalog_metadata_keys}
+        )
         print(f"[RAG导入][Stage] index_save_start key={index_key}")
-        try:
-            self._save_index()
-        except Exception:
-            self.vector_store.delete_by_source(source_key)
-            if previous_index_entry is None:
-                self.document_index.pop(index_key, None)
-            else:
-                self.document_index[index_key] = previous_index_entry
-            raise
+        with self._index_write_lock:
+            self.document_index[index_key] = next_index_entry
+            try:
+                self._save_index()
+            except Exception:
+                with self._vector_write_lock:
+                    self.vector_store.delete_by_source(source_key)
+                if previous_index_entry is None:
+                    self.document_index.pop(index_key, None)
+                else:
+                    self.document_index[index_key] = previous_index_entry
+                raise
         print("[RAG导入][Stage] index_save_done")
 
         if previous_source_key and previous_source_key != source_key:
             try:
-                self.vector_store.delete_by_source(previous_source_key)
+                with self._vector_write_lock:
+                    self.vector_store.delete_by_source(previous_source_key)
             except Exception as cleanup_error:
                 print(
                     "[RAG导入] 新索引已切换，但旧索引清理失败："
@@ -2549,6 +2826,37 @@ class RAGSystem:
             "file": file_str,
             "chunk_count": len(documents)
         }
+
+    def retrieve_documents(
+        self,
+        question: str,
+        *,
+        top_k: int = 5,
+        allowed_sources: Optional[List[str]] = None,
+        rewritten_query: Optional[str] = None,
+        query_embedding: Optional[List[float]] = None,
+    ) -> List[Dict]:
+        """Production retrieval path shared by Q&A, document tests and evaluation."""
+        original = str(question or "").strip()
+        if not original:
+            return []
+        effective_embedding = query_embedding or self.embedding_client.embed_query(original)
+        additional_queries: List[tuple[str, List[float]]] = []
+        rewritten = str(rewritten_query or "").strip()
+        if rewritten and rewritten != original:
+            additional_queries.append(
+                (rewritten, self.embedding_client.embed_query(rewritten))
+            )
+        return self.vector_store.hybrid_search(
+            query=original,
+            query_embedding=effective_embedding,
+            top_k=top_k,
+            distance_threshold=1.5,
+            keyword_weight=0.4,
+            vector_weight=0.6,
+            allowed_sources=allowed_sources,
+            additional_queries=additional_queries,
+        )
     
     def query(
         self,
@@ -2691,9 +2999,6 @@ class RAGSystem:
             print(f"[QueryRewrite] 原问题：{question}")
             print(f"[QueryRewrite] 重写后：{retrieval_query}")
                     
-            # 生成查询 embedding（使用重写后的检索查询）
-            query_embedding = self.embedding_client.embed_query(retrieval_query)
-
             # 构建允许参与检索的 source_key 集合（在检索之前就确定，用于限制检索范围）
             # document_index 的 key 是 index_key（user_owner:physical_path）
             # 向量库中的 source 字段存储的是 source_key（也是 user_owner:physical_path 格式）
@@ -2827,8 +3132,9 @@ class RAGSystem:
             if use_enhanced_retrieval:
                 # 增强检索模式：HyDE + 多路召回 + RRF 融合 + Rerank 精排
                 print(f"[RAG] 使用增强检索模式：HyDE + 多路召回 + RRF")
+                query_embedding = self.embedding_client.embed_query(question)
                 retrieved_docs = self.vector_store.enhanced_hybrid_search_with_hyde(
-                    query=retrieval_query,
+                    query=question,
                     query_embedding=query_embedding,
                     top_k=top_k,
                     distance_threshold=1.5,
@@ -2842,16 +3148,12 @@ class RAGSystem:
                     rag_system=self,  # 传入 RAGSystem 实例
                 )
             else:
-                # 传统混合检索模式
-                print(f"[RAG] 使用传统混合检索模式")
-                retrieved_docs = self.vector_store.hybrid_search(
-                    query=retrieval_query,
-                    query_embedding=query_embedding,
+                print(f"[RAG] 使用生产混合检索模式：原问题 + 重写补充 + RRF + Rerank")
+                retrieved_docs = self.retrieve_documents(
+                    question,
                     top_k=top_k,
-                    distance_threshold=1.5,
-                    keyword_weight=0.4,  # 关键词检索占比 40%
-                    vector_weight=0.6,    # 向量检索占比 60%
-                    allowed_sources=allowed_sources_for_search  # 限制检索范围
+                    allowed_sources=allowed_sources_for_search,  # 限制检索范围
+                    rewritten_query=retrieval_query,
                 )
 
             
@@ -2894,7 +3196,11 @@ class RAGSystem:
                             meta.get("include_in_search", True)
                             and _owner_can_access_document(meta, owner)
                         ):
-                            filtered_docs.append(doc)
+                            accepted = doc.copy()
+                            accepted_metadata = (doc.get("metadata") or {}).copy()
+                            accepted_metadata["_matched_index_key"] = matched_key
+                            accepted["metadata"] = accepted_metadata
+                            filtered_docs.append(accepted)
                         else:
                             pass  # 文档被过滤
                     else:
@@ -2917,59 +3223,27 @@ class RAGSystem:
                 print(f"[RAG] 4. 文档已被删除（不在 document_index 中）")
                 filtered_docs = []
 
-            # 不需要再次截取，因为 search 方法已经动态调整了数量
+            # 子块负责精确命中，命中后扩展到同章节父块，给生成模型完整语义。
             selected_docs = filtered_docs
+            selected_docs = [
+                _expand_parent_context(
+                    self.document_index,
+                    doc,
+                    str((doc.get("metadata") or {}).get("_matched_index_key") or ""),
+                )
+                for doc in selected_docs
+            ]
             
             # ========== 任务三：清洗检索结果中的脏数据 ==========
             # 在构建 Context 之前，先清洗每个文档的 content
             import re as regex_module
             for doc in selected_docs:
                 original_content = doc.get("content", "")
+                # 保留 Markdown、代码、表格和 LaTeX；这里只统一换行与过量空行。
+                # 旧逻辑会主动删除 \frac / \sum 等公式命令，已禁止执行。
                 if original_content:
-                    cleaned_content = original_content
-                    
-                    # 1. 移除重复的章节标题（如"7.1 图的定义和术语"重复出现）
-                    # 匹配模式：数字 + 点 + 中文标题，连续出现多次
-                    repeat_header_pattern = r'([\d\.]+\s*[\u4e00-\u9fa5]+[^\n]*)(\s*\n?\s*\1)+'
-                    cleaned_content = regex_module.sub(repeat_header_pattern, r'\1', cleaned_content)
-                    
-                    # 2. 移除 LaTeX 数学公式乱码（如 \pmb{...}, \frac{...}{...}）
-                    latex_pattern = r'\\(pmb|frac|sqrt|sum|prod|int|left|right|begin|end)\{[^}]*\}'
-                    cleaned_content = regex_module.sub(latex_pattern, '', cleaned_content)
-                    
-                    # 3. 移除连续的特殊符号（如 ***、##、=== 等）
-                    special_chars_pattern = r'[*#=]{3,}'
-                    cleaned_content = regex_module.sub(special_chars_pattern, '', cleaned_content)
-                    
-                    # 4. 移除重复的短句（同一句话连续出现 2 次以上）
-                    repeat_sentence_pattern = r'([^。！？\.!?]{10,50})([。！？\.!?])\s*\1+'
-                    cleaned_content = regex_module.sub(repeat_sentence_pattern, r'\1\2', cleaned_content)
-                    
-                    # 5. 移除包含乱码的整行（如果一行中乱码字符超过 50%）
-                    lines = cleaned_content.split('\n')
-                    clean_lines = []
-                    for line in lines:
-                        if len(line.strip()) < 5:  # 跳过空行或极短的行
-                            continue
-                        # 计算乱码字符比例（LaTeX 命令、特殊符号等）
-                        messy_chars = len(regex_module.findall(r'[\\{}\[\]_*#]', line))
-                        total_chars = len(line)
-                        if total_chars > 0 and messy_chars / total_chars < 0.3:  # 乱码比例低于 30% 才保留
-                            clean_lines.append(line)
-                    cleaned_content = '\n'.join(clean_lines)
-                    
-                    # 6. 压缩多余的空白字符
-                    cleaned_content = regex_module.sub(r'\s+', ' ', cleaned_content).strip()
-                    
-                    # 更新文档内容
-                    doc["content"] = cleaned_content
-                    
-                    # 打印清洗日志
-                    if len(original_content) != len(cleaned_content):
-                        print(f"[脏数据清洗] 文档来源：{doc.get('metadata', {}).get('source', 'unknown')}")
-                        print(f"  - 原始长度：{len(original_content)} 字符")
-                        print(f"  - 清洗后长度：{len(cleaned_content)} 字符")
-                        print(f"  - 删除比例：{(1 - len(cleaned_content)/len(original_content))*100:.1f}%")
+                    normalized = regex_module.sub(r"\r\n?", "\n", str(original_content))
+                    doc["content"] = regex_module.sub(r"\n{4,}", "\n\n\n", normalized).strip()
             # =======================================================
 
             # 构建知识库上下文（任务二：行内沉浸式溯源）
@@ -3080,7 +3354,9 @@ class RAGSystem:
                 if rerank_score is not None:
                     print(f"[文档 {idx+1}] {source_name}: Rerank 分数={rerank_score:.4f}")
                 else:
-                    print(f"[文档 {idx+1}] {source_name}: 向量分数={vector_score:.4f if vector_score else 'N/A'}, 融合分数={combined_score:.4f if combined_score else 'N/A'}")
+                    vector_display = f"{vector_score:.4f}" if isinstance(vector_score, (int, float)) else "N/A"
+                    combined_display = f"{combined_score:.4f}" if isinstance(combined_score, (int, float)) else "N/A"
+                    print(f"[文档 {idx+1}] {source_name}: 向量分数={vector_display}, 融合分数={combined_display}")
 
                 formatted_sources.append(
                     {
@@ -3258,6 +3534,15 @@ class RAGSystem:
                     "source_site_name": metadata.get("source_site_name"),
                     "source_icon_path": metadata.get("source_icon_path"),
                     "doc_kind": metadata.get("doc_kind"),
+                    # Knowledge-library classification fields.  These are used
+                    # by the API to enforce course/personal catalog isolation.
+                    "course_id": metadata.get("course_id"),
+                    "library_type": metadata.get("library_type"),
+                    "scope_type": metadata.get("scope_type"),
+                    "scope_id": metadata.get("scope_id"),
+                    "knowledge_node_id": metadata.get("knowledge_node_id"),
+                    "course_document_id": metadata.get("course_document_id"),
+                    "course_material_id": metadata.get("course_material_id"),
                 }
             )
         documents.sort(key=lambda item: item.get("imported_at") or "", reverse=True)

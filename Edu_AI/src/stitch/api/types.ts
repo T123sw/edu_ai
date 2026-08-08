@@ -103,6 +103,7 @@ export type MaterialPublicationResponse = {
 export type KnowledgeBaseDocument = {
   id: string;
   name: string;
+  display_name?: string | null;
   type: "file" | "web";
   file_path?: string | null;
   url?: string | null;
@@ -110,6 +111,15 @@ export type KnowledgeBaseDocument = {
   source_domain?: string | null;
   source_site_name?: string | null;
   source_icon_url?: string | null;
+  source_license?: string | null;
+  source_license_url?: string | null;
+  source_revision?: string | null;
+  source_language?: string | null;
+  content_language?: string | null;
+  translation_notice?: string | null;
+  usage_restriction?: string | null;
+  authority_tier?: string | null;
+  retrieved_at?: string | null;
   course_id: string;
   scope_type?: "course" | "knowledge_point";
   scope_id?: string | null;
@@ -139,6 +149,20 @@ export type KnowledgeBaseScopeOptions = {
   limit?: number;
   offset?: number;
   sort?: "created_desc" | "created_asc" | "name_asc" | "name_desc";
+};
+
+export type KnowledgeBaseDocumentContent = {
+  document_id: string;
+  file_path: string;
+  file_name: string;
+  content: string;
+  chunks: Array<{
+    id: number;
+    content: string;
+    page: number;
+    metadata: Record<string, unknown>;
+  }>;
+  total_chunks: number;
 };
 
 export type KnowledgeGraphNode = {

@@ -80,6 +80,7 @@ def test_shared_material_is_readable_by_editor_but_viewer_cannot_delete(course_a
         "report-1",
         {"title": "Shared report"},
         owner_user_id="teacher-a",
+        visibility="course",
     )
     editor = course_api.client_for("teacher-b", "teacher")
     viewer = course_api.client_for("student-a", "student")

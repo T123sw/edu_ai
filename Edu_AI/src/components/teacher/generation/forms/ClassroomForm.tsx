@@ -1,11 +1,13 @@
 import type { ClassroomConfig } from "../definitions/classroom";
 import type { GenerationFormProps } from "../definitions/types";
-import { GenerationField } from "./formFields";
+import { GenerationField, lines } from "./formFields";
 
 export function ClassroomForm({ value, onChange, errors = {} }: GenerationFormProps<ClassroomConfig>) {
   const patch = (next: Partial<ClassroomConfig>) => onChange({ ...value, ...next });
   return <div className="generation-factory__form" data-resource-form="classroom">
     <p className="generation-form-note">只需告诉我们本节课要研究什么，其余课堂结构会自动完成。</p>
     <GenerationField label="研究主题" required error={errors.topic}><textarea autoFocus placeholder="例如：冒泡排序为什么能把最大值逐步移动到末尾？" value={value.topic} onChange={(event) => patch({ topic: event.target.value })} /></GenerationField>
+    <label className="generation-inline-check"><input type="checkbox" checked={value.includeVisuals} onChange={(event) => patch({ includeVisuals: event.target.checked })} />自动规划并检索课堂配图</label>
+    <details><summary>更多设置</summary><GenerationField label="适用对象"><input value={value.audience} onChange={(event) => patch({ audience: event.target.value })} /></GenerationField><GenerationField label="课堂时长（分钟）"><input type="number" min={5} max={180} value={value.durationMinutes} onChange={(event) => patch({ durationMinutes: Number(event.target.value) })} /></GenerationField><GenerationField label="教学目标（每行一个）"><textarea value={value.objectives.join("\n")} onChange={(event) => patch({ objectives: lines(event.target.value) })} /></GenerationField><GenerationField label="场景数量"><input type="number" min={3} max={20} value={value.sceneCount} onChange={(event) => patch({ sceneCount: Number(event.target.value) })} /></GenerationField><GenerationField label="教学方式"><select value={value.teachingStyle} onChange={(event) => patch({ teachingStyle: event.target.value as ClassroomConfig["teachingStyle"] })}><option value="guided">引导式</option><option value="lecture">讲授式</option><option value="inquiry">探究式</option></select></GenerationField><label className="generation-inline-check"><input type="checkbox" checked={value.voiceEnabled} onChange={(event) => patch({ voiceEnabled: event.target.checked })} />生成课堂配音</label>{value.voiceEnabled ? <GenerationField label="声音"><select value={value.voice} onChange={(event) => patch({ voice: event.target.value as ClassroomConfig["voice"] })}><option value="alloy">Alloy</option><option value="nova">Nova</option><option value="shimmer">Shimmer</option></select></GenerationField> : null}<GenerationField label="补充要求"><textarea value={value.specialRequirements} onChange={(event) => patch({ specialRequirements: event.target.value })} /></GenerationField></details>
   </div>;
 }

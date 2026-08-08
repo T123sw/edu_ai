@@ -67,6 +67,29 @@ def test_localize_returns_missing_url_for_empty_url(tmp_path):
     assert result.attempts == 0
 
 
+@pytest.mark.parametrize(
+    "unsafe_url",
+    [
+        "http://127.0.0.1/private.png",
+        "http://169.254.169.254/latest/meta-data.png",
+        "http://[::1]/private.png",
+        "ftp://example.com/image.png",
+    ],
+)
+def test_localize_rejects_private_and_non_http_urls_without_network(
+    tmp_path, unsafe_url
+):
+    with patch(
+        "app.chat.workflows.report.image_downloader.httpx.Client"
+    ) as client:
+        result = localize_image({"url": unsafe_url}, storage_root=tmp_path)
+
+    assert isinstance(result, DownloadFailure)
+    assert result.reason == "unsafe_url"
+    assert result.attempts == 1
+    client.assert_not_called()
+
+
 # ---------------------------------------------------------------------------
 # T2: first successful download writes file + sidecar
 # ---------------------------------------------------------------------------

@@ -1,0 +1,1760 @@
+{
+  "graph_leaf_count": 49,
+  "legacy_document_count": 244,
+  "mapped_document_count": 102,
+  "rejected_document_count": 84,
+  "unmapped_document_count": 58,
+  "nodes_with_materials": 18,
+  "nodes_already_qualified": 15,
+  "node_materials": {
+    "algorithm-properties": {
+      "document_count": 1,
+      "chinese_document_count": 1,
+      "documents": [
+        {
+          "document_id": "doc-4da33c77290d4b1ea7b18c11a09b8830",
+          "title": "算法是什么｜数据结构与算法的关系",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-算法是什么｜数据结构与算法的关系-dac147c95130e6fc.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_introduction/what_is_dsa/"
+        }
+      ]
+    },
+    "array-linked-list": {
+      "document_count": 7,
+      "chinese_document_count": 7,
+      "documents": [
+        {
+          "document_id": "doc-6f719a0571554b3eaa7d9637567d3107",
+          "title": "数组｜数组常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-数组｜数组常用操作-d11933410690eef3.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/array/"
+        },
+        {
+          "document_id": "doc-608c9c926a1543d0b198ad7903bcd946",
+          "title": "链表｜链表常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-链表｜链表常用操作-faa70ccb17e8c58a.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/"
+        },
+        {
+          "document_id": "doc-811f78d4b43c4016ad0d33366827695a",
+          "title": "链表｜数组 vs. 链表",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-链表｜数组 vs. 链表-c19541f2e6468741.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/"
+        },
+        {
+          "document_id": "doc-d4ba013ba8174632932f1929d3dc925a",
+          "title": "链表｜常见链表类型",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-链表｜常见链表类型-72dc193129067232.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/"
+        },
+        {
+          "document_id": "doc-22643ae7c1c14b15849cd75f56875456",
+          "title": "链表｜链表典型应用",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-链表｜链表典型应用-3e4a66f7a2470f60.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/"
+        },
+        {
+          "document_id": "doc-56685f160ce64a0dadebd0b60b4fc0aa",
+          "title": "列表｜列表常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-列表｜列表常用操作-c4b5e255ceaf86f8.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_array_and_linkedlist/list/"
+        },
+        {
+          "document_id": "doc-ada66f64417e4d9a891adea37467e635",
+          "title": "链表 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-链表｜数组 vs. 链表｜补充阅读：链表 - OI Wiki-4c7d3b189657c89a.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/ds/linked-list/"
+        }
+      ]
+    },
+    "backtracking": {
+      "document_count": 9,
+      "chinese_document_count": 9,
+      "documents": [
+        {
+          "document_id": "doc-76926605621841cf805124a65cb079b9",
+          "title": "回溯算法｜尝试与回退",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-回溯算法｜尝试与回退-d5b282daa8ea2573.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/"
+        },
+        {
+          "document_id": "doc-123b0e5c769940bd8b410688600645b7",
+          "title": "回溯算法｜框架代码",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-回溯算法｜框架代码-318fac65c41c2590.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/"
+        },
+        {
+          "document_id": "doc-a6a829681d964ffd956e0a0cb29ca147",
+          "title": "回溯算法｜常用术语",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-回溯算法｜常用术语-2dce47656885f976.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/"
+        },
+        {
+          "document_id": "doc-baf17eeb78464fcc8605f8d30d31e72d",
+          "title": "回溯算法｜回溯典型例题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-回溯算法｜回溯典型例题-3ac425a9214a3b97.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/backtracking_algorithm/"
+        },
+        {
+          "document_id": "doc-69b36b7d08cc49a081fe88445854fe7b",
+          "title": "全排列问题｜无相等元素的情况",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-全排列问题｜无相等元素的情况-9a4c85547c3f6a76.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/permutations_problem/"
+        },
+        {
+          "document_id": "doc-eceb6386e34a4d74b0f51b3e107da78d",
+          "title": "全排列问题｜考虑相等元素的情况",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-全排列问题｜考虑相等元素的情况-a5faa62d90f5af86.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/permutations_problem/"
+        },
+        {
+          "document_id": "doc-8aae89ab48d24593a8d953e5d7c3af75",
+          "title": "子集和问题｜无重复元素的情况",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-子集和问题｜无重复元素的情况-0ab8a1cac51f899d.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/subset_sum_problem/"
+        },
+        {
+          "document_id": "doc-e2a227749b6d4518a47cda7ffec05e71",
+          "title": "子集和问题｜考虑重复元素的情况",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-子集和问题｜考虑重复元素的情况-bd83f495f2c13269.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_backtracking/subset_sum_problem/"
+        },
+        {
+          "document_id": "doc-24d3e2c418cc4c6dbc9cbfbbe339653a",
+          "title": "回溯法 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-回溯｜补充阅读：回溯法 - OI Wiki-3be70c95199d597f.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/search/backtracking/"
+        }
+      ]
+    },
+    "binary-number": {
+      "document_count": 1,
+      "chinese_document_count": 1,
+      "documents": [
+        {
+          "document_id": "doc-ea8b4495bb8846a5a9b0d6fc0c4d72cc",
+          "title": "数字编码｜原码、反码和补码",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-数字编码｜原码、反码和补码-0fa49be8edf2c786.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_data_structure/number_encoding/"
+        }
+      ]
+    },
+    "complexity": {
+      "document_count": 10,
+      "chinese_document_count": 10,
+      "documents": [
+        {
+          "document_id": "doc-f97ce801af7b462595ec62556773de86",
+          "title": "算法效率评估｜理论估算",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-算法效率评估｜理论估算-c175da9aea6b1479.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/performance_evaluation/"
+        },
+        {
+          "document_id": "doc-3ba22399c734409a90025b85d2f789db",
+          "title": "时间复杂度｜统计时间增长趋势",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-时间复杂度｜统计时间增长趋势-b061e251c19db2dd.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/"
+        },
+        {
+          "document_id": "doc-f7a88d08e81f409fb70792b27bfea02d",
+          "title": "时间复杂度｜函数渐近上界",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-时间复杂度｜函数渐近上界-81674494085bded2.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/"
+        },
+        {
+          "document_id": "doc-ecfdbc6630fb49dd9e5faa8aec6beb32",
+          "title": "时间复杂度｜推算方法",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-时间复杂度｜推算方法-bb8b6e71cd4afa43.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/"
+        },
+        {
+          "document_id": "doc-d96e5260213b4c0c827f69ab1522e024",
+          "title": "时间复杂度｜常见类型",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-时间复杂度｜常见类型-671e9415b8ffcbb4.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/"
+        },
+        {
+          "document_id": "doc-45706c732c96463eb9e65a8a21dc201d",
+          "title": "时间复杂度｜最差、最佳、平均时间复杂度",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-时间复杂度｜最差、最佳、平均时间复杂度-5f0d3600817c2171.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/time_complexity/"
+        },
+        {
+          "document_id": "doc-bacefb8fefb84f719de61807bb75494a",
+          "title": "空间复杂度｜算法相关空间",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-空间复杂度｜算法相关空间-730b1174294263d2.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/space_complexity/"
+        },
+        {
+          "document_id": "doc-521c7a3dcd644c359fc15399754f7bd0",
+          "title": "空间复杂度｜推算方法",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-空间复杂度｜推算方法-e2b6fb597a1c5aea.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/space_complexity/"
+        },
+        {
+          "document_id": "doc-cdea83314a554687934a22fa007e26ce",
+          "title": "空间复杂度｜常见类型",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-空间复杂度｜常见类型-9654c959fe8ca05d.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/space_complexity/"
+        },
+        {
+          "document_id": "doc-95397a2136da43c28984579ad3d3a69f",
+          "title": "建堆操作｜复杂度分析",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-建堆操作｜复杂度分析-49ffe4670fbd1cd9.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_heap/build_heap/"
+        }
+      ]
+    },
+    "data-encoding": {
+      "document_count": 3,
+      "chinese_document_count": 3,
+      "documents": [
+        {
+          "document_id": "doc-72f3240c1e314c11badbc820d27fc895",
+          "title": "字符编码｜Unicode 字符集",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-字符编码｜Unicode 字符集-c3d51fbc5d432ef5.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_data_structure/character_encoding/"
+        },
+        {
+          "document_id": "doc-99ff5222a47f4d1aa8ec155b5de3795d",
+          "title": "字符编码｜UTF-8 编码",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-字符编码｜UTF-8 编码-252b39ba72e123e1.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_data_structure/character_encoding/"
+        },
+        {
+          "document_id": "doc-d3411b2a6ac14bcc8f553ee4c4524276",
+          "title": "字符编码｜编程语言的字符编码",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-字符编码｜编程语言的字符编码-d371bf39afb82172.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_data_structure/character_encoding/"
+        }
+      ]
+    },
+    "divide-conquer": {
+      "document_count": 7,
+      "chinese_document_count": 7,
+      "documents": [
+        {
+          "document_id": "doc-2422aa5034794c308c7e3a92085c47c5",
+          "title": "快速排序｜基准数优化",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-快速排序｜基准数优化-d148fc452396d22b.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_sorting/quick_sort/"
+        },
+        {
+          "document_id": "doc-c61ffa56d8434056ac846ace249f5ae5",
+          "title": "归并排序｜算法流程",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-归并排序｜算法流程-f590687ef3902731.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_sorting/merge_sort/"
+        },
+        {
+          "document_id": "doc-b103b1cfab9f4dcb8f74696a650f9e59",
+          "title": "分治算法｜通过分治提升效率",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-分治算法｜通过分治提升效率-f7e204e475dd7667.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_divide_and_conquer/divide_and_conquer/"
+        },
+        {
+          "document_id": "doc-97cce4295539426e8835f7c8fa7ab3fb",
+          "title": "分治算法｜分治常见应用",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-分治算法｜分治常见应用-c91c93b99ab4e52b.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_divide_and_conquer/divide_and_conquer/"
+        },
+        {
+          "document_id": "doc-4bef8b04b8534a17afef4eb65dad5783",
+          "title": "分治搜索策略",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-分治搜索策略-5d695885dc6aad76.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_divide_and_conquer/binary_search_recur/"
+        },
+        {
+          "document_id": "doc-71e17f6e910f4404af38df6888fadae5",
+          "title": "汉诺塔问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-汉诺塔问题-fc98050cd2fecc12.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_divide_and_conquer/hanota_problem/"
+        },
+        {
+          "document_id": "doc-053f85537510477aa9f1b929a0b32a56",
+          "title": "递归 & 分治 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-分治｜补充阅读：递归 & 分治 - OI Wiki-dcf7fe0b21f27fb2.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/basic/divide-and-conquer/"
+        }
+      ]
+    },
+    "dynamic-programming": {
+      "document_count": 12,
+      "chinese_document_count": 12,
+      "documents": [
+        {
+          "document_id": "doc-2bd4f603184340aeba1ee19e9a74029c",
+          "title": "初探动态规划｜方法一：暴力搜索",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-初探动态规划｜方法一：暴力搜索-a997fffdae78b3a6.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/intro_to_dynamic_programming/"
+        },
+        {
+          "document_id": "doc-dceb83ec46874d269325a73de745c9af",
+          "title": "初探动态规划｜方法三：动态规划",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-初探动态规划｜方法三：动态规划-85b094402fa32b2d.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/intro_to_dynamic_programming/"
+        },
+        {
+          "document_id": "doc-9b47113bb85f4807a8abd4eb2765ac31",
+          "title": "动态规划问题特性｜最优子结构",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-动态规划问题特性｜最优子结构-4386dd7ec943be41.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/dp_problem_features/"
+        },
+        {
+          "document_id": "doc-8835940b5abd4aa99115061e5dc64c68",
+          "title": "动态规划问题特性｜无后效性",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-动态规划问题特性｜无后效性-8a8cb74719cdfba2.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/dp_problem_features/"
+        },
+        {
+          "document_id": "doc-0d56cb3b2e9d437bbd4b25332fc0a3d6",
+          "title": "动态规划解题思路｜问题求解步骤",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-动态规划解题思路｜问题求解步骤-5b8af281f66440bb.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/dp_solution_pipeline/"
+        },
+        {
+          "document_id": "doc-58c33812e844400f91c8eacb5fd50de3",
+          "title": "0-1 背包问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-0-1 背包问题-e5413f914e683504.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/knapsack_problem/"
+        },
+        {
+          "document_id": "doc-53ad4981c3354b4e818e4325efcbb64d",
+          "title": "完全背包问题｜完全背包问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-完全背包问题｜完全背包问题-3fae55f4ce2d66c8.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/unbounded_knapsack_problem/"
+        },
+        {
+          "document_id": "doc-3adec834f5be45e299b2682f5117b5c5",
+          "title": "完全背包问题｜零钱兑换问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-完全背包问题｜零钱兑换问题-f0ddef41f41a5d03.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/unbounded_knapsack_problem/"
+        },
+        {
+          "document_id": "doc-2dd5dfda5c8943beaefe0039e9045c94",
+          "title": "完全背包问题｜零钱兑换问题 II",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-完全背包问题｜零钱兑换问题 II-a726f1c5c6d3393b.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/unbounded_knapsack_problem/"
+        },
+        {
+          "document_id": "doc-cf10ae6a4e754f97b036c231c7df64e8",
+          "title": "编辑距离问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-编辑距离问题-59d1a3309087d685.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_dynamic_programming/edit_distance_problem/"
+        },
+        {
+          "document_id": "doc-a18730ec0d3d4661a311ada80ea963e4",
+          "title": "分数背包问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-分数背包问题-39615dec8a74e369.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_greedy/fractional_knapsack_problem/"
+        },
+        {
+          "document_id": "doc-524e83d6c7a342b6ab1932cf31abfae3",
+          "title": "动态规划基础 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-动态规划｜补充阅读：动态规划基础 - OI Wiki-34ff621985cd5cbe.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/dp/basic/"
+        }
+      ]
+    },
+    "elementary-sort": {
+      "document_count": 1,
+      "chinese_document_count": 1,
+      "documents": [
+        {
+          "document_id": "doc-5c408d60665f4e4fba36fc8900325c82",
+          "title": "插入排序｜插入排序的优势",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-插入排序｜插入排序的优势-dd55664005083db1.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_sorting/insertion_sort/"
+        }
+      ]
+    },
+    "graph": {
+      "document_count": 5,
+      "chinese_document_count": 5,
+      "documents": [
+        {
+          "document_id": "doc-a166e09ce45242da82a83a26918a1205",
+          "title": "图｜图的常见类型与术语",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-图｜图的常见类型与术语-da168b2b73dc8c94.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_graph/graph/"
+        },
+        {
+          "document_id": "doc-de949b3a3d0f4c40a42ba1d0a3972a57",
+          "title": "图｜图的表示",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-图｜图的表示-1137e3cf18f4ba8c.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_graph/graph/"
+        },
+        {
+          "document_id": "doc-add7d369feae4b2b918db338d2bdbfc3",
+          "title": "图的基础操作｜基于邻接表的实现",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-图的基础操作｜基于邻接表的实现-44625aea7d155b4f.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_graph/graph_operations/"
+        },
+        {
+          "document_id": "doc-abca5c48195244a59c3a315a80301344",
+          "title": "图的基础操作｜效率对比",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-图的基础操作｜效率对比-ce78b31d3702f0fc.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_graph/graph_operations/"
+        },
+        {
+          "document_id": "doc-b516078df4a54592a30d7e8d6a76d884",
+          "title": "图论相关概念 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-图｜补充阅读：图论相关概念 - OI Wiki-c7f6f1ffd5d2e70e.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/graph/concept/"
+        }
+      ]
+    },
+    "graph-traversal": {
+      "document_count": 3,
+      "chinese_document_count": 3,
+      "documents": [
+        {
+          "document_id": "doc-a532c874936f439791ff17e714806717",
+          "title": "图的遍历｜广度优先遍历",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-图的遍历｜广度优先遍历-343e6134a55c42f9.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_graph/graph_traversal/"
+        },
+        {
+          "document_id": "doc-379abe0eb35a43a39afd8c9cc9f9b291",
+          "title": "图的遍历｜深度优先遍历",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-图的遍历｜深度优先遍历-3c6f05a6d32f76ce.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_graph/graph_traversal/"
+        },
+        {
+          "document_id": "doc-2b2bd839eb4642a79f75798805cc33ff",
+          "title": "DFS（搜索） - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-搜索｜补充阅读：DFS（搜索） - OI Wiki-7ecc1f0c2b5dfa41.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/search/dfs/"
+        }
+      ]
+    },
+    "greedy": {
+      "document_count": 4,
+      "chinese_document_count": 4,
+      "documents": [
+        {
+          "document_id": "doc-e2473ef5c25647c5adab8f03eed805ae",
+          "title": "贪心算法｜贪心算法的优点与局限性",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-贪心算法｜贪心算法的优点与局限性-f5f1736c9f7fea03.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_greedy/greedy_algorithm/"
+        },
+        {
+          "document_id": "doc-118f97e09a81437796725516b472e2f3",
+          "title": "贪心算法｜贪心算法特性",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-贪心算法｜贪心算法特性-e02d006cefa1640d.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_greedy/greedy_algorithm/"
+        },
+        {
+          "document_id": "doc-56f97574e6c24f6d8873e0eaac73016f",
+          "title": "贪心算法｜贪心算法解题步骤",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-贪心算法｜贪心算法解题步骤-b2b41694dd89e41f.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_greedy/greedy_algorithm/"
+        },
+        {
+          "document_id": "doc-d7511827ee6244dd9b0df81cedcd8917",
+          "title": "贪心 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-贪心｜补充阅读：贪心 - OI Wiki-e6d4a4bf9d1a6ce7.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/basic/greedy/"
+        }
+      ]
+    },
+    "hash": {
+      "document_count": 10,
+      "chinese_document_count": 10,
+      "documents": [
+        {
+          "document_id": "doc-0cc9dfa4968b4f639cfdf42e5109bb27",
+          "title": "哈希表｜哈希表常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希表｜哈希表常用操作-8302bdcca5ca1f9e.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_map/"
+        },
+        {
+          "document_id": "doc-a33c7d4d254e4f4da833aae0a311a0b0",
+          "title": "哈希表｜哈希表简单实现",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希表｜哈希表简单实现-fa31492690b449a8.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_map/"
+        },
+        {
+          "document_id": "doc-f441bbb48f4b4ee1883f1ffb76e36462",
+          "title": "哈希表｜哈希冲突与扩容",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希表｜哈希冲突与扩容-303cf1be3441abed.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_map/"
+        },
+        {
+          "document_id": "doc-05b920d2946541ddb0055a2ee5c1d6d0",
+          "title": "哈希冲突｜链式地址",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希冲突｜链式地址-64fd26ced65985ff.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_collision/"
+        },
+        {
+          "document_id": "doc-8fed8dba19cc4f8487f5301142d26770",
+          "title": "哈希冲突｜开放寻址",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希冲突｜开放寻址-39d7a9aa6b7b7c06.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_collision/"
+        },
+        {
+          "document_id": "doc-47933a1af5494c128c8b685a31bacdda",
+          "title": "哈希算法｜哈希算法的目标",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希算法｜哈希算法的目标-7335ed521b56b80d.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_algorithm/"
+        },
+        {
+          "document_id": "doc-fa8bb4bfe87b42afa99953addd1c42a5",
+          "title": "哈希算法｜哈希算法的设计",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希算法｜哈希算法的设计-7c769cc0bd147f70.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_algorithm/"
+        },
+        {
+          "document_id": "doc-0f889af1dc9f4bb8b71e88d22819f0ff",
+          "title": "哈希算法｜常见哈希算法",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希算法｜常见哈希算法-047af3e39bdaa594.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_algorithm/"
+        },
+        {
+          "document_id": "doc-effd78e83697456da364d8e887276be8",
+          "title": "哈希算法｜数据结构的哈希值",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-哈希算法｜数据结构的哈希值-c7b385d9c15f7254.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_hashing/hash_algorithm/"
+        },
+        {
+          "document_id": "doc-9f0c1503008e45debbfb8c105b92ef5f",
+          "title": "哈希表 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-哈希表｜补充阅读：哈希表 - OI Wiki-1aaf81f9d91876c3.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/ds/hash/"
+        }
+      ]
+    },
+    "heap": {
+      "document_count": 4,
+      "chinese_document_count": 4,
+      "documents": [
+        {
+          "document_id": "doc-2222f8da853c4cc6aa350d4af3331be8",
+          "title": "堆｜堆的常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-堆｜堆的常用操作-797dd6ff7e3fd090.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_heap/heap/"
+        },
+        {
+          "document_id": "doc-fdcc305e28124ee5b7f320fe7396ae82",
+          "title": "堆｜堆的实现",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-堆｜堆的实现-9d2572338606a695.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_heap/heap/"
+        },
+        {
+          "document_id": "doc-66875784478e43199c49b10d7a552890",
+          "title": "堆排序｜算法流程",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-堆排序｜算法流程-e55a60a8dbb14b70.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_sorting/heap_sort/"
+        },
+        {
+          "document_id": "doc-70404d66fd3940e59b6de206db0aa024",
+          "title": "二叉堆 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-堆｜补充阅读：二叉堆 - OI Wiki-99aa63b0ecdc2e78.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/ds/binary-heap/"
+        }
+      ]
+    },
+    "iteration-recursion": {
+      "document_count": 3,
+      "chinese_document_count": 3,
+      "documents": [
+        {
+          "document_id": "doc-c167627061f049c59957e458bfa981e2",
+          "title": "迭代与递归｜迭代",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-迭代与递归｜迭代-068172adb8381c1f.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/iteration_and_recursion/"
+        },
+        {
+          "document_id": "doc-d4c610249d524f15ac2f2a9d307f16e6",
+          "title": "迭代与递归｜递归",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-迭代与递归｜递归-311b52b955cb5d39.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/iteration_and_recursion/"
+        },
+        {
+          "document_id": "doc-88ce034f3a204bedaeb6f708f917d24a",
+          "title": "迭代与递归｜两者对比",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-迭代与递归｜两者对比-2354db56ddef4e58.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_computational_complexity/iteration_and_recursion/"
+        }
+      ]
+    },
+    "linear-binary-search": {
+      "document_count": 4,
+      "chinese_document_count": 4,
+      "documents": [
+        {
+          "document_id": "doc-d506707fbf974632a6e07fc4ba0722ab",
+          "title": "二分查找｜优点与局限性",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二分查找｜优点与局限性-c1b9edbddd04eefb.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_searching/binary_search/"
+        },
+        {
+          "document_id": "doc-fb046ea0ed054b988258f506ea34421a",
+          "title": "二分查找插入点｜无重复元素的情况",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二分查找插入点｜无重复元素的情况-96f849d8d8eaf20f.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_searching/binary_search_insertion/"
+        },
+        {
+          "document_id": "doc-bf296043bd9b4994a92421e6e9f84f47",
+          "title": "二分查找插入点｜存在重复元素的情况",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二分查找插入点｜存在重复元素的情况-dc90cd7f49ddd4be.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_searching/binary_search_insertion/"
+        },
+        {
+          "document_id": "doc-6539150c6ae243d8b863137b5e927ce0",
+          "title": "二分查找边界｜查找右边界",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二分查找边界｜查找右边界-a8a24e41e0df1d70.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_searching/binary_search_edge/"
+        }
+      ]
+    },
+    "stack-queue": {
+      "document_count": 8,
+      "chinese_document_count": 8,
+      "documents": [
+        {
+          "document_id": "doc-90fbb6a25a564bd297c87dab0ad4ae77",
+          "title": "栈｜栈的常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-栈｜栈的常用操作-e2d3133c0d29df2f.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/stack/"
+        },
+        {
+          "document_id": "doc-31cc2d8fe8664107a5ee13281060790f",
+          "title": "栈｜栈的实现",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-栈｜栈的实现-4bfa3a7762057014.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/stack/"
+        },
+        {
+          "document_id": "doc-e82c4b6e4fa24501895aa52154b9f43d",
+          "title": "栈｜两种实现对比",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-栈｜两种实现对比-77b312ed5d106923.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/stack/"
+        },
+        {
+          "document_id": "doc-3c8f7768761049faa36b0840835269ff",
+          "title": "队列｜队列常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-队列｜队列常用操作-4a31e2f09b54e138.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/queue/"
+        },
+        {
+          "document_id": "doc-4dab5e2b159f42ac82c793b36a795040",
+          "title": "队列｜队列实现",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-队列｜队列实现-d778f40de32aa644.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/queue/"
+        },
+        {
+          "document_id": "doc-6808f31d346141cf83cc63e6d5dc19eb",
+          "title": "双向队列｜双向队列常用操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-双向队列｜双向队列常用操作-8707dd90df9eb919.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/deque/"
+        },
+        {
+          "document_id": "doc-51954d44243140b292f86db1288aa99b",
+          "title": "双向队列｜双向队列实现",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-双向队列｜双向队列实现-e8f72ca65ac363dc.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_stack_and_queue/deque/"
+        },
+        {
+          "document_id": "doc-253f45b5aaff47a4932358061cb0ef44",
+          "title": "栈 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-栈与队列｜补充阅读：栈 - OI Wiki-b55a00ed98499bac.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/ds/stack/"
+        }
+      ]
+    },
+    "tree": {
+      "document_count": 10,
+      "chinese_document_count": 10,
+      "documents": [
+        {
+          "document_id": "doc-a74f94a23f6f4cf799c91da9ea5146ff",
+          "title": "二叉树｜二叉树基本操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二叉树｜二叉树基本操作-bef0bb53dfa2c74a.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/binary_tree/"
+        },
+        {
+          "document_id": "doc-84ba6b7a21b94c07a867c57369d536b5",
+          "title": "二叉树｜二叉树的退化",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二叉树｜二叉树的退化-059e12498b284c36.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/binary_tree/"
+        },
+        {
+          "document_id": "doc-936b9b8f542f4a578d8fb6da47604794",
+          "title": "二叉树遍历｜前序、中序、后序遍历",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二叉树遍历｜前序、中序、后序遍历-1339dcb665fa1bc6.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/binary_tree_traversal/"
+        },
+        {
+          "document_id": "doc-934d5214dc31493782a3fd0bdd57e326",
+          "title": "二叉树数组表示｜表示任意二叉树",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二叉树数组表示｜表示任意二叉树-c84a7d9c9e3ac35c.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/array_representation_of_tree/"
+        },
+        {
+          "document_id": "doc-78ab7520d7a24803b77db9fcae3c625f",
+          "title": "二叉搜索树｜二叉搜索树的操作",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-二叉搜索树｜二叉搜索树的操作-8c600734ef346fde.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/binary_search_tree/"
+        },
+        {
+          "document_id": "doc-761fb3f8a9314023a5f6e20a26fe4784",
+          "title": "AVL 树｜AVL 树常见术语",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-AVL 树｜AVL 树常见术语-702baee07e94dc4c.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/avl_tree/"
+        },
+        {
+          "document_id": "doc-cce3a86fcdc444d7996ca93b7ed2dd4d",
+          "title": "AVL 树｜AVL 树旋转",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-AVL 树｜AVL 树旋转-44f15747c9a33f67.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_tree/avl_tree/"
+        },
+        {
+          "document_id": "doc-3f105fa7ef2c4ac998df83a0587b6473",
+          "title": "构建二叉树问题",
+          "path": "knowledge_base/documents/kbbuild-hello-algo-zh-构建二叉树问题-fb264160eef12853.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_open_textbook",
+          "source_url": "https://www.hello-algo.com/chapter_divide_and_conquer/build_binary_tree_problem/"
+        },
+        {
+          "document_id": "doc-2936352445f14b978ffdc90f8f9b64a0",
+          "title": "二叉搜索树 & 平衡树 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-树｜补充阅读：二叉搜索树 & 平衡树 - OI Wiki-c5794b5e52d33d22.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/ds/bst/"
+        },
+        {
+          "document_id": "doc-17208c51af1b4cc89081e60055cfb928",
+          "title": "AVL 树 - OI Wiki",
+          "path": "knowledge_base/documents/kbbuild-supplement-AVL 树｜AVL 树典型应用｜补充阅读：AVL 树 - OI Wiki-ea2c142c1e1b7807.md",
+          "language": "zh-CN",
+          "authority_tier": "reviewed_supplementary_source",
+          "source_url": "https://oi-wiki.org/ds/avl/"
+        }
+      ]
+    }
+  },
+  "rejected_documents": [
+    {
+      "document_id": "doc-2d86215f8ca1443d80c527e4e02d84a3",
+      "title": "初识算法",
+      "reasons": [
+        "content_too_thin",
+        "placeholder_content"
+      ]
+    },
+    {
+      "document_id": "doc-9d22e385b5f0476fa9d2e8ec9919d74c",
+      "title": "算法是什么｜算法定义",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-1a692b6be6f242a8804353509af13977",
+      "title": "算法是什么｜数据结构定义",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-d317ca3d479f4c06a5786d5ff8f4c686",
+      "title": "复杂度分析",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-58763aaf9c6040468c0b08fbbe8830f9",
+      "title": "算法效率评估｜实际测试",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-4e8df567d8de4614b873019d1f9ea08a",
+      "title": "空间复杂度｜权衡时间与空间",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-83276c70f1864c24b5c76bafb08ba1b7",
+      "title": "数据结构",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-aff3295a30c0403398361389be6ea444",
+      "title": "数据结构分类｜逻辑结构：线性与非线性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-462f585f56b14e46a149cd561e5f17d7",
+      "title": "字符编码｜ASCII 字符集",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-bbae220bbff84c61aac9689f9171e0b8",
+      "title": "字符编码｜GBK 字符集",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-a4d07670a64c4a198243d8787f5530a8",
+      "title": "数组与链表",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-22023b95e3424f35be863a65d92f6b80",
+      "title": "数组｜数组的优点与局限性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-4ba9b63c287e40c7ba6ef1e9fa3fd96f",
+      "title": "数组｜数组典型应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-78411981adce40b8bfc447dd6291bc54",
+      "title": "列表｜列表实现",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6ed5314e3027432589379eba3b0b70ac",
+      "title": "内存与缓存｜数据结构的内存效率",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-213802f9637345bfa477444d072d0ba3",
+      "title": "栈与队列",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-f54f974fa73247848dd214d0f6a07318",
+      "title": "栈｜栈的典型应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-84cbdf76131746b5a0db40f662703915",
+      "title": "队列｜队列典型应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-cdfbff17dfa8400d8708533824b77919",
+      "title": "双向队列｜双向队列应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-eb457bc3df0647d1a1dfb42696781e61",
+      "title": "哈希表",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6eab9da66a8548e786d738f5dc1b4bf9",
+      "title": "哈希冲突｜编程语言的选择",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-71501c9a57c443a3a57e772c0c654868",
+      "title": "树",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-98a6bb6a6fbe4f2cb166e86a1f54ef21",
+      "title": "二叉树｜二叉树常见术语",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-37b913847d26440d84a92fa076feabc6",
+      "title": "二叉树｜常见二叉树类型",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-95c8f500ec4547b8b399dadcf54da7b5",
+      "title": "二叉树遍历｜层序遍历",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-4de7295cb1144546ae02ad535ac8a53f",
+      "title": "二叉树数组表示｜表示完美二叉树",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-9d29358901e04e8092095a9de5e7908f",
+      "title": "二叉树数组表示｜优点与局限性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3b9e80febb8642feabc8261d726dfcb3",
+      "title": "二叉搜索树｜二叉搜索树的效率",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3df15209907c4b1facef61033663c757",
+      "title": "二叉搜索树｜二叉搜索树常见应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-533b898169b34ff988587f2799c89191",
+      "title": "AVL 树｜AVL 树常用操作",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-f344852e2fcf49da87acdeea41e2f93a",
+      "title": "AVL 树｜AVL 树典型应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-02108b7e4cbe445d9a6abd61431b50ac",
+      "title": "堆",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-10cbe1c955874cc99575ba818af82b1c",
+      "title": "堆｜堆的常见应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-9dc8b605e55e41139522dc37f8cb8589",
+      "title": "建堆操作｜借助入堆操作实现",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-0bac98efa71a4dc2a15b1e0f3b4e22dc",
+      "title": "建堆操作｜通过遍历堆化实现",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-7e5b02f9cc0741d9b5d1705457f58ff8",
+      "title": "Top-k 问题｜方法一：遍历选择",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-70cde48c5c274864a09c475ba95ed7d3",
+      "title": "Top-k 问题｜方法二：排序",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-26bb37221ea44fb4ab66e605362f698d",
+      "title": "Top-k 问题｜方法三：堆",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-c33d2513149c47919b30227d3c7834ed",
+      "title": "图",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3f9cf3333dbd43dab441f48a1932693c",
+      "title": "图｜图的常见应用",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-2dca436d9817446299a2cd2e755a3490",
+      "title": "图的基础操作｜基于邻接矩阵的实现",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-21eb2d4f606b4a9c80ab188545b21620",
+      "title": "练习｜编程练习",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-405e2e8a143b464d9830d3efd367e53e",
+      "title": "搜索",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-77c27d62f21546749e4f86a31a926148",
+      "title": "二分查找｜区间表示方法",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-2eefe361f9d84c9e9aa19ccc4ab3806a",
+      "title": "二分查找边界｜查找左边界",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-c717fb6f20cc49a9a3105eaba1c64043",
+      "title": "哈希优化策略｜线性查找：以时间换空间",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-d03fc2d85d97491ca486a61b759e3a39",
+      "title": "哈希优化策略｜哈希查找：以空间换时间",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-29d25feaa7094131b32ef16ac0af337d",
+      "title": "重识搜索算法｜暴力搜索",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-785d05b10f9e4a4081141fea86ad6d32",
+      "title": "重识搜索算法｜自适应搜索",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-56409d35cbc949929998ab2861f6da53",
+      "title": "小结",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-5bd93a1c0d76453e9d80b54688a79b71",
+      "title": "排序",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-e21c2e188a614b8ebb2146370bbabbca",
+      "title": "排序算法｜理想排序算法",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-49bf5d86f0d149ffa1cf2c60c0b671a8",
+      "title": "选择排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-21e9efc23b2f49d7bfe8209dc7da6b68",
+      "title": "冒泡排序｜算法流程",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-26548327430a4769954fd878b06b0191",
+      "title": "冒泡排序｜效率优化",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-e64bc387089d4e5ab6f683d923408678",
+      "title": "冒泡排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6c250dd71d604422a9095b05397a6fbe",
+      "title": "插入排序｜算法流程",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-b079f0db85f441559ca915e17cd2ac73",
+      "title": "插入排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-ea4988fe008146ca8f94f43dc8d952ad",
+      "title": "快速排序｜算法流程",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-60bd0355bd844c4d9a6ac200afc42d61",
+      "title": "快速排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-044a332c00f74768bf533abbfa208cff",
+      "title": "快速排序｜快速排序为什么快",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-62c881629e4e4d3b98d91830d19ae8e9",
+      "title": "归并排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-45882969bb2848bcbbbcda9ba6964d8c",
+      "title": "归并排序｜链表排序",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-f5cfaf13a2e64b1e99fd56deabb07e8e",
+      "title": "堆排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-1d2be8ec91ac4cf6a6e96ee8656b22e2",
+      "title": "桶排序｜算法流程",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-630e20de93a448c59d4d6f5e939da969",
+      "title": "桶排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-51830d12801c4670a40054ccda34d298",
+      "title": "桶排序｜如何实现平均分配",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-480fa830b7bc497f9d8677e4642c4f66",
+      "title": "计数排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-ac9eb6862d024ce7b355cef9b4de617d",
+      "title": "基数排序｜算法特性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-69d8b61989254779b91054d1f6c415cf",
+      "title": "分治",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-182c581595d941f58ca4fbfcd1e1872b",
+      "title": "分治算法｜如何判断分治问题",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-857b9c6cfa384383886cbfd82b866af2",
+      "title": "回溯",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-ae2b0fb08767443cb5f15529e784b7a7",
+      "title": "回溯算法｜剪枝",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-6366518344e249c5866edce551f99b86",
+      "title": "回溯算法｜优点与局限性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-dceacec4d50c4b4092a1f1eb89b03a19",
+      "title": "动态规划",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-5e9726ea92c345fb8f09bd2a372ce6cc",
+      "title": "初探动态规划｜方法二：记忆化搜索",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-e379b52693c749d384d627807687b253",
+      "title": "初探动态规划｜空间优化",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-715800ca9532464fb0bba15130af77ea",
+      "title": "动态规划解题思路｜问题判断",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-8430aa71e06847188a9186b86513df29",
+      "title": "贪心",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-9d2e5ee6b08c4edaa2f4f3b0754e5248",
+      "title": "贪心算法｜贪心算法典型例题",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-734fa5376b9a4ec6a3f8e8ee7f271ba7",
+      "title": "练习｜编程练习",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-3c605b3301ea4ec9aea7ee0fb61be26c",
+      "title": "快速排序｜递归深度优化",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-1ebbcc5383da4fda83effcb187c32cc4",
+      "title": "计数排序｜局限性",
+      "reasons": [
+        "content_too_thin"
+      ]
+    },
+    {
+      "document_id": "doc-48e4039f292e4cec97563584bb3bef18",
+      "title": "搜索部分简介 - OI Wiki",
+      "reasons": [
+        "content_too_thin"
+      ]
+    }
+  ],
+  "unmapped_documents": [
+    {
+      "document_id": "doc-3a6a4ecfce2e4755917925a0de8fee2b",
+      "title": "算法无处不在"
+    },
+    {
+      "document_id": "doc-aac2edc735144b8fbcbd585b3897ce61",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-a0c640cd66154c6bbf3e2ff9b2261664",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-6f794fad974f421a8b76af0f5819af7b",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-576ded3c12d242d5b87c19b452f0e852",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-a8338f7f78e148b4a4386a0c18f81056",
+      "title": "数据结构分类｜物理结构：连续与分散"
+    },
+    {
+      "document_id": "doc-15f4b577c7bf4703b46e3d20107be9d5",
+      "title": "基本数据类型"
+    },
+    {
+      "document_id": "doc-e9df7e53da294a33a64014647567abf7",
+      "title": "数字编码｜浮点数编码"
+    },
+    {
+      "document_id": "doc-e009e795c42a46548e0746c58041e87f",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-03e127ac30da4c599ac0e4b9d00f9d25",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-c07b50574a9e4886903ca0174ada2ce9",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-ba00f40a717f4f2ca5114e2541e69a6c",
+      "title": "内存与缓存｜计算机存储设备"
+    },
+    {
+      "document_id": "doc-4464436a8bc445f69248df0be95cf8c7",
+      "title": "内存与缓存｜数据结构的缓存效率"
+    },
+    {
+      "document_id": "doc-c525f4c32656417abe6b43a6f1c9d07b",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-832d1e4d40f144feb87cd8354daa28d3",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-a7a61753a5b14ffc90dad4eadff49ad7",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-3d659894e6854019a90f9befc492e05d",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-ffa68cac2fec4967ac9da71902911927",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-98281c0a02be43178e463608bebfd4fe",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-8e12602cbd16434597a6ea2567b39213",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-ea8c1d11ed3840b1abee89363bbd934b",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-73ceffc710ee4fa79b427134022e12df",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-2859f505bb4c4aef805ab05cb0af9d7b",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-458132910f4a4333b14ca620f2f8ab42",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-a971327d64254cc5af45cc6240762513",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-134d6a3bcab047cbadaa53c1b8530d50",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-e94f7d4f8e8146a2823c7d46fab1e135",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-d04dcef9e1124571a625f50dbb1eb99b",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-e86576b6cffa4ba3ab2c0788300ec6d4",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-7354c225c1e04566b8708cff46d0e168",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-6ba6624a6bf04c7c8cdf169dc6448cae",
+      "title": "重识搜索算法｜搜索方法选取"
+    },
+    {
+      "document_id": "doc-610c8a69da0443fdb78297b6cee05dea",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-48e330662cc9487fbd550109e9fa40dd",
+      "title": "排序算法｜评价维度"
+    },
+    {
+      "document_id": "doc-248341db6dae48b5bfa7e151a2687da9",
+      "title": "计数排序｜简单实现"
+    },
+    {
+      "document_id": "doc-0b8b7f6368d54697a07955669efa742a",
+      "title": "计数排序｜完整实现"
+    },
+    {
+      "document_id": "doc-26e4005e09c7497493dc198139fa8a1c",
+      "title": "基数排序｜算法流程"
+    },
+    {
+      "document_id": "doc-0c5cd67f095841c1b935f9a9804ba4c9",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-cccb4979d649486f9baa050d52cd9b1d",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-7e4b0edbd71a44659f4a845bc5aca038",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-b28df25225d14992bd419391369bd3fa",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-5267ad1c175043209a72751eaa33fb44",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-c7f6099e70914f21813030a586dab5a8",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-d1682f8bf9004e31a98e13e691ca9286",
+      "title": "n 皇后问题"
+    },
+    {
+      "document_id": "doc-5bb6ea917b884037a1dee9f1a40b17b2",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-829fbd1646fd483993cca3f4f345d616",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-8e064e5a064a494aba28b503fdc98476",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-b2002fa5566b4e6988d0eec54b017fc0",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-e177b0f523c14c0e88ae0c232b10ac25",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-dfd4c366e3ab4981870a84da1fb11220",
+      "title": "练习｜编程练习"
+    },
+    {
+      "document_id": "doc-6f438d2c41844d0db5d6ff6496dd7d72",
+      "title": "最大容量问题"
+    },
+    {
+      "document_id": "doc-9440eaa3b1ee4bf295fe5db6bb0b9608",
+      "title": "最大切分乘积问题"
+    },
+    {
+      "document_id": "doc-5966ecc90c12495281e42252bb5ec724",
+      "title": "小结"
+    },
+    {
+      "document_id": "doc-b89cd2c3073f449ca54d0daba5e15149",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-cb9e5456f8f9400999623e64d7136b6e",
+      "title": "练习｜知识巩固"
+    },
+    {
+      "document_id": "doc-e8391801fc024bf3ba8aff4e14973695",
+      "title": "复杂度简介 - OI Wiki"
+    },
+    {
+      "document_id": "doc-fd99f6763196401abc4120bfa057e80a",
+      "title": "排序简介 - OI Wiki"
+    },
+    {
+      "document_id": "doc-03fe69a895c34ed4a54c7a196b000f4b",
+      "title": "桶排序 - OI Wiki"
+    },
+    {
+      "document_id": "doc-57ab135520f3485f83a85254a0b0f4ec",
+      "title": "二分 - OI Wiki"
+    }
+  ]
+}

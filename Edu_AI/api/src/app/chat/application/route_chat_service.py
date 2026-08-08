@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import threading
 from datetime import datetime
 from types import SimpleNamespace
 from typing import Any
@@ -558,14 +557,12 @@ class RouteChatService:
             # Send done frame to client before persisting
             yield {"type": "done"}
 
-            # For fast-path results, persist in background thread so done reaches client first.
-            # Workflow results are persisted via on_workflow_complete callback when task completes.
+            # The done event is emitted first, then fast-path persistence completes
+            # before the generator closes. A client that consumed the complete
+            # stream can therefore reopen the conversation without a race.
+            # Workflow results remain persisted via on_workflow_complete.
             if not task_submitted and final_result:
-                threading.Thread(
-                    target=service._persist_new_result,
-                    args=(payload, final_result),
-                    daemon=True,
-                ).start()
+                service._persist_new_result(payload, final_result)
 
         return preliminary_meta, _stream()
 

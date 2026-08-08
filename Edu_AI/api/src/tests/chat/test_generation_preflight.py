@@ -207,6 +207,47 @@ def test_viewer_cannot_run_generation_preflight(preflight_client):
     assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"
 
 
+def test_viewer_cannot_bypass_preflight_and_submit_direct_generation(
+    preflight_client,
+):
+    client, active_user = preflight_client
+    active_user["course_role"] = "viewer"
+
+    response = client.post(
+        "/api/chat/v2/report/direct",
+        json={
+            "course_id": "c1",
+            "question": "链表如何实现",
+            "source_mode": "none",
+            "selected_doc_ids": [],
+            "idempotency_key": "viewer-direct-report",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"
+
+
+def test_direct_generation_rejects_cross_course_selected_document_before_submit(
+    preflight_client,
+):
+    client, _ = preflight_client
+
+    response = client.post(
+        "/api/chat/v2/report/direct",
+        json={
+            "course_id": "c1",
+            "question": "链表如何实现",
+            "source_mode": "selected_documents",
+            "selected_doc_ids": ["doc-other-course"],
+            "idempotency_key": "cross-course-direct-report",
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "SOURCE_DOCUMENT_WRONG_COURSE"
+
+
 def test_preflight_rejects_unknown_resource_type(preflight_client):
     client, _ = preflight_client
 

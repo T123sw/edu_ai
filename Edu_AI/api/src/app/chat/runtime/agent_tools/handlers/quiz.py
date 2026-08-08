@@ -27,6 +27,11 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
     course_id = getattr(ctx.request, "course_id", None)
     allow_rag = bool(getattr(ctx.capability, "allow_rag", False))
     selected_doc_ids = list(getattr(ctx.capability, "selected_doc_ids", []) or [])
+    source_mode = (
+        "selected_documents"
+        if selected_doc_ids
+        else ("course_auto" if allow_rag else "none")
+    )
     try:
         command = GenerationCommand(
             resource_type="quiz",
@@ -36,6 +41,7 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
                 getattr(ctx.request, "scope_type", None) or "course"
             ),
             scope_id=getattr(ctx.request, "scope_id", None),
+            source_mode=source_mode,
             selected_doc_ids=selected_doc_ids,
             config={
                 "entrypoint": "agent",

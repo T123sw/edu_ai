@@ -182,11 +182,12 @@ def test_route_chat_service_can_attach_llm_enhancement_trace_to_result_and_state
 
     trace = data["meta"]["trace"]["llm_enhancement"]
     assert trace["trigger_event"] == "reply.completed"
-    assert trace["candidate_fields"] == ["student_signals"]
-    assert trace["accepted_fields"] == ["student_signals"]
+    assert trace["candidate_fields"] == []
+    assert trace["accepted_fields"] == []
+    assert trace["deferred"] is True
 
     state = storage.get_state("conv-enh-trace")
-    assert state["llm_enhancement_trace"]["candidate_fields"] == ["student_signals"]
+    assert state["llm_enhancement_trace"]["deferred"] is True
 
 
 def test_route_chat_service_falls_back_for_unsupported_workflow():
@@ -398,7 +399,7 @@ def test_route_chat_service_stream_uses_new_fast_path():
     assert events[-1]["type"] == "done"
 
 
-def test_route_chat_service_stream_falls_back_for_workflow():
+def test_route_chat_service_stream_keeps_workflow_on_the_new_agent_path():
     temp_dir = Path("tests/.tmp")
     temp_dir.mkdir(parents=True, exist_ok=True)
     storage = ConversationStorage(storage_file=temp_dir / f"conversations-{uuid.uuid4().hex}.json")
@@ -421,8 +422,10 @@ def test_route_chat_service_stream_falls_back_for_workflow():
         action_hint="research.lookup",
     )
 
-    assert meta["conversation_id"] == "legacy-conv"
-    assert list(stream) == []
+    assert meta["conversation_id"] == "conv-1"
+    events = list(stream)
+    assert any(event.get("type") == "delta" for event in events)
+    assert events[-1]["type"] == "done"
 
 
 def test_route_chat_service_stream_falls_back_when_fast_runtime_disabled():

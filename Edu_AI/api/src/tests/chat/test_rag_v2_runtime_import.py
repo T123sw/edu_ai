@@ -617,6 +617,45 @@ async def test_list_documents_exposes_source_icon_url_for_web_documents(monkeypa
 
 
 @pytest.mark.anyio
+async def test_personal_document_catalog_excludes_course_documents(monkeypatch):
+    class FakeRAGSystem:
+        def list_documents(self, owner=None):
+            assert owner == "alice"
+            return [
+                {
+                    "file_path": "user_alice:D:/docs/personal-notes.md",
+                    "file_name": "personal-notes.md",
+                    "include_in_search": True,
+                    "chunk_count": 2,
+                    "owner": owner,
+                },
+                {
+                    "file_path": "user_alice:D:/course_data/courses/course-a/knowledge_base/documents-v2/topic.md",
+                    "file_name": "legacy-course-topic.md",
+                    "include_in_search": True,
+                    "chunk_count": 3,
+                    "owner": owner,
+                },
+                {
+                    "file_path": "user_alice:D:/elsewhere/course-topic.md",
+                    "file_name": "classified-course-topic.md",
+                    "include_in_search": True,
+                    "chunk_count": 4,
+                    "owner": owner,
+                    "library_type": "course",
+                    "course_id": "course-a",
+                },
+            ]
+
+    monkeypatch.setattr(runtime_api, "get_rag_system", lambda: FakeRAGSystem())
+    monkeypatch.setattr(runtime_api, "_image_index", {})
+
+    response = await runtime_api.list_documents(current_user={"username": "alice"})
+
+    assert [document.file_name for document in response] == ["personal-notes.md"]
+
+
+@pytest.mark.anyio
 async def test_image_document_content_returns_preview_metadata(monkeypatch):
     image_path = runtime_api.Config.STORAGE_ROOT / "images" / "alice" / "diagram.png"
     index_key = f"user_alice:{image_path}"

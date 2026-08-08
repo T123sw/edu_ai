@@ -1,0 +1,20 @@
+{"case_id":"definition-algorithm","query":"算法的严格定义是什么？一个过程要满足哪些基本条件？","expected_source_contains":["算法是什么｜算法定义"]}
+{"case_id":"definition-data-structure","query":"数据结构是什么，它为什么与算法密切相关？","expected_source_contains":["算法是什么｜数据结构定义","算法是什么｜数据结构与算法的关系"]}
+{"case_id":"evaluation-theory","query":"为什么理论估算比只做实际运行测试更适合评价算法效率？","expected_source_contains":["算法效率评估｜理论估算","算法效率评估｜实际测试"]}
+{"case_id":"iteration-recursion","query":"迭代与递归有什么区别，各自如何终止？","expected_source_contains":["迭代与递归｜两者对比","迭代与递归｜迭代","迭代与递归｜递归"]}
+{"case_id":"big-o","query":"大 O 记号表示什么？如何忽略常数项和低阶项推导渐近上界？","expected_source_contains":["时间复杂度｜函数渐近上界","时间复杂度｜推算方法"]}
+{"case_id":"complexity-cases","query":"最坏、最佳和平均时间复杂度分别描述什么情况？","expected_source_contains":["时间复杂度｜最差、最佳、平均时间复杂度"]}
+{"case_id":"space-time-tradeoff","query":"算法设计中如何理解时间与空间之间的权衡？","expected_source_contains":["空间复杂度｜权衡时间与空间"]}
+{"case_id":"array-linked-list","query":"数组和链表在内存布局、随机访问与插入删除方面有何差异？","expected_source_contains":["数组与链表"]}
+{"case_id":"stack-queue","query":"栈和队列的访问规则分别是什么？请比较先进后出与先进先出。","expected_source_contains":["栈","队列"]}
+{"case_id":"hash-collision","query":"哈希冲突为什么会发生？链式地址和开放寻址如何解决？","expected_source_contains":["哈希冲突"]}
+{"case_id":"tree-traversal","query":"二叉树的前序、中序和后序遍历顺序分别是什么？","expected_source_contains":["二叉树遍历"]}
+{"case_id":"heap","query":"大顶堆需要满足哪些性质，元素入堆后如何恢复堆序？","expected_source_contains":["堆"]}
+{"case_id":"graph-search","query":"图的广度优先搜索和深度优先搜索分别使用什么数据结构？","expected_source_contains":["图的广度优先搜索","图的深度优先搜索"]}
+{"case_id":"binary-search","query":"二分查找为什么要求有序数据？每轮如何缩小搜索区间？","expected_source_contains":["二分查找"]}
+{"case_id":"bubble-sort","query":"冒泡排序每一轮如何交换元素，它是否稳定？","expected_source_contains":["冒泡排序"]}
+{"case_id":"insertion-sort","query":"插入排序如何维护已排序区间？它适合什么样的数据？","expected_source_contains":["插入排序"]}
+{"case_id":"quick-sort","query":"快速排序如何选择基准并通过分区实现分治？","expected_source_contains":["快速排序"]}
+{"case_id":"merge-sort","query":"归并排序的分治过程是什么，合并两个有序子数组如何进行？","expected_source_contains":["归并排序"]}
+{"case_id":"dynamic-programming","query":"动态规划中的状态、转移方程和重叠子问题分别是什么意思？","expected_source_contains":["动态规划"]}
+{"case_id":"greedy","query":"贪心算法为什么每一步选择局部最优，它与动态规划有何不同？","expected_source_contains":["贪心"]}

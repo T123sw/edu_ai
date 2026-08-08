@@ -50,6 +50,11 @@ class FakeDocumentContentReader:
         self.calls.append(keys)
         return "Newton course evidence: " + ", ".join(keys)
 
+    def search_many(self, rag_index_keys, query_text, top_k=12):
+        keys = tuple(rag_index_keys)
+        self.calls.append(("search", query_text, *keys))
+        return f"Relevant evidence for {query_text}: " + ", ".join(keys)
+
 
 @pytest.fixture
 def catalog():
@@ -153,8 +158,13 @@ def test_course_auto_uses_only_ready_documents_in_public_id_order(
         rag_index_key="rag-c",
     )
 
-    resolved = resolver.resolve("c1", "course_auto", [])
+    resolved = resolver.resolve(
+        "c1", "course_auto", [], query_text="Newton's second law"
+    )
 
     assert [item.document_id for item in resolved.documents] == ["doc-a", "doc-b"]
-    assert content_reader.calls == [("rag-a", "rag-b")]
+    assert content_reader.calls == [
+        ("search", "Newton's second law", "rag-a", "rag-b")
+    ]
+    assert "Relevant evidence" in resolved.context_text
     assert resolved.to_snapshot()["mode"] == "course_auto"

@@ -21,9 +21,22 @@ class FakeVectorStore:
     def get_documents_by_source(self, source):
         return [item for item in self.documents if item["metadata"]["source"] == source]
 
+    def hybrid_search(self, query, query_embedding, top_k, allowed_sources=None, **kwargs):
+        candidates = self.documents
+        if allowed_sources:
+            candidates = [
+                item for item in candidates if item["metadata"]["source"] in allowed_sources
+            ]
+        ranked = sorted(candidates, key=lambda item: "快速排序" not in item["content"])
+        return [{**item, "rrf_score": 0.02} for item in ranked[:top_k]]
+
 
 class FakeEmbeddingClient:
     model = "test-embedding-v1"
+
+    @staticmethod
+    def embed_query(text):
+        return [1.0]
 
 
 class FakeRagSystem:
@@ -50,12 +63,29 @@ class FakeRagSystem:
             if owner is None or value["owner"] == owner
         ]
 
+    def retrieve_documents(
+        self,
+        question,
+        *,
+        top_k=5,
+        allowed_sources=None,
+        rewritten_query=None,
+        query_embedding=None,
+    ):
+        return self.vector_store.hybrid_search(
+            question,
+            self.embedding_client.embed_query(question),
+            top_k,
+            allowed_sources=allowed_sources,
+        )
+
     def import_document(
         self,
         path,
         force_reimport=False,
         progress_callback=None,
         owner=None,
+        metadata_overrides=None,
     ):
         progress_callback(15, "loading_pdf")
         progress_callback(50, "embedding")
@@ -74,12 +104,12 @@ class FakeRagSystem:
             {
                 "id": "chunk-1",
                 "content": "快速排序通过选择基准并递归处理左右分区完成分治。",
-                "metadata": {"source": key, "page": "0"},
+                "metadata": {"source": key, "page": "0", **(metadata_overrides or {})},
             },
             {
                 "id": "chunk-2",
                 "content": "冒泡排序会反复交换相邻的逆序元素。",
-                "metadata": {"source": key, "page": "0"},
+                "metadata": {"source": key, "page": "0", **(metadata_overrides or {})},
             },
         ]
         progress_callback(100, "completed")
@@ -108,6 +138,7 @@ def document_fixture(monkeypatch, tmp_path):
         "# 快速排序".encode("utf-8"),
         "sorting.md",
         owner_user_id="teacher-a",
+        library_type="personal",
     )
     document_id = manager.get_knowledge_base_index("course-1")[0]["id"]
     service.initialize_document(manager, "course-1", document_id)
@@ -155,6 +186,10 @@ async def test_upload_index_lifecycle_becomes_ready_and_retrievable(document_fix
     assert document["active_index_version"]
     assert document["pending_index_version"] is None
     assert document["last_job_id"] == job.edu_job_id
+    assert all(
+        chunk["metadata"]["library_type"] == "personal"
+        for chunk in rag.vector_store.documents
+    )
 
     result = service.test_retrieval(
         manager=manager,

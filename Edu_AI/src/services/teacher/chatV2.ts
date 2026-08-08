@@ -25,6 +25,7 @@ export interface ChatReplyRequestV2 {
   artifact_id?: string;
   allow_rag?: boolean;
   allow_web?: boolean;
+  source_mode?: 'course_auto' | 'selected_documents' | 'none';
   selected_doc_ids?: string[];
   input_images?: ChatInputImageV2[];
   input_videos?: ChatInputVideoV2[];
@@ -872,24 +873,27 @@ export function resolveChatRetrievalDocIds(options: {
   selectedDocIds: string[];
   scopedDocIds: string[];
 }): string[] {
-  if (!options.mountFullKnowledgeBase) {
-    return options.selectedDocIds;
-  }
-  return options.scopedDocIds.length > 0
-    ? options.scopedDocIds
-    : options.selectedDocIds;
+  return [...new Set(options.selectedDocIds.map((id) => id.trim()).filter(Boolean))];
 }
 
 export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): ChatReplyRequestV2 {
+  const selectedDocIds = [...new Set(options.selectedDocIds.map((id) => id.trim()).filter(Boolean))];
+  const allowRag = options.allowRag || selectedDocIds.length > 0;
+  const sourceMode: NonNullable<ChatReplyRequestV2['source_mode']> = selectedDocIds.length > 0
+    ? 'selected_documents'
+    : allowRag
+      ? 'course_auto'
+      : 'none';
   const payload: ChatReplyRequestV2 = {
     question: options.question,
     conversation_id: options.conversationId || undefined,
     course_id: options.courseId,
     scope_type: options.scopeType,
     scope_id: options.scopeId,
-    allow_rag: options.allowRag,
+    allow_rag: allowRag,
     allow_web: options.allowWeb,
-    selected_doc_ids: options.selectedDocIds,
+    source_mode: sourceMode,
+    selected_doc_ids: selectedDocIds,
   };
   if (options.artifactReference) {
     payload.artifact_reference = options.artifactReference;

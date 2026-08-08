@@ -12,6 +12,7 @@ from app.schemas.course import (
     KnowledgeGraphData,
     KnowledgeGraphHourAllocationRequest,
     KnowledgeGraphHourAllocationResponse,
+    MaterialContentUpdateRequest,
     PinMaterialRequest,
     RenameMaterialRequest,
 )
@@ -30,6 +31,7 @@ get_course_materials = _api.get_course_materials
 delete_course_material = _api.delete_course_material
 pin_course_material = _api.pin_course_material
 rename_course_material = _api.rename_course_material
+update_course_material_content = _api.update_course_material_content
 publish_course_material = _api.publish_course_material
 withdraw_course_material = _api.withdraw_course_material
 get_knowledge_base_documents = _api.get_knowledge_base_documents

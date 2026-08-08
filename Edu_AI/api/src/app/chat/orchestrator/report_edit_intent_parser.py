@@ -90,6 +90,28 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
             "action_type": "regenerate",
         }
 
+    numbered_match = re.search(r"(?<!\d)(\d+(?:\.\d+)+)(?!\d)", text)
+    if numbered_match:
+        section_number = numbered_match.group(1)
+        target_node = next(
+            (
+                node
+                for node in structure_nodes
+                if re.match(
+                    rf"^{re.escape(section_number)}(?:\s|[、.．:：]|$)",
+                    str(node.get("title") or "").strip(),
+                )
+            ),
+            None,
+        )
+        if target_node is not None:
+            return {
+                **base_request,
+                "target_node_id": target_node.get("node_id"),
+                "target_node_label": target_node.get("title"),
+                "action_type": "delete" if "删除" in text else "rewrite",
+            }
+
     if "摘要" in text:
         summary_node = _find_node_by_type(structure_nodes, "summary")
         if summary_node is not None:
@@ -125,7 +147,9 @@ def parse_report_edit_intent(*, artifact_reference: dict[str, Any], question: st
             }
 
     action_type = "rewrite"
-    if "扩写" in text:
+    if "删除" in text:
+        action_type = "delete"
+    elif "扩写" in text:
         action_type = "expand"
     elif "压缩" in text or "精简" in text:
         action_type = "compress"

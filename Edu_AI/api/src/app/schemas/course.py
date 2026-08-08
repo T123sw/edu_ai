@@ -49,6 +49,7 @@ class CourseUpdateRequest(BaseModel):
 class KnowledgeBaseDocument(BaseModel):
     id: str
     name: str
+    display_name: Optional[str] = None
     type: str
     file_path: Optional[str] = None
     url: Optional[str] = None
@@ -56,6 +57,15 @@ class KnowledgeBaseDocument(BaseModel):
     source_domain: Optional[str] = None
     source_site_name: Optional[str] = None
     source_icon_url: Optional[str] = None
+    source_license: Optional[str] = None
+    source_license_url: Optional[str] = None
+    source_revision: Optional[str] = None
+    source_language: Optional[str] = None
+    content_language: Optional[str] = None
+    translation_notice: Optional[str] = None
+    usage_restriction: Optional[str] = None
+    authority_tier: Optional[str] = None
+    retrieved_at: Optional[str] = None
     course_id: str
     scope_type: str = SCOPE_TYPE_COURSE
     scope_id: Optional[str] = None
@@ -76,6 +86,22 @@ class KnowledgeBaseDocument(BaseModel):
     last_job_id: Optional[str] = None
     error_code: Optional[str] = None
     error_message: Optional[str] = None
+
+
+class KnowledgeBaseDocumentContentChunk(BaseModel):
+    id: int
+    content: str
+    page: int = 1
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class KnowledgeBaseDocumentContent(BaseModel):
+    document_id: str
+    file_path: str
+    file_name: str
+    content: str
+    chunks: List[KnowledgeBaseDocumentContentChunk] = Field(default_factory=list)
+    total_chunks: int = 0
 
 
 class KnowledgeBaseDocumentUploadResponse(BaseModel):
@@ -105,6 +131,12 @@ class KnowledgeBaseRetrievalTestResponse(BaseModel):
     elapsed_ms: int
 
 
+class CourseKnowledgeBuildRequest(BaseModel):
+    source_id: str = Field(default="auto", min_length=1, max_length=100)
+    max_pages: int = Field(default=160, ge=1, le=200)
+    clean_placeholders: bool = True
+
+
 class AddRAGDocumentRequest(BaseModel):
     rag_file_path: str = Field(..., description="RAG document identifier")
     scope_type: str = Field(default=SCOPE_TYPE_COURSE, description="workspace scope type")
@@ -120,6 +152,10 @@ class PinMaterialRequest(BaseModel):
 
 class RenameMaterialRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
+
+
+class MaterialContentUpdateRequest(BaseModel):
+    content: Any
 
 
 class MaterialPublicationResponse(BaseModel):
@@ -148,6 +184,7 @@ class GenerateClassroomRequest(BaseModel):
         description="是否生成真人配音（D1，SPEC-04 §5）。sidecar 未配置 TTS provider 时会静默跳过，自动退回前端浏览器 TTS/静音等待兜底",
     )
     voice: Literal["", "alloy", "nova", "shimmer"] = "alloy"
+    include_visuals: bool = True
     idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 

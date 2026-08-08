@@ -265,6 +265,16 @@ export async function installTeacherApiRoutes(page: Page) {
     if (request.method() === "DELETE" && path.endsWith("/publication")) {
       return json(route, { ok: true });
     }
+    if (request.method() === "PATCH" && path.endsWith("/content")) {
+      const material = materials.find((item) => path.includes(item.material_id));
+      if (!material) return json(route, { detail: "not found" }, 404);
+      const payload = request.postDataJSON() as { content?: unknown };
+      Object.assign(material, {
+        content: payload.content,
+        updated_at: "2026-08-09T02:20:00+08:00",
+      });
+      return json(route, material);
+    }
     if (path.includes("/materials/")) {
       const material = materials.find((item) => path.includes(item.material_id));
       return json(route, material ?? { detail: "not found" }, material ? 200 : 404);
