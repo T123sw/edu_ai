@@ -1,4 +1,5 @@
-import { useEffect, useState, type PropsWithChildren } from "react";
+import { useEffect, useLayoutEffect, useState, type PropsWithChildren } from "react";
+import { createPortal } from "react-dom";
 
 import { JobCenterTrigger } from "../../jobs/JobCenterDrawer";
 import { PageState } from "../components/PageState";
@@ -6,6 +7,16 @@ import { MaterialIcon, UnifiedCourseShellProvider, cx, routeHref, routes } from 
 import { buildTeacherCourseHash, type TeacherCourseRoute } from "../teacherRoutes";
 import { useCourseRoute } from "./CourseRouteProvider";
 import { getCourseNavigation, getCoursePageTitle } from "./courseNavigation";
+
+export function CourseShellHeaderSlot({ children }: PropsWithChildren) {
+  const [target, setTarget] = useState<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    setTarget(document.querySelector<HTMLElement>("[data-course-shell-page-actions]"));
+  }, []);
+
+  return target ? createPortal(children, target) : null;
+}
 
 export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: TeacherCourseRoute }>) {
   const { courseId, course, courseRole, loading, error, reload } = useCourseRoute();
@@ -82,6 +93,7 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
               <p><a href={routeHref(routes.home)}>全部课程</a><span>/</span>{course?.title ?? "课程"}</p>
               <h1>{getCoursePageTitle(activeRoute)}</h1>
             </div>
+            <div className="course-shell__page-actions" data-course-shell-page-actions />
             <div className="course-shell__actions">
               <JobCenterTrigger placement="inline" />
               <a className="course-shell__profile" href={routeHref(routes.profile)}>

@@ -38,6 +38,7 @@ import {
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
+import { CourseShellHeaderSlot } from "../course/CourseShell";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
 
 type ResourceSort = "recent" | "title";
@@ -503,12 +504,36 @@ export function CourseResourcesPage() {
     && activeMeta?.known;
 
   return (
-    <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
+    <>
+      <CourseShellHeaderSlot>
+        <div
+          className="course-resource-space-switch"
+          role="tablist"
+          aria-label="资源空间"
+        >
+          {RESOURCE_SPACES.map((space) => (
+            <button
+              key={space.key}
+              id={`resource-space-tab-${space.key}`}
+              type="button"
+              role="tab"
+              aria-selected={resourceSpace === space.key}
+              aria-controls="resource-space-panel"
+              tabIndex={resourceSpace === space.key ? 0 : -1}
+              onClick={() => selectResourceSpace(space.key)}
+              onKeyDown={(event) => handleResourceSpaceKeyDown(event, space.key)}
+            >
+              {space.label}
+              <span>{space.key === "mine" ? personalMaterials.length : sharedMaterials.length}</span>
+            </button>
+          ))}
+        </div>
+      </CourseShellHeaderSlot>
+      <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[1180px]:overflow-y-hidden">
         <header className="border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <p className="text-sm text-(--muted-text)">个人结果默认仅自己可见，需要时可发布给课程成员。</p>
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-4">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <label className="relative">
                 <MaterialIcon
                   name="search"
@@ -540,43 +565,6 @@ export function CourseResourcesPage() {
               </label>
             </div>
           </div>
-
-          <div
-            className="mt-5 inline-flex rounded-[18px] border border-(--shell-border) bg-white p-1"
-            role="tablist"
-            aria-label="资源空间"
-          >
-            {RESOURCE_SPACES.map((space) => (
-              <button
-                key={space.key}
-                id={`resource-space-tab-${space.key}`}
-                type="button"
-                role="tab"
-                aria-selected={resourceSpace === space.key}
-                aria-controls="resource-space-panel"
-                tabIndex={resourceSpace === space.key ? 0 : -1}
-                onClick={() => selectResourceSpace(space.key)}
-                onKeyDown={(event) => handleResourceSpaceKeyDown(event, space.key)}
-                className={`rounded-[14px] px-5 py-2.5 text-sm font-bold transition ${
-                  resourceSpace === space.key
-                    ? "bg-(--accent) text-white shadow-sm"
-                    : "text-(--muted-text) hover:bg-(--surface-subtle) hover:text-(--accent-strong)"
-                }`}
-              >
-                {space.label}
-                <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
-                  resourceSpace === space.key ? "bg-white/20" : "bg-(--surface-subtle)"
-                }`}>
-                  {space.key === "mine" ? personalMaterials.length : sharedMaterials.length}
-                </span>
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-sm text-(--muted-text)">
-            {resourceSpace === "mine"
-              ? "这里的资源只有你能看到；发布后会生成独立的课程共享版本。"
-              : "这里的资源对所有课程成员可见，教师可以更新或撤回发布。"}
-          </p>
 
           <div
             className="mt-4 flex flex-wrap gap-2"
@@ -886,7 +874,7 @@ export function CourseResourcesPage() {
 
                   {activePresentation ? (
                     <dl className="resource-factual-meta">
-                      {activePresentation.meta.map((item) => (
+                      {activePresentation.meta.filter((item) => item.label !== "可见范围").map((item) => (
                         <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>
                       ))}
                     </dl>
@@ -961,6 +949,7 @@ export function CourseResourcesPage() {
           </section>
         </div>
       </main>
-    </AppSurface>
+      </AppSurface>
+    </>
   );
 }
