@@ -532,8 +532,33 @@ export function CourseResourcesPage() {
       <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[1180px]:overflow-y-hidden">
         <header className="border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
-          <div className="flex flex-wrap items-center justify-end gap-4">
-            <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="flex min-w-0 flex-nowrap items-center gap-3 overflow-hidden">
+            <div
+              className="resource-type-filter flex min-w-0 flex-1 flex-nowrap gap-2 overflow-x-auto"
+              role="radiogroup"
+              aria-label="资源类型筛选"
+            >
+              {COURSE_MATERIAL_FILTERS.map((filter) => (
+                <button
+                  key={filter.key}
+                  id={`resource-filter-${filter.key}`}
+                  type="button"
+                  role="radio"
+                  aria-checked={activeFilter === filter.key}
+                  tabIndex={activeFilter === filter.key ? 0 : -1}
+                  onClick={() => setActiveFilter(filter.key)}
+                  onKeyDown={(event) => handleFilterKeyDown(event, filter.key)}
+                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    activeFilter === filter.key
+                      ? "bg-(--accent) text-white"
+                      : "border border-(--shell-border) bg-white text-(--muted-text) hover:border-(--accent-border)"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex shrink-0 flex-nowrap items-center justify-end gap-2">
               <label className="relative">
                 <MaterialIcon
                   name="search"
@@ -564,32 +589,6 @@ export function CourseResourcesPage() {
                 仅看置顶
               </label>
             </div>
-          </div>
-
-          <div
-            className="mt-4 flex flex-wrap gap-2"
-            role="radiogroup"
-            aria-label="资源类型筛选"
-          >
-            {COURSE_MATERIAL_FILTERS.map((filter) => (
-              <button
-                key={filter.key}
-                id={`resource-filter-${filter.key}`}
-                type="button"
-                role="radio"
-                aria-checked={activeFilter === filter.key}
-                tabIndex={activeFilter === filter.key ? 0 : -1}
-                onClick={() => setActiveFilter(filter.key)}
-                onKeyDown={(event) => handleFilterKeyDown(event, filter.key)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  activeFilter === filter.key
-                    ? "bg-(--accent) text-white"
-                    : "border border-(--shell-border) bg-white text-(--muted-text) hover:border-(--accent-border)"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
           </div>
         </header>
 

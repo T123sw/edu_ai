@@ -91,9 +91,11 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
             ><MaterialIcon name="menu_book" /></button>
             <div className="course-shell__heading">
               <p><a href={routeHref(routes.home)}>全部课程</a><span>/</span>{course?.title ?? "课程"}</p>
-              <h1>{getCoursePageTitle(activeRoute)}</h1>
+              <div className="course-shell__heading-row">
+                <h1>{getCoursePageTitle(activeRoute)}</h1>
+                <div className="course-shell__page-actions" data-course-shell-page-actions />
+              </div>
             </div>
-            <div className="course-shell__page-actions" data-course-shell-page-actions />
             <div className="course-shell__actions">
               <JobCenterTrigger placement="inline" />
               <a className="course-shell__profile" href={routeHref(routes.profile)}>

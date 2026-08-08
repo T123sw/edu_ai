@@ -8,6 +8,10 @@ test("keyboard publication flow preserves the personal source", async ({ teacher
   const mineTab = page.getByRole("tab", { name: /我的资源/u });
   const courseTab = page.getByRole("tab", { name: /课程共享/u });
   await expect(page.locator(".course-shell__header").getByRole("tablist", { name: "资源空间" })).toBeVisible();
+  await expect(page.locator(".course-shell__heading-row").getByRole("tablist", { name: "资源空间" })).toBeVisible();
+  const resourceToolbar = page.locator("main > header");
+  await expect(resourceToolbar.getByRole("radiogroup", { name: "资源类型筛选" })).toBeVisible();
+  await expect(resourceToolbar.getByPlaceholder("搜索资源")).toBeVisible();
   await expect(page.getByText("个人结果默认仅自己可见，需要时可发布给课程成员。")).toHaveCount(0);
   await expect(page.getByText("这里的资源只有你能看到；发布后会生成独立的课程共享版本。")).toHaveCount(0);
   await expect(mineTab).toHaveAttribute("aria-selected", "true");
