@@ -52,6 +52,10 @@ class KnowledgeBaseDocument(BaseModel):
     type: str
     file_path: Optional[str] = None
     url: Optional[str] = None
+    source_title: Optional[str] = None
+    source_domain: Optional[str] = None
+    source_site_name: Optional[str] = None
+    source_icon_url: Optional[str] = None
     course_id: str
     scope_type: str = SCOPE_TYPE_COURSE
     scope_id: Optional[str] = None

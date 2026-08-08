@@ -106,6 +106,10 @@ export type KnowledgeBaseDocument = {
   type: "file" | "web";
   file_path?: string | null;
   url?: string | null;
+  source_title?: string | null;
+  source_domain?: string | null;
+  source_site_name?: string | null;
+  source_icon_url?: string | null;
   course_id: string;
   scope_type?: "course" | "knowledge_point";
   scope_id?: string | null;

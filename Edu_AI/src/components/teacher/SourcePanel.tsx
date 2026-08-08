@@ -57,6 +57,10 @@ import {
   collectKnowledgeSubtreeNodeIds,
   collectScopedKnowledgeNodeIds,
 } from './knowledgeScopeSelection';
+import {
+  buildWebsiteFaviconUrl,
+  inferWebsiteUrlFromFileName,
+} from './websiteIcon';
 import './SourcePanel.css';
 
 const { Title, Text } = Typography;
@@ -79,6 +83,7 @@ interface FileItem {
   filePath?: string;
   imageUrl?: string;
   sourceIconUrl?: string;
+  sourceUrl?: string;
   libraryType?: typeof COURSE_LIBRARY_TYPE | typeof PERSONAL_LIBRARY_TYPE;
   scopeType?: WorkspaceScope['scopeType'];
   scopeId?: string;
@@ -105,29 +110,47 @@ const KNOWLEDGE_STATUS_META: Record<
 
 const imageExts = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif'];
 
+const WebsiteIcon: React.FC<{
+  iconUrl?: string;
+  sourceUrl?: string;
+  size: number;
+}> = ({ iconUrl, sourceUrl, size }) => {
+  const [failed, setFailed] = useState(false);
+  const activeIconUrl = iconUrl || buildWebsiteFaviconUrl(sourceUrl);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [activeIconUrl]);
+
+  if (!activeIconUrl || failed) {
+    return <GlobalOutlined style={{ fontSize: size, color: '#1890ff' }} />;
+  }
+
+  return (
+    <img
+      src={activeIconUrl}
+      alt=""
+      onError={() => setFailed(true)}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 4,
+        objectFit: 'cover',
+        display: 'block',
+      }}
+    />
+  );
+};
+
 const getFileIcon = (
   type: 'file' | 'web' | 'image',
   fileName: string,
   size = 16,
   sourceIconObjectUrl?: string,
+  sourceUrl?: string,
 ) => {
-  if (type === 'web' && sourceIconObjectUrl) {
-    return (
-      <img
-        src={sourceIconObjectUrl}
-        alt=""
-        style={{
-          width: size,
-          height: size,
-          borderRadius: 4,
-          objectFit: 'cover',
-          display: 'block',
-        }}
-      />
-    );
-  }
   if (type === 'web') {
-    return <GlobalOutlined style={{ fontSize: size, color: '#1890ff' }} />;
+    return <WebsiteIcon iconUrl={sourceIconObjectUrl} sourceUrl={sourceUrl} size={size} />;
   }
   if (type === 'image' || isImageFileName(fileName)) {
     return <PictureOutlined style={{ fontSize: size, color: '#13a8a8' }} />;
@@ -181,7 +204,9 @@ const toFileItem = (
   const isImage = String(doc.modality || '').toLowerCase() === 'image'
     || String(doc.doc_kind || '').toLowerCase() === 'image'
     || isImageFileName(displayTitle);
-  const isWeb = Boolean(doc.source_url) || String(doc.doc_kind || '').toLowerCase() === 'web';
+  const inferredSourceUrl = inferWebsiteUrlFromFileName(displayTitle);
+  const sourceUrl = doc.source_url || inferredSourceUrl;
+  const isWeb = Boolean(sourceUrl) || String(doc.doc_kind || '').toLowerCase() === 'web';
 
   return {
     key: doc.file_path,
@@ -191,6 +216,7 @@ const toFileItem = (
     filePath: doc.file_path,
     imageUrl: doc.image_url,
     sourceIconUrl: doc.source_icon_url,
+    sourceUrl,
     libraryType,
   };
 };
@@ -201,7 +227,10 @@ const toKnowledgeBaseFileItem = (
 ): FileItem => {
   const title = decodeDisplayText(doc.name) || doc.name || doc.url || doc.id;
   const filePath = doc.file_path || doc.url || doc.id;
-  const type = doc.type === 'web' ? 'web' : (isImageFileName(title) ? 'image' : 'file');
+  const sourceUrl = doc.url || inferWebsiteUrlFromFileName(title);
+  const type = doc.type === 'web' || sourceUrl
+    ? 'web'
+    : (isImageFileName(title) ? 'image' : 'file');
 
   return {
     key: filePath,
@@ -209,6 +238,8 @@ const toKnowledgeBaseFileItem = (
     title,
     type,
     filePath,
+    sourceIconUrl: doc.source_icon_url,
+    sourceUrl,
     libraryType: doc.library_type || fallbackLibraryType,
     scopeType: doc.scope_type,
     scopeId: doc.scope_id,
@@ -1323,7 +1354,13 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const getAllFileIcons = (): React.ReactNode[] => {
     return fileList.map(node => (
       <div key={node.key} style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}>
-        {getFileIcon(node.type, node.title, 20, node.sourceIconUrl ? listMediaUrls[node.sourceIconUrl] : undefined)}
+        {getFileIcon(
+          node.type,
+          node.title,
+          20,
+          node.sourceIconUrl ? listMediaUrls[node.sourceIconUrl] : undefined,
+          node.sourceUrl,
+        )}
       </div>
     ));
   };
@@ -1580,6 +1617,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               file.title,
               16,
               file.sourceIconUrl ? listMediaUrls[file.sourceIconUrl] : undefined,
+              file.sourceUrl,
             )}
           </span>
           <span className="source-panel__item-copy">
@@ -1684,6 +1722,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               previewFile.title,
               18,
               previewFile.sourceIconUrl ? listMediaUrls[previewFile.sourceIconUrl] : undefined,
+              previewFile.sourceUrl,
             )}
             <Text strong ellipsis style={{ maxWidth: 320 }}>{previewFile?.title || '文档预览'}</Text>
           </Space>
@@ -1910,6 +1949,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                             file.title,
                             16,
                             file.sourceIconUrl ? listMediaUrls[file.sourceIconUrl] : undefined,
+                            file.sourceUrl,
                           )}
                         </span>
                         <span className="source-panel__item-title">{file.title}</span>

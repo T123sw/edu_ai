@@ -91,11 +91,8 @@
 .generation-factory__recent-list > p { border-radius: 12px; background: #f5f7fa; padding: 16px; color: #78869a; font-size: 11px; text-align: center; }
 .generation-factory__job { display: flex; align-items: center; gap: 9px; border-bottom: 1px solid #edf1f6; padding: 11px 2px; color: inherit; }
 .generation-factory__job-icon { display: grid; width: 32px; height: 32px; flex: none; place-items: center; border-radius: 10px; background: #edf3ff; color: #3157d5; }
-.generation-factory__job-icon.is-failed { background: #fff0f0; color: #c73636; }
 .generation-factory__job > div { min-width: 0; flex: 1; }
-.generation-factory__job strong,.generation-factory__job small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.generation-factory__job strong { font-size: 12px; }
-.generation-factory__job small { margin-top: 4px; color: #7b8799; font-size: 10px; }
+.generation-factory__job strong { display: block; overflow: hidden; color: #26344d; font-size: 13px; font-weight: 780; text-overflow: ellipsis; white-space: nowrap; }
 .generation-factory__job-state { flex: none; border-radius: 99px; background: #eef3ff; padding: 4px 7px; color: #3157d5; font-size: 9px; font-weight: 800; }
 .generation-factory__job-state.is-succeeded { background: #eaf8ef; color: #257448; }
 .generation-factory__job-state.is-failed,.generation-factory__job-state.is-canceled { background: #fff0f0; color: #b63232; }

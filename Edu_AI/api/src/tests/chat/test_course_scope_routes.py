@@ -390,8 +390,11 @@ def test_get_knowledge_base_documents_hides_local_path_for_web_documents(monkeyp
         owner_user_id="teacher-a",
     )
     index = manager.get_knowledge_base_index("course-1")
-    index[-1]["url"] = "https://support.microsoft.com/example"
     index[-1]["source_url"] = "https://support.microsoft.com/example"
+    index[-1]["source_title"] = "Microsoft Support"
+    index[-1]["source_domain"] = "support.microsoft.com"
+    index[-1]["source_site_name"] = "Microsoft"
+    index[-1]["source_icon_url"] = "/api/rag/image?path=images%2Fteacher-a%2Fmicrosoft.png"
     index[-1]["doc_kind"] = "web"
     manager.save_knowledge_base_index("course-1", index)
 
@@ -409,6 +412,10 @@ def test_get_knowledge_base_documents_hides_local_path_for_web_documents(monkeyp
     assert len(documents) == 1
     assert documents[0].type == "web"
     assert documents[0].url == "https://support.microsoft.com/example"
+    assert documents[0].source_title == "Microsoft Support"
+    assert documents[0].source_domain == "support.microsoft.com"
+    assert documents[0].source_site_name == "Microsoft"
+    assert documents[0].source_icon_url.endswith("microsoft.png")
     assert relative_path.replace("\\", "/").endswith("support-page.md")
     assert documents[0].file_path is None
 

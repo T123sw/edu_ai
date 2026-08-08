@@ -5,10 +5,9 @@ import { getKnowledgeBaseDocuments } from "../../../stitch/api/courses";
 import type { KnowledgeBaseDocument } from "../../../stitch/api/types";
 import { MaterialIcon } from "../../../stitch/shared";
 import { buildTeacherCourseHash } from "../../../stitch/teacherRoutes";
-import { jobKindLabel, presentJobError } from "../../../jobs/jobPresentation";
 import { useCourseJobs } from "../../../jobs/jobStore";
-import { isActiveJob } from "../../../jobs/types";
 import { GenerationSourceSelector, type GenerationSourceSelection } from "./GenerationSourceSelector";
+import { presentGenerationJob } from "./generationJobPresentation";
 import { generationRegistry, getGenerationResource, type GenerationResourceType } from "./generationRegistry";
 import { useGenerationSubmission, type GenerationDraft } from "./useGenerationSubmission";
 import { defaultGenerationConfig, generationConfigAudience, generationConfigRequirements, generationConfigTopic, validateGenerationConfig } from "./definitions";
@@ -137,13 +136,22 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
         <div className="generation-factory__recent-list">
           {jobs.length === 0 ? <p>暂无生成记录</p> : jobs.map((job) => {
             const ref = job.result_ref;
+            const presentation = presentGenerationJob(job);
             const href = ref?.material_type && ref?.material_id
               ? buildTeacherCourseHash("resources", courseId, { material_type: ref.material_type, material_id: ref.material_id })
               : undefined;
             const content = (
               <>
-                <span className={`generation-factory__job-icon is-${job.status}`}><MaterialIcon name={isActiveJob(job) ? "hourglass_top" : job.status === "succeeded" ? "check" : "priority_high"} /></span>
-                <div><strong>{jobKindLabel(job.kind)}</strong><small>{job.status === "failed" ? presentJobError(job).title : String(job.input_summary?.topic || job.input_summary?.title || "课程资源")}</small></div>
+                <span
+                  className="generation-factory__job-icon"
+                  style={{
+                    backgroundColor: `${presentation.accent}14`,
+                    color: presentation.accent,
+                  }}
+                >
+                  <MaterialIcon name={presentation.icon} />
+                </span>
+                <div><strong title={presentation.title}>{presentation.title}</strong></div>
                 <span className={`generation-factory__job-state is-${job.status}`}>{statusLabel(job.status)}</span>
               </>
             );

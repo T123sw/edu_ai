@@ -127,7 +127,8 @@ def _mutable_material_or_raise(
 def _knowledge_document_model(
     item: dict, course_id: str
 ) -> KnowledgeBaseDocument:
-    doc_type = "web" if item.get("url") else "file"
+    source_url = str(item.get("url") or item.get("source_url") or "").strip()
+    doc_type = "web" if source_url or item.get("doc_kind") == "web" else "file"
     return KnowledgeBaseDocument(
         id=str(item.get("id") or f"doc-{datetime.now().timestamp()}"),
         name=item.get("filename", item.get("name", "未命名文档")),
@@ -135,7 +136,11 @@ def _knowledge_document_model(
         # Filesystem-relative paths are internal implementation details. Public
         # course APIs use the stable document ID for all subsequent actions.
         file_path=None,
-        url=item.get("url") if doc_type == "web" else None,
+        url=source_url if doc_type == "web" else None,
+        source_title=item.get("source_title"),
+        source_domain=item.get("source_domain"),
+        source_site_name=item.get("source_site_name"),
+        source_icon_url=item.get("source_icon_url"),
         course_id=course_id,
         scope_type=str(item.get("scope_type") or "course"),
         scope_id=str(item.get("scope_id") or "").strip() or None,

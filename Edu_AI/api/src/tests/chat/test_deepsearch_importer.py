@@ -110,6 +110,7 @@ def test_import_crawl_results_to_rag_rewrites_inline_images_and_site_icon(monkey
     assert record["doc_kind"] == "web"
     assert record["source_domain"] == "example.com"
     assert record["source_icon_url"].endswith("site-icon.png")
+    assert imported[0]["source_icon_url"].endswith("site-icon.png")
     assert len(record["linked_images"]) == 1
     assert record["linked_images"][0]["image_url"].endswith("example_001.png")
 
@@ -273,6 +274,10 @@ def test_persist_imported_documents_to_course_kb_writes_personal_scoped_entries_
                 "index_key": "user_teacher-a:/tmp/lesson.md",
                 "file_name": "lesson.md",
                 "url": "https://example.com/lesson",
+                "source_title": "Example lesson",
+                "source_domain": "example.com",
+                "source_site_name": "Example",
+                "source_icon_url": "/api/rag/image?path=images%2Fteacher-a%2Fsite-icon.png",
             }
         ],
         owner="teacher-a",
@@ -291,6 +296,10 @@ def test_persist_imported_documents_to_course_kb_writes_personal_scoped_entries_
     assert latest["scope_id"] == "variables"
     assert latest["promoted_from_document_id"] == "user_teacher-a:/tmp/lesson.md"
     assert latest["source_url"] == "https://example.com/lesson"
+    assert latest["source_title"] == "Example lesson"
+    assert latest["source_domain"] == "example.com"
+    assert latest["source_site_name"] == "Example"
+    assert latest["source_icon_url"].endswith("site-icon.png")
     assert latest["doc_kind"] == "web"
     assert rag_system.document_index["user_teacher-a:/tmp/lesson.md"]["hidden_in_list"] is True
     assert rag_system.saved is True

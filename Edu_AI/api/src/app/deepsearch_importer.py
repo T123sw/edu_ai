@@ -291,6 +291,10 @@ def import_crawl_results_to_rag(
                 "index_key": resolved_document.index_key if resolved_document is not None else None,
                 "file_name": record.get("file_name") if isinstance(record, dict) else Path(import_path).name,
                 "url": url,
+                "source_title": record.get("source_title") if isinstance(record, dict) else title,
+                "source_domain": record.get("source_domain") if isinstance(record, dict) else domain,
+                "source_site_name": record.get("source_site_name") if isinstance(record, dict) else None,
+                "source_icon_url": record.get("source_icon_url") if isinstance(record, dict) else None,
             }
         )
 
@@ -357,6 +361,15 @@ def persist_imported_documents_to_course_kb(
             if source_url:
                 latest["url"] = source_url
                 latest["source_url"] = source_url
+            for metadata_key in (
+                "source_title",
+                "source_domain",
+                "source_site_name",
+                "source_icon_url",
+            ):
+                metadata_value = str(imported_doc.get(metadata_key) or "").strip()
+                if metadata_value:
+                    latest[metadata_key] = metadata_value
             latest["doc_kind"] = "web"
             storage_manager.save_knowledge_base_index(course_id, index)
 
