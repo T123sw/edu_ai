@@ -1,0 +1,40 @@
+.student-course-knowledge { padding: 24px clamp(18px,3vw,38px) 60px; }
+.student-knowledge-tabs { display: inline-flex; gap: 4px; margin-bottom: 18px; border: 1px solid #dce2eb; border-radius: 12px; background: #fff; padding: 4px; }
+.student-knowledge-tabs a { border-radius: 9px; padding: 9px 16px; color: #69768a; font-size: 13px; font-weight: 750; }
+.student-knowledge-tabs a[aria-current="page"] { background: #e9efff; color: #3157d5; }
+.student-personal-knowledge { width: min(1320px,100%); margin: 0 auto; padding: 34px clamp(18px,4vw,50px) 70px; }
+.student-personal-knowledge__intro { display: flex; align-items: end; justify-content: space-between; gap: 30px; border: 1px solid #dde4ef; border-radius: 20px; background: linear-gradient(120deg,#fff,#f1f5ff); padding: 30px; }
+.student-personal-knowledge__intro p { color: #3157d5; font-size: 12px; font-weight: 850; letter-spacing: .08em; }
+.student-personal-knowledge__intro h2 { margin-top: 6px; font-size: 29px; font-weight: 880; letter-spacing: -.04em; }
+.student-personal-knowledge__intro > div:first-child span { display: block; margin-top: 9px; color: #68758a; font-size: 13px; }
+.student-personal-knowledge__actions { display: flex; align-items: end; gap: 10px; }
+.student-personal-knowledge__actions label span { display: block; margin-bottom: 5px; color: #768397; font-size: 10px; }
+.student-personal-knowledge__actions select { min-width: 190px; border: 1px solid #d7deea; border-radius: 9px; background: #fff; padding: 10px; font-size: 12px; }
+.student-personal-knowledge__actions > button { display: flex; align-items: center; gap: 6px; border-radius: 9px; background: #3157d5; padding: 10px 14px; color: #fff; font-size: 12px; font-weight: 750; }
+.student-personal-knowledge__search { display: flex; align-items: center; gap: 8px; margin-top: 25px; border: 1px solid #dce2eb; border-radius: 11px; background: #fff; padding: 0 13px; color: #7a8698; }
+.student-personal-knowledge__search input { min-width: 0; flex: 1; border: 0; padding: 12px 0; outline: 0; }
+.student-personal-knowledge__search span { font-size: 11px; }
+.student-personal-knowledge__grid { display: grid; gap: 11px; margin-top: 16px; }
+.student-personal-document { display: flex; align-items: center; gap: 14px; border: 1px solid #dfe5ed; border-radius: 14px; background: #fff; padding: 15px; }
+.student-personal-document__icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 12px; background: #edf1ff; color: #3157d5; }
+.student-personal-document__body { min-width: 0; flex: 1; }
+.student-personal-document__body h3 { overflow: hidden; font-size: 14px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.student-personal-document__body p { margin-top: 4px; color: #607086; font-size: 11px; }
+.student-personal-document__body small { display: block; margin-top: 3px; color: #8a95a5; font-size: 9px; }
+.student-personal-document__actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 5px; }
+.student-personal-document__actions button,.student-personal-document__actions a { border: 1px solid #dce2ea; border-radius: 8px; padding: 6px 9px; color: #56657b; font-size: 10px; }
+.student-personal-document__actions a { border-color: #c4d0f5; color: #3157d5; }
+.student-personal-document__actions button:disabled { cursor: not-allowed; opacity: .45; }
+.student-personal-document__actions button.is-danger { color: #b42318; }
+.student-knowledge-state { margin-top: 16px; border: 1px dashed #ccd5e1; border-radius: 14px; background: #fff; padding: 34px; color: #758195; text-align: center; }
+.student-knowledge-state h3 { color: #28364b; font-weight: 800; }
+.student-knowledge-state p { margin-top: 7px; font-size: 12px; }
+.student-knowledge-error { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; border-radius: 10px; background: #fff1f0; padding: 10px 13px; color: #b42318; font-size: 12px; }
+.student-knowledge-error button { font-weight: 750; }
+.student-personal-knowledge__preview { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; background: rgba(15,23,42,.42); padding: 24px; }
+.student-personal-knowledge__preview section { display: flex; width: min(860px,100%); max-height: 84vh; flex-direction: column; border-radius: 18px; background: #fff; padding: 20px; }
+.student-personal-knowledge__preview header { display: flex; align-items: center; justify-content: space-between; }
+.student-personal-knowledge__preview h3 { font-size: 17px; font-weight: 800; }
+.student-personal-knowledge__preview pre { overflow: auto; margin-top: 15px; border-radius: 10px; background: #f7f8fa; padding: 16px; font-family: inherit; font-size: 13px; line-height: 1.75; white-space: pre-wrap; }
+@media (max-width: 900px) { .student-personal-knowledge__intro { align-items: stretch; flex-direction: column; } .student-personal-knowledge__actions { align-items: stretch; flex-direction: column; } .student-personal-knowledge__actions select { width: 100%; } .student-personal-document { align-items: flex-start; } }
+@media (max-width: 650px) { .student-personal-knowledge { padding: 20px 14px 50px; } .student-personal-document { flex-wrap: wrap; } .student-personal-document__body { width: calc(100% - 60px); flex: none; } .student-personal-document__actions { width: 100%; justify-content: flex-start; } }

@@ -22,10 +22,10 @@ function statusLabel(status: KnowledgeBaseDocument["status"]) {
   return "处理中";
 }
 
-export function KnowledgeDocumentsView() {
+export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolean } = {}) {
   const { courseId, courseRole } = useCourseRoute();
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const canUpload = canCourse(courseRole, "edit");
+  const canUpload = !readOnly && canCourse(courseRole, "edit");
   const [root, setRoot] = useState<KnowledgeGraphNode | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());

@@ -44,6 +44,9 @@ export function buildStudentHash(
     materialType?: string;
     materialId?: string;
     classroomId?: string;
+    scopeType?: "course" | "knowledge_point";
+    scopeId?: string;
+    scopeLabel?: string;
   },
 ): string {
   if (route === "student-home" || route === "student-personal-knowledge") {
@@ -59,6 +62,9 @@ export function buildStudentHash(
     material_type: options?.materialType,
     material_id: options?.materialId,
     classroom_id: options?.classroomId,
+    scopeType: options?.scopeType,
+    scopeId: options?.scopeId,
+    scopeLabel: options?.scopeLabel,
   };
   for (const [key, value] of Object.entries(target)) {
     const normalized = String(value ?? "").trim();

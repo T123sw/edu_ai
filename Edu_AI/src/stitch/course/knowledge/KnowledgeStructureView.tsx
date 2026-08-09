@@ -63,7 +63,11 @@ function documentState(document: KnowledgeBaseDocument) {
   return "处理中";
 }
 
-export function KnowledgeStructureView() {
+export function KnowledgeStructureView({
+  buildChatHref,
+}: {
+  buildChatHref?: (target: { scopeType: "course" | "knowledge_point"; scopeId?: string; scopeLabel: string }) => string;
+} = {}) {
   const { courseId } = useCourseRoute();
   const [root, setRoot] = useState<KnowledgeGraphNode | null>(null);
   const [activeId, setActiveId] = useState("");
@@ -114,15 +118,16 @@ export function KnowledgeStructureView() {
     return () => { cancelled = true; };
   }, [activeNode, courseId, isRoot]);
 
-  const chatHref = activeNode
-    ? buildTeacherCourseHash("ai", courseId, isRoot ? {
-        scopeType: "course",
-        scopeLabel: activeNode.label,
-      } : {
-        scopeType: "knowledge_point",
-        scopeId: activeNode.id,
-        scopeLabel: activeNode.label,
-      })
+  const chatTarget = activeNode ? (isRoot ? {
+    scopeType: "course" as const,
+    scopeLabel: activeNode.label,
+  } : {
+    scopeType: "knowledge_point" as const,
+    scopeId: activeNode.id,
+    scopeLabel: activeNode.label,
+  }) : null;
+  const chatHref = chatTarget
+    ? buildChatHref?.(chatTarget) ?? buildTeacherCourseHash("ai", courseId, chatTarget)
     : buildTeacherCourseHash("ai", courseId);
 
   function toggleNode(node: KnowledgeGraphNode) {
