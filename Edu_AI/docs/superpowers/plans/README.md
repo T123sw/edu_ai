@@ -23,6 +23,14 @@ This directory contains the canonical implementation sequence for `../specs/2026
 
 These are deliberately separate plans because their architecture depends on the accepted P0/P1 data and interaction contracts.
 
+## Student Capability Phase (2026-08-10)
+
+After the student workspace foundation and the teacher Agent stabilization work, the next active plan is:
+
+- [Student Guided-Learning Agent and Real Capability Optimization](2026-08-10-student-guided-learning-agent-capability-optimization.md)
+
+Its order is fixed: audit and reuse the teacher implementation first, repair personal knowledge/deep research/RAG scope, then apply the authenticated student Persona, converge shared frontend state, and finally run versioned evaluation plus real end-to-end acceptance. Existing resource generators are reused and regression-tested rather than rebuilt.
+
 ## Execution Method
 
 For each plan:
