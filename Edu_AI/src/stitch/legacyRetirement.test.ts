@@ -38,9 +38,9 @@ test('legacy generation modals and raw PPT JSON editor stay removed', () => {
   ]) {
     assert.equal(existsSync(fileURLToPath(new URL(relativePath, import.meta.url))), false, relativePath);
   }
-  const factory = source('../components/teacher/generation/GenerationFactory.tsx');
-  const pptForm = source('../components/teacher/generation/forms/PptForm.tsx');
-  const outline = source('../components/teacher/generation/previews/PptOutlineEditor.tsx');
+  const factory = source('../components/generation/GenerationFactory.tsx');
+  const pptForm = source('../components/generation/forms/PptForm.tsx');
+  const outline = source('../components/generation/previews/PptOutlineEditor.tsx');
   assert.equal((factory.match(/<QuizForm\b/gu) || []).length, 1);
   assert.doesNotMatch(`${pptForm}\n${outline}`, /JSON\.stringify|PPT 大纲["']\s*\/?>/u);
 });

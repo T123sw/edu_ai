@@ -136,7 +136,7 @@ test('waitForClassroomGenerationJob stops polling when aborted', async () => {
 });
 
 test('shared generation registry exposes one AI classroom entry', async () => {
-  const { generationRegistry } = await import('../components/teacher/generation/generationRegistry.ts');
+  const { generationRegistry } = await import('../components/generation/generationRegistry.ts');
   assert.equal(generationRegistry.filter((entry) => entry.resourceType === 'classroom').length, 1);
 });
 

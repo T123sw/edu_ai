@@ -19,8 +19,8 @@ import {
 } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
 import "./ClassroomGenerationEntry.css";
-import { classroomDefinition } from "./generation/definitions/classroom";
-import { ClassroomForm } from "./generation/forms/ClassroomForm";
+import { classroomDefinition } from "../generation/definitions/classroom";
+import { ClassroomForm } from "../generation/forms/ClassroomForm";
 
 const { Text } = Typography;
 

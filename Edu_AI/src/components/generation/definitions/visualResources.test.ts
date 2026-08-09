@@ -5,7 +5,7 @@ import { generationRegistry } from "../generationRegistry";
 import { classroomDefinition } from "./classroom";
 import { mindMapDefinition } from "./mindMap";
 import { pptDefinition } from "./ppt";
-import { classroomPageDefinition } from "../../../../stitch/pages/classroomPageDefinition";
+import { classroomPageDefinition } from "../../../stitch/pages/classroomPageDefinition";
 
 const source = { mode: "none" as const, selectedDocumentIds: [] };
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { CourseMaterial } from "../../../../stitch/api/types";
+import type { CourseMaterial } from "../../../stitch/api/types";
 
 type Slide = { title: string; bullets: string[]; notes: string };
 

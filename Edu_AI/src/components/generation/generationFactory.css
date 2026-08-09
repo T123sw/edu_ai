@@ -114,3 +114,6 @@
 .generation-factory__modal > footer button:disabled { opacity: .55; cursor: wait; }
 
 @media (max-width: 1180px) { .generation-factory--direct > .generation-factory__registry { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+.generation-factory__catalog-state,
+.generation-factory__catalog-error { margin: 18px; border: 1px solid #dfe5ee; border-radius: 14px; background: #fff; padding: 22px; color: #667085; text-align: center; }
+.generation-factory__catalog-error button { margin-top: 10px; border-radius: 9px; background: #3157d5; padding: 8px 13px; color: #fff; font-weight: 700; }

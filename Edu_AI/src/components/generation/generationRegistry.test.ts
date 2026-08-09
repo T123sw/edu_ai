@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { generationRegistry } from "./generationRegistry.ts";
+import { generationRegistry, selectGenerationResources } from "./generationRegistry.ts";
 
 test("registry contains exactly nine distinct resources", () => {
   const types = generationRegistry.map((item) => item.resourceType);
@@ -14,4 +14,12 @@ test("every generation resource has teacher-facing copy", () => {
     assert.ok(item.label.trim());
     assert.ok(item.description.trim());
   }
+});
+
+test("rendered generation resources require an explicit allowlist", () => {
+  assert.deepEqual(selectGenerationResources([]), []);
+  assert.deepEqual(
+    selectGenerationResources(["report", "ppt", "report", "flashcard"]).map((item) => item.resourceType),
+    ["report", "ppt", "flashcard"],
+  );
 });

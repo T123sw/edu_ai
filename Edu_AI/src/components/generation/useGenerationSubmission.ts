@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { cancelJob } from "../../../jobs/api";
-import { registerCreatedJob, requestJobRefresh, useJobStore } from "../../../jobs/jobStore";
-import type { JobRecord } from "../../../jobs/types";
-import { apiRequest } from "../../../stitch/api/client";
+import { cancelJob } from "../../jobs/api";
+import { registerCreatedJob, requestJobRefresh, useJobStore } from "../../jobs/jobStore";
+import type { JobRecord } from "../../jobs/types";
+import { apiRequest } from "../../stitch/api/client";
 import type { GenerationResourceType } from "./generationRegistry";
 import { generationPreflightResourceType } from "./generationPreflight";
 import type { GenerationSourceSelection } from "./GenerationSourceSelector";

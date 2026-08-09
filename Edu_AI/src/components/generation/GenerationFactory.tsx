@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { getKnowledgeBaseDocuments } from "../../../stitch/api/courses";
-import type { KnowledgeBaseDocument } from "../../../stitch/api/types";
-import { MaterialIcon } from "../../../stitch/shared";
-import { buildTeacherCourseHash } from "../../../stitch/teacherRoutes";
-import { useCourseJobs } from "../../../jobs/jobStore";
-import { useStore } from "../../../store/teacher/useStore";
+import { getKnowledgeBaseDocuments } from "../../stitch/api/courses";
+import { listPersonalKnowledgeDocuments } from "../../stitch/api/personalKnowledge";
+import type { KnowledgeBaseDocument } from "../../stitch/api/types";
+import { MaterialIcon } from "../../stitch/shared";
+import type { GenerationToolId } from "../../stitch/shared/generation/generationCatalog";
+import { useCourseJobs } from "../../jobs/jobStore";
 import { GenerationSourceSelector, initialGenerationSource, type GenerationSourceSelection } from "./GenerationSourceSelector";
 import { presentGenerationJob } from "./generationJobPresentation";
-import { generationRegistry, getGenerationResource, type GenerationResourceType } from "./generationRegistry";
+import { getGenerationResource, selectGenerationResources, type GenerationResourceType } from "./generationRegistry";
 import { useGenerationSubmission, type GenerationDraft } from "./useGenerationSubmission";
 import { defaultGenerationConfig, generationConfigAudience, generationConfigRequirements, generationConfigTopic, validateGenerationConfig } from "./definitions";
 import type { ReportConfig } from "./definitions/report";
@@ -63,10 +63,23 @@ function statusLabel(status: string) {
   return "未完成";
 }
 
-export function GenerationFactory({ courseId }: { courseId?: string }) {
+export type GenerationFactoryProps = {
+  courseId?: string;
+  allowedTools: readonly GenerationToolId[];
+  resultHref: (material: { courseId?: string; materialType?: string; materialId?: string }) => string;
+  sourceLibraries: readonly ("personal" | "course")[];
+  selectedDocumentIds?: readonly string[];
+};
+
+export function GenerationFactory({
+  courseId,
+  allowedTools,
+  resultHref,
+  sourceLibraries,
+  selectedDocumentIds = [],
+}: GenerationFactoryProps) {
   const [resourceType, setResourceType] = useState<GenerationResourceType | null>(null);
   const [source, setSource] = useState<GenerationSourceSelection>(() => initialGenerationSource([]));
-  const selectedDocs = useStore((state) => state.selectedDocs);
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [configs, setConfigs] = useState<Partial<Record<GenerationResourceType, Record<string, unknown>>>>({});
   const [showErrors, setShowErrors] = useState(false);
@@ -74,11 +87,23 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
   const jobs = useCourseJobs(courseId).filter((job) => GENERATION_KINDS.has(job.kind)).slice(0, 8);
 
   useEffect(() => {
-    if (!courseId) return;
-    void getKnowledgeBaseDocuments(courseId, { libraryType: "course", aggregate: true, limit: 200, sort: "created_desc" })
-      .then(setDocuments)
-      .catch(() => setDocuments([]));
-  }, [courseId]);
+    let cancelled = false;
+    const requests: Array<Promise<KnowledgeBaseDocument[]>> = [];
+    if (courseId && sourceLibraries.includes("course")) {
+      requests.push(getKnowledgeBaseDocuments(courseId, { libraryType: "course", aggregate: true, limit: 200, sort: "created_desc" }));
+    }
+    if (sourceLibraries.includes("personal")) {
+      requests.push(listPersonalKnowledgeDocuments({ limit: 200 }).then((items) => items.map((item) => ({
+        ...item,
+        course_id: item.course_context_id ?? courseId ?? "personal",
+        library_type: "personal" as const,
+      }))));
+    }
+    void Promise.all(requests)
+      .then((groups) => { if (!cancelled) setDocuments(groups.flat()); })
+      .catch(() => { if (!cancelled) setDocuments([]); });
+    return () => { cancelled = true; };
+  }, [courseId, sourceLibraries]);
 
   useEffect(() => {
     if (submission.jobId) setResourceType(null);
@@ -90,9 +115,13 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
     [configs, resourceType],
   );
   const errors = resourceType ? validateGenerationConfig(resourceType, config) : {};
+  const visibleResources = useMemo(
+    () => selectGenerationResources(allowedTools as readonly GenerationResourceType[]),
+    [allowedTools],
+  );
 
   function open(type: GenerationResourceType) {
-    setSource(initialGenerationSource(selectedDocs));
+    setSource(initialGenerationSource([...selectedDocumentIds]));
     setResourceType(type);
     setShowErrors(false);
     setConfigs((current) => current[type] ? current : { ...current, [type]: defaultGenerationConfig(type) });
@@ -126,7 +155,7 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
         <h2>选择要创建的资源</h2>
       </header>
       <div className="generation-factory__registry">
-        {generationRegistry.map((item) => (
+        {visibleResources.map((item) => (
           <button key={item.resourceType} type="button" onClick={() => open(item.resourceType)} style={{ "--resource-accent": item.accent } as React.CSSProperties}>
             <MaterialIcon name={item.icon} />
             <strong>{item.label}</strong>
@@ -141,7 +170,7 @@ export function GenerationFactory({ courseId }: { courseId?: string }) {
             const ref = job.result_ref;
             const presentation = presentGenerationJob(job);
             const href = ref?.material_type && ref?.material_id
-              ? buildTeacherCourseHash("resources", courseId, { material_type: ref.material_type, material_id: ref.material_id })
+              ? resultHref({ courseId, materialType: ref.material_type, materialId: ref.material_id })
               : undefined;
             const content = (
               <>

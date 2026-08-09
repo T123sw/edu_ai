@@ -1,5 +1,5 @@
-import type { CourseMaterial } from "../../../../stitch/api/types";
-import { MarkdownPreview } from "../../../../stitch/components/MarkdownPreview";
+import type { CourseMaterial } from "../../../stitch/api/types";
+import { MarkdownPreview } from "../../../stitch/components/MarkdownPreview";
 
 export function BlogArtifactPreview({
   material,

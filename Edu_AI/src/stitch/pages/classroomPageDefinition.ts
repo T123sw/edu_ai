@@ -1,1 +1,1 @@
-export { classroomDefinition as classroomPageDefinition } from "../../components/teacher/generation/definitions/classroom";
+export { classroomDefinition as classroomPageDefinition } from "../../components/generation/definitions/classroom";

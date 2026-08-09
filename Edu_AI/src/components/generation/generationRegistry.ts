@@ -26,6 +26,19 @@ export const generationRegistry: readonly GenerationRegistryItem[] = [
 export function getGenerationResource(type: GenerationResourceType) {
   return generationRegistry.find((item) => item.resourceType === type) ?? generationRegistry[0];
 }
+
+export function selectGenerationResources(allowedTools: readonly GenerationResourceType[]) {
+  const definitions = new Map(generationRegistry.map((item) => [item.resourceType, item]));
+  const selected: GenerationRegistryItem[] = [];
+  const seen = new Set<GenerationResourceType>();
+  for (const toolId of allowedTools) {
+    const item = definitions.get(toolId);
+    if (!item || seen.has(toolId)) continue;
+    seen.add(toolId);
+    selected.push(item);
+  }
+  return selected;
+}
 import { reportDefinition } from "./definitions/report";
 import { lessonPlanDefinition } from "./definitions/lessonPlan";
 import { blogDefinition } from "./definitions/blog";

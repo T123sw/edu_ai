@@ -8,9 +8,9 @@ import { registerCreatedJob, useCourseJobs } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
-import { classroomDefinition } from "../../components/teacher/generation/definitions/classroom";
-import { ClassroomForm } from "../../components/teacher/generation/forms/ClassroomForm";
-import "../../components/teacher/generation/generationFactory.css";
+import { classroomDefinition } from "../../components/generation/definitions/classroom";
+import { ClassroomForm } from "../../components/generation/forms/ClassroomForm";
+import "../../components/generation/generationFactory.css";
 import { classroomPageDefinition } from "./classroomPageDefinition";
 import { presentJobError } from "../../jobs/jobPresentation";
 

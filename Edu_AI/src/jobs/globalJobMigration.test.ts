@@ -38,7 +38,7 @@ test("chat and direct generation no longer poll chat tasks on private intervals"
     assert.match(source, /requestJobRefresh/);
   }
   const studioSource = await readFile(
-    new URL("../components/teacher/generation/useGenerationSubmission.ts", import.meta.url),
+    new URL("../components/generation/useGenerationSubmission.ts", import.meta.url),
     "utf8",
   );
   assert.match(studioSource, /useJobStore/);

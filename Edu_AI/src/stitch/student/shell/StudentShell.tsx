@@ -26,7 +26,7 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [coursesError, setCoursesError] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const location = useMemo(() => readStudentLocation(window.location.hash), [activeRoute]);
+  const location = useMemo(() => readStudentLocation(window.location.hash), []);
   const requiresCourse = studentRouteRequiresCourse(activeRoute);
 
   useEffect(() => {

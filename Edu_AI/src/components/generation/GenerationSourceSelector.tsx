@@ -1,4 +1,4 @@
-import type { KnowledgeBaseDocument } from "../../../stitch/api/types";
+import type { KnowledgeBaseDocument } from "../../stitch/api/types";
 
 export type GenerationSourceMode = "course_auto" | "selected_documents" | "none";
 export type GenerationSourceSelection = { mode: GenerationSourceMode; selectedDocumentIds: string[] };

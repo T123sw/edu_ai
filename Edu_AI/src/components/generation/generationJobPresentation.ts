@@ -1,4 +1,4 @@
-import type { JobRecord } from "../../../jobs/types";
+import type { JobRecord } from "../../jobs/types";
 import {
   getGenerationResource,
   type GenerationResourceType,

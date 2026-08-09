@@ -1,4 +1,4 @@
-import { useJobStore } from "../../../jobs/jobStore";
+import { useJobStore } from "../../jobs/jobStore";
 
 export function GenerationTaskStatus({ jobId }: { jobId: string | null }) {
   const job = useJobStore((state) => jobId ? state.jobs[jobId] : undefined);

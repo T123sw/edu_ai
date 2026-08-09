@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { BlogArtifactPreview } from "../../components/teacher/generation/previews/BlogArtifactPreview";
-import { PptArtifactPreview } from "../../components/teacher/generation/previews/PptArtifactPreview";
+import { BlogArtifactPreview } from "../../components/generation/previews/BlogArtifactPreview";
+import { PptArtifactPreview } from "../../components/generation/previews/PptArtifactPreview";
 import { courseMaterialToMarkdown } from "../api/courses";
 import type { CourseMaterial } from "../api/types";
 import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";

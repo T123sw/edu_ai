@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { JobRecord } from "../../../jobs/types.ts";
+import type { JobRecord } from "../../jobs/types.ts";
 import { presentGenerationJob } from "./generationJobPresentation.ts";
 
 function job(overrides: Partial<JobRecord>): JobRecord {
