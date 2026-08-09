@@ -20,6 +20,7 @@ import {
   resolveCompactPanelState,
 } from "../../pages/teacher/aiStudioLayout";
 import { useAiStudioLayout } from "../../pages/teacher/useAiStudioLayout";
+import { useAuthSession } from "../authSession";
 
 function getHashSearchParams(hash = window.location.hash): URLSearchParams {
   const normalized = hash.replace(/^#/, "");
@@ -27,12 +28,13 @@ function getHashSearchParams(hash = window.location.hash): URLSearchParams {
   return new URLSearchParams(queryStart >= 0 ? normalized.slice(queryStart + 1) : "");
 }
 
-function writeAiWorkspaceHash(scope: WorkspaceScope) {
+function writeAiWorkspaceHash(scope: WorkspaceScope, isStudent: boolean) {
   const nextSearch = writeWorkspaceScopeToSearch(getHashSearchParams(), scope);
-  window.location.hash = `${routes.ai}?${nextSearch.toString()}`;
+  window.location.hash = `${isStudent ? "student-ai" : routes.ai}?${nextSearch.toString()}`;
 }
 
 export function AIWorkspacePage() {
+  const { user } = useAuthSession();
   const { selectedCourse } = useAppShell();
   const statusCard = useStore((state) => state.statusCard);
   const [hash, setHash] = useState(() => window.location.hash);
@@ -172,7 +174,7 @@ export function AIWorkspacePage() {
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
                   onWorkspaceScopeChange={(nextScope) => {
-                    writeAiWorkspaceHash(nextScope);
+                    writeAiWorkspaceHash(nextScope, user?.role === "student");
                   }}
                 />
               </div>

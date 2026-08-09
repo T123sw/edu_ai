@@ -3,10 +3,13 @@ import { createPortal } from "react-dom";
 
 import { JobCenterTrigger } from "../../jobs/JobCenterDrawer";
 import { PageState } from "../components/PageState";
+import { useAuthSession } from "../authSession";
 import { MaterialIcon, UnifiedCourseShellProvider, cx, routeHref, routes } from "../shared";
-import { buildTeacherCourseHash, type TeacherCourseRoute } from "../teacherRoutes";
+import type { StudentRoute } from "../student/routes/studentRoutes";
+import type { TeacherCourseRoute } from "../teacherRoutes";
+import { buildRoleCourseHash, homeHashForRole } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "./CourseRouteProvider";
-import { getCourseNavigation, getCoursePageTitle } from "./courseNavigation";
+import { getCourseNavigation, getCoursePageTitle, type CourseNavigationId } from "./courseNavigation";
 
 export function CourseShellHeaderSlot({ children }: PropsWithChildren) {
   const [target, setTarget] = useState<HTMLElement | null>(null);
@@ -18,27 +21,51 @@ export function CourseShellHeaderSlot({ children }: PropsWithChildren) {
   return target ? createPortal(children, target) : null;
 }
 
-export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: TeacherCourseRoute }>) {
+type CourseShellRoute = TeacherCourseRoute | StudentRoute;
+
+const studentRouteByNavigationId: Partial<Record<CourseNavigationId, StudentRoute>> = {
+  overview: "student-course-detail",
+  workspace: "student-ai",
+  knowledge: "student-course-knowledge",
+  classroom: "student-classroom",
+  resources: "student-resources",
+};
+
+const studentNavigationLabels: Partial<Record<CourseNavigationId, string>> = {
+  overview: "课程概览",
+  workspace: "AI问答",
+  knowledge: "课程知识",
+  classroom: "AI课堂",
+  resources: "资源管理",
+};
+
+export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: CourseShellRoute }>) {
+  const { user } = useAuthSession();
   const { courseId, course, courseRole, loading, error, reload } = useCourseRoute();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const navigation = getCourseNavigation(courseRole);
+  const isStudent = user?.role === "student";
+  const navigation = getCourseNavigation(courseRole).filter((item) => !isStudent || item.id !== "settings");
+  const activeStudentNavigation = navigation.find((item) => studentRouteByNavigationId[item.id] === activeRoute);
+  const homeHref = homeHashForRole(user?.role);
 
   useEffect(() => setDrawerOpen(false), [activeRoute]);
 
   const nav = (compact = false) => (
     <nav className={cx("course-navigation", compact && "course-navigation--compact")} aria-label="课程工作区">
       {navigation.map((item) => {
-        const active = item.routes.includes(activeRoute);
+        const active = isStudent
+          ? studentRouteByNavigationId[item.id] === activeRoute
+          : item.routes.includes(activeRoute as TeacherCourseRoute);
         return (
           <a
             key={item.id}
-            href={buildTeacherCourseHash(item.hrefRoute, courseId)}
+            href={buildRoleCourseHash(user?.role, item.hrefRoute, courseId)}
             className={cx("course-navigation__link", active && "is-active")}
             aria-current={active ? "page" : undefined}
             onClick={() => setDrawerOpen(false)}
           >
             <span className="course-navigation__icon"><MaterialIcon name={item.icon} /></span>
-            <strong>{item.label}</strong>
+            <strong>{isStudent ? studentNavigationLabels[item.id] ?? item.label : item.label}</strong>
           </a>
         );
       })}
@@ -66,7 +93,7 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
         kind: "empty",
         title: "请先选择一门课程",
         description: "返回课程首页后再进入课程工作区。",
-        action: <a href={routeHref(routes.home)}>返回课程首页</a>,
+        action: <a href={homeHref}>返回课程首页</a>,
       }} /></main>
     );
   }
@@ -75,9 +102,9 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
     <UnifiedCourseShellProvider>
       <div className="course-shell" data-testid="course-shell">
         <aside className="course-shell__sidebar">
-          <a href={routeHref(routes.home)} className="course-shell__brand">Edu AI</a>
+          <a href={homeHref} className="course-shell__brand">Edu AI</a>
           {nav()}
-          <a href={routeHref(routes.home)} className="course-shell__back"><MaterialIcon name="arrow_back" /> 返回全部课程</a>
+          <a href={homeHref} className="course-shell__back"><MaterialIcon name="arrow_back" /> 返回全部课程</a>
         </aside>
 
         <div className="course-shell__content">
@@ -90,9 +117,13 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
               onClick={() => setDrawerOpen(true)}
             ><MaterialIcon name="menu_book" /></button>
             <div className="course-shell__heading">
-              <p><a href={routeHref(routes.home)}>全部课程</a><span>/</span>{course?.title ?? "课程"}</p>
+              <p><a href={homeHref}>全部课程</a><span>/</span>{course?.title ?? "课程"}</p>
               <div className="course-shell__heading-row">
-                <h1>{getCoursePageTitle(activeRoute)}</h1>
+                <h1>{isStudent
+                  ? activeStudentNavigation
+                    ? studentNavigationLabels[activeStudentNavigation.id] ?? activeStudentNavigation.label
+                    : "课程学习"
+                  : getCoursePageTitle(activeRoute as TeacherCourseRoute)}</h1>
                 <div className="course-shell__page-actions" data-course-shell-page-actions />
               </div>
             </div>

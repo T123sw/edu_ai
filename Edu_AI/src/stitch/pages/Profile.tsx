@@ -9,7 +9,9 @@ import {
   type UserProfile,
   type UserProfileUpdate,
 } from "../api/profile";
+import { useAuthSession } from "../authSession";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
+import { homeHashForRole } from "../shared/routes/roleCourseRouteResolver";
 
 const roleLabels: Record<string, string> = {
   admin: "系统管理员",
@@ -24,6 +26,7 @@ function formatDate(value: string) {
 }
 
 export function ProfilePage() {
+  const { user } = useAuthSession();
   const { logout } = useAppShell();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -147,7 +150,7 @@ export function ProfilePage() {
     <AppSurface className="min-h-screen bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_26%),var(--app-bg)]">
       <main className="mx-auto w-full max-w-[1280px] px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <a href={routeHref(routes.home)} className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white/90 px-4 py-2.5 text-sm font-semibold text-(--accent-strong) shadow-sm transition hover:border-(--accent-border) hover:bg-white">
+          <a href={homeHashForRole(user?.role)} className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white/90 px-4 py-2.5 text-sm font-semibold text-(--accent-strong) shadow-sm transition hover:border-(--accent-border) hover:bg-white">
             <MaterialIcon name="arrow_back" />
             返回首页
           </a>

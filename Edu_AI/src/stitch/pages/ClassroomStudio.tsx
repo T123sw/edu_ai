@@ -8,6 +8,7 @@ import { registerCreatedJob, useCourseJobs } from "../../jobs/jobStore";
 import { isActiveJob } from "../../jobs/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
+import { useAuthSession } from "../authSession";
 import { classroomDefinition } from "../../components/generation/definitions/classroom";
 import { ClassroomForm } from "../../components/generation/forms/ClassroomForm";
 import "../../components/generation/generationFactory.css";
@@ -44,9 +45,10 @@ function useClassroomList(courseId: string | undefined, reloadToken: number) {
 }
 
 export function ClassroomStudioPage() {
+  const { user } = useAuthSession();
   const { courseId: routeCourseId, courseRole } = useCourseRoute();
   const courseId = routeCourseId ?? undefined;
-  const canGenerate = canCourse(courseRole, "generate");
+  const canGenerate = user?.role === "student" || canCourse(courseRole, "generate");
   const [classroomConfig, setClassroomConfig] = useState(() => classroomPageDefinition.defaultConfig());
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);

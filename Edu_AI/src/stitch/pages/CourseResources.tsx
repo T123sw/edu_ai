@@ -35,7 +35,8 @@ import {
   routes,
   useAppShell,
 } from "../shared";
-import { buildTeacherCourseHash } from "../teacherRoutes";
+import { useAuthSession } from "../authSession";
+import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
 import { CourseShellHeaderSlot } from "../course/CourseShell";
@@ -104,6 +105,7 @@ function getMaterialSummary(material: CourseMaterial): string {
 }
 
 export function CourseResourcesPage() {
+  const { user } = useAuthSession();
   const { selectedCourse } = useAppShell();
   const { course: routeCourse, courseId, courseRole } = useCourseRoute();
   const course = routeCourse?.id === courseId
@@ -639,13 +641,14 @@ export function CourseResourcesPage() {
                 </p>
                 {resourceSpace === "mine" ? <div className="mt-4 flex flex-wrap gap-2">
                   <a
-                    href={buildTeacherCourseHash(routes.ai, course.id)}
+                    href={buildRoleCourseHash(user?.role, routes.ai, course.id)}
                     className="rounded-full bg-(--accent) px-4 py-2 text-sm font-bold text-white"
                   >
                     前往生成工厂
                   </a>
                   <a
-                    href={buildTeacherCourseHash(
+                    href={buildRoleCourseHash(
+                      user?.role,
                       routes.classroomStudio,
                       course.id,
                     )}

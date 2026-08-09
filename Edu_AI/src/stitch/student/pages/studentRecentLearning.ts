@@ -4,6 +4,7 @@ export const STUDENT_RECENT_LEARNING_KEY = "edu-ai-student-recent-learning";
 const VERSION = 1;
 const LIMIT = 5;
 const allowedRoutes = new Set<StudentRoute>([
+  "student-course-detail",
   "student-ai",
   "student-course-knowledge",
   "student-classroom",

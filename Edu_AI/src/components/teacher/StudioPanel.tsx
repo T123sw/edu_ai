@@ -4,7 +4,8 @@ import type { WorkspaceScope } from "../../services/teacher/workspaceScope";
 import { GenerationFactory } from "../generation/GenerationFactory";
 import { getGenerationTools } from "../../stitch/api/generationTools";
 import type { GenerationToolId } from "../../stitch/shared/generation/generationCatalog";
-import { buildTeacherCourseHash } from "../../stitch/teacherRoutes";
+import { useAuthSession } from "../../stitch/authSession";
+import { buildRoleCourseHash } from "../../stitch/shared/routes/roleCourseRouteResolver";
 import { useStore } from "../../store/teacher/useStore";
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId }) => {
+  const { user } = useAuthSession();
   const selectedDocs = useStore((state) => state.selectedDocs);
   const [allowedTools, setAllowedTools] = useState<GenerationToolId[]>([]);
   const [catalogError, setCatalogError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId }) => {
       allowedTools={allowedTools}
       selectedDocumentIds={selectedDocs}
       sourceLibraries={["course", "personal"]}
-      resultHref={({ courseId: targetCourseId, materialType, materialId }) => buildTeacherCourseHash("resources", targetCourseId, { material_type: materialType, material_id: materialId })}
+      resultHref={({ courseId: targetCourseId, materialType, materialId }) => buildRoleCourseHash(user?.role, "resources", targetCourseId, { material_type: materialType, material_id: materialId })}
     />
   );
 };

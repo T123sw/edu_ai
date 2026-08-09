@@ -22,6 +22,10 @@ test("student navigation exposes the six approved destinations in order", () => 
 });
 
 test("course destinations keep course context while personal knowledge remains global", () => {
+  assert.equal(
+    buildStudentHash("student-course-detail", { courseId: "course-1" }),
+    "#student-course-detail?course_id=course-1",
+  );
   assert.equal(buildStudentHash("student-ai", { courseId: "course-1" }), "#student-ai?course_id=course-1");
   assert.equal(
     buildStudentHash("student-course-knowledge", { courseId: "course-1", view: "documents" }),

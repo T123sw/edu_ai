@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState, type PropsWithChildren } from "react";
 
 import { JobCenterTrigger } from "../../../jobs/JobCenterDrawer";
-import { listCourses } from "../../api/courses";
+import { backendCourseToSummary, listCourses } from "../../api/courses";
 import type { BackendCourse } from "../../api/types";
 import { useAuthSession } from "../../authSession";
 import { MaterialIcon, cx, useAppShell } from "../../shared";
 import { useCourseRoute } from "../../course/CourseRouteProvider";
 import { buildStudentHash, readStudentLocation, type StudentRoute } from "../routes/studentRoutes";
+import { loadRecentLearning } from "../pages/studentRecentLearning";
 import { studentNavigationItems, studentRouteRequiresCourse } from "./studentNavigation";
 import "../styles/studentShell.css";
 
 const pageTitles: Record<StudentRoute, string> = {
   "student-home": "学习首页",
+  "student-course-detail": "课程概览",
   "student-ai": "AI问答",
   "student-course-knowledge": "课程知识",
   "student-personal-knowledge": "个人知识库",
@@ -21,7 +23,7 @@ const pageTitles: Record<StudentRoute, string> = {
 
 export function StudentShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: StudentRoute }>) {
   const { user } = useAuthSession();
-  const { logout } = useAppShell();
+  const { selectedCourse, setSelectedCourse } = useAppShell();
   const { courseId, course, loading: courseLoading, error: courseError, reload } = useCourseRoute();
   const [courses, setCourses] = useState<BackendCourse[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
@@ -29,6 +31,12 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useMemo(() => readStudentLocation(window.location.hash), []);
   const requiresCourse = studentRouteRequiresCourse(activeRoute);
+  const effectiveCourseId = useMemo(() => {
+    if (courseId && courses.some((item) => item.id === courseId)) return courseId;
+    if (selectedCourse?.id && courses.some((item) => item.id === selectedCourse.id)) return selectedCourse.id;
+    const recentCourseId = loadRecentLearning(courses.map((item) => item.id))[0]?.courseId;
+    return recentCourseId ?? courses[0]?.id ?? null;
+  }, [courseId, courses, selectedCourse?.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,12 +56,18 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    if (!effectiveCourseId || selectedCourse?.id === effectiveCourseId) return;
+    const index = courses.findIndex((item) => item.id === effectiveCourseId);
+    if (index >= 0) setSelectedCourse(backendCourseToSummary(courses[index], index));
+  }, [courses, effectiveCourseId, selectedCourse?.id, setSelectedCourse]);
+
   useEffect(() => setDrawerOpen(false), [activeRoute]);
 
   function hrefFor(route: StudentRoute) {
     const target = studentNavigationItems.find((item) => item.route === route);
     return buildStudentHash(route, {
-      courseId: target?.requiresCourse ? courseId : undefined,
+      courseId: target?.requiresCourse ? effectiveCourseId : undefined,
       view: route === "student-course-knowledge" ? "structure" : undefined,
       space: route === "student-resources" || route === "student-classroom" ? "mine" : undefined,
     });
@@ -124,9 +138,9 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
           <div><strong>{user?.username}</strong><small>学生工作区</small></div>
         </div>
         {navigation}
-        <button type="button" className="student-shell__profile-link" onClick={logout}>
-          <MaterialIcon name="logout" />退出登录
-        </button>
+        <a className="student-shell__profile-link" href="#profile">
+          <MaterialIcon name="person" />个人中心
+        </a>
       </aside>
 
       <div className="student-shell__main">

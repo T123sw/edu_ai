@@ -56,7 +56,7 @@ export function StudentHomePage() {
       .filter((item): item is { record: typeof item.record; course: BackendCourse } => Boolean(item.course));
   }, [courses]);
 
-  function enterCourse(course: BackendCourse, index: number, route: "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources" = "student-ai") {
+  function enterCourse(course: BackendCourse, index: number, route: "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources" = "student-course-detail") {
     saveRecentLearningVisit(course.id, route);
     setSelectedCourse(backendCourseToSummary(course, index));
   }
@@ -73,7 +73,7 @@ export function StudentHomePage() {
           <div className="student-home__section-head"><div><h2 id="recent-learning-title">最近学习</h2><p>回到上次使用的课程功能</p></div></div>
           <div className="student-home__recent-list">
             {recentCourses.map(({ course, record }, index) => (
-              <a key={course.id} href={buildStudentHash(record.lastRoute, { courseId: course.id })} onClick={() => enterCourse(course, index, record.lastRoute as "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources")}>
+              <a key={course.id} href={buildStudentHash(record.lastRoute, { courseId: course.id })} onClick={() => enterCourse(course, index, record.lastRoute as "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources")}>
                 <span className="student-home__recent-icon"><MaterialIcon name="menu_book" /></span>
                 <span><strong>{course.title}</strong><small>{formatUpdatedAt(record.visitedAt)}</small></span>
                 <MaterialIcon name="arrow_forward" />
@@ -91,7 +91,7 @@ export function StudentHomePage() {
         {!loading && !error && courses.length > 0 && visibleCourses.length === 0 ? <div className="student-home__state">没有找到匹配的课程。</div> : null}
         <div className="student-home__grid">
           {visibleCourses.map((course, index) => (
-            <a key={course.id} className="student-home__course-card" href={buildStudentHash("student-ai", { courseId: course.id })} onClick={() => enterCourse(course, index)}>
+            <a key={course.id} className="student-home__course-card" href={buildStudentHash("student-course-detail", { courseId: course.id })} onClick={() => enterCourse(course, index)}>
               <div className="student-home__course-top"><span>{course.icon || "课程"}</span><small>可学习</small></div>
               <h3>{course.title}</h3>
               <p>{course.description || "教师尚未添加课程简介。"}</p>
