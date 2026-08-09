@@ -1,11 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { backendCourseToSummary, listCourses } from "../../api/courses";
+import { useJobStore } from "../../../jobs/jobStore";
+import { isActiveJob } from "../../../jobs/types";
+import {
+  backendCourseToSummary,
+  getCourseMaterials,
+  getKnowledgeBaseDocuments,
+  listCourses,
+} from "../../api/courses";
 import type { BackendCourse } from "../../api/types";
 import { MaterialIcon, useAppShell } from "../../shared";
+import {
+  toCourseCardPresentation,
+  type CourseCardFacts,
+} from "../../pages/courseCardPresentation";
 import { buildStudentHash } from "../routes/studentRoutes";
 import { loadRecentLearning, saveRecentLearningVisit, serializeRecentLearning, STUDENT_RECENT_LEARNING_KEY } from "./studentRecentLearning";
+import "../../pages/HomeDashboard.css";
 import "../styles/studentHome.css";
+
+const emptyFacts: CourseCardFacts = {
+  documentCount: 0,
+  resourceCount: 0,
+  activeJobCount: 0,
+};
 
 function formatUpdatedAt(value?: string | null): string {
   if (!value) return "课程内容可用";
@@ -16,7 +34,9 @@ function formatUpdatedAt(value?: string | null): string {
 
 export function StudentHomePage() {
   const { setSelectedCourse } = useAppShell();
+  const jobs = useJobStore((state) => state.jobs);
   const [courses, setCourses] = useState<BackendCourse[]>([]);
+  const [facts, setFacts] = useState<Record<string, CourseCardFacts>>({});
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +53,22 @@ export function StudentHomePage() {
         setCourses(result);
         const validRecent = loadRecentLearning(result.map((course) => course.id));
         window.localStorage.setItem(STUDENT_RECENT_LEARNING_KEY, serializeRecentLearning(validRecent));
+        const factEntries = await Promise.all(result.map(async (course) => {
+          const [documents, resources] = await Promise.all([
+            getKnowledgeBaseDocuments(course.id, {
+              aggregate: true,
+              libraryType: "course",
+              limit: 1000,
+            }).catch(() => []),
+            getCourseMaterials(course.id, { space: "course" }).catch(() => []),
+          ]);
+          return [course.id, {
+            documentCount: documents.length,
+            resourceCount: resources.length,
+            activeJobCount: 0,
+          }] as const;
+        }));
+        if (!cancelled) setFacts(Object.fromEntries(factEntries));
       } catch (reason) {
         if (!cancelled) setError(reason instanceof Error ? reason.message : "课程列表加载失败");
       } finally {
@@ -61,11 +97,25 @@ export function StudentHomePage() {
     setSelectedCourse(backendCourseToSummary(course, index));
   }
 
+  function cardFacts(courseId: string): CourseCardFacts {
+    const activeJobCount = Object.values(jobs).filter(
+      (job) => job.course_id === courseId && isActiveJob(job),
+    ).length;
+    return { ...(facts[courseId] ?? emptyFacts), activeJobCount };
+  }
+
   return (
     <div className="student-home">
-      <section className="student-home__hero">
-        <div><p>继续你的课程学习</p><h2>从问题出发，连接课程知识与个人资料</h2><span>选择课程即可进入 AI 问答；所有上传和生成内容默认仅自己可见。</span></div>
-        <label className="student-home__search"><MaterialIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" /></label>
+      <section className="teacher-home__intro student-home__intro">
+        <div>
+          <p className="teacher-home__eyebrow">学生课程工作台</p>
+          <h1>选择课程，继续学习</h1>
+          <p>查看课程知识、继续 AI 问答，个人上传和生成内容默认仅自己可见。</p>
+        </div>
+        <label className="teacher-home__search">
+          <MaterialIcon name="search" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
+        </label>
       </section>
 
       {recentCourses.length > 0 && !query ? (
@@ -84,20 +134,34 @@ export function StudentHomePage() {
       ) : null}
 
       <section className="student-home__section" aria-labelledby="my-courses-title">
-        <div className="student-home__section-head"><div><h2 id="my-courses-title">我的课程</h2><p>{courses.length > 0 ? `${courses.length} 门已加入课程` : "查看已加入的课程"}</p></div></div>
-        {loading ? <div className="student-home__state">正在加载课程…</div> : null}
-        {error ? <div className="student-home__state is-error"><p>{error}</p><button type="button" onClick={() => setLoadVersion((value) => value + 1)}>重新加载</button></div> : null}
-        {!loading && !error && courses.length === 0 ? <div className="student-home__state"><h3>暂未加入课程</h3><p>加入课程后，会在这里显示可学习的真实课程内容。</p></div> : null}
-        {!loading && !error && courses.length > 0 && visibleCourses.length === 0 ? <div className="student-home__state">没有找到匹配的课程。</div> : null}
-        <div className="student-home__grid">
-          {visibleCourses.map((course, index) => (
-            <a key={course.id} className="student-home__course-card" href={buildStudentHash("student-course-detail", { courseId: course.id })} onClick={() => enterCourse(course, index)}>
-              <div className="student-home__course-top"><span>{course.icon || "课程"}</span><small>可学习</small></div>
-              <h3>{course.title}</h3>
-              <p>{course.description || "教师尚未添加课程简介。"}</p>
-              <footer><span>{formatUpdatedAt(course.updated_at)}</span><strong>进入学习 <MaterialIcon name="arrow_forward" /></strong></footer>
-            </a>
-          ))}
+        <div className="teacher-home__section-head"><div><h2 id="my-courses-title">我的课程</h2><p>{courses.length > 0 ? `${courses.length} 门已加入课程` : "查看已加入的课程"}</p></div></div>
+        {loading ? <div className="teacher-home__state">正在加载课程…</div> : null}
+        {error ? <div className="teacher-home__state is-error"><p>{error}</p><button type="button" onClick={() => setLoadVersion((value) => value + 1)}>重新加载</button></div> : null}
+        {!loading && !error && courses.length === 0 ? <div className="teacher-home__state"><h3>暂未加入课程</h3><p>加入课程后，会在这里显示可学习的真实课程内容。</p></div> : null}
+        {!loading && !error && courses.length > 0 && visibleCourses.length === 0 ? <div className="teacher-home__state">没有找到匹配的课程。</div> : null}
+        <div className="teacher-course-grid">
+          {visibleCourses.map((course, index) => {
+            const card = toCourseCardPresentation(course, cardFacts(course.id));
+            return (
+              <a
+                key={course.id}
+                className="teacher-course-card"
+                href={buildStudentHash("student-course-detail", { courseId: course.id })}
+                aria-label={course.title}
+                onClick={() => enterCourse(course, index)}
+              >
+                <h3>{card.title}</h3>
+                <p className="teacher-course-card__description">{card.description}</p>
+                <dl className="teacher-course-card__metrics">
+                  {card.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}</dd></div>)}
+                </dl>
+                <div className="teacher-course-card__footer">
+                  <span>{card.updatedLabel}</span>
+                  <strong>进入学习 <MaterialIcon name="arrow_forward" /></strong>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </section>
     </div>

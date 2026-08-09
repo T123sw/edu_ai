@@ -138,9 +138,6 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
           <div><strong>{user?.username}</strong><small>学生工作区</small></div>
         </div>
         {navigation}
-        <a className="student-shell__profile-link" href="#profile">
-          <MaterialIcon name="person" />个人中心
-        </a>
       </aside>
 
       <div className="student-shell__main">
@@ -165,6 +162,10 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
               </label>
             ) : null}
             <JobCenterTrigger placement="inline" />
+            <a className="student-shell__profile" href="#profile">
+              <MaterialIcon name="person" />
+              <span>个人中心</span>
+            </a>
           </div>
         </header>
         <main className="student-shell__page" data-route-scroll-root>{content}</main>

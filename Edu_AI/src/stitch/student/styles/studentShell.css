@@ -11,13 +11,14 @@
 .student-shell__nav-link { display: flex; align-items: center; gap: 12px; border-radius: 12px; padding: 11px 12px; color: #637087; font-size: 14px; font-weight: 700; transition: 150ms ease; }
 .student-shell__nav-link:hover { background: #f4f7ff; color: #3157d5; }
 .student-shell__nav-link.is-active { background: #e9efff; color: #284bc1; box-shadow: inset 3px 0 #3157d5; }
-.student-shell__profile-link { display: flex; align-items: center; gap: 10px; margin-top: auto; border-top: 1px solid #edf0f5; padding: 17px 12px 4px; color: #637087; font-size: 13px; font-weight: 700; }
 .student-shell__main { min-height: 100vh; margin-left: 248px; }
 .student-shell__header { position: sticky; top: 0; z-index: 30; display: flex; min-height: 76px; align-items: center; gap: 20px; border-bottom: 1px solid #e1e6ee; background: rgba(255,255,255,.95); padding: 12px clamp(22px,4vw,54px); backdrop-filter: blur(14px); }
 .student-shell__title { min-width: 160px; }
 .student-shell__title small { color: #7b8799; font-size: 11px; letter-spacing: .08em; }
 .student-shell__title h1 { margin-top: 2px; font-size: 20px; font-weight: 850; letter-spacing: -.025em; }
 .student-shell__header-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.student-shell__profile { display: inline-flex; min-height: 40px; align-items: center; gap: 7px; border: 1px solid #dfe5ed; border-radius: 12px; background: #fff; padding: 0 13px; color: #273449; font-size: 13px; font-weight: 750; }
+.student-shell__profile:hover { border-color: #b9c8fa; color: #3157d5; }
 .student-shell__course-select { display: flex; align-items: center; gap: 9px; color: #7a8698; font-size: 12px; }
 .student-shell__course-select select,.student-shell__empty select { min-width: 210px; border: 1px solid #d9e0ea; border-radius: 10px; background: #fff; padding: 9px 31px 9px 11px; color: #273449; font-size: 13px; outline: none; }
 .student-shell__course-select select:focus,.student-shell__empty select:focus { border-color: #6380e2; box-shadow: 0 0 0 3px #e4eaff; }
@@ -45,4 +46,5 @@
   .student-shell__header { padding: 10px 15px; }
   .student-shell__title small,.student-shell__course-select > span { display: none; }
   .student-shell__course-select select { min-width: 130px; max-width: 42vw; }
+  .student-shell__profile span { display: none; }
 }
