@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
 from core import Config
+from app.services.runtime_config_resolver import runtime_config_resolver
 from core.course_storage import storage_manager
 from modules.rag_v2.api import get_rag_system
 
@@ -39,6 +40,60 @@ def _clean_llm_json(text: str) -> str:
         cleaned = cleaned[cleaned.find("{") : cleaned.rfind("}") + 1]
 
     return cleaned.strip()
+
+
+def _resolve_blog_llm_config() -> Dict[str, Any]:
+    """Use the same owner/snapshot-aware LLM config as other generators."""
+    runtime = runtime_config_resolver.resolve("llm")
+    fallback = Config.get_deep_model()
+    return {
+        "model_name": str(
+            runtime.get("model")
+            or fallback.get("model_name")
+            or Config.LLM_MODEL_DEEP
+        ),
+        "api_key": str(
+            runtime.get("api_key")
+            or fallback.get("api_key")
+            or Config.DEEP_MODEL_API_KEY
+        ),
+        "api_base": str(
+            runtime.get("base_url")
+            or fallback.get("api_base")
+            or Config.DEEP_MODEL_API_BASE
+        ),
+    }
+
+
+def _call_blog_llm(
+    *,
+    rag,
+    prompt: str,
+    model_config: Dict[str, Any],
+    llm=None,
+) -> str:
+    if llm is None:
+        return str(
+            rag._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
+            or ""
+        )
+    response = llm.invoke(prompt)
+    content = getattr(response, "content", response)
+    if isinstance(content, list):
+        return "\n".join(
+            str(item.get("text") or "") if isinstance(item, dict) else str(item or "")
+            for item in content
+        ).strip()
+    return str(content or "").strip()
+
+
+def _blog_structure_limits(generation_config: Dict[str, Any]) -> tuple[int, int]:
+    length = str(generation_config.get("length") or "medium").strip().lower()
+    return {
+        "short": (2, 2),
+        "medium": (3, 3),
+        "long": (5, 4),
+    }.get(length, (3, 3))
 
 
 def _dfs_collect_nodes(root: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -343,17 +398,31 @@ def _normalize_outline(outline: Any) -> List[Dict[str, Any]]:
     return normalized
 
 
-def run_blog_task(thread_id: str) -> None:
+def run_blog_task(thread_id: str, *, llm=None) -> None:
     """保留原函数签名，内部切换为 LangGraph 工作流执行。"""
 
     rag = get_rag_system()
-    model_config = Config.get_llm_model(Config.DEFAULT_LLM_MODEL_ID)
+    model_config = _resolve_blog_llm_config()
 
     def planner_chapters_node(graph_state: Dict[str, Any]) -> Dict[str, Any]:
         """阶段A：仅生成一级目录（章节列表），不生成小标题。"""
         tid = str(graph_state.get("thread_id") or thread_id)
         st = load_task_state(tid)
         if st is None:
+            return graph_state
+
+        # The workflow is rebuilt on every HITL resume. Preserve the accepted
+        # checkpoint instead of regenerating chapters and discarding the next
+        # pending review payload.
+        if getattr(st, "pending_outline", None):
+            graph_state["outline"] = list(st.outline or [])
+            graph_state["progress"] = st.progress.model_dump()
+            graph_state["status"] = "planning_points"
+            return graph_state
+        if getattr(st, "pending_chapters", None):
+            graph_state["outline"] = list(st.outline or [])
+            graph_state["progress"] = st.progress.model_dump()
+            graph_state["status"] = "waiting_for_chapter_review"
             return graph_state
 
         matched_ids, subtrees = _match_knowledge_graph_subtrees(st.course_id, st.topic, top_n=2)
@@ -368,9 +437,15 @@ def run_blog_task(thread_id: str) -> None:
 
         last_exc: Exception | None = None
         data: Dict[str, Any] | None = None
+        cleaned = ""
         for _ in range(2):
             try:
-                raw = rag._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
+                raw = _call_blog_llm(
+                    rag=rag,
+                    prompt=prompt,
+                    model_config=model_config,
+                    llm=llm,
+                )
                 cleaned = _clean_llm_json(raw)
                 data = json.loads(cleaned)
                 break
@@ -419,6 +494,9 @@ def run_blog_task(thread_id: str) -> None:
             save_task_state(st)
             raise ValueError(st.error_message)
 
+        max_chapters, _ = _blog_structure_limits(st.generation_config)
+        normalized = normalized[:max_chapters]
+
         st.outline = normalized
         st.progress.total_sections = len(normalized)
         st.progress.current_section_idx = 0
@@ -436,6 +514,12 @@ def run_blog_task(thread_id: str) -> None:
         tid = str(graph_state.get("thread_id") or thread_id)
         st = load_task_state(tid)
         if st is None:
+            return graph_state
+
+        if getattr(st, "pending_outline", None):
+            graph_state["outline"] = list(st.outline or [])
+            graph_state["progress"] = st.progress.model_dump()
+            graph_state["status"] = "planning_points"
             return graph_state
 
         if st.pending_chapters is not None and len(st.pending_chapters) > 0:
@@ -483,6 +567,12 @@ def run_blog_task(thread_id: str) -> None:
         tid = str(graph_state.get("thread_id") or thread_id)
         st = load_task_state(tid)
         if st is None:
+            return graph_state
+
+        if getattr(st, "pending_outline", None):
+            graph_state["outline"] = list(st.outline or [])
+            graph_state["progress"] = st.progress.model_dump()
+            graph_state["status"] = "waiting_for_outline_review"
             return graph_state
 
         st.status = "planning_points"
@@ -539,7 +629,12 @@ def run_blog_task(thread_id: str) -> None:
             data: Dict[str, Any] | None = None
             for _ in range(2):
                 try:
-                    raw = rag._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
+                    raw = _call_blog_llm(
+                        rag=rag,
+                        prompt=prompt,
+                        model_config=model_config,
+                        llm=llm,
+                    )
                     cleaned = _clean_llm_json(raw)
                     data = json.loads(cleaned)
                     break
@@ -561,6 +656,10 @@ def run_blog_task(thread_id: str) -> None:
                 st.error_message = f"小标题解析失败：章节无有效 children: {sid}"
                 save_task_state(st)
                 raise ValueError(st.error_message)
+            _, max_points = _blog_structure_limits(st.generation_config)
+            sec_full_norm[0]["children"] = list(
+                sec_full_norm[0].get("children") or []
+            )[:max_points]
             enriched.append(sec_full_norm[0])
 
         if not enriched:
@@ -625,7 +724,12 @@ def run_blog_task(thread_id: str) -> None:
         data: Dict[str, Any] | None = None
         for _ in range(2):
             try:
-                raw = rag._call_llm(prompt, llm_config=model_config)  # type: ignore[attr-defined]
+                raw = _call_blog_llm(
+                    rag=rag,
+                    prompt=prompt,
+                    model_config=model_config,
+                    llm=llm,
+                )
                 cleaned = _clean_llm_json(raw)
                 data = json.loads(cleaned)
                 break
@@ -717,7 +821,12 @@ def run_blog_task(thread_id: str) -> None:
             pt_text = ""
             for _ in range(2):
                 try:
-                    pt_raw = rag._call_llm(pt_prompt, llm_config=model_config)  # type: ignore[attr-defined]
+                    pt_raw = _call_blog_llm(
+                        rag=rag,
+                        prompt=pt_prompt,
+                        model_config=model_config,
+                        llm=llm,
+                    )
                     pt_text = str(pt_raw or "").strip()
                     if pt_text:
                         break

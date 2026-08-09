@@ -90,6 +90,40 @@ def test_selected_documents_resolve_public_ids_to_rag_keys(resolver, catalog):
     assert "Newton" in resolved.context_text
 
 
+def test_selected_personal_document_uses_owner_aware_catalog_fallback(content_reader):
+    class PersonalAwareCatalog(FakeDocumentCatalog):
+        def get_personal_by_public_id(self, document_id, *, course_id, owner):
+            self.calls.append(("personal", document_id, course_id, owner))
+            if owner != "teacher-a":
+                return None
+            return SourceDocumentRecord(
+                course_id=course_id,
+                document_id=document_id,
+                name="个人资料",
+                status="ready",
+                rag_index_key="user_teacher-a:personal-doc",
+                chunk_count=3,
+            )
+
+    catalog = PersonalAwareCatalog()
+    resolver = GenerationSourceResolver(catalog, content_reader)
+
+    resolved = resolver.resolve(
+        "c1",
+        "selected_documents",
+        ["legacy-personal-path"],
+        owner="teacher-a",
+    )
+
+    assert resolved.documents[0].rag_index_key == "user_teacher-a:personal-doc"
+    assert catalog.calls[-1] == (
+        "personal",
+        "legacy-personal-path",
+        "c1",
+        "teacher-a",
+    )
+
+
 def test_none_does_not_query_catalog_or_content(
     resolver, catalog, content_reader
 ):

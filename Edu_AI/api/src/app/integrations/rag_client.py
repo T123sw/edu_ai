@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from core.course_storage import storage_manager
+
 from modules.rag_v2.document_resolver import load_rag_document_content, resolve_rag_document_ids
 
 
@@ -47,9 +49,42 @@ def resolve_selected_doc_ids_for_query(
     selected_doc_ids: Optional[List[str]],
     *,
     owner: str,
+    course_id: Optional[str] = None,
 ) -> Optional[List[str]]:
-    """Resolve document IDs through the RAG resolver. Falls back to original IDs."""
+    """Resolve public course-document aliases to RAG index keys.
+
+    The teacher UI may submit a stable ``doc-v2-*`` ID, a source URL, a
+    course-relative path, or the RAG index key itself.  Only the final form is
+    accepted by the vector-store filter, so translate all known aliases before
+    querying while retaining the old safe fallback for unknown identifiers.
+    """
     if not selected_doc_ids:
         return selected_doc_ids
-    resolved_ids = resolve_rag_document_ids(rag_system, selected_doc_ids, owner=owner)
+
+    candidates: List[str] = []
+    seen_candidates: set[str] = set()
+
+    def append(value: Any) -> None:
+        normalized = str(value or "").strip()
+        if normalized and normalized not in seen_candidates:
+            seen_candidates.add(normalized)
+            candidates.append(normalized)
+
+    selected = {str(value or "").strip() for value in selected_doc_ids if str(value or "").strip()}
+    for value in selected_doc_ids:
+        append(value)
+
+    if course_id:
+        for document in storage_manager.get_knowledge_base_index(str(course_id)):
+            aliases = {
+                str(document.get(key) or "").strip()
+                for key in ("id", "source_url", "path", "filename", "rag_index_key")
+            }
+            aliases.discard("")
+            if not selected.intersection(aliases):
+                continue
+            for key in ("rag_index_key", "id", "path", "filename", "source_url"):
+                append(document.get(key))
+
+    resolved_ids = resolve_rag_document_ids(rag_system, candidates, owner=owner)
     return resolved_ids or selected_doc_ids

@@ -13,6 +13,26 @@ def _to_gateway_candidate(model: dict) -> dict:
     }
 
 
+def _tool_capable_fallbacks() -> list[dict]:
+    """Return configured providers that can continue Agent tool calling.
+
+    Planner/executor gateways used to have no fallbacks, so a configured but
+    unavailable primary provider silently pushed resource requests onto the
+    direct-answer path.  Keep the configured planner model first, followed by
+    the independent DeepSeek-compatible channel.
+    """
+    candidates = [_to_gateway_candidate(Config.get_planner_model())]
+    if str(Config.REMOTE_MODEL_API_KEY or "").strip():
+        candidates.append(
+            {
+                "api_base": Config.REMOTE_MODEL_API_BASE,
+                "api_key": Config.REMOTE_MODEL_API_KEY,
+                "model_name": "deepseek-chat",
+            }
+        )
+    return candidates
+
+
 def build_default_gateway(model_id: str | None = None) -> ChatModelGateway:
     model = Config.get_llm_model(model_id) if model_id else Config.get_deep_model()
     fallbacks = []
@@ -38,6 +58,7 @@ def build_agent_gateway() -> ChatModelGateway:
         api_base=candidate["api_base"],
         api_key=candidate["api_key"],
         model_name=candidate["model_name"],
+        fallbacks=_tool_capable_fallbacks(),
     )
 
 
@@ -47,6 +68,7 @@ def build_planner_gateway() -> ChatModelGateway:
         api_base=Config.QWEN_BASE_URL,
         api_key=Config.QWEN_API_KEY,
         model_name=Config.VISION_MODEL_ID,
+        fallbacks=_tool_capable_fallbacks(),
     )
 
 

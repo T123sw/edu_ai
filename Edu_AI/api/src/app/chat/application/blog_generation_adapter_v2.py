@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import inspect
+
 from app.blog_agent.engine import run_blog_task
 from app.blog_agent.storage import (
     create_task_state,
@@ -25,6 +27,13 @@ class BlogGenerationAdapterV2:
         topic = str(getattr(payload, "topic", "") or "").strip()
         if not course_id or not topic:
             raise ValueError("course_id and topic are required")
+        body_llm = self.llm
+        if body_llm is None:
+            from app.chat.agents.report_generation import get_fallback_llm
+
+            body_llm = get_fallback_llm()
+        if body_llm is None:
+            raise RuntimeError("blog_llm_unavailable")
         generation_config = {
             key: getattr(payload, key, None)
             for key in (
@@ -41,17 +50,13 @@ class BlogGenerationAdapterV2:
         }
         if bool(getattr(payload, "include_visuals", False)):
             pipeline = self.visual_pipeline
-            llm = self.llm
+            llm = body_llm
             if pipeline is None:
                 from app.chat.application.knowledge_base_direct_report_service_v2 import (
                     _build_default_visual_pipeline,
                 )
 
                 pipeline = _build_default_visual_pipeline()
-            if llm is None:
-                from app.chat.agents.report_generation import get_fallback_llm
-
-                llm = get_fallback_llm()
             try:
                 brief = pipeline.plan_with_model(
                     llm,
@@ -79,7 +84,11 @@ class BlogGenerationAdapterV2:
             generation_config=generation_config,
         )
         for _ in range(3):
-            run_blog_task(job_id)
+            if "llm" in inspect.signature(run_blog_task).parameters:
+                run_blog_task(job_id, llm=body_llm)
+            else:
+                # Compatibility for injected legacy/test runners.
+                run_blog_task(job_id)
             state = load_task_state(job_id)
             if state is None:
                 raise RuntimeError("blog task state was lost")

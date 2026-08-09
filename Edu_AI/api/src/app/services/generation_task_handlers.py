@@ -73,6 +73,67 @@ class _CourseDocumentCatalog:
                     return self._record(course_id, item)
         return None
 
+    def get_personal_by_public_id(
+        self,
+        document_id: str,
+        *,
+        course_id: str,
+        owner: str,
+    ) -> SourceDocumentRecord | None:
+        """Resolve a teacher-owned legacy/personal RAG document safely.
+
+        The source panel intentionally combines scoped course documents with
+        the teacher's personal RAG catalog. Generation must accept the same
+        identifiers as chat, while owner-aware resolution prevents another
+        user's personal document from being selected by path or index key.
+        """
+        from modules.rag_v2.api import get_rag_system
+        from modules.rag_v2.document_resolver import resolve_rag_document
+
+        rag_system = get_rag_system()
+        resolved = resolve_rag_document(
+            rag_system,
+            document_id,
+            owner=owner,
+        )
+        if resolved is None:
+            return None
+
+        record = dict(resolved.record or {})
+        listed = dict(resolved.listed_document or {})
+        if (
+            str(record.get("library_type") or listed.get("library_type") or "")
+            .strip()
+            .lower()
+            == "course"
+            or str(record.get("course_id") or listed.get("course_id") or "").strip()
+        ):
+            return None
+
+        chunk_count = int(
+            listed.get("chunk_count")
+            or record.get("chunk_count")
+            or 0
+        )
+        if chunk_count <= 0:
+            chunks = rag_system.vector_store.get_documents_by_source(
+                resolved.source_key
+            )
+            chunk_count = len(list(chunks or []))
+
+        return SourceDocumentRecord(
+            course_id=course_id,
+            document_id=str(document_id).strip(),
+            name=str(
+                listed.get("file_name")
+                or record.get("file_name")
+                or resolved.file_name
+            ),
+            status="ready" if chunk_count > 0 else "received",
+            rag_index_key=resolved.index_key,
+            chunk_count=chunk_count,
+        )
+
 
 class _ResolvedDocumentContentReader:
     def read_many(self, rag_index_keys: Sequence[str]) -> str:
@@ -192,6 +253,31 @@ class _AgentReportGenerationAdapter:
                 owner=getattr(payload, "owner", None),
                 course_id=getattr(payload, "course_id", None),
             )
+        source_context = str(
+            getattr(payload, "source_context", "") or ""
+        ).strip()
+        research_context = str(
+            getattr(payload, "research_context", "") or ""
+        ).strip()
+        evidence_context = "\n\n".join(
+            part
+            for part in (
+                (
+                    f"[知识库解析内容]\n{source_context[:24000]}"
+                    if source_context
+                    else ""
+                ),
+                research_context[:16000],
+            )
+            if part
+        )
+        research_sources = [
+            dict(item)
+            for item in list(
+                getattr(payload, "research_sources", []) or []
+            )
+            if isinstance(item, Mapping)
+        ][:20]
         body, checkpoint = build_report_markdown(
             skill_manager=SkillManager(),
             slots={
@@ -202,12 +288,19 @@ class _AgentReportGenerationAdapter:
                 "length_requirement": str(
                     getattr(payload, "length_hint", "") or ""
                 ).strip(),
+                "evidence_context": evidence_context,
             },
             outline=parse_report_outline(
                 str(getattr(payload, "confirmed_outline", "") or "")
             ),
             mode="fast",
         )
+        checkpoint = dict(checkpoint or {})
+        checkpoint["grounding"] = {
+            "knowledge_base_context_used": bool(source_context),
+            "retrieval_context_used": bool(research_context),
+            "research_source_count": len(research_sources),
+        }
         if already_localized:
             assets = images
         elif localization_future is not None:
@@ -426,6 +519,7 @@ class GenerationTaskHandler:
         is_agent_entrypoint = config.get("entrypoint") == "agent"
         factory = (
             self.agent_service_factories.get(resource_type)
+            or self.service_factories.get(resource_type)
             if is_agent_entrypoint
             else self.service_factories.get(resource_type)
         )
@@ -443,6 +537,8 @@ class GenerationTaskHandler:
             if "query_text" in resolve_signature.parameters
             else {}
         )
+        if "owner" in resolve_signature.parameters:
+            resolve_kwargs["owner"] = context.owner_user_id
         source = self.source_resolver.resolve(
             course_id,
             source_mode,

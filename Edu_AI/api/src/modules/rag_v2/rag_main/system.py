@@ -97,6 +97,7 @@ def _expand_parent_context(
 ) -> Dict[str, Any]:
     """Expand a retrieved child to its persisted parent without changing rank metadata."""
     expanded = doc.copy()
+    expanded["retrieved_content"] = str(doc.get("content") or "").strip()
     metadata = (doc.get("metadata") or {}).copy()
     expanded["metadata"] = metadata
     if str(metadata.get("modality", "text")).lower() == "image":
@@ -113,6 +114,18 @@ def _expand_parent_context(
     expanded["content"] = f"{prefix}{parent_content}".strip()
     metadata["context_expanded"] = "parent"
     return expanded
+
+
+def _retrieved_display_content(doc: Dict[str, Any]) -> str:
+    """Return the exact child hit for source tracing, without embedding-only context."""
+    content = str(doc.get("retrieved_content") or doc.get("content") or "")
+    normalized = re.sub(r"\r\n?", "\n", content).strip()
+    return re.sub(
+        r"^【章节上下文】\s*[:：]\s*[^\n]*\n+",
+        "",
+        normalized,
+        count=1,
+    ).strip()
 
 MINERU_AVAILABLE = _check_mineru_available()
 if MINERU_AVAILABLE:
@@ -3351,6 +3364,18 @@ class RAGSystem:
                 rerank_score = doc.get("rerank_score")
                 vector_score = doc.get("vector_score")
                 combined_score = doc.get("combined_score")
+                full_content = _retrieved_display_content(doc)
+                chunk_id = str(metadata.get("chunk_id") or doc.get("id") or "").strip()
+                if not chunk_id:
+                    chunk_id = hashlib.sha1(
+                        f"{raw_source}\0{full_content}".encode("utf-8")
+                    ).hexdigest()[:20]
+                if rerank_score is not None:
+                    retrieval_method = "hybrid_rerank"
+                elif combined_score is not None:
+                    retrieval_method = "hybrid"
+                else:
+                    retrieval_method = "vector"
                 if rerank_score is not None:
                     print(f"[文档 {idx+1}] {source_name}: Rerank 分数={rerank_score:.4f}")
                 else:
@@ -3360,7 +3385,12 @@ class RAGSystem:
 
                 formatted_sources.append(
                     {
-                        "content": doc.get("content", "")[:300],
+                        "content": full_content,
+                        "chunk_id": chunk_id,
+                        "rank": idx + 1,
+                        "retrieval_method": retrieval_method,
+                        "source_start_line": metadata.get("source_start_line"),
+                        "source_end_line": metadata.get("source_end_line"),
                         "source": source_name or "未知文档",
                         "source_path": raw_source,
                         "page": metadata.get("page", 0),

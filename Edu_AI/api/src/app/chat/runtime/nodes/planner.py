@@ -28,7 +28,9 @@ def planner_node(state: AgentState) -> dict:
         print("[规划器] LLM未调用工具，使用关键词回退计划", flush=True)
 
     if plan_dict and plan_dict.get("steps"):
+        _enforce_explicit_resource_type(plan_dict, question)
         _ensure_mandatory_retrieval_when_enabled(plan_dict, capability)
+        _ensure_outline_confirmation_boundary(plan_dict, state)
         _ensure_fetch_visuals_when_needed(plan_dict, question, capability, state)
         _attach_step_constraints(plan_dict)
         plan = Plan.from_dict(plan_dict)
@@ -158,48 +160,67 @@ def _ensure_mandatory_retrieval_when_enabled(plan_dict: dict, capability) -> Non
         retrieval_step["expected_tools"] = expected_tools
         retrieval_step["internal_action"] = "retrieve_context"
         retrieval_index = steps.index(retrieval_step)
-        first_content_index = next(
-            (
-                index
-                for index, step in enumerate(steps)
-                if step is not retrieval_step
-                and (
-                    step.get("internal_action")
-                    in {"answer_question", "confirm_outline", "generate_resource"}
-                    or any(
-                        str(tool_name).startswith("generate_")
-                        for tool_name in (step.get("expected_tools") or [])
-                    )
-                )
-            ),
-            len(steps),
-        )
-        if retrieval_index > first_content_index:
+        if retrieval_index > 0:
             steps.pop(retrieval_index)
-            steps.insert(first_content_index, retrieval_step)
+            steps.insert(0, retrieval_step)
     else:
-        insertion_index = next(
-            (
-                index
-                for index, step in enumerate(steps)
-                if step.get("internal_action") in {"confirm_outline", "generate_resource"}
-                or any(
-                    str(tool_name).startswith("generate_")
-                    for tool_name in (step.get("expected_tools") or [])
-                )
-            ),
-            len(steps),
-        )
         steps.insert(
-            insertion_index,
+            0,
             {
-                "index": insertion_index + 1,
+                "index": 1,
                 "user_title": "检索已启用的资料来源",
                 "internal_action": "retrieve_context",
                 "expected_tools": required_tools,
             },
         )
 
+    for index, step in enumerate(steps, start=1):
+        step["index"] = index
+    plan_dict["steps"] = steps
+
+
+def _ensure_outline_confirmation_boundary(plan_dict: dict, state: dict) -> None:
+    """Do not let an initial outline workflow submit a resource in one turn.
+
+    Models occasionally omit ``confirm_outline`` or continue past it.  Report,
+    PPT and lesson-plan generation are irreversible background submissions, so
+    the initial turn must end at confirmation.  A later turn that starts with a
+    persisted outline is the only turn allowed to plan ``generate_resource``.
+    """
+    if plan_dict.get("resource_type") not in {"report", "ppt", "lesson_plan"}:
+        return
+    if state.get("active_draft_outline"):
+        return
+    steps = [
+        step
+        for step in list(plan_dict.get("steps") or [])
+        if step.get("internal_action") not in {"generate_resource", "fetch_visuals"}
+        and not any(
+            str(tool).startswith("generate_")
+            for tool in list(step.get("expected_tools") or [])
+        )
+    ]
+    if not any(step.get("internal_action") == "draft_outline" for step in steps):
+        steps.insert(
+            0,
+            {
+                "index": 1,
+                "user_title": "起草资源大纲",
+                "internal_action": "draft_outline",
+                "expected_tools": ["draft_outline"],
+            },
+        )
+    steps = [
+        step for step in steps if step.get("internal_action") != "confirm_outline"
+    ]
+    steps.append(
+        {
+            "index": len(steps) + 1,
+            "user_title": "展示大纲并等待用户确认",
+            "internal_action": "confirm_outline",
+            "expected_tools": [],
+        }
+    )
     for index, step in enumerate(steps, start=1):
         step["index"] = index
     plan_dict["steps"] = steps
@@ -287,8 +308,40 @@ _RESOURCE_KEYWORDS = {
     "ppt": ("ppt", "PPT", "幻灯片", "课件"),
     "lesson_plan": ("教案", "教学设计", "教学方案"),
     "quiz": ("练习题", "测验", "题目", "习题", "出题"),
+    "blog": ("教学博客", "博客", "博文"),
+    "flashcard": ("闪卡", "复习卡", "记忆卡"),
+    "graph": ("思维导图", "导图", "知识图谱"),
+    "game": ("课堂小游戏", "小游戏", "教学游戏"),
+    "classroom": ("AI课堂", "AI 课堂", "智能课堂", "互动课堂"),
     "report": ("报告", "分析报告", "研究报告"),
 }
+
+
+def _explicit_resource_type(question: str) -> str:
+    for resource_type, keywords in _RESOURCE_KEYWORDS.items():
+        if any(keyword in question for keyword in keywords):
+            return resource_type
+    return "unknown"
+
+
+def _enforce_explicit_resource_type(plan_dict: dict, question: str) -> None:
+    """User-named resource types outrank probabilistic planner classification."""
+    resource_type = _explicit_resource_type(question)
+    if resource_type == "unknown":
+        return
+    plan_dict["resource_type"] = resource_type
+    if resource_type not in {"quiz", "blog", "flashcard", "graph", "game", "classroom"}:
+        return
+    subject = str(plan_dict.get("subject") or _extract_subject(question)).strip()
+    plan_dict["subject"] = subject
+    plan_dict["steps"] = [
+        {
+            "index": 1,
+            "user_title": f"生成{subject}{_RTYPE_CN.get(resource_type, '资源')}",
+            "internal_action": "generate_resource",
+            "expected_tools": [f"generate_{resource_type}"],
+        }
+    ]
 
 _CONFIRM_KEYWORDS = ("好的", "可以", "确认", "开始", "生成", "ok", "OK", "没问题", "继续", "是的")
 
@@ -464,18 +517,14 @@ def _extract_subject(question: str) -> str:
     # 5) strip trailing word-count / page-count specs
     s = re.sub(r"\d+\s*(字|页|张|道题?|分钟|min|words?)\s*$", "", s, flags=re.IGNORECASE)
     # 6) strip trailing resource-type noise (报告/PPT/教案/练习题)
-    s = re.sub(r"(报告|分析报告|研究报告|综述报告|PPT课件|PPT|课件|教案|教学设计|教学方案|练习题|测验|题目|习题)\s*$", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"(报告|分析报告|研究报告|综述报告|PPT课件|PPT|课件|教案|教学设计|教学方案|练习题|测验|题目|习题|教学博客|博客|博文|闪卡|复习卡|记忆卡|思维导图|导图|知识图谱|课堂小游戏|小游戏|教学游戏|AI课堂|AI 课堂|智能课堂|互动课堂)\s*$", "", s, flags=re.IGNORECASE)
 
     s = s.strip(" .。、,，:：;；")
     return s[:40] if s else question[:40].strip()
 
 
 def _fallback_plan(question: str, state: dict, capability=None) -> dict:
-    resource_type = "unknown"
-    for rtype, kws in _RESOURCE_KEYWORDS.items():
-        if any(kw in question for kw in kws):
-            resource_type = rtype
-            break
+    resource_type = _explicit_resource_type(question)
 
     subject = _extract_subject(question)
     allow_rag = bool(getattr(capability, "allow_rag", False))
@@ -521,6 +570,15 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
                 "user_title": f"生成{subject}练习题",
                 "internal_action": "generate_resource",
                 "expected_tools": ["generate_quiz"],
+            }
+        ]
+    elif resource_type in ("blog", "flashcard", "graph", "game", "classroom"):
+        steps = [
+            {
+                "index": 1,
+                "user_title": f"生成{subject}{_RTYPE_CN.get(resource_type, '资源')}",
+                "internal_action": "generate_resource",
+                "expected_tools": [f"generate_{resource_type}"],
             }
         ]
     elif resource_type in ("report", "ppt", "lesson_plan"):
@@ -570,4 +628,9 @@ _RTYPE_CN = {
     "ppt":         "PPT课件",
     "lesson_plan": "教案",
     "quiz":        "练习题",
+    "blog":        "教学博客",
+    "flashcard":   "闪卡",
+    "graph":       "思维导图",
+    "game":        "课堂小游戏",
+    "classroom":   "AI课堂",
 }

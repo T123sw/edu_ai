@@ -23,7 +23,8 @@ subject 写法示例：
 - 当用户提到「配图 / 插图 / 示意图 / 流程图 / 架构图 / 图片」等视觉素材需求，
   且 image_search 工具可用时：
   * 初始规划（用户首次发起，对话里还没有"等待确认的大纲"）：
-    plan 的步骤顺序必须是 draft_outline → confirm_outline → generate_resource，
+    plan 的步骤顺序必须是 draft_outline → confirm_outline，首轮计划到此结束，
+    **不要**在首轮计划中加入 generate_resource；用户确认后的下一轮再规划生成，
     **不要**在此阶段加入 fetch_visuals。该步骤会在用户确认大纲之后的下一轮自动追加。
   * 确认后规划（对话已有"等待确认的大纲"且当前消息表示确认）：
     plan 的步骤必须是 fetch_visuals → generate_resource，两步同轮执行，
@@ -47,7 +48,7 @@ internal_action 枚举值说明：
 - answer_question  → 直接回答问题，无工具调用
 - other            → 其他操作
 
-resource_type 枚举值：report | ppt | lesson_plan | quiz | unknown"""
+resource_type 枚举值：report | ppt | lesson_plan | quiz | blog | flashcard | graph | game | classroom | unknown"""
 
 # JSON schema for the create_plan tool
 CREATE_PLAN_SCHEMA = {
@@ -64,7 +65,18 @@ CREATE_PLAN_SCHEMA = {
                 },
                 "resource_type": {
                     "type": "string",
-                    "enum": ["report", "ppt", "lesson_plan", "quiz", "unknown"],
+                    "enum": [
+                        "report",
+                        "ppt",
+                        "lesson_plan",
+                        "quiz",
+                        "blog",
+                        "flashcard",
+                        "graph",
+                        "game",
+                        "classroom",
+                        "unknown",
+                    ],
                     "description": "生成的资源类型",
                 },
                 "steps": {

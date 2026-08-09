@@ -44,3 +44,43 @@ def test_resolve_selected_doc_ids_for_query_falls_back_to_original_ids_when_reso
     )
 
     assert resolved == selected_doc_ids
+
+
+def test_resolve_selected_doc_ids_for_query_maps_course_source_url_to_rag_key(monkeypatch):
+    source_url = "https://example.com/linked-list/"
+    rag_key = "user_teacher:D:/courses/course-1/linked-list.md"
+    seen = {}
+
+    class DummyStorageManager:
+        def get_knowledge_base_index(self, course_id):
+            assert course_id == "course-1"
+            return [
+                {
+                    "id": "doc-v2-linked-list",
+                    "source_url": source_url,
+                    "path": "knowledge_base/documents-v2/linked-list.md",
+                    "filename": "linked-list.md",
+                    "rag_index_key": rag_key,
+                }
+            ]
+
+    def fake_resolve(rag_system, selected_doc_ids, owner=None):
+        seen["candidates"] = list(selected_doc_ids)
+        seen["owner"] = owner
+        return [rag_key] if rag_key in selected_doc_ids else []
+
+    monkeypatch.setattr(rag_client, "storage_manager", DummyStorageManager())
+    monkeypatch.setattr(rag_client, "resolve_rag_document_ids", fake_resolve)
+
+    resolved = rag_client.resolve_selected_doc_ids_for_query(
+        DummyRagSystem(),
+        [source_url],
+        owner="teacher",
+        course_id="course-1",
+    )
+
+    assert resolved == [rag_key]
+    assert source_url in seen["candidates"]
+    assert "doc-v2-linked-list" in seen["candidates"]
+    assert rag_key in seen["candidates"]
+    assert seen["owner"] == "teacher"

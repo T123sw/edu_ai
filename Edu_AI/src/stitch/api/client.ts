@@ -10,6 +10,21 @@ export class ApiError extends Error {
   }
 }
 
+function apiErrorDetail(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    const messages = value.map((item) => apiErrorDetail(item)).filter(Boolean);
+    return messages.join("；") || "请求失败";
+  }
+  if (value && typeof value === "object") {
+    const detail = value as { msg?: unknown; message?: unknown; detail?: unknown };
+    if (detail.msg) return apiErrorDetail(detail.msg);
+    if (detail.message) return apiErrorDetail(detail.message);
+    if (detail.detail) return apiErrorDetail(detail.detail);
+  }
+  return "请求失败";
+}
+
 function getAuthToken() {
   if (typeof window === "undefined") return null;
 
@@ -40,7 +55,9 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
 
   if (!response.ok) {
     const detail =
-      payload && typeof payload === "object" && "detail" in payload ? String((payload as { detail?: unknown }).detail) : "请求失败";
+      payload && typeof payload === "object" && "detail" in payload
+        ? apiErrorDetail((payload as { detail?: unknown }).detail)
+        : "请求失败";
     throw new ApiError(detail, response.status);
   }
 

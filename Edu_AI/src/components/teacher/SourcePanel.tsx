@@ -66,8 +66,13 @@ import {
   buildWebsiteFaviconUrl,
   inferWebsiteUrlFromFileName,
 } from './websiteIcon';
+import {
+  locateSourceHighlightRange,
+  stripRetrievalContextPrefix,
+} from './sourceHighlight';
 import './SourcePanel.css';
 import { normalizeKnowledgeMarkdown } from '../../stitch/components/knowledgeMarkdown';
+import { AUTH_STORAGE_KEY, parseStoredAuthSession } from '../../stitch/authSession';
 
 const { Title, Text } = Typography;
 const COURSE_LIBRARY_TYPE = 'course';
@@ -317,7 +322,11 @@ const extractMarkdownImageUrls = (markdownContent: string): string[] => {
 const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, workspaceScope, onPreviewStateChange }) => {
   const { selectedDocs, setSelectedDocs, setScopedSourceDocIds, highlightRequest, setHighlightRequest } = useStore();
   const [videoUploading, setVideoUploading] = useState(false);
-  const { token } = useAuth();
+  const { token: contextToken } = useAuth();
+  // The Stitch shell persists login before this panel mounts, while the legacy
+  // AuthContext can still hold its initial empty value. Both use the same
+  // canonical session, so fall back to that freshly persisted token.
+  const token = parseStoredAuthSession(window.localStorage.getItem(AUTH_STORAGE_KEY))?.token || contextToken || null;
   const [fileList, setFileList] = useState<FileItem[]>([]);
   const [courseFileList, setCourseFileList] = useState<FileItem[]>([]);
   const [personalFileList, setPersonalFileList] = useState<FileItem[]>([]);
@@ -342,6 +351,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [previewMediaUrls, setPreviewMediaUrls] = useState<Record<string, string>>({});
   const [listMediaUrls, setListMediaUrls] = useState<Record<string, string>>({});
   const [highlightedContent, setHighlightedContent] = useState<React.ReactNode>(null);
+  const [highlightRetrievalMethod, setHighlightRetrievalMethod] = useState<string | null>(null);
+  const [unmatchedHighlightText, setUnmatchedHighlightText] = useState<string | null>(null);
   const highlightRef = useRef<HTMLElement | null>(null);
   // 文档摘要
   const [previewSummary, setPreviewSummary] = useState<string>('');
@@ -767,8 +778,13 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const handleHighlight = (fullContent: DocumentContent | null, source: RAGSource | any) => {
     if (!fullContent) {
       setHighlightedContent(null);
+      setHighlightRetrievalMethod(null);
+      setUnmatchedHighlightText(null);
       return;
     }
+
+    setHighlightRetrievalMethod(String((source as any)?.retrieval_method || '').trim() || null);
+    setUnmatchedHighlightText(null);
 
     // 获取完整的文本块内容（这是要高亮的完整内容）
     const highlightText = String((source as any)?.content || '').trim();
@@ -787,9 +803,18 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     const normalizedHighlight = normalizeText(highlightText);
     const normalizedFull = normalizeText(fullText);
 
-    // 策略1：尝试精确匹配整个文本块
-    let index = fullText.indexOf(highlightText);
-    let matchLength = highlightText.length;
+    // Match the complete retrieved child chunk and map normalized whitespace
+    // back to its exact range in the original document.
+    const locatedRange = locateSourceHighlightRange(fullText, highlightText);
+    let index = locatedRange?.start ?? -1;
+    let matchLength = locatedRange ? locatedRange.end - locatedRange.start : 0;
+
+    if (index === -1) {
+      // Never present repeated keywords as if they were the retrieved chunk.
+      setUnmatchedHighlightText(stripRetrievalContextPrefix(highlightText));
+      setHighlightedContent(fullText);
+      return;
+    }
 
     // 策略2：如果精确匹配失败，尝试规范化后的匹配
     if (index === -1) {
@@ -827,7 +852,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       }
     }
 
-    // 策略3：如果还是找不到，尝试通过关键词定位，然后高亮整个文本块
+    // Legacy fuzzy fallback remains unreachable for unmatched chunks. It is
+    // retained temporarily to keep this focused fix isolated from rendering.
     if (index === -1) {
       const keywords = highlightText.split(/\s+/).filter(k => k.length > 2);
       if (keywords.length > 0) {
@@ -1240,6 +1266,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         return {};
       });
       setHighlightedContent(null);
+      setHighlightRetrievalMethod(null);
+      setUnmatchedHighlightText(null);
       setPreviewSummary(''); // 重置摘要
       onPreviewStateChange?.(true);
 
@@ -1270,6 +1298,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         handleHighlight(content, source);
       } else {
         setHighlightedContent(null);
+        setHighlightRetrievalMethod(null);
+        setUnmatchedHighlightText(null);
       }
     } catch (error) {
       console.error('获取文档内容失败:', error);
@@ -1277,6 +1307,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       setPreviewOpen(false);
       setPreviewFile(null);
       setPreviewContent(null);
+      setUnmatchedHighlightText(null);
       setPreviewSummary('');
       onPreviewStateChange?.(false);
     } finally {
@@ -1294,6 +1325,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       return {};
     });
     setHighlightedContent(null);
+    setHighlightRetrievalMethod(null);
+    setUnmatchedHighlightText(null);
     setPreviewSummary('');
     onPreviewStateChange?.(false);
   };
@@ -1856,9 +1889,27 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                   </Space>
                 </div>
                 {highlightedContent ? (
-                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333', fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "source-code-pro", monospace' }}>
-                    {highlightedContent}
-                  </div>
+                  <>
+                    <div style={{ marginBottom: 12, padding: '10px 12px', background: unmatchedHighlightText ? '#fff7e6' : '#eef4ff', border: `1px solid ${unmatchedHighlightText ? '#ffd591' : '#c9dcff'}`, borderRadius: 8, color: unmatchedHighlightText ? '#ad6800' : '#2458a6' }}>
+                      {unmatchedHighlightText
+                        ? '当前文档版本无法精确对齐该片段，已单独展示实际检索内容，未使用关键词伪高亮'
+                        : highlightRetrievalMethod === 'hybrid_rerank'
+                        ? '已定位：向量检索与 BM25 融合、重排后的完整命中片段'
+                        : highlightRetrievalMethod === 'hybrid'
+                          ? '已定位：向量检索与 BM25 融合后的完整命中片段'
+                          : highlightRetrievalMethod === 'vector'
+                            ? '已定位：向量检索返回的完整命中片段'
+                            : '已定位：完整检索命中片段'}
+                    </div>
+                    {unmatchedHighlightText ? (
+                      <pre style={{ margin: '0 0 16px', padding: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#fffdf5', border: '1px solid #ffe7ba', borderRadius: 8 }}>
+                        {unmatchedHighlightText}
+                      </pre>
+                    ) : null}
+                    <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333', fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "source-code-pro", monospace' }}>
+                      {highlightedContent}
+                    </div>
+                  </>
                 ) : previewTextContent ? (
                   <div style={{ padding: '12px 0', wordBreak: 'break-word', lineHeight: '1.8', fontSize: '14px', color: '#333' }}>
                     <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]} components={previewMarkdownComponents}>

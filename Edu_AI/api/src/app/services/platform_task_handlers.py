@@ -172,6 +172,8 @@ class PlatformTaskHandlers:
             if "query_text" in resolve_signature.parameters
             else {}
         )
+        if "owner" in resolve_signature.parameters:
+            resolve_kwargs["owner"] = context.owner_user_id
         resolved_source = source_resolver.resolve(
             course_id,
             source_mode,

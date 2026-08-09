@@ -168,12 +168,22 @@ class ReActAgent:
         try:
             for event in self._graph.stream(initial_input, config, stream_mode="custom"):
                 if isinstance(event, dict) and event.get("type") == "__internal_fallback__":
-                    yield from self._fallback(request, snapshot, reason=event["reason"])
+                    yield from self._fallback(
+                        request,
+                        snapshot,
+                        reason=event["reason"],
+                        ctx=ctx,
+                    )
                     return
                 yield event
         except Exception as exc:
             print(f"[智能体] 异常 | {exc}", flush=True)
-            yield from self._fallback(request, snapshot, reason=f"react_error: {exc}")
+            yield from self._fallback(
+                request,
+                snapshot,
+                reason=f"react_error: {exc}",
+                ctx=ctx,
+            )
 
     def _build_messages(self, request, snapshot, *, active_draft_outline=None) -> list[dict]:
         """Build message list from snapshot history with working memory in system prompt."""
@@ -206,9 +216,33 @@ class ReActAgent:
             {"role": "user", "content": str(getattr(request, "question", "") or "")},
         ]
 
-    def _fallback(self, request, snapshot, *, reason: str) -> Iterator[dict]:
+    def _fallback(
+        self,
+        request,
+        snapshot,
+        *,
+        reason: str,
+        ctx: ToolExecutionContext | None = None,
+    ) -> Iterator[dict]:
         print(f"[智能体] 降级 | 原因={reason}", flush=True)
         yield {"type": "status", "payload": {"stage": "fallback", "label": "切换到直接回答模式"}}
         from app.chat.domain.route_decision import RouteDecision
         decision = RouteDecision.fast(action="chat.reply", reason=reason)
-        yield from self.fast_runtime.run_stream(request=request, snapshot=snapshot, decision=decision)
+        for event in self.fast_runtime.run_stream(
+            request=request,
+            snapshot=snapshot,
+            decision=decision,
+        ):
+            if event.get("type") == "result" and ctx is not None:
+                payload = dict(event.get("payload") or {})
+                fast_trace = dict(payload.get("trace") or {})
+                merged_trace = {
+                    **fast_trace,
+                    **ctx.trace,
+                    "path": "agent_fallback",
+                    "fallback_path": fast_trace.get("path") or "fast",
+                    "fallback_reason": reason,
+                }
+                payload["trace"] = merged_trace
+                event = {**event, "payload": payload}
+            yield event

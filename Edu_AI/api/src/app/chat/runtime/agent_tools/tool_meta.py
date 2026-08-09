@@ -56,6 +56,31 @@ _TOOL_META: dict[str, ToolMeta] = {
         parallel_safe=False,
         mutates_state=True,
     ),
+    "generate_blog": ToolMeta(
+        name="generate_blog",
+        parallel_safe=False,
+        mutates_state=True,
+    ),
+    "generate_flashcard": ToolMeta(
+        name="generate_flashcard",
+        parallel_safe=False,
+        mutates_state=True,
+    ),
+    "generate_graph": ToolMeta(
+        name="generate_graph",
+        parallel_safe=False,
+        mutates_state=True,
+    ),
+    "generate_game": ToolMeta(
+        name="generate_game",
+        parallel_safe=False,
+        mutates_state=True,
+    ),
+    "generate_classroom": ToolMeta(
+        name="generate_classroom",
+        parallel_safe=False,
+        mutates_state=True,
+    ),
 }
 
 

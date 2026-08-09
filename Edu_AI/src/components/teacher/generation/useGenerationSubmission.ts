@@ -5,6 +5,7 @@ import { registerCreatedJob, requestJobRefresh, useJobStore } from "../../../job
 import type { JobRecord } from "../../../jobs/types";
 import { apiRequest } from "../../../stitch/api/client";
 import type { GenerationResourceType } from "./generationRegistry";
+import { generationPreflightResourceType } from "./generationPreflight";
 import type { GenerationSourceSelection } from "./GenerationSourceSelector";
 import { blogDefinition } from "./definitions/blog";
 import { lessonPlanDefinition } from "./definitions/lessonPlan";
@@ -77,7 +78,7 @@ export function useGenerationSubmission(courseId: string | undefined) {
     try {
       await apiRequest("/api/chat/v2/generation/preflight", {
         method: "POST",
-        body: JSON.stringify({ course_id: courseId, resource_type: draft.resourceType, source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds }),
+        body: JSON.stringify({ course_id: courseId, resource_type: generationPreflightResourceType(draft.resourceType), source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds }),
       });
       const idempotencyKey = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `ui-${draft.resourceType}-${Date.now()}`;
       const request = buildGenerationRequest(draft, courseId, idempotencyKey);

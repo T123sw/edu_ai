@@ -1473,6 +1473,7 @@ async def generate_classroom(
             course_id,
             payload.source_mode,
             payload.selected_doc_ids,
+            owner=principal.user_id,
         )
     except GenerationSourceError as exc:
         raise HTTPException(

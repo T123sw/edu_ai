@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import inspect
 import mimetypes
 import re
 from pathlib import Path
@@ -82,12 +83,13 @@ def _require_direct_generation_access(
     )
 
 
-def _validate_direct_generation_source(payload) -> None:
+def _validate_direct_generation_source(payload, *, owner: str) -> None:
     try:
         _get_generation_source_resolver().validate(
             str(getattr(payload, "course_id", "") or "").strip(),
             getattr(payload, "source_mode", "course_auto"),
             list(getattr(payload, "selected_doc_ids", []) or []),
+            owner=owner,
         )
     except GenerationSourceError as exc:
         raise HTTPException(
@@ -116,6 +118,7 @@ def generation_preflight(
             payload.course_id,
             payload.source_mode,
             payload.selected_doc_ids,
+            owner=str(current_user.get("username") or "").strip(),
         )
     except GenerationSourceError as exc:
         raise HTTPException(
@@ -525,8 +528,8 @@ async def direct_report(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="report",
         owner_user_id=owner,
@@ -564,8 +567,8 @@ async def direct_lesson_plan(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="lesson_plan",
         owner_user_id=owner,
@@ -619,8 +622,8 @@ async def direct_quiz(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="quiz",
         owner_user_id=owner,
@@ -648,8 +651,8 @@ async def direct_game(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="game",
         owner_user_id=owner,
@@ -679,8 +682,8 @@ async def direct_flashcard(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="flashcard",
         owner_user_id=owner,
@@ -709,10 +712,17 @@ async def direct_ppt_outline(
     current_user: dict = Depends(get_current_user),
 ):
     try:
-        source = _get_generation_source_resolver().resolve(
+        resolver = _get_generation_source_resolver()
+        resolve_kwargs = {}
+        if "owner" in inspect.signature(resolver.resolve).parameters:
+            resolve_kwargs["owner"] = str(
+                current_user.get("username") or ""
+            ).strip()
+        source = resolver.resolve(
             payload.course_id,
             payload.source_mode,
             payload.selected_doc_ids,
+            **resolve_kwargs,
         )
     except GenerationSourceError as exc:
         raise HTTPException(
@@ -781,8 +791,8 @@ async def direct_graph(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="graph",
         owner_user_id=owner,
@@ -805,8 +815,8 @@ async def direct_blog(
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     _require_direct_generation_access(payload.course_id, current_user, access_service)
-    _validate_direct_generation_source(payload)
     owner = str(current_user.get("username") or "").strip()
+    _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
         resource_type="blog",
         owner_user_id=owner,

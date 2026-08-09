@@ -186,6 +186,7 @@ def test_lesson_plan_handler_uses_resolved_context_and_saves_private_artifact(
     assert engine.states[0]["gathered_context"]["special_requirements"] == (
         "加入受力图活动"
     )
+    assert engine.states[1]["human_feedback"] == "ok"
     artifact = manager.get_generated_material(
         "course-1",
         "lesson_plan",

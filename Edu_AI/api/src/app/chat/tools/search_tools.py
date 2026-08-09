@@ -9,7 +9,7 @@ from langchain_core.tools import tool
 
 from core.config import Config
 from modules.rag_v2.api import get_rag_system
-from modules.rag_v2.document_resolver import resolve_rag_document_ids
+from app.integrations.rag_client import resolve_selected_doc_ids_for_query
 
 
 def create_search_tools(
@@ -25,10 +25,11 @@ def create_search_tools(
         try:
             rag_system = get_rag_system()
             rag_context = rag_context_var.get()
-            resolved_doc_ids = resolve_rag_document_ids(
+            resolved_doc_ids = resolve_selected_doc_ids_for_query(
                 rag_system,
                 list(rag_context.get("selected_doc_ids") or []),
                 owner=rag_context.get("owner"),
+                course_id=rag_context.get("course_id"),
             )
             result = rag_system.query(
                 query,

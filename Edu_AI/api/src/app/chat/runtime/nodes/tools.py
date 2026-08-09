@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -16,6 +17,26 @@ from app.chat.runtime.nodes.constants import (
     _TOOL_NAMES_CN,
     _WORKFLOW_LABELS,
 )
+
+
+def _retrieval_source_key(source: dict) -> str:
+    """Return a chunk-level identity without collapsing unrelated RAG hits."""
+    chunk_id = str(source.get("chunk_id") or source.get("id") or "").strip()
+    if chunk_id:
+        return f"chunk:{chunk_id}"
+
+    identity = "\0".join(
+        str(source.get(key) or "").strip()
+        for key in (
+            "document_id",
+            "source_path",
+            "source",
+            "url",
+            "title",
+            "content",
+        )
+    )
+    return "source:" + hashlib.sha1(identity.encode("utf-8")).hexdigest()
 
 
 def _fmt_tool_args(args: dict) -> str:
@@ -145,22 +166,14 @@ def tools_node(state: AgentState) -> dict:
         payload = result.get("payload") or {}
         if result.get("ok") and tool_name in {"rag_search", "web_search"}:
             known_source_keys = {
-                (
-                    str(source.get("document_id") or ""),
-                    str(source.get("url") or ""),
-                    str(source.get("title") or ""),
-                )
+                _retrieval_source_key(source)
                 for source in new_retrieval_sources
                 if isinstance(source, dict)
             }
             for source in payload.get("sources") or []:
                 if not isinstance(source, dict):
                     continue
-                source_key = (
-                    str(source.get("document_id") or ""),
-                    str(source.get("url") or ""),
-                    str(source.get("title") or ""),
-                )
+                source_key = _retrieval_source_key(source)
                 if source_key not in known_source_keys:
                     new_retrieval_sources.append(source)
                     known_source_keys.add(source_key)

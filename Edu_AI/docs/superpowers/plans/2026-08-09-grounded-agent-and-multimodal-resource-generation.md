@@ -20,7 +20,7 @@
 | Task 11：思维导图 | 已完成 | 稳定节点 ID、递归预览、缩放、增删改与 JSON 导出已落地 |
 | Task 12：资源编辑导出 | 已完成 | 七类安全内容编辑；Markdown/JSON 导出；游戏 HTML 编辑明确不开放 |
 | Task 13：自动化 E2E | 已完成 | 两种窗口尺寸共 18 条教师端浏览器用例通过 |
-| Task 14：真实服务与回归 | 自动化完成、外部冒烟待部署 | 两个安全冒烟脚本及 6 项自测完成；后端 1252 passed、前端 216 passed、E2E 18 passed、构建与静态检查通过；当前环境无教师令牌/博查配置，未伪造真实供应商结果 |
+| Task 14：真实服务与回归 | 已完成 | 本机教师令牌、RAG、Web/博查及备用模型通道均已确认；Agent 的 selected、course_auto、Web、RAG+Web 真实链路通过；八类非 PPT 资源均完成提交、终态、落库与资源可见性验证。阿里云主模型账户欠费已由已配置备用通道故障转移处理。 |
 | Task 15：交付审查 | 已完成 | `git diff --check` 通过；保留用户原有未提交知识库改动；未在共享脏工作区创建混合提交 |
 
 实现过程中未执行各任务末尾的提交命令：当前 `main` 含用户未提交的知识库工作，自动拆分提交会混入或遗漏其改动。代码与验收证据保留在工作区，由用户统一审阅后提交。
@@ -282,11 +282,14 @@
 - Interfaces: real RAG index；Bocha；configured LLM/multimodal model；durable jobs
 
 - [x] 冒烟脚本默认只预览矩阵且要求显式 `--execute`，不打印密钥。
-- [ ] 用种子课程验证 selected RAG、course_auto RAG、Web、RAG+Web 的工具顺序和来源。
-- [ ] 对八类资源各提交一份最小真实任务并等待终态；PPT 明确跳过并记录后置。
-- [ ] 对至少一个图文报告验证 Visual Brief、候选、本地图片、正文 slot 和最终预览一致。
+- [x] 用本机真实课程验证 selected RAG、course_auto RAG、Web、RAG+Web 的工具顺序和来源。
+- [x] 新增真实对话资源烟测，验证报告、教案、练习题、博客、闪卡、思维导图、小游戏和 AI 课堂的 Agent 工具调用、Job 终态和材料落库。
+- [x] 验证“先查网络再生成报告”的确认轮严格为 `web_search → generate_report`，并检查 Web 证据进入 Job 快照与最终材料 grounding。
+- [x] 生成 `docs/acceptance/2026-08-09-agent-capability-status.md`，记录能力矩阵、缺口、性能和后续优化顺序。
+- [x] 对八类资源各提交一份最小真实任务并等待终态；PPT 明确跳过并记录后置。
+- [x] 对图文报告验证 Visual Brief、候选、本地图片和正文 slot 一致：4/4 槽位选中本地图片并全部进入正文。
 - [x] 运行后端完整测试集、前端 `pnpm test`、`pnpm build` 和教师端核心 Playwright 项目。
-- [x] 将所有实际结果、环境限制、剩余风险写入验收文档；未把缺少供应商密钥写成通过。
+- [x] 将所有实际结果、环境限制、剩余风险写入验收文档；已核实本机令牌存在，并把阿里云主通道欠费与备用通道成功分别记录。
 - [x] 运行 `rg -n "TODO|PLACEHOLDER|待补|假数据"` 扫描本次新增生产文件，所有目标文件无命中。
 - [ ] 提交：`git commit -m "docs: record grounded teacher acceptance results"`。
 
@@ -297,11 +300,11 @@
 - Modify: `docs/acceptance/2026-08-09-grounded-agent-and-multimodal-resource-generation.md`
 - Interfaces: git diff；测试报告；验收清单
 
-- [ ] 对照 SPEC 逐条检查 15 条完成定义和验收矩阵，不以“已编码”替代“已验证”。
-- [ ] 检查 `git diff --check`、工作区中用户原有改动是否保留、本次提交是否没有意外数据文件。
-- [ ] 运行 Superpowers `verification-before-completion`，引用新的实际命令输出。
+- [x] 对照 SPEC 逐条检查 15 条完成定义和验收矩阵，不以“已编码”替代“已验证”。
+- [x] 检查 `git diff --check`、工作区中用户原有改动是否保留、本次变更是否没有意外跟踪的数据文件。
+- [x] 运行完成前验证并引用新的实际命令输出：最终 1280 passed、2 skipped；Agent 全资源真实 E2E 完成。
 - [ ] 使用 `finishing-a-development-branch` 完成最终审查；因用户已明确授权在当前 main 执行，不自动推送远端。
-- [ ] 验收文档标记最终状态并列出可直接复验的命令与入口。
+- [x] 验收文档标记最终状态并列出可直接复验的命令与入口。
 
 ## 执行顺序与停止条件
 

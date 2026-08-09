@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Tuple
 
+from langchain_core.runnables import Runnable, RunnableConfig
 from langchain_openai import ChatOpenAI
 
 from core.config import Config
@@ -28,7 +29,103 @@ def _thinking_extra_body(model_name: str) -> dict:
     return {}
 
 
-def get_fallback_llm() -> Optional[ChatOpenAI]:
+class _ConfiguredFallbackChatModel(Runnable[Any, Any]):
+    """Keep the selected model primary while failing over to configured backups.
+
+    A provider can have a valid token but still reject completions because of
+    account, region, model or transient availability problems.  Resource
+    generation should not fail when another locally configured provider is
+    healthy.  The wrapper also preserves the structured-output and tool-binding
+    interfaces used by the report/quiz orchestration code.
+    """
+
+    def __init__(self, models: List[Any]) -> None:
+        if not models:
+            raise ValueError("at least one chat model is required")
+        self.models = list(models)
+
+    def invoke(
+        self,
+        input: Any,
+        config: RunnableConfig | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        last_error: Exception | None = None
+        for model in self.models:
+            try:
+                return model.invoke(input, config=config, **kwargs)
+            except Exception as exc:
+                last_error = exc
+        assert last_error is not None
+        raise last_error
+
+    async def ainvoke(
+        self,
+        input: Any,
+        config: RunnableConfig | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        last_error: Exception | None = None
+        for model in self.models:
+            try:
+                return await model.ainvoke(input, config=config, **kwargs)
+            except Exception as exc:
+                last_error = exc
+        assert last_error is not None
+        raise last_error
+
+    def stream(
+        self,
+        input: Any,
+        config: RunnableConfig | None = None,
+        **kwargs: Any,
+    ) -> Iterator[Any]:
+        # Buffer one completion so a mid-stream provider error never duplicates
+        # partial content when the next provider is attempted.
+        yield self.invoke(input, config=config, **kwargs)
+
+    async def astream(
+        self,
+        input: Any,
+        config: RunnableConfig | None = None,
+        **kwargs: Any,
+    ) -> AsyncIterator[Any]:
+        yield await self.ainvoke(input, config=config, **kwargs)
+
+    def with_structured_output(self, schema: Any, **kwargs: Any) -> Runnable:
+        runnables = [
+            model.with_structured_output(schema, **kwargs)
+            for model in self.models
+        ]
+        return runnables[0].with_fallbacks(runnables[1:])
+
+    def bind_tools(self, tools: Any, **kwargs: Any) -> Runnable:
+        runnables = [model.bind_tools(tools, **kwargs) for model in self.models]
+        return runnables[0].with_fallbacks(runnables[1:])
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.models[0], name)
+
+
+def _chat_model(
+    *,
+    api_key: str,
+    base_url: str,
+    model: str,
+    timeout_seconds: float,
+) -> ChatOpenAI:
+    extra_body = _thinking_extra_body(model)
+    return ChatOpenAI(
+        api_key=api_key,
+        base_url=_normalize_openai_compatible_base_url(base_url),
+        model=model,
+        temperature=0.4,
+        request_timeout=timeout_seconds,
+        **({"extra_body": extra_body} if extra_body else {}),
+    )
+
+
+def get_fallback_llm() -> Optional[Any]:
     try:
         runtime_cfg = runtime_config_resolver.resolve("llm")
         model_cfg = Config.get_deep_model()
@@ -37,26 +134,55 @@ def get_fallback_llm() -> Optional[ChatOpenAI]:
             or model_cfg.get("model_name")
             or Config.LLM_MODEL_DEEP
         )
-        selected_base = _normalize_openai_compatible_base_url(
+        selected_base = str(
             runtime_cfg.get("base_url")
             or model_cfg.get("api_base")
             or Config.DEEP_MODEL_API_BASE
             or Config.REMOTE_MODEL_API_BASE
         )
-        extra_body = _thinking_extra_body(selected_model)
-        return ChatOpenAI(
-            api_key=str(
-                runtime_cfg.get("api_key")
-                or model_cfg.get("api_key")
-                or Config.DEEP_MODEL_API_KEY
-                or Config.REMOTE_MODEL_API_KEY
-            ),
-            base_url=selected_base,
-            model=selected_model,
-            temperature=0.4,
-            request_timeout=float(runtime_cfg.get("timeout_seconds") or 120),
-            **({"extra_body": extra_body} if extra_body else {}),
+        selected_key = str(
+            runtime_cfg.get("api_key")
+            or model_cfg.get("api_key")
+            or Config.DEEP_MODEL_API_KEY
+            or Config.REMOTE_MODEL_API_KEY
         )
+        timeout_seconds = float(runtime_cfg.get("timeout_seconds") or 120)
+        specs = [(selected_base, selected_key, selected_model)]
+        specs.extend(
+            [
+                (
+                    str(Config.OPENROUTER_BASE_URL or ""),
+                    str(Config.OPENROUTER_API_KEY or ""),
+                    str(Config.LOGIC_MODEL_MINI or ""),
+                ),
+                (
+                    str(Config.REMOTE_MODEL_API_BASE or ""),
+                    str(Config.REMOTE_MODEL_API_KEY or ""),
+                    "deepseek-chat",
+                ),
+            ]
+        )
+        models: List[ChatOpenAI] = []
+        seen: set[tuple[str, str]] = set()
+        for base_url, api_key, model in specs:
+            identity = (
+                _normalize_openai_compatible_base_url(base_url),
+                model.strip(),
+            )
+            if not api_key.strip() or not all(identity) or identity in seen:
+                continue
+            seen.add(identity)
+            models.append(
+                _chat_model(
+                    api_key=api_key,
+                    base_url=base_url,
+                    model=model,
+                    timeout_seconds=timeout_seconds,
+                )
+            )
+        if not models:
+            return None
+        return _ConfiguredFallbackChatModel(models)
     except Exception as e:
         print(f"[report_model_debug] stage=fallback_llm error={e}")
         return None
@@ -137,6 +263,15 @@ def _build_report_fast(
         outline_text_parts.append(chapter_block)
 
     outline_text = "\n\n".join(outline_text_parts)
+    evidence_context = str(slots.get("evidence_context") or "").strip()
+    evidence_block = (
+        "【可用证据】\n"
+        f"{evidence_context}\n\n"
+        "证据使用要求：优先依据上述资料写作；涉及来源时保留来源标题或 URL；"
+        "资料没有覆盖的事实不得编造。\n\n"
+        if evidence_context
+        else ""
+    )
     prompt = (
         f"你是资深研究写作助手。请根据以下大纲，一次性生成完整的报告正文。\n\n"
         f"主题：{slots.get('core_topic') or REPORT_DEFAULTS['core_topic']}\n"
@@ -144,6 +279,7 @@ def _build_report_fast(
         f"深度：{slots.get('depth_level') or REPORT_DEFAULTS['depth_level']}\n"
         f"格式：{slots.get('format_style') or REPORT_DEFAULTS['format_style']}\n\n"
         f"大纲：\n{outline_text}\n\n"
+        f"{evidence_block}"
         "【输出格式要求】\n"
         "1) 使用 Markdown 格式，每章以 `## ` 开头，每节以 `### ` 开头。\n"
         "2) 按大纲顺序输出所有章节和小节，不要省略。\n"
@@ -230,6 +366,13 @@ def build_report_markdown(
         "3) 禁止小说化叙事、人物对话、虚构情节。\n"
         "4) 信息不足时可做审慎分析，不得编造事实。\n"
     )
+    evidence_context = str(slots.get("evidence_context") or "").strip()
+    if evidence_context:
+        strict_appendix += (
+            "\n\n【可用证据】\n"
+            f"{evidence_context}\n"
+            "优先依据证据写作并保留来源标题或 URL；证据未覆盖的事实不得编造。\n"
+        )
 
     # --- 第一步：预处理大纲，构建所有小节任务 ---
     # task_key: (chapter_idx, section_idx)

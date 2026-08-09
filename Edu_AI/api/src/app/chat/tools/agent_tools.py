@@ -11,6 +11,8 @@ from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.rag_main.api import _get_server_url, _scrub_response_sources
 from modules.rag_v2.document_resolver import resolve_rag_document_ids
 
+from app.integrations.rag_client import resolve_selected_doc_ids_for_query
+
 from ..agents.report_generation import build_report_markdown
 from ..skill_manager import SkillManager
 
@@ -102,10 +104,22 @@ def submit_outline_for_review(*, outline_json_str: str) -> ToolResult:
 
 
 
-def rag_search_tool(*, query: str, top_k: int = 5, selected_doc_ids: Optional[List[str]] = None, owner: Optional[str] = None) -> ToolResult:
+def rag_search_tool(
+    *,
+    query: str,
+    top_k: int = 5,
+    selected_doc_ids: Optional[List[str]] = None,
+    owner: Optional[str] = None,
+    course_id: Optional[str] = None,
+) -> ToolResult:
     try:
         rag_system = get_rag_system()
-        resolved_doc_ids = resolve_rag_document_ids(rag_system, list(selected_doc_ids or []), owner=owner)
+        resolved_doc_ids = resolve_selected_doc_ids_for_query(
+            rag_system,
+            list(selected_doc_ids or []),
+            owner=str(owner or ""),
+            course_id=course_id,
+        )
         result = rag_system.query(
             str(query or ""),
             top_k=max(1, int(top_k or 5)),
@@ -270,7 +284,7 @@ def get_default_tool_registry() -> ToolRegistry:
         },
         "rag_search_tool": {
             "callable": rag_search_tool,
-            "signature": "(query: str, top_k: int = 5, selected_doc_ids: list[str] | None = None, owner: str | None = None)",
+            "signature": "(query: str, top_k: int = 5, selected_doc_ids: list[str] | None = None, owner: str | None = None, course_id: str | None = None)",
             "requires_human": False,
         },
         "web_search_tool": {

@@ -1474,7 +1474,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     return (
       <Tooltip
         key={`${keyPrefix}-${index}`}
-        title={source?.content ? (`${kindLabel} ${dotLabel} · ${sourceName}\n引用片段：${String(source.content).substring(0, 100)}...`) : `${kindLabel} ${dotLabel} · ${sourceName}`}
+        title={source?.content ? (`${kindLabel} ${dotLabel} · ${sourceName}\n完整命中片段预览：${String(source.content).substring(0, 100)}...`) : `${kindLabel} ${dotLabel} · ${sourceName}`}
       >
         <button
           type="button"

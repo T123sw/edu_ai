@@ -93,6 +93,7 @@ class GenerationSourceResolver:
         selected_document_ids: Sequence[str],
         *,
         query_text: str = "",
+        owner: str | None = None,
     ) -> ResolvedGenerationSource:
         normalized_course_id = str(course_id or "").strip()
         normalized = self._normalize_ids(selected_document_ids)
@@ -107,7 +108,12 @@ class GenerationSourceResolver:
                 self._clock().isoformat(),
             )
 
-        documents = self.validate(normalized_course_id, mode, normalized)
+        documents = self.validate(
+            normalized_course_id,
+            mode,
+            normalized,
+            owner=owner,
+        )
         rag_index_keys = [item.rag_index_key for item in documents]
         if mode == "course_auto":
             normalized_query = str(query_text or "").strip()
@@ -143,6 +149,8 @@ class GenerationSourceResolver:
         course_id: str,
         mode: GenerationSourceMode,
         selected_document_ids: Sequence[str],
+        *,
+        owner: str | None = None,
     ) -> tuple[ResolvedSourceDocument, ...]:
         normalized = self._normalize_ids(selected_document_ids)
         self._validate_intent(mode, normalized)
@@ -153,6 +161,18 @@ class GenerationSourceResolver:
             records: list[SourceDocumentRecord] = []
             for document_id in normalized:
                 record = self._document_catalog.get_by_public_id(document_id)
+                if record is None and owner:
+                    personal_resolver = getattr(
+                        self._document_catalog,
+                        "get_personal_by_public_id",
+                        None,
+                    )
+                    if callable(personal_resolver):
+                        record = personal_resolver(
+                            document_id,
+                            course_id=course_id,
+                            owner=owner,
+                        )
                 if record is None:
                     raise GenerationSourceError(
                         "SOURCE_DOCUMENT_NOT_FOUND", document_id

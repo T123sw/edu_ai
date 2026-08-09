@@ -20,6 +20,11 @@ def test_build_tool_schemas_filters_retrieval_tools_by_capability():
     assert "generate_ppt" in names
     assert "generate_lesson_plan" in names
     assert "generate_quiz" in names
+    assert "generate_blog" in names
+    assert "generate_flashcard" in names
+    assert "generate_graph" in names
+    assert "generate_game" in names
+    assert "generate_classroom" in names
 
 
 def test_tool_workflow_mapping_is_available_from_constants_module():
@@ -28,6 +33,11 @@ def test_tool_workflow_mapping_is_available_from_constants_module():
         "generate_ppt": "ppt",
         "generate_lesson_plan": "lesson_plan",
         "generate_quiz": "quiz",
+        "generate_blog": "blog",
+        "generate_flashcard": "flashcard",
+        "generate_graph": "graph",
+        "generate_game": "game",
+        "generate_classroom": "classroom",
     }
 
 
@@ -101,3 +111,64 @@ def test_execute_tool_denies_web_search_when_capability_disallows_it():
         "error": "permission_denied",
         "summary": "capability 不允许此工具",
     }
+
+
+def test_execute_tool_submits_other_teacher_resource_commands(monkeypatch):
+    captured = []
+
+    class CommandService:
+        def submit(self, command):
+            captured.append(command)
+            return SimpleNamespace(edu_job_id=f"job-{command.resource_type}-1")
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.resource.generation_command_service",
+        CommandService(),
+    )
+    cases = [
+        ("generate_blog", {"topic": "快速排序"}, "blog"),
+        ("generate_flashcard", {"topic": "快速排序"}, "flashcard"),
+        ("generate_graph", {"topic": "快速排序"}, "graph"),
+        ("generate_game", {"topic": "快速排序"}, "game"),
+    ]
+
+    for tool_name, args, resource_type in cases:
+        result = execute_tool(tool_name, args, _generation_context())
+        assert result["ok"] is True
+        assert result["payload"]["workflow_type"] == resource_type
+
+    assert [command.resource_type for command in captured] == [
+        "blog",
+        "flashcard",
+        "graph",
+        "game",
+    ]
+    assert all(command.config["entrypoint"] == "agent" for command in captured)
+
+
+def test_execute_tool_submits_ai_classroom_job(monkeypatch):
+    captured = {}
+
+    async def fake_submit(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(edu_job_id="job-classroom-1")
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.classroom.submit_classroom_generation_job",
+        fake_submit,
+    )
+
+    result = execute_tool(
+        "generate_classroom",
+        {"topic": "快速排序", "scene_count": 5, "enable_tts": False},
+        _generation_context(),
+    )
+
+    assert result["ok"] is True
+    assert result["payload"] == {
+        "task_id": "job-classroom-1",
+        "workflow_type": "classroom",
+    }
+    assert captured["topic"] == "快速排序"
+    assert captured["source_mode"] == "none"
+    assert captured["scene_count"] == 5

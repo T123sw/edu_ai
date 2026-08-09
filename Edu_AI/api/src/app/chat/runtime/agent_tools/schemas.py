@@ -188,6 +188,132 @@ SCHEMA_GENERATE_QUIZ = {
     },
 }
 
+SCHEMA_GENERATE_BLOG = {
+    "type": "function",
+    "function": {
+        "name": "generate_blog",
+        "description": "生成教学博客。只要求主题，其余配置可从对话推断或使用默认值。",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "博客主题"},
+                "audience": {"type": "string", "default": "教师"},
+                "tone": {
+                    "type": "string",
+                    "enum": ["academic", "popular", "narrative"],
+                    "default": "popular",
+                },
+                "length": {
+                    "type": "string",
+                    "enum": ["short", "medium", "long"],
+                    "default": "medium",
+                },
+                "special_requirements": {"type": "string", "default": ""},
+                "include_visuals": {"type": "boolean", "default": False},
+            },
+            "required": ["topic"],
+        },
+    },
+}
+
+SCHEMA_GENERATE_FLASHCARD = {
+    "type": "function",
+    "function": {
+        "name": "generate_flashcard",
+        "description": "生成复习闪卡。只要求主题，卡片数量和难度可选。",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "闪卡主题"},
+                "count": {"type": "integer", "default": 10},
+                "difficulty": {
+                    "type": "string",
+                    "enum": ["easy", "medium", "hard"],
+                    "default": "medium",
+                },
+                "category": {"type": "string", "default": ""},
+                "show_sources": {"type": "boolean", "default": True},
+            },
+            "required": ["topic"],
+        },
+    },
+}
+
+SCHEMA_GENERATE_GRAPH = {
+    "type": "function",
+    "function": {
+        "name": "generate_graph",
+        "description": "生成教学思维导图。只要求主题，说明和层级可选。",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "导图主题"},
+                "description": {"type": "string", "default": ""},
+                "max_depth": {"type": "integer", "default": 3},
+            },
+            "required": ["topic"],
+        },
+    },
+}
+
+SCHEMA_GENERATE_GAME = {
+    "type": "function",
+    "function": {
+        "name": "generate_game",
+        "description": "生成课堂小游戏。只要求主题，未指定类型时默认拖拽匹配。",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "游戏主题"},
+                "game_type": {
+                    "type": "string",
+                    "enum": ["category_sort", "drag_match", "memory_flip"],
+                    "default": "drag_match",
+                },
+                "card_count": {"type": "integer", "default": 8},
+                "difficulty": {
+                    "type": "string",
+                    "enum": ["easy", "medium", "hard"],
+                    "default": "medium",
+                },
+                "duration_minutes": {"type": "integer", "default": 5},
+            },
+            "required": ["topic"],
+        },
+    },
+}
+
+SCHEMA_GENERATE_CLASSROOM = {
+    "type": "function",
+    "function": {
+        "name": "generate_classroom",
+        "description": "生成可交互的 AI 课堂。只要求主题，其余教学配置可选。",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "AI 课堂主题"},
+                "requirement": {"type": "string", "default": ""},
+                "audience": {"type": "string", "default": "学习者"},
+                "scene_count": {"type": "integer", "default": 6},
+                "duration_minutes": {"type": "integer", "default": 25},
+                "teaching_style": {
+                    "type": "string",
+                    "enum": ["guided", "lecture", "inquiry"],
+                    "default": "guided",
+                },
+                "objectives": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "default": [],
+                },
+                "include_visuals": {"type": "boolean", "default": True},
+                "enable_tts": {"type": "boolean", "default": False},
+            },
+            "required": ["topic"],
+        },
+    },
+}
+
 
 def build_tool_schemas(capability) -> list[dict]:
     schemas = []
@@ -204,6 +330,11 @@ def build_tool_schemas(capability) -> list[dict]:
             SCHEMA_GENERATE_PPT,
             SCHEMA_GENERATE_LESSON_PLAN,
             SCHEMA_GENERATE_QUIZ,
+            SCHEMA_GENERATE_BLOG,
+            SCHEMA_GENERATE_FLASHCARD,
+            SCHEMA_GENERATE_GRAPH,
+            SCHEMA_GENERATE_GAME,
+            SCHEMA_GENERATE_CLASSROOM,
         ]
     )
     return schemas

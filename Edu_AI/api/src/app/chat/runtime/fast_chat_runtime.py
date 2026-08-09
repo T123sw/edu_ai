@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import inspect
 import mimetypes
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
@@ -317,7 +318,18 @@ class FastChatRuntime:
         def _timed(label: str, fn, **kwargs):
             t = time.perf_counter()
             try:
-                return label, fn(**kwargs), (time.perf_counter() - t) * 1000, None
+                try:
+                    signature = inspect.signature(fn)
+                    accepts_extra = any(
+                        parameter.kind == inspect.Parameter.VAR_KEYWORD
+                        for parameter in signature.parameters.values()
+                    )
+                    call_kwargs = kwargs if accepts_extra else {
+                        key: value for key, value in kwargs.items() if key in signature.parameters
+                    }
+                except (TypeError, ValueError):
+                    call_kwargs = kwargs
+                return label, fn(**call_kwargs), (time.perf_counter() - t) * 1000, None
             except Exception as exc:
                 return label, None, (time.perf_counter() - t) * 1000, exc
 
@@ -328,6 +340,7 @@ class FastChatRuntime:
                 "top_k": 5,
                 "selected_doc_ids": list(getattr(capability, "selected_doc_ids", []) or []),
                 "owner": getattr(request, "owner", None),
+                "course_id": getattr(request, "course_id", None),
             }))
         if self.web_retriever is not None and bool(getattr(capability, "allow_web", False)):
             _retrieval_calls.append(("web", self.web_retriever, {

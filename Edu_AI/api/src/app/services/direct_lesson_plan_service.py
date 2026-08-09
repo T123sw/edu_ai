@@ -126,7 +126,12 @@ class DirectLessonPlanService:
                 {
                     **state,
                     "lesson_plan_outline": outline,
-                    "human_feedback": "confirm",
+                    # Use a confirmation token accepted by
+                    # LessonPlanGenerationEngine._is_outline_confirm.  The
+                    # previous value ("confirm") was treated as revision
+                    # feedback and generated a second outline instead of the
+                    # publishable lesson-plan body.
+                    "human_feedback": "ok",
                 }
             )
         )

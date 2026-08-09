@@ -20,11 +20,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 8,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-abstraction-31e0242423c8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.156031+00:00"
+    "indexed_at": "2026-08-08T15:19:57.156031+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-72402bd54baeca41c6810bec",
@@ -47,11 +49,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-abstraction-practice-689f821710df.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.158031+00:00"
+    "indexed_at": "2026-08-08T15:19:57.158031+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0f99fd5cc0a630c3e504aaa0",
@@ -74,11 +78,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-abstraction-core-7474981122ee.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.160076+00:00"
+    "indexed_at": "2026-08-08T15:19:57.160076+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-f3862885c18fb65938416772",
@@ -101,11 +107,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-ai-limitations-practice-4fe3cdf497c4.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.162091+00:00"
+    "indexed_at": "2026-08-08T15:19:57.162091+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-d7acca2d268acc0e5fa861da",
@@ -128,11 +136,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-ai-limitations-core-91f0eb3ebe0f.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.163092+00:00"
+    "indexed_at": "2026-08-08T15:19:57.163092+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-b453f580636dad2c173f713e",
@@ -155,11 +165,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-ai-limitations-core-f0bd1a9a68f3.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.165587+00:00"
+    "indexed_at": "2026-08-08T15:19:57.165587+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-83bc7ce3ce1cf9f9c48328f3",
@@ -186,7 +198,9 @@
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-algorithm-ethics-31bb18f94f70.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.167584+00:00"
+    "indexed_at": "2026-08-08T15:19:57.167584+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-860d1791c52a64ecce04ef7e",
@@ -213,7 +227,9 @@
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-algorithm-ethics-core-c75e49cda2e8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.170092+00:00"
+    "indexed_at": "2026-08-08T15:19:57.170092+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-108582f0cae62bd62d1778fc",
@@ -236,11 +252,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-algorithm-ethics-core-7b31d08113a4.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.171909+00:00"
+    "indexed_at": "2026-08-08T15:19:57.171909+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-22d9b8b0fbcc34892d28afff",
@@ -263,11 +281,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 61,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-algorithm-properties-d0b8196770c1.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.172952+00:00"
+    "indexed_at": "2026-08-08T15:19:57.172952+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-4a20a892fc19637ce1478ca0",
@@ -290,11 +310,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-algorithm-properties-core-783b508c04df.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.174328+00:00"
+    "indexed_at": "2026-08-08T15:19:57.174328+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-61882e59a044fc5cb273297b",
@@ -317,11 +339,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 31,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-algorithm-properties-ecc7654935bb.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.176720+00:00"
+    "indexed_at": "2026-08-08T15:19:57.176720+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-12fc0449a0b446913bd8714e",
@@ -344,11 +368,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 25,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-algorithm-representation-c854a670191f.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.179233+00:00"
+    "indexed_at": "2026-08-08T15:19:57.179233+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-ef2ecbf71a8bc636d6399e70",
@@ -371,11 +397,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-algorithm-representation-practice-90663bacb7c4.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.180749+00:00"
+    "indexed_at": "2026-08-08T15:19:57.180749+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-b7e281064fc2c4787bd696cc",
@@ -398,11 +426,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-algorithm-representation-core-1e6fb40138b9.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.181758+00:00"
+    "indexed_at": "2026-08-08T15:19:57.181758+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-77fe7af8ab1f377432d637e1",
@@ -425,11 +455,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 59,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-approximation-visualization-fa9b02e425df.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.183759+00:00"
+    "indexed_at": "2026-08-08T15:19:57.183759+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-546f36d2f0ad79f18f096dc1",
@@ -452,11 +484,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-approximation-visualization-practice-c8b8897bef2c.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.185756+00:00"
+    "indexed_at": "2026-08-08T15:19:57.185756+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-8a24125c0bc71eaef759ea9f",
@@ -479,11 +513,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-approximation-visualization-core-6f21d71f1852.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.187758+00:00"
+    "indexed_at": "2026-08-08T15:19:57.187758+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-98fef4cb2c506b38cb0a1b3f",
@@ -510,7 +546,9 @@
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-链表｜链表常用操作-faa70ccb17e8c58a.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.190273+00:00"
+    "indexed_at": "2026-08-08T15:19:57.190273+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-bdcb061daa493c3ebd4a67fd",
@@ -533,11 +571,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 51,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-数组｜数组常用操作-d11933410690eef3.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.191437+00:00"
+    "indexed_at": "2026-08-08T15:19:57.191437+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-c2a6d05a09d23a9bff13eef6",
@@ -560,11 +600,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 25,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-array-linked-list-618cdbfd5dd9.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.193649+00:00"
+    "indexed_at": "2026-08-08T15:19:57.193649+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-cef2de76ba8e74d396aa042b",
@@ -587,11 +629,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 86,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-automation-evaluation-8a57967a02c5.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.194649+00:00"
+    "indexed_at": "2026-08-08T15:19:57.194649+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-fd24ac106878b1f2f925c8ef",
@@ -614,11 +658,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-automation-evaluation-practice-4f5d51fe53fc.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.196649+00:00"
+    "indexed_at": "2026-08-08T15:19:57.196649+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-3c239e505ee1ecb6587fc349",
@@ -641,11 +687,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-automation-evaluation-core-9a878560510b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.199125+00:00"
+    "indexed_at": "2026-08-08T15:19:57.199125+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-244f04c529472a74052b0702",
@@ -668,11 +716,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 33,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-回溯算法｜框架代码-318fac65c41c2590.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.200413+00:00"
+    "indexed_at": "2026-08-08T15:19:57.200413+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-111f43c8e33120cb2d18b789",
@@ -695,11 +745,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-backtracking-core-c4824630a36b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.201855+00:00"
+    "indexed_at": "2026-08-08T15:19:57.201855+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-f677c41e7a19d6bc9560457f",
@@ -722,11 +774,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 31,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-backtracking-324b2c3f892d.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.203980+00:00"
+    "indexed_at": "2026-08-08T15:19:57.203980+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0fbca89173eeb305fca71eb6",
@@ -749,11 +803,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 15,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-数字编码｜原码、反码和补码-0fa49be8edf2c786.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.205258+00:00"
+    "indexed_at": "2026-08-08T15:19:57.205258+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e97a04140ce6d1a1a596b780",
@@ -776,11 +832,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 17,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-binary-number-db55fa14d383.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.206636+00:00"
+    "indexed_at": "2026-08-08T15:19:57.206636+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-8fee69417786799976f2b58b",
@@ -803,11 +861,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 44,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-binary-number-a52718b09908.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.207955+00:00"
+    "indexed_at": "2026-08-08T15:19:57.207955+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-b6d3043c1d51bee5c3345bc8",
@@ -830,11 +890,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 86,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-boolean-logic-bd8b67ddaf79.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.209995+00:00"
+    "indexed_at": "2026-08-08T15:19:57.209995+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-5322ceb00ecfc0b2a63bc7a5",
@@ -857,11 +919,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-boolean-logic-practice-0ea496d32c30.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.213003+00:00"
+    "indexed_at": "2026-08-08T15:19:57.213003+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-3f722b85f19243558316fcc9",
@@ -884,11 +948,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-boolean-logic-core-fad7efe49e1b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.214001+00:00"
+    "indexed_at": "2026-08-08T15:19:57.214001+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-ddb17a249d93f1e65c424e95",
@@ -911,11 +977,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 31,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-时间复杂度｜统计时间增长趋势-b061e251c19db2dd.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.216001+00:00"
+    "indexed_at": "2026-08-08T15:19:57.216001+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-da79fb46124a5ed7388dc693",
@@ -938,11 +1006,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 14,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-complexity-practice-deb9d46d7fc1.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.217152+00:00"
+    "indexed_at": "2026-08-08T15:19:57.217152+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-a5c02be1609ca7e462b6e3db",
@@ -965,11 +1035,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-complexity-core-9eb60c498391.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.219151+00:00"
+    "indexed_at": "2026-08-08T15:19:57.219151+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-dfd122b2cc91c5cbc499a103",
@@ -992,11 +1064,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-computability-model-cc601998aaa1.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.221099+00:00"
+    "indexed_at": "2026-08-08T15:19:57.221099+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6c86c14ffee4b96cae81e653",
@@ -1019,11 +1093,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 8,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-computability-model-core-ba5f29332ce2.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.222187+00:00"
+    "indexed_at": "2026-08-08T15:19:57.222187+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-ef03c4b8a64f7467e3eadcc9",
@@ -1046,11 +1122,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 29,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-computability-model-74f4ba8f186a.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.223389+00:00"
+    "indexed_at": "2026-08-08T15:19:57.223389+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-09d7abe7369c1b8ee030c73b",
@@ -1073,11 +1151,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 29,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-correctness-testing-181d42e5bbf4.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.225577+00:00"
+    "indexed_at": "2026-08-08T15:19:57.225577+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-110bfd057883b0966554c8a4",
@@ -1100,11 +1180,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 14,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-correctness-testing-practice-eb16af2a0adb.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.226595+00:00"
+    "indexed_at": "2026-08-08T15:19:57.226595+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-495f5d9acbbadfafb069da43",
@@ -1127,11 +1209,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-correctness-testing-core-a9a06e026e2b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.229105+00:00"
+    "indexed_at": "2026-08-08T15:19:57.229105+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-076d3734db35e95a44ded776",
@@ -1154,11 +1238,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 17,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-ct-definition-7028092c6fba.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.231418+00:00"
+    "indexed_at": "2026-08-08T15:19:57.231418+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-78b17d4c389688d2abd41e32",
@@ -1181,11 +1267,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-ct-definition-10662693e1bc.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.233418+00:00"
+    "indexed_at": "2026-08-08T15:19:57.233418+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e8388adbfb3aaba5e722a814",
@@ -1208,11 +1296,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-ct-definition-practice-47398601ea01.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.234696+00:00"
+    "indexed_at": "2026-08-08T15:19:57.234696+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6d410c25b0ce26e234d76a7b",
@@ -1235,11 +1325,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-data-cleaning-practice-c080873f06cc.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.236738+00:00"
+    "indexed_at": "2026-08-08T15:19:57.236738+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-ef8d7e7363aa11b00b5def48",
@@ -1262,11 +1354,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-data-cleaning-core-3fa62d5a3136.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.238061+00:00"
+    "indexed_at": "2026-08-08T15:19:57.238061+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e1ad62efce98cb047cf2c8ec",
@@ -1289,11 +1383,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 56,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-data-cleaning-048006397d4c.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.239287+00:00"
+    "indexed_at": "2026-08-08T15:19:57.239287+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-25df46c8a918f0d1debb60f2",
@@ -1316,11 +1412,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 4,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-字符编码｜编程语言的字符编码-d371bf39afb82172.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.241102+00:00"
+    "indexed_at": "2026-08-08T15:19:57.241102+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-5713c708e46224415cb5f215",
@@ -1343,11 +1441,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 35,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-data-encoding-83b1530007be.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.243306+00:00"
+    "indexed_at": "2026-08-08T15:19:57.243306+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-4411dd6e8b6308c5afb2ef9d",
@@ -1370,11 +1470,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 15,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-data-encoding-practice-0ed3668ac620.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.245375+00:00"
+    "indexed_at": "2026-08-08T15:19:57.245375+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-79a7b0b21e4eae7a11276224",
@@ -1397,11 +1499,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 8,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-data-lifecycle-4a01c9cd3d07.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.247450+00:00"
+    "indexed_at": "2026-08-08T15:19:57.247450+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0e558a7b80890820a76727dc",
@@ -1424,11 +1528,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-data-lifecycle-core-44bfff5d62eb.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.248451+00:00"
+    "indexed_at": "2026-08-08T15:19:57.248451+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-495cb1947a776bf6d9f8a9dc",
@@ -1451,11 +1557,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 62,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-data-lifecycle-e11b7601cc1c.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.250964+00:00"
+    "indexed_at": "2026-08-08T15:19:57.250964+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-f0997385c979f8b15c9661ed",
@@ -1478,11 +1586,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 32,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-decomposition-47a44ce6b272.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.251971+00:00"
+    "indexed_at": "2026-08-08T15:19:57.251971+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-b8e4a3b87cbccbe010de39d6",
@@ -1505,11 +1615,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-decomposition-practice-8ffd9c0faaed.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.254350+00:00"
+    "indexed_at": "2026-08-08T15:19:57.254350+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-50aabf2fe68f06b229a9e2fe",
@@ -1532,11 +1644,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-decomposition-core-1012f2715373.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.256766+00:00"
+    "indexed_at": "2026-08-08T15:19:57.256766+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6b2c11f1f46f4275cef5bf15",
@@ -1559,11 +1673,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-分治算法｜通过分治提升效率-f7e204e475dd7667.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.258367+00:00"
+    "indexed_at": "2026-08-08T15:19:57.258367+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-208cb06efaaafa42088e2761",
@@ -1586,11 +1702,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-divide-conquer-core-874f9ba8063b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.260469+00:00"
+    "indexed_at": "2026-08-08T15:19:57.260469+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-73a131e1d1f6231dacc6679a",
@@ -1613,11 +1731,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 24,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-divide-conquer-79e4e9098fd3.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.262612+00:00"
+    "indexed_at": "2026-08-08T15:19:57.262612+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-73bb83f4984bad49d9ca80ae",
@@ -1640,11 +1760,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 16,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-动态规划问题特性｜最优子结构-4386dd7ec943be41.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.264780+00:00"
+    "indexed_at": "2026-08-08T15:19:57.264780+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-b12643d1dec20db93ea0c8b1",
@@ -1667,11 +1789,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 14,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-初探动态规划｜方法一：暴力搜索-a997fffdae78b3a6.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.266355+00:00"
+    "indexed_at": "2026-08-08T15:19:57.266355+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-3c6677c9afa7a626ae1e34b8",
@@ -1694,11 +1818,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 24,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-dynamic-programming-4d30fdff4136.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.267951+00:00"
+    "indexed_at": "2026-08-08T15:19:57.267951+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-00b33f8f7a50fca8f042b22b",
@@ -1721,11 +1847,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-elementary-sort-practice-735f8b5444b6.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.270072+00:00"
+    "indexed_at": "2026-08-08T15:19:57.270072+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-515314013b96af10c20270fb",
@@ -1748,11 +1876,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-elementary-sort-core-5c915fb3f537.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.272873+00:00"
+    "indexed_at": "2026-08-08T15:19:57.272873+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-d3df2da93f9b77f83a17fb2a",
@@ -1775,11 +1905,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 19,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-elementary-sort-7984b4a9f362.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.273874+00:00"
+    "indexed_at": "2026-08-08T15:19:57.273874+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-862f2352abeccbda9fd9e649",
@@ -1802,11 +1934,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 67,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-functions-modularity-54d939ced0e8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.275873+00:00"
+    "indexed_at": "2026-08-08T15:19:57.275873+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-497a38563c0fd2ff5c23a86a",
@@ -1829,11 +1963,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-functions-modularity-practice-d29d57639dcf.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.276873+00:00"
+    "indexed_at": "2026-08-08T15:19:57.276873+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-2449df15593aeaf015c47b3e",
@@ -1856,11 +1992,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-functions-modularity-core-687288a1ce47.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.279382+00:00"
+    "indexed_at": "2026-08-08T15:19:57.279382+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-c5378c0db4795a6da90c250d",
@@ -1883,11 +2021,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 13,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-graph-practice-754aa7902eee.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.281564+00:00"
+    "indexed_at": "2026-08-08T15:19:57.281564+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-feccb42a9d1dee0d8231f157",
@@ -1910,11 +2050,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-graph-core-f818c98ea3c3.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.282571+00:00"
+    "indexed_at": "2026-08-08T15:19:57.282571+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-f88972e8f27d29b8da85ea61",
@@ -1937,11 +2079,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 22,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-graph-8532e41f5a4f.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.284570+00:00"
+    "indexed_at": "2026-08-08T15:19:57.284570+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e796a7d1d427a36a245bafa7",
@@ -1964,11 +2108,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 21,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-图的遍历｜深度优先遍历-3c6f05a6d32f76ce.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.286954+00:00"
+    "indexed_at": "2026-08-08T15:19:57.286954+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6ac94fed7eecb8cdf85ac1ad",
@@ -1991,11 +2137,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-graph-traversal-core-57c8a381d64b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.287952+00:00"
+    "indexed_at": "2026-08-08T15:19:57.287952+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-8755a425763b68b8bf08f419",
@@ -2018,11 +2166,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 23,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-图的遍历｜广度优先遍历-343e6134a55c42f9.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.289977+00:00"
+    "indexed_at": "2026-08-08T15:19:57.289977+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-47d7b71654f77f0b9bc8862d",
@@ -2045,11 +2195,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-greedy-practice-406fee81fc9d.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.292106+00:00"
+    "indexed_at": "2026-08-08T15:19:57.292106+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-fb597d3e3fcb28ae98422a21",
@@ -2072,11 +2224,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-greedy-core-131827edcba5.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.293121+00:00"
+    "indexed_at": "2026-08-08T15:19:57.293121+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-43f9faab7d06e49ed06db11e",
@@ -2099,11 +2253,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 14,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-greedy-9b88bd37d7de.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.295119+00:00"
+    "indexed_at": "2026-08-08T15:19:57.295119+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-31384f9cfcd0688dfead2ce2",
@@ -2126,11 +2282,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 59,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-哈希表｜哈希表常用操作-8302bdcca5ca1f9e.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.298390+00:00"
+    "indexed_at": "2026-08-08T15:19:57.298390+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-01a7e834e16e71f200130a10",
@@ -2153,11 +2311,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-hash-core-e87d7126624f.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.299392+00:00"
+    "indexed_at": "2026-08-08T15:19:57.299392+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-3d0c7ab4f04ef910f8027361",
@@ -2180,11 +2340,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 19,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-hash-fb4cffda7a01.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.301472+00:00"
+    "indexed_at": "2026-08-08T15:19:57.301472+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-cbe0c6a96fb28068f0765927",
@@ -2207,11 +2369,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 33,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-堆｜堆的常用操作-797dd6ff7e3fd090.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.303211+00:00"
+    "indexed_at": "2026-08-08T15:19:57.303211+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-b4a1cc8d09fb5fb477ff7a6b",
@@ -2234,11 +2398,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-heap-core-981b293499b4.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.304387+00:00"
+    "indexed_at": "2026-08-08T15:19:57.304387+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-3136f16d22b7f1eacd7a9158",
@@ -2261,11 +2427,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 34,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-堆｜堆的实现-9d2572338606a695.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.305777+00:00"
+    "indexed_at": "2026-08-08T15:19:57.305777+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-cf6b793a812bef942fe6435c",
@@ -2288,11 +2456,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 28,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-information-security-39ac991da2f1.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.308212+00:00"
+    "indexed_at": "2026-08-08T15:19:57.308212+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-c912458bdf9f21c07e240282",
@@ -2315,11 +2485,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-information-security-practice-3a627bb046c8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.310223+00:00"
+    "indexed_at": "2026-08-08T15:19:57.310223+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-48bb0cc5e47f553e0abb1d91",
@@ -2342,11 +2514,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-information-security-core-e697b39a7fe0.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.311231+00:00"
+    "indexed_at": "2026-08-08T15:19:57.311231+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-2d993a9686fb191ad670b300",
@@ -2369,11 +2543,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 40,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-intellectual-property-collaboration-d07b20915ae7.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.313238+00:00"
+    "indexed_at": "2026-08-08T15:19:57.313238+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e0b023167aec6bdc09dbd372",
@@ -2396,11 +2572,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 13,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-intellectual-property-collaboration-practice-476b9c42b79b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.315241+00:00"
+    "indexed_at": "2026-08-08T15:19:57.315241+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-4f46a859c4a7588a07db879b",
@@ -2423,11 +2601,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-intellectual-property-collaboration-core-d5aef093a03d.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.317241+00:00"
+    "indexed_at": "2026-08-08T15:19:57.317241+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-11735f4f59d8a7650df033de",
@@ -2450,11 +2630,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 27,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-迭代与递归｜递归-311b52b955cb5d39.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.319238+00:00"
+    "indexed_at": "2026-08-08T15:19:57.319238+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-262d23f19522caafc15f7595",
@@ -2477,11 +2659,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 19,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-迭代与递归｜迭代-068172adb8381c1f.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.321260+00:00"
+    "indexed_at": "2026-08-08T15:19:57.321260+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-3ec6af2d0380b46b30d41f4f",
@@ -2504,11 +2688,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 8,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-迭代与递归｜两者对比-2354db56ddef4e58.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.323261+00:00"
+    "indexed_at": "2026-08-08T15:19:57.323261+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0fff301ce16a96e45337149f",
@@ -2531,11 +2717,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 20,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-二分查找插入点｜存在重复元素的情况-dc90cd7f49ddd4be.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.325261+00:00"
+    "indexed_at": "2026-08-08T15:19:57.325261+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-218adb0a14a04894c42e10e2",
@@ -2558,11 +2746,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-linear-binary-search-core-834202734430.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.327261+00:00"
+    "indexed_at": "2026-08-08T15:19:57.327261+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-98717793e302a69b4042e271",
@@ -2585,11 +2775,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 37,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-linear-binary-search-4b02d22fff5f.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.328260+00:00"
+    "indexed_at": "2026-08-08T15:19:57.328260+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-50a957c40ef42b9a63350ac2",
@@ -2612,11 +2804,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 58,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-machine-learning-9924b5e2ca56.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.330274+00:00"
+    "indexed_at": "2026-08-08T15:19:57.330274+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-4e2f8bf5b7ec56e87deaf446",
@@ -2639,11 +2833,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-machine-learning-practice-32dae929798e.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.331282+00:00"
+    "indexed_at": "2026-08-08T15:19:57.331282+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e69b1a39189a588759845676",
@@ -2666,11 +2862,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 8,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-machine-learning-core-f58c728a9e40.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.332289+00:00"
+    "indexed_at": "2026-08-08T15:19:57.332289+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6f25b6c2dd2e945cadbd4a91",
@@ -2693,11 +2891,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-model-abstraction-bc6138459336.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.334494+00:00"
+    "indexed_at": "2026-08-08T15:19:57.334494+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0d41aa058376cbff48217af5",
@@ -2720,11 +2920,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-model-abstraction-core-5e518ac01a83.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.336494+00:00"
+    "indexed_at": "2026-08-08T15:19:57.336494+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-a3649c0b58a28b73dd2c4e28",
@@ -2747,11 +2949,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 64,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-model-abstraction-fa6ddf116920.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.338495+00:00"
+    "indexed_at": "2026-08-08T15:19:57.338495+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-c22228146ca171fe0ab42f89",
@@ -2774,11 +2978,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 56,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-network-principles-216bb137b83a.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.340032+00:00"
+    "indexed_at": "2026-08-08T15:19:57.340032+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-dc8127536cc689f2481ece36",
@@ -2801,11 +3007,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-network-principles-practice-c4d2f7a37d3e.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.342213+00:00"
+    "indexed_at": "2026-08-08T15:19:57.342213+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-d0880a11abf17f92a1c194e2",
@@ -2828,11 +3036,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-network-principles-core-9affa1faaef8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.344286+00:00"
+    "indexed_at": "2026-08-08T15:19:57.344286+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-eb1e4dc4e71d68ed1ec02909",
@@ -2855,11 +3065,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-pattern-generalization-0db7ebcd00ac.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.348296+00:00"
+    "indexed_at": "2026-08-08T15:19:57.348296+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-055873828ee5029411f7c128",
@@ -2882,11 +3094,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-pattern-generalization-practice-6b7c5bc3b21d.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.350306+00:00"
+    "indexed_at": "2026-08-08T15:19:57.350306+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-be62b0e3baca8fc4ca5996de",
@@ -2909,11 +3123,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 13,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-pattern-generalization-core-788cab45daff.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.352327+00:00"
+    "indexed_at": "2026-08-08T15:19:57.352327+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e081fbceb36ad57238f29298",
@@ -2936,11 +3152,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 15,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-privacy-data-b2280dfdc792.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.353326+00:00"
+    "indexed_at": "2026-08-08T15:19:57.353326+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-e577ece4b149737d76cb9ff7",
@@ -2963,11 +3181,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-privacy-data-practice-904d1745fac8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.355324+00:00"
+    "indexed_at": "2026-08-08T15:19:57.355324+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-c38f256a7f78336078bc71a0",
@@ -2990,11 +3210,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-privacy-data-core-0c69f646cbd1.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.357326+00:00"
+    "indexed_at": "2026-08-08T15:19:57.357326+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-1eb00f860643d1ac829ba900",
@@ -3021,7 +3243,9 @@
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-problem-formulation-practice-da5f10fd3c85.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.359325+00:00"
+    "indexed_at": "2026-08-08T15:19:57.359325+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-18c1c16d893825979ac3ee7a",
@@ -3044,11 +3268,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-problem-formulation-core-67b0983260e0.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.360377+00:00"
+    "indexed_at": "2026-08-08T15:19:57.360377+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-5f08d10c3e00de38902e7d28",
@@ -3071,11 +3297,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-problem-formulation-core-975dcf604d75.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.362650+00:00"
+    "indexed_at": "2026-08-08T15:19:57.362650+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-87420371f233e4701b5ee015",
@@ -3098,11 +3326,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 27,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-program-execution-8bdd5e3e87c8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.364650+00:00"
+    "indexed_at": "2026-08-08T15:19:57.364650+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-a8979bc962b69d7da03e538b",
@@ -3125,11 +3355,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 13,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-program-execution-practice-c7ba19c98354.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.366652+00:00"
+    "indexed_at": "2026-08-08T15:19:57.366652+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-1a22a61fb9a209461bb450bd",
@@ -3152,11 +3384,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 13,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-program-execution-core-cb10a9aeae12.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.367650+00:00"
+    "indexed_at": "2026-08-08T15:19:57.367650+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-64d727aa0ac2eb13a18bcca0",
@@ -3179,11 +3413,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 29,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-randomness-monte-carlo-6cc2855ffbf5.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.370162+00:00"
+    "indexed_at": "2026-08-08T15:19:57.370162+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-34c93fa8b733e4929c8df953",
@@ -3206,11 +3442,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-randomness-monte-carlo-practice-93c6f235e01b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.372155+00:00"
+    "indexed_at": "2026-08-08T15:19:57.372155+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-f8b60bd5905146f2471413e8",
@@ -3233,11 +3471,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-randomness-monte-carlo-core-9f0574819581.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.373164+00:00"
+    "indexed_at": "2026-08-08T15:19:57.373164+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-baab437070484b834e9c8919",
@@ -3260,11 +3500,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 33,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-relational-data-74884ba84f04.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.375433+00:00"
+    "indexed_at": "2026-08-08T15:19:57.375433+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-caa70b35eebaac4a30226184",
@@ -3287,11 +3529,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 14,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-relational-data-core-a5efa6698a72.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.377436+00:00"
+    "indexed_at": "2026-08-08T15:19:57.377436+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-c216df0e0287294d2adee22f",
@@ -3314,11 +3558,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 34,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-relational-data-a142d3db7cb4.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.378435+00:00"
+    "indexed_at": "2026-08-08T15:19:57.378435+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-1fecd10055586de4066436b2",
@@ -3341,11 +3587,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-sequence-selection-loop-practice-9d4903e74d36.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.379941+00:00"
+    "indexed_at": "2026-08-08T15:19:57.379941+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-219fb146ea55f67122ca5295",
@@ -3368,11 +3616,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-sequence-selection-loop-core-a8716e477d6e.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.382306+00:00"
+    "indexed_at": "2026-08-08T15:19:57.382306+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6eebacc5ce0eac8e478744bd",
@@ -3395,11 +3645,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 77,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-sequence-selection-loop-fb33a38be8de.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.384306+00:00"
+    "indexed_at": "2026-08-08T15:19:57.384306+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-76a10469f619f3fa80b6af53",
@@ -3422,11 +3674,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-simulation-43fcf311ed40.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.386304+00:00"
+    "indexed_at": "2026-08-08T15:19:57.386304+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-02cce90e7c1a3e0193d3af7b",
@@ -3449,11 +3703,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-simulation-practice-71944f9db71b.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.387304+00:00"
+    "indexed_at": "2026-08-08T15:19:57.387304+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-23438f3ca30fa262881a0c0b",
@@ -3476,11 +3732,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-simulation-core-7b1b7d7579d8.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.389811+00:00"
+    "indexed_at": "2026-08-08T15:19:57.389811+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-acdfed8065b67d467e9168bc",
@@ -3503,11 +3761,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-stack-queue-practice-2102d47f13fe.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.391177+00:00"
+    "indexed_at": "2026-08-08T15:19:57.391177+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0df99839999521a42a106883",
@@ -3530,11 +3790,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-stack-queue-core-b315ecc39739.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.393327+00:00"
+    "indexed_at": "2026-08-08T15:19:57.393327+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-942932332fba89c4a2fa36b3",
@@ -3557,11 +3819,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 12,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-stack-queue-core-70936c1242cd.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.394328+00:00"
+    "indexed_at": "2026-08-08T15:19:57.394328+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-ae5257a1779323c17c7bfe68",
@@ -3584,11 +3848,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 34,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-state-transition-695c50cfdca2.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.396604+00:00"
+    "indexed_at": "2026-08-08T15:19:57.396604+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-0f45ff894f2d6da571a94b6e",
@@ -3611,11 +3877,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-state-transition-core-af6bbbc239aa.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.397695+00:00"
+    "indexed_at": "2026-08-08T15:19:57.397695+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-6835eeb9b9a2e1c706d4f27a",
@@ -3638,11 +3906,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-state-transition-core-85275c01aa7e.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.400216+00:00"
+    "indexed_at": "2026-08-08T15:19:57.400216+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-046779f3e6538d1ceea1d020",
@@ -3665,11 +3935,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 77,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-statistical-thinking-9c4589da47ea.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.402798+00:00"
+    "indexed_at": "2026-08-08T15:19:57.402798+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-d1ef06dc0d08db774420332c",
@@ -3692,11 +3964,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 10,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-statistical-thinking-core-0b0ef4ef9665.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.404813+00:00"
+    "indexed_at": "2026-08-08T15:19:57.404813+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-78f217cde492419f70472962",
@@ -3719,11 +3993,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 28,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-statistical-thinking-cad4505d01a5.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.405814+00:00"
+    "indexed_at": "2026-08-08T15:19:57.405814+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-869f585d3c263d475fe3c391",
@@ -3746,11 +4022,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 64,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\kbbuild-hello-algo-zh-二叉树｜二叉树基本操作-bef0bb53dfa2c74a.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.407812+00:00"
+    "indexed_at": "2026-08-08T15:19:57.407812+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-bec761d6be17a872bda2a855",
@@ -3773,11 +4051,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-tree-core-d405077c53dd.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.410388+00:00"
+    "indexed_at": "2026-08-08T15:19:57.410388+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-9b8cda7793bb803d07f5c279",
@@ -3800,11 +4080,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 27,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-tree-086b6bf18008.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.411148+00:00"
+    "indexed_at": "2026-08-08T15:19:57.411148+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-1044e9e1cfa3e83e97644ab0",
@@ -3827,11 +4109,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 86,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-variables-data-types-8fce21a4f506.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.413819+00:00"
+    "indexed_at": "2026-08-08T15:19:57.413819+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-1ec1778652b97a7f3767775d",
@@ -3854,11 +4138,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-variables-data-types-core-5f05b0be6ae3.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.415231+00:00"
+    "indexed_at": "2026-08-08T15:19:57.415231+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-82a135e16f677baaaa20797d",
@@ -3881,11 +4167,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 64,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-think-compute-variables-data-types-09b5f9163b74.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.417234+00:00"
+    "indexed_at": "2026-08-08T15:19:57.417234+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-957ab05433e221d4771cbe8c",
@@ -3908,11 +4196,13 @@
     "doc_kind": "document",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 28,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-curated-von-neumann-6be722465fa0.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.419235+00:00"
+    "indexed_at": "2026-08-08T15:19:57.419235+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-685b27acbd4c8a0df06e2906",
@@ -3935,11 +4225,13 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 11,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-von-neumann-practice-09a4e11a2099.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.421367+00:00"
+    "indexed_at": "2026-08-08T15:19:57.421367+00:00",
+    "error_code": null,
+    "error_message": null
   },
   {
     "id": "doc-v2-600f09b52185ce0a03a0b4a3",
@@ -3962,10 +4254,12 @@
     "doc_kind": "authored",
     "generated_by": "course-kb-v2-ad0947481375",
     "status": "ready",
-    "chunk_count": 0,
+    "chunk_count": 9,
     "rag_index_key": "user_teacher:D:\\github\\edu_ai\\Edu_AI\\api\\course_data\\courses\\computational-thinking\\knowledge_base\\documents-v2\\shadow-authored-von-neumann-core-11b943654060.md",
     "active_index_version": "course-kb-v2-ad0947481375",
     "pending_index_version": null,
-    "indexed_at": "2026-08-08T15:19:57.422371+00:00"
+    "indexed_at": "2026-08-08T15:19:57.422371+00:00",
+    "error_code": null,
+    "error_message": null
   }
 ]

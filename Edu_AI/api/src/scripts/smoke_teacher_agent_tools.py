@@ -14,9 +14,9 @@ from dataclasses import dataclass
 from typing import Any
 
 try:
-    from scripts.teacher_smoke_common import request_json
+    from scripts.teacher_smoke_common import request_json, request_sse_events
 except ModuleNotFoundError:  # Direct execution: python src/scripts/...
-    from teacher_smoke_common import request_json
+    from teacher_smoke_common import request_json, request_sse_events
 
 
 @dataclass(frozen=True)
@@ -119,13 +119,28 @@ def validate_reply(
     if not str(message.get("content") or "").strip():
         raise AssertionError("Agent returned no answer content")
     trace = response.get("trace") or {}
-    if trace.get("source_mode") != expected_source_mode:
+    actual_source_mode = trace.get("source_mode")
+    # Plain chat may legitimately take the fast path, whose compact trace does
+    # not carry Agent-only source metadata. Tool-backed cases must always prove
+    # the exact source mode because that is part of their acceptance contract.
+    source_mode_matches = actual_source_mode == expected_source_mode
+    plain_fast_path = (
+        not expected_tools
+        and expected_source_mode == "none"
+        and actual_source_mode is None
+    )
+    if not (source_mode_matches or plain_fast_path):
         raise AssertionError(
-            f"source_mode mismatch: expected {expected_source_mode}, got {trace.get('source_mode')}"
+            f"source_mode mismatch: expected {expected_source_mode}, got {actual_source_mode}"
         )
     missing = expected_tools - _executed_tools(trace)
     if missing:
-        raise AssertionError(f"required tools were not executed successfully: {sorted(missing)}")
+        raise AssertionError(
+            "required tools were not executed successfully: "
+            f"missing={sorted(missing)}, path={trace.get('path')}, "
+            f"fallback={trace.get('fallback_reason')}, "
+            f"steps={trace.get('agent_steps')}"
+        )
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -134,6 +149,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--course-id", default=os.getenv("EDU_AI_SMOKE_COURSE_ID"), required=False)
     parser.add_argument("--selected-doc-id", default=os.getenv("EDU_AI_SMOKE_DOCUMENT_ID"))
     parser.add_argument("--include-web", action="store_true", help="Call the configured live Web provider")
+    parser.add_argument(
+        "--cases",
+        nargs="*",
+        choices=["plain", "rag-selected", "rag-course-auto", "web", "rag-web"],
+    )
     parser.add_argument("--execute", action="store_true", help="Perform authenticated requests")
     return parser
 
@@ -147,6 +167,9 @@ def main() -> int:
         selected_doc_id=args.selected_doc_id,
         include_web=args.include_web,
     )
+    if args.cases:
+        requested = set(args.cases)
+        cases = [case for case in cases if case.name in requested]
     if not args.execute:
         print(json.dumps({"mode": "preview", "cases": [case.name for case in cases]}, ensure_ascii=False, indent=2))
         return 0
@@ -170,13 +193,27 @@ def main() -> int:
             )
             if not preflight.get("valid"):
                 raise AssertionError(f"{case.name}: generation source preflight failed")
-        response = request_json(
+        events = request_sse_events(
             args.base_url,
-            "/api/chat/v2/reply",
+            "/api/chat/v2/stream",
             token,
-            method="POST",
             payload=case.payload,
         )
+        stream_error = next(
+            (event for event in events if event.get("type") == "error"),
+            None,
+        )
+        if stream_error:
+            raise AssertionError(
+                f"{case.name}: stream failed: {(stream_error.get('payload') or {}).get('message')}"
+            )
+        result_event = next(
+            (event for event in reversed(events) if event.get("type") == "result"),
+            None,
+        )
+        if result_event is None:
+            raise AssertionError(f"{case.name}: stream returned no result event")
+        response = dict(result_event.get("payload") or {})
         validate_reply(
             response,
             expected_source_mode=case.expected_source_mode,

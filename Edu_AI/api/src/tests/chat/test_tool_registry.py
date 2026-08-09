@@ -143,3 +143,38 @@ def test_rag_search_tool_resolves_course_relative_path_before_query(monkeypatch)
             "owner": "teacher-a",
         }
     ]
+
+
+def test_rag_search_tool_passes_course_scope_to_public_id_resolver(monkeypatch):
+    class DummyRagSystem:
+        def query(self, query, top_k=5, use_rag=True, selected_doc_ids=None, owner=None):
+            return {
+                "answer": "链表通过指针连接节点。",
+                "sources": [{"source": "linked-list.md", "content": "链表节点"}],
+            }
+
+    seen = {}
+    monkeypatch.setattr("app.chat.tools.agent_tools.get_rag_system", lambda: DummyRagSystem())
+
+    def fake_resolve(rag_system, selected_doc_ids, *, owner, course_id=None):
+        seen.update(selected_doc_ids=selected_doc_ids, owner=owner, course_id=course_id)
+        return ["resolved-linked-list-key"]
+
+    monkeypatch.setattr(
+        "app.chat.tools.agent_tools.resolve_selected_doc_ids_for_query",
+        fake_resolve,
+    )
+
+    result = rag_search_tool(
+        query="链表如何实现",
+        selected_doc_ids=["https://example.com/linked-list/"],
+        owner="teacher",
+        course_id="computational-thinking",
+    )
+
+    assert result["ok"] is True
+    assert seen == {
+        "selected_doc_ids": ["https://example.com/linked-list/"],
+        "owner": "teacher",
+        "course_id": "computational-thinking",
+    }

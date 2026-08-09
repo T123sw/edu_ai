@@ -43,6 +43,51 @@ def request_json(
         raise RuntimeError(f"{method} {path} failed: {exc.reason}") from exc
 
 
+def request_sse_events(
+    base_url: str,
+    path: str,
+    token: str,
+    *,
+    payload: dict[str, Any],
+    timeout_seconds: float = 600,
+) -> list[dict[str, Any]]:
+    """POST JSON and decode the same SSE frames consumed by the teacher UI."""
+    url = f"{base_url.rstrip('/')}{path}"
+    request = Request(
+        url,
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={
+            "Accept": "text/event-stream",
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json; charset=utf-8",
+        },
+        method="POST",
+    )
+    events: list[dict[str, Any]] = []
+    data_lines: list[str] = []
+    try:
+        with urlopen(request, timeout=timeout_seconds) as response:
+            for raw_line in response:
+                line = raw_line.decode("utf-8").rstrip("\r\n")
+                if not line:
+                    if data_lines:
+                        events.append(json.loads("\n".join(data_lines)))
+                        data_lines = []
+                    continue
+                if line.startswith("data:"):
+                    data_lines.append(line[5:].lstrip())
+            if data_lines:
+                events.append(json.loads("\n".join(data_lines)))
+    except HTTPError as exc:
+        response_body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(
+            f"POST {path} returned HTTP {exc.code}: {response_body[:1000]}"
+        ) from exc
+    except URLError as exc:
+        raise RuntimeError(f"POST {path} failed: {exc.reason}") from exc
+    return events
+
+
 def poll_job(
     job_id: str,
     *,

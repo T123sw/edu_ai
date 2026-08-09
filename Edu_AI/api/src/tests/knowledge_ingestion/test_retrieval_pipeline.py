@@ -106,7 +106,20 @@ def test_parent_context_expansion_preserves_formula_and_markdown() -> None:
     assert expanded["content"].startswith("【章节上下文】: 算法 > 复杂度")
     assert "\\sum" in expanded["content"]
     assert "|---|---|" in expanded["content"]
+    assert expanded["retrieved_content"] == child["content"]
     assert expanded["metadata"]["context_expanded"] == "parent"
+
+
+def test_retrieved_display_content_keeps_child_hit_instead_of_parent_context() -> None:
+    source = {
+        "content": "【章节上下文】: 链表 > 常用操作\n\n初始化链表\n\n```java\nhead.next = node;\n```",
+        "retrieved_content": "【章节上下文】: 链表 > 常用操作\n\n初始化链表\n\n```java\nhead.next = node;\n```",
+    }
+
+    content = runtime_system._retrieved_display_content(source)
+
+    assert content == "初始化链表\n\n```java\nhead.next = node;\n```"
+    assert "章节上下文" not in content
 
 
 def test_visual_intent_reserves_an_image_from_the_top_knowledge_node(monkeypatch) -> None:

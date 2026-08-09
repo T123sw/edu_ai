@@ -3,7 +3,9 @@ import { BlogArtifactPreview } from "../../components/teacher/generation/preview
 import { PptArtifactPreview } from "../../components/teacher/generation/previews/PptArtifactPreview";
 import { courseMaterialToMarkdown } from "../api/courses";
 import type { CourseMaterial } from "../api/types";
+import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
 import { MarkdownPreview } from "../components/MarkdownPreview";
+import { getQuizQuestions } from "./courseMaterialPreviewData";
 import { getCourseMaterialPreviewKind } from "./resourcePreviewConstraints";
 import { downloadMindMapJson } from "./mindMapExport";
 import { downloadMaterialFile } from "./materialExport";
@@ -19,7 +21,7 @@ function text(value: unknown): string {
 }
 
 function QuizPreview({ material }: { material: CourseMaterial }) {
-  const questions = Array.isArray(material.questions) ? material.questions : [];
+  const questions = getQuizQuestions(material);
   return (
     <div className="resource-quiz-preview">
       {questions.length ? questions.map((question, index) => (
@@ -56,8 +58,23 @@ function FlashcardPreview({ material }: { material: CourseMaterial }) {
 
 type MindNode = { id?: string; title?: string; summary?: string; children?: MindNode[] };
 
-function MindBranch({ node, depth = 0 }: { node: MindNode; depth?: number }) {
-  return <li><span><strong>{node.title || "未命名节点"}</strong>{node.summary ? <small>{node.summary}</small> : null}</span>{node.children?.length ? <ul>{node.children.map((child, index) => <MindBranch key={`${child.title}-${index}`} node={child} depth={depth + 1} />)}</ul> : null}</li>;
+function MindBranch({ node, depth = 1 }: { node: MindNode; depth?: number }) {
+  const children = Array.isArray(node.children) ? node.children : [];
+  return (
+    <li className="resource-mind-map__branch" role="treeitem" aria-level={depth} aria-expanded={children.length ? true : undefined}>
+      <article className={`resource-mind-map__node${depth === 1 ? " resource-mind-map__node--root" : ""}`}>
+        <strong>{node.title || "未命名节点"}</strong>
+        {node.summary ? <small>{node.summary}</small> : null}
+      </article>
+      {children.length ? (
+        <ol className="resource-mind-map__children" role="group">
+          {children.map((child, index) => (
+            <MindBranch key={child.id || `${child.title}-${index}`} node={child} depth={depth + 1} />
+          ))}
+        </ol>
+      ) : null}
+    </li>
+  );
 }
 
 function MindMapPreview({ material }: { material: CourseMaterial }) {
@@ -65,12 +82,16 @@ function MindMapPreview({ material }: { material: CourseMaterial }) {
   const root = record(payload.root) as MindNode;
   const hasRoot = Boolean(root.title || root.children?.length);
   const [zoom, setZoom] = useState(1);
-  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button><button type="button" disabled={!hasRoot} onClick={() => downloadMindMapJson(material.content, material.title || "思维导图")}>导出 JSON</button></div><div className="resource-mind-map__viewport"><div style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ul><MindBranch node={root} /></ul> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
+  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button><button type="button" disabled={!hasRoot} onClick={() => downloadMindMapJson(material.content, material.title || "思维导图")}>导出 JSON</button></div><div className="resource-mind-map__viewport"><div className="resource-mind-map__canvas" style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ol className="resource-mind-map__tree" role="tree" aria-label={material.title || "思维导图"}><MindBranch node={root} /></ol> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
 }
 
 function GamePreview({ material }: { material: CourseMaterial }) {
   const url = material.html_url || text(record(material.content).html_url);
-  return url ? <div className="resource-game-preview"><iframe title={material.title || "小游戏预览"} src={url} sandbox="allow-scripts allow-forms" /><a href={url} target="_blank" rel="noreferrer">在新窗口打开小游戏</a></div> : <p className="resource-preview-empty">小游戏页面尚未生成，请稍后重试。</p>;
+  const asset = useAuthenticatedBlobUrl(url);
+  if (!url) return <p className="resource-preview-empty">小游戏页面尚未生成，请稍后重试。</p>;
+  if (asset.loading) return <p className="resource-preview-empty">小游戏加载中…</p>;
+  if (asset.error || !asset.url) return <p role="alert" className="resource-preview-empty">小游戏加载失败：{asset.error || "未取得页面内容"}</p>;
+  return <div className="resource-game-preview"><iframe title={material.title || "小游戏预览"} src={asset.url} sandbox="allow-scripts allow-forms" /><a href={asset.url} target="_blank" rel="noreferrer">在新窗口打开小游戏</a></div>;
 }
 
 export function CourseMaterialArtifactPreview({ material }: { material: CourseMaterial }) {

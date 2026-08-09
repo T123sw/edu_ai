@@ -22,6 +22,12 @@ def executor_node(state: AgentState) -> dict:
     timeout_seconds: float = rt["timeout_seconds"]
     agent_gateway = rt["agent_gateway"]
     tool_schemas: list = _filter_tool_schemas_for_step(rt["tool_schemas"], state)
+    tool_schemas = _filter_unrequested_image_search(
+        tool_schemas,
+        state,
+        rt["request"],
+    )
+    tool_schemas = _filter_completed_retrieval_tools(tool_schemas, ctx)
 
     # Emit plan step "running" at start of each executor turn (guided mode)
     _emit_step_running(writer, state)
@@ -92,8 +98,17 @@ def executor_node(state: AgentState) -> dict:
         }
 
     if (time.perf_counter() - t_start) > timeout_seconds:
-        writer({"type": "__internal_fallback__", "reason": "react_timeout"})
-        return {"fallback_reason": "react_timeout"}
+        # Retrieval/embedding latency can legitimately consume the whole ReAct
+        # budget. Once every required source has produced evidence, allow one
+        # final LLM turn instead of falling back and repeating the same search.
+        if (
+            _required_retrieval_satisfied(ctx)
+            and not ctx.trace.get("retrieval_finalization_grace_used")
+        ):
+            ctx.trace["retrieval_finalization_grace_used"] = True
+        else:
+            writer({"type": "__internal_fallback__", "reason": "react_timeout"})
+            return {"fallback_reason": "react_timeout"}
 
     stream_fn = getattr(agent_gateway, "stream_chat_with_tools", None)
     if not callable(stream_fn):
@@ -344,8 +359,15 @@ def _maybe_outline_to_append(answer: str, state: dict) -> str:
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
-    """In strict mode, narrow tool_schemas to current step's expected_tools."""
-    if state.get("plan_mode") != "strict":
+    """Keep mutation tools behind the current plan-step boundary.
+
+    Strict mode exposes only the expected tools.  Guided mode remains flexible
+    for retrieval/reflection, but generation tools stay hidden until the
+    current step explicitly expects them.  This prevents a model from skipping
+    outline confirmation and submitting an irreversible task early.
+    """
+    mode = state.get("plan_mode")
+    if mode not in {"strict", "guided"}:
         return tool_schemas
     current_plan = state.get("current_plan")
     if not current_plan:
@@ -355,11 +377,99 @@ def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
     if not (0 <= idx < len(steps)):
         return tool_schemas
     expected = steps[idx].get("expected_tools") or []
-    if not expected:
-        return tool_schemas
     from app.chat.runtime.agent_tools.schemas import filter_schemas_by_step
-    filtered = filter_schemas_by_step(tool_schemas, expected)
-    return filtered if filtered else tool_schemas
+    if mode == "strict":
+        if not expected:
+            return tool_schemas
+        filtered = filter_schemas_by_step(tool_schemas, expected)
+        return filtered if filtered else tool_schemas
+    expected_set = set(expected)
+    return [
+        schema
+        for schema in tool_schemas
+        if not str((schema.get("function") or {}).get("name") or "").startswith(
+            "generate_"
+        )
+        or (schema.get("function") or {}).get("name") in expected_set
+    ]
+
+
+def _filter_unrequested_image_search(tool_schemas: list, state: dict, request) -> list:
+    """Hide image search unless the user or the current plan explicitly needs it.
+
+    ``allow_image_search`` means the deployment can use the provider; it is not
+    permission for an ordinary answer step to fetch an image opportunistically.
+    Keeping the schema visible there caused a grounded RAG answer to detour into
+    image search and exhaust the ReAct timeout before producing its final text.
+    """
+    current_plan = state.get("current_plan") or {}
+    steps = current_plan.get("steps") or []
+    idx = int(state.get("plan_step_index") or 0)
+    current_step = steps[idx] if 0 <= idx < len(steps) else {}
+    expected_tools = set(current_step.get("expected_tools") or [])
+    plan_requests_images = (
+        current_step.get("internal_action") == "fetch_visuals"
+        or "image_search" in expected_tools
+    )
+
+    question = str(getattr(request, "question", "") or "")
+    if not plan_requests_images:
+        from app.chat.runtime.nodes.planner import _question_requests_visuals
+
+        if _question_requests_visuals(question):
+            plan_requests_images = True
+
+    if plan_requests_images:
+        return tool_schemas
+
+    return [
+        schema
+        for schema in tool_schemas
+        if ((schema.get("function") or {}).get("name") != "image_search")
+    ]
+
+
+def _filter_completed_retrieval_tools(
+    tool_schemas: list,
+    ctx: ToolExecutionContext,
+) -> list:
+    """Prevent a successful mandatory retrieval from being called twice."""
+    completed = {
+        str(step.get("tool") or "")
+        for step in (ctx.trace.get("agent_steps") or [])
+        if isinstance(step, dict)
+        and step.get("ok")
+        and int(step.get("evidence_count") or 0) > 0
+    }
+    completed &= {"rag_search", "web_search"}
+    if not completed:
+        return tool_schemas
+    return [
+        schema
+        for schema in tool_schemas
+        if (schema.get("function") or {}).get("name") not in completed
+    ]
+
+
+def _required_retrieval_satisfied(ctx: ToolExecutionContext) -> bool:
+    required = {
+        tool_name
+        for tool_name, enabled in (
+            ("rag_search", bool(getattr(ctx.capability, "allow_rag", False))),
+            ("web_search", bool(getattr(ctx.capability, "allow_web", False))),
+        )
+        if enabled
+    }
+    if not required:
+        return False
+    completed = {
+        str(step.get("tool") or "")
+        for step in (ctx.trace.get("agent_steps") or [])
+        if isinstance(step, dict)
+        and step.get("ok")
+        and int(step.get("evidence_count") or 0) > 0
+    }
+    return required.issubset(completed)
 
 
 def _emit_step_running(writer, state: dict) -> None:

@@ -23,7 +23,13 @@ export interface RAGSource {
   content: string;
   source: string;
   page: number;
+  chunk_id?: string;
+  rank?: number;
+  retrieval_method?: 'hybrid_rerank' | 'hybrid' | 'vector' | string;
   distance?: number;
+  rerank_score?: number;
+  vector_score?: number;
+  combined_score?: number;
   modality?: 'text' | 'image' | string;
   image_path?: string;
   image_url?: string;

@@ -93,6 +93,7 @@ def find_rag_record_for_legacy_identifiers(
             index_key,
             value.get("physical_path"),
             value.get("path"),
+            value.get("course_document_id"),
         )
         record_paths = {
             _normalize_path_for_compare(item)

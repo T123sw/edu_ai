@@ -5,12 +5,25 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
 import { normalizeKnowledgeMarkdown } from "./knowledgeMarkdown";
 
 type MarkdownPreviewProps = {
   content: string;
   imageUrls?: Record<string, string>;
 };
+
+function MarkdownImage({ src, alt }: { src: string; alt?: string }) {
+  const asset = useAuthenticatedBlobUrl(src);
+  return (
+    <figure className="my-5 overflow-hidden rounded-2xl border border-(--app-border) bg-(--surface-subtle) p-3 text-center">
+      {asset.loading ? <p className="py-8 text-sm text-(--app-text-muted)">图片加载中…</p> : null}
+      {asset.error ? <p role="alert" className="py-8 text-sm text-red-600">图片加载失败：{asset.error}</p> : null}
+      {asset.url ? <img src={asset.url} alt={alt || "教学插图"} className="mx-auto max-h-[520px] max-w-full object-contain" loading="lazy" /> : null}
+      {alt && <figcaption className="mt-2 text-xs text-(--app-text-muted)">{alt}</figcaption>}
+    </figure>
+  );
+}
 
 export function MarkdownPreview({ content, imageUrls = {} }: MarkdownPreviewProps) {
   return (
@@ -21,12 +34,7 @@ export function MarkdownPreview({ content, imageUrls = {} }: MarkdownPreviewProp
         components={{
           img({ src, alt }) {
             const resolved = src ? (imageUrls[src] || src) : "";
-            return (
-              <figure className="my-5 overflow-hidden rounded-2xl border border-(--app-border) bg-(--surface-subtle) p-3 text-center">
-                <img src={resolved} alt={alt || "教学插图"} className="mx-auto max-h-[520px] max-w-full object-contain" loading="lazy" />
-                {alt && <figcaption className="mt-2 text-xs text-(--app-text-muted)">{alt}</figcaption>}
-              </figure>
-            );
+            return resolved ? <MarkdownImage src={resolved} alt={alt || undefined} /> : null;
           },
           table({ children }) {
             return <div className="my-5 overflow-x-auto"><table className="min-w-full border-collapse">{children}</table></div>;

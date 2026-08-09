@@ -9,7 +9,8 @@ sys.path.insert(0, str(SRC_ROOT / "scripts"))
 
 from smoke_teacher_agent_tools import build_cases, validate_reply
 from smoke_teacher_generation import build_resource_requests
-from teacher_smoke_common import poll_job
+import teacher_smoke_common
+from teacher_smoke_common import poll_job, request_sse_events
 
 
 def test_agent_cases_cover_none_rag_web_and_combined_modes():
@@ -59,6 +60,45 @@ def test_validate_reply_checks_source_mode_and_executed_tools():
         expected_source_mode="selected_documents",
         expected_tools={"rag_search", "web_search"},
     )
+
+
+def test_validate_reply_accepts_plain_fast_path_without_agent_source_metadata():
+    validate_reply(
+        {"message": {"content": "answer"}, "trace": {"path": "fast"}},
+        expected_source_mode="none",
+        expected_tools=set(),
+    )
+
+
+def test_request_sse_events_decodes_teacher_stream_frames(monkeypatch):
+    class FakeResponse:
+        def __enter__(self):
+            return iter(
+                [
+                    b'data: {"type":"status","payload":{"stage":"thinking"}}\n',
+                    b"\n",
+                    b'data: {"type":"result","payload":{"message":{"content":"ok"}}}\n',
+                    b"\n",
+                ]
+            )
+
+        def __exit__(self, *_args):
+            return False
+
+    monkeypatch.setattr(
+        teacher_smoke_common,
+        "urlopen",
+        lambda *_args, **_kwargs: FakeResponse(),
+    )
+
+    events = request_sse_events(
+        "http://example.test",
+        "/stream",
+        "token",
+        payload={"question": "hello"},
+    )
+
+    assert [event["type"] for event in events] == ["status", "result"]
 
 
 def test_generation_matrix_covers_all_non_ppt_teacher_resources():

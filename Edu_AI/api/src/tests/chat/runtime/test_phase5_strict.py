@@ -1,9 +1,11 @@
 """Phase 5 tests: strict mode, ToolMeta, parallel execution."""
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from app.chat.runtime.agent_tools.schemas import (
     SCHEMA_DRAFT_OUTLINE,
     SCHEMA_GENERATE_REPORT,
+    SCHEMA_IMAGE_SEARCH,
     SCHEMA_RAG_SEARCH,
     SCHEMA_WEB_SEARCH,
     filter_schemas_by_step,
@@ -113,6 +115,128 @@ def test_executor_no_filter_in_display_only_mode():
              "current_plan": {"steps": [{"index": 0, "expected_tools": ["draft_outline"]}]}}
     filtered = _filter_tool_schemas_for_step(all_schemas, state)
     assert filtered == all_schemas
+
+
+def test_executor_guided_mode_hides_generation_until_expected_step():
+    from app.chat.runtime.nodes.executor import _filter_tool_schemas_for_step
+
+    all_schemas = [SCHEMA_RAG_SEARCH, SCHEMA_DRAFT_OUTLINE, SCHEMA_GENERATE_REPORT]
+    state = {
+        "plan_mode": "guided",
+        "plan_step_index": 0,
+        "current_plan": {
+            "steps": [
+                {
+                    "index": 0,
+                    "internal_action": "draft_outline",
+                    "expected_tools": ["draft_outline"],
+                }
+            ]
+        },
+    }
+
+    filtered = _filter_tool_schemas_for_step(all_schemas, state)
+
+    assert [schema["function"]["name"] for schema in filtered] == [
+        "rag_search",
+        "draft_outline",
+    ]
+
+
+def test_executor_hides_image_search_from_ordinary_answer_step():
+    from app.chat.runtime.nodes.executor import _filter_unrequested_image_search
+
+    schemas = [SCHEMA_RAG_SEARCH, SCHEMA_IMAGE_SEARCH]
+    state = {
+        "plan_step_index": 1,
+        "current_plan": {
+            "steps": [
+                {"internal_action": "retrieve_context", "expected_tools": ["rag_search"]},
+                {"internal_action": "answer_question", "expected_tools": []},
+            ]
+        },
+    }
+
+    filtered = _filter_unrequested_image_search(
+        schemas,
+        state,
+        SimpleNamespace(question="请根据知识库概括问题分解与算法设计的关系"),
+    )
+
+    assert [schema["function"]["name"] for schema in filtered] == ["rag_search"]
+
+
+def test_executor_keeps_image_search_for_visual_plan_step():
+    from app.chat.runtime.nodes.executor import _filter_unrequested_image_search
+
+    state = {
+        "plan_step_index": 0,
+        "current_plan": {
+            "steps": [
+                {
+                    "internal_action": "fetch_visuals",
+                    "expected_tools": ["image_search"],
+                }
+            ]
+        },
+    }
+
+    filtered = _filter_unrequested_image_search(
+        [SCHEMA_IMAGE_SEARCH],
+        state,
+        SimpleNamespace(question="继续生成"),
+    )
+
+    assert filtered == [SCHEMA_IMAGE_SEARCH]
+
+
+def test_executor_keeps_image_search_for_explicit_visual_question_without_plan():
+    from app.chat.runtime.nodes.executor import _filter_unrequested_image_search
+
+    filtered = _filter_unrequested_image_search(
+        [SCHEMA_IMAGE_SEARCH],
+        {},
+        SimpleNamespace(question="请给链表实现配一张结构图"),
+    )
+
+    assert filtered == [SCHEMA_IMAGE_SEARCH]
+
+
+def test_executor_hides_successful_retrieval_tool_before_final_answer():
+    from app.chat.runtime.nodes.executor import _filter_completed_retrieval_tools
+
+    ctx = SimpleNamespace(
+        trace={
+            "agent_steps": [
+                {"tool": "rag_search", "ok": True, "evidence_count": 5}
+            ]
+        }
+    )
+
+    filtered = _filter_completed_retrieval_tools(
+        [SCHEMA_RAG_SEARCH, SCHEMA_WEB_SEARCH],
+        ctx,
+    )
+
+    assert [schema["function"]["name"] for schema in filtered] == ["web_search"]
+
+
+def test_executor_allows_finalization_grace_only_after_all_required_retrievals():
+    from app.chat.runtime.nodes.executor import _required_retrieval_satisfied
+
+    ctx = SimpleNamespace(
+        capability=SimpleNamespace(allow_rag=True, allow_web=True),
+        trace={
+            "agent_steps": [
+                {"tool": "rag_search", "ok": True, "evidence_count": 5},
+                {"tool": "web_search", "ok": True, "evidence_count": 3},
+            ]
+        },
+    )
+    assert _required_retrieval_satisfied(ctx) is True
+
+    ctx.trace["agent_steps"][1]["evidence_count"] = 0
+    assert _required_retrieval_satisfied(ctx) is False
 
 
 # ─── tools_node strict enforcement ────────────────────────────────────────────
