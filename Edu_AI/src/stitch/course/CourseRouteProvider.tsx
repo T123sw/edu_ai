@@ -12,6 +12,7 @@ import {
 import type { ApiError } from "../api/client";
 import type { BackendCourse } from "../api/types";
 import { readTeacherCourseId } from "../teacherRoutes";
+import { readStudentLocation } from "../student/routes/studentRoutes";
 import type { CourseRole } from "./coursePermissions";
 
 export type CourseRouteValue = {
@@ -33,7 +34,7 @@ export function resolveCourseRouteState(
   hash: string,
   rememberedCourseId: string | null | undefined,
 ): CourseRouteState {
-  const fromUrl = readTeacherCourseId(hash);
+  const fromUrl = readTeacherCourseId(hash) ?? readStudentLocation(hash).courseId;
   if (fromUrl) return { courseId: fromUrl };
   const remembered = String(rememberedCourseId ?? "").trim();
   return {

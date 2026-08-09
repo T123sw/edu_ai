@@ -11,6 +11,17 @@ test("URL course wins over remembered course", () => {
   );
 });
 
+test("student course routes provide the same course context", () => {
+  assert.equal(
+    resolveCourseRouteState("#student-ai?course_id=course-b", "course-a").courseId,
+    "course-b",
+  );
+  assert.equal(
+    resolveCourseRouteState("#student-course-knowledge?course_id=course-c", null).courseId,
+    "course-c",
+  );
+});
+
 test("remembered course is only a home-page convenience", () => {
   assert.equal(resolveCourseRouteState("#home", "course-a").courseId, "course-a");
   assert.equal(resolveCourseRouteState("#course-detail", "course-a").courseId, null);
