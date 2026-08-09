@@ -276,7 +276,8 @@ def test_react_agent_emits_plan_event_for_generation_request():
     plan_event = next(e for e in events if e["type"] == "plan")
     assert plan_event["payload"]["subject"] == "Python基础"
     assert len(plan_event["payload"]["steps"]) == 2
-    assert plan_event["payload"]["steps"][0]["user_title"] == "起草大纲"
+    assert plan_event["payload"]["template_id"] == "single_confirmable"
+    assert plan_event["payload"]["steps"][0]["expected_tools"] == ["draft_outline"]
 
 
 def test_react_agent_falls_back_when_gateway_lacks_tool_streaming():

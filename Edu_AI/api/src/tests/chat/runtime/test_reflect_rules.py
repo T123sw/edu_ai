@@ -174,6 +174,32 @@ def test_reflect_node_clears_last_tool_results():
     assert result["last_tool_results"] == []
 
 
+def test_reflect_node_does_not_advance_or_pass_a_failed_required_tool():
+    state = {
+        "last_tool_results": [{
+            "tool_name": "generate_report",
+            "raw_result": {"ok": False, "error": "missing_subject", "summary": "主题不能为空"},
+        }],
+        "retry_counts": {},
+        "plan_mode": "strict",
+        "plan_step_index": 0,
+        "current_plan": {
+            "steps": [{
+                "index": 1,
+                "internal_action": "generate_resource",
+                "expected_tools": ["generate_report"],
+                "required": True,
+                "failure_policy": "stop",
+                "status": "pending",
+            }],
+        },
+    }
+    result = _run_reflect(state)
+
+    assert result["reflect_verdict"] == "abort"
+    assert result.get("plan_step_index") is None
+
+
 def test_reflect_node_pass_when_no_results():
     state = {
         "last_tool_results": [],

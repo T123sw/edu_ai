@@ -170,6 +170,8 @@ def test_lesson_plan_handler_uses_resolved_context_and_saves_private_artifact(
                 "objectives": ["Explain force and acceleration"],
                 "teaching_process": "引入—探究—练习",
                 "special_requirements": "加入受力图活动",
+                "research_context": "Agent evidence: force equals mass times acceleration.",
+                "research_bundle_id": "bundle-1",
             },
             "material_id": "lesson-plan-1",
         },
@@ -178,8 +180,9 @@ def test_lesson_plan_handler_uses_resolved_context_and_saves_private_artifact(
 
     assert result["saved"] is True
     assert engine.states[0]["gathered_context"]["source_context"] == (
-        "resolved mechanics evidence"
+        "resolved mechanics evidence\n\nAgent evidence: force equals mass times acceleration."
     )
+    assert engine.states[0]["gathered_context"]["research_bundle_id"] == "bundle-1"
     assert engine.states[0]["lesson_plan_slots"]["teaching_process"] == (
         "引入—探究—练习"
     )

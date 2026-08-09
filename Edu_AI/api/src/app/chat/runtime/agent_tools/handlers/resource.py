@@ -1,10 +1,10 @@
 """Agent handlers for resources that do not require outline confirmation."""
 from __future__ import annotations
 
-from uuid import uuid4
-
 from app.chat.runtime.agent_tools.handlers.report import _collect_research_evidence
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.chat.runtime.execution.idempotency import generation_idempotency_key
+from app.chat.runtime.research.builder import build_research_bundle
 from app.services.generation_command import GenerationCommand, generation_command_service
 
 
@@ -72,6 +72,7 @@ def handle_generate_resource(name: str, args: dict, ctx) -> dict:
 
     allow_rag, selected_doc_ids, source_mode = _source_scope(ctx)
     research_context, research_sources = _collect_research_evidence(ctx)
+    research_bundle = build_research_bundle(ctx, topic=topic)
     request = getattr(ctx, "request", None)
     config = {
         "entrypoint": "agent",
@@ -79,6 +80,8 @@ def handle_generate_resource(name: str, args: dict, ctx) -> dict:
         "allow_rag": allow_rag,
         "research_context": research_context,
         "research_sources": research_sources,
+        "research_bundle": research_bundle.model_dump(mode="json"),
+        "research_bundle_id": research_bundle.bundle_id,
     }
     try:
         command = GenerationCommand(
@@ -90,7 +93,7 @@ def handle_generate_resource(name: str, args: dict, ctx) -> dict:
             source_mode=source_mode,
             selected_doc_ids=selected_doc_ids,
             config=config,
-            idempotency_key=f"agent-{resource_type}-{uuid4()}",
+            idempotency_key=generation_idempotency_key(ctx, resource_type, args),
         )
         job = generation_command_service.submit(command)
     except Exception as exc:

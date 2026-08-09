@@ -21,6 +21,11 @@ from app.chat.runtime.agent_tools import ToolExecutionContext, build_tool_schema
 from app.chat.runtime.graph.builder import build_graph
 from app.chat.runtime.graph.routes import should_plan
 from app.chat.runtime.nodes.prompts import build_system_content
+from app.chat.persistence.agent_run_store import get_agent_run_store
+from app.chat.runtime.memory.manager import (
+    build_agent_memory_context,
+    update_agent_memory,
+)
 
 
 class ReActAgent:
@@ -38,6 +43,7 @@ class ReActAgent:
         background_runner=None,
         max_steps: int | None = None,
         timeout_seconds: float | None = None,
+        agent_run_store=None,
     ):
         self.agent_gateway = agent_gateway
         self.fast_runtime = fast_runtime
@@ -50,6 +56,7 @@ class ReActAgent:
         self.background_runner = background_runner
         self.max_steps = max_steps if max_steps is not None else Config.REACT_MAX_STEPS
         self.timeout_seconds = timeout_seconds if timeout_seconds is not None else Config.REACT_TIMEOUT_SECONDS
+        self.agent_run_store = agent_run_store or get_agent_run_store()
         self._graph = build_graph()
 
     def run_stream(self, *, request, snapshot) -> Iterator[dict]:
@@ -58,6 +65,7 @@ class ReActAgent:
         capability = getattr(snapshot, "capability", None)
         conv_id = getattr(request, "conversation_id", "") or str(uuid.uuid4())
         username = str(getattr(request, "owner", "") or "匿名")
+        course_id = str(getattr(request, "course_id", "") or "")
         question = str(getattr(request, "question", "") or "")
         print(f"[智能体] 开始 | 用户={username}  问题=\"{question[:40]}\"", flush=True)
 
@@ -77,10 +85,29 @@ class ReActAgent:
             current_pending_tasks = list(checkpoint_state.get("pending_tasks") or [])
         except Exception:
             pass
+        try:
+            durable_state = self.agent_run_store.load(
+                conv_id,
+                owner_user_id=username,
+                course_id=course_id,
+            )
+            # A live checkpoint is newer than the durable snapshot; after a
+            # restart the durable state is the only available workflow memory.
+            checkpoint_state = {**durable_state, **checkpoint_state}
+            active_draft_outline = checkpoint_state.get("active_draft_outline")
+            current_pending_tasks = list(checkpoint_state.get("pending_tasks") or [])
+        except Exception:
+            pass
 
         needs_planning = should_plan(request, snapshot, checkpoint_state)
 
-        messages = self._build_messages(request, snapshot, active_draft_outline=active_draft_outline)
+        agent_memory = dict(checkpoint_state.get("agent_memory") or {})
+        messages = self._build_messages(
+            request,
+            snapshot,
+            active_draft_outline=active_draft_outline,
+            agent_memory=agent_memory,
+        )
 
         # Shared execution context — passed via config to all nodes
         ctx = ToolExecutionContext(
@@ -150,8 +177,12 @@ class ReActAgent:
             "retrieval_sources": [],
             "fallback_reason": "",
             "needs_planning": needs_planning,
+            "task_contract": {},
+            "logical_task_id": str(checkpoint_state.get("logical_task_id") or ""),
+            "verification_report": {},
             "active_draft_outline": active_draft_outline,
             "pending_tasks": current_pending_tasks,
+            "agent_memory": agent_memory,
             "current_plan": {},
             "plan_step_index": 0,
             "plan_mode": "",
@@ -174,8 +205,14 @@ class ReActAgent:
                         reason=event["reason"],
                         ctx=ctx,
                     )
+                    self._persist_run_state(
+                        conv_id, username, course_id, config, request=request
+                    )
                     return
                 yield event
+            self._persist_run_state(
+                conv_id, username, course_id, config, request=request
+            )
         except Exception as exc:
             print(f"[智能体] 异常 | {exc}", flush=True)
             yield from self._fallback(
@@ -184,8 +221,18 @@ class ReActAgent:
                 reason=f"react_error: {exc}",
                 ctx=ctx,
             )
+            self._persist_run_state(
+                conv_id, username, course_id, config, request=request
+            )
 
-    def _build_messages(self, request, snapshot, *, active_draft_outline=None) -> list[dict]:
+    def _build_messages(
+        self,
+        request,
+        snapshot,
+        *,
+        active_draft_outline=None,
+        agent_memory=None,
+    ) -> list[dict]:
         """Build message list from snapshot history with working memory in system prompt."""
         recent = list(getattr(snapshot, "recent_messages", []) or [])
         history = []
@@ -210,11 +257,44 @@ class ReActAgent:
             elif content_str:
                 history.append({"role": role, "content": content_str})
 
+        system_messages = [
+            {"role": "system", "content": build_system_content(active_draft_outline)}
+        ]
+        memory_context = build_agent_memory_context(agent_memory)
+        if memory_context:
+            system_messages.append({"role": "system", "content": memory_context})
         return [
-            {"role": "system", "content": build_system_content(active_draft_outline)},
+            *system_messages,
             *history,
             {"role": "user", "content": str(getattr(request, "question", "") or "")},
         ]
+
+    def _persist_run_state(
+        self,
+        conversation_id: str,
+        owner_user_id: str,
+        course_id,
+        config: dict,
+        *,
+        request,
+    ) -> None:
+        """Persist only workflow state; conversation messages remain in the existing store."""
+        try:
+            graph_state = self._graph.get_state(config)
+            values = graph_state.values if graph_state and graph_state.values else {}
+            if values:
+                values = dict(values)
+                values["agent_memory"] = update_agent_memory(
+                    values.get("agent_memory"),
+                    user_message=str(getattr(request, "question", "") or ""),
+                    task_contract=dict(values.get("task_contract") or {}),
+                    state=values,
+                )
+                self.agent_run_store.save(
+                    conversation_id, owner_user_id, course_id, values
+                )
+        except Exception as exc:
+            print(f"[智能体] Agent run 状态持久化失败 | {exc}", flush=True)
 
     def _fallback(
         self,

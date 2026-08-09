@@ -25,7 +25,11 @@ class _Provider:
 
 
 class _Llm:
-    def invoke(self, _messages):
+    def __init__(self):
+        self.messages = []
+
+    def invoke(self, messages):
+        self.messages.append(messages)
         return SimpleNamespace(
             content=(
                 '{"cards":['
@@ -89,9 +93,10 @@ def test_flashcard_generation_validates_and_persists_formal_resource():
 
 def test_flashcard_generation_uses_title_when_documents_are_disabled():
     storage = _Storage()
+    llm = _Llm()
     service = KnowledgeBaseDirectFlashcardServiceV2(
         content_provider=_NoSourceProvider(),
-        llm=_Llm(),
+        llm=llm,
         course_storage_manager=storage,
     )
 
@@ -110,6 +115,8 @@ def test_flashcard_generation_uses_title_when_documents_are_disabled():
                 "category": "concept",
                 "show_sources": False,
             },
+            research_context="Agent evidence: variables are mutable named storage.",
+            research_bundle_id="bundle-1",
         ),
         job_id="job-none",
         config_snapshot_id="cfg-none",
@@ -117,3 +124,5 @@ def test_flashcard_generation_uses_title_when_documents_are_disabled():
 
     assert result["artifacts"][0]["title"] == "Variable review"
     assert result["trace"]["selected_doc_count"] == 0
+    assert "Agent evidence" in str(llm.messages[0])
+    assert storage.saved["material_data"]["generation_state"]["research_context_used"] is True

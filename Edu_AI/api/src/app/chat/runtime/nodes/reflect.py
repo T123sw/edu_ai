@@ -32,10 +32,12 @@ def reflect_node(state: AgentState) -> dict:
     current_plan = state.get("current_plan")
 
     step_constraints: dict = {}
+    current_step: dict = {}
     if current_plan:
         steps = current_plan.get("steps", [])
         if 0 <= plan_step_index < len(steps):
-            step_constraints = steps[plan_step_index].get("constraints", {})
+            current_step = dict(steps[plan_step_index] or {})
+            step_constraints = current_step.get("constraints", {})
 
     plan_gc: dict = (current_plan or {}).get("global_constraints", {})
     max_per_step: int = plan_gc.get("max_retries_per_step", 2)
@@ -53,7 +55,10 @@ def reflect_node(state: AgentState) -> dict:
         raw_result = item.get("raw_result", {})
         key = f"step_{plan_step_index}:{tool_name}"
 
-        verdicts = pipeline.evaluate_all(tool_name, raw_result, state, step_constraints)
+        failure_verdict = _execution_failure_verdict(tool_name, raw_result, current_step)
+        verdicts = [failure_verdict] if failure_verdict else pipeline.evaluate_all(
+            tool_name, raw_result, state, step_constraints
+        )
 
         # Phase 6-A: harvest image_search filtered images for downstream report injection.
         # Source order of preference:
@@ -77,11 +82,12 @@ def reflect_node(state: AgentState) -> dict:
                 total = sum(new_retry_counts.values())
 
                 if current_count >= max_per_step or total >= max_total:
+                    required = bool(current_step.get("required", False))
                     if v.verdict == "retry":
                         v = ReflectVerdict(
-                            verdict="pass_with_warning",
-                            hint=v.hint + "（已达重试上限，跳过继续执行）",
-                            severity="warning",
+                            verdict="abort" if required else "pass_with_warning",
+                            hint=v.hint + ("（已达重试上限，终止必需步骤）" if required else "（已达重试上限，跳过继续执行）"),
+                            severity="blocking" if required else "warning",
                         )
                     else:
                         v = ReflectVerdict(
@@ -147,6 +153,46 @@ def reflect_node(state: AgentState) -> dict:
         _emit_abort_result(writer, state, combined_hint, updates)
 
     return updates
+
+
+def _execution_failure_verdict(
+    tool_name: str,
+    result: dict,
+    step: dict,
+) -> ReflectVerdict | None:
+    """Turn execution facts into deterministic verdicts before quality review."""
+    if result.get("ok"):
+        return None
+    code = str(result.get("error") or "unknown_error")
+    summary = str(result.get("summary") or "工具执行失败")
+    policy = str(step.get("failure_policy") or "stop")
+    recoverable = code in {
+        "validation_error", "transient_provider_error", "retrieval_empty",
+        "timeout", "web_not_available", "rag_not_available",
+    }
+    if code in {"permission_denied", "strict_violation", "contract_violation"}:
+        return ReflectVerdict(
+            verdict="abort",
+            hint=f"{tool_name} 违反工具契约：{summary}",
+            severity="blocking",
+        )
+    if recoverable and policy in {"retry", "supplement"}:
+        return ReflectVerdict(
+            verdict="retry",
+            hint=f"{tool_name} 执行失败（{code}）：{summary}，按策略重试一次",
+            severity="blocking",
+        )
+    if policy == "partial" and not bool(step.get("required", True)):
+        return ReflectVerdict(
+            verdict="pass_with_warning",
+            hint=f"{tool_name} 未完成：{summary}；继续交付可用部分",
+            severity="warning",
+        )
+    return ReflectVerdict(
+        verdict="abort",
+        hint=f"{tool_name} 执行失败（{code}）：{summary}",
+        severity="blocking",
+    )
 
 
 def _build_pipeline() -> ReflectorPipeline:

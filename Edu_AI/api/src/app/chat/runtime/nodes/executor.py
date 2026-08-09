@@ -8,12 +8,25 @@ from langgraph.config import get_config, get_stream_writer
 from app.chat.runtime.agent_tools import ToolExecutionContext
 from app.chat.runtime.graph.state import AgentState
 from app.chat.runtime.nodes.constants import _TOOL_NAMES_CN
+from app.chat.runtime.tool_policy import choose_retrieval_tools
 
 
 def executor_node(state: AgentState) -> dict:
     writer = get_stream_writer()
     rt = get_config()["configurable"]["runtime"]
     ctx: ToolExecutionContext = rt["ctx"]
+    ctx.current_plan = dict(state.get("current_plan") or {})
+
+    # ``report_result`` is a terminal, server-owned plan step.  It must not be
+    # delegated back to the model: after a generation task and verification
+    # complete, the model can otherwise choose an unrelated status tool.  In
+    # strict mode that call is rejected (the step deliberately allows no
+    # tools), which used to replace a successful generation trace with an
+    # abort result.  Finish deterministically and retain the complete audit.
+    if _is_report_result_step(state):
+        return _emit_compiled_report_result(writer, state, rt, ctx)
+    if _is_clarification_step(state):
+        return _emit_compiled_clarification(writer, state, rt, ctx)
 
     messages: list = _inject_reflect_hint(state["messages"], state)
     messages = _inject_plan_step_hint(messages, state)
@@ -28,6 +41,8 @@ def executor_node(state: AgentState) -> dict:
         rt["request"],
     )
     tool_schemas = _filter_completed_retrieval_tools(tool_schemas, ctx)
+    if not tool_schemas:
+        messages = _prepare_tool_free_messages(messages)
 
     # Emit plan step "running" at start of each executor turn (guided mode)
     _emit_step_running(writer, state)
@@ -60,6 +75,30 @@ def executor_node(state: AgentState) -> dict:
                     },
                 }
                 for call in mandatory_retrieval_calls
+            ],
+        }
+        return {"messages": state["messages"] + [assistant_msg]}
+
+    mandatory_plan_calls = _build_mandatory_plan_calls(state, rt, ctx)
+    if mandatory_plan_calls:
+        for call in mandatory_plan_calls:
+            writer({
+                "type": "tool_call",
+                "payload": {"tool": call["name"], "args": call["args"]},
+            })
+        assistant_msg = {
+            "role": "assistant",
+            "content": None,
+            "tool_calls": [
+                {
+                    "id": call["id"],
+                    "type": "function",
+                    "function": {
+                        "name": call["name"],
+                        "arguments": json.dumps(call["args"], ensure_ascii=False),
+                    },
+                }
+                for call in mandatory_plan_calls
             ],
         }
         return {"messages": state["messages"] + [assistant_msg]}
@@ -123,10 +162,11 @@ def executor_node(state: AgentState) -> dict:
     answer_chunks: list[str] = []
     should_fallback: str | None = None
 
+    tool_choice = _tool_choice_for_step(state, tool_schemas)
     for e in stream_fn(
         messages,
         tool_schemas,
-        tool_choice="auto",
+        tool_choice=tool_choice,
         temperature=0.1,
         max_tokens=2048,
     ):
@@ -237,11 +277,19 @@ def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecu
         "rag_search": bool(getattr(capability, "allow_rag", False)),
         "web_search": bool(getattr(capability, "allow_web", False)),
     }
+    trace_steps = [
+        step for step in (ctx.trace.get("agent_steps") or [])
+        if isinstance(step, dict)
+    ]
     already_executed = {
         str(step.get("tool") or "")
-        for step in (ctx.trace.get("agent_steps") or [])
-        if isinstance(step, dict)
+        for step in trace_steps
+        if step.get("ok")
     }
+    failed_tools = {
+        str(step.get("tool") or "") for step in trace_steps if not step.get("ok")
+    }
+    supplemental = False
 
     current_plan = state.get("current_plan")
     if current_plan:
@@ -252,21 +300,31 @@ def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecu
         current_step = steps[step_index]
         expected_tools = set(current_step.get("expected_tools") or [])
         current_action = str(current_step.get("internal_action") or "")
-        is_content_step = current_action in {"answer_question", "generate_resource"}
-        required_tools = [
-            tool_name
-            for tool_name in ("rag_search", "web_search")
-            if enabled_tools[tool_name]
-            and (is_content_step or tool_name in expected_tools)
-            and tool_name not in already_executed
-        ]
-        query = str(current_plan.get("subject") or "").strip()
+        coverage_retry = dict(
+            (state.get("reflect_filtered") or {}).get("research_coverage") or {}
+        )
+        supplemental_query = str(coverage_retry.get("next_query") or "").strip()
+        supplemental_attempt = int(coverage_retry.get("supplemental_attempt") or 0)
+        research_plan = dict(
+            (current_step.get("constraints") or {}).get("research_plan") or {}
+        )
+        max_supplemental = int(research_plan.get("max_supplemental_queries") or 0)
+        if supplemental_query and current_action == "retrieve_context":
+            if supplemental_attempt > max_supplemental:
+                return []
+            query = supplemental_query
+            supplemental = True
+        else:
+            is_content_step = current_action in {"answer_question", "generate_resource"}
+            if is_content_step:
+                expected_tools |= {
+                    tool for tool, enabled in enabled_tools.items() if enabled
+                }
+            query = str(current_plan.get("subject") or "").strip()
     else:
-        required_tools = [
-            tool_name
-            for tool_name in ("rag_search", "web_search")
-            if enabled_tools[tool_name] and tool_name not in already_executed
-        ]
+        expected_tools = {
+            tool_name for tool_name, enabled in enabled_tools.items() if enabled
+        }
         query = ""
 
     request = rt["request"]
@@ -274,17 +332,144 @@ def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecu
     if not query:
         return []
 
+    source_mode = str(getattr(capability, "source_mode", "") or "none")
+    decision = choose_retrieval_tools(
+        enabled_tools=enabled_tools,
+        expected_tools=expected_tools,
+        source_mode=source_mode,
+        already_executed=already_executed,
+        failed_tools=failed_tools,
+        remaining_budget=max(
+            0,
+            int(getattr(ctx, "max_steps", 8)) - int(getattr(ctx, "step_count", 0)),
+        ),
+        supplemental=supplemental,
+    )
+    ctx.trace.setdefault("tool_decisions", []).append({
+        **decision.model_dump(mode="json"),
+        "query": query,
+        "plan_step_index": int(state.get("plan_step_index") or 0),
+    })
+
     calls = []
-    for tool_name in required_tools:
+    for tool_name in decision.selected_tools:
         args = {"query": query}
         if tool_name == "rag_search":
             args["top_k"] = 5
         calls.append({
-            "id": f"forced_{tool_name}_{len(already_executed) + len(calls) + 1}",
+            "id": (
+                f"supplement_{tool_name}_{supplemental_attempt}"
+                if supplemental
+                else f"forced_{tool_name}_{len(already_executed) + len(calls) + 1}"
+            ),
             "name": tool_name,
             "args": args,
         })
     return calls
+
+
+def _build_mandatory_plan_calls(
+    state: AgentState,
+    rt: dict,
+    ctx: ToolExecutionContext,
+) -> list[dict]:
+    """Compile a single-authority strict step into its deterministic tool call."""
+
+    if state.get("plan_mode") != "strict":
+        return []
+    plan = dict(state.get("current_plan") or {})
+    steps = list(plan.get("steps") or [])
+    index = int(state.get("plan_step_index") or 0)
+    if not (0 <= index < len(steps)):
+        return []
+    step = dict(steps[index] or {})
+    expected = list(step.get("expected_tools") or [])
+    if len(expected) != 1:
+        return []
+    tool = str(expected[0] or "")
+    if tool in {"rag_search", "web_search"}:
+        return []
+    if any(
+        item.get("ok") and str(item.get("tool") or "") == tool
+        for item in list(ctx.trace.get("agent_steps") or [])
+        if isinstance(item, dict)
+    ):
+        return []
+
+    contract = dict(plan.get("contract") or state.get("task_contract") or {})
+    constraints = dict(contract.get("constraints") or {})
+    active_outline = dict(state.get("active_draft_outline") or {})
+    subject = str(plan.get("subject") or contract.get("topic") or "").strip()
+    resource_type = str(
+        active_outline.get("resource_type")
+        or (contract.get("resource_types") or [plan.get("resource_type") or "report"])[0]
+    )
+    common = {
+        "audience": str(contract.get("audience") or constraints.get("audience") or ""),
+        "duration_minutes": int(
+            contract.get("lesson_duration")
+            or constraints.get("duration_minutes")
+            or 45
+        ),
+    }
+    if tool == "draft_outline":
+        args = {
+            "subject": subject,
+            "resource_type": resource_type,
+            # The public tool schema and the UI both treat this as readable
+            # text.  Passing a dict rendered as ``[object Object]`` in the
+            # execution card and made the audit trail needlessly opaque.
+            "constraints": json.dumps(constraints, ensure_ascii=False),
+            **common,
+        }
+    elif tool == "generate_report":
+        args = {
+            "subject": subject,
+            "confirmed_outline": str(active_outline.get("outline_markdown") or ""),
+            "focus": str(constraints.get("focus") or ""),
+            "length_hint": str(constraints.get("length_hint") or ""),
+        }
+    elif tool == "generate_lesson_plan":
+        args = {
+            "subject": subject,
+            "confirmed_outline": str(active_outline.get("outline_markdown") or ""),
+            "grade": str(contract.get("audience") or constraints.get("grade") or ""),
+            **common,
+        }
+    elif tool == "generate_quiz":
+        args = {
+            "subject": subject,
+            "question_count": int(constraints.get("question_count") or 10),
+            "difficulty": str(constraints.get("difficulty") or "medium"),
+            "question_types": list(constraints.get("question_types") or []),
+        }
+    elif tool == "generate_classroom":
+        args = {
+            "topic": subject,
+            "objectives": list(contract.get("teaching_goals") or []),
+            "scene_count": int(constraints.get("scene_count") or 6),
+            "teaching_style": str(constraints.get("teaching_style") or "guided"),
+            "include_visuals": bool(constraints.get("include_visuals", True)),
+            "enable_tts": bool(constraints.get("enable_tts", False)),
+            "audience": common["audience"],
+            "duration_minutes": int(
+                contract.get("lesson_duration")
+                or constraints.get("duration_minutes")
+                or 25
+            ),
+        }
+    elif tool.startswith("generate_"):
+        args = {"topic": subject, "title": subject, **constraints}
+    elif tool == "image_search":
+        args = {"query": subject, "count": 6, "safe": True}
+    elif tool in {"verify_task", "query_task_status", "cancel_task"}:
+        args = {}
+        task_ids = list((contract.get("conversation_refs") or {}).get("candidate_task_ids") or [])
+        if tool in {"query_task_status", "cancel_task"} and len(task_ids) == 1:
+            args["task_id"] = str(task_ids[0])
+    else:
+        return []
+    return [{"id": f"compiled_step_{index + 1}_{tool}", "name": tool, "args": args}]
 
 
 def _required_retrieval_failure(state: AgentState, ctx: ToolExecutionContext) -> dict | None:
@@ -356,6 +541,199 @@ def _maybe_outline_to_append(answer: str, state: dict) -> str:
     return str(outline).strip()
 
 
+def _is_report_result_step(state: dict) -> bool:
+    """Whether the compiled workflow has reached its deterministic terminal step."""
+    plan = state.get("current_plan") or {}
+    steps = plan.get("steps") or []
+    index = int(state.get("plan_step_index") or 0)
+    return (
+        state.get("plan_mode") in {"guided", "strict"}
+        and 0 <= index < len(steps)
+        and str((steps[index] or {}).get("internal_action") or "") == "report_result"
+    )
+
+
+def _is_clarification_step(state: dict) -> bool:
+    plan = state.get("current_plan") or {}
+    steps = plan.get("steps") or []
+    index = int(state.get("plan_step_index") or 0)
+    return (
+        state.get("plan_mode") in {"guided", "strict"}
+        and 0 <= index < len(steps)
+        and str((steps[index] or {}).get("internal_action") or "") == "clarify"
+    )
+
+
+def _emit_compiled_clarification(
+    writer,
+    state: AgentState,
+    rt: dict,
+    ctx: ToolExecutionContext,
+) -> dict:
+    """Ask the single compiler-approved high-impact clarification question."""
+    plan = state.get("current_plan") or {}
+    contract = dict(plan.get("contract") or state.get("task_contract") or {})
+    clarification = dict(contract.get("clarification") or {})
+    question = str(
+        clarification.get("question")
+        or "请补充一个会影响执行结果的关键信息。"
+    ).strip()
+    request = rt["request"]
+    conversation_id = rt.get("conv_id") or (
+        getattr(request, "conversation_id", "") or ""
+    )
+    ctx.trace["clarification"] = {
+        "field": clarification.get("field"),
+        "budget": clarification.get("budget", 1),
+        "reason": clarification.get("reason", ""),
+    }
+    writer({"type": "delta", "payload": {"content": question}})
+    writer({
+        "type": "result",
+        "payload": {
+            "message": {"role": "assistant", "content": question},
+            "conversation": {"conversation_id": conversation_id},
+            "action": {"name": "agent.clarification_required"},
+            "artifacts": [],
+            "workflow": None,
+            "sources": [],
+            "trace": ctx.trace,
+            "tool_exchange": state.get("tool_exchange") or [],
+        },
+    })
+    return {
+        "messages": list(state.get("messages") or [])
+        + [{"role": "assistant", "content": question}],
+        "reflect_verdict": "",
+        "reflect_hint": "",
+        "reflect_filtered": {},
+    }
+
+
+def _emit_compiled_report_result(
+    writer,
+    state: AgentState,
+    rt: dict,
+    ctx: ToolExecutionContext,
+) -> dict:
+    """Emit the terminal response without giving a completed plan new tool authority."""
+    plan = state.get("current_plan") or {}
+    steps = plan.get("steps") or []
+    index = int(state.get("plan_step_index") or 0)
+    step = dict(steps[index] or {})
+    pending_tasks = list(state.get("pending_tasks") or [])
+    verification = dict(
+        getattr(ctx, "verification_report", None)
+        or state.get("verification_report")
+        or {}
+    )
+    if not verification and getattr(ctx, "artifact_readback", None) is not None:
+        from app.chat.runtime.verification.plan_verifier import verify_plan_execution
+
+        verification = verify_plan_execution(
+            dict(plan),
+            dict(getattr(ctx, "trace", {}) or {}),
+            artifact_readback=getattr(ctx, "artifact_readback", None),
+        ).model_dump(mode="json")
+        ctx.verification_report = verification
+    request = rt["request"]
+    conversation_id = rt.get("conv_id") or (
+        getattr(request, "conversation_id", "") or ""
+    )
+
+    readback = getattr(ctx, "artifact_readback", None)
+    if readback is not None and int(readback.get("checked") or 0) > 0:
+        decision = str(verification.get("decision") or "partial")
+        if decision == "pass":
+            message = "任务已完成，产物可读，资源质量与执行审计均已通过。"
+        else:
+            repair = dict(verification.get("repair_directive") or {})
+            reason = str(repair.get("reason") or "存在待处理的质量项")
+            message = f"任务状态已核验，但尚不能宣称完整通过：{reason}。"
+    elif pending_tasks:
+        message = _pending_task_submission_message(pending_tasks)
+    else:
+        message = "\u5df2\u5b8c\u6210\u4efb\u52a1\u7684\u5de5\u5177\u8c03\u7528\u4e0e\u7ed3\u6784\u5316\u5ba1\u8ba1\u3002"
+
+    writer({
+        "type": "plan_step_update",
+        "payload": {
+            "step_index": index,
+            "status": "done",
+            "user_title": step.get("user_title", ""),
+        },
+    })
+    writer({"type": "delta", "payload": {"content": message}})
+    writer({
+        "type": "result",
+        "payload": {
+            "message": {"role": "assistant", "content": message},
+            "conversation": {"conversation_id": conversation_id},
+            "action": {"name": "agent.completed"},
+            "artifacts": [],
+            "workflow": None,
+            "sources": list(state.get("retrieval_sources") or []),
+            "trace": ctx.trace,
+            "verification": verification,
+            "tool_exchange": state.get("tool_exchange") or [],
+        },
+    })
+
+    updated_steps = list(steps)
+    updated_steps[index] = dict(step, status="done")
+    return {
+        "messages": list(state.get("messages") or [])
+        + [{"role": "assistant", "content": message}],
+        "current_plan": dict(plan, steps=updated_steps),
+        "plan_step_index": index + 1,
+        "reflect_verdict": "",
+        "reflect_hint": "",
+        "reflect_filtered": {},
+    }
+
+
+def _pending_task_submission_message(pending_tasks: list[dict]) -> str:
+    """Describe every accepted task so bundle summaries stay truthful."""
+
+    labels = {
+        "report": "报告",
+        "lesson_plan": "教案",
+        "quiz": "练习题",
+        "blog": "教学博客",
+        "flashcard": "闪卡",
+        "graph": "思维导图",
+        "game": "课堂小游戏",
+        "classroom": "AI 课堂",
+    }
+    unique: list[dict] = []
+    seen: set[str] = set()
+    for raw in pending_tasks:
+        item = dict(raw or {})
+        task_id = str(item.get("task_id") or "").strip()
+        if not task_id or task_id in seen:
+            continue
+        seen.add(task_id)
+        unique.append(item)
+    if not unique:
+        prefix = "已提交教学材料生成任务"
+    elif len(unique) == 1:
+        item = unique[0]
+        task_id = str(item.get("task_id") or "")
+        workflow = labels.get(
+            str(item.get("workflow_type") or ""),
+            str(item.get("workflow_type") or "资源"),
+        )
+        prefix = f"已提交{workflow}生成任务（任务 ID: {task_id}）"
+    else:
+        entries = []
+        for item in unique:
+            workflow = str(item.get("workflow_type") or "")
+            label = labels.get(workflow, workflow or "资源")
+            entries.append(f"{label}（{item.get('task_id')}）")
+        prefix = f"已提交 {len(unique)} 个教学材料生成任务：" + "、".join(entries)
+    return prefix + "。已完成工具调用与结构化审计，可继续询问任务进度。"
+
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
@@ -380,9 +758,9 @@ def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
     from app.chat.runtime.agent_tools.schemas import filter_schemas_by_step
     if mode == "strict":
         if not expected:
-            return tool_schemas
+            return []
         filtered = filter_schemas_by_step(tool_schemas, expected)
-        return filtered if filtered else tool_schemas
+        return filtered
     expected_set = set(expected)
     return [
         schema
@@ -392,6 +770,56 @@ def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
         )
         or (schema.get("function") or {}).get("name") in expected_set
     ]
+
+
+def _prepare_tool_free_messages(messages: list[dict]) -> list[dict]:
+    """Remove function-call protocol when the compiled step grants no tools.
+
+    Some OpenAI-compatible providers infer another function call from earlier
+    assistant/tool messages even when the current request contains no ``tools``
+    field.  Preserve the observations as read-only context, but remove the
+    protocol frames so an answer/confirmation step can only produce text.
+    """
+
+    prepared: list[dict] = []
+    for message in messages:
+        role = str(message.get("role") or "")
+        if role == "assistant" and message.get("tool_calls"):
+            content = str(message.get("content") or "").strip()
+            if content:
+                prepared.append({"role": "assistant", "content": content})
+            continue
+        if role == "tool":
+            content = str(message.get("content") or "").strip()
+            if content:
+                prepared.append({
+                    "role": "system",
+                    "content": "已完成工具的只读结果：\n" + content,
+                })
+            continue
+        prepared.append(dict(message))
+    prepared.append({
+        "role": "system",
+        "content": (
+            "当前计划步骤不授予任何工具权限。只根据已有上下文输出文本；"
+            "不要请求、描述或伪造新的工具调用。"
+        ),
+    })
+    return prepared
+
+
+def _tool_choice_for_step(state: dict, tool_schemas: list) -> str:
+    """Derive model tool authority from the current compiled plan step."""
+    if not tool_schemas:
+        return "none"
+    current_plan = state.get("current_plan") or {}
+    steps = current_plan.get("steps") or []
+    idx = int(state.get("plan_step_index") or 0)
+    step = steps[idx] if 0 <= idx < len(steps) else {}
+    expected = list(step.get("expected_tools") or [])
+    if state.get("plan_mode") == "strict" and len(expected) == 1:
+        return "required"
+    return "auto"
 
 
 def _filter_unrequested_image_search(tool_schemas: list, state: dict, request) -> list:
@@ -473,8 +901,8 @@ def _required_retrieval_satisfied(ctx: ToolExecutionContext) -> bool:
 
 
 def _emit_step_running(writer, state: dict) -> None:
-    """Emit plan_step_update 'running' when guided mode and a valid step exists."""
-    if state.get("plan_mode") != "guided":
+    """Emit plan_step_update 'running' for every compiled plan mode."""
+    if state.get("plan_mode") not in {"guided", "strict"}:
         return
     current_plan = state.get("current_plan")
     if not current_plan:

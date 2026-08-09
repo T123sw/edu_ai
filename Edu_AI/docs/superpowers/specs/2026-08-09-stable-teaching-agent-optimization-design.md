@@ -1,12 +1,86 @@
 # 稳定型教学 Agent 能力优化 SPEC
 
 > 日期：2026-08-09
-> 状态：设计完成，尚未实施
+> 状态：Task 11—17 智能升级已实现；L1/L2、真实 L3、双 Provider、长对话与浏览器 L4 核心验收通过
+> 审计基线：`main@8eb20f7`（2026-08-09）
 > 优先范围：教师端 Agent；学生端仅定义可复用角色策略，不实施学生端产品
 > 调研依据：`docs/research/2026-08-09-stable-teaching-agent-open-source-research.md`
 > 现状基线：`docs/acceptance/2026-08-09-agent-capability-status.md`
 > 执行计划：`docs/superpowers/plans/2026-08-09-stable-teaching-agent-optimization.md`
 > 验收规范：`docs/acceptance/2026-08-09-stable-teaching-agent-optimization-acceptance.md`
+
+## 0. 代码现状审计（已完成）
+
+本节保留对 `main@8eb20f7` 的历史审计结果，用于解释本轮改造的起点。审计发现的核心缺口已经进入代码并完成回归；当前事实以 0.5、16 和 17 节为准。
+
+### 0.1 已实现，可直接复用
+
+| 能力 | 代码事实 | 本轮处理 |
+|---|---|---|
+| UI 来源权威 | `request_normalizer.py` 已规范化 `selected_documents`、`course_auto`、`none`，所选文档会强制启用 RAG | 保留并纳入 `TeachingTaskContract` 输入护栏 |
+| 强制检索 | Executor 会根据 capability 确定性调用 RAG/Web，检索无证据时阻止最终知识性回答 | 保留，移入编译计划与统一成功谓词 |
+| 检索顺序修正 | Planner 的 `_ensure_mandatory_retrieval_when_enabled` 会合并检索步骤并移动到首位 | 由统一计划编译器替代，不保留双重权威 |
+| 大纲确认边界 | 报告、PPT、教案首轮会移除生成步骤并等待确认 | 保留产品行为；PPT 不进入本轮新能力验收 |
+| 明确单资源识别 | 教学博客、闪卡、思维导图、小游戏、AI 课堂、习题有关键词兜底和对应工具 | 迁入版本化意图规则，补齐多资源和控制意图 |
+| 八类非 PPT 工具入口 | 工具注册和 durable Job 提交链路已存在，已有真实生成基线 | 不重写生成器，只收紧 Agent 侧契约 |
+| 后台任务基础设施 | `GenerationCommand`、SQLite durable task store、Job 终态和结果引用已存在 | 复用；新增 Agent run 持久化和确定性幂等键 |
+| 报告证据消费 | 报告会合并 RAG/Web 摘要、来源和图片，并记录 grounding 状态 | 作为统一 `ResearchBundle` 协议的参考实现 |
+| 模型故障切换 | Planner、Executor 和部分生成链路已支持配置模型 fallback | 保留，补充统一错误分类与 trace |
+| 基础 trace | 已记录工具、参数摘要、耗时、成功标志和部分证据数 | 扩展为任务契约、计划、预算、Job、材料和自检的完整 trace |
+
+### 0.2 评审时部分实现（已完成核心收敛）
+
+| 能力 | 当前缺口 | 目标状态 |
+|---|---|---|
+| 计划 | 当前 `PlanStep.internal_action` 仍是自由度较高的模型输出，依靠多个 `_ensure_*` 后置修正；没有依赖图、成功谓词和失败策略 | 模型只产出任务契约，代码编译枚举化 `CompiledPlan` |
+| 工具白名单 | guided 模式主要隐藏提前生成工具；strict 模式在 `expected_tools=[]` 时会退回全部工具 | 空 allowlist 必须表示“禁止所有工具”；所有阶段调用前强校验 |
+| 强制工具选择 | LLM 调用当前始终使用 `tool_choice="auto"` | 必需步骤使用 required/指定工具；等待确认和汇报阶段禁止工具 |
+| 重试预算 | 有 `max_steps` 和 Reflect 重试计数，但默认每步可重试 2 次、总计 4 次，且没有独立的全局重规划计数 | 单步骤最多重试 1 次；整次任务最多重规划 1 次；预算耗尽明确终止 |
+| Reflect | 可检查检索长度、来源、大纲和图片；工具返回 `ok=false` 时规则默认 `pass`，可能错误推进步骤 | 先按错误码处理执行事实，再运行内容质量评价；失败不得推进成功步骤 |
+| 幂等 | 底层任务存储支持幂等，但 Agent 报告、教案、习题和其他资源处理器使用随机 UUID；AI 课堂也没有 Agent 逻辑任务键 | 同一逻辑任务在重试、重连、双实例和重启后命中同一 Job |
+| 状态持久化 | LangGraph 使用进程级 `MemorySaver`；重启丢失大纲、计划和图片；每轮还会重置 `current_plan` | SQLite 持久化任务契约、计划、确认点、研究包引用、Job 和验证结果 |
+| 研究证据 | 报告消费最完整；AI 课堂可消费研究文本；其他资源即使保存部分字段，也没有统一、可证明的消费协议 | 八类非 PPT 资源都接收同一 `ResearchBundle` 引用并报告消费结果 |
+| 图片链路 | 已有报告图片搜索、审核和注入；尚未成为所有适用资源的共享协议 | 图片需求、候选、审核、位置和降级原因进入 `ResearchBundle` |
+| 终态 | Agent 生成工具成功仅表示“Job 已提交”；真实冒烟脚本会在 Agent 外部轮询 Job 和材料 | Agent run 区分 accepted/running/succeeded/partial/failed；完成声明需材料可读 |
+
+### 0.3 评审时未实现（历史基线）
+
+- 版本化 `TeachingTaskContract` 和七类任务意图；
+- 默认或显式教学材料包编排；
+- 状态查询、取消、资源修改的 Agent 工作流；
+- `PersonaPolicy` / `InteractionPolicy`；普通问答快速路径当前仍带有面向学生的启发、延伸学习和反问话术；
+- 统一 `ResearchBundle`、`ToolObservation`、`VerificationReport`；
+- Agent run SQLite 持久化与跨重启恢复；
+- 确定性 Agent 幂等键；
+- 版本化 Agent Eval Dataset、五次重复实验和结构化失败报告。
+
+### 0.4 审计确认的 P0 风险（核心项已关闭）
+
+1. strict 阶段的空工具列表不是 fail closed，等待确认/汇报阶段存在工具面扩大风险。
+2. `tool_choice="auto"` 使必须调用的非检索工具仍依赖模型自觉。
+3. 工具失败可被 Reflect 当作通过，步骤状态可能与执行事实不一致。
+4. Agent 使用随机幂等键，重复确认或重试可能创建重复资源。
+5. 进程重启会丢失 Agent 工作状态，不能满足恢复验收。
+6. 任务提交成功不等于资源完成，运行时尚无材料可读性完成门禁。
+7. 普通问答快速路径 Persona 与“教师备课助手”定位冲突。
+
+上述风险已通过任务契约、计划编译器、严格工具边界、幂等键、SQLite run state、材料状态和教师 Persona 完成核心关闭；剩余发布级稳定性与体验门槛在第 17 节继续实施。
+
+### 0.5 2026-08-09 实施记录
+
+本轮已将审计中的核心编排风险落到代码和测试中：
+
+| 范围 | 已实施事实 |
+|---|---|
+| 任务与角色 | 新增版本化 `TeachingTaskContract`、确定性提取器，以及教师/学生 `PersonaPolicy`；Fast 与 Agent 提示词均采用教师备课助手定位 |
+| 计划 | 新增固定模板编译器，覆盖 QA、单资源、默认材料包、确认、修改大纲、状态、取消；Planner 不再把自由 LLM 计划作为执行事实 |
+| 工具护栏 | 空 allowlist 严格关闭；当前步骤 schema 过滤与执行前二次校验一致；无工具步骤使用 `tool_choice=none`，单工具必需步骤使用 `required` |
+| 恢复与审计 | 工具 `ok=false` 先按错误与失败策略处理，失败不会推进必需步骤；新增 `VerificationReport`，检查白名单、顺序、重复提交、grounding 和材料状态 |
+| 状态与幂等 | Agent run 写入 SQLite；资源生成键由逻辑任务、契约和参数确定；课堂生成补齐 owner/course scoped 幂等复用；状态查询返回 Job 与材料引用可读性 |
+| 研究证据 | 新增 `ResearchBundle`；报告、教案、习题、博客、闪卡、导图、小游戏和 AI 课堂均将研究上下文送入实际生成输入，并在产物/任务元数据保留 bundle 消费证据 |
+| 长对话验收 | 新增 `smoke_teacher_agent_generation.py --cases long-dialogue --long-dialogue-turns 12`：验证大纲保留、修订后确认、单次提交、Job/材料与后续状态查询 |
+
+最终本地验证已通过 1369 项后端全量回归（2 skipped）、223 项前端测试、Python 编译检查、前端生产构建和差异格式检查。真实服务已覆盖普通问答、course_auto/selected RAG、Web、RAG+Web、图片检索、八类资源、默认材料包、Job/材料读回、结构化审计和 12 轮长对话；自动化另覆盖 50 轮记忆与完整故障注入。L4 浏览器核心流程、双 Provider 连续五次和结构评测五次重复均已通过。
 
 ## 1. 产品定位
 
@@ -168,6 +242,14 @@ budgets{}
 - 每个生成步骤只能包含一个明确资源工具；
 - 相同幂等键的生成步骤不能重复。
 
+补充约束：
+
+- `await_confirmation`、`verify` 和 `report_result` 的工具白名单可以为空；空列表必须严格解释为“禁止调用任何工具”，不得退回全量工具；
+- `depends_on` 只能引用同一计划中的先前步骤，计划必须通过无环校验；
+- `generate_resource` 的成功只表示已获得合法 `job_id`，不能直接把步骤或任务标记为最终完成；
+- `status`、`cancel`、`modify` 和 `confirm` 使用专用模板，不得通过普通生成计划猜测执行；
+- 模型输出不合法时，由确定性模板 fail closed；禁止把原始自由计划直接交给 Executor。
+
 ### 5.3 `ResearchBundle`
 
 一次备课任务共享一份研究包：
@@ -187,6 +269,8 @@ created_at
 
 所有资源生成器读取同一研究包，而不是各自重新检索或只在命令快照中保存未使用的上下文。
 
+`ResearchBundle` 必须版本化并通过引用传递。Trace 只记录 bundle ID、来源数量、质量摘要和引用 ID，不记录完整私有文档正文。
+
 ### 5.4 `VerificationReport`
 
 自检输出必须结构化：
@@ -204,6 +288,43 @@ persona_valid
 warnings[]
 decision: pass | partial | retry | fail
 ```
+
+### 5.5 `ToolObservation` 与错误契约
+
+所有工具统一返回：
+
+```text
+observation_id
+tool_name
+stage
+attempt
+status: succeeded | accepted | running | failed | cancelled | timed_out
+error_code?: validation_error | transient_provider_error | retrieval_empty |
+             permission_denied | job_timeout | job_failed | contract_violation |
+             artifact_unreadable | unknown_error
+recoverable: bool
+summary
+evidence_refs[]
+job_id?
+result_ref?
+duration_ms
+```
+
+工具元数据必须声明允许阶段、输入模型、副作用等级、是否需要幂等、超时、最大尝试次数、成功谓词及可恢复错误。Executor 不再从自由文本判断成功。
+
+### 5.6 `AgentRunStatus`
+
+任务终态使用统一枚举：
+
+```text
+awaiting_confirmation | accepted | running | succeeded | partial |
+failed | cancelled | timed_out
+```
+
+- `accepted`/`running` 是合法中间态，前端可立即展示任务入口；
+- 只有 Job `succeeded`、`result_ref` 存在、材料可读取且自检通过时，才可声明资源完成；
+- 材料包部分项目失败时使用 `partial`，保留已成功资源；
+- 超时仅结束前台等待，不得触发重复提交。
 
 ## 6. 意图与计划模板
 
@@ -254,12 +375,14 @@ decision: pass | partial | retry | fail
 
 ```text
 获取共享 ResearchBundle
-→ 给出一条简洁材料包确认（核心包、主题、来源）
+→ 给出一条简洁材料包确认（核心包、主题、来源，以及需要确认的教案/报告结构）
 → 教案生成
 → 练习题与思维导图可并行生成
 → 逐项自检
 → 汇报全部成功、部分成功或失败项
 ```
+
+材料包只允许一次合并确认。若包含教案或报告，其结构预览必须并入同一确认卡；不得先确认材料类型、再逐项确认参数。AI 课堂属于高耗时分支，即使出现在材料包中也要在确认卡中单独标识成本和异步行为。
 
 如果教师已保存个人默认材料包，可以直接采用该偏好，并在状态卡中显示“按你的默认材料包准备”，不再追问。
 
@@ -326,10 +449,13 @@ Observe（结构化状态与上一步结果）
 每个生成工具调用必须携带：
 
 ```text
-idempotency_key = conversation_id + plan_id + resource_type + contract_hash
+logical_task_id = 首次创建任务契约时生成并持久化的稳定 ID
+idempotency_key = sha256(owner_id + course_id + conversation_id +
+                         logical_task_id + resource_type + contract_hash)
 ```
 
 - 相同键已存在成功或运行中 Job：返回原 Job，不重复创建；
+- 重规划不得更换 `logical_task_id`，否则会绕过幂等；
 - 超时只表示前台等待结束，不表示任务失败，不得重新提交；
 - 用户修改主题、资源类型或关键配置后生成新的 contract hash；
 - 工具结果必须返回 `job_id`、`accepted_at`、`result_ref` 或明确错误码。
@@ -343,6 +469,14 @@ idempotency_key = conversation_id + plan_id + resource_type + contract_hash
 - `job_timeout`：转后台并给任务入口，不重复提交；
 - `job_failed`：显示资源类型和失败原因，材料包其他项继续；
 - `contract_violation`：停止并记录为系统缺陷。
+
+### 8.4 工具选择策略
+
+- 强制 RAG/Web、确定性生成步骤：使用 required 或指定工具调用；
+- 可选补充检索：仅暴露当前阶段允许的候选工具并使用 `auto`；
+- 等待确认、自检规则判定和结果汇报：不暴露写工具；
+- 空白 allowlist：禁止所有工具；
+- 任何阶段越权调用在执行前返回 `contract_violation`，不得依赖工具处理器自行拒绝。
 
 ## 9. 自检策略
 
@@ -416,6 +550,8 @@ avoid_basic_tutoring_tone: true
 - 完成：列出材料、入口、来源使用和警告；
 - 失败：说明失败项、已完成项和可执行下一步。
 
+该策略必须同时作用于快速问答路径和 Agent 工具路径。不得只修改 Agent system prompt，而让普通问答继续使用面向学生的启发式教师提示词。
+
 ### 11.2 学生 `PersonaPolicy` 预留
 
 ```text
@@ -440,6 +576,8 @@ reflection_question_budget_per_topic: 1
 - Job 与材料引用；
 - 重试、重规划和预算消耗；
 - 最终 `VerificationReport`。
+
+实现采用与现有 durable task store 一致的 SQLite 基础设施，新增独立的 Agent run/step/reference 表；不把每个高频步骤继续写入整文件 JSON 对话存储。LangGraph checkpointer 可以作为运行时缓存，但不能成为事实来源。
 
 每次运行产生统一 trace：
 
@@ -501,3 +639,103 @@ guardrail decisions, job_ids, material_ids, verification, final_status
 6. 同一关键用例至少重复五次，稳定性指标达标；
 7. PPT 延期与学生端未实施不计为本轮失败，但不得被误报为已支持；
 8. 验收文档填写真实结果、任务/材料证据、耗时和未通过项，不允许只写“工具已调用”。
+
+## 16. 实施结果（2026-08-09）
+
+本轮实现已落地任务契约、模板计划编译、阶段工具白名单、检索研究包、SQLite Agent 运行状态、幂等提交、规则优先的 `VerificationReport` 与教师 Persona。生成后的终态由服务端确定性汇报：它不再把已完成计划交回模型取得新的工具权限，因此保留完整的工具轨迹和结构化审计，而不会因严格模式拒绝额外状态查询而覆盖成功结果。
+
+已在重启后的真实 8001 服务验证联网报告链路：`web_search → generate_report → verify_task`，10 条 Web 来源进入生成配置和材料 grounding；最终 SSE 响应包含计划合规、必需/禁止工具、顺序、重复提交、grounding、材料契约、Persona 与决策字段。12 轮真实连续对话亦验证了大纲保持、修改生成新大纲、确认后单次提交以及最后仅查询任务状态。
+
+本轮核心工作流与第二阶段智能升级均已验收：版本化数据集连续五次、双 Provider 连续五次、故障注入、50 轮记忆、八类资源、默认材料包和教师端浏览器流程均有独立证据。PPT 与学生端仍按既定范围明确延期，不计入本轮成功数。
+
+## 17. 第二阶段：Agent 智能优化 SPEC（已实施）
+
+### 17.1 阶段目标
+
+本阶段在稳定编排基础上提升“在规则边界内是否能做出更好的教学工作”。已实现的目标闭环为：
+
+```text
+准确理解任务
+→ 主动补全可安全推断的信息
+→ 选择最低成本且充分的资料来源
+→ 形成可解释的教学工作计划
+→ 正确调用并复用工具结果
+→ 对材料质量和执行事实分别审计
+→ 在长对话中持续维护任务状态
+→ 根据评测结果持续优化
+```
+
+### 17.2 核心能力
+
+| 能力域 | 稳定基础 | 本阶段实现 |
+|---|---|---|
+| 任务理解 | 规则优先的 `TeachingTaskContract` | 增加字段来源、置信度、冲突和缺失原因；仅对高影响歧义追问一次 |
+| 计划智能 | 固定模板编译，执行稳定 | 按任务规模、来源质量和资源依赖选择模板；允许模型提出受限参数，不允许改写安全顺序 |
+| 研究智能 | RAG/Web 可组合并形成 `ResearchBundle` | 查询分解、来源去重、可信度分层、证据覆盖检查和证据不足时的有界补检索 |
+| 工具决策 | 阶段 allowlist 与 required tool choice | 在允许集合中依据成本、时延、证据增益和历史结果选择；避免无收益的重复调用 |
+| 生成质量 | 八类资源可消费统一研究上下文 | 资源级教学质量契约：目标、学情、课堂活动、评价和引用必须可核验 |
+| 自检恢复 | 规则优先 `VerificationReport` | 分离执行审计、证据审计、材料审计和 Persona 审计；只重做失败的最小步骤 |
+| 长对话记忆 | SQLite 保存任务、计划、确认和 Job | 引入工作记忆、任务账本和对话摘要三层结构；50 轮后仍能绑定正确任务与约束 |
+| 评测闭环 | 单元、集成和真实冒烟 | 建立版本化 Eval Dataset、五次重复、双 Provider 对照、失败聚类与回归阈值 |
+
+### 17.3 智能边界
+
+- 继续采用单 Agent、固定模板和有界 ReAct，不迁移为开放式多 Agent。
+- 模型可以补全教学参数、提出检索词和内容结构，但不能扩大权限、来源范围或工具白名单。
+- 模型判断不能覆盖 Job、材料、权限、调用次数和来源等执行事实。
+- 不增加任意代码执行能力；所有外部动作继续通过结构化工具完成。
+- 默认采用低成本路径；只有证据不足、质量门禁失败或用户明确要求时才升级检索/模型成本。
+- PPT 和学生端产品继续不在本阶段范围内，学生 `PersonaPolicy` 仅作为共享内核扩展点。
+
+### 17.4 新增验收指标
+
+| 指标 | 门槛 |
+|---|---:|
+| 版本化离线用例数 | ≥ 80 |
+| 任务契约字段准确率 | ≥ 98% |
+| 高影响歧义识别召回率 | ≥ 95% |
+| 清晰请求无谓追问率 | ≤ 5% |
+| 检索证据覆盖率 | ≥ 95% |
+| 无收益重复工具调用率 | ≤ 2% |
+| 50 轮任务绑定准确率 | 100% |
+| 同一关键用例五次执行合规率 | ≥ 98% |
+| 双 Provider 核心用例通过率 | ≥ 95% |
+| 教师 Persona 合规率 | ≥ 95% |
+| 结构化审计与执行事实一致率 | 100% |
+
+### 17.5 实施优先级
+
+1. 建立 Eval Dataset 和统一评分器，先固定“智能”的可测定义。
+2. 升级任务契约与三层记忆，解决复杂请求和长对话任务绑定。
+3. 实现查询分解、证据覆盖和检索成本策略。
+4. 实现资源级教学质量契约与最小步骤修复。
+5. 完成五次重复、双 Provider、故障注入和浏览器验收。
+
+本阶段不得以新增提示词数量作为完成证据；实际签收使用版本化用例、trace、材料和重复实验结果证明能力提升。
+
+## 18. 智能升级最终结果
+
+### 18.1 已落地能力
+
+- `TeachingTaskContract` v2 为意图、主题、资源、学情、时长、来源和确认策略记录来源、置信度与歧义；
+- 三层记忆分离原始消息、工作记忆和任务账本，确认点、约束、Job 与材料引用不被摘要丢弃；
+- 研究计划将复杂任务拆成问题与证据需求，按覆盖缺口执行最多一次补检索；
+- 工具策略在编译计划 allowlist 内按质量增益、成本、预算和历史结果决策；
+- 八类非 PPT 资源具有结构化质量契约，`VerificationReport` 分离执行、证据、材料与 Persona 审计；
+- 修复策略只重试失败步骤，已经成功的不可逆 Job 不会因其他步骤失败而重复提交；
+- 确认态完整继承材料包资源集合、图片需求、来源和主题约束；无工具步骤和单工具步骤均由服务端收紧权限；
+- 版本化评测、双 Provider 冒烟、真实生成、长对话和浏览器流程形成可重复验收资产。
+
+### 18.2 验收数字
+
+| 项目 | 结果 |
+|---|---:|
+| 版本化离线数据集 | 80 个用例 |
+| 五次重复 | 400/400，100% |
+| 双 Provider 连续五次 | 20/20，100% |
+| 50 轮任务绑定/隔离 | 100% |
+| 八类真实资源 | 8/8 成功落库 |
+| 默认材料包 | 3/3 Job 成功并可预览 |
+| 浏览器核心流程 | 确认、进度、预览、取消、重载、重启恢复、partial 均通过 |
+
+详细命令、Provider 标识、Job/材料证据、未纳入范围和最终全量回归数字以验收文档为准。敏感令牌、私有文档全文和模型隐藏推理未写入任何报告。

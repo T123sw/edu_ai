@@ -34,6 +34,11 @@ class BlogGenerationAdapterV2:
             body_llm = get_fallback_llm()
         if body_llm is None:
             raise RuntimeError("blog_llm_unavailable")
+        source_context = str(getattr(payload, "source_context", "") or "").strip()
+        research_context = str(getattr(payload, "research_context", "") or "").strip()
+        evidence_context = "\n\n".join(
+            part for part in (source_context, research_context) if part
+        )
         generation_config = {
             key: getattr(payload, key, None)
             for key in (
@@ -42,12 +47,17 @@ class BlogGenerationAdapterV2:
                 "length",
                 "structure",
                 "special_requirements",
-                "source_context",
                 "source_mode",
                 "include_visuals",
             )
             if getattr(payload, key, None) not in (None, "")
         }
+        if evidence_context:
+            generation_config["source_context"] = evidence_context
+        if research_context:
+            generation_config["research_bundle_id"] = str(
+                getattr(payload, "research_bundle_id", "") or ""
+            )
         if bool(getattr(payload, "include_visuals", False)):
             pipeline = self.visual_pipeline
             llm = body_llm

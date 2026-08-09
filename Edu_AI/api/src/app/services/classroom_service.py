@@ -28,7 +28,7 @@ from app.services.classroom_media import (
     synthesize_classroom_speech_audio,
 )
 from app.services.classroom_persistence import ClassroomValidationError, persist_classroom_result
-from app.services.job_store import EduJob
+from app.services.job_store import EduJob, JobKind, list_job_page
 from app.services.knowledge_graph_context import fetch_knowledge_graph_context
 from core.course_storage import CourseStorageManager
 
@@ -289,6 +289,8 @@ async def submit_classroom_generation_job(
     teaching_style: str = "guided",
     voice: str = "alloy",
     include_visuals: bool = True,
+    research_bundle_id: str | None = None,
+    idempotency_key: str | None = None,
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -304,6 +306,20 @@ async def submit_classroom_generation_job(
         source_mode,
         list(selected_doc_ids or []),
     )
+    normalized_key = str(idempotency_key or "").strip()
+    if existing_job is None and normalized_key:
+        # Classroom jobs predate GenerationCommand, so apply the same durable,
+        # owner/course-scoped deduplication at this boundary.  A duplicate must
+        # return the original job and must not enqueue a second sidecar task.
+        existing = list_job_page(
+            owner_user_id=str(owner or ""),
+            kinds=[JobKind.GENERATE_CLASSROOM],
+            course_id=course_id,
+            limit=200,
+        )
+        for candidate in existing.items:
+            if str((candidate.input_summary or {}).get("idempotency_key") or "") == normalized_key:
+                return candidate
     job = existing_job or create_classroom_job(
             owner=owner,
             course_id=course_id,
@@ -322,6 +338,8 @@ async def submit_classroom_generation_job(
                 "teaching_style": teaching_style,
                 "voice": voice if enable_tts else "",
                 "include_visuals": include_visuals,
+                "research_bundle_id": str(research_bundle_id or ""),
+                "idempotency_key": normalized_key,
                 "source": "classroom-studio",
             },
         )
@@ -356,6 +374,8 @@ async def submit_classroom_generation_job(
             "teaching_style": teaching_style,
             "voice": voice if enable_tts else "",
             "include_visuals": include_visuals,
+            "research_bundle_id": str(research_bundle_id or ""),
+            "idempotency_key": normalized_key,
         },
         runtime_config_snapshot=runtime_snapshot,
     )

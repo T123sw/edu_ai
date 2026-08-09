@@ -176,6 +176,8 @@ def test_direct_game_service_generates_from_topic_without_documents():
                 card_count=12,
                 difficulty="hard",
                 duration_minutes=8,
+                research_context="Agent evidence: perception precedes action.",
+                research_bundle_id="bundle-1",
                 course_id="course-1",
                 owner="tester",
             )
@@ -187,5 +189,7 @@ def test_direct_game_service_generates_from_topic_without_documents():
         assert "12" in str(llm.messages[0])
         assert "hard" in str(llm.messages[0])
         assert "8" in str(llm.messages[0])
+        assert "Agent evidence" in str(llm.messages[0])
+        assert result["artifacts"][0]["generation_state"]["research_context_used"] is True
     finally:
         rmtree(storage_root, ignore_errors=True)

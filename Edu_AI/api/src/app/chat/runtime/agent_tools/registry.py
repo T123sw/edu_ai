@@ -15,6 +15,8 @@ from app.chat.runtime.agent_tools.handlers.report import handle_generate_report
 from app.chat.runtime.agent_tools.handlers.retrieval import handle_rag_search, handle_web_search
 from app.chat.runtime.agent_tools.handlers.resource import handle_generate_resource
 from app.chat.runtime.agent_tools.handlers.classroom import handle_generate_classroom
+from app.chat.runtime.agent_tools.handlers.verification import handle_verify_task
+from app.chat.runtime.agent_tools.handlers.control import handle_cancel_task, handle_query_task_status
 
 ToolHandler = Callable[[str, dict[str, Any], Any], dict[str, Any]]
 
@@ -40,4 +42,10 @@ def get_tool_handler(name: str) -> ToolHandler | None:
         return handle_image_search
     if name == "draft_outline":
         return handle_draft_outline
+    if name == "verify_task":
+        return handle_verify_task
+    if name == "query_task_status":
+        return handle_query_task_status
+    if name == "cancel_task":
+        return handle_cancel_task
     return _GENERATE_HANDLERS.get(name)

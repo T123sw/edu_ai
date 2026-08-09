@@ -34,8 +34,11 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
         "ok": result.get("ok", False),
         "duration_ms": elapsed_ms,
     }
+    payload = result.get("payload") or {}
+    if isinstance(payload, dict) and payload.get("task_id"):
+        trace_step["task_id"] = str(payload["task_id"])
+        trace_step["workflow_type"] = str(payload.get("workflow_type") or "")
     if name in {"rag_search", "web_search"}:
-        payload = result.get("payload") or {}
         trace_step["evidence_count"] = len(payload.get("sources") or [])
     ctx.trace["agent_steps"].append(trace_step)
     ctx.step_count += 1

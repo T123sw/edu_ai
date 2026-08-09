@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.chat.runtime.execution.idempotency import generation_idempotency_key
+from app.chat.runtime.research.builder import build_research_bundle
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
 )
-from uuid import uuid4
 
 
 def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
@@ -39,6 +40,7 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
             if selected_doc_ids
             else ("course_auto" if allow_rag else "none")
         )
+        research_bundle = build_research_bundle(ctx, topic=subject)
         command = GenerationCommand(
             resource_type="lesson_plan",
             owner_user_id=str(owner or ""),
@@ -57,8 +59,12 @@ def handle_generate_lesson_plan(name: str, args: dict, ctx) -> dict:
                 "grade": grade,
                 "duration_minutes": duration_minutes,
                 "conversation_id": conversation_id,
+                "research_context": research_bundle.context_text,
+                "research_sources": research_bundle.citations,
+                "research_bundle": research_bundle.model_dump(mode="json"),
+                "research_bundle_id": research_bundle.bundle_id,
             },
-            idempotency_key=f"agent-lesson-{uuid4()}",
+            idempotency_key=generation_idempotency_key(ctx, "lesson_plan", args),
         )
         job = generation_command_service.submit(command)
         task_id = job.edu_job_id

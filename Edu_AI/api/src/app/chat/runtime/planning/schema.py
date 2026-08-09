@@ -47,6 +47,12 @@ class PlanStep:
     constraints: dict = field(default_factory=dict)
     status: Literal["pending", "running", "done", "failed", "skipped"] = "pending"
     visual_need: Optional[VisualNeed] = None
+    tool_allowlist: list[str] = field(default_factory=list)
+    depends_on: list[str] = field(default_factory=list)
+    required: bool = True
+    success_predicate: str = "completed"
+    failure_policy: Literal["retry", "supplement", "partial", "stop"] = "stop"
+    max_attempts: int = 1
 
     def to_dict(self) -> dict:
         out = {
@@ -56,6 +62,12 @@ class PlanStep:
             "expected_tools": self.expected_tools,
             "constraints": self.constraints,
             "status": self.status,
+            "tool_allowlist": list(self.tool_allowlist or self.expected_tools),
+            "depends_on": list(self.depends_on),
+            "required": self.required,
+            "success_predicate": self.success_predicate,
+            "failure_policy": self.failure_policy,
+            "max_attempts": self.max_attempts,
         }
         if self.visual_need is not None:
             out["visual_need"] = self.visual_need.to_dict()
@@ -72,6 +84,12 @@ class PlanStep:
             constraints=d.get("constraints", {}),
             status=d.get("status", "pending"),
             visual_need=VisualNeed.from_dict(vn) if vn else None,
+            tool_allowlist=list(d.get("tool_allowlist") or d.get("expected_tools") or []),
+            depends_on=list(d.get("depends_on") or []),
+            required=bool(d.get("required", True)),
+            success_predicate=str(d.get("success_predicate") or "completed"),
+            failure_policy=d.get("failure_policy", "stop"),
+            max_attempts=max(1, int(d.get("max_attempts") or 1)),
         )
 
 
@@ -85,6 +103,8 @@ class Plan:
         "max_total_reflect_retries": 4,
     })
     can_replan: bool = True
+    template_id: str = "legacy"
+    contract: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -93,6 +113,8 @@ class Plan:
             "subject": self.subject,
             "global_constraints": self.global_constraints,
             "can_replan": self.can_replan,
+            "template_id": self.template_id,
+            "contract": dict(self.contract),
         }
 
     @classmethod
@@ -106,4 +128,6 @@ class Plan:
                 "max_total_reflect_retries": 4,
             }),
             can_replan=d.get("can_replan", True),
+            template_id=str(d.get("template_id") or "legacy"),
+            contract=dict(d.get("contract") or {}),
         )

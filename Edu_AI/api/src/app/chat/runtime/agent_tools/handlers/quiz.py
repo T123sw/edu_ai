@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.chat.runtime.execution.idempotency import generation_idempotency_key
+from app.chat.runtime.research.builder import build_research_bundle
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
 )
-from uuid import uuid4
 
 
 def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
@@ -32,6 +33,7 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
         if selected_doc_ids
         else ("course_auto" if allow_rag else "none")
     )
+    research_bundle = build_research_bundle(ctx, topic=subject)
     try:
         command = GenerationCommand(
             resource_type="quiz",
@@ -52,8 +54,12 @@ def handle_generate_quiz(name: str, args: dict, ctx) -> dict:
                 "question_types": question_types,
                 "conversation_id": conversation_id,
                 "allow_rag": allow_rag,
+                "research_context": research_bundle.context_text,
+                "research_sources": research_bundle.citations,
+                "research_bundle": research_bundle.model_dump(mode="json"),
+                "research_bundle_id": research_bundle.bundle_id,
             },
-            idempotency_key=f"agent-quiz-{uuid4()}",
+            idempotency_key=generation_idempotency_key(ctx, "quiz", args),
         )
         job = generation_command_service.submit(command)
         task_id = job.edu_job_id

@@ -38,6 +38,7 @@ class KnowledgeBaseDirectGraphServiceV2:
         documents = list(document_result.get("documents") or [])
         if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
+        research_context = _clean(getattr(payload, "research_context", ""))
         if self.llm is None:
             raise RuntimeError("graph_llm_unavailable")
         config = dict(getattr(payload, "graph_config", {}) or {})
@@ -57,9 +58,16 @@ class KnowledgeBaseDirectGraphServiceV2:
             f"文档：{_clean(item.get('title'))}\n{_clean(item.get('content'))}"
             for item in documents
         )
+        if research_context:
+            prompt_docs = "\n\n".join(
+                part for part in (
+                    prompt_docs,
+                    f"Agent research evidence:\n{research_context[:16000]}",
+                ) if part
+            )
         grounding_instruction = (
             "严格基于资料生成教学思维导图，不得编造资料外事实。"
-            if documents
+            if documents or research_context
             else "本次未提供课程资料，请围绕用户指定主题生成教学思维导图。"
             "不要声称内容来自未提供的课程资料。"
         )
@@ -108,8 +116,16 @@ class KnowledgeBaseDirectGraphServiceV2:
                 material_data={
                     "title": title,
                     "content": content,
-                    "generation_state": {"status": "completed", "mode": "knowledge_base_direct"},
-                    "source": {"selected_doc_ids": selected_doc_ids},
+                    "generation_state": {
+                        "status": "completed",
+                        "mode": "knowledge_base_direct",
+                        "research_context_used": bool(research_context),
+                        "research_bundle_id": _clean(getattr(payload, "research_bundle_id", "")),
+                    },
+                    "source": {
+                        "selected_doc_ids": selected_doc_ids,
+                        "research_bundle_id": _clean(getattr(payload, "research_bundle_id", "")),
+                    },
                 },
             )
         )

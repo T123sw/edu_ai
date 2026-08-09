@@ -18,6 +18,14 @@ DRAFT_OUTLINE_PROMPTS = {
         "课题：{subject}\n年级：{grade}\n课时：{duration_minutes}分钟\n补充约束：{constraints}\n\n"
         "只输出大纲，不要其他说明。"
     ),
+    "classroom": (
+        "请为以下互动 AI 课堂生成可执行的场景大纲（Markdown 格式）。\n"
+        "课题：{subject}\n学习者：{audience}\n课堂时长：{duration_minutes}分钟\n"
+        "补充约束：{constraints}\n\n"
+        "大纲必须依次包含：学习目标、导入、概念讲解、互动练习、即时反馈、"
+        "形成性评价和课堂总结；每个场景注明教师引导、学生操作与预期反馈。\n"
+        "只输出大纲，不要其他说明。"
+    ),
 }
 
 
@@ -33,6 +41,7 @@ def handle_draft_outline(name: str, args: dict, ctx) -> dict:
         constraints=str(args.get("constraints", "")),
         slide_count=int(args.get("slide_count", 10)),
         grade=str(args.get("grade", "")),
+        audience=str(args.get("audience", "")),
         duration_minutes=int(args.get("duration_minutes", 45)),
     )
     outline_text = ctx.agent_gateway.chat(

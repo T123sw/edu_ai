@@ -54,6 +54,16 @@ class KnowledgeBaseDirectFlashcardServiceV2:
         documents = list(document_result.get("documents") or [])
         if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
+        research_context = _clean(getattr(payload, "research_context", ""))
+        if research_context:
+            # Agent RAG/Web evidence is already access-scoped and normalized.
+            # Pass it as read-only evidence instead of silently dropping it.
+            documents.append({
+                "doc_id": "agent-research",
+                "title": "Agent research evidence",
+                "summary": research_context[:1000],
+                "content": research_context[:16000],
+            })
 
         config = dict(getattr(payload, "flashcard_config", {}) or {})
         requested_count = max(3, min(30, int(config.get("count") or 10)))
@@ -83,6 +93,8 @@ class KnowledgeBaseDirectFlashcardServiceV2:
             "mode": "knowledge_base_direct",
             "requested_count": requested_count,
             "generated_count": len(cards),
+            "research_context_used": bool(research_context),
+            "research_bundle_id": _clean(getattr(payload, "research_bundle_id", "")),
         }
         saved = bool(
             self.course_storage_manager.save_generated_material(
@@ -105,6 +117,8 @@ class KnowledgeBaseDirectFlashcardServiceV2:
                             for item in documents
                             if _clean(item.get("title"))
                         ],
+                        "research_bundle_id": _clean(getattr(payload, "research_bundle_id", "")),
+                        "research_context_used": bool(research_context),
                     },
                 },
             )

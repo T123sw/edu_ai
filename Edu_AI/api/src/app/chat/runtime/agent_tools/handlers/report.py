@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.chat.runtime.execution.idempotency import generation_idempotency_key
+from app.chat.runtime.research.builder import build_research_bundle
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
 )
-from uuid import uuid4
 
 
 _RESEARCH_SOURCE_FIELDS = (
@@ -110,6 +111,7 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
                 list((cached.get("payload") or {}).get("images") or [])
             )
     research_context, research_sources = _collect_research_evidence(ctx)
+    research_bundle = build_research_bundle(ctx, topic=subject)
 
     # Phase 6-A.2: when VLM review is on, VisionReflector already downloaded +
     # reviewed these images, so they arrive already-localized (_localized=True,
@@ -136,8 +138,10 @@ def handle_generate_report(name: str, args: dict, ctx) -> dict:
                 "accumulated_images": accumulated_images,
                 "research_context": research_context,
                 "research_sources": research_sources,
+                "research_bundle": research_bundle.model_dump(mode="json"),
+                "research_bundle_id": research_bundle.bundle_id,
             },
-            idempotency_key=f"agent-report-{uuid4()}",
+            idempotency_key=generation_idempotency_key(ctx, "report", args),
         )
         job = generation_command_service.submit(command)
         task_id = job.edu_job_id

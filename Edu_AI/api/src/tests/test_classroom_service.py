@@ -469,3 +469,25 @@ async def test_submit_classroom_generation_job_does_not_depend_on_request_client
     assert durable.status == "pending"
     assert "client" not in durable.command
     assert client.submitted_body == {}
+
+
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_submit_classroom_generation_job_reuses_idempotent_agent_request(
+    monkeypatch,
+    _isolate_job_storage,
+):
+    manager = _make_manager()
+    monkeypatch.setattr(
+        "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
+    )
+
+    first = await submit_classroom_generation_job(
+        course_id="course-1", requirement="Teach compound interest", owner="teacher-a",
+        course_storage_manager=manager, client=FakeClient(), idempotency_key="agent-classroom-1",
+    )
+    second = await submit_classroom_generation_job(
+        course_id="course-1", requirement="Teach compound interest", owner="teacher-a",
+        course_storage_manager=manager, client=FakeClient(), idempotency_key="agent-classroom-1",
+    )
+
+    assert second.edu_job_id == first.edu_job_id

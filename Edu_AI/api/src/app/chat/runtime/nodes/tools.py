@@ -122,6 +122,7 @@ def tools_node(state: AgentState) -> dict:
 
     new_active_draft_outline = state.get("active_draft_outline")
     new_pending_tasks = list(state.get("pending_tasks") or [])
+    ctx.pending_tasks = new_pending_tasks
     raw_results_for_reflect: list[dict] = []
     # Per-tools-node-invocation override: if any tool in this batch is draft_outline,
     # we reset accumulated_images so the new task starts fresh (set below after
@@ -214,6 +215,7 @@ def tools_node(state: AgentState) -> dict:
                     },
                 })
                 new_pending_tasks.append({"task_id": task_id, "workflow_type": workflow_type})
+                ctx.pending_tasks = new_pending_tasks
 
         if tool_name == "draft_outline" and result.get("ok"):
             # Phase 6-A.2: remember whether the user asked for images at the
@@ -222,12 +224,12 @@ def tools_node(state: AgentState) -> dict:
             # / "生成") contains no visual keywords.
             from app.chat.runtime.nodes.planner import _question_requests_visuals
             origin_question = str(getattr(getattr(ctx, "request", None), "question", "") or "")
-            new_active_draft_outline = {
-                "subject": str(payload.get("subject", "")),
-                "resource_type": str(payload.get("resource_type", "report")),
-                "outline_markdown": str(payload.get("outline_markdown", "")),
-                "needs_visuals": _question_requests_visuals(origin_question),
-            }
+            new_active_draft_outline = _build_active_draft_outline(
+                payload=payload,
+                state=state,
+                task_contract=getattr(ctx, "task_contract", None),
+                needs_visuals=_question_requests_visuals(origin_question),
+            )
             # A new draft_outline marks the start of a new task — discard any
             # leftover images from a previous generation cycle.
             accumulated_images_override = []
@@ -248,9 +250,43 @@ def tools_node(state: AgentState) -> dict:
         "pending_tasks": new_pending_tasks,
         "last_tool_results": raw_results_for_reflect,
     }
+    if getattr(ctx, "verification_report", None):
+        updates["verification_report"] = dict(ctx.verification_report)
     if accumulated_images_override is not None:
         updates["accumulated_images"] = accumulated_images_override
     return updates
+
+
+def _build_active_draft_outline(
+    *,
+    payload: dict,
+    state: dict,
+    task_contract: dict | None,
+    needs_visuals: bool,
+) -> dict:
+    """Persist the whole confirmation scope, not only the previewed resource.
+
+    A bundle uses one representative outline (normally the lesson plan) as its
+    shared confirmation boundary.  Losing the original resource list here made
+    a later ``确认生成`` look like a single lesson-plan request.
+    """
+
+    current_plan = dict(state.get("current_plan") or {})
+    contract = dict(current_plan.get("contract") or task_contract or {})
+    preview_type = str(payload.get("resource_type") or "report")
+    resource_types = [
+        str(item)
+        for item in list(contract.get("resource_types") or [preview_type])
+        if str(item or "").strip()
+    ]
+    return {
+        "subject": str(payload.get("subject") or ""),
+        "resource_type": preview_type,
+        "resource_types": list(dict.fromkeys(resource_types)),
+        "origin_intent": str(contract.get("intent") or "generate_single"),
+        "outline_markdown": str(payload.get("outline_markdown") or ""),
+        "needs_visuals": bool(needs_visuals),
+    }
 
 
 def _enforce_strict_mode(calls: list[dict], state: dict) -> list[dict]:
@@ -265,8 +301,6 @@ def _enforce_strict_mode(calls: list[dict], state: dict) -> list[dict]:
     if not (0 <= idx < len(steps)):
         return calls
     expected = set(steps[idx].get("expected_tools") or [])
-    if not expected:
-        return calls
     out = []
     for call in calls:
         if call["name"] in expected:

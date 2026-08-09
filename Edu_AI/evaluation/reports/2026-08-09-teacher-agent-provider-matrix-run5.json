@@ -1,0 +1,38 @@
+{
+  "schema_version": "2026-08-09.v1",
+  "generated_at": "2026-08-09T13:09:53.648983+00:00",
+  "provider_count": 2,
+  "case_count": 4,
+  "passed_count": 4,
+  "pass_rate": 1.0,
+  "results": [
+    {
+      "provider": "dashscope.aliyuncs.com/qwen3.5-plus",
+      "case_id": "teacher_text_contract",
+      "passed": true,
+      "observation": "nonempty_teacher_reply",
+      "duration_ms": 2860
+    },
+    {
+      "provider": "dashscope.aliyuncs.com/qwen3.5-plus",
+      "case_id": "required_tool_contract",
+      "passed": true,
+      "observation": "required_tool_with_arguments",
+      "duration_ms": 4247
+    },
+    {
+      "provider": "openrouter.ai/openai/gpt-5.4-mini",
+      "case_id": "teacher_text_contract",
+      "passed": true,
+      "observation": "nonempty_teacher_reply",
+      "duration_ms": 1816
+    },
+    {
+      "provider": "openrouter.ai/openai/gpt-5.4-mini",
+      "case_id": "required_tool_contract",
+      "passed": true,
+      "observation": "required_tool_with_arguments",
+      "duration_ms": 2362
+    }
+  ]
+}

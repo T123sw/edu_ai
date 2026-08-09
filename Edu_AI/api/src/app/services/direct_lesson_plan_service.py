@@ -47,7 +47,14 @@ class DirectLessonPlanService:
         special_requirements = str(
             getattr(payload, "special_requirements", "") or ""
         ).strip()
-        source_context = execution_context.source.context_text
+        source_context = "\n\n".join(
+            part
+            for part in (
+                execution_context.source.context_text,
+                str(getattr(payload, "research_context", "") or "").strip(),
+            )
+            if part
+        )
         visual_snapshot: dict[str, Any] = {}
         if bool(getattr(payload, "include_visuals", False)):
             pipeline = self.visual_pipeline
@@ -103,10 +110,12 @@ class DirectLessonPlanService:
                 "special_requirements": special_requirements,
                 "visual_plan": visual_snapshot,
                 "source_context": source_context,
+                "research_bundle_id": str(getattr(payload, "research_bundle_id", "") or ""),
             },
             "gathered_context": {
                 "source_context": source_context,
                 "source_snapshot": execution_context.source.to_snapshot(),
+                "research_bundle_id": str(getattr(payload, "research_bundle_id", "") or ""),
                 "teaching_process": teaching_process,
                 "special_requirements": special_requirements,
                 "visual_plan": visual_snapshot,

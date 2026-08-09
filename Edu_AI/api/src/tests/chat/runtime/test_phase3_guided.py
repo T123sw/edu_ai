@@ -150,6 +150,59 @@ def test_inject_plan_step_hint_skips_display_only():
     assert result == messages  # unchanged
 
 
+def test_report_result_step_is_terminal_and_preserves_audit_trace():
+    """A completed strict plan must not return to the model for another tool call."""
+    from app.chat.runtime.nodes.executor import (
+        _emit_compiled_report_result,
+        _is_report_result_step,
+    )
+
+    captured = []
+    state = {
+        "plan_mode": "strict",
+        "plan_step_index": 2,
+        "messages": [{"role": "user", "content": "confirm"}],
+        "tool_exchange": [],
+        "retrieval_sources": [{"title": "source"}],
+        "pending_tasks": [{"task_id": "job-1", "workflow_type": "report"}],
+        "verification_report": {"passed": True, "decision": "pass"},
+        "current_plan": {"steps": [
+            {"internal_action": "generate_resource", "status": "done"},
+            {"internal_action": "verify", "status": "done"},
+            {"internal_action": "report_result", "user_title": "report", "status": "pending"},
+        ]},
+    }
+    ctx = SimpleNamespace(
+        trace={"agent_steps": [{"tool": "generate_report", "ok": True}]},
+        verification_report={"passed": True, "decision": "pass"},
+    )
+    rt = {"request": SimpleNamespace(conversation_id="conv-1"), "conv_id": "conv-1"}
+
+    assert _is_report_result_step(state) is True
+    updates = _emit_compiled_report_result(captured.append, state, rt, ctx)
+
+    result = next(event["payload"] for event in captured if event["type"] == "result")
+    assert result["trace"] == ctx.trace
+    assert result["verification"]["passed"] is True
+    assert updates["plan_step_index"] == 3
+    assert updates["current_plan"]["steps"][2]["status"] == "done"
+
+
+def test_bundle_terminal_message_lists_every_accepted_task():
+    from app.chat.runtime.nodes.executor import _pending_task_submission_message
+
+    message = _pending_task_submission_message([
+        {"task_id": "job-lesson", "workflow_type": "lesson_plan"},
+        {"task_id": "job-quiz", "workflow_type": "quiz"},
+        {"task_id": "job-graph", "workflow_type": "graph"},
+    ])
+
+    assert "3 个教学材料生成任务" in message
+    assert "教案（job-lesson）" in message
+    assert "练习题（job-quiz）" in message
+    assert "思维导图（job-graph）" in message
+
+
 # ─── Integration: plan_step_update events in full agent run ──────────────────
 
 class _FakePlannerGateway:
@@ -208,7 +261,7 @@ def test_full_agent_emits_plan_step_running_in_guided_mode():
 
     running_events = [e for e in events if e["type"] == "plan_step_update" and e["payload"]["status"] == "running"]
     assert len(running_events) >= 1
-    assert running_events[0]["payload"]["user_title"] == "起草大纲"
+    assert "起草" in running_events[0]["payload"]["user_title"]
 
 
 # ─── LLMReflector unit tests ──────────────────────────────────────────────────

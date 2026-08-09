@@ -1,0 +1,259 @@
+schema_version: "2026-08-09.v2"
+dataset_id: teacher-agent-intelligence-baseline
+description: 80-case structural baseline for teacher task understanding, planning, sources, tools, dialogue, clarification, persona, and recovery.
+families:
+  - id_prefix: qa-none
+    dimensions: [intent, planning, persona]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: none
+      plan_actions: [answer_question, verify, report_result]
+      required_tools: [verify_task]
+      forbidden_tools: [rag_search, web_search, generate_report, generate_lesson_plan]
+    variants:
+      - {id_suffix: "01", question: "解释快速排序的核心思想"}
+      - {id_suffix: "02", question: "链表插入节点时需要修改哪些指针"}
+      - {id_suffix: "03", question: "比较栈和队列适合的教学案例"}
+      - {id_suffix: "04", question: "二分查找有哪些常见错误"}
+      - {id_suffix: "05", question: "如何向高中生解释递归"}
+      - {id_suffix: "06", question: "哈希冲突的处理方法有哪些"}
+      - {id_suffix: "07", question: "给出算法复杂度课堂讲解要点"}
+      - {id_suffix: "08", question: "计算思维中的分解是什么意思"}
+
+  - id_prefix: qa-course-rag
+    dimensions: [intent, source_authority, planning, tool_policy]
+    capability: {source_mode: course_auto, allow_rag: true, allow_web: false, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: course_auto
+      plan_actions: [retrieve_context, answer_question, verify, report_result]
+      required_tools: [rag_search, verify_task]
+      forbidden_tools: [web_search, generate_report]
+    variants:
+      - {id_suffix: "01", question: "结合课程资料解释快速排序"}
+      - {id_suffix: "02", question: "按课程知识库说明链表删除"}
+      - {id_suffix: "03", question: "总结本课程中的递归教学重点"}
+      - {id_suffix: "04", question: "课程资料如何定义计算思维"}
+      - {id_suffix: "05", question: "结合课程内容比较排序算法"}
+      - {id_suffix: "06", question: "依据课程资料说明图的遍历"}
+      - {id_suffix: "07", question: "课程中怎样讲解二叉树"}
+      - {id_suffix: "08", question: "根据课程知识说明时间复杂度"}
+
+  - id_prefix: qa-web
+    dimensions: [intent, source_authority, planning, tool_policy]
+    capability: {source_mode: none, allow_rag: false, allow_web: true, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: none
+      plan_actions: [retrieve_context, answer_question, verify, report_result]
+      required_tools: [web_search, verify_task]
+      forbidden_tools: [rag_search, generate_report]
+    variants:
+      - {id_suffix: "01", question: "联网查找快速排序的教学案例"}
+      - {id_suffix: "02", question: "查找网络资料说明生成式 AI 素养"}
+      - {id_suffix: "03", question: "网上有哪些递归可视化教学方法"}
+      - {id_suffix: "04", question: "联网比较近期编程教育方法"}
+      - {id_suffix: "05", question: "查网络说明算法公平性的课堂案例"}
+      - {id_suffix: "06", question: "查找最新资料介绍数据素养"}
+      - {id_suffix: "07", question: "网上有哪些二叉树互动教学案例"}
+      - {id_suffix: "08", question: "联网梳理计算思维评价方法"}
+
+  - id_prefix: generate-direct
+    dimensions: [intent, planning, tool_policy]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: generate_single
+      resource_types: [quiz]
+      source_mode: none
+      plan_actions: [generate_resource, verify, report_result]
+      required_tools: [generate_quiz, verify_task]
+      forbidden_tools: [draft_outline, generate_report]
+      confirmation_policy: none
+    variants:
+      - {id_suffix: "01", question: "生成五道快速排序练习题"}
+      - id_suffix: "02"
+        question: "写一篇递归教学博客"
+        expected: {resource_types: [blog], required_tools: [generate_blog, verify_task]}
+      - id_suffix: "03"
+        question: "生成十张链表复习闪卡"
+        expected: {resource_types: [flashcard], required_tools: [generate_flashcard, verify_task]}
+      - id_suffix: "04"
+        question: "生成二叉树思维导图"
+        expected: {resource_types: [graph], required_tools: [generate_graph, verify_task]}
+      - id_suffix: "05"
+        question: "制作一个排序算法课堂小游戏"
+        expected: {resource_types: [game], required_tools: [generate_game, verify_task]}
+      - {id_suffix: "06", question: "出十道二分查找测验题"}
+      - id_suffix: "07"
+        question: "写一篇计算思维教学博文"
+        expected: {resource_types: [blog], required_tools: [generate_blog, verify_task]}
+      - id_suffix: "08"
+        question: "制作图遍历知识图谱"
+        expected: {resource_types: [graph], required_tools: [generate_graph, verify_task]}
+
+  - id_prefix: generate-confirmable
+    dimensions: [intent, planning, tool_policy, clarification]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: generate_single
+      resource_types: [report]
+      source_mode: none
+      plan_actions: [draft_outline, confirm_outline]
+      required_tools: [draft_outline]
+      forbidden_tools: [generate_report, generate_lesson_plan, generate_classroom]
+      confirmation_policy: required
+    variants:
+      - {id_suffix: "01", question: "生成快速排序教学报告"}
+      - {id_suffix: "02", question: "写一份链表教学研究报告"}
+      - id_suffix: "03"
+        question: "生成递归教学教案"
+        expected: {resource_types: [lesson_plan]}
+      - id_suffix: "04"
+        question: "设计一份二叉树教学方案"
+        expected: {resource_types: [lesson_plan]}
+      - id_suffix: "05"
+        question: "创建快速排序 AI 课堂"
+        expected: {resource_types: [classroom]}
+      - id_suffix: "06"
+        question: "制作链表互动课堂"
+        expected: {resource_types: [classroom]}
+      - {id_suffix: "07", question: "生成算法复杂度分析报告"}
+      - id_suffix: "08"
+        question: "准备图遍历教学设计"
+        expected: {resource_types: [lesson_plan]}
+
+  - id_prefix: prepare-bundle
+    dimensions: [intent, planning, tool_policy, clarification]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: prepare_bundle
+      resource_types: [lesson_plan, quiz, graph]
+      source_mode: none
+      plan_actions: [draft_outline, confirm_outline]
+      required_tools: [draft_outline]
+      forbidden_tools: [generate_lesson_plan, generate_quiz, generate_graph]
+      confirmation_policy: required
+    variants:
+      - {id_suffix: "01", question: "准备快速排序教学材料"}
+      - {id_suffix: "02", question: "帮我做一套链表备课材料"}
+      - {id_suffix: "03", question: "准备递归整套材料"}
+      - {id_suffix: "04", question: "生成二叉树教学材料包"}
+      - {id_suffix: "05", question: "帮我准备计算思维备课材料"}
+      - {id_suffix: "06", question: "制作排序算法材料包"}
+      - {id_suffix: "07", question: "准备图遍历教学材料"}
+      - {id_suffix: "08", question: "做一套数据结构备课材料"}
+
+  - id_prefix: control
+    dimensions: [intent, planning, tool_policy, long_dialogue]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: status
+      resource_types: []
+      source_mode: none
+      plan_actions: [status, report_result]
+      required_tools: [query_task_status]
+      forbidden_tools: [generate_report, draft_outline]
+    variants:
+      - {id_suffix: "01", question: "做到哪了"}
+      - {id_suffix: "02", question: "刚才的任务完成了吗"}
+      - id_suffix: "03"
+        question: "取消刚才的 AI 课堂"
+        expected: {intent: cancel, resource_types: [classroom], plan_actions: [cancel, report_result], required_tools: [cancel_task]}
+      - id_suffix: "04"
+        question: "停止这个生成任务"
+        expected: {intent: cancel, plan_actions: [cancel, report_result], required_tools: [cancel_task]}
+      - id_suffix: "05"
+        question: "把刚才的大纲改得适合基础薄弱学生"
+        state: {active_draft_outline: {subject: 快速排序, resource_type: report}}
+        expected: {intent: modify, resource_types: [], plan_actions: [draft_outline, confirm_outline], required_tools: [draft_outline], forbidden_tools: [generate_report]}
+      - id_suffix: "06"
+        question: "把报告调整为四十分钟课堂使用"
+        state: {active_draft_outline: {subject: 链表, resource_type: report}}
+        expected: {intent: modify, resource_types: [report], plan_actions: [draft_outline, confirm_outline], required_tools: [draft_outline], forbidden_tools: [generate_report]}
+      - id_suffix: "07"
+        question: "确认，就按这个大纲生成"
+        state: {active_draft_outline: {subject: 快速排序, resource_type: report}}
+        expected: {intent: confirm, resource_types: [report], plan_actions: [generate_resource, verify, report_result], required_tools: [generate_report, verify_task], forbidden_tools: [draft_outline]}
+      - id_suffix: "08"
+        question: "可以生成教案了"
+        state: {active_draft_outline: {subject: 递归, resource_type: lesson_plan}}
+        expected: {intent: confirm, resource_types: [lesson_plan], plan_actions: [generate_resource, verify, report_result], required_tools: [generate_lesson_plan, verify_task]}
+
+  - id_prefix: qa-selected
+    dimensions: [intent, source_authority, planning, tool_policy]
+    capability: {source_mode: selected_documents, selected_doc_ids: [doc-a, doc-b], allow_rag: true, allow_web: false, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: selected_documents
+      plan_actions: [retrieve_context, answer_question, verify, report_result]
+      required_tools: [rag_search, verify_task]
+      forbidden_tools: [web_search, generate_report]
+    variants:
+      - {id_suffix: "01", question: "只依据已选文档解释快速排序"}
+      - {id_suffix: "02", question: "根据我勾选的资料说明链表"}
+      - {id_suffix: "03", question: "按所选文档总结递归重点"}
+      - {id_suffix: "04", question: "不要联网，解释课程中的二叉树"}
+      - {id_suffix: "05", question: "根据资料比较栈和队列"}
+      - {id_suffix: "06", question: "只用这些材料说明图遍历"}
+      - {id_suffix: "07", question: "按已选资料梳理复杂度分析"}
+      - {id_suffix: "08", question: "总结勾选文档中的计算思维定义"}
+
+  - id_prefix: dialogue-binding
+    dimensions: [intent, planning, long_dialogue, failure_recovery]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    state: {active_draft_outline: {subject: 快速排序, resource_type: report}}
+    expected:
+      intent: modify
+      resource_types: []
+      source_mode: none
+      plan_actions: [draft_outline, confirm_outline]
+      required_tools: [draft_outline]
+      forbidden_tools: [generate_report]
+    variants:
+      - {id_suffix: "01", question: "增加一个随堂练习并修改大纲"}
+      - {id_suffix: "02", question: "把刚才的大纲改得更简洁"}
+      - {id_suffix: "03", question: "调整为适合高一学生的版本"}
+      - {id_suffix: "04", question: "修改教学目标，增加复杂度分析"}
+      - id_suffix: "05"
+        question: "确认生成修订后的报告"
+        expected: {intent: confirm, resource_types: [report], plan_actions: [generate_resource, verify, report_result], required_tools: [generate_report, verify_task], forbidden_tools: [draft_outline]}
+      - id_suffix: "06"
+        question: "就按这个生成"
+        expected: {intent: confirm, resource_types: [report], plan_actions: [generate_resource, verify, report_result], required_tools: [generate_report, verify_task], forbidden_tools: [draft_outline]}
+      - id_suffix: "07"
+        question: "任务现在是什么状态"
+        expected: {intent: status, resource_types: [], plan_actions: [status, report_result], required_tools: [query_task_status], forbidden_tools: [generate_report]}
+      - id_suffix: "08"
+        question: "停止当前任务"
+        expected: {intent: cancel, resource_types: [], plan_actions: [cancel, report_result], required_tools: [cancel_task], forbidden_tools: [generate_report]}
+
+  - id_prefix: bounded-intelligence
+    dimensions: [intent, clarification, persona, failure_recovery]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: none
+      plan_actions: [answer_question, verify, report_result]
+      required_tools: [verify_task]
+      forbidden_tools: [rag_search, web_search, generate_report, generate_classroom]
+      needs_clarification: false
+    variants:
+      - {id_suffix: "01", question: "给我一个快速排序课堂导入建议"}
+      - id_suffix: "02"
+        question: "帮我生成一个教学资源"
+        expected: {intent: generate_single, plan_actions: [clarify], required_tools: [], needs_clarification: true}
+      - {id_suffix: "03", question: "说明链表教学中最容易混淆的点"}
+      - {id_suffix: "04", question: "给出一个递归课堂演示思路"}
+      - {id_suffix: "05", question: "比较两种复杂度分析讲法"}
+      - {id_suffix: "06", question: "不要生成资源，只给备课建议"}
+      - id_suffix: "07"
+        question: "做到哪了"
+        state: {pending_tasks: [{task_id: job-1, workflow_type: report}, {task_id: job-2, workflow_type: quiz}]}
+        expected: {intent: status, plan_actions: [clarify], required_tools: [], needs_clarification: true}
+      - {id_suffix: "08", question: "给出图遍历的板书组织建议"}

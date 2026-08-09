@@ -70,6 +70,63 @@ class SourcesReflector(BaseReflector):
         return ReflectVerdict(verdict="pass")
 
 
+class ResearchCoverageReflector(BaseReflector):
+    """Request one bounded supplemental query for uncovered teaching aspects."""
+
+    priority = 2
+    _APPLIES_TO = {"rag_search", "web_search"}
+
+    def applies_to(self, tool_name: str) -> bool:
+        return tool_name in self._APPLIES_TO
+
+    def evaluate(self, tool_name, result, state, step_constraints) -> ReflectVerdict:
+        raw_plan = dict(step_constraints.get("research_plan") or {})
+        if not result.get("ok") or not raw_plan:
+            return ReflectVerdict(verdict="pass")
+        from app.chat.domain.research_bundle import ResearchPlan
+        from app.chat.runtime.research.planner import assess_evidence_coverage
+
+        plan = ResearchPlan.model_validate(raw_plan)
+        payload = dict(result.get("payload") or {})
+        sources = [item for item in (payload.get("sources") or []) if isinstance(item, dict)]
+        evidence_text = "\n".join([
+            str(payload.get("answer") or payload.get("summary") or ""),
+            *(str(item.get("title") or "") for item in sources),
+            *(str(item.get("content") or "")[:1000] for item in sources),
+        ])
+        coverage = assess_evidence_coverage(plan, evidence_text)
+        prior = dict(
+            (state.get("reflect_filtered") or {}).get("research_coverage") or {}
+        )
+        prior_attempt = int(prior.get("supplemental_attempt") or 0)
+        filtered = coverage.model_dump(mode="json")
+        filtered["supplemental_attempt"] = prior_attempt
+        if coverage.sufficient:
+            return ReflectVerdict(
+                verdict="pass",
+                filtered_data={"research_coverage": filtered},
+            )
+        if prior_attempt >= plan.max_supplemental_queries:
+            return ReflectVerdict(
+                verdict="pass_with_warning",
+                hint=(
+                    "研究证据仍缺少 " + "、".join(coverage.missing_aspects)
+                    + "；补检索预算已耗尽，按部分证据继续"
+                ),
+                severity="warning",
+                filtered_data={"research_coverage": filtered},
+            )
+        filtered["supplemental_attempt"] = prior_attempt + 1
+        return ReflectVerdict(
+            verdict="retry",
+            hint=(
+                "研究证据覆盖不足，补充检索：" + coverage.next_query
+            ),
+            severity="blocking",
+            filtered_data={"research_coverage": filtered},
+        )
+
+
 class ChapterCountReflector(BaseReflector):
     """Ensures draft_outline has sufficient chapters and length."""
 
@@ -121,7 +178,10 @@ class ReflectorPipeline:
     @classmethod
     def default(cls) -> "ReflectorPipeline":
         """Code-rules only — no LLM/Vision calls."""
-        return cls([LengthReflector(), SourcesReflector(), ChapterCountReflector()])
+        return cls([
+            LengthReflector(), SourcesReflector(), ResearchCoverageReflector(),
+            ChapterCountReflector(),
+        ])
 
     @classmethod
     def with_llm(cls, llm_gateway) -> "ReflectorPipeline":
@@ -133,6 +193,7 @@ class ReflectorPipeline:
         return cls([
             LengthReflector(),
             SourcesReflector(),
+            ResearchCoverageReflector(),
             ChapterCountReflector(),
             ContentRelevanceReflector(llm_gateway),
             OutlineCoherenceReflector(llm_gateway),
@@ -149,6 +210,7 @@ class ReflectorPipeline:
         return cls([
             LengthReflector(),
             SourcesReflector(),
+            ResearchCoverageReflector(),
             ChapterCountReflector(),
             ContentRelevanceReflector(llm_gateway),
             OutlineCoherenceReflector(llm_gateway),

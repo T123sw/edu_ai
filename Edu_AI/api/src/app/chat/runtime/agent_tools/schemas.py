@@ -314,6 +314,28 @@ SCHEMA_GENERATE_CLASSROOM = {
     },
 }
 
+SCHEMA_VERIFY_TASK = {
+    "type": "function",
+    "function": {
+        "name": "verify_task",
+        "description": "只读核对当前计划、工具顺序、任务提交和材料终态，不创建资源。",
+        "parameters": {"type": "object", "properties": {}},
+    },
+}
+
+SCHEMA_QUERY_TASK_STATUS = {
+    "type": "function", "function": {
+        "name": "query_task_status", "description": "只读查询当前会话教学任务状态。",
+        "parameters": {"type": "object", "properties": {"task_id": {"type": "string"}}},
+    },
+}
+SCHEMA_CANCEL_TASK = {
+    "type": "function", "function": {
+        "name": "cancel_task", "description": "取消当前会话中指定或最近的可取消教学任务。",
+        "parameters": {"type": "object", "properties": {"task_id": {"type": "string"}}},
+    },
+}
+
 
 def build_tool_schemas(capability) -> list[dict]:
     schemas = []
@@ -335,14 +357,20 @@ def build_tool_schemas(capability) -> list[dict]:
             SCHEMA_GENERATE_GRAPH,
             SCHEMA_GENERATE_GAME,
             SCHEMA_GENERATE_CLASSROOM,
+            SCHEMA_VERIFY_TASK,
+            SCHEMA_QUERY_TASK_STATUS,
+            SCHEMA_CANCEL_TASK,
         ]
     )
     return schemas
 
 
 def filter_schemas_by_step(schemas: list[dict], expected_tools: list[str]) -> list[dict]:
-    """Strict mode: keep only schemas whose function.name is in expected_tools."""
+    """Strict mode: keep only schemas whose function.name is in expected_tools.
+
+    An empty allowlist intentionally means that no tool is available.
+    """
     if not expected_tools:
-        return schemas
+        return []
     allowed = set(expected_tools)
     return [s for s in schemas if s.get("function", {}).get("name") in allowed]

@@ -28,7 +28,9 @@ def handle_rag_search(name: str, args: dict, ctx) -> dict:
     payload = dict((result or {}).get("payload") or {}) if isinstance(result, dict) else {}
     answer = str(payload.get("answer") or "").strip()
     sources = list(payload.get("sources") or [])
-    return ok_result("rag_search", f"检索到 {len(sources)} 条结果", {"answer": answer, "sources": sources})
+    return ok_result("rag_search", f"检索到 {len(sources)} 条结果", {
+        "query": call_args["query"], "answer": answer, "sources": sources,
+    })
 
 
 def handle_web_search(name: str, args: dict, ctx) -> dict:
@@ -38,4 +40,6 @@ def handle_web_search(name: str, args: dict, ctx) -> dict:
     payload = dict((result or {}).get("payload") or {}) if isinstance(result, dict) else {}
     summary = str(payload.get("summary") or payload.get("answer") or "").strip()
     sources = list(payload.get("sources") or [])
-    return ok_result("web_search", f"联网检索完成，获取 {len(sources)} 个来源", {"summary": summary, "sources": sources})
+    return ok_result("web_search", f"联网检索完成，获取 {len(sources)} 个来源", {
+        "query": str(args.get("query", "")), "summary": summary, "sources": sources,
+    })

@@ -4,7 +4,9 @@ from __future__ import annotations
 import asyncio
 
 from app.chat.runtime.agent_tools.handlers.report import _collect_research_evidence
+from app.chat.runtime.execution.idempotency import generation_idempotency_key
 from app.chat.runtime.agent_tools.result import error_result, ok_result
+from app.chat.runtime.research.builder import build_research_bundle
 from app.services.classroom_service import submit_classroom_generation_job
 from core.course_storage import storage_manager
 
@@ -22,6 +24,7 @@ def handle_generate_classroom(name: str, args: dict, ctx) -> dict:
         else ("course_auto" if allow_rag else "none")
     )
     research_context, _ = _collect_research_evidence(ctx)
+    research_bundle = build_research_bundle(ctx, topic=topic)
     request = getattr(ctx, "request", None)
     requirement = str(args.get("requirement") or "").strip() or (
         f"生成一份讲解{topic}的互动 AI 课堂"
@@ -34,6 +37,7 @@ def handle_generate_classroom(name: str, args: dict, ctx) -> dict:
                 owner=str(getattr(request, "owner", None) or ""),
                 course_storage_manager=storage_manager,
                 web_research_context=research_context or None,
+                research_bundle_id=research_bundle.bundle_id,
                 enable_web_search=False,
                 enable_tts=bool(args.get("enable_tts", False)),
                 source_mode=source_mode,
@@ -52,6 +56,7 @@ def handle_generate_classroom(name: str, args: dict, ctx) -> dict:
                 teaching_style=str(args.get("teaching_style") or "guided"),
                 voice="alloy" if bool(args.get("enable_tts", False)) else "",
                 include_visuals=bool(args.get("include_visuals", True)),
+                idempotency_key=generation_idempotency_key(ctx, "classroom", args),
             )
         )
     except Exception as exc:

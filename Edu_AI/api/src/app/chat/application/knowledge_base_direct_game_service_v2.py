@@ -80,6 +80,7 @@ class KnowledgeBaseDirectGameServiceV2:
             if selected_doc_ids
             else []
         )
+        research_context = _clean(getattr(payload, "research_context", ""))
         if not documents and not topic:
             raise ValueError("game topic is required when no documents are selected")
         game_data = self._generate_validated_game_data(
@@ -87,6 +88,7 @@ class KnowledgeBaseDirectGameServiceV2:
             documents=documents,
             topic=topic,
             generation_options=generation_options,
+            research_context=research_context,
         )
         artifact_id = (
             _clean(getattr(payload, "material_id", ""))
@@ -114,6 +116,8 @@ class KnowledgeBaseDirectGameServiceV2:
                 "status": "completed",
                 "mode": "knowledge_base_direct",
                 "selected_doc_count": len(selected_doc_ids),
+                "research_context_used": bool(research_context),
+                "research_bundle_id": _clean(getattr(payload, "research_bundle_id", "")),
                 **generation_options,
             },
         }
@@ -146,6 +150,7 @@ class KnowledgeBaseDirectGameServiceV2:
         documents: list[dict[str, Any]],
         topic: str = "",
         generation_options: dict[str, Any] | None = None,
+        research_context: str = "",
     ) -> dict[str, Any]:
         schema = json.loads(template.schema_path.read_text(encoding="utf-8"))
         messages = self._build_generate_messages(
@@ -154,6 +159,7 @@ class KnowledgeBaseDirectGameServiceV2:
             schema=schema,
             topic=topic,
             generation_options=generation_options,
+            research_context=research_context,
         )
         first_text = _extract_text_from_response(self.llm.invoke(messages))
         try:
@@ -167,6 +173,7 @@ class KnowledgeBaseDirectGameServiceV2:
                 schema=schema,
                 invalid_json=first_text,
                 error_text=str(exc),
+                research_context=research_context,
             )
             second_text = _extract_text_from_response(self.llm.invoke(repair_messages))
             try:
@@ -182,6 +189,7 @@ class KnowledgeBaseDirectGameServiceV2:
         schema: dict[str, Any],
         topic: str = "",
         generation_options: dict[str, Any] | None = None,
+        research_context: str = "",
     ) -> list[dict[str, str]]:
         document_blocks = []
         for index, document in enumerate(documents, start=1):
@@ -194,17 +202,20 @@ class KnowledgeBaseDirectGameServiceV2:
                     ]
                 )
             )
+        evidence_context = _clean(research_context)
         grounding_instruction = (
             "请严格基于已选文档生成小游戏内容，不要编造文档之外的信息。"
-            if document_blocks
+            if document_blocks or evidence_context
             else "本次未提供课程资料，请围绕用户指定主题生成小游戏内容。"
             "不要声称内容来自未提供的课程资料。"
         )
-        source_section = (
-            "\n".join(document_blocks)
-            if document_blocks
-            else "本次不使用课程资料。"
-        )
+        source_section = "\n".join(document_blocks)
+        if evidence_context:
+            source_section = "\n\n".join(
+                part for part in (source_section, f"Agent research evidence:\n{evidence_context[:16000]}") if part
+            )
+        if not source_section:
+            source_section = "本次不使用课程资料。"
         options = dict(generation_options or {})
         return [
             {
@@ -239,6 +250,7 @@ class KnowledgeBaseDirectGameServiceV2:
         schema: dict[str, Any],
         invalid_json: str,
         error_text: str,
+        research_context: str = "",
     ) -> list[dict[str, str]]:
         options = dict(generation_options or {})
         return [
@@ -316,6 +328,7 @@ class KnowledgeBaseDirectGameServiceV2:
                 "generation_state": dict(artifact.get("generation_state") or {}),
                 "selected_doc_ids": selected_doc_ids,
                 "documents_used": [_clean(item.get("title")) for item in documents if _clean(item.get("title"))],
+                "research_bundle_id": _clean(getattr(payload, "research_bundle_id", "")),
             },
         )
 

@@ -77,6 +77,8 @@ def test_blog_adapter_forwards_visible_config_and_grounding_to_engine(monkeypatc
             structure="概念—例子—总结",
             special_requirements="加入代码示例",
             source_context="课程资料：链表节点含 next 指针。",
+            research_context="Agent evidence：尾插法会更新尾节点。",
+            research_bundle_id="bundle-1",
             source_mode="selected_documents",
         ),
         job_id="job-2",
@@ -89,8 +91,9 @@ def test_blog_adapter_forwards_visible_config_and_grounding_to_engine(monkeypatc
         "length": "long",
         "structure": "概念—例子—总结",
         "special_requirements": "加入代码示例",
-        "source_context": "课程资料：链表节点含 next 指针。",
+        "source_context": "课程资料：链表节点含 next 指针。\n\nAgent evidence：尾插法会更新尾节点。",
         "source_mode": "selected_documents",
+        "research_bundle_id": "bundle-1",
     }
 
 

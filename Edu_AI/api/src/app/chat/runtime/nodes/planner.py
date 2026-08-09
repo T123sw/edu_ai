@@ -3,8 +3,11 @@ from __future__ import annotations
 from langgraph.config import get_config, get_stream_writer
 
 from app.chat.runtime.graph.state import AgentState
+from app.chat.runtime.planning.compiler import compile_plan
 from app.chat.runtime.planning.prompts import CREATE_PLAN_SCHEMA, PLANNER_SYSTEM_PROMPT
 from app.chat.runtime.planning.schema import Plan, PlanStep
+from app.chat.runtime.planning.task_contract_extractor import extract_task_contract
+from app.chat.runtime.execution.idempotency import ensure_logical_task_id
 
 
 def planner_node(state: AgentState) -> dict:
@@ -15,51 +18,34 @@ def planner_node(state: AgentState) -> dict:
     capability = rt.get("capability")
 
     question = str(getattr(request, "question", "") or "")
-    replan_hint = state.get("reflect_hint", "")
-    existing_plan = state.get("current_plan")
-
-    print(f"[规划器] 开始规划 | 问题=\"{question[:40]}\"  replan={bool(replan_hint)}", flush=True)
-
-    messages = _build_planner_messages(question, state, replan_hint, existing_plan, capability)
-    plan_dict = _call_planner_llm(planner_gateway, messages)
-
-    if plan_dict is None:
-        plan_dict = _fallback_plan(question, state, capability)
-        print("[规划器] LLM未调用工具，使用关键词回退计划", flush=True)
-
-    if plan_dict and plan_dict.get("steps"):
-        _enforce_explicit_resource_type(plan_dict, question)
-        _ensure_mandatory_retrieval_when_enabled(plan_dict, capability)
-        _ensure_outline_confirmation_boundary(plan_dict, state)
-        _ensure_fetch_visuals_when_needed(plan_dict, question, capability, state)
-        _attach_step_constraints(plan_dict)
-        plan = Plan.from_dict(plan_dict)
-        out = plan.to_dict()
-        writer({"type": "plan", "payload": out})
-        # Use strict mode for post-confirm plans (active_draft_outline + confirm
-        # keyword path). These plans are short and unambiguous — fetch_visuals
-        # then generate_resource — and strict mode prevents the executor LLM
-        # from looping image_search forever and exhausting max_steps.
-        is_post_confirm = bool(state.get("active_draft_outline")) and not any(
-            s.get("internal_action") == "draft_outline" for s in plan_dict.get("steps") or []
-        )
-        plan_mode = "strict" if is_post_confirm else "guided"
-        print(
-            f"[规划器] 计划生成 | 步骤数={len(plan.steps)}  主题=\"{plan.subject[:30]}\"  模式={plan_mode}",
-            flush=True,
-        )
-        return {
-            "current_plan": out,
-            "plan_step_index": 0,
-            "plan_mode": plan_mode,
-            "needs_planning": False,
-            "reflect_verdict": "",
-            "reflect_hint": "",
-        }
-
-    # Planner failed entirely — skip plan, let executor run free
-    print("[规划器] 计划生成失败，跳过规划直接执行", flush=True)
-    return {"needs_planning": False}
+    # The model may later enrich non-execution language, but workflow authority
+    # belongs to this deterministic contract + compiler pair.  It prevents an
+    # invalid model plan from being "fixed" by several competing post-processors.
+    contract = extract_task_contract(request, capability, state)
+    ctx = rt.get("ctx")
+    if ctx is not None:
+        ctx.task_contract = contract.model_dump(mode="json")
+        if state.get("logical_task_id"):
+            ctx.logical_task_id = state["logical_task_id"]
+        ensure_logical_task_id(ctx)
+    plan = compile_plan(contract, state)
+    out = plan.to_dict()
+    writer({"type": "plan", "payload": out})
+    print(
+        f"[规划器] 编译计划 | intent={contract.intent} template={plan.template_id} "
+        f"steps={len(plan.steps)} topic=\"{plan.subject[:30]}\"",
+        flush=True,
+    )
+    return {
+        "current_plan": out,
+        "plan_step_index": 0,
+        "plan_mode": "strict",
+        "needs_planning": False,
+        "reflect_verdict": "",
+        "reflect_hint": "",
+        "task_contract": contract.model_dump(mode="json"),
+        "logical_task_id": getattr(ctx, "logical_task_id", "") if ctx is not None else "",
+    }
 
 
 def _attach_step_constraints(plan_dict: dict) -> None:

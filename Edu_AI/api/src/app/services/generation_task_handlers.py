@@ -380,7 +380,7 @@ class _AgentQuizGenerationAdapter:
                 "weak_points": [],
                 "source_scope": selected_doc_ids,
             },
-            context_summary="",
+            context_summary=str(getattr(payload, "research_context", "") or "")[:16000],
             conversation_id=str(
                 getattr(payload, "conversation_id", "") or job_id
             ),

@@ -117,7 +117,11 @@ def _run_confirmed_resource(
         question=prompt,
     )
     if "draft_outline" not in _successful_tools(first):
-        raise AssertionError(f"{workflow_type}: Agent did not draft an outline")
+        raise AssertionError(
+            f"{workflow_type}: Agent did not draft an outline; "
+            f"action={first.get('action')}, trace={first.get('trace')}, "
+            f"message={str((first.get('message') or {}).get('content') or '')[:160]}"
+        )
     conversation_id = _conversation_id(first)
     if not conversation_id:
         raise AssertionError(f"{workflow_type}: missing conversation id")
@@ -178,6 +182,25 @@ def run_web_report(base_url: str, token: str, course_id: str, timeout: float) ->
         raise AssertionError(f"web-report confirm tools={second_tools}")
     if second_tools.index("web_search") > second_tools.index("generate_report"):
         raise AssertionError(f"web-report confirm order={second_tools}")
+    verification = dict(second.get("verification") or {})
+    required_audit_fields = {
+        "plan_compliance",
+        "required_tools_satisfied",
+        "forbidden_tools_absent",
+        "tool_order_valid",
+        "duplicate_submission_absent",
+        "grounding_valid",
+        "artifact_contract_valid",
+        "persona_valid",
+        "decision",
+    }
+    missing_audit_fields = required_audit_fields - set(verification)
+    if missing_audit_fields:
+        raise AssertionError(
+            f"web-report missing structured audit fields={sorted(missing_audit_fields)}"
+        )
+    if verification.get("decision") not in {"pass", "partial"}:
+        raise AssertionError(f"web-report verification={verification}")
     task_id = _task_id(second_events, "report")
     call = partial(request_json, base_url, token=token)
     # The global Job ledger is the public durable snapshot used by the teacher
@@ -241,15 +264,79 @@ def run_direct_resource(
     print(f"PASS agent-{name}: job={task_id}, material={material_id}")
 
 
+def run_long_dialogue(
+    base_url: str, token: str, course_id: str, timeout: float, *, turns: int
+) -> None:
+    """Exercise state continuity across a realistic teacher preparation dialog.
+
+    The final three turns prove that a saved outline is revised rather than
+    forgotten, confirmation submits exactly one task, and status uses the
+    durable task reference rather than creating a new resource.
+    """
+    first_events, first = _turn(
+        base_url=base_url, token=token, course_id=course_id,
+        question="请为快速排序设计一份高一信息技术教学报告",
+    )
+    if "draft_outline" not in _successful_tools(first):
+        raise AssertionError("long-dialogue: initial outline was not created")
+    conversation_id = _conversation_id(first)
+    if not conversation_id:
+        raise AssertionError("long-dialogue: missing conversation id")
+
+    for index in range(max(0, turns - 3)):
+        _, response = _turn(
+            base_url=base_url, token=token, course_id=course_id,
+            conversation_id=conversation_id,
+            question=f"补充第{index + 1}条课堂实施注意事项，但不要生成资源。",
+        )
+        if not str((response.get("message") or {}).get("content") or "").strip():
+            raise AssertionError(f"long-dialogue: turn {index + 1} returned no content")
+
+    revised_events, revised = _turn(
+        base_url=base_url, token=token, course_id=course_id,
+        conversation_id=conversation_id,
+        question="把刚才的大纲改得更适合基础薄弱学生，并增加一个随堂练习环节。",
+    )
+    if "draft_outline" not in _successful_tools(revised):
+        raise AssertionError("long-dialogue: revision did not create a new outline")
+    if any(event.get("type") == "task_submitted" for event in revised_events):
+        raise AssertionError("long-dialogue: revision submitted a resource before confirmation")
+
+    confirmed_events, confirmed = _turn(
+        base_url=base_url, token=token, course_id=course_id,
+        conversation_id=conversation_id, question="确认生成修订后的报告",
+    )
+    confirmed_tools = _successful_tools(confirmed)
+    if "generate_report" not in confirmed_tools:
+        raise AssertionError(f"long-dialogue: confirmation tools={confirmed_tools}")
+    task_id = _task_id(confirmed_events, "report")
+    call = partial(request_json, base_url, token=token)
+    job = _assert_job_succeeded(call, task_id, timeout)
+
+    _, status_response = _turn(
+        base_url=base_url, token=token, course_id=course_id,
+        conversation_id=conversation_id, question="刚才的任务完成了吗？请给出状态。",
+    )
+    status_tools = _successful_tools(status_response)
+    if "query_task_status" not in status_tools:
+        raise AssertionError(f"long-dialogue: status tools={status_tools}")
+    if any(tool.startswith("generate_") for tool in status_tools):
+        raise AssertionError(f"long-dialogue: status unexpectedly generated a resource: {status_tools}")
+    if not (job.get("result_ref") or {}):
+        raise AssertionError("long-dialogue: completed task has no readable result reference")
+    print(f"PASS agent-long-dialogue: turns={turns}, job={task_id}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--course-id", default=os.getenv("EDU_AI_SMOKE_COURSE_ID"))
     parser.add_argument("--timeout", type=float, default=900)
+    parser.add_argument("--long-dialogue-turns", type=int, default=12)
     parser.add_argument(
         "--cases",
         nargs="*",
-        choices=["report", "web-report", "lesson-plan", "quiz", "blog", "flashcard", "graph", "game", "classroom"],
+        choices=["report", "web-report", "lesson-plan", "quiz", "blog", "flashcard", "graph", "game", "classroom", "long-dialogue"],
     )
     args = parser.parse_args()
     token = os.getenv("EDU_AI_SMOKE_TOKEN", "").strip()
@@ -265,6 +352,7 @@ def main() -> int:
         "graph",
         "game",
         "classroom",
+        "long-dialogue",
     ]
     if "report" in cases:
         run_report(args.base_url, token, args.course_id, args.timeout)
@@ -283,13 +371,25 @@ def main() -> int:
             f"PASS agent-lesson-plan: job={task_id}, "
             f"material={(job.get('result_ref') or {}).get('material_id', '')}"
         )
+    if "classroom" in cases:
+        task_id, job = _run_confirmed_resource(
+            base_url=args.base_url,
+            token=token,
+            course_id=args.course_id,
+            prompt="帮我生成一个快速排序 AI 课堂",
+            workflow_type="classroom",
+            timeout=args.timeout,
+        )
+        print(
+            f"PASS agent-classroom: job={task_id}, "
+            f"material={(job.get('result_ref') or {}).get('material_id', '')}"
+        )
     direct_cases = {
         "quiz": "帮我生成5道快速排序练习题",
         "blog": "帮我生成一篇快速排序的教学博客",
         "flashcard": "帮我生成10张快速排序复习闪卡",
         "graph": "帮我生成快速排序的思维导图",
         "game": "帮我生成一个快速排序课堂小游戏",
-        "classroom": "帮我生成一个快速排序 AI 课堂",
     }
     for name, prompt in direct_cases.items():
         if name in cases:
@@ -301,6 +401,11 @@ def main() -> int:
                 name=name,
                 prompt=prompt,
             )
+    if "long-dialogue" in cases:
+        run_long_dialogue(
+            args.base_url, token, args.course_id, args.timeout,
+            turns=max(6, args.long_dialogue_turns),
+        )
     return 0
 
 

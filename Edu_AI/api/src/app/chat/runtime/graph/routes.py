@@ -17,18 +17,25 @@ _CONFIRM_KEYWORDS = (
 
 
 def should_plan(request, snapshot, state: dict) -> bool:
-    question = str(getattr(request, "question", "") or "")
-
-    # 1. Generation / design task keywords
-    if any(kw in question for kw in _PLAN_TRIGGER_KEYWORDS):
-        return True
-
-    # 2. Active draft outline + user confirms → plan the generation step
-    if state.get("active_draft_outline"):
-        if any(kw in question for kw in _CONFIRM_KEYWORDS):
+    # A deterministic contract controls planning.  This includes control turns
+    # (status/cancel/modify) and QA turns whose user-selected sources make
+    # retrieval mandatory, not only generation-keyword requests.
+    try:
+        from app.chat.runtime.planning.task_contract_extractor import extract_task_contract
+        capability = getattr(snapshot, "capability", None)
+        contract = extract_task_contract(request, capability, state)
+        if contract.intent != "qa" or contract.requires_rag or contract.requires_web:
+            return True
+    except Exception:
+        # Keep the legacy keyword fallback for isolated callers and incomplete
+        # test fixtures that do not provide capability state.
+        question = str(getattr(request, "question", "") or "")
+        if any(kw in question for kw in _PLAN_TRIGGER_KEYWORDS):
+            return True
+        if state.get("active_draft_outline") and any(kw in question for kw in _CONFIRM_KEYWORDS):
             return True
 
-    # 3. Reflect requested a replan
+    # Reflect requested a bounded replan.
     if state.get("reflect_verdict") == "replan":
         return True
 

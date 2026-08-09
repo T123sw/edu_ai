@@ -23,7 +23,11 @@ class _Provider:
 
 
 class _Llm:
-    def invoke(self, _messages):
+    def __init__(self):
+        self.messages = []
+
+    def invoke(self, messages):
+        self.messages.append(messages)
         return SimpleNamespace(
             content=(
                 '{"title":"变量","summary":"程序中的数据容器","children":['
@@ -107,9 +111,10 @@ def test_graph_generation_drops_duplicate_siblings_and_caps_depth():
 
 
 def test_graph_generation_uses_configured_topic_without_documents():
+    llm = _Llm()
     service = KnowledgeBaseDirectGraphServiceV2(
         content_provider=_NoSourceProvider(),
-        llm=_Llm(),
+        llm=llm,
         course_storage_manager=_Storage(),
     )
 
@@ -126,9 +131,12 @@ def test_graph_generation_uses_configured_topic_without_documents():
                 "description": "Show definitions and relationships",
                 "max_depth": 3,
             },
+            research_context="Agent evidence: a variable has name, type, and value.",
+            research_bundle_id="bundle-1",
         ),
         job_id="job-none",
         config_snapshot_id="cfg-none",
     )
 
     assert result["artifacts"][0]["title"] == "Variable knowledge map"
+    assert "Agent evidence" in str(llm.messages[0])

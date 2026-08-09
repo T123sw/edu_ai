@@ -477,17 +477,17 @@ def test_fast_runtime_instructs_model_to_use_live_web_results_when_available():
     assert "你当前已经拿到了联网检索结果" in gateway.last_messages[0]["content"]
 
 
-def test_fast_runtime_uses_teacher_style_system_prompt():
+def test_fast_runtime_uses_teacher_preparation_system_prompt():
     gateway = DummyGateway()
     runtime = FastChatRuntime(model_gateway=gateway)
 
     runtime.run(request=ChatRequestV2(question="什么是牛顿第一定律"), snapshot=None, decision=None)
 
     system_prompt = gateway.last_messages[0]["content"]
-    assert "你是一位专业、耐心、善于启发的学科教师" in system_prompt
-    assert "先直接回答用户当前的问题" in system_prompt
-    assert "提供2-3个自然延伸的学习方向" in system_prompt
-    assert "只在适合继续引导时" in system_prompt
+    assert "教师的备课与教学资源助手" in system_prompt
+    assert "不要把教师当学生教学" in system_prompt
+    assert "不得擅自创建资源" in system_prompt
+    assert "2-3个自然延伸" not in system_prompt
 
 
 def test_fast_runtime_keeps_teacher_style_when_rag_context_exists():
@@ -504,7 +504,7 @@ def test_fast_runtime_keeps_teacher_style_when_rag_context_exists():
     runtime.run(request=request, snapshot=None, decision=None)
 
     system_prompt = gateway.last_messages[0]["content"]
-    assert "你是一位专业、耐心、善于启发的学科教师" in system_prompt
+    assert "教师的备课与教学资源助手" in system_prompt
     assert "优先依据已经提供的检索信息作答" in system_prompt
     assert "不要忽略这些参考信息" in system_prompt
 

@@ -1,0 +1,36 @@
+schema_version: "2026-08-09.v2"
+dataset_id: teacher-agent-persona-baseline
+description: Teacher-assistant prompts reserved for rule checks and a versioned LLM/human Judge.
+families:
+  - id_prefix: persona-action-oriented
+    dimensions: [intent, persona, clarification]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: none
+      plan_actions: [answer_question, verify, report_result]
+      required_tools: [verify_task]
+      forbidden_tools: [generate_report, generate_lesson_plan]
+      needs_clarification: false
+    variants:
+      - {id_suffix: "01", question: "给我三个快速排序课堂导入方案", tags: [concise, actionable]}
+      - {id_suffix: "02", question: "链表这节课学生最容易错在哪里", tags: [teacher-context]}
+      - {id_suffix: "03", question: "给出递归板书的组织建议", tags: [concise, no-socratic]}
+      - {id_suffix: "04", question: "如何在四十分钟内讲完二叉树遍历", tags: [defaults, actionable]}
+  - id_prefix: persona-no-unnecessary-question
+    dimensions: [intent, persona, clarification]
+    capability: {source_mode: none, allow_rag: false, allow_web: false, allow_image_search: false}
+    expected:
+      intent: qa
+      resource_types: []
+      source_mode: none
+      plan_actions: [answer_question, verify, report_result]
+      required_tools: [verify_task]
+      forbidden_tools: [generate_report, generate_classroom]
+      needs_clarification: false
+    variants:
+      - {id_suffix: "01", question: "比较冒泡排序和快速排序的教学顺序", tags: [no-clarification]}
+      - {id_suffix: "02", question: "列出图遍历的课堂提问", tags: [no-clarification]}
+      - {id_suffix: "03", question: "给一个哈希冲突的生活化案例", tags: [teacher-context]}
+      - {id_suffix: "04", question: "总结计算思维评价的观察点", tags: [concise]}

@@ -10,10 +10,14 @@ class AgentState(TypedDict):
     retrieval_sources: list # RAG/Web citations accumulated during this turn
     fallback_reason: str    # non-empty triggers fallback in run_stream
     needs_planning: bool    # set by run_stream() via should_plan(), cleared by planner_node
+    task_contract: dict     # TeachingTaskContract.to_dict(), current-turn execution authority
+    logical_task_id: str   # stable id for one logical task across retries/reconnects
+    verification_report: dict  # rule-first VerificationReport after verify_task
 
     # ── Cross-turn checkpointed fields ────────────────────────────────────────
     active_draft_outline: dict  # last outline shown to user (L2 working memory)
     pending_tasks: list         # submitted background generation tasks
+    agent_memory: dict          # working facts + task ledger + bounded summary
 
     # ── Plan fields (cross-turn, persisted via checkpoint) ───────────────────
     current_plan: dict      # Plan.to_dict(), None if no plan yet
