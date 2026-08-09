@@ -136,6 +136,7 @@ def submit_index_job(
     owner_user_id: str,
     force_reindex: bool,
     existing_job: Optional[EduJob] = None,
+    storage_scope: str = "course",
 ) -> EduJob:
     document = get_document(
         manager, course_id, document_id, owner_user_id=owner_user_id
@@ -189,6 +190,7 @@ def submit_index_job(
             "document_id": document_id,
             "force_reindex": force_reindex,
             "pending_version": pending_version,
+            "storage_scope": str(storage_scope or "course"),
         },
         runtime_config_snapshot=runtime_config_resolver.capture_snapshot(
             owner_user_id

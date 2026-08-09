@@ -11,10 +11,14 @@ from app.services import knowledge_document_service
 from app.services import video_service
 from app.services.job_store import JobKind, create_job
 from app.services.platform_task_handlers import (
+    PlatformTaskHandlers,
     enqueue_platform_task,
     register_platform_task_handlers,
 )
-from app.services.durable_task_handlers import DurableTaskHandlerRegistry
+from app.services.durable_task_handlers import (
+    DurableExecutionContext,
+    DurableTaskHandlerRegistry,
+)
 from app.services.durable_task_executor import DurableTaskExecutor
 from app.services.job_completion_service import JobCompletionService
 from app.services.job_store import JobStatus, get_job
@@ -153,6 +157,56 @@ def test_rag_submission_persists_document_identity_not_rag_client(
     assert captured["command"]["document_id"] == "doc-1"
     assert "rag_system" not in captured["command"]
     assert "manager" not in captured["command"]
+
+
+def test_personal_rag_handler_uses_owner_scoped_storage_factory(monkeypatch):
+    personal_manager = object()
+    captured = {}
+    job = create_job(
+        kind=JobKind.RAG_IMPORT,
+        edu_job_id="job-personal-rag-handler",
+        owner_user_id="student-a",
+        course_id="personal:student-a",
+    )
+
+    def run_index_job(**kwargs):
+        captured.update(kwargs)
+        from app.services.job_store import update_job
+
+        update_job(
+            job.edu_job_id,
+            status=JobStatus.SUCCEEDED,
+            result_ref={"document_id": "doc-1"},
+        )
+
+    monkeypatch.setattr(knowledge_document_service, "run_index_job", run_index_job)
+    handler = PlatformTaskHandlers(
+        personal_storage_factory=lambda owner: (
+            personal_manager if owner == "student-a" else None
+        )
+    )
+    context = DurableExecutionContext(
+        task_id=job.edu_job_id,
+        owner_user_id="student-a",
+        course_id="personal:student-a",
+        config_snapshot_id=None,
+        progress=lambda *_args: None,
+        is_cancel_requested=lambda: False,
+    )
+
+    result = handler.rag_document_index(
+        {
+            "storage_scope": "personal",
+            "course_id": "personal:student-a",
+            "document_id": "doc-1",
+            "pending_version": "idx-1",
+        },
+        context,
+    )
+
+    assert result["saved"] is True
+    assert captured["manager"] is personal_manager
+    assert captured["owner_user_id"] == "student-a"
 
 
 def test_video_ingestion_command_uses_a_user_relative_path(

@@ -123,12 +123,26 @@ class PlatformTaskHandlers:
         self,
         *,
         course_storage_factory: Callable[[], CourseStorageManager] | None = None,
+        personal_storage_factory: Callable[[str], CourseStorageManager]
+        | None = None,
         generation_source_resolver_factory: Callable[[CourseStorageManager], Any]
         | None = None,
     ) -> None:
         self.course_storage_factory = (
             course_storage_factory or CourseStorageManager
         )
+        if personal_storage_factory is None:
+            def default_personal_storage_factory(
+                owner_user_id: str,
+            ) -> CourseStorageManager:
+                from app.services.personal_knowledge_service import (
+                    PersonalKnowledgeService,
+                )
+
+                return PersonalKnowledgeService().manager_for(owner_user_id)
+
+            personal_storage_factory = default_personal_storage_factory
+        self.personal_storage_factory = personal_storage_factory
         if generation_source_resolver_factory is None:
             from app.services.generation_task_handlers import (
                 build_default_generation_source_resolver,
@@ -279,7 +293,11 @@ class PlatformTaskHandlers:
         from app.services.knowledge_document_service import run_index_job
         from modules.rag_v2.api import get_rag_system
 
-        manager = self.course_storage_factory()
+        storage_scope = str(command.get("storage_scope") or "course")
+        if storage_scope == "personal":
+            manager = self.personal_storage_factory(context.owner_user_id)
+        else:
+            manager = self.course_storage_factory()
         context.progress(2, "parsing", "正在读取文档内容")
         run_index_job(
             manager=manager,

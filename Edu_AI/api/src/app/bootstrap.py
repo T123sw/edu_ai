@@ -97,6 +97,7 @@ def create_app(
 
     # lazy imports to avoid circular import via app/api/__init__.py
     from app.api.courses import router as courses_router
+    from app.api.personal_knowledge import router as personal_knowledge_router
     from app.api.health import router as health_router
     from app.api.jobs import router as jobs_router
     from app.api.runtime_config import router as runtime_config_router
@@ -106,6 +107,7 @@ def create_app(
     from modules.rag_v2.api import router as rag_router
 
     app.include_router(courses_router)
+    app.include_router(personal_knowledge_router)
     app.include_router(health_router)
     app.include_router(jobs_router)
     app.include_router(runtime_config_router)
