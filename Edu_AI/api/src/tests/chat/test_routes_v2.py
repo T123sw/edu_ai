@@ -16,7 +16,17 @@ def test_ppt_outline_resolves_course_auto_documents_without_changing_source_inte
 ):
     app = FastAPI()
     app.include_router(v2_router)
-    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+    app.dependency_overrides[get_current_user] = lambda: {
+        "username": "tester",
+        "role": "teacher",
+    }
+    app.dependency_overrides[get_course_access_service] = lambda: SimpleNamespace(
+        require=lambda course_id, user, capability: SimpleNamespace(
+            course_id=course_id,
+            user_id=user["username"],
+            course_role="editor",
+        )
+    )
 
     class DummyResolver:
         def resolve(self, course_id, source_mode, selected_doc_ids):
@@ -511,7 +521,10 @@ def test_lesson_plan_cards_v2_route_returns_cards_payload(monkeypatch):
 def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
-    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+    app.dependency_overrides[get_current_user] = lambda: {
+        "username": "tester",
+        "role": "teacher",
+    }
     app.dependency_overrides[get_course_access_service] = lambda: SimpleNamespace(
         require=lambda course_id, user, capability: SimpleNamespace(
             course_id=course_id,
@@ -566,7 +579,10 @@ def test_direct_report_v2_route_returns_task_submitted_payload(monkeypatch):
 def test_game_direct_route_returns_task_submitted_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
-    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
+    app.dependency_overrides[get_current_user] = lambda: {
+        "username": "tester",
+        "role": "student",
+    }
     app.dependency_overrides[get_course_access_service] = lambda: SimpleNamespace(
         require=lambda course_id, user, capability: SimpleNamespace(
             course_id=course_id,

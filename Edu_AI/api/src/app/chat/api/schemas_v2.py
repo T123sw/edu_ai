@@ -54,6 +54,28 @@ GenerationPreflightResourceType = Literal[
     "game",
     "classroom",
 ]
+GenerationToolIdV2 = Literal[
+    "report",
+    "ppt",
+    "mind_map",
+    "quiz",
+    "classroom",
+    "lesson_plan",
+    "blog",
+    "flashcard",
+    "game",
+]
+
+
+class GenerationToolDefinitionV2(BaseModel):
+    tool_id: GenerationToolIdV2
+    output_scope: Literal["personal"] = "personal"
+    allowed_source_scopes: List[Literal["none", "personal", "course"]]
+    can_publish: Literal[False] = False
+
+
+class GenerationToolCatalogResponseV2(BaseModel):
+    tools: List[GenerationToolDefinitionV2]
 
 
 class GenerationSourceRequest(BaseModel):

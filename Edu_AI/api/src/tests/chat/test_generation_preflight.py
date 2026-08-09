@@ -189,8 +189,11 @@ def test_preflight_returns_stable_source_errors(
     assert response.json()["detail"]["code"] == expected_code
 
 
-def test_viewer_cannot_run_generation_preflight(preflight_client):
+def test_student_viewer_can_run_generation_preflight_for_personal_output(
+    preflight_client,
+):
     client, active_user = preflight_client
+    active_user["role"] = "student"
     active_user["course_role"] = "viewer"
 
     response = client.post(
@@ -203,15 +206,24 @@ def test_viewer_cannot_run_generation_preflight(preflight_client):
         },
     )
 
-    assert response.status_code == 403
-    assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"
+    assert response.status_code == 200
+    assert response.json()["valid"] is True
 
 
-def test_viewer_cannot_bypass_preflight_and_submit_direct_generation(
+def test_student_viewer_can_submit_allowed_personal_generation(
     preflight_client,
+    monkeypatch,
 ):
     client, active_user = preflight_client
+    active_user["role"] = "student"
     active_user["course_role"] = "viewer"
+    captured = {}
+
+    def submit(command):
+        captured["command"] = command
+        return type("Job", (), {"edu_job_id": "student-report-job"})()
+
+    monkeypatch.setattr(routes_v2.generation_command_service, "submit", submit)
 
     response = client.post(
         "/api/chat/v2/report/direct",
@@ -224,8 +236,39 @@ def test_viewer_cannot_bypass_preflight_and_submit_direct_generation(
         },
     )
 
-    assert response.status_code == 403
-    assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"
+    assert response.status_code == 202
+    assert response.json()["task_id"] == "student-report-job"
+    assert captured["command"].owner_user_id == "teacher-a"
+    assert captured["command"].resource_type == "report"
+
+
+def test_generation_tool_catalog_is_filtered_by_authenticated_role(
+    preflight_client,
+):
+    client, active_user = preflight_client
+    active_user["role"] = "student"
+
+    response = client.get("/api/chat/v2/generation/tools")
+
+    assert response.status_code == 200
+    assert [item["tool_id"] for item in response.json()["tools"]] == [
+        "report",
+        "ppt",
+        "mind_map",
+        "quiz",
+        "classroom",
+        "flashcard",
+        "game",
+    ]
+    assert all(
+        item == {
+            "tool_id": item["tool_id"],
+            "output_scope": "personal",
+            "allowed_source_scopes": ["none", "personal", "course"],
+            "can_publish": False,
+        }
+        for item in response.json()["tools"]
+    )
 
 
 def test_direct_generation_rejects_cross_course_selected_document_before_submit(

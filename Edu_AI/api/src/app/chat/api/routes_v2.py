@@ -41,6 +41,7 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectLessonPlanRequestV2,
     GenerationPreflightRequestV2,
     GenerationPreflightResponseV2,
+    GenerationToolCatalogResponseV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
 from app.services.generation_command import (
@@ -49,6 +50,12 @@ from app.services.generation_command import (
 )
 from app.services.generation_source_errors import GenerationSourceError
 from app.services.course_access import CourseAccessService
+from app.services.personal_tool_access import (
+    PersonalToolAccessDenied,
+    PersonalToolId,
+    list_personal_tools_for_role,
+    require_personal_tool,
+)
 from core.config import Config
 from core.course_storage import CourseStorageManager
 
@@ -70,17 +77,39 @@ def _get_reply_service():
     return build_default_reply_service_v2()
 
 
-def _require_direct_generation_access(
+def _require_personal_generation_access(
+    *,
+    tool_id: PersonalToolId,
     course_id: str | None,
     current_user: dict,
     access_service: CourseAccessService,
 ) -> None:
-    require_course_capability(
-        str(course_id or "").strip(),
-        current_user,
-        "generate",
-        access_service,
-    )
+    system_role = str(current_user.get("role") or "").strip()
+    try:
+        require_personal_tool(system_role, tool_id)
+    except PersonalToolAccessDenied as exc:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "PERSONAL_TOOL_ACCESS_DENIED",
+                "tool_id": exc.tool_id,
+            },
+        ) from exc
+
+    normalized_course_id = str(course_id or "").strip()
+    if normalized_course_id:
+        require_course_capability(
+            normalized_course_id,
+            current_user,
+            "read",
+            access_service,
+        )
+
+
+def _preflight_personal_tool_id(resource_type: str) -> PersonalToolId:
+    if resource_type == "graph":
+        return "mind_map"
+    return resource_type  # type: ignore[return-value]
 
 
 def _validate_direct_generation_source(payload, *, owner: str) -> None:
@@ -107,11 +136,11 @@ def generation_preflight(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    require_course_capability(
-        payload.course_id,
-        current_user,
-        "generate",
-        access_service,
+    _require_personal_generation_access(
+        tool_id=_preflight_personal_tool_id(payload.resource_type),
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
     )
     try:
         documents = _get_generation_source_resolver().validate(
@@ -144,6 +173,31 @@ def generation_preflight(
             for item in documents
         ],
         "warnings": warnings,
+    }
+
+
+@router.get(
+    "/generation/tools",
+    response_model=GenerationToolCatalogResponseV2,
+)
+def generation_tool_catalog(
+    current_user: dict = Depends(get_current_user),
+):
+    definitions = list_personal_tools_for_role(
+        str(current_user.get("role") or "").strip()
+    )
+    return {
+        "tools": [
+            {
+                "tool_id": definition.tool_id,
+                "output_scope": definition.output_scope,
+                "allowed_source_scopes": list(
+                    definition.allowed_source_scopes
+                ),
+                "can_publish": False,
+            }
+            for definition in definitions
+        ]
     }
 
 
@@ -527,7 +581,12 @@ async def direct_report(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="report",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
@@ -566,7 +625,12 @@ async def direct_lesson_plan(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="lesson_plan",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
@@ -621,7 +685,12 @@ async def direct_quiz(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="quiz",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
@@ -650,7 +719,12 @@ async def direct_game(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="game",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
@@ -681,7 +755,12 @@ async def direct_flashcard(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="flashcard",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
@@ -710,7 +789,14 @@ async def direct_flashcard(
 async def direct_ppt_outline(
     payload: KnowledgeBaseDirectPptOutlineRequestV2,
     current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
 ):
+    _require_personal_generation_access(
+        tool_id="ppt",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     try:
         resolver = _get_generation_source_resolver()
         resolve_kwargs = {}
@@ -742,6 +828,7 @@ async def direct_ppt_outline(
 async def direct_ppt_generate(
     payload: KnowledgeBaseDirectPptGenerateRequestV2,
     current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
 ):
     owner = str(current_user.get("username") or "").strip()
     service = _get_direct_ppt_service()
@@ -749,6 +836,12 @@ async def direct_ppt_generate(
         draft = service.get_draft(owner=owner, draft_id=payload.draft_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="ppt_draft_not_found") from exc
+    _require_personal_generation_access(
+        tool_id="ppt",
+        course_id=str(draft.get("course_id") or ""),
+        current_user=current_user,
+        access_service=access_service,
+    )
     command = GenerationCommand(
         resource_type="ppt",
         owner_user_id=owner,
@@ -790,7 +883,12 @@ async def direct_graph(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="mind_map",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
@@ -814,7 +912,12 @@ async def direct_blog(
     current_user: dict = Depends(get_current_user),
     access_service: CourseAccessService = Depends(get_course_access_service),
 ):
-    _require_direct_generation_access(payload.course_id, current_user, access_service)
+    _require_personal_generation_access(
+        tool_id="blog",
+        course_id=payload.course_id,
+        current_user=current_user,
+        access_service=access_service,
+    )
     owner = str(current_user.get("username") or "").strip()
     _validate_direct_generation_source(payload, owner=owner)
     command = GenerationCommand(
