@@ -68,6 +68,10 @@ from app.services.material_publication_service import (
     MaterialPublicationError,
     MaterialPublicationService,
 )
+from app.services.personal_tool_access import (
+    PersonalToolAccessDenied,
+    require_personal_tool,
+)
 from app.textbook_knowledge_graph import (
     TextbookKnowledgeGraphError,
     import_textbook_into_knowledge_graph,
@@ -1454,13 +1458,23 @@ def save_knowledge_graph(
 async def generate_classroom(
     course_id: str,
     payload: GenerateClassroomRequest,
-    principal: CoursePrincipal = Depends(require_course_generate),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     """提交即返回（202 + queued 状态的 edu_job），真正的生成/校验/落库在
     后台任务里跑（真实实测一份 9-scene 课件约 20 分钟，不适合同步 await）。
     前端轮询 `GET /api/jobs/{edu_job_id}` 直到 `done`（SPEC-05 §3）。
     """
     mgr = _svc._get_manager()
+    try:
+        require_personal_tool(principal.system_role, "classroom")
+    except PersonalToolAccessDenied as exc:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "PERSONAL_TOOL_ACCESS_DENIED",
+                "tool_id": exc.tool_id,
+            },
+        ) from exc
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
 
@@ -1532,9 +1546,19 @@ def get_classroom(
 async def export_classroom_video(
     course_id: str,
     classroom_id: str,
-    principal: CoursePrincipal = Depends(require_course_generate),
+    principal: CoursePrincipal = Depends(require_course_read),
 ):
     mgr = _svc._get_manager()
+    try:
+        require_personal_tool(principal.system_role, "classroom")
+    except PersonalToolAccessDenied as exc:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "PERSONAL_TOOL_ACCESS_DENIED",
+                "tool_id": exc.tool_id,
+            },
+        ) from exc
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
     if mgr.get_generated_material(
@@ -1561,6 +1585,7 @@ async def export_classroom_video(
 @router.get("/{course_id}/classrooms", summary="列出课程下已落库的课件")
 def list_classrooms(
     course_id: str,
+    space: Literal["mine", "course"] = "mine",
     principal: CoursePrincipal = Depends(require_course_read),
 ):
     mgr = _svc._get_manager()
@@ -1570,6 +1595,7 @@ def list_classrooms(
         course_id,
         "classroom",
         owner_user_id=principal.user_id,
+        space=space,
     )
 
 

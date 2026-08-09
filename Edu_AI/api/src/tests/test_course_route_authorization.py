@@ -40,11 +40,6 @@ def course_api(tmp_path, monkeypatch):
             "/api/courses/course-1/knowledge-base/documents/missing",
             None,
         ),
-        (
-            "post",
-            "/api/courses/course-1/classrooms/generate",
-            {"requirement": "Explain the course"},
-        ),
     ],
 )
 def test_viewer_cannot_mutate_course_content(

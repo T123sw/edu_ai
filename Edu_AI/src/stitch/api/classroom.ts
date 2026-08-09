@@ -1,5 +1,9 @@
 import { API_BASE_URL, apiBlob, apiRequest } from "./client";
 import type { ClassroomMaterial, EduJob } from "./types";
+import {
+  buildClassroomListPath,
+  type ClassroomSpace,
+} from "./classroomPaths";
 
 const AUTH_STORAGE_KEY = "edu-ai-auth";
 
@@ -29,6 +33,15 @@ export function generateClassroom(
 
 export function getJobStatus(eduJobId: string) {
   return apiRequest<EduJob>(`/api/jobs/${eduJobId}`);
+}
+
+export function listClassrooms(
+  courseId: string,
+  space: ClassroomSpace,
+) {
+  return apiRequest<ClassroomMaterial[]>(
+    buildClassroomListPath(courseId, space),
+  );
 }
 
 export function exportClassroomVideo(courseId: string, classroomId: string) {
