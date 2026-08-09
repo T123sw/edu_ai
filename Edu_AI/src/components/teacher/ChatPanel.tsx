@@ -141,6 +141,21 @@ const buildMergedTimeline = (messages: Message[], currentIndex: number): MergedT
   };
 };
 
+const finalizeRunningAgentActivity = (
+  activity: AgentActivityState | undefined,
+  terminalStatus: 'done' | 'failed',
+): AgentActivityState | undefined => {
+  if (!activity) return undefined;
+  const stepStatus = { ...activity.stepStatus };
+  for (const step of activity.plan?.steps || []) {
+    const currentStatus = stepStatus[step.index] || step.status;
+    if (currentStatus === 'running') {
+      stepStatus[step.index] = terminalStatus;
+    }
+  }
+  return { ...activity, stepStatus };
+};
+
 interface PendingChatImage extends ChatInputImageV2 {
   previewUrl: string;
 }
@@ -1142,12 +1157,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     addMessage(aiResponse);
 
     try {
+      // Read capability toggles from the store at send time. This avoids a
+      // same-frame toggle + send interaction using the previous render value.
+      const currentCapabilityState = useStore.getState();
+      const currentAllowRag = currentCapabilityState.allowRag;
+      const currentAllowWeb = currentCapabilityState.allowWeb;
       // Checked documents are always a mandatory, scoped RAG source.
       // Enabling the RAG knowledge-base button expands that scope to every
       // document currently mounted in the workspace, regardless of which
       // individual rows are checked.
       const effectiveSelectedDocIds = resolveChatRetrievalDocIds({
-        mountFullKnowledgeBase: allowRag,
+        mountFullKnowledgeBase: currentAllowRag,
         selectedDocIds: selectedDocs,
         scopedDocIds: scopedSourceDocIds,
       });
@@ -1157,8 +1177,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         courseId,
         scopeType: workspaceScopeApiParams.scopeType,
         scopeId: workspaceScopeApiParams.scopeId,
-        allowRag,
-        allowWeb,
+        allowRag: currentAllowRag,
+        allowWeb: currentAllowWeb,
         selectedDocIds: effectiveSelectedDocIds,
         inputImages,
         inputVideos,
@@ -1316,6 +1336,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         text: replyText,
         sources,
         statusText: '',
+        agentActivity: finalizeRunningAgentActivity(agentActivity, 'done'),
       });
 
       await refreshHistoryList();
@@ -1326,6 +1347,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       updateLastMessage({
         text: error?.message || 'Request failed. Please try again.',
         statusText: 'Failed',
+        agentActivity: finalizeRunningAgentActivity(
+          (useStore.getState().messages.at(-1)?.agentActivity as AgentActivityState | undefined),
+          'failed',
+        ),
       });
     } finally {
       setIsLoading(false);
@@ -1357,6 +1382,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     const globalJob = jobsById[taskId];
     if (!globalJob || !isTerminalJob(globalJob)) return undefined;
     setBackgroundTaskId(null);
+    const terminalActivity = (status: 'done' | 'failed') => {
+      const messageWithTask = useStore.getState().messages.find((item) => item.id === taskId);
+      return finalizeRunningAgentActivity(
+        messageWithTask?.agentActivity as AgentActivityState | undefined,
+        status,
+      );
+    };
     if (globalJob.status !== 'succeeded') {
       updateMessageById(taskId, {
         text:
@@ -1367,6 +1399,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
             : '生成失败，请重试。'),
         statusText: '',
         status: 'error',
+        agentActivity: terminalActivity('failed'),
       });
       return undefined;
     }
@@ -1377,7 +1410,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
           if (status.status === 'completed') {
             if (!status.result) {
-              updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done' });
+              updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done', agentActivity: terminalActivity('done') });
               return;
             }
             const result = status.result;
@@ -1429,16 +1462,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               generatedResourceCount: genFiles.length,
               fallbackMessage: String(result.message?.content || ''),
             });
-            updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done' });
+            updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done', agentActivity: terminalActivity('done') });
             void refreshHistoryList();
           } else if (status.status === 'failed') {
-            updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error' });
+            updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error', agentActivity: terminalActivity('failed') });
           }
         } catch {
           updateMessageById(taskId, {
             text: buildGenerationSavedMessage({ visibility: 'private' }),
             statusText: '',
             status: 'done',
+            agentActivity: terminalActivity('done'),
           });
           void refreshHistoryList();
         }
@@ -2112,7 +2146,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                   <Button
                     size="large"
                     className={`chat-panel__composer-mode-button ${allowRag ? 'chat-panel__composer-mode-button--active' : ''}`}
-                    onClick={() => setAllowRag(!allowRag)}
+                    onClick={() => setAllowRag(!useStore.getState().allowRag)}
                     disabled={isLoading}
                   >
                     RAG知识库
@@ -2122,7 +2156,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                   <Button
                     size="large"
                     className={`chat-panel__composer-mode-button ${allowWeb ? 'chat-panel__composer-mode-button--active' : ''}`}
-                    onClick={() => setAllowWeb(!allowWeb)}
+                    onClick={() => setAllowWeb(!useStore.getState().allowWeb)}
                     disabled={isLoading}
                   >
                     Web搜索

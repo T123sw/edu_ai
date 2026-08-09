@@ -8,6 +8,7 @@ if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
 from app.deepsearch_importer import (
+    build_personal_research_document,
     import_crawl_results_to_rag,
     persist_imported_documents_to_course_kb,
 )
@@ -20,6 +21,23 @@ def _make_workspace_tmp(name: str) -> Path:
     test_dir = base_dir / f"{name}_{uuid.uuid4().hex}"
     test_dir.mkdir(parents=True, exist_ok=True)
     return test_dir
+
+
+def test_personal_research_filename_stays_within_windows_path_budget():
+    result = SimpleNamespace(
+        url="https://example.edu/articles/recursion",
+        title="A very long crawler page title " * 12,
+        content="recursion lesson content " * 30,
+        status="success",
+        file_path="",
+        metadata={"site_name": "A very long educational site name " * 8},
+    )
+
+    document = build_personal_research_document(result, min_content_length=10)
+
+    assert document is not None
+    assert len(document["filename"]) <= 73
+    assert document["filename"].endswith(".md")
 
 
 def test_import_crawl_results_to_rag_rewrites_inline_images_and_site_icon(monkeypatch):

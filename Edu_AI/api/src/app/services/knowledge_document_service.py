@@ -49,12 +49,12 @@ def get_document(
 
 def patch_document(
     manager: Any,
-    course_id: str,
+    catalog_id: str,
     document_id: str,
     **fields: Any,
 ) -> dict[str, Any]:
     with _lock:
-        records = manager.get_knowledge_base_index(course_id)
+        records = manager.get_knowledge_base_index(catalog_id)
         updated: Optional[dict[str, Any]] = None
         next_records: list[dict[str, Any]] = []
         for item in records:
@@ -66,7 +66,7 @@ def patch_document(
             next_records.append(record)
         if updated is None:
             raise KeyError(document_id)
-        if not manager.save_knowledge_base_index(course_id, next_records):
+        if not manager.save_knowledge_base_index(catalog_id, next_records):
             raise OSError("保存知识库文档状态失败")
         return updated
 
@@ -249,17 +249,29 @@ def run_index_job(
 
     try:
         on_progress(1, "queued")
+        library_type = str(document.get("library_type") or "course").strip().lower()
+        is_personal = library_type == "personal"
+        scope_type = (
+            "personal"
+            if is_personal
+            else str(document.get("scope_type") or "course").strip()
+        )
+        scope_id = (
+            str(document.get("scope_id") or f"personal:{owner_user_id}").strip()
+            if is_personal
+            else str(document.get("scope_id") or "").strip()
+        )
         result = rag_system.import_document(
             str(full_path),
             force_reimport=force_reindex,
             progress_callback=on_progress,
             owner=owner_user_id,
             metadata_overrides={
-                "course_id": course_id,
-                "library_type": str(document.get("library_type") or "personal"),
-                "scope_type": str(document.get("scope_type") or "course"),
-                "scope_id": str(document.get("scope_id") or ""),
-                "knowledge_node_id": str(document.get("scope_id") or ""),
+                "course_id": "" if is_personal else course_id,
+                "library_type": library_type,
+                "scope_type": scope_type,
+                "scope_id": scope_id,
+                "knowledge_node_id": "" if is_personal else scope_id,
                 "course_document_id": document_id,
             },
         )

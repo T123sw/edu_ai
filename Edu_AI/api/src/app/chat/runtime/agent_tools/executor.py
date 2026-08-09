@@ -10,7 +10,11 @@ from app.chat.runtime.agent_tools.tool_meta import NEVER_CACHE
 def execute_tool(name: str, args: dict, ctx) -> dict:
     if ctx.step_count >= ctx.max_steps:
         return error_result(name, "budget_exceeded", "已达最大工具调用次数")
-    if not _capability_allows(name, ctx.capability):
+    if not _capability_allows(
+        name,
+        ctx.capability,
+        actor_role=str(getattr(ctx.request, "actor_role", "teacher") or "teacher"),
+    ):
         return error_result(name, "permission_denied", "capability 不允许此工具")
     if name not in NEVER_CACHE and ctx.already_called(name, args):
         return ctx.get_cached_result(name, args)
@@ -47,7 +51,12 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
     return result
 
 
-def _capability_allows(name: str, capability) -> bool:
+def _capability_allows(name: str, capability, *, actor_role: str = "teacher") -> bool:
+    role = "student" if str(actor_role or "").strip().lower() == "student" else "teacher"
+    if role == "student" and name in {"generate_lesson_plan", "generate_blog"}:
+        return False
+    if role == "teacher" and name in {"generate_flashcard", "generate_game"}:
+        return False
     if name == "rag_search" and not getattr(capability, "allow_rag", False):
         return False
     if name == "web_search" and not getattr(capability, "allow_web", False):

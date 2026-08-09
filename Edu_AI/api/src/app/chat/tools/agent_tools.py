@@ -2,6 +2,7 @@
 
 import json
 import os
+import inspect
 from typing import Any, Callable, Dict, List, Optional
 
 from langchain_openai import ChatOpenAI
@@ -11,7 +12,10 @@ from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.rag_main.api import _get_server_url, _scrub_response_sources
 from modules.rag_v2.document_resolver import resolve_rag_document_ids
 
-from app.integrations.rag_client import resolve_selected_doc_ids_for_query
+from app.integrations.rag_client import (
+    load_selected_rag_documents,
+    resolve_selected_doc_ids_for_query,
+)
 
 from ..agents.report_generation import build_report_markdown
 from ..skill_manager import SkillManager
@@ -114,19 +118,53 @@ def rag_search_tool(
 ) -> ToolResult:
     try:
         rag_system = get_rag_system()
+        requested_doc_ids = list(selected_doc_ids or [])
+        if requested_doc_ids:
+            selected_documents = load_selected_rag_documents(
+                rag_system,
+                requested_doc_ids,
+                owner=str(owner or ""),
+                log_prefix="AgentRAG",
+            )
+            if selected_documents:
+                sources = [
+                    {
+                        "title": str(document.get("file_name") or "已选资料"),
+                        "file_name": str(document.get("file_name") or "已选资料"),
+                        "content": str(document.get("content") or "")[:12000],
+                        "metadata": {"selection_mode": "selected_documents"},
+                    }
+                    for document in selected_documents
+                    if str(document.get("content") or "").strip()
+                ]
+                evidence = "\n\n".join(
+                    f"【{source['title']}】\n{source['content']}"
+                    for source in sources
+                )[:20000]
+                if evidence:
+                    return _ok(
+                        "rag_search_tool",
+                        f"已读取 {len(sources)} 份用户明确选择的资料",
+                        {"answer": evidence, "sources": sources},
+                    )
         resolved_doc_ids = resolve_selected_doc_ids_for_query(
             rag_system,
-            list(selected_doc_ids or []),
+            requested_doc_ids,
             owner=str(owner or ""),
             course_id=course_id,
         )
-        result = rag_system.query(
-            str(query or ""),
-            top_k=max(1, int(top_k or 5)),
-            use_rag=True,
-            selected_doc_ids=resolved_doc_ids or list(selected_doc_ids or []),
-            owner=owner,
-        )
+        query_kwargs = {
+            "top_k": max(1, int(top_k or 5)),
+            "use_rag": True,
+            "selected_doc_ids": resolved_doc_ids or requested_doc_ids,
+            "owner": owner,
+        }
+        try:
+            if "course_id" in inspect.signature(rag_system.query).parameters:
+                query_kwargs["course_id"] = course_id
+        except (TypeError, ValueError):
+            pass
+        result = rag_system.query(str(query or ""), **query_kwargs)
         answer = str(result.get("answer") or "").strip()
         sources = _normalize_rag_sources_for_chat(list(result.get("sources") or []))
         return _ok(

@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   COURSE_MATERIAL_FILTERS,
+  getCourseMaterialFiltersForRole,
   getCourseMaterialOpenTarget,
   getCourseMaterialTypeMeta,
   isCourseMaterialInFilter,
@@ -73,6 +74,20 @@ test("filters mirror every formal generation type without invented groups", () =
   assert.equal(isCourseMaterialInFilter(material("game"), "game"), true);
   assert.equal(isCourseMaterialInFilter(material("graph"), "mind_map"), true);
   assert.equal(isCourseMaterialInFilter(material("mind_map"), "mind_map"), true);
+});
+
+test("student resource filters hide teacher-only generation types", () => {
+  const studentKeys = getCourseMaterialFiltersForRole("student").map(
+    (filter) => filter.key,
+  );
+  assert.equal(studentKeys.includes("lesson_plan"), false);
+  assert.equal(studentKeys.includes("blog"), false);
+  assert.equal(studentKeys.includes("flashcard"), true);
+  assert.equal(studentKeys.includes("game"), true);
+  assert.deepEqual(
+    getCourseMaterialFiltersForRole("teacher"),
+    COURSE_MATERIAL_FILTERS,
+  );
 });
 
 test("private resources describe personal visibility instead of course scope", () => {

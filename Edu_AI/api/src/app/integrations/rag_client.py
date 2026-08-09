@@ -58,9 +58,6 @@ def resolve_selected_doc_ids_for_query(
     accepted by the vector-store filter, so translate all known aliases before
     querying while retaining the old safe fallback for unknown identifiers.
     """
-    if not selected_doc_ids:
-        return selected_doc_ids
-
     candidates: List[str] = []
     seen_candidates: set[str] = set()
 
@@ -70,21 +67,33 @@ def resolve_selected_doc_ids_for_query(
             seen_candidates.add(normalized)
             candidates.append(normalized)
 
-    selected = {str(value or "").strip() for value in selected_doc_ids if str(value or "").strip()}
-    for value in selected_doc_ids:
+    requested_doc_ids = list(selected_doc_ids or [])
+    selected = {str(value or "").strip() for value in requested_doc_ids if str(value or "").strip()}
+    for value in requested_doc_ids:
         append(value)
 
     if course_id:
         for document in storage_manager.get_knowledge_base_index(str(course_id)):
+            if not requested_doc_ids:
+                if str(document.get("library_type") or "course").strip().lower() != "course":
+                    continue
+                if str(document.get("status") or "ready").strip().lower() not in {"ready", "partially_ready"}:
+                    continue
             aliases = {
                 str(document.get(key) or "").strip()
                 for key in ("id", "source_url", "path", "filename", "rag_index_key")
             }
             aliases.discard("")
-            if not selected.intersection(aliases):
+            if requested_doc_ids and not selected.intersection(aliases):
                 continue
             for key in ("rag_index_key", "id", "path", "filename", "source_url"):
                 append(document.get(key))
 
+    if not candidates:
+        # RAG treats an empty selection as "search every accessible document".
+        # For an empty course this sentinel deliberately resolves to no source,
+        # preventing an automatic course query from leaking into personal data.
+        return ["__edu_ai_no_authorized_document__"] if course_id else selected_doc_ids
+
     resolved_ids = resolve_rag_document_ids(rag_system, candidates, owner=owner)
-    return resolved_ids or selected_doc_ids
+    return resolved_ids or candidates

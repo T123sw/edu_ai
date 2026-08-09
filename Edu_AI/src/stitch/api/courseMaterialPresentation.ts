@@ -29,6 +29,22 @@ export const COURSE_MATERIAL_FILTERS: ReadonlyArray<{
   { key: "game", label: "课堂小游戏" },
 ] as const;
 
+const STUDENT_HIDDEN_MATERIAL_FILTERS = new Set<CourseMaterialFilterKey>([
+  "lesson_plan",
+  "blog",
+]);
+
+export function getCourseMaterialFiltersForRole(
+  role?: string | null,
+): ReadonlyArray<(typeof COURSE_MATERIAL_FILTERS)[number]> {
+  if (String(role || "").trim().toLowerCase() !== "student") {
+    return COURSE_MATERIAL_FILTERS;
+  }
+  return COURSE_MATERIAL_FILTERS.filter(
+    (filter) => !STUDENT_HIDDEN_MATERIAL_FILTERS.has(filter.key),
+  );
+}
+
 const MATERIAL_TYPE_META: Record<
   string,
   { label: string; icon: string; known: true }

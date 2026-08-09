@@ -42,6 +42,11 @@ def normalize_chat_request(payload) -> ChatRequestV2:
 
     return ChatRequestV2(
         question=payload.question,
+        actor_role=(
+            "student"
+            if str(getattr(payload, "actor_role", "") or "").strip().lower() == "student"
+            else "teacher"
+        ),
         conversation_id=getattr(payload, "conversation_id", None),
         owner=getattr(payload, "owner", None),
         model_id=getattr(payload, "model_id", None),

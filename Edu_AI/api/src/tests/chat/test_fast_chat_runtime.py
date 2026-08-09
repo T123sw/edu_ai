@@ -64,6 +64,21 @@ def test_fast_runtime_builds_direct_reply():
     assert result["conversation"]["conversation_id"] == ""
 
 
+def test_fast_runtime_uses_guided_student_persona():
+    gateway = DummyGateway()
+    runtime = FastChatRuntime(model_gateway=gateway)
+
+    runtime.run(
+        request=ChatRequestV2(question="什么是递归", actor_role="student"),
+        snapshot=None,
+        decision=None,
+    )
+
+    system_prompt = gateway.last_messages[0]["content"]
+    assert "引导式教学助手" in system_prompt
+    assert "备课与教学资源助手" not in system_prompt
+
+
 def test_fast_runtime_uses_recent_context_without_tools():
     gateway = DummyGateway()
     snapshot = SimpleNamespace(

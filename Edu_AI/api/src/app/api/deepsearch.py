@@ -70,7 +70,10 @@ async def get_crawl_results(
     current_user: dict = Depends(get_current_user),
 ):
     try:
-        result = _svc.get_crawl_results(batch_id=batch_id)
+        result = _svc.get_crawl_results(
+            batch_id=batch_id,
+            owner=str(current_user.get("username") or ""),
+        )
         if not result.get("ok"):
             return JSONResponse(status_code=404, content=result)
         return result
@@ -99,7 +102,10 @@ async def get_crawl_history(
     current_user: dict = Depends(get_current_user),
 ):
     try:
-        return _svc.get_crawl_history(limit=limit)
+        return _svc.get_crawl_history(
+            limit=limit,
+            owner=str(current_user.get("username") or ""),
+        )
 
     except NotImplementedError as e:
         return JSONResponse(

@@ -38,6 +38,17 @@ export interface DeepSearchResponse {
   links?: string[];
   created_at?: string;
   results?: CrawlResult[];  // 可选：如果后端直接返回结果
+  saved_to_personal_knowledge?: boolean;
+  archive_status?: 'not_requested' | 'failed' | 'partial' | 'succeeded';
+  archive_error?: string | null;
+  imported_documents?: Array<{
+    document_id: string;
+    job_id?: string;
+    status?: string;
+    library_type?: 'personal';
+    scope_type?: 'personal';
+    scope_id?: string;
+  }>;
 }
 
 export interface CrawlResult {

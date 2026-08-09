@@ -84,3 +84,37 @@ def test_resolve_selected_doc_ids_for_query_maps_course_source_url_to_rag_key(mo
     assert "doc-v2-linked-list" in seen["candidates"]
     assert rag_key in seen["candidates"]
     assert seen["owner"] == "teacher"
+
+
+def test_course_auto_resolves_only_ready_course_documents(monkeypatch):
+    class DummyStorageManager:
+        def get_knowledge_base_index(self, course_id):
+            assert course_id == "course-1"
+            return [
+                {"id": "course-ready", "rag_index_key": "teacher:course-ready", "library_type": "course", "status": "ready"},
+                {"id": "course-failed", "rag_index_key": "teacher:course-failed", "library_type": "course", "status": "failed"},
+                {"id": "personal-ready", "rag_index_key": "student:personal-ready", "library_type": "personal", "status": "ready"},
+            ]
+
+    monkeypatch.setattr(rag_client, "storage_manager", DummyStorageManager())
+    monkeypatch.setattr(rag_client, "resolve_rag_document_ids", lambda *args, **kwargs: [])
+
+    resolved = rag_client.resolve_selected_doc_ids_for_query(
+        DummyRagSystem(), [], owner="student", course_id="course-1"
+    )
+
+    assert "teacher:course-ready" in resolved
+    assert "teacher:course-failed" not in resolved
+    assert "student:personal-ready" not in resolved
+
+
+def test_empty_course_auto_never_falls_back_to_all_owner_documents(monkeypatch):
+    class DummyStorageManager:
+        def get_knowledge_base_index(self, course_id):
+            return []
+
+    monkeypatch.setattr(rag_client, "storage_manager", DummyStorageManager())
+    resolved = rag_client.resolve_selected_doc_ids_for_query(
+        DummyRagSystem(), [], owner="student", course_id="empty-course"
+    )
+    assert resolved == ["__edu_ai_no_authorized_document__"]

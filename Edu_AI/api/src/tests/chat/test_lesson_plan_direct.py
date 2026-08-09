@@ -39,7 +39,8 @@ def test_lesson_plan_direct_creates_durable_job(tmp_path, monkeypatch):
     app = FastAPI()
     app.include_router(router)
     app.dependency_overrides[get_current_user] = lambda: {
-        "username": "teacher-a"
+        "username": "teacher-a",
+        "role": "teacher",
     }
     app.dependency_overrides[get_course_access_service] = lambda: type(
         "AllowGenerate",

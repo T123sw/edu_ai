@@ -24,6 +24,13 @@ const entries = [
   { route: routes.edit, label: "课程设置", note: "维护课程介绍与教学目标", icon: "settings" },
 ] as const;
 
+const studentEntryNotes: Partial<Record<(typeof entries)[number]["route"], string>> = {
+  [routes.ai]: "基于课程资料提问，生成内容仅自己可见",
+  [routes.knowledge]: "查看知识图谱和课程知识库",
+  [routes.classroomStudio]: "生成和学习互动课堂",
+  [routes.resources]: "查看个人生成和课程共享资源",
+};
+
 function materialTitle(material: CourseMaterial) {
   return material.title || material.topic || "未命名资源";
 }
@@ -92,7 +99,7 @@ export function CourseDetailPage() {
 
         <section className="course-overview__facts" aria-label="课程状态">
           <article><span>课程资料</span><strong>{documents.length}</strong><small>{readyDocuments} 份可用于检索</small></article>
-          <article><span>课程资源</span><strong>{materials.length}</strong><small>最近生成与发布成果</small></article>
+          <article><span>课程资源</span><strong>{materials.length}</strong><small>{user?.role === "student" ? "课程共享与个人成果" : "最近生成与发布成果"}</small></article>
           <article><span>已完成任务</span><strong>{completedJobs.length}</strong><small>已成功生成资源</small></article>
           <article><span>进行中任务</span><strong>{activeJobs.length}</strong><small>可在右上角任务中心查看</small></article>
           <article><span>失败任务</span><strong>{failedJobs.length}</strong><small>可在任务中心重试</small></article>
@@ -114,7 +121,7 @@ export function CourseDetailPage() {
 
         <section className="course-overview__entries" aria-labelledby="quick-entry-title">
           <div className="course-overview__section-title"><p>课程工作区</p><h3 id="quick-entry-title">常用入口</h3></div>
-          <div>{visibleEntries.map((entry) => <a key={entry.route} href={buildRoleCourseHash(user?.role, entry.route, course.id)}><span><MaterialIcon name={entry.icon} /></span><strong>{user?.role === "student" && entry.route === routes.ai ? "AI问答" : user?.role === "student" && entry.route === routes.resources ? "资源管理" : entry.label}</strong><small>{entry.note}</small></a>)}</div>
+          <div>{visibleEntries.map((entry) => <a key={entry.route} href={buildRoleCourseHash(user?.role, entry.route, course.id)}><span><MaterialIcon name={entry.icon} /></span><strong>{user?.role === "student" && entry.route === routes.ai ? "AI问答" : user?.role === "student" && entry.route === routes.resources ? "资源管理" : entry.label}</strong><small>{user?.role === "student" ? studentEntryNotes[entry.route] || entry.note : entry.note}</small></a>)}</div>
         </section>
       </main>
     </AppSurface>

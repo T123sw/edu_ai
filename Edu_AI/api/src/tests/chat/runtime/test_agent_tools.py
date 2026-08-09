@@ -21,10 +21,21 @@ def test_build_tool_schemas_filters_retrieval_tools_by_capability():
     assert "generate_lesson_plan" in names
     assert "generate_quiz" in names
     assert "generate_blog" in names
-    assert "generate_flashcard" in names
+    assert "generate_flashcard" not in names
     assert "generate_graph" in names
+    assert "generate_game" not in names
+    assert "generate_classroom" in names
+
+
+def test_build_tool_schemas_exposes_student_tools_only():
+    cap = SimpleNamespace(allow_rag=False, allow_web=False)
+    names = _tool_names(build_tool_schemas(cap, actor_role="student"))
+
+    assert "generate_flashcard" in names
     assert "generate_game" in names
     assert "generate_classroom" in names
+    assert "generate_lesson_plan" not in names
+    assert "generate_blog" not in names
 
 
 def test_tool_workflow_mapping_is_available_from_constants_module():
@@ -41,7 +52,7 @@ def test_tool_workflow_mapping_is_available_from_constants_module():
     }
 
 
-def _generation_context():
+def _generation_context(actor_role="teacher"):
     return ToolExecutionContext(
         capability=SimpleNamespace(
             allow_rag=False,
@@ -54,6 +65,7 @@ def _generation_context():
             conversation_id="conv-1",
             scope_type="course",
             scope_id=None,
+            actor_role=actor_role,
         ),
         max_steps=4,
     )
@@ -113,7 +125,7 @@ def test_execute_tool_denies_web_search_when_capability_disallows_it():
     }
 
 
-def test_execute_tool_submits_other_teacher_resource_commands(monkeypatch):
+def test_execute_tool_submits_role_allowed_resource_commands(monkeypatch):
     captured = []
 
     class CommandService:
@@ -126,14 +138,14 @@ def test_execute_tool_submits_other_teacher_resource_commands(monkeypatch):
         CommandService(),
     )
     cases = [
-        ("generate_blog", {"topic": "快速排序"}, "blog"),
-        ("generate_flashcard", {"topic": "快速排序"}, "flashcard"),
-        ("generate_graph", {"topic": "快速排序"}, "graph"),
-        ("generate_game", {"topic": "快速排序"}, "game"),
+        ("generate_blog", {"topic": "快速排序"}, "blog", "teacher"),
+        ("generate_flashcard", {"topic": "快速排序"}, "flashcard", "student"),
+        ("generate_graph", {"topic": "快速排序"}, "graph", "student"),
+        ("generate_game", {"topic": "快速排序"}, "game", "student"),
     ]
 
-    for tool_name, args, resource_type in cases:
-        result = execute_tool(tool_name, args, _generation_context())
+    for tool_name, args, resource_type, role in cases:
+        result = execute_tool(tool_name, args, _generation_context(role))
         assert result["ok"] is True
         assert result["payload"]["workflow_type"] == resource_type
 
@@ -144,6 +156,22 @@ def test_execute_tool_submits_other_teacher_resource_commands(monkeypatch):
         "game",
     ]
     assert all(command.config["entrypoint"] == "agent" for command in captured)
+
+
+def test_execute_tool_rejects_role_specific_resource_mismatch():
+    student_lesson = execute_tool(
+        "generate_lesson_plan",
+        {"subject": "快速排序", "confirmed_outline": "# 大纲"},
+        _generation_context("student"),
+    )
+    teacher_flashcard = execute_tool(
+        "generate_flashcard",
+        {"topic": "快速排序"},
+        _generation_context("teacher"),
+    )
+
+    assert student_lesson["error"] == "permission_denied"
+    assert teacher_flashcard["error"] == "permission_denied"
 
 
 def test_execute_tool_submits_ai_classroom_job(monkeypatch):

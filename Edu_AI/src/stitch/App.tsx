@@ -295,7 +295,7 @@ function AppPresentation({
   const routeAuthorized = !authenticated || !authUser || authorizedHash === window.location.hash;
   const shellCourse = routeCourse.courseId
     ? selectedCourse
-    : current === routes.home || current === "student-home"
+    : current === routes.home || isStudentWorkspace
       ? selectedCourse ?? rememberedCourse
       : null;
 

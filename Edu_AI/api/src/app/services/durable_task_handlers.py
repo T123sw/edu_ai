@@ -9,6 +9,14 @@ class UnsupportedTaskHandler(LookupError):
     pass
 
 
+class DurableTaskExecutionError(RuntimeError):
+    """Non-retryable business failure with a stable public error code."""
+
+    def __init__(self, code: str, message: str) -> None:
+        self.code = str(code or "TASK_EXECUTION_FAILED").strip()
+        super().__init__(str(message or "Task execution failed"))
+
+
 @dataclass(frozen=True)
 class DurableExecutionContext:
     task_id: str

@@ -29,7 +29,6 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [coursesError, setCoursesError] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const location = useMemo(() => readStudentLocation(window.location.hash), []);
   const requiresCourse = studentRouteRequiresCourse(activeRoute);
   const effectiveCourseId = useMemo(() => {
     if (courseId && courses.some((item) => item.id === courseId)) return courseId;
@@ -74,6 +73,7 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
   }
 
   function changeCourse(nextCourseId: string) {
+    const location = readStudentLocation(window.location.hash);
     window.location.hash = buildStudentHash(activeRoute, {
       courseId: nextCourseId,
       view: location.view,

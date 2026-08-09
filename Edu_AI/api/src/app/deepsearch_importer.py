@@ -104,6 +104,54 @@ def _build_web_markdown(title: str, url: str, full_content: str) -> str:
     )
 
 
+def build_personal_research_document(
+    result: Any,
+    *,
+    min_content_length: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
+    """Convert one successful crawl result into a personal-library upload."""
+
+    if str(getattr(result, "status", "") or "") != "success":
+        return None
+    url = str(getattr(result, "url", "") or "").strip()
+    title = str(getattr(result, "title", "") or "").strip() or url
+    content = str(getattr(result, "content", "") or "").strip()
+    source_path = Path(str(getattr(result, "file_path", "") or "").strip())
+    if not content and source_path.is_file():
+        try:
+            content = source_path.read_text(encoding="utf-8", errors="replace").strip()
+        except Exception:
+            content = ""
+    minimum = (
+        int(min_content_length)
+        if min_content_length is not None
+        else int(os.getenv("DEEPSEARCH_MIN_CONTENT_LENGTH", "200"))
+    )
+    if not url or len(content) < minimum:
+        return None
+
+    metadata = dict(getattr(result, "metadata", {}) or {})
+    try:
+        domain = (urlparse(url).netloc or "").replace(":", "_")
+    except Exception:
+        domain = ""
+    site_name = _derive_site_name(metadata, domain, title)
+    display_name = _compose_deepsearch_file_name(site_name, "", title)
+    # Personal storage prefixes every physical file with a UUID.  Keep this
+    # logical name below 73 characters so the complete path also remains
+    # usable on Windows installations without long-path support.
+    filename = f"{_safe_slug(display_name, 55)}-{_url_hash(url)}.md"
+    return {
+        "filename": filename,
+        "file_data": _build_web_markdown(title, url, content).encode("utf-8"),
+        "source_url": url,
+        "source_title": title,
+        "source_domain": domain,
+        "source_site_name": site_name,
+        "doc_kind": "web",
+    }
+
+
 def import_crawl_results_to_rag(
     *,
     results: Iterable[Any],

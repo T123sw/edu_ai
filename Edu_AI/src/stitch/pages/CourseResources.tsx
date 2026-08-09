@@ -15,7 +15,7 @@ import {
   getMaterialPublicationPresentation,
 } from "../api/courseResourceSpaces";
 import {
-  COURSE_MATERIAL_FILTERS,
+  getCourseMaterialFiltersForRole,
   getCourseMaterialOpenTarget,
   getCourseMaterialTypeMeta,
   isCourseMaterialInFilter,
@@ -134,6 +134,10 @@ export function CourseResourcesPage() {
   const [editingContent, setEditingContent] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const materials = resourceSpace === "mine" ? personalMaterials : sharedMaterials;
+  const visibleMaterialFilters = useMemo(
+    () => getCourseMaterialFiltersForRole(user?.role),
+    [user?.role],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -497,7 +501,7 @@ export function CourseResourcesPage() {
     const next = getKeyboardSelection(
       event.key,
       current,
-      COURSE_MATERIAL_FILTERS.map((filter) => filter.key),
+      visibleMaterialFilters.map((filter) => filter.key),
     );
     if (!next) return;
     event.preventDefault();
@@ -553,7 +557,7 @@ export function CourseResourcesPage() {
               role="radiogroup"
               aria-label="资源类型筛选"
             >
-              {COURSE_MATERIAL_FILTERS.map((filter) => (
+              {visibleMaterialFilters.map((filter) => (
                 <button
                   key={filter.key}
                   id={`resource-filter-${filter.key}`}

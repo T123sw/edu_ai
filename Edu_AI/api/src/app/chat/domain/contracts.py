@@ -54,6 +54,7 @@ class ChatInputVideoPayload(BaseModel):
 
 class ChatRequestV2(BaseModel):
     question: str
+    actor_role: Literal["teacher", "student"] = "teacher"
     conversation_id: str | None = None
     owner: str | None = None
     model_id: str | None = None

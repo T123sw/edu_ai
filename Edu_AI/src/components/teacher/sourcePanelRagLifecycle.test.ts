@@ -20,3 +20,14 @@ test("knowledge documents expose lifecycle recovery and retrieval validation", a
   assert.match(source, /testKnowledgeBaseDocumentRetrieval/);
   assert.match(source, /只在当前文档的活动索引版本中检索/);
 });
+
+test("shared source panel keeps student personal and course permissions isolated", async () => {
+  const source = await readFile(new URL("./SourcePanel.tsx", import.meta.url), "utf8");
+  assert.match(source, /listPersonalKnowledgeDocuments/);
+  assert.match(source, /uploadPersonalKnowledgeDocument\(file, courseId\)/);
+  assert.match(source, /getPersonalKnowledgeDocumentContent/);
+  assert.match(source, /deletePersonalKnowledgeDocument/);
+  assert.match(source, /file\.libraryType === PERSONAL_LIBRARY_TYPE && !isStudent/);
+  assert.match(source, /file\.libraryType === PERSONAL_LIBRARY_TYPE \|\| !isStudent/);
+  assert.match(source, /!isStudent\s*&& file\.libraryType === COURSE_LIBRARY_TYPE/);
+});

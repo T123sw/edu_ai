@@ -71,7 +71,19 @@ def test_bundle_confirmation_restores_all_resources_from_active_outline():
 def test_control_intents_are_not_generation_requests():
     assert extract_task_contract(request("做到哪了"), capability(), {}).intent == "status"
     assert extract_task_contract(request("取消刚才的 AI 课堂"), capability(), {}).intent == "cancel"
+    assert extract_task_contract(request("请停止生成"), capability(), {}).intent == "cancel"
     assert extract_task_contract(request("把练习题改简单一点"), capability(), {}).intent == "modify"
+
+
+def test_algorithm_stop_conditions_are_knowledge_questions_not_cancel_commands():
+    questions = (
+        "递归为什么必须有停止条件？",
+        "有限状态机的终止状态是什么？",
+        "请根据资料说明循环停止条件",
+    )
+
+    for question in questions:
+        assert extract_task_contract(request(question), capability(), {}).intent == "qa"
 
 
 def test_modify_keeps_the_active_outline_subject_across_long_dialogue():

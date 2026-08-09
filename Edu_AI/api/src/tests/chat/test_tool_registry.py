@@ -178,3 +178,37 @@ def test_rag_search_tool_passes_course_scope_to_public_id_resolver(monkeypatch):
         "owner": "teacher",
         "course_id": "computational-thinking",
     }
+
+
+def test_rag_search_tool_reads_explicit_selection_without_nested_answer_model(monkeypatch):
+    class DummyRagSystem:
+        def query(self, *args, **kwargs):
+            raise AssertionError("explicit document evidence must not call the nested RAG answer model")
+
+    seen = {}
+    monkeypatch.setattr("app.chat.tools.agent_tools.get_rag_system", lambda: DummyRagSystem())
+
+    def fake_load(rag_system, selected_doc_ids, *, owner, log_prefix):
+        seen.update(ids=selected_doc_ids, owner=owner, log_prefix=log_prefix)
+        return [{"file_name": "recursion.txt", "content": "marker E2E-ORBIT-7462"}]
+
+    monkeypatch.setattr(
+        "app.chat.tools.agent_tools.load_selected_rag_documents",
+        fake_load,
+    )
+
+    result = rag_search_tool(
+        query="唯一标记是什么",
+        selected_doc_ids=["doc-personal-1"],
+        owner="student-a",
+        course_id="course-1",
+    )
+
+    assert result["ok"] is True
+    assert "E2E-ORBIT-7462" in result["payload"]["answer"]
+    assert result["payload"]["sources"][0]["metadata"]["selection_mode"] == "selected_documents"
+    assert seen == {
+        "ids": ["doc-personal-1"],
+        "owner": "student-a",
+        "log_prefix": "AgentRAG",
+    }

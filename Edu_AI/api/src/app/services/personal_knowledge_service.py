@@ -118,6 +118,9 @@ class PersonalKnowledgeService:
             access_domain,
             bytes(file_data),
             physical_name,
+            # The shared course storage writer only accepts its two structural
+            # scopes.  PersonalKnowledgeService immediately rewrites the
+            # catalog record below to the authoritative personal access domain.
             scope_type="course",
             scope_id=None,
             library_type="personal",
@@ -150,7 +153,10 @@ class PersonalKnowledgeService:
             filename=display_name,
             display_name=display_name,
             library_type="personal",
+            scope_type="personal",
+            scope_id=access_domain,
             owner_user_id=owner,
+            course_id=None,
             course_context_id=(
                 str(course_context_id or "").strip() or None
             ),
@@ -247,6 +253,32 @@ class PersonalKnowledgeService:
             document_id,
             filename=display_name,
             display_name=display_name,
+        )
+
+    def set_provenance(
+        self,
+        *,
+        owner_user_id: str,
+        document_id: str,
+        source_url: str | None = None,
+        source_title: str | None = None,
+        source_domain: str | None = None,
+        source_site_name: str | None = None,
+        doc_kind: str | None = None,
+        deepsearch_batch_id: str | None = None,
+    ) -> dict[str, Any]:
+        owner = self._owner(owner_user_id)
+        self.get_document(owner_user_id=owner, document_id=document_id)
+        return knowledge_lifecycle.patch_document(
+            self.manager_for(owner),
+            self.access_domain(owner),
+            document_id,
+            source_url=str(source_url or "").strip() or None,
+            source_title=str(source_title or "").strip() or None,
+            source_domain=str(source_domain or "").strip() or None,
+            source_site_name=str(source_site_name or "").strip() or None,
+            doc_kind=str(doc_kind or "").strip() or None,
+            deepsearch_batch_id=str(deepsearch_batch_id or "").strip() or None,
         )
 
     def delete_document(

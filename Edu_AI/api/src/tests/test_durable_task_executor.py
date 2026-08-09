@@ -9,6 +9,7 @@ from app.services.durable_task_executor import (
     RetryableTaskError,
 )
 from app.services.durable_task_handlers import (
+    DurableTaskExecutionError,
     DurableTaskHandlerRegistry,
     UnsupportedTaskHandler,
 )
@@ -179,6 +180,29 @@ def test_executor_heartbeats_while_handler_is_blocked(monkeypatch, tmp_path):
     assert executor.run_once() is True
     assert store.heartbeat_seen.is_set()
     assert store.get_durable("job-1").status == "succeeded"
+    store.close()
+
+
+def test_business_failure_preserves_its_stable_error_code(monkeypatch, tmp_path):
+    store, _, registry, executor = build_runtime(monkeypatch, tmp_path)
+
+    def indexing_failed(command, context):
+        raise DurableTaskExecutionError("RAG_INDEX_FAILED", "embedding unavailable")
+
+    registry.register("report_direct", 1, indexing_failed)
+
+    assert executor.run_once() is True
+
+    task = store.get_durable("job-1")
+    job = get_job("job-1")
+    assert task is not None
+    assert task.status == "failed"
+    assert task.error_code == "RAG_INDEX_FAILED"
+    assert task.error == "embedding unavailable"
+    assert job is not None
+    assert job.status == JobStatus.FAILED
+    assert job.error_code == "RAG_INDEX_FAILED"
+    assert job.error_message == "embedding unavailable"
     store.close()
 
 

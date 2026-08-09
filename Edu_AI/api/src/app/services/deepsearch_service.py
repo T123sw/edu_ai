@@ -12,14 +12,13 @@ from datetime import datetime, timezone
 from typing import Any, List, Optional
 
 from app.deepsearch_importer import (
-    import_crawl_results_to_rag,
-    persist_imported_documents_to_course_kb,
+    build_personal_research_document,
 )
 from app.chat.workflows.report.image_downloader import localize_image
 from app.integrations.websearch import ExtractResult, WebSearchHit, extract_tavily, rerank_bocha, search_bocha
 from app.services import crawl_batch_store
+from app.services.personal_knowledge_service import PersonalKnowledgeService
 from app.services.runtime_config_resolver import runtime_config_resolver
-from core import Config
 from modules.rag_v2.api import get_rag_system
 
 
@@ -341,30 +340,47 @@ def _import_to_knowledge_base(
     scope_id: Optional[str],
 ) -> List[dict]:
     rag_system = get_rag_system()
-
-    imported_docs: List[dict] = import_crawl_results_to_rag(
-        results=crawl_batch.results,
-        owner=owner,
-        rag_system=rag_system,
-        documents_root=Config.DOCUMENTS_ROOT,
-    )
-
-    if course_id:
-        try:
-            from core.course_storage import storage_manager
-
-            persist_imported_documents_to_course_kb(
-                imported_docs=imported_docs,
-                owner=owner,
-                course_id=course_id,
-                scope_type=scope_type,
-                scope_id=scope_id,
-                storage_manager=storage_manager,
-                rag_system=rag_system,
-            )
-        except Exception:
-            pass
-
+    service = PersonalKnowledgeService()
+    imported_docs: List[dict] = []
+    for result in list(crawl_batch.results or []):
+        prepared = build_personal_research_document(result)
+        if prepared is None:
+            continue
+        document = service.create_document(
+            owner_user_id=owner,
+            filename=str(prepared["filename"]),
+            file_data=bytes(prepared["file_data"]),
+            course_context_id=course_id,
+        )
+        document = service.set_provenance(
+            owner_user_id=owner,
+            document_id=str(document["id"]),
+            source_url=prepared.get("source_url"),
+            source_title=prepared.get("source_title"),
+            source_domain=prepared.get("source_domain"),
+            source_site_name=prepared.get("source_site_name"),
+            doc_kind=prepared.get("doc_kind"),
+            deepsearch_batch_id=str(getattr(crawl_batch, "batch_id", "") or ""),
+        )
+        job = service.submit_index(
+            owner_user_id=owner,
+            document_id=str(document["id"]),
+            rag_system=rag_system,
+        )
+        imported_docs.append(
+            {
+                "document_id": str(document["id"]),
+                "file_name": str(document.get("filename") or prepared["filename"]),
+                "url": prepared.get("source_url"),
+                "source_title": prepared.get("source_title"),
+                "source_domain": prepared.get("source_domain"),
+                "source_site_name": prepared.get("source_site_name"),
+                "job_id": str(job.get("edu_job_id") or ""),
+                "status": str(job.get("status") or "queued"),
+                "library_type": "personal",
+                "scope_type": "personal",
+            }
+        )
     return imported_docs
 
 
@@ -434,11 +450,12 @@ def run_deepsearch_and_crawl(
 
     cleaned_results = _clean_crawl_results(crawl_batch)
 
-    batch_id = crawl_batch_store.save_crawl_batch(crawl_batch)
+    batch_id = crawl_batch_store.save_crawl_batch(crawl_batch, owner=owner)
     crawl_batch.batch_id = batch_id
     print(f"[DeepSearch] phase=batch_store status=saved batch_id={batch_id}")
 
     imported_docs: List[dict] = []
+    archive_error = ""
     if save_to_kb:
         try:
             imported_docs = _import_to_knowledge_base(
@@ -448,9 +465,17 @@ def run_deepsearch_and_crawl(
                 scope_type=scope_type,
                 scope_id=scope_id,
             )
-        except Exception:
-            print("[DeepSearch] phase=rag_import status=error")
-            pass
+        except Exception as exc:
+            archive_error = f"{type(exc).__name__}: {exc}"
+            print(f"[DeepSearch] phase=personal_archive status=error error={archive_error}")
+    if not save_to_kb:
+        archive_status = "not_requested"
+    elif not imported_docs:
+        archive_status = "failed"
+    elif len(imported_docs) < crawl_batch.success_count:
+        archive_status = "partial"
+    else:
+        archive_status = "succeeded"
     print(f"[DeepSearch] phase=rag_import status=done saved_to_kb={bool(save_to_kb)} docs={len(imported_docs)}")
     sources = [
         {"title": result.title, "url": result.url, "site": result.metadata.get("site")}
@@ -474,13 +499,16 @@ def run_deepsearch_and_crawl(
         "summary": summary,
         "sources": sources,
         "fallback_reason": fallback_reason,
-        "saved_to_kb": bool(save_to_kb),
+        "saved_to_kb": archive_status in {"succeeded", "partial"},
+        "saved_to_personal_knowledge": archive_status in {"succeeded", "partial"},
+        "archive_status": archive_status,
+        "archive_error": archive_error or None,
         "imported_documents": imported_docs,
     }
 
 
-def get_crawl_results(*, batch_id: str) -> dict:
-    batch_result = crawl_batch_store.load_crawl_batch(batch_id)
+def get_crawl_results(*, batch_id: str, owner: str | None = None) -> dict:
+    batch_result = crawl_batch_store.load_crawl_batch(batch_id, owner=owner)
     if not batch_result:
         return {"ok": False, "message": "批次不存在"}
 
@@ -496,6 +524,6 @@ def get_crawl_results(*, batch_id: str) -> dict:
     }
 
 
-def get_crawl_history(*, limit: int = 20) -> dict:
-    batches = crawl_batch_store.list_batches(limit=limit)
+def get_crawl_history(*, limit: int = 20, owner: str | None = None) -> dict:
+    batches = crawl_batch_store.list_batches(limit=limit, owner=owner)
     return {"ok": True, "batches": batches}

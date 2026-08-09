@@ -15,10 +15,11 @@ def _root() -> Path:
     return path
 
 
-def save_crawl_batch(crawl_batch: Any) -> str:
+def save_crawl_batch(crawl_batch: Any, *, owner: str | None = None) -> str:
     batch_id = getattr(crawl_batch, "batch_id", "") or f"batch_{int(datetime.now().timestamp() * 1000)}"
     payload = _to_dict(crawl_batch)
     payload["batch_id"] = batch_id
+    payload["owner_user_id"] = str(owner or "").strip() or None
     for key in ("total_urls", "success_count", "failed_count"):
         if hasattr(crawl_batch, key):
             payload[key] = getattr(crawl_batch, key)
@@ -29,20 +30,27 @@ def save_crawl_batch(crawl_batch: Any) -> str:
     return batch_id
 
 
-def load_crawl_batch(batch_id: str) -> dict | None:
+def load_crawl_batch(batch_id: str, *, owner: str | None = None) -> dict | None:
     path = _root() / f"{batch_id}.json"
     if not path.exists():
         return None
-    return json.loads(path.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    normalized_owner = str(owner or "").strip()
+    if normalized_owner and str(payload.get("owner_user_id") or "").strip() != normalized_owner:
+        return None
+    return payload
 
 
-def list_batches(*, limit: int = 20) -> list[dict]:
+def list_batches(*, limit: int = 20, owner: str | None = None) -> list[dict]:
     files = sorted(_root().glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     batches: list[dict] = []
-    for path in files[: max(1, int(limit or 20))]:
+    normalized_owner = str(owner or "").strip()
+    for path in files:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except Exception:
+            continue
+        if normalized_owner and str(data.get("owner_user_id") or "").strip() != normalized_owner:
             continue
         batches.append(
             {
@@ -54,6 +62,8 @@ def list_batches(*, limit: int = 20) -> list[dict]:
                 "created_at": data.get("created_at"),
             }
         )
+        if len(batches) >= max(1, int(limit or 20)):
+            break
     return batches
 
 

@@ -798,11 +798,26 @@ class CourseStorageManager:
         normalized_entries: List[Dict[str, Any]] = []
         for item in entries:
             next_item = dict(item or {})
-            next_item["course_id"] = str(next_item.get("course_id") or course_id)
-            next_item["scope_type"] = str(next_item.get("scope_type") or SCOPE_TYPE_COURSE)
-            next_item["scope_id"] = str(next_item.get("scope_id") or "").strip() or None
             next_item["library_type"] = str(next_item.get("library_type") or LIBRARY_TYPE_COURSE)
             next_item["owner_user_id"] = str(next_item.get("owner_user_id") or "").strip() or None
+            is_personal = next_item["library_type"] == LIBRARY_TYPE_PERSONAL
+            next_item["course_id"] = (
+                str(next_item.get("course_id") or "").strip() or None
+                if is_personal
+                else str(next_item.get("course_id") or course_id)
+            )
+            next_item["scope_type"] = str(
+                next_item.get("scope_type")
+                or (LIBRARY_TYPE_PERSONAL if is_personal else SCOPE_TYPE_COURSE)
+            )
+            next_item["scope_id"] = (
+                str(next_item.get("scope_id") or "").strip()
+                or (
+                    f"personal:{next_item['owner_user_id']}"
+                    if is_personal and next_item["owner_user_id"]
+                    else None
+                )
+            )
             next_item["promoted_from_document_id"] = str(next_item.get("promoted_from_document_id") or "").strip() or None
             if self._matches_scope(
                 next_item,

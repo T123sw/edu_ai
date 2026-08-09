@@ -24,8 +24,17 @@ _RESOURCE_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("ppt", ("ppt", "幻灯片", "课件")),
 )
 _BUNDLE_KEYWORDS = ("教学材料", "备课材料", "整套材料", "材料包")
-_CANCEL_KEYWORDS = ("取消", "终止", "停止")
-_STATUS_KEYWORDS = ("做到哪", "进度", "状态", "完成了吗", "完成没有")
+_CANCEL_ACTION_PATTERN = re.compile(
+    r"(?:取消|终止|停止)(?:掉|一下)?"
+    r"(?:当前|这个|刚才|上一个|最近)?(?:的)?\s*"
+    r"(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|课件|ppt|教案|测验|闪卡|小游戏)"
+)
+_CANCEL_ONLY_PATTERN = re.compile(r"^(?:请|帮我|现在|立刻|先)?(?:取消|终止|停止)(?:掉|一下)?[。！!\s]*$")
+_STATUS_DIRECT_KEYWORDS = ("做到哪", "进度", "完成了吗", "完成没有")
+_STATUS_ACTION_PATTERN = re.compile(
+    r"(?:(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂).{0,12}状态|"
+    r"状态.{0,12}(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂))"
+)
 _MODIFY_KEYWORDS = ("修改", "改成", "改为", "改得", "改简单", "改难", "调整")
 _CONFIRM_KEYWORDS = ("确认", "按这个", "就按", "开始生成", "继续生成", "没问题", "可以生成")
 _WEB_KEYWORDS = ("查找网络", "查网络", "联网", "网上", "最新资料", "网络资料")
@@ -128,6 +137,11 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
     )
 
     return TeachingTaskContract(
+        actor_role=(
+            "student"
+            if str(getattr(request, "actor_role", "teacher") or "").strip().lower() == "student"
+            else "teacher"
+        ),
         intent=intent,
         topic=topic,
         resource_types=resource_types,
@@ -152,9 +166,9 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
 
 
 def _intent(question: str, resource_types: list[str], active_outline: dict) -> str:
-    if any(keyword in question for keyword in _CANCEL_KEYWORDS):
+    if _is_cancel_request(question):
         return "cancel"
-    if any(keyword in question for keyword in _STATUS_KEYWORDS):
+    if _is_status_request(question):
         return "status"
     if _is_modification_request(question, resource_types, active_outline):
         return "modify"
@@ -169,6 +183,29 @@ def _intent(question: str, resource_types: list[str], active_outline: dict) -> s
     if _requests_generation(question):
         return "generate_single"
     return "qa"
+
+
+def _is_cancel_request(question: str) -> bool:
+    """Recognise an explicit task-control command, not a subject concept.
+
+    Terms such as ``停止条件`` and ``终止状态`` are common in algorithm
+    questions.  Treating the bare character sequence as a cancel command made
+    ordinary student questions abort the current workflow.
+    """
+
+    normalized = str(question or "").strip().lower()
+    return bool(
+        _CANCEL_ACTION_PATTERN.search(normalized)
+        or _CANCEL_ONLY_PATTERN.fullmatch(normalized)
+    )
+
+
+def _is_status_request(question: str) -> bool:
+    normalized = str(question or "").strip().lower()
+    return bool(
+        any(keyword in normalized for keyword in _STATUS_DIRECT_KEYWORDS)
+        or _STATUS_ACTION_PATTERN.search(normalized)
+    )
 
 
 def _is_modification_request(

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from app.chat.domain.persona_policy import TEACHER_PERSONA
+from app.chat.domain.persona_policy import TEACHER_PERSONA, persona_for
 
-AGENT_SYSTEM_PROMPT = TEACHER_PERSONA.system_instruction() + """
-你可以帮助教师生成报告、教案、练习题、教学博客、闪卡、思维导图、课堂小游戏和 AI 课堂。PPT 当前不在本轮能力范围。
+COMMON_AGENT_INSTRUCTIONS = """
 
 【执行边界】
 系统会提供当前已编译的步骤和允许工具。你只能在该步骤内行动，不能跳过检索、确认、自检或自行扩大任务范围。
-不要展示内部推理；仅向教师说明计划、工具状态、来源和结果。
+不要展示内部推理；仅向用户说明计划、工具状态、来源和结果。
 
 【资源生成标准执行路径】（报告 / PPT / 教案）
 第1步 → rag_search / web_search：按当前步骤先收集强制来源
@@ -36,9 +35,26 @@ AGENT_SYSTEM_PROMPT = TEACHER_PERSONA.system_instruction() + """
 
 【语气】自然简洁，不使用命令式表达。"""
 
+AGENT_SYSTEM_PROMPT = (
+    TEACHER_PERSONA.system_instruction()
+    + "\n你可以帮助教师生成报告、PPT、教案、练习题、教学博客、思维导图和 AI 课堂。闪卡和课堂小游戏不属于教师工具。"
+    + COMMON_AGENT_INSTRUCTIONS
+)
 
-def build_system_content(active_draft_outline: dict | None) -> str:
-    base = AGENT_SYSTEM_PROMPT
+
+def build_system_content(active_draft_outline: dict | None, actor_role: str = "teacher") -> str:
+    persona = persona_for(actor_role)
+    if persona.actor_role == "student":
+        capability_instruction = (
+            "\n你可以帮助学生生成报告、PPT、练习题、闪卡、思维导图、课堂小游戏和 AI 课堂。"
+            "教案和教学博客不属于学生工具。资源产物只能进入学生个人资源，不得发布到课程知识库。"
+        )
+    else:
+        capability_instruction = (
+            "\n你可以帮助教师生成报告、PPT、教案、练习题、教学博客、思维导图和 AI 课堂。"
+            "闪卡和课堂小游戏不属于教师工具。"
+        )
+    base = persona.system_instruction() + capability_instruction + COMMON_AGENT_INSTRUCTIONS
     if active_draft_outline and active_draft_outline.get("outline_markdown"):
         subject = active_draft_outline.get("subject", "")
         rtype = active_draft_outline.get("resource_type", "报告")

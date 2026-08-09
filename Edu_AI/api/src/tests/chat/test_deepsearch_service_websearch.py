@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.integrations.websearch.models import ExtractResult, WebSearchHit
-from app.services import deepsearch_service
+from app.services import crawl_batch_store, deepsearch_service
 
 
 def test_run_deepsearch_basic_uses_bocha_summaries_without_import(monkeypatch):
@@ -36,6 +36,31 @@ def test_run_deepsearch_basic_uses_bocha_summaries_without_import(monkeypatch):
     assert result["sources"] == [{"title": "Example A", "url": "https://example.com/a", "site": "Example"}]
     assert result["results"][0]["content"] == "Bocha summary A"
     assert result["saved_to_kb"] is False
+
+
+def test_crawl_results_are_owner_scoped(monkeypatch, tmp_path):
+    monkeypatch.setattr(crawl_batch_store.Config, "STORAGE_ROOT", tmp_path)
+    batch = deepsearch_service.CrawlBatchResult(
+        query="private research",
+        results=[deepsearch_service.CrawlResult(
+            url="https://example.com/private",
+            title="Private",
+            content="private content",
+        )],
+    )
+    batch_id = crawl_batch_store.save_crawl_batch(batch, owner="student-a")
+
+    assert deepsearch_service.get_crawl_results(
+        batch_id=batch_id,
+        owner="student-a",
+    )["ok"] is True
+    assert deepsearch_service.get_crawl_results(
+        batch_id=batch_id,
+        owner="student-b",
+    )["ok"] is False
+    assert deepsearch_service.get_crawl_history(
+        owner="student-b",
+    )["batches"] == []
 
 
 def test_run_deepsearch_uses_bocha_recall_and_reranks_to_requested_urls(monkeypatch):
@@ -79,22 +104,42 @@ def test_run_deepsearch_uses_bocha_recall_and_reranks_to_requested_urls(monkeypa
     assert result["results"][0]["title"] == "High"
 
 
-def test_import_to_knowledge_base_delegates_to_importer(monkeypatch):
+def test_import_to_knowledge_base_creates_personal_documents(monkeypatch):
     calls = []
 
     class FakeBatch:
-        results = []
+        batch_id = "batch-1"
+        results = [deepsearch_service.CrawlResult(
+            url="https://example.com/lesson",
+            title="Example lesson",
+            content="research content " * 30,
+            status="success",
+            metadata={"site": "Example"},
+        )]
 
     class FakeRAGSystem:
         pass
 
     monkeypatch.setattr(deepsearch_service, "get_rag_system", lambda: FakeRAGSystem())
 
-    def fake_import(**kwargs):
-        calls.append(kwargs)
-        return [{"file_path": "/tmp/doc.md", "index_key": "k", "file_name": "doc.md", "url": "https://example.com"}]
+    class FakePersonalKnowledgeService:
+        def create_document(self, **kwargs):
+            calls.append(("create", kwargs))
+            return {"id": "doc-personal", "filename": kwargs["filename"]}
 
-    monkeypatch.setattr(deepsearch_service, "import_crawl_results_to_rag", fake_import)
+        def set_provenance(self, **kwargs):
+            calls.append(("provenance", kwargs))
+            return {"id": kwargs["document_id"], "filename": "lesson.md"}
+
+        def submit_index(self, **kwargs):
+            calls.append(("index", kwargs))
+            return {"edu_job_id": "job-personal", "status": "queued"}
+
+    monkeypatch.setattr(
+        deepsearch_service,
+        "PersonalKnowledgeService",
+        FakePersonalKnowledgeService,
+    )
 
     imported = deepsearch_service._import_to_knowledge_base(
         FakeBatch(),
@@ -104,9 +149,23 @@ def test_import_to_knowledge_base_delegates_to_importer(monkeypatch):
         scope_id=None,
     )
 
-    assert imported
-    # 摘要复用博查结果，导入层不再接受 LLM 摘要开关（旧链路已删除）
-    assert "generate_summary" not in calls[0]
+    assert imported == [{
+        "document_id": "doc-personal",
+        "file_name": "lesson.md",
+        "url": "https://example.com/lesson",
+        "source_title": "Example lesson",
+        "source_domain": "example.com",
+        "source_site_name": "example.com",
+        "job_id": "job-personal",
+        "status": "queued",
+        "library_type": "personal",
+        "scope_type": "personal",
+    }]
+    create_call = next(payload for kind, payload in calls if kind == "create")
+    assert create_call["owner_user_id"] == "teacher-a"
+    assert create_call["course_context_id"] is None
+    provenance_call = next(payload for kind, payload in calls if kind == "provenance")
+    assert provenance_call["deepsearch_batch_id"] == "batch-1"
 
 
 def test_run_deepsearch_returns_error_when_bocha_search_fails(monkeypatch):

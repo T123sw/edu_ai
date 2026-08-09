@@ -41,6 +41,11 @@ def test_personal_documents_are_aggregated_across_course_contexts_by_owner(
         "course-1",
         "course-2",
     }
+    assert {item["library_type"] for item in documents} == {"personal"}
+    assert {item["scope_type"] for item in documents} == {"personal"}
+    assert {item["scope_id"] for item in documents} == {"personal:student-a"}
+    assert {item.get("course_id") for item in documents} == {None}
+    assert {item["owner_user_id"] for item in documents} == {"student-a"}
     assert service.list_documents(owner_user_id="teacher-a") == []
 
 

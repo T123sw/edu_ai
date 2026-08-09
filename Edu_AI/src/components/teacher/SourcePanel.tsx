@@ -50,10 +50,17 @@ import {
   reindexKnowledgeBaseDocument,
   retryKnowledgeBaseDocument,
   testKnowledgeBaseDocumentRetrieval,
-  uploadKnowledgeBaseDocument,
   type KnowledgeBaseDocument,
   type KnowledgeBaseRetrievalTestResponse,
 } from '../../services/knowledgeBase';
+import {
+  deletePersonalKnowledgeDocument,
+  getPersonalKnowledgeDocumentContent,
+  listPersonalKnowledgeDocuments,
+  renamePersonalKnowledgeDocument,
+  retryPersonalKnowledgeDocument,
+  uploadPersonalKnowledgeDocument,
+} from '../../stitch/api/personalKnowledge';
 import { registerCreatedJob, requestJobRefresh } from '../../jobs/jobStore';
 import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../services/deepsearch';
 import { uploadVideo } from '../../services/video';
@@ -326,7 +333,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   // The Stitch shell persists login before this panel mounts, while the legacy
   // AuthContext can still hold its initial empty value. Both use the same
   // canonical session, so fall back to that freshly persisted token.
-  const token = parseStoredAuthSession(window.localStorage.getItem(AUTH_STORAGE_KEY))?.token || contextToken || null;
+  const storedSession = parseStoredAuthSession(window.localStorage.getItem(AUTH_STORAGE_KEY));
+  const token = storedSession?.token || contextToken || null;
+  const isStudent = storedSession?.user.role === 'student';
   const [fileList, setFileList] = useState<FileItem[]>([]);
   const [courseFileList, setCourseFileList] = useState<FileItem[]>([]);
   const [personalFileList, setPersonalFileList] = useState<FileItem[]>([]);
@@ -387,26 +396,22 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           sort: 'created_desc',
           limit: 500,
         }),
-        getKnowledgeBaseDocuments(courseId, token, {
-          scopeType,
-          scopeId,
-          aggregate: false,
-          libraryType: PERSONAL_LIBRARY_TYPE,
-          includeDescendants: false,
-          sort: 'created_desc',
-          limit: 500,
-        }),
+        listPersonalKnowledgeDocuments({ limit: 500 }),
         shouldLoadLegacyRagDocuments ? listDocuments() : Promise.resolve([]),
       ]);
       return {
         courseFiles: courseDocuments.map((doc) => toKnowledgeBaseFileItem(doc, COURSE_LIBRARY_TYPE)),
         personalFiles: [
-          ...personalDocuments.map((doc) => toKnowledgeBaseFileItem(doc, PERSONAL_LIBRARY_TYPE)),
+          ...personalDocuments.map((doc) => toKnowledgeBaseFileItem(doc as KnowledgeBaseDocument, PERSONAL_LIBRARY_TYPE)),
           ...legacyRagDocuments
             .filter((doc) => (
               doc.library_type !== COURSE_LIBRARY_TYPE
               && !doc.course_id
               && !isCourseKnowledgeStoragePath(doc.file_path || doc.source_path)
+              && !personalDocuments.some((personalDocument) => (
+                personalDocument.id === doc.id
+                || personalDocument.id === doc.course_document_id
+              ))
             ))
             .map((doc) => toFileItem(doc, PERSONAL_LIBRARY_TYPE)),
         ],
@@ -1060,14 +1065,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       try {
         message.loading({ content: `正在上传 ${file.name}...`, key: `upload-${i}`, duration: 0 });
 
-        if (!videoExts.includes(ext) && courseId && token) {
-          const uploadResult = await uploadKnowledgeBaseDocument(courseId, file, token, (progress) => {
-            console.log(`知识库上传进度: ${progress}%`);
-          }, {
-            scopeType: workspaceScope?.scopeType,
-            scopeId: workspaceScope?.scopeId,
-            libraryType: PERSONAL_LIBRARY_TYPE,
-          });
+        if (!videoExts.includes(ext)) {
+          const uploadResult = await uploadPersonalKnowledgeDocument(file, courseId);
           registerCreatedJob(uploadResult.job);
           message.success({
             content: `${file.name} 已接收，正在后台建立索引`,
@@ -1079,6 +1078,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           });
           message.success({ content: `${file.name} 图片入库完成`, key: `upload-${i}` });
         } else if (videoExts.includes(ext)) {
+          if (isStudent) {
+            throw new Error('学生个人知识库暂不支持视频导入，请上传文档或图片');
+          }
           if (!courseId) {
             throw new Error('请先进入具体课程后再上传视频');
           }
@@ -1189,17 +1191,27 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       
       if (resultsResponse.ok && resultsResponse.results) {
         setResearchResults(resultsResponse.results);
-        // 深度研究结果已在后端入库到知识库（RAG文档），刷新列表即可看到
+        // 深度研究结果已由后端归档到当前用户的个人知识库，刷新后应可见。
         await reloadDocuments();
-        message.success(`研究完成，已同步到文档列表（成功: ${resultsResponse.success_count}, 失败: ${resultsResponse.failed_count}）`);
-        closeResearchModal(false);
+        if (response.archive_status === 'failed') {
+          message.error(`研究已完成，但归档到个人知识库失败：${response.archive_error || '未知错误'}`);
+        } else if (response.archive_status === 'partial') {
+          message.warning(`研究完成，部分资料已进入个人知识库（归档成功：${response.imported_documents?.length || 0}）`);
+        } else {
+          message.success(`研究完成，资料已进入个人知识库（成功：${resultsResponse.success_count}，失败：${resultsResponse.failed_count}）`);
+        }
       } else {
         // 如果响应中已包含结果
         if (response.results && response.results.length > 0) {
           setResearchResults(response.results);
           await reloadDocuments();
-          message.success(`研究完成，已同步到文档列表（成功: ${response.success_count}, 失败: ${response.failed_count}）`);
-          closeResearchModal(false);
+          if (response.archive_status === 'failed') {
+            message.error(`研究已完成，但归档到个人知识库失败：${response.archive_error || '未知错误'}`);
+          } else if (response.archive_status === 'partial') {
+            message.warning(`研究完成，部分资料已进入个人知识库（归档成功：${response.imported_documents?.length || 0}）`);
+          } else {
+            message.success(`研究完成，资料已进入个人知识库（成功：${response.success_count}，失败：${response.failed_count}）`);
+          }
         } else {
           message.warning(resultsResponse.message || '获取结果详情失败');
         }
@@ -1219,7 +1231,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   };
 
   const handleResearchCancel = () => {
-    closeResearchModal(true);
+    closeResearchModal(researchLoading);
   };
 
   const handleAddToCourseKB = async (fileKey: string) => {
@@ -1278,12 +1290,16 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
       setPreviewLoading(true);
       // 并行加载文档内容和摘要
-      const isCourseKnowledgeDocument = Boolean(courseId && token && file.documentId && file.knowledgeStatus);
+      const isManagedKnowledgeDocument = Boolean(file.documentId && file.knowledgeStatus);
+      const isPersonalKnowledgeDocument = isManagedKnowledgeDocument && file.libraryType === PERSONAL_LIBRARY_TYPE;
+      const isCourseKnowledgeDocument = isManagedKnowledgeDocument && file.libraryType === COURSE_LIBRARY_TYPE && Boolean(courseId && token);
       const [content, summaryData] = await Promise.all([
-        isCourseKnowledgeDocument
+        isPersonalKnowledgeDocument
+          ? getPersonalKnowledgeDocumentContent(file.documentId!)
+          : isCourseKnowledgeDocument
           ? getKnowledgeBaseDocumentContent(courseId!, file.documentId!, token!)
           : getDocumentContent(file.filePath),
-        isCourseKnowledgeDocument ? Promise.resolve(null) : getDocumentSummary(file.filePath, false).catch(err => {
+        isManagedKnowledgeDocument ? Promise.resolve(null) : getDocumentSummary(file.filePath, false).catch(err => {
           console.warn('获取文档摘要失败:', err);
           return null; // 摘要加载失败不影响预览
         })
@@ -1352,10 +1368,15 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
     try {
       setRenameSubmitting(true);
-      const updated = await renameDocument(renameTarget.filePath || renameTarget.key, newName);
+      const updated = renameTarget.libraryType === PERSONAL_LIBRARY_TYPE && renameTarget.documentId
+        ? await renamePersonalKnowledgeDocument(renameTarget.documentId, newName)
+        : await renameDocument(renameTarget.filePath || renameTarget.key, newName);
+      const updatedTitle = 'file_name' in updated
+        ? decodeDisplayText(updated.file_name)
+        : decodeDisplayText(updated.display_name || updated.name);
       setFileList(prev => prev.map(item => (
         item.key === renameTarget.key
-          ? { ...item, title: decodeDisplayText(updated.file_name) }
+          ? { ...item, title: updatedTitle }
           : item
       )));
       message.success('重命名成功');
@@ -1364,7 +1385,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       setRenameValue('');
 
       if (previewFile?.key === renameTarget.key) {
-        setPreviewFile({ ...previewFile, title: decodeDisplayText(updated.file_name) });
+        setPreviewFile({ ...previewFile, title: updatedTitle });
       }
     } catch (error) {
       console.error('重命名文档失败:', error);
@@ -1382,7 +1403,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     }
 
     try {
-      if (courseId && token && file.documentId) {
+      if (file.libraryType === PERSONAL_LIBRARY_TYPE && file.documentId) {
+        await deletePersonalKnowledgeDocument(file.documentId);
+      } else if (courseId && token && file.documentId) {
         await deleteKnowledgeBaseDocument(courseId, file.documentId, token);
       } else if (file.filePath) {
         await deleteDocument(file.filePath);
@@ -1576,14 +1599,16 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     file: FileItem,
     action: 'retry' | 'reindex',
   ) => {
-    if (!courseId || !token || !file.documentId) {
+    if (!file.documentId || (file.libraryType === COURSE_LIBRARY_TYPE && (!courseId || !token))) {
       message.error('缺少文档任务信息');
       return;
     }
     try {
-      const job = action === 'retry'
-        ? await retryKnowledgeBaseDocument(courseId, file.documentId, token)
-        : await reindexKnowledgeBaseDocument(courseId, file.documentId, token);
+      const job = file.libraryType === PERSONAL_LIBRARY_TYPE
+        ? await retryPersonalKnowledgeDocument(file.documentId)
+        : action === 'retry'
+          ? await retryKnowledgeBaseDocument(courseId!, file.documentId, token!)
+          : await reindexKnowledgeBaseDocument(courseId!, file.documentId, token!);
       registerCreatedJob(job);
       message.success(action === 'retry' ? '已重新提交处理任务' : '已提交重建索引任务');
       await reloadDocuments();
@@ -1622,16 +1647,18 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const renderFileItem = (file: FileItem) => {
     const canRetrieve = file.knowledgeStatus === 'ready' || file.knowledgeStatus === 'partially_ready';
     const canReindex = Boolean(
-      file.knowledgeStatus
+      !isStudent
+      && file.libraryType === COURSE_LIBRARY_TYPE
+      && file.knowledgeStatus
       && ['received', 'ready', 'partially_ready'].includes(file.knowledgeStatus),
     );
     const isKnowledgeDocument = Boolean(file.documentId && file.knowledgeStatus);
     const menuItems: MenuProps['items'] = [
       { key: 'preview', label: '预览文档', icon: <EyeOutlined />, onClick: () => openPreview(file.key) },
-      ...(!isKnowledgeDocument
+      ...(!isKnowledgeDocument || file.libraryType === PERSONAL_LIBRARY_TYPE
         ? [{ key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => openRenameModal(file.key) }]
         : []),
-      ...(canRetrieve
+      ...(canRetrieve && file.libraryType === COURSE_LIBRARY_TYPE
         ? [{
           key: 'test-retrieval',
           label: '测试检索',
@@ -1639,7 +1666,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           onClick: () => openRetrievalTest(file),
         }]
         : []),
-      ...(file.knowledgeStatus === 'failed'
+      ...(file.knowledgeStatus === 'failed' && (file.libraryType === PERSONAL_LIBRARY_TYPE || !isStudent)
         ? [{
           key: 'retry-index',
           label: '重试处理',
@@ -1655,10 +1682,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           onClick: () => void handleKnowledgeAction(file, 'reindex'),
         }]
         : []),
-      ...(file.libraryType === PERSONAL_LIBRARY_TYPE
+      ...(file.libraryType === PERSONAL_LIBRARY_TYPE && !isStudent
         ? [{ key: 'add-to-course', label: '转入课程知识库', icon: <PlusOutlined />, onClick: () => handleAddToCourseKB(file.key) }]
         : []),
-      { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true, onClick: () => handleDeleteFile(file.key) },
+      ...((file.libraryType === PERSONAL_LIBRARY_TYPE || !isStudent)
+        ? [{ key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true, onClick: () => handleDeleteFile(file.key) }]
+        : []),
     ];
 
     return (
@@ -2076,21 +2105,23 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         </div>
       </div>
 
-      <div className="source-panel__footer">
+      {(!isStudent || libraryTab === PERSONAL_LIBRARY_TYPE) ? <div className="source-panel__footer">
         <Space direction="vertical" className="source-panel__footer-actions" size="small">
           <input
             type="file"
             multiple
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept=".pdf,.doc,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.bmp,.gif,.mp4,.mov,.mkv,.avi,.webm"
+            accept={isStudent
+              ? ".pdf,.doc,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.bmp,.gif"
+              : ".pdf,.doc,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.bmp,.gif,.mp4,.mov,.mkv,.avi,.webm"}
             style={{ display: 'none' }}
           />
           <Button icon={<UploadOutlined />} type="default" onClick={handleAddSourceClick} size="large" block loading={videoUploading}>
-            上传文档/图片/视频
+            {isStudent ? '上传文档/图片' : '上传文档/图片/视频'}
           </Button>
         </Space>
-      </div>
+      </div> : null}
 
       <Modal 
         title="深度研究" 

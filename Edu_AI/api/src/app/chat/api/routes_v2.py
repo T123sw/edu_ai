@@ -270,6 +270,11 @@ def _get_lesson_plan_entry_cards_service():
 def _with_owner(payload, current_user: dict):
     data = payload.model_dump()
     data["owner"] = current_user.get("username")
+    data["actor_role"] = (
+        "student"
+        if str(current_user.get("role") or "").strip().lower() == "student"
+        else "teacher"
+    )
     return SimpleNamespace(**data)
 
 

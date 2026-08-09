@@ -49,7 +49,17 @@ def _check_mineru_available() -> bool:
         return False
 
 
-def _owner_can_access_document(metadata: Dict[str, Any], owner: Optional[str]) -> bool:
+def _owner_can_access_document(
+    metadata: Dict[str, Any],
+    owner: Optional[str],
+    course_id: Optional[str] = None,
+) -> bool:
+    normalized_course_id = str(course_id or "").strip()
+    document_course_id = str(metadata.get("course_id") or "").strip()
+    library_type = str(metadata.get("library_type") or "").strip().lower()
+    if normalized_course_id and library_type == "course":
+        return document_course_id == normalized_course_id
+
     if owner is None:
         return True
 
@@ -2880,6 +2890,7 @@ class RAGSystem:
         use_rag: bool = True,  # 新增 RAG 开关参数
         selected_doc_ids: Optional[List[str]] = None,  # 用户选中的文档 ID 列表（优先传 RAG v2 index_key）
         owner: Optional[str] = None,  # 当前用户，用于过滤文档
+        course_id: Optional[str] = None,  # 当前课程；允许读取该课程公开知识，同时保持个人资料按 owner 隔离
         use_enhanced_retrieval: bool = False,  # 是否使用增强检索（HyDE + 多路召回 + RRF）
         hyde_weight: float = 0.5,  # HyDE 权重
         use_rrf: bool = True,  # 是否使用 RRF 融合
@@ -3021,7 +3032,7 @@ class RAGSystem:
             candidate_sources = {
                 index_key: meta
                 for index_key, meta in self.document_index.items()
-                if meta.get("include_in_search", True) and _owner_can_access_document(meta, owner)
+                if meta.get("include_in_search", True) and _owner_can_access_document(meta, owner, course_id)
             }
             
             # 2. 如果提供了 selected_doc_ids，进一步过滤：只保留选中的文档
@@ -3207,7 +3218,7 @@ class RAGSystem:
                         # 再次检查 include_in_search 和 owner（双重保险）
                         if (
                             meta.get("include_in_search", True)
-                            and _owner_can_access_document(meta, owner)
+                            and _owner_can_access_document(meta, owner, course_id)
                         ):
                             accepted = doc.copy()
                             accepted_metadata = (doc.get("metadata") or {}).copy()

@@ -10,6 +10,7 @@ from typing import Any
 
 from app.chat.tasks.task_store import DurableTask, LeaseRecoverySummary, TaskStore
 from app.services.durable_task_handlers import (
+    DurableTaskExecutionError,
     DurableExecutionContext,
     DurableTaskHandlerRegistry,
     UnsupportedTaskHandler,
@@ -264,7 +265,20 @@ class DurableTaskExecutor:
                 self._converge_terminal_request(task, now=fixed_now)
         except RetryableTaskError as exc:
             self._requeue_retryable(task, exc)
+        except DurableTaskExecutionError as exc:
+            log.exception(
+                "Durable task %s failed with public error code %s",
+                task.task_id,
+                exc.code,
+            )
+            self.completion_service.fail(
+                task,
+                lease_owner=self.worker_id,
+                error_code=exc.code,
+                error=str(exc),
+            )
         except Exception as exc:
+            log.exception("Durable task %s failed unexpectedly", task.task_id)
             self.completion_service.fail(
                 task,
                 lease_owner=self.worker_id,

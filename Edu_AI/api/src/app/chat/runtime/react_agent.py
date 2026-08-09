@@ -71,7 +71,8 @@ class ReActAgent:
 
         yield {"type": "status", "payload": {"stage": "thinking", "label": "正在分析请求..."}}
 
-        tool_schemas = build_tool_schemas(capability)
+        actor_role = str(getattr(request, "actor_role", "teacher") or "teacher")
+        tool_schemas = build_tool_schemas(capability, actor_role=actor_role)
         thread_config: dict = {"configurable": {"thread_id": conv_id}}
 
         # Read cross-turn working memory from checkpoint
@@ -258,7 +259,13 @@ class ReActAgent:
                 history.append({"role": role, "content": content_str})
 
         system_messages = [
-            {"role": "system", "content": build_system_content(active_draft_outline)}
+            {
+                "role": "system",
+                "content": build_system_content(
+                    active_draft_outline,
+                    actor_role=str(getattr(request, "actor_role", "teacher") or "teacher"),
+                ),
+            }
         ]
         memory_context = build_agent_memory_context(agent_memory)
         if memory_context:

@@ -127,3 +127,17 @@ def test_normalize_request_preserves_course_auto_source_mode_without_document_id
     assert result.capability.source_mode == "course_auto"
     assert result.capability.allow_rag is True
     assert result.capability.selected_doc_ids == []
+
+
+def test_normalize_request_preserves_authenticated_student_persona():
+    payload = SimpleNamespace(
+        question="请引导我理解递归",
+        actor_role="student",
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+    )
+
+    result = normalize_chat_request(payload)
+
+    assert result.actor_role == "student"

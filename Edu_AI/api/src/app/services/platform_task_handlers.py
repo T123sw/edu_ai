@@ -8,6 +8,7 @@ from typing import Any
 
 from app.chat.tasks.task_store import TaskStore, get_task_store
 from app.services.durable_task_handlers import (
+    DurableTaskExecutionError,
     DurableExecutionContext,
     DurableTaskHandlerRegistry,
 )
@@ -359,8 +360,9 @@ class PlatformTaskHandlers:
         if job.status == JobStatus.CANCELED:
             return {"saved": False, "error": "task canceled", "result_ref": {}}
         if job.status != JobStatus.SUCCEEDED or not job.result_ref:
-            raise RuntimeError(
-                job.error_message or job.message or "platform task failed"
+            raise DurableTaskExecutionError(
+                str(job.error_code or "TASK_EXECUTION_FAILED"),
+                str(job.error_message or job.message or "platform task failed"),
             )
         return {
             "saved": True,

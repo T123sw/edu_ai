@@ -337,7 +337,7 @@ SCHEMA_CANCEL_TASK = {
 }
 
 
-def build_tool_schemas(capability) -> list[dict]:
+def build_tool_schemas(capability, *, actor_role: str = "teacher") -> list[dict]:
     schemas = []
     if getattr(capability, "allow_rag", False):
         schemas.append(SCHEMA_RAG_SEARCH)
@@ -345,8 +345,7 @@ def build_tool_schemas(capability) -> list[dict]:
         schemas.append(SCHEMA_WEB_SEARCH)
     if getattr(capability, "allow_image_search", False):
         schemas.append(SCHEMA_IMAGE_SEARCH)
-    schemas.extend(
-        [
+    generation_schemas = [
             SCHEMA_DRAFT_OUTLINE,
             SCHEMA_GENERATE_REPORT,
             SCHEMA_GENERATE_PPT,
@@ -361,6 +360,16 @@ def build_tool_schemas(capability) -> list[dict]:
             SCHEMA_QUERY_TASK_STATUS,
             SCHEMA_CANCEL_TASK,
         ]
+    role = "student" if str(actor_role or "").strip().lower() == "student" else "teacher"
+    denied = (
+        {"generate_lesson_plan", "generate_blog"}
+        if role == "student"
+        else {"generate_flashcard", "generate_game"}
+    )
+    schemas.extend(
+        schema
+        for schema in generation_schemas
+        if schema.get("function", {}).get("name") not in denied
     )
     return schemas
 

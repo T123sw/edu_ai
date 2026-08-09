@@ -14,7 +14,7 @@ import time
 import uuid
 
 from core.config import Config
-from app.chat.domain.persona_policy import TEACHER_PERSONA
+from app.chat.domain.persona_policy import TEACHER_PERSONA, persona_for
 
 
 BASE_TEACHER_SYSTEM_PROMPT = TEACHER_PERSONA.system_instruction() + """
@@ -31,8 +31,15 @@ class FastChatRuntime:
         self.video_retriever = video_retriever
 
     @staticmethod
-    def _build_system_prompt(*, web_summary: str, rag_answer: str) -> str:
-        prompt = BASE_TEACHER_SYSTEM_PROMPT
+    def _build_system_prompt(*, web_summary: str, rag_answer: str, actor_role: str = "teacher") -> str:
+        persona = persona_for(actor_role)
+        if persona.actor_role == "student":
+            prompt = persona.system_instruction() + (
+                "普通问答以帮助理解和完成学习任务为中心；可建议一个轻量下一步，"
+                "但不得擅自创建资源。引用知识库内容时要说明依据不足的边界。"
+            )
+        else:
+            prompt = BASE_TEACHER_SYSTEM_PROMPT
         if web_summary:
             prompt += (
                 "\n你当前已经拿到了联网检索结果，请优先依据已经提供的联网信息作答，"
@@ -421,6 +428,7 @@ class FastChatRuntime:
         system_content = self._build_system_prompt(
             web_summary=web_summary,
             rag_answer=rag_answer,
+            actor_role=str(getattr(request, "actor_role", "teacher") or "teacher"),
         )
         model_history_messages = [
             formatted_message
