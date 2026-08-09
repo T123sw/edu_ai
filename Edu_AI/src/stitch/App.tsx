@@ -39,6 +39,9 @@ import { login, verifyToken } from "../services/auth";
 import { GlobalJobManager } from "../jobs/GlobalJobManager";
 import { CourseShell } from "./course/CourseShell";
 import { isCourseWorkspaceRoute } from "./course/courseNavigation";
+import { StudentApp } from "./student/StudentApp";
+import { isStudentRoute, type StudentRoute } from "./student/routes/studentRoutes";
+import { defaultHashForRole, resolveRoleHash } from "./shared/routes/roleRouteResolver";
 
 const pages = [
   [routes.profile, "Profile", ProfilePage],
@@ -59,10 +62,13 @@ const pages = [
   [routes.classroomPlayer, "Classroom Player", ClassroomPlayerPage],
 ] as const;
 
-function getCurrentRoute(): RouteKey {
+type AppRouteKey = RouteKey | StudentRoute;
+
+function getCurrentRoute(): AppRouteKey {
   const hash = window.location.hash.replace(/^#/, "");
-  const route = hash.split("?")[0] as RouteKey;
-  return pages.some(([id]) => id === route) ? route : routes.home;
+  const route = hash.split("?")[0];
+  if (isStudentRoute(route)) return route;
+  return pages.some(([id]) => id === route) ? route as RouteKey : routes.home;
 }
 
 function isFixtureVideoRenderRoute(): boolean {
@@ -111,7 +117,7 @@ function resetRouteScrollPosition() {
 }
 
 export default function App() {
-  const [current, setCurrent] = useState<RouteKey>(getCurrentRoute);
+  const [current, setCurrent] = useState<AppRouteKey>(getCurrentRoute);
   const [rememberedCourse, setRememberedCourse] = useState<CourseSummary | null>(getStoredCourse);
   const [theme, setTheme] = useState<ThemeName>(getStoredTheme);
   const [authReady, setAuthReady] = useState(false);
@@ -166,8 +172,9 @@ export default function App() {
       try {
         const result = await verifyToken(stored.token);
         if (!cancelled) {
-          if (result.valid) {
-            setAuthUser(normalizeAuthUser(result.user));
+          const verifiedUser = normalizeAuthUser(result.user);
+          if (result.valid && verifiedUser) {
+            setAuthUser(verifiedUser);
             setAuthenticated(true);
           } else {
             window.localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -194,10 +201,21 @@ export default function App() {
     };
   }, []);
 
+  useLayoutEffect(() => {
+    if (!authReady || !authenticated || !authUser) return;
+    const nextHash = resolveRoleHash(authUser.role, window.location.hash);
+    if (nextHash !== window.location.hash) {
+      window.location.replace(nextHash);
+    }
+  }, [authReady, authenticated, authUser, current]);
+
   async function handleLogin(payload: { username: string; password: string }) {
     const result = await login(payload.username, payload.password);
+    const loggedInUser = normalizeAuthUser(result.user);
+    if (!loggedInUser) throw new Error("登录用户角色无效");
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(result));
-    setAuthUser(normalizeAuthUser(result.user));
+    window.location.hash = defaultHashForRole(loggedInUser.role);
+    setAuthUser(loggedInUser);
     setAuthenticated(true);
     setAuthReady(true);
   }
@@ -224,6 +242,7 @@ export default function App() {
           setTheme={setTheme}
           authReady={authReady}
           authenticated={authenticated}
+          authUser={authUser}
           handleLogin={handleLogin}
           handleLogout={handleLogout}
         />
@@ -240,16 +259,18 @@ function AppPresentation({
   setTheme,
   authReady,
   authenticated,
+  authUser,
   handleLogin,
   handleLogout,
 }: {
-  current: RouteKey;
+  current: AppRouteKey;
   rememberedCourse: CourseSummary | null;
   setRememberedCourse: (course: CourseSummary | null) => void;
   theme: ThemeName;
   setTheme: (theme: ThemeName) => void;
   authReady: boolean;
   authenticated: boolean;
+  authUser: AuthUser | null;
   handleLogin: (payload: { username: string; password: string }) => Promise<void>;
   handleLogout: () => void;
 }) {
@@ -269,9 +290,12 @@ function AppPresentation({
   const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
   const isVideoRenderRoute = current === routes.videoRender;
   const isCourseRoute = isCourseWorkspaceRoute(current);
+  const isStudentWorkspace = isStudentRoute(current);
+  const authorizedHash = authUser ? resolveRoleHash(authUser.role, window.location.hash) : window.location.hash;
+  const routeAuthorized = !authenticated || !authUser || authorizedHash === window.location.hash;
   const shellCourse = routeCourse.courseId
     ? selectedCourse
-    : current === routes.home
+    : current === routes.home || current === "student-home"
       ? selectedCourse ?? rememberedCourse
       : null;
 
@@ -295,14 +319,18 @@ function AppPresentation({
         <ActivePage />
       ) : !authReady ? (
         <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
+      ) : authenticated && !routeAuthorized ? (
+        <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在进入对应工作区…</div>
       ) : authenticated ? (
         <>
           <GlobalJobManager
             enabled={!isVideoRenderRoute}
-            showLauncher={!isCourseRoute}
+            showLauncher={authUser?.role !== "student" && !isCourseRoute && !isStudentWorkspace}
           />
           <div key={current} className="route-stage">
-            {isCourseRoute ? (
+            {isStudentWorkspace ? (
+              <StudentApp current={current} />
+            ) : isCourseRoute ? (
               <CourseShell activeRoute={current}>
                 <ActivePage />
               </CourseShell>
@@ -314,7 +342,7 @@ function AppPresentation({
       ) : (
         <LoginPage onLogin={handleLogin} />
       )}
-      {isVideoRenderRoute ? null : <ThemeCustomizer />}
+      {isVideoRenderRoute || authUser?.role === "student" ? null : <ThemeCustomizer />}
     </AppShellProvider>
   );
 }

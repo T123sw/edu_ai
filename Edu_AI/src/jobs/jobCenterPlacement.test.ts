@@ -9,10 +9,15 @@ test("the task center supports a shared inline trigger without duplicating its s
     new URL("../stitch/course/CourseShell.tsx", import.meta.url),
     "utf8",
   );
+  const studentShell = await readFile(
+    new URL("../stitch/student/shell/StudentShell.tsx", import.meta.url),
+    "utf8",
+  );
 
   assert.match(drawer, /export function JobCenterTrigger/);
   assert.match(drawer, /edu-ai:open-job-center/);
   assert.match(drawer, /showLauncher/);
-  assert.match(app, /showLauncher=\{!isCourseRoute\}/);
+  assert.match(app, /showLauncher=\{authUser\?\.role !== "student" && !isCourseRoute && !isStudentWorkspace\}/);
   assert.match(courseShell, /<JobCenterTrigger placement="inline" \/>/);
+  assert.match(studentShell, /<JobCenterTrigger placement="inline" \/>/);
 });

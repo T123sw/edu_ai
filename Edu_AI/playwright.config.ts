@@ -1,5 +1,8 @@
 import { defineConfig } from "playwright/test";
 
+const e2ePort = process.env.PLAYWRIGHT_PORT || "5173";
+const e2eBaseUrl = `http://127.0.0.1:${e2ePort}`;
+
 const viewports = {
   desktop1366: { width: 1366, height: 768 },
   desktop1440: { width: 1440, height: 900 },
@@ -16,7 +19,7 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"]],
   use: {
-    baseURL: "http://127.0.0.1:5173",
+    baseURL: e2eBaseUrl,
     colorScheme: "light",
     locale: "zh-CN",
     timezoneId: "Asia/Shanghai",
@@ -29,9 +32,9 @@ export default defineConfig({
     use: { viewport },
   })),
   webServer: {
-    command: "pnpm dev --host 127.0.0.1",
-    url: "http://127.0.0.1:5173",
-    reuseExistingServer: true,
+    command: `pnpm dev --host 127.0.0.1 --port ${e2ePort}`,
+    url: e2eBaseUrl,
+    reuseExistingServer: e2ePort === "5173",
     timeout: 120_000,
   },
 });

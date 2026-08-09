@@ -12,6 +12,8 @@ test("role defaults enter their own workspace", () => {
 test("students cannot enter teacher workspace routes", () => {
   assert.equal(resolveRoleHash("student", "#edit?course_id=c1"), "#student-home");
   assert.equal(resolveRoleHash("student", "#home"), "#student-home");
+  assert.equal(resolveRoleHash("student", "#profile"), "#student-home");
+  assert.equal(resolveRoleHash("student", "#settings"), "#student-home");
   assert.equal(resolveRoleHash("student", "#student-ai?course_id=c1"), "#student-ai?course_id=c1");
 });
 

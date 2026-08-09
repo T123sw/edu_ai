@@ -4,7 +4,7 @@ import { JobCenterTrigger } from "../../../jobs/JobCenterDrawer";
 import { listCourses } from "../../api/courses";
 import type { BackendCourse } from "../../api/types";
 import { useAuthSession } from "../../authSession";
-import { MaterialIcon, cx, routeHref, routes } from "../../shared";
+import { MaterialIcon, cx, useAppShell } from "../../shared";
 import { useCourseRoute } from "../../course/CourseRouteProvider";
 import { buildStudentHash, readStudentLocation, type StudentRoute } from "../routes/studentRoutes";
 import { studentNavigationItems, studentRouteRequiresCourse } from "./studentNavigation";
@@ -21,6 +21,7 @@ const pageTitles: Record<StudentRoute, string> = {
 
 export function StudentShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: StudentRoute }>) {
   const { user } = useAuthSession();
+  const { logout } = useAppShell();
   const { courseId, course, loading: courseLoading, error: courseError, reload } = useCourseRoute();
   const [courses, setCourses] = useState<BackendCourse[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
@@ -123,9 +124,9 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
           <div><strong>{user?.username}</strong><small>学生工作区</small></div>
         </div>
         {navigation}
-        <a className="student-shell__profile-link" href={routeHref(routes.profile)}>
-          <MaterialIcon name="person" />个人中心
-        </a>
+        <button type="button" className="student-shell__profile-link" onClick={logout}>
+          <MaterialIcon name="logout" />退出登录
+        </button>
       </aside>
 
       <div className="student-shell__main">

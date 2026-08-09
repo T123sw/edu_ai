@@ -1,7 +1,7 @@
 import type { AuthUser } from "../../authSession";
 import { isStudentRoute } from "../../student/routes/studentRoutes";
 
-const sharedRoutes = new Set(["profile", "settings", "classroom-player", "player-smoke", "video-render"]);
+const sharedRoutes = new Set(["classroom-player", "player-smoke", "video-render"]);
 
 export function defaultHashForRole(role: AuthUser["role"]): string {
   return role === "student" ? "#student-home" : "#home";

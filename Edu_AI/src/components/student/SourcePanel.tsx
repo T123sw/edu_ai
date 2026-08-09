@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   getKnowledgeBaseDocumentContent,
@@ -60,8 +60,13 @@ export default function StudentSourcePanel({
   const [researchStatus, setResearchStatus] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ title: string; content: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const selectedDocumentIdsRef = useRef(selectedDocumentIds);
 
-  async function load() {
+  useEffect(() => {
+    selectedDocumentIdsRef.current = selectedDocumentIds;
+  }, [selectedDocumentIds]);
+
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -72,15 +77,15 @@ export default function StudentSourcePanel({
       setCourseDocuments(courseItems);
       setPersonalDocuments(personalItems.map((item) => ({ ...item, course_id: item.course_context_id ?? courseId })));
       const validIds = new Set([...courseItems, ...personalItems].map((item) => item.id));
-      onSelectedDocumentIdsChange(selectedDocumentIds.filter((id) => validIds.has(id)));
+      onSelectedDocumentIdsChange(selectedDocumentIdsRef.current.filter((id) => validIds.has(id)));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "知识库加载失败");
     } finally {
       setLoading(false);
     }
-  }
+  }, [courseId, onSelectedDocumentIdsChange]);
 
-  useEffect(() => { void load(); }, [courseId]);
+  useEffect(() => { void load(); }, [load]);
 
   if (collapsed) {
     return <button type="button" className="student-ai__collapsed-panel" onClick={onToggleCollapsed}><MaterialIcon name="database" /><span>知识库</span></button>;
