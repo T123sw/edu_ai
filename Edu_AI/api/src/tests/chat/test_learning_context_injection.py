@@ -169,4 +169,6 @@ def test_fast_and_react_prompts_receive_role_scoped_learning_context(tmp_path):
     assert "课程学习任务 ID 以 lt_ 标识" in fast_system
     assert "不得使用历史 job_ 任务代替" in react_system
     assert "self_reported 只表示学生自报" in fast_system
+    assert "completion_basis=self_reported" in fast_system
+    assert "completed_basis=" not in fast_system
     assert "不代表测评通过或知识点已掌握" in react_system

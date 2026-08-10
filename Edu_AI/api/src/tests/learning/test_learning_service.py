@@ -333,6 +333,33 @@ def test_teacher_overview_reports_completion_bases_without_private_chat(service)
     assert not hasattr(overview, "conversation_history")
 
 
+def test_teacher_overview_counts_every_published_task_for_students_without_progress(service):
+    first = _create_task(service)
+    second = _create_task(service)
+    for task in (first, second):
+        service.publish_task(
+            course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+        )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=first.task_id,
+        student_id="student-1",
+        event_id="evt-one-of-four-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+
+    overview = service.get_learning_overview(
+        course_id="course-1", user_id="teacher-1", actor_role="teacher"
+    )
+
+    assert overview.enrolled_students == 2
+    assert overview.self_reported_completed_tasks == 1
+    assert overview.self_reported_students == 1
+    assert overview.pending_tasks == 3
+
+
 def test_student_overview_requires_course_read_membership(service):
     task = _create_task(service)
     service.publish_task(

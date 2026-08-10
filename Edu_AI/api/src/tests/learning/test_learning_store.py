@@ -141,6 +141,14 @@ def _build_legacy_learning_database(database_path, *, status: str, progress: int
         """,
         (status, progress),
     )
+    connection.execute(
+        """
+        INSERT INTO learning_events VALUES (
+            'evt_legacy', 'course-1', 'lt_legacy', 'student-a', 'completed',
+            100, NULL, '2026-01-01T01:00:00+00:00'
+        )
+        """
+    )
     connection.commit()
     return connection
 
@@ -148,6 +156,10 @@ def _build_legacy_learning_database(database_path, *, status: str, progress: int
 def test_existing_completed_progress_migrates_as_self_reported(tmp_path):
     database_path = tmp_path / "learning.db"
     legacy = _build_legacy_learning_database(database_path, status="completed", progress=100)
+    before_counts = tuple(
+        legacy.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        for table in ("learning_tasks", "learning_events")
+    )
     legacy.close()
 
     store = LearningStore(database_path)
@@ -157,6 +169,19 @@ def test_existing_completed_progress_migrates_as_self_reported(tmp_path):
     assert progress.completion_basis == "self_reported"
     assert progress.evidence_count == 0
     assert progress.last_activity_at is None
+
+    reopened = LearningStore(database_path)
+    reopened_progress = reopened.get_progress("lt_legacy", "student-a")
+    with sqlite3.connect(database_path) as migrated:
+        after_counts = tuple(
+            migrated.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+            for table in ("learning_tasks", "learning_events")
+        )
+
+    assert after_counts == before_counts == (1, 1)
+    assert reopened_progress is not None
+    assert reopened_progress.completion_basis == "self_reported"
+    assert reopened_progress.evidence_count == 0
 
 
 def test_completion_basis_is_idempotent_and_monotonic(tmp_path):

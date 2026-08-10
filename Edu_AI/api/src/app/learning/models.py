@@ -121,12 +121,12 @@ class TaskProgressRecord:
     student_id: str
     status: ProgressStatus
     progress_percent: int
+    started_at: str | None
+    completed_at: str | None
+    updated_at: str
     completion_basis: CompletionBasis = "none"
     evidence_count: int = 0
     last_activity_at: str | None = None
-    started_at: str | None = None
-    completed_at: str | None = None
-    updated_at: str = ""
 
 
 @dataclass(frozen=True)
