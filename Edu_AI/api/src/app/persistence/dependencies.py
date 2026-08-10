@@ -11,6 +11,7 @@ from app.database import DatabaseNotConfigured
 from core.config import Config
 
 from .modes import PersistenceMode, PersistenceSettings
+from .postgres_conversation_repository import PostgresConversationRepository
 from .postgres_repositories import (
     PostgresCourseMembershipRepository,
     PostgresCourseRepository,
@@ -94,3 +95,17 @@ def _build_core_repositories(database_url: str):
 def get_core_postgres_repositories():
     database_url = str(os.getenv("DATABASE_URL", "")).strip()
     return _build_core_repositories(database_url)
+
+
+@lru_cache(maxsize=8)
+def _build_conversation_repository(database_url: str):
+    if not database_url:
+        raise DatabaseNotConfigured("DATABASE_URL is not configured")
+    return PostgresConversationRepository(
+        create_engine(database_url, pool_pre_ping=True)
+    )
+
+
+def get_postgres_conversation_repository():
+    database_url = str(os.getenv("DATABASE_URL", "")).strip()
+    return _build_conversation_repository(database_url)

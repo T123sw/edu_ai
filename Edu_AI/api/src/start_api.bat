@@ -380,8 +380,10 @@ if not defined DATABASE_URL (
 if not defined USER_PERSISTENCE_MODE set "USER_PERSISTENCE_MODE=postgres"
 if not defined COURSE_PERSISTENCE_MODE set "COURSE_PERSISTENCE_MODE=postgres"
 if not defined COURSE_MEMBERSHIP_PERSISTENCE_MODE set "COURSE_MEMBERSHIP_PERSISTENCE_MODE=postgres"
+if not defined CONVERSATION_PERSISTENCE_MODE set "CONVERSATION_PERSISTENCE_MODE=postgres"
 if not defined SHADOW_FAILURE_JOURNAL set "SHADOW_FAILURE_JOURNAL=storage/database_shadow_failures.jsonl"
 echo Core persistence modes: user=%USER_PERSISTENCE_MODE% course=%COURSE_PERSISTENCE_MODE% membership=%COURSE_MEMBERSHIP_PERSISTENCE_MODE%
+echo Conversation persistence mode: %CONVERSATION_PERSISTENCE_MODE%
 
 where docker >nul 2>nul
 if !ERRORLEVEL! NEQ 0 (

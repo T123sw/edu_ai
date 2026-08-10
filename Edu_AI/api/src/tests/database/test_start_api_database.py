@@ -173,3 +173,4 @@ def test_database_only_start_recovers_stopped_container_without_wait_errors():
         "Core persistence modes: user=postgres course=postgres membership=postgres"
         in combined_output
     )
+    assert "Conversation persistence mode: postgres" in combined_output

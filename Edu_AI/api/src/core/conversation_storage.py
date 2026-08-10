@@ -29,14 +29,17 @@ class ConversationStorage:
 
     # -------- 基础读写 --------
     def _load(self):
-        if not self.storage_file.exists():
+        if self._uses_postgres():
+            raw = {"conversations": self._repository().list()}
+        elif not self.storage_file.exists():
             return
-        try:
-            with open(self.storage_file, "r", encoding="utf-8") as f:
-                raw = json.load(f)
-        except Exception:
-            self._conversations = {}
-            return
+        else:
+            try:
+                with open(self.storage_file, "r", encoding="utf-8") as f:
+                    raw = json.load(f)
+            except Exception:
+                self._conversations = {}
+                return
 
         conversations = raw
         if isinstance(raw, dict):
@@ -75,7 +78,22 @@ class ConversationStorage:
             normalized["input_videos"] = list(normalized.get("input_videos") or [])
         return normalized
 
-    def _save_locked(self):
+    def _save_locked(
+        self,
+        conversation_id: Optional[str] = None,
+        *,
+        deleted_id: Optional[str] = None,
+    ):
+        if self._uses_postgres():
+            repository = self._repository()
+            if deleted_id:
+                repository.delete(deleted_id)
+            elif conversation_id:
+                repository.upsert(self._conversations[conversation_id])
+            else:
+                for conversation in self._conversations.values():
+                    repository.upsert(conversation)
+            return
         payload = {
             "updated_at": _now_iso(),
             "conversations": list(self._conversations.values()),
@@ -109,7 +127,7 @@ class ConversationStorage:
                     conv["title"] = self._generate_title(first_question)
                 if owner and not conv.get("owner"):
                     conv["owner"] = owner
-                    self._save_locked()
+                    self._save_locked(conversation_id)
                 return
 
             now = _now_iso()
@@ -122,7 +140,7 @@ class ConversationStorage:
                 "state": {},
                 "owner": owner,
             }
-            self._save_locked()
+            self._save_locked(conversation_id)
 
     @staticmethod
     def _extract_scope_fields(state: Dict[str, Any]) -> Dict[str, Optional[str]]:
@@ -293,7 +311,7 @@ class ConversationStorage:
             state = conv.setdefault("state", {})
             state.update(patch or {})
             conv["updated_at"] = _now_iso()
-            self._save_locked()
+            self._save_locked(conversation_id)
 
     def append_message(
         self,
@@ -332,7 +350,7 @@ class ConversationStorage:
                 message["tool_call_id"] = tool_call_id
             conv.setdefault("messages", []).append(message)
             conv["updated_at"] = _now_iso()
-            self._save_locked()
+            self._save_locked(conversation_id)
 
     def delete_conversation(self, conversation_id: str, owner: Optional[str] = None):
         with self._lock:
@@ -340,7 +358,7 @@ class ConversationStorage:
                 if owner and self._conversations[conversation_id].get("owner") != owner:
                     raise KeyError(conversation_id)
                 del self._conversations[conversation_id]
-                self._save_locked()
+                self._save_locked(deleted_id=conversation_id)
 
     def truncate_messages(self, conversation_id: str, keep_count: int):
         """截断对话消息，只保留前 keep_count 条消息"""
@@ -352,7 +370,7 @@ class ConversationStorage:
             if keep_count < len(messages):
                 conv["messages"] = messages[:keep_count]
                 conv["updated_at"] = _now_iso()
-                self._save_locked()
+                self._save_locked(conversation_id)
 
     def delete_message_pair(self, conversation_id: str, message_index: int):
         """删除指定索引的消息对（用户消息+助手回复）"""
@@ -381,7 +399,7 @@ class ConversationStorage:
             # 删除消息
             conv["messages"] = messages[:start_idx] + messages[end_idx + 1:]
             conv["updated_at"] = _now_iso()
-            self._save_locked()
+            self._save_locked(conversation_id)
 
     def update_message(self, conversation_id: str, message_index: int, new_content: str):
         """更新指定索引的消息内容"""
@@ -397,7 +415,22 @@ class ConversationStorage:
             messages[message_index]["content"] = new_content
             messages[message_index]["timestamp"] = _now_iso()
             conv["updated_at"] = _now_iso()
-            self._save_locked()
+            self._save_locked(conversation_id)
+
+    @staticmethod
+    def _uses_postgres() -> bool:
+        import os
+
+        return (
+            str(os.getenv("CONVERSATION_PERSISTENCE_MODE", "json")).strip().lower()
+            == "postgres"
+        )
+
+    @staticmethod
+    def _repository():
+        from app.persistence.dependencies import get_postgres_conversation_repository
+
+        return get_postgres_conversation_repository()
 
 
 conversation_storage = ConversationStorage()
