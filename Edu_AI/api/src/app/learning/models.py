@@ -111,3 +111,18 @@ class EventWriteResult:
     created: bool
     progress: TaskProgressRecord
 
+
+@dataclass(frozen=True)
+class LearningTaskView:
+    task: LearningTaskRecord
+    my_progress: TaskProgressRecord | None = None
+
+
+@dataclass(frozen=True)
+class CourseTaskSummaryRecord:
+    task: LearningTaskRecord
+    enrolled_students: int
+    started_students: int
+    completed_students: int
+    completion_rate: float
+    progress: list[TaskProgressRecord] = field(default_factory=list)
