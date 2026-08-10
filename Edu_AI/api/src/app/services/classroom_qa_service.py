@@ -271,7 +271,13 @@ class ClassroomQaService:
                 session_id=session["session_id"],
                 filename=audio_filename,
             )
-        except (OpenMaicError, OSError, ValueError):
+        except (OpenMaicError, OSError, ValueError) as exc:
+            log.warning(
+                "classroom_qa_tts_failed provider=%s turn_id=%s error_type=%s",
+                Config.OPENMAIC_LIVE_TTS_PROVIDER,
+                turn_id,
+                type(exc).__name__,
+            )
             tts_status = "failed"
             audio_url = None
         tts_ms = self._elapsed_ms(tts_started)

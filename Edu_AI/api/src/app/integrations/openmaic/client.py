@@ -220,7 +220,8 @@ class OpenMaicClient:
             raise OpenMaicServerError(
                 str(payload.get("error") or "OpenMAIC TTS provider failed")
             )
-        data = payload.get("data")
+        nested = payload.get("data")
+        data = nested if isinstance(nested, dict) else payload
         if not isinstance(data, dict) or str(data.get("audioId")) != audio_id:
             raise OpenMaicServerError("OpenMAIC TTS returned a mismatched audio id")
 

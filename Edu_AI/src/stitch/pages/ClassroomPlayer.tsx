@@ -77,7 +77,7 @@ export function ClassroomPlayerPage() {
     pageRevision: playback.revision,
     enabled: Boolean(courseId && classroomId && material),
   });
-  const qaLocksPlayback = qaController.state.phase !== "closed";
+  const qaLocksPlayback = playback.status === "interrupted";
 
   useEffect(() => {
     if (!courseId || !classroomId) {

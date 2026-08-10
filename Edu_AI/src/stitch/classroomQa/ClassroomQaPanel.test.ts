@@ -58,3 +58,15 @@ test('ClassroomPlayer binds the runtime and always renders the QA panel', () => 
   assert.match(source, /controller\.bindRuntime/);
   assert.doesNotMatch(source, /!presentationMode\s*\?\s*\(\s*<ClassroomQaPanel/);
 });
+
+test('the narrow-screen panel stays above the classroom controls', () => {
+  const cssPath = fileURLToPath(
+    new URL('./ClassroomQaPanel.css', import.meta.url),
+  );
+  const css = readFileSync(cssPath, 'utf8');
+
+  assert.match(
+    css,
+    /\.classroom-qa-panel\s*\{[^}]*bottom:\s*calc\(76px \+ env\(safe-area-inset-bottom\)\)/s,
+  );
+});

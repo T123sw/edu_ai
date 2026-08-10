@@ -56,11 +56,9 @@ async def test_synthesize_tts_posts_server_managed_qwen_and_decodes_audio():
             200,
             json={
                 "success": True,
-                "data": {
-                    "audioId": "turn-1",
-                    "base64": base64.b64encode(expected).decode("ascii"),
-                    "format": "mp3",
-                },
+                "audioId": "turn-1",
+                "base64": base64.b64encode(expected).decode("ascii"),
+                "format": "mp3",
             },
         )
 
