@@ -19,6 +19,7 @@ import { buildTeacherCourseHash } from "../teacherRoutes";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
 import { ClassroomQaPanel } from "../classroomQa/ClassroomQaPanel";
+import { completeAndAdvance } from "../classroomQa/classroomAutoplay";
 import { useClassroomInterruption } from "../classroomQa/useClassroomInterruption";
 
 function getQueryParams(): { courseId: string | null; classroomId: string | null } {
@@ -365,9 +366,14 @@ export function ClassroomPlayerPage() {
                       courseId={courseId}
                       classroomId={classroomId}
                       autoPlay={playback.status === "playing"}
-                      onComplete={() =>
-                        controller.complete(currentIndex, playback.revision)
-                      }
+                      onComplete={() => {
+                        void completeAndAdvance({
+                          controller,
+                          sceneIndex: currentIndex,
+                          revision: playback.revision,
+                          sceneCount: scenes.length,
+                        });
+                      }}
                       onRuntimeReady={(runtime) => {
                         if (runtime) {
                           controller.bindRuntime(
