@@ -11,9 +11,20 @@ export type BackendCourse = {
   knowledgeGraph?: string;
   revision: number;
   membership_role: "owner" | "editor" | "viewer";
+  course_code?: string | null;
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+};
+
+export type CourseMember = {
+  course_id: string;
+  user_id: string;
+  username: string;
+  system_role: "admin" | "teacher" | "student" | string;
+  role: "owner" | "editor" | "viewer";
+  joined_at: string;
+  added_by: string;
 };
 
 export type BackendCourseCreatePayload = {

@@ -2,6 +2,7 @@ import { apiRequest } from "./client";
 import type {
   BackendCourse,
   BackendCourseCreatePayload,
+  CourseMember,
   CourseMaterial,
   CourseMaterialSpace,
   CourseKnowledgeBuild,
@@ -80,6 +81,47 @@ export function createCourse(payload: BackendCourseCreatePayload) {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function joinCourseByCode(courseCode: string) {
+  return apiRequest<BackendCourse>("/api/courses/join", {
+    method: "POST",
+    body: JSON.stringify({ course_code: courseCode }),
+  });
+}
+
+export function listCourseMembers(courseId: string) {
+  return apiRequest<{ items: CourseMember[] }>(
+    `/api/courses/${encodeURIComponent(courseId)}/members`,
+  ).then((response) => response.items);
+}
+
+export function addCourseMember(
+  courseId: string,
+  payload: Pick<CourseMember, "user_id" | "role">,
+) {
+  return apiRequest<CourseMember>(
+    `/api/courses/${encodeURIComponent(courseId)}/members`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export function updateCourseMember(
+  courseId: string,
+  userId: string,
+  role: CourseMember["role"],
+) {
+  return apiRequest<CourseMember>(
+    `/api/courses/${encodeURIComponent(courseId)}/members/${encodeURIComponent(userId)}`,
+    { method: "PATCH", body: JSON.stringify({ role }) },
+  );
+}
+
+export function removeCourseMember(courseId: string, userId: string) {
+  return apiRequest<{ ok: boolean }>(
+    `/api/courses/${encodeURIComponent(courseId)}/members/${encodeURIComponent(userId)}`,
+    { method: "DELETE" },
+  );
 }
 
 export function getCourse(courseId: string) {
