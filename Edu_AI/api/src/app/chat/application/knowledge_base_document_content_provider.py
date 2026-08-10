@@ -6,6 +6,38 @@ from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.document_resolver import resolve_rag_document
 
 
+def get_generation_document_contents(
+    content_provider,
+    *,
+    payload,
+    selected_doc_ids: list[str],
+    owner: str | None,
+) -> dict[str, Any]:
+    """Read documents already authorized by the durable generation handler.
+
+    Public document ids are resolved with owner checks for direct application
+    calls. Durable jobs additionally carry exact RAG keys produced only after
+    the course/source resolver has validated membership, course scope, and
+    document readiness. Reusing those keys avoids incorrectly treating a
+    teacher-built course index as the student's personal index.
+    """
+    authorized_keys = [
+        str(item or "").strip()
+        for item in list(
+            getattr(payload, "authorized_rag_index_keys", []) or []
+        )
+        if str(item or "").strip()
+    ]
+    if authorized_keys:
+        return content_provider.get_resolved_document_contents(
+            rag_index_keys=authorized_keys
+        )
+    return content_provider.get_selected_document_contents(
+        selected_doc_ids=selected_doc_ids,
+        owner=owner,
+    )
+
+
 class KnowledgeBaseDocumentContentProvider:
     def __init__(
         self,

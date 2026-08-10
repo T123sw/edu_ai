@@ -5,7 +5,12 @@ API_ROOT = Path(__file__).resolve().parents[2]
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
-from app.chat.application.knowledge_base_document_content_provider import KnowledgeBaseDocumentContentProvider
+from types import SimpleNamespace
+
+from app.chat.application.knowledge_base_document_content_provider import (
+    KnowledgeBaseDocumentContentProvider,
+    get_generation_document_contents,
+)
 from app.chat.application.knowledge_base_summary_provider import KnowledgeBaseSummaryProvider
 
 
@@ -138,6 +143,26 @@ def test_content_provider_reads_resolved_rag_key_without_public_id_lookup():
         rag_index_keys=[rag_system.index_key]
     )
 
+    assert result["documents"][0]["rag_index_key"] == rag_system.index_key
+    assert result["documents"][0]["content"] == "first chunk\n\nsecond chunk"
+
+
+def test_generation_content_uses_prevalidated_course_rag_key_for_student():
+    rag_system = FakeRAGSystem()
+    provider = KnowledgeBaseDocumentContentProvider(
+        rag_system_factory=lambda: rag_system
+    )
+
+    result = get_generation_document_contents(
+        provider,
+        payload=SimpleNamespace(
+            authorized_rag_index_keys=[rag_system.index_key]
+        ),
+        selected_doc_ids=[rag_system.index_key],
+        owner="student-bob",
+    )
+
+    assert result["fallback_used"] is False
     assert result["documents"][0]["rag_index_key"] == rag_system.index_key
     assert result["documents"][0]["content"] == "first chunk\n\nsecond chunk"
 

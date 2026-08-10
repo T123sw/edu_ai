@@ -5,7 +5,10 @@ from typing import Any
 from uuid import uuid4
 
 from app.chat.agents.report_generation import get_fallback_llm
-from app.chat.application.knowledge_base_document_content_provider import KnowledgeBaseDocumentContentProvider
+from app.chat.application.knowledge_base_document_content_provider import (
+    KnowledgeBaseDocumentContentProvider,
+    get_generation_document_contents,
+)
 from app.chat.application.report_service_v2 import finalize_report_result
 from core.course_storage import storage_manager as default_course_storage_manager
 
@@ -59,7 +62,9 @@ class KnowledgeBaseDirectReportServiceV2:
         owner = str(getattr(payload, "owner", "") or "").strip() or None
         document_result = {"documents": [], "truncated": False}
         if selected_doc_ids:
-            document_result = self.content_provider.get_selected_document_contents(
+            document_result = get_generation_document_contents(
+                self.content_provider,
+                payload=payload,
                 selected_doc_ids=selected_doc_ids,
                 owner=owner,
             )

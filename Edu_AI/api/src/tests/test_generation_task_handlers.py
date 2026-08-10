@@ -4,6 +4,10 @@ import pytest
 
 from app.services.durable_task_handlers import DurableExecutionContext
 from app.services.generation_task_handlers import GenerationTaskHandler
+from app.services.generation_source_resolver import (
+    ResolvedGenerationSource,
+    ResolvedSourceDocument,
+)
 from core.course_storage import CourseStorageManager
 
 
@@ -163,6 +167,64 @@ def test_generation_handler_preserves_a_verified_service_result(tmp_path):
     )
     assert material["source_snapshot"]["mode"] == "none"
     assert material["config_snapshot"] == {"question": "Report"}
+
+
+def test_generation_handler_passes_prevalidated_rag_keys_to_direct_service(
+    tmp_path,
+):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    fake = FakeGenerationService("flashcard")
+
+    class SelectedSourceResolver:
+        def resolve(self, course_id, mode, selected_doc_ids, **_kwargs):
+            assert selected_doc_ids == ["course-doc-1"]
+            return ResolvedGenerationSource(
+                course_id=course_id,
+                mode=mode,
+                requested_document_ids=("course-doc-1",),
+                documents=(
+                    ResolvedSourceDocument(
+                        document_id="course-doc-1",
+                        name="Course document",
+                        rag_index_key="user_teacher:D:/course/document.md",
+                        chunk_count=4,
+                    ),
+                ),
+                context_text="course content",
+                resolved_at="2026-08-10T00:00:00+00:00",
+            )
+
+    handler = GenerationTaskHandler(
+        course_storage_manager=manager,
+        service_factories={"flashcard": lambda: fake},
+        source_resolver=SelectedSourceResolver(),
+    )
+    context = DurableExecutionContext(
+        task_id="job-student-course-source",
+        owner_user_id="student",
+        course_id="course-1",
+        config_snapshot_id="cfg-student-course-source",
+        progress=lambda progress, step, message: None,
+        is_cancel_requested=lambda: False,
+    )
+
+    handler(
+        {
+            "resource_type": "flashcard",
+            "course_id": "course-1",
+            "source_mode": "selected_documents",
+            "selected_doc_ids": ["course-doc-1"],
+            "config": {"flashcard_config": {"title": "Course cards"}},
+            "material_id": "flashcard-course-source",
+        },
+        context,
+    )
+
+    assert fake.payload.authorized_rag_index_keys == [
+        "user_teacher:D:/course/document.md"
+    ]
+    assert fake.payload.source_context == "course content"
 
 
 def test_game_handler_preserves_topic_and_generation_options(tmp_path):

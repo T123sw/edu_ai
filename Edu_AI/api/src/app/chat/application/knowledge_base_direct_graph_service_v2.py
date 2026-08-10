@@ -7,6 +7,7 @@ from uuid import uuid4
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.application.knowledge_base_document_content_provider import (
     KnowledgeBaseDocumentContentProvider,
+    get_generation_document_contents,
 )
 from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import storage_manager as default_course_storage_manager
@@ -31,7 +32,9 @@ class KnowledgeBaseDirectGraphServiceV2:
         ]
         document_result = {"documents": []}
         if selected_doc_ids:
-            document_result = self.content_provider.get_selected_document_contents(
+            document_result = get_generation_document_contents(
+                self.content_provider,
+                payload=payload,
                 selected_doc_ids=selected_doc_ids,
                 owner=owner or None,
             )

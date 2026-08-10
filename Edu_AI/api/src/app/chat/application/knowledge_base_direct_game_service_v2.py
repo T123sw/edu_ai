@@ -11,7 +11,10 @@ from jsonschema import ValidationError, validate
 
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.application.game_template_registry import get_game_template_spec
-from app.chat.application.knowledge_base_document_content_provider import KnowledgeBaseDocumentContentProvider
+from app.chat.application.knowledge_base_document_content_provider import (
+    KnowledgeBaseDocumentContentProvider,
+    get_generation_document_contents,
+)
 from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.config import Config
 from core.course_storage import storage_manager as default_course_storage_manager
@@ -76,7 +79,11 @@ class KnowledgeBaseDirectGameServiceV2:
             ),
         }
         documents = (
-            self._load_documents(selected_doc_ids=selected_doc_ids, owner=owner)
+            self._load_documents(
+                payload=payload,
+                selected_doc_ids=selected_doc_ids,
+                owner=owner,
+            )
             if selected_doc_ids
             else []
         )
@@ -133,8 +140,16 @@ class KnowledgeBaseDirectGameServiceV2:
             },
         }
 
-    def _load_documents(self, *, selected_doc_ids: list[str], owner: str | None) -> list[dict[str, Any]]:
-        document_result = self.content_provider.get_selected_document_contents(
+    def _load_documents(
+        self,
+        *,
+        payload,
+        selected_doc_ids: list[str],
+        owner: str | None,
+    ) -> list[dict[str, Any]]:
+        document_result = get_generation_document_contents(
+            self.content_provider,
+            payload=payload,
             selected_doc_ids=selected_doc_ids,
             owner=owner,
         )

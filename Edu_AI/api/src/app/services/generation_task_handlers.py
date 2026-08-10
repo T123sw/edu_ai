@@ -637,6 +637,9 @@ class GenerationTaskHandler:
             "selected_doc_ids": [
                 item.rag_index_key for item in execution_context.source.documents
             ],
+            "authorized_rag_index_keys": [
+                item.rag_index_key for item in execution_context.source.documents
+            ],
             "source_context": execution_context.source.context_text,
             "source_snapshot": execution_context.source.to_snapshot(),
             "source_mode": execution_context.source.mode,
@@ -693,6 +696,10 @@ class GenerationTaskHandler:
         base.update(
             {
                 "selected_doc_ids": [
+                    item.rag_index_key
+                    for item in execution_context.source.documents
+                ],
+                "authorized_rag_index_keys": [
                     item.rag_index_key
                     for item in execution_context.source.documents
                 ],
