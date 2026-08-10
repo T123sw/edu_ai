@@ -749,6 +749,9 @@ class CourseStorageManager:
             return updated
 
     def save_course_metadata(self, course_id: str, metadata: Dict[str, Any]) -> bool:
+        if self._app_state_uses_postgres():
+            self._app_state_repository().put("course_metadata", course_id, metadata)
+            return True
         try:
             metadata_file = self.get_course_dir(course_id) / "metadata.json"
             self._write_json(metadata_file, metadata)
@@ -758,6 +761,10 @@ class CourseStorageManager:
             return False
 
     def get_course_metadata(self, course_id: str) -> Dict[str, Any]:
+        if self._app_state_uses_postgres():
+            metadata = self._app_state_repository().get("course_metadata", course_id)
+            if metadata:
+                return metadata
         metadata_file = self.get_course_dir(course_id) / "metadata.json"
         metadata = self._read_json(metadata_file)
         if metadata:
@@ -767,6 +774,15 @@ class CourseStorageManager:
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
         }
+
+    @staticmethod
+    def _app_state_uses_postgres() -> bool:
+        return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+    @staticmethod
+    def _app_state_repository():
+        from app.persistence.dependencies import get_postgres_app_state_repository
+        return get_postgres_app_state_repository()
 
     def save_knowledge_base_file(
         self,

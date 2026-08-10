@@ -25,6 +25,12 @@ class UserProfileStorage:
         self._load()
 
     def _load(self):
+        if self._uses_postgres():
+            for profile in self._repository().list("user_profiles"):
+                user_id = str(profile.get("user_id") or "").strip()
+                if user_id:
+                    self._profiles[user_id] = profile
+            return
         if not self.storage_file.exists():
             return
         try:
@@ -49,6 +55,12 @@ class UserProfileStorage:
                 self._profiles[user_id] = profile
 
     def _save_locked(self):
+        if self._uses_postgres():
+            for user_id, profile in self._profiles.items():
+                self._repository().put(
+                    "user_profiles", user_id, profile, owner_user_id=user_id
+                )
+            return
         payload = {
             "updated_at": _now_iso(),
             "profiles": list(self._profiles.values()),
@@ -75,6 +87,16 @@ class UserProfileStorage:
             profile["updated_at"] = now
             self._save_locked()
             return dict(profile)
+
+    @staticmethod
+    def _uses_postgres() -> bool:
+        import os
+        return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+    @staticmethod
+    def _repository():
+        from app.persistence.dependencies import get_postgres_app_state_repository
+        return get_postgres_app_state_repository()
 
 
 user_profile_storage = UserProfileStorage()

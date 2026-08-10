@@ -1,6 +1,7 @@
 from .base import Base
 from .health import probe_database
 from .models import (
+    AppStateRecord,
     ArtifactFile,
     Conversation,
     ConversationMessage,
@@ -12,6 +13,9 @@ from .models import (
     KnowledgeDocument,
     KnowledgeGraphVersion,
     KnowledgeLibrary,
+    LearningEventModel,
+    LearningProgressModel,
+    LearningTaskModel,
     Material,
     MaterialVersion,
     MigrationQuarantine,
@@ -22,6 +26,7 @@ from .session import DatabaseNotConfigured, database_session
 
 __all__ = [
     "Base",
+    "AppStateRecord",
     "ArtifactFile",
     "Conversation",
     "ConversationMessage",
@@ -33,6 +38,9 @@ __all__ = [
     "KnowledgeDocument",
     "KnowledgeGraphVersion",
     "KnowledgeLibrary",
+    "LearningEventModel",
+    "LearningProgressModel",
+    "LearningTaskModel",
     "Material",
     "MaterialVersion",
     "MigrationQuarantine",

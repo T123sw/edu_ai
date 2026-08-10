@@ -26,6 +26,12 @@ class LessonPlanStorage:
     self._load()
 
   def _load(self):
+    if self._uses_postgres():
+      items = self._repository().list("lesson_plans")
+      for item in items:
+        if item.get("id"):
+          self._plans[str(item["id"])] = item
+      return
     if not self.storage_file.exists():
       return
     try:
@@ -48,6 +54,10 @@ class LessonPlanStorage:
       self._plans[plan_id] = item
 
   def _save_locked(self):
+    if self._uses_postgres():
+      for plan_id, plan in self._plans.items():
+        self._repository().put("lesson_plans", plan_id, plan)
+      return
     payload = {
       "updated_at": _now_iso(),
       "plans": list(self._plans.values()),
@@ -109,7 +119,20 @@ class LessonPlanStorage:
     with self._lock:
       if plan_id in self._plans:
         del self._plans[plan_id]
+        if self._uses_postgres():
+          self._repository().delete("lesson_plans", plan_id)
+          return
         self._save_locked()
+
+  @staticmethod
+  def _uses_postgres() -> bool:
+    import os
+    return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+  @staticmethod
+  def _repository():
+    from app.persistence.dependencies import get_postgres_app_state_repository
+    return get_postgres_app_state_repository()
 
 
 lesson_plan_storage = LessonPlanStorage()

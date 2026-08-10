@@ -47,6 +47,9 @@ def create_task_state(
 
 
 def load_task_state(thread_id: str) -> Optional[BlogTaskState]:
+    if _uses_postgres():
+        data = _repository().get("blog_tasks", thread_id)
+        return BlogTaskState(**data) if data is not None else None
     path = _task_file(thread_id)
     if not path.exists():
         return None
@@ -56,8 +59,11 @@ def load_task_state(thread_id: str) -> Optional[BlogTaskState]:
 
 
 def save_task_state(state: BlogTaskState) -> None:
-    path = _task_file(state.thread_id)
     state.updated_at = now_iso()
+    if _uses_postgres():
+        _repository().put("blog_tasks", state.thread_id, state.model_dump())
+        return
+    path = _task_file(state.thread_id)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(state.model_dump(), f, ensure_ascii=False, indent=2)
 
@@ -72,4 +78,14 @@ def patch_task_state(thread_id: str, patch: Dict[str, Any]) -> BlogTaskState:
     new_state = BlogTaskState(**data)
     save_task_state(new_state)
     return new_state
+
+
+def _uses_postgres() -> bool:
+    import os
+    return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+
+def _repository():
+    from app.persistence.dependencies import get_postgres_app_state_repository
+    return get_postgres_app_state_repository()
 

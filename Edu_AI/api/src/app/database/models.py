@@ -419,3 +419,66 @@ class RuntimeIndexEntry(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(
         JSON_PAYLOAD, nullable=False, default=dict
     )
+
+
+class AppStateRecord(Base):
+    __tablename__ = "app_state_records"
+
+    namespace: Mapped[str] = mapped_column(String(120), primary_key=True)
+    record_key: Mapped[str] = mapped_column(String(300), primary_key=True)
+    owner_user_id: Mapped[str | None] = mapped_column(String(160), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+    payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class LearningTaskModel(Base):
+    __tablename__ = "learning_tasks"
+
+    task_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    instructions: Mapped[str] = mapped_column(Text, nullable=False)
+    created_by: Mapped[str] = mapped_column(String(160), nullable=False)
+    resource_refs: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
+    knowledge_point_ids: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    published_by: Mapped[str | None] = mapped_column(String(160))
+
+
+class LearningEventModel(Base):
+    __tablename__ = "learning_events"
+
+    event_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("learning_tasks.task_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    progress_percent: Mapped[int] = mapped_column(Integer, nullable=False)
+    resource_ref: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class LearningProgressModel(Base):
+    __tablename__ = "learning_progress"
+
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("learning_tasks.task_id", ondelete="CASCADE"), primary_key=True
+    )
+    student_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    progress_percent: Mapped[int] = mapped_column(Integer, nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

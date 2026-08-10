@@ -20,6 +20,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--document-index", type=Path, default=Config.STORAGE_ROOT / "document_index.json")
     parser.add_argument("--image-index", type=Path, default=Config.STORAGE_ROOT / "image_index.json")
     parser.add_argument("--video-index", type=Path, default=Config.STORAGE_ROOT / "video_index.json")
+    parser.add_argument("--personal-root", type=Path, default=Config.STORAGE_ROOT / "personal_knowledge")
     parser.add_argument("--database-url", default=os.getenv("DATABASE_URL", ""))
     parser.add_argument("--apply", action="store_true")
     return parser
@@ -44,6 +45,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             graph = _json(course_dir / "knowledge_graph.json", None)
             if isinstance(graph, dict):
                 graphs[course_dir.name] = graph
+    if args.personal_root.exists():
+        for index_path in sorted(args.personal_root.glob("*/knowledge_base/index.json")):
+            entries = _json(index_path, [])
+            if not isinstance(entries, list):
+                raise ValueError(f"personal knowledge index must be a list: {index_path}")
+            first = dict(entries[0]) if entries else {}
+            owner = str(first.get("owner_user_id") or "").strip()
+            library_id = str(first.get("course_id") or (f"personal:{owner}" if owner else f"personal:{index_path.parents[1].name}"))
+            course_documents[library_id] = [dict(item) for item in entries]
     runtime_indexes = {
         "document": _json(args.document_index, {}),
         "image": _json(args.image_index, {}),
@@ -70,7 +80,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     summary = {
         "mode": "applied" if args.apply else "preview",
         "libraries": len(course_documents),
-        "course_documents": sum(len(items) for items in course_documents.values()),
+        "knowledge_documents": sum(len(items) for items in course_documents.values()),
         "graphs": len(graphs),
         "runtime_document_entries": len(runtime_indexes["document"]),
         "runtime_image_entries": len(runtime_indexes["image"]),

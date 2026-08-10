@@ -384,12 +384,16 @@ if not defined CONVERSATION_PERSISTENCE_MODE set "CONVERSATION_PERSISTENCE_MODE=
 if not defined JOB_PERSISTENCE_MODE set "JOB_PERSISTENCE_MODE=postgres"
 if not defined MATERIAL_PERSISTENCE_MODE set "MATERIAL_PERSISTENCE_MODE=postgres"
 if not defined KNOWLEDGE_PERSISTENCE_MODE set "KNOWLEDGE_PERSISTENCE_MODE=postgres"
+if not defined APP_STATE_PERSISTENCE_MODE set "APP_STATE_PERSISTENCE_MODE=postgres"
+if not defined LEARNING_PERSISTENCE_MODE set "LEARNING_PERSISTENCE_MODE=postgres"
 if not defined SHADOW_FAILURE_JOURNAL set "SHADOW_FAILURE_JOURNAL=storage/database_shadow_failures.jsonl"
 echo Core persistence modes: user=%USER_PERSISTENCE_MODE% course=%COURSE_PERSISTENCE_MODE% membership=%COURSE_MEMBERSHIP_PERSISTENCE_MODE%
 echo Conversation persistence mode: %CONVERSATION_PERSISTENCE_MODE%
 echo Job persistence mode: %JOB_PERSISTENCE_MODE%
 echo Material persistence mode: %MATERIAL_PERSISTENCE_MODE%
 echo Knowledge persistence mode: %KNOWLEDGE_PERSISTENCE_MODE%
+echo Application state persistence mode: %APP_STATE_PERSISTENCE_MODE%
+echo Learning persistence mode: %LEARNING_PERSISTENCE_MODE%
 
 where docker >nul 2>nul
 if !ERRORLEVEL! NEQ 0 (

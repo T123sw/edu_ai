@@ -19,6 +19,7 @@ import hashlib
 import ipaddress
 import json
 import mimetypes
+import os
 import socket
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -484,7 +485,7 @@ def _record_failure(
         }
         _accumulate(record, "accessed_by", owner)
         _accumulate(record, "course_ids", course_id)
-        sidecar_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_sidecar_record(sidecar_path, record)
     except OSError:
         pass  # sidecar writing best-effort; never let it propagate
     return DownloadFailure(source_url=source_url, reason=reason, attempts=attempts)
@@ -522,7 +523,7 @@ def _write_sidecar(
     _accumulate(record, "accessed_by", owner)
     _accumulate(record, "course_ids", course_id)
     try:
-        sidecar_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_sidecar_record(sidecar_path, record)
     except OSError:
         pass
 
@@ -548,7 +549,7 @@ def _merge_sidecar_attribution(
         changed = True
     record["last_accessed_at"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
     try:
-        sidecar_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_sidecar_record(sidecar_path, record)
     except OSError:
         if changed:
             pass  # best-effort
@@ -571,12 +572,32 @@ def _read_sidecar(image_path: Path) -> dict:
 
 
 def _read_sidecar_path(sidecar_path: Path) -> dict:
+    if _app_state_uses_postgres():
+        return _app_state_repository().get("searched_images", sidecar_path.stem) or {}
     try:
         if sidecar_path.exists():
             return json.loads(sidecar_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         pass
     return {}
+
+
+def _write_sidecar_record(sidecar_path: Path, record: dict) -> None:
+    if _app_state_uses_postgres():
+        _app_state_repository().put("searched_images", sidecar_path.stem, record)
+        return
+    sidecar_path.write_text(
+        json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def _app_state_uses_postgres() -> bool:
+    return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+
+def _app_state_repository():
+    from app.persistence.dependencies import get_postgres_app_state_repository
+    return get_postgres_app_state_repository()
 
 
 def _local_url_for(local_path: Path) -> str:

@@ -39,6 +39,14 @@ class TaskStorage:
 
     # -----------------------------------------------------
     def _load_from_disk(self):
+        if self._uses_postgres():
+            for data in self._repository().list("pipeline_tasks"):
+                try:
+                    task = self._deserialize(data)
+                    self.tasks[task.task_id] = task
+                except Exception:
+                    pass
+            return
         for file in self.base_dir.glob("*.json"):
             try:
                 data = json.loads(file.read_text(encoding="utf-8"))
@@ -49,6 +57,9 @@ class TaskStorage:
                 pass
 
     def _write(self, task: Task):
+        if self._uses_postgres():
+            self._repository().put("pipeline_tasks", task.task_id, self._serialize(task))
+            return
         self._path(task.task_id).write_text(
             json.dumps(self._serialize(task), ensure_ascii=False, indent=2),
             encoding="utf-8",
@@ -90,6 +101,16 @@ class TaskStorage:
             task.error = error
         self.save(task)
         return task
+
+    @staticmethod
+    def _uses_postgres() -> bool:
+        import os
+        return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+    @staticmethod
+    def _repository():
+        from app.persistence.dependencies import get_postgres_app_state_repository
+        return get_postgres_app_state_repository()
 
 
 # 全局实例

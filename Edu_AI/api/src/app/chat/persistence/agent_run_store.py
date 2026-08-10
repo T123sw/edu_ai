@@ -25,8 +25,18 @@ _ALLOWED_STATE_KEYS = {
 class AgentRunStore:
     def __init__(self, db_path: str | Path = _DEFAULT_DB_PATH):
         self._path = str(db_path)
-        Path(self._path).parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
+        self._postgres = (
+            str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower()
+            == "postgres"
+        )
+        if self._postgres:
+            from app.persistence.dependencies import get_postgres_app_state_repository
+
+            self._repository = get_postgres_app_state_repository()
+            self._conn = None
+            return
+        Path(self._path).parent.mkdir(parents=True, exist_ok=True)
         self._conn = sqlite3.connect(self._path, check_same_thread=False, timeout=5)
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA busy_timeout=5000")
@@ -58,6 +68,20 @@ class AgentRunStore:
             key: value for key, value in dict(state or {}).items()
             if key in _ALLOWED_STATE_KEYS
         }
+        if self._postgres:
+            self._repository.put(
+                "agent_runs",
+                conversation_id,
+                {
+                    "conversation_id": conversation_id,
+                    "owner_user_id": owner_user_id,
+                    "course_id": str(course_id or ""),
+                    "state": safe_state,
+                    "updated_at": time.time(),
+                },
+                owner_user_id=owner_user_id,
+            )
+            return
         payload = json.dumps(safe_state, ensure_ascii=False, separators=(",", ":"), default=str)
         with self._lock:
             self._conn.execute(
@@ -85,6 +109,14 @@ class AgentRunStore:
         owner_user_id = str(owner_user_id or "").strip()
         if not conversation_id or not owner_user_id:
             return {}
+        if self._postgres:
+            payload = self._repository.get("agent_runs", conversation_id)
+            if payload is None or payload.get("owner_user_id") != owner_user_id:
+                return {}
+            if course_id is not None and str(payload.get("course_id") or "") != str(course_id or ""):
+                return {}
+            state = payload.get("state") or {}
+            return dict(state) if isinstance(state, dict) else {}
         with self._lock:
             if course_id is None:
                 row = self._conn.execute(
@@ -106,6 +138,8 @@ class AgentRunStore:
         return state if isinstance(state, dict) else {}
 
     def close(self) -> None:
+        if self._postgres:
+            return
         with self._lock:
             self._conn.close()
 

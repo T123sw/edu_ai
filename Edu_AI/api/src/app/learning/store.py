@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import threading
 from pathlib import Path
@@ -19,8 +20,18 @@ from .models import (
 class LearningStore:
     def __init__(self, database_path: str | Path):
         self._path = Path(database_path)
-        self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
+        self._postgres = (
+            str(os.getenv("LEARNING_PERSISTENCE_MODE", "sqlite")).strip().lower()
+            == "postgres"
+        )
+        if self._postgres:
+            from app.persistence.dependencies import get_postgres_learning_repository
+
+            self._repository = get_postgres_learning_repository()
+            self._connection = None
+            return
+        self._path.parent.mkdir(parents=True, exist_ok=True)
         self._connection = sqlite3.connect(
             str(self._path),
             check_same_thread=False,
@@ -114,6 +125,8 @@ class LearningStore:
         )
 
     def create_task(self, task: LearningTaskRecord) -> LearningTaskRecord:
+        if self._postgres:
+            return self._repository.create_task(task)
         with self._lock:
             self._connection.execute(
                 """
@@ -141,6 +154,8 @@ class LearningStore:
         return task
 
     def get_task(self, task_id: str, *, course_id: str) -> LearningTaskRecord | None:
+        if self._postgres:
+            return self._repository.get_task(str(task_id), str(course_id))
         with self._lock:
             row = self._connection.execute(
                 "SELECT * FROM learning_tasks WHERE task_id=? AND course_id=?",
@@ -155,6 +170,10 @@ class LearningStore:
         statuses: set[str] | None = None,
         limit: int | None = None,
     ) -> list[LearningTaskRecord]:
+        if self._postgres:
+            return self._repository.list_tasks(
+                str(course_id), statuses=statuses, limit=limit
+            )
         parameters: list[object] = [str(course_id)]
         where = "course_id=?"
         normalized_statuses = sorted(str(item) for item in statuses or set() if str(item))
@@ -177,6 +196,10 @@ class LearningStore:
         course_id: str,
         published_by: str,
     ) -> LearningTaskRecord:
+        if self._postgres:
+            return self._repository.publish_task(
+                str(task_id), str(course_id), str(published_by)
+            )
         published_at = utc_now()
         with self._lock:
             cursor = self._connection.execute(
@@ -200,6 +223,8 @@ class LearningStore:
         return self._task_from_row(row)
 
     def record_event(self, event: LearningEventRecord) -> EventWriteResult:
+        if self._postgres:
+            return self._repository.record_event(event)
         if not 0 <= event.progress_percent <= 100:
             raise ValueError("progress_percent must be between 0 and 100")
         with self._lock:
@@ -300,6 +325,8 @@ class LearningStore:
         )
 
     def get_progress(self, task_id: str, student_id: str) -> TaskProgressRecord | None:
+        if self._postgres:
+            return self._repository.get_progress(str(task_id), str(student_id))
         with self._lock:
             row = self._connection.execute(
                 "SELECT * FROM task_progress WHERE task_id=? AND student_id=?",
@@ -308,6 +335,8 @@ class LearningStore:
         return self._progress_from_row(row) if row else None
 
     def list_progress(self, *, course_id: str, task_id: str) -> list[TaskProgressRecord]:
+        if self._postgres:
+            return self._repository.list_progress(str(course_id), str(task_id))
         with self._lock:
             rows = self._connection.execute(
                 """
@@ -320,6 +349,8 @@ class LearningStore:
         return [self._progress_from_row(row) for row in rows]
 
     def close(self) -> None:
+        if self._postgres:
+            return
         with self._lock:
             self._connection.close()
 

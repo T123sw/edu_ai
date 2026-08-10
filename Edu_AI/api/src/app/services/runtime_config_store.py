@@ -371,6 +371,22 @@ class RuntimeConfigStore:
         return self.root / scope / safe_owner / f"{provider}.json"
 
     def _load_record(self, scope: str, owner_id: str, provider: str) -> dict[str, Any]:
+        if self._uses_postgres():
+            value = self._repository().get(
+                "runtime_config", self._record_key(scope, owner_id, provider)
+            )
+            if value is None:
+                return {
+                    "schema_version": 1,
+                    "scope": scope,
+                    "owner_id_hash": hashlib.sha256(owner_id.encode("utf-8")).hexdigest(),
+                    "provider": provider,
+                    "active_revision_id": None,
+                    "revisions": [],
+                }
+            if value.get("provider") != provider or not isinstance(value.get("revisions"), list):
+                raise RuntimeError("runtime configuration store is invalid")
+            return value
         path = self._path(scope, owner_id, provider)
         if not path.exists():
             return {
@@ -392,6 +408,13 @@ class RuntimeConfigStore:
     def _write_record(
         self, scope: str, owner_id: str, provider: str, record: dict[str, Any]
     ) -> None:
+        if self._uses_postgres():
+            self._repository().put(
+                "runtime_config",
+                self._record_key(scope, owner_id, provider),
+                record,
+            )
+            return
         path = self._path(scope, owner_id, provider)
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
@@ -405,6 +428,20 @@ class RuntimeConfigStore:
         finally:
             if temporary.exists():
                 temporary.unlink(missing_ok=True)
+
+    @staticmethod
+    def _uses_postgres() -> bool:
+        return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+    @staticmethod
+    def _repository():
+        from app.persistence.dependencies import get_postgres_app_state_repository
+        return get_postgres_app_state_repository()
+
+    @staticmethod
+    def _record_key(scope: str, owner_id: str, provider: str) -> str:
+        safe_owner = hashlib.sha256(owner_id.encode("utf-8")).hexdigest()[:24]
+        return f"{scope}:{safe_owner}:{provider}"
 
     def _encrypt(self, values: dict[str, Any]) -> str:
         nonce = os.urandom(12)
