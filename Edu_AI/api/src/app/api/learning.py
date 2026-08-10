@@ -19,6 +19,7 @@ from app.schemas.learning import (
     LearningEventResponse,
     LearningTaskCreateRequest,
     LearningTaskResponse,
+    LearningOverviewResponse,
 )
 from app.services.course_access import CoursePrincipal
 
@@ -108,6 +109,27 @@ def list_learning_tasks(
             include_unpublished=include_unpublished,
         )
     ]
+
+
+@router.get("/overview", response_model=LearningOverviewResponse)
+def get_learning_overview(
+    course_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+    service: LearningService = Depends(get_learning_service),
+) -> LearningOverviewResponse:
+    try:
+        overview = service.get_learning_overview(
+            course_id=course_id,
+            user_id=principal.user_id,
+            actor_role=(
+                "student"
+                if principal.system_role.lower() == "student"
+                else "teacher"
+            ),
+        )
+        return LearningOverviewResponse.model_validate(asdict(overview))
+    except LearningRuleError as error:
+        raise _http_error(error) from error
 
 
 @router.post("/tasks/{task_id}/publish", response_model=LearningTaskResponse)

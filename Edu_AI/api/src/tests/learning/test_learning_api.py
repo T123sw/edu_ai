@@ -162,3 +162,33 @@ def test_learning_event_api_persists_evidence_payload(tmp_path):
         "source_id": "quiz-attempt-1",
         "value": 92.0,
     }
+
+
+def test_learning_overview_is_role_scoped_and_requires_teacher_edit_access(tmp_path):
+    factory = LearningApiFactory(tmp_path)
+    teacher = factory.client("teacher-1", "teacher")
+    student = factory.client("student-1", "student")
+    teacher_viewer = factory.client("teacher-viewer", "teacher")
+    task = teacher.post(
+        "/api/courses/course-1/learning/tasks",
+        json={"title": "Task", "instructions": "", "resource_refs": [], "knowledge_point_ids": []},
+    ).json()
+    teacher.post(f"/api/courses/course-1/learning/tasks/{task['task_id']}/publish")
+    student.post(
+        f"/api/courses/course-1/learning/tasks/{task['task_id']}/events",
+        json={"event_id": "evt-overview", "event_type": "completed", "progress_percent": 100},
+    )
+
+    student_overview = student.get("/api/courses/course-1/learning/overview")
+    assert student_overview.status_code == 200
+    assert student_overview.json()["self_reported_completed_tasks"] == 1
+    assert student_overview.json()["enrolled_students"] is None
+    assert "teacher-viewer" not in student_overview.text
+
+    teacher_overview = teacher.get("/api/courses/course-1/learning/overview")
+    assert teacher_overview.status_code == 200
+    assert teacher_overview.json()["enrolled_students"] == 2
+    assert teacher_overview.json()["self_reported_students"] == 1
+    assert "student-1" not in teacher_overview.text
+
+    assert teacher_viewer.get("/api/courses/course-1/learning/overview").status_code == 403

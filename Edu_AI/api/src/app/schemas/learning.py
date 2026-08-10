@@ -82,3 +82,17 @@ class CourseLearningSummaryResponse(BaseModel):
     completed_students: int = Field(ge=0)
     completion_rate: float = Field(ge=0, le=1)
     progress: list[TaskProgressResponse]
+
+
+class LearningOverviewResponse(BaseModel):
+    course_id: str
+    pending_tasks: int = Field(ge=0)
+    in_progress_tasks: int = Field(ge=0)
+    self_reported_completed_tasks: int = Field(ge=0)
+    activity_evidenced_completed_tasks: int = Field(ge=0)
+    assessment_verified_completed_tasks: int = Field(ge=0)
+    latest_activity_at: str | None = None
+    enrolled_students: int | None = Field(default=None, ge=0)
+    self_reported_students: int | None = Field(default=None, ge=0)
+    activity_evidenced_students: int | None = Field(default=None, ge=0)
+    assessment_verified_students: int | None = Field(default=None, ge=0)

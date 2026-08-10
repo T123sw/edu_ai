@@ -149,3 +149,20 @@ class CourseTaskSummaryRecord:
     completed_students: int
     completion_rate: float
     progress: list[TaskProgressRecord] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class LearningOverviewRecord:
+    """Role-scoped, UI and Agent-safe course learning summary."""
+
+    course_id: str
+    pending_tasks: int
+    in_progress_tasks: int
+    self_reported_completed_tasks: int
+    activity_evidenced_completed_tasks: int
+    assessment_verified_completed_tasks: int
+    latest_activity_at: str | None
+    enrolled_students: int | None = None
+    self_reported_students: int | None = None
+    activity_evidenced_students: int | None = None
+    assessment_verified_students: int | None = None

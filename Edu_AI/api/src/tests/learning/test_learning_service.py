@@ -261,3 +261,74 @@ def test_assessment_event_persists_evidence(service):
     assert result.progress.completion_basis == "assessment_verified"
     assert result.progress.evidence_count == 1
 
+
+def test_student_overview_contains_only_own_learning(service):
+    completed = _create_task(service)
+    pending = _create_task(service)
+    for task in (completed, pending):
+        service.publish_task(
+            course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+        )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=completed.task_id,
+        student_id="student-1",
+        event_id="evt-student-overview-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=pending.task_id,
+        student_id="student-2",
+        event_id="evt-other-student-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+
+    overview = service.get_learning_overview(
+        course_id="course-1", user_id="student-1", actor_role="student"
+    )
+
+    assert overview.pending_tasks == 1
+    assert overview.self_reported_completed_tasks == 1
+    assert "student-2" not in repr(overview)
+
+
+def test_teacher_overview_reports_completion_bases_without_private_chat(service):
+    task = _create_task(
+        service,
+        resource_refs=[{"material_type": "report", "material_id": "report-1"}],
+    )
+    service.publish_task(
+        course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+    )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=task.task_id,
+        student_id="student-1",
+        event_id="evt-teacher-overview-evidence",
+        event_type="resource_completed",
+        progress_percent=100,
+        resource_ref={"material_type": "report", "material_id": "report-1"},
+    )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=task.task_id,
+        student_id="student-1",
+        event_id="evt-teacher-overview-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+
+    overview = service.get_learning_overview(
+        course_id="course-1", user_id="teacher-1", actor_role="teacher"
+    )
+
+    assert overview.enrolled_students == 2
+    assert overview.activity_evidenced_students == 1
+    assert not hasattr(overview, "conversation_history")
+

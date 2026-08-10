@@ -69,6 +69,11 @@ def test_student_context_contains_only_own_learning_state(tmp_path):
     )
 
     assert context["projection"] == "student"
+    assert context["overview"]["course_id"] == "course-1"
+    assert context["as_of"]
+    assert {"completion_basis", "last_activity_at", "knowledge_point_ids"}.issubset(
+        context["pending_tasks"][0]
+    )
     assert context["pending_tasks"][0]["title"] == "学习快速排序"
     assert "student-2" not in json.dumps(context, ensure_ascii=False)
 
@@ -81,6 +86,9 @@ def test_teacher_context_contains_aggregate_not_private_conversations(tmp_path):
     )
 
     assert context["projection"] == "teacher"
+    assert context["overview"]["enrolled_students"] == 2
+    assert context["overview"]["self_reported_students"] == 1
+    assert context["as_of"]
     assert context["task_summaries"][0]["completed_students"] == 1
     serialized = json.dumps(context, ensure_ascii=False)
     assert "conversation" not in serialized
