@@ -2,12 +2,12 @@
 
 ## 结论
 
-最终发布验收为 **不通过**。这不是学习闭环自动化失败：真实双账号闭环、确定性 Agent、前端全量门禁和旧库副本迁移均已通过。阻断来自真实外部模型人工验收缺失、课程/聊天完整回归的 3 个 LLM 配置相关失败，以及重名资源与单课程摘要局部降级页面证据缺失。
+最终发布验收为 **不通过**。这不是学习闭环自动化失败：真实双账号闭环、确定性 Agent、前后端全量门禁和旧库副本迁移均已通过。阻断来自真实外部模型人工验收缺失，以及重名资源与单课程摘要局部降级页面证据缺失。
 
 ## 实测结果
 
 - 后端学习与 Agent 目标集：97 passed，5 个既有 FastAPI deprecation warnings。
-- 课程、权限与聊天完整集：1,013 passed，3 failed。失败为 `test_blog_generation_adapter_v2.py` 两项和 `test_route_chat_service_report_wiring.py` 一项；当前无模型凭据时 `get_fallback_llm()` 返回 `None`。用假密钥会触发其他用例的真实网络路径，因此没有用该方式掩盖结果。
+- 初次课程、权限与聊天完整集因隔离 worktree 未包含被 Git 忽略的 `.env`，得到 1,013 passed、3 failed。确认主工作区千问配置存在后，仅在测试进程内只读加载该 `.env`，`get_fallback_llm()` 成功构造 `qwen3.5-plus`；4 个相关目标测试通过，完整集合最终为 1,016 passed、2 warnings。密钥未复制、未打印、未写入证据。
 - 前端全量：289 passed，0 failed。
 - lint：0 errors；存在既有 warnings。
 - build：成功；存在既有 dynamic-import/chunk-size warnings。
