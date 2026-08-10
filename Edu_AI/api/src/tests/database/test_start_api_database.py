@@ -169,3 +169,7 @@ def test_database_only_start_recovers_stopped_container_without_wait_errors():
     combined_output = result.stdout + result.stderr
     assert result.returncode == 0, combined_output
     assert "Input redirection is not supported" not in combined_output
+    assert (
+        "Core persistence modes: user=shadow course=shadow membership=shadow"
+        in combined_output
+    )
