@@ -47,6 +47,9 @@ export interface GenerateClassroomInput {
   enableImageGeneration?: boolean;
   enableVideoGeneration?: boolean;
   enableTTS?: boolean;
+  ttsProviderId?: string;
+  ttsVoice?: string;
+  ttsSpeed?: number;
   agentMode?: 'default' | 'generate';
   /**
    * edu_ai patch (docs/spec/patches/001-researchContext-injection.md):
@@ -540,10 +543,26 @@ export async function generateClassroom(
       totalScenes: outlines.length,
     });
 
+    const hasExplicitTtsProfile = Boolean(input.ttsProviderId);
+
     try {
-      await generateTTSForClassroom(scenes, stageId, options.baseUrl);
+      await generateTTSForClassroom(
+        scenes,
+        stageId,
+        options.baseUrl,
+        input.ttsProviderId
+          ? {
+              providerId: input.ttsProviderId,
+              voice: input.ttsVoice || '',
+              speed: input.ttsSpeed ?? 1,
+            }
+          : undefined,
+      );
       log.info('TTS generation complete');
     } catch (err) {
+      if (hasExplicitTtsProfile) {
+        throw err;
+      }
       log.warn('TTS generation phase failed, continuing:', err);
     }
   }

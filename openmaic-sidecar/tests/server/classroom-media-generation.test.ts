@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { replaceMediaPlaceholders } from '@/lib/server/classroom-media-generation';
+import {
+  replaceMediaPlaceholders,
+  resolveClassroomTtsProfile,
+} from '@/lib/server/classroom-media-generation';
 import type { Scene } from '@/lib/types/stage';
 
 function slideScene(
@@ -41,5 +44,45 @@ describe('classroom media placeholder replacement', () => {
     };
     const video = content.canvas.elements[0];
     expect(video.src).toBe('https://example.com/direct.mp4');
+  });
+});
+
+describe('classroom TTS profile resolution', () => {
+  test('uses the explicitly requested provider even when it is not first', () => {
+    const resolved = resolveClassroomTtsProfile(
+      { providerId: 'qwen-tts', voice: 'Cherry', speed: 1 },
+      { 'openai-tts': {}, 'qwen-tts': {} },
+    );
+
+    expect(resolved).toEqual({ providerId: 'qwen-tts', voice: 'Cherry', speed: 1 });
+  });
+
+  test('rejects unknown, disabled, browser-native, and unsafe-speed profiles', () => {
+    const providers = { 'qwen-tts': {}, 'openai-tts': { disabled: true } };
+
+    expect(() =>
+      resolveClassroomTtsProfile(
+        { providerId: 'missing-tts', voice: 'Cherry', speed: 1 },
+        providers,
+      ),
+    ).toThrow(/not configured/);
+    expect(() =>
+      resolveClassroomTtsProfile(
+        { providerId: 'openai-tts', voice: 'alloy', speed: 1 },
+        providers,
+      ),
+    ).toThrow(/disabled/);
+    expect(() =>
+      resolveClassroomTtsProfile(
+        { providerId: 'browser-native-tts', voice: 'default', speed: 1 },
+        { ...providers, 'browser-native-tts': {} },
+      ),
+    ).toThrow(/browser-native/);
+    expect(() =>
+      resolveClassroomTtsProfile(
+        { providerId: 'qwen-tts', voice: 'Cherry', speed: 3 },
+        providers,
+      ),
+    ).toThrow(/speed/);
   });
 });
