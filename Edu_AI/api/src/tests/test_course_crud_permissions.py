@@ -52,7 +52,7 @@ def test_viewer_cannot_update_course(course_api):
     assert response.status_code == 403
 
 
-def test_new_course_owner_and_development_memberships_are_created(course_api):
+def test_new_course_is_private_to_creator_until_members_are_added(course_api):
     client = course_api.client_for("teacher-a", "teacher")
     response = client.post(
         "/api/courses",
@@ -69,8 +69,8 @@ def test_new_course_owner_and_development_memberships_are_created(course_api):
 
     assert response.status_code == 200
     assert course_api.memberships.get("course-2", "teacher-a").role == "owner"
-    assert course_api.memberships.get("course-2", "teacher-b").role == "editor"
-    assert course_api.memberships.get("course-2", "student-a").role == "viewer"
+    assert course_api.memberships.get("course-2", "teacher-b") is None
+    assert course_api.memberships.get("course-2", "student-a") is None
 
 
 def test_new_course_can_use_server_generated_id_and_preserves_planning_metadata(course_api):

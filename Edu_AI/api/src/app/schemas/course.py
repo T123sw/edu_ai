@@ -23,6 +23,7 @@ class CourseInfo(BaseModel):
     difficulty: Optional[str] = Field(default=None, description="课程难度")
     knowledgeGraph: Optional[str] = Field(default=None, description="知识图谱")
     revision: int = 0
+    course_code: Optional[str] = None
     membership_role: Optional[Literal["owner", "editor", "viewer"]] = None
     created_by: Optional[str] = None
     created_at: Optional[str] = None
@@ -55,6 +56,33 @@ class CourseCreateRequest(BaseModel):
         ):
             raise ValueError("课程 ID 只能包含字母、数字、点、下划线和连字符")
         return normalized
+
+
+class CourseJoinRequest(BaseModel):
+    course_code: str = Field(..., min_length=1, max_length=32)
+
+
+class CourseMemberCreateRequest(BaseModel):
+    user_id: str = Field(..., min_length=1, max_length=160)
+    role: Literal["owner", "editor", "viewer"]
+
+
+class CourseMemberUpdateRequest(BaseModel):
+    role: Literal["owner", "editor", "viewer"]
+
+
+class CourseMemberInfo(BaseModel):
+    course_id: str
+    user_id: str
+    username: str
+    system_role: str
+    role: Literal["owner", "editor", "viewer"]
+    joined_at: str
+    added_by: str
+
+
+class CourseMembersResponse(BaseModel):
+    items: List[CourseMemberInfo] = Field(default_factory=list)
 
 
 class CourseUpdateRequest(BaseModel):

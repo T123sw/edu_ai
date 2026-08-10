@@ -120,6 +120,11 @@ class PostgresCourseRepository:
         self._engine = engine
 
     def upsert(self, course: Mapping[str, Any]) -> None:
+        from app.services.course_code_service import (
+            deterministic_course_code,
+            normalize_course_code,
+        )
+
         payload = dict(course)
         course_id = _required_text(
             payload.get("course_id") or payload.get("id"), "course_id"
@@ -130,8 +135,13 @@ class PostgresCourseRepository:
                 record = Course(
                     course_id=course_id,
                     title=_required_text(payload.get("title"), "title"),
+                    course_code=normalize_course_code(
+                        payload.get("course_code") or deterministic_course_code(course_id)
+                    ),
                 )
                 session.add(record)
+            elif payload.get("course_code"):
+                record.course_code = normalize_course_code(payload.get("course_code"))
             record.title = _required_text(payload.get("title"), "title")
             record.description = str(payload.get("description") or "")
             record.icon = str(payload.get("icon") or "menu_book")
@@ -186,6 +196,16 @@ class PostgresCourseRepository:
             records = session.scalars(select(Course).order_by(Course.course_id)).all()
             return [self._payload(record) for record in records]
 
+    def get_by_course_code(self, course_code: str) -> dict[str, Any] | None:
+        from app.services.course_code_service import normalize_course_code
+
+        normalized = normalize_course_code(course_code)
+        with database_session(engine=self._engine) as session:
+            record = session.scalar(
+                select(Course).where(Course.course_code == normalized)
+            )
+            return self._payload(record) if record is not None else None
+
     @staticmethod
     def _payload(record: Course) -> dict[str, Any]:
         payload = dict(record.raw_payload or {})
@@ -193,6 +213,7 @@ class PostgresCourseRepository:
             {
                 "id": record.course_id,
                 "course_id": record.course_id,
+                "course_code": record.course_code,
                 "title": record.title,
                 "description": record.description,
                 "icon": record.icon,

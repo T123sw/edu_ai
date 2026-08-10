@@ -113,6 +113,23 @@ def test_course_repository_upsert_replaces_objectives(engine):
         assert [item.objective for item in objectives] == ["设计并验证算法"]
 
 
+def test_course_repository_persists_and_resolves_unique_course_code(engine):
+    _, PostgresCourseRepository, _ = _repository_types()
+    repository = PostgresCourseRepository(engine)
+
+    repository.upsert(
+        {
+            "id": "python-control-flow",
+            "title": "Python 控制流程入门",
+            "course_code": "ABCD2345",
+            "objectives": ["条件判断", "循环控制"],
+        }
+    )
+
+    assert repository.get("python-control-flow")["course_code"] == "ABCD2345"
+    assert repository.get_by_course_code("abcd2345")["id"] == "python-control-flow"
+
+
 def test_membership_repository_upserts_role_and_deletes_membership(engine):
     (
         PostgresUserRepository,
