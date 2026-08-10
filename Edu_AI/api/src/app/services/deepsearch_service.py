@@ -389,6 +389,11 @@ def _import_to_knowledge_base(
 # ---------------------------------------------------------------------------
 
 
+def search_web_sources(query: str, max_results: int = 6) -> List[WebSearchHit]:
+    """Search and rerank web sources without crawling or importing them."""
+    return _execute_search(query, max_results)
+
+
 def run_deepsearch_and_crawl(
     *,
     query: str,

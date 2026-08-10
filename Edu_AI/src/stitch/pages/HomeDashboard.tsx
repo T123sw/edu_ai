@@ -9,6 +9,8 @@ import {
   listCourses,
 } from "../api/courses";
 import type { BackendCourse } from "../api/types";
+import { useAuthSession } from "../authSession";
+import { CourseCreateDialog } from "../course/CourseCreateDialog";
 import { AppSurface, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { toCourseCardPresentation, type CourseCardFacts } from "./courseCardPresentation";
@@ -27,6 +29,7 @@ function getStoredUsername() {
 }
 
 export function HomeDashboardPage() {
+  const { user } = useAuthSession();
   const { setSelectedCourse } = useAppShell();
   const jobs = useJobStore((state) => state.jobs);
   const [courses, setCourses] = useState<BackendCourse[]>([]);
@@ -34,6 +37,7 @@ export function HomeDashboardPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const username = useMemo(getStoredUsername, []);
 
   useEffect(() => {
@@ -79,6 +83,14 @@ export function HomeDashboardPage() {
     return { ...(facts[courseId] ?? emptyFacts), activeJobCount };
   }
 
+  function courseCreated(course: BackendCourse) {
+    const courseIndex = courses.length;
+    setCourses((current) => [...current, course]);
+    setSelectedCourse(backendCourseToSummary(course, courseIndex));
+    setCreateOpen(false);
+    window.location.hash = buildTeacherCourseHash("course-detail", course.id);
+  }
+
   return (
     <AppSurface className="teacher-home">
       <header className="teacher-home__topbar">
@@ -95,10 +107,17 @@ export function HomeDashboardPage() {
             <p className="teacher-home__eyebrow">教师课程工作台</p>
             <h1>选择课程，继续今天的教学工作</h1>
           </div>
-          <label className="teacher-home__search">
-            <MaterialIcon name="search" />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
-          </label>
+          <div className="teacher-home__actions">
+            {user?.role !== "student" ? (
+              <button type="button" className="teacher-home__create" onClick={() => setCreateOpen(true)}>
+                <MaterialIcon name="add" /> 创建课程
+              </button>
+            ) : null}
+            <label className="teacher-home__search">
+              <MaterialIcon name="search" />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
+            </label>
+          </div>
         </section>
 
         <section aria-labelledby="course-grid-title">
@@ -109,7 +128,14 @@ export function HomeDashboardPage() {
           {loading ? <div className="teacher-home__state">正在加载课程…</div> : null}
           {error ? <div className="teacher-home__state is-error">{error}</div> : null}
           {!loading && !error && visibleCourses.length === 0 ? (
-            <div className="teacher-home__state">没有找到匹配的课程。</div>
+            courses.length === 0 && user?.role !== "student" ? (
+              <div className="teacher-home__state teacher-home__empty">
+                <span><MaterialIcon name="menu_book" /></span>
+                <h3>创建第一门课程</h3>
+                <p>填写课程目标和教学对象，随后可以一键规划并构建课程知识库。</p>
+                <button type="button" onClick={() => setCreateOpen(true)}>创建第一门课程</button>
+              </div>
+            ) : <div className="teacher-home__state">没有找到匹配的课程。</div>
           ) : null}
 
           <div className="teacher-course-grid">
@@ -138,6 +164,7 @@ export function HomeDashboardPage() {
           </div>
         </section>
       </main>
+      <CourseCreateDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={courseCreated} />
     </AppSurface>
   );
 }

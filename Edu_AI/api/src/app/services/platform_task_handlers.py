@@ -336,6 +336,28 @@ class PlatformTaskHandlers:
         )
         return self._completed_public_result(context.task_id)
 
+    def course_knowledge_plan_build(
+        self,
+        command: Mapping[str, Any],
+        context: DurableExecutionContext,
+    ) -> dict[str, Any]:
+        from app.services.course_knowledge_plan_builder import (
+            run_course_knowledge_plan_build_job,
+        )
+        from modules.rag_v2.api import get_rag_system
+
+        manager = self.course_storage_factory()
+        run_course_knowledge_plan_build_job(
+            job_id=context.task_id,
+            manager=manager,
+            rag_system=get_rag_system(),
+            course_id=str(command.get("course_id") or context.course_id or ""),
+            owner_user_id=context.owner_user_id,
+            build_id=str(command.get("build_id") or ""),
+            progress=context.progress,
+        )
+        return self._completed_public_result(context.task_id)
+
     def video_ingest(
         self,
         command: Mapping[str, Any],
@@ -384,5 +406,10 @@ def register_platform_task_handlers(
     )
     registry.register("rag_document_index", 1, active.rag_document_index)
     registry.register("course_knowledge_build", 1, active.course_knowledge_build)
+    registry.register(
+        "course_knowledge_plan_build",
+        1,
+        active.course_knowledge_plan_build,
+    )
     registry.register("video_ingest", 1, active.video_ingest)
     return active

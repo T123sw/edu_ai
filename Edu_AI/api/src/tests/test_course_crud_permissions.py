@@ -73,6 +73,75 @@ def test_new_course_owner_and_development_memberships_are_created(course_api):
     assert course_api.memberships.get("course-2", "student-a").role == "viewer"
 
 
+def test_new_course_can_use_server_generated_id_and_preserves_planning_metadata(course_api):
+    client = course_api.client_for("teacher-a", "teacher")
+
+    response = client.post(
+        "/api/courses",
+        json={
+            "title": "Linear algebra",
+            "description": "Vectors and matrices for engineering",
+            "icon": "menu_book",
+            "color": "#3157d5",
+            "objectives": ["Understand vector spaces"],
+            "audience": "First-year undergraduates",
+            "language": "en",
+            "difficulty": "intermediate",
+            "knowledgeGraph": "",
+        },
+    )
+
+    assert response.status_code == 200
+    created = response.json()
+    assert created["id"].startswith("course-")
+    assert created["audience"] == "First-year undergraduates"
+    assert created["language"] == "en"
+    assert created["difficulty"] == "intermediate"
+    assert course_api.memberships.get(created["id"], "teacher-a").role == "owner"
+
+
+def test_student_cannot_create_course_and_unsafe_explicit_id_is_rejected(course_api):
+    payload = {
+        "id": "../escape",
+        "title": "Unsafe",
+        "description": "Unsafe",
+        "icon": "menu_book",
+        "color": "#3157d5",
+        "objectives": [],
+        "knowledgeGraph": "",
+    }
+
+    assert course_api.client_for("teacher-a", "teacher").post("/api/courses", json=payload).status_code == 422
+    payload["id"] = "student-course"
+    assert course_api.client_for("student-a", "student").post("/api/courses", json=payload).status_code == 403
+
+
+def test_teacher_previews_semantic_knowledge_plan_and_student_is_denied(course_api, monkeypatch):
+    from app.api import courses
+
+    class Repository:
+        def create_build_preview(self, *, course_id, triggered_by, plan):
+            return {"build_id": "kb-1", "status": "draft", "phase": "source_review", **plan}
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+    teacher_response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds/preview",
+        json={"discover_sources": False, "max_results_per_topic": 4},
+    )
+    student_response = course_api.client_for("student-a", "student").post(
+        "/api/courses/course-1/knowledge-builds/preview",
+        json={"discover_sources": False},
+    )
+
+    assert teacher_response.status_code == 201
+    body = teacher_response.json()
+    assert body["build_id"] == "kb-1"
+    assert body["course_snapshot"]["title"] == "Course one"
+    assert body["topics"][0]["title"] == "Understand shared state"
+    assert body["source_candidates"] == []
+    assert student_response.status_code == 403
+
+
 def test_shared_material_is_readable_by_editor_but_viewer_cannot_delete(course_api):
     assert course_api.manager.save_generated_material(
         "course-1",

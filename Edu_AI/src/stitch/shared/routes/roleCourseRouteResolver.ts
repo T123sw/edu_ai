@@ -27,6 +27,7 @@ export type RoleCourseHashTarget = Readonly<{
   material_type?: string | null;
   material_id?: string | null;
   classroom_id?: string | null;
+  action?: string | null;
   scopeType?: string | null;
   scopeId?: string | null;
   scopeLabel?: string | null;

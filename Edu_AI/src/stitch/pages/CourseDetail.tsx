@@ -41,10 +41,18 @@ export function CourseDetailPage() {
   const jobs = useJobStore((state) => state.jobs);
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [overviewLoading, setOverviewLoading] = useState(true);
+  const [setupDismissed, setSetupDismissed] = useState(false);
 
   useEffect(() => {
     if (!course) return;
     let cancelled = false;
+    setOverviewLoading(true);
+    try {
+      setSetupDismissed(window.localStorage.getItem(`edu-ai-course-setup-dismissed:${course.id}`) === "true");
+    } catch {
+      setSetupDismissed(false);
+    }
     void Promise.all([
       getKnowledgeBaseDocuments(course.id, {
         aggregate: true,
@@ -56,6 +64,7 @@ export function CourseDetailPage() {
       if (!cancelled) {
         setDocuments(nextDocuments);
         setMaterials(nextMaterials);
+        setOverviewLoading(false);
       }
     });
     return () => { cancelled = true; };
@@ -81,6 +90,21 @@ export function CourseDetailPage() {
   );
   const readyDocuments = documents.filter((document) => document.status === "ready").length;
   const visibleEntries = entries.filter((entry) => entry.route !== routes.edit || canCourse(courseRole, "edit"));
+  const showSetup = !overviewLoading
+    && canCourse(courseRole, "edit")
+    && documents.length === 0
+    && materials.length === 0
+    && activeJobs.length === 0
+    && !setupDismissed;
+
+  function dismissSetup() {
+    setSetupDismissed(true);
+    try {
+      window.localStorage.setItem(`edu-ai-course-setup-dismissed:${course?.id}`, "true");
+    } catch {
+      // A blocked local preference store must not block course use.
+    }
+  }
 
   if (!course) return <AppSurface><main /></AppSurface>;
 
@@ -104,6 +128,27 @@ export function CourseDetailPage() {
           <article><span>进行中任务</span><strong>{activeJobs.length}</strong><small>可在右上角任务中心查看</small></article>
           <article><span>失败任务</span><strong>{failedJobs.length}</strong><small>可在任务中心重试</small></article>
         </section>
+
+        {showSetup ? (
+          <section className="course-setup" aria-labelledby="course-setup-title">
+            <div className="course-setup__intro">
+              <p>课程初始化</p>
+              <h3 id="course-setup-title">为这门课程准备第一批知识</h3>
+              <span>系统可以根据课程目标规划知识结构并审查开放来源；你也可以上传已有资料，或稍后再处理。</span>
+            </div>
+            <div className="course-setup__choices">
+              <a className="is-primary" href={buildRoleCourseHash(user?.role, routes.knowledge, course.id, { view: "documents", action: "build" })}>
+                <MaterialIcon name="auto_awesome" /><span><strong>一键构建课程知识库</strong><small>规划结构、发现来源并启动后台构建</small></span><MaterialIcon name="arrow_forward" />
+              </a>
+              <a href={buildRoleCourseHash(user?.role, routes.knowledge, course.id, { view: "documents", action: "upload" })}>
+                <MaterialIcon name="description" /><span><strong>上传已有课程资料</strong><small>从本地教材、讲义或文档开始</small></span><MaterialIcon name="arrow_forward" />
+              </a>
+              <button type="button" onClick={dismissSetup}>
+                <MaterialIcon name="schedule" /><span><strong>暂时跳过</strong><small>先进入空课程，稍后可在课程知识中继续</small></span><MaterialIcon name="arrow_forward" />
+              </button>
+            </div>
+          </section>
+        ) : null}
 
         <div className="course-overview__columns">
           <GlassPanel className="course-overview__panel">

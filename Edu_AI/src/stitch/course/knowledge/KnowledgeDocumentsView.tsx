@@ -7,6 +7,7 @@ import { MaterialIcon } from "../../shared";
 import { canCourse } from "../coursePermissions";
 import { useCourseRoute } from "../CourseRouteProvider";
 import { KnowledgeDocumentPreviewDialog } from "./KnowledgeDocumentPreviewDialog";
+import { CourseKnowledgeBuildCard } from "./CourseKnowledgeBuildCard";
 import {
   defaultExpandedNodeIds,
   descendantNodeIds,
@@ -35,6 +36,10 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
   const [previewDocument, setPreviewDocument] = useState<KnowledgeBaseDocument | null>(null);
+  const actionHandledRef = useRef(false);
+  const requestedAction = typeof window === "undefined"
+    ? null
+    : new URLSearchParams(window.location.hash.split("?")[1] || "").get("action");
 
   useEffect(() => {
     if (!courseId) return;
@@ -77,6 +82,21 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
     return () => { cancelled = true; };
   }, [courseId, isRoot, reload, selectedNode]);
 
+  useEffect(() => {
+    const handleUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ courseId?: string }>).detail;
+      if (!detail?.courseId || detail.courseId === courseId) setReload((value) => value + 1);
+    };
+    window.addEventListener("edu-ai:knowledge-document-updated", handleUpdated);
+    return () => window.removeEventListener("edu-ai:knowledge-document-updated", handleUpdated);
+  }, [courseId]);
+
+  useEffect(() => {
+    if (requestedAction !== "upload" || !canUpload || !selectedNode || actionHandledRef.current) return;
+    actionHandledRef.current = true;
+    fileRef.current?.click();
+  }, [canUpload, requestedAction, selectedNode]);
+
   async function upload(files: FileList | null) {
     if (!files?.length || !courseId || !selectedNode || !canUpload) return;
     setUploading(true);
@@ -84,8 +104,8 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
     try {
       for (const file of Array.from(files)) {
         const result = await uploadKnowledgeBaseDocument(courseId, file, isRoot
-          ? { scopeType: "course", libraryType: "personal" }
-          : { scopeType: "knowledge_point", scopeId: selectedNode.id, libraryType: "personal" });
+          ? { scopeType: "course", libraryType: "course" }
+          : { scopeType: "knowledge_point", scopeId: selectedNode.id, libraryType: "course" });
         registerCreatedJob(result.job);
       }
       setReload((value) => value + 1);
@@ -149,6 +169,12 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
       </aside>
 
       <div className="knowledge-library__content">
+        <CourseKnowledgeBuildCard
+          courseId={courseId || ""}
+          documentCount={documents.length}
+          canBuild={canUpload}
+          requestedAction={requestedAction}
+        />
         <header className="knowledge-library__toolbar">
           <div>
             <span>课程知识库</span>

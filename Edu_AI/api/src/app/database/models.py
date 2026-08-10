@@ -402,9 +402,78 @@ class KnowledgeGraphVersion(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
+    source_build_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     graph_payload: Mapped[dict[str, Any]] = mapped_column(
         JSON_PAYLOAD, nullable=False, default=dict
     )
+
+
+class KnowledgeBuild(Base):
+    __tablename__ = "knowledge_builds"
+    __table_args__ = (
+        UniqueConstraint("library_id", "idempotency_key", name="uq_knowledge_builds_idempotency"),
+    )
+
+    build_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    library_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_libraries.library_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    triggered_by: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    phase: Mapped[str] = mapped_column(String(80), nullable=False)
+    progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    idempotency_key: Mapped[str | None] = mapped_column(String(300))
+    plan_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    quality_score: Mapped[float | None] = mapped_column(Float)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class KnowledgeSourceCandidate(Base):
+    __tablename__ = "knowledge_source_candidates"
+    __table_args__ = (
+        UniqueConstraint("build_id", "url", name="uq_knowledge_source_candidates_url"),
+    )
+
+    candidate_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    build_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_builds.build_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    topic_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    url: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(String(700), nullable=False)
+    domain: Mapped[str] = mapped_column(String(300), nullable=False, index=True)
+    source_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    language: Mapped[str | None] = mapped_column(String(50))
+    authority_tier: Mapped[str | None] = mapped_column(String(80))
+    license_info: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    review_status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    review_reason: Mapped[str | None] = mapped_column(Text)
+    selected: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    relevance_score: Mapped[float] = mapped_column(Float, nullable=False, default=0)
+    metadata_payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class KnowledgeQualityCheck(Base):
+    __tablename__ = "knowledge_quality_checks"
+
+    check_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    build_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_builds.build_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    check_type: Mapped[str] = mapped_column(String(120), nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    score: Mapped[float | None] = mapped_column(Float)
+    threshold: Mapped[float | None] = mapped_column(Float)
+    details: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
 
 
 class RuntimeIndexEntry(Base):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Literal, Optional, Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import LIBRARY_TYPE_COURSE, LIBRARY_TYPE_PERSONAL
@@ -18,6 +18,9 @@ class CourseInfo(BaseModel):
     icon: str = Field(..., description="前端图标名")
     color: str = Field(..., description="主题色")
     objectives: Optional[List[str]] = Field(default=None, description="教学目标")
+    audience: Optional[str] = Field(default=None, description="教学对象或年级")
+    language: Optional[str] = Field(default=None, description="授课语言")
+    difficulty: Optional[str] = Field(default=None, description="课程难度")
     knowledgeGraph: Optional[str] = Field(default=None, description="知识图谱")
     revision: int = 0
     membership_role: Optional[Literal["owner", "editor", "viewer"]] = None
@@ -27,13 +30,31 @@ class CourseInfo(BaseModel):
 
 
 class CourseCreateRequest(BaseModel):
-    id: str = Field(..., min_length=1)
+    id: Optional[str] = Field(default=None, min_length=1, max_length=128)
     title: str = Field(..., min_length=1)
     description: str
     icon: str
     color: str
     objectives: Optional[List[str]] = None
+    audience: Optional[str] = Field(default=None, max_length=200)
+    language: Optional[str] = Field(default=None, max_length=50)
+    difficulty: Optional[str] = Field(default=None, max_length=50)
     knowledgeGraph: Optional[str] = None
+
+    @field_validator("id")
+    @classmethod
+    def validate_course_id(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        normalized = value.strip()
+        if not normalized:
+            return None
+        if normalized in {".", ".."} or any(
+            char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+            for char in normalized
+        ):
+            raise ValueError("课程 ID 只能包含字母、数字、点、下划线和连字符")
+        return normalized
 
 
 class CourseUpdateRequest(BaseModel):
@@ -42,6 +63,9 @@ class CourseUpdateRequest(BaseModel):
     icon: str
     color: str
     objectives: Optional[List[str]] = None
+    audience: Optional[str] = Field(default=None, max_length=200)
+    language: Optional[str] = Field(default=None, max_length=50)
+    difficulty: Optional[str] = Field(default=None, max_length=50)
     knowledgeGraph: Optional[str] = None
     expected_revision: int = Field(..., ge=0)
 
@@ -135,6 +159,11 @@ class CourseKnowledgeBuildRequest(BaseModel):
     source_id: str = Field(default="auto", min_length=1, max_length=100)
     max_pages: int = Field(default=160, ge=1, le=200)
     clean_placeholders: bool = True
+
+
+class CourseKnowledgeBuildPreviewRequest(BaseModel):
+    discover_sources: bool = True
+    max_results_per_topic: int = Field(default=6, ge=1, le=12)
 
 
 class AddRAGDocumentRequest(BaseModel):

@@ -5,12 +5,28 @@ export type BackendCourse = {
   icon: string;
   color: string;
   objectives?: string[];
+  audience?: string | null;
+  language?: string | null;
+  difficulty?: string | null;
   knowledgeGraph?: string;
   revision: number;
   membership_role: "owner" | "editor" | "viewer";
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+};
+
+export type BackendCourseCreatePayload = {
+  id?: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  objectives: string[];
+  audience: string;
+  language: string;
+  difficulty: string;
+  knowledgeGraph?: string;
 };
 
 export type CourseMaterialVisibility = "private" | "course";
@@ -208,6 +224,64 @@ export type KnowledgeBaseScopeOptions = {
   limit?: number;
   offset?: number;
   sort?: "created_desc" | "created_asc" | "name_asc" | "name_desc";
+};
+
+export type CourseKnowledgeTopic = {
+  topic_id: string;
+  title: string;
+  query: string;
+  objective: string;
+};
+
+export type CourseKnowledgeSourceCandidate = {
+  candidate_id: string;
+  topic_id: string;
+  title: string;
+  url: string;
+  domain: string;
+  source_type: string;
+  language?: string | null;
+  license_name?: string | null;
+  license_url?: string | null;
+  authority_tier: string;
+  review_status: "approved" | "rejected" | "pending";
+  review_reason: string;
+  selected: boolean;
+  relevance_score: number;
+  metadata?: Record<string, unknown>;
+};
+
+export type CourseKnowledgeQualityCheck = {
+  check_type: string;
+  status: "passed" | "failed";
+  score?: number | null;
+  threshold?: number | null;
+  details: Record<string, unknown>;
+};
+
+export type CourseKnowledgeBuild = {
+  build_id: string;
+  library_id?: string;
+  course_id: string;
+  status: "draft" | "queued" | "running" | "publishing" | "succeeded" | "failed" | "blocked" | "canceled";
+  phase: string;
+  progress?: number;
+  course_snapshot: Record<string, unknown>;
+  topics: CourseKnowledgeTopic[];
+  source_candidates: CourseKnowledgeSourceCandidate[];
+  warnings: string[];
+  metrics?: Record<string, unknown>;
+  quality_score?: number | null;
+  quality_checks?: CourseKnowledgeQualityCheck[];
+  error?: { code?: string; message?: string } | null;
+};
+
+export type CourseKnowledgeGraphVersion = {
+  version: number;
+  source_build_id?: string | null;
+  created_at: string;
+  published_at?: string | null;
+  node_count: number;
 };
 
 export type KnowledgeBaseDocumentContent = {

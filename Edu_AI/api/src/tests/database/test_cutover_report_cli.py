@@ -11,7 +11,7 @@ def test_cutover_report_accepts_current_schema(monkeypatch, tmp_path):
     with engine.begin() as connection:
         connection.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32))"))
         connection.execute(
-            text("INSERT INTO alembic_version(version_num) VALUES ('20260810_0008')")
+            text("INSERT INTO alembic_version(version_num) VALUES ('20260810_0010')")
         )
     monkeypatch.setenv("PERSISTENCE_PROFILE", "database")
     monkeypatch.setenv("DATABASE_URL", database_url)

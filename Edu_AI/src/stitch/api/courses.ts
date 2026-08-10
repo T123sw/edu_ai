@@ -1,8 +1,11 @@
 import { apiRequest } from "./client";
 import type {
   BackendCourse,
+  BackendCourseCreatePayload,
   CourseMaterial,
   CourseMaterialSpace,
+  CourseKnowledgeBuild,
+  CourseKnowledgeGraphVersion,
   KnowledgeBaseDocument,
   KnowledgeBaseDocumentContent,
   KnowledgeBaseScopeOptions,
@@ -72,6 +75,13 @@ export function listCourses() {
   return apiRequest<BackendCourse[]>("/api/courses");
 }
 
+export function createCourse(payload: BackendCourseCreatePayload) {
+  return apiRequest<BackendCourse>("/api/courses", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function getCourse(courseId: string) {
   return apiRequest<BackendCourse>(`/api/courses/${courseId}`);
 }
@@ -80,7 +90,7 @@ export function updateCourse(
   courseId: string,
   payload: Pick<
     BackendCourse,
-    "title" | "description" | "icon" | "color" | "objectives" | "knowledgeGraph"
+    "title" | "description" | "icon" | "color" | "objectives" | "audience" | "language" | "difficulty" | "knowledgeGraph"
   > & { expected_revision: number },
 ) {
   return apiRequest<BackendCourse>(`/api/courses/${courseId}`, {
@@ -167,6 +177,37 @@ export function buildKnowledgeBaseFromOpenTextbook(courseId: string) {
       clean_placeholders: true,
     }),
   });
+}
+
+export function previewCourseKnowledgeBuild(courseId: string, discoverSources = true) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/preview`, {
+    method: "POST",
+    body: JSON.stringify({
+      discover_sources: discoverSources,
+      max_results_per_topic: 6,
+    }),
+  });
+}
+
+export function getCourseKnowledgeBuild(courseId: string, buildId: string) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}`);
+}
+
+export function startCourseKnowledgeBuild(courseId: string, buildId: string) {
+  return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-builds/${buildId}/start`, {
+    method: "POST",
+  });
+}
+
+export function listCourseKnowledgeVersions(courseId: string) {
+  return apiRequest<CourseKnowledgeGraphVersion[]>(`/api/courses/${courseId}/knowledge-base/versions`);
+}
+
+export function rollbackCourseKnowledgeVersion(courseId: string, version: number) {
+  return apiRequest<{ version: number; rolled_back_from_version: number }>(
+    `/api/courses/${courseId}/knowledge-base/versions/${version}/rollback`,
+    { method: "POST" },
+  );
 }
 
 export function deleteCourseMaterial(

@@ -129,6 +129,7 @@ export function MaterialIcon({
   const iconGlyphs: Record<string, string> = {
     account_circle: "◉",
     account_tree: "⑂",
+    add: "+",
     arrow_back: "←",
     arrow_forward: "→",
     article: "▤",

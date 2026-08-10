@@ -190,9 +190,9 @@ function notifyJobTerminal(job: JobRecord) {
   }
 
   const knowledgeCourseId =
-    job.result_ref?.resource_type === "knowledge_document"
+    job.result_ref?.resource_type === "knowledge_document" || job.result_ref?.resource_type === "course_knowledge_base"
       ? job.result_ref.course_id
-      : job.kind === "rag_import"
+      : job.kind === "rag_import" || job.kind === "build_knowledge_index"
         ? job.course_id
         : undefined;
   if (knowledgeCourseId) {

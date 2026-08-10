@@ -10,13 +10,14 @@ from sqlalchemy import create_engine, inspect, text
 from app.persistence.retirement import validate_retired_legacy_storage
 
 
-EXPECTED_REVISION = "20260810_0008"
+EXPECTED_REVISION = "20260810_0010"
 BUSINESS_TABLES = (
     "users", "courses", "course_objectives", "course_memberships",
     "conversations", "conversation_messages", "jobs", "job_events",
     "materials", "material_versions", "artifact_files",
     "migration_quarantine", "knowledge_libraries", "knowledge_documents",
-    "knowledge_graph_versions", "runtime_index_entries", "app_state_records",
+    "knowledge_graph_versions", "knowledge_builds", "knowledge_source_candidates",
+    "knowledge_quality_checks", "runtime_index_entries", "app_state_records",
     "learning_tasks", "learning_events", "learning_progress", "durable_tasks",
 )
 

@@ -41,6 +41,100 @@ def test_knowledge_repository_round_trips_documents_graph_and_runtime_indexes(en
     assert repository.load_runtime_index("document") == {"source-key": {"hash": "abc"}}
 
 
+def test_knowledge_repository_persists_build_preview_and_candidates(engine):
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+
+    repository = PostgresKnowledgeRepository(engine)
+    preview = repository.create_build_preview(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "course_snapshot": {"id": "course-1", "title": "线性代数"},
+            "topics": [{"topic_id": "topic-1", "title": "矩阵"}],
+            "source_candidates": [
+                {
+                    "candidate_id": "source-1",
+                    "topic_id": "topic-1",
+                    "title": "矩阵",
+                    "url": "https://zh.wikipedia.org/wiki/矩阵",
+                    "domain": "zh.wikipedia.org",
+                    "source_type": "web",
+                    "language": "zh-CN",
+                    "license_name": "CC BY-SA 4.0",
+                    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+                    "authority_tier": "reviewed_reference",
+                    "review_status": "approved",
+                    "review_reason": "已通过预审",
+                    "selected": True,
+                    "relevance_score": 1.0,
+                    "metadata": {"snippet": "矩阵是线性代数的基础。"},
+                }
+            ],
+            "warnings": [],
+        },
+    )
+
+    loaded = repository.get_build(preview["build_id"])
+    assert loaded is not None
+    assert loaded["library_id"] == "course-1"
+    assert loaded["status"] == "draft"
+    assert loaded["phase"] == "source_review"
+    assert loaded["course_snapshot"]["title"] == "线性代数"
+    assert loaded["source_candidates"][0]["license_name"] == "CC BY-SA 4.0"
+    assert loaded["source_candidates"][0]["selected"] is True
+    repository.queue_build(preview["build_id"], selected_source_count=1)
+    assert repository.get_build(preview["build_id"])["status"] == "queued"
+    with pytest.raises(ValueError, match="已经启动"):
+        repository.queue_build(preview["build_id"], selected_source_count=1)
+    repository.replace_documents(
+        "course-1",
+        [{
+            "id": "doc-staged",
+            "filename": "staged.md",
+            "course_id": "course-1",
+            "library_type": "course",
+            "status": "received",
+            "uploaded_at": "2026-08-10T10:00:00+00:00",
+        }],
+    )
+    repository.update_build(preview["build_id"], status="publishing", phase="publishing", progress=95)
+    version = repository.publish_build(
+        preview["build_id"],
+        graph={"id": "root", "data": {"publication_status": "published", "source_build_id": preview["build_id"]}},
+        document_ids=["doc-staged"],
+        metrics={"persisted_document_count": 1},
+        quality_score=92,
+    )
+    assert version == 1
+    assert repository.get_build(preview["build_id"])["status"] == "succeeded"
+    assert repository.list_documents("course-1")[0]["status"] == "ready"
+    assert repository.get_graph("course-1")["data"]["source_build_id"] == preview["build_id"]
+
+
+def test_knowledge_repository_versions_and_rolls_back_published_graph(engine):
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+
+    repository = PostgresKnowledgeRepository(engine)
+    repository.upsert_graph(
+        "course-1",
+        {"id": "v1", "data": {"publication_status": "published", "source_build_id": "kb-1", "node_count": 2}},
+    )
+    repository.upsert_graph(
+        "course-1",
+        {"id": "v2", "data": {"publication_status": "published", "source_build_id": "kb-2", "node_count": 3}},
+    )
+
+    versions = repository.list_graph_versions("course-1")
+    rollback = repository.rollback_graph("course-1", 1)
+
+    assert [item["version"] for item in versions] == [2, 1]
+    assert versions[0]["source_build_id"] == "kb-2"
+    assert rollback["version"] == 3
+    assert repository.get_graph("course-1")["id"] == "v1"
+    assert repository.get_graph("course-1")["data"]["rolled_back_from_version"] == 1
+
+
 def test_course_knowledge_metadata_uses_database_without_index_json(
     engine, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
