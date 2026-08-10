@@ -47,11 +47,11 @@
 
 | 字段 | 实际值 |
 | --- | --- |
-| 验收提交 | Task 7：`1d4cba54cabe028b96aa07993f59586f8f4e4e10`；Task 8 验收记录提交见 Git 历史 |
+| 验收提交 | 功能与验收 HEAD：`e09e7a4`；Task 7：`1d4cba54cabe028b96aa07993f59586f8f4e4e10` |
 | 执行时间 | 2026-08-11，Asia/Shanghai |
 | 前端地址 | `http://127.0.0.1:15173`（测试结束后已停止） |
 | 后端地址 | `http://127.0.0.1:18001`（测试结束后已停止） |
-| 学习数据库 | `Edu_AI/test-results/learning-loop/worker-0-1786379881521/learning.db` |
+| 学习数据库 | 最终复跑：`Edu_AI/test-results/learning-loop/worker-0-1786386355084/learning.db` |
 | 教师/学生账号 | fixture 内隔离的 `teacher` / `student` 测试账号；证据不保存密码或令牌 |
 | 课程 | `computational-thinking` / 计算思维 |
 | 浏览器 | 本机 Google Chrome 151，Playwright `desktop1440` |
@@ -247,7 +247,7 @@ trace 必须满足：
 | 后端学习与 Agent 目标测试 | 通过 | 目标 14 passed；最终扩展命令 97 passed、5 warnings |
 | 权限与聊天回归 | 不通过 | 完整命令 1,013 passed、3 failed；失败均为无可构造 LLM 时的既有博客/报告注入断言，未伪装为通过 |
 | 前端测试、lint、build | 通过 | `npm test` 289 passed；lint 0 errors；build 成功（仅既有 warning） |
-| Playwright 双账号 E2E | 通过 | `1 passed (1.2m)`，用例 46.8s，retries=0；worker `worker-0-1786379881521` |
+| Playwright 双账号 E2E | 通过 | 最终 HEAD 复跑：`1 passed (1.7m)`，用例约 1.2m，workers=1、retries=0；worker `worker-0-1786386355084` |
 | 教师真实 Agent | 不通过 | 自动化确定性网关通过；真实外部模型人工验收没有凭据/本次证据 |
 | 学生真实 Agent | 不通过 | 自动化确定性网关通过；真实外部模型人工验收没有凭据/本次证据 |
 | 刷新、重新登录、后端重启 | 通过 | 同一 E2E 内后端重启、API 重新登录、双端清理认证后 UI 登录，事实深比较一致 |

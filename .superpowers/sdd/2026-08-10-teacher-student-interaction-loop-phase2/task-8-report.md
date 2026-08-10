@@ -12,6 +12,7 @@
 - lint：0 errors；存在既有 warnings。
 - build：成功；存在既有 dynamic-import/chunk-size warnings。
 - Playwright：1 passed，retries=0；用例主体 46.8s。
+- 最终 HEAD `e09e7a4` 再次执行 Playwright：1 passed，总命令 1.7m、用例约 1.2m、workers=1、retries=0；证据 worker 为 `worker-0-1786386355084`，15173/18001 均无监听残留。
 - 旧库迁移：独立临时旧 schema 的任务数 1→1、事件数 1→1，旧 `completed` 映射 `self_reported`，连续打开两次结果一致；`test_learning_store.py` 5 passed。
 - 本轮额外修正学习上下文提示字段名：`completed_basis` → `completion_basis`，目标测试 10 passed。
 
