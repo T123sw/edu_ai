@@ -11,6 +11,7 @@ from app.api import course_dependencies, courses
 from app.services.course_access import CourseAccessService
 from app.services.course_membership_bootstrap import CourseMembershipBootstrap
 from app.services.course_membership_store import CourseMembershipStore
+from app.services.course_enrollment_service import CourseEnrollmentService
 from core.course_storage import CourseStorageManager
 
 
@@ -60,6 +61,11 @@ class CourseApiTestFactory:
             "course-1", "student-a", "viewer", added_by="fixture"
         )
         self.access = CourseAccessService(self.memberships)
+        self.enrollment = CourseEnrollmentService(
+            manager=self.manager,
+            memberships=self.memberships,
+            users_provider=lambda: list(self.users),
+        )
         self.bootstrap = CourseMembershipBootstrap(
             store=self.memberships,
             enabled=True,
@@ -71,12 +77,6 @@ class CourseApiTestFactory:
             courses,
             "get_course_membership_store",
             lambda: self.memberships,
-        )
-        monkeypatch.setattr(
-            courses,
-            "get_course_membership_bootstrap",
-            lambda: self.bootstrap,
-            raising=False,
         )
 
     def client_for(self, username: str, system_role: str) -> TestClient:
@@ -100,4 +100,7 @@ class CourseApiTestFactory:
         app.dependency_overrides[
             course_dependencies.get_course_access_service
         ] = lambda: self.access
+        app.dependency_overrides[courses.get_course_enrollment_service] = (
+            lambda: self.enrollment
+        )
         return app

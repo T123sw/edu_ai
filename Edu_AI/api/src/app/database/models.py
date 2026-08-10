@@ -63,6 +63,7 @@ class Course(Base):
     __tablename__ = "courses"
 
     course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_code: Mapped[str] = mapped_column(String(8), nullable=False, unique=True, index=True)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     icon: Mapped[str] = mapped_column(String(120), nullable=False, default="menu_book")

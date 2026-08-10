@@ -120,7 +120,7 @@ class Config:
         os.getenv("LEARNING_DB_PATH", str(STORAGE_ROOT / "learning.db"))
     )
     DEV_AUTO_ENROLL_ALL_COURSES = _env_bool(
-        "DEV_AUTO_ENROLL_ALL_COURSES", True
+        "DEV_AUTO_ENROLL_ALL_COURSES", False
     )
     TEMP_DIR = Path(os.getenv("TEMP_DIR", STORAGE_ROOT / "temp"))
 

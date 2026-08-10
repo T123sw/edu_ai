@@ -30,8 +30,12 @@ from app.services.course_access import (
     CoursePrincipal,
     can_manage_course_resources,
 )
-from app.services.course_membership_bootstrap import get_course_membership_bootstrap
 from app.services.generation_source_errors import GenerationSourceError
+from app.services.course_code_service import generate_course_code
+from app.services.course_enrollment_service import (
+    CourseEnrollmentError,
+    CourseEnrollmentService,
+)
 
 from app.knowledge_graph_hours import (
     KnowledgeGraphHourAllocationError,
@@ -41,6 +45,11 @@ from app.schemas.course import (
     AddRAGDocumentRequest,
     CourseCreateRequest,
     CourseInfo,
+    CourseJoinRequest,
+    CourseMemberCreateRequest,
+    CourseMemberInfo,
+    CourseMembersResponse,
+    CourseMemberUpdateRequest,
     CourseKnowledgeBuildRequest,
     CourseKnowledgeBuildPreviewRequest,
     CourseUpdateRequest,
@@ -87,10 +96,33 @@ from core.course_storage import (
     LIBRARY_TYPE_PERSONAL,
     CourseRevisionConflict,
 )
+from core.user_storage import user_storage
 from modules.rag_v2.api import get_rag_system
 from modules.rag_v2.document_resolver import resolve_rag_document
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
+
+
+def get_course_enrollment_service() -> CourseEnrollmentService:
+    return CourseEnrollmentService(
+        manager=_svc._get_manager(),
+        memberships=get_course_membership_store(),
+        users_provider=user_storage.list_users,
+    )
+
+
+def _enrollment_http_error(error: CourseEnrollmentError) -> HTTPException:
+    return HTTPException(
+        status_code=error.status_code,
+        detail={"code": error.code, "message": str(error)},
+    )
+
+
+def _course_response(info: dict[str, Any], role: str) -> CourseInfo:
+    payload = {**info, "membership_role": role}
+    if role != "owner":
+        payload["course_code"] = None
+    return CourseInfo(**payload)
 
 
 def _material_publications() -> MaterialPublicationService:
@@ -242,13 +274,28 @@ def list_courses(
         if not info:
             continue
         try:
-            results.append(
-                CourseInfo(**{**info, "membership_role": membership.role})
-            )
+            results.append(_course_response(info, membership.role))
         except Exception:
             continue
 
     return results
+
+
+@router.post("/join", response_model=CourseInfo, summary="使用课程码加入课程")
+def join_course(
+    payload: CourseJoinRequest,
+    current_user: dict = Depends(get_current_user),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+) -> CourseInfo:
+    try:
+        info = service.join(
+            course_code=payload.course_code,
+            user_id=str(current_user.get("username") or ""),
+            system_role=str(current_user.get("role") or ""),
+        )
+    except CourseEnrollmentError as error:
+        raise _enrollment_http_error(error) from error
+    return _course_response(info, "viewer")
 
 
 @router.get("/{course_id}", response_model=CourseInfo, summary="获取课程详情")
@@ -261,9 +308,7 @@ def get_course(
     if not info:
         raise HTTPException(status_code=404, detail="课程不存在")
     try:
-        return CourseInfo(
-            **{**info, "membership_role": principal.course_role}
-        )
+        return _course_response(info, principal.course_role)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"课程数据格式错误: {exc}") from exc
 
@@ -292,15 +337,14 @@ def update_course(
                 "actual_revision": exc.actual,
             },
         ) from exc
-    return CourseInfo(
-        **{**updated, "membership_role": principal.course_role}
-    )
+    return _course_response(updated, principal.course_role)
 
 
 @router.post("", response_model=CourseInfo, summary="新建课程")
 def create_course(
     payload: CourseCreateRequest,
     current_user: dict = Depends(get_current_user),
+    enrollment: CourseEnrollmentService = Depends(get_course_enrollment_service),
 ) -> CourseInfo:
     if str(current_user.get("role") or "").lower() not in {"teacher", "admin"}:
         raise HTTPException(status_code=403, detail="仅教师可以新建课程")
@@ -310,10 +354,12 @@ def create_course(
         raise HTTPException(status_code=400, detail="课程 ID 已存在")
 
     creator_id = str(current_user.get("username") or "").strip()
+    course_code = generate_course_code(enrollment.course_code_exists)
     now = datetime.now().isoformat()
     course_info = {
         **payload.model_dump(exclude={"id"}),
         "id": course_id,
+        "course_code": course_code,
         "revision": 0,
         "created_by": creator_id,
         "created_at": now,
@@ -324,8 +370,83 @@ def create_course(
         raise HTTPException(status_code=500, detail="保存课程信息失败")
     store = get_course_membership_store()
     store.upsert(course_id, creator_id, "owner", added_by=creator_id)
-    get_course_membership_bootstrap().on_course_created(course_id)
-    return CourseInfo(**{**course_info, "membership_role": "owner"})
+    return _course_response(course_info, "owner")
+
+
+@router.get(
+    "/{course_id}/members",
+    response_model=CourseMembersResponse,
+    summary="获取课程成员",
+)
+def list_course_members(
+    course_id: str,
+    _principal: CoursePrincipal = Depends(require_course_owner),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+) -> CourseMembersResponse:
+    return CourseMembersResponse(items=service.list_members(course_id))
+
+
+@router.post(
+    "/{course_id}/members",
+    response_model=CourseMemberInfo,
+    summary="添加课程成员",
+)
+def add_course_member(
+    course_id: str,
+    payload: CourseMemberCreateRequest,
+    principal: CoursePrincipal = Depends(require_course_owner),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+) -> CourseMemberInfo:
+    try:
+        return CourseMemberInfo(
+            **service.add_member(
+                course_id=course_id,
+                user_id=payload.user_id,
+                role=payload.role,
+                added_by=principal.user_id,
+            )
+        )
+    except CourseEnrollmentError as error:
+        raise _enrollment_http_error(error) from error
+
+
+@router.patch(
+    "/{course_id}/members/{user_id}",
+    response_model=CourseMemberInfo,
+    summary="更新课程成员角色",
+)
+def update_course_member(
+    course_id: str,
+    user_id: str,
+    payload: CourseMemberUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_owner),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+) -> CourseMemberInfo:
+    try:
+        return CourseMemberInfo(
+            **service.update_member(
+                course_id=course_id,
+                user_id=user_id,
+                role=payload.role,
+                added_by=principal.user_id,
+            )
+        )
+    except CourseEnrollmentError as error:
+        raise _enrollment_http_error(error) from error
+
+
+@router.delete("/{course_id}/members/{user_id}", summary="移除课程成员")
+def remove_course_member(
+    course_id: str,
+    user_id: str,
+    _principal: CoursePrincipal = Depends(require_course_owner),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+):
+    try:
+        service.remove_member(course_id=course_id, user_id=user_id)
+    except CourseEnrollmentError as error:
+        raise _enrollment_http_error(error) from error
+    return {"ok": True}
 
 
 @router.delete("/{course_id}", summary="删除课程")
