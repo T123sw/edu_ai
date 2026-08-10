@@ -43,8 +43,10 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        from app.persistence.retirement import validate_retired_legacy_storage
         from app.services.course_service import ensure_default_courses
 
+        validate_retired_legacy_storage()
         ensure_default_courses()
         membership_bootstrap = membership_bootstrap_factory()
         membership_bootstrap.sync_existing()

@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     ForeignKeyConstraint,
     Integer,
@@ -482,3 +483,44 @@ class LearningProgressModel(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DurableTaskModel(Base):
+    __tablename__ = "durable_tasks"
+    __table_args__ = (
+        UniqueConstraint(
+            "owner_user_id",
+            "workflow_type",
+            "idempotency_key",
+            name="uq_durable_tasks_idempotency",
+        ),
+    )
+
+    task_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    workflow_type: Mapped[str] = mapped_column(String(160), nullable=False, default="")
+    handler_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    owner_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    scope_type: Mapped[str] = mapped_column(String(64), nullable=False, default="course")
+    scope_id: Mapped[str | None] = mapped_column(String(240), index=True)
+    command: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    config_snapshot_id: Mapped[str | None] = mapped_column(String(200))
+    idempotency_key: Mapped[str | None] = mapped_column(String(300))
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
+    available_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    lease_owner: Mapped[str | None] = mapped_column(String(200))
+    lease_expires_at: Mapped[float | None] = mapped_column(Float, index=True)
+    heartbeat_at: Mapped[float | None] = mapped_column(Float)
+    deadline_at: Mapped[float | None] = mapped_column(Float, index=True)
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    progress: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    result_ref: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    error_code: Mapped[str | None] = mapped_column(String(120))
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    started_at: Mapped[float | None] = mapped_column(Float)
+    finished_at: Mapped[float | None] = mapped_column(Float)
+    updated_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)

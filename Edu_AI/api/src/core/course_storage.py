@@ -765,6 +765,11 @@ class CourseStorageManager:
             metadata = self._app_state_repository().get("course_metadata", course_id)
             if metadata:
                 return metadata
+            return {
+                "course_id": course_id,
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat(),
+            }
         metadata_file = self.get_course_dir(course_id) / "metadata.json"
         metadata = self._read_json(metadata_file)
         if metadata:

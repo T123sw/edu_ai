@@ -1151,14 +1151,27 @@ class TaskStore:
             self._conn.close()
 
 
-_store: Optional[TaskStore] = None
+_store: Optional[Any] = None
 _store_init_lock = threading.Lock()
 
 
-def get_task_store() -> TaskStore:
+def get_task_store() -> Any:
     global _store
     if _store is None:
         with _store_init_lock:
             if _store is None:
-                _store = TaskStore()
+                if os.getenv("TASK_PERSISTENCE_MODE", "json").strip().lower() == "postgres":
+                    from sqlalchemy import create_engine
+
+                    from app.database import DatabaseNotConfigured
+                    from app.chat.tasks.postgres_task_store import PostgresTaskStore
+
+                    database_url = os.getenv("DATABASE_URL", "").strip()
+                    if not database_url:
+                        raise DatabaseNotConfigured("DATABASE_URL is not configured")
+                    _store = PostgresTaskStore(
+                        create_engine(database_url, pool_pre_ping=True)
+                    )
+                else:
+                    _store = TaskStore()
     return _store

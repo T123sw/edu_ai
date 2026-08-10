@@ -46,6 +46,19 @@ _ALLOWED_LICENSE_MARKERS = (
     "creativecommons.org/publicdomain/zero/1.0",
 )
 _CHINESE_RE = re.compile(r"[\u4e00-\u9fff]")
+
+
+def _store_knowledge_audit(record_key: str, payload: Mapping[str, Any]) -> str | None:
+    if os.getenv("APP_STATE_PERSISTENCE_MODE", "json").strip().lower() != "postgres":
+        return None
+    from app.persistence.dependencies import get_postgres_app_state_repository
+
+    get_postgres_app_state_repository().put(
+        "knowledge_audit",
+        record_key,
+        payload,
+    )
+    return f"postgres://app_state/knowledge_audit/{record_key}"
 _HEADING_RE = re.compile(r"^(#{1,4})\s+(.+?)\s*$")
 _TOC_CAPTION_RE = re.compile(r'^\s*-\s+caption:\s*["\']?(.+?)["\']?\s*$')
 _TOC_FILE_RE = re.compile(r"^\s*-\s+file:\s*([\w.-]+)\s*$")
@@ -294,16 +307,24 @@ def clean_stale_knowledge_records(
         seen_paths.add(normalized_path)
         kept.append(record)
 
-    backup_path: Path | None = None
+    backup_path: Path | str | None = None
     if apply and removed:
-        backup_dir = course_dir / "knowledge_base" / "backups"
-        backup_dir.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-        backup_path = backup_dir / f"index-before-clean-{stamp}.json"
-        backup_path.write_text(
-            json.dumps(entries, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        record_key = f"{course_id}:clean:{stamp}"
+        backup_path = _store_knowledge_audit(record_key, {
+            "course_id": course_id,
+            "operation": "clean",
+            "created_at": utc_now(),
+            "records": entries,
+        })
+        if backup_path is None:
+            backup_dir = course_dir / "knowledge_base" / "backups"
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            backup_path = backup_dir / f"index-before-clean-{stamp}.json"
+            backup_path.write_text(
+                json.dumps(entries, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
         if not manager.save_knowledge_base_index(course_id, kept):
             raise OSError("保存清理后的课程知识库索引失败")
 
@@ -362,23 +383,27 @@ def quarantine_knowledge_records(
         backup_dir = course_dir / "knowledge_base" / "backups"
         quarantine_dir = backup_dir / f"quarantine-{stamp}"
         quarantine_dir.mkdir(parents=True, exist_ok=False)
-        (backup_dir / f"index-before-quarantine-{stamp}.json").write_text(
-            json.dumps(entries, ensure_ascii=False, indent=2),
-            encoding="utf-8",
+        audit_payload = {
+            "course_id": course_id,
+            "operation": "quarantine",
+            "reason": str(reason or "manual cleanup"),
+            "created_at": utc_now(),
+            "records_before": entries,
+            "records": selected,
+            "quarantine_path": str(quarantine_dir),
+        }
+        audit_uri = _store_knowledge_audit(
+            f"{course_id}:quarantine:{stamp}", audit_payload
         )
-        (quarantine_dir / "manifest.json").write_text(
-            json.dumps(
-                {
-                    "course_id": course_id,
-                    "reason": str(reason or "manual cleanup"),
-                    "created_at": utc_now(),
-                    "records": selected,
-                },
-                ensure_ascii=False,
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
+        if audit_uri is None:
+            (backup_dir / f"index-before-quarantine-{stamp}.json").write_text(
+                json.dumps(entries, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            (quarantine_dir / "manifest.json").write_text(
+                json.dumps(audit_payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
         moved: list[tuple[Path, Path]] = []
         try:
             for index, (_, source_path) in enumerate(resolved_files, start=1):
