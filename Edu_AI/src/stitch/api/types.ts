@@ -517,3 +517,43 @@ export type ClassroomMaterial = {
   created_at?: string;
   updated_at?: string;
 };
+
+export type ClassroomQaCheckpoint = {
+  scene_id: string;
+  scene_index: number;
+  action_index: number;
+  action_id: string | null;
+  phase: "executing_action" | "between_actions";
+  page_revision: number;
+};
+
+export type ClassroomQaTurnRequest = {
+  client_turn_id: string;
+  question: string;
+  checkpoint: ClassroomQaCheckpoint;
+};
+
+export type ClassroomQaTurn = {
+  turn_id: string;
+  client_turn_id: string;
+  question: string;
+  answer_text: string;
+  transition_text: string;
+  tts_status: "ready" | "failed";
+  audio_url: string | null;
+  created_at: string;
+};
+
+export type ClassroomQaSession = {
+  session_id: string;
+  course_id: string;
+  classroom_id: string;
+  owner_user_id: string;
+  status: "ready";
+  turns: ClassroomQaTurn[];
+};
+
+export type ClassroomQaTurnSubmission = {
+  session_id: string;
+  turn: ClassroomQaTurn;
+};
