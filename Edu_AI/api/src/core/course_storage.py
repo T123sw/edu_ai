@@ -634,9 +634,13 @@ class CourseStorageManager:
             metadata = self.get_course_metadata(course_id)
             now = datetime.now().isoformat()
             payload = dict(course_info)
+            payload.setdefault("id", course_id)
             payload.setdefault("revision", 0)
             payload.setdefault("created_at", metadata.get("created_at") or now)
             payload["updated_at"] = payload.get("updated_at") or now
+            if self._course_uses_postgres():
+                self._course_repository().upsert(payload)
+                return True
             self._write_json(info_file, payload)
             metadata["updated_at"] = now
             self.save_course_metadata(course_id, metadata)
@@ -650,6 +654,8 @@ class CourseStorageManager:
 
     def get_course_info(self, course_id: str) -> Optional[Dict[str, Any]]:
         try:
+            if self._course_uses_postgres():
+                return self._course_repository().get(course_id)
             info_file = self.get_course_dir(course_id) / "course_info.json"
             if not info_file.exists():
                 return None
@@ -693,6 +699,9 @@ class CourseStorageManager:
                 "revision": actual_revision + 1,
                 "updated_at": now,
             }
+            if self._course_uses_postgres():
+                self._course_repository().upsert(updated)
+                return updated
             self._write_json(
                 self.get_course_dir(course_id) / "course_info.json", updated
             )
@@ -1369,6 +1378,8 @@ class CourseStorageManager:
             course_dir = self.get_course_dir(course_id)
             if course_dir.exists():
                 shutil.rmtree(course_dir)
+            if self._course_uses_postgres():
+                return self._course_repository().delete(course_id)
             from app.persistence.hooks import shadow_delete_course
 
             shadow_delete_course(course_id)
@@ -1376,6 +1387,19 @@ class CourseStorageManager:
         except Exception as e:
             print(f"Error deleting course: {e}")
             return False
+
+    @staticmethod
+    def _course_uses_postgres() -> bool:
+        from app.persistence.modes import PersistenceMode, PersistenceSettings
+
+        return PersistenceSettings.from_environment().course is PersistenceMode.POSTGRES
+
+    @staticmethod
+    def _course_repository():
+        from app.persistence.dependencies import get_core_postgres_repositories
+
+        _, repository, _ = get_core_postgres_repositories()
+        return repository
 
     def get_file_path(self, course_id: str, relative_path: str) -> Path:
         return self.get_course_dir(course_id) / relative_path

@@ -111,3 +111,71 @@ def test_membership_json_store_shadows_upsert_and_delete_to_database(
         assert session.get(
             CourseMembership, ("new-course", "student-one")
         ) is None
+
+
+def test_user_store_uses_database_without_creating_json_in_postgres_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    engine = _configure_shadow(monkeypatch, tmp_path, user="postgres")
+    json_path = tmp_path / "users.json"
+    storage = UserStorage(str(json_path))
+
+    storage.create_user("database-teacher", "safe-password", "teacher")
+
+    assert storage.get_user("database-teacher")["role"] == "teacher"
+    assert json_path.exists() is False
+    with Session(engine) as session:
+        assert session.get(User, "database-teacher") is not None
+
+
+def test_course_store_uses_database_without_course_info_json_in_postgres_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    engine = _configure_shadow(monkeypatch, tmp_path, course="postgres")
+    manager = CourseStorageManager(str(tmp_path / "course-data"))
+    manager.create_course_structure("database-course")
+
+    assert manager.save_course_info(
+        "database-course",
+        {
+            "id": "database-course",
+            "title": "Database Course",
+            "description": "PostgreSQL primary storage",
+            "objectives": ["Persist metadata"],
+        },
+    )
+
+    assert manager.get_course_info("database-course")["title"] == "Database Course"
+    assert not (
+        tmp_path / "course-data" / "courses" / "database-course" / "course_info.json"
+    ).exists()
+    with Session(engine) as session:
+        assert session.get(Course, "database-course") is not None
+
+
+def test_membership_store_uses_database_without_json_in_postgres_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    engine = _configure_shadow(monkeypatch, tmp_path, membership="postgres")
+    PostgresUserRepository(engine).upsert(
+        {"username": "database-student", "password_hash": "hash", "role": "student"}
+    )
+    PostgresCourseRepository(engine).upsert(
+        {"id": "database-course", "title": "Database Course", "objectives": []}
+    )
+    json_path = tmp_path / "memberships.json"
+    storage = CourseMembershipStore(json_path)
+
+    membership = storage.upsert(
+        "database-course", "database-student", "viewer", added_by="system"
+    )
+
+    assert storage.get("database-course", "database-student") == membership
+    assert storage.list_for_user("database-student") == [membership]
+    assert storage.list_for_course("database-course") == [membership]
+    assert json_path.exists() is False
+    assert storage.delete("database-course", "database-student") is True
+    assert storage.get("database-course", "database-student") is None

@@ -157,3 +157,47 @@ def test_membership_repository_upserts_role_and_deletes_membership(engine):
 
     assert repository.delete("algorithms", "student-one") is True
     assert repository.delete("algorithms", "student-one") is False
+
+
+def test_core_repositories_read_database_records(engine):
+    (
+        PostgresUserRepository,
+        PostgresCourseRepository,
+        PostgresCourseMembershipRepository,
+    ) = _repository_types()
+    users = PostgresUserRepository(engine)
+    courses = PostgresCourseRepository(engine)
+    memberships = PostgresCourseMembershipRepository(engine)
+    users.upsert(
+        {
+            "username": "read-user",
+            "password_hash": "hash",
+            "role": "student",
+            "display_name": "Read User",
+        }
+    )
+    courses.upsert(
+        {
+            "id": "read-course",
+            "title": "Read Course",
+            "revision": 2,
+            "objectives": ["First", "Second"],
+        }
+    )
+    memberships.upsert(
+        {
+            "course_id": "read-course",
+            "user_id": "read-user",
+            "role": "viewer",
+            "added_by": "system",
+        }
+    )
+
+    assert users.get("read-user")["display_name"] == "Read User"
+    assert [item["username"] for item in users.list()] == ["read-user"]
+    assert courses.get("read-course")["objectives"] == ["First", "Second"]
+    assert [item["id"] for item in courses.list()] == ["read-course"]
+    membership = memberships.get("read-course", "read-user")
+    assert membership is not None
+    assert memberships.list_for_user("read-user") == [membership]
+    assert memberships.list_for_course("read-course") == [membership]

@@ -8,6 +8,7 @@ from enum import Enum
 class PersistenceMode(str, Enum):
     JSON = "json"
     SHADOW = "shadow"
+    POSTGRES = "postgres"
 
 
 def _mode_from_environment(variable_name: str) -> PersistenceMode:

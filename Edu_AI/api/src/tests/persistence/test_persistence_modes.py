@@ -44,3 +44,18 @@ def test_persistence_modes_reject_unknown_values(monkeypatch: pytest.MonkeyPatch
 
     with pytest.raises(ValueError, match="USER_PERSISTENCE_MODE"):
         PersistenceSettings.from_environment()
+
+
+def test_persistence_modes_support_postgres_cutover(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    PersistenceMode, PersistenceSettings = _persistence_types()
+    monkeypatch.setenv("USER_PERSISTENCE_MODE", "postgres")
+    monkeypatch.setenv("COURSE_PERSISTENCE_MODE", "postgres")
+    monkeypatch.setenv("COURSE_MEMBERSHIP_PERSISTENCE_MODE", "postgres")
+
+    settings = PersistenceSettings.from_environment()
+
+    assert settings.user is PersistenceMode.POSTGRES
+    assert settings.course is PersistenceMode.POSTGRES
+    assert settings.course_membership is PersistenceMode.POSTGRES

@@ -26,6 +26,9 @@ class _UnavailableRepository:
     def delete(self, *keys: str) -> bool:
         raise DatabaseNotConfigured("DATABASE_URL is not configured")
 
+    def __getattr__(self, name: str):
+        raise DatabaseNotConfigured("DATABASE_URL is not configured")
+
 
 @lru_cache(maxsize=16)
 def _build_shadow_persistence(
@@ -74,3 +77,20 @@ def get_core_shadow_persistence() -> CoreShadowPersistence:
         settings.course_membership.value,
         str(journal_path.resolve()),
     )
+
+
+@lru_cache(maxsize=8)
+def _build_core_repositories(database_url: str):
+    if not database_url:
+        raise DatabaseNotConfigured("DATABASE_URL is not configured")
+    engine = create_engine(database_url, pool_pre_ping=True)
+    return (
+        PostgresUserRepository(engine),
+        PostgresCourseRepository(engine),
+        PostgresCourseMembershipRepository(engine),
+    )
+
+
+def get_core_postgres_repositories():
+    database_url = str(os.getenv("DATABASE_URL", "")).strip()
+    return _build_core_repositories(database_url)

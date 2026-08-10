@@ -37,6 +37,9 @@ class CourseMembershipStore:
     def get(self, course_id: str, user_id: str) -> CourseMembership | None:
         key = (self._normalize_id(course_id, "course_id"), self._normalize_id(user_id, "user_id"))
         with self._lock:
+            if self._uses_postgres():
+                payload = self._postgres_repository().get(*key)
+                return self._from_payload(payload) if payload else None
             return next(
                 (
                     item
@@ -61,6 +64,24 @@ class CourseMembershipStore:
             raise ValueError(f"unsupported course role: {role}")
 
         with self._lock:
+            if self._uses_postgres():
+                repository = self._postgres_repository()
+                previous_payload = repository.get(
+                    normalized_course_id, normalized_user_id
+                )
+                membership = CourseMembership(
+                    course_id=normalized_course_id,
+                    user_id=normalized_user_id,
+                    role=cast(CourseRole, role),
+                    joined_at=(
+                        str(previous_payload["joined_at"])
+                        if previous_payload is not None
+                        else datetime.now(timezone.utc).isoformat()
+                    ),
+                    added_by=normalized_added_by,
+                )
+                repository.upsert(asdict(membership))
+                return membership
             items = self._read_unlocked()
             previous = next(
                 (
@@ -100,6 +121,13 @@ class CourseMembershipStore:
     def list_for_user(self, user_id: str) -> list[CourseMembership]:
         normalized_user_id = self._normalize_id(user_id, "user_id")
         with self._lock:
+            if self._uses_postgres():
+                return [
+                    self._from_payload(item)
+                    for item in self._postgres_repository().list_for_user(
+                        normalized_user_id
+                    )
+                ]
             return sorted(
                 (
                     item
@@ -112,6 +140,13 @@ class CourseMembershipStore:
     def list_for_course(self, course_id: str) -> list[CourseMembership]:
         normalized_course_id = self._normalize_id(course_id, "course_id")
         with self._lock:
+            if self._uses_postgres():
+                return [
+                    self._from_payload(item)
+                    for item in self._postgres_repository().list_for_course(
+                        normalized_course_id
+                    )
+                ]
             return sorted(
                 (
                     item
@@ -125,6 +160,10 @@ class CourseMembershipStore:
         normalized_course_id = self._normalize_id(course_id, "course_id")
         normalized_user_id = self._normalize_id(user_id, "user_id")
         with self._lock:
+            if self._uses_postgres():
+                return self._postgres_repository().delete(
+                    normalized_course_id, normalized_user_id
+                )
             items = self._read_unlocked()
             retained = [
                 item
@@ -193,3 +232,32 @@ class CourseMembershipStore:
         if not normalized:
             raise ValueError(f"{field} is required")
         return normalized
+
+    @staticmethod
+    def _uses_postgres() -> bool:
+        from app.persistence.modes import PersistenceMode, PersistenceSettings
+
+        return (
+            PersistenceSettings.from_environment().course_membership
+            is PersistenceMode.POSTGRES
+        )
+
+    @staticmethod
+    def _postgres_repository():
+        from app.persistence.dependencies import get_core_postgres_repositories
+
+        _, _, repository = get_core_postgres_repositories()
+        return repository
+
+    @classmethod
+    def _from_payload(cls, payload: dict) -> CourseMembership:
+        role = str(payload.get("role") or "")
+        if role not in COURSE_ROLES:
+            raise ValueError(f"unsupported course role: {role}")
+        return CourseMembership(
+            course_id=cls._normalize_id(payload.get("course_id"), "course_id"),
+            user_id=cls._normalize_id(payload.get("user_id"), "user_id"),
+            role=cast(CourseRole, role),
+            joined_at=cls._normalize_id(payload.get("joined_at"), "joined_at"),
+            added_by=cls._normalize_id(payload.get("added_by"), "added_by"),
+        )

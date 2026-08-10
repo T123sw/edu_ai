@@ -101,6 +101,13 @@ class UserStorage:
     
     def _load_users(self) -> List[Dict]:
         """加载用户数据"""
+        from app.persistence.modes import PersistenceMode, PersistenceSettings
+
+        if PersistenceSettings.from_environment().user is PersistenceMode.POSTGRES:
+            from app.persistence.dependencies import get_core_postgres_repositories
+
+            user_repository, _, _ = get_core_postgres_repositories()
+            return user_repository.list()
         if not self.storage_file.exists():
             return []
         
@@ -113,6 +120,15 @@ class UserStorage:
     
     def _save_users(self, users: List[Dict]):
         """保存用户数据"""
+        from app.persistence.modes import PersistenceMode, PersistenceSettings
+
+        if PersistenceSettings.from_environment().user is PersistenceMode.POSTGRES:
+            from app.persistence.dependencies import get_core_postgres_repositories
+
+            user_repository, _, _ = get_core_postgres_repositories()
+            for user in users:
+                user_repository.upsert(user)
+            return
         data = {"users": users}
         temporary = self.storage_file.with_name(
             f".{self.storage_file.name}.{secrets.token_hex(8)}.tmp"
