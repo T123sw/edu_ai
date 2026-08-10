@@ -34,11 +34,12 @@ class FakePlayback {
   interruptCalls = 0;
   resumeCalls = 0;
   resumeResult = true;
+  interruptResult: PagePlaybackCheckpoint | null = checkpoint;
   current = { sceneIndex: 0, revision: 1 };
 
   interrupt() {
     this.interruptCalls += 1;
-    return { ...checkpoint };
+    return this.interruptResult ? { ...this.interruptResult } : null;
   }
 
   resumeInterrupted(_checkpoint: PagePlaybackCheckpoint) {
@@ -140,12 +141,14 @@ async function waitFor(predicate: () => boolean) {
   throw new Error('condition was not reached');
 }
 
-test('open pauses immediately and successful audio resumes exactly once', async () => {
+test('opening and typing do not pause; submit pauses and successful audio resumes once', async () => {
   const harness = createHarness();
   harness.controller.openQuestion();
-  assert.equal(harness.playback.interruptCalls, 1);
+  assert.equal(harness.playback.interruptCalls, 0);
 
   const submitting = harness.controller.submitQuestion('为什么要选基准值？');
+  assert.equal(harness.playback.interruptCalls, 1);
+  assert.equal(harness.controller.state.activeTurn?.question, '为什么要选基准值？');
   await waitFor(() => harness.answerAudio.playCalls === 1);
   harness.answerAudio.finish();
   harness.answerAudio.finish();
@@ -172,13 +175,44 @@ test('a second question from the open panel creates a fresh interruption', async
   assert.equal(harness.playback.resumeCalls, 2);
 });
 
-test('cancel before submit resumes immediately and closes the draft', () => {
+test('cancel before submit closes the draft without touching playback', () => {
   const harness = createHarness();
   harness.controller.openQuestion();
   harness.controller.cancelDraft();
 
-  assert.equal(harness.playback.resumeCalls, 1);
+  assert.equal(harness.playback.interruptCalls, 0);
+  assert.equal(harness.playback.resumeCalls, 0);
   assert.equal(harness.controller.state.phase, 'closed');
+});
+
+test('invalid questions and checkpoint failures do not create optimistic turns', async () => {
+  const harness = createHarness();
+  harness.controller.openQuestion();
+
+  await harness.controller.submitQuestion('   ');
+  assert.equal(harness.playback.interruptCalls, 0);
+  assert.equal(harness.controller.state.activeTurn, null);
+
+  harness.playback.interruptResult = null;
+  await harness.controller.submitQuestion('有效问题');
+  assert.equal(harness.playback.interruptCalls, 1);
+  assert.equal(harness.controller.state.activeTurn, null);
+  assert.equal(harness.controller.state.phase, 'drafting');
+});
+
+test('the optimistic question is committed before the deferred request resolves', async () => {
+  const harness = createHarness();
+  harness.deferSubmission();
+  harness.controller.openQuestion();
+
+  const submitting = harness.controller.submitQuestion('立即显示的问题');
+  assert.equal(harness.controller.state.phase, 'submitting');
+  assert.equal(harness.controller.state.activeTurn?.question, '立即显示的问题');
+
+  harness.resolveSubmission();
+  await waitFor(() => harness.answerAudio.playCalls === 1);
+  harness.answerAudio.finish();
+  await submitting;
 });
 
 test('server TTS failure uses browser speech before resuming', async () => {

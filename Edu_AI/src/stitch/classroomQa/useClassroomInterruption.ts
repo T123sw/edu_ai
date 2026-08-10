@@ -115,35 +115,26 @@ export class ClassroomInterruptionCoordinator
   openQuestion(): void {
     if (this.disposed || this.currentState.activeTurn) return;
     if (this.currentState.phase === 'drafting') return;
-    const checkpoint = this.dependencies.playback.interrupt();
-    if (!checkpoint) return;
-    this.checkpoint = checkpoint;
-    this.resumeConsumed = false;
     this.dispatch({ type: 'open' });
   }
 
   cancelDraft(): void {
     if (this.disposed || this.currentState.phase !== 'drafting') return;
-    const checkpoint = this.checkpoint;
     this.checkpoint = null;
     this.dispatch({ type: 'cancel_draft' });
-    if (checkpoint && !this.resumeConsumed) {
-      this.resumeConsumed = true;
-      this.dependencies.playback.resumeInterrupted(checkpoint);
-    }
   }
 
   async submitQuestion(question: string): Promise<void> {
     if (this.disposed || this.currentState.phase !== 'drafting') return;
-    if (!this.checkpoint) {
-      const checkpoint = this.dependencies.playback.interrupt();
-      if (!checkpoint) return;
-      this.checkpoint = checkpoint;
-      this.resumeConsumed = false;
-    }
+    const normalizedQuestion = question.trim();
+    if (!normalizedQuestion || normalizedQuestion.length > 1000) return;
+    const checkpoint = this.dependencies.playback.interrupt();
+    if (!checkpoint) return;
+    this.checkpoint = checkpoint;
+    this.resumeConsumed = false;
     const clientTurnId = this.dependencies.createClientTurnId();
-    this.dispatch({ type: 'submit', question, clientTurnId });
-    await this.runSubmission(clientTurnId, question.trim());
+    this.dispatch({ type: 'submit', question: normalizedQuestion, clientTurnId });
+    await this.runSubmission(clientTurnId, normalizedQuestion);
   }
 
   async retry(): Promise<void> {
