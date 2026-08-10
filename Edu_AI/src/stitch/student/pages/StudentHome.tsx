@@ -85,11 +85,12 @@ export function StudentHomePage() {
     return courses.filter((course) => `${course.title} ${course.description}`.toLocaleLowerCase().includes(normalized));
   }, [courses, query]);
 
-  const recentCourses = useMemo(() => {
+  const recentCourse = useMemo(() => {
     const byId = new Map(courses.map((course) => [course.id, course]));
-    return loadRecentLearning(courses.map((course) => course.id))
-      .map((record) => ({ record, course: byId.get(record.courseId) }))
-      .filter((item): item is { record: typeof item.record; course: BackendCourse } => Boolean(item.course));
+    const record = loadRecentLearning(courses.map((course) => course.id))[0];
+    if (!record) return null;
+    const course = byId.get(record.courseId);
+    return course ? { record, course } : null;
   }, [courses]);
 
   function enterCourse(course: BackendCourse, index: number, route: "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources" = "student-course-detail") {
@@ -118,17 +119,15 @@ export function StudentHomePage() {
         </label>
       </section>
 
-      {recentCourses.length > 0 && !query ? (
+      {recentCourse && !query ? (
         <section className="student-home__section" aria-labelledby="recent-learning-title">
           <div className="student-home__section-head"><div><h2 id="recent-learning-title">最近学习</h2><p>回到上次使用的课程功能</p></div></div>
           <div className="student-home__recent-list">
-            {recentCourses.map(({ course, record }, index) => (
-              <a key={course.id} href={buildStudentHash(record.lastRoute, { courseId: course.id })} onClick={() => enterCourse(course, index, record.lastRoute as "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources")}>
-                <span className="student-home__recent-icon"><MaterialIcon name="menu_book" /></span>
-                <span><strong>{course.title}</strong><small>{formatUpdatedAt(record.visitedAt)}</small></span>
-                <MaterialIcon name="arrow_forward" />
-              </a>
-            ))}
+            <a href={buildStudentHash(recentCourse.record.lastRoute, { courseId: recentCourse.course.id })} onClick={() => enterCourse(recentCourse.course, courses.findIndex((course) => course.id === recentCourse.course.id), recentCourse.record.lastRoute as "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources")}>
+              <span className="student-home__recent-icon"><MaterialIcon name="menu_book" /></span>
+              <span><strong>{recentCourse.course.title}</strong><small>{formatUpdatedAt(recentCourse.record.visitedAt)}</small></span>
+              <MaterialIcon name="arrow_forward" />
+            </a>
           </div>
         </section>
       ) : null}

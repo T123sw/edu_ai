@@ -7,7 +7,7 @@ import {
   serializeRecentLearning,
 } from "./studentRecentLearning.ts";
 
-test("recent learning deduplicates courses and sorts real visits newest first", () => {
+test("recent learning keeps only the latest visited course", () => {
   const result = parseRecentLearning(JSON.stringify({
     version: 1,
     records: [
@@ -19,18 +19,17 @@ test("recent learning deduplicates courses and sorts real visits newest first", 
 
   assert.deepEqual(result.map((item) => [item.courseId, item.lastRoute]), [
     ["c1", "student-classroom"],
-    ["c2", "student-resources"],
   ]);
 });
 
-test("recent learning removes missing courses, rejects unsafe routes, and keeps five", () => {
+test("recent learning removes missing courses, rejects unsafe routes, and keeps one", () => {
   const records = Array.from({ length: 8 }, (_, index) => ({
     courseId: `c${index}`,
     lastRoute: index === 0 ? "edit" : "student-ai",
     visitedAt: new Date(Date.UTC(2026, 7, 9, index)).toISOString(),
   }));
   const result = parseRecentLearning(JSON.stringify({ version: 1, records }), ["c1", "c2", "c3", "c4", "c5", "c6", "c7"]);
-  assert.deepEqual(result.map((item) => item.courseId), ["c7", "c6", "c5", "c4", "c3"]);
+  assert.deepEqual(result.map((item) => item.courseId), ["c7"]);
   assert.equal(result.every((item) => item.lastRoute === "student-ai"), true);
 });
 
