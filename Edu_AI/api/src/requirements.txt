@@ -1,6 +1,9 @@
 fastapi>=0.104
 uvicorn[standard]>=0.24
 pydantic>=2.0
+SQLAlchemy>=2.0,<3
+alembic>=1.13,<2
+psycopg[binary]>=3.2,<4
 python-multipart>=0.0.6
 python-dotenv>=1.0
 baidu-aip>=4.16.13

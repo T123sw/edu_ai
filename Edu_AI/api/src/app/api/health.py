@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from fastapi import APIRouter
 
 from app.dependencies import get_rag_system
+from app.database import probe_database
 from app.schemas.common import HealthResponse
 
 router = APIRouter(tags=["health"])
+
+
+@router.get("/health/database")
+async def database_health_check() -> dict[str, Any]:
+    return probe_database(database_url=os.getenv("DATABASE_URL", ""))
 
 
 @router.get("/health", response_model=HealthResponse)
