@@ -1,6 +1,53 @@
 from app.services.course_knowledge_planner import preview_course_knowledge_plan
 
 
+def _leaf_nodes(node):
+    children = node.get("children") or []
+    if not children:
+        return [node]
+    result = []
+    for child in children:
+        result.extend(_leaf_nodes(child))
+    return result
+
+
+def test_plan_builds_semantic_three_level_graph_and_searches_chinese_first():
+    calls = []
+
+    def search(query: str, count: int):
+        calls.append(query)
+        if "lang:zh-CN" in query:
+            return [{
+                "title": "Python 条件语句",
+                "url": "https://zh.wikibooks.org/wiki/Python/条件语句",
+                "content": "条件判断 if elif else",
+            }]
+        return [{
+            "title": "Python compound statements",
+            "url": "https://docs.python.org/3/reference/compound_stmts.html",
+            "content": "if statement and loops",
+        }]
+
+    plan = preview_course_knowledge_plan(
+        {
+            "id": "python-control",
+            "title": "Python 控制流程入门",
+            "objectives": ["条件判断", "循环控制"],
+            "language": "zh-CN",
+        },
+        search_provider=search,
+    )
+
+    graph = plan.graph_draft
+    assert graph["label"] == "Python 控制流程入门课程知识图谱"
+    assert len(graph["children"]) == 1
+    assert graph["children"][0]["label"] == "Python 控制流程"
+    assert [node["label"] for node in _leaf_nodes(graph)] == ["条件判断", "循环控制"]
+    assert all(node["data"]["level"] == 2 for node in _leaf_nodes(graph))
+    assert "lang:zh-CN" in calls[0]
+    assert "lang:en" in calls[1]
+
+
 def test_plan_uses_course_semantics_not_course_id_for_topics_and_sources():
     course = {
         "id": "course-1720000000000",

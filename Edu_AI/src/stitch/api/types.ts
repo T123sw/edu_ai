@@ -241,6 +241,7 @@ export type CourseKnowledgeTopic = {
   topic_id: string;
   title: string;
   query: string;
+  english_query?: string;
   objective: string;
 };
 
@@ -279,6 +280,7 @@ export type CourseKnowledgeBuild = {
   progress?: number;
   course_snapshot: Record<string, unknown>;
   topics: CourseKnowledgeTopic[];
+  graph_draft?: KnowledgeGraphNode;
   source_candidates: CourseKnowledgeSourceCandidate[];
   warnings: string[];
   metrics?: Record<string, unknown>;
@@ -319,6 +321,7 @@ export type KnowledgeGraphNode = {
     hasChildren?: boolean;
     type?: string;
     hours?: number;
+    document_ids?: string[];
   };
 };
 
