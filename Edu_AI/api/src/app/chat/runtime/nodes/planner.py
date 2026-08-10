@@ -21,7 +21,12 @@ def planner_node(state: AgentState) -> dict:
     # The model may later enrich non-execution language, but workflow authority
     # belongs to this deterministic contract + compiler pair.  It prevents an
     # invalid model plan from being "fixed" by several competing post-processors.
-    contract = extract_task_contract(request, capability, state)
+    contract = extract_task_contract(
+        request,
+        capability,
+        state,
+        snapshot=rt.get("snapshot"),
+    )
     ctx = rt.get("ctx")
     if ctx is not None:
         ctx.task_contract = contract.model_dump(mode="json")

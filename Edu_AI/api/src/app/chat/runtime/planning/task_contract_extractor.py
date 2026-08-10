@@ -10,7 +10,13 @@ from app.chat.domain.teaching_task_contract import (
     ContractFieldEvidence,
     TeachingTaskContract,
 )
-from app.chat.domain.task_domain import resolve_task_domain
+from app.chat.domain.task_domain import (
+    extract_task_ids,
+    is_generation_job_id,
+    is_learning_task_id,
+    partition_task_ids,
+    resolve_task_domain,
+)
 
 
 _RESOURCE_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -45,7 +51,13 @@ _HOW_TO_PREFIXES = ("如何", "怎么", "怎样", "为什么", "什么是")
 _KNOWLEDGE_QUESTION_MARKERS = ("哪些", "什么", "如何", "为什么", "怎么", "怎样")
 
 
-def extract_task_contract(request: Any, capability: Any, state: dict | None = None) -> TeachingTaskContract:
+def extract_task_contract(
+    request: Any,
+    capability: Any,
+    state: dict | None = None,
+    *,
+    snapshot: Any = None,
+) -> TeachingTaskContract:
     state = state or {}
     question = str(getattr(request, "question", "") or "").strip()
     lowered = question.lower()
@@ -113,25 +125,34 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
     else:
         confirmation_policy = "none"
 
-    generation_job_ids = [
+    historical_generation_job_ids = [
         str(item.get("task_id") or "").strip()
         for item in pending_tasks
-        if str(item.get("task_id") or "").strip().startswith("job_")
+        if is_generation_job_id(item.get("task_id") or "")
     ]
-    learning_task_ids = [
+    historical_learning_task_ids = [
         str(item.get("task_id") or "").strip()
         for item in pending_tasks
-        if str(item.get("task_id") or "").strip().startswith("lt_")
+        if is_learning_task_id(item.get("task_id") or "")
     ]
-    task_domain = resolve_task_domain(question, learning_task_ids + generation_job_ids)
+    current_learning_task_ids, current_generation_job_ids = partition_task_ids(
+        extract_task_ids(question)
+    )
+    page_task_ids = _page_task_ids(snapshot)
+    page_learning_task_ids, page_generation_job_ids = partition_task_ids(page_task_ids)
+    task_domain = resolve_task_domain(
+        question,
+        historical_learning_task_ids + historical_generation_job_ids,
+        page_task_ids=page_task_ids,
+    )
     domain_pending_tasks = {
         "course_learning": [
             item for item in pending_tasks
-            if str(item.get("task_id") or "").strip().startswith("lt_")
+            if is_learning_task_id(item.get("task_id") or "")
         ],
         "generation_job": [
             item for item in pending_tasks
-            if str(item.get("task_id") or "").strip().startswith("job_")
+            if is_generation_job_id(item.get("task_id") or "")
         ],
     }.get(task_domain, [])
     ambiguities = _ambiguities(
@@ -175,13 +196,62 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
             "conversation_id": str(getattr(request, "conversation_id", "") or ""),
             "course_id": str(getattr(request, "course_id", "") or ""),
             "active_outline": bool(active_outline),
-            "learning_task_ids": learning_task_ids,
-            "generation_job_ids": generation_job_ids,
+            "current_learning_task_ids": current_learning_task_ids,
+            "current_generation_job_ids": current_generation_job_ids,
+            "page_learning_task_ids": page_learning_task_ids,
+            "page_generation_job_ids": page_generation_job_ids,
+            "learning_task_ids": historical_learning_task_ids,
+            "generation_job_ids": historical_generation_job_ids,
         },
         field_evidence=field_evidence,
         ambiguities=ambiguities,
         clarification=clarification,
     )
+
+
+def _page_task_ids(snapshot: Any) -> list[str]:
+    """Read task IDs only from structured snapshot fields owned by the page."""
+    if snapshot is None:
+        return []
+
+    values: list[str] = []
+
+    def add(value: Any) -> None:
+        if isinstance(value, str) and value.strip():
+            values.append(value.strip())
+        elif isinstance(value, (list, tuple, set)):
+            for item in value:
+                add(item)
+
+    learning_context = dict(getattr(snapshot, "learning_context", {}) or {})
+    for key in ("pending_tasks", "completed_tasks", "task_summaries"):
+        for item in list(learning_context.get(key) or []):
+            if isinstance(item, dict):
+                add(item.get("task_id"))
+
+    active_context = dict(getattr(snapshot, "active_context", {}) or {})
+    for key in (
+        "task_id",
+        "task_ids",
+        "active_task_id",
+        "learning_task_id",
+        "learning_task_ids",
+        "generation_job_id",
+        "generation_job_ids",
+    ):
+        add(active_context.get(key))
+    add(getattr(snapshot, "active_task", None))
+    add(getattr(snapshot, "referenced_artifact_ids", []))
+
+    workflow_state = getattr(snapshot, "workflow_state", None)
+    if isinstance(workflow_state, dict):
+        add(workflow_state.get("workflow_id"))
+    else:
+        add(getattr(workflow_state, "workflow_id", None))
+    return [
+        value for value in values
+        if is_learning_task_id(value) or is_generation_job_id(value)
+    ]
 
 
 def _intent(question: str, resource_types: list[str], active_outline: dict) -> str:
