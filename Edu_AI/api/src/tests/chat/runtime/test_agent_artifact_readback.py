@@ -16,7 +16,12 @@ def test_status_resolves_persisted_material_for_quality_audit(monkeypatch):
     }
     monkeypatch.setattr(
         "app.chat.runtime.agent_tools.handlers.control.get_job",
-        lambda _job_id: SimpleNamespace(status="succeeded", result_ref=result_ref, error_message=None),
+        lambda _job_id: SimpleNamespace(
+            owner_user_id="teacher-a",
+            status="succeeded",
+            result_ref=result_ref,
+            error_message=None,
+        ),
     )
     monkeypatch.setattr(
         "app.chat.runtime.agent_tools.handlers.control.storage_manager.get_generated_material",

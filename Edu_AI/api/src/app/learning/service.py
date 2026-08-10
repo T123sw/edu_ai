@@ -451,13 +451,43 @@ class LearningService:
             "as_of": overview.latest_activity_at or utc_now(),
             "overview": asdict(overview),
             "task_summaries": [
-                {
-                    **asdict(summary.task),
-                    "enrolled_students": summary.enrolled_students,
-                    "started_students": summary.started_students,
-                    "completed_students": summary.completed_students,
-                    "completion_rate": summary.completion_rate,
-                }
+                self._teacher_agent_task_summary(summary)
                 for summary in summaries
             ],
+        }
+
+    @staticmethod
+    def _teacher_agent_task_summary(summary: CourseTaskSummaryRecord) -> dict[str, Any]:
+        """Build the aggregate-only task DTO exposed to the teacher Agent."""
+        progress = list(summary.progress)
+        activity_times = [
+            item.last_activity_at for item in progress if item.last_activity_at
+        ]
+        completion_basis_counts = {
+            basis: sum(
+                item.status == "completed" and item.completion_basis == basis
+                for item in progress
+            )
+            for basis in (
+                "self_reported",
+                "activity_evidenced",
+                "assessment_verified",
+            )
+        }
+        return {
+            "task_id": summary.task.task_id,
+            "title": summary.task.title,
+            "status": summary.task.status,
+            "enrolled_students": summary.enrolled_students,
+            "not_started_students": sum(
+                item.status == "not_started" for item in progress
+            ),
+            "in_progress_students": sum(
+                item.status == "in_progress" for item in progress
+            ),
+            "started_students": summary.started_students,
+            "completed_students": summary.completed_students,
+            "completion_rate": summary.completion_rate,
+            "completion_basis_counts": completion_basis_counts,
+            "latest_activity_at": max(activity_times) if activity_times else None,
         }

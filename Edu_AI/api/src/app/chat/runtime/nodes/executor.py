@@ -516,17 +516,25 @@ def _first_unambiguous_domain_task_id(
     *,
     prefixes: tuple[str, ...],
 ) -> str:
-    """Select one ID from the highest-priority populated domain layer."""
+    """Select the highest-priority ID without hiding an invalid current ID."""
     for key in keys:
-        task_ids = list(
+        raw_task_ids = list(
             dict.fromkeys(
                 str(item or "").strip()
                 for item in list(refs.get(key) or [])
-                if str(item or "").strip().startswith(prefixes)
+                if str(item or "").strip()
             )
         )
+        if not raw_task_ids:
+            continue
+        task_ids = [
+            task_id for task_id in raw_task_ids if task_id.startswith(prefixes)
+        ]
         if task_ids:
             return task_ids[0] if len(task_ids) == 1 else ""
+        if key.startswith(("current_", "page_")):
+            return raw_task_ids[0]
+        return ""
     return ""
 
 
@@ -574,8 +582,6 @@ def _maybe_outline_to_append(answer: str, state: dict) -> str:
     """If this turn called draft_outline and the LLM didn't include markdown
     headers in its answer, return the outline_markdown to append. Otherwise
     return empty string."""
-    import json as _json
-
     # LLM already produced structured markdown — don't double-append
     if "## " in answer or "\n#" in answer or "\n# " in answer:
         return ""

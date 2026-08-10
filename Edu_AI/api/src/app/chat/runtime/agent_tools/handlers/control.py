@@ -32,7 +32,7 @@ def _handle_query_task_status(name: str, args: dict, ctx, *, canonical_only: boo
         if not job:
             continue
         job_owner = str(getattr(job, "owner_user_id", "") or "")
-        if job_owner and job_owner != owner:
+        if not owner or not job_owner or job_owner != owner:
             continue
         status = getattr(job, "status", "unknown")
         status_value = str(getattr(status, "value", status))
