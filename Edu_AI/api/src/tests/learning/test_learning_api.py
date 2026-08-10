@@ -192,3 +192,13 @@ def test_learning_overview_is_role_scoped_and_requires_teacher_edit_access(tmp_p
     assert "student-1" not in teacher_overview.text
 
     assert teacher_viewer.get("/api/courses/course-1/learning/overview").status_code == 403
+
+
+def test_learning_overview_rejects_student_outside_course(tmp_path):
+    factory = LearningApiFactory(tmp_path)
+    outsider = factory.client("student-outsider", "student")
+
+    response = outsider.get("/api/courses/course-1/learning/overview")
+
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"

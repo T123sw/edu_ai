@@ -332,3 +332,17 @@ def test_teacher_overview_reports_completion_bases_without_private_chat(service)
     assert overview.activity_evidenced_students == 1
     assert not hasattr(overview, "conversation_history")
 
+
+def test_student_overview_requires_course_read_membership(service):
+    task = _create_task(service)
+    service.publish_task(
+        course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+    )
+
+    with pytest.raises(LearningRuleError) as error:
+        service.get_learning_overview(
+            course_id="course-1", user_id="student-outsider", actor_role="student"
+        )
+
+    assert error.value.code == "COURSE_READ_REQUIRED"
+

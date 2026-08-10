@@ -31,6 +31,7 @@ def _http_error(error: LearningRuleError) -> HTTPException:
         "TASK_NOT_FOUND": status.HTTP_404_NOT_FOUND,
         "COURSE_RESOURCE_NOT_FOUND": status.HTTP_404_NOT_FOUND,
         "COURSE_EDIT_REQUIRED": status.HTTP_403_FORBIDDEN,
+        "COURSE_READ_REQUIRED": status.HTTP_403_FORBIDDEN,
         "TASK_NOT_PUBLISHED": status.HTTP_409_CONFLICT,
         "TASK_NOT_PUBLISHABLE": status.HTTP_409_CONFLICT,
         "RESOURCE_NOT_ASSIGNED": status.HTTP_409_CONFLICT,

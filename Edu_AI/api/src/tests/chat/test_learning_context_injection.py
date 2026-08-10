@@ -112,6 +112,22 @@ def test_context_builder_loads_learning_context_without_existing_conversation(tm
     assert snapshot.learning_context["projection"] == "student"
 
 
+def test_context_builder_drops_learning_context_for_student_outside_course(tmp_path):
+    request = ChatRequestV2(
+        question="What should I study next?",
+        actor_role="student",
+        owner="student-outsider",
+        course_id="course-1",
+    )
+
+    snapshot = ContextBuilder(
+        conversation_store=SimpleNamespace(),
+        learning_context_reader=_reader(tmp_path),
+    ).build(request)
+
+    assert snapshot.learning_context == {}
+
+
 def test_fast_and_react_prompts_receive_role_scoped_learning_context(tmp_path):
     context = _reader(tmp_path).read(
         user_id="student-1",

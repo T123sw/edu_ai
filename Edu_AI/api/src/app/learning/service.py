@@ -71,6 +71,15 @@ class LearningService:
                 return membership
         raise LearningRuleError("COURSE_EDIT_REQUIRED", "Course edit permission is required")
 
+    def _course_read_membership(self, *, course_id: str, user_id: str) -> Any:
+        for membership in self.membership_lookup(course_id):
+            if (
+                _membership_value(membership, "user_id") == user_id
+                and _membership_value(membership, "role") in {"owner", "editor", "viewer"}
+            ):
+                return membership
+        raise LearningRuleError("COURSE_READ_REQUIRED", "Course read permission is required")
+
     def _student_ids(self, course_id: str) -> list[str]:
         return sorted(
             {
@@ -340,6 +349,7 @@ class LearningService:
     ) -> LearningOverviewRecord:
         """Return one role-scoped projection from persisted learning progress."""
         if str(actor_role or "").strip().lower() == "student":
+            self._course_read_membership(course_id=course_id, user_id=user_id)
             published_tasks = self.store.list_tasks(course_id, statuses={"published"})
             now = utc_now()
             progress = [
@@ -382,16 +392,16 @@ class LearningService:
         student_id: str,
         limit: int = 10,
     ) -> dict[str, Any]:
+        overview = self.get_learning_overview(
+            course_id=course_id,
+            user_id=student_id,
+            actor_role="student",
+        )
         views = self.list_tasks(
             course_id=course_id,
             user_id=student_id,
             include_unpublished=False,
             limit=limit,
-        )
-        overview = self.get_learning_overview(
-            course_id=course_id,
-            user_id=student_id,
-            actor_role="student",
         )
         items = [
             {
