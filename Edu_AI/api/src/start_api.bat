@@ -11,6 +11,17 @@ set "API_DIR=%~dp0"
 for %%I in ("%API_DIR%..\..") do set "FRONTEND_DIR=%%~fI"
 for %%I in ("%FRONTEND_DIR%\..") do set "REPO_ROOT=%%~fI"
 set "SIDECAR_DIR=%REPO_ROOT%\openmaic-sidecar"
+set "POSTGRES_DIR=%REPO_ROOT%\infra\postgres"
+if defined EDU_AI_POSTGRES_COMPOSE_FILE (
+    set "POSTGRES_COMPOSE_FILE=%EDU_AI_POSTGRES_COMPOSE_FILE%"
+) else (
+    set "POSTGRES_COMPOSE_FILE=%POSTGRES_DIR%\compose.yml"
+)
+if defined EDU_AI_POSTGRES_ENV_FILE (
+    set "POSTGRES_ENV_FILE=%EDU_AI_POSTGRES_ENV_FILE%"
+) else (
+    set "POSTGRES_ENV_FILE=%POSTGRES_DIR%\.env.postgres"
+)
 cd /d "%API_DIR%"
 
 set "PYTHON_EXE=python"
@@ -77,6 +88,34 @@ if /I "%~1"=="--check" (
         echo [ERROR] OpenMAIC health endpoint not found: "%SIDECAR_DIR%\app\api\health\route.ts"
         exit /b 1
     )
+    if not exist "%POSTGRES_COMPOSE_FILE%" (
+        echo [ERROR] PostgreSQL Compose file not found: "%POSTGRES_COMPOSE_FILE%"
+        exit /b 1
+    )
+    if not exist "%POSTGRES_ENV_FILE%" (
+        echo [ERROR] PostgreSQL environment file not found: "%POSTGRES_ENV_FILE%"
+        exit /b 1
+    )
+    call :load_database_url
+    if not defined DATABASE_URL (
+        echo [ERROR] DATABASE_URL is missing from "%POSTGRES_ENV_FILE%".
+        exit /b 1
+    )
+    where docker >nul 2>nul
+    if !ERRORLEVEL! NEQ 0 (
+        echo [ERROR] Docker CLI was not found. Install Docker Desktop first.
+        exit /b 1
+    )
+    docker compose version >nul 2>nul
+    if !ERRORLEVEL! NEQ 0 (
+        echo [ERROR] Docker Compose is not available.
+        exit /b 1
+    )
+    docker compose --env-file "%POSTGRES_ENV_FILE%" -f "%POSTGRES_COMPOSE_FILE%" config -q >nul 2>nul
+    if !ERRORLEVEL! NEQ 0 (
+        echo [ERROR] PostgreSQL Compose configuration is invalid.
+        exit /b 1
+    )
     echo Startup script check passed.
     exit /b 0
 )
@@ -94,16 +133,11 @@ set "VITE_API_BASE_URL=http://localhost:%API_PORT%"
 set "CLASSROOM_VIDEO_FRONTEND_URL=http://127.0.0.1:%FRONTEND_PORT%"
 set "FRONTEND_VITE_CMD=%FRONTEND_DIR%\node_modules\.bin\vite.cmd"
 
-echo [1/7] Checking Edu-AI ports...
-call :ensure_port_free "%API_PORT%" "API"
-call :ensure_port_free "%FRONTEND_PORT%" "frontend"
-echo.
-
-echo [2/7] Checking backend dependencies...
-"%PYTHON_EXE%" -c "import uvicorn, fastapi" >nul 2>nul
+echo [1/8] Checking backend dependencies...
+"%PYTHON_EXE%" -c "import uvicorn, fastapi, sqlalchemy, alembic, psycopg" >nul 2>nul
 if !ERRORLEVEL! NEQ 0 (
-    echo Uvicorn/FastAPI not found. Installing minimal backend packages...
-    "%PYTHON_EXE%" -m pip install uvicorn fastapi
+    echo Required backend or database packages not found. Installing them...
+    "%PYTHON_EXE%" -m pip install uvicorn fastapi "SQLAlchemy>=2,<3" "alembic>=1.13,<2" "psycopg[binary]>=3.2,<4"
     if !ERRORLEVEL! NEQ 0 (
         echo [ERROR] Backend dependency installation failed.
         pause
@@ -113,7 +147,27 @@ if !ERRORLEVEL! NEQ 0 (
 echo Backend dependencies look available.
 echo.
 
-echo [3/7] Checking frontend dependencies...
+echo [2/8] Preparing PostgreSQL database...
+call :ensure_database
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] PostgreSQL could not be prepared.
+    pause
+    exit /b 1
+)
+echo PostgreSQL is healthy and schema migrations are current.
+echo.
+
+if /I "%~1"=="--database-only" (
+    echo Database-only startup completed successfully.
+    exit /b 0
+)
+
+echo [3/8] Checking Edu-AI ports...
+call :ensure_port_free "%API_PORT%" "API"
+call :ensure_port_free "%FRONTEND_PORT%" "frontend"
+echo.
+
+echo [4/8] Checking frontend dependencies...
 if not exist "%FRONTEND_DIR%\package.json" (
     echo [ERROR] Frontend package.json not found: "%FRONTEND_DIR%\package.json"
     pause
@@ -140,7 +194,7 @@ if not exist "%FRONTEND_VITE_CMD%" (
 )
 echo.
 
-echo [4/7] Checking OpenMAIC dependencies...
+echo [5/8] Checking OpenMAIC dependencies...
 if not exist "%SIDECAR_DIR%\package.json" (
     echo [ERROR] OpenMAIC package.json not found: "%SIDECAR_DIR%\package.json"
     pause
@@ -192,7 +246,7 @@ if not exist "%SIDECAR_DIR%\node_modules" (
 echo OpenMAIC dependencies look available.
 echo.
 
-echo [5/7] Starting OpenMAIC sidecar...
+echo [6/8] Starting OpenMAIC sidecar...
 call :sidecar_health
 if !ERRORLEVEL! EQU 0 (
     echo OpenMAIC sidecar is already healthy at http://localhost:%SIDECAR_PORT%.
@@ -217,7 +271,7 @@ if !ERRORLEVEL! EQU 0 (
 )
 echo.
 
-echo [6/7] Starting frontend...
+echo [7/8] Starting frontend...
 start "edu-ai-frontend" /D "%FRONTEND_DIR%" cmd /k "npm.cmd run dev -- --host 0.0.0.0 --port %FRONTEND_PORT%"
 call :wait_for_frontend
 if !ERRORLEVEL! NEQ 0 (
@@ -231,7 +285,7 @@ echo Frontend will run at: http://localhost:%FRONTEND_PORT%
 echo Frontend API base: %VITE_API_BASE_URL%
 echo.
 
-echo [7/7] Starting backend API...
+echo [8/8] Starting backend API...
 echo ========================================
 echo API service:      http://localhost:%API_PORT%
 echo Frontend:         http://localhost:%FRONTEND_PORT%
@@ -300,3 +354,110 @@ if !ERRORLEVEL! EQU 0 (
     echo %CHECK_NAME% port %CHECK_PORT% is available.
 )
 exit /b 0
+
+:load_database_url
+set "DATABASE_URL="
+for /f "usebackq tokens=1,* delims==" %%A in ("%POSTGRES_ENV_FILE%") do (
+    if /I "%%A"=="DATABASE_URL" set "DATABASE_URL=%%B"
+)
+exit /b 0
+
+:ensure_database
+if not exist "%POSTGRES_COMPOSE_FILE%" (
+    echo [ERROR] PostgreSQL Compose file not found: "%POSTGRES_COMPOSE_FILE%"
+    exit /b 1
+)
+if not exist "%POSTGRES_ENV_FILE%" (
+    echo [ERROR] PostgreSQL environment file not found: "%POSTGRES_ENV_FILE%"
+    exit /b 1
+)
+
+call :load_database_url
+if not defined DATABASE_URL (
+    echo [ERROR] DATABASE_URL is missing from "%POSTGRES_ENV_FILE%".
+    exit /b 1
+)
+
+where docker >nul 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] Docker CLI was not found. Install Docker Desktop first.
+    exit /b 1
+)
+
+docker compose version >nul 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] Docker Compose is not available.
+    exit /b 1
+)
+
+docker info >nul 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    call :start_docker_desktop
+    if !ERRORLEVEL! NEQ 0 exit /b 1
+    call :wait_for_docker
+    if !ERRORLEVEL! NEQ 0 (
+        echo [ERROR] Docker Desktop did not become ready within 120 seconds.
+        exit /b 1
+    )
+)
+
+docker compose --env-file "%POSTGRES_ENV_FILE%" -f "%POSTGRES_COMPOSE_FILE%" config -q >nul 2>nul
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] PostgreSQL Compose configuration is invalid.
+    exit /b 1
+)
+
+docker compose --env-file "%POSTGRES_ENV_FILE%" -f "%POSTGRES_COMPOSE_FILE%" up -d
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] PostgreSQL container startup failed.
+    exit /b 1
+)
+
+call :wait_for_database
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] PostgreSQL did not become healthy within 120 seconds.
+    exit /b 1
+)
+
+"%PYTHON_EXE%" -m alembic upgrade head
+if !ERRORLEVEL! NEQ 0 (
+    echo [ERROR] PostgreSQL schema migration failed.
+    exit /b 1
+)
+exit /b 0
+
+:start_docker_desktop
+set "DOCKER_DESKTOP_EXE="
+if exist "%ProgramFiles%\Docker\Docker\Docker Desktop.exe" set "DOCKER_DESKTOP_EXE=%ProgramFiles%\Docker\Docker\Docker Desktop.exe"
+if not defined DOCKER_DESKTOP_EXE if exist "%LOCALAPPDATA%\Docker\Docker Desktop.exe" set "DOCKER_DESKTOP_EXE=%LOCALAPPDATA%\Docker\Docker Desktop.exe"
+if not defined DOCKER_DESKTOP_EXE (
+    echo [ERROR] Docker Desktop is not running and its launcher could not be found.
+    echo Start Docker Desktop manually, then run this script again.
+    exit /b 1
+)
+echo Docker Desktop is not running. Starting it now...
+start "Docker Desktop" "%DOCKER_DESKTOP_EXE%"
+exit /b 0
+
+:wait_for_docker
+set "DOCKER_HEALTH_ATTEMPTS=0"
+
+:wait_for_docker_loop
+docker info >nul 2>nul
+if !ERRORLEVEL! EQU 0 exit /b 0
+set /a DOCKER_HEALTH_ATTEMPTS+=1
+if !DOCKER_HEALTH_ATTEMPTS! GEQ 60 exit /b 1
+powershell.exe -NoProfile -NonInteractive -Command "Start-Sleep -Seconds 2" >nul 2>nul
+goto :wait_for_docker_loop
+
+:wait_for_database
+set "DATABASE_HEALTH_ATTEMPTS=0"
+
+:wait_for_database_loop
+set "DATABASE_HEALTH="
+for /f "delims=" %%H in ('docker inspect --format "{{.State.Health.Status}}" edu-ai-postgres 2^>nul') do set "DATABASE_HEALTH=%%H"
+if /I "!DATABASE_HEALTH!"=="healthy" exit /b 0
+set /a DATABASE_HEALTH_ATTEMPTS+=1
+if !DATABASE_HEALTH_ATTEMPTS! GEQ 60 exit /b 1
+powershell.exe -NoProfile -NonInteractive -Command "Start-Sleep -Seconds 2" >nul 2>nul
+goto :wait_for_database_loop
