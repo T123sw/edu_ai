@@ -21,9 +21,8 @@ from typing import Any, Optional
 from urllib.parse import urlsplit
 
 from app.integrations.openmaic import OpenMaicClient
-from app.services.runtime_config_resolver import runtime_config_resolver
+from app.services.openmaic_tts_service import OpenMaicTtsService
 from core.course_storage import CourseStorageManager
-import httpx
 
 _FALLBACK_EXTENSION = ".bin"
 
@@ -87,70 +86,43 @@ async def synthesize_classroom_speech_audio(
     course_id: str,
     classroom_id: str,
     course_storage_manager: CourseStorageManager,
-    tts_config: Optional[dict[str, Any]] = None,
-    http_client: Optional[httpx.AsyncClient] = None,
+    tts_service: OpenMaicTtsService | None = None,
 ) -> int:
-    """Fill missing speech audio through an active OpenAI-compatible TTS config."""
-    resolved = tts_config or runtime_config_resolver.resolve("tts")
-    if resolved.get("_source") not in {"user", "system"}:
-        return 0
-    base_url = str(resolved.get("base_url") or "").rstrip("/")
-    api_key = str(resolved.get("api_key") or "")
-    model = str(resolved.get("model") or "")
-    voice = str(resolved.get("voice") or "alloy")
-    timeout_seconds = float(resolved.get("timeout_seconds") or 60)
-    if not (base_url and api_key and model):
-        return 0
-
-    owned_client = http_client is None
-    client = http_client or httpx.AsyncClient(trust_env=False)
+    """Fill missing narration with the server-owned classroom TTS profile."""
+    service = tts_service or OpenMaicTtsService()
     audio_dir: Optional[Path] = None
     generated = 0
-    try:
-        for scene in scenes:
-            for action in scene.get("actions") or []:
-                text = str(action.get("text") or "").strip()
-                if action.get("type") != "speech" or action.get("audioUrl") or not text:
-                    continue
-                response = await client.post(
-                    f"{base_url}/audio/speech",
-                    headers={"Authorization": f"Bearer {api_key}"},
-                    json={
-                        "model": model,
-                        "voice": voice,
-                        "input": text,
-                        "response_format": "mp3",
-                    },
-                    timeout=timeout_seconds,
+    for scene in scenes:
+        for action in scene.get("actions") or []:
+            text = str(action.get("text") or "").strip()
+            if action.get("type") != "speech" or action.get("audioUrl") or not text:
+                continue
+            safe_id = re.sub(
+                r"[^A-Za-z0-9_-]+",
+                "-",
+                str(action.get("audioId") or action.get("id") or uuid4().hex),
+            ).strip("-") or uuid4().hex
+            audio, format_name = await service.synthesize(text=text, audio_id=safe_id)
+            safe_format = re.sub(r"[^A-Za-z0-9]+", "", format_name).lower() or "mp3"
+            if audio_dir is None:
+                audio_dir = course_storage_manager.get_classroom_audio_dir(
+                    course_id, classroom_id
                 )
-                response.raise_for_status()
-                if audio_dir is None:
-                    audio_dir = course_storage_manager.get_classroom_audio_dir(
-                        course_id, classroom_id
-                    )
-                    audio_dir.mkdir(parents=True, exist_ok=True)
-                safe_id = re.sub(
-                    r"[^A-Za-z0-9._-]+",
-                    "-",
-                    str(action.get("audioId") or action.get("id") or uuid4().hex),
-                ).strip("-")
-                filename = f"{safe_id or uuid4().hex}.mp3"
-                destination = audio_dir / filename
-                temporary = destination.with_name(f".{destination.name}.{uuid4().hex}.tmp")
-                try:
-                    with temporary.open("wb") as stream:
-                        stream.write(response.content)
-                        stream.flush()
-                        os.fsync(stream.fileno())
-                    os.replace(temporary, destination)
-                finally:
-                    temporary.unlink(missing_ok=True)
-                action["audioId"] = safe_id
-                action["audioUrl"] = (
-                    f"/api/courses/{course_id}/classrooms/{classroom_id}/audio/{filename}"
-                )
-                generated += 1
-    finally:
-        if owned_client:
-            await client.aclose()
+                audio_dir.mkdir(parents=True, exist_ok=True)
+            filename = f"{safe_id}.{safe_format}"
+            destination = audio_dir / filename
+            temporary = destination.with_name(f".{destination.name}.{uuid4().hex}.tmp")
+            try:
+                with temporary.open("wb") as stream:
+                    stream.write(audio)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(temporary, destination)
+            finally:
+                temporary.unlink(missing_ok=True)
+            action["audioId"] = safe_id
+            action["audioUrl"] = (
+                f"/api/courses/{course_id}/classrooms/{classroom_id}/audio/{filename}"
+            )
+            generated += 1
     return generated
