@@ -101,7 +101,7 @@ test.describe('real classroom QA acceptance', () => {
       { timeout: 180_000 },
     );
     await page.getByRole('button', { name: '发送' }).click();
-    await expect(page.getByText(question)).toBeVisible();
+    await expect(page.getByRole('log', { name: '问答记录' }).getByText(question)).toBeVisible();
     await expect(questionBox).toBeDisabled();
 
     const turnResponse = await turnResponsePromise;
@@ -164,7 +164,7 @@ test.describe('real classroom QA acceptance', () => {
       timeout: 60_000,
     });
     await page.getByRole('button', { name: '播放当前页' }).click();
-    await expect(page.getByText(question)).toBeVisible();
+    await expect(page.getByRole('log', { name: '问答记录' }).getByText(question)).toBeVisible();
 
     const studentBName = `qa-student-b-${Date.now()}`;
     const register = await request.post(`${apiBase}/api/auth/register`, {
