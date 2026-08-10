@@ -6,10 +6,12 @@ import {
   backendCourseToSummary,
   getCourseMaterials,
   getKnowledgeBaseDocuments,
+  joinCourseByCode,
   listCourses,
 } from "../../api/courses";
 import type { BackendCourse } from "../../api/types";
 import { MaterialIcon, useAppShell } from "../../shared";
+import { isCompleteCourseCode, normalizeCourseCodeInput } from "../../course/courseEnrollment";
 import {
   toCourseCardPresentation,
   type CourseCardFacts,
@@ -41,6 +43,9 @@ export function StudentHomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadVersion, setLoadVersion] = useState(0);
+  const [courseCode, setCourseCode] = useState("");
+  const [joining, setJoining] = useState(false);
+  const [joinFeedback, setJoinFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +110,26 @@ export function StudentHomePage() {
     return { ...(facts[courseId] ?? emptyFacts), activeJobCount };
   }
 
+  async function handleJoinCourse() {
+    if (!isCompleteCourseCode(courseCode)) {
+      setJoinFeedback("请输入教师提供的 8 位课程码。");
+      return;
+    }
+    setJoining(true);
+    setJoinFeedback(null);
+    try {
+      const joined = await joinCourseByCode(courseCode);
+      setCourses((current) => current.some((course) => course.id === joined.id) ? current : [joined, ...current]);
+      setCourseCode("");
+      setJoinFeedback(`已加入课程“${joined.title}”。`);
+      setLoadVersion((value) => value + 1);
+    } catch (reason) {
+      setJoinFeedback(reason instanceof Error ? reason.message : "暂时无法加入课程，请稍后重试。");
+    } finally {
+      setJoining(false);
+    }
+  }
+
   return (
     <div className="student-home">
       <section className="teacher-home__intro student-home__intro">
@@ -117,6 +142,33 @@ export function StudentHomePage() {
           <MaterialIcon name="search" />
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
         </label>
+      </section>
+
+      <section className="student-home__section rounded-[28px] border border-blue-100 bg-white p-6 shadow-sm" aria-labelledby="join-course-title">
+        <div className="grid items-end gap-4 md:grid-cols-[1fr_minmax(260px,420px)]">
+          <div>
+            <p className="teacher-home__eyebrow">加入新课程</p>
+            <h2 id="join-course-title" className="mt-1 text-2xl font-bold">输入教师提供的课程码</h2>
+            <p className="mt-2 text-sm text-(--muted-text)">加入后，课程知识图谱、学习资料与教师发布的资源会出现在你的课程空间中。</p>
+          </div>
+          <div>
+            <div className="flex gap-2">
+              <input
+                value={courseCode}
+                onChange={(event) => setCourseCode(normalizeCourseCodeInput(event.target.value))}
+                onKeyDown={(event) => { if (event.key === "Enter") void handleJoinCourse(); }}
+                className="min-w-0 flex-1 rounded-xl border border-blue-200 px-4 py-3 font-mono text-lg tracking-[0.16em] uppercase outline-none focus:border-blue-500"
+                placeholder="例如 ABCD2345"
+                aria-label="课程码"
+                maxLength={8}
+              />
+              <button type="button" disabled={joining || !isCompleteCourseCode(courseCode)} onClick={() => void handleJoinCourse()} className="rounded-xl bg-blue-600 px-5 py-3 font-bold text-white disabled:opacity-50">
+                {joining ? "加入中…" : "加入课程"}
+              </button>
+            </div>
+            {joinFeedback ? <p className="mt-2 text-sm text-(--muted-text)" role="status">{joinFeedback}</p> : null}
+          </div>
+        </div>
       </section>
 
       {recentCourse && !query ? (

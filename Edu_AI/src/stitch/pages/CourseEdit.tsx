@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { updateCourse } from "../api/courses";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
+import { CourseMembersPanel } from "../course/CourseMembersPanel";
 import {
   AppSurface,
   GlassPanel,
@@ -257,6 +258,7 @@ export function CourseEditPage() {
               </dl>
             )}
           </GlassPanel>
+          {courseRole === "owner" ? <CourseMembersPanel course={course} /> : null}
         </div>
       </main>
     </AppSurface>
