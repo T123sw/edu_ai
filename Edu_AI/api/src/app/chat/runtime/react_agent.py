@@ -96,6 +96,11 @@ class ReActAgent:
             # A live checkpoint is newer than the durable snapshot; after a
             # restart the durable state is the only available workflow memory.
             checkpoint_state = {**durable_state, **checkpoint_state}
+            # Agent memory is updated after graph execution and persisted in
+            # the durable store. Until the checkpoint is synchronized, its
+            # stale value must not overwrite the latest durable memory.
+            if durable_state.get("agent_memory"):
+                checkpoint_state["agent_memory"] = durable_state["agent_memory"]
             active_draft_outline = checkpoint_state.get("active_draft_outline")
             current_pending_tasks = list(checkpoint_state.get("pending_tasks") or [])
         except Exception:
@@ -302,6 +307,10 @@ class ReActAgent:
                     user_message=str(getattr(request, "question", "") or ""),
                     task_contract=dict(values.get("task_contract") or {}),
                     state=values,
+                )
+                self._graph.update_state(
+                    config,
+                    {"agent_memory": values["agent_memory"]},
                 )
                 self.agent_run_store.save(
                     conversation_id, owner_user_id, course_id, values
