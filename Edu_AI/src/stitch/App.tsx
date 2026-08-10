@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
 import { CourseResourcesPage } from "./pages/CourseResources";
+import { CourseLearningPage } from "./pages/CourseLearning";
 import { AIWorkspacePage } from "./pages/AIWorkspace";
 import { HomeDashboardPage } from "./pages/HomeDashboard";
 import { PptStudioPage } from "./pages/PptStudio";
@@ -49,6 +50,7 @@ const pages = [
   [routes.home, "Home", HomeDashboardPage],
   [routes.course, "Course List", CourseListPage],
   [routes.courseDetail, "Course Detail", CourseDetailPage],
+  [routes.learning, "Course Learning", CourseLearningPage],
   [routes.workspace, "Workspace", WorkspaceOverviewPage],
   [routes.resources, "Course Resources", CourseResourcesPage],
   [routes.ai, "AI Workspace", AIWorkspacePage],

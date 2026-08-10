@@ -12,6 +12,7 @@ import {
 
 const studentRouteByTeacherRoute: Record<TeacherCourseRoute, StudentRoute> = {
   "course-detail": "student-course-detail",
+  learning: "student-learning",
   ai: "student-ai",
   knowledge: "student-course-knowledge",
   graph: "student-course-knowledge",

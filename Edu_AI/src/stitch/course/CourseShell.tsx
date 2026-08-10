@@ -25,6 +25,7 @@ type CourseShellRoute = TeacherCourseRoute | StudentRoute;
 
 const studentRouteByNavigationId: Partial<Record<CourseNavigationId, StudentRoute>> = {
   overview: "student-course-detail",
+  learning: "student-learning",
   workspace: "student-ai",
   knowledge: "student-course-knowledge",
   classroom: "student-classroom",
@@ -33,6 +34,7 @@ const studentRouteByNavigationId: Partial<Record<CourseNavigationId, StudentRout
 
 const studentNavigationLabels: Partial<Record<CourseNavigationId, string>> = {
   overview: "课程概览",
+  learning: "学习任务",
   workspace: "AI问答",
   knowledge: "课程知识",
   classroom: "AI课堂",

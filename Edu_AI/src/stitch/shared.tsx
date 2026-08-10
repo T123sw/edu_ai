@@ -17,6 +17,7 @@ export const routes = {
   workspace: "workspace",
   course: "course",
   courseDetail: "course-detail",
+  learning: "learning",
   ai: "ai",
   home: "home",
   profile: "profile",

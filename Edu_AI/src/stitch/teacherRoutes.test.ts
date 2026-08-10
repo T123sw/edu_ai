@@ -8,11 +8,12 @@ import {
   teacherSidebarItems,
 } from "./teacherRoutes.ts";
 
-test("teacher sidebar exposes the approved six destinations in order", () => {
+test("teacher sidebar exposes the approved learning destinations in order", () => {
   assert.deepEqual(
     teacherSidebarItems.map(({ route, label }) => [route, label]),
     [
       ["course-detail", "课程概览"],
+      ["learning", "学习任务"],
       ["ai", "问答与生成"],
       ["knowledge", "课程知识"],
       ["classroom-studio", "AI 课堂"],
@@ -23,6 +24,10 @@ test("teacher sidebar exposes the approved six destinations in order", () => {
 });
 
 test("teacher course hashes carry an encoded course id", () => {
+  assert.equal(
+    buildTeacherCourseHash("learning", "course-1"),
+    "#learning?course_id=course-1",
+  );
   assert.equal(
     buildTeacherCourseHash("course-detail", "course / 中文"),
     "#course-detail?course_id=course+%2F+%E4%B8%AD%E6%96%87",

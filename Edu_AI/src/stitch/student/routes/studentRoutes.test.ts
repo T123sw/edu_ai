@@ -7,11 +7,12 @@ import {
 } from "./studentRoutes.ts";
 import { studentNavigationItems } from "../shell/studentNavigation.ts";
 
-test("student navigation exposes the six approved destinations in order", () => {
+test("student navigation exposes the learning destinations in order", () => {
   assert.deepEqual(
     studentNavigationItems.map(({ route, label }) => [route, label]),
     [
       ["student-home", "学习首页"],
+      ["student-learning", "学习任务"],
       ["student-ai", "AI问答"],
       ["student-course-knowledge", "课程知识"],
       ["student-personal-knowledge", "个人知识库"],
@@ -22,6 +23,10 @@ test("student navigation exposes the six approved destinations in order", () => 
 });
 
 test("course destinations keep course context while personal knowledge remains global", () => {
+  assert.equal(
+    buildStudentHash("student-learning", { courseId: "course-1" }),
+    "#student-learning?course_id=course-1",
+  );
   assert.equal(
     buildStudentHash("student-course-detail", { courseId: "course-1" }),
     "#student-course-detail?course_id=course-1",

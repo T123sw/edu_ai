@@ -7,6 +7,7 @@ import { ClassroomStudioPage } from "../pages/ClassroomStudio";
 import { CourseDetailPage } from "../pages/CourseDetail";
 import { CourseKnowledgePage } from "../pages/CourseKnowledge";
 import { CourseResourcesPage } from "../pages/CourseResources";
+import { CourseLearningPage } from "../pages/CourseLearning";
 import { StudentHomePage } from "./pages/StudentHome";
 import { StudentPersonalKnowledgePage } from "./pages/StudentPersonalKnowledge";
 import { StudentRouteGuard } from "./routes/StudentRouteGuard";
@@ -17,6 +18,7 @@ import { saveRecentLearningVisit } from "./pages/studentRecentLearning";
 const studentPages: Record<StudentRoute, ComponentType> = {
   "student-home": StudentHomePage,
   "student-course-detail": CourseDetailPage,
+  "student-learning": CourseLearningPage,
   "student-ai": AIWorkspacePage,
   "student-course-knowledge": CourseKnowledgePage,
   "student-personal-knowledge": StudentPersonalKnowledgePage,
@@ -26,6 +28,7 @@ const studentPages: Record<StudentRoute, ComponentType> = {
 
 const courseWorkspaceRoutes = new Set<StudentRoute>([
   "student-course-detail",
+  "student-learning",
   "student-ai",
   "student-course-knowledge",
   "student-classroom",

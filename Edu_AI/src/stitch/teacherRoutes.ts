@@ -1,5 +1,6 @@
 export type TeacherCourseRoute =
   | "course-detail"
+  | "learning"
   | "ai"
   | "knowledge"
   | "graph"
@@ -13,6 +14,7 @@ export const teacherSidebarItems: ReadonlyArray<{
   icon: string;
 }> = [
   { route: "course-detail", label: "课程概览", icon: "dashboard" },
+  { route: "learning", label: "学习任务", icon: "fact_check" },
   { route: "ai", label: "问答与生成", icon: "auto_awesome" },
   { route: "knowledge", label: "课程知识", icon: "menu_book" },
   { route: "classroom-studio", label: "AI 课堂", icon: "play_circle" },
@@ -62,7 +64,7 @@ export function readTeacherCourseLocation(hash: string): {
 } {
   const normalized = String(hash || "").replace(/^#/, "");
   const [routeName, query = ""] = normalized.split("?");
-  const route = ["course-detail", "ai", "knowledge", "graph", "classroom-studio", "resources", "edit"].includes(routeName)
+  const route = ["course-detail", "learning", "ai", "knowledge", "graph", "classroom-studio", "resources", "edit"].includes(routeName)
     ? routeName as TeacherCourseRoute
     : null;
   const params = new URLSearchParams(query);

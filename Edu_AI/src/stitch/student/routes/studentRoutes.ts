@@ -1,6 +1,7 @@
 export type StudentRoute =
   | "student-home"
   | "student-course-detail"
+  | "student-learning"
   | "student-ai"
   | "student-course-knowledge"
   | "student-personal-knowledge"
@@ -13,6 +14,7 @@ export type StudentResourceSpace = "mine" | "course";
 const studentRouteNames: readonly StudentRoute[] = [
   "student-home",
   "student-course-detail",
+  "student-learning",
   "student-ai",
   "student-course-knowledge",
   "student-personal-knowledge",
@@ -23,6 +25,7 @@ const studentRouteNames: readonly StudentRoute[] = [
 const studentRoutes = new Set<StudentRoute>(studentRouteNames);
 const courseRoutes = new Set<StudentRoute>([
   "student-course-detail",
+  "student-learning",
   "student-ai",
   "student-course-knowledge",
   "student-classroom",

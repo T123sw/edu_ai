@@ -7,6 +7,7 @@ export const studentNavigationItems: ReadonlyArray<{
   requiresCourse: boolean;
 }> = [
   { route: "student-home", label: "学习首页", icon: "school", requiresCourse: false },
+  { route: "student-learning", label: "学习任务", icon: "fact_check", requiresCourse: true },
   { route: "student-ai", label: "AI问答", icon: "auto_awesome", requiresCourse: true },
   { route: "student-course-knowledge", label: "课程知识", icon: "hub", requiresCourse: true },
   { route: "student-personal-knowledge", label: "个人知识库", icon: "database", requiresCourse: false },
