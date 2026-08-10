@@ -1,9 +1,16 @@
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
+import { Alert, Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
 import { SendOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
-import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
+import {
+  ConversationLoadError,
+  deleteChatConversation,
+  getChatConversationDetail,
+  listChatConversations,
+  resolveConversationLoadError,
+  type ConversationListItem,
+} from '../../services/teacher/api';
 import {
   buildChatReplyPayload,
   resolveChatRetrievalDocIds,
@@ -43,6 +50,10 @@ import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../.
 import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
 import { isTerminalJob } from '../../jobs/types';
 import { buildGenerationSavedMessage, resolveGenerationReply } from './generationSavedMessage';
+import {
+  recoverConversationFailure,
+  type ConversationRecoveryError,
+} from './chatHistoryRecovery';
 import './ChatPanel.css';
 
 const { TextArea } = Input;
@@ -399,6 +410,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const [workflowType, setWorkflowType] = useState<string | null>(null);
   const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
   const [backgroundTaskId, setBackgroundTaskId] = useState<string | null>(null);
+  const [historyRecoveryError, setHistoryRecoveryError] = useState<ConversationRecoveryError | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [pendingImages, setPendingImages] = useState<PendingChatImage[]>([]);
@@ -832,6 +844,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     if (!silent) {
       setLoadingConversationId(conversationId);
     }
+    setHistoryRecoveryError((current) => (
+      current?.conversationId === conversationId ? null : current
+    ));
     try {
       const detail = await getChatConversationDetail(conversationId);
       const detailScope = normalizeWorkspaceScope({
@@ -874,6 +889,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         setMessages(mapped);
       }
       setCurrentConversationId(detail.conversation_id);
+      setHistoryRecoveryError((current) => (
+        current?.conversationId === conversationId ? null : current
+      ));
       setStatusCard(detail.status_card || null);
       setWorkflowType(nextWorkflowType || null);
       setWorkflowStatus(nextWorkflowStatus || null);
@@ -914,11 +932,34 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       if (showSuccess && !silent) {
         message.success('已切换到历史对话');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('加载对话详情失败:', error);
-      if (!silent) {
-        message.error(error?.message || '加载历史对话失败');
+      const currentId = useStore.getState().currentConversationId;
+      const decision = recoverConversationFailure(currentId, conversationId);
+      const fallback = resolveConversationLoadError(null);
+      const normalizedError = error instanceof ConversationLoadError
+        ? error
+        : new ConversationLoadError(fallback.message, fallback.retryable, null);
+
+      if (decision.clearMessages) {
+        setMessages([]);
+        setStatusCard(null);
+        setWorkflowType(null);
+        setWorkflowStatus(null);
+        clearArtifactReference();
+        clearConversationReference();
+        clearConversationGeneratedFiles();
+        setViewingFile(null);
       }
+      if (decision.clearPendingTasks) {
+        setBackgroundTaskId(null);
+      }
+      setCurrentConversationId(decision.nextConversationId);
+      setHistoryRecoveryError({
+        conversationId,
+        message: normalizedError.message,
+        retryable: decision.retryable && normalizedError.retryable,
+      });
     } finally {
       if (!silent) {
         setLoadingConversationId(null);
@@ -933,6 +974,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setStatusCard(null);
     setWorkflowType(null);
     setWorkflowStatus(null);
+    setBackgroundTaskId(null);
+    setHistoryRecoveryError(null);
     clearArtifactReference();
     clearConversationReference();
     clearConversationGeneratedFiles();
@@ -1691,6 +1734,27 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           </Space>
         </div>
       </div>
+
+      {historyRecoveryError ? (
+        <div style={{ margin: '12px 2px 0', flexShrink: 0 }}>
+          <Alert
+            type="warning"
+            showIcon
+            closable
+            message="历史对话未能恢复"
+            description={historyRecoveryError.message}
+            onClose={() => setHistoryRecoveryError(null)}
+            action={historyRecoveryError.retryable ? (
+              <Button
+                size="small"
+                onClick={() => void loadConversation(historyRecoveryError.conversationId, false)}
+              >
+                重试加载
+              </Button>
+            ) : undefined}
+          />
+        </div>
+      ) : null}
 
       <div className="chat-panel__messages">
         <div className="chat-panel__messages-scroll">

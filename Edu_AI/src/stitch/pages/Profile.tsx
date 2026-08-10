@@ -9,9 +9,11 @@ import {
   type UserProfile,
   type UserProfileUpdate,
 } from "../api/profile";
+import { listCourses } from "../api/courses";
 import { useAuthSession } from "../authSession";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 import { homeHashForRole } from "../shared/routes/roleCourseRouteResolver";
+import { presentAccessibleCourseCount } from "./profilePresentation";
 
 const roleLabels: Record<string, string> = {
   admin: "系统管理员",
@@ -29,6 +31,7 @@ export function ProfilePage() {
   const { user } = useAuthSession();
   const { logout } = useAppShell();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [accessibleCourseCount, setAccessibleCourseCount] = useState<number | null | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -43,8 +46,19 @@ export function ProfilePage() {
     confirmPassword: string;
   }>();
 
+  async function refreshAccessibleCourseCount() {
+    setAccessibleCourseCount(undefined);
+    try {
+      const courses = await listCourses();
+      setAccessibleCourseCount(courses.length);
+    } catch {
+      setAccessibleCourseCount(null);
+    }
+  }
+
   async function refreshProfile() {
     setLoading(true);
+    void refreshAccessibleCourseCount();
     try {
       const next = await getUserProfile();
       setProfile(next);
@@ -142,7 +156,7 @@ export function ProfilePage() {
     ["邮箱", profile?.email || "未填写", "✉"],
     ["手机号", profile?.phone || "未填写", "☎"],
     ["所属部门", profile?.department || "未填写", "▦"],
-    ["可访问课程", String(profile?.course_count ?? 0), "☰"],
+    ["可访问课程", presentAccessibleCourseCount(accessibleCourseCount), "☰"],
     ["系统角色", profile ? (roleLabels[profile.role] || profile.role) : "—", "🎓"],
   ];
 
