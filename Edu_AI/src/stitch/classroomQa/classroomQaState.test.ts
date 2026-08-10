@@ -18,10 +18,7 @@ const turn = {
 };
 
 function submittingState() {
-  const drafting = reduceClassroomQa(INITIAL_CLASSROOM_QA_STATE, {
-    type: 'open',
-  });
-  return reduceClassroomQa(drafting, {
+  return reduceClassroomQa(INITIAL_CLASSROOM_QA_STATE, {
     type: 'submit',
     question: '为什么？',
     clientTurnId: 'client-1',
@@ -99,8 +96,8 @@ test('successful server audio follows submitting loading playing and resuming ph
   });
   assert.equal(state.phase, 'resuming');
 
-  state = reduceClassroomQa(state, { type: 'resume_complete', keepOpen: true });
-  assert.equal(state.phase, 'drafting');
+  state = reduceClassroomQa(state, { type: 'resume_complete' });
+  assert.equal(state.phase, 'ready');
   assert.equal(state.activeTurn, null);
   assert.deepEqual(state.turns, [turn]);
 });
@@ -134,15 +131,9 @@ test('stale async results are ignored and retry keeps the same client turn id', 
   assert.equal(retrying.activeTurn?.clientTurnId, 'client-1');
 });
 
-test('draft cancellation closes while reset clears state on navigation', () => {
-  const drafting = reduceClassroomQa(INITIAL_CLASSROOM_QA_STATE, {
-    type: 'open',
-  });
-  assert.equal(
-    reduceClassroomQa(drafting, { type: 'cancel_draft' }).phase,
-    'closed',
-  );
-
+test('the persistent panel starts ready while reset clears navigation state', () => {
+  assert.equal(INITIAL_CLASSROOM_QA_STATE.phase, 'ready');
+  assert.equal('isOpen' in INITIAL_CLASSROOM_QA_STATE, false);
   const reset = reduceClassroomQa(submittingState(), { type: 'reset' });
   assert.deepEqual(reset, INITIAL_CLASSROOM_QA_STATE);
 });

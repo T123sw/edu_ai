@@ -61,7 +61,7 @@ export function ClassroomPlayerPage() {
   const [presentationMode, setPresentationMode] = useState(false);
   const [subtitlesVisible, setSubtitlesVisible] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
-  const [secondaryPanel, setSecondaryPanel] = useState<"catalog" | "transcript" | null>(null);
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const consoleRef = useRef<HTMLElement | null>(null);
   const controllerRef = useRef<ManagedPagePlaybackController | null>(null);
 
@@ -241,26 +241,15 @@ export function ClassroomPlayerPage() {
 
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {material && !presentationMode ? (
-              <>
-                <button
-                  type="button"
-                  className="classroom-secondary-toggle classroom-icon-button"
-                  aria-label="打开课堂目录"
-                  aria-expanded={secondaryPanel === "catalog"}
-                  onClick={() => setSecondaryPanel((value) => value === "catalog" ? null : "catalog")}
-                >
-                  <span>目录</span>
-                </button>
-                <button
-                  type="button"
-                  className="classroom-secondary-toggle classroom-icon-button"
-                  aria-label="打开教学提示"
-                  aria-expanded={secondaryPanel === "transcript"}
-                  onClick={() => setSecondaryPanel((value) => value === "transcript" ? null : "transcript")}
-                >
-                  <span>提示</span>
-                </button>
-              </>
+              <button
+                type="button"
+                className="classroom-secondary-toggle classroom-icon-button"
+                aria-label="打开课堂目录"
+                aria-expanded={catalogOpen}
+                onClick={() => setCatalogOpen((value) => !value)}
+              >
+                <span>目录</span>
+              </button>
             ) : null}
             {material && !presentationMode ? (
               <>
@@ -331,7 +320,7 @@ export function ClassroomPlayerPage() {
           <>
             <div className="classroom-console__workspace">
               {!presentationMode ? (
-                <aside className={`classroom-console__catalog ${secondaryPanel === "catalog" ? "is-open" : ""}`} aria-label="课堂页面目录">
+                <aside className={`classroom-console__catalog ${catalogOpen ? "is-open" : ""}`} aria-label="课堂页面目录">
                   <div className="classroom-panel-heading">
                     <div>
                       <p className="font-bold text-(--app-text)">课堂目录</p>
@@ -400,58 +389,13 @@ export function ClassroomPlayerPage() {
                 </div>
               </section>
 
-              {!presentationMode ? (
-                <aside className={`classroom-console__assistant ${secondaryPanel === "transcript" ? "is-open" : ""}`} aria-label="当前页教学提示">
-                  <div className="classroom-panel-heading">
-                    <div>
-                      <p className="font-bold text-(--app-text)">当前页提示</p>
-                      <p className="mt-0.5 text-xs text-(--muted-text)">
-                        第 {currentIndex + 1} / {scenes.length} 页
-                      </p>
-                    </div>
-                    <span className="classroom-kind-badge">
-                      {currentPresentation?.kindLabel}
-                    </span>
-                  </div>
-                  <div className="classroom-assistant-content">
-                    <h2 className="text-lg font-black text-(--app-text)">
-                      {currentPresentation?.title}
-                    </h2>
-                    <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-(--accent-strong)">
-                      讲解提词
-                    </p>
-                    {currentPresentation?.narration.length ? (
-                      <ol className="mt-3 space-y-3">
-                        {currentPresentation.narration.map((line, index) => (
-                          <li key={`${index}-${line}`} className="classroom-script-line">
-                            <span>{index + 1}</span>
-                            <p>{line}</p>
-                          </li>
-                        ))}
-                      </ol>
-                    ) : (
-                      <p className="mt-3 rounded-2xl bg-(--surface-subtle) p-4 text-sm leading-6 text-(--muted-text)">
-                        当前页没有自动讲解，可直接展示或进行课堂互动。
-                      </p>
-                    )}
-                  </div>
-                  <div className="classroom-playback-status">
-                    <span
-                      className={`classroom-status-dot is-${playback.status}`}
-                      aria-hidden="true"
-                    />
-                        {playback.status === "playing"
-                          ? "正在播放当前页"
-                          : playback.status === "interrupted"
-                            ? "课堂已暂停，正在实时问答"
-                          : playback.status === "completed"
-                        ? "当前页讲解已完成"
-                        : playback.status === "paused"
-                          ? "当前页讲解已停止"
-                          : "等待播放"}
-                  </div>
-                </aside>
-              ) : null}
+              <ClassroomQaPanel
+                controller={qaController}
+                canAsk={
+                  playback.status === "playing" &&
+                  Boolean(currentPresentation?.hasPlayback)
+                }
+              />
             </div>
 
             <footer className="classroom-console__controls" data-testid="classroom-core-controls">
@@ -522,13 +466,6 @@ export function ClassroomPlayerPage() {
                 <MaterialIcon name="skip_next" />
               </button>
             </footer>
-            <ClassroomQaPanel
-              controller={qaController}
-              canAsk={
-                playback.status === "playing" &&
-                Boolean(currentPresentation?.hasPlayback)
-              }
-            />
           </>
         )}
       </main>

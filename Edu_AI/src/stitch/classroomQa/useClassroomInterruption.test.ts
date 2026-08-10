@@ -141,9 +141,8 @@ async function waitFor(predicate: () => boolean) {
   throw new Error('condition was not reached');
 }
 
-test('opening and typing do not pause; submit pauses and successful audio resumes once', async () => {
+test('the ready panel does not pause; submit pauses and successful audio resumes once', async () => {
   const harness = createHarness();
-  harness.controller.openQuestion();
   assert.equal(harness.playback.interruptCalls, 0);
 
   const submitting = harness.controller.submitQuestion('为什么要选基准值？');
@@ -158,9 +157,8 @@ test('opening and typing do not pause; submit pauses and successful audio resume
   assert.deepEqual(harness.revoked, ['blob:answer']);
 });
 
-test('a second question from the open panel creates a fresh interruption', async () => {
+test('a second question from the persistent panel creates a fresh interruption', async () => {
   const harness = createHarness();
-  harness.controller.openQuestion();
   const first = harness.controller.submitQuestion('第一个问题');
   await waitFor(() => harness.answerAudio.playCalls === 1);
   harness.answerAudio.finish();
@@ -175,19 +173,16 @@ test('a second question from the open panel creates a fresh interruption', async
   assert.equal(harness.playback.resumeCalls, 2);
 });
 
-test('cancel before submit closes the draft without touching playback', () => {
+test('the persistent ready panel does not touch playback before submit', () => {
   const harness = createHarness();
-  harness.controller.openQuestion();
-  harness.controller.cancelDraft();
 
   assert.equal(harness.playback.interruptCalls, 0);
   assert.equal(harness.playback.resumeCalls, 0);
-  assert.equal(harness.controller.state.phase, 'closed');
+  assert.equal(harness.controller.state.phase, 'ready');
 });
 
 test('invalid questions and checkpoint failures do not create optimistic turns', async () => {
   const harness = createHarness();
-  harness.controller.openQuestion();
 
   await harness.controller.submitQuestion('   ');
   assert.equal(harness.playback.interruptCalls, 0);
@@ -197,13 +192,12 @@ test('invalid questions and checkpoint failures do not create optimistic turns',
   await harness.controller.submitQuestion('有效问题');
   assert.equal(harness.playback.interruptCalls, 1);
   assert.equal(harness.controller.state.activeTurn, null);
-  assert.equal(harness.controller.state.phase, 'drafting');
+  assert.equal(harness.controller.state.phase, 'ready');
 });
 
 test('the optimistic question is committed before the deferred request resolves', async () => {
   const harness = createHarness();
   harness.deferSubmission();
-  harness.controller.openQuestion();
 
   const submitting = harness.controller.submitQuestion('立即显示的问题');
   assert.equal(harness.controller.state.phase, 'submitting');
@@ -225,7 +219,6 @@ test('server TTS failure uses browser speech before resuming', async () => {
     },
   };
   const harness = createHarness({ submission: degraded });
-  harness.controller.openQuestion();
   await harness.controller.submitQuestion('为什么？');
 
   assert.equal(harness.answerAudio.playCalls, 0);
@@ -242,7 +235,6 @@ test('both speech paths failing waits for an explicit resume', async () => {
     },
   };
   const harness = createHarness({ submission: degraded, speakResult: 'failed' });
-  harness.controller.openQuestion();
   await harness.controller.submitQuestion('为什么？');
 
   assert.equal(harness.playback.resumeCalls, 0);
@@ -254,7 +246,6 @@ test('both speech paths failing waits for an explicit resume', async () => {
 
 test('stop answer disposes audio and resumes once', async () => {
   const harness = createHarness();
-  harness.controller.openQuestion();
   const submitting = harness.controller.submitQuestion('为什么？');
   await waitFor(() => harness.answerAudio.playCalls === 1);
 
@@ -273,7 +264,6 @@ test('rejected stale checkpoint becomes an error without repeated resume', async
     },
   });
   harness.playback.resumeResult = false;
-  harness.controller.openQuestion();
   await harness.controller.submitQuestion('为什么？');
 
   assert.equal(harness.playback.resumeCalls, 1);
@@ -286,7 +276,6 @@ test('navigation and dispose ignore late responses without audio or resume', asy
   for (const action of ['navigation', 'dispose'] as const) {
     const harness = createHarness();
     harness.deferSubmission();
-    harness.controller.openQuestion();
     const submitting = harness.controller.submitQuestion('为什么？');
     await Promise.resolve();
 

@@ -1,8 +1,7 @@
 import type { ClassroomQaTurn } from '../api/types';
 
 export type ClassroomQaPhase =
-  | 'closed'
-  | 'drafting'
+  | 'ready'
   | 'submitting'
   | 'loading_audio'
   | 'playing_answer'
@@ -20,16 +19,12 @@ export type ClassroomQaVisibleTurn = ClassroomQaActiveTurn;
 
 export type ClassroomQaState = {
   phase: ClassroomQaPhase;
-  isOpen: boolean;
   turns: ClassroomQaTurn[];
   activeTurn: ClassroomQaActiveTurn | null;
   error: string | null;
 };
 
 export type ClassroomQaEvent =
-  | { type: 'open' }
-  | { type: 'close' }
-  | { type: 'cancel_draft' }
   | { type: 'session_loaded'; turns: ClassroomQaTurn[] }
   | { type: 'submit'; question: string; clientTurnId: string }
   | {
@@ -42,12 +37,11 @@ export type ClassroomQaEvent =
   | { type: 'fail'; clientTurnId: string; message: string }
   | { type: 'retry' }
   | { type: 'give_up' }
-  | { type: 'resume_complete'; keepOpen: boolean }
+  | { type: 'resume_complete' }
   | { type: 'reset' };
 
 export const INITIAL_CLASSROOM_QA_STATE: ClassroomQaState = {
-  phase: 'closed',
-  isOpen: false,
+  phase: 'ready',
   turns: [],
   activeTurn: null,
   error: null,
@@ -58,22 +52,11 @@ export function reduceClassroomQa(
   event: ClassroomQaEvent,
 ): ClassroomQaState {
   switch (event.type) {
-    case 'open':
-      if (state.phase !== 'closed') return { ...state, isOpen: true };
-      return { ...state, phase: 'drafting', isOpen: true, error: null };
-    case 'close':
-      if (state.phase === 'drafting') {
-        return { ...state, phase: 'closed', isOpen: false, error: null };
-      }
-      return { ...state, isOpen: false };
-    case 'cancel_draft':
-      if (state.phase !== 'drafting') return state;
-      return { ...state, phase: 'closed', isOpen: false, error: null };
     case 'session_loaded':
       return { ...state, turns: [...event.turns] };
     case 'submit': {
       if (state.activeTurn) throw new Error('classroom QA turn already active');
-      if (state.phase !== 'drafting') {
+      if (state.phase !== 'ready') {
         throw new Error(`cannot submit from ${state.phase}`);
       }
       const question = event.question.trim();
@@ -81,7 +64,6 @@ export function reduceClassroomQa(
       return {
         ...state,
         phase: 'submitting',
-        isOpen: true,
         error: null,
         activeTurn: {
           clientTurnId: event.clientTurnId,
@@ -136,8 +118,7 @@ export function reduceClassroomQa(
     case 'resume_complete':
       return {
         ...state,
-        phase: event.keepOpen ? 'drafting' : 'closed',
-        isOpen: event.keepOpen,
+        phase: 'ready',
         activeTurn: null,
         error: null,
       };

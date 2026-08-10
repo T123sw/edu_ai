@@ -414,13 +414,12 @@ textarea {
 .classroom-console__workspace {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) minmax(220px, 270px);
+  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) minmax(340px, 380px);
   min-height: 0;
   gap: 14px;
 }
 
-.classroom-console__catalog,
-.classroom-console__assistant {
+.classroom-console__catalog {
   display: flex;
   min-height: 0;
   flex-direction: column;
@@ -529,55 +528,6 @@ textarea {
   line-height: 1.5;
   text-align: center;
   backdrop-filter: blur(8px);
-}
-
-.classroom-assistant-content {
-  min-height: 0;
-  flex: 1;
-  overflow-y: auto;
-  padding: 18px 16px;
-}
-
-.classroom-kind-badge {
-  flex: 0 0 auto;
-  border-radius: 999px;
-  padding: 5px 9px;
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-  font-size: 0.68rem;
-  font-weight: 800;
-}
-
-.classroom-script-line {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 9px;
-  color: var(--muted-text);
-  font-size: 0.8rem;
-  line-height: 1.65;
-}
-
-.classroom-script-line > span {
-  display: inline-flex;
-  width: 22px;
-  height: 22px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 7px;
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-  font-size: 0.68rem;
-  font-weight: 800;
-}
-
-.classroom-playback-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-top: 1px solid var(--shell-border);
-  padding: 13px 16px;
-  color: var(--muted-text);
-  font-size: 0.74rem;
 }
 
 .classroom-status-dot {
@@ -710,7 +660,7 @@ textarea {
 }
 
 .classroom-console.is-presenting .classroom-console__workspace {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
 }
 
 .classroom-console.is-presenting .classroom-console__stage-column {
@@ -731,18 +681,16 @@ textarea {
 
 @media (max-width: 1390px) {
   .classroom-console__workspace {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 360px);
   }
 
   .classroom-secondary-toggle { display: inline-flex; }
 
-  .classroom-console__catalog,
-  .classroom-console__assistant {
+  .classroom-console__catalog {
     display: none;
   }
 
-  .classroom-console__catalog.is-open,
-  .classroom-console__assistant.is-open {
+  .classroom-console__catalog.is-open {
     position: absolute;
     z-index: 30;
     top: 8px;
@@ -753,7 +701,15 @@ textarea {
   }
 
   .classroom-console__catalog.is-open { left: 8px; }
-  .classroom-console__assistant.is-open { right: 8px; }
+}
+
+@media (max-width: 960px) {
+  .classroom-console__workspace,
+  .classroom-console.is-presenting .classroom-console__workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .classroom-console__stage-column { min-height: 0; }
 }
 
 @media (max-width: 760px) {
@@ -764,10 +720,6 @@ textarea {
 
   .classroom-console__header {
     align-items: flex-start;
-  }
-
-  .classroom-console__workspace {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .classroom-console__catalog {
