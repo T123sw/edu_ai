@@ -155,12 +155,12 @@ def preview_course_knowledge_plan(
     graph_draft = build_course_graph_draft(course, topics)
     warnings: list[str] = []
     candidates: list[CourseSourceCandidate] = []
+    seen_plan_urls: set[str] = set()
 
     if search_provider is None:
         warnings.append("当前未启用来源搜索服务；构建时将通过模型补充缺失资料。")
     else:
         for topic in topics[:6]:
-            seen_urls: set[str] = set()
             approved_for_topic = 0
 
             def collect_hits(hits: Sequence[Any] | None, *, stage: str) -> None:
@@ -170,9 +170,9 @@ def preview_course_knowledge_plan(
                     return
                 for hit in hits:
                     url = _normalize_text(getattr(hit, "url", None) or (hit.get("url") if isinstance(hit, Mapping) else ""))
-                    if not url or url in seen_urls:
+                    if not url or url in seen_plan_urls:
                         continue
-                    seen_urls.add(url)
+                    seen_plan_urls.add(url)
                     hit_title = _normalize_text(getattr(hit, "title", None) or (hit.get("title") if isinstance(hit, Mapping) else "") or url)
                     content = _normalize_text(getattr(hit, "content", None) or (hit.get("content") if isinstance(hit, Mapping) else ""))
                     domain, policy = _domain_policy(url)

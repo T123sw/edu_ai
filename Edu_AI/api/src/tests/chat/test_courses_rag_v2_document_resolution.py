@@ -57,7 +57,7 @@ class FakeCourseManager:
         )
         return relative_path.as_posix()
 
-    def get_knowledge_base_index(self, course_id):
+    def get_knowledge_base_index(self, course_id, **_filters):
         return list(self.index)
 
     def save_knowledge_base_index(self, course_id, records):

@@ -206,6 +206,9 @@ export type KnowledgeBaseDocument = {
   usage_restriction?: string | null;
   authority_tier?: string | null;
   retrieved_at?: string | null;
+  source_type?: string | null;
+  generation_review_score?: number | null;
+  generation_audit?: Record<string, unknown> | null;
   course_id: string;
   scope_type?: "course" | "knowledge_point";
   scope_id?: string | null;

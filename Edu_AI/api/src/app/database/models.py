@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import secrets
 from typing import Any
 
 from sqlalchemy import (
@@ -24,6 +25,11 @@ from .base import Base
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def default_course_code() -> str:
+    alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    return "".join(secrets.choice(alphabet) for _ in range(8))
 
 
 JSON_PAYLOAD = JSON().with_variant(JSONB(), "postgresql")
@@ -63,7 +69,9 @@ class Course(Base):
     __tablename__ = "courses"
 
     course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
-    course_code: Mapped[str] = mapped_column(String(8), nullable=False, unique=True, index=True)
+    course_code: Mapped[str] = mapped_column(
+        String(8), nullable=False, unique=True, index=True, default=default_course_code
+    )
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     icon: Mapped[str] = mapped_column(String(120), nullable=False, default="menu_book")

@@ -40,7 +40,16 @@ def get_document(
     *,
     owner_user_id: str,
 ) -> Optional[dict[str, Any]]:
-    for record in manager.get_knowledge_base_index(course_id):
+    try:
+        records = manager.get_knowledge_base_index(course_id, aggregate=True)
+    except TypeError as exc:
+        # Lightweight adapters outside CourseStorageManager may predate scope
+        # filtering; the production manager always performs the aggregate
+        # lookup required for leaf documents.
+        if "aggregate" not in str(exc):
+            raise
+        records = manager.get_knowledge_base_index(course_id)
+    for record in records:
         if str(record.get("id") or "") != document_id:
             continue
         return dict(record) if _can_access(record, owner_user_id) else None

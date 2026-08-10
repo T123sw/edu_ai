@@ -204,6 +204,29 @@ async def test_upload_index_lifecycle_becomes_ready_and_retrievable(document_fix
     assert result["hits"][0]["page"] == 1
 
 
+def test_document_lookup_aggregates_leaf_knowledge_point_scope():
+    class LeafScopedManager:
+        def get_knowledge_base_index(self, course_id, *, aggregate=False):
+            assert course_id == "course-1"
+            if not aggregate:
+                return []
+            return [
+                {
+                    "id": "leaf-doc",
+                    "library_type": "course",
+                    "scope_type": "knowledge_point",
+                    "scope_id": "leaf-1",
+                }
+            ]
+
+    document = service.get_document(
+        LeafScopedManager(), "course-1", "leaf-doc", owner_user_id="student-a"
+    )
+
+    assert document is not None
+    assert document["scope_id"] == "leaf-1"
+
+
 @pytest.mark.anyio
 async def test_failed_reindex_preserves_the_active_version(document_fixture):
     manager, document_id, task_store = document_fixture

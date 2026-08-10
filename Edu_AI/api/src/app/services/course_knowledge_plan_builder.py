@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import copy
 import re
+from contextlib import nullcontext
 from collections.abc import Callable, Mapping
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import RLock
 from typing import Any
 from urllib.parse import urlparse
 
@@ -42,7 +45,13 @@ def submit_course_knowledge_plan_build_job(*, course_id: str, owner_user_id: str
         queued_job = enqueue_platform_task(
             job=job,
             workflow_type="course_knowledge_plan_build",
-            command={"course_id": course_id, "build_id": build_id},
+            command={
+                "course_id": course_id,
+                "build_id": build_id,
+                # A small course can still require several generation and
+                # independent-review calls when no open sources qualify.
+                "deadline_seconds": 1800,
+            },
             runtime_config_snapshot=runtime_config_resolver.capture_snapshot(owner_user_id),
         )
         if queued_job.status == JobStatus.FAILED:
@@ -160,14 +169,24 @@ def _generate_and_persist_supplement(
     course_title: str,
     topic: Mapping[str, Any],
     sequence: int,
+    persistence_lock: RLock | None = None,
 ) -> dict[str, Any]:
     leaf_title = str(topic.get("title") or "知识点")
     scope_id = str(topic.get("topic_id") or "")
+    from app.services.runtime_config_resolver import runtime_config_resolver
+
+    resolved = runtime_config_resolver.resolve("llm", owner_user_id=owner_user_id)
+    llm_config = {
+        "model_name": resolved.get("model"),
+        "api_base": resolved.get("base_url"),
+        "api_key": resolved.get("api_key"),
+        "timeout_seconds": resolved.get("timeout_seconds"),
+    }
     supplement = generate_reviewed_supplement(
         course_title=course_title,
         leaf_title=leaf_title,
         sequence=sequence,
-        call_model=lambda prompt: str(rag_system._call_llm(prompt)),
+        call_model=lambda prompt: str(rag_system._call_llm(prompt, llm_config=llm_config)),
     )
     filename = _safe_material_filename("generated", supplement.title, f"{course_id}:{scope_id}:{sequence}")
     body = (
@@ -175,28 +194,29 @@ def _generate_and_persist_supplement(
         f"未附带外部来源、引用或许可证。独立质量审查得分：{supplement.review_score}/100。\n\n"
         f"{supplement.content}\n"
     )
-    relative_path = manager.save_knowledge_base_file(
-        course_id, body.encode("utf-8"), filename,
-        scope_type="knowledge_point", scope_id=scope_id, library_type=LIBRARY_TYPE_COURSE,
-    )
-    if not relative_path:
-        raise OSError("保存模型补充资料失败")
-    full_path = manager.get_course_dir(course_id) / relative_path
-    import_result = rag_system.import_document(
-        str(full_path), force_reimport=True, owner=owner_user_id,
-        metadata_overrides={"course_id": course_id, "library_type": LIBRARY_TYPE_COURSE, "scope_type": "knowledge_point", "scope_id": scope_id, "knowledge_node_id": scope_id, "source_type": "model_generated"},
-    )
-    record = _update_saved_record(
-        manager=manager, course_id=course_id, relative_path=relative_path,
-        fields={
-            "source_title": supplement.title, "source_language": "zh-CN", "content_language": "zh-CN",
-            "authority_tier": "model_generated_reviewed", "generated_by": PLAN_BUILDER_VERSION,
-            "generated_at": utc_now(), "generation_audit": supplement.audit,
-            "generation_review_score": supplement.review_score, "doc_kind": "generated",
-            "source_type": "model_generated", "status": "received",
-            "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
-        },
-    )
+    with persistence_lock or nullcontext():
+        relative_path = manager.save_knowledge_base_file(
+            course_id, body.encode("utf-8"), filename,
+            scope_type="knowledge_point", scope_id=scope_id, library_type=LIBRARY_TYPE_COURSE,
+        )
+        if not relative_path:
+            raise OSError("保存模型补充资料失败")
+        full_path = manager.get_course_dir(course_id) / relative_path
+        import_result = rag_system.import_document(
+            str(full_path), force_reimport=True, owner=owner_user_id,
+            metadata_overrides={"course_id": course_id, "library_type": LIBRARY_TYPE_COURSE, "scope_type": "knowledge_point", "scope_id": scope_id, "knowledge_node_id": scope_id, "source_type": "model_generated"},
+        )
+        record = _update_saved_record(
+            manager=manager, course_id=course_id, relative_path=relative_path,
+            fields={
+                "source_title": supplement.title, "source_language": "zh-CN", "content_language": "zh-CN",
+                "authority_tier": "model_generated_reviewed", "generated_by": PLAN_BUILDER_VERSION,
+                "generated_at": utc_now(), "generation_audit": {**supplement.audit, "model": resolved.get("model"), "prompt_version": "course-leaf-supplement-v1"},
+                "generation_review_score": supplement.review_score, "doc_kind": "generated",
+                "source_type": "model_generated", "status": "received",
+                "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+            },
+        )
     return {
         "document_id": record["id"], "scope_id": scope_id, "source_url": "", "reused": False,
         "source_type": "model_generated", "review_score": supplement.review_score,
@@ -205,6 +225,43 @@ def _generate_and_persist_supplement(
 
 def parsed_domain(url: str) -> str:
     return str(urlparse(url).hostname or "")
+
+
+def _reviewed_generated_documents(
+    manager: CourseStorageManager,
+    *,
+    course_id: str,
+    scope_id: str,
+    limit: int,
+) -> list[dict[str, Any]]:
+    """Resume independently reviewed supplements from an interrupted build."""
+    if limit <= 0 or not hasattr(manager, "get_knowledge_base_index"):
+        return []
+    eligible: list[dict[str, Any]] = []
+    for record in reversed(manager.get_knowledge_base_index(course_id)):
+        document_id = str(record.get("id") or "")
+        if (
+            not document_id
+            or str(record.get("scope_id") or "") != scope_id
+            or record.get("source_type") != "model_generated"
+            or int(record.get("generation_review_score") or 0) < 80
+            or str(record.get("status") or "received") not in {"received", "ready"}
+        ):
+            continue
+        eligible.append(
+            {
+                "document_id": document_id,
+                "scope_id": scope_id,
+                "source_url": "",
+                "reused": str(record.get("status") or "received") == "ready",
+                "resumed": True,
+                "source_type": "model_generated",
+                "review_score": int(record.get("generation_review_score") or 0),
+            }
+        )
+        if len(eligible) >= limit:
+            break
+    return eligible
 
 
 def _fallback_graph(build: Mapping[str, Any]) -> dict[str, Any]:
@@ -317,28 +374,44 @@ def run_course_knowledge_plan_build_job(
             repository.update_build(build_id, status="running", phase="indexing", progress=build_progress)
 
         course_title = str((build.get("course_snapshot") or {}).get("title") or "课程")
+        deficits: list[tuple[Mapping[str, Any], int]] = []
         for topic in topics:
             topic_id = str(topic.get("topic_id") or "")
             existing_count = len({str(item.get("document_id") or "") for item in persisted if str(item.get("scope_id") or "") == topic_id and item.get("document_id")})
-            sequence = 1
-            while existing_count < MIN_DOCUMENTS_PER_LEAF:
-                try:
-                    generated = _generate_and_persist_supplement(
+            resumed = _reviewed_generated_documents(
+                manager,
+                course_id=course_id,
+                scope_id=topic_id,
+                limit=max(0, MIN_DOCUMENTS_PER_LEAF - existing_count),
+            )
+            persisted.extend(resumed)
+            remaining = max(0, MIN_DOCUMENTS_PER_LEAF - existing_count - len(resumed))
+            deficits.extend((topic, sequence) for sequence in range(1, remaining + 1))
+
+        persistence_lock = RLock()
+        if deficits:
+            with ThreadPoolExecutor(max_workers=min(3, len(deficits))) as pool:
+                future_map = {
+                    pool.submit(
+                        _generate_and_persist_supplement,
                         manager=manager, rag_system=rag_system, course_id=course_id,
-                        owner_user_id=owner_user_id, course_title=course_title, topic=topic, sequence=sequence,
-                    )
-                    persisted.append(generated)
-                    existing_count += 1
-                except Exception as exc:
-                    failures.append({"url": "", "topic_id": topic_id, "error": str(exc)})
-                    break
-                finally:
+                        owner_user_id=owner_user_id, course_title=course_title,
+                        topic=topic, sequence=sequence, persistence_lock=persistence_lock,
+                    ): (topic, sequence)
+                    for topic, sequence in deficits
+                }
+                for future in as_completed(future_map):
+                    topic, _sequence = future_map[future]
+                    topic_id = str(topic.get("topic_id") or "")
+                    try:
+                        persisted.append(future.result())
+                    except Exception as exc:
+                        failures.append({"url": "", "topic_id": topic_id, "error": str(exc)})
                     completed_steps += 1
-                    sequence += 1
-            build_progress = min(80, 10 + round(completed_steps / total_steps * 65))
-            repository.update_build(build_id, status="running", phase="model_fallback", progress=build_progress)
-            if progress:
-                progress(build_progress, "model_fallback", f"正在检查“{topic.get('title')}”的资料覆盖")
+                    build_progress = min(80, 10 + round(completed_steps / total_steps * 65))
+                    repository.update_build(build_id, status="running", phase="model_fallback", progress=build_progress)
+                    if progress:
+                        progress(build_progress, "model_fallback", f"正在检查“{topic.get('title')}”的资料覆盖")
 
         graph = _published_graph({**build, "build_id": build_id}, persisted)
         hard_gate_passed, leaf_coverage, graph_issues = _validate_graph_and_coverage(graph)

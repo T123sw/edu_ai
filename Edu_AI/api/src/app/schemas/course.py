@@ -118,6 +118,9 @@ class KnowledgeBaseDocument(BaseModel):
     usage_restriction: Optional[str] = None
     authority_tier: Optional[str] = None
     retrieved_at: Optional[str] = None
+    source_type: Optional[str] = None
+    generation_review_score: Optional[int] = None
+    generation_audit: Optional[Dict[str, Any]] = None
     course_id: str
     scope_type: str = SCOPE_TYPE_COURSE
     scope_id: Optional[str] = None

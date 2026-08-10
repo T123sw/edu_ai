@@ -177,7 +177,7 @@ export function KnowledgeStructureView({
                   <MaterialIcon name={document.type === "web" ? "language" : "description"} />
                   <div>
                     <strong>{document.display_name || document.source_title || document.name}</strong>
-                    <small>{document.scope_id === activeNode?.id || isRoot ? "当前范围" : "来自子节点"}</small>
+                    <small>{document.scope_id === activeNode?.id || isRoot ? "当前范围" : "来自子节点"} · {document.source_type === "model_generated" ? `AI 审查生成${document.generation_review_score ? `（${document.generation_review_score} 分）` : ""}` : "外部资料"}</small>
                   </div>
                   {state && <span>{state}</span>}
                 </article>

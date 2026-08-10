@@ -204,7 +204,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
                   <span className="knowledge-library-document__icon"><MaterialIcon name={document.type === "web" ? "language" : "description"} /></span>
                   <div>
                     <strong>{document.display_name || document.source_title || document.name}</strong>
-                    <small>{document.scope_id === selectedNode?.id || isRoot ? "当前节点" : "子节点资料"} · {new Date(document.created_at).toLocaleString("zh-CN")}</small>
+                    <small>{document.scope_id === selectedNode?.id || isRoot ? "当前节点" : "子节点资料"} · {document.source_type === "model_generated" ? `AI 审查生成${document.generation_review_score ? `（${document.generation_review_score} 分）` : ""}` : "外部资料"} · {new Date(document.created_at).toLocaleString("zh-CN")}</small>
                   </div>
                   {status && <span className={`knowledge-library-document__status knowledge-library-document__status--${document.status}`}>{status}</span>}
                 </article>
