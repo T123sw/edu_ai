@@ -15,6 +15,7 @@ import {
 } from './quizScene';
 import { SceneActionPlayback } from './SceneActionPlayback';
 import type { PlaybackMode } from './playbackEngine';
+import type { PlaybackRuntimeHandle } from './pagePlaybackController';
 
 export interface QuizScenePlayerProps {
   courseId: string;
@@ -26,6 +27,7 @@ export interface QuizScenePlayerProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
+  onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
 }
 
 export function QuizScenePlayer({
@@ -38,6 +40,7 @@ export function QuizScenePlayer({
   autoPlay,
   onComplete,
   onModeChange,
+  onRuntimeReady,
 }: QuizScenePlayerProps) {
   const storageKey = useMemo(
     () => quizStorageKey(courseId, classroomId, sceneId),
@@ -94,6 +97,7 @@ export function QuizScenePlayer({
       autoPlay={autoPlay}
       onComplete={onComplete}
       onModeChange={onModeChange}
+      onRuntimeReady={onRuntimeReady}
     >
       <section className="h-full overflow-y-auto bg-[#f7f9fc] px-8 py-6">
         <header className="mb-5 flex items-start justify-between gap-4">

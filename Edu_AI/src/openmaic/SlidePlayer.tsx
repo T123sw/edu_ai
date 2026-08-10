@@ -7,6 +7,7 @@ import { ActionEngine, type ActionEffectsState } from './actionEngine';
 import { compileLessonTimeline, type LessonTimeline } from './timeline';
 import { TimelineRecorder } from './timelineRecorder';
 import { VideoRegistry } from './videoRegistry';
+import type { PlaybackRuntimeHandle } from './pagePlaybackController';
 
 export interface SlidePlayerProps {
   slide: Slide;
@@ -15,6 +16,7 @@ export interface SlidePlayerProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
+  onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onTimelineChange?: (timeline: LessonTimeline) => void;
   className?: string;
 }
@@ -45,6 +47,7 @@ export function SlidePlayer({
   autoPlay = true,
   onComplete,
   onModeChange,
+  onRuntimeReady,
   onTimelineChange,
   className,
 }: SlidePlayerProps) {
@@ -52,8 +55,18 @@ export function SlidePlayer({
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const engineRef = useRef<PlaybackEngine | null>(null);
   const videoRegistry = useMemo(() => new VideoRegistry(), []);
-  const callbacksRef = useRef({ onComplete, onModeChange, onTimelineChange });
-  callbacksRef.current = { onComplete, onModeChange, onTimelineChange };
+  const callbacksRef = useRef({
+    onComplete,
+    onModeChange,
+    onRuntimeReady,
+    onTimelineChange,
+  });
+  callbacksRef.current = {
+    onComplete,
+    onModeChange,
+    onRuntimeReady,
+    onTimelineChange,
+  };
 
   const scenes = useMemo<PlayableScene[]>(
     () => [{ id: sceneId ?? slide.id, order: 0, actions: actions ?? [] }],
@@ -105,8 +118,17 @@ export function SlidePlayer({
       },
     }, { timeline, actionExecutor: actionEngine });
     engineRef.current = engine;
+    const runtime: PlaybackRuntimeHandle = {
+      play: () => engine.start(),
+      suspend: () => engine.suspend(),
+      resume: (checkpoint) => engine.resume(checkpoint),
+      cancel: () => engine.stop(),
+      dispose: () => engine.dispose(),
+    };
+    callbacksRef.current.onRuntimeReady?.(runtime);
     if (autoPlay) engine.start();
     return () => {
+      callbacksRef.current.onRuntimeReady?.(null);
       engine.dispose();
       engineRef.current = null;
     };

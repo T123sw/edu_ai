@@ -4,6 +4,7 @@ import {
   ManagedPagePlaybackController,
   type PagePlaybackRuntime,
   type PagePlaybackSnapshot,
+  type PlaybackRuntimeHandle,
 } from './pagePlaybackController.ts';
 
 function createHarness() {
@@ -26,6 +27,48 @@ function createHarness() {
   return { controller, events, snapshots };
 }
 
+class FakePlaybackRuntime implements PlaybackRuntimeHandle {
+  readonly events: string[] = [];
+
+  play(): void {
+    this.events.push('runtime:play');
+  }
+
+  suspend() {
+    this.events.push('runtime:suspend');
+    return {
+      sceneId: 'scene-2',
+      actionIndex: 0,
+      actionId: 'speech-1',
+      phase: 'executing_action' as const,
+    };
+  }
+
+  resume(): void {
+    this.events.push('runtime:resume');
+  }
+
+  cancel(): void {
+    this.events.push('runtime:cancel');
+  }
+
+  dispose(): void {
+    this.events.push('runtime:dispose');
+  }
+}
+
+async function createBoundHarness() {
+  const harness = createHarness();
+  const runtime = new FakePlaybackRuntime();
+  await harness.controller.enter(2);
+  harness.controller.bindRuntime(
+    2,
+    harness.controller.snapshot().revision,
+    runtime,
+  );
+  return { ...harness, runtime };
+}
+
 test('entering another page disposes all playback owned by the previous page', async () => {
   const { controller, events } = createHarness();
 
@@ -37,7 +80,7 @@ test('entering another page disposes all playback owned by the previous page', a
   assert.deepEqual(controller.snapshot(), {
     sceneIndex: 1,
     status: 'idle',
-    revision: 3,
+    revision: 2,
   });
 });
 
@@ -102,4 +145,63 @@ test('leave and dispose are idempotent and reject further commands', async () =>
     status: 'idle',
     revision: 2,
   });
+});
+
+test('interrupt decorates the runtime checkpoint and resumes the bound revision', async () => {
+  const { controller, runtime } = await createBoundHarness();
+  await controller.play();
+
+  const checkpoint = controller.interrupt();
+
+  assert.equal(controller.snapshot().status, 'interrupted');
+  assert.equal(checkpoint?.sceneIndex, 2);
+  assert.equal(checkpoint?.pageRevision, controller.snapshot().revision);
+  assert.equal(controller.resumeInterrupted(checkpoint!), true);
+  assert.equal(controller.snapshot().status, 'playing');
+  assert.deepEqual(runtime.events, [
+    'runtime:play',
+    'runtime:suspend',
+    'runtime:resume',
+  ]);
+});
+
+test('rejects a runtime bound to a stale scene revision', async () => {
+  const { controller } = createHarness();
+  const runtime = new FakePlaybackRuntime();
+  await controller.enter(1);
+
+  controller.bindRuntime(1, controller.snapshot().revision - 1, runtime);
+
+  assert.deepEqual(runtime.events, ['runtime:dispose']);
+});
+
+test('an interrupted checkpoint can only resume once', async () => {
+  const { controller } = await createBoundHarness();
+  await controller.play();
+  const checkpoint = controller.interrupt();
+
+  assert.equal(controller.resumeInterrupted(checkpoint!), true);
+  assert.equal(controller.resumeInterrupted(checkpoint!), false);
+});
+
+test('page navigation disposes the bound concrete runtime', async () => {
+  const { controller, runtime } = await createBoundHarness();
+
+  await controller.enter(3);
+
+  assert.deepEqual(runtime.events, ['runtime:dispose']);
+});
+
+test('manual replay invalidates an interrupted checkpoint', async () => {
+  const { controller, runtime } = await createBoundHarness();
+  await controller.play();
+  const checkpoint = controller.interrupt();
+  const interruptedRevision = controller.snapshot().revision;
+
+  await controller.replay();
+
+  assert.equal(controller.snapshot().revision, interruptedRevision + 1);
+  assert.equal(controller.snapshot().status, 'playing');
+  assert.equal(controller.resumeInterrupted(checkpoint!), false);
+  assert.equal(runtime.events.at(-1), 'runtime:dispose');
 });

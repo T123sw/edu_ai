@@ -10,6 +10,7 @@ import { InteractiveScenePlayer } from './InteractiveScenePlayer';
 import { QuizScenePlayer } from './QuizScenePlayer';
 import { SlidePlayer } from './SlidePlayer';
 import type { PlaybackMode } from './playbackEngine';
+import type { PlaybackRuntimeHandle } from './pagePlaybackController';
 
 export interface ClassroomSceneRendererProps {
   scene: ClassroomScene;
@@ -18,6 +19,7 @@ export interface ClassroomSceneRendererProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
+  onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
 }
 
 export function ClassroomSceneRenderer({
@@ -27,6 +29,7 @@ export function ClassroomSceneRenderer({
   autoPlay = true,
   onComplete,
   onModeChange,
+  onRuntimeReady,
 }: ClassroomSceneRendererProps) {
   const kind = resolveClassroomSceneKind(scene);
 
@@ -44,6 +47,7 @@ export function ClassroomSceneRenderer({
           autoPlay={autoPlay}
           onComplete={onComplete}
           onModeChange={onModeChange}
+          onRuntimeReady={onRuntimeReady}
         />
       );
     }
@@ -56,6 +60,7 @@ export function ClassroomSceneRenderer({
           autoPlay={autoPlay}
           onComplete={onComplete}
           onModeChange={onModeChange}
+          onRuntimeReady={onRuntimeReady}
         />
       );
     case 'quiz':
@@ -70,6 +75,7 @@ export function ClassroomSceneRenderer({
           autoPlay={autoPlay}
           onComplete={onComplete}
           onModeChange={onModeChange}
+          onRuntimeReady={onRuntimeReady}
         />
       );
     case 'invalid':

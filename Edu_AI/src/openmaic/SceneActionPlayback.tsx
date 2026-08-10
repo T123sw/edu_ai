@@ -7,6 +7,7 @@ import {
   type PlaybackMode,
   type PlayableScene,
 } from './playbackEngine';
+import type { PlaybackRuntimeHandle } from './pagePlaybackController';
 
 export interface SceneActionPlaybackProps {
   sceneId: string;
@@ -15,6 +16,7 @@ export interface SceneActionPlaybackProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
+  onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   children: ReactNode;
 }
 
@@ -29,13 +31,14 @@ export function SceneActionPlayback({
   autoPlay = true,
   onComplete,
   onModeChange,
+  onRuntimeReady,
   children,
 }: SceneActionPlaybackProps) {
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const widgetRef = useRef(widget);
   widgetRef.current = widget;
-  const callbacksRef = useRef({ onComplete, onModeChange });
-  callbacksRef.current = { onComplete, onModeChange };
+  const callbacksRef = useRef({ onComplete, onModeChange, onRuntimeReady });
+  callbacksRef.current = { onComplete, onModeChange, onRuntimeReady };
 
   useEffect(() => {
     const playableScene: PlayableScene = {
@@ -61,9 +64,23 @@ export function SceneActionPlayback({
       },
       { actionExecutor: actionEngine },
     );
+    const runtime: PlaybackRuntimeHandle = {
+      play: () => engine.start(),
+      suspend: () => engine.suspend(),
+      resume: (checkpoint) => engine.resume(checkpoint),
+      cancel: () => engine.stop(),
+      dispose: () => engine.dispose(),
+    };
+    callbacksRef.current.onRuntimeReady?.(runtime);
     if (autoPlay) engine.start();
-    return () => engine.dispose();
-  }, [actions, autoPlay, sceneId]);
+    return () => {
+      callbacksRef.current.onRuntimeReady?.(null);
+      engine.dispose();
+    };
+    // autoPlay is initial mount behavior. Parent playback state changes must
+    // not recreate the checkpoint-owning engine during an interruption.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actions, sceneId]);
 
   return (
     <div className="h-full w-full" data-playback-mode={mode}>
