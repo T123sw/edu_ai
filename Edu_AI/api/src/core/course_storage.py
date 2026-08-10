@@ -578,13 +578,25 @@ class CourseStorageManager:
         """课件配音文件目录（SPEC-04 §5 media 迁移落盘位置），跟课件 JSON
         本身（`generated_materials/classrooms/{id}.json`）同级、按 id 分子目录，
         不与 `_material_file` 的单文件约定冲突。"""
-        safe_classroom_id = self._normalize_material_id(classroom_id)
-        return self._material_dir(course_id, "classroom") / f"{safe_classroom_id}_media" / "audio"
+        return self._classroom_media_dir(course_id, classroom_id) / "audio"
 
     def get_classroom_video_dir(self, course_id: str, classroom_id: str) -> Path:
         """Stable storage root for MP4/SRT/timeline artifacts derived from a classroom."""
+        return self._classroom_media_dir(course_id, classroom_id) / "video"
+
+    def get_classroom_qa_dir(
+        self,
+        course_id: str,
+        classroom_id: str,
+        owner_user_id: str,
+    ) -> Path:
+        """Per-student classroom Q&A root without exposing the owner in paths."""
+        owner_hash = hashlib.sha256(owner_user_id.encode("utf-8")).hexdigest()[:24]
+        return self._classroom_media_dir(course_id, classroom_id) / "qa" / owner_hash
+
+    def _classroom_media_dir(self, course_id: str, classroom_id: str) -> Path:
         safe_classroom_id = self._normalize_material_id(classroom_id)
-        return self._material_dir(course_id, "classroom") / f"{safe_classroom_id}_media" / "video"
+        return self._material_dir(course_id, "classroom") / f"{safe_classroom_id}_media"
 
     def _build_recovered_knowledge_base_entry(self, course_id: str, file_path: Path) -> Dict[str, Any]:
         relative_path = file_path.relative_to(self.get_course_dir(course_id)).as_posix()

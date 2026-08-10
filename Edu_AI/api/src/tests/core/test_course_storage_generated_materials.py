@@ -1,4 +1,20 @@
+import hashlib
+
 from core.course_storage import CourseStorageManager
+
+
+def test_classroom_qa_directory_hashes_owner(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+
+    path = manager.get_classroom_qa_dir(
+        'course-1',
+        'classroom-1',
+        'student@example.com',
+    )
+
+    assert path.name == hashlib.sha256(b'student@example.com').hexdigest()[:24]
+    assert 'student@example.com' not in str(path)
+    assert 'classroom-1_media' in str(path)
 
 
 def test_list_generated_materials_sorts_pinned_first(tmp_path):
