@@ -175,3 +175,4 @@ def test_database_only_start_recovers_stopped_container_without_wait_errors():
     )
     assert "Conversation persistence mode: postgres" in combined_output
     assert "Job persistence mode: postgres" in combined_output
+    assert "Material persistence mode: postgres" in combined_output

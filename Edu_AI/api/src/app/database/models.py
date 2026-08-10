@@ -8,6 +8,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
     JSON,
     String,
@@ -246,3 +247,100 @@ class JobEvent(Base):
     )
 
     job: Mapped[JobRecord] = relationship(back_populates="events")
+
+
+class Material(Base):
+    __tablename__ = "materials"
+
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    material_type: Mapped[str] = mapped_column(String(80), primary_key=True)
+    material_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    status: Mapped[str] = mapped_column(String(64), nullable=False, default="ready")
+    visibility: Mapped[str] = mapped_column(String(32), nullable=False, default="course")
+    owner_user_id: Mapped[str | None] = mapped_column(String(160), index=True)
+    scope_type: Mapped[str] = mapped_column(String(64), nullable=False, default="course")
+    scope_id: Mapped[str | None] = mapped_column(String(240), index=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    source_job_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    content_hash: Mapped[str | None] = mapped_column(String(128), index=True)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    pinned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    raw_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class MaterialVersion(Base):
+    __tablename__ = "material_versions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["course_id", "material_type", "material_id"],
+            ["materials.course_id", "materials.material_type", "materials.material_id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint(
+            "course_id", "material_type", "material_id", "version",
+            name="uq_material_versions_version",
+        ),
+    )
+
+    material_version_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    material_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    material_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class ArtifactFile(Base):
+    __tablename__ = "artifact_files"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["course_id", "material_type", "material_id"],
+            ["materials.course_id", "materials.material_type", "materials.material_id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint(
+            "course_id", "material_type", "material_id", "path",
+            name="uq_artifact_files_path",
+        ),
+    )
+
+    artifact_file_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    material_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    material_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    path: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str | None] = mapped_column(String(128))
+    metadata_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class MigrationQuarantine(Base):
+    __tablename__ = "migration_quarantine"
+    __table_args__ = (
+        UniqueConstraint("domain", "source_path", name="uq_migration_quarantine_source"),
+    )
+
+    quarantine_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    domain: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    source_path: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    error_message: Mapped[str] = mapped_column(Text, nullable=False)
+    raw_content: Mapped[str] = mapped_column(Text, nullable=False)
+    quarantined_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )

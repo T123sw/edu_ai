@@ -155,6 +155,41 @@ class CourseStorageManager:
         safe_material_id = self._normalize_material_id(material_id)
         return self._material_dir(course_id, material_type) / f"{safe_material_id}.json"
 
+    @staticmethod
+    def _material_uses_postgres() -> bool:
+        return (
+            str(os.getenv("MATERIAL_PERSISTENCE_MODE", "json")).strip().lower()
+            == "postgres"
+        )
+
+    @staticmethod
+    def _material_repository():
+        from app.persistence.dependencies import get_postgres_material_repository
+
+        return get_postgres_material_repository()
+
+    def _load_material_manifest(
+        self, course_id: str, material_type: str, material_id: str
+    ) -> Optional[Dict[str, Any]]:
+        if self._material_uses_postgres():
+            return self._material_repository().get(
+                course_id, material_type, self._normalize_material_id(material_id)
+            )
+        return self._read_json(self._material_file(course_id, material_type, material_id))
+
+    def _persist_material_manifest(self, payload: Dict[str, Any]) -> None:
+        if self._material_uses_postgres():
+            self._material_repository().upsert(payload)
+            return
+        self._write_json(
+            self._material_file(
+                str(payload["course_id"]),
+                str(payload["material_type"]),
+                str(payload["material_id"]),
+            ),
+            payload,
+        )
+
     def _timestamp(self, value: Optional[str]) -> float:
         if not value:
             return 0.0
@@ -923,7 +958,9 @@ class CourseStorageManager:
 
             material_file = self._material_file(course_id, material_type, material_id)
             with self._storage_lock():
-                existing_data = self._read_json(material_file) or {}
+                existing_data = self._load_material_manifest(
+                    course_id, material_type, material_id
+                ) or {}
                 next_data = dict(existing_data)
                 next_data.update(material_data or {})
                 normalized_scope = self._normalize_scope(
@@ -1050,7 +1087,7 @@ class CourseStorageManager:
                             previous_attachment = attachment_path.read_bytes()
                         os.replace(staged_attachment, attachment_path)
                         staged_attachment = None
-                    self._write_json(material_file, next_data)
+                    self._persist_material_manifest(next_data)
                 except Exception:
                     if staged_attachment is not None:
                         staged_attachment.unlink(missing_ok=True)
@@ -1072,10 +1109,9 @@ class CourseStorageManager:
         material_id: str,
     ) -> Optional[Dict[str, Any]]:
         try:
-            material_file = self._material_file(course_id, material_type, material_id)
-            if not material_file.exists():
-                return None
-            material_data = self._read_json(material_file)
+            material_data = self._load_material_manifest(
+                course_id, material_type, material_id
+            )
             if not material_data:
                 return None
             normalized = self._normalize_material_manifest(
@@ -1106,7 +1142,9 @@ class CourseStorageManager:
             course_id, normalized_material_type, safe_material_id
         )
         with self._storage_lock():
-            existing = self._read_json(material_file) or {}
+            existing = self._load_material_manifest(
+                course_id, normalized_material_type, safe_material_id
+            ) or {}
             now = datetime.now().isoformat()
             payload = copy.deepcopy(dict(material_data or {}))
             payload.update(
@@ -1127,7 +1165,7 @@ class CourseStorageManager:
             payload.setdefault("status", "ready")
             payload.setdefault("is_pinned", bool(existing.get("is_pinned", False)))
             payload.setdefault("pinned_at", existing.get("pinned_at"))
-            self._write_json(material_file, payload)
+            self._persist_material_manifest(payload)
         return self._normalize_material_manifest(
             payload,
             course_id=course_id,
@@ -1144,12 +1182,14 @@ class CourseStorageManager:
     ) -> Optional[Dict[str, Any]]:
         material_file = self._material_file(course_id, material_type, material_id)
         with self._storage_lock():
-            stored = self._read_json(material_file)
+            stored = self._load_material_manifest(
+                course_id, material_type, material_id
+            )
             if not stored:
                 return None
             stored.update(copy.deepcopy(dict(updates or {})))
             stored["updated_at"] = datetime.now().isoformat()
-            self._write_json(material_file, stored)
+            self._persist_material_manifest(stored)
         return self._normalize_material_manifest(
             stored,
             course_id=course_id,
@@ -1197,6 +1237,24 @@ class CourseStorageManager:
         materials: List[Dict[str, Any]] = []
 
         try:
+            if self._material_uses_postgres():
+                for material_data in self._material_repository().list(
+                    course_id, material_type
+                ):
+                    if not self._material_owner_matches(
+                        material_data, owner_user_id
+                    ):
+                        continue
+                    if not self._matches_material_space(material_data, space):
+                        continue
+                    if self._matches_scope(
+                        material_data,
+                        scope_type=scope_type,
+                        scope_ids=scope_ids,
+                        aggregate=aggregate,
+                    ):
+                        materials.append(material_data)
+                return self._sort_generated_materials(materials, sort=sort)
             generated_materials_dir = self.get_course_dir(course_id) / "generated_materials"
             if not generated_materials_dir.exists():
                 return []
@@ -1255,8 +1313,10 @@ class CourseStorageManager:
     ) -> bool:
         try:
             material_file = self._material_file(course_id, material_type, material_id)
-            stored = self._read_json(material_file) or {}
-            if not material_file.exists():
+            stored = self._load_material_manifest(
+                course_id, material_type, material_id
+            ) or {}
+            if not stored:
                 return False
             if not self._material_owner_matches(stored, owner_user_id):
                 return False
@@ -1282,7 +1342,12 @@ class CourseStorageManager:
             )
             if media_dir.exists():
                 shutil.rmtree(media_dir)
-            material_file.unlink()
+            if self._material_uses_postgres():
+                self._material_repository().delete(
+                    course_id, material_type, self._normalize_material_id(material_id)
+                )
+            else:
+                material_file.unlink()
             return True
         except Exception as e:
             print(f"Error deleting generated material: {e}")
@@ -1298,8 +1363,9 @@ class CourseStorageManager:
         owner_user_id: Optional[str] = None,
     ) -> bool:
         try:
-            material_file = self._material_file(course_id, material_type, material_id)
-            material_data = self._read_json(material_file)
+            material_data = self._load_material_manifest(
+                course_id, material_type, material_id
+            )
             if not material_data:
                 return False
             if not self._material_owner_matches(material_data, owner_user_id):
@@ -1308,7 +1374,7 @@ class CourseStorageManager:
             material_data["is_pinned"] = bool(is_pinned)
             material_data["pinned_at"] = datetime.now().isoformat() if is_pinned else None
             material_data["updated_at"] = datetime.now().isoformat()
-            self._write_json(material_file, material_data)
+            self._persist_material_manifest(material_data)
             return True
         except Exception as e:
             print(f"Error pinning generated material: {e}")
@@ -1331,7 +1397,9 @@ class CourseStorageManager:
                 course_id, material_type, material_id
             )
             with self._storage_lock():
-                material_data = self._read_json(material_file)
+                material_data = self._load_material_manifest(
+                    course_id, material_type, material_id
+                )
                 if not material_data or not self._material_owner_matches(
                     material_data, owner_user_id
                 ):
@@ -1340,7 +1408,7 @@ class CourseStorageManager:
                 material_data["name"] = normalized_title
                 material_data["version"] = int(material_data.get("version") or 1) + 1
                 material_data["updated_at"] = datetime.now().isoformat()
-                self._write_json(material_file, material_data)
+                self._persist_material_manifest(material_data)
             return True
         except Exception as e:
             print(f"Error renaming generated material: {e}")
