@@ -36,6 +36,8 @@ def _http_error(error: LearningRuleError) -> HTTPException:
         "INVALID_TASK": status.HTTP_422_UNPROCESSABLE_ENTITY,
         "INVALID_RESOURCE_REF": status.HTTP_422_UNPROCESSABLE_ENTITY,
         "INVALID_PROGRESS": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "EVIDENCE_SOURCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "ASSESSMENT_EVIDENCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_ENTITY,
     }
     return HTTPException(
         status_code=status_by_code.get(error.code, status.HTTP_400_BAD_REQUEST),
@@ -152,6 +154,7 @@ def record_learning_event(
             event_type=payload.event_type,
             progress_percent=payload.progress_percent,
             resource_ref=payload.resource_ref.model_dump() if payload.resource_ref else None,
+            evidence=payload.evidence.model_dump() if payload.evidence else None,
         )
         return LearningEventResponse.model_validate(
             {"created": result.created, "progress": asdict(result.progress)}

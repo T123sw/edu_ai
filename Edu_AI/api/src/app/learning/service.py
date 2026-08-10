@@ -8,6 +8,7 @@ from typing import Any
 
 from .models import (
     CourseTaskSummaryRecord,
+    LearningEvidence,
     LearningEventRecord,
     LearningEventType,
     LearningTaskRecord,
@@ -175,6 +176,7 @@ class LearningService:
         event_type: LearningEventType,
         progress_percent: int,
         resource_ref: dict[str, str] | None,
+        evidence: dict[str, float | str | bool | None] | None = None,
     ) -> EventWriteResult:
         task = self._task_or_error(course_id=course_id, task_id=task_id)
         if task.status != "published":
@@ -189,6 +191,28 @@ class LearningService:
             }
             if normalized_ref not in task.resource_refs:
                 raise LearningRuleError("RESOURCE_NOT_ASSIGNED", "Resource is not attached to this task")
+        if event_type in {"resource_completed", "assessment_scored"} and normalized_ref is None:
+            raise LearningRuleError(
+                "EVIDENCE_SOURCE_REQUIRED",
+                "Evidence events require an assigned resource",
+            )
+        if event_type == "assessment_scored" and not evidence:
+            raise LearningRuleError(
+                "ASSESSMENT_EVIDENCE_REQUIRED",
+                "Assessment score evidence is required",
+            )
+        occurred_at = utc_now()
+        normalized_evidence = (
+            LearningEvidence(
+                evidence_type=str(evidence["evidence_type"]).strip(),
+                source_type=str(evidence["source_type"]).strip(),
+                source_id=str(evidence["source_id"]).strip(),
+                value=evidence.get("value"),
+                occurred_at=occurred_at,
+            )
+            if evidence
+            else None
+        )
         event = LearningEventRecord.new(
             event_id=self._require_text(event_id, field="event_id"),
             course_id=course_id,
@@ -197,6 +221,8 @@ class LearningService:
             event_type=event_type,
             progress_percent=progress_percent,
             resource_ref=normalized_ref,
+            occurred_at=occurred_at,
+            evidence=normalized_evidence,
         )
         return self.store.record_event(event)
 
@@ -221,6 +247,9 @@ class LearningService:
                 student_id=student_id,
                 status="not_started",
                 progress_percent=0,
+                completion_basis="none",
+                evidence_count=0,
+                last_activity_at=None,
                 started_at=None,
                 completed_at=None,
                 updated_at=now,

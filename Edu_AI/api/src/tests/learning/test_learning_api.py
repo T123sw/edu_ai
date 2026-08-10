@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -17,9 +19,16 @@ class LearningApiFactory:
         self.memberships.upsert("course-1", "student-1", "viewer", added_by="fixture")
         self.memberships.upsert("course-1", "teacher-viewer", "viewer", added_by="fixture")
         self.access = CourseAccessService(self.memberships)
+
+        def material_lookup(course_id, material_type, material_id, user_id):
+            del user_id
+            if (course_id, material_type, material_id) == ("course-1", "report", "report-1"):
+                return {"visibility": "course"}
+            return None
+
         self.service = LearningService(
             store=LearningStore(tmp_path / "learning.db"),
-            material_lookup=lambda *args: None,
+            material_lookup=material_lookup,
             membership_lookup=self.memberships.list_for_course,
         )
 
@@ -106,3 +115,50 @@ def test_only_students_can_submit_learning_events(tmp_path):
 
     assert response.status_code == 403
     assert response.json()["detail"]["code"] == "STUDENT_ROLE_REQUIRED"
+
+
+def test_learning_event_api_persists_evidence_payload(tmp_path):
+    factory = LearningApiFactory(tmp_path)
+    teacher = factory.client("teacher-1", "teacher")
+    student = factory.client("student-1", "student")
+    created = teacher.post(
+        "/api/courses/course-1/learning/tasks",
+        json={
+            "title": "Assessment",
+            "instructions": "",
+            "resource_refs": [{"material_type": "report", "material_id": "report-1"}],
+            "knowledge_point_ids": [],
+        },
+    ).json()
+    task_id = created["task_id"]
+    teacher.post(f"/api/courses/course-1/learning/tasks/{task_id}/publish")
+
+    response = student.post(
+        f"/api/courses/course-1/learning/tasks/{task_id}/events",
+        json={
+            "event_id": "evt-api-score",
+            "event_type": "assessment_scored",
+            "progress_percent": 100,
+            "resource_ref": {"material_type": "report", "material_id": "report-1"},
+            "evidence": {
+                "evidence_type": "score",
+                "source_type": "quiz",
+                "source_id": "quiz-attempt-1",
+                "value": 92.0,
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["progress"]["completion_basis"] == "assessment_verified"
+    stored = factory.service.store._connection.execute(
+        "SELECT evidence_json FROM learning_events WHERE event_id='evt-api-score'"
+    ).fetchone()
+    evidence = json.loads(stored["evidence_json"])
+    assert evidence.pop("occurred_at")
+    assert evidence == {
+        "evidence_type": "score",
+        "source_type": "quiz",
+        "source_id": "quiz-attempt-1",
+        "value": 92.0,
+    }

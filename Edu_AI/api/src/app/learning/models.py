@@ -10,11 +10,19 @@ from uuid import uuid4
 
 TaskStatus = Literal["draft", "published", "closed"]
 ProgressStatus = Literal["not_started", "in_progress", "completed"]
+CompletionBasis = Literal[
+    "none",
+    "self_reported",
+    "activity_evidenced",
+    "assessment_verified",
+]
 LearningEventType = Literal[
     "started",
     "resource_opened",
     "progress_updated",
     "completed",
+    "resource_completed",
+    "assessment_scored",
 ]
 
 
@@ -68,6 +76,7 @@ class LearningEventRecord:
     progress_percent: int
     resource_ref: dict[str, str] | None = None
     occurred_at: str = field(default_factory=utc_now)
+    evidence: LearningEvidence | None = None
 
     @classmethod
     def new(
@@ -81,6 +90,7 @@ class LearningEventRecord:
         progress_percent: int,
         resource_ref: dict[str, str] | None = None,
         occurred_at: str | None = None,
+        evidence: LearningEvidence | None = None,
     ) -> "LearningEventRecord":
         return cls(
             event_id=str(event_id).strip(),
@@ -91,7 +101,17 @@ class LearningEventRecord:
             progress_percent=int(progress_percent),
             resource_ref=dict(resource_ref) if resource_ref else None,
             occurred_at=occurred_at or utc_now(),
+            evidence=evidence,
         )
+
+
+@dataclass(frozen=True)
+class LearningEvidence:
+    evidence_type: str
+    source_type: str
+    source_id: str
+    value: float | str | bool | None
+    occurred_at: str
 
 
 @dataclass(frozen=True)
@@ -101,9 +121,12 @@ class TaskProgressRecord:
     student_id: str
     status: ProgressStatus
     progress_percent: int
-    started_at: str | None
-    completed_at: str | None
-    updated_at: str
+    completion_basis: CompletionBasis = "none"
+    evidence_count: int = 0
+    last_activity_at: str | None = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    updated_at: str = ""
 
 
 @dataclass(frozen=True)

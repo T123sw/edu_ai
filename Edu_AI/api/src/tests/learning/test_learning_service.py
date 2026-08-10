@@ -192,3 +192,72 @@ def test_student_agent_context_never_contains_another_student(service):
     assert "student-2" not in str(context)
     assert context["pending_tasks"][0]["task_id"] == task.task_id
 
+
+@pytest.mark.parametrize("event_type", ["resource_completed", "assessment_scored"])
+def test_evidence_events_require_an_assigned_resource(service, event_type):
+    task = _create_task(service)
+    service.publish_task(course_id="course-1", task_id=task.task_id, teacher_id="teacher-1")
+
+    with pytest.raises(LearningRuleError) as error:
+        service.record_student_event(
+            course_id="course-1",
+            task_id=task.task_id,
+            student_id="student-1",
+            event_id=f"evt-{event_type}",
+            event_type=event_type,
+            progress_percent=100,
+            resource_ref=None,
+            evidence=None,
+        )
+
+    assert error.value.code == "EVIDENCE_SOURCE_REQUIRED"
+
+
+def test_assessment_event_requires_evidence(service):
+    task = _create_task(
+        service,
+        resource_refs=[{"material_type": "report", "material_id": "report-1"}],
+    )
+    service.publish_task(course_id="course-1", task_id=task.task_id, teacher_id="teacher-1")
+
+    with pytest.raises(LearningRuleError) as error:
+        service.record_student_event(
+            course_id="course-1",
+            task_id=task.task_id,
+            student_id="student-1",
+            event_id="evt-score",
+            event_type="assessment_scored",
+            progress_percent=100,
+            resource_ref={"material_type": "report", "material_id": "report-1"},
+            evidence=None,
+        )
+
+    assert error.value.code == "ASSESSMENT_EVIDENCE_REQUIRED"
+
+
+def test_assessment_event_persists_evidence(service):
+    task = _create_task(
+        service,
+        resource_refs=[{"material_type": "report", "material_id": "report-1"}],
+    )
+    service.publish_task(course_id="course-1", task_id=task.task_id, teacher_id="teacher-1")
+
+    result = service.record_student_event(
+        course_id="course-1",
+        task_id=task.task_id,
+        student_id="student-1",
+        event_id="evt-score",
+        event_type="assessment_scored",
+        progress_percent=100,
+        resource_ref={"material_type": "report", "material_id": "report-1"},
+        evidence={
+            "evidence_type": "score",
+            "source_type": "quiz",
+            "source_id": "quiz-attempt-1",
+            "value": 92.0,
+        },
+    )
+
+    assert result.progress.completion_basis == "assessment_verified"
+    assert result.progress.evidence_count == 1
+
