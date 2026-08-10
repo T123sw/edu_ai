@@ -2,7 +2,7 @@
 
 > **对应规格**：[`../spec/SPEC-12_AI课堂实时问答与中断恢复.md`](../spec/SPEC-12_AI课堂实时问答与中断恢复.md)
 > **实施计划**：[`../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md`](../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md)
-> **状态**：待实施、待验收
+> **状态**：✅ 通过（2026-08-10，自动化门禁 + 真实浏览器 + 真实 Qwen TTS）
 > **验收原则**：自动化证明状态与边界，真实浏览器和真实 Qwen TTS 证明声音与恢复体验。
 
 ## 1. 验收范围
@@ -43,23 +43,23 @@ Provider: http://127.0.0.1:3000/api/server-providers → tts.qwen-tts 存在
 
 | 编号 | 标准 | 自动化证据 | 人工/集成证据 | 当前状态 |
 | --- | --- | --- | --- | --- |
-| AC-12-1 | 学生打开提问框时立即取消当前课堂音频并冻结 scene/action checkpoint | playback controller + interruption hook tests | 听感确认点击后当前讲解立即停止 | 未实施 |
-| AC-12-2 | action 执行中打断，回答后从被打断 action 开头重播 | playback engine tests | 在一句中间打断并听到该句完整重播 | 未实施 |
-| AC-12-3 | action 之间打断，回答后从下一条 action 继续 | playback engine tests | 在两句间暂停并确认不重复上一句 | 未实施 |
-| AC-12-4 | Agent 上下文来自可信课堂数据，包含当前页、被打断 action、近期问答和课程 RAG | backend context/prompt tests | 对当前页指代问题回答正确 | 未实施 |
-| AC-12-5 | 回答与衔接语分字段生成，TTS 播放两者的拼接文本 | parser + TTS request tests | 听到回答后有自然回课话术 | 未实施 |
-| AC-12-6 | 成功路径实际调用 OpenMAIC `/api/generate/tts`，provider 为 `qwen-tts` | OpenMaicClient mock transport test | sidecar 日志或网络记录 | 未实施 |
-| AC-12-7 | Qwen TTS 音频保存到 edu_ai 课堂媒体目录，浏览器通过鉴权 blob 播放 | store/API/frontend audio tests | 浏览器 network 不直接暴露 sidecar 临时 URL | 未实施 |
-| AC-12-8 | Qwen TTS 失败时先保留文字，再降级浏览器 TTS；双失败可手动继续 | service + hook tests | 断开 sidecar 后走降级 | 未实施 |
-| AC-12-9 | 历史按课程、课堂、学生隔离，刷新后仍在，其他学生无法读取音频或历史 | store/API auth tests | 两个学生账号交叉验证 | 未实施 |
-| AC-12-10 | 相同 clientTurnId 幂等，不重复调用 LLM/TTS；不同并发 turn 返回 409 | backend concurrency tests | 快速双击不产生重复回答 | 未实施 |
-| AC-12-11 | Agent/TTS/回答播放期间再次提交被前后端共同阻止 | state machine + API tests | UI 按钮禁用且无问题队列 | 未实施 |
-| AC-12-12 | 取消草稿不创建 turn 并恢复；停止回答可立即继续授课 | hook/store tests | 两个按钮路径人工验证 | 未实施 |
-| AC-12-13 | 翻页、退出或 revision 变化使旧 checkpoint 失效，旧回答不得恢复旧页 | stale checkpoint tests | 生成期间翻页后不跳回 | 未实施 |
-| AC-12-14 | 问题长度、路径穿越、课程权限、owner 和音频登记白名单均受保护 | schema/API security tests | 非 owner 请求返回 404 | 未实施 |
-| AC-12-15 | 全屏和普通模式均可提问，面板不遮挡核心舞台与播放控制 | component/browser tests | 桌面宽屏与窄屏检查 | 未实施 |
-| AC-12-16 | 现有课堂播放、PPTX、视频 A 测试、lint 和 build 不退化 | 全量前端门禁 + 后端定向门禁 | 正常课堂无问答时行为不变 | 未实施 |
-| AC-12-17 | 活跃源码和部署配置未重新引入 LiveTalking、WebRTC、AI Lecturer | 静态 grep gate | 无 | 未实施 |
+| AC-12-1 | 学生打开提问框时立即取消当前课堂音频并冻结 scene/action checkpoint | playback controller + interruption hook tests | 真实浏览器捕获 `executing_action` checkpoint | 通过 |
+| AC-12-2 | action 执行中打断，回答后从被打断 action 开头重播 | playback engine tests | 真实课堂在 `action_27UjH1Hk` 句中打断并恢复 | 通过 |
+| AC-12-3 | action 之间打断，回答后从下一条 action 继续 | playback engine tests | 可控执行器验证下一 action 续讲且不重复上一句 | 通过 |
+| AC-12-4 | Agent 上下文来自可信课堂数据，包含当前页、被打断 action、近期问答和课程 RAG | backend context/prompt tests | 对快速排序基准值问题给出当前课相关回答 | 通过 |
+| AC-12-5 | 回答与衔接语分字段生成，TTS 播放两者的拼接文本 | parser + TTS request tests | Qwen TTS 实际接收回答与自然回课话术拼接文本 | 通过 |
+| AC-12-6 | 成功路径实际调用 OpenMAIC `/api/generate/tts`，provider 为 `qwen-tts` | OpenMaicClient mock transport test | sidecar 记录 provider、model、audioId 和 HTTP 200 | 通过 |
+| AC-12-7 | Qwen TTS 音频保存到 edu_ai 课堂媒体目录，浏览器通过鉴权 blob 播放 | store/API/frontend audio tests | 浏览器仅请求 edu_ai 受保护音频路由并取得 `audio/wav` | 通过 |
+| AC-12-8 | Qwen TTS 失败时先保留文字，再降级浏览器 TTS；双失败可手动继续 | service + hook tests | 真实 sidecar 不可达轮次 + 浏览器降级回归通过 | 通过 |
+| AC-12-9 | 历史按课程、课堂、学生隔离，刷新后仍在，其他学生无法读取音频或历史 | store/API auth tests | 学生 A 刷新可见；学生 B 历史为空且跨 owner 音频为 404 | 通过 |
+| AC-12-10 | 相同 clientTurnId 幂等，不重复调用 LLM/TTS；不同并发 turn 返回 409 | backend concurrency tests | E2E 复用成功 turn 验证幂等且不再调用 sidecar | 通过 |
+| AC-12-11 | Agent/TTS/回答播放期间再次提交被前后端共同阻止 | state machine + API tests | 处理中输入框和发送按钮禁用 | 通过 |
+| AC-12-12 | 取消草稿不创建 turn 并恢复；停止回答可立即继续授课 | hook/store tests | 自动化覆盖取消和停止后仅恢复一次 | 通过 |
+| AC-12-13 | 翻页、退出或 revision 变化使旧 checkpoint 失效，旧回答不得恢复旧页 | stale checkpoint tests | 导航/卸载后的迟到结果不播放、不恢复 | 通过 |
+| AC-12-14 | 问题长度、路径穿越、课程权限、owner 和音频登记白名单均受保护 | schema/API security tests | 学生 B 请求学生 A 音频返回 404 | 通过 |
+| AC-12-15 | 全屏和普通模式均可提问，面板不遮挡核心舞台与播放控制 | component/browser tests | 1440×900、720×900 和全屏演示检查通过 | 通过 |
+| AC-12-16 | 现有课堂播放、PPTX、视频 A 测试、lint 和 build 不退化 | 全量前端门禁 + 后端定向门禁 | 全量测试、lint、生产构建通过 | 通过 |
+| AC-12-17 | 活跃源码和部署配置未重新引入 LiveTalking、WebRTC、AI Lecturer | 静态 grep gate | 指定活跃范围零命中 | 通过 |
 
 ## 4. 自动化验收命令
 
@@ -73,6 +73,7 @@ pnpm exec tsx --test `
   src/openmaic/pagePlaybackController.test.ts `
   src/stitch/classroomQa/classroomQaState.test.ts `
   src/stitch/classroomQa/useClassroomInterruption.test.ts `
+  src/stitch/classroomQa/ClassroomQaPanel.test.ts `
   src/stitch/api/classroomQa.test.ts
 ```
 
@@ -203,4 +204,57 @@ rg -n -S "LiveTalking|teaching_video_bridge|ai_lecturer_bridge|RTCPeerConnection
 - 句中、句间、隔离、降级和布局的人工结论；
 - 已知但不阻塞本规格的限制。
 
-在上述证据齐全前，本文状态保持“待实施、待验收”，不得提前标记通过。
+在上述证据齐全前，本文不得提前标记通过。
+
+## 8. 2026-08-10 签收记录
+
+### 8.1 版本与真实对象
+
+- 分支：`feature/ai-classroom-realtime-qa`；实现提交：`f642721..3cd3bb0`。
+- 课程：`computational-thinking`；课堂：`IwhZs0-46W`；scene：`scene_xmemzNiI6e`。
+- 句中 checkpoint：`action_27UjH1Hk`，phase=`executing_action`。
+- 成功 turn：`turn_9904b8478d472a5b`，`tts_status=ready`。
+- 降级 turn：`turn_c83ce7b723f7cf8d`，`tts_status=failed`。
+- 隔离账号：学生 A=`student`；学生 B=`qa-student-b-1786361300056`。
+
+### 8.2 自动化门禁
+
+| 门禁 | 实际命令摘要 | 结果 |
+| --- | --- | --- |
+| 前端定向 | `pnpm exec tsx --test`（ACC §4.1 七个文件，含 Panel） | 49/49，通过 |
+| 后端定向 | `python -m pytest`（OpenMAIC、store、prompt、service、routes、student/course auth） | 84/84，通过 |
+| 前端全量 | `pnpm test` | 292/292，通过 |
+| 前端 lint | `pnpm run lint` | 0 error；46 条仓库既有 warning，本功能新增 0 |
+| 前端构建 | `pnpm run build` | 通过，5558 modules transformed |
+| 课堂后端回归 | ACC §4.4 四个测试文件 | 14/14，通过 |
+| 退休栈 | ACC §4.5 `rg` | 零命中 |
+| 真实浏览器 | `playwright test classroom-realtime-qa.real.spec.ts --project=desktop1440` | 2/2，通过 |
+
+### 8.3 Qwen TTS 与受保护音频证据
+
+Sidecar 实际日志：
+
+```text
+Generating TTS: provider=qwen-tts, model=qwen3-tts-flash, voice=Cherry,
+audioId=turn_9904b8478d472a5b, textLen=151
+POST /api/generate/tts 200 in 7.0s
+```
+
+同一轮浏览器只取得 edu_ai 路由：
+
+```text
+GET /api/courses/computational-thinking/classrooms/IwhZs0-46W/qa/
+sessions/cqa_ed86f576be6c1b93f99fba3b/audio/turn_9904b8478d472a5b.wav → 200 audio/wav
+学生 B 请求同一路径 → 404
+学生 A 再请求 → 200，文件大于 1000 bytes
+```
+
+实现期间真实集成发现并修正 sidecar 成功响应为扁平 `{success,audioId,base64,format}`、而 Python 客户端只读取嵌套 `data` 的契约偏差；修复后真实 Qwen TTS 成功。
+
+### 8.4 浏览器与降级结论
+
+- 普通模式和全屏演示均可保持问答面板；1440×900 与 720×900 下，面板底边均位于核心播放控制上方。
+- 成功回答播放结束后恢复原课堂，面板保持打开可继续提问，播放控制恢复可用。
+- 刷新后历史仍在；第二学生会话为空，无法读取第一学生音频。
+- sidecar 不可达时真实轮次保留回答文字并记为 `tts_status=failed`；浏览器降级语音结束后按同一 checkpoint 恢复。
+- 浏览器验收为 headless Chromium，音频走真实 `audio/wav` 并播放到 ended；未对音色主观听感打分，此项不影响协议、鉴权和恢复验收。

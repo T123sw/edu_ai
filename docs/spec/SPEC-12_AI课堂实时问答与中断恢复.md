@@ -1,6 +1,6 @@
 # SPEC-12 · AI 课堂实时问答与中断恢复
 
-> **状态**：设计已确认，待实施
+> **状态**：✅ 已完成并通过 ACC-12（2026-08-10）
 > **验收文档**：[`../acceptance/ACC-12_AI课堂实时问答与中断恢复_验收.md`](../acceptance/ACC-12_AI课堂实时问答与中断恢复_验收.md)
 > **实施计划**：[`../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md`](../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md)
 > **关联规格**：SPEC-02（Stage/Scene/Action）、SPEC-06（Provider 安全边界）、SPEC-07（OpenMaicClient）、SPEC-08（前端播放）
