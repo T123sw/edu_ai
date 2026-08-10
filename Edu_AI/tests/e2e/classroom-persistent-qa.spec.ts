@@ -13,7 +13,7 @@ function classroomMaterial() {
     title: '连续授课与实时问答验收课堂',
     voice_status: 'ready',
     stage: { id: classroomId, name: '连续授课与实时问答验收课堂' },
-    scenes_count: 2,
+    scenes_count: 3,
     scenes: [
       {
         id: 'scene-1',
@@ -42,6 +42,20 @@ function classroomMaterial() {
           },
         },
         actions: [{ id: 'speech-2', type: 'speech', text: '第二页慢速讲解' }],
+      },
+      {
+        id: 'scene-3',
+        type: 'slide',
+        title: '第三页：递归处理',
+        order: 2,
+        content: {
+          type: 'slide',
+          canvas: {
+            id: 'canvas-3',
+            elements: [{ id: 'title-3', type: 'text', text: '递归处理' }],
+          },
+        },
+        actions: [{ id: 'speech-3', type: 'speech', text: '第三页慢速讲解' }],
       },
     ],
   };
@@ -98,12 +112,15 @@ async function installSpeechMock(page: Page, durationFor: (text: string) => numb
         ? durations.first
         : text.includes('第二页')
           ? durations.second
-          : durations.answer;
+          : text.includes('第三页')
+            ? durations.third
+            : durations.answer;
       window.setTimeout(() => utterance.onend?.(new Event('end') as never), delay);
     };
   }, {
     first: durationFor('第一页'),
     second: durationFor('第二页'),
+    third: durationFor('第三页'),
     answer: durationFor('回答'),
   });
 }
@@ -141,14 +158,14 @@ test.describe('persistent classroom QA', () => {
     await expect(questionBox).toBeEnabled();
   });
 
-  test('automatically enters and plays the next page after the current page completes', async ({ teacherPage: page }) => {
+  test('automatically plays all pages in order and stops on the last page', async ({ teacherPage: page }) => {
     await installClassroomRoutes(page, 0);
-    await installSpeechMock(page, (text) => (text === '第一页' ? 40 : 10_000));
+    await installSpeechMock(page, (text) => (text === '回答' ? 10_000 : 40));
     await page.goto(`/#classroom-player?course_id=${courseId}&classroom_id=${classroomId}`);
 
     await page.getByRole('button', { name: '播放当前页' }).click();
-    await expect(page.getByText('2 / 2')).toBeVisible();
-    await expect(page.getByTitle('第二页：完成分区')).toBeVisible();
-    await expect(page.getByRole('button', { name: '暂停' })).toBeEnabled();
+    await expect(page.getByText('3 / 3')).toBeVisible();
+    await expect(page.getByTitle('第三页：递归处理')).toBeVisible();
+    await expect(page.getByRole('button', { name: '重播当前页' })).toBeEnabled();
   });
 });

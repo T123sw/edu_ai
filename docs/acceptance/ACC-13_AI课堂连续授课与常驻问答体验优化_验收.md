@@ -1,6 +1,6 @@
 # ACC-13 AI 课堂连续授课与常驻问答体验优化验收
 
-> **状态**：待实施、待验收
+> **状态**：实施完成；自动化与核心真实 E2E 通过，人工听感/长链路签收待完成
 > **日期**：2026-08-11
 > **对应规格**：[SPEC-13](../spec/SPEC-13_AI课堂连续授课与常驻问答体验优化.md)
 > **实施计划**：[2026-08-11-ai-classroom-continuous-playback-and-persistent-qa.md](../superpowers/plans/2026-08-11-ai-classroom-continuous-playback-and-persistent-qa.md)
@@ -36,20 +36,20 @@
 
 ## 4. 验收矩阵
 
-| ID | 验收点 | 判定标准 | 证据 | 初始状态 |
+| ID | 验收点 | 判定标准 | 证据 | 结果 |
 | --- | --- | --- | --- | --- |
-| AC13-01 | 问答无检索 | 代码无 live-Q&A RAG 符号；一次真实提问日志无 VectorSearch/BM25/reranker/RAG 阶段 | A1、B1 | 待执行 |
-| AC13-02 | 本地可信上下文 | prompt 含当前 scene、断点、前页尾部、最近 6 轮；无知识库参考；信息不足时说明边界 | A2、B2 | 待执行 |
-| AC13-03 | 发送才打断 | 聚焦和输入期间授课继续；发送有效问题时才暂停；无效输入不暂停 | A3、B3 | 待执行 |
-| AC13-04 | 问题即时出现 | 延迟 POST 时，学生气泡在网络响应前可见；失败后保留并可用同一 ID 重试 | A3、A4、B3 | 待执行 |
-| AC13-05 | 对话方向与去重 | 学生气泡/头像在右，AI 在左；服务端返回后问题只出现一次 | A4、B3 | 待执行 |
-| AC13-06 | 常驻布局 | 无浮动入口/关闭/遮罩/讲解提词；宽屏、演示和窄屏不遮挡舞台或控制 | A4、A8、B4 | 待执行 |
-| AC13-07 | 自动下一页 | 连续 3 页按 1→2→3 自动进入并播放，不需人工点击 | A5、A8、B5 | 待执行 |
-| AC13-08 | 完成边界 | 末页不循环；重复或 stale completion 不跳页；enter 失败不继续连跳 | A5、B5 | 待执行 |
-| AC13-09 | 问答后连续授课 | 回答结束按原 checkpoint 恢复；本页完成后仍自动播放下一页 | A3、A5、B6 | 待执行 |
-| AC13-10 | 统一新生成语音 | 新课堂 narration 与回答均记录 `qwen-tts / Cherry / 1.0`，人工听感一致且较原讲解自然 | A6、A7、B7 | 待执行 |
-| AC13-11 | 补全路径一致 | 缺失 narration 通过同一 OpenMAIC profile 补全，无 `/audio/speech` 或 `alloy` 课堂 fallback | A6、A7、B8 | 待执行 |
-| AC13-12 | 既有能力回归 | 鉴权、学生隔离、幂等、浏览器 TTS 降级、手动翻页、构建和 lint 均通过 | A6、A9、B8 | 待执行 |
+| AC13-01 | 问答无检索 | 代码无 live-Q&A RAG 符号；一次真实提问日志无 VectorSearch/BM25/reranker/RAG 阶段 | A1、B1 | 通过 |
+| AC13-02 | 本地可信上下文 | prompt 含当前 scene、断点、前页尾部、最近 6 轮；无知识库参考；信息不足时说明边界 | A2、B2 | 自动化通过 |
+| AC13-03 | 发送才打断 | 聚焦和输入期间授课继续；发送有效问题时才暂停；无效输入不暂停 | A3、B3 | 通过 |
+| AC13-04 | 问题即时出现 | 延迟 POST 时，学生气泡在网络响应前可见；失败后保留并可用同一 ID 重试 | A3、A4、B3 | 通过 |
+| AC13-05 | 对话方向与去重 | 学生气泡/头像在右，AI 在左；服务端返回后问题只出现一次 | A4、B3 | 通过 |
+| AC13-06 | 常驻布局 | 无浮动入口/关闭/遮罩/讲解提词；宽屏、演示和窄屏不遮挡舞台或控制 | A4、A8、B4 | 通过（1366、1024、720） |
+| AC13-07 | 自动下一页 | 连续 3 页按 1→2→3 自动进入并播放，不需人工点击 | A5、A8、B5 | 自动化通过；真实三页观察待签收 |
+| AC13-08 | 完成边界 | 末页不循环；重复或 stale completion 不跳页；enter 失败不继续连跳 | A5、B5 | 自动化通过 |
+| AC13-09 | 问答后连续授课 | 回答结束按原 checkpoint 恢复；本页完成后仍自动播放下一页 | A3、A5、B6 | 自动化与真实恢复通过 |
+| AC13-10 | 统一新生成语音 | 新课堂 narration 与回答均记录 `qwen-tts / Cherry / 1.0`，人工听感一致且较原讲解自然 | A6、A7、B7 | 配置与回答 TTS 通过；人工试听待签收 |
+| AC13-11 | 补全路径一致 | 缺失 narration 通过同一 OpenMAIC profile 补全，无 `/audio/speech` 或 `alloy` 课堂 fallback | A6、A7、B8 | 通过 |
+| AC13-12 | 既有能力回归 | 鉴权、学生隔离、幂等、浏览器 TTS 降级、手动翻页、构建和 lint 均通过 | A6、A9、B8 | 通过（真实降级预制 turn 未执行） |
 
 ## 5. 自动化与静态验收
 
@@ -170,7 +170,9 @@ rg -n 'alloy|/audio/speech' Edu_AI/api/src/app/services/classroom_media.py
 
 ```powershell
 Set-Location Edu_AI
-npx playwright test e2e/classroom-persistent-qa.spec.ts
+$env:PLAYWRIGHT_PORT='5187'
+$env:VITE_API_BASE_URL='http://localhost:8001'
+pnpm exec playwright test tests/e2e/classroom-persistent-qa.spec.ts --project=desktop1366 --project=compact1024
 ```
 
 必须在 route stub/fixture 下覆盖：
@@ -297,7 +299,38 @@ B1～B8 截图/日志路径：
 最终结论：通过 / 不通过
 ```
 
-当前设计阶段不填写伪造结果；所有验收项保持“待执行”。
+### 2026-08-11 实施验收记录
+
+```text
+验收提交：9dae8af（功能代码基线 5b27415）
+验收日期与时区：2026-08-11，Asia/Shanghai
+验收人：Codex 自动化与浏览器技术验收；最终听感验收人待产品方填写
+前端/后端/sidecar 地址：http://127.0.0.1:5190 / http://127.0.0.1:8001 / http://localhost:3000
+学生账号标识（脱敏）：student；隔离账号由真实 E2E 动态注册
+课程 ID / 课堂 ID：computational-thinking / IwhZs0-46W
+新生成音频资源标识：turn_3ae2427f13666aa6，tts_status=ready
+讲解 TTS provider/voice/speed：服务端共享配置 qwen-tts / Cherry / 1.0；本轮使用历史课堂音频，不作为新讲解听感证据
+回答 TTS provider/voice/speed：qwen-tts / Cherry / 1.0
+试听结论：自动播放与完整回答音频均成功结束；“年轻、有感情、与讲解一致”的主观评价待产品方签收
+最终结论：代码与核心真实 E2E 通过；ACC-13 暂不签为最终通过
+```
+
+自动化证据：
+
+- 后端全量：`python -m pytest src/tests -q`，1548 passed、3 skipped、0 failed，202.75 秒。
+- 前端全量：`npm test`，304 passed、0 failed。
+- sidecar 全量：`pnpm test`，1766 passed、0 failed。
+- lint：前端 0 errors / 46 个既有 warnings；sidecar 0 errors / 15 个既有 warnings。
+- 构建：前端 `npm run build` 成功；sidecar 在 worktree 补齐 workspace 依赖后以 `next build --webpack` 成功。默认 Turbopack 因 `node_modules` junction 指向 worktree 外而拒绝运行，属于隔离环境限制。
+- 确定性浏览器：`classroom-persistent-qa.spec.ts` 在 `desktop1366`、`compact1024` 共 4 个场景通过。
+- 真实浏览器：`classroom-realtime-qa.real.spec.ts --project=desktop1366`，1 passed、1 skipped；通过项覆盖 checkpoint 中断、响应前 optimistic 气泡、真实 LLM、受保护 TTS 音频、恢复、持久化、演示/720 布局、第二用户隔离和跨用户音频 404。
+- 真实日志：LLM `qwen3.5-plus` 用时 4281ms；QA POST 200；回答音频 GET 200；本次请求日志无 VectorSearch、BM25、reranker 或 RAG 阶段。
+
+尚需产品方完成后才能把本文状态改为“通过”：
+
+1. 用本提交新生成或显式重生成的课堂，连续观察至少 3 页真实 narration 自动播放至末页。
+2. 同一验收人试听至少 30 秒新讲解、一个完整回答和恢复后讲解，并记录对年轻女声、情感和断句的主观评价。
+3. 如需严格覆盖 B8 的真实降级分支，提供一个预制 `tts_status=failed` turn 后重跑脚本第二用例；单元/集成测试中的浏览器 TTS 降级已通过。
 
 ## 8. 签收规则
 
