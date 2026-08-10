@@ -344,3 +344,78 @@ class MigrationQuarantine(Base):
     quarantined_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
+
+
+class KnowledgeLibrary(Base):
+    __tablename__ = "knowledge_libraries"
+
+    library_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    library_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    course_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    owner_user_id: Mapped[str | None] = mapped_column(String(160), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+    metadata_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class KnowledgeDocument(Base):
+    __tablename__ = "knowledge_documents"
+
+    library_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_libraries.library_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    document_id: Mapped[str] = mapped_column(String(260), primary_key=True)
+    filename: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    path: Mapped[str | None] = mapped_column(Text)
+    content_hash: Mapped[str | None] = mapped_column(String(128), index=True)
+    scope_type: Mapped[str] = mapped_column(String(64), nullable=False, default="course")
+    scope_id: Mapped[str | None] = mapped_column(String(240), index=True)
+    status: Mapped[str] = mapped_column(String(64), nullable=False, default="ready")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    raw_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class KnowledgeGraphVersion(Base):
+    __tablename__ = "knowledge_graph_versions"
+    __table_args__ = (
+        UniqueConstraint("library_id", "version", name="uq_knowledge_graph_versions_version"),
+    )
+
+    graph_version_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    library_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_libraries.library_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    graph_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+
+class RuntimeIndexEntry(Base):
+    __tablename__ = "runtime_index_entries"
+
+    index_name: Mapped[str] = mapped_column(String(80), primary_key=True)
+    entry_key: Mapped[str] = mapped_column(Text, primary_key=True)
+    owner_user_id: Mapped[str | None] = mapped_column(String(160), index=True)
+    content_hash: Mapped[str | None] = mapped_column(String(128), index=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )

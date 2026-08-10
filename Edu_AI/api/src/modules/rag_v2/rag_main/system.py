@@ -2307,6 +2307,10 @@ class RAGSystem:
     
     def _load_index(self) -> Dict:
         """加载文档索引"""
+        if str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres":
+            from app.persistence.dependencies import get_postgres_knowledge_repository
+
+            return get_postgres_knowledge_repository().load_runtime_index("document")
         if self.index_file.exists():
             try:
                 with open(self.index_file, "r", encoding="utf-8") as f:
@@ -2318,6 +2322,13 @@ class RAGSystem:
     def _save_index(self):
         """保存文档索引"""
         with self._index_write_lock:
+            if str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres":
+                from app.persistence.dependencies import get_postgres_knowledge_repository
+
+                get_postgres_knowledge_repository().replace_runtime_index(
+                    "document", self.document_index
+                )
+                return
             self.index_file.parent.mkdir(parents=True, exist_ok=True)
             temp_index = self.index_file.with_suffix(
                 f"{self.index_file.suffix}.{uuid.uuid4().hex}.tmp"

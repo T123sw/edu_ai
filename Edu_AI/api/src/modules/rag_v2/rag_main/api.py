@@ -653,6 +653,10 @@ def _build_allowed_sources_for_owner(rag_system: RAGSystem, owner: Optional[str]
 
 def _load_video_index() -> Dict[str, Dict[str, Any]]:
     """加载视频索引"""
+    if str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres":
+        from app.persistence.dependencies import get_postgres_knowledge_repository
+
+        return get_postgres_knowledge_repository().load_runtime_index("video")
     if Config.VIDEO_INDEX_PATH.exists():
         with open(Config.VIDEO_INDEX_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -661,6 +665,11 @@ def _load_video_index() -> Dict[str, Dict[str, Any]]:
 
 def _save_video_index():
     """保存视频索引"""
+    if str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres":
+        from app.persistence.dependencies import get_postgres_knowledge_repository
+
+        get_postgres_knowledge_repository().replace_runtime_index("video", _video_index)
+        return
     Config.VIDEO_INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(Config.VIDEO_INDEX_PATH, "w", encoding="utf-8") as f:
         json.dump(_video_index, f, ensure_ascii=False, indent=2)
@@ -668,6 +677,10 @@ def _save_video_index():
 
 def _load_image_index() -> Dict[str, Dict[str, Any]]:
     """加载图片索引"""
+    if str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres":
+        from app.persistence.dependencies import get_postgres_knowledge_repository
+
+        return get_postgres_knowledge_repository().load_runtime_index("image")
     if Config.IMAGE_INDEX_PATH.exists():
         with open(Config.IMAGE_INDEX_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -676,6 +689,11 @@ def _load_image_index() -> Dict[str, Dict[str, Any]]:
 
 def _save_image_index():
     """保存图片索引"""
+    if str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres":
+        from app.persistence.dependencies import get_postgres_knowledge_repository
+
+        get_postgres_knowledge_repository().replace_runtime_index("image", _image_index)
+        return
     Config.IMAGE_INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(Config.IMAGE_INDEX_PATH, "w", encoding="utf-8") as f:
         json.dump(_image_index, f, ensure_ascii=False, indent=2)

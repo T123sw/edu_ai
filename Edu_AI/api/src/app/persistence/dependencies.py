@@ -14,6 +14,7 @@ from .modes import PersistenceMode, PersistenceSettings
 from .postgres_conversation_repository import PostgresConversationRepository
 from .postgres_job_repository import PostgresJobRepository
 from .postgres_material_repository import PostgresMaterialRepository
+from .postgres_knowledge_repository import PostgresKnowledgeRepository
 from .postgres_repositories import (
     PostgresCourseMembershipRepository,
     PostgresCourseRepository,
@@ -137,3 +138,17 @@ def _build_material_repository(database_url: str):
 def get_postgres_material_repository():
     database_url = str(os.getenv("DATABASE_URL", "")).strip()
     return _build_material_repository(database_url)
+
+
+@lru_cache(maxsize=8)
+def _build_knowledge_repository(database_url: str):
+    if not database_url:
+        raise DatabaseNotConfigured("DATABASE_URL is not configured")
+    return PostgresKnowledgeRepository(
+        create_engine(database_url, pool_pre_ping=True)
+    )
+
+
+def get_postgres_knowledge_repository():
+    database_url = str(os.getenv("DATABASE_URL", "")).strip()
+    return _build_knowledge_repository(database_url)

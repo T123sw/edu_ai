@@ -832,7 +832,9 @@ class CourseStorageManager:
     ) -> List[Dict[str, Any]]:
         index_file = self.get_course_dir(course_id) / "knowledge_base" / "index.json"
         entries: List[Dict[str, Any]] = []
-        if index_file.exists():
+        if self._knowledge_uses_postgres():
+            entries = self._knowledge_repository().list_documents(course_id)
+        elif index_file.exists():
             try:
                 with open(index_file, "r", encoding="utf-8") as f:
                     raw_entries = json.load(f)
@@ -883,6 +885,9 @@ class CourseStorageManager:
         return normalized_entries
 
     def save_knowledge_base_index(self, course_id: str, index: List[Dict[str, Any]]) -> bool:
+        if self._knowledge_uses_postgres():
+            self._knowledge_repository().replace_documents(course_id, index)
+            return True
         try:
             index_file = self.get_course_dir(course_id) / "knowledge_base" / "index.json"
             index_file.parent.mkdir(parents=True, exist_ok=True)
@@ -894,6 +899,9 @@ class CourseStorageManager:
             return False
 
     def save_knowledge_graph(self, course_id: str, graph_data: Dict[str, Any]) -> bool:
+        if self._knowledge_uses_postgres():
+            self._knowledge_repository().upsert_graph(course_id, graph_data)
+            return True
         try:
             graph_file = self.get_course_dir(course_id) / "knowledge_graph.json"
             self._write_json(graph_file, graph_data)
@@ -903,6 +911,8 @@ class CourseStorageManager:
             return False
 
     def get_knowledge_graph(self, course_id: str) -> Optional[Dict[str, Any]]:
+        if self._knowledge_uses_postgres():
+            return self._knowledge_repository().get_graph(course_id)
         try:
             graph_file = self.get_course_dir(course_id) / "knowledge_graph.json"
             if not graph_file.exists():
@@ -911,6 +921,19 @@ class CourseStorageManager:
         except Exception as e:
             print(f"Error loading knowledge graph: {e}")
             return None
+
+    @staticmethod
+    def _knowledge_uses_postgres() -> bool:
+        return (
+            str(os.getenv("KNOWLEDGE_PERSISTENCE_MODE", "json")).strip().lower()
+            == "postgres"
+        )
+
+    @staticmethod
+    def _knowledge_repository():
+        from app.persistence.dependencies import get_postgres_knowledge_repository
+
+        return get_postgres_knowledge_repository()
 
     def save_generated_material(
         self,
