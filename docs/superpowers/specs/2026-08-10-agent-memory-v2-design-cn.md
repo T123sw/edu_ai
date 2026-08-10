@@ -3,6 +3,7 @@
 日期：2026-08-10  
 状态：已确认的架构记录，尚未进入实施计划  
 适用范围：教师端 Agent、学生端 Agent、课程任务与学习反馈链路
+协作边界：课程创建、课程邀请码、学生加入和课程成员管理由并行工作流负责；本文只定义其作为上游接口，不实施这些功能
 
 ## 1. 决策摘要
 
@@ -302,10 +303,12 @@ L0 使用 LangGraph checkpoint。L1、L2 和 L4 使用结构化数据库。L3 �
 
 ### P0：交互链路前置基础
 
-1. 统一 `course_id`、课程加入码和课程成员关系；
-2. 拆分课程资源与学习任务；
-3. 统一 `task_id`、`resource_id`、`knowledge_point_id`；
-4. 定义学习事件契约与权限模型。
+上游课程工作流负责统一 `course_id`、课程加入码和课程成员关系。本工作流在该接口之上负责：
+
+1. 拆分课程资源与学习任务；
+2. 统一 `task_id`、`resource_id`、`knowledge_point_id`；
+3. 定义学习事件契约与权限模型；
+4. 消费课程成员关系进行双端数据授权，不重复实现成员管理。
 
 没有这些稳定标识，任何长期记忆都会混入无法归属、无法聚合的数据。
 
@@ -381,4 +384,3 @@ Memory V2 核心阶段完成时，应满足：
 - Mem0 Open Source：https://docs.mem0.ai/open-source/features/overview
 - Graphiti：https://github.com/getzep/graphiti
 - Letta Memory Blocks：https://docs.letta.com/guides/core-concepts/memory/memory-blocks
-
