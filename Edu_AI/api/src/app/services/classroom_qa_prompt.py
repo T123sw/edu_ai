@@ -26,7 +26,6 @@ class ClassroomQaContext:
     interrupted_speech: str | None
     previous_scene_speech: tuple[str, ...]
     recent_turns: tuple[dict[str, Any], ...]
-    rag_answer: str
 
 
 def build_classroom_qa_context(
@@ -34,7 +33,6 @@ def build_classroom_qa_context(
     material: dict[str, Any],
     checkpoint: dict[str, Any],
     recent_turns: list[dict[str, Any]],
-    rag_answer: str,
 ) -> ClassroomQaContext:
     scenes = material.get("scenes")
     scene_index = checkpoint.get("scene_index")
@@ -117,7 +115,6 @@ def build_classroom_qa_context(
         interrupted_speech=interrupted_speech,
         previous_scene_speech=previous_scene_speech,
         recent_turns=bounded_history,
-        rag_answer=_normalized(rag_answer)[:4000],
     )
 
 
@@ -128,8 +125,8 @@ def build_classroom_qa_messages(
 ) -> list[dict[str, str]]:
     system = (
         "你是正在授课的 AI 教师。只回答学生当前问题，不创建课件、报告或其他资源。\n"
-        "优先结合当前讲授内容，再使用课程知识库参考信息。\n"
-        "回答正文通常为 80～300 个中文字符；信息不足时明确边界。\n"
+        "只能依据服务端提供的当前课堂讲授与本课堂最近问答作答。\n"
+        "回答正文通常为 80～300 个中文字符；当前信息不足时明确说明，并把话题引回当前知识点。\n"
         "另写一句 10～40 个中文字符的自然衔接语，回到当前场景。\n"
         '只输出 JSON：{"answer_text":"...","transition_text":"..."}。'
     )
@@ -149,7 +146,6 @@ def build_classroom_qa_messages(
             f"被打断句子：{context.interrupted_speech or '无'}",
             f"上一场景末尾：{' | '.join(context.previous_scene_speech) or '无'}",
             "最近问答：" + json.dumps(history, ensure_ascii=False),
-            f"课程知识库参考：{context.rag_answer or '无'}",
             f"学生当前问题：{_normalized(question)}",
         ]
     )
