@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   INITIAL_CLASSROOM_QA_STATE,
   reduceClassroomQa,
+  selectVisibleTurns,
 } from './classroomQaState.ts';
 
 const turn = {
@@ -38,6 +39,43 @@ test('a second submit is rejected while a turn is active', () => {
       }),
     /turn already active/,
   );
+});
+
+test('the optimistic question is visible before the server turn arrives', () => {
+  const submitting = submittingState();
+  const visible = selectVisibleTurns(submitting);
+
+  assert.equal(visible.length, 1);
+  assert.equal(visible[0]?.clientTurnId, 'client-1');
+  assert.equal(visible[0]?.question, '为什么？');
+  assert.equal(visible[0]?.turn, null);
+  assert.equal(visible[0]?.status, 'pending');
+});
+
+test('the durable server turn replaces the optimistic projection without duplication', () => {
+  const received = reduceClassroomQa(submittingState(), {
+    type: 'turn_received',
+    clientTurnId: 'client-1',
+    turn,
+  });
+  const visible = selectVisibleTurns(received);
+
+  assert.equal(visible.length, 1);
+  assert.equal(visible[0]?.turn, turn);
+  assert.equal(visible[0]?.status, 'received');
+});
+
+test('a failed optimistic question remains visible and retry restores pending status', () => {
+  const failed = reduceClassroomQa(submittingState(), {
+    type: 'fail',
+    clientTurnId: 'client-1',
+    message: '网络失败',
+  });
+  assert.equal(selectVisibleTurns(failed)[0]?.status, 'error');
+
+  const retrying = reduceClassroomQa(failed, { type: 'retry' });
+  assert.equal(selectVisibleTurns(retrying)[0]?.status, 'pending');
+  assert.equal(retrying.activeTurn?.clientTurnId, 'client-1');
 });
 
 test('successful server audio follows submitting loading playing and resuming phases', () => {

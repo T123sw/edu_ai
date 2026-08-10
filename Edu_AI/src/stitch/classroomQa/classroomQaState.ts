@@ -13,7 +13,10 @@ export type ClassroomQaActiveTurn = {
   clientTurnId: string;
   question: string;
   turn: ClassroomQaTurn | null;
+  status: 'pending' | 'received' | 'error';
 };
+
+export type ClassroomQaVisibleTurn = ClassroomQaActiveTurn;
 
 export type ClassroomQaState = {
   phase: ClassroomQaPhase;
@@ -84,6 +87,7 @@ export function reduceClassroomQa(
           clientTurnId: event.clientTurnId,
           question,
           turn: null,
+          status: 'pending',
         },
       };
     }
@@ -101,7 +105,7 @@ export function reduceClassroomQa(
             ? 'loading_audio'
             : 'playing_answer',
         turns,
-        activeTurn: { ...state.activeTurn!, turn: event.turn },
+        activeTurn: { ...state.activeTurn!, turn: event.turn, status: 'received' },
       };
     }
     case 'answer_playing':
@@ -112,10 +116,20 @@ export function reduceClassroomQa(
       return { ...state, phase: 'resuming' };
     case 'fail':
       if (!ownsActiveTurn(state, event.clientTurnId)) return state;
-      return { ...state, phase: 'error', error: event.message };
+      return {
+        ...state,
+        phase: 'error',
+        error: event.message,
+        activeTurn: { ...state.activeTurn!, status: 'error' },
+      };
     case 'retry':
       if (state.phase !== 'error' || !state.activeTurn) return state;
-      return { ...state, phase: 'submitting', error: null };
+      return {
+        ...state,
+        phase: 'submitting',
+        error: null,
+        activeTurn: { ...state.activeTurn, status: 'pending' },
+      };
     case 'give_up':
       if (state.phase !== 'error' || !state.activeTurn) return state;
       return { ...state, phase: 'resuming', error: null };
@@ -134,4 +148,24 @@ export function reduceClassroomQa(
 
 function ownsActiveTurn(state: ClassroomQaState, clientTurnId: string): boolean {
   return state.activeTurn?.clientTurnId === clientTurnId;
+}
+
+export function selectVisibleTurns(
+  state: ClassroomQaState,
+): ClassroomQaVisibleTurn[] {
+  const durable = state.turns.map((turn) => ({
+    clientTurnId: turn.client_turn_id,
+    question: turn.question,
+    turn,
+    status: 'received' as const,
+  }));
+  if (
+    !state.activeTurn ||
+    durable.some(
+      (candidate) => candidate.clientTurnId === state.activeTurn?.clientTurnId,
+    )
+  ) {
+    return durable;
+  }
+  return [...durable, state.activeTurn];
 }
