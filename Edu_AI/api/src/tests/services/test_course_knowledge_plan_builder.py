@@ -93,6 +93,19 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
             "source_url": kwargs["candidate"]["url"],
         },
     )
+    generated = []
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **kwargs: generated.append(kwargs["topic"]["topic_id"]) or {
+            "document_id": f"generated-{kwargs['topic']['topic_id']}-{kwargs['sequence']}",
+            "scope_id": kwargs["topic"]["topic_id"],
+            "source_url": "",
+            "reused": False,
+            "source_type": "model_generated",
+            "review_score": 90,
+        },
+    )
     monkeypatch.setattr(builder, "update_job", lambda job_id, **fields: completed_jobs.append((job_id, fields)))
 
     result = builder.run_course_knowledge_plan_build_job(
@@ -106,7 +119,9 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
 
     assert result["quality_score"] == 100
     assert repository.build["status"] == "succeeded"
-    assert len(repository.checks) == 3
+    assert len(repository.checks) == 4
+    assert result["document_count"] == 6
+    assert generated == ["topic-1", "topic-1", "topic-2", "topic-2"]
     assert repository.published_graph["data"]["publication_status"] == "published"
     assert repository.published_graph["data"]["source_build_id"] == "kb-1"
     assert completed_jobs[-1][1]["status"].value == "succeeded"
@@ -117,6 +132,7 @@ def test_plan_build_blocks_publish_when_sources_cannot_be_ingested(monkeypatch):
     manager = FakeManager()
     monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
     monkeypatch.setattr(builder, "_persist_candidate", lambda **kwargs: (_ for _ in ()).throw(RuntimeError("crawl failed")))
+    monkeypatch.setattr(builder, "_generate_and_persist_supplement", lambda **kwargs: (_ for _ in ()).throw(RuntimeError("model unavailable")))
     monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
 
     with pytest.raises(RuntimeError, match="质量门禁未通过"):
@@ -131,3 +147,47 @@ def test_plan_build_blocks_publish_when_sources_cannot_be_ingested(monkeypatch):
 
     assert repository.build["status"] == "blocked"
     assert repository.published_graph is None
+
+
+def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypatch):
+    repository = FakeRepository()
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "_persist_candidate",
+        lambda **kwargs: {
+            "document_id": kwargs["candidate"]["candidate_id"],
+            "scope_id": kwargs["candidate"]["topic_id"],
+            "source_url": kwargs["candidate"]["url"],
+            "reused": False,
+        },
+    )
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **kwargs: {
+            "document_id": f"generated-{kwargs['topic']['topic_id']}-{kwargs['sequence']}",
+            "scope_id": kwargs["topic"]["topic_id"],
+            "source_url": "",
+            "reused": False,
+            "source_type": "model_generated",
+            "review_score": 90,
+        },
+    )
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    builder.run_course_knowledge_plan_build_job(
+        job_id="job-1",
+        manager=FakeManager(),
+        rag_system=object(),
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build_id="kb-1",
+    )
+
+    root = repository.published_graph
+    assert root["data"]["level"] == 0
+    assert root["children"][0]["data"]["level"] == 1
+    leaves = root["children"][0]["children"]
+    assert {leaf["data"]["level"] for leaf in leaves} == {2}
+    assert all(len(leaf["data"]["document_ids"]) == 3 for leaf in leaves)

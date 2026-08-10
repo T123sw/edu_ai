@@ -17,7 +17,9 @@ const PHASE_LABELS: Record<string, string> = {
   running: "正在构建",
   source_audit: "核验来源许可与抓取约束",
   indexing: "抓取、清洗并建立课程索引",
+  model_fallback: "为资料不足的叶级知识点生成并审查中文补充资料",
   quality_check: "执行质量门禁",
+  quality_blocked: "质量门禁未通过，旧版本保持不变",
   publishing: "原子发布新版本",
   completed: "构建完成",
 };
@@ -123,6 +125,9 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const statusText = status
     ? PHASE_LABELS[status.step] || status.message || PHASE_LABELS[status.status] || status.status
     : "尚未启动构建";
+  const leafCoverage = plan?.metrics?.leaf_coverage && typeof plan.metrics.leaf_coverage === "object"
+    ? Object.values(plan.metrics.leaf_coverage as Record<string, number>)
+    : [];
 
   return (
     <section ref={cardRef} tabIndex={-1} className="knowledge-build-card" aria-labelledby="knowledge-build-title">
@@ -146,6 +151,15 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
           <div className="knowledge-build-plan__topics" aria-label="课程知识主题">
             {plan.topics.map((topic) => <span key={topic.topic_id}>{topic.title}</span>)}
           </div>
+          <p className="knowledge-build-plan__empty">
+            图谱结构：课程根节点 → 语义模块 → {plan.topics.length} 个叶级知识点。每个叶级知识点必须关联至少 3 份可用资料，未达标不会发布。
+          </p>
+          {leafCoverage.length ? (
+            <div className="knowledge-build-plan__summary" aria-label="叶级资料覆盖">
+              <span><strong>{leafCoverage.filter((count) => count >= 3).length}</strong> / {leafCoverage.length} 个叶级知识点达标</span>
+              <span><strong>{Number(plan.metrics?.generated_document_count || 0)}</strong> 份 AI 审查后补充资料</span>
+            </div>
+          ) : null}
           {approvedSources.length ? (
             <ul className="knowledge-build-plan__sources">
               {approvedSources.slice(0, 6).map((source) => (
@@ -156,7 +170,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
                 </li>
               ))}
             </ul>
-          ) : <p className="knowledge-build-plan__empty">暂未找到通过许可与相关性审核的来源。可调整课程目标后重新规划，或上传已获授权的课程资料。</p>}
+          ) : <p className="knowledge-build-plan__empty">未找到合格开放来源。仍可启动构建；系统会记录检索结果，为缺失的叶级知识点生成中文补充材料并执行独立质量审查。</p>}
           {plan.warnings.length ? <div className="knowledge-build-plan__warnings">{plan.warnings.map((warning) => <p key={warning}>{warning}</p>)}</div> : null}
           {plan.error?.message ? <div className="knowledge-build-card__error" role="alert">{plan.error.message}</div> : null}
         </div>
@@ -189,9 +203,9 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
 
       <div className="knowledge-build-card__actions">
         {canBuild ? (
-          plan?.status === "draft" && approvedSources.length ? (
+          plan?.status === "draft" ? (
             <button type="button" className="is-primary" disabled={Boolean(activeJob) || submitting} onClick={() => void submitBuild()}>
-              {submitting ? "正在提交…" : "确认来源并开始构建"}
+              {submitting ? "正在提交…" : approvedSources.length ? "确认来源并开始构建" : "使用模型补充并开始构建"}
             </button>
           ) : (
             <button type="button" className="is-primary" disabled={Boolean(activeJob) || planning} onClick={() => void createPlan()}>
