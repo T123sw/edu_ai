@@ -26,6 +26,7 @@ from app.chat.runtime.memory.manager import (
     build_agent_memory_context,
     update_agent_memory,
 )
+from app.chat.runtime.learning_context_prompt import build_learning_context_prompt
 
 
 class ReActAgent:
@@ -267,6 +268,11 @@ class ReActAgent:
                 ),
             }
         ]
+        learning_context = build_learning_context_prompt(
+            getattr(snapshot, "learning_context", {})
+        )
+        if learning_context:
+            system_messages.append({"role": "system", "content": learning_context})
         memory_context = build_agent_memory_context(agent_memory)
         if memory_context:
             system_messages.append({"role": "system", "content": memory_context})

@@ -257,6 +257,7 @@ class LearningService:
                 "task_id": view.task.task_id,
                 "title": view.task.title,
                 "instructions": view.task.instructions,
+                "resource_refs": [dict(item) for item in view.task.resource_refs],
                 "knowledge_point_ids": list(view.task.knowledge_point_ids),
                 "status": view.my_progress.status if view.my_progress else "not_started",
                 "progress_percent": view.my_progress.progress_percent if view.my_progress else 0,

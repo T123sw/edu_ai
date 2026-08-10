@@ -14,6 +14,7 @@ import time
 import uuid
 
 from core.config import Config
+from app.chat.runtime.learning_context_prompt import build_learning_context_prompt
 from app.chat.domain.persona_policy import TEACHER_PERSONA, persona_for
 
 
@@ -430,6 +431,11 @@ class FastChatRuntime:
             rag_answer=rag_answer,
             actor_role=str(getattr(request, "actor_role", "teacher") or "teacher"),
         )
+        learning_prompt = build_learning_context_prompt(
+            getattr(snapshot, "learning_context", {}) if snapshot is not None else {}
+        )
+        if learning_prompt:
+            system_content = f"{system_content}\n\n{learning_prompt}"
         model_history_messages = [
             formatted_message
             for formatted_message in (

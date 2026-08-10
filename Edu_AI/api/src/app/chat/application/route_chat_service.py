@@ -88,6 +88,7 @@ class RouteChatService:
         enhancement_router=None,
         enhancement_trace_enabled: bool = False,
         course_storage_manager=None,
+        learning_context_reader=None,
     ):
         self.legacy_service = legacy_service
         self.gateway_factory = gateway_factory
@@ -100,6 +101,7 @@ class RouteChatService:
         self.enforce_capability_policy = enforce_capability_policy
         self.enhancement_trace_enabled = bool(enhancement_trace_enabled)
         self.course_storage_manager = course_storage_manager or default_course_storage_manager
+        self.learning_context_reader = learning_context_reader
         if conversation_store is not None:
             self.conversation_store = conversation_store
             if enhancement_router is not None:
@@ -172,10 +174,22 @@ class RouteChatService:
                 max_steps=Config.REACT_MAX_STEPS,
                 timeout_seconds=Config.REACT_TIMEOUT_SECONDS,
             )
+        learning_context_reader = self.learning_context_reader
+        if learning_context_reader is None:
+            try:
+                from app.learning import get_learning_service
+                from app.learning.context_reader import LearningContextReader
+
+                learning_context_reader = LearningContextReader(get_learning_service())
+            except Exception:
+                learning_context_reader = None
         orchestrator = MainOrchestrator(
             fast_runtime=fast_runtime,
             workflow_registry=workflow_registry,
-            context_builder=ContextBuilder(conversation_store=self.conversation_store),
+            context_builder=ContextBuilder(
+                conversation_store=self.conversation_store,
+                learning_context_reader=learning_context_reader,
+            ),
             react_agent=react_agent,
         )
         return ChatAppService(
