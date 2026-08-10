@@ -17,6 +17,65 @@ export type CourseMaterialVisibility = "private" | "course";
 export type CourseMaterialSpace = "mine" | "course";
 export type PublicationAction = "published" | "updated" | "unchanged";
 
+export type LearningResourceRef = {
+  material_type: string;
+  material_id: string;
+};
+
+export type TaskProgress = {
+  task_id: string;
+  course_id: string;
+  student_id: string;
+  status: "not_started" | "in_progress" | "completed";
+  progress_percent: number;
+  started_at: string | null;
+  completed_at: string | null;
+  updated_at: string;
+};
+
+export type LearningTask = {
+  task_id: string;
+  course_id: string;
+  title: string;
+  instructions: string;
+  created_by: string;
+  resource_refs: LearningResourceRef[];
+  knowledge_point_ids: string[];
+  status: "draft" | "published" | "closed";
+  created_at: string;
+  published_at: string | null;
+  published_by: string | null;
+  my_progress: TaskProgress | null;
+};
+
+export type CourseLearningSummary = {
+  task: LearningTask;
+  enrolled_students: number;
+  started_students: number;
+  completed_students: number;
+  completion_rate: number;
+  progress: TaskProgress[];
+};
+
+export type LearningTaskCreatePayload = {
+  title: string;
+  instructions: string;
+  resource_refs: LearningResourceRef[];
+  knowledge_point_ids: string[];
+};
+
+export type LearningEventPayload = {
+  event_id: string;
+  event_type: "started" | "resource_opened" | "progress_updated" | "completed";
+  progress_percent: number;
+  resource_ref?: LearningResourceRef | null;
+};
+
+export type LearningEventResponse = {
+  created: boolean;
+  progress: TaskProgress;
+};
+
 export type CourseMaterial = {
   schema_version?: number;
   version?: number;
