@@ -25,3 +25,15 @@ test("student personal center follows the shared course header action position",
   assert.ok(profilePosition > jobCenterPosition);
   assert.doesNotMatch(source, /student-shell__profile-link/);
 });
+
+test("student learning home omits the global navigation sidebar", async () => {
+  const source = await readFile(
+    new URL("../shell/StudentShell.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(source, /const isHome = activeRoute === "student-home"/);
+  assert.match(source, /\{isHome \? null : \(/);
+  assert.match(source, /isHome && "is-home"/);
+  assert.match(source, /!isHome && drawerOpen/);
+});

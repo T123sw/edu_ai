@@ -29,6 +29,7 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [coursesError, setCoursesError] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const isHome = activeRoute === "student-home";
   const requiresCourse = studentRouteRequiresCourse(activeRoute);
   const effectiveCourseId = useMemo(() => {
     if (courseId && courses.some((item) => item.id === courseId)) return courseId;
@@ -130,21 +131,25 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
   }
 
   return (
-    <div className="student-shell" data-testid="student-shell">
-      <aside className="student-shell__sidebar">
-        <a className="student-shell__brand" href="#student-home"><span>Edu</span> AI</a>
-        <div className="student-shell__identity">
-          <span>{user?.username.slice(0, 1).toUpperCase()}</span>
-          <div><strong>{user?.username}</strong><small>学生工作区</small></div>
-        </div>
-        {navigation}
-      </aside>
+    <div className={cx("student-shell", isHome && "is-home")} data-testid="student-shell">
+      {isHome ? null : (
+        <aside className="student-shell__sidebar">
+          <a className="student-shell__brand" href="#student-home"><span>Edu</span> AI</a>
+          <div className="student-shell__identity">
+            <span>{user?.username.slice(0, 1).toUpperCase()}</span>
+            <div><strong>{user?.username}</strong><small>学生工作区</small></div>
+          </div>
+          {navigation}
+        </aside>
+      )}
 
       <div className="student-shell__main">
         <header className="student-shell__header">
-          <button type="button" className="student-shell__menu" aria-label="打开导航" onClick={() => setDrawerOpen(true)}>
-            <MaterialIcon name="menu_book" />
-          </button>
+          {isHome ? null : (
+            <button type="button" className="student-shell__menu" aria-label="打开导航" onClick={() => setDrawerOpen(true)}>
+              <MaterialIcon name="menu_book" />
+            </button>
+          )}
           <div className="student-shell__title"><small>学生学习空间</small><h1>{pageTitles[activeRoute]}</h1></div>
           <div className="student-shell__header-actions">
             {requiresCourse ? (
@@ -171,7 +176,7 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
         <main className="student-shell__page" data-route-scroll-root>{content}</main>
       </div>
 
-      {drawerOpen ? (
+      {!isHome && drawerOpen ? (
         <div className="student-shell__drawer-layer">
           <button className="student-shell__backdrop" aria-label="关闭导航" onClick={() => setDrawerOpen(false)} />
           <aside className="student-shell__drawer">

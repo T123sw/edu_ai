@@ -12,6 +12,7 @@
 .student-shell__nav-link:hover { background: #f4f7ff; color: #3157d5; }
 .student-shell__nav-link.is-active { background: #e9efff; color: #284bc1; box-shadow: inset 3px 0 #3157d5; }
 .student-shell__main { min-height: 100vh; margin-left: 248px; }
+.student-shell.is-home .student-shell__main { margin-left: 0; }
 .student-shell__header { position: sticky; top: 0; z-index: 30; display: flex; min-height: 76px; align-items: center; gap: 20px; border-bottom: 1px solid #e1e6ee; background: rgba(255,255,255,.95); padding: 12px clamp(22px,4vw,54px); backdrop-filter: blur(14px); }
 .student-shell__title { min-width: 160px; }
 .student-shell__title small { color: #7b8799; font-size: 11px; letter-spacing: .08em; }
