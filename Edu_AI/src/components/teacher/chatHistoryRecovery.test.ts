@@ -386,3 +386,25 @@ test("late pending task binds while its original send context is current", async
     true,
   );
 });
+
+test("a history initialization that resolves after a send cannot clear the new messages", async () => {
+  const guard = createConversationAsyncGuard(null);
+  const historyResponse = deferred<void>();
+  const initializationToken = guard.startLoad(null, {
+    invalidateBackgroundTasks: false,
+  });
+  const messages = ["new user message", "streaming assistant message"];
+
+  const lateInitialization = historyResponse.promise.then(() =>
+    guard.commitLoad(initializationToken, () => {
+      messages.splice(0, messages.length);
+    }),
+  );
+
+  guard.invalidateLoads(null);
+  guard.captureSend(null);
+  historyResponse.resolve();
+
+  assert.equal(await lateInitialization, false);
+  assert.deepEqual(messages, ["new user message", "streaming assistant message"]);
+});

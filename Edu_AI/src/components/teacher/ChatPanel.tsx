@@ -782,9 +782,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
   useEffect(() => {
     const init = async () => {
+      const initializationToken = conversationAsyncGuard.startLoad(currentConversationId, {
+        invalidateBackgroundTasks: false,
+      });
       setHistoryLoading(true);
       try {
-        const list = await loadHistoryPage({ offset: 0, append: false });
+        const initializationIsCurrent = () => conversationAsyncGuard.isLatestLoad(initializationToken);
+        const list = await loadHistoryPage(
+          { offset: 0, append: false },
+          initializationIsCurrent,
+        );
+        if (!initializationIsCurrent()) {
+          return;
+        }
 
         const storedConversationId = String(currentConversationId || '').trim();
         const storedConversation = storedConversationId
@@ -800,18 +810,20 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         } else if (initialConversation) {
           await loadConversation(initialConversation.conversation_id, false);
         } else {
-          conversationAsyncGuard.invalidateConversation(null);
-          backgroundTaskTokenRef.current = null;
-          setIsLoading(false);
-          setMessages([]);
-          setCurrentConversationId(null);
-          setStatusCard(null);
-          setWorkflowType(null);
-          setWorkflowStatus(null);
-          clearArtifactReference();
-          clearConversationReference();
-          clearConversationGeneratedFiles();
-          setViewingFile(null);
+          conversationAsyncGuard.commitLoad(initializationToken, () => {
+            conversationAsyncGuard.invalidateConversation(null);
+            backgroundTaskTokenRef.current = null;
+            setIsLoading(false);
+            setMessages([]);
+            setCurrentConversationId(null);
+            setStatusCard(null);
+            setWorkflowType(null);
+            setWorkflowStatus(null);
+            clearArtifactReference();
+            clearConversationReference();
+            clearConversationGeneratedFiles();
+            setViewingFile(null);
+          });
         }
       } catch (error) {
         console.error('加载历史对话失败:', error);

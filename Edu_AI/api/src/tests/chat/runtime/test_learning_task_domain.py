@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from app.chat.runtime.agent_tools import ToolExecutionContext, execute_tool
 from app.chat.runtime.agent_tools.schemas import build_tool_schemas
 from app.chat.runtime.planning.compiler import compile_plan
 from app.chat.runtime.planning.task_contract_extractor import extract_task_contract
@@ -16,6 +17,19 @@ def capability():
     )
 
 
+def learning_tool_context(*, actor_role: str, learning_context: dict):
+    return ToolExecutionContext(
+        capability=capability(),
+        request=SimpleNamespace(
+            actor_role=actor_role,
+            course_id="course-a",
+            owner=f"{actor_role}-a",
+        ),
+        snapshot=SimpleNamespace(learning_context=learning_context),
+        max_steps=4,
+    )
+
+
 def test_teacher_learning_status_uses_course_learning_tool():
     request = SimpleNamespace(
         question="这门课最新学习任务完成情况怎样？",
@@ -28,6 +42,38 @@ def test_teacher_learning_status_uses_course_learning_tool():
     assert contract.task_domain == "course_learning"
     plan = compile_plan(contract)
     assert plan.steps[0].expected_tools == ["get_course_learning_progress"]
+    assert all(
+        "query_generation_job_status" not in step.expected_tools
+        for step in plan.steps
+    )
+
+    ctx = learning_tool_context(
+        actor_role="teacher",
+        learning_context={
+            "projection": "teacher",
+            "task_summaries": [
+                {
+                    "task_id": "lt_loop2",
+                    "title": "E2E-LOOP2-deterministic-teacher",
+                    "enrolled_students": 1,
+                    "started_students": 1,
+                    "completed_students": 1,
+                    "completion_rate": 1.0,
+                    "completion_basis_counts": {"self_reported": 1},
+                }
+            ],
+        },
+    )
+    result = execute_tool(plan.steps[0].expected_tools[0], {}, ctx)
+
+    assert result["ok"] is True
+    assert result["payload"]["task_summaries"][0]["title"].startswith("E2E-LOOP2-")
+    assert result["payload"]["task_summaries"][0]["completion_basis_counts"] == {
+        "self_reported": 1
+    }
+    assert [step["tool"] for step in ctx.trace["agent_steps"]] == [
+        "get_course_learning_progress"
+    ]
 
 
 def test_student_completed_learning_never_falls_back_to_generation_job():
@@ -41,6 +87,34 @@ def test_student_completed_learning_never_falls_back_to_generation_job():
     assert contract.task_domain == "course_learning"
     assert contract.conversation_refs["generation_job_ids"] == ["job_old"]
     assert contract.conversation_refs["learning_task_ids"] == []
+    plan = compile_plan(contract)
+    assert plan.steps[0].expected_tools == ["get_my_learning_progress"]
+
+    ctx = learning_tool_context(
+        actor_role="student",
+        learning_context={
+            "projection": "student",
+            "completed_tasks": [
+                {
+                    "task_id": "lt_loop2",
+                    "title": "E2E-LOOP2-deterministic-student",
+                    "status": "completed",
+                    "completion_basis": "self_reported",
+                }
+            ],
+            "pending_tasks": [],
+        },
+    )
+    ctx.pending_tasks = [{"task_id": "job_old", "workflow_type": "report"}]
+    result = execute_tool(plan.steps[0].expected_tools[0], {}, ctx)
+
+    assert result["ok"] is True
+    assert result["payload"]["completed_tasks"][0]["task_id"] == "lt_loop2"
+    assert result["payload"]["completed_tasks"][0]["completion_basis"] == "self_reported"
+    assert "job_old" not in str(result)
+    assert [step["tool"] for step in ctx.trace["agent_steps"]] == [
+        "get_my_learning_progress"
+    ]
 
 
 def test_current_learning_semantics_override_historical_generation_job():
