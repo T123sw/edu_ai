@@ -1,8 +1,8 @@
 # ACC-12 · AI 课堂实时问答与中断恢复 · 验收文档
 
-> **对应规格**：[`../spec/SPEC-12_AI课堂实时问答与中断恢复.md`](../spec/SPEC-12_AI课堂实时问答与中断恢复.md)  
-> **实施计划**：[`../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md`](../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md)  
-> **状态**：待实施、待验收  
+> **对应规格**：[`../spec/SPEC-12_AI课堂实时问答与中断恢复.md`](../spec/SPEC-12_AI课堂实时问答与中断恢复.md)
+> **实施计划**：[`../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md`](../superpowers/plans/2026-08-10-ai-classroom-realtime-qa-implementation.md)
+> **状态**：待实施、待验收
 > **验收原则**：自动化证明状态与边界，真实浏览器和真实 Qwen TTS 证明声音与恢复体验。
 
 ## 1. 验收范围
