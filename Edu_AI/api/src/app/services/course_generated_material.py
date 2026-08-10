@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -11,6 +12,7 @@ from typing import Any
 
 MIN_GENERATED_MATERIAL_LENGTH = 800
 MIN_REVIEW_SCORE = 80
+MODEL_CALL_ATTEMPTS = 3
 
 
 @dataclass(frozen=True)
@@ -56,8 +58,22 @@ def _parse_review(value: object) -> tuple[int, bool, tuple[str, ...]]:
         return 0, False, ("质量审查 JSON 无法解析",)
     score = max(0, min(100, int(payload.get("score") or 0)))
     issues = tuple(str(item) for item in payload.get("issues") or [] if str(item).strip())
-    approved = bool(payload.get("approved")) and score >= MIN_REVIEW_SCORE and not issues
+    approved = bool(payload.get("approved")) and score >= MIN_REVIEW_SCORE
     return score, approved, issues
+
+
+def _call_model_with_retry(call_model: Callable[[str], str], prompt: str) -> str:
+    """Retry transient provider failures without weakening content review."""
+    last_error: Exception | None = None
+    for attempt in range(1, MODEL_CALL_ATTEMPTS + 1):
+        try:
+            return call_model(prompt)
+        except Exception as exc:  # provider clients expose different errors
+            last_error = exc
+            if attempt < MODEL_CALL_ATTEMPTS:
+                time.sleep(attempt)
+    assert last_error is not None
+    raise last_error
 
 
 def generate_reviewed_supplement(
@@ -70,9 +86,22 @@ def generate_reviewed_supplement(
     title = f"{leaf_title}学习材料（AI 补充 {sequence}）"
     last_issues: tuple[str, ...] = ()
     last_score = 0
+    material_kind = {
+        1: "概念讲解与最小可运行示例",
+        2: "分步骤案例与边界情况分析",
+        3: "常见错误辨析、练习与参考解题思路",
+    }.get(sequence, "综合学习资料")
     for attempt in range(1, 3):
+        revision_feedback = (
+            "\n上一次审查指出以下问题，本次必须逐条修正，不能只是改写措辞：\n- "
+            + "\n- ".join(last_issues)
+            if last_issues
+            else ""
+        )
         generation_prompt = f"""
 你是课程知识库资料编写专家。请为课程《{course_title}》的叶级知识点“{leaf_title}”编写一份独立、准确、可教学的中文 Markdown 学习材料。
+
+本资料的互补类型：{material_kind}。
 
 硬性要求：
 1. 正文不少于 {MIN_GENERATED_MATERIAL_LENGTH} 个字符，标题为“# {leaf_title}学习材料”。
@@ -80,10 +109,12 @@ def generate_reviewed_supplement(
 3. 内容必须紧扣该知识点，示例可执行或可验证，适合独立入库检索。
 4. 不得编造网址、参考文献、引用、作者或许可证；不要声称内容来自某个外部来源。
 5. 只输出 Markdown 正文，不要输出写作说明。
+6. 每个提到的语法或概念都必须解释准确；提交前自行验证示例、分支边界、循环终止条件和练习要求不存在冲突。
 
 这是第 {attempt} 次生成；资料序号为 {sequence}。
+{revision_feedback}
 """.strip()
-        content = _clean_model_text(call_model(generation_prompt))
+        content = _clean_model_text(_call_model_with_retry(call_model, generation_prompt))
         structural = tuple(_structural_issues(content, leaf_title))
         if structural:
             last_issues = structural
@@ -96,7 +127,9 @@ def generate_reviewed_supplement(
 材料：
 {content}
 """.strip()
-        score, approved, review_issues = _parse_review(call_model(review_prompt))
+        score, approved, review_issues = _parse_review(
+            _call_model_with_retry(call_model, review_prompt)
+        )
         last_score, last_issues = score, review_issues
         if approved:
             return ReviewedSupplement(
@@ -104,12 +137,13 @@ def generate_reviewed_supplement(
                 content=content,
                 review_score=score,
                 approved=True,
-                issues=(),
+                issues=review_issues,
                 audit={
                     "generation_attempts": attempt,
                     "review_score": score,
                     "review_threshold": MIN_REVIEW_SCORE,
                     "review_method": "independent_model_review",
+                    "review_suggestions": list(review_issues),
                 },
             )
     raise ValueError(

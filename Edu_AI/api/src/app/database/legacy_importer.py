@@ -9,6 +9,8 @@ from typing import Any
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
+from app.services.course_code_service import deterministic_course_code
+
 from .models import Course, CourseMembership, CourseObjective, User
 
 
@@ -283,6 +285,7 @@ def apply_legacy_core_snapshot(
         session.merge(
             Course(
                 course_id=item.course_id,
+                course_code=deterministic_course_code(item.course_id),
                 title=item.title,
                 description=item.description,
                 icon=item.icon,

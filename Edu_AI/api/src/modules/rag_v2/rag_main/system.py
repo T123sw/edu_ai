@@ -3513,7 +3513,8 @@ class RAGSystem:
         session = requests.Session()
         session.trust_env = False
         try:
-            response = session.post(url, json=payload, headers=headers, timeout=360, stream=stream)
+            request_timeout = float((llm_config or {}).get("timeout_seconds") or 360)
+            response = session.post(url, json=payload, headers=headers, timeout=request_timeout, stream=stream)
 
             if stream:
                 # 流式输出：返回生成器

@@ -90,3 +90,21 @@ def test_plan_rejects_unknown_license_and_keeps_audit_reason():
     assert candidate.review_status == "rejected"
     assert candidate.selected is False
     assert "许可" in candidate.review_reason
+
+
+def test_plan_deduplicates_same_search_url_across_leaf_topics():
+    plan = preview_course_knowledge_plan(
+        {
+            "id": "python-control",
+            "title": "Python 控制流程入门",
+            "objectives": ["条件判断", "循环控制"],
+        },
+        search_provider=lambda _query, _count: [{
+            "title": "Python 控制流程",
+            "url": "https://docs.python.org/3/tutorial/controlflow.html",
+            "content": "条件判断 循环控制 if for while",
+        }],
+    )
+
+    urls = [candidate.url for candidate in plan.source_candidates]
+    assert len(urls) == len(set(urls))

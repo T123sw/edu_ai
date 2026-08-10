@@ -121,7 +121,7 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
     assert repository.build["status"] == "succeeded"
     assert len(repository.checks) == 4
     assert result["document_count"] == 6
-    assert generated == ["topic-1", "topic-1", "topic-2", "topic-2"]
+    assert sorted(generated) == ["topic-1", "topic-1", "topic-2", "topic-2"]
     assert repository.published_graph["data"]["publication_status"] == "published"
     assert repository.published_graph["data"]["source_build_id"] == "kb-1"
     assert completed_jobs[-1][1]["status"].value == "succeeded"
@@ -191,3 +191,41 @@ def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypat
     leaves = root["children"][0]["children"]
     assert {leaf["data"]["level"] for leaf in leaves} == {2}
     assert all(len(leaf["data"]["document_ids"]) == 3 for leaf in leaves)
+
+
+def test_reviewed_staged_documents_are_resumed_and_promoted():
+    class ManagerWithStaging:
+        def get_knowledge_base_index(self, course_id):
+            assert course_id == "course-1"
+            return [
+                {
+                    "id": "staged-1",
+                    "scope_id": "topic-1",
+                    "source_type": "model_generated",
+                    "generation_review_score": 93,
+                    "status": "received",
+                },
+                {
+                    "id": "rejected-1",
+                    "scope_id": "topic-1",
+                    "source_type": "model_generated",
+                    "generation_review_score": 75,
+                    "status": "received",
+                },
+            ]
+
+    resumed = builder._reviewed_generated_documents(
+        ManagerWithStaging(), course_id="course-1", scope_id="topic-1", limit=3
+    )
+
+    assert resumed == [
+        {
+            "document_id": "staged-1",
+            "scope_id": "topic-1",
+            "source_url": "",
+            "reused": False,
+            "resumed": True,
+            "source_type": "model_generated",
+            "review_score": 93,
+        }
+    ]

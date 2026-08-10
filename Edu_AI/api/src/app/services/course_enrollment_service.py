@@ -37,6 +37,8 @@ class CourseEnrollmentService:
             normalized = normalize_course_code(course_code)
         except CourseCodeError:
             return None
+        if self._manager._course_uses_postgres():
+            return self._manager._course_repository().get_by_course_code(normalized)
         if not self._manager.courses_dir.exists():
             return None
         for path in self._manager.courses_dir.iterdir():

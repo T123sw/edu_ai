@@ -204,6 +204,9 @@ def _knowledge_document_model(
         usage_restriction=item.get("usage_restriction"),
         authority_tier=item.get("authority_tier"),
         retrieved_at=item.get("retrieved_at"),
+        source_type=item.get("source_type"),
+        generation_review_score=item.get("generation_review_score"),
+        generation_audit=item.get("generation_audit"),
         course_id=course_id,
         scope_type=str(item.get("scope_type") or "course"),
         scope_id=str(item.get("scope_id") or "").strip() or None,
@@ -896,6 +899,16 @@ def get_knowledge_base_documents(
         library_type=library_type,
         owner_user_id=owner_user_id if library_type == LIBRARY_TYPE_PERSONAL else None,
     )
+    # A viewer must only observe the atomically published knowledge-base
+    # version. Owners/editors may inspect staged or failed records for
+    # diagnostics, while students never see a blocked build leaking through
+    # the document list before its graph version is published.
+    if principal.course_role == "viewer" and library_type == LIBRARY_TYPE_COURSE:
+        index = [
+            item
+            for item in index
+            if str(item.get("status") or "received") == "ready"
+        ]
     if document_status:
         index = [
             item
