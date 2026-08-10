@@ -286,6 +286,37 @@ async def test_generate_classroom_omits_research_context_when_not_provided():
     assert "researchContext" not in sent_body
 
 
+async def test_generate_classroom_sends_explicit_shared_tts_profile():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = json.loads(request.content)
+        return _json_response(
+            202,
+            {
+                "jobId": "job-tts",
+                "status": "queued",
+                "pollUrl": "/api/generate-classroom/job-tts",
+            },
+        )
+
+    client = OpenMaicClient(transport=httpx.MockTransport(handler))
+    try:
+        await client.generate_classroom(
+            requirement="讲解快速排序",
+            enable_tts=True,
+            tts_provider_id="qwen-tts",
+            tts_voice="Cherry",
+            tts_speed=1.0,
+        )
+    finally:
+        await client.aclose()
+
+    assert captured["body"]["ttsProviderId"] == "qwen-tts"
+    assert captured["body"]["ttsVoice"] == "Cherry"
+    assert captured["body"]["ttsSpeed"] == 1.0
+
+
 # ── wait_job 轮询回调（AC-07-4） ─────────────────────────────────────────
 
 
