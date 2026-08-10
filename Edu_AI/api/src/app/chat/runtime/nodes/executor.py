@@ -462,14 +462,72 @@ def _build_mandatory_plan_calls(
         args = {"topic": subject, "title": subject, **constraints}
     elif tool == "image_search":
         args = {"query": subject, "count": 6, "safe": True}
-    elif tool in {"verify_task", "query_task_status", "cancel_task"}:
+    elif tool in {
+        "verify_task",
+        "get_my_learning_progress",
+        "get_course_learning_progress",
+        "query_generation_job_status",
+        "cancel_task",
+    }:
         args = {}
-        task_ids = list((contract.get("conversation_refs") or {}).get("candidate_task_ids") or [])
-        if tool in {"query_task_status", "cancel_task"} and len(task_ids) == 1:
-            args["task_id"] = str(task_ids[0])
+        refs = dict(contract.get("conversation_refs") or {})
+        if tool in {"get_my_learning_progress", "get_course_learning_progress"}:
+            task_id = _first_unambiguous_domain_task_id(
+                refs,
+                (
+                    "current_learning_task_ids",
+                    "page_learning_task_ids",
+                    "learning_task_ids",
+                ),
+                prefixes=("lt_",),
+            )
+        elif tool == "query_generation_job_status":
+            task_id = _first_unambiguous_domain_task_id(
+                refs,
+                (
+                    "current_generation_job_ids",
+                    "page_generation_job_ids",
+                    "generation_job_ids",
+                ),
+                prefixes=("job_",),
+            )
+        elif tool == "cancel_task":
+            task_id = _first_unambiguous_domain_task_id(
+                refs,
+                (
+                    "current_generation_job_ids",
+                    "page_generation_job_ids",
+                    "generation_job_ids",
+                ),
+                prefixes=("job_", "job-"),
+            )
+        else:
+            task_id = ""
+        if task_id:
+            args["task_id"] = task_id
     else:
         return []
     return [{"id": f"compiled_step_{index + 1}_{tool}", "name": tool, "args": args}]
+
+
+def _first_unambiguous_domain_task_id(
+    refs: dict,
+    keys: tuple[str, ...],
+    *,
+    prefixes: tuple[str, ...],
+) -> str:
+    """Select one ID from the highest-priority populated domain layer."""
+    for key in keys:
+        task_ids = list(
+            dict.fromkeys(
+                str(item or "").strip()
+                for item in list(refs.get(key) or [])
+                if str(item or "").strip().startswith(prefixes)
+            )
+        )
+        if task_ids:
+            return task_ids[0] if len(task_ids) == 1 else ""
+    return ""
 
 
 def _required_retrieval_failure(state: AgentState, ctx: ToolExecutionContext) -> dict | None:

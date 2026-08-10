@@ -3,9 +3,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from collections.abc import Callable
-from typing import Any
-
 from app.chat.runtime.agent_tools.handlers.image_search import handle_image_search
 from app.chat.runtime.agent_tools.handlers.lesson_plan import handle_generate_lesson_plan
 from app.chat.runtime.agent_tools.handlers.outline import handle_draft_outline
@@ -16,7 +13,14 @@ from app.chat.runtime.agent_tools.handlers.retrieval import handle_rag_search, h
 from app.chat.runtime.agent_tools.handlers.resource import handle_generate_resource
 from app.chat.runtime.agent_tools.handlers.classroom import handle_generate_classroom
 from app.chat.runtime.agent_tools.handlers.verification import handle_verify_task
-from app.chat.runtime.agent_tools.handlers.control import handle_cancel_task, handle_query_task_status
+from app.chat.runtime.agent_tools.handlers.control import (
+    handle_cancel_task,
+    handle_query_generation_job_status,
+)
+from app.chat.runtime.agent_tools.handlers.learning import (
+    handle_get_course_learning_progress,
+    handle_get_my_learning_progress,
+)
 
 ToolHandler = Callable[[str, dict[str, Any], Any], dict[str, Any]]
 
@@ -44,8 +48,12 @@ def get_tool_handler(name: str) -> ToolHandler | None:
         return handle_draft_outline
     if name == "verify_task":
         return handle_verify_task
-    if name == "query_task_status":
-        return handle_query_task_status
+    if name == "get_my_learning_progress":
+        return handle_get_my_learning_progress
+    if name == "get_course_learning_progress":
+        return handle_get_course_learning_progress
+    if name == "query_generation_job_status":
+        return handle_query_generation_job_status
     if name == "cancel_task":
         return handle_cancel_task
     return _GENERATE_HANDLERS.get(name)

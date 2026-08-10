@@ -20,14 +20,16 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
         return ctx.get_cached_result(name, args)
 
     t0 = time.perf_counter()
-    handler = get_tool_handler(name)
-    if handler is None:
-        result = error_result(name, "unknown_tool", f"未知工具: {name}")
-    else:
-        try:
-            result = handler(name, args, ctx)
-        except Exception as exc:
-            result = error_result(name, str(exc), f"工具执行失败: {exc}")
+    result = _reject_task_domain_mismatch(name, args)
+    if result is None:
+        handler = get_tool_handler(name)
+        if handler is None:
+            result = error_result(name, "unknown_tool", f"未知工具: {name}")
+        else:
+            try:
+                result = handler(name, args, ctx)
+            except Exception as exc:
+                result = error_result(name, str(exc), f"工具执行失败: {exc}")
     elapsed_ms = round((time.perf_counter() - t0) * 1000)
 
     trace_step = {
@@ -38,6 +40,8 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
         "ok": result.get("ok", False),
         "duration_ms": elapsed_ms,
     }
+    if result.get("error"):
+        trace_step["error"] = str(result["error"])
     payload = result.get("payload") or {}
     if isinstance(payload, dict) and payload.get("task_id"):
         trace_step["task_id"] = str(payload["task_id"])
@@ -53,6 +57,10 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
 
 def _capability_allows(name: str, capability, *, actor_role: str = "teacher") -> bool:
     role = "student" if str(actor_role or "").strip().lower() == "student" else "teacher"
+    if role == "student" and name == "get_course_learning_progress":
+        return False
+    if role == "teacher" and name == "get_my_learning_progress":
+        return False
     if role == "student" and name in {"generate_lesson_plan", "generate_blog"}:
         return False
     if role == "teacher" and name in {"generate_flashcard", "generate_game"}:
@@ -64,3 +72,30 @@ def _capability_allows(name: str, capability, *, actor_role: str = "teacher") ->
     if name == "image_search" and not getattr(capability, "allow_image_search", False):
         return False
     return True
+
+
+def _reject_task_domain_mismatch(name: str, args: dict) -> dict | None:
+    task_id = str(args.get("task_id") or "").strip()
+    if (
+        name in {"get_my_learning_progress", "get_course_learning_progress"}
+        and task_id
+        and not task_id.startswith("lt_")
+    ):
+        return error_result(
+            name,
+            "task_domain_mismatch",
+            "课程学习工具只接受 lt_ 学习任务",
+        )
+    if name == "query_generation_job_status" and task_id and not task_id.startswith("job_"):
+        return error_result(
+            name,
+            "task_domain_mismatch",
+            "后台生成状态工具只接受规范 job_ 生成任务",
+        )
+    if name == "cancel_task" and task_id.startswith("lt_"):
+        return error_result(
+            name,
+            "task_domain_mismatch",
+            "后台生成任务工具不能处理课程学习任务",
+        )
+    return None

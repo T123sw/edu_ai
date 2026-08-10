@@ -13,7 +13,7 @@ def _target_task_id(args: dict, ctx) -> str:
     return str((pending[-1] if pending else {}).get("task_id") or "")
 
 
-def handle_query_task_status(name: str, args: dict, ctx) -> dict:
+def _handle_query_task_status(name: str, args: dict, ctx, *, canonical_only: bool) -> dict:
     task_ids = [
         str(item.get("task_id") or "")
         for item in list(getattr(ctx, "pending_tasks", []) or [])
@@ -21,6 +21,8 @@ def handle_query_task_status(name: str, args: dict, ctx) -> dict:
     explicit = str(args.get("task_id") or "").strip()
     if explicit:
         task_ids = [explicit]
+    if canonical_only:
+        task_ids = [task_id for task_id in task_ids if task_id.startswith("job_")]
 
     tasks: list[dict] = []
     resolved_artifacts: list[dict] = []
@@ -28,6 +30,9 @@ def handle_query_task_status(name: str, args: dict, ctx) -> dict:
     for task_id in dict.fromkeys(task for task in task_ids if task):
         job = get_job(task_id)
         if not job:
+            continue
+        job_owner = str(getattr(job, "owner_user_id", "") or "")
+        if job_owner and job_owner != owner:
             continue
         status = getattr(job, "status", "unknown")
         status_value = str(getattr(status, "value", status))
@@ -75,6 +80,22 @@ def handle_query_task_status(name: str, args: dict, ctx) -> dict:
             "artifact_readback": getattr(ctx, "artifact_readback", None),
         },
     )
+
+
+def handle_query_generation_job_status(name: str, args: dict, ctx) -> dict:
+    explicit = str(args.get("task_id") or "").strip()
+    if explicit and not explicit.startswith("job_"):
+        return error_result(
+            name,
+            "task_domain_mismatch",
+            "后台生成状态工具只接受规范 job_ 生成任务",
+        )
+    return _handle_query_task_status(name, args, ctx, canonical_only=True)
+
+
+def handle_query_task_status(name: str, args: dict, ctx) -> dict:
+    """Legacy internal compatibility for non-agent callers and old tests."""
+    return _handle_query_task_status(name, args, ctx, canonical_only=False)
 
 
 def _resolve_course_material(result_ref, owner: str):
