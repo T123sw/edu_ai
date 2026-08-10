@@ -13,6 +13,7 @@ import {
   resolveConversationRecoveryErrorAction,
   type ConversationAsyncGuard,
   type ConversationLoadToken,
+  type ConversationSendToken,
 } from "./chatHistoryRecovery.ts";
 
 function deferred<T>() {
@@ -40,6 +41,20 @@ async function consumeLoad<T>(
   } finally {
     if (guard.isLatestLoad(token)) writes.push(`${label}:finally`);
   }
+}
+
+async function bindLatePendingTask(
+  guard: ConversationAsyncGuard,
+  sendToken: ConversationSendToken,
+  pendingTask: Promise<string>,
+  currentConversationId: () => string | null,
+) {
+  const taskId = await pendingTask;
+  return guard.bindBackgroundTaskForSend(
+    sendToken,
+    taskId,
+    currentConversationId(),
+  );
 }
 
 test("failed active history is detached before a new agent turn", () => {
@@ -308,4 +323,66 @@ test("a newer task in the same conversation invalidates an older poll", async ()
   await consumePoll;
 
   assert.deepEqual(writes, []);
+});
+
+test("late pending task cannot bind after its send context is invalidated", async () => {
+  for (const scenario of [
+    {
+      invalidate: (guard: ConversationAsyncGuard) => guard.invalidateConversation(null),
+      nextConversationId: null,
+    },
+    {
+      invalidate: (guard: ConversationAsyncGuard) => guard.startLoad("conv-b"),
+      nextConversationId: "conv-b",
+    },
+  ]) {
+    const guard = createConversationAsyncGuard("conv-a");
+    const pendingTask = deferred<string>();
+    const sendToken = guard.captureSend("conv-a");
+    let currentConversationId: string | null = "conv-a";
+    const binding = bindLatePendingTask(
+      guard,
+      sendToken,
+      pendingTask.promise,
+      () => currentConversationId,
+    );
+
+    scenario.invalidate(guard);
+    currentConversationId = scenario.nextConversationId;
+    pendingTask.resolve("task-late");
+
+    let pollStarted = false;
+    const writes: string[] = [];
+    const taskToken = await binding;
+    if (taskToken) {
+      pollStarted = true;
+      guard.commitBackgroundTask(taskToken, currentConversationId, () => writes.push("late-poll"));
+    }
+    assert.equal(taskToken, null);
+    assert.equal(pollStarted, false);
+    assert.deepEqual(writes, []);
+  }
+});
+
+test("late pending task binds while its original send context is current", async () => {
+  const guard = createConversationAsyncGuard("conv-a");
+  const pendingTask = deferred<string>();
+  const sendToken = guard.captureSend("conv-a");
+  const binding = bindLatePendingTask(
+    guard,
+    sendToken,
+    pendingTask.promise,
+    () => "conv-a",
+  );
+
+  pendingTask.resolve("task-current");
+  const taskToken = await binding;
+
+  assert.equal(taskToken?.taskId, "task-current");
+  assert.equal(
+    taskToken
+      ? guard.commitBackgroundTask(taskToken, "conv-a", () => undefined)
+      : false,
+    true,
+  );
 });

@@ -23,6 +23,12 @@ export type BackgroundTaskToken = Readonly<{
   conversationId: string | null;
 }>;
 
+export type ConversationSendToken = Readonly<{
+  contextGeneration: number;
+  sendGeneration: number;
+  conversationId: string | null;
+}>;
+
 export type ConversationAsyncGuard = {
   startLoad: (
     conversationId: string,
@@ -36,6 +42,21 @@ export type ConversationAsyncGuard = {
   isConversationActive: (conversationId: string) => boolean;
   isLatestLoad: (token: ConversationLoadToken) => boolean;
   commitLoad: (token: ConversationLoadToken, commit: () => void) => boolean;
+  captureSend: (conversationId: string | null) => ConversationSendToken;
+  isSendCurrent: (
+    token: ConversationSendToken,
+    currentConversationId: string | null,
+  ) => boolean;
+  commitSend: (
+    token: ConversationSendToken,
+    currentConversationId: string | null,
+    commit: () => void,
+  ) => boolean;
+  bindBackgroundTaskForSend: (
+    sendToken: ConversationSendToken,
+    taskId: string,
+    currentConversationId: string | null,
+  ) => BackgroundTaskToken | null;
   bindBackgroundTask: (
     taskId: string,
     conversationId: string | null,
@@ -53,11 +74,28 @@ export function createConversationAsyncGuard(
   let loadGeneration = 0;
   let contextGeneration = 0;
   let taskGeneration = 0;
+  let sendGeneration = 0;
   let activeConversationId = initialConversationId;
 
   const isLatestLoad = (token: ConversationLoadToken) => (
     token.generation === loadGeneration
   );
+  const isSendCurrent = (
+    token: ConversationSendToken,
+    currentConversationId: string | null,
+  ) => (
+    token.contextGeneration === contextGeneration
+    && token.sendGeneration === sendGeneration
+    && activeConversationId === currentConversationId
+    && (token.conversationId === null || token.conversationId === currentConversationId)
+  );
+  const bindBackgroundTask = (
+    taskId: string,
+    conversationId: string | null,
+  ): BackgroundTaskToken => {
+    taskGeneration += 1;
+    return { contextGeneration, taskGeneration, taskId, conversationId };
+  };
 
   return {
     startLoad(conversationId, options) {
@@ -101,10 +139,25 @@ export function createConversationAsyncGuard(
       commit();
       return true;
     },
-    bindBackgroundTask(taskId, conversationId) {
-      taskGeneration += 1;
-      return { contextGeneration, taskGeneration, taskId, conversationId };
+    captureSend(conversationId) {
+      sendGeneration += 1;
+      return { contextGeneration, sendGeneration, conversationId };
     },
+    isSendCurrent,
+    commitSend(token, currentConversationId, commit) {
+      if (!isSendCurrent(token, currentConversationId)) {
+        return false;
+      }
+      commit();
+      return true;
+    },
+    bindBackgroundTaskForSend(sendToken, taskId, currentConversationId) {
+      if (!isSendCurrent(sendToken, currentConversationId)) {
+        return null;
+      }
+      return bindBackgroundTask(taskId, currentConversationId);
+    },
+    bindBackgroundTask,
     commitBackgroundTask(token, currentConversationId, commit) {
       const sameContext = token.contextGeneration === contextGeneration;
       const sameTask = token.taskGeneration === taskGeneration;

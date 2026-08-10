@@ -802,6 +802,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         } else {
           conversationAsyncGuard.invalidateConversation(null);
           backgroundTaskTokenRef.current = null;
+          setIsLoading(false);
           setMessages([]);
           setCurrentConversationId(null);
           setStatusCard(null);
@@ -862,6 +863,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       invalidateBackgroundTasks: !silent,
     });
     if (!silent) {
+      setIsLoading(false);
       setLoadingConversationId(conversationId);
       setBackgroundTaskId(null);
       backgroundTaskTokenRef.current = null;
@@ -974,6 +976,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           clearPendingTasks: (nextConversationId) => {
             conversationAsyncGuard.invalidateBackgroundTasks(nextConversationId);
             backgroundTaskTokenRef.current = null;
+            setIsLoading(false);
             setBackgroundTaskId(null);
           },
           setCurrentConversationId: (nextConversationId) => {
@@ -993,6 +996,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const handleNewConversation = () => {
     conversationAsyncGuard.invalidateConversation(null);
     backgroundTaskTokenRef.current = null;
+    setIsLoading(false);
     setMessages([]);
     setCurrentConversationId(null);
     setLoadingConversationId(null);
@@ -1023,6 +1027,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         } else {
           conversationAsyncGuard.invalidateConversation(null);
           backgroundTaskTokenRef.current = null;
+          setIsLoading(false);
           setMessages([]);
           setCurrentConversationId(null);
           setBackgroundTaskId(null);
@@ -1215,6 +1220,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     if ((draft === '' && pendingImages.length === 0 && pendingVideos.length === 0) || (isLoading && !forceSend)) return;
     const activeConversationIdAtSend = useStore.getState().currentConversationId;
     conversationAsyncGuard.invalidateLoads(activeConversationIdAtSend);
+    const sendToken = conversationAsyncGuard.captureSend(activeConversationIdAtSend);
+    const sendStillCurrent = () => conversationAsyncGuard.isSendCurrent(
+      sendToken,
+      useStore.getState().currentConversationId,
+    );
+    const commitSend = (commit: () => void) => conversationAsyncGuard.commitSend(
+      sendToken,
+      useStore.getState().currentConversationId,
+      commit,
+    );
     setLoadingConversationId(null);
 
     const inputImages = pendingImages.map(({ previewUrl: _previewUrl, ...image }) => image);
@@ -1279,79 +1294,106 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
       await sendChatReplyV2Stream(payload, {
         onMetadata: (payload) => {
-          const nextConversationId = String(payload.conversation_id || '').trim();
-          if (nextConversationId && nextConversationId !== useStore.getState().currentConversationId) {
-            conversationAsyncGuard.adoptConversation(nextConversationId);
-            setCurrentConversationId(nextConversationId);
-          }
-          if (Array.isArray(payload.sources)) {
-            updateLastMessage({
-              sources: payload.sources as ChatSourceV2[],
-              statusText: '正在生成回复...',
-            });
-          }
-          if (payload.status_card && typeof payload.status_card === 'object') {
-            setStatusCard(payload.status_card as any);
-          }
+          commitSend(() => {
+            const nextConversationId = String(payload.conversation_id || '').trim();
+            if (nextConversationId && nextConversationId !== useStore.getState().currentConversationId) {
+              conversationAsyncGuard.adoptConversation(nextConversationId);
+              setCurrentConversationId(nextConversationId);
+            }
+            if (Array.isArray(payload.sources)) {
+              updateLastMessage({
+                sources: payload.sources as ChatSourceV2[],
+                statusText: '正在生成回复...',
+              });
+            }
+            if (payload.status_card && typeof payload.status_card === 'object') {
+              setStatusCard(payload.status_card as any);
+            }
+          });
         },
         onStatus: (payload) => {
-          updateLastMessage({
-            statusText: String(payload.label || payload.stage || '正在处理...'),
+          commitSend(() => {
+            updateLastMessage({
+              statusText: String(payload.label || payload.stage || '正在处理...'),
+            });
+            const workflow = payload.workflow as any;
+            if (workflow) {
+              setWorkflowType(String(workflow.type || '').trim() || null);
+              setWorkflowStatus(String(workflow.status || '').trim() || null);
+            }
           });
-          const workflow = payload.workflow as any;
-          if (workflow) {
-            setWorkflowType(String(workflow.type || '').trim() || null);
-            setWorkflowStatus(String(workflow.status || '').trim() || null);
-          }
         },
         onDelta: (content) => {
-          streamedText += content;
-          updateLastMessage({
-            text: streamedText,
-            statusText: '正在生成回复...',
+          commitSend(() => {
+            streamedText += content;
+            updateLastMessage({
+              text: streamedText,
+              statusText: '正在生成回复...',
+            });
           });
         },
         onResult: (finalResponse) => {
-          response = finalResponse;
+          commitSend(() => { response = finalResponse; });
         },
         onTaskSubmitted: (taskId) => {
-          pendingTaskId = taskId;
-          requestJobRefresh(taskId);
-          // Tag the AI message with the task ID so the background poller can find and update it
-          updateLastMessage({ id: taskId });
+          commitSend(() => {
+            pendingTaskId = taskId;
+            requestJobRefresh(taskId);
+            // Tag the AI message with the task ID so the background poller can find and update it
+            updateLastMessage({ id: taskId });
+          });
         },
         onPlan: (plan) => {
-          agentActivity.plan = plan;
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.plan = plan;
+            flushAgentActivity();
+          });
         },
         onPlanStepUpdate: (update) => {
-          agentActivity.stepStatus[update.step_index] = update.status;
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.stepStatus[update.step_index] = update.status;
+            flushAgentActivity();
+          });
         },
         onToolCall: (call) => {
-          agentActivity.toolCalls.push(call);
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.toolCalls.push(call);
+            flushAgentActivity();
+          });
         },
         onToolResult: (result) => {
-          agentActivity.toolResults.push(result);
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.toolResults.push(result);
+            flushAgentActivity();
+          });
         },
         onReflect: (reflect) => {
-          agentActivity.reflects.push(reflect);
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.reflects.push(reflect);
+            flushAgentActivity();
+          });
         },
         onError: (error) => {
-          throw error;
+          commitSend(() => { throw error; });
         },
       });
 
+      if (!sendStillCurrent()) {
+        return;
+      }
+
       // Background task path: hand off to useEffect poller and release the UI immediately
       if (pendingTaskId) {
-        updateLastMessage({ statusText: '正在后台生成，请稍候...' });
-        backgroundTaskTokenRef.current = conversationAsyncGuard.bindBackgroundTask(
+        const taskToken = conversationAsyncGuard.bindBackgroundTaskForSend(
+          sendToken,
           pendingTaskId,
           useStore.getState().currentConversationId,
         );
+        if (!taskToken) {
+          return;
+        }
+        updateLastMessage({ statusText: '正在后台生成，请稍候...' });
+        backgroundTaskTokenRef.current = taskToken;
         setBackgroundTaskId(pendingTaskId);
         return; // isLoading → false via finally; user can continue chatting
       } else if (!response) {
@@ -1420,21 +1462,28 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         agentActivity: finalizeRunningAgentActivity(agentActivity, 'done'),
       });
 
-      await refreshHistoryList();
+      await refreshHistoryList(sendStillCurrent);
+      if (!sendStillCurrent()) {
+        return;
+      }
       clearPendingImages();
       clearPendingVideos();
     } catch (error: any) {
       console.error('v2 reply error:', error);
-      updateLastMessage({
-        text: error?.message || 'Request failed. Please try again.',
-        statusText: 'Failed',
-        agentActivity: finalizeRunningAgentActivity(
-          (useStore.getState().messages.at(-1)?.agentActivity as AgentActivityState | undefined),
-          'failed',
-        ),
+      commitSend(() => {
+        updateLastMessage({
+          text: error?.message || 'Request failed. Please try again.',
+          statusText: 'Failed',
+          agentActivity: finalizeRunningAgentActivity(
+            (useStore.getState().messages.at(-1)?.agentActivity as AgentActivityState | undefined),
+            'failed',
+          ),
+        });
       });
     } finally {
-      setIsLoading(false);
+      if (sendStillCurrent()) {
+        setIsLoading(false);
+      }
     }
   };
 
