@@ -8,13 +8,19 @@ import {
   getKnowledgeBaseDocuments,
   listCourses,
 } from "../api/courses";
+import { getLearningOverview } from "../api/learning";
 import type { BackendCourse } from "../api/types";
 import { AppSurface, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { toCourseCardPresentation, type CourseCardFacts } from "./courseCardPresentation";
 import "./HomeDashboard.css";
 
-const emptyFacts: CourseCardFacts = { documentCount: 0, resourceCount: 0, activeJobCount: 0 };
+const emptyFacts: CourseCardFacts = {
+  documentCount: 0,
+  resourceCount: 0,
+  activeJobCount: 0,
+  learningOverview: null,
+};
 
 function getStoredUsername() {
   try {
@@ -46,15 +52,21 @@ export function HomeDashboardPage() {
         if (cancelled) return;
         setCourses(loaded);
         const entries = await Promise.all(loaded.map(async (course) => {
-          const [documents, resources] = await Promise.all([
+          const [documents, resources, learning] = await Promise.all([
             getKnowledgeBaseDocuments(course.id, {
               aggregate: true,
               libraryType: "course",
               limit: 1000,
             }).catch(() => []),
             getCourseMaterials(course.id).catch(() => []),
+            getLearningOverview(course.id).catch(() => null),
           ]);
-          return [course.id, { documentCount: documents.length, resourceCount: resources.length, activeJobCount: 0 }] as const;
+          return [course.id, {
+            documentCount: documents.length,
+            resourceCount: resources.length,
+            activeJobCount: 0,
+            learningOverview: learning,
+          }] as const;
         }));
         if (!cancelled) setFacts(Object.fromEntries(entries));
       } catch (reason) {
@@ -114,7 +126,7 @@ export function HomeDashboardPage() {
 
           <div className="teacher-course-grid">
             {visibleCourses.map((course, index) => {
-              const card = toCourseCardPresentation(course, cardFacts(course.id));
+              const card = toCourseCardPresentation(course, cardFacts(course.id), "teacher");
               return (
                 <a
                   key={course.id}
@@ -128,6 +140,7 @@ export function HomeDashboardPage() {
                   <dl className="teacher-course-card__metrics">
                     {card.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}</dd></div>)}
                   </dl>
+                  {card.learningStatusLabel ? <p className="teacher-course-card__learning-status">{card.learningStatusLabel}</p> : null}
                   <div className="teacher-course-card__footer">
                     <span>{card.updatedLabel}</span>
                     <strong>进入课程 <MaterialIcon name="arrow_forward" /></strong>

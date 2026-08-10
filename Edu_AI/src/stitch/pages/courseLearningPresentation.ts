@@ -1,4 +1,4 @@
-import type { LearningTask, TaskProgress } from "../api/types";
+import type { CompletionBasis, LearningTask, TaskProgress } from "../api/types";
 
 export type LearningActor = "teacher" | "student";
 export type LearningTaskPrimaryAction =
@@ -25,9 +25,21 @@ export function getLearningTaskPrimaryAction(
   return "continue";
 }
 
-export function getProgressLabel(progressPercent: number): string {
-  const normalized = Math.min(100, Math.max(0, Math.round(Number(progressPercent) || 0)));
-  if (normalized === 0) return "未开始";
-  if (normalized === 100) return "已完成";
-  return `已完成 ${normalized}%`;
+export function getProgressLabel(
+  progressPercent: number,
+  status: TaskProgress["status"],
+): string {
+  const value = Math.min(100, Math.max(0, Math.round(Number(progressPercent) || 0)));
+  if (status === "not_started") return "未开始";
+  if (status === "completed" || value === 100) return "已完成";
+  return `进行中 · ${value}%`;
+}
+
+export function getCompletionBasisLabel(basis: CompletionBasis): string {
+  return {
+    none: "暂无完成证据",
+    self_reported: "学生自报完成",
+    activity_evidenced: "已有活动证据",
+    assessment_verified: "测评已验证",
+  }[basis];
 }

@@ -8,6 +8,7 @@ import {
   getKnowledgeBaseDocuments,
   listCourses,
 } from "../../api/courses";
+import { getLearningOverview } from "../../api/learning";
 import type { BackendCourse } from "../../api/types";
 import { MaterialIcon, useAppShell } from "../../shared";
 import {
@@ -23,6 +24,7 @@ const emptyFacts: CourseCardFacts = {
   documentCount: 0,
   resourceCount: 0,
   activeJobCount: 0,
+  learningOverview: null,
 };
 
 function formatUpdatedAt(value?: string | null): string {
@@ -54,18 +56,20 @@ export function StudentHomePage() {
         const validRecent = loadRecentLearning(result.map((course) => course.id));
         window.localStorage.setItem(STUDENT_RECENT_LEARNING_KEY, serializeRecentLearning(validRecent));
         const factEntries = await Promise.all(result.map(async (course) => {
-          const [documents, resources] = await Promise.all([
+          const [documents, resources, learning] = await Promise.all([
             getKnowledgeBaseDocuments(course.id, {
               aggregate: true,
               libraryType: "course",
               limit: 1000,
             }).catch(() => []),
             getCourseMaterials(course.id, { space: "course" }).catch(() => []),
+            getLearningOverview(course.id).catch(() => null),
           ]);
           return [course.id, {
             documentCount: documents.length,
             resourceCount: resources.length,
             activeJobCount: 0,
+            learningOverview: learning,
           }] as const;
         }));
         if (!cancelled) setFacts(Object.fromEntries(factEntries));
@@ -140,7 +144,7 @@ export function StudentHomePage() {
         {!loading && !error && courses.length > 0 && visibleCourses.length === 0 ? <div className="teacher-home__state">没有找到匹配的课程。</div> : null}
         <div className="teacher-course-grid">
           {visibleCourses.map((course, index) => {
-            const card = toCourseCardPresentation(course, cardFacts(course.id));
+            const card = toCourseCardPresentation(course, cardFacts(course.id), "student");
             return (
               <a
                 key={course.id}
@@ -154,6 +158,7 @@ export function StudentHomePage() {
                 <dl className="teacher-course-card__metrics">
                   {card.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}</dd></div>)}
                 </dl>
+                {card.learningStatusLabel ? <p className="teacher-course-card__learning-status">{card.learningStatusLabel}</p> : null}
                 <div className="teacher-course-card__footer">
                   <span>{card.updatedLabel}</span>
                   <strong>进入学习 <MaterialIcon name="arrow_forward" /></strong>

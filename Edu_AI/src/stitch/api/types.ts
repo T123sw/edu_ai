@@ -22,15 +22,35 @@ export type LearningResourceRef = {
   material_id: string;
 };
 
+export type CompletionBasis =
+  | "none"
+  | "self_reported"
+  | "activity_evidenced"
+  | "assessment_verified";
+
 export type TaskProgress = {
   task_id: string;
   course_id: string;
   student_id: string;
   status: "not_started" | "in_progress" | "completed";
   progress_percent: number;
+  completion_basis: CompletionBasis;
+  evidence_count: number;
+  last_activity_at: string | null;
   started_at: string | null;
   completed_at: string | null;
   updated_at: string;
+};
+
+export type LearningOverview = {
+  course_id: string;
+  pending_tasks: number;
+  in_progress_tasks: number;
+  self_reported_completed_tasks: number;
+  activity_evidenced_completed_tasks: number;
+  assessment_verified_completed_tasks: number;
+  latest_activity_at: string | null;
+  enrolled_students?: number | null;
 };
 
 export type LearningTask = {

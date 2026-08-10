@@ -19,6 +19,7 @@ import { useCourseRoute } from "../course/CourseRouteProvider";
 import { MaterialIcon, routes } from "../shared";
 import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import {
+  getCompletionBasisLabel,
   getLearningTaskPrimaryAction,
   getProgressLabel,
 } from "./courseLearningPresentation";
@@ -31,6 +32,17 @@ function materialKey(ref: LearningResourceRef): string {
 
 function materialTitle(material: CourseMaterial): string {
   return material.title || material.topic || material.material_id;
+}
+
+function formatUpdatedAt(value?: string): string {
+  if (!value) return "时间未知";
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return "时间未知";
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(timestamp);
 }
 
 function createEventId(taskId: string, eventType: string): string {
@@ -61,6 +73,8 @@ export function CourseLearningPage() {
   const [instructions, setInstructions] = useState("");
   const [knowledgePoints, setKnowledgePoints] = useState("");
   const [selectedResources, setSelectedResources] = useState<Set<string>>(new Set());
+  const [resourceQuery, setResourceQuery] = useState("");
+  const [resourceType, setResourceType] = useState("");
 
   const sharedMaterialByKey = useMemo(
     () => new Map(materials.map((material) => [
@@ -69,6 +83,25 @@ export function CourseLearningPage() {
     ])),
     [materials],
   );
+
+  const resourceTypes = useMemo(
+    () => [...new Set(materials.map((material) => material.material_type))].sort(),
+    [materials],
+  );
+
+  const filteredMaterials = useMemo(() => {
+    const normalizedQuery = resourceQuery.trim().toLocaleLowerCase();
+    return materials.filter((material) => {
+      if (resourceType && material.material_type !== resourceType) return false;
+      if (!normalizedQuery) return true;
+      return [
+        materialTitle(material),
+        material.material_type,
+        material.created_by,
+        material.material_id,
+      ].some((value) => String(value ?? "").toLocaleLowerCase().includes(normalizedQuery));
+    });
+  }, [materials, resourceQuery, resourceType]);
 
   const selectedTask = tasks.find((task) => task.task_id === selectedTaskId) ?? null;
 
@@ -147,6 +180,8 @@ export function CourseLearningPage() {
       setInstructions("");
       setKnowledgePoints("");
       setSelectedResources(new Set());
+      setResourceQuery("");
+      setResourceType("");
       setNotice("学习任务草稿已创建，可确认后发布给学生。");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "创建学习任务失败");
@@ -192,7 +227,9 @@ export function CourseLearningPage() {
       setTasks((current) => current.map((item) => (
         item.task_id === task.task_id ? { ...item, my_progress: result.progress } : item
       )));
-      if (eventType === "completed") setNotice("学习任务已完成，教师端将同步收到进度。");
+      if (eventType === "completed") {
+        setNotice("已记录为学生自报完成；这不代表测评通过或已经掌握该内容。");
+      }
       return true;
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "学习进度保存失败");
@@ -200,6 +237,14 @@ export function CourseLearningPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function completeBySelfReport(task: LearningTask) {
+    const confirmed = window.confirm(
+      "本次将记录为学生自报完成，不代表测评通过；也不代表已经掌握该内容。是否继续？",
+    );
+    if (!confirmed) return;
+    await writeStudentEvent(task, "completed");
   }
 
   async function openResource(task: LearningTask, ref: LearningResourceRef) {
@@ -255,25 +300,53 @@ export function CourseLearningPage() {
             <fieldset>
               <legend>选择课程共享资源</legend>
               {materials.length === 0 ? <p>当前还没有共享资源，可先创建空任务，稍后补充。</p> : (
-                <div className="learning-resource-picker">
-                  {materials.map((material) => {
-                    const key = materialKey({ material_type: material.material_type, material_id: material.material_id });
-                    return (
-                      <label key={key}>
-                        <input
-                          type="checkbox"
-                          checked={selectedResources.has(key)}
-                          onChange={() => setSelectedResources((current) => {
-                            const next = new Set(current);
-                            if (next.has(key)) next.delete(key); else next.add(key);
-                            return next;
-                          })}
-                        />
-                        <span><strong>{materialTitle(material)}</strong><small>{material.material_type}</small></span>
-                      </label>
-                    );
-                  })}
-                </div>
+                <>
+                  <div className="learning-resource-picker__toolbar">
+                    <label>
+                      搜索资源
+                      <input
+                        value={resourceQuery}
+                        onChange={(event) => setResourceQuery(event.target.value)}
+                        placeholder="按名称、创建者或 ID 搜索"
+                      />
+                    </label>
+                    <label>
+                      资源类型
+                      <select value={resourceType} onChange={(event) => setResourceType(event.target.value)}>
+                        <option value="">全部类型</option>
+                        {resourceTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                      </select>
+                    </label>
+                    <span>已选 {selectedResources.size} 项</span>
+                  </div>
+                  {filteredMaterials.length === 0 ? <p>没有匹配的课程共享资源；已选资源保持不变。</p> : (
+                    <div className="learning-resource-picker">
+                      {filteredMaterials.map((material) => {
+                        const key = materialKey({ material_type: material.material_type, material_id: material.material_id });
+                        return (
+                          <label key={key}>
+                            <input
+                              type="checkbox"
+                              checked={selectedResources.has(key)}
+                              onChange={() => setSelectedResources((current) => {
+                                const next = new Set(current);
+                                if (next.has(key)) next.delete(key); else next.add(key);
+                                return next;
+                              })}
+                            />
+                            <span>
+                              <strong>{materialTitle(material)}</strong>
+                              <span className="learning-resource-picker__type">{material.material_type}</span>
+                              <small>
+                                {material.created_by || "未知创建者"} · {formatUpdatedAt(material.updated_at)} · {material.material_id.slice(-8)}
+                              </small>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               )}
             </fieldset>
             <div className="learning-create__actions">
@@ -327,9 +400,14 @@ export function CourseLearningPage() {
                       <SummaryCard label="完成率" value={formatPercent(summary.completion_rate)} />
                     </div>
                     <div className="learning-progress-table">
-                      <div className="learning-progress-table__head"><span>学生</span><span>状态</span><span>进度</span></div>
+                      <div className="learning-progress-table__head"><span>学生</span><span>状态</span><span>进度</span><span>完成口径</span></div>
                       {summary.progress.map((item) => (
-                        <div key={item.student_id}><strong>{item.student_id}</strong><span>{item.status === "completed" ? "已完成" : item.status === "in_progress" ? "进行中" : "未开始"}</span><span>{getProgressLabel(item.progress_percent)}</span></div>
+                        <div key={item.student_id}>
+                          <strong>{item.student_id}</strong>
+                          <span>{item.status === "completed" ? "已完成" : item.status === "in_progress" ? "进行中" : "未开始"}</span>
+                          <span>{getProgressLabel(item.progress_percent, item.status)}</span>
+                          <span>{getCompletionBasisLabel(item.completion_basis)}</span>
+                        </div>
                       ))}
                     </div>
                   </>
@@ -347,8 +425,11 @@ export function CourseLearningPage() {
               <article key={task.task_id} className="learning-student-card">
                 <div className="learning-student-card__head">
                   <div><span className="learning-badge learning-badge--published">学习任务</span><h3>{task.title}</h3><p>{task.instructions || "按照关联资源完成学习。"}</p></div>
-                  <strong>{getProgressLabel(progress)}</strong>
+                  <strong>{getProgressLabel(progress, task.my_progress?.status ?? "not_started")}</strong>
                 </div>
+                {task.my_progress?.status === "completed" ? (
+                  <p className="learning-completion-basis">完成口径：{getCompletionBasisLabel(task.my_progress.completion_basis)}</p>
+                ) : null}
                 <div className="learning-progress"><span style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} /></div>
                 <div className="learning-student-resources">
                   {task.resource_refs.map((ref) => (
@@ -366,7 +447,7 @@ export function CourseLearningPage() {
                     </button>
                   ) : action === "completed" ? <span className="learning-complete">✓ 已完成</span> : null}
                   {action !== "completed" ? (
-                    <button type="button" className="learning-primary" disabled={busy} onClick={() => void writeStudentEvent(task, "completed")}>标记完成</button>
+                    <button type="button" className="learning-primary" disabled={busy} onClick={() => void completeBySelfReport(task)}>我已完成</button>
                   ) : null}
                 </div>
               </article>
