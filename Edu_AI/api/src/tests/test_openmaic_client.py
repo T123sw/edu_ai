@@ -5,6 +5,8 @@
 未知新字段透传不崩、config 默认超时值。
 """
 
+import base64
+import json
 import sys
 from pathlib import Path
 
@@ -21,6 +23,7 @@ from app.integrations.openmaic import (
     OpenMaicBadRequest,
     OpenMaicClient,
     OpenMaicConfig,
+    OpenMaicError,
     OpenMaicJobNotFound,
     OpenMaicPollTimeout,
     OpenMaicServerError,
@@ -35,6 +38,166 @@ def _json_response(status_code: int, payload: dict) -> httpx.Response:
 
 def _error_body(error_code: str, message: str) -> dict:
     return {"success": False, "errorCode": error_code, "error": message}
+
+
+async def test_synthesize_tts_posts_server_managed_qwen_and_decodes_audio():
+    expected = b"ID3-answer-audio"
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.path == "/api/generate/tts"
+        assert json.loads(request.content) == {
+            "text": "回答。回到课堂。",
+            "audioId": "turn-1",
+            "ttsProviderId": "qwen-tts",
+            "ttsVoice": "Cherry",
+            "ttsSpeed": 1.0,
+        }
+        return httpx.Response(
+            200,
+            json={
+                "success": True,
+                "data": {
+                    "audioId": "turn-1",
+                    "base64": base64.b64encode(expected).decode("ascii"),
+                    "format": "mp3",
+                },
+            },
+        )
+
+    client = OpenMaicClient(transport=httpx.MockTransport(handler))
+    try:
+        audio, format_name = await client.synthesize_tts(
+            text="回答。回到课堂。",
+            audio_id="turn-1",
+            provider_id="qwen-tts",
+            voice="Cherry",
+        )
+    finally:
+        await client.aclose()
+
+    assert audio == expected
+    assert format_name == "mp3"
+
+
+@pytest.mark.parametrize(
+    ("audio_base64", "format_name"),
+    [
+        ("%%%", "mp3"),
+        ("", "mp3"),
+        (base64.b64encode(b"x").decode("ascii"), "flac"),
+    ],
+)
+async def test_synthesize_tts_rejects_invalid_provider_audio(
+    audio_base64: str,
+    format_name: str,
+):
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "success": True,
+                "data": {
+                    "audioId": "turn-1",
+                    "base64": audio_base64,
+                    "format": format_name,
+                },
+            },
+        )
+
+    client = OpenMaicClient(transport=httpx.MockTransport(handler))
+    try:
+        with pytest.raises(OpenMaicServerError):
+            await client.synthesize_tts(
+                text="回答",
+                audio_id="turn-1",
+                provider_id="qwen-tts",
+                voice="Cherry",
+            )
+    finally:
+        await client.aclose()
+
+
+async def test_synthesize_tts_rejects_audio_above_ten_mebibytes():
+    oversized = base64.b64encode(b"x" * (10 * 1024 * 1024 + 1)).decode("ascii")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "success": True,
+                "data": {
+                    "audioId": "turn-1",
+                    "base64": oversized,
+                    "format": "mp3",
+                },
+            },
+        )
+
+    client = OpenMaicClient(transport=httpx.MockTransport(handler))
+    try:
+        with pytest.raises(OpenMaicServerError):
+            await client.synthesize_tts(
+                text="回答",
+                audio_id="turn-1",
+                provider_id="qwen-tts",
+                voice="Cherry",
+            )
+    finally:
+        await client.aclose()
+
+
+async def test_synthesize_tts_maps_rate_limit_timeout_and_failed_envelope():
+    responses = iter(
+        [
+            httpx.Response(429, json=_error_body("RATE_LIMIT", "slow down")),
+            httpx.Response(200, json={"success": False, "error": "provider failed"}),
+        ]
+    )
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return next(responses)
+
+    client = OpenMaicClient(
+        OpenMaicConfig(retries=0),
+        transport=httpx.MockTransport(handler),
+    )
+    try:
+        with pytest.raises(OpenMaicError) as rate_limited:
+            await client.synthesize_tts(
+                text="回答",
+                audio_id="turn-1",
+                provider_id="qwen-tts",
+                voice="Cherry",
+            )
+        assert rate_limited.value.status_code == 429
+
+        with pytest.raises(OpenMaicServerError):
+            await client.synthesize_tts(
+                text="回答",
+                audio_id="turn-1",
+                provider_id="qwen-tts",
+                voice="Cherry",
+            )
+    finally:
+        await client.aclose()
+
+    def timeout_handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("timeout", request=request)
+
+    timeout_client = OpenMaicClient(
+        OpenMaicConfig(retries=0),
+        transport=httpx.MockTransport(timeout_handler),
+    )
+    try:
+        with pytest.raises(OpenMaicUnavailable):
+            await timeout_client.synthesize_tts(
+                text="回答",
+                audio_id="turn-1",
+                provider_id="qwen-tts",
+                voice="Cherry",
+            )
+    finally:
+        await timeout_client.aclose()
 
 
 # ── config 默认值（AC-07-1） ─────────────────────────────────────────────

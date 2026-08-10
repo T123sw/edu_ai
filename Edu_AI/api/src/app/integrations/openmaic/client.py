@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
 import inspect
 import logging
 import os
@@ -189,6 +191,56 @@ class OpenMaicClient:
                 status_code=resp.status_code,
             )
         return resp.content, resp.headers.get("content-type")
+
+    async def synthesize_tts(
+        self,
+        *,
+        text: str,
+        audio_id: str,
+        provider_id: str,
+        voice: str,
+        speed: float = 1.0,
+    ) -> tuple[bytes, str]:
+        """Generate one server-managed TTS clip through the OpenMAIC sidecar."""
+        payload = await self._request_json(
+            "POST",
+            "/api/generate/tts",
+            json={
+                "text": text,
+                "audioId": audio_id,
+                "ttsProviderId": provider_id,
+                "ttsVoice": voice,
+                "ttsSpeed": min(2.0, max(0.5, float(speed))),
+            },
+            timeout=self.config.request_timeout,
+            retryable=True,
+            kind="synthesize_tts",
+        )
+        if payload.get("success") is not True:
+            raise OpenMaicServerError(
+                str(payload.get("error") or "OpenMAIC TTS provider failed")
+            )
+        data = payload.get("data")
+        if not isinstance(data, dict) or str(data.get("audioId")) != audio_id:
+            raise OpenMaicServerError("OpenMAIC TTS returned a mismatched audio id")
+
+        format_name = str(data.get("format") or "").lower()
+        if format_name not in {"mp3", "wav", "ogg", "m4a"}:
+            raise OpenMaicServerError(
+                f"OpenMAIC TTS returned unsupported format: {format_name or 'missing'}"
+            )
+        encoded = data.get("base64")
+        if not isinstance(encoded, str) or not encoded:
+            raise OpenMaicServerError("OpenMAIC TTS returned empty audio")
+        try:
+            audio = base64.b64decode(encoded, validate=True)
+        except (binascii.Error, ValueError) as exc:
+            raise OpenMaicServerError("OpenMAIC TTS returned invalid base64 audio") from exc
+        if not audio:
+            raise OpenMaicServerError("OpenMAIC TTS returned empty audio")
+        if len(audio) > 10 * 1024 * 1024:
+            raise OpenMaicServerError("OpenMAIC TTS audio exceeds the 10 MiB limit")
+        return audio, format_name
 
     async def wait_job(
         self,

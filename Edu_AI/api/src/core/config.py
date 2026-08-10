@@ -54,6 +54,16 @@ class Config:
     QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
     VISION_MODEL_ID = os.getenv("VISION_MODEL_ID", "qwen3.5-plus")
 
+    # OpenMAIC live classroom answer speech. Provider selection is server-owned.
+    OPENMAIC_LIVE_TTS_PROVIDER = os.getenv(
+        "OPENMAIC_LIVE_TTS_PROVIDER", "qwen-tts"
+    )
+    OPENMAIC_LIVE_TTS_VOICE = os.getenv("OPENMAIC_LIVE_TTS_VOICE", "Cherry")
+    OPENMAIC_LIVE_TTS_SPEED = min(
+        2.0,
+        max(0.5, float(os.getenv("OPENMAIC_LIVE_TTS_SPEED", "1.0"))),
+    )
+
     # 4. 图片搜索（Phase 6-A）
     # IMAGE_SEARCH_PROVIDER: "" = disabled (default), "bocha" = Bocha hosted search
     # 未配置时 image_search 工具调用会返回 provider_not_configured 错误，
