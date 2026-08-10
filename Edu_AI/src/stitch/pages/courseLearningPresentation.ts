@@ -35,11 +35,15 @@ export function getProgressLabel(
   return `进行中 · ${value}%`;
 }
 
-export function getCompletionBasisLabel(basis: CompletionBasis): string {
+export function getCompletionBasisLabel(
+  basis: CompletionBasis | null | undefined,
+  status: TaskProgress["status"] = "not_started",
+): string {
+  const resolvedBasis = basis ?? (status === "completed" ? "self_reported" : "none");
   return {
     none: "暂无完成证据",
     self_reported: "学生自报完成",
     activity_evidenced: "已有活动证据",
     assessment_verified: "测评已验证",
-  }[basis];
+  }[resolvedBasis];
 }

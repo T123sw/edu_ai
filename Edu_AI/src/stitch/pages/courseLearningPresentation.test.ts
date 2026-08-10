@@ -48,4 +48,10 @@ describe("course learning presentation", () => {
     assert.equal(getCompletionBasisLabel("activity_evidenced"), "已有活动证据");
     assert.equal(getCompletionBasisLabel("assessment_verified"), "测评已验证");
   });
+
+  it("falls back legacy completed progress to self-reported without upgrading active work", () => {
+    assert.equal(getCompletionBasisLabel(undefined, "completed"), "学生自报完成");
+    assert.equal(getCompletionBasisLabel(null, "completed"), "学生自报完成");
+    assert.equal(getCompletionBasisLabel(undefined, "in_progress"), "暂无完成证据");
+  });
 });

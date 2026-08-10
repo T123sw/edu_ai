@@ -406,7 +406,7 @@ export function CourseLearningPage() {
                           <strong>{item.student_id}</strong>
                           <span>{item.status === "completed" ? "已完成" : item.status === "in_progress" ? "进行中" : "未开始"}</span>
                           <span>{getProgressLabel(item.progress_percent, item.status)}</span>
-                          <span>{getCompletionBasisLabel(item.completion_basis)}</span>
+                          <span>{getCompletionBasisLabel(item.completion_basis, item.status)}</span>
                         </div>
                       ))}
                     </div>
@@ -428,7 +428,9 @@ export function CourseLearningPage() {
                   <strong>{getProgressLabel(progress, task.my_progress?.status ?? "not_started")}</strong>
                 </div>
                 {task.my_progress?.status === "completed" ? (
-                  <p className="learning-completion-basis">完成口径：{getCompletionBasisLabel(task.my_progress.completion_basis)}</p>
+                  <p className="learning-completion-basis">
+                    完成口径：{getCompletionBasisLabel(task.my_progress.completion_basis, task.my_progress.status)}
+                  </p>
                 ) : null}
                 <div className="learning-progress"><span style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} /></div>
                 <div className="learning-student-resources">

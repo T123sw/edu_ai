@@ -34,7 +34,7 @@ export type TaskProgress = {
   student_id: string;
   status: "not_started" | "in_progress" | "completed";
   progress_percent: number;
-  completion_basis: CompletionBasis;
+  completion_basis?: CompletionBasis | null;
   evidence_count: number;
   last_activity_at: string | null;
   started_at: string | null;
