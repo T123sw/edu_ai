@@ -106,6 +106,9 @@ class Config:
     COURSE_MEMBERSHIPS_FILE = Path(
         os.getenv("COURSE_MEMBERSHIPS_FILE", str(STORAGE_ROOT / "course_memberships.json"))
     )
+    LEARNING_DB_PATH = Path(
+        os.getenv("LEARNING_DB_PATH", str(STORAGE_ROOT / "learning.db"))
+    )
     DEV_AUTO_ENROLL_ALL_COURSES = _env_bool(
         "DEV_AUTO_ENROLL_ALL_COURSES", True
     )
