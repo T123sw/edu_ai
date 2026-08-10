@@ -6,6 +6,7 @@ import {
   type ClassroomScenePresentation,
 } from "../../openmaic/classroomScene";
 import {
+  createRendererManagedPagePlaybackController,
   ManagedPagePlaybackController,
   type PagePlaybackSnapshot,
 } from "../../openmaic/pagePlaybackController";
@@ -17,6 +18,8 @@ import { AppSurface, MaterialIcon } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
+import { ClassroomQaPanel } from "../classroomQa/ClassroomQaPanel";
+import { useClassroomInterruption } from "../classroomQa/useClassroomInterruption";
 
 function getQueryParams(): { courseId: string | null; classroomId: string | null } {
   const query = window.location.hash.split("?")[1] ?? "";
@@ -38,6 +41,7 @@ function playbackLabel(
   snapshot: PagePlaybackSnapshot,
 ): string {
   if (!presentation?.hasPlayback) return "当前页无讲解";
+  if (snapshot.status === "interrupted") return "问答中";
   if (snapshot.status === "playing") return "暂停";
   if (snapshot.status === "completed") return "重播当前页";
   if (snapshot.status === "paused") return "重新播放当前页";
@@ -62,22 +66,18 @@ export function ClassroomPlayerPage() {
   const controllerRef = useRef<ManagedPagePlaybackController | null>(null);
 
   if (!controllerRef.current) {
-    controllerRef.current = new ManagedPagePlaybackController(
-      () => ({
-        async play() {
-          // The snapshot revision remounts the renderer with autoPlay enabled.
-        },
-        pause() {
-          // Remounting disposes PlaybackEngine and all of its owned media.
-        },
-        dispose() {
-          // React performs the concrete runtime disposal on renderer unmount.
-        },
-      }),
-      setPlayback,
-    );
+    controllerRef.current =
+      createRendererManagedPagePlaybackController(setPlayback);
   }
   const controller = controllerRef.current;
+  const qaController = useClassroomInterruption({
+    courseId: courseId ?? "",
+    classroomId: classroomId ?? "",
+    playback: controller,
+    pageRevision: playback.revision,
+    enabled: Boolean(courseId && classroomId && material),
+  });
+  const qaLocksPlayback = qaController.state.phase !== "closed";
 
   useEffect(() => {
     if (!courseId || !classroomId) {
@@ -153,6 +153,7 @@ export function ClassroomPlayerPage() {
       ) {
         return;
       }
+      if (qaLocksPlayback) return;
       if (event.key === "ArrowLeft" && currentIndex > 0) {
         event.preventDefault();
         void controller.enter(currentIndex - 1);
@@ -175,16 +176,22 @@ export function ClassroomPlayerPage() {
     currentIndex,
     currentPresentation?.hasPlayback,
     playback.status,
+    qaLocksPlayback,
     scenes.length,
   ]);
 
   const goTo = (nextIndex: number) => {
-    if (nextIndex < 0 || nextIndex >= scenes.length || nextIndex === currentIndex) return;
+    if (
+      qaLocksPlayback ||
+      nextIndex < 0 ||
+      nextIndex >= scenes.length ||
+      nextIndex === currentIndex
+    ) return;
     void controller.enter(nextIndex);
   };
 
   const togglePlayback = () => {
-    if (!currentPresentation?.hasPlayback) return;
+    if (qaLocksPlayback || !currentPresentation?.hasPlayback) return;
     if (playback.status === "playing") controller.pause();
     else if (playback.status === "completed") void controller.replay();
     else void controller.play();
@@ -372,6 +379,15 @@ export function ClassroomPlayerPage() {
                       onComplete={() =>
                         controller.complete(currentIndex, playback.revision)
                       }
+                      onRuntimeReady={(runtime) => {
+                        if (runtime) {
+                          controller.bindRuntime(
+                            currentIndex,
+                            playback.revision,
+                            runtime,
+                          );
+                        }
+                      }}
                     />
                   ) : null}
                   {subtitlesVisible &&
@@ -424,9 +440,11 @@ export function ClassroomPlayerPage() {
                       className={`classroom-status-dot is-${playback.status}`}
                       aria-hidden="true"
                     />
-                    {playback.status === "playing"
-                      ? "正在播放当前页"
-                      : playback.status === "completed"
+                        {playback.status === "playing"
+                          ? "正在播放当前页"
+                          : playback.status === "interrupted"
+                            ? "课堂已暂停，正在实时问答"
+                          : playback.status === "completed"
                         ? "当前页讲解已完成"
                         : playback.status === "paused"
                           ? "当前页讲解已停止"
@@ -440,7 +458,7 @@ export function ClassroomPlayerPage() {
               <button
                 type="button"
                 onClick={() => goTo(currentIndex - 1)}
-                disabled={currentIndex <= 0}
+                disabled={qaLocksPlayback || currentIndex <= 0}
                 className="classroom-control-button"
               >
                 <MaterialIcon name="skip_previous" />
@@ -449,7 +467,7 @@ export function ClassroomPlayerPage() {
               <button
                 type="button"
                 onClick={togglePlayback}
-                disabled={!currentPresentation?.hasPlayback}
+                disabled={qaLocksPlayback || !currentPresentation?.hasPlayback}
                 className="classroom-play-button"
               >
                 <MaterialIcon
@@ -497,13 +515,20 @@ export function ClassroomPlayerPage() {
               <button
                 type="button"
                 onClick={() => goTo(currentIndex + 1)}
-                disabled={currentIndex >= scenes.length - 1}
+                disabled={qaLocksPlayback || currentIndex >= scenes.length - 1}
                 className="classroom-control-button"
               >
                 <span className="classroom-control-label">下一页</span>
                 <MaterialIcon name="skip_next" />
               </button>
             </footer>
+            <ClassroomQaPanel
+              controller={qaController}
+              canAsk={
+                playback.status === "playing" &&
+                Boolean(currentPresentation?.hasPlayback)
+              }
+            />
           </>
         )}
       </main>

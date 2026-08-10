@@ -51,6 +51,19 @@ export interface PagePlaybackController {
 type RuntimeFactory = (sceneIndex: number) => PagePlaybackRuntime;
 type SnapshotListener = (snapshot: PagePlaybackSnapshot) => void;
 
+export function createRendererManagedPagePlaybackController(
+  onSnapshot: SnapshotListener = () => undefined,
+): ManagedPagePlaybackController {
+  return new ManagedPagePlaybackController(
+    () => ({
+      async play() {},
+      pause() {},
+      dispose() {},
+    }),
+    onSnapshot,
+  );
+}
+
 /**
  * Owns exactly one classroom page runtime.
  *

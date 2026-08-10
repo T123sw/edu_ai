@@ -155,6 +155,23 @@ test('open pauses immediately and successful audio resumes exactly once', async 
   assert.deepEqual(harness.revoked, ['blob:answer']);
 });
 
+test('a second question from the open panel creates a fresh interruption', async () => {
+  const harness = createHarness();
+  harness.controller.openQuestion();
+  const first = harness.controller.submitQuestion('第一个问题');
+  await waitFor(() => harness.answerAudio.playCalls === 1);
+  harness.answerAudio.finish();
+  await first;
+
+  const second = harness.controller.submitQuestion('第二个问题');
+  await waitFor(() => harness.answerAudio.playCalls === 2);
+  harness.answerAudio.finish();
+  await second;
+
+  assert.equal(harness.playback.interruptCalls, 2);
+  assert.equal(harness.playback.resumeCalls, 2);
+});
+
 test('cancel before submit resumes immediately and closes the draft', () => {
   const harness = createHarness();
   harness.controller.openQuestion();

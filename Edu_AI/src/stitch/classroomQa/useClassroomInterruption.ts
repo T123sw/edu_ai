@@ -134,7 +134,13 @@ export class ClassroomInterruptionCoordinator
   }
 
   async submitQuestion(question: string): Promise<void> {
-    if (this.disposed || !this.checkpoint) return;
+    if (this.disposed || this.currentState.phase !== 'drafting') return;
+    if (!this.checkpoint) {
+      const checkpoint = this.dependencies.playback.interrupt();
+      if (!checkpoint) return;
+      this.checkpoint = checkpoint;
+      this.resumeConsumed = false;
+    }
     const clientTurnId = this.dependencies.createClientTurnId();
     this.dispatch({ type: 'submit', question, clientTurnId });
     await this.runSubmission(clientTurnId, question.trim());
@@ -363,6 +369,7 @@ type UseClassroomInterruptionOptions = {
   classroomId: string;
   playback: InterruptionPlayback;
   pageRevision: number;
+  enabled?: boolean;
 };
 
 export function useClassroomInterruption({
@@ -370,6 +377,7 @@ export function useClassroomInterruption({
   classroomId,
   playback,
   pageRevision,
+  enabled = true,
 }: UseClassroomInterruptionOptions): ClassroomInterruptionController {
   const coordinator = useMemo(
     () => {
@@ -398,9 +406,9 @@ export function useClassroomInterruption({
     coordinator.getSnapshot,
   );
   useEffect(() => {
-    void coordinator.loadSession();
+    if (enabled) void coordinator.loadSession();
     return () => coordinator.dispose();
-  }, [coordinator]);
+  }, [coordinator, enabled]);
   return useMemo(
     () => ({
       state,

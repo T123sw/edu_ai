@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './classroomQa/ClassroomQaPanel.css';
 
 /* @openmaic/renderer emits Tailwind utility classes at runtime from its own
    compiled dist, which v4's automatic content detection skips (node_modules
