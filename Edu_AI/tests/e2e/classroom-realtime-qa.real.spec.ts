@@ -84,15 +84,8 @@ test.describe('real classroom QA acceptance', () => {
     await expect(playButton).toBeVisible({ timeout: 60_000 });
     await playButton.click();
 
-    const askButton = page.getByRole('button', { name: '打开课堂实时问答' });
-    await expect(askButton).toBeEnabled();
-    await page.waitForTimeout(500);
-    await askButton.click();
-
+    await expect(page.getByRole('complementary', { name: '课堂实时问答' })).toBeVisible();
     const questionBox = page.getByRole('textbox', { name: '课堂问题' });
-    await expect(questionBox).toBeFocused();
-    await expect(page.getByRole('button', { name: '问答中' })).toBeDisabled();
-    await expect(page.getByText('课堂已暂停，可以输入问题。')).toBeVisible();
     await questionBox.fill(question);
 
     const turnResponsePromise = page.waitForResponse(
@@ -108,6 +101,7 @@ test.describe('real classroom QA acceptance', () => {
       { timeout: 180_000 },
     );
     await page.getByRole('button', { name: '发送' }).click();
+    await expect(page.getByText(question)).toBeVisible();
     await expect(questionBox).toBeDisabled();
 
     const turnResponse = await turnResponsePromise;
@@ -134,7 +128,7 @@ test.describe('real classroom QA acceptance', () => {
     expect(audioResponse.status()).toBe(200);
     expect(audioResponse.headers()['content-type']).toMatch(/^audio\//);
     await expect(page.getByText(submission.turn.answer_text).last()).toBeVisible();
-    await expect(page.getByText('课堂已暂停，可以输入问题。')).toBeVisible({
+    await expect(page.getByText('可以输入问题，发送时会暂停课堂。')).toBeVisible({
       timeout: 90_000,
     });
     await expect(page.getByRole('button', { name: '暂停' })).toBeEnabled();
@@ -170,7 +164,6 @@ test.describe('real classroom QA acceptance', () => {
       timeout: 60_000,
     });
     await page.getByRole('button', { name: '播放当前页' }).click();
-    await page.getByRole('button', { name: '打开课堂实时问答' }).click();
     await expect(page.getByText(question)).toBeVisible();
 
     const studentBName = `qa-student-b-${Date.now()}`;
@@ -228,7 +221,6 @@ test.describe('real classroom QA acceptance', () => {
       { waitUntil: 'domcontentloaded' },
     );
     await page.getByRole('button', { name: '播放当前页' }).click();
-    await page.getByRole('button', { name: '打开课堂实时问答' }).click();
     await page.getByRole('textbox', { name: '课堂问题' }).fill(degradedQuestion);
 
     const responsePromise = page.waitForResponse(
@@ -242,7 +234,7 @@ test.describe('real classroom QA acceptance', () => {
     const submission = await response.json();
     expect(submission.turn.tts_status).toBe('failed');
     expect(submission.turn.audio_url).toBeNull();
-    await expect(page.getByText('课堂已暂停，可以输入问题。')).toBeVisible({
+    await expect(page.getByText('可以输入问题，发送时会暂停课堂。')).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole('button', { name: '暂停' })).toBeEnabled();
