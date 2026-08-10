@@ -64,11 +64,31 @@ def compile_plan(contract: TeachingTaskContract, state: dict | None = None) -> P
         add("verify", "核对来源与回答", ["verify_task"])
         add("report_result", "汇报结果", [])
         template_id = "qa"
-    elif contract.intent in {"status", "cancel"}:
-        expected = {"status": ["query_task_status"], "cancel": ["cancel_task"]}[contract.intent]
-        add(contract.intent, {"status": "查询任务状态", "cancel": "取消目标任务"}[contract.intent], expected)
-        add("report_result", "汇报结果", [])
-        template_id = contract.intent
+    elif contract.intent == "status":
+        if contract.task_domain == "course_learning":
+            tool = (
+                "get_my_learning_progress"
+                if contract.actor_role == "student"
+                else "get_course_learning_progress"
+            )
+            add("learning_status", "查询课程学习进度", [tool])
+            add("report_result", "汇报学习结果", [])
+            template_id = "course_learning_status"
+        elif contract.task_domain == "generation_job":
+            add("generation_status", "查询后台生成状态", ["query_generation_job_status"])
+            add("report_result", "汇报生成结果", [])
+            template_id = "generation_job_status"
+        else:
+            add("clarify", "确认要查询学习任务还是生成任务", [])
+            template_id = "task_domain_clarification"
+    elif contract.intent == "cancel":
+        if contract.task_domain == "generation_job":
+            add("cancel", "取消目标生成任务", ["cancel_task"])
+            add("report_result", "汇报结果", [])
+            template_id = "generation_job_cancel"
+        else:
+            add("clarify", "课程学习任务暂不支持取消；请确认是否要取消生成任务", [])
+            template_id = "task_domain_clarification"
     elif contract.intent == "modify":
         # A modification is never an invisible overwrite.  It creates a new
         # outline revision and returns to the same explicit confirmation gate.

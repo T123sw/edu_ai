@@ -129,3 +129,23 @@ def test_high_impact_ambiguity_compiles_to_a_closed_clarification_step():
     assert tools(plan) == [[]]
     assert plan.template_id == "clarification"
     assert plan.contract["clarification"]["budget"] == 1
+
+
+def test_generation_status_uses_generation_domain_tool():
+    contract = extract_task_contract(
+        request("生成任务进度怎样？"), capability(), {"pending_tasks": [{"task_id": "job_report"}]}
+    )
+    plan = compile_plan(contract, {})
+
+    assert contract.task_domain == "generation_job"
+    assert actions(plan) == ["generation_status", "report_result"]
+    assert tools(plan) == [["query_generation_job_status"], []]
+
+
+def test_learning_task_cancel_is_a_clarification_not_a_generation_cancel():
+    contract = extract_task_contract(request("取消学习任务 lt_homework"), capability(), {})
+    plan = compile_plan(contract, {})
+
+    assert contract.task_domain == "course_learning"
+    assert actions(plan) == ["clarify"]
+    assert tools(plan) == [[]]

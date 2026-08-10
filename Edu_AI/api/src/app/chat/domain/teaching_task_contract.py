@@ -7,6 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.chat.domain.task_domain import TaskDomain
+
 
 TaskIntent = Literal[
     "qa", "generate_single", "prepare_bundle", "modify", "confirm", "status", "cancel"
@@ -47,9 +49,10 @@ class TeachingTaskContract(BaseModel):
     weakened by the message or by a model response.
     """
 
-    schema_version: Literal["2026-08-09", "2026-08-09.v2"] = "2026-08-09.v2"
+    schema_version: Literal["2026-08-09", "2026-08-09.v2", "2026-08-10.v3"] = "2026-08-10.v3"
     actor_role: Literal["teacher", "student"] = "teacher"
     intent: TaskIntent = "qa"
+    task_domain: TaskDomain = "none"
     topic: str = ""
     resource_types: list[ResourceType] = Field(default_factory=list)
     audience: str | None = None

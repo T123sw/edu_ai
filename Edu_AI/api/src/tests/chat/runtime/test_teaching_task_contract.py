@@ -151,7 +151,7 @@ def test_contract_v2_records_field_origin_confidence_and_explicit_constraints():
         {},
     )
 
-    assert contract.schema_version == "2026-08-09.v2"
+    assert contract.schema_version == "2026-08-10.v3"
     assert contract.audience == "基础薄弱的高一学生"
     assert contract.lesson_duration == 40
     assert contract.field_evidence["source_mode"].origin == "ui"
@@ -194,12 +194,14 @@ def test_status_with_multiple_tasks_requires_task_disambiguation():
         request("做到哪了"),
         capability(),
         {"pending_tasks": [
-            {"task_id": "job-1", "workflow_type": "report"},
-            {"task_id": "job-2", "workflow_type": "quiz"},
+            {"task_id": "job_1", "workflow_type": "report"},
+            {"task_id": "job_2", "workflow_type": "quiz"},
         ]},
     )
 
     assert contract.intent == "status"
     assert contract.clarification.required is True
     assert contract.clarification.field == "task_reference"
-    assert contract.conversation_refs["candidate_task_ids"] == ["job-1", "job-2"]
+    assert contract.task_domain == "generation_job"
+    assert contract.conversation_refs["generation_job_ids"] == ["job_1", "job_2"]
+    assert contract.conversation_refs["learning_task_ids"] == []

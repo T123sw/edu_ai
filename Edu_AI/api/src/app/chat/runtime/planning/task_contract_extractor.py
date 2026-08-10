@@ -10,6 +10,7 @@ from app.chat.domain.teaching_task_contract import (
     ContractFieldEvidence,
     TeachingTaskContract,
 )
+from app.chat.domain.task_domain import resolve_task_domain
 
 
 _RESOURCE_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -27,10 +28,10 @@ _BUNDLE_KEYWORDS = ("教学材料", "备课材料", "整套材料", "材料包")
 _CANCEL_ACTION_PATTERN = re.compile(
     r"(?:取消|终止|停止)(?:掉|一下)?"
     r"(?:当前|这个|刚才|上一个|最近)?(?:的)?\s*"
-    r"(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|课件|ppt|教案|测验|闪卡|小游戏)"
+    r"(?:学习)?(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|课件|ppt|教案|测验|闪卡|小游戏)"
 )
 _CANCEL_ONLY_PATTERN = re.compile(r"^(?:请|帮我|现在|立刻|先)?(?:取消|终止|停止)(?:掉|一下)?[。！!\s]*$")
-_STATUS_DIRECT_KEYWORDS = ("做到哪", "进度", "完成了吗", "完成没有")
+_STATUS_DIRECT_KEYWORDS = ("做到哪", "进度", "完成了吗", "完成没有", "完成情况", "刚完成")
 _STATUS_ACTION_PATTERN = re.compile(
     r"(?:(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂).{0,12}状态|"
     r"状态.{0,12}(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂))"
@@ -112,18 +113,34 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
     else:
         confirmation_policy = "none"
 
+    generation_job_ids = [
+        str(item.get("task_id") or "").strip()
+        for item in pending_tasks
+        if str(item.get("task_id") or "").strip().startswith("job_")
+    ]
+    learning_task_ids = [
+        str(item.get("task_id") or "").strip()
+        for item in pending_tasks
+        if str(item.get("task_id") or "").strip().startswith("lt_")
+    ]
+    task_domain = resolve_task_domain(question, learning_task_ids + generation_job_ids)
+    domain_pending_tasks = {
+        "course_learning": [
+            item for item in pending_tasks
+            if str(item.get("task_id") or "").strip().startswith("lt_")
+        ],
+        "generation_job": [
+            item for item in pending_tasks
+            if str(item.get("task_id") or "").strip().startswith("job_")
+        ],
+    }.get(task_domain, [])
     ambiguities = _ambiguities(
         question=question,
         intent=intent,
         resource_types=resource_types,
-        pending_tasks=pending_tasks,
+        pending_tasks=domain_pending_tasks,
     )
     clarification = _clarification(ambiguities)
-    candidate_task_ids = [
-        str(item.get("task_id") or "").strip()
-        for item in pending_tasks
-        if str(item.get("task_id") or "").strip()
-    ]
     field_evidence = _field_evidence(
         question=question,
         intent=intent,
@@ -143,6 +160,7 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
             else "teacher"
         ),
         intent=intent,
+        task_domain=task_domain,
         topic=topic,
         resource_types=resource_types,
         audience=audience,
@@ -157,7 +175,8 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
             "conversation_id": str(getattr(request, "conversation_id", "") or ""),
             "course_id": str(getattr(request, "course_id", "") or ""),
             "active_outline": bool(active_outline),
-            "candidate_task_ids": candidate_task_ids,
+            "learning_task_ids": learning_task_ids,
+            "generation_job_ids": generation_job_ids,
         },
         field_evidence=field_evidence,
         ambiguities=ambiguities,
