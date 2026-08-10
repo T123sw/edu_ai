@@ -123,6 +123,10 @@ class UserStorage:
                 f.flush()
                 os.fsync(f.fileno())
             os.replace(temporary, self.storage_file)
+            from app.persistence.hooks import shadow_upsert_user
+
+            for user in users:
+                shadow_upsert_user(user)
         except IOError as e:
             raise Exception(f"保存用户数据失败: {str(e)}")
         finally:

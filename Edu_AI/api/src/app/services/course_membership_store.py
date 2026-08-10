@@ -92,6 +92,9 @@ class CourseMembershipStore:
             ]
             updated.append(membership)
             self._write_unlocked(updated)
+            from app.persistence.hooks import shadow_upsert_membership
+
+            shadow_upsert_membership(asdict(membership))
             return membership
 
     def list_for_user(self, user_id: str) -> list[CourseMembership]:
@@ -134,6 +137,9 @@ class CourseMembershipStore:
             if len(retained) == len(items):
                 return False
             self._write_unlocked(retained)
+            from app.persistence.hooks import shadow_delete_membership
+
+            shadow_delete_membership(normalized_course_id, normalized_user_id)
             return True
 
     def _read_unlocked(self) -> list[CourseMembership]:

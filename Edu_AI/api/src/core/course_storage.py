@@ -640,6 +640,9 @@ class CourseStorageManager:
             self._write_json(info_file, payload)
             metadata["updated_at"] = now
             self.save_course_metadata(course_id, metadata)
+            from app.persistence.hooks import shadow_upsert_course
+
+            shadow_upsert_course(payload)
             return True
         except Exception as e:
             print(f"Error saving course info: {e}")
@@ -696,6 +699,9 @@ class CourseStorageManager:
             metadata = self.get_course_metadata(course_id)
             metadata["updated_at"] = now
             self.save_course_metadata(course_id, metadata)
+            from app.persistence.hooks import shadow_upsert_course
+
+            shadow_upsert_course(updated)
             return updated
 
     def save_course_metadata(self, course_id: str, metadata: Dict[str, Any]) -> bool:
@@ -1363,6 +1369,9 @@ class CourseStorageManager:
             course_dir = self.get_course_dir(course_id)
             if course_dir.exists():
                 shutil.rmtree(course_dir)
+            from app.persistence.hooks import shadow_delete_course
+
+            shadow_delete_course(course_id)
             return True
         except Exception as e:
             print(f"Error deleting course: {e}")
