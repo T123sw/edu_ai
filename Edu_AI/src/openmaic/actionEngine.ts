@@ -78,6 +78,7 @@ export class ActionEngine {
   private readonly widget?: ActionWidgetController;
   private readonly effectAutoClearMs: number;
   private disposed = false;
+  private cancellationVersion = 0;
 
   constructor(
     callbacks: ActionEngineCallbacks = {},
@@ -92,7 +93,14 @@ export class ActionEngine {
   }
 
   dispose(): void {
+    if (this.disposed) return;
+    this.cancelCurrent();
     this.disposed = true;
+  }
+
+  cancelCurrent(): void {
+    if (this.disposed) return;
+    this.cancellationVersion += 1;
     this.media.cancel();
     this.video?.cancel();
     this.clearEffects();
@@ -131,7 +139,7 @@ export class ActionEngine {
         this.scheduleEffectClear();
         return;
       case 'speech':
-        await this.executeSpeech(action, context);
+        await this.executeSpeech(action, context, this.cancellationVersion);
         return;
       case 'play_video':
         await this.video?.play(action.elementId);
@@ -170,6 +178,7 @@ export class ActionEngine {
   private async executeSpeech(
     action: SpeechAction,
     context: ActionExecutionContext,
+    cancellationVersion: number,
   ): Promise<void> {
     const ownsConcurrentFocus =
       context.hasConcurrentFocus === true &&
@@ -180,7 +189,11 @@ export class ActionEngine {
     try {
       if (action.audioUrl) {
         const audioResult = await this.media.playAudio(action.audioUrl);
-        if (audioResult === 'ended' || this.disposed) return;
+        if (
+          audioResult === 'ended' ||
+          this.disposed ||
+          cancellationVersion !== this.cancellationVersion
+        ) return;
       }
 
       const speechResult = await this.media.speak(
@@ -188,7 +201,11 @@ export class ActionEngine {
         action.speed,
         action.voice,
       );
-      if (speechResult === 'ended' || this.disposed) return;
+      if (
+        speechResult === 'ended' ||
+        this.disposed ||
+        cancellationVersion !== this.cancellationVersion
+      ) return;
 
       await this.media.wait(readingTimeMs(action.text));
     } finally {

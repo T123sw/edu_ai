@@ -43,6 +43,7 @@ class FakeMediaAdapter implements ActionMediaAdapter {
   }
 
   cancel(): void {
+    this.calls.push('cancel');
     this.cancelled = true;
     this.pendingSpeechResolve?.('failed');
   }
@@ -165,6 +166,30 @@ test('dispose cancels active narration and releases paired focus', async () => {
 
   assert.equal(media.cancelled, true);
   assert.deepEqual(changes.at(-1), {});
+});
+
+test('cancelCurrent stops active narration and allows the next execution', async () => {
+  const media = new FakeMediaAdapter();
+  media.deferSpeech = true;
+  const engine = new ActionEngine({}, { media });
+
+  const first = engine.execute({
+    id: 'speech-first',
+    type: 'speech',
+    text: 'first',
+  });
+  await Promise.resolve();
+  engine.cancelCurrent();
+  await first;
+
+  media.deferSpeech = false;
+  await engine.execute({
+    id: 'speech-second',
+    type: 'speech',
+    text: 'second',
+  });
+
+  assert.deepEqual(media.calls, ['speech', 'cancel', 'speech']);
 });
 
 test('waits for controlled embedded video completion', async () => {

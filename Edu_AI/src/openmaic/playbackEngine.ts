@@ -16,7 +16,25 @@ import {
 import type { ClockSource } from './clock';
 import { compileLessonTimeline, type LessonTimeline } from './timeline';
 
-export type PlaybackMode = 'idle' | 'playing';
+export type PlaybackMode = 'idle' | 'playing' | 'suspended';
+
+export type PlaybackCheckpointPhase =
+  | 'executing_action'
+  | 'between_actions';
+
+export type PlaybackCheckpoint = {
+  sceneId: string;
+  actionIndex: number;
+  actionId: string | null;
+  phase: PlaybackCheckpointPhase;
+};
+
+export class StalePlaybackCheckpointError extends Error {
+  constructor(message = 'The playback checkpoint no longer matches this lesson') {
+    super(message);
+    this.name = 'StalePlaybackCheckpointError';
+  }
+}
 
 export interface PlayableScene {
   id: string;
@@ -35,6 +53,7 @@ export interface PlaybackCallbacks {
 
 export interface ActionExecutor {
   execute(action: Action, context?: ActionExecutionContext): Promise<void>;
+  cancelCurrent(): void;
   clearEffects(): void;
   dispose(): void;
 }
@@ -65,6 +84,12 @@ export class PlaybackEngine {
   private mode: PlaybackMode = 'idle';
   /** Bumped by stop()/dispose() so an in-flight await from a stale run gives up. */
   private runToken = 0;
+  private inFlight: {
+    sceneId: string;
+    actionIndex: number;
+    actionId: string;
+  } | null = null;
+  private suspendedCheckpoint: PlaybackCheckpoint | null = null;
 
   constructor(
     scenes: PlayableScene[],
@@ -120,16 +145,80 @@ export class PlaybackEngine {
     if (this.mode !== 'idle') return;
     this.sceneIndex = 0;
     this.actionIndex = 0;
+    this.inFlight = null;
+    this.suspendedCheckpoint = null;
+    this.setMode('playing');
+    void this.processNext();
+  }
+
+  suspend(): PlaybackCheckpoint {
+    if (this.mode === 'suspended' && this.suspendedCheckpoint) {
+      return { ...this.suspendedCheckpoint };
+    }
+    if (this.mode !== 'playing') {
+      throw new StalePlaybackCheckpointError('Playback is not active');
+    }
+
+    const current = this.getCurrentAction();
+    if (!current) {
+      throw new StalePlaybackCheckpointError('Playback has no resumable action');
+    }
+    const checkpoint: PlaybackCheckpoint = this.inFlight
+      ? {
+          sceneId: this.inFlight.sceneId,
+          actionIndex: this.inFlight.actionIndex,
+          actionId: this.inFlight.actionId,
+          phase: 'executing_action',
+        }
+      : {
+          sceneId: current.sceneId,
+          actionIndex: this.actionIndex,
+          actionId: current.action.id,
+          phase: 'between_actions',
+        };
+
+    this.runToken += 1;
+    this.actionEngine.cancelCurrent();
+    this.inFlight = null;
+    this.suspendedCheckpoint = checkpoint;
+    this.setMode('suspended');
+    return { ...checkpoint };
+  }
+
+  resume(checkpoint: PlaybackCheckpoint): void {
+    if (this.mode !== 'suspended') {
+      throw new StalePlaybackCheckpointError('Playback is not suspended');
+    }
+    const sceneIndex = this.scenes.findIndex(
+      (scene) => scene.id === checkpoint.sceneId,
+    );
+    const entry = this.scenes[sceneIndex]?.entries[checkpoint.actionIndex];
+    if (
+      sceneIndex < 0 ||
+      entry === undefined ||
+      checkpoint.actionId !== entry.action.id
+    ) {
+      throw new StalePlaybackCheckpointError();
+    }
+
+    this.runToken += 1;
+    this.sceneIndex = sceneIndex;
+    this.actionIndex = checkpoint.actionIndex;
+    this.inFlight = null;
+    this.suspendedCheckpoint = null;
     this.setMode('playing');
     void this.processNext();
   }
 
   stop(): void {
     this.runToken++;
+    this.actionEngine.cancelCurrent();
     this.setMode('idle');
     this.actionEngine.clearEffects();
     this.sceneIndex = 0;
     this.actionIndex = 0;
+    this.inFlight = null;
+    this.suspendedCheckpoint = null;
   }
 
   dispose(): void {
@@ -173,12 +262,18 @@ export class PlaybackEngine {
       this.callbacks.onSceneChange?.(sceneId);
     }
     const startedAtMs = this.clock.currentTimeMs();
+    this.inFlight = {
+      sceneId,
+      actionIndex: this.actionIndex,
+      actionId: action.id,
+    };
     this.callbacks.onActionStart?.(action, startedAtMs, sceneId);
-    this.actionIndex++;
 
     await this.actionEngine.execute(action, context);
-    if (token !== this.runToken) return; // stop()/dispose() fired while awaiting
+    if (token !== this.runToken || this.mode !== 'playing') return;
     const endedAtMs = this.clock.currentTimeMs();
+    this.inFlight = null;
+    this.actionIndex++;
     this.callbacks.onActionEnd?.(action, endedAtMs, sceneId);
     if (this.mode === 'playing') {
       void this.processNext();
