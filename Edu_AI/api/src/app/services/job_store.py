@@ -372,11 +372,16 @@ def list_job_page(
     kind_filter = {JobKind(value) for value in kinds or []}
 
     with _lock():
-        jobs = [
-            job
-            for path in _root().glob("*.json")
-            if (job := _read_path(path)) is not None
-        ]
+        if _uses_postgres():
+            jobs = [
+                EduJob.model_validate(payload) for payload in _repository().list()
+            ]
+        else:
+            jobs = [
+                job
+                for path in _root().glob("*.json")
+                if (job := _read_path(path)) is not None
+            ]
     jobs.sort(key=lambda item: (item.updated_at, item.edu_job_id), reverse=True)
     filtered = [
         job
@@ -454,6 +459,9 @@ def _ensure_owner(job: EduJob, owner_user_id: str) -> None:
 
 
 def _read_path(path: Path) -> Optional[EduJob]:
+    if _uses_postgres():
+        payload = _repository().get(path.stem)
+        return EduJob.model_validate(payload) if payload is not None else None
     if not path.exists():
         return None
     try:
@@ -464,6 +472,9 @@ def _read_path(path: Path) -> Optional[EduJob]:
 
 
 def _write(job: EduJob) -> None:
+    if _uses_postgres():
+        _repository().upsert(job.model_dump(mode="json"))
+        return
     target = _path(job.edu_job_id)
     target.parent.mkdir(parents=True, exist_ok=True)
     serialized = json.dumps(
@@ -483,3 +494,13 @@ def _write(job: EduJob) -> None:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
         raise
+
+
+def _uses_postgres() -> bool:
+    return str(os.getenv("JOB_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+
+
+def _repository():
+    from app.persistence.dependencies import get_postgres_job_repository
+
+    return get_postgres_job_repository()

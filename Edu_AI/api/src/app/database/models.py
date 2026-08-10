@@ -195,3 +195,54 @@ class ConversationMessage(Base):
     )
 
     conversation: Mapped[Conversation] = relationship(back_populates="messages")
+
+
+class JobRecord(Base):
+    __tablename__ = "jobs"
+
+    edu_job_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    step: Mapped[str] = mapped_column(String(160), nullable=False, default="queued")
+    progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    owner_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    scope_type: Mapped[str] = mapped_column(String(64), nullable=False, default="course")
+    scope_id: Mapped[str | None] = mapped_column(String(240), index=True)
+    retry_of_job_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    parent_job_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    raw_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+    events: Mapped[list[JobEvent]] = relationship(
+        back_populates="job",
+        cascade="all, delete-orphan",
+        order_by="JobEvent.version",
+    )
+
+
+class JobEvent(Base):
+    __tablename__ = "job_events"
+    __table_args__ = (
+        UniqueConstraint("edu_job_id", "version", name="uq_job_events_version"),
+    )
+
+    event_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    edu_job_id: Mapped[str] = mapped_column(
+        ForeignKey("jobs.edu_job_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(64), nullable=False)
+    step: Mapped[str] = mapped_column(String(160), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+
+    job: Mapped[JobRecord] = relationship(back_populates="events")

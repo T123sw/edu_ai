@@ -6,6 +6,8 @@ from .models import (
     Course,
     CourseMembership,
     CourseObjective,
+    JobEvent,
+    JobRecord,
     User,
 )
 from .session import DatabaseNotConfigured, database_session
@@ -17,6 +19,8 @@ __all__ = [
     "Course",
     "CourseMembership",
     "CourseObjective",
+    "JobEvent",
+    "JobRecord",
     "DatabaseNotConfigured",
     "User",
     "database_session",
