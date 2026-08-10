@@ -34,6 +34,10 @@ def _rows(connection: sqlite3.Connection, table: str):
     return connection.execute(f"SELECT * FROM {table}").fetchall() if exists else []
 
 
+def _value(row: sqlite3.Row, name: str, default=None):
+    return row[name] if name in row.keys() else default
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if not args.source.exists():
@@ -77,6 +81,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                         task_id=row["task_id"], student_id=row["student_id"],
                         event_type=row["event_type"], progress_percent=row["progress_percent"],
                         resource_ref=json.loads(row["resource_ref_json"]) if row["resource_ref_json"] else None,
+                        evidence=(
+                            json.loads(_value(row, "evidence_json"))
+                            if _value(row, "evidence_json")
+                            else None
+                        ),
                         occurred_at=_timestamp(row["occurred_at"]),
                     ))
             for row in progress:
@@ -88,6 +97,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 record.course_id = row["course_id"]
                 record.status = row["status"]
                 record.progress_percent = row["progress_percent"]
+                record.completion_basis = _value(
+                    row,
+                    "completion_basis",
+                    "self_reported" if row["status"] == "completed" else "none",
+                )
+                record.evidence_count = int(_value(row, "evidence_count", 0) or 0)
+                last_activity_at = _value(row, "last_activity_at")
+                record.last_activity_at = _timestamp(last_activity_at) if last_activity_at else None
                 record.started_at = _timestamp(row["started_at"]) if row["started_at"] else None
                 record.completed_at = _timestamp(row["completed_at"]) if row["completed_at"] else None
                 record.updated_at = _timestamp(row["updated_at"])

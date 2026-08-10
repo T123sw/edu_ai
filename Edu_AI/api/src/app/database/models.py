@@ -467,6 +467,7 @@ class LearningEventModel(Base):
     event_type: Mapped[str] = mapped_column(String(64), nullable=False)
     progress_percent: Mapped[int] = mapped_column(Integer, nullable=False)
     resource_ref: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    evidence: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
@@ -480,6 +481,9 @@ class LearningProgressModel(Base):
     course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     progress_percent: Mapped[int] = mapped_column(Integer, nullable=False)
+    completion_basis: Mapped[str] = mapped_column(String(32), nullable=False, default="none")
+    evidence_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_activity_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
