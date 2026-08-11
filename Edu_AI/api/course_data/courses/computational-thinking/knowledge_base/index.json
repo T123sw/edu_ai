@@ -26,7 +26,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.156031+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-72402bd54baeca41c6810bec",
@@ -55,7 +56,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.158031+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0f99fd5cc0a630c3e504aaa0",
@@ -84,7 +86,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.160076+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-f3862885c18fb65938416772",
@@ -113,7 +116,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.162091+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-d7acca2d268acc0e5fa861da",
@@ -142,7 +146,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.163092+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-b453f580636dad2c173f713e",
@@ -171,7 +176,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.165587+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-83bc7ce3ce1cf9f9c48328f3",
@@ -200,7 +206,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.167584+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-860d1791c52a64ecce04ef7e",
@@ -229,7 +236,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.170092+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-108582f0cae62bd62d1778fc",
@@ -258,7 +266,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.171909+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-22d9b8b0fbcc34892d28afff",
@@ -287,7 +296,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.172952+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-4a20a892fc19637ce1478ca0",
@@ -316,7 +326,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.174328+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-61882e59a044fc5cb273297b",
@@ -345,7 +356,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.176720+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-12fc0449a0b446913bd8714e",
@@ -374,7 +386,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.179233+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-ef2ecbf71a8bc636d6399e70",
@@ -403,7 +416,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.180749+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-b7e281064fc2c4787bd696cc",
@@ -432,7 +446,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.181758+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-77fe7af8ab1f377432d637e1",
@@ -461,7 +476,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.183759+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-546f36d2f0ad79f18f096dc1",
@@ -490,7 +506,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.185756+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-8a24125c0bc71eaef759ea9f",
@@ -519,7 +536,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.187758+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-98fef4cb2c506b38cb0a1b3f",
@@ -548,7 +566,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.190273+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-bdcb061daa493c3ebd4a67fd",
@@ -577,7 +596,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.191437+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-c2a6d05a09d23a9bff13eef6",
@@ -606,7 +626,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.193649+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-cef2de76ba8e74d396aa042b",
@@ -635,7 +656,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.194649+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-fd24ac106878b1f2f925c8ef",
@@ -664,7 +686,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.196649+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-3c239e505ee1ecb6587fc349",
@@ -693,7 +716,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.199125+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-244f04c529472a74052b0702",
@@ -722,7 +746,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.200413+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-111f43c8e33120cb2d18b789",
@@ -751,7 +776,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.201855+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-f677c41e7a19d6bc9560457f",
@@ -780,7 +806,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.203980+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0fbca89173eeb305fca71eb6",
@@ -809,7 +836,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.205258+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e97a04140ce6d1a1a596b780",
@@ -838,7 +866,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.206636+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-8fee69417786799976f2b58b",
@@ -867,7 +896,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.207955+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-b6d3043c1d51bee5c3345bc8",
@@ -896,7 +926,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.209995+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-5322ceb00ecfc0b2a63bc7a5",
@@ -925,7 +956,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.213003+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-3f722b85f19243558316fcc9",
@@ -954,7 +986,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.214001+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-ddb17a249d93f1e65c424e95",
@@ -983,7 +1016,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.216001+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-da79fb46124a5ed7388dc693",
@@ -1012,7 +1046,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.217152+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-a5c02be1609ca7e462b6e3db",
@@ -1041,7 +1076,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.219151+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-dfd122b2cc91c5cbc499a103",
@@ -1070,7 +1106,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.221099+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6c86c14ffee4b96cae81e653",
@@ -1099,7 +1136,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.222187+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-ef03c4b8a64f7467e3eadcc9",
@@ -1128,7 +1166,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.223389+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-09d7abe7369c1b8ee030c73b",
@@ -1157,7 +1196,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.225577+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-110bfd057883b0966554c8a4",
@@ -1186,7 +1226,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.226595+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-495f5d9acbbadfafb069da43",
@@ -1215,7 +1256,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.229105+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-076d3734db35e95a44ded776",
@@ -1244,7 +1286,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.231418+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-78b17d4c389688d2abd41e32",
@@ -1273,7 +1316,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.233418+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e8388adbfb3aaba5e722a814",
@@ -1302,7 +1346,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.234696+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6d410c25b0ce26e234d76a7b",
@@ -1331,7 +1376,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.236738+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-ef8d7e7363aa11b00b5def48",
@@ -1360,7 +1406,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.238061+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e1ad62efce98cb047cf2c8ec",
@@ -1389,7 +1436,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.239287+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-25df46c8a918f0d1debb60f2",
@@ -1418,7 +1466,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.241102+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-5713c708e46224415cb5f215",
@@ -1447,7 +1496,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.243306+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-4411dd6e8b6308c5afb2ef9d",
@@ -1476,7 +1526,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.245375+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-79a7b0b21e4eae7a11276224",
@@ -1505,7 +1556,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.247450+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0e558a7b80890820a76727dc",
@@ -1534,7 +1586,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.248451+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-495cb1947a776bf6d9f8a9dc",
@@ -1563,7 +1616,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.250964+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-f0997385c979f8b15c9661ed",
@@ -1592,7 +1646,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.251971+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-b8e4a3b87cbccbe010de39d6",
@@ -1621,7 +1676,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.254350+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-50aabf2fe68f06b229a9e2fe",
@@ -1650,7 +1706,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.256766+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6b2c11f1f46f4275cef5bf15",
@@ -1679,7 +1736,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.258367+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-208cb06efaaafa42088e2761",
@@ -1708,7 +1766,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.260469+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-73a131e1d1f6231dacc6679a",
@@ -1737,7 +1796,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.262612+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-73bb83f4984bad49d9ca80ae",
@@ -1766,7 +1826,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.264780+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-b12643d1dec20db93ea0c8b1",
@@ -1795,7 +1856,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.266355+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-3c6677c9afa7a626ae1e34b8",
@@ -1824,7 +1886,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.267951+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-00b33f8f7a50fca8f042b22b",
@@ -1853,7 +1916,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.270072+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-515314013b96af10c20270fb",
@@ -1882,7 +1946,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.272873+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-d3df2da93f9b77f83a17fb2a",
@@ -1911,7 +1976,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.273874+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-862f2352abeccbda9fd9e649",
@@ -1940,7 +2006,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.275873+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-497a38563c0fd2ff5c23a86a",
@@ -1969,7 +2036,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.276873+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-2449df15593aeaf015c47b3e",
@@ -1998,7 +2066,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.279382+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-c5378c0db4795a6da90c250d",
@@ -2027,7 +2096,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.281564+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-feccb42a9d1dee0d8231f157",
@@ -2056,7 +2126,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.282571+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-f88972e8f27d29b8da85ea61",
@@ -2085,7 +2156,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.284570+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e796a7d1d427a36a245bafa7",
@@ -2114,7 +2186,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.286954+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6ac94fed7eecb8cdf85ac1ad",
@@ -2143,7 +2216,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.287952+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-8755a425763b68b8bf08f419",
@@ -2172,7 +2246,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.289977+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-47d7b71654f77f0b9bc8862d",
@@ -2201,7 +2276,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.292106+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-fb597d3e3fcb28ae98422a21",
@@ -2230,7 +2306,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.293121+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-43f9faab7d06e49ed06db11e",
@@ -2259,7 +2336,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.295119+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-31384f9cfcd0688dfead2ce2",
@@ -2288,7 +2366,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.298390+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-01a7e834e16e71f200130a10",
@@ -2317,7 +2396,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.299392+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-3d0c7ab4f04ef910f8027361",
@@ -2346,7 +2426,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.301472+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-cbe0c6a96fb28068f0765927",
@@ -2375,7 +2456,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.303211+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-b4a1cc8d09fb5fb477ff7a6b",
@@ -2404,7 +2486,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.304387+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-3136f16d22b7f1eacd7a9158",
@@ -2433,7 +2516,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.305777+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-cf6b793a812bef942fe6435c",
@@ -2462,7 +2546,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.308212+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-c912458bdf9f21c07e240282",
@@ -2491,7 +2576,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.310223+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-48bb0cc5e47f553e0abb1d91",
@@ -2520,7 +2606,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.311231+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-2d993a9686fb191ad670b300",
@@ -2549,7 +2636,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.313238+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e0b023167aec6bdc09dbd372",
@@ -2578,7 +2666,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.315241+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-4f46a859c4a7588a07db879b",
@@ -2607,7 +2696,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.317241+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-11735f4f59d8a7650df033de",
@@ -2636,7 +2726,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.319238+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-262d23f19522caafc15f7595",
@@ -2665,7 +2756,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.321260+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-3ec6af2d0380b46b30d41f4f",
@@ -2694,7 +2786,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.323261+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0fff301ce16a96e45337149f",
@@ -2723,7 +2816,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.325261+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-218adb0a14a04894c42e10e2",
@@ -2752,7 +2846,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.327261+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-98717793e302a69b4042e271",
@@ -2781,7 +2876,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.328260+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-50a957c40ef42b9a63350ac2",
@@ -2810,7 +2906,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.330274+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-4e2f8bf5b7ec56e87deaf446",
@@ -2839,7 +2936,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.331282+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e69b1a39189a588759845676",
@@ -2868,7 +2966,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.332289+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6f25b6c2dd2e945cadbd4a91",
@@ -2897,7 +2996,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.334494+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0d41aa058376cbff48217af5",
@@ -2926,7 +3026,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.336494+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-a3649c0b58a28b73dd2c4e28",
@@ -2955,7 +3056,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.338495+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-c22228146ca171fe0ab42f89",
@@ -2984,7 +3086,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.340032+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-dc8127536cc689f2481ece36",
@@ -3013,7 +3116,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.342213+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-d0880a11abf17f92a1c194e2",
@@ -3042,7 +3146,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.344286+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-eb1e4dc4e71d68ed1ec02909",
@@ -3071,7 +3176,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.348296+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-055873828ee5029411f7c128",
@@ -3100,7 +3206,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.350306+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-be62b0e3baca8fc4ca5996de",
@@ -3129,7 +3236,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.352327+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e081fbceb36ad57238f29298",
@@ -3158,7 +3266,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.353326+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-e577ece4b149737d76cb9ff7",
@@ -3187,7 +3296,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.355324+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-c38f256a7f78336078bc71a0",
@@ -3216,7 +3326,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.357326+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-1eb00f860643d1ac829ba900",
@@ -3245,7 +3356,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.359325+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-18c1c16d893825979ac3ee7a",
@@ -3274,7 +3386,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.360377+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-5f08d10c3e00de38902e7d28",
@@ -3303,7 +3416,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.362650+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-87420371f233e4701b5ee015",
@@ -3332,7 +3446,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.364650+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-a8979bc962b69d7da03e538b",
@@ -3361,7 +3476,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.366652+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-1a22a61fb9a209461bb450bd",
@@ -3390,7 +3506,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.367650+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-64d727aa0ac2eb13a18bcca0",
@@ -3419,7 +3536,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.370162+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-34c93fa8b733e4929c8df953",
@@ -3448,7 +3566,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.372155+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-f8b60bd5905146f2471413e8",
@@ -3477,7 +3596,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.373164+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-baab437070484b834e9c8919",
@@ -3506,7 +3626,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.375433+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-caa70b35eebaac4a30226184",
@@ -3535,7 +3656,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.377436+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-c216df0e0287294d2adee22f",
@@ -3564,7 +3686,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.378435+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-1fecd10055586de4066436b2",
@@ -3593,7 +3716,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.379941+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-219fb146ea55f67122ca5295",
@@ -3622,7 +3746,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.382306+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6eebacc5ce0eac8e478744bd",
@@ -3651,7 +3776,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.384306+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-76a10469f619f3fa80b6af53",
@@ -3680,7 +3806,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.386304+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-02cce90e7c1a3e0193d3af7b",
@@ -3709,7 +3836,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.387304+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-23438f3ca30fa262881a0c0b",
@@ -3738,7 +3866,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.389811+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-acdfed8065b67d467e9168bc",
@@ -3767,7 +3896,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.391177+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0df99839999521a42a106883",
@@ -3796,7 +3926,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.393327+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-942932332fba89c4a2fa36b3",
@@ -3825,7 +3956,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.394328+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-ae5257a1779323c17c7bfe68",
@@ -3854,7 +3986,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.396604+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-0f45ff894f2d6da571a94b6e",
@@ -3883,7 +4016,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.397695+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-6835eeb9b9a2e1c706d4f27a",
@@ -3912,7 +4046,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.400216+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-046779f3e6538d1ceea1d020",
@@ -3941,7 +4076,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.402798+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-d1ef06dc0d08db774420332c",
@@ -3970,7 +4106,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.404813+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-78f217cde492419f70472962",
@@ -3999,7 +4136,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.405814+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-869f585d3c263d475fe3c391",
@@ -4028,7 +4166,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.407812+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-bec761d6be17a872bda2a855",
@@ -4057,7 +4196,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.410388+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-9b8cda7793bb803d07f5c279",
@@ -4086,7 +4226,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.411148+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-1044e9e1cfa3e83e97644ab0",
@@ -4115,7 +4256,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.413819+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-1ec1778652b97a7f3767775d",
@@ -4144,7 +4286,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.415231+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-82a135e16f677baaaa20797d",
@@ -4173,7 +4316,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.417234+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-957ab05433e221d4771cbe8c",
@@ -4202,7 +4346,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.419235+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-685b27acbd4c8a0df06e2906",
@@ -4231,7 +4376,8 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.421367+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
   },
   {
     "id": "doc-v2-600f09b52185ce0a03a0b4a3",
@@ -4260,6 +4406,45 @@
     "pending_index_version": null,
     "indexed_at": "2026-08-08T15:19:57.422371+00:00",
     "error_code": null,
-    "error_message": null
+    "error_message": null,
+    "promoted_from_document_id": null
+  },
+  {
+    "id": "doc-ae7645bdcdcc4f4aa41da5d86cb3acfc",
+    "filename": "知乎｜python tuple和list功能几乎一样,那list不是可以完全取代tuple吗 _知乎 - www.zhihu.com",
+    "path": "knowledge_base/documents/知乎｜python tuple和list功能几乎一样,那list不是可以完全取代tuple吗 _知乎 - www.zhihu.com",
+    "size": 13407,
+    "uploaded_at": "2026-08-10T00:20:42.643087",
+    "course_id": "computational-thinking",
+    "scope_type": "course",
+    "scope_id": null,
+    "library_type": "personal",
+    "owner_user_id": "student",
+    "promoted_from_document_id": "user_student:D:\\github\\edu_ai\\Edu_AI\\api\\src\\storage\\documents\\web\\student\\web_www.zhihu.com_python tuple和list功能几乎一样,那list不_c799207a9963.md",
+    "url": "https://www.zhihu.com/question/325063602/answer/2156594618",
+    "source_url": "https://www.zhihu.com/question/325063602/answer/2156594618",
+    "source_title": "python:tuple和list功能几乎一样,那list不是可以完全取代tuple吗?_知乎",
+    "source_domain": "www.zhihu.com",
+    "source_site_name": "知乎",
+    "doc_kind": "web"
+  },
+  {
+    "id": "doc-b743430de2d544da9803dca63b84ad34",
+    "filename": "军军小站张军博客｜python笔记(lsit和tuple) - 军军小站张军博客 - zhangjunbk.com",
+    "path": "knowledge_base/documents/军军小站张军博客｜python笔记(lsit和tuple) - 军军小站张军博客 - zhangjunbk.com",
+    "size": 12020,
+    "uploaded_at": "2026-08-10T00:20:42.764485",
+    "course_id": "computational-thinking",
+    "scope_type": "course",
+    "scope_id": null,
+    "library_type": "personal",
+    "owner_user_id": "student",
+    "promoted_from_document_id": "user_student:D:\\github\\edu_ai\\Edu_AI\\api\\src\\storage\\documents\\web\\student\\web_zhangjunbk.com_python笔记(lsit和tuple) - 军军小站张军博_46cdab4fb143.md",
+    "url": "https://zhangjunbk.com/article/23134",
+    "source_url": "https://zhangjunbk.com/article/23134",
+    "source_title": "python笔记(lsit和tuple) - 军军小站张军博客",
+    "source_domain": "zhangjunbk.com",
+    "source_site_name": "军军小站张军博客",
+    "doc_kind": "web"
   }
 ]

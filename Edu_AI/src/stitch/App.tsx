@@ -1,20 +1,14 @@
-import { useEffect, useLayoutEffect, useState } from "react";
-import { WorkspaceOverviewPage } from "./pages/WorkspaceOverview";
-import { CourseResourcesPage } from "./pages/CourseResources";
-import { CourseLearningPage } from "./pages/CourseLearning";
-import { AIWorkspacePage } from "./pages/AIWorkspace";
-import { HomeDashboardPage } from "./pages/HomeDashboard";
-import { PptStudioPage } from "./pages/PptStudio";
-import { CourseKnowledgePage, LegacyKnowledgeGraphRedirect } from "./pages/CourseKnowledge";
-import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
-import { CourseEditPage } from "./pages/CourseEdit";
-import { ProfilePage } from "./pages/Profile";
-import { RuntimeSettingsPage } from "./pages/RuntimeSettings";
+import {
+  Component,
+  Suspense,
+  lazy,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import { LoginPage } from "./pages/LoginPage";
-import { PlayerSmokePage } from "./pages/_dev/PlayerSmoke";
-import { ClassroomVideoRenderPage } from "./pages/_dev/ClassroomVideoRender";
-import { ClassroomStudioPage } from "./pages/ClassroomStudio";
-import { ClassroomPlayerPage } from "./pages/ClassroomPlayer";
 import { backendCourseToSummary } from "./api/courses";
 import {
   AuthSessionProvider,
@@ -37,12 +31,30 @@ import {
   type ThemeName,
 } from "./shared";
 import { login, verifyToken } from "../services/auth";
-import { GlobalJobManager } from "../jobs/GlobalJobManager";
-import { CourseShell } from "./course/CourseShell";
 import { isCourseWorkspaceRoute } from "./course/courseNavigation";
-import { StudentApp } from "./student/StudentApp";
 import { isStudentRoute, type StudentRoute } from "./student/routes/studentRoutes";
 import { defaultHashForRole, resolveRoleHash } from "./shared/routes/roleRouteResolver";
+
+const WorkspaceOverviewPage = lazy(() => import("./pages/WorkspaceOverview").then((module) => ({ default: module.WorkspaceOverviewPage })));
+const CourseResourcesPage = lazy(() => import("./pages/CourseResources").then((module) => ({ default: module.CourseResourcesPage })));
+const CourseLearningPage = lazy(() => import("./pages/CourseLearning").then((module) => ({ default: module.CourseLearningPage })));
+const AIWorkspacePage = lazy(() => import("./pages/AIWorkspace").then((module) => ({ default: module.AIWorkspacePage })));
+const HomeDashboardPage = lazy(() => import("./pages/HomeDashboard").then((module) => ({ default: module.HomeDashboardPage })));
+const PptStudioPage = lazy(() => import("./pages/PptStudio").then((module) => ({ default: module.PptStudioPage })));
+const CourseKnowledgePage = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.CourseKnowledgePage })));
+const LegacyKnowledgeGraphRedirect = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.LegacyKnowledgeGraphRedirect })));
+const CourseDetailPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseDetailPage })));
+const CourseListPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseListPage })));
+const CourseEditPage = lazy(() => import("./pages/CourseEdit").then((module) => ({ default: module.CourseEditPage })));
+const ProfilePage = lazy(() => import("./pages/Profile").then((module) => ({ default: module.ProfilePage })));
+const RuntimeSettingsPage = lazy(() => import("./pages/RuntimeSettings").then((module) => ({ default: module.RuntimeSettingsPage })));
+const PlayerSmokePage = lazy(() => import("./pages/_dev/PlayerSmoke").then((module) => ({ default: module.PlayerSmokePage })));
+const ClassroomVideoRenderPage = lazy(() => import("./pages/_dev/ClassroomVideoRender").then((module) => ({ default: module.ClassroomVideoRenderPage })));
+const ClassroomStudioPage = lazy(() => import("./pages/ClassroomStudio").then((module) => ({ default: module.ClassroomStudioPage })));
+const ClassroomPlayerPage = lazy(() => import("./pages/ClassroomPlayer").then((module) => ({ default: module.ClassroomPlayerPage })));
+const StudentApp = lazy(() => import("./student/StudentApp").then((module) => ({ default: module.StudentApp })));
+const GlobalJobManager = lazy(() => import("../jobs/GlobalJobManager").then((module) => ({ default: module.GlobalJobManager })));
+const CourseShell = lazy(() => import("./course/CourseShell").then((module) => ({ default: module.CourseShell })));
 
 const pages = [
   [routes.profile, "Profile", ProfilePage],
@@ -65,6 +77,76 @@ const pages = [
 ] as const;
 
 type AppRouteKey = RouteKey | StudentRoute;
+
+class RouteErrorBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Route rendering failed", error, info);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+
+    return (
+      <main className="grid min-h-screen place-items-center bg-slate-50 px-6 text-center text-slate-700">
+        <section className="max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <h1 className="text-xl font-semibold text-slate-900">页面加载失败</h1>
+          <p className="mt-3 text-sm leading-6">
+            页面模块没有正常启动。请刷新后重试；如果问题持续出现，请将下方信息提供给管理员。
+          </p>
+          <pre className="mt-4 overflow-auto rounded-lg bg-slate-100 p-3 text-left text-xs text-slate-600">
+            {this.state.error.message}
+          </pre>
+          <button
+            type="button"
+            className="mt-5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            onClick={() => window.location.reload()}
+          >
+            重新加载
+          </button>
+        </section>
+      </main>
+    );
+  }
+}
+
+function DeferredGlobalJobManager({
+  enabled,
+  showLauncher,
+  currentCourseId,
+  currentCourseTitle,
+}: {
+  enabled: boolean;
+  showLauncher: boolean;
+  currentCourseId: string | null;
+  currentCourseTitle: string | null;
+}) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 1_500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  return ready ? (
+    <Suspense fallback={null}>
+      <GlobalJobManager
+        enabled={enabled}
+        showLauncher={showLauncher}
+        currentCourseId={currentCourseId}
+        currentCourseTitle={currentCourseTitle}
+      />
+    </Suspense>
+  ) : null;
+}
 
 function getCurrentRoute(): AppRouteKey {
   const hash = window.location.hash.replace(/^#/, "");
@@ -300,6 +382,10 @@ function AppPresentation({
     : current === routes.home || isStudentWorkspace
       ? selectedCourse ?? rememberedCourse
       : null;
+  const jobCenterCourseId = current === routes.home ? null : routeCourse.courseId;
+  const jobCenterCourseTitle = jobCenterCourseId
+    ? routeCourse.course?.title ?? null
+    : null;
 
   function rememberCourse(course: CourseSummary | null) {
     setRememberedCourse(course);
@@ -316,34 +402,40 @@ function AppPresentation({
       setTheme={setTheme}
       logout={handleLogout}
     >
-      {isStandaloneDevRoute ? (
-        // Dev-only: no backend dependency, so it skips the auth gate.
-        <ActivePage />
-      ) : !authReady ? (
-        <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
-      ) : authenticated && !routeAuthorized ? (
-        <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在进入对应工作区…</div>
-      ) : authenticated ? (
-        <>
-          <GlobalJobManager
-            enabled={!isVideoRenderRoute}
-            showLauncher={authUser?.role !== "student" && !isCourseRoute && !isStudentWorkspace}
-          />
-          <div key={current} className="route-stage">
-            {isStudentWorkspace ? (
-              <StudentApp current={current} />
-            ) : isCourseRoute ? (
-              <CourseShell activeRoute={current}>
+      <RouteErrorBoundary key={current}>
+      <Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-slate-500">正在加载页面…</div>}>
+        {isStandaloneDevRoute ? (
+          // Dev-only: no backend dependency, so it skips the auth gate.
+          <ActivePage />
+        ) : !authReady ? (
+          <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
+        ) : authenticated && !routeAuthorized ? (
+          <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在进入对应工作区…</div>
+        ) : authenticated ? (
+          <>
+            <DeferredGlobalJobManager
+              enabled={!isVideoRenderRoute}
+              showLauncher={authUser?.role !== "student" && !isCourseRoute && !isStudentWorkspace}
+              currentCourseId={jobCenterCourseId}
+              currentCourseTitle={jobCenterCourseTitle}
+            />
+            <div key={current} className="route-stage">
+              {isStudentWorkspace ? (
+                <StudentApp current={current} />
+              ) : isCourseRoute ? (
+                <CourseShell activeRoute={current}>
+                  <ActivePage />
+                </CourseShell>
+              ) : (
                 <ActivePage />
-              </CourseShell>
-            ) : (
-              <ActivePage />
-            )}
-          </div>
-        </>
-      ) : (
-        <LoginPage onLogin={handleLogin} />
-      )}
+              )}
+            </div>
+          </>
+        ) : (
+          <LoginPage onLogin={handleLogin} />
+        )}
+      </Suspense>
+      </RouteErrorBoundary>
       {isVideoRenderRoute || authUser?.role === "student" ? null : <ThemeCustomizer />}
     </AppShellProvider>
   );

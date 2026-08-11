@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Form, Input, Modal, Skeleton, message } from "antd";
+import Alert from "antd/es/alert";
+import Button from "antd/es/button";
+import Form from "antd/es/form";
+import Input from "antd/es/input";
+import Modal from "antd/es/modal";
+import Skeleton from "antd/es/skeleton";
+import message from "antd/es/message";
 import {
   changeUserPassword,
   getUserProfile,

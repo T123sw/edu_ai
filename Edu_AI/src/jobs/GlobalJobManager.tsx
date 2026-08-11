@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { notification } from "antd";
 import { listJobs } from "./api";
 import { JobCenterDrawer } from "./JobCenterDrawer";
 import { JobLeaderLease, getJobPollDelay } from "./jobPolling";
@@ -17,9 +16,13 @@ type JobBroadcastMessage = {
 export function GlobalJobManager({
   enabled,
   showLauncher = true,
+  currentCourseId = null,
+  currentCourseTitle = null,
 }: {
   enabled: boolean;
   showLauncher?: boolean;
+  currentCourseId?: string | null;
+  currentCourseTitle?: string | null;
 }) {
   useEffect(() => {
     if (!enabled) {
@@ -145,7 +148,13 @@ export function GlobalJobManager({
     };
   }, [enabled]);
 
-  return enabled ? <JobCenterDrawer showLauncher={showLauncher} /> : null;
+  return enabled ? (
+    <JobCenterDrawer
+      showLauncher={showLauncher}
+      currentCourseId={currentCourseId}
+      currentCourseTitle={currentCourseTitle}
+    />
+  ) : null;
 }
 
 function notifyJobTerminal(job: JobRecord) {
@@ -154,21 +163,21 @@ function notifyJobTerminal(job: JobRecord) {
       ? job.input_summary.title
       : jobKindLabel(job.kind);
   if (job.status === "succeeded") {
-    notification.success({
+    showJobNotification("success", {
       message: `${jobKindLabel(job.kind)}已完成`,
       description: `${title} 已保存，可在任务中心打开结果。`,
       placement: "topRight",
     });
   } else if (job.status === "partially_succeeded") {
     const userMessage = presentJobError(job);
-    notification.warning({
+    showJobNotification("warning", {
       message: userMessage.title,
       description: userMessage.detail,
       placement: "topRight",
     });
   } else if (job.status === "failed") {
     const userMessage = presentJobError(job);
-    notification.error({
+    showJobNotification("error", {
       message: userMessage.title,
       description: userMessage.detail,
       placement: "topRight",
@@ -220,4 +229,25 @@ function notifyJobTerminal(job: JobRecord) {
       }),
     );
   }
+}
+
+function showJobNotification(
+  kind: "success" | "warning" | "error",
+  options: { message: string; description: string; placement: "topRight" },
+) {
+  const toast = document.createElement("aside");
+  toast.className = `job-terminal-toast job-terminal-toast--${kind}`;
+  toast.setAttribute("role", kind === "error" ? "alert" : "status");
+
+  const title = document.createElement("strong");
+  title.textContent = options.message;
+  const detail = document.createElement("span");
+  detail.textContent = options.description;
+  toast.append(title, detail);
+  document.body.appendChild(toast);
+
+  window.setTimeout(() => {
+    toast.classList.add("is-leaving");
+    window.setTimeout(() => toast.remove(), 180);
+  }, 5_000);
 }

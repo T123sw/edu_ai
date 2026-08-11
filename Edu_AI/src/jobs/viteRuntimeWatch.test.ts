@@ -7,10 +7,12 @@ import {
 
 test("vite ignores backend runtime files that change while jobs are running", () => {
   assert.deepEqual(BACKEND_RUNTIME_WATCH_IGNORES, [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/dist/**",
     "**/api/data/**",
     "**/api/course_data/**",
     "**/api/storage/**",
     "**/storage/**",
   ]);
 });
-

@@ -1,26 +1,22 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  Alert,
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Segmented,
-  Skeleton,
-  Tag,
-  Typography,
-  message,
-} from "antd";
-import {
-  ApiOutlined,
-  AudioOutlined,
-  CheckCircleFilled,
-  CloudServerOutlined,
-  DatabaseOutlined,
-  FileSearchOutlined,
-  GlobalOutlined,
-  SafetyCertificateOutlined,
-} from "@ant-design/icons";
+import Alert from "antd/es/alert";
+import Button from "antd/es/button";
+import Form from "antd/es/form";
+import Input from "antd/es/input";
+import InputNumber from "antd/es/input-number";
+import Segmented from "antd/es/segmented";
+import Skeleton from "antd/es/skeleton";
+import Tag from "antd/es/tag";
+import Typography from "antd/es/typography";
+import message from "antd/es/message";
+import ApiOutlined from "@ant-design/icons/es/icons/ApiOutlined.js";
+import AudioOutlined from "@ant-design/icons/es/icons/AudioOutlined.js";
+import CheckCircleFilled from "@ant-design/icons/es/icons/CheckCircleFilled.js";
+import CloudServerOutlined from "@ant-design/icons/es/icons/CloudServerOutlined.js";
+import DatabaseOutlined from "@ant-design/icons/es/icons/DatabaseOutlined.js";
+import FileSearchOutlined from "@ant-design/icons/es/icons/FileSearchOutlined.js";
+import GlobalOutlined from "@ant-design/icons/es/icons/GlobalOutlined.js";
+import SafetyCertificateOutlined from "@ant-design/icons/es/icons/SafetyCertificateOutlined.js";
 import {
   activateRuntimeConfig,
   disableRuntimeConfig,

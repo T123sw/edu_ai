@@ -3,8 +3,8 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/prism";
+import vscDarkPlus from "react-syntax-highlighter/dist/esm/styles/prism/vsc-dark-plus";
 import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
 import { normalizeKnowledgeMarkdown } from "./knowledgeMarkdown";
 
@@ -16,12 +16,12 @@ type MarkdownPreviewProps = {
 function MarkdownImage({ src, alt }: { src: string; alt?: string }) {
   const asset = useAuthenticatedBlobUrl(src);
   return (
-    <figure className="my-5 overflow-hidden rounded-2xl border border-(--app-border) bg-(--surface-subtle) p-3 text-center">
-      {asset.loading ? <p className="py-8 text-sm text-(--app-text-muted)">图片加载中…</p> : null}
-      {asset.error ? <p role="alert" className="py-8 text-sm text-red-600">图片加载失败：{asset.error}</p> : null}
-      {asset.url ? <img src={asset.url} alt={alt || "教学插图"} className="mx-auto max-h-[520px] max-w-full object-contain" loading="lazy" /> : null}
-      {alt && <figcaption className="mt-2 text-xs text-(--app-text-muted)">{alt}</figcaption>}
-    </figure>
+    <span className="my-5 block overflow-hidden rounded-2xl border border-(--app-border) bg-(--surface-subtle) p-3 text-center">
+      {asset.loading ? <span className="block py-8 text-sm text-(--app-text-muted)">图片加载中…</span> : null}
+      {asset.error ? <span role="alert" className="block py-8 text-sm text-red-600">图片加载失败：{asset.error}</span> : null}
+      {asset.url ? <img src={asset.url} alt={alt || "教学插图"} className="mx-auto block max-h-[520px] max-w-full object-contain" loading="lazy" /> : null}
+      {alt && <span className="mt-2 block text-xs text-(--app-text-muted)">{alt}</span>}
+    </span>
   );
 }
 

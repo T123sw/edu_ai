@@ -1,5 +1,9 @@
-@import 'tailwindcss';
+/* Keep Tailwind's scanner inside the browser source tree. Automatic source
+   detection from the repository root also traversed backend/runtime folders
+   and file-linked workspaces, which made the first Vite request appear hung. */
+@import 'tailwindcss' source(none);
 @import './classroomQa/ClassroomQaPanel.css';
+@source "../**/*.{ts,tsx}";
 
 /* @openmaic/renderer emits Tailwind utility classes at runtime from its own
    compiled dist, which v4's automatic content detection skips (node_modules
@@ -988,7 +992,7 @@ textarea {
 .course-overview__entries a > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: var(--course-shell-brand-soft); color: var(--course-shell-brand); }
 .course-overview__entries strong { margin-top: 12px; font-size: 15px; }
 .course-overview__entries small { margin-top: 6px; color: var(--course-shell-muted); font-size: 12px; line-height: 1.55; }
-@media (max-width: 960px) { .course-overview__facts { grid-template-columns: repeat(2,minmax(0,1fr)); } .course-overview__columns { grid-template-columns: minmax(0,1fr); } .course-overview__entries > div:last-child { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 960px) { .course-overview__facts { grid-template-columns: repeat(2,minmax(0,1fr)); } .course-setup { grid-template-columns: minmax(0,1fr); } .course-overview__columns { grid-template-columns: minmax(0,1fr); } .course-overview__entries > div:last-child { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 620px) { .course-overview__summary { align-items: stretch; flex-direction: column; } .course-overview__facts { grid-template-columns: minmax(0,1fr); } }
 
 .course-settings { width: min(1180px,100%); margin: 0 auto; padding: 28px clamp(18px,3vw,42px) 54px; }

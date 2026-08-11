@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cancelJob, retryJob } from "./api";
+import { buildJobCourseGroups } from "./jobCourseGrouping";
 import {
   jobKindLabel,
   presentJobDetail,
@@ -9,22 +10,33 @@ import { getJobResultHash } from "./jobResultTarget";
 import { registerCreatedJob, useJobStore } from "./jobStore";
 import { isActiveJob, type JobRecord } from "./types";
 import { MaterialIcon } from "../stitch/shared";
+import { listCourses } from "../stitch/api/courses";
+import { useCourseRoute } from "../stitch/course/CourseRouteProvider";
 import "./jobCenter.css";
 
 const OPEN_JOB_CENTER_EVENT = "edu-ai:open-job-center";
 
 export function JobCenterTrigger({
   placement = "floating",
+  courseId,
 }: {
   placement?: "floating" | "inline";
+  courseId?: string | null;
 }) {
-  const activeCount = useJobStore((state) => state.activeCount);
+  const { courseId: routeCourseId } = useCourseRoute();
   const unreadIds = useJobStore((state) => state.unreadTerminalIds);
   const jobsById = useJobStore((state) => state.jobs);
+  const scopedCourseId = courseId === undefined ? routeCourseId : courseId;
+  const activeCount = Object.values(jobsById).filter(
+    (job) =>
+      isActiveJob(job) &&
+      (!scopedCourseId || job.course_id === scopedCourseId),
+  ).length;
   const hasUnreadFailure = unreadIds.some(
     (id) =>
-      jobsById[id]?.status === "failed" ||
-      jobsById[id]?.status === "partially_succeeded",
+      (!scopedCourseId || jobsById[id]?.course_id === scopedCourseId) &&
+      (jobsById[id]?.status === "failed" ||
+        jobsById[id]?.status === "partially_succeeded"),
   );
 
   return (
@@ -48,13 +60,23 @@ export function JobCenterTrigger({
   );
 }
 
-export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolean }) {
+export function JobCenterDrawer({
+  showLauncher = true,
+  currentCourseId = null,
+  currentCourseTitle = null,
+}: {
+  showLauncher?: boolean;
+  currentCourseId?: string | null;
+  currentCourseTitle?: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [courseTitles, setCourseTitles] = useState<ReadonlyMap<string, string>>(
+    () => new Map(),
+  );
   const jobsById = useJobStore((state) => state.jobs);
   const orderedIds = useJobStore((state) => state.orderedIds);
-  const activeCount = useJobStore((state) => state.activeCount);
   const hydrated = useJobStore((state) => state.hydrated);
   const pollFailures = useJobStore((state) => state.pollFailures);
   const markAllRead = useJobStore((state) => state.markAllRead);
@@ -63,22 +85,27 @@ export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolea
     () => orderedIds.map((id) => jobsById[id]).filter(Boolean),
     [jobsById, orderedIds],
   );
-  const groups = useMemo(
-    () => ({
-      active: jobs.filter(isActiveJob),
-      attention: jobs.filter(
-        (job) =>
-          job.status === "failed" || job.status === "partially_succeeded",
-      ),
-      completed: jobs
-        .filter(
-          (job) => job.status === "succeeded" || job.status === "canceled",
-        )
-        .slice(0, 20),
-    }),
-    [jobs],
+  const courseGroups = useMemo(
+    () =>
+      buildJobCourseGroups(jobs, {
+        currentCourseId,
+        currentCourseTitle,
+        courseTitles,
+      }),
+    [courseTitles, currentCourseId, currentCourseTitle, jobs],
   );
-  const qualitySummary = useMemo(() => summarizeJobs(jobs), [jobs]);
+  const visibleJobs = useMemo(
+    () => courseGroups.flatMap((group) => group.jobs),
+    [courseGroups],
+  );
+  const visibleActiveCount = useMemo(
+    () => visibleJobs.filter(isActiveJob).length,
+    [visibleJobs],
+  );
+  const qualitySummary = useMemo(
+    () => summarizeJobs(visibleJobs),
+    [visibleJobs],
+  );
 
   useEffect(() => {
     const handleOpen = () => {
@@ -88,6 +115,24 @@ export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolea
     window.addEventListener(OPEN_JOB_CENTER_EVENT, handleOpen);
     return () => window.removeEventListener(OPEN_JOB_CENTER_EVENT, handleOpen);
   }, [markAllRead]);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+
+    void listCourses()
+      .then((courses) => {
+        if (cancelled) return;
+        setCourseTitles(
+          new Map(courses.map((course) => [course.id, course.title])),
+        );
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   const runAction = async (
     job: JobRecord,
@@ -111,7 +156,7 @@ export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolea
 
   return (
     <>
-      {showLauncher ? <JobCenterTrigger /> : null}
+      {showLauncher ? <JobCenterTrigger courseId={currentCourseId} /> : null}
 
       {open ? (
         <div className="job-center-layer" role="presentation">
@@ -129,13 +174,17 @@ export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolea
           >
             <header className="job-center-header">
               <div>
-                <p className="job-center-eyebrow">全局后台任务</p>
+                <p className="job-center-eyebrow">
+                  {currentCourseId ? "当前课程后台任务" : "全部后台任务"}
+                </p>
                 <h2 id="job-center-title">任务中心</h2>
                 <p>
                   {pollFailures
                     ? `连接暂时中断，正在第 ${pollFailures} 次重试`
-                    : activeCount
-                      ? `${activeCount} 个任务正在后台继续`
+                    : visibleActiveCount
+                      ? `${visibleActiveCount} 个任务正在后台继续`
+                      : currentCourseId
+                        ? `${currentCourseTitle || "当前课程"}暂无进行中的任务`
                       : "当前没有进行中的任务"}
                 </p>
               </div>
@@ -182,38 +231,94 @@ export function JobCenterDrawer({ showLauncher = true }: { showLauncher?: boolea
                   title="正在恢复后台任务"
                   detail="正在从服务器读取当前账号的任务记录…"
                 />
-              ) : jobs.length === 0 ? (
+              ) : visibleJobs.length === 0 ? (
                 <JobEmpty
-                  title="还没有后台任务"
-                  detail="从生成工厂发起课堂、报告、PPT 等任务后，可在这里跨页面查看进度。"
+                  title={currentCourseId ? "这门课程还没有后台任务" : "还没有后台任务"}
+                  detail={
+                    currentCourseId
+                      ? "在当前课程中发起生成或知识库任务后，可在这里持续查看进度。"
+                      : "进入任一课程发起课堂、报告、PPT 等任务后，可在这里按课程查看进度。"
+                  }
                 />
               ) : (
-                <>
-                  <JobGroup
-                    title="进行中"
-                    jobs={groups.active}
-                    busyId={busyId}
-                    onAction={runAction}
-                  />
-                  <JobGroup
-                    title="需要处理"
-                    jobs={groups.attention}
-                    busyId={busyId}
-                    onAction={runAction}
-                  />
-                  <JobGroup
-                    title="最近完成"
-                    jobs={groups.completed}
-                    busyId={busyId}
-                    onAction={runAction}
-                  />
-                </>
+                <div className="job-center-courses">
+                  {courseGroups.map((group) => (
+                    <CourseJobGroup
+                      key={group.courseId ?? "unscoped"}
+                      title={group.title}
+                      courseId={group.courseId}
+                      jobs={group.jobs}
+                      isCurrentCourse={group.courseId === currentCourseId}
+                      busyId={busyId}
+                      onAction={runAction}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </aside>
         </div>
       ) : null}
     </>
+  );
+}
+
+function CourseJobGroup({
+  title,
+  courseId,
+  jobs,
+  isCurrentCourse,
+  busyId,
+  onAction,
+}: {
+  title: string;
+  courseId: string | null;
+  jobs: JobRecord[];
+  isCurrentCourse: boolean;
+  busyId: string | null;
+  onAction: (job: JobRecord, action: "cancel" | "retry") => Promise<void>;
+}) {
+  const groups = {
+    active: jobs.filter(isActiveJob),
+    attention: jobs.filter(
+      (job) => job.status === "failed" || job.status === "partially_succeeded",
+    ),
+    completed: jobs
+      .filter((job) => job.status === "succeeded" || job.status === "canceled")
+      .slice(0, 20),
+  };
+
+  return (
+    <section className="job-center-course">
+      <header className="job-center-course__header">
+        <span className="job-center-course__icon">
+          <MaterialIcon name={courseId ? "school" : "language"} />
+        </span>
+        <div>
+          <p>{isCurrentCourse ? "当前课程" : courseId ? "课程" : "未归入课程"}</p>
+          <h3>{title}</h3>
+        </div>
+        <span className="job-center-course__count">{jobs.length} 个任务</span>
+      </header>
+      <JobGroup
+        title="进行中"
+        jobs={groups.active}
+        busyId={busyId}
+        onAction={onAction}
+      />
+      <JobGroup
+        title="需要处理"
+        jobs={groups.attention}
+        busyId={busyId}
+        onAction={onAction}
+      />
+      <JobGroup
+        title="最近完成"
+        jobs={groups.completed}
+        busyId={busyId}
+        onAction={onAction}
+      />
+    </section>
   );
 }
 
@@ -272,9 +377,6 @@ function JobCard({
         <div className="min-w-0 flex-1">
           <p className="job-card__kind">{jobKindLabel(job.kind)}</p>
           <h4 title={title}>{title}</h4>
-          <p className="job-card__course">
-            {job.course_id ? `课程：${job.course_id}` : "全局任务"}
-          </p>
         </div>
         <span className={`job-card__status is-${job.status}`}>
           {jobStatusLabel(job.status)}

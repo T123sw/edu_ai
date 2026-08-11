@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Checkbox, Form, Input } from "antd";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import Button from "antd/es/button";
+import Card from "antd/es/card";
+import Checkbox from "antd/es/checkbox";
+import Form from "antd/es/form";
+import Input from "antd/es/input";
+import LockOutlined from "@ant-design/icons/LockOutlined.js";
+import UserOutlined from "@ant-design/icons/UserOutlined.js";
 import "./LoginPage.css";
 
 const REMEMBER_USER_KEY = "edu-ai-remember-user";
