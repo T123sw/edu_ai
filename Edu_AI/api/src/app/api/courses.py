@@ -267,14 +267,10 @@ def list_courses(
             str(current_user.get("username") or "")
         )
     }
-    for course_dir in mgr.courses_dir.iterdir():
-        if not course_dir.is_dir():
-            continue
-        membership = memberships.get(course_dir.name)
+    for info in mgr.list_course_infos():
+        course_id = str(info.get("id") or info.get("course_id") or "").strip()
+        membership = memberships.get(course_id)
         if membership is None:
-            continue
-        info = mgr.get_course_info(course_dir.name)
-        if not info:
             continue
         try:
             results.append(_course_response(info, membership.role))

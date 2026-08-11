@@ -720,6 +720,28 @@ class CourseStorageManager:
             print(f"Error loading course info: {e}")
             return None
 
+    def list_course_infos(self) -> List[Dict[str, Any]]:
+        """Return course metadata from the configured source of truth.
+
+        Course asset directories are intentionally still used for uploaded and
+        generated files, but they must not decide whether a PostgreSQL-backed
+        course exists. This also keeps courses visible when the API is started
+        from a different worktree that shares the same database.
+        """
+        if self._course_uses_postgres():
+            return self._course_repository().list()
+
+        results: List[Dict[str, Any]] = []
+        if not self.courses_dir.exists():
+            return results
+        for course_dir in self.courses_dir.iterdir():
+            if not course_dir.is_dir():
+                continue
+            info = self.get_course_info(course_dir.name)
+            if info:
+                results.append(info)
+        return results
+
     def update_course_info(
         self,
         course_id: str,
