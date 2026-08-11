@@ -107,6 +107,7 @@ class FakeRepository:
         self.build = _build_record()
         self.checks = []
         self.published_graph = None
+        self.published_document_ids = []
 
     def get_build(self, build_id):
         return dict(self.build) if build_id == "kb-1" else None
@@ -145,6 +146,7 @@ class FakeRepository:
     def publish_build(self, build_id, *, graph, document_ids, metrics, quality_score):
         assert build_id == "kb-1"
         self.published_graph = graph
+        self.published_document_ids = list(document_ids)
         self.build.update(
             status="succeeded",
             phase="published",
@@ -211,6 +213,7 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
     assert sorted(generated) == ["topic-1", "topic-1", "topic-2", "topic-2"]
     assert repository.published_graph["data"]["publication_status"] == "published"
     assert repository.published_graph["data"]["source_build_id"] == "kb-1"
+    assert len(repository.published_document_ids) == 6
     assert completed_jobs[-1][1]["status"].value == "succeeded"
 
 

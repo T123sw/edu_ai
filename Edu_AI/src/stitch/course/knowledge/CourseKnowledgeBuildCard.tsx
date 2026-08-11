@@ -255,6 +255,21 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
               </div>
             ) : null}
 
+            {plan?.quality_checks?.length ? (
+              <div className="course-kb-builder__quality">
+                <h3>质量门禁</h3>
+                <ul>
+                  {plan.quality_checks.map((check) => (
+                    <li key={check.check_type} className={check.status === "passed" ? "is-passed" : "is-failed"}>
+                      <MaterialIcon name={check.status === "passed" ? "check_circle" : "error"} />
+                      <span>{check.check_type}</span>
+                      <strong>{check.status === "passed" ? "通过" : "未通过"}</strong>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             {status ? (
               <button type="button" className="course-kb-builder__job-link" onClick={() => window.dispatchEvent(new Event("edu-ai:open-job-center"))}>
                 查看后台任务

@@ -1,6 +1,6 @@
 # ACC-14 课程知识库可配置、图谱先行构建验收
 
-> **状态**：待实施、待验收
+> **状态**：实现完成，专项自动化通过；真实外部服务 E2E 待执行
 > **日期**：2026-08-12
 > **对应规格**：[SPEC-14](../spec/SPEC-14_课程知识库可配置图谱先行构建.md)
 > **实施计划**：[2026-08-12-configurable-graph-first-course-knowledge-build.md](../superpowers/plans/2026-08-12-configurable-graph-first-course-knowledge-build.md)
@@ -394,6 +394,15 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests
 | A7 | 待执行 | - | - |
 | A8 | 待执行 | - | - |
 
+截至 2026-08-12 的实现分支专项证据：
+
+| 命令 | 结果 | 通过/失败/跳过 | 备注 |
+| --- | --- | --- | --- |
+| 图谱/草稿/教材/来源/质量/持久化/权限专项 pytest | 通过 | 54/0/0 | 含 8 项硬门禁、无许可来源、重试检查点 |
+| `node --import tsx --test` 配置、图谱编辑、集成测试 | 通过 | 8/0/0 | 配置 2、图谱 helper 4、页面集成 2 |
+| SPEC-14 变更文件 ESLint | 通过 | 0 error | 仅检查本功能改动文件 |
+| `npm run build` | 通过 | exit 0 | 仅有仓库既存动态导入与 chunk size warning |
+
 ### 8.2 真实 E2E 结果
 
 | 场景 | Course ID | Build ID | Graph Version | 结果 | 证据 |
@@ -408,7 +417,9 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests
 
 ### 8.3 已知限制
 
-- 待实施后填写。
+- 尚未在本机启动真实 PostgreSQL、MinerU、LLM 与搜索 provider 执行 B1～B7，因此本文不能标记为最终“通过”。
+- `cancel` 端点、三种更新策略的差异化合并语义以及“回滚同时恢复文档可见集合”仍属于后续增强；当前实现已具备失败/阻塞重试、图谱版本和原子发布事务，但不把这些未执行项冒充已验收。
+- 前端展示 8 项质量门禁状态；逐叶详细计数保存在 build metrics，专门的可视化明细表仍可继续优化。
 
 ## 9. 签收规则
 

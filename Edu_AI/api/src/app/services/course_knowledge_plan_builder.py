@@ -674,7 +674,7 @@ def run_course_knowledge_plan_build_job(
         repository.update_build(build_id, status="publishing", phase="publishing", progress=95, metrics=quality_details, quality_score=quality_score)
         published_version = repository.publish_build(
             build_id, graph=graph,
-            document_ids=[str(item.get("document_id") or "") for item in persisted if not item.get("reused")],
+            document_ids=[str(item.get("document_id") or "") for item in persisted if item.get("document_id")],
             metrics=quality_details, quality_score=quality_score,
         )
         result = {

@@ -296,6 +296,48 @@
   font-size: 11px;
 }
 
+.course-kb-builder__quality {
+  display: grid;
+  gap: 7px;
+}
+
+.course-kb-builder__quality h3 {
+  margin: 0;
+  color: var(--course-shell-ink);
+  font-size: 11px;
+}
+
+.course-kb-builder__quality ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-kb-builder__quality li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--course-shell-line);
+  border-radius: 8px;
+  padding: 7px;
+  color: var(--course-shell-muted);
+  font-size: 9px;
+}
+
+.course-kb-builder__quality li.is-passed .material-symbols-rounded,
+.course-kb-builder__quality li.is-passed strong {
+  color: #087443;
+}
+
+.course-kb-builder__quality li.is-failed .material-symbols-rounded,
+.course-kb-builder__quality li.is-failed strong {
+  color: #b91c1c;
+}
+
 .course-kb-wizard {
   display: grid;
   gap: 16px;
