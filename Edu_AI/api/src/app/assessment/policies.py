@@ -125,8 +125,10 @@ def can_reveal_answers(
     exhausted = int(attempts_used) >= int(max_attempts)
     if reveal_policy == "after_exhausted":
         return exhausted
+    if reveal_policy == "after_each_attempt":
+        return int(attempts_used) > 0
     if reveal_policy == "after_finish_or_exhausted":
-        return result in {"passed", "mastery"} or exhausted
+        return result in {"passed", "mastered"} or exhausted
     raise AssessmentPolicyError(
         "INVALID_ASSESSMENT_SETTINGS", "Unknown answer reveal policy"
     )

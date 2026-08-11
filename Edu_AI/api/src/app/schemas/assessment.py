@@ -117,3 +117,27 @@ class AssessmentAnswersRequest(BaseModel):
 
 class AssessmentSubmitRequest(BaseModel):
     idempotency_key: str = Field(min_length=1, max_length=300)
+
+
+class AssessmentFeedbackItemResponse(BaseModel):
+    assessment_item_id: str
+    position: int
+    item_type: str
+    prompt: dict[str, Any]
+    answer: dict[str, Any] | None
+    final_score: float | None
+    max_score: float
+    review_status: str
+    solution: dict[str, Any] | None = None
+    rubric: dict[str, Any] | None = None
+
+
+class AssessmentFeedbackResponse(BaseModel):
+    assessment_assignment_id: str
+    task_id: str
+    attempts_used: int
+    max_attempts: int
+    best_final_score: float | None
+    result: str
+    answers_revealed_at: str | None
+    items: list[AssessmentFeedbackItemResponse]

@@ -170,6 +170,60 @@ export type AssessmentDraftUpdatePayload = Pick<
   | "items"
 > & { expected_revision: number };
 
+export type StudentAssessmentItem = {
+  assessment_item_id: string;
+  position: number;
+  item_type: string;
+  prompt: Record<string, unknown>;
+  max_score: number;
+  knowledge_point_ids: string[];
+};
+
+export type StudentAssessment = {
+  assessment_version_id: string;
+  task_id: string;
+  assessment_mode: "closed_book" | "open_book";
+  max_attempts: number;
+  items: StudentAssessmentItem[];
+};
+
+export type AssessmentAttempt = {
+  attempt_id: string;
+  assessment_version_id: string;
+  task_id: string;
+  attempt_number: number;
+  status: "in_progress" | "graded" | "pending_review";
+  draft_revision: number;
+  submitted_at: string | null;
+  auto_score: number | null;
+  final_score: number | null;
+  result: "needs_retry" | "passed" | "mastered" | "pending_review" | null;
+};
+
+export type AssessmentFeedbackItem = {
+  assessment_item_id: string;
+  position: number;
+  item_type: string;
+  prompt: Record<string, unknown>;
+  answer?: Record<string, unknown> | null;
+  final_score?: number | null;
+  max_score: number;
+  review_status: string;
+  solution?: Record<string, unknown>;
+  rubric?: Record<string, unknown>;
+};
+
+export type AssessmentFeedback = {
+  assessment_assignment_id: string;
+  task_id: string;
+  attempts_used: number;
+  max_attempts: number;
+  best_final_score: number | null;
+  result: "not_attempted" | "needs_retry" | "passed" | "mastered" | "pending_review";
+  answers_revealed_at: string | null;
+  items: AssessmentFeedbackItem[];
+};
+
 export type LearningEventPayload = {
   event_id: string;
   event_type: "started" | "resource_opened" | "progress_updated" | "completed";

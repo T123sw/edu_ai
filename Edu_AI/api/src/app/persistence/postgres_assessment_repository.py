@@ -391,6 +391,28 @@ class PostgresAssessmentRepository:
             ).all()
             return [self._attempt(record) for record in records]
 
+    def reveal_assignment_answers(
+        self, assignment_id: str
+    ) -> AssessmentAssignmentRecord:
+        with database_session(engine=self._engine) as session:
+            assignment = session.scalar(
+                select(AssessmentAssignmentModel)
+                .where(
+                    AssessmentAssignmentModel.assessment_assignment_id == assignment_id
+                )
+                .with_for_update()
+            )
+            if assignment is None:
+                raise AssessmentStoreError(
+                    "ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found"
+                )
+            now = _timestamp(utc_now())
+            if assignment.answers_revealed_at is None:
+                assignment.answers_revealed_at = now
+            assignment.updated_at = now
+            session.flush()
+            return self._assignment(assignment)
+
     @staticmethod
     def _version_model(record: AssessmentVersionRecord) -> AssessmentVersionModel:
         return AssessmentVersionModel(

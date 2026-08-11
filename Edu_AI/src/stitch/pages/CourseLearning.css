@@ -84,3 +84,33 @@
 .assessment-editor__issues{padding-left:20px;color:#be123c;font-size:13px}.assessment-editor__error{color:#be123c}.assessment-editor__loading,.assessment-editor__frozen{color:var(--muted-text)}
 @media(max-width:900px){.learning-page{padding:16px}.learning-hero,.learning-detail__head,.learning-student-card__head{align-items:flex-start;flex-direction:column}.learning-teacher-grid{grid-template-columns:1fr}.learning-summary-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.learning-resource-picker__toolbar,.learning-resource-picker,.assessment-editor__settings{grid-template-columns:1fr}.assessment-editor__steps{grid-template-columns:repeat(2,1fr)}.learning-summary-grid{grid-template-columns:1fr}.learning-progress-table>div{grid-template-columns:1fr}.learning-student-card__actions{justify-content:stretch;flex-direction:column}.learning-primary,.learning-secondary{width:100%}}
+.assessment-runner {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--stitch-primary, #2563eb) 24%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--stitch-primary, #2563eb) 5%, transparent);
+}
+
+.assessment-runner > header,
+.assessment-runner > header > div,
+.assessment-runner__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.assessment-runner > header > div { align-items: flex-start; flex-direction: column; gap: 2px; }
+.assessment-runner__error { color: #b42318; }
+.assessment-runner__questions { margin-top: 16px; }
+.assessment-runner__question { margin: 0 0 14px; padding: 14px; border: 1px solid rgba(128, 128, 128, .24); border-radius: 12px; }
+.assessment-runner__question legend { padding: 0 6px; font-weight: 700; }
+.assessment-runner__question label { display: block; margin: 8px 0; }
+.assessment-runner__question textarea { width: 100%; padding: 10px; border-radius: 8px; }
+.assessment-runner__question textarea.is-code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.assessment-runner__outcome { margin: 14px 0; padding: 12px; border-radius: 10px; background: rgba(128, 128, 128, .1); }
+.assessment-runner__outcome.is-passed { background: rgba(18, 183, 106, .12); }
+.assessment-runner__feedback article { margin-top: 12px; padding: 12px; border-radius: 10px; background: rgba(128, 128, 128, .08); }
+.assessment-runner__feedback article > span { margin-left: 12px; }
+.assessment-runner__feedback pre { white-space: pre-wrap; overflow-wrap: anywhere; }

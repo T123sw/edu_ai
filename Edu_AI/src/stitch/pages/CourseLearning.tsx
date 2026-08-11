@@ -16,6 +16,7 @@ import type {
   LearningTask,
 } from "../api/types";
 import { AssessmentEditor } from "../assessment/AssessmentEditor";
+import { AssessmentRunner } from "../assessment/AssessmentRunner";
 import { getAssessmentPublishBlockers } from "../assessment/assessmentAuthoring";
 import { useAuthSession } from "../authSession";
 import { useCourseRoute } from "../course/CourseRouteProvider";
@@ -256,14 +257,6 @@ export function CourseLearningPage() {
     }
   }
 
-  async function completeBySelfReport(task: LearningTask) {
-    const confirmed = window.confirm(
-      "本次将记录为学生自报完成，不代表测评通过；也不代表已经掌握该内容。是否继续？",
-    );
-    if (!confirmed) return;
-    await writeStudentEvent(task, "completed");
-  }
-
   async function openResource(task: LearningTask, ref: LearningResourceRef) {
     const saved = await writeStudentEvent(task, "resource_opened", ref);
     if (!saved || !courseId) return;
@@ -463,15 +456,17 @@ export function CourseLearningPage() {
                     </button>
                   ))}
                 </div>
+                <AssessmentRunner
+                  courseId={courseId}
+                  taskId={task.task_id}
+                  onVerified={() => void loadTasks()}
+                />
                 <div className="learning-student-card__actions">
                   {action === "start" || action === "continue" ? (
                     <button type="button" className="learning-secondary" disabled={busy} onClick={() => void writeStudentEvent(task, "started")}>
                       {action === "start" ? "开始学习" : "继续学习"}
                     </button>
                   ) : action === "completed" ? <span className="learning-complete">✓ 已完成</span> : null}
-                  {action !== "completed" ? (
-                    <button type="button" className="learning-primary" disabled={busy} onClick={() => void completeBySelfReport(task)}>我已完成</button>
-                  ) : null}
                 </div>
               </article>
             );

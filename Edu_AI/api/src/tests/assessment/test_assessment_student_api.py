@@ -88,3 +88,36 @@ def test_attempt_route_rejects_cross_task_and_unknown_item_ids(tmp_path):
     assert cross_task.status_code == 404
     assert unknown_item.status_code == 422
     assert unknown_item.json()["detail"]["code"] == "INVALID_ANSWER_ITEM"
+
+
+def test_student_feedback_reveals_solution_only_after_completion(tmp_path):
+    factory = AuthoringApiFactory(tmp_path)
+    task = _published(factory)
+    student = factory.client("student-1", "student")
+    path = f"/api/courses/course-1/learning/tasks/{task['task_id']}/assessment"
+    item = student.get(path).json()["items"][0]
+    attempt = student.post(f"{path}/attempts").json()
+    student.put(
+        f"{path}/attempts/{attempt['attempt_id']}/answers",
+        json={
+            "expected_revision": 0,
+            "answers": {item["assessment_item_id"]: {"selected_option_id": "opt-1"}},
+        },
+    )
+    student.post(
+        f"{path}/attempts/{attempt['attempt_id']}/submit",
+        json={"idempotency_key": "reveal-api-submit"},
+    )
+
+    hidden = student.get(f"{path}/feedback")
+    revealed = student.post(f"{path}/reveal")
+
+    assert hidden.status_code == 200
+    assert "solution" not in json.dumps(hidden.json(), ensure_ascii=False)
+    assert "scoring_key" not in json.dumps(hidden.json(), ensure_ascii=False)
+    assert revealed.status_code == 200
+    body = revealed.json()
+    assert body["answers_revealed_at"]
+    assert body["items"][0]["solution"]["correct_option_id"] == "opt-1"
+    assert "scoring_key" not in json.dumps(body, ensure_ascii=False)
+    assert student.post(f"{path}/attempts").status_code == 409

@@ -1,13 +1,16 @@
 import { apiRequest } from "./client";
 import type {
+  AssessmentAttempt,
   AssessmentDraft,
   AssessmentDraftUpdatePayload,
+  AssessmentFeedback,
   CourseLearningSummary,
   LearningEventPayload,
   LearningEventResponse,
   LearningOverview,
   LearningTask,
   LearningTaskCreatePayload,
+  StudentAssessment,
 } from "./types";
 
 export const getLearningOverview = (courseId: string) =>
@@ -28,7 +31,7 @@ export const createLearningTask = (
 export const publishLearningTask = (courseId: string, taskId: string, expectedRevision: number) =>
   apiRequest<LearningTask>(
     `/api/courses/${courseId}/learning/tasks/${taskId}/publish`,
-    { method: "POST" },
+    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
   );
 
 const assessmentPath = (courseId: string, taskId: string) =>
@@ -54,7 +57,7 @@ export const updateTaskAssessmentDraft = (
 export const validateTaskAssessment = (courseId: string, taskId: string) =>
   apiRequest<AssessmentDraft["quality"]>(
     `${assessmentPath(courseId, taskId)}/validate`,
-    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+    { method: "POST" },
   );
 
 export const generateTaskAssessment = (
@@ -65,6 +68,41 @@ export const generateTaskAssessment = (
   method: "POST",
   body: JSON.stringify({ expected_revision: expectedRevision, difficulty: "medium" }),
 });
+
+export const getStudentAssessment = (courseId: string, taskId: string) =>
+  apiRequest<StudentAssessment>(assessmentPath(courseId, taskId));
+
+export const listStudentAssessmentAttempts = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentAttempt[]>(`${assessmentPath(courseId, taskId)}/attempts`);
+
+export const startStudentAssessmentAttempt = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentAttempt>(`${assessmentPath(courseId, taskId)}/attempts`, { method: "POST" });
+
+export const saveStudentAssessmentAnswers = (
+  courseId: string,
+  taskId: string,
+  attemptId: string,
+  payload: { expected_revision: number; answers: Record<string, Record<string, unknown>> },
+) => apiRequest<AssessmentAttempt>(`${assessmentPath(courseId, taskId)}/attempts/${attemptId}/answers`, {
+  method: "PUT",
+  body: JSON.stringify(payload),
+});
+
+export const submitStudentAssessmentAttempt = (
+  courseId: string,
+  taskId: string,
+  attemptId: string,
+  idempotencyKey: string,
+) => apiRequest<AssessmentAttempt>(`${assessmentPath(courseId, taskId)}/attempts/${attemptId}/submit`, {
+  method: "POST",
+  body: JSON.stringify({ idempotency_key: idempotencyKey }),
+});
+
+export const getStudentAssessmentFeedback = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentFeedback>(`${assessmentPath(courseId, taskId)}/feedback`);
+
+export const revealStudentAssessmentAnswers = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentFeedback>(`${assessmentPath(courseId, taskId)}/reveal`, { method: "POST" });
 
 export const recordLearningEvent = (
   courseId: string,

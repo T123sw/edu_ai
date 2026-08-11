@@ -376,7 +376,7 @@ Commit: `git commit -m "security: isolate trusted assessment outcomes"`
 ### Task 7: 实现学生作答、恢复、补学和揭示界面
 
 **Files:**
-- Create: `Edu_AI/src/stitch/assessment/assessmentRunner.ts`
+- Create: `Edu_AI/src/stitch/assessment/assessmentRunnerState.ts`
 - Create: `Edu_AI/src/stitch/assessment/AssessmentRunner.tsx`
 - Create: `Edu_AI/src/stitch/assessment/assessmentRunner.test.ts`
 - Modify: `Edu_AI/src/stitch/api/types.ts`、`learning.ts`
@@ -387,17 +387,17 @@ Commit: `git commit -m "security: isolate trusted assessment outcomes"`
 - Produces: `deriveAssessmentAction(summary)`、`mergeServerDraft(local, remote)`、学生安全题目控件和状态文案。
 - Consumes: Task 6 student API。
 
-- [ ] **Step 1: 写状态机失败测试**
+- [x] **Step 1: 写状态机失败测试**
 
 测试必须断言 `not_attempted → in_progress → pending_review|graded → needs_retry|verified_completed`，以及 50→75→65 仍显示最佳 75；`answers_revealed_at` 后不显示“再次计分作答”。
 
-- [ ] **Step 2: 运行红灯并实现界面**
+- [x] **Step 2: 运行红灯并实现界面**
 
 Run: `cd Edu_AI; npm test -- src/stitch/assessment/assessmentRunner.test.ts src/stitch/pages/courseLearningPresentation.test.ts`
 
 Expected before/after: 首次 FAIL；实现后 PASS。
 
-- [ ] **Step 3: 阶段回归、提交和推送**
+- [x] **Step 3: 阶段回归、提交和推送**
 
 Run:
 

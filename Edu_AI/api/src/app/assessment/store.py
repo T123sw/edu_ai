@@ -841,6 +841,33 @@ class AssessmentStore:
             ).fetchall()
         return [self._attempt_from_row(row) for row in rows]
 
+    def reveal_assignment_answers(
+        self, assignment_id: str
+    ) -> AssessmentAssignmentRecord:
+        if self._postgres:
+            return self._repository.reveal_assignment_answers(assignment_id)
+        with self._lock:
+            now = utc_now()
+            cursor = self._connection.execute(
+                """
+                UPDATE assessment_assignments
+                SET answers_revealed_at=COALESCE(answers_revealed_at, ?), updated_at=?
+                WHERE assessment_assignment_id=?
+                """,
+                (now, now, assignment_id),
+            )
+            if cursor.rowcount == 0:
+                self._connection.rollback()
+                raise AssessmentStoreError(
+                    "ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found"
+                )
+            self._connection.commit()
+            row = self._connection.execute(
+                "SELECT * FROM assessment_assignments WHERE assessment_assignment_id=?",
+                (assignment_id,),
+            ).fetchone()
+        return self._assignment_from_row(row)
+
     @staticmethod
     def _assessment_from_row(row: sqlite3.Row) -> AssessmentRecord:
         return AssessmentRecord(

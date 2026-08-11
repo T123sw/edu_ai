@@ -16,6 +16,7 @@ from app.schemas.assessment import (
     AssessmentAnswersRequest,
     AssessmentAttemptResponse,
     AssessmentSubmitRequest,
+    AssessmentFeedbackResponse,
     AssessmentQualityResponse,
     StudentAssessmentResponse,
 )
@@ -39,6 +40,7 @@ def assessment_http_error(error: AssessmentRuleError) -> HTTPException:
         "ATTEMPT_REVISION_CONFLICT": status.HTTP_409_CONFLICT,
         "ATTEMPTS_EXHAUSTED": status.HTTP_409_CONFLICT,
         "ANSWERS_REVEALED": status.HTTP_409_CONFLICT,
+        "ANSWER_REVEAL_NOT_ALLOWED": status.HTTP_409_CONFLICT,
         "ATTEMPT_NOT_FOUND": status.HTTP_404_NOT_FOUND,
         "COURSE_READ_REQUIRED": status.HTTP_403_FORBIDDEN,
     }
@@ -256,6 +258,50 @@ def submit_student_attempt(
                 task_id=task_id,
             ),
             from_attributes=True,
+        )
+    except AssessmentRuleError as error:
+        raise assessment_http_error(error) from error
+
+
+@router.get(
+    "/feedback",
+    response_model=AssessmentFeedbackResponse,
+    response_model_exclude_none=True,
+)
+def get_student_feedback(
+    course_id: str,
+    task_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+    service: AssessmentService = Depends(get_assessment_service),
+) -> AssessmentFeedbackResponse:
+    _require_student(principal)
+    try:
+        return AssessmentFeedbackResponse.model_validate(
+            service.get_student_feedback(
+                course_id=course_id, task_id=task_id, student_id=principal.user_id
+            )
+        )
+    except AssessmentRuleError as error:
+        raise assessment_http_error(error) from error
+
+
+@router.post(
+    "/reveal",
+    response_model=AssessmentFeedbackResponse,
+    response_model_exclude_none=True,
+)
+def reveal_student_answers(
+    course_id: str,
+    task_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+    service: AssessmentService = Depends(get_assessment_service),
+) -> AssessmentFeedbackResponse:
+    _require_student(principal)
+    try:
+        return AssessmentFeedbackResponse.model_validate(
+            service.reveal_answers(
+                course_id=course_id, task_id=task_id, student_id=principal.user_id
+            )
         )
     except AssessmentRuleError as error:
         raise assessment_http_error(error) from error

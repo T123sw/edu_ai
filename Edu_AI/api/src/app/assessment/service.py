@@ -11,7 +11,12 @@ from app.learning.service import LearningRuleError, LearningService
 from .extractors import extract_assessment_items
 from .models import AssessmentRecord, AssessmentVersionRecord
 from .models import AssessmentItemRecord
-from .policies import AssessmentPolicyError, grade_objective_item, validate_settings
+from .policies import (
+    AssessmentPolicyError,
+    can_reveal_answers,
+    grade_objective_item,
+    validate_settings,
+)
 from .quality import AssessmentQualityService, QualityReport
 from .store import AssessmentStore, AssessmentStoreError
 
@@ -532,6 +537,83 @@ class AssessmentService:
             course_id=course_id, task_id=task_id, student_id=student_id
         )
         return self.store.list_attempts(assignment.assessment_assignment_id)
+
+    def get_student_feedback(
+        self, *, course_id: str, task_id: str, student_id: str
+    ) -> dict[str, Any]:
+        assignment = self.get_student_assignment(
+            course_id=course_id, task_id=task_id, student_id=student_id
+        )
+        return self._student_feedback_payload(assignment)
+
+    def reveal_answers(
+        self, *, course_id: str, task_id: str, student_id: str
+    ) -> dict[str, Any]:
+        assignment = self.get_student_assignment(
+            course_id=course_id, task_id=task_id, student_id=student_id
+        )
+        version = self.store.get_version(assignment.assessment_version_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        try:
+            allowed = can_reveal_answers(
+                result=assignment.result,
+                attempts_used=assignment.attempts_used,
+                max_attempts=assignment.max_attempts,
+                reveal_policy=version.answer_reveal_policy,
+            )
+        except AssessmentPolicyError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        if not allowed:
+            raise AssessmentRuleError(
+                "ANSWER_REVEAL_NOT_ALLOWED",
+                "Answers can only be revealed after passing or exhausting attempts",
+            )
+        try:
+            assignment = self.store.reveal_assignment_answers(
+                assignment.assessment_assignment_id
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        return self._student_feedback_payload(assignment)
+
+    def _student_feedback_payload(self, assignment) -> dict[str, Any]:
+        revealed = assignment.answers_revealed_at is not None
+        items = self.store.list_items(assignment.assessment_version_id)
+        best_answers = {
+            answer.assessment_item_id: answer
+            for answer in self.store.list_answers(assignment.best_attempt_id)
+        } if assignment.best_attempt_id else {}
+        payload_items = []
+        for item in items:
+            answer = best_answers.get(item.assessment_item_id)
+            payload = {
+                "assessment_item_id": item.assessment_item_id,
+                "position": item.position,
+                "item_type": item.item_type,
+                "prompt": item.prompt,
+                "answer": answer.answer if answer else None,
+                "final_score": answer.final_score if answer else None,
+                "max_score": item.max_score,
+                "review_status": answer.review_status if answer else "ungraded",
+            }
+            if revealed:
+                payload["solution"] = dict(item.scoring_key)
+                if item.rubric:
+                    payload["rubric"] = dict(item.rubric)
+            payload_items.append(payload)
+        return {
+            "assessment_assignment_id": assignment.assessment_assignment_id,
+            "task_id": assignment.task_id,
+            "attempts_used": assignment.attempts_used,
+            "max_attempts": assignment.max_attempts,
+            "best_final_score": assignment.best_final_score,
+            "result": assignment.result,
+            "answers_revealed_at": assignment.answers_revealed_at,
+            "items": payload_items,
+        }
 
     def _draft_payload(self, task, version: AssessmentVersionRecord) -> dict[str, Any]:
         items = self.store.list_items(version.assessment_version_id)

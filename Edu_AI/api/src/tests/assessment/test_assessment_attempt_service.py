@@ -186,3 +186,80 @@ def test_subjective_submission_waits_for_teacher_review(tmp_path):
     )
     assert assignment.attempts_used == 1
     assert assignment.result == "pending_review"
+
+
+def test_answers_reveal_only_after_pass_and_closes_scored_attempts(tmp_path):
+    service, task = _service(tmp_path)
+    first = service.start_attempt(
+        course_id="course-1", task_id=task.task_id, student_id="student-1"
+    )
+    service.save_answers(
+        attempt_id=first.attempt_id,
+        student_id="student-1",
+        answers=_answers(2),
+        expected_revision=0,
+    )
+    service.submit_attempt(
+        attempt_id=first.attempt_id,
+        student_id="student-1",
+        idempotency_key="reveal-first",
+    )
+
+    with pytest.raises(AssessmentRuleError) as too_early:
+        service.reveal_answers(
+            course_id="course-1", task_id=task.task_id, student_id="student-1"
+        )
+    assert too_early.value.code == "ANSWER_REVEAL_NOT_ALLOWED"
+
+    second = service.start_attempt(
+        course_id="course-1", task_id=task.task_id, student_id="student-1"
+    )
+    service.save_answers(
+        attempt_id=second.attempt_id,
+        student_id="student-1",
+        answers=_answers(3),
+        expected_revision=0,
+    )
+    service.submit_attempt(
+        attempt_id=second.attempt_id,
+        student_id="student-1",
+        idempotency_key="reveal-second",
+    )
+
+    feedback = service.reveal_answers(
+        course_id="course-1", task_id=task.task_id, student_id="student-1"
+    )
+    assert feedback["answers_revealed_at"] is not None
+    assert feedback["items"][0]["solution"]["accepted_answers"] == ["correct-1"]
+    with pytest.raises(AssessmentRuleError) as closed:
+        service.start_attempt(
+            course_id="course-1", task_id=task.task_id, student_id="student-1"
+        )
+    assert closed.value.code == "ANSWERS_REVEALED"
+
+
+def test_feedback_hides_solutions_until_answers_are_revealed(tmp_path):
+    service, task = _service(tmp_path)
+    attempt = service.start_attempt(
+        course_id="course-1", task_id=task.task_id, student_id="student-1"
+    )
+    service.save_answers(
+        attempt_id=attempt.attempt_id,
+        student_id="student-1",
+        answers=_answers(4),
+        expected_revision=0,
+    )
+    service.submit_attempt(
+        attempt_id=attempt.attempt_id,
+        student_id="student-1",
+        idempotency_key="feedback-submit",
+    )
+
+    hidden = service.get_student_feedback(
+        course_id="course-1", task_id=task.task_id, student_id="student-1"
+    )
+    assert all("solution" not in item for item in hidden["items"])
+    revealed = service.reveal_answers(
+        course_id="course-1", task_id=task.task_id, student_id="student-1"
+    )
+    assert all("solution" in item for item in revealed["items"])
