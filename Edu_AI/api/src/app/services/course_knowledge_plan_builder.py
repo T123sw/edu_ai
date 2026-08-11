@@ -22,6 +22,8 @@ from app.services.course_knowledge_source_discovery import (
     canonical_source_url,
     discover_course_knowledge_sources,
 )
+from app.services.course_knowledge_textbook_mapping import map_textbook_chunks_to_graph
+from app.services.course_knowledge_quality_gate import evaluate_course_knowledge_quality
 from app.services.job_store import EduJob, JobKind, JobStatus, create_job, update_job
 from core.course_storage import LIBRARY_TYPE_COURSE, CourseStorageManager
 
@@ -310,6 +312,123 @@ def _reviewed_generated_documents(
     return eligible
 
 
+def _persist_textbook_materials(
+    *,
+    manager: CourseStorageManager,
+    rag_system: Any,
+    course_id: str,
+    owner_user_id: str,
+    build: Mapping[str, Any],
+    mapping_result: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Persist one visible original and one hidden indexed document per leaf/textbook."""
+    persisted: list[dict[str, Any]] = []
+    course_root = manager.get_course_dir(course_id).resolve()
+    existing_index = manager.get_knowledge_base_index(course_id)
+    textbooks = {
+        str(item.get("textbook_id") or ""): item
+        for item in build.get("textbooks") or []
+        if item.get("status") == "ready"
+    }
+    for textbook_id, textbook in textbooks.items():
+        existing = next(
+            (
+                item for item in existing_index
+                if item.get("source_type") == "textbook_original"
+                and item.get("source_build_id") == build.get("build_id")
+                and item.get("textbook_id") == textbook_id
+            ),
+            None,
+        )
+        if existing:
+            persisted.append({"document_id": str(existing.get("id") or ""), "scope_id": "", "source_type": "textbook_original", "reused": True})
+            continue
+        source_path = (course_root / str(textbook.get("relative_path") or "")).resolve()
+        source_path.relative_to(course_root)
+        if not source_path.is_file():
+            raise FileNotFoundError(f"教材原文件不存在：{textbook.get('filename')}")
+        filename = f"kbbuild-textbook-{textbook_id}-{str(textbook.get('content_hash') or '')[:12]}{source_path.suffix.lower()}"
+        relative_path = manager.save_knowledge_base_file(
+            course_id, source_path.read_bytes(), filename,
+            scope_type="course", scope_id=course_id, library_type=LIBRARY_TYPE_COURSE,
+        )
+        full_path = manager.get_course_dir(course_id) / relative_path
+        import_result = rag_system.import_document(
+            str(full_path), force_reimport=True, owner=owner_user_id,
+            metadata_overrides={
+                "course_id": course_id, "library_type": LIBRARY_TYPE_COURSE,
+                "scope_type": "course", "scope_id": course_id,
+                "source_type": "textbook_original", "source_build_id": build.get("build_id"),
+                "textbook_id": textbook_id,
+            },
+        )
+        record = _update_saved_record(
+            manager=manager, course_id=course_id, relative_path=relative_path,
+            fields={
+                "source_type": "textbook_original", "doc_kind": "textbook",
+                "source_build_id": build.get("build_id"), "textbook_id": textbook_id,
+                "content_hash": textbook.get("content_hash"), "status": "received",
+                "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+            },
+        )
+        persisted.append({"document_id": record["id"], "scope_id": "", "source_type": "textbook_original", "reused": False})
+
+    groups: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
+    for mapping in mapping_result.get("mappings") or []:
+        key = (str(mapping.get("textbook_id") or ""), str(mapping.get("knowledge_node_id") or ""))
+        if all(key):
+            groups.setdefault(key, []).append(mapping)
+    for (textbook_id, scope_id), mappings in groups.items():
+        existing = next(
+            (
+                item for item in existing_index
+                if item.get("source_type") == "textbook"
+                and item.get("source_build_id") == build.get("build_id")
+                and item.get("textbook_id") == textbook_id
+                and str(item.get("scope_id") or "") == scope_id
+            ),
+            None,
+        )
+        if existing:
+            persisted.append({"document_id": str(existing.get("id") or ""), "scope_id": scope_id, "source_type": "textbook", "reused": True})
+            continue
+        textbook = textbooks[textbook_id]
+        sections = [
+            f"## {('第 ' + str(item.get('page')) + ' 页') if item.get('page') else item.get('chapter_title') or '教材章节'}\n\n{item.get('content') or ''}"
+            for item in mappings
+        ]
+        body = f"# {textbook.get('filename')} · 节点资料\n\n" + "\n\n".join(sections)
+        filename = _safe_material_filename("textbook-node", str(textbook.get("filename") or "教材"), f"{build.get('build_id')}:{textbook_id}:{scope_id}")
+        relative_path = manager.save_knowledge_base_file(
+            course_id, body.encode("utf-8"), filename,
+            scope_type="knowledge_point", scope_id=scope_id, library_type=LIBRARY_TYPE_COURSE,
+        )
+        full_path = manager.get_course_dir(course_id) / relative_path
+        minimum_confidence = min(float(item.get("mapping_confidence") or 0) for item in mappings)
+        import_result = rag_system.import_document(
+            str(full_path), force_reimport=True, owner=owner_user_id,
+            metadata_overrides={
+                "course_id": course_id, "library_type": LIBRARY_TYPE_COURSE,
+                "scope_type": "knowledge_point", "scope_id": scope_id,
+                "knowledge_node_id": scope_id, "source_type": "textbook",
+                "source_build_id": build.get("build_id"), "textbook_id": textbook_id,
+                "mapping_method": "outline_anchor_or_semantic", "mapping_confidence": minimum_confidence,
+            },
+        )
+        record = _update_saved_record(
+            manager=manager, course_id=course_id, relative_path=relative_path,
+            fields={
+                "source_type": "textbook", "doc_kind": "textbook_chunk_group",
+                "source_build_id": build.get("build_id"), "textbook_id": textbook_id,
+                "textbook_mappings": [dict(item) for item in mappings],
+                "display_in_library": False, "status": "received",
+                "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+            },
+        )
+        persisted.append({"document_id": record["id"], "scope_id": scope_id, "source_type": "textbook", "reused": False})
+    return persisted
+
+
 def _published_graph(build: Mapping[str, Any], persisted: list[Mapping[str, Any]]) -> dict[str, Any]:
     if not build.get("graph_draft"):
         raise ValueError("知识图谱草案不存在，禁止使用硬编码结构发布")
@@ -446,19 +565,44 @@ def run_course_knowledge_plan_build_job(
             build_progress = 10 + round(completed_steps / total_steps * 65)
             repository.update_build(build_id, status="running", phase="indexing", progress=build_progress)
 
+        fetch_failed_by_leaf: dict[str, int] = {}
+        for failure in failures:
+            topic_id = str(failure.get("topic_id") or "")
+            if topic_id:
+                fetch_failed_by_leaf[topic_id] = fetch_failed_by_leaf.get(topic_id, 0) + 1
+        build["metrics"] = {**dict(build.get("metrics") or {}), "fetch_failed_by_leaf": fetch_failed_by_leaf}
+
+        mapping_result = map_textbook_chunks_to_graph(build)
+        if any(item.get("status") == "ready" for item in build.get("textbooks") or []):
+            repository.update_build(build_id, status="running", phase="textbook_mapping", progress=45)
+            if progress:
+                progress(45, "textbook_mapping", "正在按确认图谱拆分并索引教材")
+            persisted.extend(
+                _persist_textbook_materials(
+                    manager=manager, rag_system=rag_system, course_id=course_id,
+                    owner_user_id=owner_user_id, build={**build, "build_id": build_id},
+                    mapping_result=mapping_result,
+                )
+            )
+
+        config = dict(build.get("config") or {})
+        target_per_leaf = max(1, int(config.get("target_materials_per_leaf") or MIN_DOCUMENTS_PER_LEAF))
+        maximum_ai = max(0, int(config.get("maximum_ai_materials_per_leaf") or 0))
+        ai_enabled = bool(config.get("ai_supplement_enabled", True))
         course_title = str((build.get("course_snapshot") or {}).get("title") or "课程")
         deficits: list[tuple[Mapping[str, Any], int]] = []
         for topic in topics:
             topic_id = str(topic.get("topic_id") or "")
             existing_count = len({str(item.get("document_id") or "") for item in persisted if str(item.get("scope_id") or "") == topic_id and item.get("document_id")})
+            ai_budget = min(maximum_ai, max(0, target_per_leaf - existing_count)) if ai_enabled else 0
             resumed = _reviewed_generated_documents(
                 manager,
                 course_id=course_id,
                 scope_id=topic_id,
-                limit=max(0, MIN_DOCUMENTS_PER_LEAF - existing_count),
+                limit=ai_budget,
             )
             persisted.extend(resumed)
-            remaining = max(0, MIN_DOCUMENTS_PER_LEAF - existing_count - len(resumed))
+            remaining = max(0, ai_budget - len(resumed))
             deficits.extend((topic, sequence) for sequence in range(1, remaining + 1))
 
         persistence_lock = RLock()
@@ -487,37 +631,40 @@ def run_course_knowledge_plan_build_job(
                         progress(build_progress, "model_fallback", f"正在检查“{topic.get('title')}”的资料覆盖")
 
         graph = _published_graph({**build, "build_id": build_id}, persisted)
-        hard_gate_passed, leaf_coverage, graph_issues = _validate_graph_and_coverage(graph)
-        generated_items = [item for item in persisted if item.get("source_type") == "model_generated"]
-        provenance_ok = all(item.get("source_type") == "model_generated" or item.get("provenance_ok", True) for item in persisted)
-        generated_review_ok = all(int(item.get("review_score") or 0) >= 80 for item in generated_items)
-        graph_score = 20.0 if not graph_issues or all("资料" in issue for issue in graph_issues) else 0.0
-        coverage_score = 50.0 if all(count >= MIN_DOCUMENTS_PER_LEAF for count in leaf_coverage.values()) and leaf_coverage else 0.0
-        ingestion_score = 15.0 if len(persisted) >= len(topics) * MIN_DOCUMENTS_PER_LEAF else 0.0
-        provenance_score = 15.0 if provenance_ok and generated_review_ok else 0.0
-        quality_score = round(graph_score + coverage_score + ingestion_score + provenance_score, 2)
+        quality = evaluate_course_knowledge_quality(
+            build,
+            persisted,
+            textbook_metrics=dict(mapping_result.get("metrics") or {}),
+            index_integrity=all(str(item.get("document_id") or "") for item in persisted),
+            publication_atomicity=True,
+        )
+        quality_score = float(quality["quality_score"])
         quality_details = {
-            "selected_source_count": len(selected), "persisted_document_count": len(persisted),
-            "topic_count": len(topics), "leaf_coverage": leaf_coverage,
-            "minimum_documents_per_leaf": MIN_DOCUMENTS_PER_LEAF,
-            "generated_document_count": len(generated_items), "generated_review_ok": generated_review_ok,
-            "acquisition_order": ["chinese", "english_fallback", "model_generated"],
-            "failures": failures, "graph_issues": graph_issues,
+            **quality,
+            "selected_source_count": len(selected),
+            "persisted_document_count": len(persisted),
+            "topic_count": len(topics),
+            "failures": failures,
+            "textbook_mapping": mapping_result.get("metrics") or {},
+            "unmapped_textbook_chunks": mapping_result.get("unmapped") or [],
+            "acquisition_order": ["web", "textbook", "model_generated"],
         }
-        checks = [
-            ("graph_structure", graph_score == 20, graph_score, 20),
-            ("source_provenance", provenance_score == 15, provenance_score, 15),
-            ("ingestion_success", ingestion_score == 15, ingestion_score, 15),
-            ("leaf_document_coverage", coverage_score == 50, coverage_score, 50),
-        ]
-        for check_type, passed, score, threshold in checks:
-            repository.record_quality_check(build_id, check_type=check_type, status="passed" if passed else "failed", score=score, threshold=threshold, details=quality_details)
+        for check in quality["checks"]:
+            repository.record_quality_check(
+                build_id,
+                check_type=check["check_type"],
+                status=check["status"],
+                score=1 if check["status"] == "passed" else 0,
+                threshold=1,
+                details=check["details"],
+            )
         repository.update_build(build_id, status="running", phase="quality_check", progress=85, metrics=quality_details, quality_score=quality_score)
         if progress:
             progress(85, "quality_check", f"质量评分 {quality_score:.0f}/100")
-        if not hard_gate_passed or quality_score < 80:
-            repository.update_build(build_id, status="blocked", phase="quality_blocked", progress=100, metrics=quality_details, quality_score=quality_score, error={"code": "QUALITY_GATE_FAILED", "message": "叶级知识点资料覆盖或图谱结构未通过质量门禁"})
-            raise RuntimeError(f"质量门禁未通过（{quality_score:.0f}/100）：{'；'.join(graph_issues)}")
+        if not quality["passed"]:
+            failed_checks = [item["check_type"] for item in quality["checks"] if item["status"] == "failed"]
+            repository.update_build(build_id, status="blocked", phase="quality_blocked", progress=100, metrics=quality_details, quality_score=quality_score, error={"code": "QUALITY_GATE_FAILED", "message": f"质量门禁未通过：{', '.join(failed_checks)}"})
+            raise RuntimeError(f"质量门禁未通过（{quality_score:.0f}/100）：{', '.join(failed_checks)}")
 
         repository.update_build(build_id, status="publishing", phase="publishing", progress=95, metrics=quality_details, quality_score=quality_score)
         published_version = repository.publish_build(
@@ -529,7 +676,7 @@ def run_course_knowledge_plan_build_job(
             "resource_type": "course_knowledge_base", "course_id": course_id, "build_id": build_id,
             "document_count": len(persisted), "topic_count": len(topics), "quality_score": quality_score,
             "published_version": published_version, "warning_count": len(failures), "warnings": failures,
-            "leaf_coverage": leaf_coverage, "published_at": utc_now(),
+            "leaf_coverage": quality["leaf_coverage"], "published_at": utc_now(),
         }
         update_job(job_id, status=JobStatus.SUCCEEDED, step="completed", progress=100, message="课程知识库已通过质量检查并发布", result_ref=result)
         return result

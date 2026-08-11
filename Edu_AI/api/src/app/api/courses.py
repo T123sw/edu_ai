@@ -910,6 +910,7 @@ def get_knowledge_base_documents(
         library_type=library_type,
         owner_user_id=owner_user_id if library_type == LIBRARY_TYPE_PERSONAL else None,
     )
+    index = [item for item in index if item.get("display_in_library") is not False]
     # A viewer must only observe the atomically published knowledge-base
     # version. Owners/editors may inspect staged or failed records for
     # diagnostics, while students never see a blocked build leaking through

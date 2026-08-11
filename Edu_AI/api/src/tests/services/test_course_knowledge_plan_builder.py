@@ -12,6 +12,15 @@ def _build_record():
         "course_id": "course-1",
         "status": "draft",
         "course_snapshot": {"title": "线性代数"},
+        "config": {
+            "graph_depth": 3,
+            "target_module_count": 1,
+            "target_points_per_module": 2,
+            "target_materials_per_leaf": 3,
+            "minimum_web_materials_per_leaf": 1,
+            "maximum_ai_materials_per_leaf": 2,
+            "ai_supplement_enabled": True,
+        },
         "topics": [
             {"topic_id": "topic-1", "title": "向量空间", "objective": "理解向量空间"},
             {"topic_id": "topic-2", "title": "矩阵", "objective": "掌握矩阵运算"},
@@ -197,7 +206,7 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
 
     assert result["quality_score"] == 100
     assert repository.build["status"] == "succeeded"
-    assert len(repository.checks) == 4
+    assert len(repository.checks) == 8
     assert result["document_count"] == 6
     assert sorted(generated) == ["topic-1", "topic-1", "topic-2", "topic-2"]
     assert repository.published_graph["data"]["publication_status"] == "published"
@@ -225,6 +234,96 @@ def test_plan_build_blocks_publish_when_sources_cannot_be_ingested(monkeypatch):
 
     assert repository.build["status"] == "blocked"
     assert repository.published_graph is None
+
+
+def test_ai_supplement_disabled_never_calls_model(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"]["ai_supplement_enabled"] = False
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "_persist_candidate",
+        lambda **kwargs: {
+            "document_id": kwargs["candidate"]["candidate_id"],
+            "scope_id": kwargs["candidate"]["topic_id"],
+            "source_url": kwargs["candidate"]["url"],
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "final_url": kwargs["candidate"]["url"],
+        },
+    )
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **_kwargs: pytest.fail("AI supplement must remain disabled"),
+    )
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    with pytest.raises(RuntimeError, match="material_coverage"):
+        builder.run_course_knowledge_plan_build_job(
+            job_id="job-1", manager=FakeManager(), rag_system=object(),
+            course_id="course-1", owner_user_id="teacher-1", build_id="kb-1",
+        )
+
+
+def test_textbook_persistence_keeps_original_visible_and_groups_hidden_leaf_chunks(tmp_path):
+    course_dir = tmp_path / "course-1"
+    staged = course_dir / "inputs" / "original.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text("# 方程\n解方程", encoding="utf-8")
+
+    class Manager:
+        def __init__(self):
+            self.index = []
+
+        def get_course_dir(self, _course_id):
+            return course_dir
+
+        def get_knowledge_base_index(self, _course_id):
+            return self.index
+
+        def save_knowledge_base_file(self, _course_id, payload, filename, **metadata):
+            target = course_dir / "knowledge_base" / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            relative = target.relative_to(course_dir).as_posix()
+            self.index.append({"id": f"doc-{len(self.index) + 1}", "path": relative, **metadata})
+            return relative
+
+        def save_knowledge_base_index(self, _course_id, index):
+            self.index = index
+
+    class Rag:
+        def import_document(self, _path, **_kwargs):
+            return {"chunk_count": 1}
+
+    manager = Manager()
+    persisted = builder._persist_textbook_materials(
+        manager=manager,
+        rag_system=Rag(),
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build={
+            "build_id": "kb-1",
+            "textbooks": [{
+                "textbook_id": "book-1", "filename": "教材.md", "status": "ready",
+                "relative_path": "inputs/original.md", "content_hash": "hash-book",
+            }],
+        },
+        mapping_result={
+            "mappings": [{
+                "textbook_id": "book-1", "knowledge_node_id": "leaf-1",
+                "chapter_title": "方程", "page": 3, "content": "解方程",
+                "mapping_confidence": 1.0,
+            }]
+        },
+    )
+
+    assert [item["source_type"] for item in persisted] == ["textbook_original", "textbook"]
+    original = next(item for item in manager.index if item["source_type"] == "textbook_original")
+    mapped = next(item for item in manager.index if item["source_type"] == "textbook")
+    assert original.get("display_in_library") is not False
+    assert mapped["display_in_library"] is False
+    assert mapped["textbook_mappings"][0]["page"] == 3
 
 
 def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypatch):
