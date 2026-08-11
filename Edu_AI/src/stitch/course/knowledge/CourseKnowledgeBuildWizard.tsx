@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
 import { isActiveJob } from "../../../jobs/types";
@@ -38,6 +38,7 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
   const [uploading, setUploading] = useState(false);
   const [submittingGraph, setSubmittingGraph] = useState(false);
   const [graphDraft, setGraphDraft] = useState<KnowledgeGraphNode | null>(build.graph_draft || null);
+  const lastSavedGraph = useRef<KnowledgeGraphNode | null>(build.graph_draft || null);
   const [graphBusy, setGraphBusy] = useState(false);
   const [error, setError] = useState("");
   const jobs = useCourseJobs(courseId);
@@ -54,7 +55,14 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
 
   useEffect(() => {
     if (!build.graph_draft) return;
-    setGraphDraft(build.graph_draft);
+    const previouslySaved = lastSavedGraph.current;
+    lastSavedGraph.current = build.graph_draft;
+    setGraphDraft((current) => {
+      if (!current || !previouslySaved || graphDraftEqual(current, previouslySaved)) {
+        return build.graph_draft;
+      }
+      return current;
+    });
     setStep("graph");
   }, [build.graph_draft]);
 
@@ -66,7 +74,6 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
         if (!canceled) {
           onBuildChange(current);
           if (current.graph_draft) {
-            setGraphDraft(current.graph_draft);
             setSubmittingGraph(false);
             setStep("graph");
           }

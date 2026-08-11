@@ -523,6 +523,14 @@ def run_course_knowledge_plan_build_job(
         topics = list(build.get("topics") or [])
         if not topics:
             raise ValueError("构建计划没有叶级知识点")
+        config = dict(build.get("config") or {})
+        target_per_leaf = max(
+            1, int(config.get("target_materials_per_leaf") or MIN_DOCUMENTS_PER_LEAF)
+        )
+        minimum_web_per_leaf = max(
+            0, int(config.get("minimum_web_materials_per_leaf") or 0)
+        )
+        desired_web_per_leaf = max(target_per_leaf, minimum_web_per_leaf)
         repository.update_build(build_id, status="running", phase="source_audit", progress=5)
         if progress:
             progress(5, "source_audit", "正在抓取中文优先、配置语言补充的网页正文")
@@ -530,9 +538,27 @@ def run_course_knowledge_plan_build_job(
         failures: list[dict[str, str]] = []
         total_steps = max(1, len(selected) + len(topics) * MIN_DOCUMENTS_PER_LEAF)
         completed_steps = 0
+        web_success_by_leaf: dict[str, int] = {}
         seen_final_urls: set[str] = set()
         seen_content_hashes: set[str] = set()
         for candidate in selected:
+            topic_id = str(candidate.get("topic_id") or "")
+            if web_success_by_leaf.get(topic_id, 0) >= desired_web_per_leaf:
+                completed_steps += 1
+                build_progress = 10 + round(completed_steps / total_steps * 65)
+                repository.update_build(
+                    build_id,
+                    status="running",
+                    phase="indexing",
+                    progress=build_progress,
+                )
+                if progress:
+                    progress(
+                        build_progress,
+                        "indexing",
+                        f"已处理 {completed_steps}/{len(selected)} 个网络来源",
+                    )
+                continue
             try:
                 item = _persist_candidate(
                     manager=manager,
@@ -546,6 +572,7 @@ def run_course_knowledge_plan_build_job(
                 item.setdefault("source_type", "web")
                 item["provenance_ok"] = bool(item.get("source_url") and item.get("content_hash"))
                 persisted.append(item)
+                web_success_by_leaf[topic_id] = web_success_by_leaf.get(topic_id, 0) + 1
                 repository.update_source_candidate_result(
                     build_id,
                     str(candidate.get("candidate_id") or ""),
@@ -569,6 +596,12 @@ def run_course_knowledge_plan_build_job(
             completed_steps += 1
             build_progress = 10 + round(completed_steps / total_steps * 65)
             repository.update_build(build_id, status="running", phase="indexing", progress=build_progress)
+            if progress:
+                progress(
+                    build_progress,
+                    "indexing",
+                    f"已处理 {completed_steps}/{len(selected)} 个网络来源",
+                )
 
         fetch_failed_by_leaf: dict[str, int] = {}
         for failure in failures:
@@ -590,8 +623,6 @@ def run_course_knowledge_plan_build_job(
                 )
             )
 
-        config = dict(build.get("config") or {})
-        target_per_leaf = max(1, int(config.get("target_materials_per_leaf") or MIN_DOCUMENTS_PER_LEAF))
         maximum_ai = max(0, int(config.get("maximum_ai_materials_per_leaf") or 0))
         ai_enabled = bool(config.get("ai_supplement_enabled", True))
         course_title = str((build.get("course_snapshot") or {}).get("title") or "课程")

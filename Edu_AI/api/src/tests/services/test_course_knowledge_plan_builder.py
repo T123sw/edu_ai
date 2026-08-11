@@ -239,6 +239,77 @@ def test_plan_build_blocks_publish_when_sources_cannot_be_ingested(monkeypatch):
     assert repository.published_graph is None
 
 
+def test_plan_build_stops_crawling_after_each_leaf_reaches_its_target(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"].update(
+        target_materials_per_leaf=1,
+        minimum_web_materials_per_leaf=1,
+        maximum_ai_materials_per_leaf=0,
+    )
+    candidates = [
+        {
+            "candidate_id": f"source-{topic}-{sequence}",
+            "topic_id": topic,
+            "url": f"https://example.com/{topic}/{sequence}",
+            "review_status": "relevant",
+            "selected": True,
+            "metadata": {"query": topic},
+        }
+        for topic in ("topic-1", "topic-2")
+        for sequence in (1, 2)
+    ]
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "discover_course_knowledge_sources",
+        lambda _build: {
+            "topics": repository.build["topics"],
+            "source_candidates": candidates,
+            "warnings": [],
+            "metrics": {
+                "leaf_count": 2,
+                "candidate_count": 4,
+                "selected_candidate_count": 4,
+                "search_failure_count": 0,
+            },
+        },
+    )
+    crawled = []
+
+    def persist(**kwargs):
+        candidate = kwargs["candidate"]
+        crawled.append(candidate["candidate_id"])
+        return {
+            "document_id": candidate["candidate_id"],
+            "scope_id": candidate["topic_id"],
+            "source_url": candidate["url"],
+            "content_hash": candidate["candidate_id"],
+            "final_url": candidate["url"],
+        }
+
+    progress = []
+    monkeypatch.setattr(builder, "_persist_candidate", persist)
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **_kwargs: pytest.fail("web target already satisfies coverage"),
+    )
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    builder.run_course_knowledge_plan_build_job(
+        job_id="job-1",
+        manager=FakeManager(),
+        rag_system=object(),
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build_id="kb-1",
+        progress=lambda *args: progress.append(args),
+    )
+
+    assert crawled == ["source-topic-1-1", "source-topic-2-1"]
+    assert any(item[1] == "indexing" for item in progress)
+
+
 def test_ai_supplement_disabled_never_calls_model(monkeypatch):
     repository = FakeRepository()
     repository.build["config"]["ai_supplement_enabled"] = False
