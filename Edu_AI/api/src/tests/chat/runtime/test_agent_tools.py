@@ -38,6 +38,27 @@ def test_build_tool_schemas_exposes_student_tools_only():
     assert "generate_blog" not in names
 
 
+def test_learning_and_generation_status_schemas_are_typed_and_role_scoped():
+    cap = SimpleNamespace(allow_rag=False, allow_web=False, allow_image_search=False)
+    student = {
+        schema["function"]["name"]: schema["function"]
+        for schema in build_tool_schemas(cap, actor_role="student")
+    }
+    teacher = {
+        schema["function"]["name"]: schema["function"]
+        for schema in build_tool_schemas(cap, actor_role="teacher")
+    }
+
+    assert "get_my_learning_progress" in student
+    assert "get_course_learning_progress" not in student
+    assert "get_course_learning_progress" in teacher
+    assert "get_my_learning_progress" not in teacher
+    assert student["get_my_learning_progress"]["parameters"]["properties"]["task_id"]["pattern"] == "^lt_"
+    assert teacher["get_course_learning_progress"]["parameters"]["properties"]["task_id"]["pattern"] == "^lt_"
+    assert student["query_generation_job_status"]["parameters"]["properties"]["task_id"]["pattern"] == "^job_"
+    assert "query_task_status" not in student | teacher
+
+
 def test_tool_workflow_mapping_is_available_from_constants_module():
     assert TOOL_TO_WORKFLOW == {
         "generate_report": "report",

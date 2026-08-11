@@ -62,7 +62,7 @@ export function LoginPage({ onLogin }: { onLogin: (payload: { username: string; 
       <Card className="login-card">
         <div className="login-form-wrapper">
           <div className="login-form-header">
-            <p className="login-form-kicker">教师账号</p>
+            <p className="login-form-kicker">平台账号</p>
             <h2 id="login-title" className="login-form-title">登录 Edu AI</h2>
             <p className="login-form-desc">使用系统分配的账号进入你有权访问的全部课程</p>
           </div>

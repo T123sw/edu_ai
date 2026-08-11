@@ -33,3 +33,38 @@ def test_verifier_rejects_out_of_allowlist_execution():
     assert report.decision == "fail"
     assert report.forbidden_tools_absent is False
     assert report.repair_directive.action == "stop"
+
+
+def test_verifier_readback_uses_public_generation_status_tool():
+    report = verify_plan_execution(
+        {
+            "steps": [
+                {
+                    "internal_action": "generate_resource",
+                    "expected_tools": ["generate_report"],
+                    "tool_allowlist": ["generate_report"],
+                },
+                {
+                    "internal_action": "generation_status",
+                    "expected_tools": ["query_generation_job_status"],
+                    "tool_allowlist": ["query_generation_job_status"],
+                    "required": False,
+                },
+            ]
+        },
+        {
+            "agent_steps": [
+                {
+                    "tool": "generate_report",
+                    "ok": True,
+                    "task_id": "job_report",
+                    "args": {"subject": "快速排序"},
+                },
+                {"tool": "query_generation_job_status", "ok": True, "args": {}},
+            ]
+        },
+        artifact_readback={"readable": False},
+    )
+
+    assert report.repair_directive.action == "readback"
+    assert report.repair_directive.target_tool == "query_generation_job_status"

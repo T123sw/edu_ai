@@ -10,6 +10,13 @@ from app.chat.domain.teaching_task_contract import (
     ContractFieldEvidence,
     TeachingTaskContract,
 )
+from app.chat.domain.task_domain import (
+    extract_task_ids,
+    is_generation_job_id,
+    is_learning_task_id,
+    partition_task_ids,
+    resolve_task_domain,
+)
 
 
 _RESOURCE_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -27,10 +34,10 @@ _BUNDLE_KEYWORDS = ("教学材料", "备课材料", "整套材料", "材料包")
 _CANCEL_ACTION_PATTERN = re.compile(
     r"(?:取消|终止|停止)(?:掉|一下)?"
     r"(?:当前|这个|刚才|上一个|最近)?(?:的)?\s*"
-    r"(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|课件|ppt|教案|测验|闪卡|小游戏)"
+    r"(?:学习)?(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|课件|ppt|教案|测验|闪卡|小游戏)"
 )
 _CANCEL_ONLY_PATTERN = re.compile(r"^(?:请|帮我|现在|立刻|先)?(?:取消|终止|停止)(?:掉|一下)?[。！!\s]*$")
-_STATUS_DIRECT_KEYWORDS = ("做到哪", "进度", "完成了吗", "完成没有")
+_STATUS_DIRECT_KEYWORDS = ("做到哪", "进度", "完成了吗", "完成没有", "完成情况", "刚完成")
 _STATUS_ACTION_PATTERN = re.compile(
     r"(?:(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂).{0,12}状态|"
     r"状态.{0,12}(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂))"
@@ -44,7 +51,13 @@ _HOW_TO_PREFIXES = ("如何", "怎么", "怎样", "为什么", "什么是")
 _KNOWLEDGE_QUESTION_MARKERS = ("哪些", "什么", "如何", "为什么", "怎么", "怎样")
 
 
-def extract_task_contract(request: Any, capability: Any, state: dict | None = None) -> TeachingTaskContract:
+def extract_task_contract(
+    request: Any,
+    capability: Any,
+    state: dict | None = None,
+    *,
+    snapshot: Any = None,
+) -> TeachingTaskContract:
     state = state or {}
     question = str(getattr(request, "question", "") or "").strip()
     lowered = question.lower()
@@ -112,18 +125,43 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
     else:
         confirmation_policy = "none"
 
+    historical_generation_job_ids = [
+        str(item.get("task_id") or "").strip()
+        for item in pending_tasks
+        if is_generation_job_id(item.get("task_id") or "")
+    ]
+    historical_learning_task_ids = [
+        str(item.get("task_id") or "").strip()
+        for item in pending_tasks
+        if is_learning_task_id(item.get("task_id") or "")
+    ]
+    current_learning_task_ids, current_generation_job_ids = partition_task_ids(
+        extract_task_ids(question)
+    )
+    page_task_ids = _page_task_ids(snapshot)
+    page_learning_task_ids, page_generation_job_ids = partition_task_ids(page_task_ids)
+    task_domain = resolve_task_domain(
+        question,
+        historical_learning_task_ids + historical_generation_job_ids,
+        page_task_ids=page_task_ids,
+    )
+    domain_pending_tasks = {
+        "course_learning": [
+            item for item in pending_tasks
+            if is_learning_task_id(item.get("task_id") or "")
+        ],
+        "generation_job": [
+            item for item in pending_tasks
+            if is_generation_job_id(item.get("task_id") or "")
+        ],
+    }.get(task_domain, [])
     ambiguities = _ambiguities(
         question=question,
         intent=intent,
         resource_types=resource_types,
-        pending_tasks=pending_tasks,
+        pending_tasks=domain_pending_tasks,
     )
     clarification = _clarification(ambiguities)
-    candidate_task_ids = [
-        str(item.get("task_id") or "").strip()
-        for item in pending_tasks
-        if str(item.get("task_id") or "").strip()
-    ]
     field_evidence = _field_evidence(
         question=question,
         intent=intent,
@@ -143,6 +181,7 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
             else "teacher"
         ),
         intent=intent,
+        task_domain=task_domain,
         topic=topic,
         resource_types=resource_types,
         audience=audience,
@@ -157,12 +196,62 @@ def extract_task_contract(request: Any, capability: Any, state: dict | None = No
             "conversation_id": str(getattr(request, "conversation_id", "") or ""),
             "course_id": str(getattr(request, "course_id", "") or ""),
             "active_outline": bool(active_outline),
-            "candidate_task_ids": candidate_task_ids,
+            "current_learning_task_ids": current_learning_task_ids,
+            "current_generation_job_ids": current_generation_job_ids,
+            "page_learning_task_ids": page_learning_task_ids,
+            "page_generation_job_ids": page_generation_job_ids,
+            "learning_task_ids": historical_learning_task_ids,
+            "generation_job_ids": historical_generation_job_ids,
         },
         field_evidence=field_evidence,
         ambiguities=ambiguities,
         clarification=clarification,
     )
+
+
+def _page_task_ids(snapshot: Any) -> list[str]:
+    """Read task IDs only from structured snapshot fields owned by the page."""
+    if snapshot is None:
+        return []
+
+    values: list[str] = []
+
+    def add(value: Any) -> None:
+        if isinstance(value, str) and value.strip():
+            values.append(value.strip())
+        elif isinstance(value, (list, tuple, set)):
+            for item in value:
+                add(item)
+
+    learning_context = dict(getattr(snapshot, "learning_context", {}) or {})
+    for key in ("pending_tasks", "completed_tasks", "task_summaries"):
+        for item in list(learning_context.get(key) or []):
+            if isinstance(item, dict):
+                add(item.get("task_id"))
+
+    active_context = dict(getattr(snapshot, "active_context", {}) or {})
+    for key in (
+        "task_id",
+        "task_ids",
+        "active_task_id",
+        "learning_task_id",
+        "learning_task_ids",
+        "generation_job_id",
+        "generation_job_ids",
+    ):
+        add(active_context.get(key))
+    add(getattr(snapshot, "active_task", None))
+    add(getattr(snapshot, "referenced_artifact_ids", []))
+
+    workflow_state = getattr(snapshot, "workflow_state", None)
+    if isinstance(workflow_state, dict):
+        add(workflow_state.get("workflow_id"))
+    else:
+        add(getattr(workflow_state, "workflow_id", None))
+    return [
+        value for value in values
+        if is_learning_task_id(value) or is_generation_job_id(value)
+    ]
 
 
 def _intent(question: str, resource_types: list[str], active_outline: dict) -> str:

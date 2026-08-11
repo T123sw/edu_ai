@@ -278,6 +278,17 @@ def _with_owner(payload, current_user: dict):
     return SimpleNamespace(**data)
 
 
+def _require_reply_course_read(
+    payload: ChatReplyRequestV2,
+    *,
+    current_user: dict,
+    access_service: CourseAccessService,
+) -> None:
+    course_id = str(payload.course_id or "").strip()
+    if course_id:
+        require_course_capability(course_id, current_user, "read", access_service)
+
+
 def _stream_json_frame(event: dict) -> str:
     return f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
 
@@ -486,7 +497,14 @@ async def get_chat_game(
 
 
 @router.post("/reply", response_model=ChatResponseV2)
-async def reply(payload: ChatReplyRequestV2, current_user: dict = Depends(get_current_user)):
+async def reply(
+    payload: ChatReplyRequestV2,
+    current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
+):
+    _require_reply_course_read(
+        payload, current_user=current_user, access_service=access_service
+    )
     try:
         return _get_reply_service().reply(_with_owner(payload, current_user))
     except Exception as exc:
@@ -501,7 +519,14 @@ async def reply(payload: ChatReplyRequestV2, current_user: dict = Depends(get_cu
 
 
 @router.post("/stream")
-async def stream_reply(payload: ChatReplyRequestV2, current_user: dict = Depends(get_current_user)):
+async def stream_reply(
+    payload: ChatReplyRequestV2,
+    current_user: dict = Depends(get_current_user),
+    access_service: CourseAccessService = Depends(get_course_access_service),
+):
+    _require_reply_course_read(
+        payload, current_user=current_user, access_service=access_service
+    )
     def generate():
         try:
             for event in _get_reply_service().reply_stream(_with_owner(payload, current_user)):

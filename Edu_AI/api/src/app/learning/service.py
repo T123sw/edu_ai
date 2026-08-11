@@ -8,8 +8,10 @@ from typing import Any
 
 from .models import (
     CourseTaskSummaryRecord,
+    LearningEvidence,
     LearningEventRecord,
     LearningEventType,
+    LearningOverviewRecord,
     LearningTaskRecord,
     LearningTaskView,
     TaskProgressRecord,
@@ -68,6 +70,15 @@ class LearningService:
             ):
                 return membership
         raise LearningRuleError("COURSE_EDIT_REQUIRED", "Course edit permission is required")
+
+    def _course_read_membership(self, *, course_id: str, user_id: str) -> Any:
+        for membership in self.membership_lookup(course_id):
+            if (
+                _membership_value(membership, "user_id") == user_id
+                and _membership_value(membership, "role") in {"owner", "editor", "viewer"}
+            ):
+                return membership
+        raise LearningRuleError("COURSE_READ_REQUIRED", "Course read permission is required")
 
     def _student_ids(self, course_id: str) -> list[str]:
         return sorted(
@@ -175,6 +186,7 @@ class LearningService:
         event_type: LearningEventType,
         progress_percent: int,
         resource_ref: dict[str, str] | None,
+        evidence: dict[str, float | str | bool | None] | None = None,
     ) -> EventWriteResult:
         task = self._task_or_error(course_id=course_id, task_id=task_id)
         if task.status != "published":
@@ -189,6 +201,28 @@ class LearningService:
             }
             if normalized_ref not in task.resource_refs:
                 raise LearningRuleError("RESOURCE_NOT_ASSIGNED", "Resource is not attached to this task")
+        if event_type in {"resource_completed", "assessment_scored"} and normalized_ref is None:
+            raise LearningRuleError(
+                "EVIDENCE_SOURCE_REQUIRED",
+                "Evidence events require an assigned resource",
+            )
+        if event_type == "assessment_scored" and not evidence:
+            raise LearningRuleError(
+                "ASSESSMENT_EVIDENCE_REQUIRED",
+                "Assessment score evidence is required",
+            )
+        occurred_at = utc_now()
+        normalized_evidence = (
+            LearningEvidence(
+                evidence_type=str(evidence["evidence_type"]).strip(),
+                source_type=str(evidence["source_type"]).strip(),
+                source_id=str(evidence["source_id"]).strip(),
+                value=evidence.get("value"),
+                occurred_at=occurred_at,
+            )
+            if evidence
+            else None
+        )
         event = LearningEventRecord.new(
             event_id=self._require_text(event_id, field="event_id"),
             course_id=course_id,
@@ -197,6 +231,8 @@ class LearningService:
             event_type=event_type,
             progress_percent=progress_percent,
             resource_ref=normalized_ref,
+            occurred_at=occurred_at,
+            evidence=normalized_evidence,
         )
         return self.store.record_event(event)
 
@@ -221,6 +257,9 @@ class LearningService:
                 student_id=student_id,
                 status="not_started",
                 progress_percent=0,
+                completion_basis="none",
+                evidence_count=0,
+                last_activity_at=None,
                 started_at=None,
                 completed_at=None,
                 updated_at=now,
@@ -239,6 +278,113 @@ class LearningService:
             progress=progress,
         )
 
+    @staticmethod
+    def _empty_progress(*, task: LearningTaskRecord, student_id: str, now: str) -> TaskProgressRecord:
+        return TaskProgressRecord(
+            task_id=task.task_id,
+            course_id=task.course_id,
+            student_id=student_id,
+            status="not_started",
+            progress_percent=0,
+            completion_basis="none",
+            evidence_count=0,
+            last_activity_at=None,
+            started_at=None,
+            completed_at=None,
+            updated_at=now,
+        )
+
+    @staticmethod
+    def _overview_from_progress(
+        *,
+        course_id: str,
+        progress: list[TaskProgressRecord],
+        enrolled_students: int | None,
+    ) -> LearningOverviewRecord:
+        completed = [item for item in progress if item.status == "completed"]
+        students_by_basis = {
+            basis: {
+                item.student_id for item in completed if item.completion_basis == basis
+            }
+            for basis in (
+                "self_reported", "activity_evidenced", "assessment_verified"
+            )
+        }
+        activity_times = [item.last_activity_at for item in progress if item.last_activity_at]
+        return LearningOverviewRecord(
+            course_id=course_id,
+            pending_tasks=sum(item.status == "not_started" for item in progress),
+            in_progress_tasks=sum(item.status == "in_progress" for item in progress),
+            self_reported_completed_tasks=sum(
+                item.completion_basis == "self_reported" for item in completed
+            ),
+            activity_evidenced_completed_tasks=sum(
+                item.completion_basis == "activity_evidenced" for item in completed
+            ),
+            assessment_verified_completed_tasks=sum(
+                item.completion_basis == "assessment_verified" for item in completed
+            ),
+            latest_activity_at=max(activity_times) if activity_times else None,
+            enrolled_students=enrolled_students,
+            self_reported_students=(
+                len(students_by_basis["self_reported"])
+                if enrolled_students is not None else None
+            ),
+            activity_evidenced_students=(
+                len(students_by_basis["activity_evidenced"])
+                if enrolled_students is not None else None
+            ),
+            assessment_verified_students=(
+                len(students_by_basis["assessment_verified"])
+                if enrolled_students is not None else None
+            ),
+        )
+
+    def get_learning_overview(
+        self,
+        *,
+        course_id: str,
+        user_id: str,
+        actor_role: str,
+    ) -> LearningOverviewRecord:
+        """Return one role-scoped projection from persisted learning progress."""
+        if str(actor_role or "").strip().lower() == "student":
+            self._course_read_membership(course_id=course_id, user_id=user_id)
+            published_tasks = self.store.list_tasks(course_id, statuses={"published"})
+            now = utc_now()
+            progress = [
+                self.store.get_progress(task.task_id, user_id)
+                or self._empty_progress(task=task, student_id=user_id, now=now)
+                for task in published_tasks
+            ]
+            return self._overview_from_progress(
+                course_id=course_id,
+                progress=progress,
+                enrolled_students=None,
+            )
+
+        self._teacher_membership(course_id=course_id, teacher_id=user_id)
+        student_ids = self._student_ids(course_id)
+        now = utc_now()
+        progress = []
+        for task in self.store.list_tasks(course_id, statuses={"published"}):
+            progress_by_student = {
+                item.student_id: item
+                for item in self.store.list_progress(
+                    course_id=course_id, task_id=task.task_id
+                )
+            }
+            progress.extend(
+                progress_by_student.get(student_id)
+                or self._empty_progress(task=task, student_id=student_id, now=now)
+                for student_id in student_ids
+            )
+        return self._overview_from_progress(
+            course_id=course_id,
+            progress=progress,
+            enrolled_students=len(student_ids),
+        )
+
     def get_student_agent_context(
         self,
         *,
@@ -246,6 +392,11 @@ class LearningService:
         student_id: str,
         limit: int = 10,
     ) -> dict[str, Any]:
+        overview = self.get_learning_overview(
+            course_id=course_id,
+            user_id=student_id,
+            actor_role="student",
+        )
         views = self.list_tasks(
             course_id=course_id,
             user_id=student_id,
@@ -261,11 +412,19 @@ class LearningService:
                 "knowledge_point_ids": list(view.task.knowledge_point_ids),
                 "status": view.my_progress.status if view.my_progress else "not_started",
                 "progress_percent": view.my_progress.progress_percent if view.my_progress else 0,
+                "completion_basis": (
+                    view.my_progress.completion_basis if view.my_progress else "none"
+                ),
+                "last_activity_at": (
+                    view.my_progress.last_activity_at if view.my_progress else None
+                ),
             }
             for view in views
         ]
         return {
             "projection": "student",
+            "as_of": overview.latest_activity_at or utc_now(),
+            "overview": asdict(overview),
             "pending_tasks": [item for item in items if item["status"] != "completed"],
             "completed_tasks": [item for item in items if item["status"] == "completed"],
         }
@@ -277,7 +436,11 @@ class LearningService:
         teacher_id: str,
         limit: int = 10,
     ) -> dict[str, Any]:
-        self._teacher_membership(course_id=course_id, teacher_id=teacher_id)
+        overview = self.get_learning_overview(
+            course_id=course_id,
+            user_id=teacher_id,
+            actor_role="teacher",
+        )
         tasks = self.store.list_tasks(course_id, statuses={"published"}, limit=limit)
         summaries = [
             self.get_task_summary(course_id=course_id, task_id=task.task_id, teacher_id=teacher_id)
@@ -285,14 +448,46 @@ class LearningService:
         ]
         return {
             "projection": "teacher",
+            "as_of": overview.latest_activity_at or utc_now(),
+            "overview": asdict(overview),
             "task_summaries": [
-                {
-                    **asdict(summary.task),
-                    "enrolled_students": summary.enrolled_students,
-                    "started_students": summary.started_students,
-                    "completed_students": summary.completed_students,
-                    "completion_rate": summary.completion_rate,
-                }
+                self._teacher_agent_task_summary(summary)
                 for summary in summaries
             ],
+        }
+
+    @staticmethod
+    def _teacher_agent_task_summary(summary: CourseTaskSummaryRecord) -> dict[str, Any]:
+        """Build the aggregate-only task DTO exposed to the teacher Agent."""
+        progress = list(summary.progress)
+        activity_times = [
+            item.last_activity_at for item in progress if item.last_activity_at
+        ]
+        completion_basis_counts = {
+            basis: sum(
+                item.status == "completed" and item.completion_basis == basis
+                for item in progress
+            )
+            for basis in (
+                "self_reported",
+                "activity_evidenced",
+                "assessment_verified",
+            )
+        }
+        return {
+            "task_id": summary.task.task_id,
+            "title": summary.task.title,
+            "status": summary.task.status,
+            "enrolled_students": summary.enrolled_students,
+            "not_started_students": sum(
+                item.status == "not_started" for item in progress
+            ),
+            "in_progress_students": sum(
+                item.status == "in_progress" for item in progress
+            ),
+            "started_students": summary.started_students,
+            "completed_students": summary.completed_students,
+            "completion_rate": summary.completion_rate,
+            "completion_basis_counts": completion_basis_counts,
+            "latest_activity_at": max(activity_times) if activity_times else None,
         }

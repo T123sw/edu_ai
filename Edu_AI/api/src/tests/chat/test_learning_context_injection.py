@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from app.chat.domain.capability_policy import CapabilityPolicy
 from app.chat.domain.contracts import ChatRequestV2
+from app.chat.application.reply_service_v2 import build_default_reply_service_v2
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.react_agent import ReActAgent
@@ -69,6 +70,11 @@ def test_student_context_contains_only_own_learning_state(tmp_path):
     )
 
     assert context["projection"] == "student"
+    assert context["overview"]["course_id"] == "course-1"
+    assert context["as_of"]
+    assert {"completion_basis", "last_activity_at", "knowledge_point_ids"}.issubset(
+        context["pending_tasks"][0]
+    )
     assert context["pending_tasks"][0]["title"] == "学习快速排序"
     assert "student-2" not in json.dumps(context, ensure_ascii=False)
 
@@ -81,6 +87,9 @@ def test_teacher_context_contains_aggregate_not_private_conversations(tmp_path):
     )
 
     assert context["projection"] == "teacher"
+    assert context["overview"]["enrolled_students"] == 2
+    assert context["overview"]["self_reported_students"] == 1
+    assert context["as_of"]
     assert context["task_summaries"][0]["completed_students"] == 1
     serialized = json.dumps(context, ensure_ascii=False)
     assert "conversation" not in serialized
@@ -102,6 +111,22 @@ def test_context_builder_loads_learning_context_without_existing_conversation(tm
     ).build(request)
 
     assert snapshot.learning_context["projection"] == "student"
+
+
+def test_context_builder_drops_learning_context_for_student_outside_course(tmp_path):
+    request = ChatRequestV2(
+        question="What should I study next?",
+        actor_role="student",
+        owner="student-outsider",
+        course_id="course-1",
+    )
+
+    snapshot = ContextBuilder(
+        conversation_store=SimpleNamespace(),
+        learning_context_reader=_reader(tmp_path),
+    ).build(request)
+
+    assert snapshot.learning_context == {}
 
 
 def test_fast_and_react_prompts_receive_role_scoped_learning_context(tmp_path):
@@ -142,3 +167,15 @@ def test_fast_and_react_prompts_receive_role_scoped_learning_context(tmp_path):
     assert "学习快速排序" in fast_system
     assert "student-2" not in fast_system
     assert "student-2" not in react_system
+    assert "课程学习任务 ID 以 lt_ 标识" in fast_system
+    assert "不得使用历史 job_ 任务代替" in react_system
+    assert "self_reported 只表示学生自报" in fast_system
+    assert "completion_basis=self_reported" in fast_system
+    assert "completed_basis=" not in fast_system
+    assert "不代表测评通过或知识点已掌握" in react_system
+
+
+def test_default_reply_service_wires_the_persisted_learning_context_reader():
+    service = build_default_reply_service_v2()
+
+    assert service.context_builder.learning_context_reader is not None

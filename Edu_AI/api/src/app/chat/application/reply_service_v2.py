@@ -219,7 +219,13 @@ class ReplyServiceV2:
 
 def build_default_reply_service_v2():
     conversation_store = ConversationStoreAdapter()
-    context_builder = ContextBuilder(conversation_store=conversation_store)
+    from app.learning import get_learning_service
+    from app.learning.context_reader import LearningContextReader
+
+    context_builder = ContextBuilder(
+        conversation_store=conversation_store,
+        learning_context_reader=LearningContextReader(get_learning_service()),
+    )
 
     def build_orchestrator(request):
         gateway = build_default_gateway(getattr(request, "model_id", None))

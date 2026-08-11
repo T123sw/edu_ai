@@ -17,7 +17,29 @@ from .models import (
 )
 
 
+_BASIS_RANK = {
+    "none": 0,
+    "self_reported": 1,
+    "activity_evidenced": 2,
+    "assessment_verified": 3,
+}
+
+
+def _event_basis(event_type: str) -> str:
+    return {
+        "completed": "self_reported",
+        "resource_completed": "activity_evidenced",
+        "assessment_scored": "assessment_verified",
+    }.get(event_type, "none")
+
+
+def _max_basis(current: str, incoming: str) -> str:
+    return incoming if _BASIS_RANK[incoming] > _BASIS_RANK[current] else current
+
+
 class LearningStore:
+    _LEARNING_EVENTS_TABLE = "learning_events"
+    _TASK_PROGRESS_TABLE = "task_progress"
     def __init__(self, database_path: str | Path):
         self._path = Path(database_path)
         self._lock = threading.RLock()
@@ -93,7 +115,34 @@ class LearningStore:
                 ON task_progress(course_id, student_id, updated_at DESC);
                 """
             )
+            self._ensure_column(self._LEARNING_EVENTS_TABLE, "evidence_json", "TEXT")
+            self._ensure_column(
+                self._TASK_PROGRESS_TABLE,
+                "completion_basis",
+                "TEXT NOT NULL DEFAULT 'none'",
+            )
+            self._ensure_column(
+                self._TASK_PROGRESS_TABLE,
+                "evidence_count",
+                "INTEGER NOT NULL DEFAULT 0",
+            )
+            self._ensure_column(self._TASK_PROGRESS_TABLE, "last_activity_at", "TEXT")
+            self._connection.execute(
+                """
+                UPDATE task_progress
+                SET completion_basis='self_reported'
+                WHERE status='completed' AND completion_basis='none'
+                """
+            )
             self._connection.commit()
+
+    def _ensure_column(self, table: str, name: str, declaration: str) -> None:
+        columns = {
+            str(row["name"])
+            for row in self._connection.execute(f"PRAGMA table_info({table})").fetchall()
+        }
+        if name not in columns:
+            self._connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
 
     @staticmethod
     def _task_from_row(row: sqlite3.Row) -> LearningTaskRecord:
@@ -119,6 +168,11 @@ class LearningStore:
             student_id=str(row["student_id"]),
             status=str(row["status"]),
             progress_percent=int(row["progress_percent"]),
+            completion_basis=str(row["completion_basis"] or "none"),
+            evidence_count=int(row["evidence_count"] or 0),
+            last_activity_at=(
+                str(row["last_activity_at"]) if row["last_activity_at"] else None
+            ),
             started_at=str(row["started_at"]) if row["started_at"] else None,
             completed_at=str(row["completed_at"]) if row["completed_at"] else None,
             updated_at=str(row["updated_at"]),
@@ -240,8 +294,8 @@ class LearningStore:
                     """
                     INSERT OR IGNORE INTO learning_events(
                         event_id, course_id, task_id, student_id, event_type,
-                        progress_percent, resource_ref_json, occurred_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        progress_percent, resource_ref_json, occurred_at, evidence_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         event.event_id,
@@ -256,6 +310,21 @@ class LearningStore:
                             else None
                         ),
                         event.occurred_at,
+                        (
+                            json.dumps(
+                                {
+                                    "evidence_type": event.evidence.evidence_type,
+                                    "source_type": event.evidence.source_type,
+                                    "source_id": event.evidence.source_id,
+                                    "value": event.evidence.value,
+                                    "occurred_at": event.evidence.occurred_at,
+                                },
+                                ensure_ascii=False,
+                                separators=(",", ":"),
+                            )
+                            if event.evidence
+                            else None
+                        ),
                     ),
                 )
                 created = cursor.rowcount == 1
@@ -267,11 +336,23 @@ class LearningStore:
                     current_percent = int(current_row["progress_percent"]) if current_row else 0
                     next_percent = max(current_percent, event.progress_percent)
                     current_status = str(current_row["status"]) if current_row else "not_started"
+                    current_basis = (
+                        str(current_row["completion_basis"] or "none")
+                        if current_row
+                        else "none"
+                    )
+                    next_basis = _max_basis(current_basis, _event_basis(event.event_type))
+                    next_evidence_count = (
+                        int(current_row["evidence_count"] or 0) if current_row else 0
+                    ) + 1
                     completed = current_status == "completed" or event.event_type == "completed"
                     if completed:
                         next_percent = 100
                         next_status = "completed"
-                    elif event.event_type in {"started", "resource_opened", "progress_updated"}:
+                    elif event.event_type in {
+                        "started", "resource_opened", "progress_updated",
+                        "resource_completed", "assessment_scored",
+                    }:
                         next_status = "in_progress"
                     else:
                         next_status = current_status
@@ -289,11 +370,15 @@ class LearningStore:
                         """
                         INSERT INTO task_progress(
                             task_id, course_id, student_id, status,
-                            progress_percent, started_at, completed_at, updated_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            progress_percent, completion_basis, evidence_count,
+                            last_activity_at, started_at, completed_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ON CONFLICT(task_id, student_id) DO UPDATE SET
                             status=excluded.status,
                             progress_percent=excluded.progress_percent,
+                            completion_basis=excluded.completion_basis,
+                            evidence_count=excluded.evidence_count,
+                            last_activity_at=excluded.last_activity_at,
                             started_at=excluded.started_at,
                             completed_at=excluded.completed_at,
                             updated_at=excluded.updated_at
@@ -304,6 +389,9 @@ class LearningStore:
                             event.student_id,
                             next_status,
                             next_percent,
+                            next_basis,
+                            next_evidence_count,
+                            event.occurred_at,
                             started_at,
                             completed_at,
                             event.occurred_at,

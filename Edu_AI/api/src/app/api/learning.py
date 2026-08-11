@@ -19,6 +19,7 @@ from app.schemas.learning import (
     LearningEventResponse,
     LearningTaskCreateRequest,
     LearningTaskResponse,
+    LearningOverviewResponse,
 )
 from app.services.course_access import CoursePrincipal
 
@@ -30,12 +31,15 @@ def _http_error(error: LearningRuleError) -> HTTPException:
         "TASK_NOT_FOUND": status.HTTP_404_NOT_FOUND,
         "COURSE_RESOURCE_NOT_FOUND": status.HTTP_404_NOT_FOUND,
         "COURSE_EDIT_REQUIRED": status.HTTP_403_FORBIDDEN,
+        "COURSE_READ_REQUIRED": status.HTTP_403_FORBIDDEN,
         "TASK_NOT_PUBLISHED": status.HTTP_409_CONFLICT,
         "TASK_NOT_PUBLISHABLE": status.HTTP_409_CONFLICT,
         "RESOURCE_NOT_ASSIGNED": status.HTTP_409_CONFLICT,
         "INVALID_TASK": status.HTTP_422_UNPROCESSABLE_ENTITY,
         "INVALID_RESOURCE_REF": status.HTTP_422_UNPROCESSABLE_ENTITY,
         "INVALID_PROGRESS": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "EVIDENCE_SOURCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "ASSESSMENT_EVIDENCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_ENTITY,
     }
     return HTTPException(
         status_code=status_by_code.get(error.code, status.HTTP_400_BAD_REQUEST),
@@ -108,6 +112,27 @@ def list_learning_tasks(
     ]
 
 
+@router.get("/overview", response_model=LearningOverviewResponse)
+def get_learning_overview(
+    course_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+    service: LearningService = Depends(get_learning_service),
+) -> LearningOverviewResponse:
+    try:
+        overview = service.get_learning_overview(
+            course_id=course_id,
+            user_id=principal.user_id,
+            actor_role=(
+                "student"
+                if principal.system_role.lower() == "student"
+                else "teacher"
+            ),
+        )
+        return LearningOverviewResponse.model_validate(asdict(overview))
+    except LearningRuleError as error:
+        raise _http_error(error) from error
+
+
 @router.post("/tasks/{task_id}/publish", response_model=LearningTaskResponse)
 def publish_learning_task(
     course_id: str,
@@ -152,6 +177,7 @@ def record_learning_event(
             event_type=payload.event_type,
             progress_percent=payload.progress_percent,
             resource_ref=payload.resource_ref.model_dump() if payload.resource_ref else None,
+            evidence=payload.evidence.model_dump() if payload.evidence else None,
         )
         return LearningEventResponse.model_validate(
             {"created": result.created, "progress": asdict(result.progress)}

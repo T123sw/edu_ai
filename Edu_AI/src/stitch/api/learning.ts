@@ -3,9 +3,13 @@ import type {
   CourseLearningSummary,
   LearningEventPayload,
   LearningEventResponse,
+  LearningOverview,
   LearningTask,
   LearningTaskCreatePayload,
 } from "./types";
+
+export const getLearningOverview = (courseId: string) =>
+  apiRequest<LearningOverview>(`/api/courses/${courseId}/learning/overview`);
 
 export const listLearningTasks = (courseId: string) =>
   apiRequest<LearningTask[]>(`/api/courses/${courseId}/learning/tasks`);

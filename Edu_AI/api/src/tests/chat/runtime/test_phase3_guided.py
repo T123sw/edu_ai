@@ -203,6 +203,69 @@ def test_bundle_terminal_message_lists_every_accepted_task():
     assert "思维导图（job-graph）" in message
 
 
+def test_learning_terminal_message_preserves_teacher_facts():
+    from app.chat.runtime.nodes.executor import _learning_status_message
+
+    message = _learning_status_message({"last_tool_results": [{
+        "tool_name": "get_course_learning_progress",
+        "raw_result": {
+            "ok": True,
+            "payload": {"task_summaries": [{
+                "task_id": "lt-1",
+                "title": "循环结构学习",
+                "enrolled_students": 2,
+                "started_students": 1,
+                "completed_students": 1,
+                "completion_rate": 0.5,
+                "completion_basis_counts": {"self_reported": 1},
+            }]},
+        },
+    }]})
+
+    assert "循环结构学习" in message
+    assert "课程学生 2 人" in message
+    assert "完成率 50%" in message
+    assert "学生自报完成 1 人" in message
+    assert "不等于测评通过" in message
+
+
+def test_learning_terminal_message_preserves_student_facts_and_next_step():
+    from app.chat.runtime.nodes.executor import _learning_status_message
+
+    message = _learning_status_message({"last_tool_results": [{
+        "tool_name": "get_my_learning_progress",
+        "raw_result": {
+            "ok": True,
+            "payload": {"completed_tasks": [{
+                "task_id": "lt-2",
+                "title": "变量学习",
+                "completion_basis": "self_reported",
+            }]},
+        },
+    }]})
+
+    assert "变量学习" in message
+    assert "lt-2" in message
+    assert "学生自报完成" in message
+    assert "下一步建议" in message
+
+
+def test_learning_terminal_message_survives_reflect_state_cleanup():
+    from app.chat.runtime.nodes.executor import _learning_status_message
+
+    ctx = SimpleNamespace(last_tool_results=[{
+        "tool_name": "get_my_learning_progress",
+        "raw_result": {
+            "ok": True,
+            "payload": {"pending_tasks": [{"task_id": "lt-3", "title": "待学任务"}]},
+        },
+    }])
+
+    message = _learning_status_message({"last_tool_results": []}, ctx=ctx)
+
+    assert "待学任务" in message
+
+
 # ─── Integration: plan_step_update events in full agent run ──────────────────
 
 class _FakePlannerGateway:

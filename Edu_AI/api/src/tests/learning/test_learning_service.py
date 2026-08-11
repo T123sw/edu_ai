@@ -192,3 +192,184 @@ def test_student_agent_context_never_contains_another_student(service):
     assert "student-2" not in str(context)
     assert context["pending_tasks"][0]["task_id"] == task.task_id
 
+
+@pytest.mark.parametrize("event_type", ["resource_completed", "assessment_scored"])
+def test_evidence_events_require_an_assigned_resource(service, event_type):
+    task = _create_task(service)
+    service.publish_task(course_id="course-1", task_id=task.task_id, teacher_id="teacher-1")
+
+    with pytest.raises(LearningRuleError) as error:
+        service.record_student_event(
+            course_id="course-1",
+            task_id=task.task_id,
+            student_id="student-1",
+            event_id=f"evt-{event_type}",
+            event_type=event_type,
+            progress_percent=100,
+            resource_ref=None,
+            evidence=None,
+        )
+
+    assert error.value.code == "EVIDENCE_SOURCE_REQUIRED"
+
+
+def test_assessment_event_requires_evidence(service):
+    task = _create_task(
+        service,
+        resource_refs=[{"material_type": "report", "material_id": "report-1"}],
+    )
+    service.publish_task(course_id="course-1", task_id=task.task_id, teacher_id="teacher-1")
+
+    with pytest.raises(LearningRuleError) as error:
+        service.record_student_event(
+            course_id="course-1",
+            task_id=task.task_id,
+            student_id="student-1",
+            event_id="evt-score",
+            event_type="assessment_scored",
+            progress_percent=100,
+            resource_ref={"material_type": "report", "material_id": "report-1"},
+            evidence=None,
+        )
+
+    assert error.value.code == "ASSESSMENT_EVIDENCE_REQUIRED"
+
+
+def test_assessment_event_persists_evidence(service):
+    task = _create_task(
+        service,
+        resource_refs=[{"material_type": "report", "material_id": "report-1"}],
+    )
+    service.publish_task(course_id="course-1", task_id=task.task_id, teacher_id="teacher-1")
+
+    result = service.record_student_event(
+        course_id="course-1",
+        task_id=task.task_id,
+        student_id="student-1",
+        event_id="evt-score",
+        event_type="assessment_scored",
+        progress_percent=100,
+        resource_ref={"material_type": "report", "material_id": "report-1"},
+        evidence={
+            "evidence_type": "score",
+            "source_type": "quiz",
+            "source_id": "quiz-attempt-1",
+            "value": 92.0,
+        },
+    )
+
+    assert result.progress.completion_basis == "assessment_verified"
+    assert result.progress.evidence_count == 1
+
+
+def test_student_overview_contains_only_own_learning(service):
+    completed = _create_task(service)
+    pending = _create_task(service)
+    for task in (completed, pending):
+        service.publish_task(
+            course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+        )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=completed.task_id,
+        student_id="student-1",
+        event_id="evt-student-overview-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=pending.task_id,
+        student_id="student-2",
+        event_id="evt-other-student-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+
+    overview = service.get_learning_overview(
+        course_id="course-1", user_id="student-1", actor_role="student"
+    )
+
+    assert overview.pending_tasks == 1
+    assert overview.self_reported_completed_tasks == 1
+    assert "student-2" not in repr(overview)
+
+
+def test_teacher_overview_reports_completion_bases_without_private_chat(service):
+    task = _create_task(
+        service,
+        resource_refs=[{"material_type": "report", "material_id": "report-1"}],
+    )
+    service.publish_task(
+        course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+    )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=task.task_id,
+        student_id="student-1",
+        event_id="evt-teacher-overview-evidence",
+        event_type="resource_completed",
+        progress_percent=100,
+        resource_ref={"material_type": "report", "material_id": "report-1"},
+    )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=task.task_id,
+        student_id="student-1",
+        event_id="evt-teacher-overview-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+
+    overview = service.get_learning_overview(
+        course_id="course-1", user_id="teacher-1", actor_role="teacher"
+    )
+
+    assert overview.enrolled_students == 2
+    assert overview.activity_evidenced_students == 1
+    assert not hasattr(overview, "conversation_history")
+
+
+def test_teacher_overview_counts_every_published_task_for_students_without_progress(service):
+    first = _create_task(service)
+    second = _create_task(service)
+    for task in (first, second):
+        service.publish_task(
+            course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+        )
+    service.record_student_event(
+        course_id="course-1",
+        task_id=first.task_id,
+        student_id="student-1",
+        event_id="evt-one-of-four-complete",
+        event_type="completed",
+        progress_percent=100,
+        resource_ref=None,
+    )
+
+    overview = service.get_learning_overview(
+        course_id="course-1", user_id="teacher-1", actor_role="teacher"
+    )
+
+    assert overview.enrolled_students == 2
+    assert overview.self_reported_completed_tasks == 1
+    assert overview.self_reported_students == 1
+    assert overview.pending_tasks == 3
+
+
+def test_student_overview_requires_course_read_membership(service):
+    task = _create_task(service)
+    service.publish_task(
+        course_id="course-1", task_id=task.task_id, teacher_id="teacher-1"
+    )
+
+    with pytest.raises(LearningRuleError) as error:
+        service.get_learning_overview(
+            course_id="course-1", user_id="student-outsider", actor_role="student"
+        )
+
+    assert error.value.code == "COURSE_READ_REQUIRED"
+

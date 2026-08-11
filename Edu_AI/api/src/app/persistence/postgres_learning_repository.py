@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from sqlalchemy import select
 from sqlalchemy.engine import Engine
+from sqlalchemy.dialects.postgresql import insert as postgresql_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from app.database import (
     LearningEventModel,
@@ -16,6 +18,7 @@ from app.learning.models import (
     TaskProgressRecord,
     utc_now,
 )
+from app.learning.store import _event_basis, _max_basis
 
 from .postgres_repositories import _iso_timestamp, _timestamp
 
@@ -71,38 +74,104 @@ class PostgresLearningRepository:
             task = session.get(LearningTaskModel, event.task_id)
             if task is None or task.course_id != event.course_id:
                 raise KeyError(event.task_id)
-            existing = session.get(LearningEventModel, event.event_id)
-            created = existing is None
+            insert = self._insert_for(session)
+            event_insert = self._event_insert(insert, event)
+            created = session.execute(event_insert).scalar_one_or_none() is not None
             if created:
-                session.add(LearningEventModel(
-                    event_id=event.event_id, course_id=event.course_id,
-                    task_id=event.task_id, student_id=event.student_id,
-                    event_type=event.event_type, progress_percent=event.progress_percent,
-                    resource_ref=event.resource_ref, occurred_at=_timestamp(event.occurred_at),
-                ))
-                progress = session.get(LearningProgressModel, (event.task_id, event.student_id))
-                if progress is None:
-                    progress = LearningProgressModel(
-                        task_id=event.task_id, student_id=event.student_id,
-                        course_id=event.course_id, status="not_started",
-                        progress_percent=0, updated_at=_timestamp(event.occurred_at),
+                session.execute(
+                    insert(LearningProgressModel).values(
+                        task_id=event.task_id,
+                        student_id=event.student_id,
+                        course_id=event.course_id,
+                        status="not_started",
+                        progress_percent=0,
+                        completion_basis="none",
+                        evidence_count=0,
+                        last_activity_at=None,
+                        started_at=None,
+                        completed_at=None,
+                        updated_at=_timestamp(event.occurred_at),
+                    ).on_conflict_do_nothing(
+                        index_elements=[
+                            LearningProgressModel.task_id,
+                            LearningProgressModel.student_id,
+                        ]
                     )
-                    session.add(progress)
+                )
+                progress = session.scalar(
+                    select(LearningProgressModel).where(
+                        LearningProgressModel.task_id == event.task_id,
+                        LearningProgressModel.student_id == event.student_id,
+                    ).with_for_update()
+                )
+                if progress is None:
+                    raise RuntimeError("learning event exists without task progress")
                 completed = progress.status == "completed" or event.event_type == "completed"
-                progress.progress_percent = 100 if completed else max(progress.progress_percent, event.progress_percent)
+                progress.progress_percent = (
+                    100 if completed else max(progress.progress_percent, event.progress_percent)
+                )
                 if completed:
                     progress.status = "completed"
-                elif event.event_type in {"started", "resource_opened", "progress_updated"}:
+                elif event.event_type in {
+                    "started",
+                    "resource_opened",
+                    "progress_updated",
+                    "resource_completed",
+                    "assessment_scored",
+                }:
                     progress.status = "in_progress"
                 progress.started_at = progress.started_at or _timestamp(event.occurred_at)
                 if completed:
                     progress.completed_at = progress.completed_at or _timestamp(event.occurred_at)
+                progress.completion_basis = _max_basis(
+                    str(progress.completion_basis or "none"),
+                    _event_basis(event.event_type),
+                )
+                progress.evidence_count = int(progress.evidence_count or 0) + 1
+                progress.last_activity_at = _timestamp(event.occurred_at)
                 progress.updated_at = _timestamp(event.occurred_at)
             progress = session.get(LearningProgressModel, (event.task_id, event.student_id))
             if progress is None:
                 raise RuntimeError("learning event exists without task progress")
             session.flush()
             return EventWriteResult(created=created, progress=self._progress(progress))
+
+    @classmethod
+    def _event_insert(cls, insert, event: LearningEventRecord):
+        return insert(LearningEventModel).values(
+                event_id=event.event_id,
+                course_id=event.course_id,
+                task_id=event.task_id,
+                student_id=event.student_id,
+                event_type=event.event_type,
+                progress_percent=event.progress_percent,
+                resource_ref=event.resource_ref,
+                evidence=cls._evidence(event),
+                occurred_at=_timestamp(event.occurred_at),
+            ).on_conflict_do_nothing(
+                index_elements=[LearningEventModel.event_id]
+            ).returning(LearningEventModel.event_id)
+
+    @staticmethod
+    def _insert_for(session):
+        dialect_name = session.bind.dialect.name
+        if dialect_name == "postgresql":
+            return postgresql_insert
+        if dialect_name == "sqlite":
+            return sqlite_insert
+        raise RuntimeError(f"Unsupported learning persistence dialect: {dialect_name}")
+
+    @staticmethod
+    def _evidence(event: LearningEventRecord) -> dict | None:
+        if event.evidence is None:
+            return None
+        return {
+            "evidence_type": event.evidence.evidence_type,
+            "source_type": event.evidence.source_type,
+            "source_id": event.evidence.source_id,
+            "value": event.evidence.value,
+            "occurred_at": event.evidence.occurred_at,
+        }
 
     def get_progress(self, task_id: str, student_id: str):
         with database_session(engine=self._engine) as session:
@@ -134,6 +203,11 @@ class PostgresLearningRepository:
         return TaskProgressRecord(
             task_id=record.task_id, course_id=record.course_id, student_id=record.student_id,
             status=record.status, progress_percent=record.progress_percent,
+            completion_basis=record.completion_basis,
+            evidence_count=record.evidence_count,
+            last_activity_at=(
+                _iso_timestamp(record.last_activity_at) if record.last_activity_at else None
+            ),
             started_at=_iso_timestamp(record.started_at) if record.started_at else None,
             completed_at=_iso_timestamp(record.completed_at) if record.completed_at else None,
             updated_at=_iso_timestamp(record.updated_at),

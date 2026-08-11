@@ -20,6 +20,11 @@ class TaskProgressResponse(BaseModel):
     student_id: str
     status: Literal["not_started", "in_progress", "completed"]
     progress_percent: int = Field(ge=0, le=100)
+    completion_basis: Literal[
+        "none", "self_reported", "activity_evidenced", "assessment_verified"
+    ] = "none"
+    evidence_count: int = Field(default=0, ge=0)
+    last_activity_at: str | None = None
     started_at: str | None = None
     completed_at: str | None = None
     updated_at: str
@@ -47,11 +52,22 @@ class LearningTaskResponse(BaseModel):
     my_progress: TaskProgressResponse | None = None
 
 
+class LearningEvidencePayload(BaseModel):
+    evidence_type: str = Field(min_length=1, max_length=64)
+    source_type: str = Field(min_length=1, max_length=64)
+    source_id: str = Field(min_length=1, max_length=160)
+    value: float | str | bool | None = None
+
+
 class LearningEventRequest(BaseModel):
     event_id: str = Field(min_length=1, max_length=160)
-    event_type: Literal["started", "resource_opened", "progress_updated", "completed"]
+    event_type: Literal[
+        "started", "resource_opened", "progress_updated", "completed",
+        "resource_completed", "assessment_scored",
+    ]
     progress_percent: int = Field(ge=0, le=100)
     resource_ref: LearningResourceRef | None = None
+    evidence: LearningEvidencePayload | None = None
 
 
 class LearningEventResponse(BaseModel):
@@ -66,3 +82,17 @@ class CourseLearningSummaryResponse(BaseModel):
     completed_students: int = Field(ge=0)
     completion_rate: float = Field(ge=0, le=1)
     progress: list[TaskProgressResponse]
+
+
+class LearningOverviewResponse(BaseModel):
+    course_id: str
+    pending_tasks: int = Field(ge=0)
+    in_progress_tasks: int = Field(ge=0)
+    self_reported_completed_tasks: int = Field(ge=0)
+    activity_evidenced_completed_tasks: int = Field(ge=0)
+    assessment_verified_completed_tasks: int = Field(ge=0)
+    latest_activity_at: str | None = None
+    enrolled_students: int | None = Field(default=None, ge=0)
+    self_reported_students: int | None = Field(default=None, ge=0)
+    activity_evidenced_students: int | None = Field(default=None, ge=0)
+    assessment_verified_students: int | None = Field(default=None, ge=0)

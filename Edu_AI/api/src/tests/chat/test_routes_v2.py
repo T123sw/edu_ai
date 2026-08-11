@@ -8,6 +8,7 @@ from app.auth import get_current_user
 from app.api.course_dependencies import get_course_access_service
 from app.chat.api import routes_v2 as routes_v2_module
 from app.chat.api.routes_v2 import router as v2_router
+from app.services.course_access import CourseAccessDenied
 from core.config import Config
 
 
@@ -100,6 +101,82 @@ def test_reply_v2_route_returns_v2_payload(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["action"]["name"] == "chat.reply"
+
+
+def test_reply_and_stream_reject_course_outsider_before_context_build(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {
+        "username": "student-outsider",
+        "role": "student",
+    }
+
+    class DenyCourseRead:
+        def require(self, course_id, user, capability):
+            raise CourseAccessDenied(
+                course_id=course_id,
+                user_id=user["username"],
+                capability=capability,
+            )
+
+    class NeverCalled:
+        def reply(self, payload):
+            raise AssertionError("reply service must not build a learning context")
+
+        def reply_stream(self, payload):
+            raise AssertionError("stream service must not build a learning context")
+
+    app.dependency_overrides[get_course_access_service] = lambda: DenyCourseRead()
+    monkeypatch.setattr(routes_v2_module, "_get_reply_service", lambda: NeverCalled())
+    client = TestClient(app)
+
+    for path in ("/api/chat/v2/reply", "/api/chat/v2/stream"):
+        response = client.post(path, json={"question": "hello", "course_id": "course-1"})
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"
+
+
+def test_reply_course_gate_uses_authenticated_owner_not_payload_override(monkeypatch):
+    app = FastAPI()
+    app.include_router(v2_router)
+    app.dependency_overrides[get_current_user] = lambda: {
+        "username": "student-1",
+        "role": "student",
+    }
+    app.dependency_overrides[get_course_access_service] = lambda: type(
+        "AllowCourseRead",
+        (),
+        {"require": lambda self, course_id, user, capability: SimpleNamespace(
+            course_id=course_id, user_id=user["username"], course_role="viewer"
+        )},
+    )()
+
+    class CaptureService:
+        def reply(self, payload):
+            assert payload.owner == "student-1"
+            assert payload.actor_role == "student"
+            return {
+                "message": {"role": "assistant", "content": "ok"},
+                "conversation": {"conversation_id": "conv-1"},
+                "action": {"name": "chat.reply"},
+                "workflow": None,
+                "artifacts": [],
+                "sources": [],
+                "trace": {"path": "fast"},
+            }
+
+    monkeypatch.setattr(routes_v2_module, "_get_reply_service", lambda: CaptureService())
+    response = TestClient(app).post(
+        "/api/chat/v2/reply",
+        json={
+            "question": "hello",
+            "course_id": "course-1",
+            "owner": "teacher-1",
+            "actor_role": "teacher",
+        },
+    )
+
+    assert response.status_code == 200
 
 
 def test_reply_v2_route_passes_input_images_to_service(monkeypatch):

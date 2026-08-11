@@ -1,9 +1,16 @@
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
+import { Alert, Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
 import { SendOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
-import { listChatConversations, getChatConversationDetail, deleteChatConversation, type ConversationListItem } from '../../services/teacher/api';
+import {
+  ConversationLoadError,
+  deleteChatConversation,
+  getChatConversationDetail,
+  listChatConversations,
+  resolveConversationLoadError,
+  type ConversationListItem,
+} from '../../services/teacher/api';
 import {
   buildChatReplyPayload,
   resolveChatRetrievalDocIds,
@@ -43,6 +50,14 @@ import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../.
 import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
 import { isTerminalJob } from '../../jobs/types';
 import { buildGenerationSavedMessage, resolveGenerationReply } from './generationSavedMessage';
+import {
+  applyConversationRecoveryFailure,
+  createConversationAsyncGuard,
+  resolveConversationRecoveryErrorAction,
+  type BackgroundTaskToken,
+  type ConversationAsyncGuard,
+  type ConversationRecoveryError,
+} from './chatHistoryRecovery';
 import './ChatPanel.css';
 
 const { TextArea } = Input;
@@ -399,6 +414,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const [workflowType, setWorkflowType] = useState<string | null>(null);
   const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
   const [backgroundTaskId, setBackgroundTaskId] = useState<string | null>(null);
+  const [historyRecoveryError, setHistoryRecoveryError] = useState<ConversationRecoveryError | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [pendingImages, setPendingImages] = useState<PendingChatImage[]>([]);
@@ -407,6 +423,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const [messageVideoUrls, setMessageVideoUrls] = useState<Record<string, string>>({});
   const [sourceImageUrls, setSourceImageUrls] = useState<Record<string, string>>({});
   const [sourceVideoUrls, setSourceVideoUrls] = useState<Record<string, string>>({});
+  const conversationAsyncGuardRef = useRef<ConversationAsyncGuard | null>(null);
+  if (!conversationAsyncGuardRef.current) {
+    conversationAsyncGuardRef.current = createConversationAsyncGuard(currentConversationId);
+  }
+  const conversationAsyncGuard = conversationAsyncGuardRef.current;
+  const backgroundTaskTokenRef = useRef<BackgroundTaskToken | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -734,7 +756,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   }: {
     offset?: number;
     append?: boolean;
-  }) => {
+  }, canCommit: () => boolean = () => true) => {
     const result = await listChatConversations({
       courseId,
       scopeType: workspaceScopeApiParams.scopeType,
@@ -743,6 +765,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       limit: HISTORY_PAGE_SIZE,
       offset,
     });
+    if (!canCommit()) {
+      return [];
+    }
     const nextItems = result.conversations || [];
     setHistoryTotal(typeof result.total === 'number' ? result.total : nextItems.length);
     setHistoryList((current) => {
@@ -757,9 +782,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
   useEffect(() => {
     const init = async () => {
+      const initializationToken = conversationAsyncGuard.startLoad(currentConversationId, {
+        invalidateBackgroundTasks: false,
+      });
       setHistoryLoading(true);
       try {
-        const list = await loadHistoryPage({ offset: 0, append: false });
+        const initializationIsCurrent = () => conversationAsyncGuard.isLatestLoad(initializationToken);
+        const list = await loadHistoryPage(
+          { offset: 0, append: false },
+          initializationIsCurrent,
+        );
+        if (!initializationIsCurrent()) {
+          return;
+        }
 
         const storedConversationId = String(currentConversationId || '').trim();
         const storedConversation = storedConversationId
@@ -773,18 +808,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         if (storedConversationExists) {
           await loadConversation(storedConversationId, false);
         } else if (initialConversation) {
-          setCurrentConversationId(initialConversation.conversation_id);
           await loadConversation(initialConversation.conversation_id, false);
         } else {
-          setMessages([]);
-          setCurrentConversationId(null);
-          setStatusCard(null);
-          setWorkflowType(null);
-          setWorkflowStatus(null);
-          clearArtifactReference();
-          clearConversationReference();
-          clearConversationGeneratedFiles();
-          setViewingFile(null);
+          conversationAsyncGuard.commitLoad(initializationToken, () => {
+            conversationAsyncGuard.invalidateConversation(null);
+            backgroundTaskTokenRef.current = null;
+            setIsLoading(false);
+            setMessages([]);
+            setCurrentConversationId(null);
+            setStatusCard(null);
+            setWorkflowType(null);
+            setWorkflowStatus(null);
+            clearArtifactReference();
+            clearConversationReference();
+            clearConversationGeneratedFiles();
+            setViewingFile(null);
+          });
         }
       } catch (error) {
         console.error('加载历史对话失败:', error);
@@ -802,9 +841,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     workspaceScopeApiParams.scopeType,
   ]);
 
-  const refreshHistoryList = async () => {
+  const refreshHistoryList = async (canCommit: () => boolean = () => true) => {
     try {
-      await loadHistoryPage({ offset: 0, append: false });
+      await loadHistoryPage({ offset: 0, append: false }, canCommit);
     } catch (error) {
       console.error('刷新历史对话失败:', error);
     }
@@ -829,8 +868,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   };
 
   const loadConversation = async (conversationId: string, showSuccess = true, silent = false) => {
+    if (silent && !conversationAsyncGuard.isConversationActive(conversationId)) {
+      return;
+    }
+    const loadToken = conversationAsyncGuard.startLoad(conversationId, {
+      invalidateBackgroundTasks: !silent,
+    });
     if (!silent) {
+      setIsLoading(false);
       setLoadingConversationId(conversationId);
+      setBackgroundTaskId(null);
+      backgroundTaskTokenRef.current = null;
+      setHistoryRecoveryError(null);
     }
     try {
       const detail = await getChatConversationDetail(conversationId);
@@ -838,15 +887,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         scopeType: detail.scope_type,
         scopeId: detail.scope_id,
       });
-      if (
-        onWorkspaceScopeChange
-        && (
-          detailScope.scopeType !== normalizedWorkspaceScope.scopeType
-          || detailScope.scopeId !== normalizedWorkspaceScope.scopeId
-        )
-      ) {
-        onWorkspaceScopeChange(detailScope);
-      }
       const mapped: Message[] = (detail.history || [])
         .filter((msg: any) => {
           // Internal tool exchange (role='tool' or message_kind='tool_exchange') is
@@ -869,70 +909,115 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       const detailWorkflowState = detail?.state?.workflow_state;
       const nextWorkflowType = String((detailWorkflowState as any)?.workflow_type || '').trim();
       const nextWorkflowStatus = String((detailWorkflowState as any)?.status || '').trim();
-
-      if (!(silent && isLoading)) {
-        setMessages(mapped);
-      }
-      setCurrentConversationId(detail.conversation_id);
-      setStatusCard(detail.status_card || null);
-      setWorkflowType(nextWorkflowType || null);
-      setWorkflowStatus(nextWorkflowStatus || null);
       const restoredFiles = restoreGeneratedFilesFromConversationDetail(detail);
-      replaceConversationGeneratedFiles(restoredFiles);
       const stateArtifactReference = detail?.state?.artifact_reference;
-      if (stateArtifactReference && typeof stateArtifactReference === 'object') {
-        setArtifactReference({
-          artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
-          artifact_type: normalizeArtifactReferenceType((stateArtifactReference as any).artifact_type),
-          version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
-          title: String((stateArtifactReference as any).title || '').trim() || undefined,
-          source_conversation_id: String((stateArtifactReference as any).source_conversation_id || detail.conversation_id || '').trim() || undefined,
-          source_course_id: String((stateArtifactReference as any).source_course_id || courseId || '').trim() || undefined,
-        });
-      } else {
-        clearArtifactReference();
-      }
       const stateConversationReference = detail?.state?.conversation_reference;
-      if (stateConversationReference && typeof stateConversationReference === 'object') {
-        setConversationReference({
-          conversation_id: String((stateConversationReference as any).conversation_id || '').trim(),
-          title: String((stateConversationReference as any).title || '').trim() || undefined,
-          message_count:
-            typeof (stateConversationReference as any).message_count === 'number'
-              ? (stateConversationReference as any).message_count
-              : undefined,
-        });
-      } else {
-        clearConversationReference();
-      }
-      if (silent && nextWorkflowType === 'ppt' && nextWorkflowStatus === 'completed' && restoredFiles.length > 0) {
-        setViewingFile(restoredFiles[restoredFiles.length - 1]);
-      } else if (!silent) {
-        setViewingFile(null);
-      }
 
-      if (showSuccess && !silent) {
-        message.success('已切换到历史对话');
-      }
-    } catch (error: any) {
+      conversationAsyncGuard.commitLoad(loadToken, () => {
+        if (
+          onWorkspaceScopeChange
+          && (
+            detailScope.scopeType !== normalizedWorkspaceScope.scopeType
+            || detailScope.scopeId !== normalizedWorkspaceScope.scopeId
+          )
+        ) {
+          onWorkspaceScopeChange(detailScope);
+        }
+        if (!(silent && isLoading)) {
+          setMessages(mapped);
+        }
+        conversationAsyncGuard.adoptConversation(detail.conversation_id);
+        setCurrentConversationId(detail.conversation_id);
+        setHistoryRecoveryError(null);
+        setStatusCard(detail.status_card || null);
+        setWorkflowType(nextWorkflowType || null);
+        setWorkflowStatus(nextWorkflowStatus || null);
+        replaceConversationGeneratedFiles(restoredFiles);
+        if (stateArtifactReference && typeof stateArtifactReference === 'object') {
+          setArtifactReference({
+            artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
+            artifact_type: normalizeArtifactReferenceType((stateArtifactReference as any).artifact_type),
+            version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
+            title: String((stateArtifactReference as any).title || '').trim() || undefined,
+            source_conversation_id: String((stateArtifactReference as any).source_conversation_id || detail.conversation_id || '').trim() || undefined,
+            source_course_id: String((stateArtifactReference as any).source_course_id || courseId || '').trim() || undefined,
+          });
+        } else {
+          clearArtifactReference();
+        }
+        if (stateConversationReference && typeof stateConversationReference === 'object') {
+          setConversationReference({
+            conversation_id: String((stateConversationReference as any).conversation_id || '').trim(),
+            title: String((stateConversationReference as any).title || '').trim() || undefined,
+            message_count:
+              typeof (stateConversationReference as any).message_count === 'number'
+                ? (stateConversationReference as any).message_count
+                : undefined,
+          });
+        } else {
+          clearConversationReference();
+        }
+        if (silent && nextWorkflowType === 'ppt' && nextWorkflowStatus === 'completed' && restoredFiles.length > 0) {
+          setViewingFile(restoredFiles[restoredFiles.length - 1]);
+        } else if (!silent) {
+          setViewingFile(null);
+        }
+        if (showSuccess && !silent) {
+          message.success('已切换到历史对话');
+        }
+      });
+    } catch (error: unknown) {
       console.error('加载对话详情失败:', error);
-      if (!silent) {
-        message.error(error?.message || '加载历史对话失败');
-      }
+      const fallback = resolveConversationLoadError(null);
+      const normalizedError = error instanceof ConversationLoadError
+        ? error
+        : new ConversationLoadError(fallback.message, fallback.retryable, null);
+      conversationAsyncGuard.commitLoad(loadToken, () => {
+        const currentId = useStore.getState().currentConversationId;
+        applyConversationRecoveryFailure(currentId, conversationId, normalizedError, {
+          clearRecoveredConversationState: () => {
+            setMessages([]);
+            setStatusCard(null);
+            setWorkflowType(null);
+            setWorkflowStatus(null);
+            clearArtifactReference();
+            clearConversationReference();
+            clearConversationGeneratedFiles();
+            setViewingFile(null);
+          },
+          clearPendingTasks: (nextConversationId) => {
+            conversationAsyncGuard.invalidateBackgroundTasks(nextConversationId);
+            backgroundTaskTokenRef.current = null;
+            setIsLoading(false);
+            setBackgroundTaskId(null);
+          },
+          setCurrentConversationId: (nextConversationId) => {
+            conversationAsyncGuard.restoreConversation(nextConversationId);
+            setCurrentConversationId(nextConversationId);
+          },
+          setError: setHistoryRecoveryError,
+        });
+      });
     } finally {
-      if (!silent) {
+      if (!silent && conversationAsyncGuard.isLatestLoad(loadToken)) {
         setLoadingConversationId(null);
       }
     }
   };
 
   const handleNewConversation = () => {
+    conversationAsyncGuard.invalidateConversation(null);
+    backgroundTaskTokenRef.current = null;
+    setIsLoading(false);
     setMessages([]);
     setCurrentConversationId(null);
+    setLoadingConversationId(null);
     setInputValue('');
     setStatusCard(null);
     setWorkflowType(null);
     setWorkflowStatus(null);
+    setBackgroundTaskId(null);
+    setHistoryRecoveryError(null);
     clearArtifactReference();
     clearConversationReference();
     clearConversationGeneratedFiles();
@@ -952,8 +1037,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         if (nextHistory.length > 0) {
           await loadConversation(nextHistory[0].conversation_id, false);
         } else {
+          conversationAsyncGuard.invalidateConversation(null);
+          backgroundTaskTokenRef.current = null;
+          setIsLoading(false);
           setMessages([]);
           setCurrentConversationId(null);
+          setBackgroundTaskId(null);
           setStatusCard(null);
           setWorkflowType(null);
           setWorkflowStatus(null);
@@ -1141,6 +1230,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const handleSendMessage = async (overrideText?: string, forceSend = false) => {
     const draft = (overrideText ?? inputValue).trim();
     if ((draft === '' && pendingImages.length === 0 && pendingVideos.length === 0) || (isLoading && !forceSend)) return;
+    const activeConversationIdAtSend = useStore.getState().currentConversationId;
+    conversationAsyncGuard.invalidateLoads(activeConversationIdAtSend);
+    const sendToken = conversationAsyncGuard.captureSend(activeConversationIdAtSend);
+    const sendStillCurrent = () => conversationAsyncGuard.isSendCurrent(
+      sendToken,
+      useStore.getState().currentConversationId,
+    );
+    const commitSend = (commit: () => void) => conversationAsyncGuard.commitSend(
+      sendToken,
+      useStore.getState().currentConversationId,
+      commit,
+    );
+    setLoadingConversationId(null);
 
     const inputImages = pendingImages.map(({ previewUrl: _previewUrl, ...image }) => image);
     const inputVideos = pendingVideos.map(({ previewUrl: _previewUrl, ...video }) => video);
@@ -1173,7 +1275,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       });
       const payload = buildChatReplyPayload({
         question: userMessage.text,
-        conversationId: currentConversationId,
+        conversationId: activeConversationIdAtSend,
         courseId,
         scopeType: workspaceScopeApiParams.scopeType,
         scopeId: workspaceScopeApiParams.scopeId,
@@ -1204,74 +1306,106 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
       await sendChatReplyV2Stream(payload, {
         onMetadata: (payload) => {
-          const nextConversationId = String(payload.conversation_id || '').trim();
-          if (nextConversationId && nextConversationId !== currentConversationId) {
-            setCurrentConversationId(nextConversationId);
-          }
-          if (Array.isArray(payload.sources)) {
-            updateLastMessage({
-              sources: payload.sources as ChatSourceV2[],
-              statusText: '正在生成回复...',
-            });
-          }
-          if (payload.status_card && typeof payload.status_card === 'object') {
-            setStatusCard(payload.status_card as any);
-          }
+          commitSend(() => {
+            const nextConversationId = String(payload.conversation_id || '').trim();
+            if (nextConversationId && nextConversationId !== useStore.getState().currentConversationId) {
+              conversationAsyncGuard.adoptConversation(nextConversationId);
+              setCurrentConversationId(nextConversationId);
+            }
+            if (Array.isArray(payload.sources)) {
+              updateLastMessage({
+                sources: payload.sources as ChatSourceV2[],
+                statusText: '正在生成回复...',
+              });
+            }
+            if (payload.status_card && typeof payload.status_card === 'object') {
+              setStatusCard(payload.status_card as any);
+            }
+          });
         },
         onStatus: (payload) => {
-          updateLastMessage({
-            statusText: String(payload.label || payload.stage || '正在处理...'),
+          commitSend(() => {
+            updateLastMessage({
+              statusText: String(payload.label || payload.stage || '正在处理...'),
+            });
+            const workflow = payload.workflow as any;
+            if (workflow) {
+              setWorkflowType(String(workflow.type || '').trim() || null);
+              setWorkflowStatus(String(workflow.status || '').trim() || null);
+            }
           });
-          const workflow = payload.workflow as any;
-          if (workflow) {
-            setWorkflowType(String(workflow.type || '').trim() || null);
-            setWorkflowStatus(String(workflow.status || '').trim() || null);
-          }
         },
         onDelta: (content) => {
-          streamedText += content;
-          updateLastMessage({
-            text: streamedText,
-            statusText: '正在生成回复...',
+          commitSend(() => {
+            streamedText += content;
+            updateLastMessage({
+              text: streamedText,
+              statusText: '正在生成回复...',
+            });
           });
         },
         onResult: (finalResponse) => {
-          response = finalResponse;
+          commitSend(() => { response = finalResponse; });
         },
         onTaskSubmitted: (taskId) => {
-          pendingTaskId = taskId;
-          requestJobRefresh(taskId);
-          // Tag the AI message with the task ID so the background poller can find and update it
-          updateLastMessage({ id: taskId });
+          commitSend(() => {
+            pendingTaskId = taskId;
+            requestJobRefresh(taskId);
+            // Tag the AI message with the task ID so the background poller can find and update it
+            updateLastMessage({ id: taskId });
+          });
         },
         onPlan: (plan) => {
-          agentActivity.plan = plan;
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.plan = plan;
+            flushAgentActivity();
+          });
         },
         onPlanStepUpdate: (update) => {
-          agentActivity.stepStatus[update.step_index] = update.status;
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.stepStatus[update.step_index] = update.status;
+            flushAgentActivity();
+          });
         },
         onToolCall: (call) => {
-          agentActivity.toolCalls.push(call);
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.toolCalls.push(call);
+            flushAgentActivity();
+          });
         },
         onToolResult: (result) => {
-          agentActivity.toolResults.push(result);
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.toolResults.push(result);
+            flushAgentActivity();
+          });
         },
         onReflect: (reflect) => {
-          agentActivity.reflects.push(reflect);
-          flushAgentActivity();
+          commitSend(() => {
+            agentActivity.reflects.push(reflect);
+            flushAgentActivity();
+          });
         },
         onError: (error) => {
-          throw error;
+          commitSend(() => { throw error; });
         },
       });
 
+      if (!sendStillCurrent()) {
+        return;
+      }
+
       // Background task path: hand off to useEffect poller and release the UI immediately
       if (pendingTaskId) {
+        const taskToken = conversationAsyncGuard.bindBackgroundTaskForSend(
+          sendToken,
+          pendingTaskId,
+          useStore.getState().currentConversationId,
+        );
+        if (!taskToken) {
+          return;
+        }
         updateLastMessage({ statusText: '正在后台生成，请稍候...' });
+        backgroundTaskTokenRef.current = taskToken;
         setBackgroundTaskId(pendingTaskId);
         return; // isLoading → false via finally; user can continue chatting
       } else if (!response) {
@@ -1279,7 +1413,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       }
 
       const nextConversationId = String(response.conversation?.conversation_id || '').trim();
-      if (nextConversationId && nextConversationId !== currentConversationId) {
+      if (nextConversationId && nextConversationId !== useStore.getState().currentConversationId) {
+        conversationAsyncGuard.adoptConversation(nextConversationId);
         setCurrentConversationId(nextConversationId);
       }
       setStatusCard(response.status_card || null);
@@ -1339,21 +1474,28 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         agentActivity: finalizeRunningAgentActivity(agentActivity, 'done'),
       });
 
-      await refreshHistoryList();
+      await refreshHistoryList(sendStillCurrent);
+      if (!sendStillCurrent()) {
+        return;
+      }
       clearPendingImages();
       clearPendingVideos();
     } catch (error: any) {
       console.error('v2 reply error:', error);
-      updateLastMessage({
-        text: error?.message || 'Request failed. Please try again.',
-        statusText: 'Failed',
-        agentActivity: finalizeRunningAgentActivity(
-          (useStore.getState().messages.at(-1)?.agentActivity as AgentActivityState | undefined),
-          'failed',
-        ),
+      commitSend(() => {
+        updateLastMessage({
+          text: error?.message || 'Request failed. Please try again.',
+          statusText: 'Failed',
+          agentActivity: finalizeRunningAgentActivity(
+            (useStore.getState().messages.at(-1)?.agentActivity as AgentActivityState | undefined),
+            'failed',
+          ),
+        });
       });
     } finally {
-      setIsLoading(false);
+      if (sendStillCurrent()) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -1379,8 +1521,29 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     if (!backgroundTaskId) return undefined;
 
     const taskId = backgroundTaskId;
+    const taskToken = backgroundTaskTokenRef.current;
     const globalJob = jobsById[taskId];
     if (!globalJob || !isTerminalJob(globalJob)) return undefined;
+    if (!taskToken || taskToken.taskId !== taskId) {
+      setBackgroundTaskId(null);
+      return undefined;
+    }
+    const commitTask = (commit: () => void) => conversationAsyncGuard.commitBackgroundTask(
+      taskToken,
+      useStore.getState().currentConversationId,
+      commit,
+    );
+    const taskStillCurrent = () => conversationAsyncGuard.commitBackgroundTask(
+      taskToken,
+      useStore.getState().currentConversationId,
+      () => undefined,
+    );
+    if (!taskStillCurrent()) {
+      backgroundTaskTokenRef.current = null;
+      setBackgroundTaskId(null);
+      return undefined;
+    }
+    backgroundTaskTokenRef.current = null;
     setBackgroundTaskId(null);
     const terminalActivity = (status: 'done' | 'failed') => {
       const messageWithTask = useStore.getState().messages.find((item) => item.id === taskId);
@@ -1390,16 +1553,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       );
     };
     if (globalJob.status !== 'succeeded') {
-      updateMessageById(taskId, {
-        text:
-          globalJob.error_message ||
-          globalJob.error ||
-          (globalJob.status === 'canceled'
-            ? '生成任务已取消。'
-            : '生成失败，请重试。'),
-        statusText: '',
-        status: 'error',
-        agentActivity: terminalActivity('failed'),
+      commitTask(() => {
+        updateMessageById(taskId, {
+          text:
+            globalJob.error_message ||
+            globalJob.error ||
+            (globalJob.status === 'canceled'
+              ? '生成任务已取消。'
+              : '生成失败，请重试。'),
+          statusText: '',
+          status: 'error',
+          agentActivity: terminalActivity('failed'),
+        });
       });
       return undefined;
     }
@@ -1407,74 +1572,80 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     void (async () => {
         try {
           const status = await pollChatTask(taskId);
+          commitTask(() => {
+            if (status.status === 'completed') {
+              if (!status.result) {
+                updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done', agentActivity: terminalActivity('done') });
+                return;
+              }
+              const result = status.result;
+              const activeConversationId = useStore.getState().currentConversationId;
+              const nextConversationId = String(result.conversation?.conversation_id || '').trim();
+              if (nextConversationId && nextConversationId !== activeConversationId) {
+                conversationAsyncGuard.adoptConversation(nextConversationId);
+                setCurrentConversationId(nextConversationId);
+              }
+              setStatusCard(result.status_card || null);
+              setWorkflowType(String(result.workflow?.type || '').trim() || null);
+              setWorkflowStatus(String(result.workflow?.status || '').trim() || null);
 
-          if (status.status === 'completed') {
-            if (!status.result) {
-              updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done', agentActivity: terminalActivity('done') });
-              return;
-            }
-            const result = status.result;
-            const nextConversationId = String(result.conversation?.conversation_id || '').trim();
-            if (nextConversationId && nextConversationId !== currentConversationId) {
-              setCurrentConversationId(nextConversationId);
-            }
-            setStatusCard(result.status_card || null);
-            setWorkflowType(String(result.workflow?.type || '').trim() || null);
-            setWorkflowStatus(String(result.workflow?.status || '').trim() || null);
+              const sources = Array.isArray(result.sources) ? (result.sources as ChatSourceV2[]) : [];
+              const genFiles = extractGeneratedFilesFromV2Response(result).map((file) => ({
+                ...file,
+                meta: {
+                  ...(file.meta || {}),
+                  origin: 'conversation',
+                  conversationId: nextConversationId || activeConversationId,
+                },
+              }));
+              genFiles.forEach((file) => addGeneratedFile(file));
+              const nextPptArtifact = genFiles.find((f) => f.meta?.kind === 'ppt_deck');
+              const activeArtifactReference = useStore.getState().artifactReference;
+              if (activeArtifactReference?.artifact_type === 'ppt_deck' && nextPptArtifact) {
+                setArtifactReference({
+                  artifact_id: String(nextPptArtifact.meta?.originalArtifactId || nextPptArtifact.id).trim(),
+                  artifact_type: 'ppt_deck',
+                  title: nextPptArtifact.name,
+                  source_conversation_id: String(nextPptArtifact.meta?.conversationId || nextConversationId || activeConversationId || '').trim() || undefined,
+                  source_course_id: String(courseId || '').trim() || undefined,
+                });
+              }
+              if (courseId) {
+                genFiles.forEach((file) =>
+                  addMaterial({
+                    id: file.id,
+                    name: file.name,
+                    type: file.type,
+                    content: file.content,
+                    addedAt: String(file.meta?.addedAt || new Date().toISOString()),
+                    courseId,
+                    isPinned: Boolean(file.meta?.isPinned),
+                    pinnedAt: typeof file.meta?.pinnedAt === 'string' ? file.meta.pinnedAt : undefined,
+                  } as any),
+                );
+              }
+              if (genFiles.length > 0) setViewingFile(genFiles[genFiles.length - 1]);
 
-            const sources = Array.isArray(result.sources) ? (result.sources as ChatSourceV2[]) : [];
-            const genFiles = extractGeneratedFilesFromV2Response(result).map((file) => ({
-              ...file,
-              meta: {
-                ...(file.meta || {}),
-                origin: 'conversation',
-                conversationId: nextConversationId || currentConversationId,
-              },
-            }));
-            genFiles.forEach((file) => addGeneratedFile(file));
-            const nextPptArtifact = genFiles.find((f) => f.meta?.kind === 'ppt_deck');
-            if (artifactReference?.artifact_type === 'ppt_deck' && nextPptArtifact) {
-              setArtifactReference({
-                artifact_id: String(nextPptArtifact.meta?.originalArtifactId || nextPptArtifact.id).trim(),
-                artifact_type: 'ppt_deck',
-                title: nextPptArtifact.name,
-                source_conversation_id: String(nextPptArtifact.meta?.conversationId || nextConversationId || currentConversationId || '').trim() || undefined,
-                source_course_id: String(courseId || '').trim() || undefined,
+              const replyText = resolveGenerationReply({
+                generatedResourceCount: genFiles.length,
+                fallbackMessage: String(result.message?.content || ''),
               });
+              updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done', agentActivity: terminalActivity('done') });
+              void refreshHistoryList(taskStillCurrent);
+            } else if (status.status === 'failed') {
+              updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error', agentActivity: terminalActivity('failed') });
             }
-            if (courseId) {
-              genFiles.forEach((file) =>
-                addMaterial({
-                  id: file.id,
-                  name: file.name,
-                  type: file.type,
-                  content: file.content,
-                  addedAt: String(file.meta?.addedAt || new Date().toISOString()),
-                  courseId,
-                  isPinned: Boolean(file.meta?.isPinned),
-                  pinnedAt: typeof file.meta?.pinnedAt === 'string' ? file.meta.pinnedAt : undefined,
-                } as any),
-              );
-            }
-            if (genFiles.length > 0) setViewingFile(genFiles[genFiles.length - 1]);
-
-            const replyText = resolveGenerationReply({
-              generatedResourceCount: genFiles.length,
-              fallbackMessage: String(result.message?.content || ''),
-            });
-            updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done', agentActivity: terminalActivity('done') });
-            void refreshHistoryList();
-          } else if (status.status === 'failed') {
-            updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error', agentActivity: terminalActivity('failed') });
-          }
-        } catch {
-          updateMessageById(taskId, {
-            text: buildGenerationSavedMessage({ visibility: 'private' }),
-            statusText: '',
-            status: 'done',
-            agentActivity: terminalActivity('done'),
           });
-          void refreshHistoryList();
+        } catch {
+          commitTask(() => {
+            updateMessageById(taskId, {
+              text: buildGenerationSavedMessage({ visibility: 'private' }),
+              statusText: '',
+              status: 'done',
+              agentActivity: terminalActivity('done'),
+            });
+            void refreshHistoryList(taskStillCurrent);
+          });
         }
     })();
     return undefined;
@@ -1691,6 +1862,34 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           </Space>
         </div>
       </div>
+
+      {historyRecoveryError ? (
+        <div style={{ margin: '12px 2px 0', flexShrink: 0 }}>
+          <Alert
+            type="warning"
+            showIcon
+            closable
+            message="历史对话未能恢复"
+            description={historyRecoveryError.message}
+            onClose={() => setHistoryRecoveryError((current) => (
+              resolveConversationRecoveryErrorAction(current, 'dismiss').nextError
+            ))}
+            action={historyRecoveryError.retryable ? (
+              <Button
+                size="small"
+                onClick={() => {
+                  const retry = resolveConversationRecoveryErrorAction(historyRecoveryError, 'retry');
+                  if (retry.retryConversationId) {
+                    void loadConversation(retry.retryConversationId, false);
+                  }
+                }}
+              >
+                重试加载
+              </Button>
+            ) : undefined}
+          />
+        </div>
+      ) : null}
 
       <div className="chat-panel__messages">
         <div className="chat-panel__messages-scroll">

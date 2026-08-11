@@ -235,7 +235,7 @@ def _repair_directive(
             reason="任务标记成功但产物不可读，只重试读取，不重新提交生成",
             failed_audit="artifact",
             target_step_index=_step_index_for_action(steps, "status"),
-            target_tool="query_task_status",
+            target_tool="query_generation_job_status",
             max_attempts=1,
             preserve_successful_task_ids=preserve,
         )

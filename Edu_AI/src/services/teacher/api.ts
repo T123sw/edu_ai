@@ -2,7 +2,7 @@
 import type { ChatInputImageV2, ChatInputVideoV2, StatusCardV2 } from './chatV2';
 
 // 优先使用显式配置；未配置时回退到当前访问源，避免同学访问时落回本机 localhost/127.0.0.1
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+const BACKEND_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8001';
 
 const AUTH_STORAGE_KEY = 'edu-ai-auth';
 
@@ -84,6 +84,39 @@ export interface CourseMaterialsQueryOptions {
   aggregate?: boolean;
   limit?: number;
   offset?: number;
+}
+
+export class ConversationLoadError extends Error {
+  constructor(
+    message: string,
+    readonly retryable: boolean,
+    readonly status: number | null,
+  ) {
+    super(message);
+    this.name = 'ConversationLoadError';
+  }
+}
+
+export function resolveConversationLoadError(status: number | null): {
+  message: string;
+  retryable: boolean;
+} {
+  if (status === 401 || status === 403) {
+    return {
+      message: '登录状态或权限已变化，请重新登录',
+      retryable: false,
+    };
+  }
+  if (status === 404) {
+    return {
+      message: '这段历史对话已不存在',
+      retryable: false,
+    };
+  }
+  return {
+    message: '无法加载这段历史对话，请重试',
+    retryable: true,
+  };
 }
 
 export const sendChatMessage = async (
@@ -227,15 +260,21 @@ export const getChatConversationDetail = async (
 ): Promise<ConversationDetailResponse> => {
   const token = getAuthToken();
 
-  const resp = await fetch(`${BACKEND_BASE_URL}/api/chat/conversations/${conversationId}`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  let resp: Response;
+  try {
+    resp = await fetch(`${BACKEND_BASE_URL}/api/chat/conversations/${conversationId}`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+  } catch {
+    const resolution = resolveConversationLoadError(null);
+    throw new ConversationLoadError(resolution.message, resolution.retryable, null);
+  }
 
   if (!resp.ok) {
-    const text = await resp.text().catch(() => '');
-    throw new Error(`获取历史对话详情失败: ${resp.status} ${resp.statusText}\n${text}`);
+    const resolution = resolveConversationLoadError(resp.status);
+    throw new ConversationLoadError(resolution.message, resolution.retryable, resp.status);
   }
 
   return (await resp.json()) as ConversationDetailResponse;

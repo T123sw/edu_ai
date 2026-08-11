@@ -323,15 +323,44 @@ SCHEMA_VERIFY_TASK = {
     },
 }
 
-SCHEMA_QUERY_TASK_STATUS = {
-    "type": "function", "function": {
-        "name": "query_task_status", "description": "只读查询当前会话教学任务状态。",
-        "parameters": {"type": "object", "properties": {"task_id": {"type": "string"}}},
+SCHEMA_GET_MY_LEARNING_PROGRESS = {
+    "type": "function",
+    "function": {
+        "name": "get_my_learning_progress",
+        "description": "读取当前学生本人在当前课程的学习任务与进度，不查询后台生成任务。",
+        "parameters": {
+            "type": "object",
+            "properties": {"task_id": {"type": "string", "pattern": "^lt_"}},
+        },
+    },
+}
+
+SCHEMA_GET_COURSE_LEARNING_PROGRESS = {
+    "type": "function",
+    "function": {
+        "name": "get_course_learning_progress",
+        "description": "读取当前教师可编辑课程的学习任务汇总，不查询内容生成任务。",
+        "parameters": {
+            "type": "object",
+            "properties": {"task_id": {"type": "string", "pattern": "^lt_"}},
+        },
+    },
+}
+
+SCHEMA_QUERY_GENERATION_JOB_STATUS = {
+    "type": "function",
+    "function": {
+        "name": "query_generation_job_status",
+        "description": "只读查询报告、闪卡、PPT、课堂等后台内容生成任务状态。",
+        "parameters": {
+            "type": "object",
+            "properties": {"task_id": {"type": "string", "pattern": "^job_"}},
+        },
     },
 }
 SCHEMA_CANCEL_TASK = {
     "type": "function", "function": {
-        "name": "cancel_task", "description": "取消当前会话中指定或最近的可取消教学任务。",
+        "name": "cancel_task", "description": "取消当前会话中指定或最近的后台生成任务。",
         "parameters": {"type": "object", "properties": {"task_id": {"type": "string"}}},
     },
 }
@@ -357,7 +386,7 @@ def build_tool_schemas(capability, *, actor_role: str = "teacher") -> list[dict]
             SCHEMA_GENERATE_GAME,
             SCHEMA_GENERATE_CLASSROOM,
             SCHEMA_VERIFY_TASK,
-            SCHEMA_QUERY_TASK_STATUS,
+            SCHEMA_QUERY_GENERATION_JOB_STATUS,
             SCHEMA_CANCEL_TASK,
         ]
     role = "student" if str(actor_role or "").strip().lower() == "student" else "teacher"
@@ -366,6 +395,12 @@ def build_tool_schemas(capability, *, actor_role: str = "teacher") -> list[dict]
         if role == "student"
         else {"generate_flashcard", "generate_game"}
     )
+    learning_schema = (
+        SCHEMA_GET_MY_LEARNING_PROGRESS
+        if role == "student"
+        else SCHEMA_GET_COURSE_LEARNING_PROGRESS
+    )
+    generation_schemas.append(learning_schema)
     schemas.extend(
         schema
         for schema in generation_schemas
