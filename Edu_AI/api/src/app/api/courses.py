@@ -55,6 +55,7 @@ from app.schemas.course import (
     CourseKnowledgeBuildDraftUpdateRequest,
     CourseKnowledgeGraphConfirmRequest,
     CourseKnowledgeGraphDraftUpdateRequest,
+    CourseKnowledgeGraphGenerateRequest,
     CourseKnowledgeBuildPreviewRequest,
     CourseUpdateRequest,
     GenerateClassroomRequest,
@@ -73,9 +74,10 @@ from app.schemas.course import (
 )
 from app.services import course_service as _svc
 from app.services import knowledge_document_service as _knowledge
-from app.services.course_knowledge_planner import preview_course_knowledge_plan
 from app.services.course_knowledge_plan_builder import submit_course_knowledge_plan_build_job
-from app.services.deepsearch_service import search_web_sources
+from app.services.course_knowledge_graph_generator import (
+    submit_course_knowledge_graph_generation_job,
+)
 from app.services.course_knowledge_builder import submit_course_knowledge_build_job
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
@@ -1060,6 +1062,33 @@ def update_knowledge_base_graph_draft(
 
 
 @router.post(
+    "/{course_id}/knowledge-builds/{build_id}/graph/generate",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="调用模型生成课程知识图谱草案",
+)
+def generate_knowledge_base_graph_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeGraphGenerateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        job = submit_course_knowledge_graph_generation_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            expected_revision=payload.expected_revision,
+            target_module_id=payload.target_module_id,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return job.model_dump(mode="json")
+
+
+@router.post(
     "/{course_id}/knowledge-builds/{build_id}/graph/confirm",
     summary="确认课程知识图谱并解锁正式构建",
 )
@@ -1092,31 +1121,20 @@ def preview_knowledge_base_build(
     payload: CourseKnowledgeBuildPreviewRequest,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    mgr = _svc._get_manager()
-    course = mgr.get_course_info(course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="课程不存在")
-    course_snapshot = dict(course)
-    course_snapshot["id"] = course_id
-    search_provider = None
-    if payload.discover_sources:
-        search_provider = lambda query, limit: search_web_sources(query, limit)
-    plan = preview_course_knowledge_plan(
-        course_snapshot,
-        search_provider=search_provider,
-        max_results_per_topic=payload.max_results_per_topic,
+    del payload
+    result = create_knowledge_base_build_draft(
+        course_id,
+        CourseKnowledgeBuildDraftCreateRequest(),
+        principal,
     )
-    try:
-        return get_postgres_knowledge_repository().create_build_preview(
-            course_id=course_id,
-            triggered_by=principal.user_id,
-            plan=plan.to_dict(),
-        )
-    except Exception as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=f"知识库构建计划暂时无法保存：{exc}",
-        ) from exc
+    return {
+        **result,
+        "deprecation": {
+            "deprecated": True,
+            "replacement": f"/api/courses/{course_id}/knowledge-builds",
+            "message": "旧预览入口已改为只创建草案，不再搜索或自动启动构建",
+        },
+    }
 
 
 @router.get(

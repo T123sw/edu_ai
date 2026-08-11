@@ -16,6 +16,32 @@ def _build_record():
             {"topic_id": "topic-1", "title": "向量空间", "objective": "理解向量空间"},
             {"topic_id": "topic-2", "title": "矩阵", "objective": "掌握矩阵运算"},
         ],
+        "graph_draft": {
+            "id": "course-linear-algebra",
+            "label": "线性代数知识体系",
+            "children": [
+                {
+                    "id": "module-core",
+                    "label": "线性结构与运算",
+                    "children": [
+                        {
+                            "id": "topic-1",
+                            "label": "向量空间",
+                            "children": [],
+                            "data": {"level": 2, "type": "knowledge_point", "summary": "理解向量空间"},
+                        },
+                        {
+                            "id": "topic-2",
+                            "label": "矩阵",
+                            "children": [],
+                            "data": {"level": 2, "type": "knowledge_point", "summary": "掌握矩阵运算"},
+                        },
+                    ],
+                    "data": {"level": 1, "type": "knowledge_module", "summary": "线性代数核心结构"},
+                }
+            ],
+            "data": {"level": 0, "type": "course", "summary": "线性代数课程"},
+        },
         "source_candidates": [
             {
                 "candidate_id": "source-1",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from types import SimpleNamespace
 
 from course_api_test_support import CourseApiTestFactory
 
@@ -35,11 +36,7 @@ def test_create_build_draft_normalizes_config_without_searching(course_api, monk
             }
 
     monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
-    monkeypatch.setattr(
-        courses,
-        "search_web_sources",
-        lambda *_args, **_kwargs: pytest.fail("draft creation must not search the web"),
-    )
+    assert not hasattr(courses, "search_web_sources")
 
     response = course_api.client_for("teacher-a", "teacher").post(
         "/api/courses/course-1/knowledge-builds",
@@ -115,3 +112,47 @@ def test_viewer_cannot_create_build_draft(course_api):
     )
 
     assert response.status_code == 403
+
+
+def test_generate_graph_endpoint_queues_model_job_with_revision(course_api, monkeypatch):
+    from app.api import courses
+
+    captured = {}
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 2,
+            }
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+
+    def submit(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(
+            model_dump=lambda **_kwargs: {
+                "edu_job_id": "job-graph-1",
+                "kind": "generate_graph",
+                "status": "queued",
+            }
+        )
+
+    monkeypatch.setattr(courses, "submit_course_knowledge_graph_generation_job", submit)
+
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds/kb-1/graph/generate",
+        json={"expected_revision": 2, "target_module_id": "module-poetry"},
+    )
+
+    assert response.status_code == 202
+    assert response.json()["kind"] == "generate_graph"
+    assert captured == {
+        "course_id": "course-1",
+        "owner_user_id": "teacher-a",
+        "build_id": "kb-1",
+        "expected_revision": 2,
+        "target_module_id": "module-poetry",
+    }

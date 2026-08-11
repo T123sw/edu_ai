@@ -281,6 +281,11 @@ class CourseKnowledgeGraphConfirmRequest(BaseModel):
     expected_revision: int = Field(..., ge=1)
 
 
+class CourseKnowledgeGraphGenerateRequest(BaseModel):
+    expected_revision: int = Field(..., ge=1)
+    target_module_id: Optional[str] = Field(default=None, min_length=1, max_length=200)
+
+
 class AddRAGDocumentRequest(BaseModel):
     rag_file_path: str = Field(..., description="RAG document identifier")
     scope_type: str = Field(default=SCOPE_TYPE_COURSE, description="workspace scope type")

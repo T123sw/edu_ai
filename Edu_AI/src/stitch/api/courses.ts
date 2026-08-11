@@ -221,20 +221,25 @@ export function buildKnowledgeBaseFromOpenTextbook(courseId: string) {
   });
 }
 
-export function previewCourseKnowledgeBuild(courseId: string, discoverSources = true) {
-  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/preview`, {
-    method: "POST",
-    body: JSON.stringify({
-      discover_sources: discoverSources,
-      max_results_per_topic: 6,
-    }),
-  });
-}
-
 export function createCourseKnowledgeBuildDraft(courseId: string) {
   return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds`, {
     method: "POST",
     body: JSON.stringify({}),
+  });
+}
+
+export function generateCourseKnowledgeGraphDraft(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  targetModuleId?: string,
+) {
+  return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-builds/${buildId}/graph/generate`, {
+    method: "POST",
+    body: JSON.stringify({
+      expected_revision: expectedRevision,
+      target_module_id: targetModuleId,
+    }),
   });
 }
 

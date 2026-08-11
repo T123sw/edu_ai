@@ -358,6 +358,26 @@ class PlatformTaskHandlers:
         )
         return self._completed_public_result(context.task_id)
 
+    def course_knowledge_graph_generate(
+        self,
+        command: Mapping[str, Any],
+        context: DurableExecutionContext,
+    ) -> dict[str, Any]:
+        from app.services.course_knowledge_graph_generator import (
+            run_course_knowledge_graph_generation_job,
+        )
+
+        run_course_knowledge_graph_generation_job(
+            job_id=context.task_id,
+            course_id=str(command.get("course_id") or context.course_id or ""),
+            owner_user_id=context.owner_user_id,
+            build_id=str(command.get("build_id") or ""),
+            expected_revision=int(command.get("expected_revision") or 0),
+            target_module_id=str(command.get("target_module_id") or "") or None,
+            progress=context.progress,
+        )
+        return self._completed_public_result(context.task_id)
+
     def video_ingest(
         self,
         command: Mapping[str, Any],
@@ -410,6 +430,11 @@ def register_platform_task_handlers(
         "course_knowledge_plan_build",
         1,
         active.course_knowledge_plan_build,
+    )
+    registry.register(
+        "course_knowledge_graph_generate",
+        1,
+        active.course_knowledge_graph_generate,
     )
     registry.register("video_ingest", 1, active.video_ingest)
     return active

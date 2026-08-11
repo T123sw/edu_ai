@@ -278,26 +278,10 @@ def _reviewed_generated_documents(
     return eligible
 
 
-def _fallback_graph(build: Mapping[str, Any]) -> dict[str, Any]:
-    topics = list(build.get("topics") or [])
-    title = str((build.get("course_snapshot") or {}).get("title") or "课程")
-    module_label = re.sub(r"(?:入门|基础|教程|课程)$", "", title).strip() or f"{title}核心知识"
-    return {
-        "id": "root", "label": f"{title}课程知识图谱",
-        "children": [{
-            "id": "module-core", "label": module_label,
-            "children": [{
-                "id": str(topic.get("topic_id") or ""), "label": str(topic.get("title") or "知识点"), "children": [],
-                "data": {"level": 2, "type": "knowledge_point", "summary": str(topic.get("objective") or ""), "hasChildren": False, "document_ids": []},
-            } for topic in topics],
-            "data": {"level": 1, "type": "knowledge_module", "summary": f"{title}的核心概念与技能结构", "hasChildren": bool(topics)},
-        }],
-        "data": {"level": 0, "type": "course", "summary": "依据课程目标构建", "hasChildren": bool(topics)},
-    }
-
-
 def _published_graph(build: Mapping[str, Any], persisted: list[Mapping[str, Any]]) -> dict[str, Any]:
-    graph = copy.deepcopy(build.get("graph_draft") or _fallback_graph(build))
+    if not build.get("graph_draft"):
+        raise ValueError("知识图谱草案不存在，禁止使用硬编码结构发布")
+    graph = copy.deepcopy(build["graph_draft"])
     documents_by_topic: dict[str, list[str]] = {}
     for item in persisted:
         doc_id = str(item.get("document_id") or "")

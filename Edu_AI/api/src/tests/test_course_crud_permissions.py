@@ -145,12 +145,19 @@ def test_student_cannot_create_course_and_unsafe_explicit_id_is_rejected(course_
     assert course_api.client_for("student-a", "student").post("/api/courses", json=payload).status_code == 403
 
 
-def test_teacher_previews_semantic_knowledge_plan_and_student_is_denied(course_api, monkeypatch):
+def test_legacy_preview_only_creates_draft_and_student_is_denied(course_api, monkeypatch):
     from app.api import courses
 
     class Repository:
-        def create_build_preview(self, *, course_id, triggered_by, plan):
-            return {"build_id": "kb-1", "status": "draft", "phase": "source_review", **plan}
+        def create_build_draft(self, *, course_id, triggered_by, plan):
+            return {
+                "build_id": "kb-1",
+                "library_id": course_id,
+                "status": "draft",
+                "phase": "draft_config",
+                "revision": 1,
+                **plan,
+            }
 
     monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
     teacher_response = course_api.client_for("teacher-a", "teacher").post(
@@ -166,8 +173,10 @@ def test_teacher_previews_semantic_knowledge_plan_and_student_is_denied(course_a
     body = teacher_response.json()
     assert body["build_id"] == "kb-1"
     assert body["course_snapshot"]["title"] == "Course one"
-    assert body["topics"][0]["title"] == "Understand shared state"
+    assert body["topics"] == []
+    assert body["graph_draft"] is None
     assert body["source_candidates"] == []
+    assert body["deprecation"]["deprecated"] is True
     assert student_response.status_code == 403
 
 
