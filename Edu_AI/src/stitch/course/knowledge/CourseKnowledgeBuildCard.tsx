@@ -10,6 +10,7 @@ import {
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
 import { MaterialIcon } from "../../shared";
+import { CourseKnowledgeBuildWizard } from "./CourseKnowledgeBuildWizard";
 import "./CourseKnowledgeBuildCard.css";
 
 const PHASE_LABELS: Record<string, string> = {
@@ -41,6 +42,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const latestJob = jobs[0] ?? null;
   const [plan, setPlan] = useState<CourseKnowledgeBuild | null>(null);
   const [planning, setPlanning] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [versions, setVersions] = useState<CourseKnowledgeGraphVersion[]>([]);
   const [rollingBack, setRollingBack] = useState<number | null>(null);
   const [submitError, setSubmitError] = useState("");
@@ -78,10 +80,15 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
     setSubmitError("");
 
     try {
+      if (plan?.status === "draft") {
+        setWizardOpen(true);
+        return;
+      }
       setPlanning(true);
       const buildPlan = await createCourseKnowledgeBuildDraft(courseId);
       window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
       setPlan(buildPlan);
+      setWizardOpen(true);
     } catch (reason) {
       setSubmitError(reason instanceof Error ? reason.message : "知识库更新失败，请稍后重试。");
     } finally {
@@ -119,8 +126,10 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const buttonText = planning
     ? "正在准备…"
     : activeJob
-        ? "正在更新…"
-        : documentCount
+      ? "正在更新…"
+      : plan?.status === "draft"
+        ? "继续构建方案"
+      : documentCount
           ? "更新知识库"
           : "一键构建知识库";
   const approvedSourceCount = plan?.source_candidates.filter(
@@ -175,6 +184,15 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
         ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
         {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
       </div>
+
+      {wizardOpen && plan?.status === "draft" ? (
+        <CourseKnowledgeBuildWizard
+          courseId={courseId}
+          build={plan}
+          onBuildChange={setPlan}
+          onClose={() => setWizardOpen(false)}
+        />
+      ) : null}
 
       {plan || versions.length || status ? (
         <details className="course-kb-builder__details">

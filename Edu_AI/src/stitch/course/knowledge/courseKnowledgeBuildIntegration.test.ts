@@ -5,6 +5,8 @@ import test from "node:test";
 test("current course knowledge view owns course uploads and embeds the reusable build card", async () => {
   const source = await readFile(new URL("./KnowledgeDocumentsView.tsx", import.meta.url), "utf8");
   const buildCard = await readFile(new URL("./CourseKnowledgeBuildCard.tsx", import.meta.url), "utf8");
+  const wizard = await readFile(new URL("./CourseKnowledgeBuildWizard.tsx", import.meta.url), "utf8");
+  const textbookStep = await readFile(new URL("./CourseKnowledgeTextbookStep.tsx", import.meta.url), "utf8");
 
   assert.match(source, /libraryType: "course"/);
   assert.doesNotMatch(source, /libraryType: "personal"/);
@@ -14,6 +16,11 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.doesNotMatch(buildCard, /startCourseKnowledgeBuild/);
   assert.match(buildCard, /rollbackCourseKnowledgeVersion/);
   assert.doesNotMatch(buildCard, /buildKnowledgeBaseFromOpenTextbook/);
+  assert.match(buildCard, /CourseKnowledgeBuildWizard/);
+  assert.match(wizard, /updateCourseKnowledgeBuildDraft/);
+  assert.match(wizard, /generateCourseKnowledgeGraphDraft/);
+  assert.match(textbookStep, /accept="\.pdf,\.docx,\.txt,\.md"/);
+  assert.match(textbookStep, /可跳过/);
 });
 
 test("course knowledge build card keeps the primary experience simple", async () => {

@@ -308,6 +308,37 @@ export type CourseKnowledgeBuildConfig = {
   update_strategy: "incremental" | "merge_rebuild" | "full_rebuild";
 };
 
+export type CourseKnowledgeTextbookOutlineItem = {
+  id: string;
+  title: string;
+  level: number;
+  line_index?: number;
+  page?: number | null;
+  sections?: CourseKnowledgeTextbookOutlineItem[];
+};
+
+export type CourseKnowledgeTextbookInput = {
+  textbook_id: string;
+  filename: string;
+  extension: ".pdf" | ".docx" | ".txt" | ".md";
+  size_bytes: number;
+  content_hash: string;
+  status: "queued" | "parsing" | "ready" | "failed";
+  uploaded_by: string;
+  uploaded_at: string;
+  parse_result?: {
+    parser: string;
+    summary: string;
+    outline: CourseKnowledgeTextbookOutlineItem[];
+    char_count: number;
+    chapter_count: number;
+    chunk_count: number;
+    warnings: string[];
+    parsed_at: string;
+  } | null;
+  error?: { code?: string; message?: string } | null;
+};
+
 export type CourseKnowledgeBuild = {
   build_id: string;
   library_id?: string;
@@ -320,6 +351,7 @@ export type CourseKnowledgeBuild = {
   confirmed_graph_revision?: number | null;
   confirmed_by?: string | null;
   config?: CourseKnowledgeBuildConfig;
+  textbooks?: CourseKnowledgeTextbookInput[];
   course_snapshot: Record<string, unknown>;
   topics: CourseKnowledgeTopic[];
   graph_draft?: KnowledgeGraphNode | null;
@@ -329,6 +361,7 @@ export type CourseKnowledgeBuild = {
   quality_score?: number | null;
   quality_checks?: CourseKnowledgeQualityCheck[];
   error?: { code?: string; message?: string } | null;
+  graph_generation_error?: { code?: string; message?: string; issues?: Array<Record<string, unknown>> } | null;
 };
 
 export type CourseKnowledgeGraphVersion = {

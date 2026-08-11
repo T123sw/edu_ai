@@ -6,6 +6,8 @@ import type {
   CourseMaterial,
   CourseMaterialSpace,
   CourseKnowledgeBuild,
+  CourseKnowledgeBuildConfig,
+  CourseKnowledgeTextbookInput,
   CourseKnowledgeGraphVersion,
   KnowledgeBaseDocument,
   KnowledgeBaseDocumentContent,
@@ -221,11 +223,65 @@ export function buildKnowledgeBaseFromOpenTextbook(courseId: string) {
   });
 }
 
-export function createCourseKnowledgeBuildDraft(courseId: string) {
+export function createCourseKnowledgeBuildDraft(
+  courseId: string,
+  config?: Partial<CourseKnowledgeBuildConfig>,
+) {
   return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds`, {
     method: "POST",
-    body: JSON.stringify({}),
+    body: JSON.stringify(config ? { config } : {}),
   });
+}
+
+export function updateCourseKnowledgeBuildDraft(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  config: CourseKnowledgeBuildConfig,
+) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ expected_revision: expectedRevision, config }),
+  });
+}
+
+export function uploadCourseKnowledgeTextbook(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  file: File,
+) {
+  const form = new FormData();
+  form.append("expected_revision", String(expectedRevision));
+  form.append("file", file);
+  return apiRequest<{ build: CourseKnowledgeBuild; textbook: CourseKnowledgeTextbookInput; job: JobRecord }>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/textbooks`,
+    { method: "POST", body: form },
+  );
+}
+
+export function retryCourseKnowledgeTextbook(
+  courseId: string,
+  buildId: string,
+  textbookId: string,
+  expectedRevision: number,
+) {
+  return apiRequest<{ build: CourseKnowledgeBuild; job: JobRecord }>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/textbooks/${textbookId}/retry`,
+    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
+}
+
+export function removeCourseKnowledgeTextbook(
+  courseId: string,
+  buildId: string,
+  textbookId: string,
+  expectedRevision: number,
+) {
+  return apiRequest<CourseKnowledgeBuild>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/textbooks/${textbookId}`,
+    { method: "DELETE", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
 }
 
 export function generateCourseKnowledgeGraphDraft(
