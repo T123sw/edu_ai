@@ -4,6 +4,7 @@ import type {
   AssessmentDraft,
   AssessmentDraftUpdatePayload,
   AssessmentFeedback,
+  AssessmentAnalytics,
   CourseLearningSummary,
   LearningEventPayload,
   LearningEventResponse,
@@ -103,6 +104,19 @@ export const getStudentAssessmentFeedback = (courseId: string, taskId: string) =
 
 export const revealStudentAssessmentAnswers = (courseId: string, taskId: string) =>
   apiRequest<AssessmentFeedback>(`${assessmentPath(courseId, taskId)}/reveal`, { method: "POST" });
+
+export const getTaskAssessmentAnalytics = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentAnalytics>(`${assessmentPath(courseId, taskId)}/analytics`);
+
+export const reviewAssessmentAttempt = (
+  courseId: string,
+  taskId: string,
+  attemptId: string,
+  payload: { item_scores: Record<string, number>; reason_code: string; student_comment: string; private_comment: string },
+) => apiRequest<AssessmentAttempt>(`${assessmentPath(courseId, taskId)}/attempts/${attemptId}/review`, {
+  method: "POST",
+  body: JSON.stringify(payload),
+});
 
 export const recordLearningEvent = (
   courseId: string,

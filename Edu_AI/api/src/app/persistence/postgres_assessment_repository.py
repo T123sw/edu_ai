@@ -16,6 +16,7 @@ from app.assessment.models import (
     AssessmentAttemptRecord,
     AssessmentItemRecord,
     AssessmentRecord,
+    AssessmentReviewRecord,
     AssessmentVersionRecord,
     utc_now,
 )
@@ -26,6 +27,7 @@ from app.database import (
     AssessmentAttemptModel,
     AssessmentItemModel,
     AssessmentModel,
+    AssessmentReviewModel,
     AssessmentVersionModel,
     database_session,
 )
@@ -248,6 +250,26 @@ class PostgresAssessmentRepository:
             )
             return self._assignment(record) if record else None
 
+    def list_assignments(
+        self, *, course_id: str, task_id: str
+    ) -> list[AssessmentAssignmentRecord]:
+        with database_session(engine=self._engine) as session:
+            records = session.scalars(
+                select(AssessmentAssignmentModel)
+                .where(
+                    AssessmentAssignmentModel.course_id == course_id,
+                    AssessmentAssignmentModel.task_id == task_id,
+                )
+                .order_by(
+                    AssessmentAssignmentModel.student_id,
+                    AssessmentAssignmentModel.cycle_number.desc(),
+                )
+            ).all()
+            latest = {}
+            for record in records:
+                latest.setdefault(record.student_id, self._assignment(record))
+            return list(latest.values())
+
     def create_attempt(self, assignment: AssessmentAssignmentRecord) -> AssessmentAttemptRecord:
         with database_session(engine=self._engine) as session:
             current = session.scalar(
@@ -413,6 +435,78 @@ class PostgresAssessmentRepository:
             session.flush()
             return self._assignment(assignment)
 
+    def apply_review(
+        self,
+        attempt_id: str,
+        reviews: list[AssessmentReviewRecord],
+        *,
+        final_score: float,
+        result: str,
+    ) -> AssessmentAttemptRecord:
+        with database_session(engine=self._engine) as session:
+            attempt = session.scalar(
+                select(AssessmentAttemptModel)
+                .where(AssessmentAttemptModel.attempt_id == attempt_id)
+                .with_for_update()
+            )
+            if attempt is None:
+                raise AssessmentStoreError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+            now = _timestamp(utc_now())
+            for review in reviews:
+                answer = session.scalar(select(AssessmentAnswerModel).where(
+                    AssessmentAnswerModel.attempt_id == attempt_id,
+                    AssessmentAnswerModel.assessment_item_id == review.assessment_item_id,
+                ))
+                if answer is None:
+                    raise AssessmentStoreError("INVALID_REVIEW_ITEM", "Review item was not found")
+                answer.final_score = review.new_score
+                answer.review_status = "graded"
+                answer.updated_at = now
+                session.add(AssessmentReviewModel(
+                    review_id=review.review_id, attempt_id=review.attempt_id,
+                    assessment_item_id=review.assessment_item_id,
+                    reviewer_id=review.reviewer_id, previous_score=review.previous_score,
+                    new_score=review.new_score, reason_code=review.reason_code,
+                    comment_private=review.comment_private,
+                    comment_student_visible=review.comment_student_visible,
+                    created_at=_timestamp(review.created_at),
+                ))
+            attempt.status = "graded"
+            attempt.final_score = final_score
+            attempt.result = result
+            attempt.updated_at = now
+            session.flush()
+            best = session.scalar(
+                select(AssessmentAttemptModel)
+                .where(
+                    AssessmentAttemptModel.assessment_assignment_id == attempt.assessment_assignment_id,
+                    AssessmentAttemptModel.status == "graded",
+                    AssessmentAttemptModel.final_score.is_not(None),
+                    AssessmentAttemptModel.invalidated_at.is_(None),
+                )
+                .order_by(AssessmentAttemptModel.final_score.desc(), AssessmentAttemptModel.attempt_number)
+                .limit(1)
+            )
+            assignment = session.get(AssessmentAssignmentModel, attempt.assessment_assignment_id)
+            if assignment is None:
+                raise AssessmentStoreError("ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found")
+            if best is not None:
+                assignment.best_attempt_id = best.attempt_id
+                assignment.best_final_score = best.final_score
+                assignment.result = best.result or "needs_retry"
+                assignment.updated_at = now
+            session.flush()
+            return self._attempt(attempt)
+
+    def list_reviews(self, attempt_id: str) -> list[AssessmentReviewRecord]:
+        with database_session(engine=self._engine) as session:
+            records = session.scalars(
+                select(AssessmentReviewModel)
+                .where(AssessmentReviewModel.attempt_id == attempt_id)
+                .order_by(AssessmentReviewModel.created_at, AssessmentReviewModel.review_id)
+            ).all()
+            return [self._review(record) for record in records]
+
     @staticmethod
     def _version_model(record: AssessmentVersionRecord) -> AssessmentVersionModel:
         return AssessmentVersionModel(
@@ -558,6 +652,17 @@ class PostgresAssessmentRepository:
             ai_suggestion=dict(record.ai_suggestion) if record.ai_suggestion else None,
             final_score=record.final_score, review_status=record.review_status,
             updated_at=_iso_timestamp(record.updated_at),
+        )
+
+    @staticmethod
+    def _review(record: AssessmentReviewModel) -> AssessmentReviewRecord:
+        return AssessmentReviewRecord(
+            review_id=record.review_id, attempt_id=record.attempt_id,
+            assessment_item_id=record.assessment_item_id, reviewer_id=record.reviewer_id,
+            previous_score=record.previous_score, new_score=record.new_score,
+            reason_code=record.reason_code, comment_private=record.comment_private,
+            comment_student_visible=record.comment_student_visible,
+            created_at=_iso_timestamp(record.created_at),
         )
 
     @staticmethod

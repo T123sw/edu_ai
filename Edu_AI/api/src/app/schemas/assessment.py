@@ -130,6 +130,7 @@ class AssessmentFeedbackItemResponse(BaseModel):
     review_status: str
     solution: dict[str, Any] | None = None
     rubric: dict[str, Any] | None = None
+    student_comment: str | None = None
 
 
 class AssessmentFeedbackResponse(BaseModel):
@@ -141,3 +142,81 @@ class AssessmentFeedbackResponse(BaseModel):
     result: str
     answers_revealed_at: str | None
     items: list[AssessmentFeedbackItemResponse]
+
+
+class AssessmentReviewRequest(BaseModel):
+    item_scores: dict[str, float]
+    reason_code: str = Field(min_length=1, max_length=64)
+    student_comment: str = Field(default="", max_length=5000)
+    private_comment: str = Field(default="", max_length=5000)
+
+
+class AssessmentReviewResponse(BaseModel):
+    review_id: str
+    attempt_id: str
+    assessment_item_id: str | None
+    reviewer_id: str
+    previous_score: float | None
+    new_score: float | None
+    reason_code: str
+    comment_private: str
+    comment_student_visible: str
+    created_at: str
+
+
+class AssessmentRatioResponse(BaseModel):
+    numerator: int
+    denominator: int
+    rate: float
+
+
+class AssessmentAnalyticsStudentResponse(BaseModel):
+    student_id: str
+    status: str
+    attempts_used: int
+    max_attempts: int
+    best_final_score: float | None
+    result: str
+    attempts: list[AssessmentAttemptResponse]
+    review_attempt_id: str | None
+    review_items: list[dict[str, Any]]
+
+
+class AssessmentAnalyticsItemResponse(BaseModel):
+    assessment_item_id: str
+    position: int
+    prompt: dict[str, Any]
+    sample_count: int
+    full_score_count: int
+    full_score_rate: AssessmentRatioResponse
+
+
+class AssessmentAnalyticsKnowledgePointResponse(BaseModel):
+    knowledge_point_id: str
+    sample_count: int
+    full_score_count: int
+    full_score_rate: AssessmentRatioResponse
+
+
+class AssessmentScoreBucketResponse(BaseModel):
+    label: str
+    count: int
+
+
+class AssessmentAnalyticsResponse(BaseModel):
+    task_id: str
+    enrolled: int
+    participation: AssessmentRatioResponse
+    submission: AssessmentRatioResponse
+    pass_: AssessmentRatioResponse = Field(alias="pass")
+    mastery: AssessmentRatioResponse
+    pending_review: int
+    mean_best_score: float | None
+    median_best_score: float | None
+    average_attempts: float
+    score_distribution: list[AssessmentScoreBucketResponse]
+    students: list[AssessmentAnalyticsStudentResponse]
+    items: list[AssessmentAnalyticsItemResponse]
+    knowledge_points: list[AssessmentAnalyticsKnowledgePointResponse]
+
+    model_config = {"populate_by_name": True}

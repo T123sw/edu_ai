@@ -17,6 +17,9 @@ from app.schemas.assessment import (
     AssessmentAttemptResponse,
     AssessmentSubmitRequest,
     AssessmentFeedbackResponse,
+    AssessmentReviewRequest,
+    AssessmentReviewResponse,
+    AssessmentAnalyticsResponse,
     AssessmentQualityResponse,
     StudentAssessmentResponse,
 )
@@ -301,6 +304,75 @@ def reveal_student_answers(
         return AssessmentFeedbackResponse.model_validate(
             service.reveal_answers(
                 course_id=course_id, task_id=task_id, student_id=principal.user_id
+            )
+        )
+    except AssessmentRuleError as error:
+        raise assessment_http_error(error) from error
+
+
+@router.post("/attempts/{attempt_id}/review", response_model=AssessmentAttemptResponse)
+def finalize_assessment_review(
+    course_id: str,
+    task_id: str,
+    attempt_id: str,
+    payload: AssessmentReviewRequest,
+    principal: CoursePrincipal = Depends(require_course_edit),
+    service: AssessmentService = Depends(get_assessment_service),
+) -> AssessmentAttemptResponse:
+    try:
+        return AssessmentAttemptResponse.model_validate(
+            service.finalize_review(
+                course_id=course_id,
+                task_id=task_id,
+                attempt_id=attempt_id,
+                item_scores=payload.item_scores,
+                reason_code=payload.reason_code,
+                student_comment=payload.student_comment,
+                private_comment=payload.private_comment,
+                teacher_id=principal.user_id,
+            ),
+            from_attributes=True,
+        )
+    except AssessmentRuleError as error:
+        raise assessment_http_error(error) from error
+
+
+@router.get(
+    "/attempts/{attempt_id}/reviews",
+    response_model=list[AssessmentReviewResponse],
+)
+def list_assessment_reviews(
+    course_id: str,
+    task_id: str,
+    attempt_id: str,
+    principal: CoursePrincipal = Depends(require_course_edit),
+    service: AssessmentService = Depends(get_assessment_service),
+) -> list[AssessmentReviewResponse]:
+    try:
+        return [
+            AssessmentReviewResponse.model_validate(review, from_attributes=True)
+            for review in service.list_reviews(
+                course_id=course_id,
+                task_id=task_id,
+                attempt_id=attempt_id,
+                teacher_id=principal.user_id,
+            )
+        ]
+    except AssessmentRuleError as error:
+        raise assessment_http_error(error) from error
+
+
+@router.get("/analytics", response_model=AssessmentAnalyticsResponse)
+def get_assessment_analytics(
+    course_id: str,
+    task_id: str,
+    principal: CoursePrincipal = Depends(require_course_edit),
+    service: AssessmentService = Depends(get_assessment_service),
+) -> AssessmentAnalyticsResponse:
+    try:
+        return AssessmentAnalyticsResponse.model_validate(
+            service.get_task_analytics(
+                course_id=course_id, task_id=task_id, teacher_id=principal.user_id
             )
         )
     except AssessmentRuleError as error:

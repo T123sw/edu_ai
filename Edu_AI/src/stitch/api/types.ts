@@ -224,6 +224,46 @@ export type AssessmentFeedback = {
   items: AssessmentFeedbackItem[];
 };
 
+export type AssessmentRatio = { numerator: number; denominator: number; rate: number };
+
+export type AssessmentAnalyticsReviewItem = {
+  assessment_item_id: string;
+  prompt: Record<string, unknown>;
+  answer: Record<string, unknown>;
+  rubric: Record<string, unknown>;
+  max_score: number;
+  ai_suggestion: Record<string, unknown> | null;
+};
+
+export type AssessmentAnalyticsStudent = {
+  student_id: string;
+  status: string;
+  attempts_used: number;
+  max_attempts: number;
+  best_final_score: number | null;
+  result: string;
+  attempts: AssessmentAttempt[];
+  review_attempt_id: string | null;
+  review_items: AssessmentAnalyticsReviewItem[];
+};
+
+export type AssessmentAnalytics = {
+  task_id: string;
+  enrolled: number;
+  participation: AssessmentRatio;
+  submission: AssessmentRatio;
+  pass: AssessmentRatio;
+  mastery: AssessmentRatio;
+  pending_review: number;
+  mean_best_score: number | null;
+  median_best_score: number | null;
+  average_attempts: number;
+  score_distribution: Array<{ label: string; count: number }>;
+  students: AssessmentAnalyticsStudent[];
+  items: Array<{ assessment_item_id: string; position: number; prompt: Record<string, unknown>; sample_count: number; full_score_count: number; full_score_rate: AssessmentRatio }>;
+  knowledge_points: Array<{ knowledge_point_id: string; sample_count: number; full_score_count: number; full_score_rate: AssessmentRatio }>;
+};
+
 export type LearningEventPayload = {
   event_id: string;
   event_type: "started" | "resource_opened" | "progress_updated" | "completed";

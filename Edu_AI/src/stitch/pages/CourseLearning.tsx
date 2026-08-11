@@ -17,6 +17,7 @@ import type {
 } from "../api/types";
 import { AssessmentEditor } from "../assessment/AssessmentEditor";
 import { AssessmentRunner } from "../assessment/AssessmentRunner";
+import { AssessmentAnalytics } from "../assessment/AssessmentAnalytics";
 import { getAssessmentPublishBlockers } from "../assessment/assessmentAuthoring";
 import { useAuthSession } from "../authSession";
 import { useCourseRoute } from "../course/CourseRouteProvider";
@@ -424,6 +425,7 @@ export function CourseLearningPage() {
                         </div>
                       ))}
                     </div>
+                    {courseId ? <AssessmentAnalytics courseId={courseId} taskId={selectedTask.task_id} onReviewed={() => void loadTasks()} /> : null}
                   </>
                 ) : <div className="learning-draft-note">正在汇总学生学习进度…</div>}
               </>

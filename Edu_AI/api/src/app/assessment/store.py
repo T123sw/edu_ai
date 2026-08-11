@@ -16,6 +16,7 @@ from .models import (
     AssessmentAttemptRecord,
     AssessmentItemRecord,
     AssessmentRecord,
+    AssessmentReviewRecord,
     AssessmentVersionRecord,
     utc_now,
 )
@@ -631,6 +632,24 @@ class AssessmentStore:
             ).fetchone()
         return self._assignment_from_row(row) if row else None
 
+    def list_assignments(
+        self, *, course_id: str, task_id: str
+    ) -> list[AssessmentAssignmentRecord]:
+        if self._postgres:
+            return self._repository.list_assignments(course_id=course_id, task_id=task_id)
+        with self._lock:
+            rows = self._connection.execute(
+                """
+                SELECT * FROM assessment_assignments
+                WHERE course_id=? AND task_id=? ORDER BY student_id, cycle_number DESC
+                """,
+                (course_id, task_id),
+            ).fetchall()
+        latest = {}
+        for row in rows:
+            latest.setdefault(str(row["student_id"]), self._assignment_from_row(row))
+        return list(latest.values())
+
     def create_attempt(
         self, assignment: AssessmentAssignmentRecord
     ) -> AssessmentAttemptRecord:
@@ -868,6 +887,94 @@ class AssessmentStore:
             ).fetchone()
         return self._assignment_from_row(row)
 
+    def apply_review(
+        self,
+        attempt_id: str,
+        reviews: list[AssessmentReviewRecord],
+        *,
+        final_score: float,
+        result: str,
+    ) -> AssessmentAttemptRecord:
+        if self._postgres:
+            return self._repository.apply_review(
+                attempt_id, reviews, final_score=final_score, result=result
+            )
+        with self._lock:
+            self._connection.execute("BEGIN IMMEDIATE")
+            attempt = self._connection.execute(
+                "SELECT * FROM assessment_attempts WHERE attempt_id=?", (attempt_id,)
+            ).fetchone()
+            if attempt is None:
+                self._connection.rollback()
+                raise AssessmentStoreError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+            now = utc_now()
+            for review in reviews:
+                cursor = self._connection.execute(
+                    """
+                    UPDATE assessment_answers
+                    SET final_score=?, review_status='graded', updated_at=?
+                    WHERE attempt_id=? AND assessment_item_id=?
+                    """,
+                    (review.new_score, now, attempt_id, review.assessment_item_id),
+                )
+                if cursor.rowcount == 0:
+                    self._connection.rollback()
+                    raise AssessmentStoreError("INVALID_REVIEW_ITEM", "Review item was not found")
+                self._connection.execute(
+                    """
+                    INSERT INTO assessment_reviews(
+                        review_id, attempt_id, assessment_item_id, reviewer_id,
+                        previous_score, new_score, reason_code, comment_private,
+                        comment_student_visible, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        review.review_id, review.attempt_id, review.assessment_item_id,
+                        review.reviewer_id, review.previous_score, review.new_score,
+                        review.reason_code, review.comment_private,
+                        review.comment_student_visible, review.created_at,
+                    ),
+                )
+            self._connection.execute(
+                """
+                UPDATE assessment_attempts
+                SET status='graded', final_score=?, result=?, updated_at=?
+                WHERE attempt_id=?
+                """,
+                (final_score, result, now, attempt_id),
+            )
+            assignment_id = str(attempt["assessment_assignment_id"])
+            best = self._connection.execute(
+                """
+                SELECT attempt_id, final_score, result FROM assessment_attempts
+                WHERE assessment_assignment_id=? AND status='graded'
+                    AND final_score IS NOT NULL AND invalidated_at IS NULL
+                ORDER BY final_score DESC, attempt_number ASC LIMIT 1
+                """,
+                (assignment_id,),
+            ).fetchone()
+            if best is not None:
+                self._connection.execute(
+                    """
+                    UPDATE assessment_assignments
+                    SET best_attempt_id=?, best_final_score=?, result=?, updated_at=?
+                    WHERE assessment_assignment_id=?
+                    """,
+                    (best["attempt_id"], best["final_score"], best["result"], now, assignment_id),
+                )
+            self._connection.commit()
+        return self.get_attempt(attempt_id)
+
+    def list_reviews(self, attempt_id: str) -> list[AssessmentReviewRecord]:
+        if self._postgres:
+            return self._repository.list_reviews(attempt_id)
+        with self._lock:
+            rows = self._connection.execute(
+                "SELECT * FROM assessment_reviews WHERE attempt_id=? ORDER BY created_at, review_id",
+                (attempt_id,),
+            ).fetchall()
+        return [self._review_from_row(row) for row in rows]
+
     @staticmethod
     def _assessment_from_row(row: sqlite3.Row) -> AssessmentRecord:
         return AssessmentRecord(
@@ -934,6 +1041,21 @@ class AssessmentStore:
             result=str(row["result"]),
             answers_revealed_at=str(row["answers_revealed_at"]) if row["answers_revealed_at"] else None,
             created_at=str(row["created_at"]), updated_at=str(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _review_from_row(row: sqlite3.Row) -> AssessmentReviewRecord:
+        return AssessmentReviewRecord(
+            review_id=str(row["review_id"]),
+            attempt_id=str(row["attempt_id"]),
+            assessment_item_id=str(row["assessment_item_id"]) if row["assessment_item_id"] else None,
+            reviewer_id=str(row["reviewer_id"]),
+            previous_score=float(row["previous_score"]) if row["previous_score"] is not None else None,
+            new_score=float(row["new_score"]) if row["new_score"] is not None else None,
+            reason_code=str(row["reason_code"]),
+            comment_private=str(row["comment_private"]),
+            comment_student_visible=str(row["comment_student_visible"]),
+            created_at=str(row["created_at"]),
         )
 
     @staticmethod

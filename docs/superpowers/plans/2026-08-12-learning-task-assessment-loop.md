@@ -433,7 +433,7 @@ Push: `git push origin main`
 - Produces: `finalize_review(attempt_id, item_scores, reason_code, student_comment, teacher_id)`。
 - Enforces: AI 建议不能成为最终分；教师决定只追加；历史调整重算最佳成绩。
 
-- [ ] **Step 1: 写待复核和重算失败测试**
+- [x] **Step 1: 写待复核和重算失败测试**
 
 ```python
 def test_subjective_attempt_waits_for_teacher_and_review_recomputes_best(service):
@@ -451,7 +451,7 @@ def test_subjective_attempt_waits_for_teacher_and_review_recomputes_best(service
     assert service.list_reviews(attempt.attempt_id)[0].previous_score is None
 ```
 
-- [ ] **Step 2: 实现服务/API 并运行测试**
+- [x] **Step 2: 实现服务/API 并运行测试**
 
 Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_review.py -q`
 
@@ -474,15 +474,15 @@ Commit: `git commit -m "feat: add audited assessment reviews"`
 - Produces: task summary、student queues、item analysis、knowledge-point analysis。
 - Required task metrics: enrolled、participated、submitted、passed、mastery、pending_review、mean、median、score_distribution、average_attempts，所有比例携带 numerator/denominator。
 
-- [ ] **Step 1: 写统计口径失败测试**
+- [x] **Step 1: 写统计口径失败测试**
 
 以 4 名学生构造未开始、学习未提交、50 分未通过、85 分掌握良好四种状态，断言提交率 `2/4`、通过率 `1/4`、待复核不进入平均最终分，并断言学生 API 不能访问班级分析。
 
-- [ ] **Step 2: 实现聚合和界面**
+- [x] **Step 2: 实现聚合和界面**
 
 教师页面提供未开始、已学习未提交、待复核、可重做未通过、次数用尽未通过、已通过、掌握良好筛选；学生行展示历次成绩和最近活动。题目与知识点卡片必须展示样本数，零样本不显示掌握百分比。
 
-- [ ] **Step 3: 阶段回归、提交和推送**
+- [x] **Step 3: 阶段回归、提交和推送**
 
 Run:
 

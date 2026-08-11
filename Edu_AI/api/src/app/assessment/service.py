@@ -9,7 +9,8 @@ from uuid import uuid4
 from app.learning.service import LearningRuleError, LearningService
 
 from .extractors import extract_assessment_items
-from .models import AssessmentRecord, AssessmentVersionRecord
+from .analytics import ratio, score_distribution, score_summary
+from .models import AssessmentRecord, AssessmentReviewRecord, AssessmentVersionRecord
 from .models import AssessmentItemRecord
 from .policies import (
     AssessmentPolicyError,
@@ -586,6 +587,11 @@ class AssessmentService:
             answer.assessment_item_id: answer
             for answer in self.store.list_answers(assignment.best_attempt_id)
         } if assignment.best_attempt_id else {}
+        visible_comments = {}
+        if assignment.best_attempt_id:
+            for review in self.store.list_reviews(assignment.best_attempt_id):
+                if review.assessment_item_id and review.comment_student_visible:
+                    visible_comments[review.assessment_item_id] = review.comment_student_visible
         payload_items = []
         for item in items:
             answer = best_answers.get(item.assessment_item_id)
@@ -599,6 +605,8 @@ class AssessmentService:
                 "max_score": item.max_score,
                 "review_status": answer.review_status if answer else "ungraded",
             }
+            if item.assessment_item_id in visible_comments:
+                payload["student_comment"] = visible_comments[item.assessment_item_id]
             if revealed:
                 payload["solution"] = dict(item.scoring_key)
                 if item.rubric:
@@ -613,6 +621,268 @@ class AssessmentService:
             "result": assignment.result,
             "answers_revealed_at": assignment.answers_revealed_at,
             "items": payload_items,
+        }
+
+    def finalize_review(
+        self,
+        *,
+        course_id: str,
+        task_id: str,
+        attempt_id: str,
+        item_scores: dict[str, float],
+        reason_code: str,
+        student_comment: str,
+        private_comment: str,
+        teacher_id: str,
+    ):
+        self._teacher_task(course_id=course_id, task_id=task_id, teacher_id=teacher_id)
+        attempt = self.store.get_attempt(attempt_id)
+        if attempt is None or attempt.course_id != course_id or attempt.task_id != task_id:
+            raise AssessmentRuleError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+        if not item_scores:
+            raise AssessmentRuleError("REVIEW_SCORE_REQUIRED", "At least one review score is required")
+        if not str(reason_code).strip():
+            raise AssessmentRuleError("REVIEW_REASON_REQUIRED", "Review reason is required")
+        items = {
+            item.assessment_item_id: item
+            for item in self.store.list_items(attempt.assessment_version_id)
+        }
+        answers = {
+            answer.assessment_item_id: answer
+            for answer in self.store.list_answers(attempt_id)
+        }
+        reviewable = {
+            item_id
+            for item_id, item in items.items()
+            if item.grading_provider != "deterministic"
+        }
+        if not set(item_scores).issubset(reviewable):
+            raise AssessmentRuleError("INVALID_REVIEW_ITEM", "Only subjective items can be reviewed")
+        pending = {
+            item_id
+            for item_id in reviewable
+            if item_id in answers and answers[item_id].final_score is None
+        }
+        if not pending.issubset(item_scores):
+            raise AssessmentRuleError(
+                "REVIEW_SCORE_REQUIRED", "Every pending subjective item requires a final score"
+            )
+        reviews = []
+        for item_id, raw_score in item_scores.items():
+            score = float(raw_score)
+            item = items[item_id]
+            if score < 0 or score > item.max_score:
+                raise AssessmentRuleError(
+                    "INVALID_REVIEW_SCORE", "Review score must be within the item score range"
+                )
+            answer = answers.get(item_id)
+            if answer is None:
+                raise AssessmentRuleError("INVALID_REVIEW_ITEM", "Review answer was not found")
+            reviews.append(AssessmentReviewRecord(
+                review_id=f"rev_{uuid4().hex}",
+                attempt_id=attempt_id,
+                assessment_item_id=item_id,
+                reviewer_id=teacher_id,
+                previous_score=answer.final_score,
+                new_score=score,
+                reason_code=str(reason_code),
+                comment_private=str(private_comment),
+                comment_student_visible=str(student_comment),
+            ))
+        final_item_scores = {
+            item_id: float(item_scores[item_id]) if item_id in item_scores else answer.final_score
+            for item_id, answer in answers.items()
+        }
+        if any(value is None for value in final_item_scores.values()):
+            raise AssessmentRuleError(
+                "REVIEW_SCORE_REQUIRED", "Every submitted item requires a final score"
+            )
+        maximum = sum(item.max_score for item in items.values())
+        total = sum(float(value or 0) for value in final_item_scores.values())
+        percentage = round(total / maximum * 100, 2) if maximum > 0 else 0.0
+        version = self.store.get_version(attempt.assessment_version_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        result = (
+            "mastered" if percentage >= version.mastery_threshold
+            else "passed" if percentage >= version.pass_threshold
+            else "needs_retry"
+        )
+        try:
+            reviewed = self.store.apply_review(
+                attempt_id, reviews, final_score=percentage, result=result
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        self._sync_verified_outcome(reviewed)
+        return reviewed
+
+    def list_reviews(
+        self,
+        *,
+        course_id: str,
+        task_id: str,
+        attempt_id: str,
+        teacher_id: str,
+    ):
+        self._teacher_task(course_id=course_id, task_id=task_id, teacher_id=teacher_id)
+        attempt = self.store.get_attempt(attempt_id)
+        if attempt is None or attempt.course_id != course_id or attempt.task_id != task_id:
+            raise AssessmentRuleError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+        return self.store.list_reviews(attempt_id)
+
+    def get_task_analytics(
+        self, *, course_id: str, task_id: str, teacher_id: str
+    ) -> dict[str, Any]:
+        self._teacher_task(course_id=course_id, task_id=task_id, teacher_id=teacher_id)
+        memberships = list(self.learning_service.membership_lookup(course_id))
+
+        def membership_value(membership, field: str) -> str:
+            if isinstance(membership, dict):
+                return str(membership.get(field, "")).strip()
+            return str(getattr(membership, field, "")).strip()
+
+        student_ids = sorted({
+            membership_value(membership, "user_id")
+            for membership in memberships
+            if membership_value(membership, "role") not in {"owner", "editor"}
+            and membership_value(membership, "user_id")
+        })
+        enrolled = len(student_ids)
+        assignments = {
+            assignment.student_id: assignment
+            for assignment in self.store.list_assignments(course_id=course_id, task_id=task_id)
+        }
+        participated = sum(1 for student_id in student_ids if student_id in assignments)
+        submitted = sum(
+            1 for student_id in student_ids
+            if assignments.get(student_id) and assignments[student_id].attempts_used > 0
+        )
+        passed = sum(
+            1 for student_id in student_ids
+            if assignments.get(student_id)
+            and assignments[student_id].result in {"passed", "mastered"}
+        )
+        mastered = sum(
+            1 for student_id in student_ids
+            if assignments.get(student_id) and assignments[student_id].result == "mastered"
+        )
+        pending_review = sum(
+            1 for student_id in student_ids
+            if assignments.get(student_id) and assignments[student_id].result == "pending_review"
+        )
+        scores = [
+            float(assignments[student_id].best_final_score)
+            for student_id in student_ids
+            if assignments.get(student_id)
+            and assignments[student_id].best_final_score is not None
+        ]
+        mean_score, median_score = score_summary(scores)
+        submitted_assignments = [
+            assignments[student_id]
+            for student_id in student_ids
+            if assignments.get(student_id) and assignments[student_id].attempts_used > 0
+        ]
+        average_attempts = (
+            round(sum(item.attempts_used for item in submitted_assignments) / len(submitted_assignments), 2)
+            if submitted_assignments else 0.0
+        )
+        student_rows = []
+        item_samples: dict[str, list[float]] = {}
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        version_id = assessment.current_version_id if assessment else None
+        item_records = {
+            item.assessment_item_id: item for item in self.store.list_items(version_id)
+        } if version_id else {}
+        for student_id in student_ids:
+            assignment = assignments.get(student_id)
+            attempts = self.store.list_attempts(assignment.assessment_assignment_id) if assignment else []
+            if assignment is None:
+                status = "not_started"
+            elif assignment.result in {"passed", "mastered", "pending_review"}:
+                status = assignment.result
+            elif assignment.attempts_used >= assignment.max_attempts:
+                status = "attempts_exhausted"
+            elif any(attempt.status == "in_progress" for attempt in attempts):
+                status = "in_progress"
+            else:
+                status = "retry_available"
+            review_items = []
+            pending_attempt = next(
+                (attempt for attempt in reversed(attempts) if attempt.status == "pending_review"),
+                None,
+            )
+            if pending_attempt:
+                for answer in self.store.list_answers(pending_attempt.attempt_id):
+                    item = item_records.get(answer.assessment_item_id)
+                    if item and answer.review_status == "pending_review":
+                        review_items.append({
+                            "assessment_item_id": item.assessment_item_id,
+                            "prompt": item.prompt,
+                            "answer": answer.answer,
+                            "rubric": item.rubric,
+                            "max_score": item.max_score,
+                            "ai_suggestion": answer.ai_suggestion,
+                        })
+            student_rows.append({
+                "student_id": student_id,
+                "status": status,
+                "attempts_used": assignment.attempts_used if assignment else 0,
+                "max_attempts": assignment.max_attempts if assignment else 0,
+                "best_final_score": assignment.best_final_score if assignment else None,
+                "result": assignment.result if assignment else "not_attempted",
+                "attempts": [asdict(attempt) for attempt in attempts],
+                "review_attempt_id": pending_attempt.attempt_id if pending_attempt else None,
+                "review_items": review_items,
+            })
+            for attempt in attempts:
+                if attempt.status == "in_progress":
+                    continue
+                for answer in self.store.list_answers(attempt.attempt_id):
+                    if answer.final_score is not None:
+                        item_samples.setdefault(answer.assessment_item_id, []).append(float(answer.final_score))
+        item_rows = []
+        knowledge = {}
+        for item_id, item in sorted(item_records.items(), key=lambda entry: entry[1].position):
+            samples = item_samples.get(item_id, [])
+            correct = sum(1 for score in samples if score >= item.max_score)
+            item_rows.append({
+                "assessment_item_id": item_id,
+                "position": item.position,
+                "prompt": item.prompt,
+                "sample_count": len(samples),
+                "full_score_count": correct,
+                "full_score_rate": ratio(correct, len(samples)),
+            })
+            for point_id in item.knowledge_point_ids:
+                entry = knowledge.setdefault(point_id, {"sample_count": 0, "full_score_count": 0})
+                entry["sample_count"] += len(samples)
+                entry["full_score_count"] += correct
+        knowledge_rows = [
+            {
+                "knowledge_point_id": point_id,
+                **values,
+                "full_score_rate": ratio(values["full_score_count"], values["sample_count"]),
+            }
+            for point_id, values in sorted(knowledge.items())
+        ]
+        return {
+            "task_id": task_id,
+            "enrolled": enrolled,
+            "participation": ratio(participated, enrolled),
+            "submission": ratio(submitted, enrolled),
+            "pass": ratio(passed, enrolled),
+            "mastery": ratio(mastered, enrolled),
+            "pending_review": pending_review,
+            "mean_best_score": mean_score,
+            "median_best_score": median_score,
+            "average_attempts": average_attempts,
+            "score_distribution": score_distribution(scores),
+            "students": student_rows,
+            "items": item_rows,
+            "knowledge_points": knowledge_rows,
         }
 
     def _draft_payload(self, task, version: AssessmentVersionRecord) -> dict[str, Any]:
