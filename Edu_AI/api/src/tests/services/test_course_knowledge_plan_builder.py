@@ -65,6 +65,34 @@ def _build_record():
     }
 
 
+@pytest.fixture(autouse=True)
+def _stub_source_discovery(monkeypatch):
+    record = _build_record()
+    candidates = [
+        {
+            **item,
+            "review_status": "relevant",
+            "metadata": {"query": f"{item['topic_id']} 课程资料"},
+        }
+        for item in record["source_candidates"]
+    ]
+    monkeypatch.setattr(
+        builder,
+        "discover_course_knowledge_sources",
+        lambda _build: {
+            "topics": record["topics"],
+            "source_candidates": candidates,
+            "warnings": [],
+            "metrics": {
+                "leaf_count": 2,
+                "candidate_count": 2,
+                "selected_candidate_count": 2,
+                "search_failure_count": 0,
+            },
+        },
+    )
+
+
 class FakeRepository:
     def __init__(self):
         self.build = _build_record()
@@ -82,6 +110,28 @@ class FakeRepository:
     def record_quality_check(self, build_id, **fields):
         assert build_id == "kb-1"
         self.checks.append(fields)
+
+    def replace_build_source_candidates(
+        self, build_id, *, topics, candidates, warnings, discovery_metrics
+    ):
+        assert build_id == "kb-1"
+        self.build["topics"] = topics
+        self.build["source_candidates"] = candidates
+        self.build["warnings"] = warnings
+        self.build.setdefault("metrics", {})["source_discovery"] = discovery_metrics
+        return dict(self.build)
+
+    def update_source_candidate_result(
+        self, build_id, candidate_id, *, review_status, review_reason, metadata=None
+    ):
+        assert build_id == "kb-1"
+        for candidate in self.build["source_candidates"]:
+            if candidate["candidate_id"] == candidate_id:
+                candidate["review_status"] = review_status
+                candidate["review_reason"] = review_reason
+                candidate.setdefault("metadata", {}).update(metadata or {})
+                return
+        raise AssertionError(candidate_id)
 
     def publish_build(self, build_id, *, graph, document_ids, metrics, quality_score):
         assert build_id == "kb-1"
@@ -117,6 +167,8 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
             "document_id": kwargs["candidate"]["candidate_id"],
             "scope_id": kwargs["candidate"]["topic_id"],
             "source_url": kwargs["candidate"]["url"],
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "final_url": kwargs["candidate"]["url"],
         },
     )
     generated = []
@@ -186,6 +238,8 @@ def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypat
             "scope_id": kwargs["candidate"]["topic_id"],
             "source_url": kwargs["candidate"]["url"],
             "reused": False,
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "final_url": kwargs["candidate"]["url"],
         },
     )
     monkeypatch.setattr(
@@ -257,7 +311,7 @@ def test_reviewed_staged_documents_are_resumed_and_promoted():
     ]
 
 
-def test_extract_reviewed_page_uses_linked_section_instead_of_whole_manual(monkeypatch):
+def test_extract_page_accepts_missing_license_and_uses_linked_section(monkeypatch):
     class Response:
         headers = {"content-type": "text/html; charset=utf-8"}
         text = """
@@ -275,17 +329,17 @@ def test_extract_reviewed_page_uses_linked_section_instead_of_whole_manual(monke
             return Response()
 
     monkeypatch.setattr(builder, "_robots_allows", lambda _client, _url: True)
-    title, content = builder._extract_reviewed_page(
+    title, content, final_url, content_hash = builder._extract_reviewed_page(
         Client(),
         {
             "url": "https://docs.python.org/zh-cn/3/tutorial/controlflow.html#if-statements",
             "title": "Python 官方教程：if 语句",
-            "review_status": "approved",
-            "license_name": "PSF License Version 2",
-            "license_url": "https://docs.python.org/3/license.html",
+            "review_status": "relevant",
         },
     )
 
     assert title == "Python 官方教程：if 语句"
     assert "条件判断" in content
     assert "unrelated text" not in content
+    assert final_url == "https://docs.python.org/zh-cn/3/tutorial/controlflow.html"
+    assert len(content_hash) == 64

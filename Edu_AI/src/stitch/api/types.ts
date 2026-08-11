@@ -279,7 +279,7 @@ export type CourseKnowledgeSourceCandidate = {
   license_name?: string | null;
   license_url?: string | null;
   authority_tier: string;
-  review_status: "approved" | "rejected" | "pending";
+  review_status: "discovered" | "relevant" | "rejected_irrelevant" | "fetch_failed" | "ready" | "approved" | "rejected" | "pending";
   review_reason: string;
   selected: boolean;
   relevance_score: number;

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import re
 from contextlib import nullcontext
 from collections.abc import Callable, Mapping
@@ -17,6 +18,10 @@ from bs4 import BeautifulSoup
 from app.persistence.dependencies import get_postgres_knowledge_repository
 from app.services.course_generated_material import generate_reviewed_supplement
 from app.services.course_knowledge_builder import _canonical_path, _robots_allows, _safe_material_filename, utc_now
+from app.services.course_knowledge_source_discovery import (
+    canonical_source_url,
+    discover_course_knowledge_sources,
+)
 from app.services.job_store import EduJob, JobKind, JobStatus, create_job, update_job
 from core.course_storage import LIBRARY_TYPE_COURSE, CourseStorageManager
 
@@ -36,17 +41,16 @@ def submit_course_knowledge_plan_build_job(*, course_id: str, owner_user_id: str
         or int(build.get("confirmed_graph_revision") or 0) != revision
     ):
         raise ValueError("知识图谱尚未确认，不能启动正式构建")
-    selected = [item for item in build.get("source_candidates") or [] if item.get("selected") and item.get("review_status") == "approved"]
     from app.services.platform_task_handlers import enqueue_platform_task
     from app.services.runtime_config_resolver import runtime_config_resolver
 
-    repository.queue_build(build_id, selected_source_count=len(selected))
+    repository.queue_build(build_id, selected_source_count=0)
     try:
         job = create_job(
             kind=JobKind.BUILD_KNOWLEDGE_INDEX,
             owner_user_id=owner_user_id,
             course_id=course_id,
-            input_summary={"build_id": build_id, "selected_source_count": len(selected)},
+            input_summary={"build_id": build_id, "selected_source_count": 0},
         )
         queued_job = enqueue_platform_task(
             job=job,
@@ -68,15 +72,14 @@ def submit_course_knowledge_plan_build_job(*, course_id: str, owner_user_id: str
         raise
 
 
-def _extract_reviewed_page(client: httpx.Client, candidate: Mapping[str, Any]) -> tuple[str, str]:
+def _extract_reviewed_page(
+    client: httpx.Client,
+    candidate: Mapping[str, Any],
+) -> tuple[str, str, str, str]:
     url = str(candidate.get("url") or "").strip()
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.hostname:
         raise ValueError("来源必须使用 HTTPS")
-    if candidate.get("review_status") != "approved":
-        raise ValueError("来源尚未通过审核")
-    if not candidate.get("license_name") or not candidate.get("license_url"):
-        raise ValueError("来源缺少可验证的许可信息")
     if not _robots_allows(client, url):
         raise PermissionError("来源 robots.txt 不允许抓取")
     response = client.get(url)
@@ -102,7 +105,12 @@ def _extract_reviewed_page(client: httpx.Client, candidate: Mapping[str, Any]) -
     content = "\n\n".join(value for value in lines if value)
     if len(content) < 300:
         raise ValueError("来源正文过短")
-    return title, content[:60000]
+    content = content[:60000]
+    final_url = canonical_source_url(str(getattr(response, "url", None) or url))
+    if not final_url:
+        raise ValueError("来源最终重定向 URL 不是 HTTPS")
+    content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    return title, content, final_url, content_hash
 
 
 def _update_saved_record(
@@ -126,6 +134,8 @@ def _persist_candidate(
     course_id: str,
     owner_user_id: str,
     candidate: Mapping[str, Any],
+    seen_final_urls: set[str] | None = None,
+    seen_content_hashes: set[str] | None = None,
 ) -> dict[str, Any]:
     url = str(candidate.get("url") or "").strip()
     scope_id = str(candidate.get("topic_id") or "")
@@ -138,15 +148,21 @@ def _persist_candidate(
             return {"document_id": str(existing.get("id") or ""), "scope_id": scope_id, "source_url": url, "reused": True, "source_type": "web"}
     headers = {"User-Agent": "EduAI-CourseKnowledgeBuilder/2.0 (+source-attribution)"}
     with httpx.Client(timeout=30, follow_redirects=True, headers=headers) as client:
-        title, content = _extract_reviewed_page(client, candidate)
+        title, content, final_url, content_hash = _extract_reviewed_page(client, candidate)
+    if seen_final_urls is not None and final_url in seen_final_urls:
+        raise ValueError("来源最终 URL 与本次构建中的其他页面重复")
+    if seen_content_hashes is not None and content_hash in seen_content_hashes:
+        raise ValueError("来源正文与本次构建中的其他页面重复")
     license_name = str(candidate.get("license_name") or "")
     license_url = str(candidate.get("license_url") or "")
     filename = _safe_material_filename("plan", title, f"{scope_id}:{url}")
-    body = (
-        f"# {title}\n\n> 来源：[{candidate.get('domain') or url}]({url})  \n"
-        f"> 许可：[{license_name}]({license_url})  \n> 获取时间：{utc_now()}  \n"
-        f"> 来源审核：{candidate.get('review_reason') or '已通过'}\n\n{content}\n"
-    )
+    attribution = [
+        f"> 来源：[{candidate.get('domain') or url}]({final_url})  ",
+        f"> 获取时间：{utc_now()}  ",
+    ]
+    if license_name or license_url:
+        attribution.append(f"> 许可：[{license_name or '来源声明'}]({license_url})  ")
+    body = f"# {title}\n\n" + "\n".join(attribution) + f"\n\n{content}\n"
     relative_path = manager.save_knowledge_base_file(
         course_id, body.encode("utf-8"), filename,
         scope_type="knowledge_point", scope_id=scope_id, library_type=LIBRARY_TYPE_COURSE,
@@ -161,17 +177,33 @@ def _persist_candidate(
     record = _update_saved_record(
         manager=manager, course_id=course_id, relative_path=relative_path,
         fields={
-            "url": url, "source_url": url, "source_title": title,
-            "source_domain": str(candidate.get("domain") or parsed_domain(url)),
-            "source_site_name": str(candidate.get("domain") or parsed_domain(url)),
+            "url": final_url, "source_url": final_url, "source_title": title,
+            "source_domain": str(candidate.get("domain") or parsed_domain(final_url)),
+            "source_site_name": str(candidate.get("domain") or parsed_domain(final_url)),
             "source_license": license_name, "source_license_url": license_url,
             "source_language": candidate.get("language"), "content_language": candidate.get("language"),
             "translation_notice": "原文入库，未经机器翻译", "authority_tier": candidate.get("authority_tier"),
             "generated_by": PLAN_BUILDER_VERSION, "retrieved_at": utc_now(), "doc_kind": "web",
             "source_type": "web", "status": "received", "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+            "source_query": (candidate.get("metadata") or {}).get("query"),
+            "source_original_url": url,
+            "source_final_url": final_url,
+            "content_hash": content_hash,
         },
     )
-    return {"document_id": record["id"], "scope_id": scope_id, "source_url": url, "reused": False, "source_type": "web"}
+    if seen_final_urls is not None:
+        seen_final_urls.add(final_url)
+    if seen_content_hashes is not None:
+        seen_content_hashes.add(content_hash)
+    return {
+        "document_id": record["id"],
+        "scope_id": scope_id,
+        "source_url": final_url,
+        "reused": False,
+        "source_type": "web",
+        "content_hash": content_hash,
+        "final_url": final_url,
+    }
 
 
 def _generate_and_persist_supplement(
@@ -348,25 +380,68 @@ def run_course_knowledge_plan_build_job(
     try:
         if build is None or str(build.get("library_id") or "") != course_id:
             raise ValueError("知识库构建计划不存在")
-        selected = [item for item in build.get("source_candidates") or [] if item.get("selected") and item.get("review_status") == "approved"]
+        repository.update_build(build_id, status="running", phase="source_discovery", progress=3)
+        if progress:
+            progress(3, "source_discovery", "正在按已确认图谱逐个搜索网络资料")
+        discovery = discover_course_knowledge_sources(build)
+        build = repository.replace_build_source_candidates(
+            build_id,
+            topics=list(discovery["topics"]),
+            candidates=list(discovery["source_candidates"]),
+            warnings=list(discovery["warnings"]),
+            discovery_metrics=dict(discovery["metrics"]),
+        )
+        selected = [
+            item
+            for item in build.get("source_candidates") or []
+            if item.get("selected") and item.get("review_status") == "relevant"
+        ]
         topics = list(build.get("topics") or [])
         if not topics:
             raise ValueError("构建计划没有叶级知识点")
         repository.update_build(build_id, status="running", phase="source_audit", progress=5)
         if progress:
-            progress(5, "source_audit", "正在核验中文优先、英文补充的来源")
+            progress(5, "source_audit", "正在抓取中文优先、配置语言补充的网页正文")
         persisted: list[dict[str, Any]] = []
         failures: list[dict[str, str]] = []
         total_steps = max(1, len(selected) + len(topics) * MIN_DOCUMENTS_PER_LEAF)
         completed_steps = 0
+        seen_final_urls: set[str] = set()
+        seen_content_hashes: set[str] = set()
         for candidate in selected:
             try:
-                item = _persist_candidate(manager=manager, rag_system=rag_system, course_id=course_id, owner_user_id=owner_user_id, candidate=candidate)
+                item = _persist_candidate(
+                    manager=manager,
+                    rag_system=rag_system,
+                    course_id=course_id,
+                    owner_user_id=owner_user_id,
+                    candidate=candidate,
+                    seen_final_urls=seen_final_urls,
+                    seen_content_hashes=seen_content_hashes,
+                )
                 item.setdefault("source_type", "web")
-                item["provenance_ok"] = bool(candidate.get("license_name") and candidate.get("license_url"))
+                item["provenance_ok"] = bool(item.get("source_url") and item.get("content_hash"))
                 persisted.append(item)
+                repository.update_source_candidate_result(
+                    build_id,
+                    str(candidate.get("candidate_id") or ""),
+                    review_status="ready",
+                    review_reason="网页正文抓取、清洗与索引成功",
+                    metadata={
+                        "final_url": item.get("final_url"),
+                        "content_hash": item.get("content_hash"),
+                        "fetched_at": utc_now(),
+                    },
+                )
             except Exception as exc:
                 failures.append({"url": str(candidate.get("url") or ""), "topic_id": str(candidate.get("topic_id") or ""), "error": str(exc)})
+                repository.update_source_candidate_result(
+                    build_id,
+                    str(candidate.get("candidate_id") or ""),
+                    review_status="fetch_failed",
+                    review_reason=str(exc),
+                    metadata={"fetch_failed_at": utc_now()},
+                )
             completed_steps += 1
             build_progress = 10 + round(completed_steps / total_steps * 65)
             repository.update_build(build_id, status="running", phase="indexing", progress=build_progress)

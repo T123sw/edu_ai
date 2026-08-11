@@ -133,7 +133,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
           ? "更新知识库"
           : "一键构建知识库";
   const approvedSourceCount = plan?.source_candidates.filter(
-    (item) => item.selected && item.review_status === "approved",
+    (item) => item.selected && item.review_status === "ready",
   ).length ?? 0;
 
   return (

@@ -216,6 +216,68 @@ def test_editing_confirmed_build_clears_confirmation(engine):
         repository.queue_build(draft["build_id"], selected_source_count=0)
 
 
+def test_running_build_replaces_and_updates_discovered_source_candidates(engine):
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+
+    repository = PostgresKnowledgeRepository(engine)
+    draft = repository.create_build_draft(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "graph_draft": {"id": "root", "label": "课程", "children": []},
+            "topics": [],
+            "source_candidates": [],
+        },
+    )
+    repository.confirm_build_graph(
+        draft["build_id"], expected_revision=1, confirmed_by="teacher-1"
+    )
+    repository.queue_build(draft["build_id"], selected_source_count=0)
+
+    loaded = repository.replace_build_source_candidates(
+        draft["build_id"],
+        topics=[{"topic_id": "leaf-1", "title": "向量空间"}],
+        candidates=[
+            {
+                "candidate_id": "source-1",
+                "topic_id": "leaf-1",
+                "title": "向量空间教程",
+                "url": "https://example.edu/vector-space",
+                "domain": "example.edu",
+                "source_type": "web",
+                "language": "zh-CN",
+                "license_name": None,
+                "license_url": None,
+                "authority_tier": "web_discovered",
+                "review_status": "relevant",
+                "review_reason": "等待正文抓取",
+                "selected": True,
+                "relevance_score": 0.8,
+                "metadata": {"query": "向量空间 教程"},
+            }
+        ],
+        warnings=[],
+        discovery_metrics={"leaf_count": 1, "selected_candidate_count": 1},
+    )
+
+    assert loaded["topics"][0]["topic_id"] == "leaf-1"
+    assert loaded["source_candidates"][0]["review_status"] == "relevant"
+    assert loaded["source_candidates"][0]["license_name"] is None
+    assert loaded["metrics"]["source_discovery"]["selected_candidate_count"] == 1
+
+    repository.update_source_candidate_result(
+        draft["build_id"],
+        "source-1",
+        review_status="ready",
+        review_reason="正文抓取与索引成功",
+        metadata={"content_hash": "abc123"},
+    )
+    candidate = repository.get_build(draft["build_id"])["source_candidates"][0]
+    assert candidate["review_status"] == "ready"
+    assert candidate["metadata"]["content_hash"] == "abc123"
+
+
 def test_knowledge_repository_versions_and_rolls_back_published_graph(engine):
     from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
 

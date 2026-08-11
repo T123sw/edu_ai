@@ -464,6 +464,88 @@ class PostgresKnowledgeRepository:
             raise KeyError(build_id)
         return result
 
+    def replace_build_source_candidates(
+        self,
+        build_id: str,
+        *,
+        topics: list[Mapping[str, Any]],
+        candidates: list[Mapping[str, Any]],
+        warnings: list[Mapping[str, Any]],
+        discovery_metrics: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Persist discovery results during an immutable, already-started build."""
+        now = datetime.now(timezone.utc)
+        with database_session(engine=self._engine) as session:
+            record = session.get(KnowledgeBuild, build_id)
+            if record is None:
+                raise KeyError(build_id)
+            if record.status not in {"queued", "running"}:
+                raise ValueError("只有已启动的构建可以写入网络发现结果")
+            session.execute(
+                delete(KnowledgeSourceCandidate).where(
+                    KnowledgeSourceCandidate.build_id == build_id
+                )
+            )
+            plan = dict(record.plan_snapshot or {})
+            plan["topics"] = [dict(item) for item in topics]
+            plan["warnings"] = [*list(plan.get("warnings") or []), *[dict(item) for item in warnings]]
+            record.plan_snapshot = plan
+            record.metrics = {**dict(record.metrics or {}), "source_discovery": dict(discovery_metrics)}
+            record.updated_at = now
+            for candidate in candidates:
+                original_id = str(candidate.get("candidate_id") or uuid4().hex)
+                session.add(
+                    KnowledgeSourceCandidate(
+                        candidate_id=f"{build_id}:{original_id}",
+                        build_id=build_id,
+                        topic_id=str(candidate.get("topic_id") or "").strip() or None,
+                        url=str(candidate.get("url") or "").strip(),
+                        title=str(candidate.get("title") or candidate.get("url") or ""),
+                        domain=str(candidate.get("domain") or ""),
+                        source_type=str(candidate.get("source_type") or "web"),
+                        language=str(candidate.get("language") or "").strip() or None,
+                        authority_tier=str(candidate.get("authority_tier") or "").strip() or None,
+                        license_info={
+                            "name": candidate.get("license_name"),
+                            "url": candidate.get("license_url"),
+                        },
+                        review_status=str(candidate.get("review_status") or "discovered"),
+                        review_reason=str(candidate.get("review_reason") or "").strip() or None,
+                        selected=bool(candidate.get("selected")),
+                        relevance_score=float(candidate.get("relevance_score") or 0),
+                        metadata_payload=dict(candidate.get("metadata") or {}),
+                        created_at=now,
+                    )
+                )
+        loaded = self.get_build(build_id)
+        if loaded is None:
+            raise KeyError(build_id)
+        return loaded
+
+    def update_source_candidate_result(
+        self,
+        build_id: str,
+        candidate_id: str,
+        *,
+        review_status: str,
+        review_reason: str,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> None:
+        with database_session(engine=self._engine) as session:
+            record = session.get(
+                KnowledgeSourceCandidate,
+                f"{build_id}:{candidate_id}",
+            )
+            if record is None:
+                raise KeyError(candidate_id)
+            record.review_status = str(review_status)
+            record.review_reason = str(review_reason or "").strip() or None
+            if metadata is not None:
+                record.metadata_payload = {
+                    **dict(record.metadata_payload or {}),
+                    **dict(metadata),
+                }
+
     def queue_build(self, build_id: str, *, selected_source_count: int) -> None:
         now = datetime.now(timezone.utc)
         with database_session(engine=self._engine) as session:

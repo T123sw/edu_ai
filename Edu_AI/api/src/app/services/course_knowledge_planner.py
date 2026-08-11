@@ -58,7 +58,7 @@ class CourseKnowledgePlan:
 
 SearchProvider = Callable[[str, int], Sequence[Any]]
 
-_REVIEWED_DOMAIN_POLICIES: dict[str, dict[str, str]] = {
+_KNOWN_DOMAIN_METADATA: dict[str, dict[str, str]] = {
     "zh.wikipedia.org": {"license": "CC BY-SA 4.0", "license_url": "https://creativecommons.org/licenses/by-sa/4.0/", "language": "zh-CN", "authority": "reviewed_reference"},
     "zh.wikibooks.org": {"license": "CC BY-SA 4.0", "license_url": "https://creativecommons.org/licenses/by-sa/4.0/", "language": "zh-CN", "authority": "open_textbook"},
     "openstax.org": {"license": "CC BY 4.0", "license_url": "https://creativecommons.org/licenses/by/4.0/", "language": "en", "authority": "open_textbook"},
@@ -226,7 +226,7 @@ def _domain_policy(url: str) -> tuple[str, dict[str, str] | None]:
     host = parsed.hostname.casefold() if parsed.hostname else ""
     if parsed.scheme != "https" or not host:
         return host, None
-    for domain, policy in _REVIEWED_DOMAIN_POLICIES.items():
+    for domain, policy in _KNOWN_DOMAIN_METADATA.items():
         if host == domain or host.endswith(f".{domain}"):
             return host, policy
     return host, None
@@ -281,10 +281,10 @@ def preview_course_knowledge_plan(
                     )
                     domain, policy = _domain_policy(url)
                     relevance = _relevance(topic, hit_title, content)
-                    approved = policy is not None and relevance > 0
+                    approved = bool(domain) and str(url).startswith("https://") and relevance > 0
                     if approved:
                         approved_for_topic += 1
-                    reason = "来源域名、HTTPS 与许可策略已通过预审" if approved else ("未找到可验证的开放许可策略" if policy is None else "与课程目标相关性不足")
+                    reason = "HTTPS 来源与课程目标相关，等待正文抓取" if approved else "URL 不可用或与课程目标相关性不足"
                     candidates.append(CourseSourceCandidate(
                         candidate_id=_stable_id("source", f"{topic.topic_id}:{url}"),
                         topic_id=topic.topic_id,
@@ -292,11 +292,11 @@ def preview_course_knowledge_plan(
                         url=url,
                         domain=domain,
                         source_type="web",
-                        language=(declared_language or policy.get("language")) if policy else None,
+                        language=declared_language or (policy.get("language") if policy else None),
                         license_name=policy.get("license") if policy else None,
                         license_url=policy.get("license_url") if policy else None,
-                        authority_tier=policy.get("authority", "unreviewed") if policy else "unreviewed",
-                        review_status="approved" if approved else "rejected",
+                        authority_tier=policy.get("authority", "web_discovered") if policy else "web_discovered",
+                        review_status="relevant" if approved else "rejected_irrelevant",
                         review_reason=reason,
                         selected=approved,
                         relevance_score=relevance,
@@ -348,5 +348,5 @@ def preview_course_knowledge_plan(
                         break
 
     if not any(item.selected for item in candidates):
-        warnings.append("尚未发现通过许可与相关性预审的来源；构建时会按质量门禁生成中文补充资料。")
+        warnings.append("尚未发现通过 HTTPS 与相关性预筛的来源；正式构建会继续记录逐节点检索失败。")
     return CourseKnowledgePlan(course_id, course_snapshot, topics, graph_draft, tuple(candidates), tuple(dict.fromkeys(warnings)))
