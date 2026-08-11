@@ -59,3 +59,10 @@
 - 采用：删除公共事件 schema 的 `assessment_scored`；仅 `AssessmentService` 在最终结果为通过/掌握时调用内部 `record_verified_assessment_outcome`。内部事件 ID 固定为 `assessment-outcome:{attempt_id}`，学习仓储按事件 ID 幂等；终态重复提交会再次尝试同步但不会重复记证据。
 - 备选：前端评分成功后补写学习事件；开放带签名的学生成绩事件；跨存储失败直接忽略。
 - 影响：学生只能产生学习参与事件，不能伪造 `assessment_verified`；短暂同步失败可通过重复提交恢复。
+
+## D-009 已记录 GitHub 临时 IP 失效时的单次推送
+
+- 问题：普通推送连续出现 443 超时/重置，AGENTS.md 记录的 `140.82.112.3` 也无法建立 TCP 连接，继续固定重试不能完成阶段版本同步。
+- 采用：通过 Cloudflare DNS-over-HTTPS 只读查询 `github.com` 当前 A 记录 `20.27.177.113`，沿用相同的单次 `http.curloptResolve`、Schannel 和 HTTP/1.1 参数完成本次推送。
+- 备选：修改系统 hosts/DNS；修改 Git remote；等待固定 IP 恢复；改用未经授权的 SSH remote。
+- 影响：未修改系统或 Git 持久配置，只影响单次命令；推送后仍以 GitHub API 核验远端提交。后续仍先执行普通推送，并优先使用 AGENTS.md 已记录命令，只有固定 IP 本身不可达时才重新只读解析。
