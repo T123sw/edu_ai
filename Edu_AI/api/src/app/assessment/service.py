@@ -885,6 +885,88 @@ class AssessmentService:
             "knowledge_points": knowledge_rows,
         }
 
+    def get_student_agent_context(
+        self, *, course_id: str, student_id: str, limit: int = 10
+    ) -> dict[str, dict[str, Any]]:
+        try:
+            tasks = self.learning_service.list_tasks(
+                course_id=course_id,
+                user_id=student_id,
+                include_unpublished=False,
+                limit=limit,
+            )
+        except LearningRuleError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        projection = {}
+        for view in tasks:
+            assessment = self.store.get_assessment_for_task(course_id, view.task.task_id)
+            if assessment is None or assessment.current_version_id is None:
+                continue
+            version = self.store.get_version(assessment.current_version_id)
+            if version is None:
+                continue
+            assignment = self.store.get_assignment(
+                course_id=course_id, task_id=view.task.task_id, student_id=student_id
+            )
+            summary: dict[str, Any] = {
+                "assessment_mode": version.assessment_mode,
+                "result": assignment.result if assignment else "not_attempted",
+                "attempts_used": assignment.attempts_used if assignment else 0,
+                "max_attempts": version.max_attempts,
+                "remaining_attempts": max(
+                    0, version.max_attempts - (assignment.attempts_used if assignment else 0)
+                ),
+                "best_final_score": assignment.best_final_score if assignment else None,
+                "answers_revealed": bool(assignment and assignment.answers_revealed_at),
+                "weak_knowledge_point_ids": [],
+                "visible_feedback": [],
+            }
+            if assignment:
+                feedback = self._student_feedback_payload(assignment)
+                weak_points = set()
+                for item in feedback["items"]:
+                    visible = {
+                        key: item[key]
+                        for key in (
+                            "assessment_item_id", "final_score", "max_score",
+                            "review_status", "student_comment", "solution", "rubric",
+                        )
+                        if key in item
+                    }
+                    summary["visible_feedback"].append(visible)
+                    if item.get("final_score") is not None and float(item["final_score"]) < float(item["max_score"]):
+                        source = next(
+                            (record for record in self.store.list_items(version.assessment_version_id)
+                             if record.assessment_item_id == item["assessment_item_id"]),
+                            None,
+                        )
+                        if source:
+                            weak_points.update(source.knowledge_point_ids)
+                summary["weak_knowledge_point_ids"] = sorted(weak_points)
+            projection[view.task.task_id] = summary
+        return projection
+
+    def get_teacher_agent_context(
+        self, *, course_id: str, teacher_id: str, limit: int = 10
+    ) -> dict[str, dict[str, Any]]:
+        tasks = self.learning_service.store.list_tasks(
+            course_id, statuses={"published"}, limit=limit
+        )
+        projection = {}
+        for task in tasks:
+            report = self.get_task_analytics(
+                course_id=course_id, task_id=task.task_id, teacher_id=teacher_id
+            )
+            projection[task.task_id] = {
+                key: report[key]
+                for key in (
+                    "enrolled", "participation", "submission", "pass", "mastery",
+                    "pending_review", "mean_best_score", "median_best_score",
+                    "average_attempts", "score_distribution", "items", "knowledge_points",
+                )
+            }
+        return projection
+
     def _draft_payload(self, task, version: AssessmentVersionRecord) -> dict[str, Any]:
         items = self.store.list_items(version.assessment_version_id)
         quality = self.quality_service.validate(

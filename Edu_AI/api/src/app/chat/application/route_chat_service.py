@@ -179,8 +179,11 @@ class RouteChatService:
             try:
                 from app.learning import get_learning_service
                 from app.learning.context_reader import LearningContextReader
+                from app.assessment import get_assessment_service
 
-                learning_context_reader = LearningContextReader(get_learning_service())
+                learning_context_reader = LearningContextReader(
+                    get_learning_service(), get_assessment_service()
+                )
             except Exception:
                 learning_context_reader = None
         orchestrator = MainOrchestrator(

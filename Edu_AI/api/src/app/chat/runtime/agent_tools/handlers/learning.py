@@ -28,6 +28,10 @@ def handle_get_my_learning_progress(name: str, args: dict, ctx) -> dict:
             "pending_tasks": pending_tasks,
             "completed_tasks": completed_tasks,
             "tasks": tasks,
+            "assessment_facts": [
+                {"task_id": item.get("task_id"), **dict(item.get("assessment") or {})}
+                for item in tasks if item.get("assessment")
+            ],
             "as_of": context.get("as_of"),
         },
     )
@@ -48,5 +52,12 @@ def handle_get_course_learning_progress(name: str, args: dict, ctx) -> dict:
     return ok_result(
         name,
         f"已读取 {len(summaries)} 个课程学习任务汇总",
-        {"task_summaries": summaries, "as_of": context.get("as_of")},
+        {
+            "task_summaries": summaries,
+            "assessment_summaries": [
+                {"task_id": item.get("task_id"), **dict(item.get("assessment") or {})}
+                for item in summaries if item.get("assessment")
+            ],
+            "as_of": context.get("as_of"),
+        },
     )

@@ -519,11 +519,11 @@ Push: `git push origin main`
 - Student projection: 本人任务结果、剩余次数、最佳最终成绩、可见反馈和薄弱知识点。
 - Teacher projection: 聚合参与/提交/通过/掌握/待复核、分数分布、高频错题、统计时间。
 
-- [ ] **Step 1: 写回答边界失败测试**
+- [x] **Step 1: 写回答边界失败测试**
 
 断言待复核不能回答“已通过”，开卷测评回答携带 `assessment_mode=open_book`，未揭示答案不进入学生工具结果，教师聚合不包含逐人答案。
 
-- [ ] **Step 2: 实现投影和回答模板并运行测试**
+- [x] **Step 2: 实现投影和回答模板并运行测试**
 
 Run: `cd Edu_AI/api/src; python -m pytest tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_learning_task_domain.py tests/chat/test_learning_context_injection.py -q`
 

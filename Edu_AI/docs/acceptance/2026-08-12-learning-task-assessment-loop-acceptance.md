@@ -149,6 +149,14 @@ npm run build
 
 ## 6. 真实双账号验收
 
+### 第四阶段 Agent 事实边界证据（非最终签收）
+
+- Agent/上下文定向回归 `35 passed`，覆盖学生本人投影、教师聚合投影、工具权限、任务域与上下文注入。
+- 学生投影包含测评方式、结果、剩余次数、最佳分、薄弱知识点和已公开反馈；未揭示时不包含 solution 或 scoring_key。
+- 教师投影只包含班级聚合、题目与知识点统计，不包含学生 ID、逐人答案或复核队列明细。
+- Prompt 明确约束：pending_review 不得称为通过；未揭示答案不得推断；比例回答必须带 numerator/denominator。
+- 当前结论：A6 已有自动化边界证据；A7、安全专项及真实浏览器双账号 B1～B8 尚未签收。
+
 ### 第三阶段复核与教师反馈证据（非最终签收）
 
 - 后端阶段回归：测评、学习、PostgreSQL repository 与 Alembic revision chain 共 `67 passed`，Ruff `All checks passed!`。
