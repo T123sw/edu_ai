@@ -567,6 +567,173 @@ class LearningProgressModel(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class AssessmentModel(Base):
+    __tablename__ = "assessments"
+
+    assessment_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("learning_tasks.task_id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    created_by: Mapped[str] = mapped_column(String(160), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    current_version_id: Mapped[str | None] = mapped_column(String(200), index=True)
+
+
+class AssessmentVersionModel(Base):
+    __tablename__ = "assessment_versions"
+    __table_args__ = (
+        UniqueConstraint("assessment_id", "version_number", name="uq_assessment_versions_number"),
+    )
+
+    assessment_version_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    assessment_id: Mapped[str] = mapped_column(
+        ForeignKey("assessments.assessment_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    version_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    source_mode: Mapped[str] = mapped_column(String(32), nullable=False)
+    assessment_mode: Mapped[str] = mapped_column(String(32), nullable=False)
+    pass_threshold: Mapped[float] = mapped_column(Float, nullable=False)
+    mastery_threshold: Mapped[float] = mapped_column(Float, nullable=False)
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False)
+    score_policy: Mapped[str] = mapped_column(String(40), nullable=False)
+    answer_reveal_policy: Mapped[str] = mapped_column(String(64), nullable=False)
+    shuffle_questions: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    shuffle_options: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    draft_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    content_hash: Mapped[str | None] = mapped_column(String(64))
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    published_by: Mapped[str | None] = mapped_column(String(160))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AssessmentItemModel(Base):
+    __tablename__ = "assessment_items"
+    __table_args__ = (
+        UniqueConstraint(
+            "assessment_version_id", "position", name="uq_assessment_items_position"
+        ),
+    )
+
+    assessment_item_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    assessment_version_id: Mapped[str] = mapped_column(
+        ForeignKey("assessment_versions.assessment_version_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    item_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    prompt: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    scoring_key: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    rubric: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    max_score: Mapped[float] = mapped_column(Float, nullable=False)
+    grading_provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    knowledge_point_ids: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    source_refs: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    source_exposure_state: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_origin: Mapped[str] = mapped_column(String(32), nullable=False)
+
+
+class AssessmentAssignmentModel(Base):
+    __tablename__ = "assessment_assignments"
+    __table_args__ = (
+        UniqueConstraint(
+            "task_id", "student_id", "cycle_number", name="uq_assessment_assignment_cycle"
+        ),
+    )
+
+    assessment_assignment_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    task_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    assessment_version_id: Mapped[str] = mapped_column(
+        ForeignKey("assessment_versions.assessment_version_id"), nullable=False, index=True
+    )
+    cycle_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False)
+    attempts_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    best_attempt_id: Mapped[str | None] = mapped_column(String(200))
+    best_final_score: Mapped[float | None] = mapped_column(Float)
+    result: Mapped[str] = mapped_column(String(32), nullable=False)
+    answers_revealed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AssessmentAttemptModel(Base):
+    __tablename__ = "assessment_attempts"
+    __table_args__ = (
+        UniqueConstraint(
+            "assessment_assignment_id", "attempt_number", name="uq_assessment_attempt_number"
+        ),
+    )
+
+    attempt_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    assessment_assignment_id: Mapped[str] = mapped_column(
+        ForeignKey("assessment_assignments.assessment_assignment_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    assessment_version_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    task_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    draft_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    auto_score: Mapped[float | None] = mapped_column(Float)
+    final_score: Mapped[float | None] = mapped_column(Float)
+    result: Mapped[str | None] = mapped_column(String(32))
+    invalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    invalidated_by: Mapped[str | None] = mapped_column(String(160))
+    invalidation_reason: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AssessmentAnswerModel(Base):
+    __tablename__ = "assessment_answers"
+    __table_args__ = (
+        UniqueConstraint("attempt_id", "assessment_item_id", name="uq_assessment_answer_item"),
+    )
+
+    answer_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    attempt_id: Mapped[str] = mapped_column(
+        ForeignKey("assessment_attempts.attempt_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    assessment_item_id: Mapped[str] = mapped_column(
+        ForeignKey("assessment_items.assessment_item_id"), nullable=False, index=True
+    )
+    answer: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    artifact_refs: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
+    auto_score: Mapped[float | None] = mapped_column(Float)
+    ai_suggestion: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    final_score: Mapped[float | None] = mapped_column(Float)
+    review_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AssessmentReviewModel(Base):
+    __tablename__ = "assessment_reviews"
+
+    review_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    attempt_id: Mapped[str] = mapped_column(
+        ForeignKey("assessment_attempts.attempt_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    assessment_item_id: Mapped[str | None] = mapped_column(
+        ForeignKey("assessment_items.assessment_item_id"), index=True
+    )
+    reviewer_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    previous_score: Mapped[float | None] = mapped_column(Float)
+    new_score: Mapped[float | None] = mapped_column(Float)
+    reason_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    comment_private: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    comment_student_visible: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class DurableTaskModel(Base):
     __tablename__ = "durable_tasks"
     __table_args__ = (
