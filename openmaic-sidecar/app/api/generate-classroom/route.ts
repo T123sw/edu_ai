@@ -31,6 +31,9 @@ export async function POST(req: NextRequest) {
         ? { enableVideoGeneration: rawBody.enableVideoGeneration }
         : {}),
       ...(rawBody.enableTTS != null ? { enableTTS: rawBody.enableTTS } : {}),
+      ...(rawBody.ttsProviderId ? { ttsProviderId: rawBody.ttsProviderId } : {}),
+      ...(rawBody.ttsVoice ? { ttsVoice: rawBody.ttsVoice } : {}),
+      ...(rawBody.ttsSpeed != null ? { ttsSpeed: rawBody.ttsSpeed } : {}),
       ...(rawBody.agentMode ? { agentMode: rawBody.agentMode } : {}),
       // edu_ai patch (docs/spec/patches/001-researchContext-injection.md)
       ...(rawBody.researchContext ? { researchContext: rawBody.researchContext } : {}),

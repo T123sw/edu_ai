@@ -42,6 +42,7 @@ export interface PagePlaybackController {
     revision: number,
     runtime: PlaybackRuntimeHandle,
   ): void;
+  complete(sceneIndex: number, revision: number): boolean;
   interrupt(): PagePlaybackCheckpoint | null;
   resumeInterrupted(checkpoint: PagePlaybackCheckpoint): boolean;
   leave(): void;
@@ -191,19 +192,21 @@ export class ManagedPagePlaybackController implements PagePlaybackController {
 
   /**
    * Completion belongs to the exact rendered revision. Stale callbacks from a
-   * page that has already been left are ignored and completion never navigates.
+   * page that has already been left are ignored. Navigation is orchestrated by
+   * the classroom player only after this method confirms ownership.
    */
-  complete(sceneIndex: number, revision: number): void {
+  complete(sceneIndex: number, revision: number): boolean {
     if (
       this.disposed ||
       this.current.sceneIndex !== sceneIndex ||
       this.current.revision !== revision ||
       this.current.status !== 'playing'
     ) {
-      return;
+      return false;
     }
     this.current = { ...this.current, status: 'completed' };
     this.onSnapshot(this.snapshot());
+    return true;
   }
 
   leave(): void {

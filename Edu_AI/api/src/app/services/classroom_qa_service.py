@@ -57,7 +57,6 @@ class ClassroomQaService:
         store: ClassroomQaSessionStore | None = None,
         storage: CourseStorageManager | None = None,
         material_loader: Callable[..., Any] | None = None,
-        rag_search: Callable[..., Any] | None = None,
         gateway: Any | None = None,
         tts: ClassroomQaTtsService | Any | None = None,
         metrics_sink: Callable[[dict[str, Any]], None] | None = None,
@@ -66,7 +65,6 @@ class ClassroomQaService:
         self.storage = storage or storage_manager
         self.store = store or ClassroomQaSessionStore(self.storage)
         self.material_loader = material_loader or self._load_visible_material
-        self.rag_search = rag_search or self._search_course_knowledge
         self.gateway = gateway or ChatModelGateway(
             api_base=Config.DEEP_MODEL_API_BASE,
             api_key=Config.DEEP_MODEL_API_KEY,
@@ -148,6 +146,7 @@ class ClassroomQaService:
                 retryable=True,
             ) from exc
 
+        context_started = self.clock()
         material = await self._run_sync(
             self.material_loader,
             course_id=course_id,
@@ -168,27 +167,11 @@ class ClassroomQaService:
                 retryable=False,
             )
 
-        rag_started = self.clock()
-        rag_degraded = False
-        try:
-            rag_result = await self._run_sync(
-                self.rag_search,
-                query=request.question,
-                course_id=course_id,
-                owner_user_id=owner_user_id,
-            )
-            rag_answer = self._rag_answer(rag_result)
-        except Exception:
-            rag_degraded = True
-            rag_answer = ""
-        rag_ms = self._elapsed_ms(rag_started)
-
         try:
             context = build_classroom_qa_context(
                 material=material,
                 checkpoint=checkpoint,
                 recent_turns=list(session.get("turns") or []),
-                rag_answer=rag_answer,
             )
         except StaleClassroomCheckpointError as exc:
             self.store.fail_turn(
@@ -203,6 +186,7 @@ class ClassroomQaService:
                 status_code=409,
                 retryable=False,
             ) from exc
+        context_ms = self._elapsed_ms(context_started)
 
         llm_started = self.clock()
         try:
@@ -236,9 +220,8 @@ class ClassroomQaService:
                 session=session,
                 client_turn_id=client_turn_id,
                 checkpoint=checkpoint,
-                rag_ms=rag_ms,
+                context_ms=context_ms,
                 llm_ms=self._elapsed_ms(llm_started),
-                rag_degraded=rag_degraded,
                 result="failed",
                 code="CLASSROOM_QA_ANSWER_FAILED",
             )
@@ -306,10 +289,9 @@ class ClassroomQaService:
             session=session,
             client_turn_id=client_turn_id,
             checkpoint=checkpoint,
-            rag_ms=rag_ms,
+            context_ms=context_ms,
             llm_ms=llm_ms,
             tts_ms=tts_ms,
-            rag_degraded=rag_degraded,
             result="completed" if tts_status == "ready" else "degraded",
             code="OK",
         )
@@ -330,35 +312,8 @@ class ClassroomQaService:
         )
 
     @staticmethod
-    def _search_course_knowledge(
-        *,
-        query: str,
-        course_id: str,
-        owner_user_id: str,
-    ) -> Any:
-        from app.chat.tools.agent_tools import rag_search_tool
-
-        return rag_search_tool(
-            query=query,
-            top_k=5,
-            owner=owner_user_id,
-            course_id=course_id,
-        )
-
-    @staticmethod
     async def _run_sync(function: Callable[..., Any], **kwargs: Any) -> Any:
         return await anyio.to_thread.run_sync(partial(function, **kwargs))
-
-    @staticmethod
-    def _rag_answer(result: Any) -> str:
-        if isinstance(result, str):
-            return result.strip()
-        if isinstance(result, dict):
-            if result.get("ok") is False:
-                raise RuntimeError("RAG retrieval failed")
-            payload = result.get("payload") or {}
-            return str(payload.get("answer") or result.get("answer") or "").strip()
-        return ""
 
     @staticmethod
     def _turn_id(session_id: str, client_turn_id: str) -> str:
@@ -429,10 +384,9 @@ class ClassroomQaService:
         session: dict[str, Any],
         client_turn_id: str,
         checkpoint: dict[str, Any],
-        rag_ms: float = 0.0,
+        context_ms: float = 0.0,
         llm_ms: float = 0.0,
         tts_ms: float = 0.0,
-        rag_degraded: bool = False,
         result: str,
         code: str,
     ) -> None:
@@ -444,11 +398,10 @@ class ClassroomQaService:
                 "client_turn_id": client_turn_id,
                 "checkpoint_scene_id": checkpoint.get("scene_id"),
                 "checkpoint_action_id": checkpoint.get("action_id"),
-                "rag_ms": round(rag_ms, 2),
+                "context_ms": round(context_ms, 2),
                 "llm_ms": round(llm_ms, 2),
                 "tts_ms": round(tts_ms, 2),
                 "total_ms": round(self._elapsed_ms(started), 2),
-                "rag_degraded": rag_degraded,
                 "result": result,
                 "code": code,
             }

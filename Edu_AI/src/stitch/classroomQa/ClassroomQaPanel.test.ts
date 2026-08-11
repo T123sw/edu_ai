@@ -23,7 +23,7 @@ test('submitting and answering phases disable the composer', () => {
   assert.equal(
     toClassroomQaPresentation({
       ...INITIAL_CLASSROOM_QA_STATE,
-      phase: 'drafting',
+      phase: 'ready',
     }).canSubmit,
     true,
   );
@@ -56,17 +56,28 @@ test('ClassroomPlayer binds the runtime and always renders the QA panel', () => 
   assert.match(source, /<ClassroomQaPanel/);
   assert.match(source, /onRuntimeReady=/);
   assert.match(source, /controller\.bindRuntime/);
-  assert.doesNotMatch(source, /!presentationMode\s*\?\s*\(\s*<ClassroomQaPanel/);
+  assert.match(source, /classroom-console__workspace[\s\S]*<ClassroomQaPanel/);
+  assert.doesNotMatch(source, /讲解提词|secondaryPanel === "transcript"/);
 });
 
-test('the narrow-screen panel stays above the classroom controls', () => {
+test('the QA panel is a persistent non-dialog rail with optimistic messages', () => {
+  const sourcePath = fileURLToPath(new URL('./ClassroomQaPanel.tsx', import.meta.url));
+  const source = readFileSync(sourcePath, 'utf8');
+
+  assert.match(source, /selectVisibleTurns/);
+  assert.match(source, /aria-label="课堂实时问答"/);
+  assert.match(source, /classroom-qa-turn__question/);
+  assert.match(source, /classroom-qa-turn__answer/);
+  assert.doesNotMatch(source, /role="dialog"|classroom-qa-entry|关闭问答面板/);
+});
+
+test('the persistent rail uses document flow on narrow screens', () => {
   const cssPath = fileURLToPath(
     new URL('./ClassroomQaPanel.css', import.meta.url),
   );
   const css = readFileSync(cssPath, 'utf8');
 
-  assert.match(
-    css,
-    /\.classroom-qa-panel\s*\{[^}]*bottom:\s*calc\(76px \+ env\(safe-area-inset-bottom\)\)/s,
-  );
+  assert.doesNotMatch(css, /\.classroom-qa-panel\s*\{[^}]*(?:position:\s*(?:fixed|absolute)|bottom:)/s);
+  assert.match(css, /classroom-qa-turn__question[^}]*justify-content:\s*flex-end/s);
+  assert.match(css, /@media \(max-width:\s*960px\)[\s\S]*classroom-qa-panel/s);
 });

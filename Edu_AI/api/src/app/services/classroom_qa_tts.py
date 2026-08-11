@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import os
-import re
 from pathlib import Path
 from uuid import uuid4
 
-from app.integrations.openmaic import OpenMaicClient, get_openmaic_client
+from app.integrations.openmaic import OpenMaicClient
+from app.services.openmaic_tts_service import OpenMaicTtsService
 from core.config import Config
 
 
@@ -23,15 +23,18 @@ class ClassroomQaTtsService:
     def __init__(
         self,
         *,
+        service: OpenMaicTtsService | None = None,
         client: OpenMaicClient | None = None,
         provider_id: str = Config.OPENMAIC_LIVE_TTS_PROVIDER,
         voice: str = Config.OPENMAIC_LIVE_TTS_VOICE,
         speed: float = Config.OPENMAIC_LIVE_TTS_SPEED,
     ) -> None:
-        self.client = client
-        self.provider_id = provider_id
-        self.voice = voice
-        self.speed = min(2.0, max(0.5, float(speed)))
+        self.service = service or OpenMaicTtsService(
+            client=client,
+            provider_id=provider_id,
+            voice=voice,
+            speed=speed,
+        )
 
     async def synthesize_and_store(
         self,
@@ -40,19 +43,9 @@ class ClassroomQaTtsService:
         turn_id: str,
         text: str,
     ) -> tuple[str, str]:
-        if not re.fullmatch(r"[A-Za-z0-9_-]+", turn_id):
-            raise ValueError("turn_id is not safe for audio persistence")
-        speech_text = str(text or "").strip()[:1500]
-        if not speech_text:
-            raise ValueError("TTS text must not be empty")
-
-        client = self.client or get_openmaic_client()
-        audio, format_name = await client.synthesize_tts(
-            text=speech_text,
+        audio, format_name = await self.service.synthesize(
+            text=text,
             audio_id=turn_id,
-            provider_id=self.provider_id,
-            voice=self.voice,
-            speed=self.speed,
         )
         details = _FORMAT_DETAILS.get(format_name)
         if details is None:

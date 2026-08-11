@@ -10,8 +10,7 @@ export function toClassroomQaPresentation(
   state: ClassroomQaState,
 ): ClassroomQaPresentation {
   const statusByPhase = {
-    closed: '',
-    drafting: '课堂已暂停，可以输入问题。',
+    ready: '可以输入问题，发送时会暂停课堂。',
     submitting: 'AI 教师正在结合当前课堂内容思考…',
     loading_audio: '回答已生成，正在准备语音…',
     playing_answer: 'AI 教师正在回答。',
@@ -19,7 +18,7 @@ export function toClassroomQaPresentation(
     error: state.error || '课堂问答暂时失败。',
   } satisfies Record<ClassroomQaState['phase'], string>;
   return {
-    canSubmit: state.phase === 'drafting' && state.activeTurn === null,
+    canSubmit: state.phase === 'ready' && state.activeTurn === null,
     isBusy: ['submitting', 'loading_audio', 'playing_answer', 'resuming'].includes(
       state.phase,
     ),

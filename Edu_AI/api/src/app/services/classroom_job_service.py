@@ -31,6 +31,7 @@ from app.integrations.openmaic import (
     OpenMaicUnavailable,
     get_openmaic_client,
 )
+from app.services.generation_source_resolver import GenerationSourceMode
 from app.services.job_store import (
     EduJob,
     JobKind,
@@ -39,7 +40,7 @@ from app.services.job_store import (
     get_job,
     update_job,
 )
-from app.services.generation_source_resolver import GenerationSourceMode
+from core.config import Config
 
 log = logging.getLogger("classroom_job_service")
 
@@ -171,6 +172,9 @@ async def run_generate_classroom_job(
             enable_image=enable_image,
             enable_video=enable_video,
             enable_tts=enable_tts,
+            tts_provider_id=Config.OPENMAIC_LIVE_TTS_PROVIDER,
+            tts_voice=Config.OPENMAIC_LIVE_TTS_VOICE,
+            tts_speed=Config.OPENMAIC_LIVE_TTS_SPEED,
             agent_mode=agent_mode,
         )
     except OpenMaicError as exc:

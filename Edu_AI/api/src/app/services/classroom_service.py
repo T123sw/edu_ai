@@ -28,6 +28,7 @@ from app.services.classroom_media import (
     synthesize_classroom_speech_audio,
 )
 from app.services.classroom_persistence import ClassroomValidationError, persist_classroom_result
+from app.services.openmaic_tts_service import OpenMaicTtsService
 from app.services.job_store import EduJob, JobKind, list_job_page
 from app.services.knowledge_graph_context import fetch_knowledge_graph_context
 from core.course_storage import CourseStorageManager
@@ -188,6 +189,7 @@ def _make_on_sidecar_succeeded(
             course_id=course_id,
             classroom_id=classroom_id,
             course_storage_manager=course_storage_manager,
+            tts_service=OpenMaicTtsService(client=active_client),
         )
         return persist_classroom_result(
             course_storage_manager=course_storage_manager,

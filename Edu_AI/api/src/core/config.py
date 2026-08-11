@@ -54,7 +54,8 @@ class Config:
     QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
     VISION_MODEL_ID = os.getenv("VISION_MODEL_ID", "qwen3.5-plus")
 
-    # OpenMAIC live classroom answer speech. Provider selection is server-owned.
+    # Shared OpenMAIC classroom speech profile for narration and live answers.
+    # Provider selection is server-owned and never accepted from the browser.
     OPENMAIC_LIVE_TTS_PROVIDER = os.getenv(
         "OPENMAIC_LIVE_TTS_PROVIDER", "qwen-tts"
     )

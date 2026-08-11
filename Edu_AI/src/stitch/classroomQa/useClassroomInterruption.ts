@@ -56,12 +56,9 @@ export type InterruptionDependencies = {
 
 export type ClassroomInterruptionController = {
   readonly state: ClassroomQaState;
-  openQuestion(): void;
-  cancelDraft(): void;
   submitQuestion(question: string): Promise<void>;
   stopAnswerAndResume(): void;
   retry(): Promise<void>;
-  closePanel(): void;
   resetForNavigation(): void;
 };
 
@@ -112,38 +109,17 @@ export class ClassroomInterruptionCoordinator
     }
   }
 
-  openQuestion(): void {
-    if (this.disposed || this.currentState.activeTurn) return;
-    if (this.currentState.phase === 'drafting') return;
+  async submitQuestion(question: string): Promise<void> {
+    if (this.disposed || this.currentState.phase !== 'ready') return;
+    const normalizedQuestion = question.trim();
+    if (!normalizedQuestion || normalizedQuestion.length > 1000) return;
     const checkpoint = this.dependencies.playback.interrupt();
     if (!checkpoint) return;
     this.checkpoint = checkpoint;
     this.resumeConsumed = false;
-    this.dispatch({ type: 'open' });
-  }
-
-  cancelDraft(): void {
-    if (this.disposed || this.currentState.phase !== 'drafting') return;
-    const checkpoint = this.checkpoint;
-    this.checkpoint = null;
-    this.dispatch({ type: 'cancel_draft' });
-    if (checkpoint && !this.resumeConsumed) {
-      this.resumeConsumed = true;
-      this.dependencies.playback.resumeInterrupted(checkpoint);
-    }
-  }
-
-  async submitQuestion(question: string): Promise<void> {
-    if (this.disposed || this.currentState.phase !== 'drafting') return;
-    if (!this.checkpoint) {
-      const checkpoint = this.dependencies.playback.interrupt();
-      if (!checkpoint) return;
-      this.checkpoint = checkpoint;
-      this.resumeConsumed = false;
-    }
     const clientTurnId = this.dependencies.createClientTurnId();
-    this.dispatch({ type: 'submit', question, clientTurnId });
-    await this.runSubmission(clientTurnId, question.trim());
+    this.dispatch({ type: 'submit', question: normalizedQuestion, clientTurnId });
+    await this.runSubmission(clientTurnId, normalizedQuestion);
   }
 
   async retry(): Promise<void> {
@@ -162,15 +138,7 @@ export class ClassroomInterruptionCoordinator
       type: 'answer_finished',
       clientTurnId: this.currentState.activeTurn.clientTurnId,
     });
-    this.finishResume(this.currentState.isOpen);
-  }
-
-  closePanel(): void {
-    if (this.currentState.phase === 'drafting') {
-      this.cancelDraft();
-      return;
-    }
-    this.dispatch({ type: 'close' });
+    this.finishResume();
   }
 
   resetForNavigation(): void {
@@ -265,7 +233,7 @@ export class ClassroomInterruptionCoordinator
       if (!this.ownsResult(clientTurnId, token)) return result;
       if (result === 'ended') {
         this.dispatch({ type: 'answer_finished', clientTurnId });
-        this.finishResume(this.currentState.isOpen);
+        this.finishResume();
         return 'ended';
       }
       this.cleanupMedia();
@@ -287,7 +255,7 @@ export class ClassroomInterruptionCoordinator
     if (!this.ownsResult(clientTurnId, token)) return;
     if (result === 'ended') {
       this.dispatch({ type: 'answer_finished', clientTurnId });
-      this.finishResume(this.currentState.isOpen);
+      this.finishResume();
       return;
     }
     this.dispatch({
@@ -297,7 +265,7 @@ export class ClassroomInterruptionCoordinator
     });
   }
 
-  private finishResume(keepOpen: boolean): void {
+  private finishResume(): void {
     const checkpoint = this.checkpoint;
     this.cleanupMedia();
     if (!checkpoint || this.resumeConsumed) return;
@@ -316,7 +284,7 @@ export class ClassroomInterruptionCoordinator
     }
     this.checkpoint = null;
     this.ownership = null;
-    this.dispatch({ type: 'resume_complete', keepOpen });
+    this.dispatch({ type: 'resume_complete' });
   }
 
   private ownsResult(clientTurnId: string, token: number): boolean {
@@ -412,12 +380,9 @@ export function useClassroomInterruption({
   return useMemo(
     () => ({
       state,
-      openQuestion: () => coordinator.openQuestion(),
-      cancelDraft: () => coordinator.cancelDraft(),
       submitQuestion: (question) => coordinator.submitQuestion(question),
       stopAnswerAndResume: () => coordinator.stopAnswerAndResume(),
       retry: () => coordinator.retry(),
-      closePanel: () => coordinator.closePanel(),
       resetForNavigation: () => coordinator.resetForNavigation(),
     }),
     [coordinator, state],

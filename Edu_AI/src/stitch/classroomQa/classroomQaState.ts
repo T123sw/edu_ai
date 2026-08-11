@@ -1,8 +1,7 @@
 import type { ClassroomQaTurn } from '../api/types';
 
 export type ClassroomQaPhase =
-  | 'closed'
-  | 'drafting'
+  | 'ready'
   | 'submitting'
   | 'loading_audio'
   | 'playing_answer'
@@ -13,20 +12,19 @@ export type ClassroomQaActiveTurn = {
   clientTurnId: string;
   question: string;
   turn: ClassroomQaTurn | null;
+  status: 'pending' | 'received' | 'error';
 };
+
+export type ClassroomQaVisibleTurn = ClassroomQaActiveTurn;
 
 export type ClassroomQaState = {
   phase: ClassroomQaPhase;
-  isOpen: boolean;
   turns: ClassroomQaTurn[];
   activeTurn: ClassroomQaActiveTurn | null;
   error: string | null;
 };
 
 export type ClassroomQaEvent =
-  | { type: 'open' }
-  | { type: 'close' }
-  | { type: 'cancel_draft' }
   | { type: 'session_loaded'; turns: ClassroomQaTurn[] }
   | { type: 'submit'; question: string; clientTurnId: string }
   | {
@@ -39,12 +37,11 @@ export type ClassroomQaEvent =
   | { type: 'fail'; clientTurnId: string; message: string }
   | { type: 'retry' }
   | { type: 'give_up' }
-  | { type: 'resume_complete'; keepOpen: boolean }
+  | { type: 'resume_complete' }
   | { type: 'reset' };
 
 export const INITIAL_CLASSROOM_QA_STATE: ClassroomQaState = {
-  phase: 'closed',
-  isOpen: false,
+  phase: 'ready',
   turns: [],
   activeTurn: null,
   error: null,
@@ -55,22 +52,11 @@ export function reduceClassroomQa(
   event: ClassroomQaEvent,
 ): ClassroomQaState {
   switch (event.type) {
-    case 'open':
-      if (state.phase !== 'closed') return { ...state, isOpen: true };
-      return { ...state, phase: 'drafting', isOpen: true, error: null };
-    case 'close':
-      if (state.phase === 'drafting') {
-        return { ...state, phase: 'closed', isOpen: false, error: null };
-      }
-      return { ...state, isOpen: false };
-    case 'cancel_draft':
-      if (state.phase !== 'drafting') return state;
-      return { ...state, phase: 'closed', isOpen: false, error: null };
     case 'session_loaded':
       return { ...state, turns: [...event.turns] };
     case 'submit': {
       if (state.activeTurn) throw new Error('classroom QA turn already active');
-      if (state.phase !== 'drafting') {
+      if (state.phase !== 'ready') {
         throw new Error(`cannot submit from ${state.phase}`);
       }
       const question = event.question.trim();
@@ -78,12 +64,12 @@ export function reduceClassroomQa(
       return {
         ...state,
         phase: 'submitting',
-        isOpen: true,
         error: null,
         activeTurn: {
           clientTurnId: event.clientTurnId,
           question,
           turn: null,
+          status: 'pending',
         },
       };
     }
@@ -101,7 +87,7 @@ export function reduceClassroomQa(
             ? 'loading_audio'
             : 'playing_answer',
         turns,
-        activeTurn: { ...state.activeTurn!, turn: event.turn },
+        activeTurn: { ...state.activeTurn!, turn: event.turn, status: 'received' },
       };
     }
     case 'answer_playing':
@@ -112,18 +98,27 @@ export function reduceClassroomQa(
       return { ...state, phase: 'resuming' };
     case 'fail':
       if (!ownsActiveTurn(state, event.clientTurnId)) return state;
-      return { ...state, phase: 'error', error: event.message };
+      return {
+        ...state,
+        phase: 'error',
+        error: event.message,
+        activeTurn: { ...state.activeTurn!, status: 'error' },
+      };
     case 'retry':
       if (state.phase !== 'error' || !state.activeTurn) return state;
-      return { ...state, phase: 'submitting', error: null };
+      return {
+        ...state,
+        phase: 'submitting',
+        error: null,
+        activeTurn: { ...state.activeTurn, status: 'pending' },
+      };
     case 'give_up':
       if (state.phase !== 'error' || !state.activeTurn) return state;
       return { ...state, phase: 'resuming', error: null };
     case 'resume_complete':
       return {
         ...state,
-        phase: event.keepOpen ? 'drafting' : 'closed',
-        isOpen: event.keepOpen,
+        phase: 'ready',
         activeTurn: null,
         error: null,
       };
@@ -134,4 +129,24 @@ export function reduceClassroomQa(
 
 function ownsActiveTurn(state: ClassroomQaState, clientTurnId: string): boolean {
   return state.activeTurn?.clientTurnId === clientTurnId;
+}
+
+export function selectVisibleTurns(
+  state: ClassroomQaState,
+): ClassroomQaVisibleTurn[] {
+  const durable = state.turns.map((turn) => ({
+    clientTurnId: turn.client_turn_id,
+    question: turn.question,
+    turn,
+    status: 'received' as const,
+  }));
+  if (
+    !state.activeTurn ||
+    durable.some(
+      (candidate) => candidate.clientTurnId === state.activeTurn?.clientTurnId,
+    )
+  ) {
+    return durable;
+  }
+  return [...durable, state.activeTurn];
 }

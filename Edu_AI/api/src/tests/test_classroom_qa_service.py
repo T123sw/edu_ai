@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import inspect
 from pathlib import Path
 from uuid import uuid4
 
@@ -80,7 +81,7 @@ class FakeTts:
         return f'{turn_id}.mp3', 'audio/mpeg'
 
 
-def create_service(tmp_path, *, material=None, rag_search=None):
+def create_service(tmp_path, *, material=None):
     manager = CourseStorageManager(root_path=str(tmp_path))
     store = ClassroomQaSessionStore(manager)
     gateway = FakeGateway()
@@ -90,7 +91,6 @@ def create_service(tmp_path, *, material=None, rag_search=None):
     service = ClassroomQaService(
         store=store,
         material_loader=lambda **kwargs: selected_material,
-        rag_search=rag_search or (lambda **kwargs: '课程知识库摘要'),
         gateway=gateway,
         tts=tts,
         metrics_sink=metrics.append,
@@ -134,14 +134,10 @@ async def test_tts_failure_preserves_answer_and_marks_degraded(tmp_path):
     assert result['turn']['audio_url'] is None
 
 
-async def test_rag_failure_degrades_without_blocking_answer(tmp_path):
-    def failing_rag(**kwargs):
-        raise RuntimeError('rag offline')
+async def test_live_qa_has_no_retrieval_dependency_or_metrics(tmp_path):
+    assert 'rag_search' not in inspect.signature(ClassroomQaService).parameters
 
-    service, _, gateway, _, metrics = create_service(
-        tmp_path,
-        rag_search=failing_rag,
-    )
+    service, _, gateway, _, metrics = create_service(tmp_path)
 
     result = await service.submit_turn(
         course_id='course-1',
@@ -152,7 +148,9 @@ async def test_rag_failure_degrades_without_blocking_answer(tmp_path):
 
     assert result['turn']['answer_text']
     assert gateway.calls == 1
-    assert metrics[-1]['rag_degraded'] is True
+    assert 'context_ms' in metrics[-1]
+    assert 'rag_ms' not in metrics[-1]
+    assert 'rag_degraded' not in metrics[-1]
 
 
 async def test_llm_failure_is_persisted_and_released_for_retry(tmp_path):
@@ -234,7 +232,7 @@ async def test_busy_turn_maps_to_conflict_and_metrics_exclude_content(tmp_path):
         request=turn_request(),
     )
     metric = fresh_metrics[-1]
-    assert {'rag_ms', 'llm_ms', 'tts_ms', 'total_ms'} <= metric.keys()
+    assert {'context_ms', 'llm_ms', 'tts_ms', 'total_ms'} <= metric.keys()
     rendered = json.dumps(metric, ensure_ascii=False)
     assert '为什么需要基准值' not in rendered
     assert '基准值帮助我们' not in rendered
