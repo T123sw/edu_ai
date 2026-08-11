@@ -130,6 +130,16 @@ npm run build
 
 通过标准：pytest、test、build 退出 0；lint 无新增 error。既有 warning 记录数量和基线复现结果。
 
+### 第一阶段自动化证据（非最终签收）
+
+- 功能提交：`2653892ed939ff245290bf92b2c036829d2c1dfb`；本地 `HEAD`、`origin/main` 与 GitHub API `main` 已核对一致。
+- 后端阶段回归：领域策略、仓储、创作、发布门禁与既有 learning 测试共 `50 passed`；PostgreSQL repository 定向回归 `2 passed`。
+- 前端回归：Node 测试 `340 passed`；测评创作门禁与原课程学习文案均包含在内。
+- 迁移：`python -m alembic heads` 仅输出 `20260812_0013 (head)`。
+- 构建：`npm run build` 退出 0；仅保留既有动态/静态导入及大 chunk 提示。
+- 静态检查：新增和修改的测评 Python 路径执行 Ruff，结果 `All checks passed!`。
+- 范围结论：A1、A2 和 A5 中与第一阶段有关的自动化路径已通过；学生作答、复核、分析、Agent、安全攻击与真实双账号 B1～B8 仍待后续阶段，不据此宣称整体验收通过。
+
 ## 6. 真实双账号验收
 
 ### B1. 无测评不能发布
