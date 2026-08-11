@@ -131,6 +131,7 @@ class AssessmentAttemptRecord:
     auto_score: float | None = None
     final_score: float | None = None
     result: str | None = None
+    submission_idempotency_key: str | None = None
     invalidated_at: str | None = None
     invalidated_by: str | None = None
     invalidation_reason: str | None = None

@@ -58,7 +58,7 @@ python -m pytest tests/assessment/test_assessment_policies.py tests/assessment/t
 python -m alembic heads
 ```
 
-通过标准：测试退出 0；只输出一个 head `20260812_0013`。
+通过标准：测试退出 0；只输出一个当前 head `20260812_0014`。
 
 ### A2. 测评创作与发布门禁
 

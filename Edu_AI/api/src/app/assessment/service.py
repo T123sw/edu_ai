@@ -11,7 +11,7 @@ from app.learning.service import LearningRuleError, LearningService
 from .extractors import extract_assessment_items
 from .models import AssessmentRecord, AssessmentVersionRecord
 from .models import AssessmentItemRecord
-from .policies import AssessmentPolicyError, validate_settings
+from .policies import AssessmentPolicyError, grade_objective_item, validate_settings
 from .quality import AssessmentQualityService, QualityReport
 from .store import AssessmentStore, AssessmentStoreError
 
@@ -328,6 +328,128 @@ class AssessmentService:
             )
         except (AssessmentStoreError, LearningRuleError) as error:
             raise AssessmentRuleError(error.code, error.message) from error
+
+    def start_attempt(self, *, course_id: str, task_id: str, student_id: str):
+        try:
+            self.learning_service._course_read_membership(
+                course_id=course_id, user_id=student_id
+            )
+            task = self.learning_service._task_or_error(course_id=course_id, task_id=task_id)
+        except LearningRuleError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        if task.status != "published":
+            raise AssessmentRuleError("TASK_NOT_PUBLISHED", "Learning task is not published")
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None or assessment.current_version_id is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Published assessment is required")
+        version = self.store.get_version(assessment.current_version_id)
+        if version is None or version.status != "published":
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Published assessment is required")
+        assignment = self.store.get_or_create_assignment(
+            task_id=task_id,
+            course_id=course_id,
+            student_id=student_id,
+            assessment_version_id=version.assessment_version_id,
+            max_attempts=version.max_attempts,
+        )
+        if assignment.answers_revealed_at is not None:
+            raise AssessmentRuleError("ANSWERS_REVEALED", "Scored attempts are closed")
+        try:
+            return self.store.create_attempt(assignment)
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+
+    def save_answers(
+        self,
+        *,
+        attempt_id: str,
+        student_id: str,
+        answers: dict[str, dict[str, Any]],
+        expected_revision: int,
+    ):
+        try:
+            return self.store.save_answers(
+                attempt_id, student_id, answers, expected_revision=expected_revision
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+
+    def submit_attempt(
+        self, *, attempt_id: str, student_id: str, idempotency_key: str
+    ):
+        if not str(idempotency_key).strip():
+            raise AssessmentRuleError("IDEMPOTENCY_KEY_REQUIRED", "Idempotency key is required")
+        attempt = self.store.get_attempt(attempt_id)
+        if attempt is None or attempt.student_id != student_id:
+            raise AssessmentRuleError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+        if attempt.status != "in_progress":
+            return attempt
+        items = self.store.list_items(attempt.assessment_version_id)
+        answers = {item.assessment_item_id: item for item in self.store.list_answers(attempt_id)}
+        answer_scores: dict[str, float | None] = {}
+        total_score = 0.0
+        maximum = sum(item.max_score for item in items)
+        pending_review = False
+        for item in items:
+            answer = answers.get(item.assessment_item_id)
+            grade = grade_objective_item(item, answer.answer if answer else {})
+            answer_scores[item.assessment_item_id] = grade.final_score
+            if grade.final_score is None:
+                pending_review = True
+            else:
+                total_score += grade.final_score
+        version = self.store.get_version(attempt.assessment_version_id)
+        if version is None:
+            raise AssessmentRuleError("ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found")
+        percentage = round(total_score / maximum * 100, 2) if maximum > 0 else 0.0
+        if pending_review:
+            status = "pending_review"
+            final_score = None
+            result = "pending_review"
+        else:
+            status = "graded"
+            final_score = percentage
+            result = (
+                "mastered" if percentage >= version.mastery_threshold
+                else "passed" if percentage >= version.pass_threshold
+                else "needs_retry"
+            )
+        try:
+            return self.store.finalize_attempt(
+                attempt_id,
+                answer_scores=answer_scores,
+                status=status,
+                auto_score=percentage,
+                final_score=final_score,
+                result=result,
+                idempotency_key=idempotency_key,
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+
+    def get_student_assignment(
+        self, *, course_id: str, task_id: str, student_id: str
+    ):
+        try:
+            self.learning_service._course_read_membership(
+                course_id=course_id, user_id=student_id
+            )
+        except LearningRuleError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        assignment = self.store.get_assignment(
+            course_id=course_id, task_id=task_id, student_id=student_id
+        )
+        if assignment is None:
+            raise AssessmentRuleError("ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found")
+        return assignment
+
+    def list_student_attempts(
+        self, *, course_id: str, task_id: str, student_id: str
+    ):
+        assignment = self.get_student_assignment(
+            course_id=course_id, task_id=task_id, student_id=student_id
+        )
+        return self.store.list_attempts(assignment.assessment_assignment_id)
 
     def _draft_payload(self, task, version: AssessmentVersionRecord) -> dict[str, Any]:
         items = self.store.list_items(version.assessment_version_id)

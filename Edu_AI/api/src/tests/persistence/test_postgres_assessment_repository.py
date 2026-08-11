@@ -114,3 +114,30 @@ def test_postgres_repository_freezes_published_version_with_sqlite_shim(tmp_path
     assert published.status == "published"
     assert repository.get_assessment_for_task("course-1", "lt-1").current_version_id == "asv-1"
     assert repository.list_items("asv-1")[0].scoring_key == {"correct_value": True}
+    assignment = repository.get_or_create_assignment(
+        task_id="lt-1", course_id="course-1", student_id="student-1",
+        assessment_version_id="asv-1", max_attempts=3,
+    )
+    attempt = repository.create_attempt(assignment)
+    saved = repository.save_answers(
+        attempt.attempt_id,
+        "student-1",
+        {"asi-1": {"value": True}},
+        expected_revision=0,
+    )
+    assert saved.draft_revision == 1
+    graded = repository.finalize_attempt(
+        attempt.attempt_id,
+        answer_scores={"asi-1": 10},
+        status="graded",
+        auto_score=100,
+        final_score=100,
+        result="mastered",
+        idempotency_key="submit-postgres-1",
+    )
+    assert graded.final_score == 100
+    restored = repository.get_assignment(
+        course_id="course-1", task_id="lt-1", student_id="student-1"
+    )
+    assert restored.attempts_used == 1
+    assert restored.best_final_score == 100

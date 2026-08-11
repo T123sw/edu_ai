@@ -8,8 +8,12 @@ import os
 import sqlite3
 import threading
 from pathlib import Path
+from uuid import uuid4
 
 from .models import (
+    AssessmentAnswerRecord,
+    AssessmentAssignmentRecord,
+    AssessmentAttemptRecord,
     AssessmentItemRecord,
     AssessmentRecord,
     AssessmentVersionRecord,
@@ -144,6 +148,7 @@ class AssessmentStore:
                     auto_score REAL,
                     final_score REAL,
                     result TEXT,
+                    submission_idempotency_key TEXT,
                     invalidated_at TEXT,
                     invalidated_by TEXT,
                     invalidation_reason TEXT,
@@ -188,6 +193,14 @@ class AssessmentStore:
                 );
                 """
             )
+            attempt_columns = {
+                str(row[1])
+                for row in self._connection.execute("PRAGMA table_info(assessment_attempts)")
+            }
+            if "submission_idempotency_key" not in attempt_columns:
+                self._connection.execute(
+                    "ALTER TABLE assessment_attempts ADD COLUMN submission_idempotency_key TEXT"
+                )
             self._connection.commit()
 
     def create_draft(
@@ -541,6 +554,293 @@ class AssessmentStore:
             ).fetchall()
         return [self._item_from_row(row) for row in rows]
 
+    def get_or_create_assignment(
+        self,
+        *,
+        task_id: str,
+        course_id: str,
+        student_id: str,
+        assessment_version_id: str,
+        max_attempts: int,
+    ) -> AssessmentAssignmentRecord:
+        if self._postgres:
+            return self._repository.get_or_create_assignment(
+                task_id=task_id,
+                course_id=course_id,
+                student_id=student_id,
+                assessment_version_id=assessment_version_id,
+                max_attempts=max_attempts,
+            )
+        existing = self.get_assignment(course_id=course_id, task_id=task_id, student_id=student_id)
+        if existing is not None:
+            return existing
+        record = AssessmentAssignmentRecord(
+            assessment_assignment_id=f"asa_{uuid4().hex}",
+            task_id=task_id,
+            course_id=course_id,
+            student_id=student_id,
+            assessment_version_id=assessment_version_id,
+            cycle_number=1,
+            max_attempts=max_attempts,
+        )
+        with self._lock:
+            try:
+                self._connection.execute(
+                    """
+                    INSERT INTO assessment_assignments(
+                        assessment_assignment_id, task_id, course_id, student_id,
+                        assessment_version_id, cycle_number, max_attempts, attempts_used,
+                        best_attempt_id, best_final_score, result, answers_revealed_at,
+                        created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.assessment_assignment_id, record.task_id, record.course_id,
+                        record.student_id, record.assessment_version_id, record.cycle_number,
+                        record.max_attempts, record.attempts_used, record.best_attempt_id,
+                        record.best_final_score, record.result, record.answers_revealed_at,
+                        record.created_at, record.updated_at,
+                    ),
+                )
+                self._connection.commit()
+            except sqlite3.IntegrityError:
+                self._connection.rollback()
+                existing = self.get_assignment(
+                    course_id=course_id, task_id=task_id, student_id=student_id
+                )
+                if existing is None:
+                    raise
+                return existing
+        return record
+
+    def get_assignment(
+        self, *, course_id: str, task_id: str, student_id: str
+    ) -> AssessmentAssignmentRecord | None:
+        if self._postgres:
+            return self._repository.get_assignment(
+                course_id=course_id, task_id=task_id, student_id=student_id
+            )
+        with self._lock:
+            row = self._connection.execute(
+                """
+                SELECT * FROM assessment_assignments
+                WHERE course_id=? AND task_id=? AND student_id=?
+                ORDER BY cycle_number DESC LIMIT 1
+                """,
+                (course_id, task_id, student_id),
+            ).fetchone()
+        return self._assignment_from_row(row) if row else None
+
+    def create_attempt(
+        self, assignment: AssessmentAssignmentRecord
+    ) -> AssessmentAttemptRecord:
+        if self._postgres:
+            return self._repository.create_attempt(assignment)
+        with self._lock:
+            self._connection.execute("BEGIN IMMEDIATE")
+            active = self._connection.execute(
+                """
+                SELECT * FROM assessment_attempts
+                WHERE assessment_assignment_id=? AND status='in_progress'
+                ORDER BY attempt_number DESC LIMIT 1
+                """,
+                (assignment.assessment_assignment_id,),
+            ).fetchone()
+            if active is not None:
+                self._connection.commit()
+                return self._attempt_from_row(active)
+            row = self._connection.execute(
+                "SELECT * FROM assessment_assignments WHERE assessment_assignment_id=?",
+                (assignment.assessment_assignment_id,),
+            ).fetchone()
+            if row is None:
+                self._connection.rollback()
+                raise AssessmentStoreError("ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found")
+            if int(row["attempts_used"]) >= int(row["max_attempts"]):
+                self._connection.rollback()
+                raise AssessmentStoreError("ATTEMPTS_EXHAUSTED", "No scored attempts remain")
+            attempt = AssessmentAttemptRecord.new(
+                assignment_id=assignment.assessment_assignment_id,
+                assessment_version_id=assignment.assessment_version_id,
+                task_id=assignment.task_id,
+                course_id=assignment.course_id,
+                student_id=assignment.student_id,
+                attempt_number=int(row["attempts_used"]) + 1,
+            )
+            self._connection.execute(
+                """
+                INSERT INTO assessment_attempts(
+                    attempt_id, assessment_assignment_id, assessment_version_id,
+                    task_id, course_id, student_id, attempt_number, status,
+                    draft_revision, submitted_at, auto_score, final_score, result,
+                    submission_idempotency_key,
+                    invalidated_at, invalidated_by, invalidation_reason, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    attempt.attempt_id, attempt.assignment_id, attempt.assessment_version_id,
+                    attempt.task_id, attempt.course_id, attempt.student_id,
+                    attempt.attempt_number, attempt.status, attempt.draft_revision,
+                    attempt.submitted_at, attempt.auto_score, attempt.final_score,
+                    attempt.result, attempt.submission_idempotency_key,
+                    attempt.invalidated_at, attempt.invalidated_by,
+                    attempt.invalidation_reason, attempt.created_at, attempt.updated_at,
+                ),
+            )
+            self._connection.commit()
+        return attempt
+
+    def get_attempt(self, attempt_id: str) -> AssessmentAttemptRecord | None:
+        if self._postgres:
+            return self._repository.get_attempt(attempt_id)
+        with self._lock:
+            row = self._connection.execute(
+                "SELECT * FROM assessment_attempts WHERE attempt_id=?", (attempt_id,)
+            ).fetchone()
+        return self._attempt_from_row(row) if row else None
+
+    def save_answers(
+        self,
+        attempt_id: str,
+        student_id: str,
+        answers: dict[str, dict],
+        *,
+        expected_revision: int,
+    ) -> AssessmentAttemptRecord:
+        if self._postgres:
+            return self._repository.save_answers(
+                attempt_id, student_id, answers, expected_revision=expected_revision
+            )
+        with self._lock:
+            self._connection.execute("BEGIN IMMEDIATE")
+            row = self._connection.execute(
+                "SELECT * FROM assessment_attempts WHERE attempt_id=?", (attempt_id,)
+            ).fetchone()
+            if row is None or str(row["student_id"]) != student_id:
+                self._connection.rollback()
+                raise AssessmentStoreError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+            if str(row["status"]) != "in_progress":
+                self._connection.rollback()
+                raise AssessmentStoreError("ATTEMPT_IMMUTABLE", "Submitted attempts cannot be edited")
+            if int(row["draft_revision"]) != int(expected_revision):
+                self._connection.rollback()
+                raise AssessmentStoreError("ATTEMPT_REVISION_CONFLICT", "Assessment attempt has changed")
+            now = utc_now()
+            for item_id, answer in answers.items():
+                self._connection.execute(
+                    """
+                    INSERT INTO assessment_answers(
+                        answer_id, attempt_id, assessment_item_id, answer_json,
+                        artifact_refs_json, auto_score, ai_suggestion_json,
+                        final_score, review_status, updated_at
+                    ) VALUES (?, ?, ?, ?, '[]', NULL, NULL, NULL, 'ungraded', ?)
+                    ON CONFLICT(attempt_id, assessment_item_id) DO UPDATE SET
+                        answer_json=excluded.answer_json, updated_at=excluded.updated_at
+                    """,
+                    (f"ans_{uuid4().hex}", attempt_id, item_id, _json(answer), now),
+                )
+            self._connection.execute(
+                "UPDATE assessment_attempts SET draft_revision=draft_revision+1, updated_at=? WHERE attempt_id=?",
+                (now, attempt_id),
+            )
+            self._connection.commit()
+        return self.get_attempt(attempt_id)
+
+    def list_answers(self, attempt_id: str) -> list[AssessmentAnswerRecord]:
+        if self._postgres:
+            return self._repository.list_answers(attempt_id)
+        with self._lock:
+            rows = self._connection.execute(
+                "SELECT * FROM assessment_answers WHERE attempt_id=? ORDER BY assessment_item_id",
+                (attempt_id,),
+            ).fetchall()
+        return [self._answer_from_row(row) for row in rows]
+
+    def finalize_attempt(
+        self,
+        attempt_id: str,
+        *,
+        answer_scores: dict[str, float | None],
+        status: str,
+        auto_score: float | None,
+        final_score: float | None,
+        result: str | None,
+        idempotency_key: str,
+    ) -> AssessmentAttemptRecord:
+        if self._postgres:
+            return self._repository.finalize_attempt(
+                attempt_id, answer_scores=answer_scores, status=status,
+                auto_score=auto_score, final_score=final_score, result=result,
+                idempotency_key=idempotency_key,
+            )
+        with self._lock:
+            self._connection.execute("BEGIN IMMEDIATE")
+            row = self._connection.execute(
+                "SELECT * FROM assessment_attempts WHERE attempt_id=?", (attempt_id,)
+            ).fetchone()
+            if row is None:
+                self._connection.rollback()
+                raise AssessmentStoreError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+            if str(row["status"]) != "in_progress":
+                self._connection.commit()
+                return self._attempt_from_row(row)
+            now = utc_now()
+            for item_id, score in answer_scores.items():
+                self._connection.execute(
+                    """
+                    UPDATE assessment_answers SET auto_score=?, final_score=?, review_status=?, updated_at=?
+                    WHERE attempt_id=? AND assessment_item_id=?
+                    """,
+                    (score, score, "graded" if score is not None else "pending_review", now, attempt_id, item_id),
+                )
+            self._connection.execute(
+                """
+                UPDATE assessment_attempts SET status=?, submitted_at=?, auto_score=?,
+                    final_score=?, result=?, submission_idempotency_key=?, updated_at=?
+                    WHERE attempt_id=?
+                """,
+                (status, now, auto_score, final_score, result, idempotency_key, now, attempt_id),
+            )
+            assignment = self._connection.execute(
+                "SELECT * FROM assessment_assignments WHERE assessment_assignment_id=?",
+                (str(row["assessment_assignment_id"]),),
+            ).fetchone()
+            best_score = assignment["best_final_score"]
+            best_attempt_id = assignment["best_attempt_id"]
+            if final_score is not None and (best_score is None or final_score > float(best_score)):
+                best_score = final_score
+                best_attempt_id = attempt_id
+            assignment_result = str(assignment["result"])
+            if result in {"passed", "mastered"}:
+                assignment_result = result if assignment_result != "mastered" else assignment_result
+            elif result == "pending_review" and assignment_result not in {"passed", "mastered"}:
+                assignment_result = "pending_review"
+            elif assignment_result == "not_attempted":
+                assignment_result = "needs_retry"
+            self._connection.execute(
+                """
+                UPDATE assessment_assignments SET attempts_used=attempts_used+1,
+                    best_attempt_id=?, best_final_score=?, result=?, updated_at=?
+                WHERE assessment_assignment_id=?
+                """,
+                (best_attempt_id, best_score, assignment_result, now, str(row["assessment_assignment_id"])),
+            )
+            self._connection.commit()
+        return self.get_attempt(attempt_id)
+
+    def list_attempts(self, assignment_id: str) -> list[AssessmentAttemptRecord]:
+        if self._postgres:
+            return self._repository.list_attempts(assignment_id)
+        with self._lock:
+            rows = self._connection.execute(
+                """
+                SELECT * FROM assessment_attempts WHERE assessment_assignment_id=?
+                ORDER BY attempt_number
+                """,
+                (assignment_id,),
+            ).fetchall()
+        return [self._attempt_from_row(row) for row in rows]
+
     @staticmethod
     def _assessment_from_row(row: sqlite3.Row) -> AssessmentRecord:
         return AssessmentRecord(
@@ -591,6 +891,57 @@ class AssessmentStore:
             source_refs=list(json.loads(row["source_refs_json"])),
             source_exposure_state=str(row["source_exposure_state"]),
             created_origin=str(row["created_origin"]),
+        )
+
+    @staticmethod
+    def _assignment_from_row(row: sqlite3.Row) -> AssessmentAssignmentRecord:
+        return AssessmentAssignmentRecord(
+            assessment_assignment_id=str(row["assessment_assignment_id"]),
+            task_id=str(row["task_id"]), course_id=str(row["course_id"]),
+            student_id=str(row["student_id"]),
+            assessment_version_id=str(row["assessment_version_id"]),
+            cycle_number=int(row["cycle_number"]), max_attempts=int(row["max_attempts"]),
+            attempts_used=int(row["attempts_used"]),
+            best_attempt_id=str(row["best_attempt_id"]) if row["best_attempt_id"] else None,
+            best_final_score=float(row["best_final_score"]) if row["best_final_score"] is not None else None,
+            result=str(row["result"]),
+            answers_revealed_at=str(row["answers_revealed_at"]) if row["answers_revealed_at"] else None,
+            created_at=str(row["created_at"]), updated_at=str(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _attempt_from_row(row: sqlite3.Row) -> AssessmentAttemptRecord:
+        return AssessmentAttemptRecord(
+            attempt_id=str(row["attempt_id"]), assignment_id=str(row["assessment_assignment_id"]),
+            assessment_version_id=str(row["assessment_version_id"]), task_id=str(row["task_id"]),
+            course_id=str(row["course_id"]), student_id=str(row["student_id"]),
+            attempt_number=int(row["attempt_number"]), status=str(row["status"]),
+            draft_revision=int(row["draft_revision"]),
+            submitted_at=str(row["submitted_at"]) if row["submitted_at"] else None,
+            auto_score=float(row["auto_score"]) if row["auto_score"] is not None else None,
+            final_score=float(row["final_score"]) if row["final_score"] is not None else None,
+            result=str(row["result"]) if row["result"] else None,
+            submission_idempotency_key=(
+                str(row["submission_idempotency_key"])
+                if row["submission_idempotency_key"] else None
+            ),
+            invalidated_at=str(row["invalidated_at"]) if row["invalidated_at"] else None,
+            invalidated_by=str(row["invalidated_by"]) if row["invalidated_by"] else None,
+            invalidation_reason=str(row["invalidation_reason"]) if row["invalidation_reason"] else None,
+            created_at=str(row["created_at"]), updated_at=str(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _answer_from_row(row: sqlite3.Row) -> AssessmentAnswerRecord:
+        return AssessmentAnswerRecord(
+            answer_id=str(row["answer_id"]), attempt_id=str(row["attempt_id"]),
+            assessment_item_id=str(row["assessment_item_id"]),
+            answer=dict(json.loads(row["answer_json"])),
+            artifact_refs=list(json.loads(row["artifact_refs_json"])),
+            auto_score=float(row["auto_score"]) if row["auto_score"] is not None else None,
+            ai_suggestion=dict(json.loads(row["ai_suggestion_json"])) if row["ai_suggestion_json"] else None,
+            final_score=float(row["final_score"]) if row["final_score"] is not None else None,
+            review_status=str(row["review_status"]), updated_at=str(row["updated_at"]),
         )
 
     def close(self) -> None:

@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+from uuid import uuid4
 
 from sqlalchemy import delete, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 
 from app.assessment.models import (
+    AssessmentAnswerRecord,
+    AssessmentAssignmentRecord,
+    AssessmentAttemptRecord,
     AssessmentItemRecord,
     AssessmentRecord,
     AssessmentVersionRecord,
@@ -17,6 +21,9 @@ from app.assessment.models import (
 )
 from app.assessment.store import AssessmentStoreError
 from app.database import (
+    AssessmentAnswerModel,
+    AssessmentAssignmentModel,
+    AssessmentAttemptModel,
     AssessmentItemModel,
     AssessmentModel,
     AssessmentVersionModel,
@@ -189,6 +196,201 @@ class PostgresAssessmentRepository:
             )
             return [self._item(item) for item in records]
 
+    def get_or_create_assignment(
+        self, *, task_id: str, course_id: str, student_id: str,
+        assessment_version_id: str, max_attempts: int,
+    ) -> AssessmentAssignmentRecord:
+        existing = self.get_assignment(
+            course_id=course_id, task_id=task_id, student_id=student_id
+        )
+        if existing is not None:
+            return existing
+        record = AssessmentAssignmentRecord(
+            assessment_assignment_id=f"asa_{uuid4().hex}", task_id=task_id,
+            course_id=course_id, student_id=student_id,
+            assessment_version_id=assessment_version_id, cycle_number=1,
+            max_attempts=max_attempts,
+        )
+        try:
+            with database_session(engine=self._engine) as session:
+                session.add(AssessmentAssignmentModel(
+                    assessment_assignment_id=record.assessment_assignment_id,
+                    task_id=record.task_id, course_id=record.course_id,
+                    student_id=record.student_id,
+                    assessment_version_id=record.assessment_version_id,
+                    cycle_number=record.cycle_number, max_attempts=record.max_attempts,
+                    attempts_used=record.attempts_used, best_attempt_id=None,
+                    best_final_score=None, result=record.result, answers_revealed_at=None,
+                    created_at=_timestamp(record.created_at), updated_at=_timestamp(record.updated_at),
+                ))
+        except IntegrityError:
+            existing = self.get_assignment(
+                course_id=course_id, task_id=task_id, student_id=student_id
+            )
+            if existing is None:
+                raise
+            return existing
+        return record
+
+    def get_assignment(
+        self, *, course_id: str, task_id: str, student_id: str
+    ) -> AssessmentAssignmentRecord | None:
+        with database_session(engine=self._engine) as session:
+            record = session.scalar(
+                select(AssessmentAssignmentModel)
+                .where(
+                    AssessmentAssignmentModel.course_id == course_id,
+                    AssessmentAssignmentModel.task_id == task_id,
+                    AssessmentAssignmentModel.student_id == student_id,
+                )
+                .order_by(AssessmentAssignmentModel.cycle_number.desc())
+                .limit(1)
+            )
+            return self._assignment(record) if record else None
+
+    def create_attempt(self, assignment: AssessmentAssignmentRecord) -> AssessmentAttemptRecord:
+        with database_session(engine=self._engine) as session:
+            current = session.scalar(
+                select(AssessmentAssignmentModel)
+                .where(AssessmentAssignmentModel.assessment_assignment_id == assignment.assessment_assignment_id)
+                .with_for_update()
+            )
+            if current is None:
+                raise AssessmentStoreError("ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found")
+            active = session.scalar(
+                select(AssessmentAttemptModel).where(
+                    AssessmentAttemptModel.assessment_assignment_id == assignment.assessment_assignment_id,
+                    AssessmentAttemptModel.status == "in_progress",
+                )
+            )
+            if active is not None:
+                return self._attempt(active)
+            if current.attempts_used >= current.max_attempts:
+                raise AssessmentStoreError("ATTEMPTS_EXHAUSTED", "No scored attempts remain")
+            record = AssessmentAttemptRecord.new(
+                assignment_id=assignment.assessment_assignment_id,
+                assessment_version_id=assignment.assessment_version_id,
+                task_id=assignment.task_id, course_id=assignment.course_id,
+                student_id=assignment.student_id, attempt_number=current.attempts_used + 1,
+            )
+            model = self._attempt_model(record)
+            session.add(model)
+            session.flush()
+            return self._attempt(model)
+
+    def get_attempt(self, attempt_id: str) -> AssessmentAttemptRecord | None:
+        with database_session(engine=self._engine) as session:
+            record = session.get(AssessmentAttemptModel, attempt_id)
+            return self._attempt(record) if record else None
+
+    def save_answers(
+        self, attempt_id: str, student_id: str, answers: dict[str, dict], *, expected_revision: int
+    ) -> AssessmentAttemptRecord:
+        with database_session(engine=self._engine) as session:
+            attempt = session.scalar(
+                select(AssessmentAttemptModel)
+                .where(AssessmentAttemptModel.attempt_id == attempt_id)
+                .with_for_update()
+            )
+            if attempt is None or attempt.student_id != student_id:
+                raise AssessmentStoreError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+            if attempt.status != "in_progress":
+                raise AssessmentStoreError("ATTEMPT_IMMUTABLE", "Submitted attempts cannot be edited")
+            if attempt.draft_revision != int(expected_revision):
+                raise AssessmentStoreError("ATTEMPT_REVISION_CONFLICT", "Assessment attempt has changed")
+            now = _timestamp(utc_now())
+            for item_id, value in answers.items():
+                answer = session.scalar(select(AssessmentAnswerModel).where(
+                    AssessmentAnswerModel.attempt_id == attempt_id,
+                    AssessmentAnswerModel.assessment_item_id == item_id,
+                ))
+                if answer is None:
+                    answer = AssessmentAnswerModel(
+                        answer_id=f"ans_{uuid4().hex}", attempt_id=attempt_id,
+                        assessment_item_id=item_id, answer=value, artifact_refs=[],
+                        auto_score=None, ai_suggestion=None, final_score=None,
+                        review_status="ungraded", updated_at=now,
+                    )
+                    session.add(answer)
+                else:
+                    answer.answer = value
+                    answer.updated_at = now
+            attempt.draft_revision += 1
+            attempt.updated_at = now
+            session.flush()
+            return self._attempt(attempt)
+
+    def list_answers(self, attempt_id: str) -> list[AssessmentAnswerRecord]:
+        with database_session(engine=self._engine) as session:
+            records = session.scalars(
+                select(AssessmentAnswerModel)
+                .where(AssessmentAnswerModel.attempt_id == attempt_id)
+                .order_by(AssessmentAnswerModel.assessment_item_id)
+            ).all()
+            return [self._answer(record) for record in records]
+
+    def finalize_attempt(
+        self, attempt_id: str, *, answer_scores: dict[str, float | None],
+        status: str, auto_score: float | None, final_score: float | None,
+        result: str | None, idempotency_key: str,
+    ) -> AssessmentAttemptRecord:
+        with database_session(engine=self._engine) as session:
+            attempt = session.scalar(
+                select(AssessmentAttemptModel)
+                .where(AssessmentAttemptModel.attempt_id == attempt_id)
+                .with_for_update()
+            )
+            if attempt is None:
+                raise AssessmentStoreError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+            if attempt.status != "in_progress":
+                return self._attempt(attempt)
+            now = _timestamp(utc_now())
+            for item_id, score in answer_scores.items():
+                answer = session.scalar(select(AssessmentAnswerModel).where(
+                    AssessmentAnswerModel.attempt_id == attempt_id,
+                    AssessmentAnswerModel.assessment_item_id == item_id,
+                ))
+                if answer is not None:
+                    answer.auto_score = score
+                    answer.final_score = score
+                    answer.review_status = "graded" if score is not None else "pending_review"
+                    answer.updated_at = now
+            attempt.status = status
+            attempt.submitted_at = now
+            attempt.auto_score = auto_score
+            attempt.final_score = final_score
+            attempt.result = result
+            attempt.submission_idempotency_key = idempotency_key
+            attempt.updated_at = now
+            assignment = session.get(AssessmentAssignmentModel, attempt.assessment_assignment_id)
+            if assignment is None:
+                raise AssessmentStoreError("ASSIGNMENT_NOT_FOUND", "Assessment assignment was not found")
+            assignment.attempts_used += 1
+            if final_score is not None and (
+                assignment.best_final_score is None or final_score > assignment.best_final_score
+            ):
+                assignment.best_final_score = final_score
+                assignment.best_attempt_id = attempt_id
+            if result in {"passed", "mastered"}:
+                if assignment.result != "mastered":
+                    assignment.result = result
+            elif result == "pending_review" and assignment.result not in {"passed", "mastered"}:
+                assignment.result = "pending_review"
+            elif assignment.result == "not_attempted":
+                assignment.result = "needs_retry"
+            assignment.updated_at = now
+            session.flush()
+            return self._attempt(attempt)
+
+    def list_attempts(self, assignment_id: str) -> list[AssessmentAttemptRecord]:
+        with database_session(engine=self._engine) as session:
+            records = session.scalars(
+                select(AssessmentAttemptModel)
+                .where(AssessmentAttemptModel.assessment_assignment_id == assignment_id)
+                .order_by(AssessmentAttemptModel.attempt_number)
+            ).all()
+            return [self._attempt(record) for record in records]
+
     @staticmethod
     def _version_model(record: AssessmentVersionRecord) -> AssessmentVersionModel:
         return AssessmentVersionModel(
@@ -280,6 +482,60 @@ class PostgresAssessmentRepository:
             source_refs=list(record.source_refs or []),
             source_exposure_state=record.source_exposure_state,
             created_origin=record.created_origin,
+        )
+
+    @staticmethod
+    def _attempt_model(record: AssessmentAttemptRecord) -> AssessmentAttemptModel:
+        return AssessmentAttemptModel(
+            attempt_id=record.attempt_id, assessment_assignment_id=record.assignment_id,
+            assessment_version_id=record.assessment_version_id, task_id=record.task_id,
+            course_id=record.course_id, student_id=record.student_id,
+            attempt_number=record.attempt_number, status=record.status,
+            draft_revision=record.draft_revision, submitted_at=None, auto_score=None,
+            final_score=None, result=None, invalidated_at=None, invalidated_by=None,
+            submission_idempotency_key=None,
+            invalidation_reason=None, created_at=_timestamp(record.created_at),
+            updated_at=_timestamp(record.updated_at),
+        )
+
+    @staticmethod
+    def _assignment(record: AssessmentAssignmentModel) -> AssessmentAssignmentRecord:
+        return AssessmentAssignmentRecord(
+            assessment_assignment_id=record.assessment_assignment_id,
+            task_id=record.task_id, course_id=record.course_id, student_id=record.student_id,
+            assessment_version_id=record.assessment_version_id,
+            cycle_number=record.cycle_number, max_attempts=record.max_attempts,
+            attempts_used=record.attempts_used, best_attempt_id=record.best_attempt_id,
+            best_final_score=record.best_final_score, result=record.result,
+            answers_revealed_at=_iso_timestamp(record.answers_revealed_at) if record.answers_revealed_at else None,
+            created_at=_iso_timestamp(record.created_at), updated_at=_iso_timestamp(record.updated_at),
+        )
+
+    @staticmethod
+    def _attempt(record: AssessmentAttemptModel) -> AssessmentAttemptRecord:
+        return AssessmentAttemptRecord(
+            attempt_id=record.attempt_id, assignment_id=record.assessment_assignment_id,
+            assessment_version_id=record.assessment_version_id, task_id=record.task_id,
+            course_id=record.course_id, student_id=record.student_id,
+            attempt_number=record.attempt_number, status=record.status,
+            draft_revision=record.draft_revision,
+            submitted_at=_iso_timestamp(record.submitted_at) if record.submitted_at else None,
+            auto_score=record.auto_score, final_score=record.final_score, result=record.result,
+            submission_idempotency_key=record.submission_idempotency_key,
+            invalidated_at=_iso_timestamp(record.invalidated_at) if record.invalidated_at else None,
+            invalidated_by=record.invalidated_by, invalidation_reason=record.invalidation_reason,
+            created_at=_iso_timestamp(record.created_at), updated_at=_iso_timestamp(record.updated_at),
+        )
+
+    @staticmethod
+    def _answer(record: AssessmentAnswerModel) -> AssessmentAnswerRecord:
+        return AssessmentAnswerRecord(
+            answer_id=record.answer_id, attempt_id=record.attempt_id,
+            assessment_item_id=record.assessment_item_id, answer=dict(record.answer or {}),
+            artifact_refs=list(record.artifact_refs or []), auto_score=record.auto_score,
+            ai_suggestion=dict(record.ai_suggestion) if record.ai_suggestion else None,
+            final_score=record.final_score, review_status=record.review_status,
+            updated_at=_iso_timestamp(record.updated_at),
         )
 
     @staticmethod

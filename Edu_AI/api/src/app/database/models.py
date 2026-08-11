@@ -686,6 +686,7 @@ class AssessmentAttemptModel(Base):
     auto_score: Mapped[float | None] = mapped_column(Float)
     final_score: Mapped[float | None] = mapped_column(Float)
     result: Mapped[str | None] = mapped_column(String(32))
+    submission_idempotency_key: Mapped[str | None] = mapped_column(String(300))
     invalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     invalidated_by: Mapped[str | None] = mapped_column(String(160))
     invalidation_reason: Mapped[str | None] = mapped_column(Text)

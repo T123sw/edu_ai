@@ -298,13 +298,14 @@ Push: `git push origin main`
 
 **Files:**
 - Modify: `Edu_AI/api/src/app/assessment/service.py`、`store.py`、`policies.py`
+- Create: `Edu_AI/api/src/alembic/versions/20260812_0014_attempt_idempotency.py`
 - Test: `Edu_AI/api/src/tests/assessment/test_assessment_attempt_service.py`
 
 **Interfaces:**
 - Produces: `start_attempt`、`save_answers(expected_revision)`、`submit_attempt(idempotency_key)`、`reveal_answers`、`get_student_feedback`。
 - Enforces: 草稿不占次数；提交占一次；最多 3 次默认；最高最终分；通过后可继续挑战但揭示后只能不计分练习。
 
-- [ ] **Step 1: 写三次作答和冲突失败测试**
+- [x] **Step 1: 写三次作答和冲突失败测试**
 
 ```python
 def test_three_attempts_keep_best_score_and_all_history(service):
@@ -319,7 +320,7 @@ def test_three_attempts_keep_best_score_and_all_history(service):
     assert [item.final_score for item in service.list_attempts(context())] == scores
 ```
 
-- [ ] **Step 2: 运行红灯、实现事务，再运行绿灯**
+- [x] **Step 2: 运行红灯、实现事务，再运行绿灯**
 
 Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_attempt_service.py -q`
 
