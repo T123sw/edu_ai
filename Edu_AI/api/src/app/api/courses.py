@@ -8,6 +8,7 @@ from __future__ import annotations
 import mimetypes
 import json
 import re
+import copy
 from datetime import datetime
 from uuid import uuid4
 from pathlib import Path
@@ -78,6 +79,7 @@ from app.services import knowledge_document_service as _knowledge
 from app.services.course_knowledge_plan_builder import submit_course_knowledge_plan_build_job
 from app.services.course_knowledge_graph_generator import (
     submit_course_knowledge_graph_generation_job,
+    validate_graph_draft_for_build,
 )
 from app.services.course_knowledge_textbook_inputs import (
     CourseKnowledgeTextbookInputError,
@@ -1163,13 +1165,30 @@ def update_knowledge_base_graph_draft(
     payload: CourseKnowledgeGraphDraftUpdateRequest,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    del principal
-    _get_course_knowledge_build_or_404(course_id, build_id)
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    graph = copy.deepcopy(payload.root)
+    issues, metrics = validate_graph_draft_for_build(build, graph)
+    if issues:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_SCHEMA_INVALID",
+                "message": "知识图谱草案未通过结构校验",
+                "issues": issues,
+            },
+        )
+    graph.setdefault("data", {}).update(
+        {
+            "validation": {"status": "passed", **metrics},
+            "edited_at": datetime.now().astimezone().isoformat(),
+            "edited_by": principal.user_id,
+        }
+    )
     try:
         return get_postgres_knowledge_repository().update_build_draft(
             build_id,
             expected_revision=payload.expected_revision,
-            changes={"graph_draft": payload.root},
+            changes={"graph_draft": graph},
             phase="graph_review",
         )
     except KnowledgeBuildRevisionConflict as exc:
@@ -1215,7 +1234,18 @@ def confirm_knowledge_base_graph_draft(
     payload: CourseKnowledgeGraphConfirmRequest,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    _get_course_knowledge_build_or_404(course_id, build_id)
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    graph = build.get("graph_draft") or {}
+    issues, _metrics = validate_graph_draft_for_build(build, graph)
+    if issues:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_SCHEMA_INVALID",
+                "message": "知识图谱草案未通过结构校验，不能确认",
+                "issues": issues,
+            },
+        )
     try:
         return get_postgres_knowledge_repository().confirm_build_graph(
             build_id,

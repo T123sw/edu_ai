@@ -158,6 +158,116 @@ def test_generate_graph_endpoint_queues_model_job_with_revision(course_api, monk
     }
 
 
+def _valid_small_graph():
+    return {
+        "id": "course-root",
+        "label": "Course one",
+        "data": {"type": "course", "summary": "课程知识结构"},
+        "children": [
+            {
+                "id": f"module-{module_index}",
+                "label": f"主题模块 {module_index}",
+                "data": {"type": "knowledge_module", "summary": "模块说明"},
+                "children": [
+                    {
+                        "id": f"point-{module_index}-{point_index}",
+                        "label": f"具体知识点 {module_index}-{point_index}",
+                        "data": {"type": "knowledge_point", "summary": "知识点说明"},
+                        "children": [],
+                    }
+                    for point_index in range(1, 4)
+                ],
+            }
+            for module_index in range(1, 4)
+        ],
+    }
+
+
+def test_graph_save_validates_and_persists_editor_identity(course_api, monkeypatch):
+    from app.api import courses
+
+    captured = {}
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 2,
+                "config": {
+                    "graph_depth": 3,
+                    "target_module_count": 3,
+                    "target_points_per_module": 3,
+                },
+                "textbooks": [],
+            }
+
+        def update_build_draft(self, build_id, *, expected_revision, changes, phase):
+            captured.update(
+                build_id=build_id,
+                expected_revision=expected_revision,
+                changes=changes,
+                phase=phase,
+            )
+            return {
+                **self.get_build(build_id),
+                "revision": expected_revision + 1,
+                "phase": phase,
+                **changes,
+            }
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+
+    response = course_api.client_for("teacher-a", "teacher").put(
+        "/api/courses/course-1/knowledge-builds/kb-1/graph",
+        json={"expected_revision": 2, "root": _valid_small_graph()},
+    )
+
+    assert response.status_code == 200
+    assert captured["phase"] == "graph_review"
+    graph = captured["changes"]["graph_draft"]
+    assert graph["data"]["edited_by"] == "teacher-a"
+    assert graph["data"]["validation"]["status"] == "passed"
+    assert graph["data"]["validation"]["leaf_count"] == 9
+
+
+def test_graph_save_rejects_invalid_structure_without_persisting(course_api, monkeypatch):
+    from app.api import courses
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 2,
+                "config": {
+                    "graph_depth": 3,
+                    "target_module_count": 3,
+                    "target_points_per_module": 3,
+                },
+                "textbooks": [],
+            }
+
+        def update_build_draft(self, *_args, **_kwargs):
+            pytest.fail("invalid graph must not be persisted")
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+    invalid = _valid_small_graph()
+    invalid["children"][0]["children"][0]["label"] = ""
+
+    response = course_api.client_for("teacher-a", "teacher").put(
+        "/api/courses/course-1/knowledge-builds/kb-1/graph",
+        json={"expected_revision": 2, "root": invalid},
+    )
+
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert detail["code"] == "GRAPH_SCHEMA_INVALID"
+    assert any(issue["code"] == "EMPTY_LABEL" for issue in detail["issues"])
+
+
 def test_textbook_upload_is_scoped_to_build_draft(course_api, monkeypatch):
     from app.api import courses
 

@@ -276,6 +276,7 @@ def validate_course_knowledge_graph(
     issues: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
     leaf_count = 0
+    leaf_depths: list[tuple[str, int]] = []
     node_count = 0
     max_depth = 0
     mapped_outline_keys: set[str] = set()
@@ -315,6 +316,7 @@ def validate_course_knowledge_graph(
             issue("INVALID_BRANCH_TYPE", path, "中间节点类型不合法")
         if not children:
             leaf_count += 1
+            leaf_depths.append((path, depth))
             if node_type != "knowledge_point":
                 issue("INVALID_LEAF_TYPE", path, "叶节点类型必须为 knowledge_point")
         sibling_labels: set[str] = set()
@@ -344,6 +346,13 @@ def validate_course_knowledge_graph(
             "root",
             f"实际深度 {max_depth}，目标深度 {target_depth}",
         )
+    for path, depth in leaf_depths:
+        if depth != target_depth:
+            issue(
+                "LEAF_DEPTH_MISMATCH",
+                path,
+                f"叶节点位于第 {depth} 层，必须位于目标第 {target_depth} 层",
+            )
     children = graph.get("children") or []
     module_count = len(children) if isinstance(children, list) else 0
     target_modules = int(config.get("target_module_count") or 4)
@@ -391,6 +400,19 @@ def validate_course_knowledge_graph(
         "mapped_outline_count": len(mapped_outline_keys),
         "unmapped_outline_count": len(explicitly_unmapped),
     }
+
+
+def validate_graph_draft_for_build(
+    build: Mapping[str, Any], graph: Mapping[str, Any]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    textbooks = _textbook_context(build)
+    unmapped = list((graph.get("data") or {}).get("unmapped_outline_items") or [])
+    return validate_course_knowledge_graph(
+        graph,
+        config=dict(build.get("config") or {}),
+        textbook_outline_keys=_outline_keys(textbooks),
+        unmapped_outline_items=unmapped,
+    )
 
 
 def generate_course_knowledge_graph_draft(

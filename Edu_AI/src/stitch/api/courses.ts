@@ -13,6 +13,7 @@ import type {
   KnowledgeBaseDocumentContent,
   KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
+  KnowledgeGraphNode,
   KnowledgeGraphTextbookImportResponse,
   MaterialPublicationResponse,
 } from "./types";
@@ -297,6 +298,29 @@ export function generateCourseKnowledgeGraphDraft(
       target_module_id: targetModuleId,
     }),
   });
+}
+
+export function saveCourseKnowledgeGraphDraft(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  root: KnowledgeGraphNode,
+) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}/graph`, {
+    method: "PUT",
+    body: JSON.stringify({ expected_revision: expectedRevision, root }),
+  });
+}
+
+export function confirmCourseKnowledgeGraph(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+) {
+  return apiRequest<CourseKnowledgeBuild>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/graph/confirm`,
+    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
 }
 
 export function getCourseKnowledgeBuild(courseId: string, buildId: string) {

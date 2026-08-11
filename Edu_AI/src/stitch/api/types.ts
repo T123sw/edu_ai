@@ -397,6 +397,21 @@ export type KnowledgeGraphNode = {
     type?: string;
     hours?: number;
     document_ids?: string[];
+    source_outline_refs?: string[];
+    unmapped_outline_items?: string[];
+    validation?: {
+      status?: string;
+      node_count?: number;
+      module_count?: number;
+      leaf_count?: number;
+      max_depth?: number;
+      target_module_count?: number;
+      target_leaf_count?: number;
+      mapped_outline_count?: number;
+      unmapped_outline_count?: number;
+    };
+    edited_at?: string;
+    edited_by?: string;
   };
 };
 
