@@ -11,6 +11,7 @@ TaskDomain = Literal["none", "course_learning", "generation_job"]
 _LEARNING = ("学习任务", "学习进度", "完成率", "学生完成", "待学习", "刚完成")
 _GENERATION = ("生成任务", "生成进度", "生成完成", "后台任务", "闪卡生成", "报告生成")
 _TASK_ID = re.compile(r"\b(?:lt_[a-zA-Z0-9_-]+|job(?:_|-)[a-zA-Z0-9_-]+)\b")
+_NEGATED_MENTION = re.compile(r"(?:不|不要|无需|别|禁止|不得|而非|不是)[^，。！？；]{0,8}$")
 
 
 def is_learning_task_id(value: str) -> bool:
@@ -49,6 +50,16 @@ def _domain_from_ids(task_ids: Iterable[str]) -> TaskDomain:
     return "none"
 
 
+def _has_affirmed_token(text: str, tokens: Iterable[str]) -> bool:
+    """Ignore a domain name when it only appears in a local negation clause."""
+    for token in tokens:
+        for match in re.finditer(re.escape(token), text):
+            prefix = text[max(0, match.start() - 12):match.start()]
+            if not _NEGATED_MENTION.search(prefix):
+                return True
+    return False
+
+
 def resolve_task_domain(
     question: str,
     explicit_task_ids: list[str] | None = None,
@@ -67,8 +78,8 @@ def resolve_task_domain(
     if current_ids:
         return _domain_from_ids(current_ids)
 
-    learning = any(token in text for token in _LEARNING)
-    generation = any(token in text for token in _GENERATION)
+    learning = _has_affirmed_token(text, _LEARNING)
+    generation = _has_affirmed_token(text, _GENERATION)
     if learning or generation:
         if learning and generation:
             return "none"

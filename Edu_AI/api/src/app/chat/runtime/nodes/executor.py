@@ -706,6 +706,7 @@ def _emit_compiled_report_result(
     )
 
     readback = getattr(ctx, "artifact_readback", None)
+    learning_message = _learning_status_message(state, ctx=ctx)
     if readback is not None and int(readback.get("checked") or 0) > 0:
         decision = str(verification.get("decision") or "partial")
         if decision == "pass":
@@ -714,6 +715,8 @@ def _emit_compiled_report_result(
             repair = dict(verification.get("repair_directive") or {})
             reason = str(repair.get("reason") or "存在待处理的质量项")
             message = f"任务状态已核验，但尚不能宣称完整通过：{reason}。"
+    elif learning_message:
+        message = learning_message
     elif pending_tasks:
         message = _pending_task_submission_message(pending_tasks)
     else:
@@ -754,6 +757,79 @@ def _emit_compiled_report_result(
         "reflect_hint": "",
         "reflect_filtered": {},
     }
+
+
+def _learning_status_message(state: dict, *, ctx=None) -> str:
+    """Render role-scoped learning tool results without losing factual payloads."""
+    results = list(
+        getattr(ctx, "last_tool_results", None)
+        or state.get("last_tool_results")
+        or []
+    )
+    for item in reversed(results):
+        tool_name = str((item or {}).get("tool_name") or "")
+        if tool_name not in {
+            "get_course_learning_progress",
+            "get_my_learning_progress",
+        }:
+            continue
+        result = dict((item or {}).get("raw_result") or {})
+        if not result.get("ok"):
+            return "学习记录暂不可用，请稍后重试。"
+        payload = dict(result.get("payload") or {})
+        if tool_name == "get_course_learning_progress":
+            summaries = list(payload.get("task_summaries") or [])
+            if not summaries:
+                return "当前课程没有匹配的已发布学习任务记录。"
+            lines: list[str] = []
+            for raw in summaries:
+                summary = dict(raw or {})
+                title = str(summary.get("title") or summary.get("task_id") or "未命名任务")
+                enrolled = int(summary.get("enrolled_students") or 0)
+                started = int(summary.get("started_students") or 0)
+                completed = int(summary.get("completed_students") or 0)
+                rate = round(float(summary.get("completion_rate") or 0) * 100)
+                basis = dict(summary.get("completion_basis_counts") or {})
+                basis_parts = [
+                    f"学生自报完成 {int(basis.get('self_reported') or 0)} 人",
+                    f"活动证据完成 {int(basis.get('activity_evidenced') or 0)} 人",
+                    f"测评验证完成 {int(basis.get('assessment_verified') or 0)} 人",
+                ]
+                basis_text = "、".join(
+                    part for part in basis_parts if not part.endswith(" 0 人")
+                ) or "尚无完成记录"
+                lines.append(
+                    f"《{title}》：课程学生 {enrolled} 人，已开始 {started} 人，"
+                    f"已完成 {completed} 人，完成率 {rate}%。完成口径：{basis_text}。"
+                )
+            return "\n".join(lines) + "学生自报完成不等于测评通过或知识点已掌握。"
+
+        completed_tasks = list(payload.get("completed_tasks") or [])
+        pending = list(payload.get("pending_tasks") or [])
+        if completed_tasks:
+            task = dict(completed_tasks[0] or {})
+            title = str(task.get("title") or task.get("task_id") or "未命名任务")
+            task_id = str(task.get("task_id") or "")
+            labels = {
+                "self_reported": "学生自报完成",
+                "activity_evidenced": "活动证据完成",
+                "assessment_verified": "测评验证完成",
+            }
+            basis = labels.get(
+                str(task.get("completion_basis") or ""),
+                "完成口径未记录",
+            )
+            return (
+                f"你刚完成的学习任务是《{title}》（{task_id}），完成口径：{basis}。"
+                "学生自报完成不等于测评通过或知识点已掌握。"
+                "下一步建议：复盘任务对应的课程资源和知识点，并在有测评时完成验证。"
+            )
+        if pending:
+            task = dict(pending[0] or {})
+            title = str(task.get("title") or task.get("task_id") or "未命名任务")
+            return f"你当前待学习的任务是《{title}》，请先打开任务资源开始学习。"
+        return "当前课程没有匹配的本人学习任务记录。"
+    return ""
 
 
 def _pending_task_submission_message(pending_tasks: list[dict]) -> str:

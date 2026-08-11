@@ -250,6 +250,10 @@ def tools_node(state: AgentState) -> dict:
         "pending_tasks": new_pending_tasks,
         "last_tool_results": raw_results_for_reflect,
     }
+    # Reflect consumes and clears the graph-state copy. Keep the same
+    # role-scoped payload on the per-run execution context so the terminal
+    # report step can render truthful learning facts after verification.
+    ctx.last_tool_results = raw_results_for_reflect
     if getattr(ctx, "verification_report", None):
         updates["verification_report"] = dict(ctx.verification_report)
     if accumulated_images_override is not None:

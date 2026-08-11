@@ -2,7 +2,7 @@
 
 验收目标：证明“教师发布学习任务 → 学生发现并学习 → 系统记录可信证据 → 教师看到反馈 → 双端 Agent 正确理解学习事实”在真实双账号环境中完整可用。
 
-当前状态：确定性 Agent 自动化闭环、前端全量门禁、后端完整回归和旧库副本迁移演练已通过；由于真实外部模型人工验收和部分手工场景仍缺少通过证据，整体结论为不通过。
+当前状态：真实双账号学习闭环、真实千问双端 Agent、全部自动化门禁、旧库副本迁移、重名资源选择和单课程摘要局部降级均已通过；整体结论为通过。
 
 验收范围：教师—学生学习交互与 Agent 学习事实；不包含课程创建/加入链路。
 
@@ -47,15 +47,15 @@
 
 | 字段 | 实际值 |
 | --- | --- |
-| 验收提交 | 功能与验收 HEAD：`e09e7a4`；Task 7：`1d4cba54cabe028b96aa07993f59586f8f4e4e10` |
+| 验收提交 | 功能与验收最终提交见当前分支 Git 历史；Task 7 基线：`1d4cba54cabe028b96aa07993f59586f8f4e4e10` |
 | 执行时间 | 2026-08-11，Asia/Shanghai |
 | 前端地址 | `http://127.0.0.1:15173`（测试结束后已停止） |
 | 后端地址 | `http://127.0.0.1:18001`（测试结束后已停止） |
-| 学习数据库 | 最终复跑：`Edu_AI/test-results/learning-loop/worker-0-1786386355084/learning.db` |
+| 学习数据库 | 稳定闭环：`worker-0-1786419732274/learning.db`；真实千问：`worker-0-1786419331685/learning.db` |
 | 教师/学生账号 | fixture 内隔离的 `teacher` / `student` 测试账号；证据不保存密码或令牌 |
 | 课程 | `computational-thinking` / 计算思维 |
 | 浏览器 | 本机 Google Chrome 151，Playwright `desktop1440` |
-| 模型/网关 | `deterministic-learning-e2e`；只用于自动化工具选择与结构化事实验收，不等同于真实模型人工验收 |
+| 模型/网关 | 稳定门禁：`deterministic-learning-e2e`；真实模型：主工作区 `.env` 的 `qwen3.5-plus`（密钥未复制、打印或写入证据） |
 
 ## 4. 需求—证据追踪矩阵
 
@@ -65,16 +65,16 @@
 | LOOP2-FR-002 | 学生首页显示真实待学习任务数 | overview/API 与前端映射测试 | `02-student-home-pending.png` | 通过 |
 | LOOP2-FR-003 | 自报、活动证据、测评验证口径分离 | store/service/API 测试 | `03-student-in-progress.png`、`04-student-self-reported.png` | 通过 |
 | LOOP2-FR-004 | 教师看到班级汇总、逐人状态和证据口径 | service/API 权限测试 | `05-teacher-feedback.png` | 通过 |
-| LOOP2-FR-005 | 学生 Agent 只读本人学习事实 | learning tool 权限测试 | `07-student-agent-history-recovery.png` 与目标后端测试 | 通过 |
-| LOOP2-FR-006 | 教师 Agent 读取当前课程真实汇总 | learning tool 与 context 测试 | `06-teacher-agent-deterministic.png` 与目标后端测试 | 通过 |
+| LOOP2-FR-005 | 学生 Agent 只读本人学习事实 | learning tool 权限测试 | `07-student-agent-history-recovery.png`、`09-student-agent-qwen.png` | 通过 |
+| LOOP2-FR-006 | 教师 Agent 读取当前课程真实汇总 | learning tool 与 context 测试 | `06-teacher-agent-deterministic.png`、`08-teacher-agent-qwen.png` | 通过 |
 | LOOP2-FR-007 | 学习查询不调用后台生成任务状态工具 | planner/executor 防错测试 | 双端确定性 Agent trace 断言 | 通过 |
-| LOOP2-FR-008 | 教师可区分重名课程资源 | 前端筛选与展示测试 | 本轮 E2E 使用真实共享资源，但未构造两个重名资源 | 不通过 |
+| LOOP2-FR-008 | 教师可区分重名课程资源 | 前端筛选与展示测试 | `10-duplicate-resource-identity.png`，真实同名资源显示不同元数据并保留精确选中项 | 通过 |
 | LOOP2-FR-009 | 历史对话恢复失败不污染新 Agent 回合 | recovery 单元测试 | 17 个 guard 测试与 `07-student-agent-history-recovery.png` | 通过 |
 | LOOP2-FR-010 | 刷新、重新登录、后端重启后事实一致 | 持久化/迁移测试 | E2E 重启前后 API 深比较、双端重新登录 | 通过 |
 | LOOP2-NFR-001 | 事件幂等，进度与完成口径单调不回退 | learning store 测试 | 目标后端测试及 E2E API 断言 | 通过 |
 | LOOP2-NFR-002 | 每次学习查询执行角色和课程权限校验 | API/tool 权限测试 | 目标后端 403 断言与 E2E API 摘要 | 通过 |
 | LOOP2-NFR-003 | Agent 数字与状态可追溯到结构化事实和工具 trace | tool/trace 测试 | 双端确定性 Agent trace 与截图 | 通过 |
-| LOOP2-NFR-004 | 单课程摘要失败不阻断整个课程列表 | overview 前端降级测试 | 本次没有局部失败页面证据 | 不通过 |
+| LOOP2-NFR-004 | 单课程摘要失败不阻断整个课程列表 | overview 前端降级测试 | `11-overview-local-degradation.png`，目标课程 503 时其他课程正常 | 通过 |
 
 ## 5. P0 自动化门禁
 
@@ -244,19 +244,19 @@ trace 必须满足：
 
 | 门禁 | 状态 | 证据 |
 | --- | --- | --- |
-| 后端学习与 Agent 目标测试 | 通过 | 目标 14 passed；最终扩展命令 97 passed、5 warnings |
-| 权限与聊天回归 | 通过 | 运行进程从主工作区 `.env` 只读加载千问配置后，完整命令 1,016 passed、2 warnings；未输出或复制密钥 |
+| 后端学习与 Agent 目标测试 | 通过 | 最终扩展命令 131 passed、6 warnings |
+| 权限与聊天回归 | 通过 | 运行进程从主工作区 `.env` 只读加载千问配置后，完整命令 1,022 passed、2 warnings；未输出或复制密钥 |
 | 前端测试、lint、build | 通过 | `npm test` 289 passed；lint 0 errors；build 成功（仅既有 warning） |
-| Playwright 双账号 E2E | 通过 | 最终 HEAD 复跑：`1 passed (1.7m)`，用例约 1.2m，workers=1、retries=0；worker `worker-0-1786386355084` |
-| 教师真实 Agent | 不通过 | 自动化确定性网关通过；真实外部模型人工验收没有凭据/本次证据 |
-| 学生真实 Agent | 不通过 | 自动化确定性网关通过；真实外部模型人工验收没有凭据/本次证据 |
+| Playwright 双账号 E2E | 通过 | 最终稳定门禁 2 passed（1.1m），workers=1、retries=0；worker `worker-0-1786419732274` |
+| 教师真实 Agent | 通过 | `qwen3.5-plus` 选择 `course_learning/get_course_learning_progress`，回答包含真实任务、人数和自报口径；`08-teacher-agent-qwen.png` |
+| 学生真实 Agent | 通过 | `qwen3.5-plus` 选择 `course_learning/get_my_learning_progress`，只读本人任务并给出下一步；`09-student-agent-qwen.png` |
 | 刷新、重新登录、后端重启 | 通过 | 同一 E2E 内后端重启、API 重新登录、双端清理认证后 UI 登录，事实深比较一致 |
 | 旧库迁移演练 | 通过 | 独立 `tmp_path` 旧 schema：任务 1→1、事件 1→1；旧 completed→self_reported；连续打开两次不重复迁移；`test_learning_store.py` 5 passed |
 | 历史对话失败恢复 | 通过 | detail 固定 500 后显示友好错误，可新建对话并完成新的学生学习查询 |
-| 单课程摘要局部降级 | 不通过 | 没有本次局部失败页面截图 |
+| 单课程摘要局部降级 | 通过 | overview 503 仅影响目标课程，其他课程正常；`11-overview-local-degradation.png` |
 
-最终结论：**不通过**
+最终结论：**通过**
 
-阻断项：`BLOCK-REAL-MODEL`（双端真实外部模型人工验收缺失）、`BLOCK-MANUAL-SCENARIOS`（重名资源和单课程摘要局部降级页面证据缺失）。自动化确定性 Agent 门禁、真实双账号数据闭环、前后端全量门禁和旧库副本迁移均已通过。
+阻断项：无。真实模型验收过程中发现并修复了否定语义领域识别、默认学习上下文注入和终端学习事实呈现三条真实链路问题；修复后稳定门禁与真实模型门禁均通过。
 
 签字条件：第 4 节全部需求、第 5 节全部门禁和第 6—9 节真实场景均通过。

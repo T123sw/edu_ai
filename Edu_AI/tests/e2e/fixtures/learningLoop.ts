@@ -295,7 +295,7 @@ export const test = base.extend<LearningFixtures, LearningWorkerFixtures>({
             USER_PERSISTENCE_MODE: "json",
             COURSE_PERSISTENCE_MODE: "json",
             COURSE_MEMBERSHIP_PERSISTENCE_MODE: "json",
-            USE_REACT_AGENT: "false",
+            USE_REACT_AGENT: process.env.LEARNING_E2E_REAL_MODEL === "1" ? "true" : "false",
           },
           stdio: ["ignore", "pipe", "pipe"],
           windowsHide: true,

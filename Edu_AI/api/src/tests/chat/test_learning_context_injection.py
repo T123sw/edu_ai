@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from app.chat.domain.capability_policy import CapabilityPolicy
 from app.chat.domain.contracts import ChatRequestV2
+from app.chat.application.reply_service_v2 import build_default_reply_service_v2
 from app.chat.orchestrator.context_builder import ContextBuilder
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.react_agent import ReActAgent
@@ -172,3 +173,9 @@ def test_fast_and_react_prompts_receive_role_scoped_learning_context(tmp_path):
     assert "completion_basis=self_reported" in fast_system
     assert "completed_basis=" not in fast_system
     assert "不代表测评通过或知识点已掌握" in react_system
+
+
+def test_default_reply_service_wires_the_persisted_learning_context_reader():
+    service = build_default_reply_service_v2()
+
+    assert service.context_builder.learning_context_reader is not None

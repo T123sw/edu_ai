@@ -121,6 +121,18 @@ def test_current_learning_semantics_override_historical_generation_job():
     assert resolve_task_domain("我刚完成了哪个学习任务？", ["job_old"]) == "course_learning"
 
 
+def test_negated_generation_reference_keeps_learning_domain():
+    question = "查询学习任务完成情况，只看学习记录，不要查询后台生成任务。"
+
+    assert resolve_task_domain(question) == "course_learning"
+
+
+def test_negated_learning_reference_keeps_generation_domain():
+    question = "这不是学习任务，请查询后台生成任务。"
+
+    assert resolve_task_domain(question) == "generation_job"
+
+
 def test_public_tool_schemas_are_role_scoped_and_hide_legacy_status_tool():
     student_tools = {
         schema["function"]["name"]
