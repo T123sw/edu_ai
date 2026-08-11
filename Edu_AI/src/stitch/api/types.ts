@@ -294,6 +294,20 @@ export type CourseKnowledgeQualityCheck = {
   details: Record<string, unknown>;
 };
 
+export type CourseKnowledgeBuildConfig = {
+  preset: "small" | "standard" | "large" | "custom";
+  graph_depth: number;
+  target_module_count: number;
+  target_points_per_module: number;
+  target_materials_per_leaf: number;
+  minimum_web_materials_per_leaf: number;
+  maximum_ai_materials_per_leaf: number;
+  max_search_results_per_leaf: number;
+  ai_supplement_enabled: boolean;
+  content_language: string;
+  update_strategy: "incremental" | "merge_rebuild" | "full_rebuild";
+};
+
 export type CourseKnowledgeBuild = {
   build_id: string;
   library_id?: string;
@@ -301,9 +315,14 @@ export type CourseKnowledgeBuild = {
   status: "draft" | "queued" | "running" | "publishing" | "succeeded" | "failed" | "blocked" | "canceled";
   phase: string;
   progress?: number;
+  revision: number;
+  graph_confirmed_at?: string | null;
+  confirmed_graph_revision?: number | null;
+  confirmed_by?: string | null;
+  config?: CourseKnowledgeBuildConfig;
   course_snapshot: Record<string, unknown>;
   topics: CourseKnowledgeTopic[];
-  graph_draft?: KnowledgeGraphNode;
+  graph_draft?: KnowledgeGraphNode | null;
   source_candidates: CourseKnowledgeSourceCandidate[];
   warnings: string[];
   metrics?: Record<string, unknown>;

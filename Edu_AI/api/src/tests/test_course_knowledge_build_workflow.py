@@ -1,0 +1,117 @@
+from __future__ import annotations
+
+import pytest
+
+from course_api_test_support import CourseApiTestFactory
+
+
+@pytest.fixture
+def course_api(tmp_path, monkeypatch):
+    return CourseApiTestFactory(tmp_path, monkeypatch)
+
+
+def test_create_build_draft_normalizes_config_without_searching(course_api, monkeypatch):
+    from app.api import courses
+
+    captured = {}
+
+    class Repository:
+        def create_build_draft(self, *, course_id, triggered_by, plan):
+            captured.update(
+                course_id=course_id,
+                triggered_by=triggered_by,
+                plan=plan,
+            )
+            return {
+                "build_id": "kb-draft-1",
+                "library_id": course_id,
+                "status": "draft",
+                "phase": "draft_config",
+                "revision": 1,
+                "graph_confirmed_at": None,
+                "confirmed_graph_revision": None,
+                "confirmed_by": None,
+                **plan,
+            }
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+    monkeypatch.setattr(
+        courses,
+        "search_web_sources",
+        lambda *_args, **_kwargs: pytest.fail("draft creation must not search the web"),
+    )
+
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds",
+        json={
+            "config": {
+                "preset": "small",
+                "minimum_web_materials_per_leaf": 0,
+            }
+        },
+    )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["phase"] == "draft_config"
+    assert body["config"]["target_module_count"] == 3
+    assert body["config"]["target_points_per_module"] == 3
+    assert body["config"]["minimum_web_materials_per_leaf"] == 0
+    assert body["graph_draft"] is None
+    assert captured["course_id"] == "course-1"
+    assert captured["plan"]["course_snapshot"]["title"] == "Course one"
+
+
+def test_build_config_rejects_invalid_ai_and_material_limits(course_api):
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds",
+        json={
+            "config": {
+                "target_materials_per_leaf": 2,
+                "minimum_web_materials_per_leaf": 3,
+            }
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_unconfirmed_build_cannot_start_formal_job(course_api, monkeypatch):
+    from app.api import courses
+
+    class Repository:
+        def get_build(self, build_id):
+            assert build_id == "kb-unconfirmed"
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "phase": "graph_review",
+                "revision": 3,
+                "graph_confirmed_at": None,
+                "confirmed_graph_revision": None,
+                "confirmed_by": None,
+            }
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+    monkeypatch.setattr(
+        courses,
+        "submit_course_knowledge_plan_build_job",
+        lambda **_kwargs: pytest.fail("unconfirmed build must not create a job"),
+    )
+
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds/kb-unconfirmed/start"
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "GRAPH_CONFIRMATION_REQUIRED"
+
+
+def test_viewer_cannot_create_build_draft(course_api):
+    response = course_api.client_for("student-a", "student").post(
+        "/api/courses/course-1/knowledge-builds",
+        json={},
+    )
+
+    assert response.status_code == 403

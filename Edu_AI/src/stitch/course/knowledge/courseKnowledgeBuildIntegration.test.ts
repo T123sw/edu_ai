@@ -10,8 +10,8 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.doesNotMatch(source, /libraryType: "personal"/);
   assert.match(source, /<CourseKnowledgeBuildCard/);
   assert.match(source, /edu-ai:knowledge-document-updated/);
-  assert.match(buildCard, /previewCourseKnowledgeBuild/);
-  assert.match(buildCard, /startCourseKnowledgeBuild/);
+  assert.match(buildCard, /createCourseKnowledgeBuildDraft/);
+  assert.doesNotMatch(buildCard, /startCourseKnowledgeBuild/);
   assert.match(buildCard, /rollbackCourseKnowledgeVersion/);
   assert.doesNotMatch(buildCard, /buildKnowledgeBaseFromOpenTextbook/);
 });
@@ -22,7 +22,8 @@ test("course knowledge build card keeps the primary experience simple", async ()
   assert.match(buildCard, /一键构建知识库/);
   assert.match(buildCard, /历史版本与更多信息/);
   assert.match(buildCard, /<details className="course-kb-builder__details">/);
-  assert.match(buildCard, /previewCourseKnowledgeBuild\(courseId\)[\s\S]*startCourseKnowledgeBuild/);
+  assert.match(buildCard, /createCourseKnowledgeBuildDraft\(courseId\)/);
+  assert.doesNotMatch(buildCard, /previewCourseKnowledgeBuild\(courseId\)[\s\S]*startCourseKnowledgeBuild/);
   assert.doesNotMatch(buildCard, /质量门禁已通过/);
   assert.doesNotMatch(buildCard, /审核来源与许可/);
   assert.doesNotMatch(buildCard, /图谱结构：/);

@@ -231,6 +231,13 @@ export function previewCourseKnowledgeBuild(courseId: string, discoverSources = 
   });
 }
 
+export function createCourseKnowledgeBuildDraft(courseId: string) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
 export function getCourseKnowledgeBuild(courseId: string, buildId: string) {
   return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}`);
 }

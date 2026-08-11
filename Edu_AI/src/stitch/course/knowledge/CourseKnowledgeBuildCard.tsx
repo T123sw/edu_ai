@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
+import { useCourseJobs } from "../../../jobs/jobStore";
 import { isActiveJob } from "../../../jobs/types";
 import {
+  createCourseKnowledgeBuildDraft,
   getCourseKnowledgeBuild,
   listCourseKnowledgeVersions,
-  previewCourseKnowledgeBuild,
   rollbackCourseKnowledgeVersion,
-  startCourseKnowledgeBuild,
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
 import { MaterialIcon } from "../../shared";
@@ -42,7 +41,6 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const latestJob = jobs[0] ?? null;
   const [plan, setPlan] = useState<CourseKnowledgeBuild | null>(null);
   const [planning, setPlanning] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [versions, setVersions] = useState<CourseKnowledgeGraphVersion[]>([]);
   const [rollingBack, setRollingBack] = useState<number | null>(null);
   const [submitError, setSubmitError] = useState("");
@@ -76,27 +74,18 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   }, [courseId, latestJob?.status, latestJob?.updated_at]);
 
   async function buildKnowledgeBase() {
-    if (!canBuild || planning || submitting || activeJob) return;
+    if (!canBuild || planning || activeJob) return;
     setSubmitError("");
 
     try {
-      let buildPlan = plan?.status === "draft" ? plan : null;
-      if (!buildPlan) {
-        setPlanning(true);
-        buildPlan = await previewCourseKnowledgeBuild(courseId);
-        window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
-        setPlan(buildPlan);
-      }
-
-      setPlanning(false);
-      setSubmitting(true);
-      registerCreatedJob(await startCourseKnowledgeBuild(courseId, buildPlan.build_id));
-      setPlan({ ...buildPlan, status: "queued", phase: "queued", progress: 0 });
+      setPlanning(true);
+      const buildPlan = await createCourseKnowledgeBuildDraft(courseId);
+      window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
+      setPlan(buildPlan);
     } catch (reason) {
       setSubmitError(reason instanceof Error ? reason.message : "知识库更新失败，请稍后重试。");
     } finally {
       setPlanning(false);
-      setSubmitting(false);
     }
   }
 
@@ -117,23 +106,19 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   }
 
   const status = activeJob ?? latestJob;
-  const isWorking = Boolean(activeJob) || planning || submitting;
+  const isWorking = Boolean(activeJob) || planning;
   const failed = status?.status === "failed" || status?.status === "partially_succeeded";
   const succeeded = status?.status === "succeeded";
   const statusText = planning
     ? "正在分析课程内容"
-    : submitting
-      ? "正在启动更新"
-      : status
+    : status
         ? PHASE_LABELS[status.step] || PHASE_LABELS[status.status] || status.message || "正在处理"
         : documentCount
           ? "知识库已可用"
           : "尚未构建";
   const buttonText = planning
     ? "正在准备…"
-    : submitting
-      ? "正在启动…"
-      : activeJob
+    : activeJob
         ? "正在更新…"
         : documentCount
           ? "更新知识库"

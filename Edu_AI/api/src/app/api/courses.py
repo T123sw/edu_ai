@@ -51,6 +51,10 @@ from app.schemas.course import (
     CourseMembersResponse,
     CourseMemberUpdateRequest,
     CourseKnowledgeBuildRequest,
+    CourseKnowledgeBuildDraftCreateRequest,
+    CourseKnowledgeBuildDraftUpdateRequest,
+    CourseKnowledgeGraphConfirmRequest,
+    CourseKnowledgeGraphDraftUpdateRequest,
     CourseKnowledgeBuildPreviewRequest,
     CourseUpdateRequest,
     GenerateClassroomRequest,
@@ -87,6 +91,9 @@ from app.services.personal_tool_access import (
     require_personal_tool,
 )
 from app.persistence.dependencies import get_postgres_knowledge_repository
+from app.persistence.postgres_knowledge_repository import (
+    KnowledgeBuildRevisionConflict,
+)
 from app.textbook_knowledge_graph import (
     TextbookKnowledgeGraphError,
     import_textbook_into_knowledge_graph,
@@ -947,6 +954,135 @@ def get_knowledge_base_documents(
 
 
 @router.post(
+    "/{course_id}/knowledge-builds",
+    status_code=status.HTTP_201_CREATED,
+    summary="创建课程知识库构建草案",
+)
+def create_knowledge_base_build_draft(
+    course_id: str,
+    payload: CourseKnowledgeBuildDraftCreateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    mgr = _svc._get_manager()
+    course = mgr.get_course_info(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="课程不存在")
+    course_snapshot = dict(course)
+    course_snapshot["id"] = course_id
+    plan = {
+        "course_id": course_id,
+        "course_snapshot": course_snapshot,
+        "config": payload.config.model_dump(mode="json"),
+        "textbooks": [],
+        "graph_draft": None,
+        "topics": [],
+        "source_candidates": [],
+        "warnings": [],
+    }
+    try:
+        return get_postgres_knowledge_repository().create_build_draft(
+            course_id=course_id,
+            triggered_by=principal.user_id,
+            plan=plan,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"知识库构建草案暂时无法保存：{exc}",
+        ) from exc
+
+
+def _get_course_knowledge_build_or_404(course_id: str, build_id: str):
+    result = get_postgres_knowledge_repository().get_build(build_id)
+    if result is None or str(result.get("library_id") or "") != course_id:
+        raise HTTPException(status_code=404, detail="知识库构建记录不存在")
+    return result
+
+
+def _raise_build_revision_conflict(exc: KnowledgeBuildRevisionConflict) -> None:
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "KNOWLEDGE_BUILD_REVISION_CONFLICT",
+            "message": str(exc),
+        },
+    ) from exc
+
+
+@router.patch(
+    "/{course_id}/knowledge-builds/{build_id}",
+    summary="更新课程知识库构建配置",
+)
+def update_knowledge_base_build_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeBuildDraftUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    del principal
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return get_postgres_knowledge_repository().update_build_draft(
+            build_id,
+            expected_revision=payload.expected_revision,
+            changes={"config": payload.config.model_dump(mode="json")},
+            phase="draft_config",
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.put(
+    "/{course_id}/knowledge-builds/{build_id}/graph",
+    summary="保存待确认的课程知识图谱",
+)
+def update_knowledge_base_graph_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeGraphDraftUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    del principal
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return get_postgres_knowledge_repository().update_build_draft(
+            build_id,
+            expected_revision=payload.expected_revision,
+            changes={"graph_draft": payload.root},
+            phase="graph_review",
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/graph/confirm",
+    summary="确认课程知识图谱并解锁正式构建",
+)
+def confirm_knowledge_base_graph_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeGraphConfirmRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return get_postgres_knowledge_repository().confirm_build_graph(
+            build_id,
+            expected_revision=payload.expected_revision,
+            confirmed_by=principal.user_id,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post(
     "/{course_id}/knowledge-builds/preview",
     status_code=status.HTTP_201_CREATED,
     summary="根据课程元数据生成并保存知识库构建计划",
@@ -993,10 +1129,7 @@ def get_knowledge_base_build(
     principal: CoursePrincipal = Depends(require_course_read),
 ):
     del principal
-    result = get_postgres_knowledge_repository().get_build(build_id)
-    if result is None or str(result.get("library_id") or "") != course_id:
-        raise HTTPException(status_code=404, detail="知识库构建记录不存在")
-    return result
+    return _get_course_knowledge_build_or_404(course_id, build_id)
 
 
 @router.post(
@@ -1009,6 +1142,19 @@ def start_knowledge_base_build(
     build_id: str,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    revision = int(build.get("revision") or 0)
+    if (
+        not build.get("graph_confirmed_at")
+        or int(build.get("confirmed_graph_revision") or 0) != revision
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_CONFIRMATION_REQUIRED",
+                "message": "请先确认当前版本的知识图谱，再启动正式构建",
+            },
+        )
     try:
         job = submit_course_knowledge_plan_build_job(
             course_id=course_id,

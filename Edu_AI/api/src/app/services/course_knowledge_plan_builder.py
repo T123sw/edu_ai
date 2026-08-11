@@ -30,6 +30,12 @@ def submit_course_knowledge_plan_build_job(*, course_id: str, owner_user_id: str
     build = repository.get_build(build_id)
     if build is None or str(build.get("library_id") or "") != course_id:
         raise ValueError("知识库构建计划不存在")
+    revision = int(build.get("revision") or 0)
+    if (
+        not build.get("graph_confirmed_at")
+        or int(build.get("confirmed_graph_revision") or 0) != revision
+    ):
+        raise ValueError("知识图谱尚未确认，不能启动正式构建")
     selected = [item for item in build.get("source_candidates") or [] if item.get("selected") and item.get("review_status") == "approved"]
     from app.services.platform_task_handlers import enqueue_platform_task
     from app.services.runtime_config_resolver import runtime_config_resolver
