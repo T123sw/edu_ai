@@ -102,13 +102,14 @@ test('pause and replay operate only on the current page', async () => {
   assert.equal(controller.snapshot().status, 'playing');
 });
 
-test('completion never advances to the next page', async () => {
+test('completion succeeds once for the exact playing revision', async () => {
   const { controller } = createHarness();
 
   await controller.enter(4);
   await controller.play();
   const playing = controller.snapshot();
-  controller.complete(playing.sceneIndex, playing.revision);
+  assert.equal(controller.complete(playing.sceneIndex, playing.revision), true);
+  assert.equal(controller.complete(playing.sceneIndex, playing.revision), false);
 
   assert.deepEqual(controller.snapshot(), {
     sceneIndex: 4,
@@ -124,7 +125,7 @@ test('stale completion cannot finish a newly entered page', async () => {
   await controller.play();
   const stale = controller.snapshot();
   await controller.enter(1);
-  controller.complete(stale.sceneIndex, stale.revision);
+  assert.equal(controller.complete(stale.sceneIndex, stale.revision), false);
 
   assert.equal(controller.snapshot().sceneIndex, 1);
   assert.equal(controller.snapshot().status, 'idle');

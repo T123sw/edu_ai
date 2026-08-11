@@ -68,7 +68,6 @@ def test_context_is_reconstructed_from_trusted_material(material):
         material=material,
         checkpoint=active_checkpoint(),
         recent_turns=history,
-        rag_answer='课程知识库摘要',
     )
 
     assert context.completed_speech == ('第二页第一句',)
@@ -102,7 +101,6 @@ def test_context_rejects_stale_or_non_speech_interruption(material, checkpoint):
             material=material,
             checkpoint=checkpoint,
             recent_turns=[],
-            rag_answer='',
         )
 
 
@@ -111,7 +109,6 @@ def test_prompt_limits_agent_to_focused_json_answer(material):
         material=material,
         checkpoint=active_checkpoint(),
         recent_turns=[],
-        rag_answer='课程知识库摘要',
     )
 
     messages = build_classroom_qa_messages(question='为什么选择基准值？', context=context)
@@ -121,6 +118,9 @@ def test_prompt_limits_agent_to_focused_json_answer(material):
     assert '只输出 JSON' in messages[0]['content']
     assert '第二页第二句' in messages[1]['content']
     assert '为什么选择基准值？' in messages[1]['content']
+    assert '课程知识库参考' not in messages[1]['content']
+    assert 'RAG' not in messages[0]['content']
+    assert not hasattr(context, 'rag_answer')
 
 
 @pytest.mark.parametrize(

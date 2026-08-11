@@ -73,7 +73,6 @@ class QaRouteHarness:
             store=self.store,
             storage=self.course.manager,
             gateway=self.gateway,
-            rag_search=lambda **kwargs: '',
             tts=FileTts(),
         )
 
@@ -180,7 +179,6 @@ def test_busy_and_stale_checkpoint_return_structured_conflicts(qa):
         store=stale_store,
         storage=qa.course.manager,
         gateway=qa.gateway,
-        rag_search=lambda **kwargs: '',
         tts=FileTts(),
     )
     stale = stale_qa.client().post(

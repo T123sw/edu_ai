@@ -1,41 +1,14 @@
-.classroom-qa-entry {
-  position: absolute;
-  z-index: 42;
-  right: 26px;
-  bottom: 84px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  border-radius: 999px;
-  padding: 12px 18px;
-  background: #315ff6;
-  color: #fff;
-  font-size: .82rem;
-  font-weight: 800;
-  box-shadow: 0 16px 38px rgba(32, 73, 197, .34);
-  cursor: pointer;
-}
-
-.classroom-qa-entry:disabled { opacity: .48; cursor: not-allowed; }
-.classroom-qa-entry:not(:disabled):hover { transform: translateY(-1px); }
-
 .classroom-qa-panel {
-  position: absolute;
-  z-index: 44;
-  top: 88px;
-  right: 22px;
-  bottom: 84px;
   display: flex;
-  width: min(380px, calc(100% - 44px));
+  width: 100%;
+  min-width: 0;
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(197, 210, 235, .92);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, .97);
-  box-shadow: 0 28px 80px rgba(8, 20, 48, .28);
-  backdrop-filter: blur(24px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 14px 36px rgba(49, 75, 123, .09);
 }
 
 .classroom-qa-panel__header {
@@ -49,27 +22,39 @@
 
 .classroom-qa-panel__eyebrow { margin: 0; color: #315ff6; font-size: .66rem; font-weight: 800; letter-spacing: .08em; }
 .classroom-qa-panel h2 { margin: 4px 0 0; color: #17233a; font-size: 1rem; font-weight: 900; }
-.classroom-qa-icon-button { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #e1e7f1; border-radius: 11px; background: #fff; color: #66748c; cursor: pointer; }
 
 .classroom-qa-history { min-height: 100px; flex: 1; overflow-y: auto; padding: 16px; overscroll-behavior: contain; }
 .classroom-qa-empty { display: grid; min-height: 180px; place-items: center; align-content: center; gap: 12px; color: #75829a; text-align: center; }
 .classroom-qa-empty .material-symbols-rounded { color: #e49b18; font-size: 30px; }
 .classroom-qa-empty p { max-width: 270px; margin: 0; font-size: .78rem; line-height: 1.65; }
 .classroom-qa-turn + .classroom-qa-turn { margin-top: 18px; }
-.classroom-qa-turn__question, .classroom-qa-turn__answer { display: grid; grid-template-columns: 30px minmax(0,1fr); gap: 9px; align-items: start; }
-.classroom-qa-turn__question > span, .classroom-qa-turn__answer > span { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 9px; font-size: .68rem; font-weight: 900; }
+
+.classroom-qa-turn__question,
+.classroom-qa-turn__answer {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.classroom-qa-turn__question { justify-content: flex-end; }
+.classroom-qa-turn__answer { justify-content: flex-start; margin-top: 9px; }
+.classroom-qa-turn__question > span,
+.classroom-qa-turn__answer > span { display: grid; width: 28px; height: 28px; flex: 0 0 28px; place-items: center; border-radius: 9px; font-size: .68rem; font-weight: 900; }
 .classroom-qa-turn__question > span { background: #e9efff; color: #2d5bda; }
 .classroom-qa-turn__answer > span { background: #e9f8f1; color: #16845b; }
-.classroom-qa-turn__question p { margin: 0; border-radius: 4px 14px 14px 14px; padding: 10px 12px; background: #eef3ff; color: #26344c; font-size: .8rem; line-height: 1.55; }
-.classroom-qa-turn__answer { margin-top: 9px; }
-.classroom-qa-turn__answer div { border: 1px solid #e6ebf3; border-radius: 4px 14px 14px 14px; padding: 11px 12px; background: #fff; }
+.classroom-qa-turn__question p { max-width: 82%; margin: 0; overflow-wrap: anywhere; border-radius: 14px 4px 14px 14px; padding: 10px 12px; background: #315ff6; color: #fff; font-size: .8rem; line-height: 1.55; }
+.classroom-qa-turn__answer > div { max-width: 82%; overflow-wrap: anywhere; border: 1px solid #e6ebf3; border-radius: 4px 14px 14px 14px; padding: 11px 12px; background: #fff; }
 .classroom-qa-turn__answer p { margin: 0; color: #27354d; font-size: .8rem; line-height: 1.62; }
 .classroom-qa-turn__answer small { display: block; margin-top: 8px; color: #718098; font-size: .7rem; line-height: 1.5; }
+.classroom-qa-turn__pending { color: #718098; }
+.classroom-qa-turn[data-status="error"] .classroom-qa-turn__pending { border-color: #f0c7c9; background: #fff8f8; }
 
 .classroom-qa-status { display: flex; min-height: 38px; align-items: center; gap: 8px; border-top: 1px solid #e8edf5; padding: 8px 16px; color: #68768d; font-size: .72rem; }
-.classroom-qa-status > span { width: 8px; height: 8px; border-radius: 99px; background: #94a3b8; }
-.classroom-qa-status > span.is-drafting { background: #f59e0b; }
-.classroom-qa-status > span.is-submitting, .classroom-qa-status > span.is-loading_audio, .classroom-qa-status > span.is-playing_answer, .classroom-qa-status > span.is-resuming { background: #315ff6; box-shadow: 0 0 0 4px rgba(49,95,246,.12); }
+.classroom-qa-status > span { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 99px; background: #22c55e; }
+.classroom-qa-status > span.is-submitting,
+.classroom-qa-status > span.is-loading_audio,
+.classroom-qa-status > span.is-playing_answer,
+.classroom-qa-status > span.is-resuming { background: #315ff6; box-shadow: 0 0 0 4px rgba(49,95,246,.12); }
 .classroom-qa-status > span.is-error { background: #e5484d; }
 
 .classroom-qa-composer { border-top: 1px solid #e5eaf3; padding: 12px 14px 14px; background: #f8faff; }
@@ -83,19 +68,16 @@
 .classroom-qa-composer__meta button.is-danger { margin-left: auto; border-color: #f0c7c9; color: #b4232a; }
 .classroom-qa-composer__meta button:disabled { opacity: .45; cursor: not-allowed; }
 
-.classroom-console.is-presenting .classroom-qa-entry { right: 20px; bottom: 74px; }
-.classroom-console.is-presenting .classroom-qa-panel { top: 74px; right: 16px; bottom: 74px; }
+.classroom-console.is-presenting .classroom-qa-panel {
+  border-color: rgba(255, 255, 255, .14);
+  border-radius: 14px;
+}
 
-@media (max-width: 760px) {
-  .classroom-qa-entry { right: 14px; bottom: calc(72px + env(safe-area-inset-bottom)); padding: 11px 15px; }
+@media (max-width: 960px) {
   .classroom-qa-panel {
-    position: fixed;
-    top: auto;
-    right: 8px;
-    bottom: calc(76px + env(safe-area-inset-bottom));
-    left: 8px;
-    width: auto;
-    max-height: 70vh;
-    border-radius: 20px;
+    min-height: 420px;
+    max-height: 620px;
   }
+
+  .classroom-qa-history { min-height: 220px; }
 }

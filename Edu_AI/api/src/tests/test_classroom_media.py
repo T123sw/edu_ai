@@ -111,39 +111,46 @@ async def test_already_edu_ai_url_is_left_untouched(tmp_path):
     assert scenes[0]["actions"][0]["audioUrl"] == "/api/courses/course-1/classrooms/stage-1/audio/already-migrated.mp3"
 
 
-async def test_runtime_tts_generates_missing_audio_without_exposing_key(tmp_path):
-    import httpx
+class FakeTtsService:
+    def __init__(self):
+        self.calls = []
 
-    captured = {}
+    async def synthesize(self, *, text: str, audio_id: str):
+        self.calls.append({"text": text, "audio_id": audio_id})
+        return b"shared-tts-bytes", "mp3"
 
-    def handler(request: httpx.Request):
-        captured["authorization"] = request.headers.get("authorization")
-        return httpx.Response(
-            200, content=b"mp3-bytes", headers={"content-type": "audio/mpeg"}
-        )
+
+async def test_shared_tts_service_generates_only_missing_audio(tmp_path):
 
     manager = _make_manager(tmp_path)
-    scenes = [{"actions": [{"id": "speech 1", "type": "speech", "text": "你好"}]}]
-    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
-        count = await synthesize_classroom_speech_audio(
-            scenes=scenes,
-            course_id="course-1",
-            classroom_id="classroom-1",
-            course_storage_manager=manager,
-            tts_config={
-                "_source": "user",
-                "base_url": "https://tts.example/v1",
-                "api_key": "tts-secret",
-                "model": "speech-model",
-                "voice": "warm",
-            },
-            http_client=client,
-        )
+    existing_url = "/api/courses/course-1/classrooms/classroom-1/audio/existing.mp3"
+    scenes = [
+        {
+            "actions": [
+                {"id": "speech 1", "type": "speech", "text": "你好"},
+                {
+                    "id": "speech-2",
+                    "type": "speech",
+                    "text": "已有语音",
+                    "audioUrl": existing_url,
+                },
+            ]
+        }
+    ]
+    service = FakeTtsService()
+    count = await synthesize_classroom_speech_audio(
+        scenes=scenes,
+        course_id="course-1",
+        classroom_id="classroom-1",
+        course_storage_manager=manager,
+        tts_service=service,
+    )
 
     assert count == 1
-    assert captured["authorization"] == "Bearer tts-secret"
+    assert service.calls == [{"text": "你好", "audio_id": "speech-1"}]
     assert scenes[0]["actions"][0]["audioUrl"].startswith(
         "/api/courses/course-1/classrooms/classroom-1/audio/"
     )
+    assert scenes[0]["actions"][1]["audioUrl"] == existing_url
     audio_dir = manager.get_classroom_audio_dir("course-1", "classroom-1")
-    assert list(audio_dir.glob("*.mp3"))[0].read_bytes() == b"mp3-bytes"
+    assert list(audio_dir.glob("*.mp3"))[0].read_bytes() == b"shared-tts-bytes"

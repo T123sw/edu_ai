@@ -213,33 +213,71 @@ export function replaceMediaPlaceholders(scenes: Scene[], mediaMap: Record<strin
 // TTS generation
 // ---------------------------------------------------------------------------
 
+export interface ClassroomTtsProfile {
+  providerId: string;
+  voice: string;
+  speed: number;
+}
+
+export function resolveClassroomTtsProfile(
+  requested?: ClassroomTtsProfile,
+  providers: Record<string, { disabled?: boolean }> = getServerTTSProviders(),
+): ClassroomTtsProfile {
+  if (requested) {
+    const providerId = requested.providerId.trim();
+    if (providerId === 'browser-native-tts') {
+      throw new Error('browser-native TTS cannot generate server-side classroom audio');
+    }
+    if (!Object.prototype.hasOwnProperty.call(providers, providerId)) {
+      throw new Error(`TTS provider "${providerId}" is not configured`);
+    }
+    if (providers[providerId]?.disabled) {
+      throw new Error(`TTS provider "${providerId}" is disabled`);
+    }
+
+    const voice = requested.voice.trim();
+    if (!voice) {
+      throw new Error('TTS voice is required');
+    }
+    if (!Number.isFinite(requested.speed) || requested.speed < 0.5 || requested.speed > 2) {
+      throw new Error('TTS speed must be between 0.5 and 2');
+    }
+    return { providerId, voice, speed: requested.speed };
+  }
+
+  const providerId = Object.entries(providers).find(
+    ([id, info]) => id !== 'browser-native-tts' && !info.disabled,
+  )?.[0];
+  if (!providerId) {
+    throw new Error('No server TTS provider configured');
+  }
+  return {
+    providerId,
+    voice: DEFAULT_TTS_VOICES[providerId as keyof typeof DEFAULT_TTS_VOICES] || 'default',
+    speed: 1,
+  };
+}
+
 export async function generateTTSForClassroom(
   scenes: Scene[],
   classroomId: string,
   baseUrl: string,
+  requestedProfile?: ClassroomTtsProfile,
 ): Promise<void> {
   const audioDir = path.join(CLASSROOMS_DIR, classroomId, 'audio');
   await ensureDir(audioDir);
 
   // Resolve TTS provider (exclude browser-native-tts and operator force-disabled
   // providers — server precedence, #665).
-  const ttsProviderIds = Object.entries(getServerTTSProviders())
-    .filter(([id, info]) => id !== 'browser-native-tts' && !info.disabled)
-    .map(([id]) => id);
-  if (ttsProviderIds.length === 0) {
-    log.warn('No server TTS provider configured, skipping TTS generation');
-    return;
-  }
-
-  const providerId = ttsProviderIds[0] as TTSProviderId;
+  const profile = resolveClassroomTtsProfile(requestedProfile);
+  const providerId = profile.providerId as TTSProviderId;
   const apiKey = resolveTTSApiKey(providerId);
   const ttsProvider = TTS_PROVIDERS[providerId as keyof typeof TTS_PROVIDERS];
   if (ttsProvider?.requiresApiKey && !apiKey) {
-    log.warn(`No API key for TTS provider "${providerId}", skipping TTS generation`);
-    return;
+    throw new Error(`No API key for TTS provider "${providerId}"`);
   }
   const ttsBaseUrl = resolveTTSBaseUrl(providerId) || ttsProvider?.defaultBaseUrl;
-  const voice = DEFAULT_TTS_VOICES[providerId as keyof typeof DEFAULT_TTS_VOICES] || 'default';
+  const voice = profile.voice;
   const format = ttsProvider?.supportedFormats?.[0] || 'mp3';
   if (providerId === VOXCPM_TTS_PROVIDER_ID && voice === VOXCPM_AUTO_VOICE_ID) {
     log.warn('VoxCPM Auto Voice requires agent context; skipping server-side TTS generation');
@@ -270,7 +308,7 @@ export async function generateTTSForClassroom(
             apiKey,
             baseUrl: ttsBaseUrl,
             voice,
-            speed: speechAction.speed,
+            speed: speechAction.speed ?? profile.speed,
           },
           speechAction.text,
         );

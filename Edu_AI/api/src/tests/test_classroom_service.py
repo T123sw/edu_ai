@@ -190,6 +190,7 @@ class FakeClient:
         self.submitted_body = {}
         self.get_classroom_calls: list[str] = []
         self.download_media_calls: list[str] = []
+        self.synthesize_tts_calls: list[dict] = []
         # `migrate_classroom_speech_audio` reads `.config.base_url` unconditionally
         # (to know which audioUrl prefix counts as "still points at sidecar").
         self.config = SimpleNamespace(base_url="http://sidecar-test:3000")
@@ -197,6 +198,10 @@ class FakeClient:
     async def download_media(self, url: str):
         self.download_media_calls.append(url)
         return b"fake-audio-bytes", "audio/mpeg"
+
+    async def synthesize_tts(self, **kwargs):
+        self.synthesize_tts_calls.append(kwargs)
+        return b"shared-tts-bytes", "mp3"
 
     async def generate_classroom(self, **kwargs):
         self.submitted_body = kwargs
@@ -294,6 +299,15 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     }
     assert client.submitted_body["research_context"] == "web snippet\n\n[来源: textbook.pdf]\nRAG snippet"
     assert client.get_classroom_calls == ["stage-1"]  # job.result.classroomId -> get_classroom(id)
+    assert client.synthesize_tts_calls == [
+        {
+            "text": "hi",
+            "audio_id": "act-1",
+            "provider_id": "qwen-tts",
+            "voice": "Cherry",
+            "speed": 1.0,
+        }
+    ]
 
     saved = manager.get_generated_material(
         "course-1", "classroom", "stage-1", owner_user_id="teacher-a"

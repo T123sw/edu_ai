@@ -113,6 +113,9 @@ class OpenMaicClient:
         enable_image: bool = False,
         enable_video: bool = False,
         enable_tts: bool = False,
+        tts_provider_id: Optional[str] = None,
+        tts_voice: Optional[str] = None,
+        tts_speed: float = 1.0,
         agent_mode: str = "default",
     ) -> JobEnvelope:
         """POST /api/generate-classroom —— 只提交，返回 202 信封（含
@@ -130,6 +133,14 @@ class OpenMaicClient:
             body["researchContext"] = research_context
         if pdf_content is not None:
             body["pdfContent"] = pdf_content
+        if enable_tts and tts_provider_id and tts_voice:
+            body.update(
+                {
+                    "ttsProviderId": tts_provider_id,
+                    "ttsVoice": tts_voice,
+                    "ttsSpeed": min(2.0, max(0.5, float(tts_speed))),
+                }
+            )
 
         data = await self._request_json(
             "POST",
