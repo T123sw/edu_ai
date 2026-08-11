@@ -11,17 +11,18 @@ import {
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
 import { MaterialIcon } from "../../shared";
+import "./CourseKnowledgeBuildCard.css";
 
 const PHASE_LABELS: Record<string, string> = {
-  queued: "等待后台处理",
-  running: "正在构建",
-  source_audit: "核验来源许可与抓取约束",
-  indexing: "抓取、清洗并建立课程索引",
-  model_fallback: "为资料不足的叶级知识点生成并审查中文补充资料",
-  quality_check: "执行质量门禁",
-  quality_blocked: "质量门禁未通过，旧版本保持不变",
-  publishing: "原子发布新版本",
-  completed: "构建完成",
+  queued: "正在排队",
+  running: "正在更新知识库",
+  source_audit: "正在查找合适的课程资料",
+  indexing: "正在整理课程资料",
+  model_fallback: "正在补充缺少的内容",
+  quality_check: "正在检查内容质量",
+  quality_blocked: "内容需要进一步完善",
+  publishing: "即将完成",
+  completed: "更新完成",
 };
 
 type Props = {
@@ -74,38 +75,34 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
     return () => { canceled = true; };
   }, [courseId, latestJob?.status, latestJob?.updated_at]);
 
-  async function createPlan() {
-    if (!canBuild || planning || activeJob) return;
-    setPlanning(true);
+  async function buildKnowledgeBase() {
+    if (!canBuild || planning || submitting || activeJob) return;
     setSubmitError("");
+
     try {
-      const value = await previewCourseKnowledgeBuild(courseId);
-      window.localStorage.setItem(storageKey(courseId), value.build_id);
-      setPlan(value);
+      let buildPlan = plan?.status === "draft" ? plan : null;
+      if (!buildPlan) {
+        setPlanning(true);
+        buildPlan = await previewCourseKnowledgeBuild(courseId);
+        window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
+        setPlan(buildPlan);
+      }
+
+      setPlanning(false);
+      setSubmitting(true);
+      registerCreatedJob(await startCourseKnowledgeBuild(courseId, buildPlan.build_id));
+      setPlan({ ...buildPlan, status: "queued", phase: "queued", progress: 0 });
     } catch (reason) {
-      setSubmitError(reason instanceof Error ? reason.message : "生成知识库构建方案失败");
+      setSubmitError(reason instanceof Error ? reason.message : "知识库更新失败，请稍后重试。");
     } finally {
       setPlanning(false);
-    }
-  }
-
-  async function submitBuild() {
-    if (!canBuild || !plan || activeJob || submitting) return;
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      registerCreatedJob(await startCourseKnowledgeBuild(courseId, plan.build_id));
-      setPlan({ ...plan, status: "queued", phase: "queued", progress: 0 });
-    } catch (reason) {
-      setSubmitError(reason instanceof Error ? reason.message : "提交知识库构建任务失败");
-    } finally {
       setSubmitting(false);
     }
   }
 
   async function rollbackVersion(version: number) {
     if (!canBuild || rollingBack !== null) return;
-    if (!window.confirm(`确认将课程知识图谱回滚到版本 ${version}？系统会保留当前版本并创建新的发布版本。`)) return;
+    if (!window.confirm(`确认恢复到版本 ${version}？系统会保留当前版本，方便以后再次恢复。`)) return;
     setRollingBack(version);
     setSubmitError("");
     try {
@@ -113,109 +110,134 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
       setVersions(await listCourseKnowledgeVersions(courseId));
       window.dispatchEvent(new CustomEvent("edu-ai:knowledge-document-updated", { detail: { courseId } }));
     } catch (reason) {
-      setSubmitError(reason instanceof Error ? reason.message : "回滚知识图谱版本失败");
+      setSubmitError(reason instanceof Error ? reason.message : "恢复历史版本失败，请稍后重试。");
     } finally {
       setRollingBack(null);
     }
   }
 
-  const approvedSources = plan?.source_candidates.filter((item) => item.selected && item.review_status === "approved") ?? [];
-  const rejectedCount = plan?.source_candidates.filter((item) => item.review_status === "rejected").length ?? 0;
   const status = activeJob ?? latestJob;
-  const statusText = status
-    ? PHASE_LABELS[status.step] || status.message || PHASE_LABELS[status.status] || status.status
-    : "尚未启动构建";
-  const leafCoverage = plan?.metrics?.leaf_coverage && typeof plan.metrics.leaf_coverage === "object"
-    ? Object.values(plan.metrics.leaf_coverage as Record<string, number>)
-    : [];
+  const isWorking = Boolean(activeJob) || planning || submitting;
+  const failed = status?.status === "failed" || status?.status === "partially_succeeded";
+  const succeeded = status?.status === "succeeded";
+  const statusText = planning
+    ? "正在分析课程内容"
+    : submitting
+      ? "正在启动更新"
+      : status
+        ? PHASE_LABELS[status.step] || PHASE_LABELS[status.status] || status.message || "正在处理"
+        : documentCount
+          ? "知识库已可用"
+          : "尚未构建";
+  const buttonText = planning
+    ? "正在准备…"
+    : submitting
+      ? "正在启动…"
+      : activeJob
+        ? "正在更新…"
+        : documentCount
+          ? "更新知识库"
+          : "一键构建知识库";
+  const approvedSourceCount = plan?.source_candidates.filter(
+    (item) => item.selected && item.review_status === "approved",
+  ).length ?? 0;
 
   return (
-    <section ref={cardRef} tabIndex={-1} className="knowledge-build-card" aria-labelledby="knowledge-build-title">
-      <div className="knowledge-build-card__intro">
-        <span><MaterialIcon name="auto_awesome" /></span>
-        <div>
-          <p>课程语义驱动建库</p>
-          <h2 id="knowledge-build-title">{documentCount ? "更新课程知识库" : "一键构建课程知识库"}</h2>
-          <small>先根据课程标题、目标、学段和语言生成知识主题，审核来源与许可，再在后台抓取、索引、质检并发布新版本。</small>
+    <section ref={cardRef} tabIndex={-1} className="course-kb-builder" aria-labelledby="course-kb-builder-title">
+      <header className="course-kb-builder__header">
+        <span className="course-kb-builder__icon" aria-hidden="true">
+          <MaterialIcon name="auto_awesome" />
+        </span>
+        <div className="course-kb-builder__heading">
+          <span>课程知识库</span>
+          <h2 id="course-kb-builder-title">{documentCount ? "更新课程知识库" : "构建课程知识库"}</h2>
+          <p>系统会自动整理课程知识结构，并为每个知识点准备合适的学习资料。</p>
         </div>
-      </div>
+        <span className={`course-kb-builder__badge${isWorking ? " is-working" : succeeded ? " is-success" : failed ? " is-error" : ""}`}>
+          {isWorking ? "更新中" : succeeded || documentCount ? "已构建" : "未构建"}
+        </span>
+      </header>
 
-      {plan ? (
-        <div className="knowledge-build-plan">
-          <div className="knowledge-build-plan__summary">
-            <span><strong>{plan.topics.length}</strong> 个知识主题</span>
-            <span><strong>{approvedSources.length}</strong> 个审核通过来源</span>
-            <span><strong>{rejectedCount}</strong> 个来源已拦截</span>
-            {plan.quality_score != null ? <span><strong>{Math.round(plan.quality_score)}</strong> 质量分</span> : null}
+      {isWorking ? (
+        <div className="course-kb-builder__progress" aria-live="polite">
+          <div>
+            <span>{statusText}</span>
+            <strong>{status?.progress ?? 0}%</strong>
           </div>
-          <div className="knowledge-build-plan__topics" aria-label="课程知识主题">
-            {plan.topics.map((topic) => <span key={topic.topic_id}>{topic.title}</span>)}
+          <div className="course-kb-builder__progress-track">
+            <span style={{ width: `${Math.max(4, Math.min(100, status?.progress ?? 4))}%` }} />
           </div>
-          <p className="knowledge-build-plan__empty">
-            图谱结构：课程根节点 → 语义模块 → {plan.topics.length} 个叶级知识点。每个叶级知识点必须关联至少 3 份可用资料，未达标不会发布。
-          </p>
-          {leafCoverage.length ? (
-            <div className="knowledge-build-plan__summary" aria-label="叶级资料覆盖">
-              <span><strong>{leafCoverage.filter((count) => count >= 3).length}</strong> / {leafCoverage.length} 个叶级知识点达标</span>
-              <span><strong>{Number(plan.metrics?.generated_document_count || 0)}</strong> 份 AI 审查后补充资料</span>
-            </div>
-          ) : null}
-          {approvedSources.length ? (
-            <ul className="knowledge-build-plan__sources">
-              {approvedSources.slice(0, 6).map((source) => (
-                <li key={source.candidate_id}>
-                  <MaterialIcon name="verified" />
-                  <div><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><small>{source.domain} · {source.license_name}</small></div>
-                  <span>{Math.round(source.relevance_score * 100)}%</span>
-                </li>
-              ))}
-            </ul>
-          ) : <p className="knowledge-build-plan__empty">未找到合格开放来源。仍可启动构建；系统会记录检索结果，为缺失的叶级知识点生成中文补充材料并执行独立质量审查。</p>}
-          {plan.warnings.length ? <div className="knowledge-build-plan__warnings">{plan.warnings.map((warning) => <p key={warning}>{warning}</p>)}</div> : null}
-          {plan.error?.message ? <div className="knowledge-build-card__error" role="alert">{plan.error.message}</div> : null}
+          <small>可以离开此页面，完成后系统会通知你。</small>
+        </div>
+      ) : failed ? (
+        <div className="course-kb-builder__notice is-error" role="alert">
+          <MaterialIcon name="error" />
+          <div><strong>本次更新未完成</strong><span>{status?.error_message || status?.error || "请稍后重试。"}</span></div>
+        </div>
+      ) : succeeded ? (
+        <div className="course-kb-builder__notice is-success">
+          <MaterialIcon name="check_circle" />
+          <div><strong>知识库已更新</strong><span>课程图谱和学习资料已经可以使用。</span></div>
         </div>
       ) : null}
 
-      {status ? (
-        <div className={`knowledge-build-card__status is-${status.status}`}>
-          <div><strong>{statusText}</strong><span>{status.progress}%</span></div>
-          <div className="knowledge-build-card__progress"><span style={{ width: `${Math.max(0, Math.min(100, status.progress))}%` }} /></div>
-          {status.status === "failed" || status.status === "partially_succeeded" ? (
-            <p>{status.error_message || status.error || "构建未完整完成，可在任务中心查看原因并重试。"}</p>
-          ) : status.status === "succeeded" ? <p>质量门禁已通过，新知识图谱版本已发布，课程资料与问答检索已刷新。</p> : null}
-        </div>
-      ) : null}
-
-      {versions.length ? (
-        <div className="knowledge-build-versions">
-          <div><strong>已发布版本</strong><small>回滚会复制目标版本为新的当前版本，历史记录不会被覆盖。</small></div>
-          <ul>
-            {versions.slice(0, 4).map((version, index) => (
-              <li key={version.version}>
-                <span>v{version.version}{index === 0 ? " · 当前" : ""}</span>
-                <small>{version.node_count} 个节点 · {new Date(version.published_at || version.created_at).toLocaleString()}</small>
-                {index > 0 && canBuild ? <button type="button" disabled={rollingBack !== null} onClick={() => void rollbackVersion(version.version)}>{rollingBack === version.version ? "回滚中…" : "回滚到此版本"}</button> : null}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      <div className="knowledge-build-card__actions">
+      <div className="course-kb-builder__actions">
         {canBuild ? (
-          plan?.status === "draft" ? (
-            <button type="button" className="is-primary" disabled={Boolean(activeJob) || submitting} onClick={() => void submitBuild()}>
-              {submitting ? "正在提交…" : approvedSources.length ? "确认来源并开始构建" : "使用模型补充并开始构建"}
-            </button>
-          ) : (
-            <button type="button" className="is-primary" disabled={Boolean(activeJob) || planning} onClick={() => void createPlan()}>
-              {planning ? "正在搜索并审核来源…" : plan ? "重新生成构建方案" : "分析课程并生成方案"}
-            </button>
-          )
-        ) : <p>你在这门课程中只有只读权限。</p>}
-        {status ? <button type="button" onClick={() => window.dispatchEvent(new Event("edu-ai:open-job-center"))}>在任务中心查看</button> : null}
+          <button type="button" className="course-kb-builder__primary" disabled={isWorking} onClick={() => void buildKnowledgeBase()}>
+            <MaterialIcon name={documentCount ? "refresh" : "auto_awesome"} />
+            {buttonText}
+          </button>
+        ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
+        {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
       </div>
-      {submitError ? <div className="knowledge-build-card__error" role="alert">{submitError}</div> : null}
+
+      {plan || versions.length || status ? (
+        <details className="course-kb-builder__details">
+          <summary>
+            <MaterialIcon name="history" />
+            <span>历史版本与更多信息</span>
+          </summary>
+          <div className="course-kb-builder__details-body">
+            {plan ? (
+              <div className="course-kb-builder__summary">
+                <span><strong>{plan.topics.length}</strong> 个知识点</span>
+                <span><strong>{approvedSourceCount}</strong> 份已确认来源</span>
+                {plan.quality_score != null ? <span><strong>{Math.round(plan.quality_score)}</strong> 分质量评分</span> : null}
+              </div>
+            ) : null}
+
+            {versions.length ? (
+              <div className="course-kb-builder__versions">
+                <h3>历史版本</h3>
+                <ul>
+                  {versions.slice(0, 4).map((version, index) => (
+                    <li key={version.version}>
+                      <div>
+                        <strong>版本 {version.version}{index === 0 ? " · 当前" : ""}</strong>
+                        <span>{new Date(version.published_at || version.created_at).toLocaleString()}</span>
+                      </div>
+                      {index > 0 && canBuild ? (
+                        <button type="button" disabled={rollingBack !== null} onClick={() => void rollbackVersion(version.version)}>
+                          {rollingBack === version.version ? "正在恢复…" : "恢复此版本"}
+                        </button>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {status ? (
+              <button type="button" className="course-kb-builder__job-link" onClick={() => window.dispatchEvent(new Event("edu-ai:open-job-center"))}>
+                查看后台任务
+              </button>
+            ) : null}
+          </div>
+        </details>
+      ) : null}
+
+      {plan?.error?.message ? <div className="course-kb-builder__error" role="alert">{plan.error.message}</div> : null}
+      {submitError ? <div className="course-kb-builder__error" role="alert">{submitError}</div> : null}
     </section>
   );
 }

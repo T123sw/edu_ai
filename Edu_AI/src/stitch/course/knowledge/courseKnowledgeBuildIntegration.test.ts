@@ -15,3 +15,15 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.match(buildCard, /rollbackCourseKnowledgeVersion/);
   assert.doesNotMatch(buildCard, /buildKnowledgeBaseFromOpenTextbook/);
 });
+
+test("course knowledge build card keeps the primary experience simple", async () => {
+  const buildCard = await readFile(new URL("./CourseKnowledgeBuildCard.tsx", import.meta.url), "utf8");
+
+  assert.match(buildCard, /一键构建知识库/);
+  assert.match(buildCard, /历史版本与更多信息/);
+  assert.match(buildCard, /<details className="course-kb-builder__details">/);
+  assert.match(buildCard, /previewCourseKnowledgeBuild\(courseId\)[\s\S]*startCourseKnowledgeBuild/);
+  assert.doesNotMatch(buildCard, /质量门禁已通过/);
+  assert.doesNotMatch(buildCard, /审核来源与许可/);
+  assert.doesNotMatch(buildCard, /图谱结构：/);
+});
