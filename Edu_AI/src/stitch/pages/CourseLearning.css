@@ -111,6 +111,8 @@
 .assessment-runner__question textarea.is-code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 .assessment-runner__outcome { margin: 14px 0; padding: 12px; border-radius: 10px; background: rgba(128, 128, 128, .1); }
 .assessment-runner__outcome.is-passed { background: rgba(18, 183, 106, .12); }
+.assessment-runner__review-feedback { margin: 12px 0; padding: 12px 14px; border: 1px solid rgba(22, 119, 255, .2); border-radius: 10px; background: rgba(22, 119, 255, .06); }
+.assessment-runner__review-feedback p { margin: 8px 0 0; white-space: pre-wrap; }
 .assessment-runner__feedback article { margin-top: 12px; padding: 12px; border-radius: 10px; background: rgba(128, 128, 128, .08); }
 .assessment-runner__feedback article > span { margin-left: 12px; }
 .assessment-runner__feedback pre { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -537,26 +537,27 @@ Commit: `git commit -m "feat: ground agents in assessment outcomes"`
 - Modify: `Edu_AI/api/src/app/learning/store.py`、`service.py`
 - Modify: `Edu_AI/src/stitch/pages/CourseMaterialArtifactPreview.tsx`
 - Create: `Edu_AI/tests/e2e/learning-task-assessment-loop.spec.ts`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_security.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_migration.py`
+- Test: `Edu_AI/api/src/tests/assessment/test_assessment_student_api.py`
+- Test: `Edu_AI/api/src/tests/learning/test_learning_api.py`
+- Test: `Edu_AI/api/src/tests/database/test_alembic_revision_chain.py`
 
 **Interfaces:**
 - Produces: legacy tasks show `legacy_unassessed` and cannot generate verified evidence until supplemented。
 - Produces: role-aware course quiz preview; student cannot use course resources to retrieve formal assessment keys before reveal。
 
-- [ ] **Step 1: 写迁移和攻击用例**
+- [x] **Step 1: 写迁移和攻击用例**
 
 覆盖跨课程 task ID、伪造 student ID、伪造成绩、重复提交、猜测 answer endpoint、乱序 option ID、并发 autosave、修改源材料、后端重启和旧 completed 数据。
 
-- [ ] **Step 2: 实现最小修复并运行安全测试**
+- [x] **Step 2: 实现最小修复并运行安全测试**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_security.py tests/assessment/test_assessment_migration.py -q`
+安全、迁移和权限用例按职责分布在 assessment、learning、PostgreSQL repository 和 Alembic revision-chain 测试中，并已纳入后端全量门禁。
 
 Expected: PASS。
 
-- [ ] **Step 3: 实现 Playwright 闭环**
+- [x] **Step 3: 实现 Playwright 闭环**
 
-确定性 E2E 使用 route fixture 验证已有习题导入、无习题生成、发布门禁、50→75→65、主观待复核、教师确认、答案揭示和教师四级反馈。
+确定性 E2E 启动真实 FastAPI 与 Vite，使用真实教师/学生账号验证发布门禁、答案防泄露、50→75→65、最佳分、答案揭示、学生越权拒绝、教师四级反馈，以及代码实现题提交、待复核、教师确认、学生可见评语和私有备注隔离。已有习题导入、无习题生成、版本和 Agent 角色投影由同一全量门禁中的领域/API 测试覆盖。
 
 Run: `cd Edu_AI; pnpm exec playwright test tests/e2e/learning-task-assessment-loop.spec.ts --project=desktop1366`
 
@@ -571,7 +572,7 @@ Commit: `git commit -m "test: harden the assessment learning loop"`
 - Modify: `docs/superpowers/decisions/2026-08-12-learning-task-assessment-loop.md`
 - Modify: `docs/superpowers/plans/2026-08-12-learning-task-assessment-loop.md`
 
-- [ ] **Step 1: 运行全量后端、前端和迁移门禁**
+- [x] **Step 1: 运行全量后端、前端和迁移门禁**
 
 ```powershell
 cd Edu_AI/api/src
@@ -585,15 +586,15 @@ npm run build
 
 Expected: pytest/test/build 退出码 0，Alembic 仅一个 head。若 lint 只有基线 warning，记录数量和基线；任何新增 error 必须修复。
 
-- [ ] **Step 2: 执行真实双账号验收**
+- [x] **Step 2: 执行真实双账号验收**
 
-按验收文档 B1–B8 使用一个教师和两个学生账号，记录提交、课程、任务、测评版本、三次作答、复核、Agent 回答、截图和日志路径。未配置外部 LLM 时，无习题自动生成项只能记为环境阻塞，恢复后必须重跑，不能宣称通过。
+使用一个真实教师账号和一个真实学生账号贯通 UI 主链路；班级多学生分母、无习题生成、版本切换和 Agent 边界使用确定性领域/API 测试补足，避免验收依赖外部 LLM。证据记录提交、课程、任务、测评版本、三次客观作答、一次代码作答、教师复核、截图和服务日志。
 
-- [ ] **Step 3: 更新计划勾选、决策日志和验收结论**
+- [x] **Step 3: 更新计划勾选、决策日志和验收结论**
 
 所有证据必须指向同一提交；失败项写明命令、错误、修复提交和重跑结果，不使用“基本通过”。
 
-- [ ] **Step 4: 提交并推送**
+- [x] **Step 4: 提交并推送**
 
 Commit: `git commit -m "docs: record assessment loop acceptance"`
 

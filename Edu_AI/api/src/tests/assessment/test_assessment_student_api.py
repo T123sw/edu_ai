@@ -34,6 +34,11 @@ def test_student_projection_never_contains_private_scoring_fields(tmp_path):
     assert "correct_option_id" not in serialized
     assert "explanation" not in serialized
     assert response.json()["items"][0]["prompt"]["stem"]
+    attempts = student.get(
+        f"/api/courses/course-1/learning/tasks/{task['task_id']}/assessment/attempts"
+    )
+    assert attempts.status_code == 404
+    assert attempts.json()["detail"]["code"] == "ASSIGNMENT_NOT_FOUND"
 
 
 def test_student_attempt_round_trip_uses_trusted_score_outcome(tmp_path):

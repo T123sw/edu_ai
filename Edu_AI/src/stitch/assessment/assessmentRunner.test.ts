@@ -35,5 +35,8 @@ describe("student assessment runner state", () => {
     assert.match(runner, /开始测评/);
     assert.match(runner, /提交测评/);
     assert.match(runner, /查看答案与解析/);
+    assert.match(runner, /继续挑战/);
+    assert.match(runner, /教师评语/);
+    assert.match(runner, /student_comment/);
   });
 });

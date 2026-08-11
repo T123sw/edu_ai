@@ -209,6 +209,7 @@ export type AssessmentFeedbackItem = {
   final_score?: number | null;
   max_score: number;
   review_status: string;
+  student_comment?: string | null;
   solution?: Record<string, unknown>;
   rubric?: Record<string, unknown>;
 };

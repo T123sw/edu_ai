@@ -128,7 +128,9 @@ export function AssessmentRunner({ courseId, taskId, onVerified }: Props) {
         {assessment.items.map((item) => <Question key={item.assessment_item_id} item={item} value={answers[item.assessment_item_id]} onChange={(value) => updateAnswer(item.assessment_item_id, value)} />)}
         <div className="assessment-runner__actions"><button type="button" className="learning-secondary" disabled={busy} onClick={() => void persistAnswers()}>保存答案</button><button type="button" className="learning-primary" disabled={busy} onClick={() => void submit()}>{busy ? "提交中…" : "提交测评"}</button></div>
       </div> : <AssessmentOutcome state={state} feedback={feedback} />}
+      {!activeAttempt && feedback ? <VisibleReviewFeedback feedback={feedback} /> : null}
       {!activeAttempt && ["ready", "retry"].includes(state) ? <button type="button" className="learning-primary" disabled={busy} onClick={() => void begin()}>{state === "retry" ? "再次测评" : "开始测评"}</button> : null}
+      {!activeAttempt && state === "passed" && feedback && feedback.attempts_used < feedback.max_attempts ? <button type="button" className="learning-primary" disabled={busy} onClick={() => void begin()}>继续挑战</button> : null}
       {!activeAttempt && ["passed", "exhausted"].includes(state) ? <button type="button" className="learning-secondary" disabled={busy} onClick={() => void reveal()}>查看答案与解析</button> : null}
       {state === "revealed" && feedback ? <RevealedFeedback feedback={feedback} /> : null}
     </section>
@@ -148,6 +150,15 @@ function Question({ item, value, onChange }: { item: StudentAssessmentItem; valu
 function AssessmentOutcome({ state, feedback }: { state: ReturnType<typeof deriveAssessmentRunnerState>; feedback: AssessmentFeedback | null }) {
   const text = { ready: "完成学习材料后开始正式测评。", in_progress: "测评进行中。", pending_review: "客观题已评分，主观题或代码题正在等待教师复核。", retry: `本次未达及格线，最佳成绩 ${feedback?.best_final_score ?? 0} 分，可继续尝试。`, passed: `已通过正式测评，最佳成绩 ${feedback?.best_final_score ?? 0} 分。`, exhausted: `已用完测评次数，最佳成绩 ${feedback?.best_final_score ?? 0} 分。`, revealed: "答案已揭示，计分尝试已关闭。" }[state];
   return <p className={`assessment-runner__outcome is-${state}`}>{text}</p>;
+}
+
+function VisibleReviewFeedback({ feedback }: { feedback: AssessmentFeedback }) {
+  const comments = feedback.items.filter((item) => String(item.student_comment || "").trim());
+  if (!comments.length) return null;
+  return <div className="assessment-runner__review-feedback" aria-label="教师评语">
+    <strong>教师评语</strong>
+    {comments.map((item) => <p key={item.assessment_item_id}><span>{item.position}. </span>{item.student_comment}</p>)}
+  </div>;
 }
 
 function RevealedFeedback({ feedback }: { feedback: AssessmentFeedback }) {

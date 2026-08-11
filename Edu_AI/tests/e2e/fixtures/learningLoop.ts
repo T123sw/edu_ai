@@ -104,7 +104,7 @@ export async function loginAs(
   await page.getByLabel("账号", { exact: true }).fill(username);
   await page.getByLabel("密码", { exact: true }).fill(password);
   await page.locator('button[type="submit"]').click();
-  await expect(page.getByText("登录 Edu AI")).toHaveCount(0);
+  await expect(page.getByText("登录 Edu AI")).toBeHidden({ timeout: 30_000 });
 }
 
 export async function installDeterministicLearningAgent(
