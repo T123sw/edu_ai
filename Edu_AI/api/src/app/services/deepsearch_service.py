@@ -15,7 +15,14 @@ from app.deepsearch_importer import (
     build_personal_research_document,
 )
 from app.chat.workflows.report.image_downloader import localize_image
-from app.integrations.websearch import ExtractResult, WebSearchHit, extract_tavily, rerank_bocha, search_bocha
+from app.integrations.websearch import (
+    ExtractResult,
+    WebSearchHit,
+    extract_tavily,
+    rerank_bocha,
+    search_bocha,
+    search_tavily,
+)
 from app.services import crawl_batch_store
 from app.services.personal_knowledge_service import PersonalKnowledgeService
 from app.services.runtime_config_resolver import runtime_config_resolver
@@ -69,17 +76,41 @@ def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
     recall_count = max(final_count, int(os.getenv("BOCHA_SEARCH_RECALL_COUNT", "50") or "50"))
     recall_count = min(recall_count, 50)
     print(f"[DeepSearch] phase=search provider=bocha query={query!r} max_urls={final_count} recall={recall_count}")
-    hits = search_bocha(
-        query,
-        count=recall_count,
-        freshness=os.getenv("WEB_SEARCH_FRESHNESS", "noLimit"),
-        api_key=str(runtime_search.get("api_key") or os.getenv("BOCHA_API_KEY", "")),
-        base_url=str(
-            runtime_search.get("base_url")
-            or os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn")
-        ),
-        timeout=float(runtime_search.get("timeout_seconds") or 15),
-    )
+    try:
+        hits = search_bocha(
+            query,
+            count=recall_count,
+            freshness=os.getenv("WEB_SEARCH_FRESHNESS", "noLimit"),
+            api_key=str(runtime_search.get("api_key") or os.getenv("BOCHA_API_KEY", "")),
+            base_url=str(
+                runtime_search.get("base_url")
+                or os.getenv("BOCHA_BASE_URL", "https://api.bocha.cn")
+            ),
+            timeout=float(runtime_search.get("timeout_seconds") or 15),
+        )
+        if not hits:
+            raise RuntimeError("Bocha returned no search results")
+    except Exception as bocha_error:
+        tavily_key = str(os.getenv("TAVILY_API_KEY", "")).strip()
+        if not tavily_key:
+            raise
+        print(
+            "[DeepSearch] phase=search provider=bocha status=error "
+            f"fallback=tavily error={type(bocha_error).__name__}: {bocha_error}"
+        )
+        hits = search_tavily(
+            query,
+            count=final_count,
+            api_key=tavily_key,
+            base_url=os.getenv("TAVILY_BASE_URL", "https://api.tavily.com"),
+            timeout=float(os.getenv("TAVILY_SEARCH_TIMEOUT_S", "20") or "20"),
+            search_depth=os.getenv("TAVILY_SEARCH_DEPTH", "basic"),
+        )
+        print(
+            "[DeepSearch] phase=search provider=tavily status=success "
+            f"hits={len(hits)}"
+        )
+        return hits[:final_count]
     hits = _rerank_hits(query, hits, final_count)
     return hits[:final_count]
 

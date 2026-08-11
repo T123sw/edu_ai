@@ -185,6 +185,39 @@ def test_run_deepsearch_returns_error_when_bocha_search_fails(monkeypatch):
     assert "bocha timeout" in result["message"]
 
 
+def test_run_deepsearch_falls_back_to_tavily_search_when_bocha_fails(monkeypatch):
+    def fail_search(*args, **kwargs):
+        raise RuntimeError("bocha forbidden")
+
+    fallback_calls = []
+    monkeypatch.setenv("TAVILY_API_KEY", "tvly-test")
+    monkeypatch.setattr(deepsearch_service, "search_bocha", fail_search)
+    monkeypatch.setattr(
+        deepsearch_service,
+        "search_tavily",
+        lambda query, **kwargs: fallback_calls.append((query, kwargs)) or [
+            WebSearchHit(
+                url="https://docs.python.org/3/tutorial/controlflow.html",
+                title="More Control Flow Tools",
+                content="Python control flow documentation",
+                site="docs.python.org",
+            )
+        ],
+    )
+
+    result = deepsearch_service.run_deepsearch_and_crawl(
+        query="Python control flow",
+        owner="teacher-a",
+        depth="basic",
+        max_urls=3,
+        save_to_kb=False,
+    )
+
+    assert result["ok"] is True
+    assert result["links"] == ["https://docs.python.org/3/tutorial/controlflow.html"]
+    assert fallback_calls[0][1]["count"] == 3
+
+
 def test_run_deepsearch_full_falls_back_to_bocha_basic_when_tavily_fails(monkeypatch):
     monkeypatch.setattr(
         deepsearch_service,
