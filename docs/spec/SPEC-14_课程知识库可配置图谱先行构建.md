@@ -1,6 +1,6 @@
 # SPEC-14 课程知识库可配置、图谱先行构建
 
-> **状态**：设计已确认，待实施并通过 ACC-14
+> **状态**：实现完成，核心真实 E2E 通过；ACC-14 扩展运维场景待最终签收
 > **日期**：2026-08-12
 > **验收文档**：[ACC-14](../acceptance/ACC-14_课程知识库可配置图谱先行构建_验收.md)
 > **实施计划**：[2026-08-12-configurable-graph-first-course-knowledge-build.md](../superpowers/plans/2026-08-12-configurable-graph-first-course-knowledge-build.md)
