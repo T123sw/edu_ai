@@ -81,6 +81,14 @@ def _extract_reviewed_page(client: httpx.Client, candidate: Mapping[str, Any]) -
     for element in soup.select("script, style, nav, header, footer, aside, form, noscript"):
         element.decompose()
     main = soup.select_one("main, article, [role='main'], .md-content, #content") or soup.body
+    if parsed.fragment:
+        fragment = soup.find(id=parsed.fragment)
+        if fragment is not None:
+            main = (
+                fragment
+                if fragment.name == "section"
+                else fragment.find_parent("section") or fragment.parent or fragment
+            )
     if main is None:
         raise ValueError("来源页面没有可识别的正文")
     title = str(candidate.get("title") or (soup.title.string if soup.title and soup.title.string else url)).strip()

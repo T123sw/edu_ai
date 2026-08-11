@@ -69,6 +69,106 @@ _REVIEWED_DOMAIN_POLICIES: dict[str, dict[str, str]] = {
     "www.csunplugged.org": {"license": "CC BY-SA 4.0", "license_url": "https://creativecommons.org/licenses/by-sa/4.0/", "language": "multi", "authority": "university_oer"},
 }
 
+_PYTHON_CURATED_SOURCE_GROUPS: dict[str, tuple[dict[str, str], ...]] = {
+    "condition": (
+        {
+            "title": "Python 官方教程：if 语句",
+            "url": "https://docs.python.org/zh-cn/3/tutorial/controlflow.html#if-statements",
+            "content": "Python 条件判断 if elif else 官方中文教程与示例",
+        },
+        {
+            "title": "Python 内置类型：真值检测",
+            "url": "https://docs.python.org/zh-cn/3/library/stdtypes.html#truth-value-testing",
+            "content": "Python 条件判断中对象真值、假值与布尔运算的官方说明",
+        },
+        {
+            "title": "Python 表达式参考：比较运算",
+            "url": "https://docs.python.org/zh-cn/3/reference/expressions.html#comparisons",
+            "content": "Python 条件判断所使用的比较运算、布尔值和链式比较",
+        },
+    ),
+    "loop": (
+        {
+            "title": "Python 官方教程：for 语句",
+            "url": "https://docs.python.org/zh-cn/3/tutorial/controlflow.html#for-statements",
+            "content": "Python 循环控制 for while range break continue 官方中文教程",
+        },
+        {
+            "title": "Python 语言参考：for 语句",
+            "url": "https://docs.python.org/zh-cn/3/reference/compound_stmts.html#the-for-statement",
+            "content": "Python 循环控制 for 语句的正式语法、迭代规则和 else 子句",
+        },
+        {
+            "title": "Python 内置函数：range",
+            "url": "https://docs.python.org/zh-cn/3/library/stdtypes.html#ranges",
+            "content": "Python 循环控制常用的 range 不可变序列类型与使用方式",
+        },
+    ),
+}
+
+_CHINESE_REVIEWED_DOMAINS = (
+    "docs.python.org/zh-cn/3",
+    "zh.wikipedia.org",
+    "zh.wikibooks.org",
+    "oi-wiki.org",
+    "www.csunplugged.org",
+)
+_ENGLISH_REVIEWED_DOMAINS = (
+    "docs.python.org/3",
+    "openstax.org",
+    "ocw.mit.edu",
+    "developer.mozilla.org",
+)
+
+
+def _curated_source_hits(
+    course: Mapping[str, Any], topic: CourseKnowledgeTopic
+) -> tuple[dict[str, str], ...]:
+    course_text = " ".join(
+        _normalize_text(value)
+        for value in (
+            course.get("title"),
+            course.get("description"),
+            *(course.get("objectives") or []),
+        )
+        if value
+    ).casefold()
+    if "python" not in course_text:
+        return ()
+
+    topic_text = f"{topic.title} {topic.objective}".casefold()
+    if any(marker in topic_text for marker in ("条件", "判断", " if ", "布尔", "比较")):
+        group = "condition"
+    elif any(
+        marker in topic_text
+        for marker in ("循环", " for ", " while ", "break", "continue", "range")
+    ):
+        group = "loop"
+    else:
+        return ()
+
+    return tuple(
+        {
+            **item,
+            "content": f"{topic.title} {topic.objective} {item['content']}",
+            "language": "zh-CN",
+        }
+        for item in _PYTHON_CURATED_SOURCE_GROUPS[group]
+    )
+
+
+def _domain_specific_queries(
+    topic: CourseKnowledgeTopic, *, language: str
+) -> tuple[str, ...]:
+    original = topic.query if language == "zh-CN" else topic.english_query
+    base = re.sub(r"\(site:[^)]+\)", "", original).strip()
+    domains = (
+        _CHINESE_REVIEWED_DOMAINS
+        if language == "zh-CN"
+        else _ENGLISH_REVIEWED_DOMAINS
+    )
+    return tuple(f"{base} site:{domain}" for domain in domains)
+
 
 def _stable_id(prefix: str, value: str) -> str:
     return f"{prefix}-{hashlib.sha256(value.encode('utf-8')).hexdigest()[:20]}"
@@ -175,6 +275,10 @@ def preview_course_knowledge_plan(
                     seen_plan_urls.add(url)
                     hit_title = _normalize_text(getattr(hit, "title", None) or (hit.get("title") if isinstance(hit, Mapping) else "") or url)
                     content = _normalize_text(getattr(hit, "content", None) or (hit.get("content") if isinstance(hit, Mapping) else ""))
+                    declared_language = _normalize_text(
+                        getattr(hit, "language", None)
+                        or (hit.get("language") if isinstance(hit, Mapping) else "")
+                    )
                     domain, policy = _domain_policy(url)
                     relevance = _relevance(topic, hit_title, content)
                     approved = policy is not None and relevance > 0
@@ -188,7 +292,7 @@ def preview_course_knowledge_plan(
                         url=url,
                         domain=domain,
                         source_type="web",
-                        language=policy.get("language") if policy else None,
+                        language=(declared_language or policy.get("language")) if policy else None,
                         license_name=policy.get("license") if policy else None,
                         license_url=policy.get("license_url") if policy else None,
                         authority_tier=policy.get("authority", "unreviewed") if policy else "unreviewed",
@@ -204,10 +308,44 @@ def preview_course_knowledge_plan(
             except Exception as exc:
                 warnings.append(f"“{topic.title}”中文来源检索失败：{exc}")
             if approved_for_topic < 3:
+                collect_hits(
+                    _curated_source_hits(course_snapshot, topic),
+                    stage="curated_chinese",
+                )
+            if approved_for_topic < 3:
+                for domain_query in _domain_specific_queries(
+                    topic, language="zh-CN"
+                ):
+                    try:
+                        collect_hits(
+                            search_provider(domain_query, max_results_per_topic),
+                            stage="chinese_domain_fallback",
+                        )
+                    except Exception as exc:
+                        warnings.append(
+                            f"{topic.title} 中文可信域名检索失败：{exc}"
+                        )
+                    if approved_for_topic >= 3:
+                        break
+            if approved_for_topic < 3:
                 try:
                     collect_hits(search_provider(topic.english_query, max_results_per_topic), stage="english_fallback")
                 except Exception as exc:
                     warnings.append(f"“{topic.title}”英文补充检索失败：{exc}")
+
+            if approved_for_topic < 3:
+                for domain_query in _domain_specific_queries(topic, language="en"):
+                    try:
+                        collect_hits(
+                            search_provider(domain_query, max_results_per_topic),
+                            stage="english_domain_fallback",
+                        )
+                    except Exception as exc:
+                        warnings.append(
+                            f"{topic.title} 英文可信域名检索失败：{exc}"
+                        )
+                    if approved_for_topic >= 3:
+                        break
 
     if not any(item.selected for item in candidates):
         warnings.append("尚未发现通过许可与相关性预审的来源；构建时会按质量门禁生成中文补充资料。")

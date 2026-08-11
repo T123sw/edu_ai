@@ -45,7 +45,47 @@ def test_plan_builds_semantic_three_level_graph_and_searches_chinese_first():
     assert [node["label"] for node in _leaf_nodes(graph)] == ["条件判断", "循环控制"]
     assert all(node["data"]["level"] == 2 for node in _leaf_nodes(graph))
     assert "lang:zh-CN" in calls[0]
-    assert "lang:en" in calls[1]
+    approved = [candidate for candidate in plan.source_candidates if candidate.selected]
+    assert all(
+        sum(candidate.topic_id == topic.topic_id for candidate in approved) >= 3
+        for topic in plan.topics
+    )
+    assert any(
+        candidate.metadata.get("acquisition_stage") == "curated_chinese"
+        for candidate in approved
+    )
+
+
+def test_python_plan_uses_three_official_chinese_sources_per_leaf_before_ai_fallback():
+    plan = preview_course_knowledge_plan(
+        {
+            "id": "python-control",
+            "title": "Python 控制流程入门",
+            "description": "学习 Python 条件判断与循环控制",
+            "objectives": ["条件判断", "循环控制"],
+            "language": "zh-CN",
+        },
+        search_provider=lambda _query, _count: [{
+            "title": "无法确认授权的搜索结果",
+            "url": "https://example.com/python-control",
+            "content": "Python 条件判断 循环控制",
+        }],
+    )
+
+    for topic in plan.topics:
+        approved = [
+            candidate
+            for candidate in plan.source_candidates
+            if candidate.topic_id == topic.topic_id and candidate.selected
+        ]
+        assert len(approved) == 3
+        assert all(candidate.domain == "docs.python.org" for candidate in approved)
+        assert all(candidate.language == "zh-CN" for candidate in approved)
+        assert all(candidate.license_name == "PSF License Version 2" for candidate in approved)
+        assert all(
+            candidate.metadata.get("acquisition_stage") == "curated_chinese"
+            for candidate in approved
+        )
 
 
 def test_plan_uses_course_semantics_not_course_id_for_topics_and_sources():

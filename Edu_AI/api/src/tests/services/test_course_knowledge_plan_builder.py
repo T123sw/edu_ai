@@ -229,3 +229,37 @@ def test_reviewed_staged_documents_are_resumed_and_promoted():
             "review_score": 93,
         }
     ]
+
+
+def test_extract_reviewed_page_uses_linked_section_instead_of_whole_manual(monkeypatch):
+    class Response:
+        headers = {"content-type": "text/html; charset=utf-8"}
+        text = """
+        <html><head><title>Python manual</title></head><body><main>
+          <section id="unrelated"><h2>Unrelated</h2><p>{unrelated}</p></section>
+          <section id="if-statements"><h2>if 语句</h2><p>{target}</p></section>
+        </main></body></html>
+        """.format(unrelated="unrelated text " * 80, target="条件判断 if elif else 示例 " * 40)
+
+        def raise_for_status(self):
+            return None
+
+    class Client:
+        def get(self, _url):
+            return Response()
+
+    monkeypatch.setattr(builder, "_robots_allows", lambda _client, _url: True)
+    title, content = builder._extract_reviewed_page(
+        Client(),
+        {
+            "url": "https://docs.python.org/zh-cn/3/tutorial/controlflow.html#if-statements",
+            "title": "Python 官方教程：if 语句",
+            "review_status": "approved",
+            "license_name": "PSF License Version 2",
+            "license_url": "https://docs.python.org/3/license.html",
+        },
+    )
+
+    assert title == "Python 官方教程：if 语句"
+    assert "条件判断" in content
+    assert "unrelated text" not in content
