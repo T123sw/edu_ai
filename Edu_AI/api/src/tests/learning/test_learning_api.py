@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -172,7 +170,7 @@ def test_only_students_can_submit_learning_events(tmp_path):
     assert response.json()["detail"]["code"] == "STUDENT_ROLE_REQUIRED"
 
 
-def test_learning_event_api_persists_evidence_payload(tmp_path):
+def test_student_cannot_forge_assessment_scored_event(tmp_path):
     factory = LearningApiFactory(tmp_path)
     teacher = factory.client("teacher-1", "teacher")
     student = factory.client("student-1", "student")
@@ -205,19 +203,10 @@ def test_learning_event_api_persists_evidence_payload(tmp_path):
         },
     )
 
-    assert response.status_code == 200
-    assert response.json()["progress"]["completion_basis"] == "assessment_verified"
-    stored = factory.service.store._connection.execute(
-        "SELECT evidence_json FROM learning_events WHERE event_id='evt-api-score'"
-    ).fetchone()
-    evidence = json.loads(stored["evidence_json"])
-    assert evidence.pop("occurred_at")
-    assert evidence == {
-        "evidence_type": "score",
-        "source_type": "quiz",
-        "source_id": "quiz-attempt-1",
-        "value": 92.0,
-    }
+    assert response.status_code == 422
+    assert factory.service.store._connection.execute(
+        "SELECT 1 FROM learning_events WHERE event_id='evt-api-score'"
+    ).fetchone() is None
 
 
 def test_learning_overview_is_role_scoped_and_requires_teacher_edit_access(tmp_path):

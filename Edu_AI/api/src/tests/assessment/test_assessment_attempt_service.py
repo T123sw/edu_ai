@@ -126,6 +126,8 @@ def test_three_attempts_keep_best_score_and_history(tmp_path):
     assert assignment.attempts_used == 3
     assert assignment.best_final_score == 75
     assert assignment.result == "passed"
+    progress = service.learning_service.store.get_progress(task.task_id, "student-1")
+    assert progress.completion_basis == "assessment_verified"
     assert [item.final_score for item in service.list_student_attempts(
         course_id="course-1", task_id=task.task_id, student_id="student-1"
     )] == [50, 75, 50]

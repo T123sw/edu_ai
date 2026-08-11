@@ -78,3 +78,42 @@ class AssessmentGenerateRequest(BaseModel):
 
 class AssessmentPublishRequest(BaseModel):
     expected_revision: int = Field(ge=0)
+
+
+class StudentAssessmentItemResponse(BaseModel):
+    assessment_item_id: str
+    position: int
+    item_type: str
+    prompt: dict[str, Any]
+    max_score: float
+    knowledge_point_ids: list[str]
+
+
+class StudentAssessmentResponse(BaseModel):
+    assessment_version_id: str
+    task_id: str
+    assessment_mode: str
+    max_attempts: int
+    items: list[StudentAssessmentItemResponse]
+
+
+class AssessmentAttemptResponse(BaseModel):
+    attempt_id: str
+    assessment_version_id: str
+    task_id: str
+    attempt_number: int
+    status: str
+    draft_revision: int
+    submitted_at: str | None
+    auto_score: float | None
+    final_score: float | None
+    result: str | None
+
+
+class AssessmentAnswersRequest(BaseModel):
+    expected_revision: int = Field(ge=0)
+    answers: dict[str, dict[str, Any]]
+
+
+class AssessmentSubmitRequest(BaseModel):
+    idempotency_key: str = Field(min_length=1, max_length=300)

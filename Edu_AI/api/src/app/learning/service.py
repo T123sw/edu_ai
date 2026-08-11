@@ -236,6 +236,39 @@ class LearningService:
         )
         return self.store.record_event(event)
 
+    def record_verified_assessment_outcome(
+        self,
+        *,
+        outcome_id: str,
+        course_id: str,
+        task_id: str,
+        student_id: str,
+        score: float,
+    ) -> EventWriteResult:
+        """Trusted internal path; public learning-event schemas cannot call this."""
+        task = self._task_or_error(course_id=course_id, task_id=task_id)
+        if task.status != "published":
+            raise LearningRuleError("TASK_NOT_PUBLISHED", "Learning task is not published")
+        occurred_at = utc_now()
+        return self.store.record_event(
+            LearningEventRecord.new(
+                event_id=f"assessment-outcome:{outcome_id}",
+                course_id=course_id,
+                task_id=task_id,
+                student_id=student_id,
+                event_type="assessment_scored",
+                progress_percent=100,
+                occurred_at=occurred_at,
+                evidence=LearningEvidence(
+                    evidence_type="verified_score",
+                    source_type="assessment_attempt",
+                    source_id=outcome_id,
+                    value=float(score),
+                    occurred_at=occurred_at,
+                ),
+            )
+        )
+
     def get_task_summary(
         self,
         *,

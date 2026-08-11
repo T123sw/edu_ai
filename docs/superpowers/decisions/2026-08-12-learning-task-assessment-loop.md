@@ -52,3 +52,10 @@
 - 采用：提交必须携带非空 `idempotency_key`；SQLite 使用 `BEGIN IMMEDIATE`，PostgreSQL 对 attempt 行加锁，只有第一次从 `in_progress` 转终态时增加次数；同时把键写入 `submission_idempotency_key`。后续相同 attempt 的重复请求直接返回已持久化终态。
 - 备选：只在内存缓存提交键；新增独立幂等请求表；完全依赖客户端防重。
 - 影响：新增线性迁移 `20260812_0014`；服务重启后仍可审计提交键，重复请求不会重复计数或改写首次评分结果。
+
+## D-008 可信完成证据同步
+
+- 问题：测评终态与学习进度仍在两个存储中，评分成功但进度写入失败时需要可恢复，且学生不能获得补写成绩的公共接口。
+- 采用：删除公共事件 schema 的 `assessment_scored`；仅 `AssessmentService` 在最终结果为通过/掌握时调用内部 `record_verified_assessment_outcome`。内部事件 ID 固定为 `assessment-outcome:{attempt_id}`，学习仓储按事件 ID 幂等；终态重复提交会再次尝试同步但不会重复记证据。
+- 备选：前端评分成功后补写学习事件；开放带签名的学生成绩事件；跨存储失败直接忽略。
+- 影响：学生只能产生学习参与事件，不能伪造 `assessment_verified`；短暂同步失败可通过重复提交恢复。

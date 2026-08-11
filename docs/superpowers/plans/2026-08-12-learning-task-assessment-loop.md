@@ -343,7 +343,7 @@ Commit: `git commit -m "feat: grade durable assessment attempts"`
 - Produces: student assessment, current attempt, answer save, submit, history, feedback and reveal endpoints.
 - Produces: internal `record_verified_assessment_outcome(outcome_id, task_id, student_id, score, passed_at)`；公共事件 schema 不再包含 `assessment_scored`。
 
-- [ ] **Step 1: 写答案泄露和伪造拒绝测试**
+- [x] **Step 1: 写答案泄露和伪造拒绝测试**
 
 ```python
 def test_student_projection_never_contains_scoring_keys(student_client, task_id):
@@ -361,11 +361,11 @@ def test_student_cannot_submit_assessment_scored_event(student_client, task_id):
     assert response.status_code == 422
 ```
 
-- [ ] **Step 2: 实现角色投影与内部 outcome 同步**
+- [x] **Step 2: 实现角色投影与内部 outcome 同步**
 
 学生题目 DTO 仅含稳定题目 ID、题型、题干、选项、分值和学生可见素材。最终通过在同一事务或 outbox 幂等同步为 `assessment_verified`；同步失败保留重试事件，客户端无补写接口。
 
-- [ ] **Step 3: 运行测试并提交**
+- [x] **Step 3: 运行测试并提交**
 
 Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_student_api.py tests/learning/test_learning_api.py tests/learning/test_learning_service.py -q`
 

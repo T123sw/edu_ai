@@ -359,6 +359,42 @@ class AssessmentService:
         except AssessmentStoreError as error:
             raise AssessmentRuleError(error.code, error.message) from error
 
+    def get_student_assessment(
+        self, *, course_id: str, task_id: str, student_id: str
+    ) -> dict[str, Any]:
+        try:
+            self.learning_service._course_read_membership(
+                course_id=course_id, user_id=student_id
+            )
+            task = self.learning_service._task_or_error(course_id=course_id, task_id=task_id)
+        except LearningRuleError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        if task.status != "published":
+            raise AssessmentRuleError("TASK_NOT_PUBLISHED", "Learning task is not published")
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None or assessment.current_version_id is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Published assessment is required")
+        version = self.store.get_version(assessment.current_version_id)
+        if version is None:
+            raise AssessmentRuleError("ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found")
+        items = self.store.list_items(version.assessment_version_id)
+        return {
+            "assessment_version_id": version.assessment_version_id,
+            "task_id": task_id,
+            "assessment_mode": version.assessment_mode,
+            "max_attempts": version.max_attempts,
+            "items": [
+                {
+                    "assessment_item_id": item.assessment_item_id,
+                    "position": item.position,
+                    "item_type": item.item_type,
+                    "prompt": item.prompt,
+                    "max_score": item.max_score,
+                    "knowledge_point_ids": item.knowledge_point_ids,
+                }
+                for item in items
+            ],
+        }
     def save_answers(
         self,
         *,
@@ -366,7 +402,25 @@ class AssessmentService:
         student_id: str,
         answers: dict[str, dict[str, Any]],
         expected_revision: int,
+        course_id: str | None = None,
+        task_id: str | None = None,
     ):
+        attempt = self.store.get_attempt(attempt_id)
+        if (
+            attempt is None
+            or attempt.student_id != student_id
+            or (course_id is not None and attempt.course_id != course_id)
+            or (task_id is not None and attempt.task_id != task_id)
+        ):
+            raise AssessmentRuleError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
+        allowed_item_ids = {
+            item.assessment_item_id
+            for item in self.store.list_items(attempt.assessment_version_id)
+        }
+        if not set(answers).issubset(allowed_item_ids):
+            raise AssessmentRuleError(
+                "INVALID_ANSWER_ITEM", "Answer contains an item outside this assessment"
+            )
         try:
             return self.store.save_answers(
                 attempt_id, student_id, answers, expected_revision=expected_revision
@@ -375,14 +429,26 @@ class AssessmentService:
             raise AssessmentRuleError(error.code, error.message) from error
 
     def submit_attempt(
-        self, *, attempt_id: str, student_id: str, idempotency_key: str
+        self,
+        *,
+        attempt_id: str,
+        student_id: str,
+        idempotency_key: str,
+        course_id: str | None = None,
+        task_id: str | None = None,
     ):
         if not str(idempotency_key).strip():
             raise AssessmentRuleError("IDEMPOTENCY_KEY_REQUIRED", "Idempotency key is required")
         attempt = self.store.get_attempt(attempt_id)
-        if attempt is None or attempt.student_id != student_id:
+        if (
+            attempt is None
+            or attempt.student_id != student_id
+            or (course_id is not None and attempt.course_id != course_id)
+            or (task_id is not None and attempt.task_id != task_id)
+        ):
             raise AssessmentRuleError("ATTEMPT_NOT_FOUND", "Assessment attempt was not found")
         if attempt.status != "in_progress":
+            self._sync_verified_outcome(attempt)
             return attempt
         items = self.store.list_items(attempt.assessment_version_id)
         answers = {item.assessment_item_id: item for item in self.store.list_answers(attempt_id)}
@@ -415,7 +481,7 @@ class AssessmentService:
                 else "needs_retry"
             )
         try:
-            return self.store.finalize_attempt(
+            finalized = self.store.finalize_attempt(
                 attempt_id,
                 answer_scores=answer_scores,
                 status=status,
@@ -424,7 +490,23 @@ class AssessmentService:
                 result=result,
                 idempotency_key=idempotency_key,
             )
+            self._sync_verified_outcome(finalized)
+            return finalized
         except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+
+    def _sync_verified_outcome(self, attempt) -> None:
+        if attempt.result not in {"passed", "mastered"} or attempt.final_score is None:
+            return
+        try:
+            self.learning_service.record_verified_assessment_outcome(
+                outcome_id=attempt.attempt_id,
+                course_id=attempt.course_id,
+                task_id=attempt.task_id,
+                student_id=attempt.student_id,
+                score=attempt.final_score,
+            )
+        except LearningRuleError as error:
             raise AssessmentRuleError(error.code, error.message) from error
 
     def get_student_assignment(

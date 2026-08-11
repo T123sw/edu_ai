@@ -63,7 +63,7 @@ class LearningEventRequest(BaseModel):
     event_id: str = Field(min_length=1, max_length=160)
     event_type: Literal[
         "started", "resource_opened", "progress_updated", "completed",
-        "resource_completed", "assessment_scored",
+        "resource_completed",
     ]
     progress_percent: int = Field(ge=0, le=100)
     resource_ref: LearningResourceRef | None = None
