@@ -56,6 +56,7 @@ from app.schemas.course import (
     CourseKnowledgeGraphConfirmRequest,
     CourseKnowledgeGraphDraftUpdateRequest,
     CourseKnowledgeGraphGenerateRequest,
+    CourseKnowledgeTextbookMutationRequest,
     CourseKnowledgeBuildPreviewRequest,
     CourseUpdateRequest,
     GenerateClassroomRequest,
@@ -78,6 +79,13 @@ from app.services.course_knowledge_plan_builder import submit_course_knowledge_p
 from app.services.course_knowledge_graph_generator import (
     submit_course_knowledge_graph_generation_job,
 )
+from app.services.course_knowledge_textbook_inputs import (
+    CourseKnowledgeTextbookInputError,
+    remove_course_knowledge_textbook,
+    retry_course_knowledge_textbook,
+    stage_course_knowledge_textbook,
+    submit_course_knowledge_textbook_parse_job,
+)
 from app.services.course_knowledge_builder import submit_course_knowledge_build_job
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
@@ -95,10 +103,6 @@ from app.services.personal_tool_access import (
 from app.persistence.dependencies import get_postgres_knowledge_repository
 from app.persistence.postgres_knowledge_repository import (
     KnowledgeBuildRevisionConflict,
-)
-from app.textbook_knowledge_graph import (
-    TextbookKnowledgeGraphError,
-    import_textbook_into_knowledge_graph,
 )
 from core.course_storage import (
     LIBRARY_TYPE_COURSE,
@@ -1011,6 +1015,18 @@ def _raise_build_revision_conflict(exc: KnowledgeBuildRevisionConflict) -> None:
     ) from exc
 
 
+def _raise_textbook_input_error(exc: CourseKnowledgeTextbookInputError) -> None:
+    status_code = (
+        status.HTTP_409_CONFLICT
+        if exc.code == "TEXTBOOK_DUPLICATE"
+        else status.HTTP_422_UNPROCESSABLE_ENTITY
+    )
+    raise HTTPException(
+        status_code=status_code,
+        detail={"code": exc.code, "message": str(exc)},
+    ) from exc
+
+
 @router.patch(
     "/{course_id}/knowledge-builds/{build_id}",
     summary="更新课程知识库构建配置",
@@ -1034,6 +1050,107 @@ def update_knowledge_base_build_draft(
         _raise_build_revision_conflict(exc)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/textbooks",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="上传并暂存课程知识库构建教材",
+)
+async def upload_knowledge_base_build_textbook(
+    course_id: str,
+    build_id: str,
+    expected_revision: int = Form(..., ge=1),
+    file: UploadFile = File(..., description="PDF、DOCX、TXT 或 Markdown 教材"),
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    if not file.filename:
+        raise HTTPException(status_code=422, detail="教材文件名不能为空")
+    try:
+        updated, textbook = stage_course_knowledge_textbook(
+            manager=_svc._get_manager(),
+            course_id=course_id,
+            build_id=build_id,
+            owner_user_id=principal.user_id,
+            expected_revision=expected_revision,
+            filename=file.filename,
+            file_bytes=await file.read(),
+        )
+        job = submit_course_knowledge_textbook_parse_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            textbook_id=textbook["textbook_id"],
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except CourseKnowledgeTextbookInputError as exc:
+        _raise_textbook_input_error(exc)
+    return {
+        "build": updated,
+        "textbook": textbook,
+        "job": job.model_dump(mode="json"),
+    }
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/textbooks/{textbook_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="重试解析知识库构建教材",
+)
+def retry_knowledge_base_build_textbook(
+    course_id: str,
+    build_id: str,
+    textbook_id: str,
+    payload: CourseKnowledgeTextbookMutationRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        updated = retry_course_knowledge_textbook(
+            course_id=course_id,
+            build_id=build_id,
+            textbook_id=textbook_id,
+            expected_revision=payload.expected_revision,
+        )
+        job = submit_course_knowledge_textbook_parse_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            textbook_id=textbook_id,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except CourseKnowledgeTextbookInputError as exc:
+        _raise_textbook_input_error(exc)
+    return {"build": updated, "job": job.model_dump(mode="json")}
+
+
+@router.delete(
+    "/{course_id}/knowledge-builds/{build_id}/textbooks/{textbook_id}",
+    summary="从构建草案移除教材输入",
+)
+def delete_knowledge_base_build_textbook(
+    course_id: str,
+    build_id: str,
+    textbook_id: str,
+    payload: CourseKnowledgeTextbookMutationRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    del principal
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return remove_course_knowledge_textbook(
+            course_id=course_id,
+            build_id=build_id,
+            textbook_id=textbook_id,
+            expected_revision=payload.expected_revision,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except CourseKnowledgeTextbookInputError as exc:
+        _raise_textbook_input_error(exc)
 
 
 @router.put(
@@ -1311,29 +1428,15 @@ async def import_textbook_knowledge_graph(
     file: UploadFile = File(..., description="Textbook file"),
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    _ = principal
-    mgr = _svc._get_manager()
-
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="Textbook file is required")
-
-    try:
-        return import_textbook_into_knowledge_graph(
-            course_id=course_id,
-            filename=file.filename,
-            file_bytes=await file.read(),
-            manager=mgr,
-            rag_system=get_rag_system(),
-        )
-    except TextbookKnowledgeGraphError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to import textbook: {exc}") from exc
+    del file, principal
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail={
+            "code": "LEGACY_TEXTBOOK_IMPORT_RETIRED",
+            "message": "旧教材导入会直接覆盖图谱，现已停用；请在知识库构建方案中上传教材",
+            "replacement": f"/api/courses/{course_id}/knowledge-builds/{{build_id}}/textbooks",
+        },
+    )
 
 
 @router.post(

@@ -146,6 +146,8 @@ def _textbook_context(build: Mapping[str, Any]) -> list[dict[str, Any]]:
     for textbook in list(build.get("textbooks") or []):
         if not isinstance(textbook, Mapping):
             continue
+        if textbook.get("status") and textbook.get("status") != "ready":
+            continue
         parsed = dict(textbook.get("parse_result") or {})
         outline = parsed.get("outline") or textbook.get("outline") or []
         context.append(
@@ -619,6 +621,13 @@ def submit_course_knowledge_graph_generation_job(
         raise KnowledgeBuildRevisionConflict(
             f"构建草案版本冲突：当前 {build.get('revision')}，提交 {expected_revision}"
         )
+    unavailable_textbooks = [
+        item
+        for item in build.get("textbooks") or []
+        if str(item.get("status") or "") != "ready"
+    ]
+    if unavailable_textbooks:
+        raise ValueError("请等待所有已上传教材解析完成，或移除解析失败的教材")
     job = create_job(
         kind=JobKind.GENERATE_GRAPH,
         owner_user_id=owner_user_id,

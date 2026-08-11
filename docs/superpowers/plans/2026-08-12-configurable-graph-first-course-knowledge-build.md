@@ -514,3 +514,5 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests
 | D14-005 | 2026-08-12 | 图谱模型输出采用严格 JSON 对象、确定性校验和最多两次模型修复；禁止本地 fallback | 结构正确性可重复验证，模型失败不能伪装为成功图谱 | 失败保留 `GRAPH_MODEL_UNAVAILABLE`、`GRAPH_SCHEMA_INVALID` 或 `GRAPH_SCALE_UNSATISFIED` |
 | D14-006 | 2026-08-12 | 全量和模块级图谱生成使用独立 `generate_graph` 后台任务，生成成功后才以 expected revision 原子写入草稿 | 模型调用可能耗时，且生成期间用户仍可能编辑配置；完成时的 revision 检查可阻止旧结果覆盖新配置 | 局部生成保持未选择模块 ID；冲突时任务失败并要求按最新草稿重试 |
 | D14-007 | 2026-08-12 | 旧 `/knowledge-builds/preview` 仅转发为默认配置草稿并返回弃用信息，不再搜索或生成硬编码图谱 | 防止旧客户端绕过图谱先行流程，同时保留迁移期兼容入口 | 前端删除旧 preview 调用；正式图谱唯一来源为模型生成器或用户审核编辑 |
+| D14-008 | 2026-08-12 | 教材原文件按 build/textbook ID 保存为不可变暂存文件，元数据和受限解析结果保存在构建草稿 JSON；解析任务写回时按最新 revision 合并 | 原文件与已发布知识库隔离，支持多教材并发解析，又避免解析任务用旧快照覆盖配置编辑 | 移除教材只移出草稿，原文件暂时保留以便恢复；构建清理策略在发布阶段统一处理 |
+| D14-009 | 2026-08-12 | 旧 `/knowledge-graph/textbook-import` 返回 410，不再允许直接覆盖课程图谱 | 该入口缺少 build/revision，无法安全转发到新草稿；继续保留会绕过模型图谱审核门禁 | 客户端必须先创建构建草稿，再通过 `/knowledge-builds/{build_id}/textbooks` 上传 |

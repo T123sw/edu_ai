@@ -156,3 +156,64 @@ def test_generate_graph_endpoint_queues_model_job_with_revision(course_api, monk
         "expected_revision": 2,
         "target_module_id": "module-poetry",
     }
+
+
+def test_textbook_upload_is_scoped_to_build_draft(course_api, monkeypatch):
+    from app.api import courses
+
+    captured = {}
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 1,
+            }
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+
+    def stage(**kwargs):
+        captured.update(kwargs)
+        textbook = {
+            "textbook_id": "textbook-1",
+            "filename": kwargs["filename"],
+            "status": "queued",
+        }
+        return (
+            {
+                "build_id": "kb-1",
+                "library_id": "course-1",
+                "status": "draft",
+                "phase": "textbook_parsing",
+                "revision": 2,
+                "textbooks": [textbook],
+            },
+            textbook,
+        )
+
+    monkeypatch.setattr(courses, "stage_course_knowledge_textbook", stage)
+    monkeypatch.setattr(
+        courses,
+        "submit_course_knowledge_textbook_parse_job",
+        lambda **_kwargs: SimpleNamespace(
+            model_dump=lambda **_options: {
+                "edu_job_id": "job-parse-1",
+                "kind": "parse_document",
+                "status": "queued",
+            }
+        ),
+    )
+
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds/kb-1/textbooks",
+        data={"expected_revision": "1"},
+        files={"file": ("教材.md", "# 目录".encode("utf-8"), "text/markdown")},
+    )
+
+    assert response.status_code == 202
+    assert response.json()["textbook"]["status"] == "queued"
+    assert response.json()["job"]["kind"] == "parse_document"
+    assert captured["build_id"] == "kb-1"
+    assert captured["file_bytes"] == "# 目录".encode("utf-8")
