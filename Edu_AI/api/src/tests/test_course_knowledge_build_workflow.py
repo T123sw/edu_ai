@@ -327,3 +327,45 @@ def test_textbook_upload_is_scoped_to_build_draft(course_api, monkeypatch):
     assert response.json()["job"]["kind"] == "parse_document"
     assert captured["build_id"] == "kb-1"
     assert captured["file_bytes"] == "# 目录".encode("utf-8")
+
+
+def test_blocked_build_can_retry_from_stable_checkpoint(course_api, monkeypatch):
+    from app.api import courses
+
+    captured = {}
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "blocked",
+                "revision": 4,
+                "graph_confirmed_at": "2026-08-12T10:00:00+00:00",
+                "confirmed_graph_revision": 4,
+            }
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+
+    def submit(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(
+            model_dump=lambda **_kwargs: {
+                "edu_job_id": "job-retry-1",
+                "kind": "build_knowledge_index",
+                "status": "queued",
+            }
+        )
+
+    monkeypatch.setattr(courses, "submit_course_knowledge_plan_build_job", submit)
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds/kb-1/retry"
+    )
+
+    assert response.status_code == 202
+    assert captured == {
+        "course_id": "course-1",
+        "owner_user_id": "teacher-a",
+        "build_id": "kb-1",
+        "retry": True,
+    }

@@ -32,7 +32,9 @@ PLAN_BUILDER_VERSION = "course-kb-plan-v2"
 MIN_DOCUMENTS_PER_LEAF = 3
 
 
-def submit_course_knowledge_plan_build_job(*, course_id: str, owner_user_id: str, build_id: str) -> EduJob:
+def submit_course_knowledge_plan_build_job(
+    *, course_id: str, owner_user_id: str, build_id: str, retry: bool = False
+) -> EduJob:
     repository = get_postgres_knowledge_repository()
     build = repository.get_build(build_id)
     if build is None or str(build.get("library_id") or "") != course_id:
@@ -46,7 +48,10 @@ def submit_course_knowledge_plan_build_job(*, course_id: str, owner_user_id: str
     from app.services.platform_task_handlers import enqueue_platform_task
     from app.services.runtime_config_resolver import runtime_config_resolver
 
-    repository.queue_build(build_id, selected_source_count=0)
+    if retry:
+        repository.requeue_build(build_id)
+    else:
+        repository.queue_build(build_id, selected_source_count=0)
     try:
         job = create_job(
             kind=JobKind.BUILD_KNOWLEDGE_INDEX,

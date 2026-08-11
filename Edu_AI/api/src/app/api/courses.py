@@ -1332,6 +1332,31 @@ def start_knowledge_base_build(
     return job.model_dump(mode="json")
 
 
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="从稳定检查点重试失败或阻塞的课程知识库构建",
+)
+def retry_knowledge_base_build(
+    course_id: str,
+    build_id: str,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    if build.get("status") not in {"blocked", "failed"}:
+        raise HTTPException(status_code=422, detail="只有失败或阻塞的构建可以重试")
+    try:
+        job = submit_course_knowledge_plan_build_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            retry=True,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return job.model_dump(mode="json")
+
+
 @router.get(
     "/{course_id}/knowledge-base/versions",
     summary="列出已发布的课程知识图谱版本",

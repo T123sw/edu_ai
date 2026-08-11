@@ -277,6 +277,19 @@ def test_running_build_replaces_and_updates_discovered_source_candidates(engine)
     assert candidate["review_status"] == "ready"
     assert candidate["metadata"]["content_hash"] == "abc123"
 
+    repository.update_build(
+        draft["build_id"],
+        status="blocked",
+        phase="quality_blocked",
+        progress=100,
+        error={"code": "QUALITY_GATE_FAILED", "message": "web minimum"},
+    )
+    repository.requeue_build(draft["build_id"])
+    retried = repository.get_build(draft["build_id"])
+    assert retried["status"] == "queued"
+    assert retried["phase"] == "retry_queued"
+    assert retried["error"] is None
+
 
 def test_knowledge_repository_versions_and_rolls_back_published_graph(engine):
     from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository

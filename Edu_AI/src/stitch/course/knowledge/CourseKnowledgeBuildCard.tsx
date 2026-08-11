@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useCourseJobs } from "../../../jobs/jobStore";
+import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
 import { isActiveJob } from "../../../jobs/types";
 import {
   createCourseKnowledgeBuildDraft,
   getCourseKnowledgeBuild,
   listCourseKnowledgeVersions,
+  retryCourseKnowledgeBuild,
   rollbackCourseKnowledgeVersion,
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
@@ -45,6 +46,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const [wizardOpen, setWizardOpen] = useState(false);
   const [versions, setVersions] = useState<CourseKnowledgeGraphVersion[]>([]);
   const [rollingBack, setRollingBack] = useState<number | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const cardRef = useRef<HTMLElement | null>(null);
 
@@ -112,6 +114,21 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
     }
   }
 
+  async function retryBuild() {
+    if (!plan || !["blocked", "failed"].includes(plan.status) || retrying) return;
+    setRetrying(true);
+    setSubmitError("");
+    try {
+      const job = await retryCourseKnowledgeBuild(courseId, plan.build_id);
+      registerCreatedJob(job);
+      setPlan(await getCourseKnowledgeBuild(courseId, plan.build_id));
+    } catch (reason) {
+      setSubmitError(reason instanceof Error ? reason.message : "重试构建失败，请稍后再试。");
+    } finally {
+      setRetrying(false);
+    }
+  }
+
   const status = activeJob ?? latestJob;
   const isWorking = Boolean(activeJob) || planning;
   const failed = status?.status === "failed" || status?.status === "partially_succeeded";
@@ -129,6 +146,8 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
       ? "正在更新…"
       : plan?.status === "draft"
         ? "继续构建方案"
+        : plan && ["blocked", "failed"].includes(plan.status)
+          ? "新建方案调整配置"
       : documentCount
           ? "更新知识库"
           : "一键构建知识库";
@@ -176,6 +195,12 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
       ) : null}
 
       <div className="course-kb-builder__actions">
+        {canBuild && plan && ["blocked", "failed"].includes(plan.status) ? (
+          <button type="button" className="course-kb-builder__primary" disabled={retrying || isWorking} onClick={() => void retryBuild()}>
+            <MaterialIcon name="replay" />
+            {retrying ? "正在重新排队…" : "重试本方案"}
+          </button>
+        ) : null}
         {canBuild ? (
           <button type="button" className="course-kb-builder__primary" disabled={isWorking} onClick={() => void buildKnowledgeBase()}>
             <MaterialIcon name={documentCount ? "refresh" : "auto_awesome"} />

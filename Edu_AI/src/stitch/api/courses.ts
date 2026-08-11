@@ -333,6 +333,12 @@ export function startCourseKnowledgeBuild(courseId: string, buildId: string) {
   });
 }
 
+export function retryCourseKnowledgeBuild(courseId: string, buildId: string) {
+  return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-builds/${buildId}/retry`, {
+    method: "POST",
+  });
+}
+
 export function listCourseKnowledgeVersions(courseId: string) {
   return apiRequest<CourseKnowledgeGraphVersion[]>(`/api/courses/${courseId}/knowledge-base/versions`);
 }

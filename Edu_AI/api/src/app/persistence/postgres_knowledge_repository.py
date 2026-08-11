@@ -578,6 +578,29 @@ class PostgresKnowledgeRepository:
                     raise ValueError("知识图谱尚未确认，不能启动正式构建")
                 raise ValueError("该构建计划已经启动或不再可用")
 
+    def requeue_build(self, build_id: str) -> None:
+        now = datetime.now(timezone.utc)
+        with database_session(engine=self._engine) as session:
+            result = session.execute(
+                update(KnowledgeBuild)
+                .where(
+                    KnowledgeBuild.build_id == build_id,
+                    KnowledgeBuild.status.in_({"blocked", "failed"}),
+                    KnowledgeBuild.graph_confirmed_at.is_not(None),
+                    KnowledgeBuild.confirmed_graph_revision == KnowledgeBuild.revision,
+                )
+                .values(
+                    status="queued",
+                    phase="retry_queued",
+                    progress=0,
+                    updated_at=now,
+                    finished_at=None,
+                    error=None,
+                )
+            )
+            if result.rowcount != 1:
+                raise ValueError("只有已确认且失败或阻塞的构建可以重试")
+
     def record_quality_check(
         self,
         build_id: str,
