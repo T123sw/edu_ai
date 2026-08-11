@@ -7,7 +7,6 @@ import json
 import os
 import sqlite3
 import threading
-from dataclasses import replace
 from pathlib import Path
 
 from .models import (
@@ -313,6 +312,68 @@ class AssessmentStore:
             raise AssessmentStoreError("VERSION_NOT_FOUND", "Assessment version was not found")
         return version
 
+    def update_draft(
+        self,
+        version: AssessmentVersionRecord,
+        items: list[AssessmentItemRecord],
+        *,
+        expected_revision: int,
+    ) -> AssessmentVersionRecord:
+        if self._postgres:
+            return self._repository.update_draft(
+                version, items, expected_revision=expected_revision
+            )
+        with self._lock:
+            self._connection.execute("BEGIN IMMEDIATE")
+            row = self._connection.execute(
+                "SELECT * FROM assessment_versions WHERE assessment_version_id=?",
+                (version.assessment_version_id,),
+            ).fetchone()
+            if row is None:
+                self._connection.rollback()
+                raise AssessmentStoreError("VERSION_NOT_FOUND", "Assessment version was not found")
+            if str(row["status"]) != "draft":
+                self._connection.rollback()
+                raise AssessmentStoreError("VERSION_IMMUTABLE", "Published versions cannot be edited")
+            if int(row["draft_revision"]) != int(expected_revision):
+                self._connection.rollback()
+                raise AssessmentStoreError("DRAFT_REVISION_CONFLICT", "Assessment draft has changed")
+            try:
+                self._connection.execute(
+                    """
+                    UPDATE assessment_versions SET
+                        source_mode=?, assessment_mode=?, pass_threshold=?, mastery_threshold=?,
+                        max_attempts=?, answer_reveal_policy=?, shuffle_questions=?,
+                        shuffle_options=?, draft_revision=draft_revision + 1
+                    WHERE assessment_version_id=?
+                    """,
+                    (
+                        version.source_mode,
+                        version.assessment_mode,
+                        version.pass_threshold,
+                        version.mastery_threshold,
+                        version.max_attempts,
+                        version.answer_reveal_policy,
+                        int(version.shuffle_questions),
+                        int(version.shuffle_options),
+                        version.assessment_version_id,
+                    ),
+                )
+                self._connection.execute(
+                    "DELETE FROM assessment_items WHERE assessment_version_id=?",
+                    (version.assessment_version_id,),
+                )
+                for item in items:
+                    self._insert_item(item)
+                self._connection.commit()
+            except Exception:
+                self._connection.rollback()
+                raise
+        updated = self.get_version(version.assessment_version_id)
+        if updated is None:
+            raise AssessmentStoreError("VERSION_NOT_FOUND", "Assessment version was not found")
+        return updated
+
     def _insert_item(self, item: AssessmentItemRecord) -> None:
         self._connection.execute(
             """
@@ -451,6 +512,19 @@ class AssessmentStore:
             row = self._connection.execute(
                 "SELECT * FROM assessment_versions WHERE assessment_version_id=?",
                 (assessment_version_id,),
+            ).fetchone()
+        return self._version_from_row(row) if row else None
+
+    def get_latest_version(self, assessment_id: str) -> AssessmentVersionRecord | None:
+        if self._postgres:
+            return self._repository.get_latest_version(assessment_id)
+        with self._lock:
+            row = self._connection.execute(
+                """
+                SELECT * FROM assessment_versions
+                WHERE assessment_id=? ORDER BY version_number DESC LIMIT 1
+                """,
+                (assessment_id,),
             ).fetchone()
         return self._version_from_row(row) if row else None
 

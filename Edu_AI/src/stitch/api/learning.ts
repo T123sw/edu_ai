@@ -1,5 +1,7 @@
 import { apiRequest } from "./client";
 import type {
+  AssessmentDraft,
+  AssessmentDraftUpdatePayload,
   CourseLearningSummary,
   LearningEventPayload,
   LearningEventResponse,
@@ -23,11 +25,46 @@ export const createLearningTask = (
     body: JSON.stringify(payload),
   });
 
-export const publishLearningTask = (courseId: string, taskId: string) =>
+export const publishLearningTask = (courseId: string, taskId: string, expectedRevision: number) =>
   apiRequest<LearningTask>(
     `/api/courses/${courseId}/learning/tasks/${taskId}/publish`,
     { method: "POST" },
   );
+
+const assessmentPath = (courseId: string, taskId: string) =>
+  `/api/courses/${courseId}/learning/tasks/${taskId}/assessment`;
+
+export const detectTaskAssessment = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentDraft>(`${assessmentPath(courseId, taskId)}/detect`, {
+    method: "POST",
+  });
+
+export const getTaskAssessmentDraft = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentDraft>(`${assessmentPath(courseId, taskId)}/draft`);
+
+export const updateTaskAssessmentDraft = (
+  courseId: string,
+  taskId: string,
+  payload: AssessmentDraftUpdatePayload,
+) => apiRequest<AssessmentDraft>(`${assessmentPath(courseId, taskId)}/draft`, {
+  method: "PUT",
+  body: JSON.stringify(payload),
+});
+
+export const validateTaskAssessment = (courseId: string, taskId: string) =>
+  apiRequest<AssessmentDraft["quality"]>(
+    `${assessmentPath(courseId, taskId)}/validate`,
+    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
+
+export const generateTaskAssessment = (
+  courseId: string,
+  taskId: string,
+  expectedRevision: number,
+) => apiRequest<AssessmentDraft>(`${assessmentPath(courseId, taskId)}/generate`, {
+  method: "POST",
+  body: JSON.stringify({ expected_revision: expectedRevision, difficulty: "medium" }),
+});
 
 export const recordLearningEvent = (
   courseId: string,

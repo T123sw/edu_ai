@@ -6,6 +6,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.api import course_dependencies, learning
+from app.assessment.models import AssessmentItemRecord, AssessmentRecord, AssessmentVersionRecord
+from app.assessment.service import AssessmentService
+from app.assessment.store import AssessmentStore
 from app.learning.service import LearningService
 from app.learning.store import LearningStore
 from app.services.course_access import CourseAccessService
@@ -31,6 +34,55 @@ class LearningApiFactory:
             material_lookup=material_lookup,
             membership_lookup=self.memberships.list_for_course,
         )
+        self.assessment_store = AssessmentStore(tmp_path / "assessment.db")
+        self.assessment_service = AssessmentService(
+            store=self.assessment_store,
+            learning_service=self.service,
+            material_lookup=material_lookup,
+        )
+
+    def confirm_assessment(self, task_id: str) -> int:
+        task = self.service.store.get_task(task_id, course_id="course-1")
+        assessment_id = f"asmt-{task_id}"
+        version_id = f"asv-{task_id}"
+        self.assessment_store.create_draft(
+            AssessmentRecord(assessment_id, "course-1", task_id, "teacher-1"),
+            AssessmentVersionRecord(
+                assessment_version_id=version_id,
+                assessment_id=assessment_id,
+                version_number=1,
+                status="draft",
+                source_mode="manual",
+                assessment_mode="closed_book",
+                pass_threshold=60,
+                mastery_threshold=80,
+                max_attempts=3,
+                score_policy="best_final_score",
+                answer_reveal_policy="after_finish_or_exhausted",
+                shuffle_questions=False,
+                shuffle_options=False,
+            ),
+        )
+        version = self.assessment_store.replace_draft_items(
+            version_id,
+            [
+                AssessmentItemRecord.new(
+                    assessment_version_id=version_id,
+                    position=1,
+                    item_type="structured_blank",
+                    prompt={"stem": "Fixture assessment"},
+                    scoring_key={"accepted_answers": ["ok"]},
+                    rubric={},
+                    max_score=10,
+                    grading_provider="deterministic",
+                    knowledge_point_ids=list(task.knowledge_point_ids),
+                    source_refs=[{"material_type": "fixture", "material_id": task_id}],
+                    created_origin="manual",
+                )
+            ],
+            expected_revision=0,
+        )
+        return version.draft_revision
 
     def client(self, username: str, role: str) -> TestClient:
         identity = {"username": username, "role": role}
@@ -39,6 +91,7 @@ class LearningApiFactory:
         app.dependency_overrides[course_dependencies.get_current_user] = lambda: identity
         app.dependency_overrides[course_dependencies.get_course_access_service] = lambda: self.access
         app.dependency_overrides[learning.get_learning_service] = lambda: self.service
+        app.dependency_overrides[learning.get_assessment_service] = lambda: self.assessment_service
         return TestClient(app)
 
 
@@ -60,6 +113,7 @@ def test_teacher_student_learning_api_round_trip(tmp_path):
     task_id = created.json()["task_id"]
     assert created.json()["status"] == "draft"
     assert student.get("/api/courses/course-1/learning/tasks").json() == []
+    factory.confirm_assessment(task_id)
 
     published = teacher.post(
         f"/api/courses/course-1/learning/tasks/{task_id}/publish"
@@ -100,6 +154,7 @@ def test_only_students_can_submit_learning_events(tmp_path):
         "/api/courses/course-1/learning/tasks",
         json={"title": "Task", "instructions": "", "resource_refs": [], "knowledge_point_ids": []},
     ).json()
+    factory.confirm_assessment(created["task_id"])
     teacher.post(
         f"/api/courses/course-1/learning/tasks/{created['task_id']}/publish"
     )
@@ -131,6 +186,7 @@ def test_learning_event_api_persists_evidence_payload(tmp_path):
         },
     ).json()
     task_id = created["task_id"]
+    factory.confirm_assessment(task_id)
     teacher.post(f"/api/courses/course-1/learning/tasks/{task_id}/publish")
 
     response = student.post(
@@ -173,6 +229,7 @@ def test_learning_overview_is_role_scoped_and_requires_teacher_edit_access(tmp_p
         "/api/courses/course-1/learning/tasks",
         json={"title": "Task", "instructions": "", "resource_refs": [], "knowledge_point_ids": []},
     ).json()
+    factory.confirm_assessment(task["task_id"])
     teacher.post(f"/api/courses/course-1/learning/tasks/{task['task_id']}/publish")
     student.post(
         f"/api/courses/course-1/learning/tasks/{task['task_id']}/events",

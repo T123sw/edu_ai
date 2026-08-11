@@ -91,7 +91,7 @@
 - Produces: `validate_settings(pass_threshold, mastery_threshold, max_attempts)`、`grade_objective_item(item, answer)`、`select_best_attempt(attempts)`、`can_reveal_answers(assignment)`。
 - Consumes: 标准化题型 `single_choice | multiple_choice | judge | structured_blank | code_output | code_trace | debug_fix | short_answer | artifact | code_implementation`。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 ```python
 def test_default_policy_and_best_score_are_deterministic():
@@ -112,19 +112,19 @@ def test_subjective_item_never_receives_final_ai_score():
     assert result.final_score is None
 ```
 
-- [ ] **Step 2: 运行红灯测试**
+- [x] **Step 2: 运行红灯测试**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_policies.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_policies.py -q`
 
 Expected: FAIL，`app.assessment` 尚不存在。
 
-- [ ] **Step 3: 实现不可变 dataclass 与纯策略**
+- [x] **Step 3: 实现不可变 dataclass 与纯策略**
 
 `validate_settings` 必须拒绝阈值越界、`mastery_threshold < pass_threshold` 和次数不在 1–10；多选答案按稳定 option ID 集合比较，结构化填空先 trim/casefold 后比较，主观类题型只返回 `pending_review`。
 
-- [ ] **Step 4: 运行测试并提交**
+- [x] **Step 4: 运行测试并提交**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_policies.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_policies.py -q`
 
 Expected: PASS。
 
@@ -145,7 +145,7 @@ Commit: `git commit -m "feat: add assessment domain policies"`
 - Produces: `AssessmentStore.create_draft`、`replace_draft_items`、`publish_version`、`get_task_assessment`、`create_assignment`、`create_attempt`、`save_answers`、`submit_attempt`、`append_review`、`list_task_attempts`。
 - Enforces: 已发布版本不可修改，`task_id` 唯一 assessment，`assignment_id + attempt_number` 唯一，同一 assignment 仅一个进行中 attempt。
 
-- [ ] **Step 1: 写事务与不可变失败测试**
+- [x] **Step 1: 写事务与不可变失败测试**
 
 ```python
 def test_publish_freezes_content_and_is_idempotent(store):
@@ -158,24 +158,23 @@ def test_publish_freezes_content_and_is_idempotent(store):
         store.replace_draft_items(first.version_id, [different_item()])
 ```
 
-- [ ] **Step 2: 运行红灯测试**
+- [x] **Step 2: 运行红灯测试**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_store.py src/tests/persistence/test_postgres_assessment_repository.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_store.py tests/persistence/test_postgres_assessment_repository.py -q`
 
 Expected: FAIL，仓储和 ORM 模型缺失。
 
-- [ ] **Step 3: 实现七张测评表和迁移**
+- [x] **Step 3: 实现七张测评表和迁移**
 
 迁移创建 `assessments`、`assessment_versions`、`assessment_items`、`assessment_assignments`、`assessment_attempts`、`assessment_answers`、`assessment_reviews`；索引覆盖 `task_id`、`course_id`、`student_id`、`status`、`assessment_version_id`。SQLite `_initialize()` 使用同名字段和唯一约束；PostgreSQL repository 不允许回退到 SQLite。
 
-- [ ] **Step 4: 验证迁移与仓储**
+- [x] **Step 4: 验证迁移与仓储**
 
 Run:
 
 ```powershell
-cd Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_store.py src/tests/persistence/test_postgres_assessment_repository.py src/tests/database/test_alembic_revision_chain.py -q
-Set-Location src
+cd Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_store.py tests/persistence/test_postgres_assessment_repository.py tests/database/test_alembic_revision_chain.py -q
 python -m alembic heads
 ```
 
@@ -196,7 +195,7 @@ Commit: `git commit -m "feat: persist versioned learning assessments"`
 - Produces: `AssessmentDraftGenerator.generate(materials, task, coverage_gaps, settings) -> list[AssessmentItemRecord]`，复用 `get_fallback_llm()` 与 `QuizGenerator.build_artifact_from_raw()`。
 - Produces: `AssessmentQualityService.validate(draft) -> QualityReport`，严重问题使 `publishable=False`。
 
-- [ ] **Step 1: 写已有习题优先和无习题补齐测试**
+- [x] **Step 1: 写已有习题优先和无习题补齐测试**
 
 ```python
 def test_existing_quiz_is_imported_without_duplicate_generation(generator_spy):
@@ -212,19 +211,19 @@ def test_missing_coverage_generates_only_gaps(generator_spy):
     assert all(item.source_refs for item in result.items)
 ```
 
-- [ ] **Step 2: 运行红灯测试**
+- [x] **Step 2: 运行红灯测试**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_authoring.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_authoring.py -q`
 
 Expected: FAIL，抽取器、生成器和质量服务缺失。
 
-- [ ] **Step 3: 实现标准化和门禁**
+- [x] **Step 3: 实现标准化和门禁**
 
 已有 `choice/blank/short/judge` 映射到统一题型；题干、选项、答案和材料来源使用稳定 ID。质量门禁至少返回 `MISSING_SCORING_KEY`、`MISSING_RUBRIC`、`KNOWLEDGE_POINT_UNCOVERED`、`DUPLICATE_ITEM`、`SOURCE_MISSING`、`STUDENT_PROJECTION_LEAK`。自动生成没有可解析材料时返回 `ASSESSMENT_SOURCE_REQUIRED`。
 
-- [ ] **Step 4: 运行测试并提交**
+- [x] **Step 4: 运行测试并提交**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_authoring.py src/tests/chat/test_quiz_generator.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_authoring.py tests/chat/test_quiz_generator.py -q`
 
 Expected: PASS。
 
@@ -249,7 +248,7 @@ Commit: `git commit -m "feat: author grounded task assessments"`
 - Produces: detect/draft/generate/validate endpoints and replacement `POST .../tasks/{task_id}/publish` atomic use case.
 - Produces: `getAssessmentPublishBlockers(draft) -> string[]` and four-step teacher wizard.
 
-- [ ] **Step 1: 写无测评禁止发布 API 测试**
+- [x] **Step 1: 写无测评禁止发布 API 测试**
 
 ```python
 def test_new_task_cannot_publish_without_confirmed_assessment(teacher_client, task_id):
@@ -258,18 +257,18 @@ def test_new_task_cannot_publish_without_confirmed_assessment(teacher_client, ta
     assert response.json()["detail"]["code"] == "ASSESSMENT_REQUIRED"
 ```
 
-- [ ] **Step 2: 写前端发布门禁测试并运行红灯**
+- [x] **Step 2: 写前端发布门禁测试并运行红灯**
 
 Run:
 
 ```powershell
-cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_authoring_api.py -q
+cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_authoring_api.py -q
 cd ..; npm test -- src/stitch/assessment/assessmentAuthoring.test.ts
 ```
 
 Expected: 两组均 FAIL。
 
-- [ ] **Step 3: 实现 API 与四步创作界面**
+- [x] **Step 3: 实现 API 与四步创作界面**
 
 教师流程固定为任务目标、学习材料、正式测评、发布设置。发布请求必须带当前 `draft_revision`；服务端重新执行质量校验并在一个写事务中冻结版本和发布任务。前端不得在后端不可用时退回旧 publish 调用。
 
@@ -278,9 +277,9 @@ Expected: 两组均 FAIL。
 Run:
 
 ```powershell
-cd Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_policies.py src/tests/assessment/test_assessment_store.py src/tests/assessment/test_assessment_authoring.py src/tests/assessment/test_assessment_authoring_api.py src/tests/learning -q
-cd ..
+cd Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_policies.py tests/assessment/test_assessment_store.py tests/assessment/test_assessment_authoring.py tests/assessment/test_assessment_authoring_api.py tests/learning -q
+cd ../..
 npm test -- src/stitch/assessment/assessmentAuthoring.test.ts src/stitch/pages/courseLearningPresentation.test.ts
 npm run build
 ```
@@ -322,7 +321,7 @@ def test_three_attempts_keep_best_score_and_all_history(service):
 
 - [ ] **Step 2: 运行红灯、实现事务，再运行绿灯**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_attempt_service.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_attempt_service.py -q`
 
 Expected before/after: 首次 FAIL；实现后 PASS。并覆盖重复提交不重复扣次数、修订冲突 409、答案揭示后拒绝计分作答。
 
@@ -367,7 +366,7 @@ def test_student_cannot_submit_assessment_scored_event(student_client, task_id):
 
 - [ ] **Step 3: 运行测试并提交**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_student_api.py src/tests/learning/test_learning_api.py src/tests/learning/test_learning_service.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_student_api.py tests/learning/test_learning_api.py tests/learning/test_learning_service.py -q`
 
 Expected: PASS。
 
@@ -402,9 +401,9 @@ Expected before/after: 首次 FAIL；实现后 PASS。
 Run:
 
 ```powershell
-cd Edu_AI/api
-python -m pytest src/tests/assessment src/tests/learning -q
-cd ..
+cd Edu_AI/api/src
+python -m pytest tests/assessment tests/learning -q
+cd ../..
 npm test -- src/stitch/assessment/assessmentRunner.test.ts src/stitch/assessment/assessmentAuthoring.test.ts src/stitch/pages/courseLearningPresentation.test.ts
 npm run lint
 npm run build
@@ -453,7 +452,7 @@ def test_subjective_attempt_waits_for_teacher_and_review_recomputes_best(service
 
 - [ ] **Step 2: 实现服务/API 并运行测试**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_review.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_review.py -q`
 
 Expected before/after: 首次 FAIL；实现后 PASS。
 
@@ -487,9 +486,9 @@ Commit: `git commit -m "feat: add audited assessment reviews"`
 Run:
 
 ```powershell
-cd Edu_AI/api
-python -m pytest src/tests/assessment src/tests/learning -q
-cd ..
+cd Edu_AI/api/src
+python -m pytest tests/assessment tests/learning -q
+cd ../..
 npm test -- src/stitch/assessment/assessmentAnalytics.test.ts src/stitch/assessment/assessmentRunner.test.ts src/stitch/assessment/assessmentAuthoring.test.ts
 npm run build
 ```
@@ -525,7 +524,7 @@ Push: `git push origin main`
 
 - [ ] **Step 2: 实现投影和回答模板并运行测试**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/chat/runtime/test_learning_agent_tools.py src/tests/chat/runtime/test_learning_task_domain.py src/tests/chat/test_learning_context_injection.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_learning_task_domain.py tests/chat/test_learning_context_injection.py -q`
 
 Expected: PASS。
 
@@ -550,7 +549,7 @@ Commit: `git commit -m "feat: ground agents in assessment outcomes"`
 
 - [ ] **Step 2: 实现最小修复并运行安全测试**
 
-Run: `cd Edu_AI/api; python -m pytest src/tests/assessment/test_assessment_security.py src/tests/assessment/test_assessment_migration.py -q`
+Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_security.py tests/assessment/test_assessment_migration.py -q`
 
 Expected: PASS。
 
@@ -574,9 +573,8 @@ Commit: `git commit -m "test: harden the assessment learning loop"`
 - [ ] **Step 1: 运行全量后端、前端和迁移门禁**
 
 ```powershell
-cd Edu_AI/api
-python -m pytest src/tests -q
-cd src
+cd Edu_AI/api/src
+python -m pytest tests -q
 python -m alembic heads
 cd ../..
 npm test

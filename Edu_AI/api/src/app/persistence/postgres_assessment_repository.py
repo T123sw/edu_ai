@@ -86,6 +86,40 @@ class PostgresAssessmentRepository:
             result = self._version(version)
         return result
 
+    def update_draft(
+        self,
+        record: AssessmentVersionRecord,
+        items: list[AssessmentItemRecord],
+        *,
+        expected_revision: int,
+    ) -> AssessmentVersionRecord:
+        with database_session(engine=self._engine) as session:
+            version = session.get(AssessmentVersionModel, record.assessment_version_id)
+            if version is None:
+                raise AssessmentStoreError("VERSION_NOT_FOUND", "Assessment version was not found")
+            if version.status != "draft":
+                raise AssessmentStoreError("VERSION_IMMUTABLE", "Published versions cannot be edited")
+            if version.draft_revision != int(expected_revision):
+                raise AssessmentStoreError("DRAFT_REVISION_CONFLICT", "Assessment draft has changed")
+            version.source_mode = record.source_mode
+            version.assessment_mode = record.assessment_mode
+            version.pass_threshold = record.pass_threshold
+            version.mastery_threshold = record.mastery_threshold
+            version.max_attempts = record.max_attempts
+            version.answer_reveal_policy = record.answer_reveal_policy
+            version.shuffle_questions = record.shuffle_questions
+            version.shuffle_options = record.shuffle_options
+            version.draft_revision += 1
+            session.execute(
+                delete(AssessmentItemModel).where(
+                    AssessmentItemModel.assessment_version_id == record.assessment_version_id
+                )
+            )
+            session.add_all([self._item_model(item) for item in items])
+            session.flush()
+            result = self._version(version)
+        return result
+
     def publish_version(
         self,
         assessment_version_id: str,
@@ -132,6 +166,16 @@ class PostgresAssessmentRepository:
     def get_version(self, assessment_version_id: str) -> AssessmentVersionRecord | None:
         with database_session(engine=self._engine) as session:
             record = session.get(AssessmentVersionModel, assessment_version_id)
+            return self._version(record) if record else None
+
+    def get_latest_version(self, assessment_id: str) -> AssessmentVersionRecord | None:
+        with database_session(engine=self._engine) as session:
+            record = session.scalar(
+                select(AssessmentVersionModel)
+                .where(AssessmentVersionModel.assessment_id == assessment_id)
+                .order_by(AssessmentVersionModel.version_number.desc())
+                .limit(1)
+            )
             return self._version(record) if record else None
 
     def list_items(self, assessment_version_id: str) -> list[AssessmentItemRecord]:

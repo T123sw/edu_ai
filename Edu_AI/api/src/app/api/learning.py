@@ -10,6 +10,8 @@ from app.api.course_dependencies import (
     require_course_edit,
     require_course_read,
 )
+from app.assessment import get_assessment_service
+from app.assessment.service import AssessmentRuleError, AssessmentService
 from app.learning import get_learning_service
 from app.learning.models import CourseTaskSummaryRecord, LearningTaskRecord, LearningTaskView
 from app.learning.service import LearningRuleError, LearningService
@@ -21,6 +23,7 @@ from app.schemas.learning import (
     LearningTaskResponse,
     LearningOverviewResponse,
 )
+from app.schemas.assessment import AssessmentPublishRequest
 from app.services.course_access import CoursePrincipal
 
 
@@ -35,11 +38,11 @@ def _http_error(error: LearningRuleError) -> HTTPException:
         "TASK_NOT_PUBLISHED": status.HTTP_409_CONFLICT,
         "TASK_NOT_PUBLISHABLE": status.HTTP_409_CONFLICT,
         "RESOURCE_NOT_ASSIGNED": status.HTTP_409_CONFLICT,
-        "INVALID_TASK": status.HTTP_422_UNPROCESSABLE_ENTITY,
-        "INVALID_RESOURCE_REF": status.HTTP_422_UNPROCESSABLE_ENTITY,
-        "INVALID_PROGRESS": status.HTTP_422_UNPROCESSABLE_ENTITY,
-        "EVIDENCE_SOURCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_ENTITY,
-        "ASSESSMENT_EVIDENCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "INVALID_TASK": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "INVALID_RESOURCE_REF": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "INVALID_PROGRESS": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "EVIDENCE_SOURCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "ASSESSMENT_EVIDENCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
     }
     return HTTPException(
         status_code=status_by_code.get(error.code, status.HTTP_400_BAD_REQUEST),
@@ -137,17 +140,30 @@ def get_learning_overview(
 def publish_learning_task(
     course_id: str,
     task_id: str,
+    payload: AssessmentPublishRequest | None = None,
     principal: CoursePrincipal = Depends(require_course_edit),
-    service: LearningService = Depends(get_learning_service),
+    assessment_service: AssessmentService = Depends(get_assessment_service),
 ) -> LearningTaskResponse:
     try:
         return _task_response(
-            service.publish_task(
+            assessment_service.publish_task(
                 course_id=course_id,
                 task_id=task_id,
                 teacher_id=principal.user_id,
+                expected_revision=payload.expected_revision if payload else None,
             )
         )
+    except AssessmentRuleError as error:
+        raise HTTPException(
+            status_code=(
+                status.HTTP_403_FORBIDDEN
+                if error.code == "COURSE_EDIT_REQUIRED"
+                else status.HTTP_404_NOT_FOUND
+                if error.code == "TASK_NOT_FOUND"
+                else status.HTTP_409_CONFLICT
+            ),
+            detail={"code": error.code, "message": error.message},
+        ) from error
     except LearningRuleError as error:
         raise _http_error(error) from error
 

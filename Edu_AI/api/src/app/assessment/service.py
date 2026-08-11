@@ -1,0 +1,346 @@
+"""Teacher authoring and publication orchestration for task assessments."""
+
+from __future__ import annotations
+
+from dataclasses import asdict, replace
+from typing import Any, Callable
+from uuid import uuid4
+
+from app.learning.service import LearningRuleError, LearningService
+
+from .extractors import extract_assessment_items
+from .models import AssessmentRecord, AssessmentVersionRecord
+from .models import AssessmentItemRecord
+from .policies import AssessmentPolicyError, validate_settings
+from .quality import AssessmentQualityService, QualityReport
+from .store import AssessmentStore, AssessmentStoreError
+
+
+MaterialLookup = Callable[[str, str, str, str], dict[str, Any] | None]
+
+
+class AssessmentRuleError(ValueError):
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+class AssessmentService:
+    def __init__(
+        self,
+        *,
+        store: AssessmentStore,
+        learning_service: LearningService,
+        material_lookup: MaterialLookup,
+        generator=None,
+    ):
+        self.store = store
+        self.learning_service = learning_service
+        self.material_lookup = material_lookup
+        self.generator = generator
+        self.quality_service = AssessmentQualityService()
+
+    def _teacher_task(self, *, course_id: str, task_id: str, teacher_id: str):
+        try:
+            self.learning_service._teacher_membership(
+                course_id=course_id, teacher_id=teacher_id
+            )
+            return self.learning_service._task_or_error(
+                course_id=course_id, task_id=task_id
+            )
+        except LearningRuleError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+
+    def _materials(self, task, teacher_id: str) -> list[dict[str, Any]]:
+        materials = []
+        for ref in task.resource_refs:
+            material = self.material_lookup(
+                task.course_id,
+                ref["material_type"],
+                ref["material_id"],
+                teacher_id,
+            )
+            if material and str(material.get("visibility", "")) == "course":
+                materials.append(
+                    {
+                        **material,
+                        "material_type": ref["material_type"],
+                        "material_id": ref["material_id"],
+                    }
+                )
+        return materials
+
+    def detect_or_create_draft(
+        self, *, course_id: str, task_id: str, teacher_id: str
+    ) -> dict[str, Any]:
+        task = self._teacher_task(
+            course_id=course_id, task_id=task_id, teacher_id=teacher_id
+        )
+        existing = self.store.get_assessment_for_task(course_id, task_id)
+        if existing is not None:
+            version = self.store.get_latest_version(existing.assessment_id)
+            if version is None:
+                raise AssessmentRuleError(
+                    "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+                )
+            return self._draft_payload(task, version)
+
+        assessment_id = f"asmt_{uuid4().hex}"
+        version_id = f"asv_{uuid4().hex}"
+        materials = self._materials(task, teacher_id)
+        extracted = extract_assessment_items(
+            materials,
+            assessment_version_id=version_id,
+            knowledge_point_ids=list(task.knowledge_point_ids),
+        ).items
+        assessment = AssessmentRecord(
+            assessment_id=assessment_id,
+            course_id=course_id,
+            task_id=task_id,
+            created_by=teacher_id,
+        )
+        version = AssessmentVersionRecord(
+            assessment_version_id=version_id,
+            assessment_id=assessment_id,
+            version_number=1,
+            status="draft",
+            source_mode="imported" if extracted else "manual",
+            assessment_mode="closed_book",
+            pass_threshold=60,
+            mastery_threshold=80,
+            max_attempts=3,
+            score_policy="best_final_score",
+            answer_reveal_policy="after_finish_or_exhausted",
+            shuffle_questions=False,
+            shuffle_options=False,
+        )
+        try:
+            self.store.create_draft(assessment, version)
+            version = self.store.replace_draft_items(
+                version_id, extracted, expected_revision=0
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        return self._draft_payload(task, version)
+
+    def get_task_draft(
+        self, *, course_id: str, task_id: str, teacher_id: str
+    ) -> dict[str, Any]:
+        task = self._teacher_task(
+            course_id=course_id, task_id=task_id, teacher_id=teacher_id
+        )
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Task assessment is required")
+        version = self.store.get_latest_version(assessment.assessment_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        return self._draft_payload(task, version)
+
+    def validate_task_assessment(
+        self, *, course_id: str, task_id: str, teacher_id: str
+    ) -> QualityReport:
+        task = self._teacher_task(
+            course_id=course_id, task_id=task_id, teacher_id=teacher_id
+        )
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Task assessment is required")
+        version = self.store.get_latest_version(assessment.assessment_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        return self.quality_service.validate(
+            self.store.list_items(version.assessment_version_id),
+            required_knowledge_point_ids=list(task.knowledge_point_ids),
+        )
+
+    def update_task_draft(
+        self,
+        *,
+        course_id: str,
+        task_id: str,
+        teacher_id: str,
+        expected_revision: int,
+        settings: dict[str, Any],
+        raw_items: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        task = self._teacher_task(
+            course_id=course_id, task_id=task_id, teacher_id=teacher_id
+        )
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Task assessment is required")
+        version = self.store.get_latest_version(assessment.assessment_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        try:
+            validated = validate_settings(
+                settings["pass_threshold"],
+                settings["mastery_threshold"],
+                settings["max_attempts"],
+            )
+        except AssessmentPolicyError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        assessment_mode = str(settings["assessment_mode"])
+        if assessment_mode not in {"closed_book", "open_book"}:
+            raise AssessmentRuleError("INVALID_ASSESSMENT_SETTINGS", "Invalid assessment mode")
+        reveal_policy = str(settings["answer_reveal_policy"])
+        if reveal_policy not in {"after_finish_or_exhausted", "after_each_attempt", "never"}:
+            raise AssessmentRuleError("INVALID_ASSESSMENT_SETTINGS", "Invalid answer reveal policy")
+        updated_version = replace(
+            version,
+            assessment_mode=assessment_mode,
+            pass_threshold=validated.pass_threshold,
+            mastery_threshold=validated.mastery_threshold,
+            max_attempts=validated.max_attempts,
+            answer_reveal_policy=reveal_policy,
+            shuffle_questions=bool(settings["shuffle_questions"]),
+            shuffle_options=bool(settings["shuffle_options"]),
+        )
+        items = []
+        for position, raw in enumerate(raw_items, start=1):
+            items.append(
+                AssessmentItemRecord(
+                    assessment_item_id=str(raw["assessment_item_id"]),
+                    assessment_version_id=version.assessment_version_id,
+                    position=position,
+                    item_type=str(raw["item_type"]),
+                    prompt=dict(raw.get("prompt") or {}),
+                    scoring_key=dict(raw.get("scoring_key") or {}),
+                    rubric=dict(raw.get("rubric") or {}),
+                    max_score=float(raw.get("max_score") or 0),
+                    grading_provider=str(raw["grading_provider"]),
+                    knowledge_point_ids=list(raw.get("knowledge_point_ids") or []),
+                    source_refs=list(raw.get("source_refs") or []),
+                    source_exposure_state=str(raw.get("source_exposure_state") or "private"),
+                    created_origin=str(raw.get("created_origin") or "manual"),
+                )
+            )
+        try:
+            updated_version = self.store.update_draft(
+                updated_version, items, expected_revision=expected_revision
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        return self._draft_payload(task, updated_version)
+
+    def generate_missing_items(
+        self,
+        *,
+        course_id: str,
+        task_id: str,
+        teacher_id: str,
+        expected_revision: int,
+        difficulty: str,
+    ) -> dict[str, Any]:
+        task = self._teacher_task(
+            course_id=course_id, task_id=task_id, teacher_id=teacher_id
+        )
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Task assessment is required")
+        version = self.store.get_latest_version(assessment.assessment_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        existing = self.store.list_items(version.assessment_version_id)
+        covered = {point for item in existing for point in item.knowledge_point_ids}
+        gaps = [point for point in task.knowledge_point_ids if point not in covered]
+        if not gaps:
+            return self._draft_payload(task, version)
+        generator = self.generator
+        if generator is None:
+            from .generator import AssessmentDraftGenerator
+
+            generator = AssessmentDraftGenerator()
+        try:
+            generated = generator.generate(
+                materials=self._materials(task, teacher_id),
+                assessment_version_id=version.assessment_version_id,
+                task_title=task.title,
+                task_instructions=task.instructions,
+                coverage_gaps=gaps,
+                difficulty=difficulty,
+            )
+            combined = existing + [
+                replace(item, position=len(existing) + index)
+                for index, item in enumerate(generated, start=1)
+            ]
+            source_mode = "mixed" if existing else "generated"
+            version = self.store.update_draft(
+                replace(version, source_mode=source_mode),
+                combined,
+                expected_revision=expected_revision,
+            )
+        except AssessmentStoreError as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+        except ValueError as error:
+            code = str(getattr(error, "code", "ASSESSMENT_GENERATION_FAILED"))
+            message = str(getattr(error, "message", "Assessment generation failed"))
+            raise AssessmentRuleError(code, message) from error
+        return self._draft_payload(task, version)
+
+    def publish_task(
+        self,
+        *,
+        course_id: str,
+        task_id: str,
+        teacher_id: str,
+        expected_revision: int | None = None,
+    ):
+        task = self._teacher_task(
+            course_id=course_id, task_id=task_id, teacher_id=teacher_id
+        )
+        assessment = self.store.get_assessment_for_task(course_id, task_id)
+        if assessment is None:
+            raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Task assessment is required")
+        version = self.store.get_latest_version(assessment.assessment_id)
+        if version is None:
+            raise AssessmentRuleError(
+                "ASSESSMENT_VERSION_NOT_FOUND", "Assessment version was not found"
+            )
+        if expected_revision is not None and version.draft_revision != expected_revision:
+            raise AssessmentRuleError(
+                "DRAFT_REVISION_CONFLICT", "Assessment draft has changed"
+            )
+        report = self.quality_service.validate(
+            self.store.list_items(version.assessment_version_id),
+            required_knowledge_point_ids=list(task.knowledge_point_ids),
+        )
+        if not report.publishable:
+            raise AssessmentRuleError(
+                "ASSESSMENT_INVALID", "Task assessment must pass validation before publication"
+            )
+        try:
+            self.store.publish_version(
+                version.assessment_version_id, published_by=teacher_id
+            )
+            return self.learning_service.publish_task(
+                course_id=course_id, task_id=task_id, teacher_id=teacher_id
+            )
+        except (AssessmentStoreError, LearningRuleError) as error:
+            raise AssessmentRuleError(error.code, error.message) from error
+
+    def _draft_payload(self, task, version: AssessmentVersionRecord) -> dict[str, Any]:
+        items = self.store.list_items(version.assessment_version_id)
+        quality = self.quality_service.validate(
+            items, required_knowledge_point_ids=list(task.knowledge_point_ids)
+        )
+        return {
+            **asdict(version),
+            "task_id": task.task_id,
+            "course_id": task.course_id,
+            "items": [asdict(item) for item in items],
+            "quality": {
+                "publishable": quality.publishable,
+                "issues": [asdict(issue) for issue in quality.issues],
+            },
+        }

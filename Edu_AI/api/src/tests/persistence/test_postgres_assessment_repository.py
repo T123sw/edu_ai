@@ -99,7 +99,16 @@ def test_postgres_repository_freezes_published_version_with_sqlite_shim(tmp_path
     )
 
     repository.create_draft(assessment, version)
-    repository.replace_draft_items("asv-1", [item], expected_revision=0)
+    updated = repository.update_draft(
+        replace(version, source_mode="mixed", pass_threshold=70),
+        [item],
+        expected_revision=0,
+    )
+    assert updated.draft_revision == 1
+    assert updated.source_mode == "mixed"
+    assert updated.pass_threshold == 70
+    with pytest.raises(ValueError, match="Assessment draft has changed"):
+        repository.update_draft(version, [item], expected_revision=0)
     published = repository.publish_version("asv-1", published_by="teacher-1")
 
     assert published.status == "published"

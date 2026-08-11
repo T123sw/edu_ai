@@ -9,11 +9,14 @@ import {
   recordLearningEvent,
 } from "../api/learning";
 import type {
+  AssessmentDraft,
   CourseLearningSummary,
   CourseMaterial,
   LearningResourceRef,
   LearningTask,
 } from "../api/types";
+import { AssessmentEditor } from "../assessment/AssessmentEditor";
+import { getAssessmentPublishBlockers } from "../assessment/assessmentAuthoring";
 import { useAuthSession } from "../authSession";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { MaterialIcon, routes } from "../shared";
@@ -75,6 +78,7 @@ export function CourseLearningPage() {
   const [selectedResources, setSelectedResources] = useState<Set<string>>(new Set());
   const [resourceQuery, setResourceQuery] = useState("");
   const [resourceType, setResourceType] = useState("");
+  const [assessmentDrafts, setAssessmentDrafts] = useState<Record<string, AssessmentDraft | null>>({});
 
   const sharedMaterialByKey = useMemo(
     () => new Map(materials.map((material) => [
@@ -104,6 +108,12 @@ export function CourseLearningPage() {
   }, [materials, resourceQuery, resourceType]);
 
   const selectedTask = tasks.find((task) => task.task_id === selectedTaskId) ?? null;
+  const handleAssessmentDraftChange = useCallback(
+    (taskId: string, draft: AssessmentDraft | null) => {
+      setAssessmentDrafts((current) => ({ ...current, [taskId]: draft }));
+    },
+    [],
+  );
 
   const loadTasks = useCallback(async () => {
     if (!courseId) return;
@@ -192,10 +202,17 @@ export function CourseLearningPage() {
 
   async function publishTask(task: LearningTask) {
     if (!courseId) return;
+    const blockers = getAssessmentPublishBlockers(assessmentDrafts[task.task_id]);
+    if (blockers.length > 0) {
+      setError(blockers.join("；"));
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const published = await publishLearningTask(courseId, task.task_id);
+      const draft = assessmentDrafts[task.task_id];
+      if (!draft) return;
+      const published = await publishLearningTask(courseId, task.task_id, draft.draft_revision);
       setTasks((current) => current.map((item) => item.task_id === task.task_id ? published : item));
       setSelectedTaskId(published.task_id);
       setNotice("任务已发布，学生端现在可以开始学习。");
@@ -385,12 +402,16 @@ export function CourseLearningPage() {
                 <div className="learning-detail__head">
                   <div><h3>{selectedTask.title}</h3><p>{selectedTask.instructions || "暂无补充说明"}</p></div>
                   {getLearningTaskPrimaryAction("teacher", selectedTask) === "publish" ? (
-                    <button type="button" className="learning-primary" disabled={busy} onClick={() => void publishTask(selectedTask)}>发布给学生</button>
+                    <button type="button" className="learning-primary" disabled={busy || getAssessmentPublishBlockers(assessmentDrafts[selectedTask.task_id]).length > 0} onClick={() => void publishTask(selectedTask)}>发布给学生</button>
                   ) : null}
                 </div>
                 <ResourceLinks task={selectedTask} materials={sharedMaterialByKey} courseId={courseId} role={user?.role} />
                 {selectedTask.status === "draft" ? (
-                  <div className="learning-draft-note">草稿不会出现在学生端。确认学习说明和资源后再发布。</div>
+                  <AssessmentEditor
+                    courseId={courseId}
+                    task={selectedTask}
+                    onDraftChange={handleAssessmentDraftChange}
+                  />
                 ) : summary ? (
                   <>
                     <div className="learning-summary-grid">

@@ -53,9 +53,8 @@
 ### A1. 领域、仓储与迁移
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_policies.py src/tests/assessment/test_assessment_store.py src/tests/persistence/test_postgres_assessment_repository.py src/tests/database/test_alembic_revision_chain.py -q
-Set-Location src
+Set-Location Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_policies.py tests/assessment/test_assessment_store.py tests/persistence/test_postgres_assessment_repository.py tests/database/test_alembic_revision_chain.py -q
 python -m alembic heads
 ```
 
@@ -64,8 +63,8 @@ python -m alembic heads
 ### A2. 测评创作与发布门禁
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_authoring.py src/tests/assessment/test_assessment_authoring_api.py -q
+Set-Location Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_authoring.py tests/assessment/test_assessment_authoring_api.py -q
 ```
 
 必须覆盖已有习题导入、无习题生成、只补覆盖缺口、严重质量问题阻止发布、任务与测评原子发布。
@@ -73,8 +72,8 @@ python -m pytest src/tests/assessment/test_assessment_authoring.py src/tests/ass
 ### A3. 学生作答、安全投影与可信学习证据
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_attempt_service.py src/tests/assessment/test_assessment_student_api.py src/tests/learning/test_learning_api.py src/tests/learning/test_learning_service.py -q
+Set-Location Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_attempt_service.py tests/assessment/test_assessment_student_api.py tests/learning/test_learning_api.py tests/learning/test_learning_service.py -q
 ```
 
 必须覆盖自动保存冲突、重复提交幂等、三次限制、最高分、揭示锁定、学生无答案字段、公共事件拒绝 `assessment_scored`、内部 outcome 才产生 `assessment_verified`。
@@ -82,8 +81,8 @@ python -m pytest src/tests/assessment/test_assessment_attempt_service.py src/tes
 ### A4. 主观复核与分析
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_review.py src/tests/assessment/test_assessment_analytics.py -q
+Set-Location Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_review.py tests/assessment/test_assessment_analytics.py -q
 ```
 
 必须覆盖 AI 仅建议分、教师追加式复核、历史重算、样本分母、学生队列、题目和知识点聚合。
@@ -101,8 +100,8 @@ npm run build
 ### A6. Agent 事实与边界
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests/chat/runtime/test_learning_agent_tools.py src/tests/chat/runtime/test_learning_task_domain.py src/tests/chat/test_learning_context_injection.py -q
+Set-Location Edu_AI/api/src
+python -m pytest tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_learning_task_domain.py tests/chat/test_learning_context_injection.py -q
 ```
 
 必须覆盖双角色权限、聚合/本人投影、待复核、开卷口径和答案防泄露。
@@ -110,9 +109,9 @@ python -m pytest src/tests/chat/runtime/test_learning_agent_tools.py src/tests/c
 ### A7. 安全、迁移与确定性浏览器
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests/assessment/test_assessment_security.py src/tests/assessment/test_assessment_migration.py -q
-Set-Location ..
+Set-Location Edu_AI/api/src
+python -m pytest tests/assessment/test_assessment_security.py tests/assessment/test_assessment_migration.py -q
+Set-Location ../..
 pnpm exec playwright test tests/e2e/learning-task-assessment-loop.spec.ts --project=desktop1366
 ```
 
@@ -121,9 +120,9 @@ pnpm exec playwright test tests/e2e/learning-task-assessment-loop.spec.ts --proj
 ### A8. 全量质量门禁
 
 ```powershell
-Set-Location Edu_AI/api
-python -m pytest src/tests -q
-Set-Location ..
+Set-Location Edu_AI/api/src
+python -m pytest tests -q
+Set-Location ../..
 npm test
 npm run lint
 npm run build

@@ -111,6 +111,65 @@ export type LearningTaskCreatePayload = {
   knowledge_point_ids: string[];
 };
 
+export type AssessmentQualityIssue = {
+  code: string;
+  assessment_item_id: string | null;
+  message: string;
+};
+
+export type AssessmentItemDraft = {
+  assessment_item_id: string;
+  assessment_version_id: string;
+  position: number;
+  item_type: string;
+  prompt: Record<string, unknown>;
+  scoring_key: Record<string, unknown>;
+  rubric: Record<string, unknown>;
+  max_score: number;
+  grading_provider: string;
+  knowledge_point_ids: string[];
+  source_refs: Array<Record<string, unknown>>;
+  source_exposure_state: string;
+  created_origin: string;
+};
+
+export type AssessmentDraft = {
+  assessment_version_id: string;
+  assessment_id: string;
+  task_id: string;
+  course_id: string;
+  version_number: number;
+  status: "draft" | "published";
+  source_mode: string;
+  assessment_mode: "closed_book" | "open_book";
+  pass_threshold: number;
+  mastery_threshold: number;
+  max_attempts: number;
+  score_policy: string;
+  answer_reveal_policy: string;
+  shuffle_questions: boolean;
+  shuffle_options: boolean;
+  draft_revision: number;
+  content_hash: string | null;
+  published_at: string | null;
+  published_by: string | null;
+  created_at: string;
+  items: AssessmentItemDraft[];
+  quality: { publishable: boolean; issues: AssessmentQualityIssue[] };
+};
+
+export type AssessmentDraftUpdatePayload = Pick<
+  AssessmentDraft,
+  | "pass_threshold"
+  | "mastery_threshold"
+  | "max_attempts"
+  | "assessment_mode"
+  | "answer_reveal_policy"
+  | "shuffle_questions"
+  | "shuffle_options"
+  | "items"
+> & { expected_revision: number };
+
 export type LearningEventPayload = {
   event_id: string;
   event_type: "started" | "resource_opened" | "progress_updated" | "completed";
