@@ -21,6 +21,35 @@ def test_course_list_requires_auth_and_returns_membership_role(course_api):
     assert response.json()[0]["membership_role"] == "editor"
 
 
+def test_postgres_course_list_does_not_require_a_local_asset_directory(
+    course_api, monkeypatch
+):
+    database_only = {
+        "id": "database-only-course",
+        "title": "Database only",
+        "description": "No local asset directory yet",
+        "icon": "menu_book",
+        "color": "#3157d5",
+        "objectives": [],
+        "revision": 0,
+    }
+
+    class Repository:
+        def list(self):
+            return [database_only]
+
+    monkeypatch.setattr(course_api.manager, "_course_uses_postgres", lambda: True)
+    monkeypatch.setattr(course_api.manager, "_course_repository", Repository)
+    course_api.memberships.upsert(
+        "database-only-course", "teacher-a", "owner", added_by="fixture"
+    )
+
+    response = course_api.client_for("teacher-a", "teacher").get("/api/courses")
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()] == ["database-only-course"]
+
+
 def test_stale_course_revision_returns_409(course_api):
     client = course_api.client_for("teacher-a", "teacher")
     course = client.get("/api/courses/course-1").json()

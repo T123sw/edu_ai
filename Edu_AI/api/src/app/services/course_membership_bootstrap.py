@@ -119,9 +119,9 @@ def _default_course_ids() -> list[str]:
 
     manager = _get_manager()
     return sorted(
-        course_dir.name
-        for course_dir in manager.courses_dir.iterdir()
-        if course_dir.is_dir() and manager.get_course_info(course_dir.name) is not None
+        str(course.get("id") or course.get("course_id") or "").strip()
+        for course in manager.list_course_infos()
+        if str(course.get("id") or course.get("course_id") or "").strip()
     )
 
 

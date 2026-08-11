@@ -64,10 +64,12 @@ class _CourseDocumentCatalog:
 
     def get_by_public_id(self, document_id: str) -> SourceDocumentRecord | None:
         normalized = str(document_id or "").strip()
-        for course_dir in self._manager.courses_dir.iterdir():
-            if not course_dir.is_dir():
+        for course in self._manager.list_course_infos():
+            course_id = str(
+                course.get("id") or course.get("course_id") or ""
+            ).strip()
+            if not course_id:
                 continue
-            course_id = course_dir.name
             for item in self._manager.get_knowledge_base_index(course_id):
                 if str(item.get("id") or "").strip() == normalized:
                     return self._record(course_id, item)
