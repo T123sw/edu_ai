@@ -37,6 +37,10 @@ class LearningTaskCreateRequest(BaseModel):
     knowledge_point_ids: list[str] = Field(default_factory=list, max_length=200)
 
 
+class LearningTaskKnowledgePointsRequest(BaseModel):
+    knowledge_point_ids: list[str] = Field(min_length=1, max_length=200)
+
+
 class LearningTaskResponse(BaseModel):
     task_id: str
     course_id: str

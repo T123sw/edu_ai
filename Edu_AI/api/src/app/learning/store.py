@@ -217,6 +217,42 @@ class LearningStore:
             ).fetchone()
         return self._task_from_row(row) if row else None
 
+    def update_task_knowledge_points(
+        self,
+        task_id: str,
+        *,
+        course_id: str,
+        knowledge_point_ids: list[str],
+    ) -> LearningTaskRecord:
+        if self._postgres:
+            return self._repository.update_task_knowledge_points(
+                str(task_id), str(course_id), list(knowledge_point_ids)
+            )
+        with self._lock:
+            cursor = self._connection.execute(
+                """
+                UPDATE learning_tasks
+                SET knowledge_point_ids_json=?
+                WHERE task_id=? AND course_id=? AND status='draft'
+                """,
+                (
+                    json.dumps(
+                        knowledge_point_ids,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                    ),
+                    str(task_id),
+                    str(course_id),
+                ),
+            )
+            self._connection.commit()
+        if cursor.rowcount != 1:
+            raise KeyError(task_id)
+        updated = self.get_task(task_id, course_id=course_id)
+        if updated is None:
+            raise KeyError(task_id)
+        return updated
+
     def list_tasks(
         self,
         course_id: str,

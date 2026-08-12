@@ -53,5 +53,8 @@ describe("assessment authoring publication gate", () => {
     assert.match(page, /AssessmentEditor/);
     assert.match(page, /getAssessmentPublishBlockers/);
     assert.doesNotMatch(page, /legacyPublish|fallbackPublish/);
+    assert.match(editor, /测评知识点/);
+    assert.match(editor, /请先填写至少一个知识点/);
+    assert.match(editor, /updateLearningTaskKnowledgePoints/);
   });
 });

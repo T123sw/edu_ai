@@ -158,6 +158,39 @@ class LearningService:
         except KeyError as exc:
             raise LearningRuleError("TASK_NOT_PUBLISHABLE", "Task cannot be published") from exc
 
+    def update_task_knowledge_points(
+        self,
+        *,
+        course_id: str,
+        task_id: str,
+        teacher_id: str,
+        knowledge_point_ids: list[str],
+    ) -> LearningTaskRecord:
+        self._teacher_membership(course_id=course_id, teacher_id=teacher_id)
+        task = self._task_or_error(course_id=course_id, task_id=task_id)
+        if task.status != "draft":
+            raise LearningRuleError(
+                "TASK_NOT_EDITABLE", "Only draft learning tasks can be edited"
+            )
+        normalized = list(
+            dict.fromkeys(
+                str(item).strip() for item in knowledge_point_ids if str(item).strip()
+            )
+        )
+        if not normalized:
+            raise LearningRuleError(
+                "KNOWLEDGE_POINTS_REQUIRED",
+                "At least one knowledge point is required to generate an assessment",
+            )
+        try:
+            return self.store.update_task_knowledge_points(
+                task_id,
+                course_id=course_id,
+                knowledge_point_ids=normalized,
+            )
+        except KeyError as exc:
+            raise LearningRuleError("TASK_NOT_FOUND", "Learning task was not found") from exc
+
     def list_tasks(
         self,
         *,

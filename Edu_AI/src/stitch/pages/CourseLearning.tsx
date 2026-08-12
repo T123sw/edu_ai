@@ -405,6 +405,9 @@ export function CourseLearningPage() {
                     courseId={courseId}
                     task={selectedTask}
                     onDraftChange={handleAssessmentDraftChange}
+                    onTaskChange={(updatedTask) => setTasks((current) => current.map((item) => (
+                      item.task_id === updatedTask.task_id ? updatedTask : item
+                    )))}
                   />
                 ) : summary ? (
                   <>

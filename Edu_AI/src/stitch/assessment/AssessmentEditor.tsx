@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   detectTaskAssessment,
   generateTaskAssessment,
+  updateLearningTaskKnowledgePoints,
   updateTaskAssessmentDraft,
 } from "../api/learning";
 import type { AssessmentDraft, LearningTask } from "../api/types";
@@ -12,18 +13,23 @@ type AssessmentEditorProps = {
   courseId: string;
   task: LearningTask;
   onDraftChange: (taskId: string, draft: AssessmentDraft | null) => void;
+  onTaskChange: (task: LearningTask) => void;
 };
 
-export function AssessmentEditor({ courseId, task, onDraftChange }: AssessmentEditorProps) {
+export function AssessmentEditor({ courseId, task, onDraftChange, onTaskChange }: AssessmentEditorProps) {
   const [draft, setDraft] = useState<AssessmentDraft | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const taskKnowledgePoints = task.knowledge_point_ids.join(", ");
+  const [knowledgePoints, setKnowledgePoints] = useState(taskKnowledgePoints);
 
   useEffect(() => {
     let cancelled = false;
     setDraft(null);
     onDraftChange(task.task_id, null);
     setError(null);
+    setNotice(null);
     detectTaskAssessment(courseId, task.task_id)
       .then((value) => {
         if (cancelled) return;
@@ -35,6 +41,10 @@ export function AssessmentEditor({ courseId, task, onDraftChange }: AssessmentEd
       });
     return () => { cancelled = true; };
   }, [courseId, onDraftChange, task.task_id]);
+
+  useEffect(() => {
+    setKnowledgePoints(taskKnowledgePoints);
+  }, [taskKnowledgePoints]);
 
   async function saveDraft() {
     if (!draft || draft.status !== "draft") return;
@@ -63,9 +73,26 @@ export function AssessmentEditor({ courseId, task, onDraftChange }: AssessmentEd
 
   async function generateDraft() {
     if (!draft || draft.status !== "draft") return;
+    const normalizedKnowledgePoints = knowledgePoints
+      .split(/[，,\n]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (normalizedKnowledgePoints.length === 0) {
+      setError("请先填写至少一个知识点，例如：快速排序、分区、递归");
+      return;
+    }
     setBusy(true);
     setError(null);
+    setNotice(null);
+    let updatedTask: LearningTask | null = null;
     try {
+      if (normalizedKnowledgePoints.join("\n") !== task.knowledge_point_ids.join("\n")) {
+        updatedTask = await updateLearningTaskKnowledgePoints(
+          courseId,
+          task.task_id,
+          normalizedKnowledgePoints,
+        );
+      }
       const updated = await generateTaskAssessment(
         courseId,
         task.task_id,
@@ -73,7 +100,14 @@ export function AssessmentEditor({ courseId, task, onDraftChange }: AssessmentEd
       );
       setDraft(updated);
       onDraftChange(task.task_id, updated);
+      if (updatedTask) onTaskChange(updatedTask);
+      if (updated.items.length === 0) {
+        setError("没有生成题目。请确认材料包含可解析正文，并检查模型配置后重试。");
+      } else {
+        setNotice(`已生成 ${updated.items.length} 道测评题，请检查题目后保存设置。`);
+      }
     } catch (reason) {
+      if (updatedTask) onTaskChange(updatedTask);
       setError(reason instanceof Error ? reason.message : "测评生成失败");
     } finally {
       setBusy(false);
@@ -94,6 +128,7 @@ export function AssessmentEditor({ courseId, task, onDraftChange }: AssessmentEd
         <li className="is-active"><strong>4</strong><span>发布设置</span></li>
       </ol>
       {error ? <p className="assessment-editor__error">{error}</p> : null}
+      {notice ? <p className="assessment-editor__notice">{notice}</p> : null}
       {!draft ? <p className="assessment-editor__loading">正在识别学习材料中的习题…</p> : (
         <>
           <header className="assessment-editor__head">
@@ -110,9 +145,21 @@ export function AssessmentEditor({ courseId, task, onDraftChange }: AssessmentEd
             ))}
           </div>
           {draft.items.length === 0 && draft.status === "draft" ? (
-            <button type="button" className="learning-secondary" disabled={busy} onClick={() => void generateDraft()}>
-              {busy ? "生成中…" : "根据学习材料生成测评草稿"}
-            </button>
+            <div className="assessment-editor__generation">
+              <label>
+                测评知识点
+                <input
+                  value={knowledgePoints}
+                  onChange={(event) => setKnowledgePoints(event.target.value)}
+                  placeholder="例如：快速排序、分区、递归（多个用逗号分隔）"
+                  disabled={busy}
+                />
+              </label>
+              <p>系统会按这些知识点分析所选材料并生成测评草稿。</p>
+              <button type="button" className="learning-secondary" disabled={busy || !knowledgePoints.trim()} onClick={() => void generateDraft()}>
+                {busy ? "正在生成测评草稿…" : "根据学习材料生成测评草稿"}
+              </button>
+            </div>
           ) : null}
           <div className="assessment-editor__settings">
             <label>及格线<input type="number" min="0" max="100" value={draft.pass_threshold} disabled={draft.status !== "draft"} onChange={(event) => update("pass_threshold", Number(event.target.value))} /></label>

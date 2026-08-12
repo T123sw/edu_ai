@@ -194,7 +194,7 @@ export async function installDeterministicLearningAgent(
   });
 }
 
-async function waitForUrl(url: string, label: string, timeoutMs = 45_000): Promise<void> {
+async function waitForUrl(url: string, label: string, timeoutMs = 90_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   let lastError = `${label} did not answer`;
   while (Date.now() < deadline) {

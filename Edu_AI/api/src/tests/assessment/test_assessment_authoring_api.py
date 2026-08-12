@@ -226,6 +226,37 @@ def test_teacher_generates_only_missing_coverage_from_course_material(tmp_path):
     assert generated.json()["quality"]["publishable"] is True
 
 
+def test_generation_requires_at_least_one_task_knowledge_point(tmp_path):
+    factory = AuthoringApiFactory(tmp_path)
+    factory.materials[("course-1", "report", "report-1")] = {
+        "material_id": "report-1",
+        "material_type": "report",
+        "visibility": "course",
+        "content": "Quick sort partitions a sequence around a pivot.",
+    }
+    teacher = factory.client("teacher-1", "teacher")
+    created = teacher.post(
+        "/api/courses/course-1/learning/tasks",
+        json={
+            "title": "Quick sort",
+            "instructions": "Read and assess",
+            "resource_refs": [{"material_type": "report", "material_id": "report-1"}],
+            "knowledge_point_ids": [],
+        },
+    ).json()
+    draft = teacher.post(
+        f"/api/courses/course-1/learning/tasks/{created['task_id']}/assessment/detect"
+    ).json()
+
+    generated = teacher.post(
+        f"/api/courses/course-1/learning/tasks/{created['task_id']}/assessment/generate",
+        json={"expected_revision": draft["draft_revision"], "difficulty": "medium"},
+    )
+
+    assert generated.status_code == 422
+    assert generated.json()["detail"]["code"] == "KNOWLEDGE_POINTS_REQUIRED"
+
+
 def test_publish_rejects_a_stale_assessment_revision(tmp_path):
     factory = AuthoringApiFactory(tmp_path)
     teacher = factory.client("teacher-1", "teacher")
