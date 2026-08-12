@@ -234,6 +234,27 @@ export function createCourseKnowledgeBuildDraft(
   });
 }
 
+export function leaveCourse(courseId: string) {
+  return apiRequest<{ ok: boolean; message: string }>(
+    `/api/courses/${encodeURIComponent(courseId)}/membership`,
+    { method: "DELETE" },
+  );
+}
+
+export function deleteCourse(courseId: string) {
+  return apiRequest<{ message: string }>(
+    `/api/courses/${encodeURIComponent(courseId)}`,
+    { method: "DELETE" },
+  );
+}
+
+export function deleteCourseKnowledgeBase(courseId: string) {
+  return apiRequest<{ message: string }>(
+    `/api/courses/${encodeURIComponent(courseId)}/knowledge-base`,
+    { method: "DELETE" },
+  );
+}
+
 export function updateCourseKnowledgeBuildDraft(
   courseId: string,
   buildId: string,

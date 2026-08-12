@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import { updateCourse } from "../api/courses";
+import { deleteCourse, updateCourse } from "../api/courses";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
 import { CourseMembersPanel } from "../course/CourseMembersPanel";
@@ -8,6 +8,7 @@ import {
   AppSurface,
   GlassPanel,
   MaterialIcon,
+  useAppShell,
 } from "../shared";
 
 type CourseFormState = {
@@ -36,6 +37,7 @@ function readFileAsDataUrl(file: File) {
 
 export function CourseEditPage() {
   const { course, courseRole, loading, error, reload } = useCourseRoute();
+  const { setSelectedCourse } = useAppShell();
   const canEdit = canCourse(courseRole, "edit");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [formState, setFormState] = useState<CourseFormState>(EMPTY_FORM);
@@ -43,6 +45,8 @@ export function CourseEditPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [conflictDraft, setConflictDraft] = useState<CourseFormState | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   useEffect(() => {
     if (!course) {
@@ -121,6 +125,21 @@ export function CourseEditPage() {
       }
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteCourse() {
+    if (!course || courseRole !== "owner" || deleteConfirmation !== course.title || deleting) return;
+    setDeleting(true);
+    setFeedback(null);
+    try {
+      await deleteCourse(course.id);
+      window.localStorage.removeItem(`edu-ai:course-kb-build:${course.id}`);
+      setSelectedCourse(null);
+      window.location.hash = "#home";
+    } catch (reason) {
+      setFeedback(reason instanceof Error ? reason.message : "课程删除失败，请稍后重试。");
+      setDeleting(false);
     }
   }
 
@@ -259,6 +278,19 @@ export function CourseEditPage() {
             )}
           </GlassPanel>
           {courseRole === "owner" ? <CourseMembersPanel course={course} /> : null}
+          {courseRole === "owner" ? (
+            <GlassPanel className="mt-6 border-red-200 bg-red-50/80 p-6">
+              <h3 className="text-lg font-bold text-red-900">删除课程</h3>
+              <p className="mt-2 text-sm leading-6 text-red-800">这会永久删除课程、成员关系、课程知识库、生成资源、学习任务和相关后台记录。此操作不能撤销。</p>
+              <label className="mt-4 block text-sm font-semibold text-red-900">
+                输入课程名称“{course.title}”确认
+                <input value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} className="mt-2 w-full rounded-xl border border-red-300 bg-white px-4 py-3 outline-none" aria-label="输入课程名称确认删除" />
+              </label>
+              <button type="button" disabled={deleting || deleteConfirmation !== course.title} onClick={() => void handleDeleteCourse()} className="mt-4 rounded-xl bg-red-700 px-5 py-3 text-sm font-bold text-white disabled:opacity-40">
+                {deleting ? "正在删除课程…" : "永久删除课程"}
+              </button>
+            </GlassPanel>
+          ) : null}
         </div>
       </main>
     </AppSurface>
