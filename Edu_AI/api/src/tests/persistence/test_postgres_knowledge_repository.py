@@ -41,6 +41,35 @@ def test_knowledge_repository_round_trips_documents_graph_and_runtime_indexes(en
     assert repository.load_runtime_index("document") == {"source-key": {"hash": "abc"}}
 
 
+def test_delete_library_removes_documents_graph_versions_and_builds(engine):
+    from app.database import KnowledgeBuild, KnowledgeDocument, KnowledgeGraphVersion, KnowledgeLibrary
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+    from sqlalchemy import func, select
+    from sqlalchemy.orm import Session
+
+    repository = PostgresKnowledgeRepository(engine)
+    repository.replace_documents("course-delete", [{
+        "id": "doc-1",
+        "filename": "lesson.md",
+        "course_id": "course-delete",
+        "library_type": "course",
+    }])
+    repository.upsert_graph("course-delete", {"id": "root", "children": []})
+    repository.create_build_draft(
+        course_id="course-delete",
+        triggered_by="teacher-one",
+        plan={"course_snapshot": {"title": "Delete me"}},
+    )
+
+    assert repository.delete_library("course-delete") is True
+    assert repository.delete_library("course-delete") is False
+    with Session(engine) as session:
+        assert session.get(KnowledgeLibrary, "course-delete") is None
+        assert session.scalar(select(func.count()).select_from(KnowledgeDocument)) == 0
+        assert session.scalar(select(func.count()).select_from(KnowledgeGraphVersion)) == 0
+        assert session.scalar(select(func.count()).select_from(KnowledgeBuild)) == 0
+
+
 def test_knowledge_repository_persists_build_preview_and_candidates(engine):
     from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
 
@@ -334,6 +363,42 @@ def test_course_knowledge_metadata_uses_database_without_index_json(
     course_dir = tmp_path / "course-data" / "courses" / "course-1"
     assert not (course_dir / "knowledge_base" / "index.json").exists()
     assert not (course_dir / "knowledge_graph.json").exists()
+
+
+def test_clear_course_library_content_preserves_personal_documents(engine):
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+
+    repository = PostgresKnowledgeRepository(engine)
+    repository.replace_documents(
+        "course-1",
+        [
+            {"id": "course-doc", "filename": "course.md", "library_type": "course"},
+            {
+                "id": "personal-doc",
+                "filename": "notes.md",
+                "library_type": "personal",
+                "owner_user_id": "student-1",
+            },
+        ],
+    )
+    repository.upsert_graph("course-1", {"id": "root"})
+
+    assert repository.clear_library_content(
+        "course-1",
+        retained_documents=[
+            {
+                "id": "personal-doc",
+                "filename": "notes.md",
+                "library_type": "personal",
+                "owner_user_id": "student-1",
+            }
+        ],
+    )
+
+    assert [item["id"] for item in repository.list_documents("course-1")] == [
+        "personal-doc"
+    ]
+    assert repository.get_graph("course-1") is None
 
 
 def test_rag_document_registry_uses_database_without_json(

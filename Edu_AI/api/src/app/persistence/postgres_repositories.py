@@ -8,9 +8,20 @@ from sqlalchemy import delete, select
 from sqlalchemy.engine import Engine
 
 from app.database import (
+    Conversation,
     Course,
     CourseMembership,
     CourseObjective,
+    DurableTaskModel,
+    JobRecord,
+    KnowledgeBuild,
+    KnowledgeDocument,
+    KnowledgeGraphVersion,
+    KnowledgeLibrary,
+    KnowledgeQualityCheck,
+    KnowledgeSourceCandidate,
+    LearningTaskModel,
+    Material,
     User,
     database_session,
 )
@@ -182,6 +193,24 @@ class PostgresCourseRepository:
             record = session.get(Course, normalized_id)
             if record is None:
                 return False
+            session.execute(delete(Conversation).where(Conversation.course_id == normalized_id))
+            session.execute(delete(JobRecord).where(JobRecord.course_id == normalized_id))
+            session.execute(delete(Material).where(Material.course_id == normalized_id))
+            session.execute(delete(LearningTaskModel).where(LearningTaskModel.course_id == normalized_id))
+            session.execute(delete(DurableTaskModel).where(DurableTaskModel.course_id == normalized_id))
+            library_ids = select(KnowledgeLibrary.library_id).where(
+                KnowledgeLibrary.library_type == "course",
+                KnowledgeLibrary.course_id == normalized_id,
+            )
+            build_ids = select(KnowledgeBuild.build_id).where(
+                KnowledgeBuild.library_id.in_(library_ids)
+            )
+            session.execute(delete(KnowledgeSourceCandidate).where(KnowledgeSourceCandidate.build_id.in_(build_ids)))
+            session.execute(delete(KnowledgeQualityCheck).where(KnowledgeQualityCheck.build_id.in_(build_ids)))
+            session.execute(delete(KnowledgeBuild).where(KnowledgeBuild.library_id.in_(library_ids)))
+            session.execute(delete(KnowledgeDocument).where(KnowledgeDocument.library_id.in_(library_ids)))
+            session.execute(delete(KnowledgeGraphVersion).where(KnowledgeGraphVersion.library_id.in_(library_ids)))
+            session.execute(delete(KnowledgeLibrary).where(KnowledgeLibrary.library_id.in_(library_ids)))
             session.delete(record)
             return True
 

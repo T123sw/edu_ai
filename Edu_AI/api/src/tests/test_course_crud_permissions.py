@@ -81,6 +81,67 @@ def test_viewer_cannot_update_course(course_api):
     assert response.status_code == 403
 
 
+def test_only_owner_can_delete_course_and_active_job_blocks_delete(course_api, monkeypatch):
+    from app.api import courses
+
+    course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
+    owner = course_api.client_for("teacher-a", "teacher")
+    viewer = course_api.client_for("student-a", "student")
+    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: ["job-running"])
+
+    blocked = owner.delete("/api/courses/course-1")
+    denied = viewer.delete("/api/courses/course-1")
+
+    assert blocked.status_code == 409
+    assert blocked.json()["detail"]["code"] == "COURSE_HAS_ACTIVE_JOBS"
+    assert course_api.manager.get_course_info("course-1") is not None
+    assert denied.status_code == 403
+
+
+def test_owner_deletes_course_when_no_job_is_active(course_api, monkeypatch):
+    from app.api import courses
+
+    course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
+    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: [])
+
+    response = course_api.client_for("teacher-a", "teacher").delete("/api/courses/course-1")
+
+    assert response.status_code == 200
+    assert course_api.manager.get_course_info("course-1") is None
+    assert course_api.memberships.list_for_course("course-1") == []
+
+
+def test_owner_deletes_whole_knowledge_base_but_keeps_course(course_api, monkeypatch):
+    from app.api import courses
+
+    course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
+    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: [])
+    assert course_api.manager.save_knowledge_base_file(
+        "course-1", b"lesson", "lesson.md", owner_user_id="teacher-a"
+    )
+    assert course_api.manager.save_knowledge_graph("course-1", {"id": "root", "children": []})
+
+    response = course_api.client_for("teacher-a", "teacher").delete(
+        "/api/courses/course-1/knowledge-base"
+    )
+
+    assert response.status_code == 200
+    assert course_api.manager.get_course_info("course-1") is not None
+    assert course_api.manager.get_knowledge_base_index("course-1") == []
+    assert course_api.manager.get_knowledge_graph("course-1") is None
+
+
+def test_viewer_cannot_delete_whole_knowledge_base(course_api, monkeypatch):
+    from app.api import courses
+
+    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: [])
+    response = course_api.client_for("student-a", "student").delete(
+        "/api/courses/course-1/knowledge-base"
+    )
+
+    assert response.status_code == 403
+
+
 def test_new_course_is_private_to_creator_until_members_are_added(course_api):
     client = course_api.client_for("teacher-a", "teacher")
     response = client.post(

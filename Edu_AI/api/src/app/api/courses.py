@@ -9,6 +9,7 @@ import mimetypes
 import json
 import re
 import copy
+import shutil
 from datetime import datetime
 from uuid import uuid4
 from pathlib import Path
@@ -81,6 +82,7 @@ from app.services.course_knowledge_graph_generator import (
     submit_course_knowledge_graph_generation_job,
     validate_graph_draft_for_build,
 )
+from app.services.job_store import JobKind, list_job_page
 from app.services.course_knowledge_textbook_inputs import (
     CourseKnowledgeTextbookInputError,
     remove_course_knowledge_textbook,
@@ -463,18 +465,169 @@ def remove_course_member(
     return {"ok": True}
 
 
+@router.delete("/{course_id}/membership", summary="学生退出课程")
+def leave_course(
+    course_id: str,
+    current_user: dict = Depends(get_current_user),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+):
+    user_id = str(current_user.get("username") or "").strip()
+    try:
+        service.leave(
+            course_id=course_id,
+            user_id=user_id,
+            system_role=str(current_user.get("role") or ""),
+        )
+    except CourseEnrollmentError as error:
+        raise _enrollment_http_error(error) from error
+    return {"ok": True, "message": "已退出课程"}
+
+
+def _active_course_jobs(
+    course_id: str,
+    kinds: set[JobKind] | None = None,
+) -> list[str]:
+    return [
+        job.edu_job_id
+        for job in list_job_page(course_id=course_id, active_only=True, limit=200).items
+        if kinds is None or job.kind in kinds
+    ]
+
+
+def _active_jobs_conflict(
+    course_id: str,
+    kinds: set[JobKind] | None = None,
+) -> HTTPException | None:
+    active_job_ids = _active_course_jobs(course_id, kinds)
+    if not active_job_ids:
+        return None
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "COURSE_HAS_ACTIVE_JOBS",
+            "message": "课程仍有后台任务运行，请等待任务完成或取消后再删除",
+            "job_ids": active_job_ids,
+        },
+    )
+
+
+def _remove_documents_from_rag(mgr, course_id: str, documents: list[dict]) -> None:
+    paths = [item for item in documents if str(item.get("path") or "").strip()]
+    if not paths:
+        return
+    rag_system = get_rag_system()
+    for item in paths:
+        file_path = mgr.get_file_path(course_id, str(item["path"]))
+        owner = str(item.get("owner_user_id") or "").strip() or None
+        rag_system.delete_document(str(file_path), owner=owner)
+
+
 @router.delete("/{course_id}", summary="删除课程")
 def delete_course(
     course_id: str,
     principal: CoursePrincipal = Depends(require_course_owner),
 ):
+    del principal
+    conflict = _active_jobs_conflict(course_id)
+    if conflict:
+        raise conflict
     mgr = _svc._get_manager()
+    all_documents = mgr.get_knowledge_base_index(course_id)
+    try:
+        _remove_documents_from_rag(mgr, course_id, all_documents)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"删除课程检索索引失败，课程数据已保留：{exc}",
+        ) from exc
     if not mgr.delete_course(course_id):
-        raise HTTPException(status_code=500, detail="删除课程失败")
+        if not mgr.get_course_info(course_id):
+            raise HTTPException(status_code=404, detail="课程不存在")
+        raise HTTPException(status_code=500, detail="删除课程失败，课程数据已保留")
     membership_store = get_course_membership_store()
-    for membership in membership_store.list_for_course(course_id):
-        membership_store.delete(course_id, membership.user_id)
+    if not mgr._course_uses_postgres():
+        for membership in membership_store.list_for_course(course_id):
+            membership_store.delete(course_id, membership.user_id)
     return {"message": "课程已删除"}
+
+
+@router.delete("/{course_id}/knowledge-base", summary="删除整个课程知识库")
+def delete_course_knowledge_base(
+    course_id: str,
+    _principal: CoursePrincipal = Depends(require_course_owner),
+):
+    conflict = _active_jobs_conflict(
+        course_id,
+        {
+            JobKind.BUILD_KNOWLEDGE_INDEX,
+            JobKind.GENERATE_GRAPH,
+            JobKind.PARSE_DOCUMENT,
+            JobKind.RAG_IMPORT,
+        },
+    )
+    if conflict:
+        raise conflict
+    mgr = _svc._get_manager()
+    if not mgr.get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+
+    all_documents = mgr.get_knowledge_base_index(course_id)
+    course_documents = [
+        item
+        for item in all_documents
+        if str(item.get("library_type") or LIBRARY_TYPE_COURSE)
+        == LIBRARY_TYPE_COURSE
+    ]
+    retained_documents = [
+        item
+        for item in all_documents
+        if str(item.get("library_type") or LIBRARY_TYPE_COURSE)
+        != LIBRARY_TYPE_COURSE
+    ]
+    try:
+        _remove_documents_from_rag(mgr, course_id, course_documents)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"删除检索索引失败，知识库数据已保留：{exc}",
+        ) from exc
+
+    if mgr._knowledge_uses_postgres():
+        if not get_postgres_knowledge_repository().clear_library_content(
+            course_id,
+            retained_documents=retained_documents,
+        ):
+            raise HTTPException(status_code=500, detail="删除知识库记录失败")
+    else:
+        if not mgr.save_knowledge_base_index(course_id, retained_documents):
+            raise HTTPException(status_code=500, detail="删除知识库记录失败")
+
+    course_dir = Path(mgr.get_course_dir(course_id)).resolve()
+    for item in course_documents:
+        relative_path = str(item.get("path") or "").strip()
+        if not relative_path:
+            continue
+        target = mgr.get_file_path(course_id, relative_path).resolve()
+        try:
+            target.relative_to(course_dir)
+        except ValueError as exc:
+            raise HTTPException(status_code=500, detail="知识库清理路径非法") from exc
+        if target.is_file():
+            target.unlink()
+    for target in (
+        course_dir / "knowledge_build_inputs",
+        course_dir / "knowledge_graph.json",
+    ):
+        resolved = target.resolve()
+        try:
+            resolved.relative_to(course_dir)
+        except ValueError as exc:
+            raise HTTPException(status_code=500, detail="知识库清理路径非法") from exc
+        if resolved.is_dir():
+            shutil.rmtree(resolved)
+        elif resolved.exists():
+            resolved.unlink()
+    return {"message": "课程知识库已删除"}
 
 
 # ---------------------------------------------------------------------------

@@ -114,6 +114,20 @@ class CourseEnrollmentService:
             raise CourseEnrollmentError("LAST_OWNER_REQUIRED", "课程必须保留至少一名负责人", 409)
         self._memberships.delete(course_id, user_id)
 
+    def leave(self, *, course_id: str, user_id: str, system_role: str) -> None:
+        if str(system_role or "").lower() != "student":
+            raise CourseEnrollmentError("STUDENT_LEAVE_ONLY", "只有学生可以自行退出课程", 403)
+        current = self._memberships.get(course_id, user_id)
+        if current is None:
+            raise CourseEnrollmentError("MEMBER_NOT_FOUND", "你尚未加入该课程", 404)
+        if current.role != "viewer":
+            raise CourseEnrollmentError(
+                "COURSE_MANAGER_CANNOT_LEAVE",
+                "课程负责人或协作教师不能通过学生退出入口离开课程",
+                409,
+            )
+        self._memberships.delete(course_id, user_id)
+
     def _require_user(self, user_id: str) -> Mapping[str, Any]:
         normalized = str(user_id or "").strip()
         for user in self._users_provider():

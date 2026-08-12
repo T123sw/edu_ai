@@ -97,6 +97,114 @@ class PostgresKnowledgeRepository:
             ).all()
             return [dict(record.raw_payload or {}) for record in records]
 
+    def delete_library(self, library_id: str) -> bool:
+        normalized_library_id = str(library_id or "").strip()
+        if not normalized_library_id:
+            raise ValueError("library_id is required")
+        with database_session(engine=self._engine) as session:
+            library = session.get(KnowledgeLibrary, normalized_library_id)
+            if library is None:
+                return False
+            build_ids = select(KnowledgeBuild.build_id).where(
+                KnowledgeBuild.library_id == normalized_library_id
+            )
+            session.execute(
+                delete(KnowledgeSourceCandidate).where(
+                    KnowledgeSourceCandidate.build_id.in_(build_ids)
+                )
+            )
+            session.execute(
+                delete(KnowledgeQualityCheck).where(
+                    KnowledgeQualityCheck.build_id.in_(build_ids)
+                )
+            )
+            session.execute(
+                delete(KnowledgeBuild).where(
+                    KnowledgeBuild.library_id == normalized_library_id
+                )
+            )
+            session.execute(
+                delete(KnowledgeDocument).where(
+                    KnowledgeDocument.library_id == normalized_library_id
+                )
+            )
+            session.execute(
+                delete(KnowledgeGraphVersion).where(
+                    KnowledgeGraphVersion.library_id == normalized_library_id
+                )
+            )
+            session.delete(library)
+            return True
+
+    def clear_library_content(
+        self,
+        library_id: str,
+        *,
+        retained_documents: list[Mapping[str, Any]] | None = None,
+    ) -> bool:
+        """Clear generated course-library content while retaining personal docs."""
+        normalized_library_id = str(library_id or "").strip()
+        if not normalized_library_id:
+            raise ValueError("library_id is required")
+        retained = [dict(item) for item in (retained_documents or [])]
+        with database_session(engine=self._engine) as session:
+            library = session.get(KnowledgeLibrary, normalized_library_id)
+            if library is None:
+                return False
+            build_ids = select(KnowledgeBuild.build_id).where(
+                KnowledgeBuild.library_id == normalized_library_id
+            )
+            session.execute(
+                delete(KnowledgeSourceCandidate).where(
+                    KnowledgeSourceCandidate.build_id.in_(build_ids)
+                )
+            )
+            session.execute(
+                delete(KnowledgeQualityCheck).where(
+                    KnowledgeQualityCheck.build_id.in_(build_ids)
+                )
+            )
+            session.execute(
+                delete(KnowledgeBuild).where(
+                    KnowledgeBuild.library_id == normalized_library_id
+                )
+            )
+            session.execute(
+                delete(KnowledgeDocument).where(
+                    KnowledgeDocument.library_id == normalized_library_id
+                )
+            )
+            session.execute(
+                delete(KnowledgeGraphVersion).where(
+                    KnowledgeGraphVersion.library_id == normalized_library_id
+                )
+            )
+            for position, payload in enumerate(retained):
+                document_id = str(
+                    payload.get("id")
+                    or payload.get("document_id")
+                    or hashlib.sha256(
+                        str(payload.get("path") or position).encode("utf-8")
+                    ).hexdigest()[:24]
+                )
+                created = payload.get("uploaded_at") or payload.get("created_at")
+                session.add(
+                    KnowledgeDocument(
+                        library_id=normalized_library_id,
+                        document_id=document_id,
+                        filename=str(payload.get("filename") or payload.get("file_name") or ""),
+                        path=str(payload.get("path") or payload.get("physical_path") or "").strip() or None,
+                        content_hash=str(payload.get("hash") or payload.get("content_hash") or "").strip() or None,
+                        scope_type=str(payload.get("scope_type") or "course"),
+                        scope_id=str(payload.get("scope_id") or "").strip() or None,
+                        status=str(payload.get("status") or "ready"),
+                        created_at=_timestamp(created),
+                        updated_at=_timestamp(payload.get("updated_at") or created),
+                        raw_payload=payload,
+                    )
+                )
+            return True
+
     def upsert_graph(self, library_id: str, graph: Mapping[str, Any]) -> None:
         payload = dict(graph)
         graph_data = dict(payload.get("data") or {})
