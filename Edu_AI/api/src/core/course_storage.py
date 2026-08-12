@@ -35,7 +35,63 @@ LIBRARY_TYPE_PERSONAL = "personal"
 MaterialSpace = Literal["mine", "course", "all"]
 
 
-COURSE_STORAGE_ROOT = Path(__file__).resolve().parents[2] / "course_data"
+def _default_course_storage_root(module_path: Path) -> Path:
+    """Return one runtime course-data root shared by every Git worktree.
+
+    Knowledge metadata can live in PostgreSQL while document bodies live on
+    disk.  Using a path relative to ``__file__`` therefore splits a single
+    logical library whenever the API is started from a linked Git worktree.
+    Resolve linked worktrees through their common Git directory so the main
+    checkout and every feature checkout read and write the same bodies.
+
+    Packaged/non-Git deployments retain the historical API-local default.
+    ``COURSE_STORAGE_ROOT`` is still handled by ``CourseStorageManager`` and
+    takes precedence over this default.
+    """
+
+    resolved_module = Path(module_path).resolve()
+    local_api_root = resolved_module.parents[2]
+    checkout_root: Optional[Path] = None
+    git_marker: Optional[Path] = None
+    for parent in resolved_module.parents:
+        candidate = parent / ".git"
+        if candidate.exists():
+            checkout_root = parent
+            git_marker = candidate
+            break
+    if checkout_root is None or git_marker is None:
+        return local_api_root / "course_data"
+
+    common_git_dir: Optional[Path] = None
+    if git_marker.is_dir():
+        common_git_dir = git_marker.resolve()
+    elif git_marker.is_file():
+        try:
+            marker = git_marker.read_text(encoding="utf-8").strip()
+            prefix, git_dir_value = marker.split(":", 1)
+            if prefix.strip().casefold() != "gitdir":
+                return local_api_root / "course_data"
+            linked_git_dir = (git_marker.parent / git_dir_value.strip()).resolve()
+            common_dir_file = linked_git_dir / "commondir"
+            common_git_dir = (
+                (linked_git_dir / common_dir_file.read_text(encoding="utf-8").strip()).resolve()
+                if common_dir_file.is_file()
+                else linked_git_dir
+            )
+        except (OSError, ValueError):
+            return local_api_root / "course_data"
+
+    if common_git_dir.name != ".git":
+        return local_api_root / "course_data"
+    primary_checkout = common_git_dir.parent
+    try:
+        relative_api_root = local_api_root.relative_to(checkout_root)
+    except ValueError:
+        return local_api_root / "course_data"
+    return primary_checkout / relative_api_root / "course_data"
+
+
+COURSE_STORAGE_ROOT = _default_course_storage_root(Path(__file__))
 
 TYPE_MAPPING = {
     "audio": "audio",
