@@ -432,6 +432,12 @@ class KnowledgeBuild(Base):
     status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     phase: Mapped[str] = mapped_column(String(80), nullable=False)
     progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    graph_confirmed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
+    confirmed_graph_revision: Mapped[int | None] = mapped_column(Integer)
+    confirmed_by: Mapped[str | None] = mapped_column(String(160), index=True)
     idempotency_key: Mapped[str | None] = mapped_column(String(300))
     plan_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)

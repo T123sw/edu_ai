@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from app.database import Base, Course, CourseMembership, CourseObjective, User
+from app.database import Base, Course, CourseMembership, CourseObjective, KnowledgeLibrary, User
 
 
 def _repository_types():
@@ -218,3 +218,22 @@ def test_core_repositories_read_database_records(engine):
     assert membership is not None
     assert memberships.list_for_user("read-user") == [membership]
     assert memberships.list_for_course("read-course") == [membership]
+
+
+def test_course_delete_cascades_course_knowledge_library(engine):
+    _, PostgresCourseRepository, _ = _repository_types()
+    courses = PostgresCourseRepository(engine)
+    courses.upsert({"id": "delete-course", "title": "Delete Course", "objectives": []})
+    with Session(engine) as session:
+        session.add(KnowledgeLibrary(
+            library_id="delete-course",
+            library_type="course",
+            course_id="delete-course",
+            metadata_payload={},
+        ))
+        session.commit()
+
+    assert courses.delete("delete-course") is True
+    assert courses.get("delete-course") is None
+    with Session(engine) as session:
+        assert session.get(KnowledgeLibrary, "delete-course") is None

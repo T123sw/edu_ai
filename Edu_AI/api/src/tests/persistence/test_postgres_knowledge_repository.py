@@ -41,6 +41,35 @@ def test_knowledge_repository_round_trips_documents_graph_and_runtime_indexes(en
     assert repository.load_runtime_index("document") == {"source-key": {"hash": "abc"}}
 
 
+def test_delete_library_removes_documents_graph_versions_and_builds(engine):
+    from app.database import KnowledgeBuild, KnowledgeDocument, KnowledgeGraphVersion, KnowledgeLibrary
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+    from sqlalchemy import func, select
+    from sqlalchemy.orm import Session
+
+    repository = PostgresKnowledgeRepository(engine)
+    repository.replace_documents("course-delete", [{
+        "id": "doc-1",
+        "filename": "lesson.md",
+        "course_id": "course-delete",
+        "library_type": "course",
+    }])
+    repository.upsert_graph("course-delete", {"id": "root", "children": []})
+    repository.create_build_draft(
+        course_id="course-delete",
+        triggered_by="teacher-one",
+        plan={"course_snapshot": {"title": "Delete me"}},
+    )
+
+    assert repository.delete_library("course-delete") is True
+    assert repository.delete_library("course-delete") is False
+    with Session(engine) as session:
+        assert session.get(KnowledgeLibrary, "course-delete") is None
+        assert session.scalar(select(func.count()).select_from(KnowledgeDocument)) == 0
+        assert session.scalar(select(func.count()).select_from(KnowledgeGraphVersion)) == 0
+        assert session.scalar(select(func.count()).select_from(KnowledgeBuild)) == 0
+
+
 def test_knowledge_repository_persists_build_preview_and_candidates(engine):
     from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
 
@@ -83,6 +112,17 @@ def test_knowledge_repository_persists_build_preview_and_candidates(engine):
     assert loaded["course_snapshot"]["title"] == "线性代数"
     assert loaded["source_candidates"][0]["license_name"] == "CC BY-SA 4.0"
     assert loaded["source_candidates"][0]["selected"] is True
+    graph_review = repository.update_build_draft(
+        preview["build_id"],
+        expected_revision=1,
+        changes={"graph_draft": {"id": "root", "children": []}},
+        phase="graph_review",
+    )
+    repository.confirm_build_graph(
+        preview["build_id"],
+        expected_revision=graph_review["revision"],
+        confirmed_by="teacher-1",
+    )
     repository.queue_build(preview["build_id"], selected_source_count=1)
     assert repository.get_build(preview["build_id"])["status"] == "queued"
     with pytest.raises(ValueError, match="已经启动"):
@@ -110,6 +150,174 @@ def test_knowledge_repository_persists_build_preview_and_candidates(engine):
     assert repository.get_build(preview["build_id"])["status"] == "succeeded"
     assert repository.list_documents("course-1")[0]["status"] == "ready"
     assert repository.get_graph("course-1")["data"]["source_build_id"] == preview["build_id"]
+
+
+def test_knowledge_build_draft_uses_revision_and_requires_graph_confirmation(engine):
+    from app.persistence.postgres_knowledge_repository import (
+        KnowledgeBuildRevisionConflict,
+        PostgresKnowledgeRepository,
+    )
+
+    repository = PostgresKnowledgeRepository(engine)
+    draft = repository.create_build_draft(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "course_snapshot": {"id": "course-1", "title": "线性代数"},
+            "config": {"preset": "standard", "target_module_count": 4},
+            "graph_draft": None,
+            "warnings": [],
+        },
+    )
+
+    assert draft["phase"] == "draft_config"
+    assert draft["revision"] == 1
+    assert draft["graph_confirmed_at"] is None
+
+    updated = repository.update_build_draft(
+        draft["build_id"],
+        expected_revision=1,
+        changes={"config": {"preset": "small", "target_module_count": 3}},
+    )
+    assert updated["revision"] == 2
+    assert updated["config"]["preset"] == "small"
+
+    with pytest.raises(KnowledgeBuildRevisionConflict):
+        repository.update_build_draft(
+            draft["build_id"],
+            expected_revision=1,
+            changes={"warnings": ["stale"]},
+        )
+
+    with pytest.raises(ValueError, match="图谱草案"):
+        repository.confirm_build_graph(
+            draft["build_id"], expected_revision=2, confirmed_by="teacher-1"
+        )
+
+    with_graph = repository.update_build_draft(
+        draft["build_id"],
+        expected_revision=2,
+        changes={"graph_draft": {"id": "root", "label": "线性代数", "children": []}},
+        phase="graph_review",
+    )
+    confirmed = repository.confirm_build_graph(
+        draft["build_id"],
+        expected_revision=with_graph["revision"],
+        confirmed_by="teacher-1",
+    )
+    assert confirmed["phase"] == "graph_confirmed"
+    assert confirmed["confirmed_graph_revision"] == confirmed["revision"]
+    assert confirmed["confirmed_by"] == "teacher-1"
+    assert confirmed["graph_confirmed_at"]
+
+    repository.queue_build(draft["build_id"], selected_source_count=0)
+    assert repository.get_build(draft["build_id"])["status"] == "queued"
+
+
+def test_editing_confirmed_build_clears_confirmation(engine):
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+
+    repository = PostgresKnowledgeRepository(engine)
+    draft = repository.create_build_draft(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "config": {"preset": "small"},
+            "graph_draft": {"id": "root", "label": "课程", "children": []},
+        },
+    )
+    confirmed = repository.confirm_build_graph(
+        draft["build_id"], expected_revision=1, confirmed_by="teacher-1"
+    )
+    edited = repository.update_build_draft(
+        draft["build_id"],
+        expected_revision=confirmed["revision"],
+        changes={"config": {"preset": "large"}},
+    )
+
+    assert edited["revision"] == confirmed["revision"] + 1
+    assert edited["phase"] == "draft_config"
+    assert edited["graph_confirmed_at"] is None
+    assert edited["confirmed_graph_revision"] is None
+    with pytest.raises(ValueError, match="确认"):
+        repository.queue_build(draft["build_id"], selected_source_count=0)
+
+
+def test_running_build_replaces_and_updates_discovered_source_candidates(engine):
+    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
+
+    repository = PostgresKnowledgeRepository(engine)
+    draft = repository.create_build_draft(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "graph_draft": {"id": "root", "label": "课程", "children": []},
+            "topics": [],
+            "source_candidates": [],
+        },
+    )
+    repository.confirm_build_graph(
+        draft["build_id"], expected_revision=1, confirmed_by="teacher-1"
+    )
+    repository.queue_build(draft["build_id"], selected_source_count=0)
+
+    loaded = repository.replace_build_source_candidates(
+        draft["build_id"],
+        topics=[{"topic_id": "leaf-1", "title": "向量空间"}],
+        candidates=[
+            {
+                "candidate_id": "source-1",
+                "topic_id": "leaf-1",
+                "title": "向量空间教程",
+                "url": "https://example.edu/vector-space",
+                "domain": "example.edu",
+                "source_type": "web",
+                "language": "zh-CN",
+                "license_name": None,
+                "license_url": None,
+                "authority_tier": "web_discovered",
+                "review_status": "relevant",
+                "review_reason": "等待正文抓取",
+                "selected": True,
+                "relevance_score": 0.8,
+                "metadata": {"query": "向量空间 教程"},
+            }
+        ],
+        warnings=[],
+        discovery_metrics={"leaf_count": 1, "selected_candidate_count": 1},
+    )
+
+    assert loaded["topics"][0]["topic_id"] == "leaf-1"
+    assert loaded["source_candidates"][0]["review_status"] == "relevant"
+    assert loaded["source_candidates"][0]["license_name"] is None
+    assert loaded["metrics"]["source_discovery"]["selected_candidate_count"] == 1
+
+    repository.update_source_candidate_result(
+        draft["build_id"],
+        "source-1",
+        review_status="ready",
+        review_reason="正文抓取与索引成功",
+        metadata={"content_hash": "abc123"},
+    )
+    candidate = repository.get_build(draft["build_id"])["source_candidates"][0]
+    assert candidate["review_status"] == "ready"
+    assert candidate["metadata"]["content_hash"] == "abc123"
+
+    repository.update_build(
+        draft["build_id"],
+        status="blocked",
+        phase="quality_blocked",
+        progress=100,
+        error={"code": "QUALITY_GATE_FAILED", "message": "web minimum"},
+    )
+    repository.requeue_build(draft["build_id"])
+    retried = repository.get_build(draft["build_id"])
+    assert retried["status"] == "queued"
+    assert retried["phase"] == "retry_queued"
+    assert retried["error"] is None
 
 
 def test_knowledge_repository_versions_and_rolls_back_published_graph(engine):

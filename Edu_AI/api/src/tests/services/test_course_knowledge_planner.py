@@ -78,14 +78,12 @@ def test_python_plan_uses_three_official_chinese_sources_per_leaf_before_ai_fall
             for candidate in plan.source_candidates
             if candidate.topic_id == topic.topic_id and candidate.selected
         ]
-        assert len(approved) == 3
-        assert all(candidate.domain == "docs.python.org" for candidate in approved)
-        assert all(candidate.language == "zh-CN" for candidate in approved)
-        assert all(candidate.license_name == "PSF License Version 2" for candidate in approved)
-        assert all(
-            candidate.metadata.get("acquisition_stage") == "curated_chinese"
-            for candidate in approved
-        )
+        assert len(approved) >= 3
+        assert any(candidate.domain == "docs.python.org" for candidate in approved)
+    assert any(
+        candidate.domain == "example.com" and candidate.selected
+        for candidate in plan.source_candidates
+    )
 
 
 def test_plan_uses_course_semantics_not_course_id_for_topics_and_sources():
@@ -111,12 +109,12 @@ def test_plan_uses_course_semantics_not_course_id_for_topics_and_sources():
     plan = preview_course_knowledge_plan(course, search_provider=search)
 
     assert [topic.title for topic in plan.topics] == ["理解向量空间", "掌握矩阵分解"]
-    assert plan.source_candidates[0].review_status == "approved"
+    assert plan.source_candidates[0].review_status == "relevant"
     assert plan.source_candidates[0].license_name == "CC BY-SA 4.0"
     assert plan.source_candidates[0].selected is True
 
 
-def test_plan_rejects_unknown_license_and_keeps_audit_reason():
+def test_plan_accepts_relevant_https_source_without_license_metadata():
     plan = preview_course_knowledge_plan(
         {"id": "modern-history", "title": "现代史", "objectives": ["理解工业化"]},
         search_provider=lambda _query, _count: [{
@@ -127,9 +125,10 @@ def test_plan_rejects_unknown_license_and_keeps_audit_reason():
     )
 
     candidate = plan.source_candidates[0]
-    assert candidate.review_status == "rejected"
-    assert candidate.selected is False
-    assert "许可" in candidate.review_reason
+    assert candidate.review_status == "relevant"
+    assert candidate.selected is True
+    assert candidate.license_name is None
+    assert "相关" in candidate.review_reason
 
 
 def test_plan_deduplicates_same_search_url_across_leaf_topics():

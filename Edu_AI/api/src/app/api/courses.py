@@ -8,6 +8,7 @@ from __future__ import annotations
 import mimetypes
 import json
 import re
+import copy
 from datetime import datetime
 from uuid import uuid4
 from pathlib import Path
@@ -51,6 +52,12 @@ from app.schemas.course import (
     CourseMembersResponse,
     CourseMemberUpdateRequest,
     CourseKnowledgeBuildRequest,
+    CourseKnowledgeBuildDraftCreateRequest,
+    CourseKnowledgeBuildDraftUpdateRequest,
+    CourseKnowledgeGraphConfirmRequest,
+    CourseKnowledgeGraphDraftUpdateRequest,
+    CourseKnowledgeGraphGenerateRequest,
+    CourseKnowledgeTextbookMutationRequest,
     CourseKnowledgeBuildPreviewRequest,
     CourseUpdateRequest,
     GenerateClassroomRequest,
@@ -69,9 +76,19 @@ from app.schemas.course import (
 )
 from app.services import course_service as _svc
 from app.services import knowledge_document_service as _knowledge
-from app.services.course_knowledge_planner import preview_course_knowledge_plan
 from app.services.course_knowledge_plan_builder import submit_course_knowledge_plan_build_job
-from app.services.deepsearch_service import search_web_sources
+from app.services.course_knowledge_graph_generator import (
+    submit_course_knowledge_graph_generation_job,
+    validate_graph_draft_for_build,
+)
+from app.services.job_store import JobKind, list_job_page
+from app.services.course_knowledge_textbook_inputs import (
+    CourseKnowledgeTextbookInputError,
+    remove_course_knowledge_textbook,
+    retry_course_knowledge_textbook,
+    stage_course_knowledge_textbook,
+    submit_course_knowledge_textbook_parse_job,
+)
 from app.services.course_knowledge_builder import submit_course_knowledge_build_job
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.classroom_video_export import (
@@ -87,9 +104,8 @@ from app.services.personal_tool_access import (
     require_personal_tool,
 )
 from app.persistence.dependencies import get_postgres_knowledge_repository
-from app.textbook_knowledge_graph import (
-    TextbookKnowledgeGraphError,
-    import_textbook_into_knowledge_graph,
+from app.persistence.postgres_knowledge_repository import (
+    KnowledgeBuildRevisionConflict,
 )
 from core.course_storage import (
     LIBRARY_TYPE_COURSE,
@@ -257,19 +273,37 @@ def list_courses(
 ) -> List[CourseInfo]:
     mgr = _svc._get_manager()
     results: List[CourseInfo] = []
+    user_id = str(current_user.get("username") or "").strip()
+    system_role = str(current_user.get("role") or "").strip().lower()
+    membership_store = get_course_membership_store()
 
     if not mgr.courses_dir.exists():
         _svc.ensure_default_courses()
 
     memberships = {
         item.course_id: item
-        for item in get_course_membership_store().list_for_user(
-            str(current_user.get("username") or "")
-        )
+        for item in membership_store.list_for_user(user_id)
     }
     for info in mgr.list_course_infos():
         course_id = str(info.get("id") or info.get("course_id") or "").strip()
         membership = memberships.get(course_id)
+        creator_id = str(info.get("created_by") or "").strip()
+        if membership is None and creator_id and creator_id == user_id:
+            membership = membership_store.upsert(
+                course_id,
+                user_id,
+                "owner",
+                added_by="course-creator-repair",
+            )
+            memberships[course_id] = membership
+        elif membership is None and system_role == "admin":
+            membership = membership_store.upsert(
+                course_id,
+                user_id,
+                "editor",
+                added_by="admin-course-catalog-repair",
+            )
+            memberships[course_id] = membership
         if membership is None:
             continue
         try:
@@ -448,17 +482,89 @@ def remove_course_member(
     return {"ok": True}
 
 
+@router.delete("/{course_id}/membership", summary="学生退出课程")
+def leave_course(
+    course_id: str,
+    current_user: dict = Depends(get_current_user),
+    service: CourseEnrollmentService = Depends(get_course_enrollment_service),
+):
+    user_id = str(current_user.get("username") or "").strip()
+    try:
+        service.leave(
+            course_id=course_id,
+            user_id=user_id,
+            system_role=str(current_user.get("role") or ""),
+        )
+    except CourseEnrollmentError as error:
+        raise _enrollment_http_error(error) from error
+    return {"ok": True, "message": "已退出课程"}
+
+
+def _active_course_jobs(
+    course_id: str,
+    kinds: set[JobKind] | None = None,
+) -> list[str]:
+    return [
+        job.edu_job_id
+        for job in list_job_page(course_id=course_id, active_only=True, limit=200).items
+        if kinds is None or job.kind in kinds
+    ]
+
+
+def _active_jobs_conflict(
+    course_id: str,
+    kinds: set[JobKind] | None = None,
+) -> HTTPException | None:
+    active_job_ids = _active_course_jobs(course_id, kinds)
+    if not active_job_ids:
+        return None
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "COURSE_HAS_ACTIVE_JOBS",
+            "message": "课程仍有后台任务运行，请等待任务完成或取消后再删除",
+            "job_ids": active_job_ids,
+        },
+    )
+
+
+def _remove_documents_from_rag(mgr, course_id: str, documents: list[dict]) -> None:
+    paths = [item for item in documents if str(item.get("path") or "").strip()]
+    if not paths:
+        return
+    rag_system = get_rag_system()
+    for item in paths:
+        file_path = mgr.get_file_path(course_id, str(item["path"]))
+        owner = str(item.get("owner_user_id") or "").strip() or None
+        rag_system.delete_document(str(file_path), owner=owner)
+
+
 @router.delete("/{course_id}", summary="删除课程")
 def delete_course(
     course_id: str,
     principal: CoursePrincipal = Depends(require_course_owner),
 ):
+    del principal
+    conflict = _active_jobs_conflict(course_id)
+    if conflict:
+        raise conflict
     mgr = _svc._get_manager()
+    all_documents = mgr.get_knowledge_base_index(course_id)
+    try:
+        _remove_documents_from_rag(mgr, course_id, all_documents)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"删除课程检索索引失败，课程数据已保留：{exc}",
+        ) from exc
     if not mgr.delete_course(course_id):
-        raise HTTPException(status_code=500, detail="删除课程失败")
+        if not mgr.get_course_info(course_id):
+            raise HTTPException(status_code=404, detail="课程不存在")
+        raise HTTPException(status_code=500, detail="删除课程失败，课程数据已保留")
     membership_store = get_course_membership_store()
-    for membership in membership_store.list_for_course(course_id):
-        membership_store.delete(course_id, membership.user_id)
+    if not mgr._course_uses_postgres():
+        for membership in membership_store.list_for_course(course_id):
+            membership_store.delete(course_id, membership.user_id)
     return {"message": "课程已删除"}
 
 
@@ -895,6 +1001,7 @@ def get_knowledge_base_documents(
         library_type=library_type,
         owner_user_id=owner_user_id if library_type == LIBRARY_TYPE_PERSONAL else None,
     )
+    index = [item for item in index if item.get("display_in_library") is not False]
     # A viewer must only observe the atomically published knowledge-base
     # version. Owners/editors may inspect staged or failed records for
     # diagnostics, while students never see a blocked build leaking through
@@ -947,6 +1054,303 @@ def get_knowledge_base_documents(
 
 
 @router.post(
+    "/{course_id}/knowledge-builds",
+    status_code=status.HTTP_201_CREATED,
+    summary="创建课程知识库构建草案",
+)
+def create_knowledge_base_build_draft(
+    course_id: str,
+    payload: CourseKnowledgeBuildDraftCreateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    mgr = _svc._get_manager()
+    course = mgr.get_course_info(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="课程不存在")
+    course_snapshot = dict(course)
+    course_snapshot["id"] = course_id
+    plan = {
+        "course_id": course_id,
+        "course_snapshot": course_snapshot,
+        "config": payload.config.model_dump(mode="json"),
+        "textbooks": [],
+        "graph_draft": None,
+        "topics": [],
+        "source_candidates": [],
+        "warnings": [],
+    }
+    try:
+        return get_postgres_knowledge_repository().create_build_draft(
+            course_id=course_id,
+            triggered_by=principal.user_id,
+            plan=plan,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"知识库构建草案暂时无法保存：{exc}",
+        ) from exc
+
+
+def _get_course_knowledge_build_or_404(course_id: str, build_id: str):
+    result = get_postgres_knowledge_repository().get_build(build_id)
+    if result is None or str(result.get("library_id") or "") != course_id:
+        raise HTTPException(status_code=404, detail="知识库构建记录不存在")
+    return result
+
+
+def _raise_build_revision_conflict(exc: KnowledgeBuildRevisionConflict) -> None:
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "KNOWLEDGE_BUILD_REVISION_CONFLICT",
+            "message": str(exc),
+        },
+    ) from exc
+
+
+def _raise_textbook_input_error(exc: CourseKnowledgeTextbookInputError) -> None:
+    status_code = (
+        status.HTTP_409_CONFLICT
+        if exc.code == "TEXTBOOK_DUPLICATE"
+        else status.HTTP_422_UNPROCESSABLE_ENTITY
+    )
+    raise HTTPException(
+        status_code=status_code,
+        detail={"code": exc.code, "message": str(exc)},
+    ) from exc
+
+
+@router.patch(
+    "/{course_id}/knowledge-builds/{build_id}",
+    summary="更新课程知识库构建配置",
+)
+def update_knowledge_base_build_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeBuildDraftUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    del principal
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return get_postgres_knowledge_repository().update_build_draft(
+            build_id,
+            expected_revision=payload.expected_revision,
+            changes={"config": payload.config.model_dump(mode="json")},
+            phase="draft_config",
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/textbooks",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="上传并暂存课程知识库构建教材",
+)
+async def upload_knowledge_base_build_textbook(
+    course_id: str,
+    build_id: str,
+    expected_revision: int = Form(..., ge=1),
+    file: UploadFile = File(..., description="PDF、DOCX、TXT 或 Markdown 教材"),
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    if not file.filename:
+        raise HTTPException(status_code=422, detail="教材文件名不能为空")
+    try:
+        updated, textbook = stage_course_knowledge_textbook(
+            manager=_svc._get_manager(),
+            course_id=course_id,
+            build_id=build_id,
+            owner_user_id=principal.user_id,
+            expected_revision=expected_revision,
+            filename=file.filename,
+            file_bytes=await file.read(),
+        )
+        job = submit_course_knowledge_textbook_parse_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            textbook_id=textbook["textbook_id"],
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except CourseKnowledgeTextbookInputError as exc:
+        _raise_textbook_input_error(exc)
+    return {
+        "build": updated,
+        "textbook": textbook,
+        "job": job.model_dump(mode="json"),
+    }
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/textbooks/{textbook_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="重试解析知识库构建教材",
+)
+def retry_knowledge_base_build_textbook(
+    course_id: str,
+    build_id: str,
+    textbook_id: str,
+    payload: CourseKnowledgeTextbookMutationRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        updated = retry_course_knowledge_textbook(
+            course_id=course_id,
+            build_id=build_id,
+            textbook_id=textbook_id,
+            expected_revision=payload.expected_revision,
+        )
+        job = submit_course_knowledge_textbook_parse_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            textbook_id=textbook_id,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except CourseKnowledgeTextbookInputError as exc:
+        _raise_textbook_input_error(exc)
+    return {"build": updated, "job": job.model_dump(mode="json")}
+
+
+@router.delete(
+    "/{course_id}/knowledge-builds/{build_id}/textbooks/{textbook_id}",
+    summary="从构建草案移除教材输入",
+)
+def delete_knowledge_base_build_textbook(
+    course_id: str,
+    build_id: str,
+    textbook_id: str,
+    payload: CourseKnowledgeTextbookMutationRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    del principal
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return remove_course_knowledge_textbook(
+            course_id=course_id,
+            build_id=build_id,
+            textbook_id=textbook_id,
+            expected_revision=payload.expected_revision,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except CourseKnowledgeTextbookInputError as exc:
+        _raise_textbook_input_error(exc)
+
+
+@router.put(
+    "/{course_id}/knowledge-builds/{build_id}/graph",
+    summary="保存待确认的课程知识图谱",
+)
+def update_knowledge_base_graph_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeGraphDraftUpdateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    graph = copy.deepcopy(payload.root)
+    issues, metrics = validate_graph_draft_for_build(build, graph)
+    if issues:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_SCHEMA_INVALID",
+                "message": "知识图谱草案未通过结构校验",
+                "issues": issues,
+            },
+        )
+    graph.setdefault("data", {}).update(
+        {
+            "validation": {"status": "passed", **metrics},
+            "edited_at": datetime.now().astimezone().isoformat(),
+            "edited_by": principal.user_id,
+        }
+    )
+    try:
+        return get_postgres_knowledge_repository().update_build_draft(
+            build_id,
+            expected_revision=payload.expected_revision,
+            changes={"graph_draft": graph},
+            phase="graph_review",
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/graph/generate",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="调用模型生成课程知识图谱草案",
+)
+def generate_knowledge_base_graph_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeGraphGenerateRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        job = submit_course_knowledge_graph_generation_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            expected_revision=payload.expected_revision,
+            target_module_id=payload.target_module_id,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return job.model_dump(mode="json")
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/graph/confirm",
+    summary="确认课程知识图谱并解锁正式构建",
+)
+def confirm_knowledge_base_graph_draft(
+    course_id: str,
+    build_id: str,
+    payload: CourseKnowledgeGraphConfirmRequest,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    graph = build.get("graph_draft") or {}
+    issues, _metrics = validate_graph_draft_for_build(build, graph)
+    if issues:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_SCHEMA_INVALID",
+                "message": "知识图谱草案未通过结构校验，不能确认",
+                "issues": issues,
+            },
+        )
+    try:
+        return get_postgres_knowledge_repository().confirm_build_graph(
+            build_id,
+            expected_revision=payload.expected_revision,
+            confirmed_by=principal.user_id,
+        )
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post(
     "/{course_id}/knowledge-builds/preview",
     status_code=status.HTTP_201_CREATED,
     summary="根据课程元数据生成并保存知识库构建计划",
@@ -956,31 +1360,20 @@ def preview_knowledge_base_build(
     payload: CourseKnowledgeBuildPreviewRequest,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    mgr = _svc._get_manager()
-    course = mgr.get_course_info(course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="课程不存在")
-    course_snapshot = dict(course)
-    course_snapshot["id"] = course_id
-    search_provider = None
-    if payload.discover_sources:
-        search_provider = lambda query, limit: search_web_sources(query, limit)
-    plan = preview_course_knowledge_plan(
-        course_snapshot,
-        search_provider=search_provider,
-        max_results_per_topic=payload.max_results_per_topic,
+    del payload
+    result = create_knowledge_base_build_draft(
+        course_id,
+        CourseKnowledgeBuildDraftCreateRequest(),
+        principal,
     )
-    try:
-        return get_postgres_knowledge_repository().create_build_preview(
-            course_id=course_id,
-            triggered_by=principal.user_id,
-            plan=plan.to_dict(),
-        )
-    except Exception as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=f"知识库构建计划暂时无法保存：{exc}",
-        ) from exc
+    return {
+        **result,
+        "deprecation": {
+            "deprecated": True,
+            "replacement": f"/api/courses/{course_id}/knowledge-builds",
+            "message": "旧预览入口已改为只创建草案，不再搜索或自动启动构建",
+        },
+    }
 
 
 @router.get(
@@ -993,10 +1386,7 @@ def get_knowledge_base_build(
     principal: CoursePrincipal = Depends(require_course_read),
 ):
     del principal
-    result = get_postgres_knowledge_repository().get_build(build_id)
-    if result is None or str(result.get("library_id") or "") != course_id:
-        raise HTTPException(status_code=404, detail="知识库构建记录不存在")
-    return result
+    return _get_course_knowledge_build_or_404(course_id, build_id)
 
 
 @router.post(
@@ -1009,11 +1399,49 @@ def start_knowledge_base_build(
     build_id: str,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    revision = int(build.get("revision") or 0)
+    if (
+        not build.get("graph_confirmed_at")
+        or int(build.get("confirmed_graph_revision") or 0) != revision
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_CONFIRMATION_REQUIRED",
+                "message": "请先确认当前版本的知识图谱，再启动正式构建",
+            },
+        )
     try:
         job = submit_course_knowledge_plan_build_job(
             course_id=course_id,
             owner_user_id=principal.user_id,
             build_id=build_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return job.model_dump(mode="json")
+
+
+@router.post(
+    "/{course_id}/knowledge-builds/{build_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="从稳定检查点重试失败或阻塞的课程知识库构建",
+)
+def retry_knowledge_base_build(
+    course_id: str,
+    build_id: str,
+    principal: CoursePrincipal = Depends(require_course_generate),
+):
+    build = _get_course_knowledge_build_or_404(course_id, build_id)
+    if build.get("status") not in {"blocked", "failed"}:
+        raise HTTPException(status_code=422, detail="只有失败或阻塞的构建可以重试")
+    try:
+        job = submit_course_knowledge_plan_build_job(
+            course_id=course_id,
+            owner_user_id=principal.user_id,
+            build_id=build_id,
+            retry=True,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -1147,29 +1575,15 @@ async def import_textbook_knowledge_graph(
     file: UploadFile = File(..., description="Textbook file"),
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    _ = principal
-    mgr = _svc._get_manager()
-
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="Textbook file is required")
-
-    try:
-        return import_textbook_into_knowledge_graph(
-            course_id=course_id,
-            filename=file.filename,
-            file_bytes=await file.read(),
-            manager=mgr,
-            rag_system=get_rag_system(),
-        )
-    except TextbookKnowledgeGraphError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to import textbook: {exc}") from exc
+    del file, principal
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail={
+            "code": "LEGACY_TEXTBOOK_IMPORT_RETIRED",
+            "message": "旧教材导入会直接覆盖图谱，现已停用；请在知识库构建方案中上传教材",
+            "replacement": f"/api/courses/{course_id}/knowledge-builds/{{build_id}}/textbooks",
+        },
+    )
 
 
 @router.post(
@@ -1559,18 +1973,27 @@ def delete_knowledge_base_document(
         file_path = mgr.get_file_path(course_id, doc_to_delete["path"])
         try:
             rag_system = get_rag_system()
-            rag_system.delete_document(str(file_path), owner=owner)
+            document_owner = (
+                str(doc_to_delete.get("owner_user_id") or "").strip() or owner
+            )
+            rag_system.delete_document(str(file_path), owner=document_owner)
         except Exception as exc:
             raise HTTPException(
                 status_code=502,
                 detail=f"删除检索索引失败，原文件已保留：{exc}",
             ) from exc
-        if file_path.exists():
-            file_path.unlink()
-
     next_index = [item for item in index if item.get("id") != document_id]
     if not mgr.save_knowledge_base_index(course_id, next_index):
         raise HTTPException(status_code=500, detail="删除文档记录失败")
+    if doc_to_delete.get("path"):
+        file_path = mgr.get_file_path(course_id, doc_to_delete["path"])
+        if file_path.exists():
+            try:
+                file_path.unlink()
+            except OSError:
+                # The document is already absent from the catalog and RAG index.
+                # A leftover unreferenced file can be removed by storage cleanup.
+                pass
     return {"message": "文档已删除"}
 
 

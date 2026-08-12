@@ -12,10 +12,45 @@ def _build_record():
         "course_id": "course-1",
         "status": "draft",
         "course_snapshot": {"title": "线性代数"},
+        "config": {
+            "graph_depth": 3,
+            "target_module_count": 1,
+            "target_points_per_module": 2,
+            "target_materials_per_leaf": 3,
+            "minimum_web_materials_per_leaf": 1,
+            "maximum_ai_materials_per_leaf": 2,
+            "ai_supplement_enabled": True,
+        },
         "topics": [
             {"topic_id": "topic-1", "title": "向量空间", "objective": "理解向量空间"},
             {"topic_id": "topic-2", "title": "矩阵", "objective": "掌握矩阵运算"},
         ],
+        "graph_draft": {
+            "id": "course-linear-algebra",
+            "label": "线性代数知识体系",
+            "children": [
+                {
+                    "id": "module-core",
+                    "label": "线性结构与运算",
+                    "children": [
+                        {
+                            "id": "topic-1",
+                            "label": "向量空间",
+                            "children": [],
+                            "data": {"level": 2, "type": "knowledge_point", "summary": "理解向量空间"},
+                        },
+                        {
+                            "id": "topic-2",
+                            "label": "矩阵",
+                            "children": [],
+                            "data": {"level": 2, "type": "knowledge_point", "summary": "掌握矩阵运算"},
+                        },
+                    ],
+                    "data": {"level": 1, "type": "knowledge_module", "summary": "线性代数核心结构"},
+                }
+            ],
+            "data": {"level": 0, "type": "course", "summary": "线性代数课程"},
+        },
         "source_candidates": [
             {
                 "candidate_id": "source-1",
@@ -39,11 +74,40 @@ def _build_record():
     }
 
 
+@pytest.fixture(autouse=True)
+def _stub_source_discovery(monkeypatch):
+    record = _build_record()
+    candidates = [
+        {
+            **item,
+            "review_status": "relevant",
+            "metadata": {"query": f"{item['topic_id']} 课程资料"},
+        }
+        for item in record["source_candidates"]
+    ]
+    monkeypatch.setattr(
+        builder,
+        "discover_course_knowledge_sources",
+        lambda _build: {
+            "topics": record["topics"],
+            "source_candidates": candidates,
+            "warnings": [],
+            "metrics": {
+                "leaf_count": 2,
+                "candidate_count": 2,
+                "selected_candidate_count": 2,
+                "search_failure_count": 0,
+            },
+        },
+    )
+
+
 class FakeRepository:
     def __init__(self):
         self.build = _build_record()
         self.checks = []
         self.published_graph = None
+        self.published_document_ids = []
 
     def get_build(self, build_id):
         return dict(self.build) if build_id == "kb-1" else None
@@ -57,9 +121,32 @@ class FakeRepository:
         assert build_id == "kb-1"
         self.checks.append(fields)
 
+    def replace_build_source_candidates(
+        self, build_id, *, topics, candidates, warnings, discovery_metrics
+    ):
+        assert build_id == "kb-1"
+        self.build["topics"] = topics
+        self.build["source_candidates"] = candidates
+        self.build["warnings"] = warnings
+        self.build.setdefault("metrics", {})["source_discovery"] = discovery_metrics
+        return dict(self.build)
+
+    def update_source_candidate_result(
+        self, build_id, candidate_id, *, review_status, review_reason, metadata=None
+    ):
+        assert build_id == "kb-1"
+        for candidate in self.build["source_candidates"]:
+            if candidate["candidate_id"] == candidate_id:
+                candidate["review_status"] = review_status
+                candidate["review_reason"] = review_reason
+                candidate.setdefault("metadata", {}).update(metadata or {})
+                return
+        raise AssertionError(candidate_id)
+
     def publish_build(self, build_id, *, graph, document_ids, metrics, quality_score):
         assert build_id == "kb-1"
         self.published_graph = graph
+        self.published_document_ids = list(document_ids)
         self.build.update(
             status="succeeded",
             phase="published",
@@ -91,6 +178,8 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
             "document_id": kwargs["candidate"]["candidate_id"],
             "scope_id": kwargs["candidate"]["topic_id"],
             "source_url": kwargs["candidate"]["url"],
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "final_url": kwargs["candidate"]["url"],
         },
     )
     generated = []
@@ -119,11 +208,12 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
 
     assert result["quality_score"] == 100
     assert repository.build["status"] == "succeeded"
-    assert len(repository.checks) == 4
+    assert len(repository.checks) == 8
     assert result["document_count"] == 6
     assert sorted(generated) == ["topic-1", "topic-1", "topic-2", "topic-2"]
     assert repository.published_graph["data"]["publication_status"] == "published"
     assert repository.published_graph["data"]["source_build_id"] == "kb-1"
+    assert len(repository.published_document_ids) == 6
     assert completed_jobs[-1][1]["status"].value == "succeeded"
 
 
@@ -149,6 +239,167 @@ def test_plan_build_blocks_publish_when_sources_cannot_be_ingested(monkeypatch):
     assert repository.published_graph is None
 
 
+def test_plan_build_stops_crawling_after_each_leaf_reaches_its_target(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"].update(
+        target_materials_per_leaf=1,
+        minimum_web_materials_per_leaf=1,
+        maximum_ai_materials_per_leaf=0,
+    )
+    candidates = [
+        {
+            "candidate_id": f"source-{topic}-{sequence}",
+            "topic_id": topic,
+            "url": f"https://example.com/{topic}/{sequence}",
+            "review_status": "relevant",
+            "selected": True,
+            "metadata": {"query": topic},
+        }
+        for topic in ("topic-1", "topic-2")
+        for sequence in (1, 2)
+    ]
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "discover_course_knowledge_sources",
+        lambda _build: {
+            "topics": repository.build["topics"],
+            "source_candidates": candidates,
+            "warnings": [],
+            "metrics": {
+                "leaf_count": 2,
+                "candidate_count": 4,
+                "selected_candidate_count": 4,
+                "search_failure_count": 0,
+            },
+        },
+    )
+    crawled = []
+
+    def persist(**kwargs):
+        candidate = kwargs["candidate"]
+        crawled.append(candidate["candidate_id"])
+        return {
+            "document_id": candidate["candidate_id"],
+            "scope_id": candidate["topic_id"],
+            "source_url": candidate["url"],
+            "content_hash": candidate["candidate_id"],
+            "final_url": candidate["url"],
+        }
+
+    progress = []
+    monkeypatch.setattr(builder, "_persist_candidate", persist)
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **_kwargs: pytest.fail("web target already satisfies coverage"),
+    )
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    builder.run_course_knowledge_plan_build_job(
+        job_id="job-1",
+        manager=FakeManager(),
+        rag_system=object(),
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build_id="kb-1",
+        progress=lambda *args: progress.append(args),
+    )
+
+    assert crawled == ["source-topic-1-1", "source-topic-2-1"]
+    assert any(item[1] == "indexing" for item in progress)
+
+
+def test_ai_supplement_disabled_never_calls_model(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"]["ai_supplement_enabled"] = False
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "_persist_candidate",
+        lambda **kwargs: {
+            "document_id": kwargs["candidate"]["candidate_id"],
+            "scope_id": kwargs["candidate"]["topic_id"],
+            "source_url": kwargs["candidate"]["url"],
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "final_url": kwargs["candidate"]["url"],
+        },
+    )
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **_kwargs: pytest.fail("AI supplement must remain disabled"),
+    )
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    with pytest.raises(RuntimeError, match="material_coverage"):
+        builder.run_course_knowledge_plan_build_job(
+            job_id="job-1", manager=FakeManager(), rag_system=object(),
+            course_id="course-1", owner_user_id="teacher-1", build_id="kb-1",
+        )
+
+
+def test_textbook_persistence_keeps_original_visible_and_groups_hidden_leaf_chunks(tmp_path):
+    course_dir = tmp_path / "course-1"
+    staged = course_dir / "inputs" / "original.md"
+    staged.parent.mkdir(parents=True)
+    staged.write_text("# 方程\n解方程", encoding="utf-8")
+
+    class Manager:
+        def __init__(self):
+            self.index = []
+
+        def get_course_dir(self, _course_id):
+            return course_dir
+
+        def get_knowledge_base_index(self, _course_id):
+            return self.index
+
+        def save_knowledge_base_file(self, _course_id, payload, filename, **metadata):
+            target = course_dir / "knowledge_base" / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            relative = target.relative_to(course_dir).as_posix()
+            self.index.append({"id": f"doc-{len(self.index) + 1}", "path": relative, **metadata})
+            return relative
+
+        def save_knowledge_base_index(self, _course_id, index):
+            self.index = index
+
+    class Rag:
+        def import_document(self, _path, **_kwargs):
+            return {"chunk_count": 1}
+
+    manager = Manager()
+    persisted = builder._persist_textbook_materials(
+        manager=manager,
+        rag_system=Rag(),
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build={
+            "build_id": "kb-1",
+            "textbooks": [{
+                "textbook_id": "book-1", "filename": "教材.md", "status": "ready",
+                "relative_path": "inputs/original.md", "content_hash": "hash-book",
+            }],
+        },
+        mapping_result={
+            "mappings": [{
+                "textbook_id": "book-1", "knowledge_node_id": "leaf-1",
+                "chapter_title": "方程", "page": 3, "content": "解方程",
+                "mapping_confidence": 1.0,
+            }]
+        },
+    )
+
+    assert [item["source_type"] for item in persisted] == ["textbook_original", "textbook"]
+    original = next(item for item in manager.index if item["source_type"] == "textbook_original")
+    mapped = next(item for item in manager.index if item["source_type"] == "textbook")
+    assert original.get("display_in_library") is not False
+    assert mapped["display_in_library"] is False
+    assert mapped["textbook_mappings"][0]["page"] == 3
+
+
 def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypatch):
     repository = FakeRepository()
     monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
@@ -160,6 +411,8 @@ def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypat
             "scope_id": kwargs["candidate"]["topic_id"],
             "source_url": kwargs["candidate"]["url"],
             "reused": False,
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "final_url": kwargs["candidate"]["url"],
         },
     )
     monkeypatch.setattr(
@@ -231,7 +484,7 @@ def test_reviewed_staged_documents_are_resumed_and_promoted():
     ]
 
 
-def test_extract_reviewed_page_uses_linked_section_instead_of_whole_manual(monkeypatch):
+def test_extract_page_accepts_missing_license_and_uses_linked_section(monkeypatch):
     class Response:
         headers = {"content-type": "text/html; charset=utf-8"}
         text = """
@@ -249,17 +502,17 @@ def test_extract_reviewed_page_uses_linked_section_instead_of_whole_manual(monke
             return Response()
 
     monkeypatch.setattr(builder, "_robots_allows", lambda _client, _url: True)
-    title, content = builder._extract_reviewed_page(
+    title, content, final_url, content_hash = builder._extract_reviewed_page(
         Client(),
         {
             "url": "https://docs.python.org/zh-cn/3/tutorial/controlflow.html#if-statements",
             "title": "Python 官方教程：if 语句",
-            "review_status": "approved",
-            "license_name": "PSF License Version 2",
-            "license_url": "https://docs.python.org/3/license.html",
+            "review_status": "relevant",
         },
     )
 
     assert title == "Python 官方教程：if 语句"
     assert "条件判断" in content
     assert "unrelated text" not in content
+    assert final_url == "https://docs.python.org/zh-cn/3/tutorial/controlflow.html"
+    assert len(content_hash) == 64

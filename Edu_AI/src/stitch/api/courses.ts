@@ -6,11 +6,14 @@ import type {
   CourseMaterial,
   CourseMaterialSpace,
   CourseKnowledgeBuild,
+  CourseKnowledgeBuildConfig,
+  CourseKnowledgeTextbookInput,
   CourseKnowledgeGraphVersion,
   KnowledgeBaseDocument,
   KnowledgeBaseDocumentContent,
   KnowledgeBaseScopeOptions,
   KnowledgeGraphData,
+  KnowledgeGraphNode,
   KnowledgeGraphTextbookImportResponse,
   MaterialPublicationResponse,
 } from "./types";
@@ -221,14 +224,124 @@ export function buildKnowledgeBaseFromOpenTextbook(courseId: string) {
   });
 }
 
-export function previewCourseKnowledgeBuild(courseId: string, discoverSources = true) {
-  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/preview`, {
+export function createCourseKnowledgeBuildDraft(
+  courseId: string,
+  config?: Partial<CourseKnowledgeBuildConfig>,
+) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds`, {
+    method: "POST",
+    body: JSON.stringify(config ? { config } : {}),
+  });
+}
+
+export function leaveCourse(courseId: string) {
+  return apiRequest<{ ok: boolean; message: string }>(
+    `/api/courses/${encodeURIComponent(courseId)}/membership`,
+    { method: "DELETE" },
+  );
+}
+
+export function deleteCourse(courseId: string) {
+  return apiRequest<{ message: string }>(
+    `/api/courses/${encodeURIComponent(courseId)}`,
+    { method: "DELETE" },
+  );
+}
+
+export function deleteKnowledgeBaseDocument(courseId: string, documentId: string) {
+  return apiRequest<{ message: string }>(
+    `/api/courses/${encodeURIComponent(courseId)}/knowledge-base/documents/${encodeURIComponent(documentId)}`,
+    { method: "DELETE" },
+  );
+}
+
+export function updateCourseKnowledgeBuildDraft(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  config: CourseKnowledgeBuildConfig,
+) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ expected_revision: expectedRevision, config }),
+  });
+}
+
+export function uploadCourseKnowledgeTextbook(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  file: File,
+) {
+  const form = new FormData();
+  form.append("expected_revision", String(expectedRevision));
+  form.append("file", file);
+  return apiRequest<{ build: CourseKnowledgeBuild; textbook: CourseKnowledgeTextbookInput; job: JobRecord }>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/textbooks`,
+    { method: "POST", body: form },
+  );
+}
+
+export function retryCourseKnowledgeTextbook(
+  courseId: string,
+  buildId: string,
+  textbookId: string,
+  expectedRevision: number,
+) {
+  return apiRequest<{ build: CourseKnowledgeBuild; job: JobRecord }>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/textbooks/${textbookId}/retry`,
+    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
+}
+
+export function removeCourseKnowledgeTextbook(
+  courseId: string,
+  buildId: string,
+  textbookId: string,
+  expectedRevision: number,
+) {
+  return apiRequest<CourseKnowledgeBuild>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/textbooks/${textbookId}`,
+    { method: "DELETE", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
+}
+
+export function generateCourseKnowledgeGraphDraft(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  targetModuleId?: string,
+) {
+  return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-builds/${buildId}/graph/generate`, {
     method: "POST",
     body: JSON.stringify({
-      discover_sources: discoverSources,
-      max_results_per_topic: 6,
+      expected_revision: expectedRevision,
+      target_module_id: targetModuleId,
     }),
   });
+}
+
+export function saveCourseKnowledgeGraphDraft(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+  root: KnowledgeGraphNode,
+) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}/graph`, {
+    method: "PUT",
+    body: JSON.stringify({ expected_revision: expectedRevision, root }),
+  });
+}
+
+export function confirmCourseKnowledgeGraph(
+  courseId: string,
+  buildId: string,
+  expectedRevision: number,
+) {
+  return apiRequest<CourseKnowledgeBuild>(
+    `/api/courses/${courseId}/knowledge-builds/${buildId}/graph/confirm`,
+    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+  );
 }
 
 export function getCourseKnowledgeBuild(courseId: string, buildId: string) {
@@ -237,6 +350,12 @@ export function getCourseKnowledgeBuild(courseId: string, buildId: string) {
 
 export function startCourseKnowledgeBuild(courseId: string, buildId: string) {
   return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-builds/${buildId}/start`, {
+    method: "POST",
+  });
+}
+
+export function retryCourseKnowledgeBuild(courseId: string, buildId: string) {
+  return apiRequest<JobRecord>(`/api/courses/${courseId}/knowledge-builds/${buildId}/retry`, {
     method: "POST",
   });
 }

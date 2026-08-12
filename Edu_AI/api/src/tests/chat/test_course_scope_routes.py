@@ -654,7 +654,7 @@ def test_delete_knowledge_base_document_removes_index_entry_by_document_id(monke
         "delete-me.md",
         scope_type="knowledge_point",
         scope_id="sorting",
-        library_type="personal",
+        library_type="course",
         owner_user_id="teacher-a",
     )
     document = manager.get_knowledge_base_index("course-1")[-1]

@@ -7,6 +7,7 @@ import {
   getCourseMaterials,
   getKnowledgeBaseDocuments,
   joinCourseByCode,
+  leaveCourse,
   listCourses,
 } from "../../api/courses";
 import { getLearningOverview } from "../../api/learning";
@@ -48,6 +49,7 @@ export function StudentHomePage() {
   const [courseCode, setCourseCode] = useState("");
   const [joining, setJoining] = useState(false);
   const [joinFeedback, setJoinFeedback] = useState<string | null>(null);
+  const [leavingCourseId, setLeavingCourseId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -134,6 +136,29 @@ export function StudentHomePage() {
     }
   }
 
+  async function handleLeaveCourse(course: BackendCourse) {
+    if (leavingCourseId) return;
+    if (!window.confirm(`确认退出课程“${course.title}”？退出后将无法访问课程内容；重新输入课程码仍可加入。你的个人资料不会被删除。`)) return;
+    setLeavingCourseId(course.id);
+    setError(null);
+    try {
+      await leaveCourse(course.id);
+      setCourses((current) => current.filter((item) => item.id !== course.id));
+      setFacts((current) => {
+        const next = { ...current };
+        delete next[course.id];
+        return next;
+      });
+      const validRecent = loadRecentLearning(courses.filter((item) => item.id !== course.id).map((item) => item.id));
+      window.localStorage.setItem(STUDENT_RECENT_LEARNING_KEY, serializeRecentLearning(validRecent));
+      setSelectedCourse(null);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "退出课程失败，请稍后重试。");
+    } finally {
+      setLeavingCourseId(null);
+    }
+  }
+
   return (
     <div className="student-home">
       <section className="teacher-home__intro student-home__intro">
@@ -198,13 +223,12 @@ export function StudentHomePage() {
           {visibleCourses.map((course, index) => {
             const card = toCourseCardPresentation(course, cardFacts(course.id), "student");
             return (
-              <a
+              <article
                 key={course.id}
                 className="teacher-course-card"
-                href={buildStudentHash("student-course-detail", { courseId: course.id })}
                 aria-label={course.title}
-                onClick={() => enterCourse(course, index)}
               >
+                <a href={buildStudentHash("student-course-detail", { courseId: course.id })} onClick={() => enterCourse(course, index)} className="block text-inherit no-underline">
                 <h3>{card.title}</h3>
                 <p className="teacher-course-card__description">{card.description}</p>
                 <dl className="teacher-course-card__metrics">
@@ -215,7 +239,11 @@ export function StudentHomePage() {
                   <span>{card.updatedLabel}</span>
                   <strong>进入学习 <MaterialIcon name="arrow_forward" /></strong>
                 </div>
-              </a>
+                </a>
+                <button type="button" disabled={leavingCourseId === course.id} onClick={() => void handleLeaveCourse(course)} className="mt-3 rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700 disabled:opacity-50">
+                  {leavingCourseId === course.id ? "正在退出…" : "退出课程"}
+                </button>
+              </article>
             );
           })}
         </div>

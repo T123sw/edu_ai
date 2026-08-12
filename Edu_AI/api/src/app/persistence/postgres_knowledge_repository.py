@@ -23,6 +23,10 @@ from app.database import (
 from .postgres_repositories import _timestamp
 
 
+class KnowledgeBuildRevisionConflict(ValueError):
+    pass
+
+
 class PostgresKnowledgeRepository:
     def __init__(self, engine: Engine):
         self._engine = engine
@@ -93,6 +97,45 @@ class PostgresKnowledgeRepository:
             ).all()
             return [dict(record.raw_payload or {}) for record in records]
 
+    def delete_library(self, library_id: str) -> bool:
+        normalized_library_id = str(library_id or "").strip()
+        if not normalized_library_id:
+            raise ValueError("library_id is required")
+        with database_session(engine=self._engine) as session:
+            library = session.get(KnowledgeLibrary, normalized_library_id)
+            if library is None:
+                return False
+            build_ids = select(KnowledgeBuild.build_id).where(
+                KnowledgeBuild.library_id == normalized_library_id
+            )
+            session.execute(
+                delete(KnowledgeSourceCandidate).where(
+                    KnowledgeSourceCandidate.build_id.in_(build_ids)
+                )
+            )
+            session.execute(
+                delete(KnowledgeQualityCheck).where(
+                    KnowledgeQualityCheck.build_id.in_(build_ids)
+                )
+            )
+            session.execute(
+                delete(KnowledgeBuild).where(
+                    KnowledgeBuild.library_id == normalized_library_id
+                )
+            )
+            session.execute(
+                delete(KnowledgeDocument).where(
+                    KnowledgeDocument.library_id == normalized_library_id
+                )
+            )
+            session.execute(
+                delete(KnowledgeGraphVersion).where(
+                    KnowledgeGraphVersion.library_id == normalized_library_id
+                )
+            )
+            session.delete(library)
+            return True
+
     def upsert_graph(self, library_id: str, graph: Mapping[str, Any]) -> None:
         payload = dict(graph)
         graph_data = dict(payload.get("data") or {})
@@ -159,6 +202,47 @@ class PostgresKnowledgeRepository:
             ).all()
             return {record.entry_key: dict(record.payload or {}) for record in records}
 
+    def create_build_draft(
+        self,
+        *,
+        course_id: str,
+        triggered_by: str,
+        plan: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        normalized_course_id = str(course_id or "").strip()
+        if not normalized_course_id:
+            raise ValueError("course_id is required")
+        build_id = f"kb-{uuid4().hex}"
+        now = datetime.now(timezone.utc)
+        plan_snapshot = dict(plan)
+        plan_snapshot.setdefault("source_candidates", [])
+        plan_snapshot.setdefault("warnings", [])
+        with database_session(engine=self._engine) as session:
+            self._ensure_library(
+                session,
+                normalized_course_id,
+                [{"library_type": "course", "course_id": normalized_course_id}],
+            )
+            session.add(
+                KnowledgeBuild(
+                    build_id=build_id,
+                    library_id=normalized_course_id,
+                    triggered_by=str(triggered_by or "").strip(),
+                    status="draft",
+                    phase="draft_config",
+                    progress=0,
+                    revision=1,
+                    plan_snapshot=plan_snapshot,
+                    metrics={},
+                    created_at=now,
+                    updated_at=now,
+                )
+            )
+        result = self.get_build(build_id)
+        if result is None:
+            raise RuntimeError("failed to persist knowledge build draft")
+        return result
+
     def create_build_preview(
         self,
         *,
@@ -187,6 +271,7 @@ class PostgresKnowledgeRepository:
                     status="draft",
                     phase="source_review",
                     progress=0,
+                    revision=1,
                     plan_snapshot=plan_snapshot,
                     metrics={"candidate_count": len(candidates)},
                     created_at=now,
@@ -267,6 +352,14 @@ class PostgresKnowledgeRepository:
                 "status": record.status,
                 "phase": record.phase,
                 "progress": record.progress,
+                "revision": record.revision,
+                "graph_confirmed_at": (
+                    record.graph_confirmed_at.isoformat()
+                    if record.graph_confirmed_at
+                    else None
+                ),
+                "confirmed_graph_revision": record.confirmed_graph_revision,
+                "confirmed_by": record.confirmed_by,
                 "metrics": dict(record.metrics or {}),
                 "quality_score": record.quality_score,
                 "error": dict(record.error) if record.error else None,
@@ -284,6 +377,95 @@ class PostgresKnowledgeRepository:
                 ],
                 **plan,
             }
+
+    def update_build_draft(
+        self,
+        build_id: str,
+        *,
+        expected_revision: int,
+        changes: Mapping[str, Any],
+        phase: str = "draft_config",
+    ) -> dict[str, Any]:
+        now = datetime.now(timezone.utc)
+        with database_session(engine=self._engine) as session:
+            record = session.get(KnowledgeBuild, build_id)
+            if record is None:
+                raise KeyError(build_id)
+            if record.status != "draft":
+                raise ValueError("只有草案状态的构建可以修改")
+            if record.revision != int(expected_revision):
+                raise KnowledgeBuildRevisionConflict(
+                    f"构建草案版本冲突：当前 {record.revision}，提交 {expected_revision}"
+                )
+            next_plan = dict(record.plan_snapshot or {})
+            next_plan.update(dict(changes))
+            result = session.execute(
+                update(KnowledgeBuild)
+                .where(
+                    KnowledgeBuild.build_id == build_id,
+                    KnowledgeBuild.status == "draft",
+                    KnowledgeBuild.revision == int(expected_revision),
+                )
+                .values(
+                    phase=str(phase),
+                    revision=int(expected_revision) + 1,
+                    plan_snapshot=next_plan,
+                    graph_confirmed_at=None,
+                    confirmed_graph_revision=None,
+                    confirmed_by=None,
+                    updated_at=now,
+                    error=None,
+                )
+            )
+            if result.rowcount != 1:
+                raise KnowledgeBuildRevisionConflict("构建草案已被其他请求更新")
+        loaded = self.get_build(build_id)
+        if loaded is None:
+            raise KeyError(build_id)
+        return loaded
+
+    def confirm_build_graph(
+        self,
+        build_id: str,
+        *,
+        expected_revision: int,
+        confirmed_by: str,
+    ) -> dict[str, Any]:
+        now = datetime.now(timezone.utc)
+        with database_session(engine=self._engine) as session:
+            record = session.get(KnowledgeBuild, build_id)
+            if record is None:
+                raise KeyError(build_id)
+            if record.status != "draft":
+                raise ValueError("只有草案状态的构建可以确认")
+            if record.revision != int(expected_revision):
+                raise KnowledgeBuildRevisionConflict(
+                    f"构建草案版本冲突：当前 {record.revision}，提交 {expected_revision}"
+                )
+            if not dict(record.plan_snapshot or {}).get("graph_draft"):
+                raise ValueError("图谱草案不存在，无法确认")
+            result = session.execute(
+                update(KnowledgeBuild)
+                .where(
+                    KnowledgeBuild.build_id == build_id,
+                    KnowledgeBuild.status == "draft",
+                    KnowledgeBuild.revision == int(expected_revision),
+                )
+                .values(
+                    phase="graph_confirmed",
+                    graph_confirmed_at=now,
+                    confirmed_graph_revision=int(expected_revision),
+                    confirmed_by=str(confirmed_by or "").strip(),
+                    updated_at=now,
+                    error=None,
+                )
+            )
+            if result.rowcount != 1:
+                raise KnowledgeBuildRevisionConflict("构建草案已被其他请求更新")
+        loaded = self.get_build(build_id)
+        if loaded is None:
+            raise KeyError(build_id)
+        return loaded
 
     def update_build(
         self,
@@ -321,6 +503,88 @@ class PostgresKnowledgeRepository:
             raise KeyError(build_id)
         return result
 
+    def replace_build_source_candidates(
+        self,
+        build_id: str,
+        *,
+        topics: list[Mapping[str, Any]],
+        candidates: list[Mapping[str, Any]],
+        warnings: list[Mapping[str, Any]],
+        discovery_metrics: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Persist discovery results during an immutable, already-started build."""
+        now = datetime.now(timezone.utc)
+        with database_session(engine=self._engine) as session:
+            record = session.get(KnowledgeBuild, build_id)
+            if record is None:
+                raise KeyError(build_id)
+            if record.status not in {"queued", "running"}:
+                raise ValueError("只有已启动的构建可以写入网络发现结果")
+            session.execute(
+                delete(KnowledgeSourceCandidate).where(
+                    KnowledgeSourceCandidate.build_id == build_id
+                )
+            )
+            plan = dict(record.plan_snapshot or {})
+            plan["topics"] = [dict(item) for item in topics]
+            plan["warnings"] = [*list(plan.get("warnings") or []), *[dict(item) for item in warnings]]
+            record.plan_snapshot = plan
+            record.metrics = {**dict(record.metrics or {}), "source_discovery": dict(discovery_metrics)}
+            record.updated_at = now
+            for candidate in candidates:
+                original_id = str(candidate.get("candidate_id") or uuid4().hex)
+                session.add(
+                    KnowledgeSourceCandidate(
+                        candidate_id=f"{build_id}:{original_id}",
+                        build_id=build_id,
+                        topic_id=str(candidate.get("topic_id") or "").strip() or None,
+                        url=str(candidate.get("url") or "").strip(),
+                        title=str(candidate.get("title") or candidate.get("url") or ""),
+                        domain=str(candidate.get("domain") or ""),
+                        source_type=str(candidate.get("source_type") or "web"),
+                        language=str(candidate.get("language") or "").strip() or None,
+                        authority_tier=str(candidate.get("authority_tier") or "").strip() or None,
+                        license_info={
+                            "name": candidate.get("license_name"),
+                            "url": candidate.get("license_url"),
+                        },
+                        review_status=str(candidate.get("review_status") or "discovered"),
+                        review_reason=str(candidate.get("review_reason") or "").strip() or None,
+                        selected=bool(candidate.get("selected")),
+                        relevance_score=float(candidate.get("relevance_score") or 0),
+                        metadata_payload=dict(candidate.get("metadata") or {}),
+                        created_at=now,
+                    )
+                )
+        loaded = self.get_build(build_id)
+        if loaded is None:
+            raise KeyError(build_id)
+        return loaded
+
+    def update_source_candidate_result(
+        self,
+        build_id: str,
+        candidate_id: str,
+        *,
+        review_status: str,
+        review_reason: str,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> None:
+        with database_session(engine=self._engine) as session:
+            record = session.get(
+                KnowledgeSourceCandidate,
+                f"{build_id}:{candidate_id}",
+            )
+            if record is None:
+                raise KeyError(candidate_id)
+            record.review_status = str(review_status)
+            record.review_reason = str(review_reason or "").strip() or None
+            if metadata is not None:
+                record.metadata_payload = {
+                    **dict(record.metadata_payload or {}),
+                    **dict(metadata),
+                }
+
     def queue_build(self, build_id: str, *, selected_source_count: int) -> None:
         now = datetime.now(timezone.utc)
         with database_session(engine=self._engine) as session:
@@ -329,6 +593,9 @@ class PostgresKnowledgeRepository:
                 .where(
                     KnowledgeBuild.build_id == build_id,
                     KnowledgeBuild.status == "draft",
+                    KnowledgeBuild.graph_confirmed_at.is_not(None),
+                    KnowledgeBuild.confirmed_graph_revision
+                    == KnowledgeBuild.revision,
                 )
                 .values(
                     status="queued",
@@ -340,7 +607,38 @@ class PostgresKnowledgeRepository:
                 )
             )
             if result.rowcount != 1:
+                current = session.get(KnowledgeBuild, build_id)
+                if current is None:
+                    raise KeyError(build_id)
+                if (
+                    current.graph_confirmed_at is None
+                    or current.confirmed_graph_revision != current.revision
+                ):
+                    raise ValueError("知识图谱尚未确认，不能启动正式构建")
                 raise ValueError("该构建计划已经启动或不再可用")
+
+    def requeue_build(self, build_id: str) -> None:
+        now = datetime.now(timezone.utc)
+        with database_session(engine=self._engine) as session:
+            result = session.execute(
+                update(KnowledgeBuild)
+                .where(
+                    KnowledgeBuild.build_id == build_id,
+                    KnowledgeBuild.status.in_({"blocked", "failed"}),
+                    KnowledgeBuild.graph_confirmed_at.is_not(None),
+                    KnowledgeBuild.confirmed_graph_revision == KnowledgeBuild.revision,
+                )
+                .values(
+                    status="queued",
+                    phase="retry_queued",
+                    progress=0,
+                    updated_at=now,
+                    finished_at=None,
+                    error=None,
+                )
+            )
+            if result.rowcount != 1:
+                raise ValueError("只有已确认且失败或阻塞的构建可以重试")
 
     def record_quality_check(
         self,

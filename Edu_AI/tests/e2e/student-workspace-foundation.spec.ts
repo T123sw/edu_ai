@@ -105,6 +105,7 @@ async function installStudentApi(page: Page) {
 
     if (path === "/api/auth/verify") return json(route, { valid: true, user: { username: "student-a", role: "student" } });
     if (path === "/api/courses") return json(route, [course]);
+    if (request.method() === "DELETE" && path === `/api/courses/${course.id}/membership`) return json(route, { ok: true, message: "已退出课程" });
     if (path === `/api/courses/${course.id}`) return json(route, course);
     if (path === "/api/chat/v2/generation/tools") return json(route, { tools: ["report", "ppt", "mind_map", "quiz", "classroom", "flashcard", "game"].map((tool_id) => ({ tool_id, output_scope: "personal", allowed_source_scopes: ["none", "personal", "course"], can_publish: false })) });
     if (path === "/api/chat/v2/reply") return json(route, { message: { role: "assistant", content: "牛顿第二定律说明合力决定加速度。" }, conversation: { conversation_id: "student-conversation-1" }, action: {}, artifacts: [], trace: { path: "fast" } });
@@ -205,4 +206,18 @@ test("course AI classroom is playable and role/API escape paths are denied", asy
     return [courseWrite.status, publish.status];
   }, course.id);
   expect(statuses).toEqual([403, 403]);
+});
+
+test("student can leave a course from the home course card", async ({ page }) => {
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.goto("/#student-home", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("button", { name: "退出课程" })).toBeVisible({ timeout: 15_000 });
+
+  const requestPromise = page.waitForRequest((request) =>
+    request.method() === "DELETE"
+      && new URL(request.url()).pathname === `/api/courses/${course.id}/membership`,
+  );
+  await page.getByRole("button", { name: "退出课程" }).click();
+  await requestPromise;
+  await expect(page.getByRole("article", { name: course.title })).toHaveCount(0);
 });

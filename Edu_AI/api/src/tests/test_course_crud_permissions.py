@@ -21,6 +21,51 @@ def test_course_list_requires_auth_and_returns_membership_role(course_api):
     assert response.json()[0]["membership_role"] == "editor"
 
 
+def test_course_list_repairs_missing_creator_membership(course_api):
+    course_api.manager.create_course_structure("creator-course")
+    assert course_api.manager.save_course_info(
+        "creator-course",
+        {
+            "id": "creator-course",
+            "title": "Creator course",
+            "description": "Historical course with a missing membership",
+            "icon": "menu_book",
+            "color": "#3157d5",
+            "created_by": "teacher-a",
+        },
+    )
+    assert course_api.memberships.get("creator-course", "teacher-a") is None
+
+    response = course_api.client_for("teacher-a", "teacher").get("/api/courses")
+
+    assert response.status_code == 200
+    repaired = next(item for item in response.json() if item["id"] == "creator-course")
+    assert repaired["membership_role"] == "owner"
+    assert course_api.memberships.get("creator-course", "teacher-a").role == "owner"
+
+
+def test_admin_course_list_repairs_missing_catalog_membership(course_api):
+    course_api.manager.create_course_structure("admin-visible-course")
+    assert course_api.manager.save_course_info(
+        "admin-visible-course",
+        {
+            "id": "admin-visible-course",
+            "title": "Admin visible",
+            "description": "Catalog recovery",
+            "icon": "menu_book",
+            "color": "#3157d5",
+            "created_by": "teacher-b",
+        },
+    )
+
+    response = course_api.client_for("admin-a", "admin").get("/api/courses")
+
+    assert response.status_code == 200
+    repaired = next(item for item in response.json() if item["id"] == "admin-visible-course")
+    assert repaired["membership_role"] == "editor"
+    assert course_api.memberships.get("admin-visible-course", "admin-a").role == "editor"
+
+
 def test_postgres_course_list_does_not_require_a_local_asset_directory(
     course_api, monkeypatch
 ):
@@ -79,6 +124,46 @@ def test_viewer_cannot_update_course(course_api):
     )
 
     assert response.status_code == 403
+
+
+def test_only_owner_can_delete_course_and_active_job_blocks_delete(course_api, monkeypatch):
+    from app.api import courses
+
+    course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
+    owner = course_api.client_for("teacher-a", "teacher")
+    viewer = course_api.client_for("student-a", "student")
+    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: ["job-running"])
+
+    blocked = owner.delete("/api/courses/course-1")
+    denied = viewer.delete("/api/courses/course-1")
+
+    assert blocked.status_code == 409
+    assert blocked.json()["detail"]["code"] == "COURSE_HAS_ACTIVE_JOBS"
+    assert course_api.manager.get_course_info("course-1") is not None
+    assert denied.status_code == 403
+
+
+def test_owner_deletes_course_when_no_job_is_active(course_api, monkeypatch):
+    from app.api import courses
+
+    course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
+    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: [])
+
+    response = course_api.client_for("teacher-a", "teacher").delete("/api/courses/course-1")
+
+    assert response.status_code == 200
+    assert course_api.manager.get_course_info("course-1") is None
+    assert course_api.memberships.list_for_course("course-1") == []
+
+
+def test_whole_knowledge_base_delete_route_does_not_exist(course_api):
+    course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
+
+    response = course_api.client_for("teacher-a", "teacher").delete(
+        "/api/courses/course-1/knowledge-base"
+    )
+
+    assert response.status_code == 404
 
 
 def test_new_course_is_private_to_creator_until_members_are_added(course_api):
@@ -145,12 +230,19 @@ def test_student_cannot_create_course_and_unsafe_explicit_id_is_rejected(course_
     assert course_api.client_for("student-a", "student").post("/api/courses", json=payload).status_code == 403
 
 
-def test_teacher_previews_semantic_knowledge_plan_and_student_is_denied(course_api, monkeypatch):
+def test_legacy_preview_only_creates_draft_and_student_is_denied(course_api, monkeypatch):
     from app.api import courses
 
     class Repository:
-        def create_build_preview(self, *, course_id, triggered_by, plan):
-            return {"build_id": "kb-1", "status": "draft", "phase": "source_review", **plan}
+        def create_build_draft(self, *, course_id, triggered_by, plan):
+            return {
+                "build_id": "kb-1",
+                "library_id": course_id,
+                "status": "draft",
+                "phase": "draft_config",
+                "revision": 1,
+                **plan,
+            }
 
     monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
     teacher_response = course_api.client_for("teacher-a", "teacher").post(
@@ -166,8 +258,10 @@ def test_teacher_previews_semantic_knowledge_plan_and_student_is_denied(course_a
     body = teacher_response.json()
     assert body["build_id"] == "kb-1"
     assert body["course_snapshot"]["title"] == "Course one"
-    assert body["topics"][0]["title"] == "Understand shared state"
+    assert body["topics"] == []
+    assert body["graph_draft"] is None
     assert body["source_candidates"] == []
+    assert body["deprecation"]["deprecated"] is True
     assert student_response.status_code == 403
 
 

@@ -96,3 +96,26 @@ def test_non_owner_cannot_manage_members(course_api) -> None:
     editor = course_api.client_for("teacher-b", "teacher")
 
     assert editor.get("/api/courses/course-1/members").status_code == 403
+
+
+def test_student_can_leave_own_course_and_teacher_cannot_use_student_exit(course_api) -> None:
+    student = course_api.client_for("student-a", "student")
+    teacher = course_api.client_for("teacher-a", "teacher")
+
+    left = student.delete("/api/courses/course-1/membership")
+    denied = teacher.delete("/api/courses/course-1/membership")
+
+    assert left.status_code == 200
+    assert course_api.memberships.get("course-1", "student-a") is None
+    assert denied.status_code == 403
+    assert course_api.memberships.get("course-1", "teacher-a") is not None
+
+
+def test_student_cannot_leave_course_twice(course_api) -> None:
+    student = course_api.client_for("student-a", "student")
+
+    assert student.delete("/api/courses/course-1/membership").status_code == 200
+    second = student.delete("/api/courses/course-1/membership")
+
+    assert second.status_code == 404
+    assert second.json()["detail"]["code"] == "MEMBER_NOT_FOUND"

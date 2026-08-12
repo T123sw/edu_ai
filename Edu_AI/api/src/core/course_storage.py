@@ -1520,17 +1520,46 @@ class CourseStorageManager:
         }
 
     def delete_course(self, course_id: str) -> bool:
+        course_dir = self.get_course_dir(course_id)
+        tombstone = course_dir.with_name(
+            f".{course_dir.name}.deleting-{uuid.uuid4().hex}"
+        )
+        moved_to_tombstone = False
+        logical_delete_completed = False
         try:
-            course_dir = self.get_course_dir(course_id)
             if course_dir.exists():
-                shutil.rmtree(course_dir)
+                course_dir.rename(tombstone)
+                moved_to_tombstone = True
             if self._course_uses_postgres():
-                return self._course_repository().delete(course_id)
-            from app.persistence.hooks import shadow_delete_course
+                if not self._course_repository().delete(course_id):
+                    if moved_to_tombstone and tombstone.exists():
+                        tombstone.rename(course_dir)
+                    return False
+            else:
+                from app.persistence.hooks import shadow_delete_course
 
-            shadow_delete_course(course_id)
+                shadow_delete_course(course_id)
+            logical_delete_completed = True
+            if moved_to_tombstone and tombstone.exists():
+                try:
+                    shutil.rmtree(tombstone)
+                except OSError:
+                    log.exception(
+                        "Course was deleted but its tombstone directory needs later cleanup: %s",
+                        tombstone,
+                    )
             return True
         except Exception as e:
+            if (
+                not logical_delete_completed
+                and moved_to_tombstone
+                and tombstone.exists()
+                and not course_dir.exists()
+            ):
+                try:
+                    tombstone.rename(course_dir)
+                except OSError:
+                    log.exception("Failed to restore course directory after delete failure")
             print(f"Error deleting course: {e}")
             return False
 

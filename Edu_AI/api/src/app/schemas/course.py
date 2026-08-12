@@ -197,6 +197,99 @@ class CourseKnowledgeBuildPreviewRequest(BaseModel):
     max_results_per_topic: int = Field(default=6, ge=1, le=12)
 
 
+_COURSE_KNOWLEDGE_BUILD_PRESETS: Dict[str, Dict[str, int]] = {
+    "small": {
+        "graph_depth": 3,
+        "target_module_count": 3,
+        "target_points_per_module": 3,
+        "target_materials_per_leaf": 3,
+    },
+    "standard": {
+        "graph_depth": 3,
+        "target_module_count": 4,
+        "target_points_per_module": 4,
+        "target_materials_per_leaf": 3,
+    },
+    "large": {
+        "graph_depth": 3,
+        "target_module_count": 6,
+        "target_points_per_module": 6,
+        "target_materials_per_leaf": 3,
+    },
+}
+
+
+class CourseKnowledgeBuildConfig(BaseModel):
+    preset: Literal["small", "standard", "large", "custom"] = "standard"
+    graph_depth: int = Field(default=3, ge=3, le=5)
+    target_module_count: int = Field(default=4, ge=1, le=12)
+    target_points_per_module: int = Field(default=4, ge=2, le=20)
+    target_materials_per_leaf: int = Field(default=3, ge=1, le=10)
+    minimum_web_materials_per_leaf: int = Field(default=1, ge=0, le=10)
+    maximum_ai_materials_per_leaf: int = Field(default=1, ge=0, le=10)
+    max_search_results_per_leaf: int = Field(default=8, ge=1, le=20)
+    ai_supplement_enabled: bool = True
+    content_language: str = Field(default="zh-CN", min_length=1, max_length=50)
+    update_strategy: Literal["incremental", "merge_rebuild", "full_rebuild"] = (
+        "merge_rebuild"
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def apply_preset_defaults(cls, value):
+        if value is None:
+            value = {}
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        preset = str(payload.get("preset") or "standard")
+        defaults = _COURSE_KNOWLEDGE_BUILD_PRESETS.get(preset, {})
+        return {**defaults, **payload, "preset": preset}
+
+    @model_validator(mode="after")
+    def validate_material_limits(self) -> Self:
+        if self.minimum_web_materials_per_leaf > self.target_materials_per_leaf:
+            raise ValueError(
+                "minimum_web_materials_per_leaf cannot exceed target_materials_per_leaf"
+            )
+        if self.maximum_ai_materials_per_leaf > self.target_materials_per_leaf:
+            raise ValueError(
+                "maximum_ai_materials_per_leaf cannot exceed target_materials_per_leaf"
+            )
+        if not self.ai_supplement_enabled:
+            self.maximum_ai_materials_per_leaf = 0
+        return self
+
+
+class CourseKnowledgeBuildDraftCreateRequest(BaseModel):
+    config: CourseKnowledgeBuildConfig = Field(
+        default_factory=CourseKnowledgeBuildConfig
+    )
+
+
+class CourseKnowledgeBuildDraftUpdateRequest(BaseModel):
+    expected_revision: int = Field(..., ge=1)
+    config: CourseKnowledgeBuildConfig
+
+
+class CourseKnowledgeGraphDraftUpdateRequest(BaseModel):
+    expected_revision: int = Field(..., ge=1)
+    root: Dict[str, Any]
+
+
+class CourseKnowledgeGraphConfirmRequest(BaseModel):
+    expected_revision: int = Field(..., ge=1)
+
+
+class CourseKnowledgeGraphGenerateRequest(BaseModel):
+    expected_revision: int = Field(..., ge=1)
+    target_module_id: Optional[str] = Field(default=None, min_length=1, max_length=200)
+
+
+class CourseKnowledgeTextbookMutationRequest(BaseModel):
+    expected_revision: int = Field(..., ge=1)
+
+
 class AddRAGDocumentRequest(BaseModel):
     rag_file_path: str = Field(..., description="RAG document identifier")
     scope_type: str = Field(default=SCOPE_TYPE_COURSE, description="workspace scope type")

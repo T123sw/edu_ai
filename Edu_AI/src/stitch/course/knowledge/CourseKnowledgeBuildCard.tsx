@@ -3,14 +3,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
 import { isActiveJob } from "../../../jobs/types";
 import {
+  createCourseKnowledgeBuildDraft,
   getCourseKnowledgeBuild,
   listCourseKnowledgeVersions,
-  previewCourseKnowledgeBuild,
+  retryCourseKnowledgeBuild,
   rollbackCourseKnowledgeVersion,
-  startCourseKnowledgeBuild,
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
 import { MaterialIcon } from "../../shared";
+import { CourseKnowledgeBuildWizard } from "./CourseKnowledgeBuildWizard";
 import "./CourseKnowledgeBuildCard.css";
 
 const PHASE_LABELS: Record<string, string> = {
@@ -42,9 +43,10 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const latestJob = jobs[0] ?? null;
   const [plan, setPlan] = useState<CourseKnowledgeBuild | null>(null);
   const [planning, setPlanning] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [versions, setVersions] = useState<CourseKnowledgeGraphVersion[]>([]);
   const [rollingBack, setRollingBack] = useState<number | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const cardRef = useRef<HTMLElement | null>(null);
 
@@ -76,27 +78,23 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   }, [courseId, latestJob?.status, latestJob?.updated_at]);
 
   async function buildKnowledgeBase() {
-    if (!canBuild || planning || submitting || activeJob) return;
+    if (!canBuild || planning || activeJob) return;
     setSubmitError("");
 
     try {
-      let buildPlan = plan?.status === "draft" ? plan : null;
-      if (!buildPlan) {
-        setPlanning(true);
-        buildPlan = await previewCourseKnowledgeBuild(courseId);
-        window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
-        setPlan(buildPlan);
+      if (plan?.status === "draft") {
+        setWizardOpen(true);
+        return;
       }
-
-      setPlanning(false);
-      setSubmitting(true);
-      registerCreatedJob(await startCourseKnowledgeBuild(courseId, buildPlan.build_id));
-      setPlan({ ...buildPlan, status: "queued", phase: "queued", progress: 0 });
+      setPlanning(true);
+      const buildPlan = await createCourseKnowledgeBuildDraft(courseId);
+      window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
+      setPlan(buildPlan);
+      setWizardOpen(true);
     } catch (reason) {
       setSubmitError(reason instanceof Error ? reason.message : "知识库更新失败，请稍后重试。");
     } finally {
       setPlanning(false);
-      setSubmitting(false);
     }
   }
 
@@ -116,30 +114,45 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
     }
   }
 
+  async function retryBuild() {
+    if (!plan || !["blocked", "failed"].includes(plan.status) || retrying) return;
+    setRetrying(true);
+    setSubmitError("");
+    try {
+      const job = await retryCourseKnowledgeBuild(courseId, plan.build_id);
+      registerCreatedJob(job);
+      setPlan(await getCourseKnowledgeBuild(courseId, plan.build_id));
+    } catch (reason) {
+      setSubmitError(reason instanceof Error ? reason.message : "重试构建失败，请稍后再试。");
+    } finally {
+      setRetrying(false);
+    }
+  }
+
   const status = activeJob ?? latestJob;
-  const isWorking = Boolean(activeJob) || planning || submitting;
+  const isWorking = Boolean(activeJob) || planning;
   const failed = status?.status === "failed" || status?.status === "partially_succeeded";
   const succeeded = status?.status === "succeeded";
   const statusText = planning
     ? "正在分析课程内容"
-    : submitting
-      ? "正在启动更新"
-      : status
+    : status
         ? PHASE_LABELS[status.step] || PHASE_LABELS[status.status] || status.message || "正在处理"
         : documentCount
           ? "知识库已可用"
           : "尚未构建";
   const buttonText = planning
     ? "正在准备…"
-    : submitting
-      ? "正在启动…"
-      : activeJob
-        ? "正在更新…"
-        : documentCount
+    : activeJob
+      ? "正在更新…"
+      : plan?.status === "draft"
+        ? "继续构建方案"
+        : plan && ["blocked", "failed"].includes(plan.status)
+          ? "新建方案调整配置"
+      : documentCount
           ? "更新知识库"
           : "一键构建知识库";
   const approvedSourceCount = plan?.source_candidates.filter(
-    (item) => item.selected && item.review_status === "approved",
+    (item) => item.selected && item.review_status === "ready",
   ).length ?? 0;
 
   return (
@@ -182,6 +195,12 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
       ) : null}
 
       <div className="course-kb-builder__actions">
+        {canBuild && plan && ["blocked", "failed"].includes(plan.status) ? (
+          <button type="button" className="course-kb-builder__primary" disabled={retrying || isWorking} onClick={() => void retryBuild()}>
+            <MaterialIcon name="replay" />
+            {retrying ? "正在重新排队…" : "重试本方案"}
+          </button>
+        ) : null}
         {canBuild ? (
           <button type="button" className="course-kb-builder__primary" disabled={isWorking} onClick={() => void buildKnowledgeBase()}>
             <MaterialIcon name={documentCount ? "refresh" : "auto_awesome"} />
@@ -190,6 +209,15 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
         ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
         {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
       </div>
+
+      {wizardOpen && plan?.status === "draft" ? (
+        <CourseKnowledgeBuildWizard
+          courseId={courseId}
+          build={plan}
+          onBuildChange={setPlan}
+          onClose={() => setWizardOpen(false)}
+        />
+      ) : null}
 
       {plan || versions.length || status ? (
         <details className="course-kb-builder__details">
@@ -221,6 +249,21 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
                           {rollingBack === version.version ? "正在恢复…" : "恢复此版本"}
                         </button>
                       ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {plan?.quality_checks?.length ? (
+              <div className="course-kb-builder__quality">
+                <h3>质量门禁</h3>
+                <ul>
+                  {plan.quality_checks.map((check) => (
+                    <li key={check.check_type} className={check.status === "passed" ? "is-passed" : "is-failed"}>
+                      <MaterialIcon name={check.status === "passed" ? "check_circle" : "error"} />
+                      <span>{check.check_type}</span>
+                      <strong>{check.status === "passed" ? "通过" : "未通过"}</strong>
                     </li>
                   ))}
                 </ul>
