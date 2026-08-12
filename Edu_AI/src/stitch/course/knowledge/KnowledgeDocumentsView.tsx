@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { getKnowledgeBaseDocuments, getKnowledgeGraph, uploadKnowledgeBaseDocument } from "../../api/courses";
+import { deleteKnowledgeBaseDocument, getKnowledgeBaseDocuments, getKnowledgeGraph, uploadKnowledgeBaseDocument } from "../../api/courses";
 import type { KnowledgeBaseDocument, KnowledgeGraphNode } from "../../api/types";
 import { registerCreatedJob } from "../../../jobs/jobStore";
 import { MaterialIcon } from "../../shared";
@@ -33,6 +33,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
   const [previewDocument, setPreviewDocument] = useState<KnowledgeBaseDocument | null>(null);
@@ -117,6 +118,24 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
     }
   }
 
+  async function deleteDocument(document: KnowledgeBaseDocument) {
+    if (!courseId || !canUpload || deletingDocumentId) return;
+    const title = document.display_name || document.source_title || document.name;
+    if (!window.confirm(`确认删除当前节点下的文档“${title}”？文档文件和检索索引会被永久删除，知识图谱结构不会改变。`)) return;
+    setDeletingDocumentId(document.id);
+    setError("");
+    try {
+      await deleteKnowledgeBaseDocument(courseId, document.id);
+      setDocuments((current) => current.filter((item) => item.id !== document.id));
+      if (previewDocument?.id === document.id) setPreviewDocument(null);
+      window.dispatchEvent(new CustomEvent("edu-ai:knowledge-document-updated", { detail: { courseId } }));
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "删除文档失败，请稍后重试。");
+    } finally {
+      setDeletingDocumentId(null);
+    }
+  }
+
   function toggleNode(node: KnowledgeGraphNode) {
     if (expandedIds.has(node.id) && descendantNodeIds(node).has(selectedNodeId)) {
       setSelectedNodeId(node.id);
@@ -173,7 +192,6 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
           courseId={courseId || ""}
           documentCount={documents.length}
           canBuild={canUpload}
-          canDelete={courseRole === "owner"}
           requestedAction={requestedAction}
         />
         <header className="knowledge-library__toolbar">
@@ -201,13 +219,27 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
           ) : documents.map((document) => {
               const status = statusLabel(document.status);
               return (
-                <article key={document.id} className="knowledge-library-document" role="button" tabIndex={0} onClick={() => setPreviewDocument(document)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setPreviewDocument(document); }}>
-                  <span className="knowledge-library-document__icon"><MaterialIcon name={document.type === "web" ? "language" : "description"} /></span>
-                  <div>
-                    <strong>{document.display_name || document.source_title || document.name}</strong>
-                    <small>{document.scope_id === selectedNode?.id || isRoot ? "当前节点" : "子节点资料"} · {document.source_type === "model_generated" ? `AI 审查生成${document.generation_review_score ? `（${document.generation_review_score} 分）` : ""}` : "外部资料"} · {new Date(document.created_at).toLocaleString("zh-CN")}</small>
-                  </div>
+                <article key={document.id} className="knowledge-library-document">
+                  <button type="button" className="knowledge-library-document__preview" onClick={() => setPreviewDocument(document)}>
+                    <span className="knowledge-library-document__icon"><MaterialIcon name={document.type === "web" ? "language" : "description"} /></span>
+                    <span className="knowledge-library-document__copy">
+                      <strong>{document.display_name || document.source_title || document.name}</strong>
+                      <small>{document.scope_id === selectedNode?.id || isRoot ? "当前节点" : "子节点资料"} · {document.source_type === "model_generated" ? `AI 审查生成${document.generation_review_score ? `（${document.generation_review_score} 分）` : ""}` : "外部资料"} · {new Date(document.created_at).toLocaleString("zh-CN")}</small>
+                    </span>
+                  </button>
                   {status && <span className={`knowledge-library-document__status knowledge-library-document__status--${document.status}`}>{status}</span>}
+                  {canUpload ? (
+                    <button
+                      type="button"
+                      className="knowledge-library-document__delete"
+                      aria-label={`删除文档 ${document.display_name || document.source_title || document.name}`}
+                      disabled={deletingDocumentId === document.id}
+                      onClick={() => void deleteDocument(document)}
+                    >
+                      <MaterialIcon name="delete" />
+                      {deletingDocumentId === document.id ? "正在删除" : "删除"}
+                    </button>
+                  ) : null}
                 </article>
               );
             })}

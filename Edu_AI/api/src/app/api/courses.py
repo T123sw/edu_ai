@@ -9,7 +9,6 @@ import mimetypes
 import json
 import re
 import copy
-import shutil
 from datetime import datetime
 from uuid import uuid4
 from pathlib import Path
@@ -274,19 +273,37 @@ def list_courses(
 ) -> List[CourseInfo]:
     mgr = _svc._get_manager()
     results: List[CourseInfo] = []
+    user_id = str(current_user.get("username") or "").strip()
+    system_role = str(current_user.get("role") or "").strip().lower()
+    membership_store = get_course_membership_store()
 
     if not mgr.courses_dir.exists():
         _svc.ensure_default_courses()
 
     memberships = {
         item.course_id: item
-        for item in get_course_membership_store().list_for_user(
-            str(current_user.get("username") or "")
-        )
+        for item in membership_store.list_for_user(user_id)
     }
     for info in mgr.list_course_infos():
         course_id = str(info.get("id") or info.get("course_id") or "").strip()
         membership = memberships.get(course_id)
+        creator_id = str(info.get("created_by") or "").strip()
+        if membership is None and creator_id and creator_id == user_id:
+            membership = membership_store.upsert(
+                course_id,
+                user_id,
+                "owner",
+                added_by="course-creator-repair",
+            )
+            memberships[course_id] = membership
+        elif membership is None and system_role == "admin":
+            membership = membership_store.upsert(
+                course_id,
+                user_id,
+                "editor",
+                added_by="admin-course-catalog-repair",
+            )
+            memberships[course_id] = membership
         if membership is None:
             continue
         try:
@@ -549,85 +566,6 @@ def delete_course(
         for membership in membership_store.list_for_course(course_id):
             membership_store.delete(course_id, membership.user_id)
     return {"message": "课程已删除"}
-
-
-@router.delete("/{course_id}/knowledge-base", summary="删除整个课程知识库")
-def delete_course_knowledge_base(
-    course_id: str,
-    _principal: CoursePrincipal = Depends(require_course_owner),
-):
-    conflict = _active_jobs_conflict(
-        course_id,
-        {
-            JobKind.BUILD_KNOWLEDGE_INDEX,
-            JobKind.GENERATE_GRAPH,
-            JobKind.PARSE_DOCUMENT,
-            JobKind.RAG_IMPORT,
-        },
-    )
-    if conflict:
-        raise conflict
-    mgr = _svc._get_manager()
-    if not mgr.get_course_info(course_id):
-        raise HTTPException(status_code=404, detail="课程不存在")
-
-    all_documents = mgr.get_knowledge_base_index(course_id)
-    course_documents = [
-        item
-        for item in all_documents
-        if str(item.get("library_type") or LIBRARY_TYPE_COURSE)
-        == LIBRARY_TYPE_COURSE
-    ]
-    retained_documents = [
-        item
-        for item in all_documents
-        if str(item.get("library_type") or LIBRARY_TYPE_COURSE)
-        != LIBRARY_TYPE_COURSE
-    ]
-    try:
-        _remove_documents_from_rag(mgr, course_id, course_documents)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=f"删除检索索引失败，知识库数据已保留：{exc}",
-        ) from exc
-
-    if mgr._knowledge_uses_postgres():
-        if not get_postgres_knowledge_repository().clear_library_content(
-            course_id,
-            retained_documents=retained_documents,
-        ):
-            raise HTTPException(status_code=500, detail="删除知识库记录失败")
-    else:
-        if not mgr.save_knowledge_base_index(course_id, retained_documents):
-            raise HTTPException(status_code=500, detail="删除知识库记录失败")
-
-    course_dir = Path(mgr.get_course_dir(course_id)).resolve()
-    for item in course_documents:
-        relative_path = str(item.get("path") or "").strip()
-        if not relative_path:
-            continue
-        target = mgr.get_file_path(course_id, relative_path).resolve()
-        try:
-            target.relative_to(course_dir)
-        except ValueError as exc:
-            raise HTTPException(status_code=500, detail="知识库清理路径非法") from exc
-        if target.is_file():
-            target.unlink()
-    for target in (
-        course_dir / "knowledge_build_inputs",
-        course_dir / "knowledge_graph.json",
-    ):
-        resolved = target.resolve()
-        try:
-            resolved.relative_to(course_dir)
-        except ValueError as exc:
-            raise HTTPException(status_code=500, detail="知识库清理路径非法") from exc
-        if resolved.is_dir():
-            shutil.rmtree(resolved)
-        elif resolved.exists():
-            resolved.unlink()
-    return {"message": "课程知识库已删除"}
 
 
 # ---------------------------------------------------------------------------
@@ -2035,18 +1973,27 @@ def delete_knowledge_base_document(
         file_path = mgr.get_file_path(course_id, doc_to_delete["path"])
         try:
             rag_system = get_rag_system()
-            rag_system.delete_document(str(file_path), owner=owner)
+            document_owner = (
+                str(doc_to_delete.get("owner_user_id") or "").strip() or owner
+            )
+            rag_system.delete_document(str(file_path), owner=document_owner)
         except Exception as exc:
             raise HTTPException(
                 status_code=502,
                 detail=f"删除检索索引失败，原文件已保留：{exc}",
             ) from exc
-        if file_path.exists():
-            file_path.unlink()
-
     next_index = [item for item in index if item.get("id") != document_id]
     if not mgr.save_knowledge_base_index(course_id, next_index):
         raise HTTPException(status_code=500, detail="删除文档记录失败")
+    if doc_to_delete.get("path"):
+        file_path = mgr.get_file_path(course_id, doc_to_delete["path"])
+        if file_path.exists():
+            try:
+                file_path.unlink()
+            except OSError:
+                # The document is already absent from the catalog and RAG index.
+                # A leftover unreferenced file can be removed by storage cleanup.
+                pass
     return {"message": "文档已删除"}
 
 

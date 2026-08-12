@@ -248,9 +248,9 @@ export function deleteCourse(courseId: string) {
   );
 }
 
-export function deleteCourseKnowledgeBase(courseId: string) {
+export function deleteKnowledgeBaseDocument(courseId: string, documentId: string) {
   return apiRequest<{ message: string }>(
-    `/api/courses/${encodeURIComponent(courseId)}/knowledge-base`,
+    `/api/courses/${encodeURIComponent(courseId)}/knowledge-base/documents/${encodeURIComponent(documentId)}`,
     { method: "DELETE" },
   );
 }

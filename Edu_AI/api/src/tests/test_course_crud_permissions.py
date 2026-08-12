@@ -21,6 +21,51 @@ def test_course_list_requires_auth_and_returns_membership_role(course_api):
     assert response.json()[0]["membership_role"] == "editor"
 
 
+def test_course_list_repairs_missing_creator_membership(course_api):
+    course_api.manager.create_course_structure("creator-course")
+    assert course_api.manager.save_course_info(
+        "creator-course",
+        {
+            "id": "creator-course",
+            "title": "Creator course",
+            "description": "Historical course with a missing membership",
+            "icon": "menu_book",
+            "color": "#3157d5",
+            "created_by": "teacher-a",
+        },
+    )
+    assert course_api.memberships.get("creator-course", "teacher-a") is None
+
+    response = course_api.client_for("teacher-a", "teacher").get("/api/courses")
+
+    assert response.status_code == 200
+    repaired = next(item for item in response.json() if item["id"] == "creator-course")
+    assert repaired["membership_role"] == "owner"
+    assert course_api.memberships.get("creator-course", "teacher-a").role == "owner"
+
+
+def test_admin_course_list_repairs_missing_catalog_membership(course_api):
+    course_api.manager.create_course_structure("admin-visible-course")
+    assert course_api.manager.save_course_info(
+        "admin-visible-course",
+        {
+            "id": "admin-visible-course",
+            "title": "Admin visible",
+            "description": "Catalog recovery",
+            "icon": "menu_book",
+            "color": "#3157d5",
+            "created_by": "teacher-b",
+        },
+    )
+
+    response = course_api.client_for("admin-a", "admin").get("/api/courses")
+
+    assert response.status_code == 200
+    repaired = next(item for item in response.json() if item["id"] == "admin-visible-course")
+    assert repaired["membership_role"] == "editor"
+    assert course_api.memberships.get("admin-visible-course", "admin-a").role == "editor"
+
+
 def test_postgres_course_list_does_not_require_a_local_asset_directory(
     course_api, monkeypatch
 ):
@@ -111,35 +156,14 @@ def test_owner_deletes_course_when_no_job_is_active(course_api, monkeypatch):
     assert course_api.memberships.list_for_course("course-1") == []
 
 
-def test_owner_deletes_whole_knowledge_base_but_keeps_course(course_api, monkeypatch):
-    from app.api import courses
-
+def test_whole_knowledge_base_delete_route_does_not_exist(course_api):
     course_api.memberships.upsert("course-1", "teacher-a", "owner", added_by="fixture")
-    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: [])
-    assert course_api.manager.save_knowledge_base_file(
-        "course-1", b"lesson", "lesson.md", owner_user_id="teacher-a"
-    )
-    assert course_api.manager.save_knowledge_graph("course-1", {"id": "root", "children": []})
 
     response = course_api.client_for("teacher-a", "teacher").delete(
         "/api/courses/course-1/knowledge-base"
     )
 
-    assert response.status_code == 200
-    assert course_api.manager.get_course_info("course-1") is not None
-    assert course_api.manager.get_knowledge_base_index("course-1") == []
-    assert course_api.manager.get_knowledge_graph("course-1") is None
-
-
-def test_viewer_cannot_delete_whole_knowledge_base(course_api, monkeypatch):
-    from app.api import courses
-
-    monkeypatch.setattr(courses, "_active_course_jobs", lambda _course_id, *_args: [])
-    response = course_api.client_for("student-a", "student").delete(
-        "/api/courses/course-1/knowledge-base"
-    )
-
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 def test_new_course_is_private_to_creator_until_members_are_added(course_api):

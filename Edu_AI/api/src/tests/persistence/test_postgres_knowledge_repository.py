@@ -365,42 +365,6 @@ def test_course_knowledge_metadata_uses_database_without_index_json(
     assert not (course_dir / "knowledge_graph.json").exists()
 
 
-def test_clear_course_library_content_preserves_personal_documents(engine):
-    from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
-
-    repository = PostgresKnowledgeRepository(engine)
-    repository.replace_documents(
-        "course-1",
-        [
-            {"id": "course-doc", "filename": "course.md", "library_type": "course"},
-            {
-                "id": "personal-doc",
-                "filename": "notes.md",
-                "library_type": "personal",
-                "owner_user_id": "student-1",
-            },
-        ],
-    )
-    repository.upsert_graph("course-1", {"id": "root"})
-
-    assert repository.clear_library_content(
-        "course-1",
-        retained_documents=[
-            {
-                "id": "personal-doc",
-                "filename": "notes.md",
-                "library_type": "personal",
-                "owner_user_id": "student-1",
-            }
-        ],
-    )
-
-    assert [item["id"] for item in repository.list_documents("course-1")] == [
-        "personal-doc"
-    ]
-    assert repository.get_graph("course-1") is None
-
-
 def test_rag_document_registry_uses_database_without_json(
     engine, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):

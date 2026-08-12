@@ -13,6 +13,10 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.doesNotMatch(source, /libraryType: "personal"/);
   assert.match(source, /<CourseKnowledgeBuildCard/);
   assert.match(source, /edu-ai:knowledge-document-updated/);
+  assert.match(source, /deleteKnowledgeBaseDocument/);
+  assert.match(source, /删除当前节点下的文档/);
+  assert.doesNotMatch(buildCard, /deleteCourseKnowledgeBase/);
+  assert.doesNotMatch(buildCard, /删除课程知识库/);
   assert.match(buildCard, /createCourseKnowledgeBuildDraft/);
   assert.doesNotMatch(buildCard, /startCourseKnowledgeBuild/);
   assert.match(buildCard, /rollbackCourseKnowledgeVersion/);

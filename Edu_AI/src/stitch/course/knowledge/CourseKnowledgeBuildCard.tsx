@@ -4,7 +4,6 @@ import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
 import { isActiveJob } from "../../../jobs/types";
 import {
   createCourseKnowledgeBuildDraft,
-  deleteCourseKnowledgeBase,
   getCourseKnowledgeBuild,
   listCourseKnowledgeVersions,
   retryCourseKnowledgeBuild,
@@ -31,7 +30,6 @@ type Props = {
   courseId: string;
   documentCount: number;
   canBuild: boolean;
-  canDelete: boolean;
   requestedAction?: string | null;
 };
 
@@ -39,7 +37,7 @@ function storageKey(courseId: string) {
   return `edu-ai:course-kb-build:${courseId}`;
 }
 
-export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, canDelete, requestedAction }: Props) {
+export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, requestedAction }: Props) {
   const jobs = useCourseJobs(courseId, "build_knowledge_index");
   const activeJob = useMemo(() => jobs.find(isActiveJob) ?? null, [jobs]);
   const latestJob = jobs[0] ?? null;
@@ -50,7 +48,6 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, ca
   const [rollingBack, setRollingBack] = useState<number | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [deleting, setDeleting] = useState(false);
   const cardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -132,29 +129,10 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, ca
     }
   }
 
-  async function deleteKnowledgeBase() {
-    if (!canDelete || deleting || isWorking || !hasKnowledgeBase) return;
-    if (!window.confirm("确认删除整个课程知识库？所有知识图谱、网络资料、教材拆分、AI 补充和历史版本都会被永久删除，但课程本身会保留。")) return;
-    setDeleting(true);
-    setSubmitError("");
-    try {
-      await deleteCourseKnowledgeBase(courseId);
-      window.localStorage.removeItem(storageKey(courseId));
-      setPlan(null);
-      setVersions([]);
-      window.dispatchEvent(new CustomEvent("edu-ai:knowledge-document-updated", { detail: { courseId } }));
-    } catch (reason) {
-      setSubmitError(reason instanceof Error ? reason.message : "删除课程知识库失败，请稍后重试。");
-    } finally {
-      setDeleting(false);
-    }
-  }
-
   const status = activeJob ?? latestJob;
   const isWorking = Boolean(activeJob) || planning;
   const failed = status?.status === "failed" || status?.status === "partially_succeeded";
   const succeeded = status?.status === "succeeded";
-  const hasKnowledgeBase = documentCount > 0 || versions.length > 0 || Boolean(plan);
   const statusText = planning
     ? "正在分析课程内容"
     : status
@@ -230,12 +208,6 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, ca
           </button>
         ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
         {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
-        {canDelete && hasKnowledgeBase ? (
-          <button type="button" className="course-kb-builder__danger" disabled={deleting || isWorking} onClick={() => void deleteKnowledgeBase()}>
-            <MaterialIcon name="delete_forever" />
-            {deleting ? "正在删除…" : "删除课程知识库"}
-          </button>
-        ) : null}
       </div>
 
       {wizardOpen && plan?.status === "draft" ? (

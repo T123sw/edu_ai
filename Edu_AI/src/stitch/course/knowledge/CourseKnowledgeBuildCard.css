@@ -178,29 +178,6 @@
   opacity: .6;
 }
 
-.course-kb-builder__danger {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-left: auto;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  background: #fff7f7;
-  padding: 9px 13px;
-  color: #b42318;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.course-kb-builder__danger .material-symbols-rounded {
-  font-size: 17px;
-}
-
-.course-kb-builder__danger:disabled {
-  cursor: not-allowed;
-  opacity: .55;
-}
-
 .course-kb-builder__actions > span,
 .course-kb-builder__actions > p {
   color: var(--course-shell-muted);
