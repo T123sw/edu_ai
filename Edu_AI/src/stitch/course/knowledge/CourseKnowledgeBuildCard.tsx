@@ -31,6 +31,7 @@ type Props = {
   courseId: string;
   documentCount: number;
   canBuild: boolean;
+  canDelete: boolean;
   requestedAction?: string | null;
 };
 
@@ -38,7 +39,7 @@ function storageKey(courseId: string) {
   return `edu-ai:course-kb-build:${courseId}`;
 }
 
-export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, requestedAction }: Props) {
+export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, canDelete, requestedAction }: Props) {
   const jobs = useCourseJobs(courseId, "build_knowledge_index");
   const activeJob = useMemo(() => jobs.find(isActiveJob) ?? null, [jobs]);
   const latestJob = jobs[0] ?? null;
@@ -132,7 +133,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   }
 
   async function deleteKnowledgeBase() {
-    if (!canBuild || deleting || isWorking || !hasKnowledgeBase) return;
+    if (!canDelete || deleting || isWorking || !hasKnowledgeBase) return;
     if (!window.confirm("确认删除整个课程知识库？所有知识图谱、网络资料、教材拆分、AI 补充和历史版本都会被永久删除，但课程本身会保留。")) return;
     setDeleting(true);
     setSubmitError("");
@@ -229,7 +230,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
           </button>
         ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
         {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
-        {canBuild && hasKnowledgeBase ? (
+        {canDelete && hasKnowledgeBase ? (
           <button type="button" className="course-kb-builder__danger" disabled={deleting || isWorking} onClick={() => void deleteKnowledgeBase()}>
             <MaterialIcon name="delete_forever" />
             {deleting ? "正在删除…" : "删除课程知识库"}

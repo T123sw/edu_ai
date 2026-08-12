@@ -1525,6 +1525,7 @@ class CourseStorageManager:
             f".{course_dir.name}.deleting-{uuid.uuid4().hex}"
         )
         moved_to_tombstone = False
+        logical_delete_completed = False
         try:
             if course_dir.exists():
                 course_dir.rename(tombstone)
@@ -1538,11 +1539,23 @@ class CourseStorageManager:
                 from app.persistence.hooks import shadow_delete_course
 
                 shadow_delete_course(course_id)
+            logical_delete_completed = True
             if moved_to_tombstone and tombstone.exists():
-                shutil.rmtree(tombstone)
+                try:
+                    shutil.rmtree(tombstone)
+                except OSError:
+                    log.exception(
+                        "Course was deleted but its tombstone directory needs later cleanup: %s",
+                        tombstone,
+                    )
             return True
         except Exception as e:
-            if moved_to_tombstone and tombstone.exists() and not course_dir.exists():
+            if (
+                not logical_delete_completed
+                and moved_to_tombstone
+                and tombstone.exists()
+                and not course_dir.exists()
+            ):
                 try:
                     tombstone.rename(course_dir)
                 except OSError:

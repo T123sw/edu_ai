@@ -173,6 +173,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
           courseId={courseId || ""}
           documentCount={documents.length}
           canBuild={canUpload}
+          canDelete={courseRole === "owner"}
           requestedAction={requestedAction}
         />
         <header className="knowledge-library__toolbar">
