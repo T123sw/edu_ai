@@ -553,6 +553,16 @@
   justify-content: space-between;
 }
 
+.course-kb-wizard__footer {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
+  margin: 0 -2px -2px;
+  border-top: 1px solid var(--course-shell-line);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, .94), var(--course-shell-bg) 30%);
+  padding: 12px 2px 2px;
+}
+
 .course-kb-wizard__upload {
   display: flex;
   align-items: center;
