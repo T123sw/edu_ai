@@ -162,6 +162,43 @@ def test_generator_rejects_tasks_without_parseable_materials():
     assert error.value.code == "ASSESSMENT_SOURCE_REQUIRED"
 
 
+def test_generator_infers_knowledge_points_from_material_when_optional_context_is_empty():
+    generator = AssessmentDraftGenerator(
+        llm=JsonLlm(
+            [
+                {
+                    "id": "g1",
+                    "type": "short",
+                    "question": "Explain how a pivot partitions a list.",
+                    "correct_answer": "Values are separated around the pivot.",
+                    "analysis": "The pivot defines the two partitions.",
+                    "knowledge_points": ["partition", "pivot"],
+                }
+            ]
+        )
+    )
+
+    items = generator.generate(
+        materials=[
+            {
+                "material_type": "report",
+                "material_id": "report-1",
+                "title": "Quick sort",
+                "content": "Quick sort partitions values around a pivot and recurses.",
+            }
+        ],
+        assessment_version_id="asv-1",
+        task_title="",
+        task_instructions="",
+        coverage_gaps=[],
+        difficulty="medium",
+    )
+
+    assert len(items) == 5
+    assert items[0].knowledge_point_ids == ["partition", "pivot"]
+    assert all(item.source_refs[0]["material_id"] == "report-1" for item in items)
+
+
 def test_quality_gate_reports_scoring_coverage_duplicate_source_and_leak_issues():
     extracted = extract_assessment_items(
         [

@@ -260,12 +260,9 @@ class AssessmentService:
         existing = self.store.list_items(version.assessment_version_id)
         covered = {point for item in existing for point in item.knowledge_point_ids}
         gaps = [point for point in task.knowledge_point_ids if point not in covered]
-        if not task.knowledge_point_ids:
-            raise AssessmentRuleError(
-                "KNOWLEDGE_POINTS_REQUIRED",
-                "Add at least one task knowledge point before generating an assessment",
-            )
-        if not gaps:
+        if task.knowledge_point_ids and not gaps:
+            return self._draft_payload(task, version)
+        if not task.knowledge_point_ids and existing:
             return self._draft_payload(task, version)
         generator = self.generator
         if generator is None:

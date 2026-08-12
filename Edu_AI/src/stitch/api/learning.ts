@@ -43,18 +43,6 @@ export const detectTaskAssessment = (courseId: string, taskId: string) =>
     method: "POST",
   });
 
-export const updateLearningTaskKnowledgePoints = (
-  courseId: string,
-  taskId: string,
-  knowledgePointIds: string[],
-) => apiRequest<LearningTask>(
-  `/api/courses/${courseId}/learning/tasks/${taskId}/knowledge-points`,
-  {
-    method: "PUT",
-    body: JSON.stringify({ knowledge_point_ids: knowledgePointIds }),
-  },
-);
-
 export const getTaskAssessmentDraft = (courseId: string, taskId: string) =>
   apiRequest<AssessmentDraft>(`${assessmentPath(courseId, taskId)}/draft`);
 

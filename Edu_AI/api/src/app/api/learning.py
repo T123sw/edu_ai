@@ -20,7 +20,6 @@ from app.schemas.learning import (
     LearningEventRequest,
     LearningEventResponse,
     LearningTaskCreateRequest,
-    LearningTaskKnowledgePointsRequest,
     LearningTaskResponse,
     LearningOverviewResponse,
 )
@@ -38,14 +37,12 @@ def _http_error(error: LearningRuleError) -> HTTPException:
         "COURSE_READ_REQUIRED": status.HTTP_403_FORBIDDEN,
         "TASK_NOT_PUBLISHED": status.HTTP_409_CONFLICT,
         "TASK_NOT_PUBLISHABLE": status.HTTP_409_CONFLICT,
-        "TASK_NOT_EDITABLE": status.HTTP_409_CONFLICT,
         "RESOURCE_NOT_ASSIGNED": status.HTTP_409_CONFLICT,
         "INVALID_TASK": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "INVALID_RESOURCE_REF": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "INVALID_PROGRESS": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "EVIDENCE_SOURCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "ASSESSMENT_EVIDENCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "KNOWLEDGE_POINTS_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
     }
     return HTTPException(
         status_code=status_by_code.get(error.code, status.HTTP_400_BAD_REQUEST),
@@ -116,30 +113,6 @@ def list_learning_tasks(
             include_unpublished=include_unpublished,
         )
     ]
-
-
-@router.put(
-    "/tasks/{task_id}/knowledge-points",
-    response_model=LearningTaskResponse,
-)
-def update_learning_task_knowledge_points(
-    course_id: str,
-    task_id: str,
-    payload: LearningTaskKnowledgePointsRequest,
-    principal: CoursePrincipal = Depends(require_course_edit),
-    service: LearningService = Depends(get_learning_service),
-) -> LearningTaskResponse:
-    try:
-        return _task_response(
-            service.update_task_knowledge_points(
-                course_id=course_id,
-                task_id=task_id,
-                teacher_id=principal.user_id,
-                knowledge_point_ids=payload.knowledge_point_ids,
-            )
-        )
-    except LearningRuleError as error:
-        raise _http_error(error) from error
 
 
 @router.get("/overview", response_model=LearningOverviewResponse)

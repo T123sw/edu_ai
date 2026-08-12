@@ -28,7 +28,7 @@ def _question_type(raw_type: Any, answer: Any) -> str:
         return "short_answer"
     if value in {"judge", "true_false", "boolean"}:
         return "judge"
-    if value in {"code_output", "code_trace", "debug_fix"}:
+    if value in {"code_output", "code_trace", "debug_fix", "code_implementation"}:
         return value
     return "single_choice"
 

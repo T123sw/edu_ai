@@ -144,57 +144,6 @@ def test_teacher_student_learning_api_round_trip(tmp_path):
     assert summary.json()["completion_rate"] == 0.5
 
 
-def test_teacher_can_add_knowledge_points_to_a_draft_task(tmp_path):
-    factory = LearningApiFactory(tmp_path)
-    teacher = factory.client("teacher-1", "teacher")
-    student = factory.client("student-1", "student")
-    created = teacher.post(
-        "/api/courses/course-1/learning/tasks",
-        json={
-            "title": "Quick sort",
-            "instructions": "Read the material",
-            "resource_refs": [],
-            "knowledge_point_ids": [],
-        },
-    ).json()
-
-    updated = teacher.put(
-        f"/api/courses/course-1/learning/tasks/{created['task_id']}/knowledge-points",
-        json={"knowledge_point_ids": ["quick-sort", "partition", "quick-sort"]},
-    )
-
-    assert updated.status_code == 200
-    assert updated.json()["knowledge_point_ids"] == ["quick-sort", "partition"]
-    assert student.put(
-        f"/api/courses/course-1/learning/tasks/{created['task_id']}/knowledge-points",
-        json={"knowledge_point_ids": ["forbidden"]},
-    ).status_code == 403
-
-
-def test_draft_knowledge_points_cannot_be_empty_or_changed_after_publish(tmp_path):
-    factory = LearningApiFactory(tmp_path)
-    teacher = factory.client("teacher-1", "teacher")
-    created = teacher.post(
-        "/api/courses/course-1/learning/tasks",
-        json={
-            "title": "Quick sort",
-            "instructions": "",
-            "resource_refs": [],
-            "knowledge_point_ids": ["quick-sort"],
-        },
-    ).json()
-    path = f"/api/courses/course-1/learning/tasks/{created['task_id']}/knowledge-points"
-
-    assert teacher.put(path, json={"knowledge_point_ids": []}).status_code == 422
-    factory.confirm_assessment(created["task_id"])
-    assert teacher.post(
-        f"/api/courses/course-1/learning/tasks/{created['task_id']}/publish"
-    ).status_code == 200
-    response = teacher.put(path, json={"knowledge_point_ids": ["partition"]})
-    assert response.status_code == 409
-    assert response.json()["detail"]["code"] == "TASK_NOT_EDITABLE"
-
-
 def test_only_students_can_submit_learning_events(tmp_path):
     factory = LearningApiFactory(tmp_path)
     teacher = factory.client("teacher-1", "teacher")

@@ -226,8 +226,31 @@ def test_teacher_generates_only_missing_coverage_from_course_material(tmp_path):
     assert generated.json()["quality"]["publishable"] is True
 
 
-def test_generation_requires_at_least_one_task_knowledge_point(tmp_path):
-    factory = AuthoringApiFactory(tmp_path)
+def test_generation_infers_assessment_context_when_task_has_no_knowledge_points(tmp_path):
+    class MaterialDrivenGenerator:
+        def __init__(self):
+            self.calls = []
+
+        def generate(self, **kwargs):
+            self.calls.append(kwargs)
+            return [
+                AssessmentItemRecord.new(
+                    assessment_version_id=kwargs["assessment_version_id"],
+                    position=1,
+                    item_type="code_trace",
+                    prompt={"stem": "What is the partition result?"},
+                    scoring_key={"accepted_answers": ["[1, 2, 3]"]},
+                    rubric={},
+                    max_score=10,
+                    grading_provider="deterministic",
+                    knowledge_point_ids=["partition"],
+                    source_refs=[{"material_type": "report", "material_id": "report-1"}],
+                    created_origin="generated",
+                )
+            ]
+
+    generator = MaterialDrivenGenerator()
+    factory = AuthoringApiFactory(tmp_path, generator=generator)
     factory.materials[("course-1", "report", "report-1")] = {
         "material_id": "report-1",
         "material_type": "report",
@@ -253,8 +276,11 @@ def test_generation_requires_at_least_one_task_knowledge_point(tmp_path):
         json={"expected_revision": draft["draft_revision"], "difficulty": "medium"},
     )
 
-    assert generated.status_code == 422
-    assert generated.json()["detail"]["code"] == "KNOWLEDGE_POINTS_REQUIRED"
+    assert generated.status_code == 200
+    assert generated.json()["items"][0]["knowledge_point_ids"] == ["partition"]
+    assert generator.calls[0]["coverage_gaps"] == []
+    assert generator.calls[0]["task_title"] == "Quick sort"
+    assert generator.calls[0]["task_instructions"] == "Read and assess"
 
 
 def test_publish_rejects_a_stale_assessment_revision(tmp_path):

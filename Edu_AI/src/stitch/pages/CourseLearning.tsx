@@ -164,22 +164,28 @@ export function CourseLearningPage() {
 
   async function submitTask(event: FormEvent) {
     event.preventDefault();
-    if (!courseId || !title.trim()) return;
+    if (!courseId) return;
+    const taskMaterials = materials.filter((material) => selectedResources.has(materialKey({
+      material_type: material.material_type,
+      material_id: material.material_id,
+    })));
+    if (taskMaterials.length === 0) {
+      setError("请至少选择一项学习资料，其他信息均可留空。");
+      return;
+    }
+    const generatedTitle = taskMaterials.length === 1
+      ? materialTitle(taskMaterials[0])
+      : `${materialTitle(taskMaterials[0])}等 ${taskMaterials.length} 项资料学习`;
     setBusy(true);
     setError(null);
     try {
       const created = await createLearningTask(courseId, {
-        title: title.trim(),
+        title: title.trim() || generatedTitle,
         instructions: instructions.trim(),
-        resource_refs: materials
-          .filter((material) => selectedResources.has(materialKey({
+        resource_refs: taskMaterials.map((material) => ({
             material_type: material.material_type,
             material_id: material.material_id,
-          })))
-          .map((material) => ({
-            material_type: material.material_type,
-            material_id: material.material_id,
-          })),
+        })),
         knowledge_point_ids: knowledgePoints
           .split(/[，,\n]/)
           .map((item) => item.trim())
@@ -305,12 +311,12 @@ export function CourseLearningPage() {
               <div><p>新建学习任务</p><span>先保存为草稿，确认后再发布。</span></div>
               <button type="button" onClick={() => setCreating(false)} aria-label="关闭">×</button>
             </div>
-            <label>任务标题<input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={200} required /></label>
-            <label>学习说明<textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} rows={4} maxLength={10000} /></label>
-            <label>知识点 ID<input value={knowledgePoints} onChange={(event) => setKnowledgePoints(event.target.value)} placeholder="多个知识点用逗号分隔" /></label>
+            <label>任务标题（选填）<input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={200} placeholder="留空时使用学习资料名称" /></label>
+            <label>学习说明（选填）<textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} rows={4} maxLength={10000} /></label>
+            <label>知识点（选填）<input value={knowledgePoints} onChange={(event) => setKnowledgePoints(event.target.value)} placeholder="留空时由模型从资料中归纳" /></label>
             <fieldset>
-              <legend>选择课程共享资源</legend>
-              {materials.length === 0 ? <p>当前还没有共享资源，可先创建空任务，稍后补充。</p> : (
+              <legend>选择学习资料（必选）</legend>
+              {materials.length === 0 ? <p>当前还没有课程共享资料，请先添加资料后再创建学习任务。</p> : (
                 <>
                   <div className="learning-resource-picker__toolbar">
                     <label>
@@ -362,7 +368,7 @@ export function CourseLearningPage() {
             </fieldset>
             <div className="learning-create__actions">
               <button type="button" className="learning-secondary" onClick={() => setCreating(false)}>取消</button>
-              <button type="submit" className="learning-primary" disabled={busy}>保存草稿</button>
+              <button type="submit" className="learning-primary" disabled={busy || selectedResources.size === 0}>保存草稿</button>
             </div>
           </form>
         </section>
@@ -405,9 +411,6 @@ export function CourseLearningPage() {
                     courseId={courseId}
                     task={selectedTask}
                     onDraftChange={handleAssessmentDraftChange}
-                    onTaskChange={(updatedTask) => setTasks((current) => current.map((item) => (
-                      item.task_id === updatedTask.task_id ? updatedTask : item
-                    )))}
                   />
                 ) : summary ? (
                   <>

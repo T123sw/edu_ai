@@ -64,24 +64,34 @@ class AssessmentDraftGenerator:
                 "ASSESSMENT_SOURCE_REQUIRED",
                 "Automatic assessment generation requires parseable course material",
             )
-        if not coverage_gaps:
-            return []
+        question_count = len(coverage_gaps) if coverage_gaps else 5
         context = "\n\n".join(
             f"材料：{_text(material.get('title')) or _text(material.get('material_id'))}\n{text}"
             for material, text in sources
         )
+        topic = task_title or _text(sources[0][0].get("title")) or "selected learning materials"
         generator = QuizGenerator(llm=self.llm)
         artifact = generator.generate(
             preparation={
-                "topic": task_title,
-                "question_count": len(coverage_gaps),
-                "question_types": ["choice", "short"],
+                "topic": topic,
+                "question_count": question_count,
+                "question_types": [
+                    "choice",
+                    "short",
+                    "code_trace",
+                    "debug_fix",
+                    "code_implementation",
+                ],
                 "difficulty": difficulty,
                 "knowledge_points": coverage_gaps,
                 "weak_points": [],
                 "source_scope": ["selected_course_materials"],
             },
-            context_summary=f"{task_instructions}\n{context}",
+            context_summary=(
+                f"Optional task instructions: {task_instructions or '(not provided)'}\n"
+                f"The selected learning materials are the authoritative source. Infer the assessment focus, "
+                f"knowledge points, and appropriate question mix from them.\n{context}"
+            ),
             conversation_id=f"assessment-{assessment_version_id}",
             owner=None,
             allow_rag=False,
@@ -97,14 +107,24 @@ class AssessmentDraftGenerator:
             for material, _ in sources
         ]
         items: list[AssessmentItemRecord] = []
-        for index, raw in enumerate(questions[: len(coverage_gaps)]):
+        for index, raw in enumerate(questions[:question_count]):
             if not isinstance(raw, dict):
                 continue
+            raw_points = raw.get("knowledge_points") or raw.get("knowledge_point_ids") or []
+            inferred_points = [
+                _text(item)
+                for item in (raw_points if isinstance(raw_points, list) else [raw_points])
+                if _text(item)
+            ]
             item = normalize_question(
                 raw,
                 assessment_version_id=assessment_version_id,
                 position=index + 1,
-                knowledge_point_ids=[coverage_gaps[index]],
+                knowledge_point_ids=(
+                    [coverage_gaps[index]]
+                    if index < len(coverage_gaps)
+                    else list(dict.fromkeys(inferred_points))[:3]
+                ),
                 source_ref={
                     **source_refs[0],
                     "source_item_id": _text(raw.get("id")) or f"generated-{index + 1}",

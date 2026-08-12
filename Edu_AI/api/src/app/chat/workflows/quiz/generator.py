@@ -37,6 +37,8 @@ class QuizGenerator:
 
     def _normalize_type(self, value: str) -> str:
         normalized = self._clean(value).lower()
+        if normalized in {"code_output", "code_trace", "debug_fix", "code_implementation"}:
+            return normalized
         if "choice" in normalized or normalized in {"single", "multiple"} or any(token in normalized for token in ("选择", "单选", "多选")):
             return "choice"
         if "blank" in normalized or "填空" in normalized:
@@ -53,6 +55,10 @@ class QuizGenerator:
             if value not in (None, ""):
                 return self._clean(value)
         return ""
+
+    def _text_list(self, value: Any) -> list[str]:
+        raw_items = value if isinstance(value, list) else [value]
+        return [self._clean(item) for item in raw_items if self._clean(item)]
 
     def _normalize_options(self, value: Any) -> list[str] | None:
         if not value or not isinstance(value, list):
@@ -181,6 +187,10 @@ class QuizGenerator:
                 "options": self._normalize_options(question.get("options") or question.get("choices") or question.get("选项")),
                 "answer": self._first_text(question, ("answer", "correct_answer", "答案", "正确答案")),
                 "explanation": self._first_text(question, ("analysis", "explanation", "解析", "讲解")),
+                "knowledge_points": self._text_list(
+                    question.get("knowledge_points")
+                    or question.get("knowledge_point_ids")
+                ),
             }
             normalized_question["explanation"] = self._normalize_explanation(normalized_question)
             normalized_questions.append(normalized_question)
@@ -215,6 +225,7 @@ class QuizGenerator:
                         "options": None,
                         "answer": focus,
                         "explanation": "",
+                        "knowledge_points": [focus],
                     }
                 )
                 continue
@@ -227,6 +238,7 @@ class QuizGenerator:
                         "options": None,
                         "answer": f"应围绕“{focus}”说明其在“{topic}”中的作用、含义或联系。",
                         "explanation": "",
+                        "knowledge_points": [focus],
                     }
                 )
                 continue
@@ -239,6 +251,7 @@ class QuizGenerator:
                         "options": None,
                         "answer": "正确",
                         "explanation": "",
+                        "knowledge_points": [focus],
                     }
                 )
                 continue
@@ -250,6 +263,7 @@ class QuizGenerator:
                     "options": [focus, "与本次主题无关的细节", "只依据虚构情节作判断", "无法从材料中判断"],
                     "answer": "A",
                     "explanation": "",
+                    "knowledge_points": [focus],
                 }
             )
         return questions
@@ -283,13 +297,14 @@ class QuizGenerator:
 
         prompt = (
             f"Generate {question_count} quiz questions about {topic}. "
-            f"Question types: {', '.join(question_types)}. "
+            f"Allowed question types: {', '.join(question_types)}. Choose the types that best assess the supplied material; use code questions only for programming material. "
             f"Difficulty: {difficulty}. "
             f"Knowledge points: {', '.join(list(preparation.get('knowledge_points') or []))}. "
             f"Weak points: {', '.join(list(preparation.get('weak_points') or []))}. "
             f"Context summary: {context_summary}. "
             f"RAG context: {rag_context}. "
             "Return JSON with a top-level questions array. "
+            "For each question, include a knowledge_points array inferred from the supplied context when no knowledge points were provided. "
             "Each explanation must explain why the answer is correct; for choice questions, also clarify that the other options do not fit the stem."
         )
         raw = self.llm.invoke(prompt)

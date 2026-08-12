@@ -46,7 +46,6 @@ def assessment_http_error(error: AssessmentRuleError) -> HTTPException:
         "ANSWER_REVEAL_NOT_ALLOWED": status.HTTP_409_CONFLICT,
         "ATTEMPT_NOT_FOUND": status.HTTP_404_NOT_FOUND,
         "ASSIGNMENT_NOT_FOUND": status.HTTP_404_NOT_FOUND,
-        "KNOWLEDGE_POINTS_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "COURSE_READ_REQUIRED": status.HTTP_403_FORBIDDEN,
     }
     return HTTPException(

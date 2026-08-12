@@ -47,7 +47,7 @@ test("teacher distinguishes duplicate resources and one overview failure stays l
     await createPanel.getByPlaceholder("按名称、创建者或 ID 搜索").fill("E2E-NO-MATCH-RESOURCE");
     await expect(createPanel.getByText("没有匹配的课程共享资源；已选资源保持不变。")).toBeVisible();
     await expect(createPanel.getByText("已选 1 项")).toBeVisible();
-    await createPanel.getByLabel("任务标题").fill(`E2E-RESOURCE-IDENTITY-${Date.now()}`);
+    await createPanel.getByLabel("任务标题（选填）").fill(`E2E-RESOURCE-IDENTITY-${Date.now()}`);
     const createRequest = page.waitForRequest((request) =>
       request.method() === "POST"
       && request.url().endsWith(`/api/courses/${learningCourseId}/learning/tasks`),

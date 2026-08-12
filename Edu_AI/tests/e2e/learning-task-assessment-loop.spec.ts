@@ -178,9 +178,12 @@ test("teacher and student finish the mandatory assessment loop end to end", asyn
     await teacherPage.goto(`/#learning?course_id=${learningCourseId}`, { waitUntil: "domcontentloaded" });
     await teacherPage.getByRole("button", { name: /新建学习任务/ }).click();
     const createPanel = teacherPage.getByRole("region", { name: "新建学习任务" });
-    await createPanel.getByLabel("任务标题").fill(title);
-    await createPanel.getByLabel("学习说明").fill("阅读材料后完成正式循环测评。");
-    await createPanel.getByLabel("知识点 ID").fill("loops");
+    await createPanel.getByLabel("任务标题（选填）").fill(title);
+    await createPanel.getByLabel("学习说明（选填）").fill("阅读材料后完成正式循环测评。");
+    await createPanel.getByLabel("知识点（选填）").fill("loops");
+    const resourceCheckbox = createPanel.getByRole("checkbox").first();
+    await expect(resourceCheckbox, "assessment task creation requires learning material").toBeVisible();
+    await resourceCheckbox.check();
     const createdResponse = teacherPage.waitForResponse((response) =>
       response.request().method() === "POST"
       && response.url().endsWith(`/api/courses/${learningCourseId}/learning/tasks`),

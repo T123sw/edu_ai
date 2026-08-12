@@ -87,9 +87,9 @@ test("teacher and student complete a truthful learning loop with role-scoped age
     await expect(teacherPage.getByRole("heading", { name: "发布任务，查看真实学习反馈" })).toBeVisible();
     await teacherPage.getByRole("button", { name: /新建学习任务/ }).click();
     const createPanel = teacherPage.getByRole("region", { name: "新建学习任务" });
-    await createPanel.getByLabel("任务标题").fill(learningE2eTitle);
-    await createPanel.getByLabel("学习说明").fill("打开指定课程资源，完成后按真实口径自报。 ");
-    await createPanel.getByLabel("知识点 ID").fill("computational-thinking-loop2");
+    await createPanel.getByLabel("任务标题（选填）").fill(learningE2eTitle);
+    await createPanel.getByLabel("学习说明（选填）").fill("打开指定课程资源，完成后按真实口径自报。 ");
+    await createPanel.getByLabel("知识点（选填）").fill("computational-thinking-loop2");
     const resourceCheckbox = createPanel.getByRole("checkbox").first();
     await expect(resourceCheckbox, "the real course must expose at least one shared resource").toBeVisible();
     await resourceCheckbox.check();

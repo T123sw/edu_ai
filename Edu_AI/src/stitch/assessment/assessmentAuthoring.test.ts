@@ -53,8 +53,13 @@ describe("assessment authoring publication gate", () => {
     assert.match(page, /AssessmentEditor/);
     assert.match(page, /getAssessmentPublishBlockers/);
     assert.doesNotMatch(page, /legacyPublish|fallbackPublish/);
-    assert.match(editor, /测评知识点/);
-    assert.match(editor, /请先填写至少一个知识点/);
-    assert.match(editor, /updateLearningTaskKnowledgePoints/);
+    assert.match(editor, /根据学习材料生成测评草稿/);
+    assert.doesNotMatch(editor, /请先填写至少一个知识点/);
+    assert.doesNotMatch(editor, /updateLearningTaskKnowledgePoints/);
+    assert.match(page, /任务标题（选填）/);
+    assert.match(page, /学习说明（选填）/);
+    assert.match(page, /知识点（选填）/);
+    assert.match(page, /选择学习资料（必选）/);
+    assert.match(page, /title\.trim\(\) \|\| generatedTitle/);
   });
 });

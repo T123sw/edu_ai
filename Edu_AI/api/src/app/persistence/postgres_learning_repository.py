@@ -67,21 +67,6 @@ class PostgresLearningRepository:
             session.flush()
             return self._task(record)
 
-    def update_task_knowledge_points(
-        self, task_id: str, course_id: str, knowledge_point_ids: list[str]
-    ) -> LearningTaskRecord:
-        with database_session(engine=self._engine) as session:
-            record = session.get(LearningTaskModel, task_id)
-            if (
-                record is None
-                or record.course_id != course_id
-                or record.status != "draft"
-            ):
-                raise KeyError(task_id)
-            record.knowledge_point_ids = list(knowledge_point_ids)
-            session.flush()
-            return self._task(record)
-
     def record_event(self, event: LearningEventRecord) -> EventWriteResult:
         if not 0 <= event.progress_percent <= 100:
             raise ValueError("progress_percent must be between 0 and 100")
