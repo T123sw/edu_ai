@@ -180,35 +180,55 @@ def test_rag_search_tool_passes_course_scope_to_public_id_resolver(monkeypatch):
     }
 
 
-def test_rag_search_tool_reads_explicit_selection_without_nested_answer_model(monkeypatch):
+def test_rag_search_tool_searches_within_explicit_selection_instead_of_reading_whole_document(monkeypatch):
     class DummyRagSystem:
-        def query(self, *args, **kwargs):
-            raise AssertionError("explicit document evidence must not call the nested RAG answer model")
+        def __init__(self):
+            self.calls = []
 
-    seen = {}
-    monkeypatch.setattr("app.chat.tools.agent_tools.get_rag_system", lambda: DummyRagSystem())
+        def query(self, query, top_k=5, use_rag=True, selected_doc_ids=None, owner=None):
+            self.calls.append({
+                "query": query,
+                "top_k": top_k,
+                "use_rag": use_rag,
+                "selected_doc_ids": list(selected_doc_ids or []),
+                "owner": owner,
+            })
+            return {
+                "answer": "链表通过节点和指针实现。",
+                "sources": [{"source": "linked-list.md", "content": "链表节点"}],
+            }
 
-    def fake_load(rag_system, selected_doc_ids, *, owner, log_prefix):
-        seen.update(ids=selected_doc_ids, owner=owner, log_prefix=log_prefix)
-        return [{"file_name": "recursion.txt", "content": "marker E2E-ORBIT-7462"}]
+    rag_system = DummyRagSystem()
+    monkeypatch.setattr("app.chat.tools.agent_tools.get_rag_system", lambda: rag_system)
+
+    def fail_if_whole_document_is_loaded(*args, **kwargs):
+        raise AssertionError("selected documents must constrain retrieval, not bypass it")
 
     monkeypatch.setattr(
         "app.chat.tools.agent_tools.load_selected_rag_documents",
-        fake_load,
+        fail_if_whole_document_is_loaded,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        "app.chat.tools.agent_tools.resolve_selected_doc_ids_for_query",
+        lambda *args, **kwargs: ["resolved-linked-list-key"],
     )
 
     result = rag_search_tool(
-        query="唯一标记是什么",
+        query="链表如何实现",
+        top_k=5,
         selected_doc_ids=["doc-personal-1"],
         owner="student-a",
         course_id="course-1",
     )
 
     assert result["ok"] is True
-    assert "E2E-ORBIT-7462" in result["payload"]["answer"]
-    assert result["payload"]["sources"][0]["metadata"]["selection_mode"] == "selected_documents"
-    assert seen == {
-        "ids": ["doc-personal-1"],
+    assert result["payload"]["answer"] == "链表通过节点和指针实现。"
+    assert len(result["payload"]["sources"]) == 1
+    assert rag_system.calls == [{
+        "query": "链表如何实现",
+        "top_k": 5,
+        "use_rag": True,
+        "selected_doc_ids": ["resolved-linked-list-key"],
         "owner": "student-a",
-        "log_prefix": "AgentRAG",
-    }
+    }]

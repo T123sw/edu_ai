@@ -1,6 +1,7 @@
 """Deterministic query decomposition and evidence-coverage assessment."""
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from app.chat.domain.research_bundle import (
@@ -18,7 +19,7 @@ def build_research_plan(contract: Any) -> ResearchPlan:
         question_id="concept",
         aspect="concept",
         query=topic,
-        keywords=[topic],
+        keywords=_concept_keywords(topic),
     )]
     if intent != "qa" or resources:
         questions.extend([
@@ -46,7 +47,7 @@ def build_research_plan(contract: Any) -> ResearchPlan:
         primary_query=topic,
         questions=questions[:4],
         minimum_coverage=1.0 if intent == "qa" else 0.5,
-        max_supplemental_queries=0 if intent == "qa" else 1,
+        max_supplemental_queries=1,
     )
 
 
@@ -80,3 +81,34 @@ def _value(obj: Any, name: str, default: Any) -> Any:
     if isinstance(obj, dict):
         return obj.get(name, default)
     return getattr(obj, name, default)
+
+
+def _concept_keywords(topic: str) -> list[str]:
+    """Extract the subject from common Chinese QA wrappers.
+
+    Coverage checks should look for the subject in evidence, not require a
+    source to repeat the user's complete conversational question verbatim.
+    """
+    subject = re.sub(r"[？?！!。,.，：:]", " ", str(topic or "")).strip()
+    leading_patterns = (
+        r"^(?:请问|请|麻烦)?(?:介绍一下|介绍|讲一下|讲讲|解释一下|解释|说明一下|说明)",
+        r"^(?:都)?有哪些",
+        r"^什么是",
+    )
+    trailing_patterns = (
+        r"(?:是)?如何实现$",
+        r"(?:是)?怎么实现$",
+        r"是怎样实现的$",
+        r"是什么$",
+        r"有哪些$",
+        r"怎么做$",
+    )
+    changed = True
+    while changed and subject:
+        before = subject
+        for pattern in leading_patterns:
+            subject = re.sub(pattern, "", subject).strip()
+        for pattern in trailing_patterns:
+            subject = re.sub(pattern, "", subject).strip()
+        changed = subject != before
+    return [subject or str(topic or "教学主题").strip()]

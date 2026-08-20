@@ -46,6 +46,35 @@ def test_coverage_reports_only_missing_aspects_and_next_query():
     assert "常见错误" in coverage.next_query
 
 
+def test_qa_coverage_matches_subject_terms_instead_of_requiring_full_question():
+    plan = build_research_plan(TeachingTaskContract(
+        intent="qa",
+        topic="链表如何实现",
+        source_mode="selected_documents",
+        selected_document_ids=["linked-list"],
+    ))
+
+    coverage = assess_evidence_coverage(
+        plan,
+        "链表通过节点保存数据，并通过指针连接后继节点。",
+    )
+
+    assert plan.questions[0].keywords == ["链表"]
+    assert coverage.sufficient is True
+    assert coverage.missing_aspects == []
+
+
+def test_qa_research_plan_allows_one_supplemental_query():
+    plan = build_research_plan(TeachingTaskContract(
+        intent="qa",
+        topic="介绍一下都有哪些排序算法",
+        source_mode="course_auto",
+    ))
+
+    assert plan.questions[0].keywords == ["排序算法"]
+    assert plan.max_supplemental_queries == 1
+
+
 def test_executor_uses_one_bounded_supplemental_query_after_coverage_retry():
     state = {
         "current_plan": {
