@@ -5,15 +5,8 @@ import {
   getCourseMaterial,
   getCourseMaterials,
   pinCourseMaterial,
-  publishCourseMaterial,
   renameCourseMaterial,
-  withdrawCourseMaterial,
 } from "../api/courses";
-import {
-  applyPublicationResult,
-  applyPublicationWithdrawal,
-  getMaterialPublicationPresentation,
-} from "../api/courseResourceSpaces";
 import {
   getCourseMaterialFiltersForRole,
   getCourseMaterialOpenTarget,
@@ -26,7 +19,7 @@ import {
   courseMaterialKey,
   readCourseMaterialTarget,
 } from "../api/courseMaterialTarget";
-import type { CourseMaterial, CourseMaterialSpace } from "../api/types";
+import type { CourseMaterial } from "../api/types";
 import {
   AppSurface,
   GlassPanel,
@@ -38,8 +31,6 @@ import {
 import { useAuthSession } from "../authSession";
 import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "../course/CourseRouteProvider";
-import { canCourse } from "../course/coursePermissions";
-import { CourseShellHeaderSlot } from "../course/CourseShell";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
 import { MaterialContentEditor } from "./MaterialContentEditor";
 
@@ -54,11 +45,6 @@ const EDITABLE_MATERIAL_TYPES = new Set([
   "graph",
   "classroom",
 ]);
-
-const RESOURCE_SPACES = [
-  { key: "mine" as const, label: "我的资源" },
-  { key: "course" as const, label: "课程共享" },
-] as const;
 
 function getKeyboardSelection<T extends string>(
   key: string,
@@ -107,16 +93,13 @@ function getMaterialSummary(material: CourseMaterial): string {
 export function CourseResourcesPage() {
   const { user } = useAuthSession();
   const { selectedCourse } = useAppShell();
-  const { course: routeCourse, courseId, courseRole } = useCourseRoute();
+  const { course: routeCourse, courseId } = useCourseRoute();
   const course = routeCourse?.id === courseId
     ? backendCourseToSummary(routeCourse)
     : selectedCourse?.id === courseId
       ? selectedCourse
       : { ...defaultCourse, id: courseId || defaultCourse.id };
-  const [resourceSpace, setResourceSpace] =
-    useState<CourseMaterialSpace>("mine");
   const [personalMaterials, setPersonalMaterials] = useState<CourseMaterial[]>([]);
-  const [sharedMaterials, setSharedMaterials] = useState<CourseMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
@@ -133,7 +116,7 @@ export function CourseResourcesPage() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
-  const materials = resourceSpace === "mine" ? personalMaterials : sharedMaterials;
+  const materials = personalMaterials;
   const visibleMaterialFilters = useMemo(
     () => getCourseMaterialFiltersForRole(user?.role),
     [user?.role],
@@ -147,45 +130,25 @@ export function CourseResourcesPage() {
         setLoading(true);
         setError(null);
         setRecoveryError(null);
-        const [personalData, sharedData] = await Promise.all([
-          getCourseMaterials(course.id, {
-            space: "mine",
-            sort: sort === "recent" ? "updated_desc" : "name_asc",
-          }),
-          getCourseMaterials(course.id, {
-            space: "course",
-            sort: sort === "recent" ? "updated_desc" : "name_asc",
-          }),
-        ]);
+        const personalData = await getCourseMaterials(course.id, {
+          space: "mine",
+          sort: sort === "recent" ? "updated_desc" : "name_asc",
+        });
         const requestedTarget = readCourseMaterialTarget(
           typeof window === "undefined" ? "" : window.location.hash,
         );
         let nextPersonal = personalData;
-        let nextShared = sharedData;
-        let nextSpace: CourseMaterialSpace = resourceSpace;
-        if (nextSpace === "mine" && personalData.length === 0 && sharedData.length > 0) {
-          nextSpace = "course";
-        } else if (nextSpace === "course" && sharedData.length === 0 && personalData.length > 0) {
-          nextSpace = "mine";
-        }
         let requestedKey: string | null = null;
         if (requestedTarget) {
           requestedKey = courseMaterialKey(
             requestedTarget.materialType,
             requestedTarget.materialId,
           );
-          const listed = [...personalData, ...sharedData].some(
+          const listed = personalData.some(
             (item) =>
               courseMaterialKey(item.material_type, item.material_id)
               === requestedKey,
           );
-          if (personalData.some(
-            (item) => courseMaterialKey(item.material_type, item.material_id) === requestedKey,
-          )) {
-            nextSpace = "mine";
-          } else if (listed) {
-            nextSpace = "course";
-          }
           if (!listed) {
             try {
               const detail = await getCourseMaterial(
@@ -193,19 +156,15 @@ export function CourseResourcesPage() {
                 requestedTarget.materialType,
                 requestedTarget.materialId,
               );
-              if (detail.visibility === "private") {
-                nextPersonal = [detail, ...personalData];
-                nextSpace = "mine";
-              } else {
-                nextShared = [detail, ...sharedData];
-                nextSpace = "course";
+              if (detail.visibility !== "private") {
+                throw new Error("Material is outside the personal resource space");
               }
+              nextPersonal = [detail, ...personalData];
             } catch {
               if (!cancelled) {
                 setPersonalMaterials(personalData);
-                setSharedMaterials(sharedData);
                 setActiveKey(null);
-                setRecoveryError("结果资源不存在或无权访问");
+                setRecoveryError("该资源不在个人资源中或无权访问");
               }
               return;
             }
@@ -213,25 +172,22 @@ export function CourseResourcesPage() {
         }
         if (!cancelled) {
           setPersonalMaterials(nextPersonal);
-          setSharedMaterials(nextShared);
-          setResourceSpace(nextSpace);
-          const nextMaterials = nextSpace === "mine" ? nextPersonal : nextShared;
           if (requestedKey) {
             setActiveFilter("all");
             setActiveKey(requestedKey);
           } else {
             setActiveKey((current) =>
-              nextMaterials.some(
+              nextPersonal.some(
                 (item) =>
                   courseMaterialKey(item.material_type, item.material_id)
                   === current,
               )
                 ? current
                 : (
-                  nextMaterials[0]
+                  nextPersonal[0]
                     ? courseMaterialKey(
-                        nextMaterials[0].material_type,
-                        nextMaterials[0].material_id,
+                        nextPersonal[0].material_type,
+                        nextPersonal[0].material_id,
                       )
                     : null
                 ),
@@ -253,7 +209,7 @@ export function CourseResourcesPage() {
     return () => {
       cancelled = true;
     };
-  }, [course.id, reloadToken, resourceSpace, sort]);
+  }, [course.id, reloadToken, sort]);
 
   const filteredMaterials = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -333,10 +289,7 @@ export function CourseResourcesPage() {
         material.material_id,
         !material.is_pinned,
       );
-      const setCurrentMaterials = resourceSpace === "mine"
-        ? setPersonalMaterials
-        : setSharedMaterials;
-      setCurrentMaterials((current) => current.map((item) => (
+      setPersonalMaterials((current) => current.map((item) => (
         item.material_id === updated.material_id
         && item.material_type === updated.material_type
           ? updated
@@ -364,10 +317,7 @@ export function CourseResourcesPage() {
         material.material_id,
         title,
       );
-      const setCurrentMaterials = resourceSpace === "mine"
-        ? setPersonalMaterials
-        : setSharedMaterials;
-      setCurrentMaterials((current) => current.map((item) => (
+      setPersonalMaterials((current) => current.map((item) => (
         item.material_id === updated.material_id
         && item.material_type === updated.material_type
           ? updated
@@ -405,94 +355,12 @@ export function CourseResourcesPage() {
     }
   }
 
-  async function publishMaterial(material: CourseMaterial) {
-    setActionBusy(true);
-    setActionError(null);
-    setActionNotice(null);
-    try {
-      const result = await publishCourseMaterial(
-        course.id,
-        material.material_type,
-        material.material_id,
-      );
-      const next = applyPublicationResult(
-        personalMaterials,
-        sharedMaterials,
-        result,
-      );
-      setPersonalMaterials(next.personal);
-      setSharedMaterials(next.shared);
-      setActionNotice(
-        result.action === "updated"
-          ? "课程共享版本已更新。"
-          : result.action === "unchanged"
-            ? "当前版本已经发布，无需重复操作。"
-            : "已发布到课程，所有课程成员现在都能看到。",
-      );
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : "发布资源失败");
-    } finally {
-      setActionBusy(false);
-    }
-  }
-
-  async function withdrawPublication(material: CourseMaterial) {
-    if (!window.confirm(`确定从课程共享中撤回“${getMaterialTitle(material)}”吗？你的个人原件不会被删除。`)) {
-      return;
-    }
-    setActionBusy(true);
-    setActionError(null);
-    setActionNotice(null);
-    try {
-      await withdrawCourseMaterial(
-        course.id,
-        material.material_type,
-        material.material_id,
-      );
-      const next = applyPublicationWithdrawal(
-        personalMaterials,
-        sharedMaterials,
-        material,
-      );
-      setPersonalMaterials(next.personal);
-      setSharedMaterials(next.shared);
-      setActionNotice("已从课程共享中撤回，个人原件仍保留在“我的资源”。");
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : "撤回资源失败");
-    } finally {
-      setActionBusy(false);
-    }
-  }
-
   const activeMeta = activeMaterial
     ? getCourseMaterialTypeMeta(activeMaterial.material_type)
     : null;
   const activePresentation = activeMaterial
     ? toCourseMaterialPresentation(activeMaterial)
     : null;
-
-  function selectResourceSpace(space: CourseMaterialSpace) {
-    setResourceSpace(space);
-    setRecoveryError(null);
-    setActiveFilter("all");
-  }
-
-  function handleResourceSpaceKeyDown(
-    event: KeyboardEvent<HTMLButtonElement>,
-    current: CourseMaterialSpace,
-  ) {
-    const next = getKeyboardSelection(
-      event.key,
-      current,
-      RESOURCE_SPACES.map((space) => space.key),
-    );
-    if (!next) return;
-    event.preventDefault();
-    selectResourceSpace(next);
-    window.requestAnimationFrame(() => {
-      document.getElementById(`resource-space-tab-${next}`)?.focus();
-    });
-  }
 
   function handleFilterKeyDown(
     event: KeyboardEvent<HTMLButtonElement>,
@@ -510,45 +378,13 @@ export function CourseResourcesPage() {
       document.getElementById(`resource-filter-${next}`)?.focus();
     });
   }
-  const publicationPresentation = activeMaterial
-    ? getMaterialPublicationPresentation(activeMaterial, courseRole)
-    : null;
-  const canManageActiveMaterial = activeMaterial
-    ? activeMaterial.visibility === "private"
-      || canCourse(courseRole, "manage_resources")
-    : false;
   const previewSupported =
     activeMaterial
     && activeMaterial.material_type !== "classroom"
     && activeMeta?.known;
 
   return (
-    <>
-      <CourseShellHeaderSlot>
-        <div
-          className="course-resource-space-switch"
-          role="tablist"
-          aria-label="资源空间"
-        >
-          {RESOURCE_SPACES.map((space) => (
-            <button
-              key={space.key}
-              id={`resource-space-tab-${space.key}`}
-              type="button"
-              role="tab"
-              aria-selected={resourceSpace === space.key}
-              aria-controls="resource-space-panel"
-              tabIndex={resourceSpace === space.key ? 0 : -1}
-              onClick={() => selectResourceSpace(space.key)}
-              onKeyDown={(event) => handleResourceSpaceKeyDown(event, space.key)}
-            >
-              {space.label}
-              <span>{space.key === "mine" ? personalMaterials.length : sharedMaterials.length}</span>
-            </button>
-          ))}
-        </div>
-      </CourseShellHeaderSlot>
-      <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
+    <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[1180px]:overflow-y-hidden">
         <header className="border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
           <div className="flex min-w-0 flex-nowrap items-center gap-3 overflow-hidden">
@@ -611,12 +447,7 @@ export function CourseResourcesPage() {
           </div>
         </header>
 
-        <div
-          id="resource-space-panel"
-          role="tabpanel"
-          aria-labelledby={`resource-space-tab-${resourceSpace}`}
-          className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden"
-        >
+        <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden">
           <section className="flex max-h-[360px] min-h-0 min-w-0 flex-col overflow-hidden min-[1180px]:max-h-none">
             {loading ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 text-sm text-(--muted-text)">
@@ -635,15 +466,11 @@ export function CourseResourcesPage() {
               </GlassPanel>
             ) : materials.length === 0 ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6">
-                <h2 className="font-bold text-(--app-text)">
-                  {resourceSpace === "mine" ? "你还没有生成资源" : "课程还没有共享资源"}
-                </h2>
+                <h2 className="font-bold text-(--app-text)">你还没有个人资源</h2>
                 <p className="mt-2 text-sm leading-6 text-(--muted-text)">
-                  {resourceSpace === "mine"
-                    ? "可以前往问答／生成工厂创建教学资源，生成后默认仅自己可见。"
-                    : "教师可以从“我的资源”中选择合适的内容发布到这里。"}
+                  可以前往问答／生成工厂创建内容，生成后默认仅自己可见。
                 </p>
-                {resourceSpace === "mine" ? <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <a
                     href={buildRoleCourseHash(user?.role, routes.ai, course.id)}
                     className="rounded-full bg-(--accent) px-4 py-2 text-sm font-bold text-white"
@@ -660,7 +487,7 @@ export function CourseResourcesPage() {
                   >
                     创建 AI 课堂
                   </a>
-                </div> : null}
+                </div>
               </GlassPanel>
             ) : filteredMaterials.length === 0 ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 text-sm text-(--muted-text)">
@@ -677,10 +504,6 @@ export function CourseResourcesPage() {
                       material.material_type,
                       material.material_id,
                     ) === activeKey;
-                  const publication = getMaterialPublicationPresentation(
-                    material,
-                    courseRole,
-                  );
                   return (
                     <button
                       key={`${material.material_type}:${material.material_id}`}
@@ -706,13 +529,6 @@ export function CourseResourcesPage() {
                                 置顶
                               </span>
                             ) : null}
-                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              material.visibility === "private"
-                                ? "bg-slate-100 text-slate-600"
-                                : "bg-blue-50 text-blue-700"
-                            }`}>
-                              {publication.visibilityLabel}
-                            </span>
                           </span>
                           <span className="mt-1 block truncate text-sm font-bold text-(--app-text)">
                             {getMaterialTitle(material)}
@@ -798,84 +614,45 @@ export function CourseResourcesPage() {
                       <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                         {activePresentation?.statusLabel}
                       </span>
-                      {publicationPresentation ? (
-                        <span className={`ml-2 mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
-                          activeMaterial.visibility === "private"
-                            ? "bg-slate-100 text-slate-600"
-                            : "bg-blue-50 text-blue-700"
-                        }`}>
-                          {publicationPresentation.visibilityLabel}
-                        </span>
-                      ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      {publicationPresentation?.primaryAction ? (
+                      {EDITABLE_MATERIAL_TYPES.has(activeMaterial.material_type) ? (
                         <button
                           type="button"
                           disabled={actionBusy}
-                          onClick={() => void publishMaterial(activeMaterial)}
-                          className="rounded-full bg-(--accent) px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+                          onClick={() => setEditingContent((current) => !current)}
+                          className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
                         >
-                          {publicationPresentation.primaryLabel}
-                        </button>
-                      ) : publicationPresentation?.primaryLabel ? (
-                        <span className="rounded-full bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700">
-                          {publicationPresentation.primaryLabel}
-                        </span>
-                      ) : null}
-                      {canManageActiveMaterial ? (
-                        <>
-                          {EDITABLE_MATERIAL_TYPES.has(activeMaterial.material_type) ? (
-                            <button
-                              type="button"
-                              disabled={actionBusy}
-                              onClick={() => setEditingContent((current) => !current)}
-                              className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
-                            >
-                              {editingContent ? "返回预览" : "编辑内容"}
-                            </button>
-                          ) : null}
-                          <button
-                            type="button"
-                            disabled={actionBusy}
-                            onClick={() => void togglePinned(activeMaterial)}
-                            className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
-                          >
-                            {activeMaterial.is_pinned ? "取消置顶" : "置顶"}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={actionBusy}
-                            onClick={() => {
-                              setTitleDraft(getMaterialTitle(activeMaterial));
-                              setEditingTitle(true);
-                            }}
-                            className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
-                          >
-                            重命名
-                          </button>
-                        </>
-                      ) : null}
-                      {activeMaterial.visibility === "private" && canManageActiveMaterial ? (
-                        <button
-                          type="button"
-                          disabled={actionBusy}
-                          onClick={() => void removeMaterial(activeMaterial)}
-                          className="rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-rose-600 disabled:opacity-50"
-                        >
-                          删除
+                          {editingContent ? "返回预览" : "编辑内容"}
                         </button>
                       ) : null}
-                      {publicationPresentation?.canWithdraw ? (
-                        <button
-                          type="button"
-                          disabled={actionBusy}
-                          onClick={() => void withdrawPublication(activeMaterial)}
-                          className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-700 disabled:opacity-50"
-                        >
-                          从课程撤回
-                        </button>
-                      ) : null}
+                      <button
+                        type="button"
+                        disabled={actionBusy}
+                        onClick={() => void togglePinned(activeMaterial)}
+                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
+                      >
+                        {activeMaterial.is_pinned ? "取消置顶" : "置顶"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={actionBusy}
+                        onClick={() => {
+                          setTitleDraft(getMaterialTitle(activeMaterial));
+                          setEditingTitle(true);
+                        }}
+                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold text-(--accent-strong) disabled:opacity-50"
+                      >
+                        重命名
+                      </button>
+                      <button
+                        type="button"
+                        disabled={actionBusy}
+                        onClick={() => void removeMaterial(activeMaterial)}
+                        className="rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-rose-600 disabled:opacity-50"
+                      >
+                        删除
+                      </button>
                       {activeMaterial.material_type === "classroom" ? (
                         <button
                           type="button"
@@ -923,7 +700,6 @@ export function CourseResourcesPage() {
                               : item
                           ));
                           setPersonalMaterials(replace);
-                          setSharedMaterials(replace);
                           setEditingContent(false);
                           setActionNotice("资源内容已保存");
                         }}
@@ -996,7 +772,6 @@ export function CourseResourcesPage() {
           </section>
         </div>
       </main>
-      </AppSurface>
-    </>
+    </AppSurface>
   );
 }

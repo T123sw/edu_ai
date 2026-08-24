@@ -20,7 +20,16 @@ test("course resources recover the exact material selected by a task result", as
   assert.match(source, /readCourseMaterialTarget/);
   assert.match(source, /getCourseMaterial/);
   assert.match(source, /courseMaterialKey/);
-  assert.match(source, /结果资源不存在或无权访问/);
+  assert.match(source, /不在个人资源中或无权访问/);
+});
+
+test("personal resources load only the current user's private space", async () => {
+  const source = await readFile(new URL("./CourseResources.tsx", import.meta.url), "utf8");
+  assert.match(source, /getCourseMaterials\(course\.id,\s*\{[\s\S]*?space:\s*["']mine["']/u);
+  assert.doesNotMatch(source, /RESOURCE_SPACES|sharedMaterials|space:\s*["']course["']/u);
+  assert.doesNotMatch(source, /publishCourseMaterial|withdrawCourseMaterial/u);
+  assert.doesNotMatch(source, /applyPublicationResult|applyPublicationWithdrawal/u);
+  assert.doesNotMatch(source, /课程共享|发布到课程|从课程撤回/u);
 });
 
 test("formal generated types have dedicated storage directories", async () => {
