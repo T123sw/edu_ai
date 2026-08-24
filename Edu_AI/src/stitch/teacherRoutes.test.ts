@@ -17,7 +17,7 @@ test("teacher sidebar exposes the approved learning destinations in order", () =
       ["ai", "问答与生成"],
       ["knowledge", "课程知识"],
       ["classroom-studio", "AI 课堂"],
-      ["resources", "课程资源"],
+      ["resources", "个人资源"],
       ["edit", "课程设置"],
     ],
   );

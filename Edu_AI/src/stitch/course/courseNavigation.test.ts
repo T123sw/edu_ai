@@ -28,6 +28,13 @@ test("every course member can open learning tasks", () => {
   }
 });
 
+test("every course member sees the personal resource workspace", () => {
+  for (const role of ["owner", "editor", "viewer"] as const) {
+    const resources = getCourseNavigation(role).find((item) => item.id === "resources");
+    assert.equal(resources?.label, "个人资源");
+  }
+});
+
 test("knowledge graph deep links belong to the course knowledge section", () => {
   const knowledge = getCourseNavigation("owner").find((item) => item.id === "knowledge");
   assert.deepEqual(knowledge?.routes, ["knowledge", "graph"]);

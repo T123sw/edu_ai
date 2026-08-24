@@ -18,7 +18,7 @@ export const teacherSidebarItems: ReadonlyArray<{
   { route: "ai", label: "问答与生成", icon: "auto_awesome" },
   { route: "knowledge", label: "课程知识", icon: "menu_book" },
   { route: "classroom-studio", label: "AI 课堂", icon: "play_circle" },
-  { route: "resources", label: "课程资源", icon: "folder_open" },
+  { route: "resources", label: "个人资源", icon: "folder_open" },
   { route: "edit", label: "课程设置", icon: "settings" },
 ];
 

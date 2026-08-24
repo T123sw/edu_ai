@@ -64,7 +64,7 @@ const pages = [
   [routes.courseDetail, "Course Detail", CourseDetailPage],
   [routes.learning, "Course Learning", CourseLearningPage],
   [routes.workspace, "Workspace", WorkspaceOverviewPage],
-  [routes.resources, "Course Resources", CourseResourcesPage],
+  [routes.resources, "Personal Resources", CourseResourcesPage],
   [routes.ai, "AI Workspace", AIWorkspacePage],
   [routes.graph, "Knowledge Graph", LegacyKnowledgeGraphRedirect],
   [routes.ppt, "PPT Studio", PptStudioPage],

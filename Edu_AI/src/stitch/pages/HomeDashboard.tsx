@@ -62,7 +62,7 @@ export function HomeDashboardPage() {
               libraryType: "course",
               limit: 1000,
             }).catch(() => []),
-            getCourseMaterials(course.id).catch(() => []),
+            getCourseMaterials(course.id, { space: "mine" }).catch(() => []),
             getLearningOverview(course.id).catch(() => null),
           ]);
           return [course.id, {

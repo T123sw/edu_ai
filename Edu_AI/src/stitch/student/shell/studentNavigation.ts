@@ -12,7 +12,7 @@ export const studentNavigationItems: ReadonlyArray<{
   { route: "student-course-knowledge", label: "课程知识", icon: "hub", requiresCourse: true },
   { route: "student-personal-knowledge", label: "个人知识库", icon: "database", requiresCourse: false },
   { route: "student-classroom", label: "AI课堂", icon: "play_circle", requiresCourse: true },
-  { route: "student-resources", label: "资源管理", icon: "folder_open", requiresCourse: true },
+  { route: "student-resources", label: "个人资源", icon: "folder_open", requiresCourse: true },
 ] as const;
 
 export function studentRouteRequiresCourse(route: StudentRoute): boolean {

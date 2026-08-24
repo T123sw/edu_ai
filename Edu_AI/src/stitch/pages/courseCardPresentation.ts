@@ -26,7 +26,7 @@ export function toCourseCardPresentation(
     metrics: [
       ...toCourseLearningMetrics(actor, facts.learningOverview, facts.activeJobCount),
       { label: "课程资料", value: facts.documentCount },
-      { label: "课程资源", value: facts.resourceCount },
+      { label: "个人资源", value: facts.resourceCount },
     ],
     learningStatusLabel: facts.learningOverview ? null : "学习任务暂不可用",
   };

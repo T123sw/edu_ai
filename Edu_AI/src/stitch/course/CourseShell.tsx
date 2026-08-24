@@ -38,7 +38,7 @@ const studentNavigationLabels: Partial<Record<CourseNavigationId, string>> = {
   workspace: "AI问答",
   knowledge: "课程知识",
   classroom: "AI课堂",
-  resources: "资源管理",
+  resources: "个人资源",
 };
 
 export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: CourseShellRoute }>) {

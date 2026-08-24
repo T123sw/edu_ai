@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 
 import { toCourseCardPresentation } from "./courseCardPresentation.ts";
 
@@ -35,9 +36,17 @@ test("course card presentation contains only factual metrics", () => {
     { label: "进行中学习任务", value: 1 },
     { label: "后台生成中", value: 1 },
     { label: "课程资料", value: 4 },
-    { label: "课程资源", value: 7 },
+    { label: "个人资源", value: 7 },
   ]);
   assert.equal(card.learningStatusLabel, null);
+});
+
+test("course overviews count only personal resources", async () => {
+  const courseDetail = await readFile(new URL("./CourseDetail.tsx", import.meta.url), "utf8");
+  const homeDashboard = await readFile(new URL("./HomeDashboard.tsx", import.meta.url), "utf8");
+  assert.match(courseDetail, /getCourseMaterials\(course\.id,\s*\{\s*space:\s*["']mine["']/u);
+  assert.match(homeDashboard, /getCourseMaterials\(course\.id,\s*\{\s*space:\s*["']mine["']/u);
+  assert.doesNotMatch(courseDetail, /课程资源|资源管理|课程共享/u);
 });
 
 test("course card omits developer-facing permission and revision fields", () => {

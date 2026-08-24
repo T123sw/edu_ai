@@ -17,7 +17,7 @@ test("student navigation exposes the learning destinations in order", () => {
       ["student-course-knowledge", "课程知识"],
       ["student-personal-knowledge", "个人知识库"],
       ["student-classroom", "AI课堂"],
-      ["student-resources", "资源管理"],
+      ["student-resources", "个人资源"],
     ],
   );
 });

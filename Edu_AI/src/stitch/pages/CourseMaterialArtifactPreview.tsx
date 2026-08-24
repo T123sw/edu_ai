@@ -105,5 +105,5 @@ export function CourseMaterialArtifactPreview({ material }: { material: CourseMa
   if (previewKind === "mind-map") return <MindMapPreview material={material} />;
   if (previewKind === "game") return <GamePreview material={material} />;
   if (previewKind === "rich-text") return <><div className="mb-3 flex justify-end">{exportButton}</div><div className="edu-rich-preview"><MarkdownPreview content={markdown} /></div></>;
-  return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>该资源仍保留在课程资源列表中，不会跳转到错误页面。</p></div>;
+  return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>该资源仍保留在个人资源列表中，不会跳转到错误页面。</p></div>;
 }
