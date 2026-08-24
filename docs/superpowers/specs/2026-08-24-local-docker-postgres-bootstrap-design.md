@@ -12,7 +12,7 @@ The populated PostgreSQL database from the other device will be transferred late
 
 Included:
 
-- Create a repository-root Python 3.12 virtual environment.
+- Create the Python 3.12 virtual environment at `Edu_AI/api/src/.venv`, which is the first environment discovered by the repository startup script.
 - Install locked frontend dependencies and required backend dependencies.
 - Install the browser/runtime dependencies required by the repository's normal local startup path.
 - Create a local, Git-ignored `infra/postgres/.env.postgres` with a generated password.
@@ -47,7 +47,7 @@ The React frontend connects to the FastAPI backend through the existing `VITE_AP
 
 ## Dependency Strategy
 
-Use the repository's installation scripts and lockfiles. Prefer the root `.venv` Python interpreter for all backend commands. Install the required backend, frontend, and Playwright dependencies; skip only components explicitly marked optional when they are not required by the normal Edu AI startup path.
+Use the repository's installation scripts and lockfiles. Prefer the `Edu_AI/api/src/.venv` Python interpreter for all backend commands. Install the required backend, frontend, and Playwright dependencies; skip only components explicitly marked optional when they are not required by the normal Edu AI startup path.
 
 Before installation, record installed versions of Docker, Docker Compose, Python, Node.js, npm, FFmpeg, and ffprobe. A version mismatch is handled as an environment issue rather than by changing application source code.
 
