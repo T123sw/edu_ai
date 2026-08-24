@@ -2,7 +2,7 @@
 
 **日期：** 2026-08-24
 
-**状态：** 待用户审阅
+**状态：** 已确认，可进入实施
 
 **阶段定位：** 今天先完成不依赖数据库迁移的双端前端调整；课程标准资源、批量生成、审核发布、任务资源快照和学习证据增强等数据库相关能力，在明天导入真实 PostgreSQL 数据及文件目录并完成核验后进入阶段二。
 
@@ -64,6 +64,7 @@
 - 教师侧栏“课程资源”改为“个人资源”。
 - 学生侧栏“资源管理”改为“个人资源”。
 - 页面标题、空状态、提示文案统一使用“个人资源”。
+- 课程概览与首页课程卡中的资源数量也按 `space=mine` 统计，并统一标注为“个人资源”，不得继续混入课程共享副本。
 - 页面初始化只请求 `space=mine`，不再并行请求 `space=course`。
 - 删除“我的资源/课程共享”空间切换和课程共享数量。
 - 删除发布到课程共享、更新课程共享、从课程共享撤回等主界面操作。
@@ -142,6 +143,12 @@
 - `Edu_AI/src/stitch/pages/CourseResources.tsx`
   - 收口为个人资源单空间；删除课程共享切换和发布/撤回界面逻辑。
   - 保留现有个人资源维护行为。
+- `Edu_AI/src/stitch/pages/CourseDetail.tsx`
+  - 课程概览中的资源列表、数量、入口和文案统一为个人资源口径，并只请求 `space=mine`。
+- `Edu_AI/src/stitch/pages/HomeDashboard.tsx`
+  - 首页课程卡的资源计数只请求 `space=mine`。
+- `Edu_AI/src/stitch/pages/courseCardPresentation.ts`
+  - 课程卡指标名称从“课程资源”改为“个人资源”。
 - `Edu_AI/src/stitch/pages/Profile.tsx`
   - 增加共享外观设置区域。
 - `Edu_AI/src/stitch/shared.tsx`
