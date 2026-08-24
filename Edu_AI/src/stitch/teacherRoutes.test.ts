@@ -42,14 +42,14 @@ test("teacher course hashes carry an encoded course id", () => {
   );
 });
 
-test("course knowledge view is encoded without losing course identity", () => {
+test("course knowledge links keep identity and ignore legacy view parameters", () => {
   assert.equal(
-    buildTeacherCourseHash("knowledge", "c1", { view: "structure" }),
-    "#knowledge?course_id=c1&view=structure",
+    buildTeacherCourseHash("knowledge", "c1"),
+    "#knowledge?course_id=c1",
   );
   assert.deepEqual(
-    readTeacherCourseLocation("#knowledge?course_id=c1&view=documents"),
-    { route: "knowledge", courseId: "c1", view: "documents" },
+    readTeacherCourseLocation("#knowledge?course_id=c1&view=structure"),
+    { route: "knowledge", courseId: "c1" },
   );
 });
 

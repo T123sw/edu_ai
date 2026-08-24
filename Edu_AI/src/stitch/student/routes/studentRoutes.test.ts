@@ -33,8 +33,8 @@ test("course destinations keep course context while personal knowledge remains g
   );
   assert.equal(buildStudentHash("student-ai", { courseId: "course-1" }), "#student-ai?course_id=course-1");
   assert.equal(
-    buildStudentHash("student-course-knowledge", { courseId: "course-1", view: "documents" }),
-    "#student-course-knowledge?course_id=course-1&view=documents",
+    buildStudentHash("student-course-knowledge", { courseId: "course-1" }),
+    "#student-course-knowledge?course_id=course-1",
   );
   assert.equal(
     buildStudentHash("student-personal-knowledge", { courseId: "course-1" }),
@@ -43,17 +43,15 @@ test("course destinations keep course context while personal knowledge remains g
   assert.equal(buildStudentHash("student-ai"), "#student-home");
 });
 
-test("student location sanitizes course id and applies safe tab defaults", () => {
-  assert.deepEqual(readStudentLocation("#student-course-knowledge?course_id=c%201&view=documents"), {
+test("student location sanitizes course id and ignores legacy knowledge views", () => {
+  assert.deepEqual(readStudentLocation("#student-course-knowledge?course_id=c%201&view=structure"), {
     route: "student-course-knowledge",
     courseId: "c 1",
-    view: "documents",
     space: undefined,
   });
   assert.deepEqual(readStudentLocation("#student-resources?course_id=undefined&space=course"), {
     route: "student-resources",
     courseId: null,
-    view: undefined,
     space: "course",
   });
   assert.equal(readStudentLocation("#edit?course_id=c1").route, null);

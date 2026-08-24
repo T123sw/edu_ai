@@ -22,10 +22,10 @@ test("role course links preserve the shared page while selecting the correct wor
   );
 });
 
-test("student course links keep only supported student view and scope values", () => {
+test("student course links ignore legacy knowledge views and keep scope values", () => {
   assert.equal(
     buildRoleCourseHash("student", "knowledge", "c1", { view: "documents", scopeType: "knowledge_point", scopeId: "node 1" }),
-    "#student-course-knowledge?course_id=c1&view=documents&scopeType=knowledge_point&scopeId=node+1",
+    "#student-course-knowledge?course_id=c1&scopeType=knowledge_point&scopeId=node+1",
   );
   assert.equal(buildRoleCourseHash("student", "edit", "c1"), "#student-course-detail?course_id=c1");
 });

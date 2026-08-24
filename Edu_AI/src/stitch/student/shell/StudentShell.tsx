@@ -68,7 +68,6 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
     const target = studentNavigationItems.find((item) => item.route === route);
     return buildStudentHash(route, {
       courseId: target?.requiresCourse ? effectiveCourseId : undefined,
-      view: route === "student-course-knowledge" ? "structure" : undefined,
       space: route === "student-resources" || route === "student-classroom" ? "mine" : undefined,
     });
   }
@@ -77,7 +76,6 @@ export function StudentShell({ activeRoute, children }: PropsWithChildren<{ acti
     const location = readStudentLocation(window.location.hash);
     window.location.hash = buildStudentHash(activeRoute, {
       courseId: nextCourseId,
-      view: location.view,
       space: location.space,
     });
   }

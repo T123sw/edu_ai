@@ -22,6 +22,15 @@ test('course navigation has one knowledge destination and graph is redirect-only
   assert.match(app, /routes\.graph,\s*["']Knowledge Graph["'],\s*LegacyKnowledgeGraphRedirect/u);
 });
 
+test('course knowledge renders only the document library', () => {
+  const knowledge = source('./pages/CourseKnowledge.tsx');
+  const courseDetail = source('./pages/CourseDetail.tsx');
+  assert.match(knowledge, /KnowledgeDocumentsView/u);
+  assert.doesNotMatch(knowledge, /KnowledgeStructureView|知识图谱|view\s*===\s*["']structure["']/u);
+  assert.doesNotMatch(courseDetail, /知识图谱/u);
+  assert.match(knowledge, /buildTeacherCourseHash\(["']knowledge["'],\s*courseId\)/u);
+});
+
 test('knowledge structure cannot restore a second upload workflow', () => {
   const structure = source('./pages/KnowledgeGraph.tsx');
   assert.doesNotMatch(structure, /textbook-import|上传教材并解析|上传节点文件/u);

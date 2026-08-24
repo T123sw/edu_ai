@@ -55,26 +55,15 @@ export function readTeacherCourseId(hash: string): string | null {
   return normalizeCourseId(new URLSearchParams(query).get("course_id"));
 }
 
-export type CourseKnowledgeView = "documents" | "structure";
-
 export function readTeacherCourseLocation(hash: string): {
   route: TeacherCourseRoute | null;
   courseId: string | null;
-  view?: CourseKnowledgeView;
 } {
   const normalized = String(hash || "").replace(/^#/, "");
   const [routeName, query = ""] = normalized.split("?");
   const route = ["course-detail", "learning", "ai", "knowledge", "graph", "classroom-studio", "resources", "edit"].includes(routeName)
     ? routeName as TeacherCourseRoute
     : null;
-  const params = new URLSearchParams(query);
-  const courseId = normalizeCourseId(params.get("course_id"));
-  if (route === "knowledge") {
-    return {
-      route,
-      courseId,
-      view: params.get("view") === "documents" ? "documents" : "structure",
-    };
-  }
+  const courseId = normalizeCourseId(new URLSearchParams(query).get("course_id"));
   return { route, courseId };
 }

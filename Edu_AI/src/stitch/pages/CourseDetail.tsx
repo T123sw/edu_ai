@@ -26,7 +26,7 @@ const entries = [
 
 const studentEntryNotes: Partial<Record<(typeof entries)[number]["route"], string>> = {
   [routes.ai]: "基于课程资料提问，生成内容仅自己可见",
-  [routes.knowledge]: "查看知识图谱和课程知识库",
+  [routes.knowledge]: "查看按课程结构组织的课程知识库",
   [routes.classroomStudio]: "生成和学习互动课堂",
   [routes.resources]: "查看个人生成和课程共享资源",
 };
@@ -137,10 +137,10 @@ export function CourseDetailPage() {
               <span>系统可以根据课程目标规划知识结构并审查开放来源；你也可以上传已有资料，或稍后再处理。</span>
             </div>
             <div className="course-setup__choices">
-              <a className="is-primary" href={buildRoleCourseHash(user?.role, routes.knowledge, course.id, { view: "documents", action: "build" })}>
+              <a className="is-primary" href={buildRoleCourseHash(user?.role, routes.knowledge, course.id, { action: "build" })}>
                 <MaterialIcon name="auto_awesome" /><span><strong>一键构建课程知识库</strong><small>规划结构、发现来源并启动后台构建</small></span><MaterialIcon name="arrow_forward" />
               </a>
-              <a href={buildRoleCourseHash(user?.role, routes.knowledge, course.id, { view: "documents", action: "upload" })}>
+              <a href={buildRoleCourseHash(user?.role, routes.knowledge, course.id, { action: "upload" })}>
                 <MaterialIcon name="description" /><span><strong>上传已有课程资料</strong><small>从本地教材、讲义或文档开始</small></span><MaterialIcon name="arrow_forward" />
               </a>
               <button type="button" onClick={dismissSetup}>

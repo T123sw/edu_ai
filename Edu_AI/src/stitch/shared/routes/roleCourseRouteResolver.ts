@@ -1,7 +1,6 @@
 import type { AuthUser } from "../../authSession";
 import {
   buildStudentHash,
-  type StudentCourseKnowledgeView,
   type StudentResourceSpace,
   type StudentRoute,
 } from "../../student/routes/studentRoutes";
@@ -40,12 +39,12 @@ export function buildRoleCourseHash(
   target?: RoleCourseHashTarget,
 ): string {
   if (role !== "student") {
-    return buildTeacherCourseHash(route, courseId, target);
+    const { view: _legacyView, ...supportedTarget } = target ?? {};
+    return buildTeacherCourseHash(route, courseId, supportedTarget);
   }
 
   return buildStudentHash(studentRouteByTeacherRoute[route], {
     courseId,
-    view: target?.view === "documents" ? "documents" : target?.view === "structure" ? "structure" : undefined,
     space: target?.space === "course" ? "course" : target?.space === "mine" ? "mine" : undefined,
     materialType: target?.material_type ?? undefined,
     materialId: target?.material_id ?? undefined,
@@ -58,10 +57,6 @@ export function buildRoleCourseHash(
 
 export function homeHashForRole(role: AuthUser["role"] | null | undefined): string {
   return role === "student" ? "#student-home" : "#home";
-}
-
-export function studentKnowledgeView(value: string | null | undefined): StudentCourseKnowledgeView {
-  return value === "documents" ? "documents" : "structure";
 }
 
 export function studentResourceSpace(value: string | null | undefined): StudentResourceSpace {
