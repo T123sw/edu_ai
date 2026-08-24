@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from typing import Any
 
 from .models import (
@@ -13,7 +13,9 @@ from .models import (
     LearningEventType,
     LearningOverviewRecord,
     LearningTaskRecord,
+    LearningTaskResourceSnapshot,
     LearningTaskView,
+    TaskType,
     TaskProgressRecord,
     utc_now,
 )
@@ -21,6 +23,7 @@ from .store import EventWriteResult, LearningStore
 
 
 MaterialLookup = Callable[[str, str, str, str], dict[str, Any] | None]
+MaterialVersionLookup = Callable[[str, str, str, int], dict[str, Any] | None]
 MembershipLookup = Callable[[str], Iterable[Any]]
 
 
@@ -44,10 +47,12 @@ class LearningService:
         store: LearningStore,
         material_lookup: MaterialLookup,
         membership_lookup: MembershipLookup,
+        material_version_lookup: MaterialVersionLookup | None = None,
     ):
         self.store = store
         self.material_lookup = material_lookup
         self.membership_lookup = membership_lookup
+        self.material_version_lookup = material_version_lookup
 
     @staticmethod
     def _require_text(value: str, *, field: str) -> str:
@@ -90,14 +95,44 @@ class LearningService:
             }
         )
 
-    def _validate_resource_refs(
+    @staticmethod
+    def _snapshot_content(material: dict[str, Any]) -> dict[str, Any]:
+        return {
+            key: material[key]
+            for key in ("content", "stage", "scenes", "questions", "items")
+            if material.get(key) is not None
+        }
+
+    @staticmethod
+    def _snapshot_file_refs(material: dict[str, Any]) -> list[str]:
+        candidates = [
+            *list(material.get("artifact_paths") or []),
+            material.get("file_path"),
+        ]
+        result: list[str] = []
+        for candidate in candidates:
+            value = str(candidate or "").strip().replace("\\", "/")
+            if (
+                not value
+                or value.startswith("/")
+                or ":" in value
+                or ".." in value.split("/")
+            ):
+                continue
+            if value not in result:
+                result.append(value)
+        return result
+
+    def _resolve_resources(
         self,
         *,
+        task_id: str,
         course_id: str,
         teacher_id: str,
         resource_refs: list[dict[str, str]],
-    ) -> list[dict[str, str]]:
+    ) -> tuple[list[dict[str, str]], list[LearningTaskResourceSnapshot]]:
         validated: list[dict[str, str]] = []
+        snapshots: list[LearningTaskResourceSnapshot] = []
         seen: set[tuple[str, str]] = set()
         for raw_ref in resource_refs:
             material_type = str(raw_ref.get("material_type", "")).strip()
@@ -108,39 +143,111 @@ class LearningService:
             if key in seen:
                 continue
             material = self.material_lookup(course_id, material_type, material_id, teacher_id)
-            if not material or str(material.get("visibility", "")) != "course":
+            if not material:
                 raise LearningRuleError(
                     "COURSE_RESOURCE_NOT_FOUND",
-                    "Only resources shared with this course can be assigned",
+                    "Task resource was not found",
                 )
+            origin_type = str(material.get("origin_type") or "").strip()
+            if not origin_type:
+                if str(material.get("visibility") or "") != "course":
+                    raise LearningRuleError(
+                        "COURSE_RESOURCE_NOT_FOUND",
+                        "Task resource was not found",
+                    )
+                origin_type = (
+                    "legacy_shared"
+                    if str(material.get("visibility") or "") == "course"
+                    else "personal"
+                )
+            snapshot_source = dict(material)
+            if origin_type == "standard":
+                approved_version = material.get("approved_version")
+                if approved_version is None or self.material_version_lookup is None:
+                    raise LearningRuleError(
+                        "TASK_RESOURCE_FORBIDDEN",
+                        "Only approved standard resources can be assigned",
+                    )
+                approved = self.material_version_lookup(
+                    course_id, material_type, material_id, int(approved_version)
+                )
+                if approved is None:
+                    raise LearningRuleError(
+                        "TASK_RESOURCE_FORBIDDEN",
+                        "Approved standard resource version was not found",
+                    )
+                snapshot_source.update(approved)
+                snapshot_source["version"] = int(approved_version)
+            elif origin_type == "personal":
+                if str(material.get("owner_user_id") or "") != teacher_id:
+                    raise LearningRuleError(
+                        "TASK_RESOURCE_FORBIDDEN",
+                        "Only the teacher's own personal resources can be assigned",
+                    )
+            elif origin_type != "legacy_shared":
+                raise LearningRuleError(
+                    "TASK_RESOURCE_FORBIDDEN", "Unsupported task resource origin"
+                )
+            snapshot_source.update(
+                {
+                    "material_type": material_type,
+                    "material_id": material_id,
+                    "origin_type": origin_type,
+                    "snapshot_content": self._snapshot_content(snapshot_source),
+                    "snapshot_file_refs": self._snapshot_file_refs(snapshot_source),
+                }
+            )
+            snapshot = LearningTaskResourceSnapshot.new(
+                task_id=task_id,
+                position=len(snapshots),
+                material=snapshot_source,
+            )
             seen.add(key)
-            validated.append({"material_type": material_type, "material_id": material_id})
-        return validated
+            validated.append(
+                {
+                    "material_type": material_type,
+                    "material_id": material_id,
+                    "snapshot_id": snapshot.snapshot_id,
+                }
+            )
+            snapshots.append(snapshot)
+        return validated, snapshots
 
     def create_task(
         self,
         *,
         course_id: str,
         teacher_id: str,
+        task_type: TaskType = "assessed",
         title: str,
         instructions: str,
         resource_refs: list[dict[str, str]],
         knowledge_point_ids: list[str],
     ) -> LearningTaskRecord:
         self._teacher_membership(course_id=course_id, teacher_id=teacher_id)
+        if task_type not in {"reading", "assessed"}:
+            raise LearningRuleError("INVALID_TASK_TYPE", "Task type is invalid")
         task = LearningTaskRecord.new(
             course_id=self._require_text(course_id, field="course_id"),
             title=self._require_text(title, field="title"),
             instructions=str(instructions or "").strip(),
             created_by=self._require_text(teacher_id, field="teacher_id"),
-            resource_refs=self._validate_resource_refs(
-                course_id=course_id,
-                teacher_id=teacher_id,
-                resource_refs=resource_refs,
-            ),
+            task_type=task_type,
+            resource_refs=[],
             knowledge_point_ids=list(dict.fromkeys(
                 str(item).strip() for item in knowledge_point_ids if str(item).strip()
             )),
+        )
+        validated_refs, snapshots = self._resolve_resources(
+            task_id=task.task_id,
+            course_id=course_id,
+            teacher_id=teacher_id,
+            resource_refs=resource_refs,
+        )
+        task = replace(
+            task,
+            resource_refs=validated_refs,
+            resource_snapshots=snapshots,
         )
         return self.store.create_task(task)
 
@@ -195,12 +302,27 @@ class LearningService:
             raise LearningRuleError("INVALID_PROGRESS", "Progress must be between 0 and 100")
         normalized_ref = None
         if resource_ref:
-            normalized_ref = {
+            requested_ref = {
                 "material_type": str(resource_ref.get("material_type", "")).strip(),
                 "material_id": str(resource_ref.get("material_id", "")).strip(),
             }
-            if normalized_ref not in task.resource_refs:
+            requested_snapshot_id = str(resource_ref.get("snapshot_id", "")).strip()
+            assigned_ref = next(
+                (
+                    item
+                    for item in task.resource_refs
+                    if item.get("material_type") == requested_ref["material_type"]
+                    and item.get("material_id") == requested_ref["material_id"]
+                    and (
+                        not requested_snapshot_id
+                        or item.get("snapshot_id") == requested_snapshot_id
+                    )
+                ),
+                None,
+            )
+            if assigned_ref is None:
                 raise LearningRuleError("RESOURCE_NOT_ASSIGNED", "Resource is not attached to this task")
+            normalized_ref = dict(assigned_ref)
         if event_type in {"resource_completed", "assessment_scored"} and normalized_ref is None:
             raise LearningRuleError(
                 "EVIDENCE_SOURCE_REQUIRED",

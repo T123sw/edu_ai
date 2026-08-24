@@ -9,7 +9,23 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class LearningResourceRef(BaseModel):
     material_type: str = Field(min_length=1, max_length=64)
-    material_id: str = Field(min_length=1, max_length=160)
+    material_id: str = Field(min_length=1, max_length=240)
+    snapshot_id: str | None = Field(default=None, max_length=240)
+
+
+class LearningTaskResourceSnapshotResponse(BaseModel):
+    snapshot_id: str
+    task_id: str
+    position: int
+    source_material_type: str
+    source_material_id: str
+    source_version: int
+    origin_type: str
+    standard_kind: str | None = None
+    title: str
+    content_payload: dict
+    file_refs: list[str]
+    created_at: str
 
 
 class TaskProgressResponse(BaseModel):
@@ -31,6 +47,7 @@ class TaskProgressResponse(BaseModel):
 
 
 class LearningTaskCreateRequest(BaseModel):
+    task_type: Literal["reading", "assessed"] = "assessed"
     title: str = Field(min_length=1, max_length=200)
     instructions: str = Field(default="", max_length=10_000)
     resource_refs: list[LearningResourceRef] = Field(default_factory=list, max_length=100)
@@ -43,7 +60,9 @@ class LearningTaskResponse(BaseModel):
     title: str
     instructions: str
     created_by: str
+    task_type: Literal["reading", "assessed"] = "assessed"
     resource_refs: list[LearningResourceRef]
+    resource_snapshots: list[LearningTaskResourceSnapshotResponse] = Field(default_factory=list)
     knowledge_point_ids: list[str]
     status: Literal["draft", "published", "closed"]
     created_at: str

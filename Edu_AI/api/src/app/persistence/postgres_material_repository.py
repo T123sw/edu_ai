@@ -37,6 +37,34 @@ class PostgresMaterialRepository:
             )
             record.status = str(payload.get("status") or "ready")
             record.visibility = str(payload.get("visibility") or "course")
+            record.origin_type = str(
+                payload.get("origin_type") or record.origin_type or "personal"
+            )
+            record.standard_kind = (
+                str(payload.get("standard_kind") or "").strip() or None
+            )
+            record.generation_batch_id = (
+                str(payload.get("generation_batch_id") or "").strip() or None
+            )
+            record.current_review_status = str(
+                payload.get("current_review_status")
+                or record.current_review_status
+                or ("pending" if record.origin_type == "standard" else "not_required")
+            )
+            record.approved_version = (
+                int(payload["approved_version"])
+                if payload.get("approved_version") is not None
+                else record.approved_version
+            )
+            record.approved_by = (
+                str(payload.get("approved_by") or "").strip()
+                or record.approved_by
+            )
+            record.approved_at = (
+                _timestamp(payload.get("approved_at"))
+                if str(payload.get("approved_at") or "").strip()
+                else record.approved_at
+            )
             record.owner_user_id = str(
                 payload.get("owner_user_id") or payload.get("created_by") or ""
             ).strip() or None
@@ -74,6 +102,25 @@ class PostgresMaterialRepository:
                         material_type=material_type,
                         material_id=material_id,
                         version=version,
+                        origin_type=record.origin_type,
+                        standard_kind=record.standard_kind,
+                        generation_batch_id=record.generation_batch_id,
+                        review_status=str(
+                            payload.get("review_status")
+                            or record.current_review_status
+                            or "not_required"
+                        ),
+                        reviewed_by=(
+                            str(payload.get("reviewed_by") or "").strip() or None
+                        ),
+                        reviewed_at=(
+                            _timestamp(payload.get("reviewed_at"))
+                            if str(payload.get("reviewed_at") or "").strip()
+                            else None
+                        ),
+                        rejection_reason=(
+                            str(payload.get("rejection_reason") or "").strip() or None
+                        ),
                         created_at=updated_at,
                         payload=payload,
                     )
@@ -126,6 +173,48 @@ class PostgresMaterialRepository:
             ).all()
             return [self._payload(record) for record in records]
 
+    def get_version(
+        self,
+        course_id: str,
+        material_type: str,
+        material_id: str,
+        version: int,
+    ) -> dict[str, Any] | None:
+        normalized_course_id = _required_text(course_id, "course_id")
+        normalized_type = _required_text(material_type, "material_type")
+        normalized_id = _required_text(material_id, "material_id")
+        with database_session(engine=self._engine) as session:
+            record = session.scalar(
+                select(MaterialVersion).where(
+                    MaterialVersion.course_id == normalized_course_id,
+                    MaterialVersion.material_type == normalized_type,
+                    MaterialVersion.material_id == normalized_id,
+                    MaterialVersion.version == int(version),
+                )
+            )
+            if record is None:
+                return None
+            payload = dict(record.payload or {})
+            payload.update(
+                {
+                    "course_id": record.course_id,
+                    "material_type": record.material_type,
+                    "material_id": record.material_id,
+                    "version": record.version,
+                    "origin_type": record.origin_type,
+                    "standard_kind": record.standard_kind,
+                    "generation_batch_id": record.generation_batch_id,
+                    "review_status": record.review_status,
+                    "reviewed_by": record.reviewed_by,
+                    "reviewed_at": (
+                        _iso_timestamp(record.reviewed_at) if record.reviewed_at else None
+                    ),
+                    "rejection_reason": record.rejection_reason,
+                    "created_at": _iso_timestamp(record.created_at),
+                }
+            )
+            return payload
+
     def delete(self, course_id: str, material_type: str, material_id: str) -> bool:
         key = (
             _required_text(course_id, "course_id"),
@@ -150,6 +239,15 @@ class PostgresMaterialRepository:
                 "title": record.title,
                 "status": record.status,
                 "visibility": record.visibility,
+                "origin_type": record.origin_type,
+                "standard_kind": record.standard_kind,
+                "generation_batch_id": record.generation_batch_id,
+                "current_review_status": record.current_review_status,
+                "approved_version": record.approved_version,
+                "approved_by": record.approved_by,
+                "approved_at": (
+                    _iso_timestamp(record.approved_at) if record.approved_at else None
+                ),
                 "owner_user_id": record.owner_user_id,
                 "scope_type": record.scope_type,
                 "scope_id": record.scope_id,

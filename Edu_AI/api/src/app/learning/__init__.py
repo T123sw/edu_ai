@@ -27,6 +27,8 @@ def get_learning_service() -> LearningService:
                 _cached_store.close()
             membership_store = get_course_membership_store()
             manager = course_service._get_manager()
+            from app.persistence.dependencies import get_postgres_material_repository
+
             _cached_path = path
             _cached_store = LearningStore(path)
             _cached_service = LearningService(
@@ -37,6 +39,11 @@ def get_learning_service() -> LearningService:
                         material_type,
                         material_id,
                         owner_user_id=user_id,
+                    )
+                ),
+                material_version_lookup=lambda course_id, material_type, material_id, version: (
+                    get_postgres_material_repository().get_version(
+                        course_id, material_type, material_id, version
                     )
                 ),
                 membership_lookup=membership_store.list_for_course,

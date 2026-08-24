@@ -44,6 +44,8 @@ def persist_classroom_result(
     sidecar_base_url: Optional[str] = None,
     source_snapshot: Optional[dict[str, Any]] = None,
     source_job_id: Optional[str] = None,
+    material_id: Optional[str] = None,
+    material_metadata: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     """校验 + 落库一份 generate_classroom 的产出，返回 edu_job.result_ref 用的引用。
 
@@ -60,7 +62,7 @@ def persist_classroom_result(
     if violations:
         raise ClassroomValidationError(violations)
 
-    classroom_id = stage.get("id") or result.get("id")
+    classroom_id = str(material_id or stage.get("id") or result.get("id") or "").strip()
     if not classroom_id:
         raise ClassroomValidationError(["Stage.id 与 result.id 均缺失，无法落库"])
 
@@ -72,6 +74,7 @@ def persist_classroom_result(
         "scenes_count": result.get("scenesCount", len(scenes)),
         "sidecar_url": result.get("url"),
         "sidecar_created_at": result.get("createdAt"),
+        **dict(material_metadata or {}),
     }
 
     saved = course_storage_manager.save_generated_material(
@@ -84,6 +87,7 @@ def persist_classroom_result(
         owner_user_id=owner,
         source_snapshot=source_snapshot,
         source_job_id=source_job_id,
+        visibility=("course" if material_metadata else None),
     )
     if not saved:
         raise ClassroomPersistError(

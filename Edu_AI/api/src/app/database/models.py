@@ -261,6 +261,20 @@ class JobEvent(Base):
 
 class Material(Base):
     __tablename__ = "materials"
+    __table_args__ = (
+        CheckConstraint(
+            "origin_type IN ('personal', 'standard', 'legacy_shared')",
+            name="materials_valid_origin_type",
+        ),
+        CheckConstraint(
+            "standard_kind IS NULL OR standard_kind IN ('classroom', 'study_guide', 'practice')",
+            name="materials_valid_standard_kind",
+        ),
+        CheckConstraint(
+            "current_review_status IN ('not_required', 'pending', 'approved', 'rejected')",
+            name="materials_valid_review_status",
+        ),
+    )
 
     course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
     material_type: Mapped[str] = mapped_column(String(80), primary_key=True)
@@ -268,6 +282,17 @@ class Material(Base):
     title: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     status: Mapped[str] = mapped_column(String(64), nullable=False, default="ready")
     visibility: Mapped[str] = mapped_column(String(32), nullable=False, default="course")
+    origin_type: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="personal", index=True
+    )
+    standard_kind: Mapped[str | None] = mapped_column(String(32), index=True)
+    generation_batch_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    current_review_status: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="not_required", index=True
+    )
+    approved_version: Mapped[int | None] = mapped_column(Integer)
+    approved_by: Mapped[str | None] = mapped_column(String(160))
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     owner_user_id: Mapped[str | None] = mapped_column(String(160), index=True)
     scope_type: Mapped[str] = mapped_column(String(64), nullable=False, default="course")
     scope_id: Mapped[str | None] = mapped_column(String(240), index=True)
@@ -295,6 +320,18 @@ class MaterialVersion(Base):
             "course_id", "material_type", "material_id", "version",
             name="uq_material_versions_version",
         ),
+        CheckConstraint(
+            "origin_type IN ('personal', 'standard', 'legacy_shared')",
+            name="material_versions_valid_origin_type",
+        ),
+        CheckConstraint(
+            "standard_kind IS NULL OR standard_kind IN ('classroom', 'study_guide', 'practice')",
+            name="material_versions_valid_standard_kind",
+        ),
+        CheckConstraint(
+            "review_status IN ('not_required', 'pending', 'approved', 'rejected')",
+            name="material_versions_valid_review_status",
+        ),
     )
 
     material_version_id: Mapped[int] = mapped_column(
@@ -304,6 +341,17 @@ class MaterialVersion(Base):
     material_type: Mapped[str] = mapped_column(String(80), nullable=False)
     material_id: Mapped[str] = mapped_column(String(240), nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
+    origin_type: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="personal", index=True
+    )
+    standard_kind: Mapped[str | None] = mapped_column(String(32), index=True)
+    generation_batch_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    review_status: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="not_required", index=True
+    )
+    reviewed_by: Mapped[str | None] = mapped_column(String(160))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    rejection_reason: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     payload: Mapped[dict[str, Any]] = mapped_column(
         JSON_PAYLOAD, nullable=False, default=dict
@@ -525,11 +573,18 @@ class AppStateRecord(Base):
 
 class LearningTaskModel(Base):
     __tablename__ = "learning_tasks"
+    __table_args__ = (
+        CheckConstraint(
+            "task_type IN ('reading', 'assessed')",
+            name="learning_tasks_valid_task_type",
+        ),
+    )
 
     task_id: Mapped[str] = mapped_column(String(200), primary_key=True)
     course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     instructions: Mapped[str] = mapped_column(Text, nullable=False)
+    task_type: Mapped[str] = mapped_column(String(32), nullable=False, default="assessed")
     created_by: Mapped[str] = mapped_column(String(160), nullable=False)
     resource_refs: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
     knowledge_point_ids: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
@@ -537,6 +592,90 @@ class LearningTaskModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     published_by: Mapped[str | None] = mapped_column(String(160))
+
+
+class StandardResourceBatch(Base):
+    __tablename__ = "standard_resource_batches"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('queued', 'running', 'partial', 'completed', 'failed')",
+            name="standard_resource_batches_valid_status",
+        ),
+    )
+
+    batch_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    created_by: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued", index=True)
+    total_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    queued_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    running_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    succeeded_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    failed_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class StandardResourceBatchItem(Base):
+    __tablename__ = "standard_resource_batch_items"
+    __table_args__ = (
+        UniqueConstraint(
+            "batch_id", "leaf_id", "standard_kind",
+            name="uq_standard_resource_batch_items_slot",
+        ),
+        CheckConstraint(
+            "standard_kind IN ('classroom', 'study_guide', 'practice')",
+            name="standard_resource_batch_items_valid_kind",
+        ),
+        CheckConstraint(
+            "status IN ('queued', 'running', 'succeeded', 'failed')",
+            name="standard_resource_batch_items_valid_status",
+        ),
+    )
+
+    batch_item_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    batch_id: Mapped[str] = mapped_column(
+        ForeignKey("standard_resource_batches.batch_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    leaf_id: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
+    leaf_title: Mapped[str] = mapped_column(String(500), nullable=False)
+    standard_kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    material_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    material_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued", index=True)
+    job_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON_PAYLOAD)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class LearningTaskResourceSnapshot(Base):
+    __tablename__ = "learning_task_resource_snapshots"
+    __table_args__ = (
+        UniqueConstraint("task_id", "position", name="uq_learning_task_snapshots_position"),
+    )
+
+    snapshot_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("learning_tasks.task_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_material_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    source_material_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    source_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    origin_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    standard_kind: Mapped[str | None] = mapped_column(String(32))
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    content_payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
+    file_refs: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class LearningEventModel(Base):

@@ -52,6 +52,32 @@ def test_material_repository_tracks_versions_and_artifact_references(engine):
         assert session.scalar(select(func.count()).select_from(ArtifactFile)) == 1
 
 
+def test_material_repository_preserves_standard_review_metadata_and_version(engine):
+    from app.persistence.postgres_material_repository import PostgresMaterialRepository
+
+    repository = PostgresMaterialRepository(engine)
+    manifest = {
+        **_manifest(),
+        "material_id": "standard-leaf-1-study_guide",
+        "origin_type": "standard",
+        "standard_kind": "study_guide",
+        "generation_batch_id": "batch-1",
+        "current_review_status": "pending",
+        "approved_version": None,
+        "content": "pending content",
+    }
+    repository.upsert(manifest)
+
+    loaded = repository.get("course-1", "report", manifest["material_id"])
+    assert loaded["origin_type"] == "standard"
+    assert loaded["standard_kind"] == "study_guide"
+    assert loaded["current_review_status"] == "pending"
+    version = repository.get_version("course-1", "report", manifest["material_id"], 1)
+    assert version is not None
+    assert version["generation_batch_id"] == "batch-1"
+    assert version["review_status"] == "pending"
+
+
 def test_course_storage_keeps_artifact_file_but_not_manifest_json_in_postgres_mode(
     engine, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):

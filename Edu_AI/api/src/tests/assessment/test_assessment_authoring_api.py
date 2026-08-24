@@ -95,6 +95,32 @@ def test_new_task_cannot_publish_without_confirmed_assessment(tmp_path):
     assert stored.status == "draft"
 
 
+def test_reading_task_publishes_without_assessment(tmp_path):
+    factory = AuthoringApiFactory(tmp_path)
+    teacher = factory.client("teacher-1", "teacher")
+    created = teacher.post(
+        "/api/courses/course-1/learning/tasks",
+        json={
+            "task_type": "reading",
+            "title": "阅读学习",
+            "instructions": "阅读材料后标记完成",
+            "resource_refs": [
+                {"material_type": "quiz", "material_id": "quiz-1"}
+            ],
+            "knowledge_point_ids": ["loops"],
+        },
+    )
+    assert created.status_code == 201
+
+    published = teacher.post(
+        f"/api/courses/course-1/learning/tasks/{created.json()['task_id']}/publish"
+    )
+
+    assert published.status_code == 200
+    assert published.json()["task_type"] == "reading"
+    assert published.json()["status"] == "published"
+
+
 def test_existing_quiz_is_detected_validated_and_published_with_task(tmp_path):
     factory = AuthoringApiFactory(tmp_path)
     teacher = factory.client("teacher-1", "teacher")

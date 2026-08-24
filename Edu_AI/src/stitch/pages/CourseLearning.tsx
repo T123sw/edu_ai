@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { getCourseMaterials } from "../api/courses";
+import { getStandardResources } from "../api/standardResources";
 import {
   createLearningTask,
   getLearningTaskProgress,
@@ -14,6 +15,7 @@ import type {
   CourseMaterial,
   LearningResourceRef,
   LearningTask,
+  LearningTaskResourceSnapshot,
 } from "../api/types";
 import { AssessmentEditor } from "../assessment/AssessmentEditor";
 import { AssessmentRunner } from "../assessment/AssessmentRunner";
@@ -28,6 +30,10 @@ import {
   getLearningTaskPrimaryAction,
   getProgressLabel,
 } from "./courseLearningPresentation";
+import {
+  taskNeedsAssessment,
+  taskTypeLabel,
+} from "../course/learning/learningEvidencePresentation";
 import "./CourseLearning.css";
 
 
@@ -61,6 +67,16 @@ function formatPercent(value: number): string {
   return `${Math.round(Math.min(1, Math.max(0, value)) * 100)}%`;
 }
 
+function snapshotText(snapshot: LearningTaskResourceSnapshot): string {
+  const payload = snapshot.content_payload;
+  if (typeof payload.content === "string") return payload.content;
+  if (payload.stage && typeof payload.stage === "object") {
+    const stage = payload.stage as { name?: string };
+    if (stage.name) return `课堂：${stage.name}`;
+  }
+  return JSON.stringify(payload, null, 2);
+}
+
 export function CourseLearningPage() {
   const { user } = useAuthSession();
   const { courseId, courseRole } = useCourseRoute();
@@ -76,11 +92,13 @@ export function CourseLearningPage() {
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState("");
+  const [taskType, setTaskType] = useState<"reading" | "assessed">("reading");
   const [knowledgePoints, setKnowledgePoints] = useState("");
   const [selectedResources, setSelectedResources] = useState<Set<string>>(new Set());
   const [resourceQuery, setResourceQuery] = useState("");
   const [resourceType, setResourceType] = useState("");
   const [assessmentDrafts, setAssessmentDrafts] = useState<Record<string, AssessmentDraft | null>>({});
+  const [activeSnapshotId, setActiveSnapshotId] = useState<string | null>(null);
 
   const sharedMaterialByKey = useMemo(
     () => new Map(materials.map((material) => [
@@ -122,10 +140,25 @@ export function CourseLearningPage() {
     setLoading(true);
     setError(null);
     try {
-      const [taskData, materialData] = await Promise.all([
+      const [taskData, personalMaterials, standardCatalog] = await Promise.all([
         listLearningTasks(courseId),
-        getCourseMaterials(courseId, { space: "course" }),
+        isTeacher ? getCourseMaterials(courseId, { space: "mine" }) : Promise.resolve([]),
+        isTeacher ? getStandardResources(courseId) : Promise.resolve(null),
       ]);
+      const standardMaterials = standardCatalog
+        ? standardCatalog.leaves.flatMap((leaf) =>
+            leaf.slots.flatMap((slot) =>
+              slot.resource && slot.approved_version ? [slot.resource] : [],
+            ),
+          )
+        : [];
+      const materialData = [...standardMaterials, ...personalMaterials].filter(
+        (material, index, all) =>
+          all.findIndex((candidate) =>
+            candidate.material_type === material.material_type
+            && candidate.material_id === material.material_id
+          ) === index,
+      );
       setTasks(taskData);
       setMaterials(materialData);
       setSelectedTaskId((current) => (
@@ -138,7 +171,7 @@ export function CourseLearningPage() {
     } finally {
       setLoading(false);
     }
-  }, [courseId]);
+  }, [courseId, isTeacher]);
 
   useEffect(() => {
     void loadTasks();
@@ -180,6 +213,7 @@ export function CourseLearningPage() {
     setError(null);
     try {
       const created = await createLearningTask(courseId, {
+        task_type: taskType,
         title: title.trim() || generatedTitle,
         instructions: instructions.trim(),
         resource_refs: taskMaterials.map((material) => ({
@@ -196,6 +230,7 @@ export function CourseLearningPage() {
       setCreating(false);
       setTitle("");
       setInstructions("");
+      setTaskType("reading");
       setKnowledgePoints("");
       setSelectedResources(new Set());
       setResourceQuery("");
@@ -210,7 +245,9 @@ export function CourseLearningPage() {
 
   async function publishTask(task: LearningTask) {
     if (!courseId) return;
-    const blockers = getAssessmentPublishBlockers(assessmentDrafts[task.task_id]);
+    const blockers = taskNeedsAssessment(task)
+      ? getAssessmentPublishBlockers(assessmentDrafts[task.task_id])
+      : [];
     if (blockers.length > 0) {
       setError(blockers.join("；"));
       return;
@@ -219,8 +256,12 @@ export function CourseLearningPage() {
     setError(null);
     try {
       const draft = assessmentDrafts[task.task_id];
-      if (!draft) return;
-      const published = await publishLearningTask(courseId, task.task_id, draft.draft_revision);
+      if (taskNeedsAssessment(task) && !draft) return;
+      const published = await publishLearningTask(
+        courseId,
+        task.task_id,
+        draft?.draft_revision,
+      );
       setTasks((current) => current.map((item) => item.task_id === task.task_id ? published : item));
       setSelectedTaskId(published.task_id);
       setNotice("任务已发布，学生端现在可以开始学习。");
@@ -233,14 +274,14 @@ export function CourseLearningPage() {
 
   async function writeStudentEvent(
     task: LearningTask,
-    eventType: "started" | "resource_opened" | "completed",
+    eventType: "started" | "resource_opened" | "resource_completed" | "completed",
     resourceRef?: LearningResourceRef,
   ) {
     if (!courseId) return false;
     setBusy(true);
     setError(null);
     try {
-      const progress = eventType === "completed"
+      const progress = eventType === "completed" || eventType === "resource_completed"
         ? 100
         : Math.max(1, task.my_progress?.progress_percent ?? 0);
       const result = await recordLearningEvent(courseId, task.task_id, {
@@ -267,6 +308,12 @@ export function CourseLearningPage() {
   async function openResource(task: LearningTask, ref: LearningResourceRef) {
     const saved = await writeStudentEvent(task, "resource_opened", ref);
     if (!saved || !courseId) return;
+    if (ref.snapshot_id) {
+      setActiveSnapshotId((current) =>
+        current === ref.snapshot_id ? null : ref.snapshot_id || null,
+      );
+      return;
+    }
     window.location.hash = buildRoleCourseHash(user?.role, routes.resources, courseId, {
       space: "course",
       material_type: ref.material_type,
@@ -307,6 +354,29 @@ export function CourseLearningPage() {
       {creating && isTeacher ? (
         <section className="learning-create" aria-label="新建学习任务">
           <form onSubmit={submitTask}>
+            <fieldset className="learning-task-type">
+              <legend>任务类型</legend>
+              <label>
+                <input
+                  type="radio"
+                  name="task-type"
+                  value="reading"
+                  checked={taskType === "reading"}
+                  onChange={() => setTaskType("reading")}
+                />
+                <span><strong>阅读学习</strong><small>完成资源后形成活动证据，不要求测验。</small></span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="task-type"
+                  value="assessed"
+                  checked={taskType === "assessed"}
+                  onChange={() => setTaskType("assessed")}
+                />
+                <span><strong>考核任务</strong><small>除学习资源外，还需配置并发布测验。</small></span>
+              </label>
+            </fieldset>
             <div className="learning-create__head">
               <div><p>新建学习任务</p><span>先保存为草稿，确认后再发布。</span></div>
               <button type="button" onClick={() => setCreating(false)} aria-label="关闭">×</button>
@@ -353,6 +423,9 @@ export function CourseLearningPage() {
                             />
                             <span>
                               <strong>{materialTitle(material)}</strong>
+                              <span className="learning-resource-picker__type">
+                                {material.origin_type === "standard" ? "标准学习资源" : "个人资源"}
+                              </span>
                               <span className="learning-resource-picker__type">{material.material_type}</span>
                               <small>
                                 {material.created_by || "未知创建者"} · {formatUpdatedAt(material.updated_at)} · {material.material_id.slice(-8)}
@@ -391,6 +464,7 @@ export function CourseLearningPage() {
                 onClick={() => setSelectedTaskId(task.task_id)}
               >
                 <span className={`learning-badge learning-badge--${task.status}`}>{task.status === "draft" ? "草稿" : task.status === "published" ? "已发布" : "已关闭"}</span>
+                <span className="learning-badge">{taskTypeLabel(task.task_type)}</span>
                 <strong>{task.title}</strong>
                 <small>{task.resource_refs.length} 项资源 · {task.knowledge_point_ids.length} 个知识点</small>
               </button>
@@ -402,11 +476,26 @@ export function CourseLearningPage() {
                 <div className="learning-detail__head">
                   <div><h3>{selectedTask.title}</h3><p>{selectedTask.instructions || "暂无补充说明"}</p></div>
                   {getLearningTaskPrimaryAction("teacher", selectedTask) === "publish" ? (
-                    <button type="button" className="learning-primary" disabled={busy || getAssessmentPublishBlockers(assessmentDrafts[selectedTask.task_id]).length > 0} onClick={() => void publishTask(selectedTask)}>发布给学生</button>
+                    <button
+                      type="button"
+                      className="learning-primary"
+                      disabled={
+                        busy
+                        || (
+                          taskNeedsAssessment(selectedTask)
+                          && getAssessmentPublishBlockers(
+                            assessmentDrafts[selectedTask.task_id],
+                          ).length > 0
+                        )
+                      }
+                      onClick={() => void publishTask(selectedTask)}
+                    >
+                      发布给学生
+                    </button>
                   ) : null}
                 </div>
                 <ResourceLinks task={selectedTask} materials={sharedMaterialByKey} courseId={courseId} role={user?.role} />
-                {selectedTask.status === "draft" ? (
+                {selectedTask.status === "draft" && taskNeedsAssessment(selectedTask) ? (
                   <AssessmentEditor
                     courseId={courseId}
                     task={selectedTask}
@@ -431,7 +520,7 @@ export function CourseLearningPage() {
                         </div>
                       ))}
                     </div>
-                    {courseId ? <AssessmentAnalytics courseId={courseId} taskId={selectedTask.task_id} onReviewed={() => void loadTasks()} /> : null}
+                    {courseId && taskNeedsAssessment(selectedTask) ? <AssessmentAnalytics courseId={courseId} taskId={selectedTask.task_id} onReviewed={() => void loadTasks()} /> : null}
                   </>
                 ) : <div className="learning-draft-note">正在汇总学生学习进度…</div>}
               </>
@@ -456,19 +545,41 @@ export function CourseLearningPage() {
                 ) : null}
                 <div className="learning-progress"><span style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} /></div>
                 <div className="learning-student-resources">
-                  {task.resource_refs.map((ref) => (
-                    <button key={materialKey(ref)} type="button" disabled={busy} onClick={() => void openResource(task, ref)}>
-                      <MaterialIcon name="menu_book" />
-                      <span>{materialTitle(sharedMaterialByKey.get(materialKey(ref)) ?? { ...ref, title: ref.material_id })}</span>
-                      <small>打开资源</small>
-                    </button>
-                  ))}
+                  {task.resource_refs.map((ref) => {
+                    const snapshot = task.resource_snapshots.find(
+                      (item) => item.snapshot_id === ref.snapshot_id,
+                    );
+                    return (
+                      <div key={ref.snapshot_id || materialKey(ref)} className="learning-snapshot-resource">
+                        <button type="button" disabled={busy} onClick={() => void openResource(task, ref)}>
+                          <MaterialIcon name="menu_book" />
+                          <span>{snapshot?.title || materialTitle(sharedMaterialByKey.get(materialKey(ref)) ?? { ...ref, title: ref.material_id })}</span>
+                          <small>{activeSnapshotId === ref.snapshot_id ? "收起内容" : "打开任务快照"}</small>
+                        </button>
+                        {snapshot && activeSnapshotId === snapshot.snapshot_id ? (
+                          <div className="learning-snapshot-resource__content">
+                            <pre>{snapshotText(snapshot)}</pre>
+                            <button
+                              type="button"
+                              className="learning-primary"
+                              disabled={busy}
+                              onClick={() => void writeStudentEvent(task, "resource_completed", ref)}
+                            >
+                              <MaterialIcon name="task_alt" />完成本项学习
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
-                <AssessmentRunner
-                  courseId={courseId}
-                  taskId={task.task_id}
-                  onVerified={() => void loadTasks()}
-                />
+                {taskNeedsAssessment(task) ? (
+                  <AssessmentRunner
+                    courseId={courseId}
+                    taskId={task.task_id}
+                    onVerified={() => void loadTasks()}
+                  />
+                ) : null}
                 <div className="learning-student-card__actions">
                   {action === "start" || action === "continue" ? (
                     <button type="button" className="learning-secondary" disabled={busy} onClick={() => void writeStudentEvent(task, "started")}>
@@ -504,10 +615,20 @@ function ResourceLinks({
   return (
     <div className="learning-resource-links">
       {task.resource_refs.map((ref) => (
-        <a key={materialKey(ref)} href={buildRoleCourseHash(role, routes.resources, courseId, { space: "course", material_type: ref.material_type, material_id: ref.material_id })}>
-          <MaterialIcon name="menu_book" />
-          <span><strong>{materialTitle(materials.get(materialKey(ref)) ?? { ...ref, title: ref.material_id })}</strong><small>{ref.material_type}</small></span>
-        </a>
+        task.resource_snapshots.find((item) => item.snapshot_id === ref.snapshot_id) ? (
+          <div key={ref.snapshot_id || materialKey(ref)}>
+            <MaterialIcon name="inventory_2" />
+            <span>
+              <strong>{task.resource_snapshots.find((item) => item.snapshot_id === ref.snapshot_id)?.title}</strong>
+              <small>任务快照 · {ref.material_type}</small>
+            </span>
+          </div>
+        ) : (
+          <a key={materialKey(ref)} href={buildRoleCourseHash(role, routes.resources, courseId, { space: "course", material_type: ref.material_type, material_id: ref.material_id })}>
+            <MaterialIcon name="menu_book" />
+            <span><strong>{materialTitle(materials.get(materialKey(ref)) ?? { ...ref, title: ref.material_id })}</strong><small>{ref.material_type}</small></span>
+          </a>
+        )
       ))}
     </div>
   );

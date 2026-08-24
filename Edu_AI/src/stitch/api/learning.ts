@@ -29,10 +29,15 @@ export const createLearningTask = (
     body: JSON.stringify(payload),
   });
 
-export const publishLearningTask = (courseId: string, taskId: string, expectedRevision: number) =>
+export const publishLearningTask = (courseId: string, taskId: string, expectedRevision?: number) =>
   apiRequest<LearningTask>(
     `/api/courses/${courseId}/learning/tasks/${taskId}/publish`,
-    { method: "POST", body: JSON.stringify({ expected_revision: expectedRevision }) },
+    {
+      method: "POST",
+      body: JSON.stringify(
+        expectedRevision === undefined ? {} : { expected_revision: expectedRevision },
+      ),
+    },
   );
 
 const assessmentPath = (courseId: string, taskId: string) =>

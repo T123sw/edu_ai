@@ -9,12 +9,14 @@ from app.database import (
     LearningEventModel,
     LearningProgressModel,
     LearningTaskModel,
+    LearningTaskResourceSnapshot as LearningTaskResourceSnapshotModel,
     database_session,
 )
 from app.learning.models import (
     EventWriteResult,
     LearningEventRecord,
     LearningTaskRecord,
+    LearningTaskResourceSnapshot,
     TaskProgressRecord,
     utc_now,
 )
@@ -32,11 +34,29 @@ class PostgresLearningRepository:
             session.add(LearningTaskModel(
                 task_id=task.task_id, course_id=task.course_id, title=task.title,
                 instructions=task.instructions, created_by=task.created_by,
+                task_type=task.task_type,
                 resource_refs=task.resource_refs, knowledge_point_ids=task.knowledge_point_ids,
                 status=task.status, created_at=_timestamp(task.created_at),
                 published_at=_timestamp(task.published_at) if task.published_at else None,
                 published_by=task.published_by,
             ))
+            for snapshot in task.resource_snapshots:
+                session.add(
+                    LearningTaskResourceSnapshotModel(
+                        snapshot_id=snapshot.snapshot_id,
+                        task_id=snapshot.task_id,
+                        position=snapshot.position,
+                        source_material_type=snapshot.source_material_type,
+                        source_material_id=snapshot.source_material_id,
+                        source_version=snapshot.source_version,
+                        origin_type=snapshot.origin_type,
+                        standard_kind=snapshot.standard_kind,
+                        title=snapshot.title,
+                        content_payload=snapshot.content_payload,
+                        file_refs=snapshot.file_refs,
+                        created_at=_timestamp(snapshot.created_at),
+                    )
+                )
         return task
 
     def get_task(self, task_id: str, course_id: str) -> LearningTaskRecord | None:
@@ -44,7 +64,7 @@ class PostgresLearningRepository:
             record = session.get(LearningTaskModel, task_id)
             if record is None or record.course_id != course_id:
                 return None
-            return self._task(record)
+            return self._task(record, session)
 
     def list_tasks(self, course_id: str, statuses=None, limit=None):
         with database_session(engine=self._engine) as session:
@@ -54,7 +74,7 @@ class PostgresLearningRepository:
             statement = statement.order_by(LearningTaskModel.created_at.desc(), LearningTaskModel.task_id.desc())
             if limit is not None:
                 statement = statement.limit(max(0, int(limit)))
-            return [self._task(item) for item in session.scalars(statement).all()]
+            return [self._task(item, session) for item in session.scalars(statement).all()]
 
     def publish_task(self, task_id: str, course_id: str, published_by: str):
         with database_session(engine=self._engine) as session:
@@ -65,7 +85,7 @@ class PostgresLearningRepository:
             record.published_at = record.published_at or _timestamp(utc_now())
             record.published_by = record.published_by or published_by
             session.flush()
-            return self._task(record)
+            return self._task(record, session)
 
     def record_event(self, event: LearningEventRecord) -> EventWriteResult:
         if not 0 <= event.progress_percent <= 100:
@@ -106,9 +126,47 @@ class PostgresLearningRepository:
                 )
                 if progress is None:
                     raise RuntimeError("learning event exists without task progress")
-                completed = progress.status == "completed" or event.event_type == "completed"
+                completed_resources = 0
+                total_resources = 0
+                if event.event_type == "resource_completed":
+                    snapshot_ids = set(
+                        session.scalars(
+                            select(LearningTaskResourceSnapshotModel.snapshot_id).where(
+                                LearningTaskResourceSnapshotModel.task_id == event.task_id
+                            )
+                        ).all()
+                    )
+                    total_resources = len(snapshot_ids)
+                    event_refs = session.scalars(
+                        select(LearningEventModel.resource_ref).where(
+                            LearningEventModel.task_id == event.task_id,
+                            LearningEventModel.student_id == event.student_id,
+                            LearningEventModel.event_type == "resource_completed",
+                        )
+                    ).all()
+                    completed_resources = len(
+                        {
+                            str((item or {}).get("snapshot_id") or "")
+                            for item in event_refs
+                        }
+                        & snapshot_ids
+                    )
+                completed = (
+                    progress.status == "completed"
+                    or event.event_type == "completed"
+                    or (
+                        event.event_type == "resource_completed"
+                        and total_resources > 0
+                        and completed_resources == total_resources
+                    )
+                )
+                incoming_percent = (
+                    round(completed_resources / total_resources * 100)
+                    if total_resources
+                    else event.progress_percent
+                )
                 progress.progress_percent = (
-                    100 if completed else max(progress.progress_percent, event.progress_percent)
+                    100 if completed else max(progress.progress_percent, incoming_percent)
                 )
                 if completed:
                     progress.status = "completed"
@@ -187,11 +245,37 @@ class PostgresLearningRepository:
             return [self._progress(item) for item in records]
 
     @staticmethod
-    def _task(record: LearningTaskModel) -> LearningTaskRecord:
+    def _task(record: LearningTaskModel, session) -> LearningTaskRecord:
+        snapshot_records = session.scalars(
+            select(LearningTaskResourceSnapshotModel)
+            .where(LearningTaskResourceSnapshotModel.task_id == record.task_id)
+            .order_by(
+                LearningTaskResourceSnapshotModel.position,
+                LearningTaskResourceSnapshotModel.snapshot_id,
+            )
+        ).all()
         return LearningTaskRecord(
             task_id=record.task_id, course_id=record.course_id, title=record.title,
             instructions=record.instructions, created_by=record.created_by,
+            task_type=record.task_type or "assessed",
             resource_refs=list(record.resource_refs or []),
+            resource_snapshots=[
+                LearningTaskResourceSnapshot(
+                    snapshot_id=item.snapshot_id,
+                    task_id=item.task_id,
+                    position=item.position,
+                    source_material_type=item.source_material_type,
+                    source_material_id=item.source_material_id,
+                    source_version=item.source_version,
+                    origin_type=item.origin_type,
+                    standard_kind=item.standard_kind,
+                    title=item.title,
+                    content_payload=dict(item.content_payload or {}),
+                    file_refs=list(item.file_refs or []),
+                    created_at=_iso_timestamp(item.created_at),
+                )
+                for item in snapshot_records
+            ],
             knowledge_point_ids=list(record.knowledge_point_ids or []), status=record.status,
             created_at=_iso_timestamp(record.created_at),
             published_at=_iso_timestamp(record.published_at) if record.published_at else None,

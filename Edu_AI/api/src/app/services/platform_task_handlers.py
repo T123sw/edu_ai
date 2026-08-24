@@ -235,6 +235,8 @@ class PlatformTaskHandlers:
                 scope_id=command.get("scope_id"),
                 source_snapshot=source_snapshot,
                 source_job_id=context.task_id,
+                material_id=str(command.get("material_id") or "").strip() or None,
+                material_metadata=dict(command.get("material_metadata") or {}),
             )
             await run_generate_classroom_job(
                 job,

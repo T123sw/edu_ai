@@ -9,6 +9,7 @@ from uuid import uuid4
 
 
 TaskStatus = Literal["draft", "published", "closed"]
+TaskType = Literal["reading", "assessed"]
 ProgressStatus = Literal["not_started", "in_progress", "completed"]
 CompletionBasis = Literal[
     "none",
@@ -31,13 +32,53 @@ def utc_now() -> str:
 
 
 @dataclass(frozen=True)
+class LearningTaskResourceSnapshot:
+    snapshot_id: str
+    task_id: str
+    position: int
+    source_material_type: str
+    source_material_id: str
+    source_version: int
+    origin_type: str
+    standard_kind: str | None
+    title: str
+    content_payload: dict
+    file_refs: list[str]
+    created_at: str = field(default_factory=utc_now)
+
+    @classmethod
+    def new(
+        cls,
+        *,
+        task_id: str,
+        position: int,
+        material: dict,
+    ) -> "LearningTaskResourceSnapshot":
+        return cls(
+            snapshot_id=f"lts_{uuid4().hex}",
+            task_id=task_id,
+            position=position,
+            source_material_type=str(material["material_type"]),
+            source_material_id=str(material["material_id"]),
+            source_version=int(material.get("version") or 1),
+            origin_type=str(material.get("origin_type") or "legacy_shared"),
+            standard_kind=str(material.get("standard_kind") or "").strip() or None,
+            title=str(material.get("title") or material["material_id"]),
+            content_payload=dict(material.get("snapshot_content") or {}),
+            file_refs=[str(item) for item in material.get("snapshot_file_refs") or []],
+        )
+
+
+@dataclass(frozen=True)
 class LearningTaskRecord:
     task_id: str
     course_id: str
     title: str
     instructions: str
     created_by: str
+    task_type: TaskType = "assessed"
     resource_refs: list[dict[str, str]] = field(default_factory=list)
+    resource_snapshots: list[LearningTaskResourceSnapshot] = field(default_factory=list)
     knowledge_point_ids: list[str] = field(default_factory=list)
     status: TaskStatus = "draft"
     created_at: str = field(default_factory=utc_now)
@@ -52,7 +93,9 @@ class LearningTaskRecord:
         title: str,
         instructions: str,
         created_by: str,
+        task_type: TaskType = "assessed",
         resource_refs: list[dict[str, str]] | None = None,
+        resource_snapshots: list[LearningTaskResourceSnapshot] | None = None,
         knowledge_point_ids: list[str] | None = None,
     ) -> "LearningTaskRecord":
         return cls(
@@ -61,7 +104,9 @@ class LearningTaskRecord:
             title=str(title).strip(),
             instructions=str(instructions or "").strip(),
             created_by=str(created_by).strip(),
+            task_type=task_type,
             resource_refs=[dict(item) for item in resource_refs or []],
+            resource_snapshots=list(resource_snapshots or []),
             knowledge_point_ids=[str(item).strip() for item in knowledge_point_ids or [] if str(item).strip()],
         )
 

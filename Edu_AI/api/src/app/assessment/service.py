@@ -307,6 +307,12 @@ class AssessmentService:
         task = self._teacher_task(
             course_id=course_id, task_id=task_id, teacher_id=teacher_id
         )
+        if task.task_type == "reading":
+            return self.learning_service.publish_task(
+                course_id=course_id,
+                task_id=task_id,
+                teacher_id=teacher_id,
+            )
         assessment = self.store.get_assessment_for_task(course_id, task_id)
         if assessment is None:
             raise AssessmentRuleError("ASSESSMENT_REQUIRED", "Task assessment is required")

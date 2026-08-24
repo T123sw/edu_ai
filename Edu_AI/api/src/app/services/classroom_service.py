@@ -163,6 +163,8 @@ def _make_on_sidecar_succeeded(
     scope_id: Optional[str],
     source_snapshot: Optional[dict[str, Any]] = None,
     source_job_id: Optional[str] = None,
+    material_id: Optional[str] = None,
+    material_metadata: Optional[dict[str, Any]] = None,
 ):
     async def _on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
         # `result` here is the job envelope's slim {classroomId, url,
@@ -201,6 +203,8 @@ def _make_on_sidecar_succeeded(
             sidecar_base_url=active_client.config.base_url,
             source_snapshot=source_snapshot,
             source_job_id=source_job_id,
+            material_id=material_id,
+            material_metadata=material_metadata,
         )
 
     return _on_sidecar_succeeded
@@ -293,6 +297,8 @@ async def submit_classroom_generation_job(
     include_visuals: bool = True,
     research_bundle_id: str | None = None,
     idempotency_key: str | None = None,
+    material_id: str | None = None,
+    material_metadata: dict[str, Any] | None = None,
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -342,6 +348,8 @@ async def submit_classroom_generation_job(
                 "include_visuals": include_visuals,
                 "research_bundle_id": str(research_bundle_id or ""),
                 "idempotency_key": normalized_key,
+                "material_id": str(material_id or ""),
+                "material_metadata": dict(material_metadata or {}),
                 "source": "classroom-studio",
             },
         )
@@ -378,6 +386,8 @@ async def submit_classroom_generation_job(
             "include_visuals": include_visuals,
             "research_bundle_id": str(research_bundle_id or ""),
             "idempotency_key": normalized_key,
+            "material_id": str(material_id or ""),
+            "material_metadata": dict(material_metadata or {}),
         },
         runtime_config_snapshot=runtime_snapshot,
     )

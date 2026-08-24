@@ -776,6 +776,9 @@ class GenerationTaskHandler:
         artifact = dict(artifacts[0])
         material_id = str(command.get("material_id") or "").strip()
         course_id = str(command.get("course_id") or context.course_id or "").strip()
+        standard_metadata = dict(
+            (command.get("config") or {}).get("standard_resource") or {}
+        )
         saved = bool(
             self.course_storage_manager.save_generated_material(
                 course_id=course_id,
@@ -788,6 +791,7 @@ class GenerationTaskHandler:
                 config_snapshot_id=context.config_snapshot_id,
                 source_snapshot=execution_context.source.to_snapshot(),
                 config_snapshot=deepcopy(dict(command.get("config") or {})),
+                visibility=("course" if standard_metadata else None),
                 material_data={
                     "title": str(artifact.get("title") or resource_type),
                     "content": artifact.get("content"),
@@ -803,6 +807,7 @@ class GenerationTaskHandler:
                             for item in execution_context.source.documents
                         ],
                     },
+                    **standard_metadata,
                 },
             )
         )

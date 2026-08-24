@@ -23,3 +23,4 @@ def test_alembic_revision_chain_has_unique_revisions_and_one_head() -> None:
     revision_ids = [item.revision for item in revisions]
     assert len(revision_ids) == len(set(revision_ids))
     assert len(heads) == 1
+    assert heads == ["20260824_0017"]

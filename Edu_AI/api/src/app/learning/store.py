@@ -12,6 +12,7 @@ from .models import (
     EventWriteResult,
     LearningEventRecord,
     LearningTaskRecord,
+    LearningTaskResourceSnapshot,
     TaskProgressRecord,
     utc_now,
 )
@@ -75,6 +76,7 @@ class LearningStore:
                     title TEXT NOT NULL,
                     instructions TEXT NOT NULL,
                     created_by TEXT NOT NULL,
+                    task_type TEXT NOT NULL DEFAULT 'assessed',
                     resource_refs_json TEXT NOT NULL,
                     knowledge_point_ids_json TEXT NOT NULL,
                     status TEXT NOT NULL,
@@ -84,6 +86,23 @@ class LearningStore:
                 );
                 CREATE INDEX IF NOT EXISTS idx_learning_tasks_course_status
                 ON learning_tasks(course_id, status, created_at DESC);
+
+                CREATE TABLE IF NOT EXISTS learning_task_resource_snapshots (
+                    snapshot_id TEXT PRIMARY KEY,
+                    task_id TEXT NOT NULL,
+                    position INTEGER NOT NULL,
+                    source_material_type TEXT NOT NULL,
+                    source_material_id TEXT NOT NULL,
+                    source_version INTEGER NOT NULL,
+                    origin_type TEXT NOT NULL,
+                    standard_kind TEXT,
+                    title TEXT NOT NULL,
+                    content_payload_json TEXT NOT NULL,
+                    file_refs_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    UNIQUE(task_id, position),
+                    FOREIGN KEY(task_id) REFERENCES learning_tasks(task_id)
+                );
 
                 CREATE TABLE IF NOT EXISTS learning_events (
                     event_id TEXT PRIMARY KEY,
@@ -117,6 +136,11 @@ class LearningStore:
             )
             self._ensure_column(self._LEARNING_EVENTS_TABLE, "evidence_json", "TEXT")
             self._ensure_column(
+                "learning_tasks",
+                "task_type",
+                "TEXT NOT NULL DEFAULT 'assessed'",
+            )
+            self._ensure_column(
                 self._TASK_PROGRESS_TABLE,
                 "completion_basis",
                 "TEXT NOT NULL DEFAULT 'none'",
@@ -145,14 +169,42 @@ class LearningStore:
             self._connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
 
     @staticmethod
-    def _task_from_row(row: sqlite3.Row) -> LearningTaskRecord:
+    def _snapshot_from_row(row: sqlite3.Row) -> LearningTaskResourceSnapshot:
+        return LearningTaskResourceSnapshot(
+            snapshot_id=str(row["snapshot_id"]),
+            task_id=str(row["task_id"]),
+            position=int(row["position"]),
+            source_material_type=str(row["source_material_type"]),
+            source_material_id=str(row["source_material_id"]),
+            source_version=int(row["source_version"]),
+            origin_type=str(row["origin_type"]),
+            standard_kind=str(row["standard_kind"]) if row["standard_kind"] else None,
+            title=str(row["title"]),
+            content_payload=dict(json.loads(row["content_payload_json"] or "{}")),
+            file_refs=list(json.loads(row["file_refs_json"] or "[]")),
+            created_at=str(row["created_at"]),
+        )
+
+    def _snapshots(self, task_id: str) -> list[LearningTaskResourceSnapshot]:
+        rows = self._connection.execute(
+            """
+            SELECT * FROM learning_task_resource_snapshots
+            WHERE task_id=? ORDER BY position, snapshot_id
+            """,
+            (task_id,),
+        ).fetchall()
+        return [self._snapshot_from_row(row) for row in rows]
+
+    def _task_from_row(self, row: sqlite3.Row) -> LearningTaskRecord:
         return LearningTaskRecord(
             task_id=str(row["task_id"]),
             course_id=str(row["course_id"]),
             title=str(row["title"]),
             instructions=str(row["instructions"]),
             created_by=str(row["created_by"]),
+            task_type=str(row["task_type"] or "assessed"),
             resource_refs=list(json.loads(row["resource_refs_json"] or "[]")),
+            resource_snapshots=self._snapshots(str(row["task_id"])),
             knowledge_point_ids=list(json.loads(row["knowledge_point_ids_json"] or "[]")),
             status=str(row["status"]),
             created_at=str(row["created_at"]),
@@ -186,9 +238,9 @@ class LearningStore:
                 """
                 INSERT INTO learning_tasks(
                     task_id, course_id, title, instructions, created_by,
-                    resource_refs_json, knowledge_point_ids_json, status,
-                    created_at, published_at, published_by
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    task_type, resource_refs_json, knowledge_point_ids_json,
+                    status, created_at, published_at, published_by
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     task.task_id,
@@ -196,6 +248,7 @@ class LearningStore:
                     task.title,
                     task.instructions,
                     task.created_by,
+                    task.task_type,
                     json.dumps(task.resource_refs, ensure_ascii=False, separators=(",", ":")),
                     json.dumps(task.knowledge_point_ids, ensure_ascii=False, separators=(",", ":")),
                     task.status,
@@ -204,6 +257,39 @@ class LearningStore:
                     task.published_by,
                 ),
             )
+            for snapshot in task.resource_snapshots:
+                self._connection.execute(
+                    """
+                    INSERT INTO learning_task_resource_snapshots(
+                        snapshot_id, task_id, position, source_material_type,
+                        source_material_id, source_version, origin_type,
+                        standard_kind, title, content_payload_json,
+                        file_refs_json, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        snapshot.snapshot_id,
+                        snapshot.task_id,
+                        snapshot.position,
+                        snapshot.source_material_type,
+                        snapshot.source_material_id,
+                        snapshot.source_version,
+                        snapshot.origin_type,
+                        snapshot.standard_kind,
+                        snapshot.title,
+                        json.dumps(
+                            snapshot.content_payload,
+                            ensure_ascii=False,
+                            separators=(",", ":"),
+                        ),
+                        json.dumps(
+                            snapshot.file_refs,
+                            ensure_ascii=False,
+                            separators=(",", ":"),
+                        ),
+                        snapshot.created_at,
+                    ),
+                )
             self._connection.commit()
         return task
 
@@ -276,6 +362,31 @@ class LearningStore:
             raise KeyError(task_id)
         return self._task_from_row(row)
 
+    def _resource_completion(self, task_id: str, student_id: str) -> tuple[int, int]:
+        snapshot_ids = {
+            str(row["snapshot_id"])
+            for row in self._connection.execute(
+                "SELECT snapshot_id FROM learning_task_resource_snapshots WHERE task_id=?",
+                (task_id,),
+            ).fetchall()
+        }
+        if not snapshot_ids:
+            return (0, 0)
+        completed_ids: set[str] = set()
+        rows = self._connection.execute(
+            """
+            SELECT resource_ref_json FROM learning_events
+            WHERE task_id=? AND student_id=? AND event_type='resource_completed'
+            """,
+            (task_id, student_id),
+        ).fetchall()
+        for row in rows:
+            resource_ref = json.loads(row["resource_ref_json"] or "{}")
+            snapshot_id = str(resource_ref.get("snapshot_id") or "")
+            if snapshot_id in snapshot_ids:
+                completed_ids.add(snapshot_id)
+        return (len(completed_ids), len(snapshot_ids))
+
     def record_event(self, event: LearningEventRecord) -> EventWriteResult:
         if self._postgres:
             return self._repository.record_event(event)
@@ -334,7 +445,17 @@ class LearningStore:
                 ).fetchone()
                 if created:
                     current_percent = int(current_row["progress_percent"]) if current_row else 0
-                    next_percent = max(current_percent, event.progress_percent)
+                    completed_resources, total_resources = (
+                        self._resource_completion(event.task_id, event.student_id)
+                        if event.event_type == "resource_completed"
+                        else (0, 0)
+                    )
+                    incoming_percent = (
+                        round(completed_resources / total_resources * 100)
+                        if total_resources
+                        else event.progress_percent
+                    )
+                    next_percent = max(current_percent, incoming_percent)
                     current_status = str(current_row["status"]) if current_row else "not_started"
                     current_basis = (
                         str(current_row["completion_basis"] or "none")
@@ -345,7 +466,15 @@ class LearningStore:
                     next_evidence_count = (
                         int(current_row["evidence_count"] or 0) if current_row else 0
                     ) + 1
-                    completed = current_status == "completed" or event.event_type == "completed"
+                    completed = (
+                        current_status == "completed"
+                        or event.event_type == "completed"
+                        or (
+                            event.event_type == "resource_completed"
+                            and total_resources > 0
+                            and completed_resources == total_resources
+                        )
+                    )
                     if completed:
                         next_percent = 100
                         next_status = "completed"

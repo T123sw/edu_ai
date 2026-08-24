@@ -47,6 +47,22 @@ export type PublicationAction = "published" | "updated" | "unchanged";
 export type LearningResourceRef = {
   material_type: string;
   material_id: string;
+  snapshot_id?: string | null;
+};
+
+export type LearningTaskResourceSnapshot = {
+  snapshot_id: string;
+  task_id: string;
+  position: number;
+  source_material_type: string;
+  source_material_id: string;
+  source_version: number;
+  origin_type: "personal" | "standard" | "legacy_shared";
+  standard_kind?: StandardResourceKind | null;
+  title: string;
+  content_payload: Record<string, unknown>;
+  file_refs: string[];
+  created_at: string;
 };
 
 export type CompletionBasis =
@@ -86,7 +102,9 @@ export type LearningTask = {
   title: string;
   instructions: string;
   created_by: string;
+  task_type: "reading" | "assessed";
   resource_refs: LearningResourceRef[];
+  resource_snapshots: LearningTaskResourceSnapshot[];
   knowledge_point_ids: string[];
   status: "draft" | "published" | "closed";
   created_at: string;
@@ -105,6 +123,7 @@ export type CourseLearningSummary = {
 };
 
 export type LearningTaskCreatePayload = {
+  task_type: "reading" | "assessed";
   title: string;
   instructions: string;
   resource_refs: LearningResourceRef[];
@@ -267,7 +286,7 @@ export type AssessmentAnalytics = {
 
 export type LearningEventPayload = {
   event_id: string;
-  event_type: "started" | "resource_opened" | "progress_updated" | "completed";
+  event_type: "started" | "resource_opened" | "progress_updated" | "resource_completed" | "completed";
   progress_percent: number;
   resource_ref?: LearningResourceRef | null;
 };
@@ -286,6 +305,10 @@ export type CourseMaterial = {
   owner_user_id?: string | null;
   created_by?: string | null;
   visibility?: CourseMaterialVisibility;
+  origin_type?: "personal" | "standard" | "legacy_shared";
+  standard_kind?: StandardResourceKind | null;
+  current_review_status?: string;
+  approved_version?: number | null;
   source_job_id?: string | null;
   config_snapshot_id?: string | null;
   source?: Record<string, unknown>;
@@ -571,6 +594,65 @@ export type KnowledgeGraphNode = {
 
 export type KnowledgeGraphData = {
   root: KnowledgeGraphNode;
+};
+
+export type StandardResourceKind = "classroom" | "study_guide" | "practice";
+
+export type StandardResourceSlot = {
+  standard_kind: StandardResourceKind;
+  material_type: string;
+  material_id: string;
+  review_status: string;
+  current_version?: number | null;
+  approved_version?: number | null;
+  resource?: CourseMaterial | null;
+};
+
+export type StandardResourceLeaf = {
+  leaf_id: string;
+  title: string;
+  chapter_id?: string | null;
+  chapter_title?: string | null;
+  path_titles: string[];
+  slots: StandardResourceSlot[];
+};
+
+export type StandardResourceCatalog = {
+  course_id: string;
+  leaves: StandardResourceLeaf[];
+};
+
+export type StandardResourceBatchItem = {
+  batch_item_id: string;
+  batch_id: string;
+  leaf_id: string;
+  leaf_title: string;
+  standard_kind: StandardResourceKind;
+  material_type: string;
+  material_id: string;
+  status: "queued" | "running" | "succeeded" | "failed";
+  job_id?: string | null;
+  attempt_count: number;
+  error?: { code?: string; message?: string } | null;
+  created_at: string;
+  updated_at: string;
+  finished_at?: string | null;
+};
+
+export type StandardResourceBatch = {
+  batch_id: string;
+  course_id: string;
+  created_by: string;
+  status: "queued" | "running" | "partial" | "completed" | "failed";
+  total_items: number;
+  queued_items: number;
+  running_items: number;
+  succeeded_items: number;
+  failed_items: number;
+  created_at: string;
+  updated_at: string;
+  finished_at?: string | null;
+  items: StandardResourceBatchItem[];
 };
 
 export type KnowledgeGraphSplitDocument = {

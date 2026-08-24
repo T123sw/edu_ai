@@ -100,6 +100,7 @@ def create_app(
     # lazy imports to avoid circular import via app/api/__init__.py
     from app.api.courses import router as courses_router
     from app.api.learning import router as learning_router
+    from app.api.standard_resources import router as standard_resources_router
     from app.api.assessment import router as assessment_router
     from app.api.personal_knowledge import router as personal_knowledge_router
     from app.api.health import router as health_router
@@ -113,6 +114,7 @@ def create_app(
 
     app.include_router(courses_router)
     app.include_router(learning_router)
+    app.include_router(standard_resources_router)
     app.include_router(assessment_router)
     app.include_router(personal_knowledge_router)
     app.include_router(health_router)

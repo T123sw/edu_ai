@@ -39,7 +39,9 @@ def _http_error(error: LearningRuleError) -> HTTPException:
         "TASK_NOT_PUBLISHABLE": status.HTTP_409_CONFLICT,
         "RESOURCE_NOT_ASSIGNED": status.HTTP_409_CONFLICT,
         "INVALID_TASK": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "INVALID_TASK_TYPE": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "INVALID_RESOURCE_REF": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "TASK_RESOURCE_FORBIDDEN": status.HTTP_403_FORBIDDEN,
         "INVALID_PROGRESS": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "EVIDENCE_SOURCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "ASSESSMENT_EVIDENCE_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -88,6 +90,7 @@ def create_learning_task(
         task = service.create_task(
             course_id=course_id,
             teacher_id=principal.user_id,
+            task_type=payload.task_type,
             title=payload.title,
             instructions=payload.instructions,
             resource_refs=[item.model_dump() for item in payload.resource_refs],
