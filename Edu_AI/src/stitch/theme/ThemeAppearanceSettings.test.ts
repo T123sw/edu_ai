@@ -17,3 +17,10 @@ test("profile appearance settings expose four accessible themes", () => {
   assert.match(source, /focus-visible:/u);
   assert.match(source, />当前</u);
 });
+
+test("appearance settings keep the existing persisted theme pipeline", () => {
+  const appSource = readFileSync(fileURLToPath(new URL("../App.tsx", import.meta.url)), "utf8");
+  assert.match(appSource, /localStorage\.setItem\(["']stitch-theme["'],\s*theme\)/u);
+  assert.match(appSource, /document\.documentElement\.dataset\.theme\s*=\s*theme/u);
+  assert.match(appSource, /stored === ["']forest["'] \|\| stored === ["']sunset["'] \|\| stored === ["']dark["'] \? stored : ["']ocean["']/u);
+});
