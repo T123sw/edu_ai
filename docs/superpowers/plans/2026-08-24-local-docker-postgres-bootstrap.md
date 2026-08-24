@@ -28,7 +28,7 @@
 - Preserve: `Edu_AI/api/src/.env`
 - Preserve: `openmaic-sidecar/.env.local`
 
-- [ ] **Step 1: Verify the clean tracked worktree and required tools**
+- [x] **Step 1: Verify the clean tracked worktree and required tools**
 
 Run:
 
@@ -46,7 +46,7 @@ ffprobe -version | Select-Object -First 1
 
 Expected: the worktree contains only the plan/design documentation changes; Docker and Compose are installed; Python reports 3.12; pnpm reports 10.28.0; FFmpeg and ffprobe are available. Node 24 may be used if the locked dependency installation and build checks pass.
 
-- [ ] **Step 2: Generate the ignored PostgreSQL environment file**
+- [x] **Step 2: Generate the ignored PostgreSQL environment file**
 
 Run from the repository root:
 
@@ -66,7 +66,7 @@ if (-not (Test-Path -LiteralPath $postgresEnv)) {
 
 Expected: `infra/postgres/.env.postgres` exists, remains ignored by Git, and contains matching URL-safe password values without printing them.
 
-- [ ] **Step 3: Validate startup and Compose configuration without starting services**
+- [x] **Step 3: Validate startup and Compose configuration without starting services**
 
 Run:
 
@@ -84,7 +84,7 @@ Expected: both commands exit `0`; the startup script prints `Startup script chec
 - Refresh: `Edu_AI/node_modules/`
 - Refresh: `openmaic-sidecar/node_modules/`
 
-- [ ] **Step 1: Create the backend environment used by the startup script**
+- [x] **Step 1: Create the backend environment used by the startup script**
 
 Run:
 
@@ -95,7 +95,7 @@ Edu_AI/api/src/.venv/Scripts/python.exe --version
 
 Expected: the second command reports Python 3.12 and `start_api.bat` can discover this environment.
 
-- [ ] **Step 2: Install backend, frontend, and Playwright dependencies**
+- [x] **Step 2: Install backend, frontend, and Playwright dependencies**
 
 Run with the local proxy only for package downloads:
 
@@ -109,7 +109,7 @@ Remove-Item Env:HTTPS_PROXY -ErrorAction SilentlyContinue
 
 Expected: pip, the backend requirements, `npm ci`, and Playwright Chromium installation all exit `0`; existing local `.env` files are preserved.
 
-- [ ] **Step 3: Synchronize OpenMAIC workspace dependencies**
+- [x] **Step 3: Synchronize OpenMAIC workspace dependencies**
 
 Run:
 
@@ -123,7 +123,7 @@ Remove-Item Env:HTTPS_PROXY -ErrorAction SilentlyContinue
 
 Expected: pnpm exits `0` and does not change `pnpm-lock.yaml`.
 
-- [ ] **Step 4: Validate installed dependencies**
+- [x] **Step 4: Validate installed dependencies**
 
 Run:
 
@@ -142,7 +142,7 @@ Expected: pip reports no broken requirements; frontend tests and production buil
 - Use: `infra/postgres/compose.yml`
 - Create/update: Docker volume `edu_ai_postgres_data`
 
-- [ ] **Step 1: Start Docker Desktop and prepare the database**
+- [x] **Step 1: Start Docker Desktop and prepare the database**
 
 Run:
 
@@ -152,7 +152,7 @@ cmd /c Edu_AI\api\src\start_api.bat --database-only
 
 Expected: the script starts Docker Desktop if required, starts `edu-ai-postgres`, waits for a healthy state, applies Alembic migrations, and prints `Database-only startup completed successfully.`
 
-- [ ] **Step 2: Verify the container, volume, and migration revision**
+- [x] **Step 2: Verify the container, volume, and migration revision**
 
 Run:
 
@@ -177,7 +177,7 @@ Expected: Compose reports `edu-ai-postgres` healthy, the named volume exists, an
 - Use: `openmaic-sidecar/.env.local`
 - Use: `infra/postgres/.env.postgres`
 
-- [ ] **Step 1: Start OpenMAIC, the frontend, and the backend as hidden host processes**
+- [x] **Step 1: Start OpenMAIC, the frontend, and the backend as hidden host processes**
 
 Run from PowerShell:
 
@@ -194,7 +194,7 @@ Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue
 
 Expected: three processes remain running and begin listening on ports 3000, 5173, and 8001.
 
-- [ ] **Step 2: Poll service readiness and verify database connectivity**
+- [x] **Step 2: Poll service readiness and verify database connectivity**
 
 Run:
 
@@ -215,7 +215,7 @@ do {
 
 Expected: sidecar and frontend return HTTP `200`; the backend database health payload reports status `ready`.
 
-- [ ] **Step 3: Confirm persistence and repository hygiene**
+- [x] **Step 3: Confirm persistence and repository hygiene**
 
 Run:
 
@@ -233,11 +233,11 @@ Expected: PostgreSQL is healthy, the volume has a Docker-managed mount point, lo
 **Files:**
 - Modify: `docs/superpowers/plans/2026-08-24-local-docker-postgres-bootstrap.md`
 
-- [ ] **Step 1: Mark completed checkboxes only after their commands pass**
+- [x] **Step 1: Mark completed checkboxes only after their commands pass**
 
 Update each successful step from `- [ ]` to `- [x]`. Leave any failed step unchecked and record the exact blocker below that step.
 
-- [ ] **Step 2: Re-run the final health snapshot**
+- [x] **Step 2: Re-run the final health snapshot**
 
 Run:
 
