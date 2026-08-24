@@ -113,7 +113,8 @@ def test_reading_task_publishes_without_assessment(tmp_path):
     assert created.status_code == 201
 
     published = teacher.post(
-        f"/api/courses/course-1/learning/tasks/{created.json()['task_id']}/publish"
+        f"/api/courses/course-1/learning/tasks/{created.json()['task_id']}/publish",
+        json={},
     )
 
     assert published.status_code == 200

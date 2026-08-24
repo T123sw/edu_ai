@@ -77,7 +77,7 @@ class AssessmentGenerateRequest(BaseModel):
 
 
 class AssessmentPublishRequest(BaseModel):
-    expected_revision: int = Field(ge=0)
+    expected_revision: int | None = Field(default=None, ge=0)
 
 
 class StudentAssessmentItemResponse(BaseModel):
