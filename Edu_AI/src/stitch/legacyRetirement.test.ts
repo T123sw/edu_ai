@@ -64,3 +64,13 @@ test('course cards contain no random or decorative progress calculation', () => 
   const card = source('./pages/courseCardPresentation.ts');
   assert.doesNotMatch(card, /Math\.random|charCodeAt|progressPercent|decorativeProgress/u);
 });
+
+test('theme controls live in profile instead of a floating app control', () => {
+  const app = source('./App.tsx');
+  const profile = source('./pages/Profile.tsx');
+  const shared = source('./shared.tsx');
+  assert.doesNotMatch(app, /ThemeCustomizer/u);
+  assert.doesNotMatch(shared, /function ThemeCustomizer/u);
+  assert.match(shared, /palette:/u);
+  assert.match(profile, /ThemeAppearanceSettings/u);
+});

@@ -23,7 +23,6 @@ import {
 } from "./course/CourseRouteProvider";
 import {
   AppShellProvider,
-  ThemeCustomizer,
   routeHref,
   routes,
   type CourseSummary,
@@ -436,7 +435,6 @@ function AppPresentation({
         )}
       </Suspense>
       </RouteErrorBoundary>
-      {isVideoRenderRoute || authUser?.role === "student" ? null : <ThemeCustomizer />}
     </AppShellProvider>
   );
 }

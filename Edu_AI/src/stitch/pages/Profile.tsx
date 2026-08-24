@@ -19,6 +19,7 @@ import { listCourses } from "../api/courses";
 import { useAuthSession } from "../authSession";
 import { AppSurface, GlassPanel, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 import { homeHashForRole } from "../shared/routes/roleCourseRouteResolver";
+import { ThemeAppearanceSettings } from "../theme/ThemeAppearanceSettings";
 import { presentAccessibleCourseCount } from "./profilePresentation";
 
 const roleLabels: Record<string, string> = {
@@ -288,6 +289,7 @@ export function ProfilePage() {
                 </div>
               </GlassPanel>
             </div>
+            <ThemeAppearanceSettings />
           </>
         )}
       </main>
