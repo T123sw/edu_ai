@@ -1574,15 +1574,15 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           />
         </div>
 
-        {nodeFiles.length > 0 ? (
-          <div className="source-panel__tree-node-files">
-            {nodeFiles.map(renderFileItem)}
+        {showToggle && isExpanded ? (
+          <div className="source-panel__tree-node-children" role="group" aria-label={`${node.label}的下级知识结构`}>
+            {renderedChildren}
           </div>
         ) : null}
 
-        {showToggle && isExpanded ? (
-          <div className="source-panel__tree-node-children">
-            {renderedChildren}
+        {nodeFiles.length > 0 ? (
+          <div className="source-panel__tree-node-files" role="group" aria-label={`${node.label}的直接资料`}>
+            {nodeFiles.map(renderFileItem)}
           </div>
         ) : null}
       </div>

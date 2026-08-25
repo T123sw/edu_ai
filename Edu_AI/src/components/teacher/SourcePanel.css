@@ -349,6 +349,8 @@
 
 .source-panel__tree-node {
   --source-tree-depth: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .source-panel__tree-node-header {
@@ -398,10 +400,12 @@
 }
 
 .source-panel__tree-node-files {
+  order: 2;
   background: rgba(255, 255, 255, 0.82);
 }
 
 .source-panel__tree-node-children {
+  order: 1;
   background: linear-gradient(180deg, rgba(248, 250, 252, 0.5), rgba(255, 255, 255, 0));
 }
 
