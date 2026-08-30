@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 
 from app.chat.memory.domain import MemoryCandidate
-from app.chat.memory.policy import PROTECTED_FACT_MARKERS
+from app.chat.memory.policy import NON_DURABLE_MEMORY_MARKERS, PROTECTED_FACT_MARKERS
 
 
 class RuleMemoryExtractor:
@@ -40,6 +40,8 @@ class RuleMemoryExtractor:
             return []
         lowered = text.lower()
         if any(marker.lower() in lowered for marker in PROTECTED_FACT_MARKERS):
+            return []
+        if any(marker in text for marker in NON_DURABLE_MEMORY_MARKERS):
             return []
 
         name_match = self._display_name.search(text)

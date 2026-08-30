@@ -31,6 +31,50 @@ PROTECTED_FACT_MARKERS = (
     "completed the learning task",
 )
 
+NON_DURABLE_MEMORY_MARKERS = (
+    "不要记住",
+    "别记住",
+    "不用记住",
+    "只是举例",
+    "只是引用",
+    "不代表我的偏好",
+    "不是我的偏好",
+    "别因为",
+    "如果有人说",
+    "假设我",
+    "我不喜欢",
+    "我不偏好",
+    "今天我",
+    "今天请",
+    "这一次",
+    "这次先",
+    "临时",
+    "目前这道题",
+    "现在这题",
+)
+
+EXPLICIT_PROFILE_MARKERS = (
+    "我喜欢",
+    "我更喜欢",
+    "我偏好",
+    "我习惯",
+    "我希望",
+    "请叫我",
+    "我的名字",
+    "我是",
+    "请用",
+    "请一直",
+    "回答尽量",
+    "以后",
+    "改为",
+    "不要直接",
+    "长期习惯",
+    "i prefer",
+    "call me",
+    "please use",
+    "i am",
+)
+
 
 class MemoryWritePolicy:
     def __init__(self, *, min_confidence: float = 0.72):
@@ -54,6 +98,12 @@ class MemoryWritePolicy:
             return MemoryPolicyDecision(
                 allowed=False, reason="protected_learning_fact", candidate=candidate
             )
+        if any(
+            marker in candidate.source_span for marker in NON_DURABLE_MEMORY_MARKERS
+        ):
+            return MemoryPolicyDecision(
+                allowed=False, reason="non_durable_source", candidate=candidate
+            )
         if candidate.confidence < self.min_confidence:
             return MemoryPolicyDecision(
                 allowed=False, reason="low_confidence", candidate=candidate
@@ -64,5 +114,18 @@ class MemoryWritePolicy:
         ):
             return MemoryPolicyDecision(
                 allowed=False, reason="missing_profile_axis", candidate=candidate
+            )
+        if candidate.memory_type in {
+            "preference",
+            "profile_fact",
+            "correction",
+        } and not any(
+            marker in candidate.source_span.lower()
+            for marker in EXPLICIT_PROFILE_MARKERS
+        ):
+            return MemoryPolicyDecision(
+                allowed=False,
+                reason="profile_fact_not_explicit",
+                candidate=candidate,
             )
         return MemoryPolicyDecision(allowed=True, reason="allowed", candidate=candidate)

@@ -5,7 +5,7 @@ import threading
 from collections.abc import Callable
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.chat.memory.domain import CandidateExtractionResult, MemoryCandidate
 from app.chat.memory.settings import AgentMemorySettings
@@ -21,6 +21,13 @@ the configured number of concise standalone memories. Use profile_axis for
 preferences and profile facts (for example display_name, language,
 response_detail, learning_style, resource_preference).
 """.strip()
+
+
+def _optional_text(value: Any) -> str | None:
+    normalized = str(value or "").strip()
+    if normalized.lower() in {"", "none", "null", "n/a"}:
+        return None
+    return normalized
 
 
 class LangMemCandidateSchema(BaseModel):
@@ -125,8 +132,8 @@ class LangMemAdapter:
                         confidence=float(raw.get("confidence") or 0.0),
                         source_span=str(raw.get("source_span") or ""),
                         reason=str(raw.get("reason") or ""),
-                        profile_axis=str(raw.get("profile_axis") or "") or None,
-                        expires_at=raw.get("expires_at") or None,
+                        profile_axis=_optional_text(raw.get("profile_axis")),
+                        expires_at=_optional_text(raw.get("expires_at")),
                         supersedes_axis=(
                             str(raw.get("memory_type") or "") == "correction"
                             or any(
@@ -142,6 +149,22 @@ class LangMemAdapter:
                 status="ok",
                 candidates=candidates,
                 latency_ms=round((time.perf_counter() - started) * 1000),
+            )
+        except ValidationError as exc:
+            errors = exc.errors()
+            if errors and all(error.get("input") == {} for error in errors):
+                return CandidateExtractionResult(
+                    provider="langmem",
+                    status="empty",
+                    candidates=[],
+                    latency_ms=round((time.perf_counter() - started) * 1000),
+                )
+            return CandidateExtractionResult(
+                provider="langmem",
+                status="error",
+                candidates=[],
+                latency_ms=round((time.perf_counter() - started) * 1000),
+                error=str(exc),
             )
         except Exception as exc:
             return CandidateExtractionResult(

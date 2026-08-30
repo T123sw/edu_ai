@@ -1,5 +1,8 @@
 from types import SimpleNamespace
 
+import pytest
+
+from app.chat.memory.langmem_adapter import LangMemCandidateSchema
 from app.chat.memory.langmem_adapter import LangMemAdapter
 from app.chat.memory.settings import AgentMemorySettings
 
@@ -76,3 +79,54 @@ def test_langmem_adapter_failure_degrades_without_raising() -> None:
     assert result.status == "error"
     assert result.candidates == []
     assert "provider unavailable" in result.error
+
+
+def test_langmem_adapter_treats_empty_schema_insert_as_no_candidates() -> None:
+    class EmptyInsertManager:
+        def invoke(self, payload):
+            LangMemCandidateSchema.model_validate({})
+            pytest.fail("validation should have raised")
+
+    adapter = LangMemAdapter(
+        settings=AgentMemorySettings(langmem_enabled=True),
+        manager_factory=lambda: EmptyInsertManager(),
+    )
+
+    result = adapter.extract_candidates(
+        messages=[{"role": "user", "content": "请解释递归"}],
+        existing_memories=[],
+        policy_hint={},
+    )
+
+    assert result.status == "empty"
+    assert result.candidates == []
+    assert result.error == ""
+
+
+def test_langmem_adapter_normalizes_string_nulls() -> None:
+    class StringNullManager:
+        def invoke(self, payload):
+            content = SimpleNamespace(
+                memory_type="preference",
+                content="用户偏好简短回答",
+                confidence=0.95,
+                source_span="以后请简短回答",
+                reason="explicit preference",
+                profile_axis="response_detail",
+                expires_at="None",
+            )
+            return [SimpleNamespace(id="candidate-null", content=content)]
+
+    adapter = LangMemAdapter(
+        settings=AgentMemorySettings(langmem_enabled=True),
+        manager_factory=lambda: StringNullManager(),
+    )
+
+    result = adapter.extract_candidates(
+        messages=[{"role": "user", "content": "以后请简短回答"}],
+        existing_memories=[],
+        policy_hint={},
+    )
+
+    assert result.status == "ok"
+    assert result.candidates[0].expires_at is None

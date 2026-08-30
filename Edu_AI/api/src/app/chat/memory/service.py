@@ -148,6 +148,18 @@ class AgentMemoryService:
             existing_memories=[],
             policy_hint=policy_hint,
         )
+        if langmem_result.status == "empty":
+            self.repository.add_audit(
+                subject_user_id=subject_user_id,
+                conversation_id=conversation_id,
+                event_type="langmem.completed",
+                provider="langmem",
+                decision="no_candidates",
+                reason="empty_extraction",
+                payload={"candidate_count": 0},
+                latency_ms=langmem_result.latency_ms,
+            )
+            return
         if langmem_result.status != "ok":
             self.repository.add_audit(
                 subject_user_id=subject_user_id,

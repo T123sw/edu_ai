@@ -9,6 +9,8 @@
 > **对应设计**：[2026-08-31-agent-memory-v2-langmem-integration-design-cn.md](../superpowers/specs/2026-08-31-agent-memory-v2-langmem-integration-design-cn.md)
 >
 > **实施计划**：[2026-08-31-agent-memory-v2-langmem-integration.md](../superpowers/plans/2026-08-31-agent-memory-v2-langmem-integration.md)
+>
+> **扩展评测**：[2026-08-31-agent-memory-v2-expanded-evaluation-report.md](2026-08-31-agent-memory-v2-expanded-evaluation-report.md)
 
 ## 0. 当前执行证据
 
@@ -17,10 +19,11 @@
 - 数据库：本机 PostgreSQL 已从 Alembic `20260812_0015` 升级至 Agent Memory V2 head。
 - PostgreSQL 探针：真实写入、跨会话召回和精确探针清理通过，`1 passed`。
 - Live LangMem E2E：真实模型抽取、policy、PostgreSQL 写入、跨会话召回和清理通过，`1 passed`，耗时 `21.22s`。
-- 定向回归：记忆 API、聊天上下文、ReplyService、三层工作记忆和迁移链最近一轮共 `28 passed, 2 skipped`；两个外部集成项随后通过显式环境开关单独执行并全部通过。
+- 定向回归：记忆 API、聊天上下文、ReplyService、三层工作记忆和迁移链最近一轮共 `34 passed, 2 skipped`；两个外部集成项随后通过显式环境开关单独执行并全部通过。
 - 广覆盖回归：`tests/chat` 与迁移链共 `1028 passed, 2 skipped, 1 failed`；唯一失败为既有 DeepSearch Bocha 超时后 Tavily 回退行为与旧断言不一致，与记忆改动无关。
-- 确定性候选抽取离线评测：Precision `1.00`、Recall `1.00`、F1 `1.00`、误写率 `0.00`、保护事实拒写率 `1.00`，样本数 `15`。这是小型基线集，不代表生产分布下的 LangMem 精度。
-- 检索评测：Recall@1 `1.00`、Recall@3 `1.00`、MRR `1.00`、隔离违规率 `0.00`，样本数 `10`。
+- 确定性候选抽取离线评测：基线 15 条、压力集 130 条，Precision/Recall/F1 均为 `1.00`，误写率 `0.00`，保护事实拒写率 `1.00`。
+- 检索评测：基线 10 条、压力集 100 条，Recall@1、Recall@3、MRR 均为 `1.00`，隔离违规率 `0.00`。
+- 真实 LangMem 难例最终写入评测：12 条，Precision/Recall/F1/语义准确率均为 `1.00`，provider error rate `0.00`，平均延迟 `11.536s`，P95 `19.712s`。
 - 真实 LangMem 延迟样本：`23.04s`；生产链路因此采用同步规则写入、LangMem 后台增强，不阻塞当前回复。
 
 当前阶段后端主链路已经可验收；教师聚合洞察、可视化记忆面板和浏览器 Playwright 测试属于后续产品化范围，不计入本次“记忆真实可用”后端闸门。

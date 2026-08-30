@@ -51,3 +51,35 @@ def test_policy_requires_source_and_supported_kind() -> None:
 
     assert no_source.allowed is False
     assert unsupported.allowed is False
+
+
+def test_policy_rejects_inferred_language_preference() -> None:
+    decision = MemoryWritePolicy().evaluate(
+        MemoryCandidate(
+            memory_type="preference",
+            content="用户偏好使用中文交流",
+            confidence=0.96,
+            source_span="请解释一下递归为什么需要终止条件",
+            reason="用户使用中文提问",
+            profile_axis="language",
+        )
+    )
+
+    assert decision.allowed is False
+    assert decision.reason == "profile_fact_not_explicit"
+
+
+def test_policy_rejects_quoted_or_transient_preference() -> None:
+    decision = MemoryWritePolicy().evaluate(
+        MemoryCandidate(
+            memory_type="preference",
+            content="用户偏好表格",
+            confidence=0.96,
+            source_span="老师说我喜欢表格，这只是引用，不是我的偏好",
+            reason="quoted statement",
+            profile_axis="resource_preference",
+        )
+    )
+
+    assert decision.allowed is False
+    assert decision.reason == "non_durable_source"

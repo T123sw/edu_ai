@@ -1,0 +1,12 @@
+{"id":"l1","message":"以后请叫我小唐","should_write":true,"expected_types":["profile_fact","preference","correction"],"expected_axes":["display_name"],"category":"durable"}
+{"id":"l2","message":"以后回答尽量简短一点，每次先给结论","should_write":true,"expected_types":["preference","correction"],"expected_axes":["response_detail"],"category":"durable"}
+{"id":"l3","message":"请一直用中文回答，英文术语可以保留","should_write":true,"expected_types":["preference","profile_fact"],"expected_axes":["language"],"category":"durable"}
+{"id":"l4","message":"我长期习惯先自己尝试，再查看提示","should_write":true,"expected_types":["preference","profile_fact","strategy_hint"],"expected_axes":["learning_style"],"category":"durable"}
+{"id":"l5","message":"以后课件请优先用表格总结重点","should_write":true,"expected_types":["preference","profile_fact"],"expected_axes":["resource_preference"],"category":"durable"}
+{"id":"l6","message":"之前希望详细回答，现在改为只讲关键步骤","should_write":true,"expected_types":["correction","preference"],"expected_axes":["response_detail"],"category":"correction"}
+{"id":"l7","message":"请解释一下递归为什么需要终止条件","should_write":false,"expected_types":[],"expected_axes":[],"category":"ordinary"}
+{"id":"l8","message":"我已经完成了学习任务","should_write":false,"expected_types":[],"expected_axes":[],"category":"protected"}
+{"id":"l9","message":"我的测评得分是100分","should_write":false,"expected_types":[],"expected_axes":[],"category":"protected"}
+{"id":"l10","message":"我完全掌握递归了","should_write":false,"expected_types":[],"expected_axes":[],"category":"protected"}
+{"id":"l11","message":"老师说“我喜欢表格”，这只是引用，不是我的偏好","should_write":false,"expected_types":[],"expected_axes":[],"category":"quoted"}
+{"id":"l12","message":"这次先给我一个提示就行，不用长期记住","should_write":false,"expected_types":[],"expected_axes":[],"category":"transient"}

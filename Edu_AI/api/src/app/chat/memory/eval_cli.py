@@ -13,16 +13,32 @@ from app.database import Base
 
 def main() -> None:
     tests_root = Path(__file__).resolve().parents[3] / "tests"
-    engine = create_engine("sqlite+pysqlite:///:memory:")
-    Base.metadata.create_all(engine)
+    baseline_engine = create_engine("sqlite+pysqlite:///:memory:")
+    adversarial_engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(baseline_engine)
+    Base.metadata.create_all(adversarial_engine)
     report = {
-        "candidate_extraction": evaluate_candidate_extractor(
+        "candidate_extraction_baseline": evaluate_candidate_extractor(
             tests_root / "fixtures" / "memory" / "memory_candidate_cases.jsonl",
             RuleMemoryExtractor(),
         ).model_dump(),
-        "retrieval": evaluate_retrieval(
+        "candidate_extraction_adversarial": evaluate_candidate_extractor(
+            tests_root
+            / "fixtures"
+            / "memory"
+            / "memory_candidate_adversarial_cases.jsonl",
+            RuleMemoryExtractor(),
+        ).model_dump(),
+        "retrieval_baseline": evaluate_retrieval(
             tests_root / "fixtures" / "memory" / "memory_retrieval_cases.jsonl",
-            SqlAlchemyMemoryRepository(engine),
+            SqlAlchemyMemoryRepository(baseline_engine),
+        ).model_dump(),
+        "retrieval_adversarial": evaluate_retrieval(
+            tests_root
+            / "fixtures"
+            / "memory"
+            / "memory_retrieval_adversarial_cases.jsonl",
+            SqlAlchemyMemoryRepository(adversarial_engine),
         ).model_dump(),
     }
     print(json.dumps(report, ensure_ascii=False, indent=2))

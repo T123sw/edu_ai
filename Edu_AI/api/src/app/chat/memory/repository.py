@@ -278,7 +278,18 @@ class SqlAlchemyMemoryRepository:
                     else 0.0
                 )
                 semantic = _cosine(query_embedding, record.embedding)
-                score = 0.6 * semantic + 0.35 * lexical + 0.05 * record.importance
+                phrase_match = (
+                    1.0
+                    if query.strip()
+                    and _normalized(query) in _normalized(record.content)
+                    else 0.0
+                )
+                score = (
+                    0.5 * semantic
+                    + 0.3 * phrase_match
+                    + 0.15 * lexical
+                    + 0.05 * record.importance
+                )
                 if not query.strip() or lexical > 0 or semantic > 0:
                     ranked.append((score, record))
             ranked.sort(key=lambda item: (item[0], item[1].updated_at), reverse=True)

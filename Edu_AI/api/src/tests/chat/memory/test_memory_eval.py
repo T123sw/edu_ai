@@ -41,3 +41,39 @@ def test_retrieval_eval_meets_quality_and_isolation_gates() -> None:
     assert report.recall_at_3 == 1.0
     assert report.mean_reciprocal_rank >= 0.9
     assert report.isolation_violation_rate == 0.0
+
+
+def test_adversarial_candidate_eval_meets_quality_gate() -> None:
+    dataset = (
+        Path(__file__).parents[2]
+        / "fixtures"
+        / "memory"
+        / "memory_candidate_adversarial_cases.jsonl"
+    )
+
+    report = evaluate_candidate_extractor(dataset, RuleMemoryExtractor())
+
+    assert report.case_count == 130
+    assert report.recall >= 0.95
+    assert report.precision >= 0.95
+    assert report.protected_fact_rejection_rate == 1.0
+    assert report.false_write_rate <= 0.03
+
+
+def test_adversarial_retrieval_eval_meets_quality_and_isolation_gates() -> None:
+    dataset = (
+        Path(__file__).parents[2]
+        / "fixtures"
+        / "memory"
+        / "memory_retrieval_adversarial_cases.jsonl"
+    )
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+
+    report = evaluate_retrieval(dataset, SqlAlchemyMemoryRepository(engine))
+
+    assert report.case_count == 100
+    assert report.recall_at_1 >= 0.9
+    assert report.recall_at_3 >= 0.98
+    assert report.mean_reciprocal_rank >= 0.9
+    assert report.isolation_violation_rate == 0.0
