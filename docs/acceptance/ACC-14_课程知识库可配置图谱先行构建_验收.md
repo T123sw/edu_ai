@@ -443,3 +443,32 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests
 2. 将 SPEC-14 状态改为“完成，ACC-14 通过”；
 3. 更新 `docs/spec/README.md`、`docs/acceptance/README.md` 和 `项目总览地图.md`；
 4. 把旧预览即启动和旧教材直改图谱路径标记为已退休。
+
+## 10. 2026-08-31 教材优先采集验收记录
+
+### 10.1 自动化证据
+
+| 验收项 | 命令/范围 | 结果 |
+| --- | --- | --- |
+| 来源策略、安全采集、MinerU、HTML 教材、缺口检索 | pytest source policy/ingestion/discovery | 通过 |
+| 一次教材多叶映射、歧义拒绝、有效覆盖 | pytest textbook mapping/coverage | 通过 |
+| 两轮非 AI 补搜、AI 最后兜底、9 项质量门禁 | pytest plan builder/quality gate | 通过 |
+| 新配置默认值、边界和旧配置兼容 | pytest build workflow | 通过 |
+| Bocha 原有召回/rerank 适配与上传教材回归 | pytest deepsearch/textbook inputs | 通过 |
+| 上述后端专项合集 | 65 passed，0 failed | 通过；仅 2 条既有弃用 warning |
+| 前端课程知识库相关单测 | 12 passed，0 failed | 通过 |
+| 前端完整单测 | 352 passed，0 failed | 通过，12.9 秒 |
+| 前端生产构建 | `pnpm build`，5199 modules | exit 0；仅既有动态导入/chunk size warning |
+| 前端 lint | `pnpm lint` | exit 0，0 error；47 条仓库既有 warning |
+| Playwright 构建向导 | 10 passed，0 failed | 无教材/有教材流程 × 5 个视口，16.4 秒 |
+| Git 补丁检查 | `git diff --check` | 通过 |
+
+专项场景已证明：课程级 PDF 候选优先于碎片网页；伪 PDF、私网 URL 和超限文件被稳定拒绝；同一 PDF 原文件只保存一次且不被 RAG 二次触发 MinerU；教材可覆盖多个叶节点；教材已覆盖叶不查询；首轮抓取失败、第二轮成功时 AI 调用为 0；两轮耗尽后 AI audit 完整；短正文、低置信度、歧义映射、重复 hash 和 `chunk_count=0` 不计有效覆盖。
+
+### 10.2 真实服务状态
+
+2026-08-31 在隔离 worktree 执行真实查询 `线性代数 完整教材 PDF filetype:pdf`。运行期返回 `missing_api_key: BOCHA_API_KEY is not configured`，同时环境提示 MinerU Cloud API key 未配置。因此真实 Bocha 召回/rerank 和真实 MinerU PDF 解析本轮状态为 **blocked（环境配置缺失）**，未使用 fixture 结果替代真实通过，也未创建或修改用户课程。
+
+项目级完整后端回归结果为 `1788 passed / 5 skipped / 6 failed`。6 个失败均位于本次未修改的聊天/Agent Memory/博客 LLM 装配测试：3 个 `test_p4a_phase1_2.py` 的 MagicMock 长期记忆校验、2 个 blog adapter 缺 fallback LLM、1 个 report context organizer 未注入 LLM。本功能 65 项专项全部通过；由于完整后端并非全绿，本分支不记录为“全仓无条件通过”，上述无关失败需由对应模块单独修复。
+
+上线/灰度环境仍需补跑：至少三门隔离课程（数据结构、线性代数、中国现代文学），记录 build ID、教材候选/成功解析数、非 AI 覆盖率中位数、AI 占比、失败分类、Bocha 与 MinerU 调用次数，并确认同一教材不会随叶节点数量线性增加 MinerU 调用。

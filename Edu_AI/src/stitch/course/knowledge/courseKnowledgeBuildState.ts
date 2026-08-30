@@ -15,6 +15,9 @@ export const DEFAULT_COURSE_KNOWLEDGE_CONFIG: CourseKnowledgeBuildConfig = {
   minimum_web_materials_per_leaf: 1,
   maximum_ai_materials_per_leaf: 1,
   max_search_results_per_leaf: 8,
+  prefer_complete_textbooks: true,
+  max_online_textbooks: 2,
+  max_search_rounds_per_leaf: 2,
   ai_supplement_enabled: true,
   content_language: "zh-CN",
   update_strategy: "merge_rebuild",
@@ -46,11 +49,13 @@ export function validateCourseKnowledgeConfig(config: CourseKnowledgeBuildConfig
   range(config.target_module_count, 1, 12, "模块数量");
   range(config.target_points_per_module, 2, 20, "每模块知识点");
   range(config.target_materials_per_leaf, 1, 10, "每知识点资料数");
-  range(config.minimum_web_materials_per_leaf, 0, 10, "网络资料下限");
+  range(config.minimum_web_materials_per_leaf, 0, 10, "外部非 AI 来源下限");
   range(config.maximum_ai_materials_per_leaf, 0, 10, "AI 补充上限");
   range(config.max_search_results_per_leaf, 1, 20, "搜索候选上限");
+  range(config.max_online_textbooks, 0, 5, "在线教材上限");
+  range(config.max_search_rounds_per_leaf, 1, 3, "搜索轮次");
   if (config.minimum_web_materials_per_leaf > config.target_materials_per_leaf) {
-    errors.push("网络资料下限不能大于每知识点资料目标");
+    errors.push("外部非 AI 来源下限不能大于每知识点资料目标");
   }
   if (config.maximum_ai_materials_per_leaf > config.target_materials_per_leaf) {
     errors.push("AI 补充上限不能大于每知识点资料目标");

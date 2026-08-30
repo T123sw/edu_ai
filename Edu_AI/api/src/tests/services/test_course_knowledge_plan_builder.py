@@ -208,7 +208,7 @@ def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
 
     assert result["quality_score"] == 100
     assert repository.build["status"] == "succeeded"
-    assert len(repository.checks) == 8
+    assert len(repository.checks) == 9
     assert result["document_count"] == 6
     assert sorted(generated) == ["topic-1", "topic-1", "topic-2", "topic-2"]
     assert repository.published_graph["data"]["publication_status"] == "published"
@@ -332,7 +332,7 @@ def test_ai_supplement_disabled_never_calls_model(monkeypatch):
     )
     monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
 
-    with pytest.raises(RuntimeError, match="material_coverage"):
+    with pytest.raises(RuntimeError, match="content_sufficiency"):
         builder.run_course_knowledge_plan_build_job(
             job_id="job-1", manager=FakeManager(), rag_system=object(),
             course_id="course-1", owner_user_id="teacher-1", build_id="kb-1",
@@ -398,6 +398,256 @@ def test_textbook_persistence_keeps_original_visible_and_groups_hidden_leaf_chun
     assert original.get("display_in_library") is not False
     assert mapped["display_in_library"] is False
     assert mapped["textbook_mappings"][0]["page"] == 3
+
+
+def test_online_pdf_is_saved_once_and_only_leaf_markdown_is_indexed(tmp_path):
+    course_dir = tmp_path / "course-1"
+
+    class Manager:
+        def __init__(self):
+            self.index = []
+
+        def get_course_dir(self, _course_id):
+            return course_dir
+
+        def get_knowledge_base_index(self, _course_id):
+            return self.index
+
+        def save_knowledge_base_file(self, _course_id, payload, filename, **metadata):
+            target = course_dir / "knowledge_base" / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            relative = target.relative_to(course_dir).as_posix()
+            self.index.append({"id": f"doc-{len(self.index) + 1}", "path": relative, **metadata})
+            return relative
+
+        def save_knowledge_base_index(self, _course_id, index):
+            self.index = index
+
+    class Rag:
+        def __init__(self):
+            self.paths = []
+
+        def import_document(self, path, **_kwargs):
+            self.paths.append(path)
+            return {"chunk_count": 2}
+
+    rag = Rag()
+    manager = Manager()
+    persisted = builder._persist_textbook_materials(
+        manager=manager,
+        rag_system=rag,
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build={
+            "build_id": "kb-1",
+            "textbooks": [],
+            "online_textbooks": [{
+                "textbook_id": "online-book",
+                "filename": "线性代数教材.pdf",
+                "status": "ready",
+                "payload": b"%PDF-fixture",
+                "content_hash": "online-hash",
+                "source_url": "https://example.edu/linear-algebra.pdf",
+                "retrieved_at": "2026-08-31T00:00:00+00:00",
+                "parse_result": {"chunk_count": 2},
+                "is_online_textbook": True,
+            }],
+        },
+        mapping_result={"mappings": [
+            {
+                "textbook_id": "online-book", "knowledge_node_id": "leaf-1",
+                "chapter_title": "向量空间", "content": "向量空间定义" * 500,
+                "content_hash": "chapter-1", "mapping_confidence": 0.9,
+            },
+            {
+                "textbook_id": "online-book", "knowledge_node_id": "leaf-2",
+                "chapter_title": "矩阵", "content": "矩阵运算" * 500,
+                "content_hash": "chapter-2", "mapping_confidence": 0.8,
+            },
+        ]},
+    )
+
+    assert [item["source_type"] for item in persisted] == [
+        "textbook_original", "textbook", "textbook"
+    ]
+    assert len(rag.paths) == 2
+    assert all(path.endswith(".md") for path in rag.paths)
+    assert all(item["is_online_textbook"] for item in persisted[1:])
+    assert all(item["source_artifact_id"] == "online-book" for item in persisted[1:])
+    original = next(item for item in manager.index if item["source_type"] == "textbook_original")
+    assert original["source_url"] == "https://example.edu/linear-algebra.pdf"
+
+
+def test_textbook_first_build_searches_only_gap_and_retries_before_ai(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"].update(
+        prefer_complete_textbooks=True,
+        max_online_textbooks=1,
+        max_search_rounds_per_leaf=2,
+        target_materials_per_leaf=1,
+        minimum_web_materials_per_leaf=0,
+        maximum_ai_materials_per_leaf=1,
+    )
+    textbook_candidate = {
+        "candidate_id": "course-book",
+        "topic_id": None,
+        "url": "https://example.edu/linear-algebra.pdf",
+        "title": "线性代数完整教材",
+        "selected": True,
+        "review_status": "relevant",
+        "metadata": {"content_format_hint": "pdf"},
+    }
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "discover_course_textbook_sources",
+        lambda _build: {
+            "source_candidates": [textbook_candidate],
+            "warnings": [],
+            "metrics": {"selected_textbook_count": 1},
+        },
+    )
+    monkeypatch.setattr(
+        builder,
+        "_ingest_online_textbook_candidate",
+        lambda _candidate: {
+            "textbook_id": "online-book", "filename": "线性代数.pdf", "status": "ready",
+            "source_url": textbook_candidate["url"], "content_hash": "book-hash",
+            "parse_result": {"chunks": []}, "is_online_textbook": True,
+        },
+    )
+    monkeypatch.setattr(
+        builder,
+        "map_textbook_chunks_to_graph",
+        lambda _build: {"mappings": [], "unmapped": [], "metrics": {}},
+    )
+    monkeypatch.setattr(
+        builder,
+        "_persist_textbook_materials",
+        lambda **_kwargs: [{
+            "document_id": "book-leaf-1", "scope_id": "topic-1", "source_type": "textbook",
+            "source_artifact_id": "online-book", "content_hash": "book-leaf-hash",
+            "content_chars": 1200, "mapping_confidence": 0.9, "provenance_ok": True,
+            "is_online_textbook": True, "chunk_count": 2,
+        }],
+    )
+    searched = []
+
+    def discover_gap(_build, *, topic_ids, round_index):
+        searched.append((set(topic_ids), round_index))
+        candidate = {
+            "candidate_id": f"gap-{round_index}", "topic_id": "topic-2",
+            "url": f"https://example.org/matrix-{round_index}", "selected": True,
+            "review_status": "relevant", "metadata": {"search_round": round_index + 1},
+        }
+        return {
+            "topics": repository.build["topics"], "source_candidates": [candidate],
+            "warnings": [], "metrics": {"search_round": round_index + 1},
+        }
+
+    monkeypatch.setattr(builder, "discover_leaf_gap_sources", discover_gap)
+
+    def persist(**kwargs):
+        candidate = kwargs["candidate"]
+        if candidate["candidate_id"] == "gap-0":
+            raise RuntimeError("first round failed")
+        return {
+            "document_id": "web-topic-2", "scope_id": "topic-2", "source_type": "web",
+            "source_url": candidate["url"], "final_url": candidate["url"],
+            "content_hash": "web-hash", "content_chars": 900,
+            "provenance_ok": True, "chunk_count": 1,
+        }
+
+    monkeypatch.setattr(builder, "_persist_candidate", persist)
+    monkeypatch.setattr(
+        builder,
+        "_generate_and_persist_supplement",
+        lambda **_kwargs: pytest.fail("second non-AI round filled the gap"),
+    )
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    result = builder.run_course_knowledge_plan_build_job(
+        job_id="job-1", manager=FakeManager(), rag_system=object(),
+        course_id="course-1", owner_user_id="teacher-1", build_id="kb-1",
+    )
+
+    assert searched == [({"topic-2"}, 0), ({"topic-2"}, 1)]
+    assert result["quality_score"] == 100
+    assert repository.build["metrics"]["acquisition_order"] == [
+        "textbook", "gap_web", "model_generated"
+    ]
+
+
+def test_textbook_first_build_calls_ai_only_after_all_search_rounds_exhausted(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"].update(
+        prefer_complete_textbooks=True,
+        max_online_textbooks=1,
+        max_search_rounds_per_leaf=2,
+        target_materials_per_leaf=1,
+        minimum_web_materials_per_leaf=0,
+        maximum_ai_materials_per_leaf=1,
+    )
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "discover_course_textbook_sources",
+        lambda _build: {"source_candidates": [], "warnings": [], "metrics": {}},
+    )
+    rounds = []
+
+    def discover_gap(_build, *, topic_ids, round_index):
+        rounds.append((set(topic_ids), round_index))
+        return {
+            "topics": repository.build["topics"],
+            "source_candidates": [
+                {
+                    "candidate_id": f"gap-{round_index}-{topic_id}",
+                    "topic_id": topic_id,
+                    "url": f"https://example.org/{topic_id}/{round_index}",
+                    "selected": True,
+                    "review_status": "relevant",
+                    "metadata": {"search_round": round_index + 1},
+                }
+                for topic_id in topic_ids
+            ],
+            "warnings": [],
+            "metrics": {"search_round": round_index + 1},
+        }
+
+    monkeypatch.setattr(builder, "discover_leaf_gap_sources", discover_gap)
+    monkeypatch.setattr(
+        builder,
+        "_persist_candidate",
+        lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("crawl failed")),
+    )
+    audits = []
+
+    def generate(**kwargs):
+        audit = kwargs["fallback_audit"]
+        audits.append(audit)
+        topic_id = kwargs["topic"]["topic_id"]
+        return {
+            "document_id": f"ai-{topic_id}", "scope_id": topic_id,
+            "source_type": "model_generated", "content_hash": f"ai-{topic_id}",
+            "content_chars": 900, "chunk_count": 1, "review_score": 90,
+            "fallback_audit": audit,
+        }
+
+    monkeypatch.setattr(builder, "_generate_and_persist_supplement", generate)
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    result = builder.run_course_knowledge_plan_build_job(
+        job_id="job-1", manager=FakeManager(), rag_system=object(),
+        course_id="course-1", owner_user_id="teacher-1", build_id="kb-1",
+    )
+
+    assert rounds == [({"topic-1", "topic-2"}, 0), ({"topic-1", "topic-2"}, 1)]
+    assert len(audits) == 2
+    assert all(item["fallback_reason"] == "non_ai_search_exhausted" for item in audits)
+    assert all(item["non_ai_attempt_count"] == 2 for item in audits)
+    assert result["quality_score"] == 100
 
 
 def test_published_graph_has_three_levels_and_three_documents_per_leaf(monkeypatch):

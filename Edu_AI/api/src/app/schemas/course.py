@@ -228,6 +228,9 @@ class CourseKnowledgeBuildConfig(BaseModel):
     minimum_web_materials_per_leaf: int = Field(default=1, ge=0, le=10)
     maximum_ai_materials_per_leaf: int = Field(default=1, ge=0, le=10)
     max_search_results_per_leaf: int = Field(default=8, ge=1, le=20)
+    prefer_complete_textbooks: bool = True
+    max_online_textbooks: int = Field(default=2, ge=0, le=5)
+    max_search_rounds_per_leaf: int = Field(default=2, ge=1, le=3)
     ai_supplement_enabled: bool = True
     content_language: str = Field(default="zh-CN", min_length=1, max_length=50)
     update_strategy: Literal["incremental", "merge_rebuild", "full_rebuild"] = (

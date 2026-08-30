@@ -54,6 +54,9 @@ def test_create_build_draft_normalizes_config_without_searching(course_api, monk
     assert body["config"]["target_module_count"] == 3
     assert body["config"]["target_points_per_module"] == 3
     assert body["config"]["minimum_web_materials_per_leaf"] == 0
+    assert body["config"]["prefer_complete_textbooks"] is True
+    assert body["config"]["max_online_textbooks"] == 2
+    assert body["config"]["max_search_rounds_per_leaf"] == 2
     assert body["graph_draft"] is None
     assert captured["course_id"] == "course-1"
     assert captured["plan"]["course_snapshot"]["title"] == "Course one"
@@ -68,6 +71,22 @@ def test_build_config_rejects_invalid_ai_and_material_limits(course_api):
                 "minimum_web_materials_per_leaf": 3,
             }
         },
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("max_online_textbooks", 6),
+        ("max_search_rounds_per_leaf", 4),
+    ],
+)
+def test_build_config_rejects_textbook_first_limits(course_api, field, value):
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds",
+        json={"config": {field: value}},
     )
 
     assert response.status_code == 422

@@ -4,6 +4,8 @@ from app.integrations.websearch.models import WebSearchHit
 from app.services.course_knowledge_source_discovery import (
     canonical_source_url,
     discover_course_knowledge_sources,
+    discover_course_textbook_sources,
+    discover_leaf_gap_sources,
 )
 
 
@@ -113,3 +115,93 @@ def test_later_relevant_mapping_replaces_earlier_irrelevant_duplicate():
     assert candidate["topic_id"] == "leaf-1"
     assert candidate["review_status"] == "relevant"
     assert candidate["selected"] is True
+
+
+def test_course_textbook_discovery_uses_course_scope_and_prioritizes_pdf():
+    calls = []
+
+    def search(query, limit):
+        calls.append((query, limit))
+        return [
+            WebSearchHit(
+                url="https://blog.example.com/linked-list",
+                title="数据结构中的链表",
+                content="介绍链表节点的短文章",
+            ),
+            WebSearchHit(
+                url="https://university.example.edu/data-structures.pdf",
+                title="数据结构完整教材 PDF",
+                content="含目录，覆盖线性表、树、图和排序章节",
+            ),
+        ]
+
+    build = _build(2)
+    build["config"]["max_online_textbooks"] = 1
+    result = discover_course_textbook_sources(build, search_provider=search)
+
+    selected = [item for item in result["source_candidates"] if item["selected"]]
+    assert len(calls) == 1
+    assert len(selected) == 1
+    assert selected[0]["topic_id"] is None
+    assert selected[0]["url"] == "https://university.example.edu/data-structures.pdf"
+    assert selected[0]["metadata"]["discovery_scope"] == "course"
+    assert result["metrics"]["selected_textbook_count"] == 1
+
+
+def test_gap_discovery_only_searches_requested_leaves_and_advances_query_intent():
+    calls = []
+
+    def search(query, limit):
+        calls.append((query, limit))
+        return [
+            WebSearchHit(
+                url=f"https://example.org/{len(calls)}",
+                title="链表概念 1 例题讲解",
+                content="链表节点与指针的例题和课程讲解",
+            )
+        ]
+
+    build = _build(2)
+    first = discover_leaf_gap_sources(
+        build,
+        topic_ids={"leaf-1"},
+        round_index=0,
+        search_provider=search,
+    )
+    second = discover_leaf_gap_sources(
+        build,
+        topic_ids={"leaf-1"},
+        round_index=1,
+        search_provider=search,
+    )
+
+    assert len(calls) == 2
+    assert "教程" in calls[0][0]
+    assert "例题" in calls[1][0]
+    assert all(item["topic_id"] == "leaf-1" for item in first["source_candidates"])
+    assert all(item["topic_id"] == "leaf-1" for item in second["source_candidates"])
+    assert first["metrics"]["searched_leaf_count"] == 1
+    assert first["source_candidates"][0]["metadata"]["search_round"] == 1
+
+
+def test_gap_discovery_deduplicates_url_without_losing_matched_leaf_ids():
+    def search(_query, _limit):
+        return [
+            WebSearchHit(
+                url="https://example.org/shared-course-page?utm_source=bocha",
+                title="链表概念 0 与链表概念 1",
+                content="链表节点、指针、定义和例题",
+            )
+        ]
+
+    result = discover_leaf_gap_sources(
+        _build(2),
+        topic_ids={"leaf-0", "leaf-1"},
+        round_index=0,
+        search_provider=search,
+    )
+
+    assert len(result["source_candidates"]) == 1
+    candidate = result["source_candidates"][0]
+    assert candidate["url"] == "https://example.org/shared-course-page"
+    assert set(candidate["metadata"]["matched_topic_ids"]) == {"leaf-0", "leaf-1"}
