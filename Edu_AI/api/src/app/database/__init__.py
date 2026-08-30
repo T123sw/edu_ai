@@ -1,6 +1,8 @@
 from .base import Base
 from .health import probe_database
 from .models import (
+    AgentMemoryAuditEvent,
+    AgentMemoryItem,
     AppStateRecord,
     ArtifactFile,
     AssessmentAnswerModel,
@@ -11,6 +13,7 @@ from .models import (
     AssessmentReviewModel,
     AssessmentVersionModel,
     Conversation,
+    ConversationEpisode,
     ConversationMessage,
     Course,
     CourseMembership,
@@ -32,11 +35,14 @@ from .models import (
     MigrationQuarantine,
     RuntimeIndexEntry,
     User,
+    UserProfileFact,
 )
 from .session import DatabaseNotConfigured, database_session
 
 __all__ = [
     "Base",
+    "AgentMemoryAuditEvent",
+    "AgentMemoryItem",
     "AppStateRecord",
     "ArtifactFile",
     "AssessmentAnswerModel",
@@ -47,6 +53,7 @@ __all__ = [
     "AssessmentReviewModel",
     "AssessmentVersionModel",
     "Conversation",
+    "ConversationEpisode",
     "ConversationMessage",
     "Course",
     "CourseMembership",
@@ -69,6 +76,7 @@ __all__ = [
     "RuntimeIndexEntry",
     "DatabaseNotConfigured",
     "User",
+    "UserProfileFact",
     "database_session",
     "probe_database",
 ]

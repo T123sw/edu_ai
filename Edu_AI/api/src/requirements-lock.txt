@@ -19,16 +19,22 @@ pyjwt==2.10.1
 python-jose[cryptography]==3.5.0
 chromadb==1.3.5
 langchain-chroma==1.0.0
-langchain-core==1.1.0
+langchain==1.3.17
+langchain-core==1.6.1
 langchain-community==0.4.1
 langchain-ollama==1.0.0
 langchain-text-splitters==1.0.0
-langchain-openai==1.1.0
-langgraph==1.0.4
+langchain-openai==1.4.2
+langgraph==1.2.11
+# LangMem 0.0.30 is not yet published on PyPI. Pin the verified official
+# source commit that supports LangGraph 1.x; never float on the main branch.
+langmem @ https://github.com/langchain-ai/langmem/archive/29cbe41e58528f92e9efa773c12e15c47be3808c.zip
+langchain-anthropic==1.7.0
+trustcall==0.0.39
 docx2txt==0.9
 python-docx==1.2.0
 Pillow==12.0.0
-openai==1.109.1
+openai==2.53.0
 playwright==1.57.0
 trio==0.30.0
 rank-bm25==0.2.2

@@ -14,6 +14,7 @@ class ConversationSnapshot(BaseModel):
     conversation_memory: dict = Field(default_factory=dict)
     active_context: dict = Field(default_factory=dict)
     learning_context: dict = Field(default_factory=dict)
+    agent_memory_context: dict = Field(default_factory=dict)
     referenced_artifact_ids: list[str] = Field(default_factory=list)
     active_task: str | None = None
     active_artifact: ArtifactRef | None = None

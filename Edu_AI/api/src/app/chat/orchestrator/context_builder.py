@@ -40,6 +40,28 @@ class ContextBuilder:
             # Learning telemetry must never make the chat path unavailable.
             return {}
 
+    def _read_agent_memory_context(self, request) -> dict:
+        if self.memory_reader is None or not getattr(request, "owner", None):
+            return {}
+        read_for_agent = getattr(self.memory_reader, "read_for_agent", None)
+        if not callable(read_for_agent):
+            return {}
+        try:
+            context = read_for_agent(
+                actor={
+                    "user_id": request.owner,
+                    "role": getattr(request, "actor_role", "teacher"),
+                },
+                conversation_id=getattr(request, "conversation_id", None) or "",
+                course_id=getattr(request, "course_id", None),
+                task_id=None,
+                query=str(getattr(request, "question", "") or ""),
+                token_budget=1500,
+            )
+            return context.model_dump(mode="json") if hasattr(context, "model_dump") else dict(context or {})
+        except Exception:
+            return {"retrieval_notes": ["agent_memory_read_failed"]}
+
     @staticmethod
     def _normalize_conversation_reference(value) -> dict:
         if value is None:
@@ -77,6 +99,7 @@ class ContextBuilder:
 
     def build(self, request) -> ConversationSnapshot:
         learning_context = self._read_learning_context(request)
+        agent_memory_context = self._read_agent_memory_context(request)
         if not request.conversation_id:
             summary = ""
             if self.memory_reader and request.owner:
@@ -86,6 +109,7 @@ class ContextBuilder:
                 conversation_id="",
                 summary=summary,
                 learning_context=learning_context,
+                agent_memory_context=agent_memory_context,
                 capability=request.capability,
             )
 
@@ -174,6 +198,7 @@ class ContextBuilder:
             conversation_memory=conversation_memory,
             active_context=active_context,
             learning_context=learning_context,
+            agent_memory_context=agent_memory_context,
             referenced_artifact_ids=referenced_artifact_ids,
             active_task=state.get("active_task"),
             active_artifact=active_artifact,

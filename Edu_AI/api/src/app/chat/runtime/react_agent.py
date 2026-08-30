@@ -27,6 +27,8 @@ from app.chat.runtime.memory.manager import (
     update_agent_memory,
 )
 from app.chat.runtime.learning_context_prompt import build_learning_context_prompt
+from app.chat.memory.domain import AgentMemoryContext
+from app.chat.memory.service import AgentMemoryService
 
 
 class ReActAgent:
@@ -281,6 +283,13 @@ class ReActAgent:
         memory_context = build_agent_memory_context(agent_memory)
         if memory_context:
             system_messages.append({"role": "system", "content": memory_context})
+        long_term_raw = getattr(snapshot, "agent_memory_context", {}) or {}
+        if long_term_raw:
+            long_term_prompt = AgentMemoryService.build_prompt(
+                AgentMemoryContext.model_validate(long_term_raw)
+            )
+            if long_term_prompt:
+                system_messages.append({"role": "system", "content": long_term_prompt})
         return [
             *system_messages,
             *history,

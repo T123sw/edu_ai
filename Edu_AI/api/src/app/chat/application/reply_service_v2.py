@@ -85,6 +85,7 @@ class ReplyServiceV2:
         course_storage_manager=None,
         report_edit_runtime=None,
         ppt_edit_runtime=None,
+        memory_writer=None,
     ):
         self.orchestrator = orchestrator
         self.orchestrator_factory = orchestrator_factory
@@ -94,6 +95,7 @@ class ReplyServiceV2:
         self.course_storage_manager = course_storage_manager
         self.report_edit_runtime = report_edit_runtime
         self.ppt_edit_runtime = ppt_edit_runtime
+        self.memory_writer = memory_writer
 
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
         finalize_report_result(
@@ -112,6 +114,34 @@ class ReplyServiceV2:
         result.setdefault("conversation", {"conversation_id": conversation_id})
         if conversation_id:
             self.conversation_store.write_v2_result(conversation_id, request, result)
+            if self.memory_writer is not None:
+                try:
+                    message = result.get("message") or {}
+                    assistant_message = (
+                        str(message.get("content") or "")
+                        if isinstance(message, dict)
+                        else str(getattr(message, "content", "") or "")
+                    )
+                    memory_write = self.memory_writer.persist_turn(
+                        actor={
+                            "user_id": str(getattr(request, "owner", "") or ""),
+                            "role": str(getattr(request, "actor_role", "teacher") or "teacher"),
+                        },
+                        conversation_id=conversation_id,
+                        course_id=getattr(request, "course_id", None),
+                        user_message=str(getattr(request, "question", "") or ""),
+                        assistant_message=assistant_message,
+                        agent_state={},
+                        tool_events=list(((result.get("trace") or {}).get("tool_events") or [])),
+                    )
+                    result.setdefault("trace", {})["agent_memory_write"] = memory_write.model_dump(
+                        mode="json", exclude={"decisions"}
+                    )
+                except Exception as exc:
+                    result.setdefault("trace", {})["agent_memory_write"] = {
+                        "provider_status": "error",
+                        "error": str(exc),
+                    }
             if self.context_builder is not None:
                 refreshed_snapshot = self.context_builder.build(request)
                 status_card = self.status_card_builder.build(
@@ -219,12 +249,15 @@ class ReplyServiceV2:
 
 def build_default_reply_service_v2():
     conversation_store = ConversationStoreAdapter()
+    from app.chat.memory.dependencies import get_agent_memory_service
     from app.learning import get_learning_service
     from app.learning.context_reader import LearningContextReader
     from app.assessment import get_assessment_service
 
+    memory_service = get_agent_memory_service()
     context_builder = ContextBuilder(
         conversation_store=conversation_store,
+        memory_reader=memory_service,
         learning_context_reader=LearningContextReader(
             get_learning_service(), get_assessment_service()
         ),
@@ -312,4 +345,5 @@ def build_default_reply_service_v2():
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
         ppt_edit_runtime=None,
+        memory_writer=memory_service,
     )
