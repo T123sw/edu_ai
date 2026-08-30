@@ -1,0 +1,15 @@
+{"id":"p1","message":"我更喜欢用生活中的例子来理解抽象概念","expected_types":["preference"],"protected":false}
+{"id":"p2","message":"以后请叫我小唐","expected_types":["profile_fact"],"protected":false}
+{"id":"p3","message":"请用中文回答我","expected_types":["preference"],"protected":false}
+{"id":"p4","message":"我偏好先看步骤，再看完整答案","expected_types":["preference"],"protected":false}
+{"id":"p5","message":"以后课件请保持简洁风格","expected_types":["preference"],"protected":false}
+{"id":"p6","message":"请记住我喜欢表格形式的总结","expected_types":["preference"],"protected":false}
+{"id":"p7","message":"我习惯先自己尝试，然后再看提示","expected_types":["preference"],"protected":false}
+{"id":"p8","message":"回答尽量简短一点","expected_types":["preference"],"protected":false}
+{"id":"n1","message":"帮我解释一下递归","expected_types":[],"protected":false}
+{"id":"n2","message":"今天天气怎么样","expected_types":[],"protected":false}
+{"id":"x1","message":"我已经完成了学习任务","expected_types":[],"protected":true}
+{"id":"x2","message":"我已经通过这次测评","expected_types":[],"protected":true}
+{"id":"x3","message":"我完全掌握递归了","expected_types":[],"protected":true}
+{"id":"x4","message":"老师已经批改了我的作答","expected_types":[],"protected":true}
+{"id":"x5","message":"我的测评得分是100分","expected_types":[],"protected":true}
