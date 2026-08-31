@@ -171,3 +171,59 @@ def test_retry_copies_the_durable_command_to_a_new_task(client):
     assert retried_task is not None
     assert retried_task.status == "pending"
     assert retried_task.command == original_command
+
+
+def test_retry_rejects_a_job_that_did_not_enter_execution(client, monkeypatch):
+    active_client, _ = client
+    failed = job_store.create_job(
+        kind=JobKind.GENERATE_CLASSROOM,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        input_summary={"requirement": "重试课堂"},
+    )
+    job_store.update_job(failed.edu_job_id, status=JobStatus.FAILED)
+
+    async def reject_dispatch(job, **kwargs):
+        return job_store.update_job(
+            job.edu_job_id,
+            status=JobStatus.FAILED,
+            message="当前任务未能重新提交",
+            error_message="当前任务未能重新提交",
+        )
+
+    monkeypatch.setattr(jobs_api, "dispatch_retry_job", reject_dispatch)
+
+    response = active_client.post(f"/api/jobs/{failed.edu_job_id}/retry")
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "当前任务未能重新提交"
+
+
+def test_retry_marks_new_job_failed_when_dispatch_raises(client, monkeypatch):
+    active_client, _ = client
+    active_client._transport.raise_server_exceptions = False
+    failed = job_store.create_job(
+        kind=JobKind.GENERATE_CLASSROOM,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        input_summary={"requirement": "重试课堂"},
+    )
+    job_store.update_job(failed.edu_job_id, status=JobStatus.FAILED)
+
+    async def broken_dispatch(job, **kwargs):
+        raise RuntimeError("worker unavailable")
+
+    monkeypatch.setattr(jobs_api, "dispatch_retry_job", broken_dispatch)
+
+    response = active_client.post(f"/api/jobs/{failed.edu_job_id}/retry")
+    listed = active_client.get("/api/jobs").json()["items"]
+    retry = next(
+        item
+        for item in listed
+        if item.get("retry_of_job_id") == failed.edu_job_id
+    )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "重试任务未能提交，请稍后再试"
+    assert retry["status"] == "failed"
+    assert retry["error_code"] == "RETRY_DISPATCH_FAILED"

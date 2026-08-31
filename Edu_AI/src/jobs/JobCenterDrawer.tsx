@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { cancelJob, retryJob } from "./api";
 import { buildJobCourseGroups } from "./jobCourseGrouping";
 import {
+  getJobPrimaryAction,
+  isJobCenterVisible,
   jobKindLabel,
   presentJobDetail,
   summarizeJobs,
@@ -85,14 +87,18 @@ export function JobCenterDrawer({
     () => orderedIds.map((id) => jobsById[id]).filter(Boolean),
     [jobsById, orderedIds],
   );
+  const visibleJobCandidates = useMemo(
+    () => jobs.filter(isJobCenterVisible),
+    [jobs],
+  );
   const courseGroups = useMemo(
     () =>
-      buildJobCourseGroups(jobs, {
+      buildJobCourseGroups(visibleJobCandidates, {
         currentCourseId,
         currentCourseTitle,
         courseTitles,
       }),
-    [courseTitles, currentCourseId, currentCourseTitle, jobs],
+    [courseTitles, currentCourseId, currentCourseTitle, visibleJobCandidates],
   );
   const visibleJobs = useMemo(
     () => courseGroups.flatMap((group) => group.jobs),
@@ -102,7 +108,7 @@ export function JobCenterDrawer({
     () => visibleJobs.filter(isActiveJob).length,
     [visibleJobs],
   );
-  const qualitySummary = useMemo(
+  const statusSummary = useMemo(
     () => summarizeJobs(visibleJobs),
     [visibleJobs],
   );
@@ -147,8 +153,12 @@ export function JobCenterDrawer({
           : await retryJob(job.edu_job_id);
       if (action === "retry") registerCreatedJob(updated);
       else mergeJobs([updated]);
-    } catch {
-      setActionError("任务操作失败，请稍后重试");
+    } catch (reason) {
+      setActionError(
+        reason instanceof Error
+          ? reason.message
+          : "任务操作失败，请稍后重试",
+      );
     } finally {
       setBusyId(null);
     }
@@ -205,27 +215,23 @@ export function JobCenterDrawer({
             ) : null}
 
             <div className="job-center-content">
-              {qualitySummary.completedCount ? (
-                <section
-                  className="job-center-quality"
-                  aria-label="最近后台任务质量概览"
-                >
-                  <div>
-                    <span>已结束</span>
-                    <strong>{qualitySummary.completedCount}</strong>
-                  </div>
-                  <div>
-                    <span>需关注率</span>
-                    <strong>{qualitySummary.failureRate}%</strong>
-                  </div>
-                  <div>
-                    <span>平均耗时</span>
-                    <strong>
-                      {formatDuration(qualitySummary.averageDurationMs)}
-                    </strong>
-                  </div>
-                </section>
-              ) : null}
+              <section
+                className="job-center-quality"
+                aria-label="后台任务状态概览"
+              >
+                <div>
+                  <span>已完成</span>
+                  <strong>{statusSummary.completedCount}</strong>
+                </div>
+                <div>
+                  <span>进行中</span>
+                  <strong>{statusSummary.activeCount}</strong>
+                </div>
+                <div>
+                  <span>失败</span>
+                  <strong>{statusSummary.failedCount}</strong>
+                </div>
+              </section>
               {!hydrated ? (
                 <JobEmpty
                   title="正在恢复后台任务"
@@ -280,11 +286,11 @@ function CourseJobGroup({
 }) {
   const groups = {
     active: jobs.filter(isActiveJob),
-    attention: jobs.filter(
+    failed: jobs.filter(
       (job) => job.status === "failed" || job.status === "partially_succeeded",
     ),
     completed: jobs
-      .filter((job) => job.status === "succeeded" || job.status === "canceled")
+      .filter((job) => job.status === "succeeded")
       .slice(0, 20),
   };
 
@@ -307,13 +313,13 @@ function CourseJobGroup({
         onAction={onAction}
       />
       <JobGroup
-        title="需要处理"
-        jobs={groups.attention}
+        title="失败"
+        jobs={groups.failed}
         busyId={busyId}
         onAction={onAction}
       />
       <JobGroup
-        title="最近完成"
+        title="已完成"
         jobs={groups.completed}
         busyId={busyId}
         onAction={onAction}
@@ -368,6 +374,7 @@ function JobCard({
       ? job.input_summary.title
       : jobKindLabel(job.kind);
   const resultHash = getJobResultHash(job);
+  const primaryAction = getJobPrimaryAction(job, resultHash);
   return (
     <article className={`job-card is-${job.status}`}>
       <div className="job-card__top">
@@ -390,13 +397,7 @@ function JobCard({
         <time dateTime={job.updated_at}>{formatTime(job.updated_at)}</time>
       </div>
       <div className="job-card__actions">
-        <button
-          type="button"
-          onClick={() => void navigator.clipboard?.writeText(job.edu_job_id)}
-        >
-          复制任务 ID
-        </button>
-        {job.cancelable && isActiveJob(job) ? (
+        {primaryAction === "cancel" ? (
           <button
             type="button"
             disabled={busy}
@@ -404,8 +405,7 @@ function JobCard({
           >
             {busy ? "处理中…" : "取消"}
           </button>
-        ) : null}
-        {job.retryable ? (
+        ) : primaryAction === "retry" ? (
           <button
             type="button"
             disabled={busy}
@@ -413,11 +413,8 @@ function JobCard({
           >
             {busy ? "处理中…" : "重试"}
           </button>
-        ) : null}
-        {resultHash ? (
-          <a href={resultHash} onClick={() => undefined}>
-            打开结果
-          </a>
+        ) : primaryAction === "open-result" && resultHash ? (
+          <a href={resultHash}>打开结果</a>
         ) : null}
       </div>
     </article>
@@ -432,15 +429,6 @@ function JobEmpty({ title, detail }: { title: string; detail: string }) {
       <p>{detail}</p>
     </div>
   );
-}
-
-function formatDuration(durationMs: number): string {
-  if (durationMs <= 0) return "—";
-  if (durationMs < 1000) return `${durationMs}ms`;
-  if (durationMs < 60_000) return `${Math.round(durationMs / 100) / 10}s`;
-  const minutes = Math.floor(durationMs / 60_000);
-  const seconds = Math.round((durationMs % 60_000) / 1000);
-  return `${minutes}m ${seconds}s`;
 }
 
 function jobIcon(kind: string) {

@@ -1,4 +1,4 @@
-import type { JobRecord } from "./types";
+import { isActiveJob, type JobRecord } from "./types";
 
 const JOB_KIND_LABELS: Record<string, string> = {
   generate_classroom: "AI 课堂生成",
@@ -112,46 +112,40 @@ export function presentJobDetail(job: JobRecord): string {
   return "任务状态已更新。";
 }
 
-export type JobQualitySummary = {
+export type JobStatusSummary = {
   completedCount: number;
-  failureCount: number;
-  failureRate: number;
-  averageDurationMs: number;
+  activeCount: number;
+  failedCount: number;
 };
 
-export function summarizeJobs(jobs: JobRecord[]): JobQualitySummary {
-  const completed = jobs.filter(
-    (job) =>
-      job.status === "succeeded" ||
-      job.status === "partially_succeeded" ||
-      job.status === "failed",
-  );
-  const failureCount = completed.filter(
-    (job) =>
-      job.status === "failed" || job.status === "partially_succeeded",
-  ).length;
-  const durations = completed
-    .map((job) => {
-      if (!job.started_at || !job.finished_at) return 0;
-      const startedAt = Date.parse(job.started_at);
-      const finishedAt = Date.parse(job.finished_at);
-      return Number.isFinite(startedAt) && Number.isFinite(finishedAt)
-        ? Math.max(0, finishedAt - startedAt)
-        : 0;
-    })
-    .filter((duration) => duration > 0);
-
+export function summarizeJobs(jobs: JobRecord[]): JobStatusSummary {
   return {
-    completedCount: completed.length,
-    failureCount,
-    failureRate: completed.length
-      ? Math.round((failureCount / completed.length) * 100)
-      : 0,
-    averageDurationMs: durations.length
-      ? Math.round(
-          durations.reduce((total, duration) => total + duration, 0) /
-            durations.length,
-        )
-      : 0,
+    completedCount: jobs.filter((job) => job.status === "succeeded").length,
+    activeCount: jobs.filter(isActiveJob).length,
+    failedCount: jobs.filter(
+      (job) =>
+        job.status === "failed" || job.status === "partially_succeeded",
+    ).length,
   };
+}
+
+export type JobPrimaryAction = "cancel" | "retry" | "open-result";
+
+export function isJobCenterVisible(job: JobRecord): boolean {
+  return job.status !== "canceled";
+}
+
+export function getJobPrimaryAction(
+  job: JobRecord,
+  resultHash?: string | null,
+): JobPrimaryAction | null {
+  if (isActiveJob(job) && job.cancelable) return "cancel";
+  if (
+    (job.status === "failed" || job.status === "partially_succeeded") &&
+    job.retryable
+  ) {
+    return "retry";
+  }
+  if (job.status === "succeeded" && resultHash) return "open-result";
+  return null;
 }
