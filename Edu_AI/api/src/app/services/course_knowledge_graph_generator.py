@@ -16,6 +16,10 @@ from app.persistence.dependencies import get_postgres_knowledge_repository
 from app.persistence.postgres_knowledge_repository import (
     KnowledgeBuildRevisionConflict,
 )
+from app.services.course_knowledge_graph_incremental import (
+    incremental_graph_issues,
+    merge_incremental_graph,
+)
 from app.services.job_store import (
     EduJob,
     JobKind,
@@ -173,6 +177,15 @@ def _prompt_payload(build: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _initial_messages(build: Mapping[str, Any]) -> list[dict[str, str]]:
+    strategy = str(
+        (build.get("config") or {}).get("update_strategy") or "incremental"
+    )
+    incremental_rules = (
+        "当前任务是增量更新。必须保留全部已有节点并复用 current_graph 中的已有节点 ID；"
+        "不得删除、改名、移动或重排已有节点；只补充说明、教材映射和真正缺失的新节点。"
+        if strategy == "incremental" and build.get("baseline_graph")
+        else ""
+    )
     contract = {
         "root": {
             "id": "stable-unique-id",
@@ -192,6 +205,7 @@ def _initial_messages(build: Mapping[str, Any]) -> list[dict[str, str]]:
                 "必须根据课程语义生成图谱，不得把课程目标机械平铺，不得使用数字、‘知识点’、"
                 "‘第一章’等无语义孤立标签。所有节点 ID 必须稳定且唯一。根节点为 course，"
                 "中间节点为 knowledge_module/knowledge_unit，叶节点为 knowledge_point。"
+                f"{incremental_rules}"
             ),
         },
         {
@@ -272,6 +286,7 @@ def validate_course_knowledge_graph(
     config: Mapping[str, Any],
     textbook_outline_keys: set[str] | None = None,
     unmapped_outline_items: Sequence[Any] | None = None,
+    enforce_scale: bool = True,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
@@ -363,13 +378,13 @@ def validate_course_knowledge_graph(
     def outside_tolerance(actual: int, target: int) -> bool:
         return actual < math.ceil(target * 0.8) or actual > math.floor(target * 1.2)
 
-    if outside_tolerance(module_count, target_modules):
+    if enforce_scale and outside_tolerance(module_count, target_modules):
         issue(
             "MODULE_SCALE_MISMATCH",
             "root.children",
             f"实际模块数 {module_count}，目标 {target_modules}（允许上下 20%）",
         )
-    if outside_tolerance(leaf_count, target_points):
+    if enforce_scale and outside_tolerance(leaf_count, target_points):
         issue(
             "LEAF_SCALE_MISMATCH",
             "root",
@@ -407,12 +422,20 @@ def validate_graph_draft_for_build(
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     textbooks = _textbook_context(build)
     unmapped = list((graph.get("data") or {}).get("unmapped_outline_items") or [])
-    return validate_course_knowledge_graph(
+    strategy = str(
+        (build.get("config") or {}).get("update_strategy") or "incremental"
+    )
+    baseline_graph = build.get("baseline_graph")
+    issues, metrics = validate_course_knowledge_graph(
         graph,
         config=dict(build.get("config") or {}),
         textbook_outline_keys=_outline_keys(textbooks),
         unmapped_outline_items=unmapped,
+        enforce_scale=not (strategy == "incremental" and bool(baseline_graph)),
     )
+    if strategy == "incremental":
+        issues.extend(incremental_graph_issues(baseline_graph, graph))
+    return issues, metrics
 
 
 def generate_course_knowledge_graph_draft(
@@ -437,14 +460,28 @@ def generate_course_knowledge_graph_draft(
                 owner_user_id=owner_user_id,
             )
             payload = _parse_model_payload(last_content)
-            graph = _normalize_node(payload["root"], level=0)
+            candidate_graph = _normalize_node(payload["root"], level=0)
+            strategy = str(
+                (build.get("config") or {}).get("update_strategy") or "incremental"
+            )
+            baseline_graph = build.get("baseline_graph")
+            graph = (
+                merge_incremental_graph(baseline_graph, candidate_graph)
+                if strategy == "incremental" and isinstance(baseline_graph, Mapping)
+                else candidate_graph
+            )
             unmapped = list(payload.get("unmapped_outline_items") or [])
             issues, metrics = validate_course_knowledge_graph(
                 graph,
                 config=dict(build.get("config") or {}),
                 textbook_outline_keys=outline_keys,
                 unmapped_outline_items=unmapped,
+                enforce_scale=not (
+                    strategy == "incremental" and bool(baseline_graph)
+                ),
             )
+            if strategy == "incremental":
+                issues.extend(incremental_graph_issues(baseline_graph, graph))
         except CourseKnowledgeGraphGenerationError:
             raise
         except Exception as exc:
@@ -467,6 +504,8 @@ def generate_course_knowledge_graph_draft(
                     "generated_at": generated_at.isoformat(),
                     "validation": {"status": "passed", **metrics},
                     "unmapped_outline_items": unmapped,
+                    "baseline_graph_version": build.get("baseline_graph_version"),
+                    "update_strategy": strategy,
                 }
             )
             return graph
@@ -547,8 +586,15 @@ def regenerate_course_knowledge_graph_module(
             )
             payload = _parse_model_payload(last_content)
             replacement = _normalize_node(payload["root"], level=1)
+            strategy = str(
+                (build.get("config") or {}).get("update_strategy") or "incremental"
+            )
             candidate = copy.deepcopy(current_graph)
-            candidate["children"][module_index] = replacement
+            candidate["children"][module_index] = (
+                merge_incremental_graph(selected, replacement)
+                if strategy == "incremental" and build.get("baseline_graph")
+                else replacement
+            )
             unmapped = list(
                 payload.get("unmapped_outline_items")
                 or (candidate.get("data") or {}).get("unmapped_outline_items")
@@ -576,8 +622,15 @@ def regenerate_course_knowledge_graph_module(
                 config=dict(build.get("config") or {}),
                 textbook_outline_keys=outline_keys,
                 unmapped_outline_items=unmapped,
+                enforce_scale=not (
+                    strategy == "incremental" and bool(build.get("baseline_graph"))
+                ),
             )
             issues.extend(validation_issues)
+            if strategy == "incremental":
+                issues.extend(
+                    incremental_graph_issues(build.get("baseline_graph"), candidate)
+                )
         except CourseKnowledgeGraphGenerationError:
             raise
         except Exception as exc:
