@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from app.chat.persistence.agent_run_store import AgentRunStore
 from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.react_agent import ReActAgent
 
@@ -284,6 +285,62 @@ def test_react_agent_executes_generate_tool_and_emits_task_submitted(
     assert task_payload["workflow_type"] == "quiz"
     assert task_payload["task_id"]
     assert events[-1]["payload"]["trace"]["agent_steps"][0]["tool"] == "generate_quiz"
+
+
+def test_react_agent_bare_start_submits_confirmed_report(monkeypatch, tmp_path):
+    submitted_commands = []
+
+    class CommandService:
+        def submit(self, command):
+            submitted_commands.append(command)
+            return SimpleNamespace(edu_job_id="job-report-start-1")
+
+    monkeypatch.setattr(
+        "app.chat.runtime.agent_tools.handlers.report.generation_command_service",
+        CommandService(),
+    )
+    run_store = AgentRunStore(tmp_path / "agent_runs.db")
+    request, snapshot = _request_snapshot()
+    request.conversation_id = "conv-report-start-1"
+    request.question = "开始"
+    run_store.save(
+        request.conversation_id,
+        request.owner,
+        request.course_id,
+        {
+            "active_draft_outline": {
+                "resource_type": "report",
+                "subject": "链表实现报告大纲",
+                "outline_markdown": "# 链表实现报告大纲",
+            }
+        },
+    )
+    agent = ReActAgent(
+        agent_gateway=FakeTextGateway(),
+        fast_runtime=FakeFastRuntime(),
+        agent_run_store=run_store,
+        max_steps=6,
+        timeout_seconds=5,
+    )
+
+    try:
+        events = list(agent.run_stream(request=request, snapshot=snapshot))
+    finally:
+        run_store.close()
+
+    assert len(submitted_commands) == 1
+    assert submitted_commands[0].resource_type == "report"
+    assert (
+        submitted_commands[0].config["confirmed_outline"]
+        == "# 链表实现报告大纲"
+    )
+    submitted = next(event for event in events if event["type"] == "task_submitted")
+    assert submitted["payload"]["task_id"] == "job-report-start-1"
+    assert submitted["payload"]["workflow_type"] == "report"
+    assert any(
+        step.get("tool") == "generate_report" and step.get("ok")
+        for step in events[-1]["payload"]["trace"]["agent_steps"]
+    )
 
 
 def test_react_agent_emits_plan_event_for_generation_request():
