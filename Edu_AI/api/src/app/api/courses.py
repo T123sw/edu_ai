@@ -82,6 +82,7 @@ from app.services.course_knowledge_graph_generator import (
     validate_graph_draft_for_build,
 )
 from app.services.course_knowledge_graph_incremental import (
+    incremental_graph_issues,
     summarize_course_knowledge_graph,
 )
 from app.services.job_store import JobKind, list_job_page
@@ -1130,6 +1131,37 @@ def _raise_textbook_input_error(exc: CourseKnowledgeTextbookInputError) -> None:
     ) from exc
 
 
+def _incremental_graph_guard(repository, build, graph) -> None:
+    config = dict(build.get("config") or {})
+    if config.get("update_strategy") != "incremental":
+        return
+    baseline_version = build.get("baseline_graph_version")
+    latest = repository.get_latest_graph_version(
+        str(build.get("library_id") or build.get("course_id") or "")
+    )
+    latest_version = (latest or {}).get("version")
+    if baseline_version != latest_version:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "GRAPH_BASELINE_VERSION_CONFLICT",
+                "message": "知识图谱已发布新版本，请刷新后重新合并本次修改",
+                "baseline_version": baseline_version,
+                "current_version": latest_version,
+            },
+        )
+    issues = incremental_graph_issues(build.get("baseline_graph"), graph)
+    if issues:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "GRAPH_BASELINE_VIOLATION",
+                "message": "增量更新必须保留全部已有节点",
+                "issues": issues,
+            },
+        )
+
+
 @router.patch(
     "/{course_id}/knowledge-builds/{build_id}",
     summary="更新课程知识库构建配置",
@@ -1268,6 +1300,8 @@ def update_knowledge_base_graph_draft(
 ):
     build = _get_course_knowledge_build_or_404(course_id, build_id)
     graph = copy.deepcopy(payload.root)
+    repository = get_postgres_knowledge_repository()
+    _incremental_graph_guard(repository, build, graph)
     issues, metrics = validate_graph_draft_for_build(build, graph)
     if issues:
         raise HTTPException(
@@ -1286,7 +1320,7 @@ def update_knowledge_base_graph_draft(
         }
     )
     try:
-        return get_postgres_knowledge_repository().update_build_draft(
+        return repository.update_build_draft(
             build_id,
             expected_revision=payload.expected_revision,
             changes={"graph_draft": graph},
@@ -1337,6 +1371,8 @@ def confirm_knowledge_base_graph_draft(
 ):
     build = _get_course_knowledge_build_or_404(course_id, build_id)
     graph = build.get("graph_draft") or {}
+    repository = get_postgres_knowledge_repository()
+    _incremental_graph_guard(repository, build, graph)
     issues, _metrics = validate_graph_draft_for_build(build, graph)
     if issues:
         raise HTTPException(
@@ -1348,7 +1384,7 @@ def confirm_knowledge_base_graph_draft(
             },
         )
     try:
-        return get_postgres_knowledge_repository().confirm_build_graph(
+        return repository.confirm_build_graph(
             build_id,
             expected_revision=payload.expected_revision,
             confirmed_by=principal.user_id,

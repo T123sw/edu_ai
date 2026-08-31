@@ -295,6 +295,133 @@ def test_graph_save_rejects_invalid_structure_without_persisting(course_api, mon
     assert any(issue["code"] == "EMPTY_LABEL" for issue in detail["issues"])
 
 
+def test_incremental_graph_save_rejects_removed_baseline_node(course_api, monkeypatch):
+    from app.api import courses
+
+    baseline = _valid_small_graph()
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 2,
+                "config": {
+                    "graph_depth": 3,
+                    "target_module_count": 3,
+                    "target_points_per_module": 3,
+                    "update_strategy": "incremental",
+                },
+                "baseline_graph_version": 1,
+                "baseline_graph": baseline,
+                "textbooks": [],
+            }
+
+        def get_latest_graph_version(self, library_id):
+            assert library_id == "course-1"
+            return {"version": 1, "graph": baseline}
+
+        def update_build_draft(self, *_args, **_kwargs):
+            pytest.fail("baseline violation must not be persisted")
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+    edited = _valid_small_graph()
+    edited["children"][0]["children"].pop(0)
+
+    response = course_api.client_for("teacher-a", "teacher").put(
+        "/api/courses/course-1/knowledge-builds/kb-1/graph",
+        json={"expected_revision": 2, "root": edited},
+    )
+
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert detail["code"] == "GRAPH_BASELINE_VIOLATION"
+    assert any(item["node_id"] == "point-1-1" for item in detail["issues"])
+
+
+def test_incremental_graph_save_rejects_stale_baseline_version(course_api, monkeypatch):
+    from app.api import courses
+
+    baseline = _valid_small_graph()
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 2,
+                "config": {
+                    "graph_depth": 3,
+                    "target_module_count": 3,
+                    "target_points_per_module": 3,
+                    "update_strategy": "incremental",
+                },
+                "baseline_graph_version": 1,
+                "baseline_graph": baseline,
+                "textbooks": [],
+            }
+
+        def get_latest_graph_version(self, library_id):
+            assert library_id == "course-1"
+            return {"version": 2, "graph": baseline}
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+
+    response = course_api.client_for("teacher-a", "teacher").put(
+        "/api/courses/course-1/knowledge-builds/kb-1/graph",
+        json={"expected_revision": 2, "root": baseline},
+    )
+
+    assert response.status_code == 409
+    detail = response.json()["detail"]
+    assert detail["code"] == "GRAPH_BASELINE_VERSION_CONFLICT"
+    assert detail["baseline_version"] == 1
+    assert detail["current_version"] == 2
+
+
+def test_incremental_graph_confirm_rechecks_baseline_version(course_api, monkeypatch):
+    from app.api import courses
+
+    baseline = _valid_small_graph()
+
+    class Repository:
+        def get_build(self, build_id):
+            return {
+                "build_id": build_id,
+                "library_id": "course-1",
+                "status": "draft",
+                "revision": 2,
+                "config": {
+                    "graph_depth": 3,
+                    "target_module_count": 3,
+                    "target_points_per_module": 3,
+                    "update_strategy": "incremental",
+                },
+                "baseline_graph_version": 1,
+                "baseline_graph": baseline,
+                "graph_draft": baseline,
+                "textbooks": [],
+            }
+
+        def get_latest_graph_version(self, library_id):
+            return {"version": 2, "graph": baseline}
+
+        def confirm_build_graph(self, *_args, **_kwargs):
+            pytest.fail("stale baseline must not be confirmed")
+
+    monkeypatch.setattr(courses, "get_postgres_knowledge_repository", lambda: Repository())
+
+    response = course_api.client_for("teacher-a", "teacher").post(
+        "/api/courses/course-1/knowledge-builds/kb-1/graph/confirm",
+        json={"expected_revision": 2},
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "GRAPH_BASELINE_VERSION_CONFLICT"
+
+
 def test_textbook_upload_is_scoped_to_build_draft(course_api, monkeypatch):
     from app.api import courses
 

@@ -215,6 +215,47 @@ def test_knowledge_build_draft_uses_revision_and_requires_graph_confirmation(eng
     assert repository.get_build(draft["build_id"])["status"] == "queued"
 
 
+def test_incremental_publish_rejects_a_newer_graph_version(engine):
+    from app.persistence.postgres_knowledge_repository import (
+        KnowledgeBuildBaselineConflict,
+        PostgresKnowledgeRepository,
+    )
+
+    repository = PostgresKnowledgeRepository(engine)
+    baseline = {"id": "root", "label": "课程", "data": {"type": "course"}, "children": []}
+    repository.upsert_graph("course-1", baseline)
+    draft = repository.create_build_draft(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "config": {"update_strategy": "incremental"},
+            "baseline_graph_version": 1,
+            "baseline_graph": baseline,
+            "graph_draft": baseline,
+        },
+    )
+    repository.confirm_build_graph(
+        draft["build_id"], expected_revision=1, confirmed_by="teacher-1"
+    )
+    repository.queue_build(draft["build_id"], selected_source_count=0)
+    repository.update_build(
+        draft["build_id"], status="publishing", phase="publishing", progress=95
+    )
+    repository.upsert_graph("course-1", {**baseline, "id": "concurrent-root"})
+
+    with pytest.raises(KnowledgeBuildBaselineConflict):
+        repository.publish_build(
+            draft["build_id"],
+            graph=baseline,
+            document_ids=[],
+            metrics={},
+            quality_score=100,
+        )
+
+    assert [item["version"] for item in repository.list_graph_versions("course-1")] == [2, 1]
+
+
 def test_editing_confirmed_build_clears_confirmation(engine):
     from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
 

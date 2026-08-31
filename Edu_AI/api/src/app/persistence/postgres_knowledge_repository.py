@@ -19,11 +19,16 @@ from app.database import (
     RuntimeIndexEntry,
     database_session,
 )
+from app.services.course_knowledge_graph_incremental import incremental_graph_issues
 
 from .postgres_repositories import _timestamp
 
 
 class KnowledgeBuildRevisionConflict(ValueError):
+    pass
+
+
+class KnowledgeBuildBaselineConflict(ValueError):
     pass
 
 
@@ -696,6 +701,27 @@ class PostgresKnowledgeRepository:
                 raise KeyError(build_id)
             if build.status != "publishing":
                 raise ValueError("构建记录不在可发布状态")
+            plan = dict(build.plan_snapshot or {})
+            config = dict(plan.get("config") or {})
+            if config.get("update_strategy") == "incremental":
+                expected = plan.get("baseline_graph_version")
+                current_version = session.scalar(
+                    select(func.max(KnowledgeGraphVersion.version)).where(
+                        KnowledgeGraphVersion.library_id == build.library_id
+                    )
+                )
+                normalized_current = (
+                    int(current_version) if current_version is not None else None
+                )
+                if expected != normalized_current:
+                    raise KnowledgeBuildBaselineConflict(
+                        f"图谱基线版本冲突：草案 {expected}，当前 {normalized_current}"
+                    )
+                issues = incremental_graph_issues(plan.get("baseline_graph"), graph)
+                if issues:
+                    raise ValueError(
+                        {"code": "GRAPH_BASELINE_VIOLATION", "issues": issues}
+                    )
             normalized_document_ids = {str(item) for item in document_ids if str(item)}
             if normalized_document_ids:
                 documents = session.scalars(
