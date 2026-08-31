@@ -30,6 +30,11 @@ from app.api import courses as courses_api
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 optional_security = HTTPBearer(auto_error=False)
 PUBLIC_JOB_EXCLUDES = {"sidecar_job_id", "provider_job_ref", "owner"}
+RETRY_ACCEPTED_STATUSES = {
+    JobStatus.QUEUED,
+    JobStatus.RUNNING,
+    JobStatus.SUCCEEDED,
+}
 
 
 def _public_job(job: EduJob) -> dict:
@@ -50,6 +55,19 @@ def _owned_job(edu_job_id: str, current_user: dict) -> EduJob:
     if job.owner_user_id != _owner(current_user):
         raise HTTPException(status_code=403, detail="无权操作该任务")
     return job
+
+
+def _accepted_retry(job: EduJob) -> dict:
+    if job.status not in RETRY_ACCEPTED_STATUSES:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                job.message
+                or job.error_message
+                or "重试任务未能进入执行队列"
+            ),
+        )
+    return _public_job(job)
 
 
 @router.get("", summary="列出当前用户的后台任务")
@@ -138,6 +156,7 @@ async def retry_user_job(
 ):
     original = _owned_job(edu_job_id, current_user)
     owner = _owner(current_user)
+    retried: EduJob | None = None
     try:
         durable_retried = retry_durable_job(
             original,
@@ -145,7 +164,7 @@ async def retry_user_job(
             task_store=get_task_store(),
         )
         if durable_retried is not None:
-            return _public_job(durable_retried)
+            return _accepted_retry(durable_retried)
         retried = retry_job(edu_job_id, owner_user_id=owner)
         dispatched = await dispatch_retry_job(
             retried,
@@ -153,6 +172,33 @@ async def retry_user_job(
             current_user=current_user,
             course_storage_manager=courses_api._svc._get_manager(),
         )
-        return _public_job(dispatched)
+        return _accepted_retry(dispatched)
+    except HTTPException:
+        raise
     except ValueError as exc:
+        if retried is not None:
+            update_job(
+                retried.edu_job_id,
+                status=JobStatus.FAILED,
+                step="retry_dispatch_failed",
+                progress=100,
+                message=str(exc),
+                error_code="RETRY_DISPATCH_FAILED",
+                error_message=str(exc),
+            )
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except Exception as exc:
+        if retried is not None:
+            update_job(
+                retried.edu_job_id,
+                status=JobStatus.FAILED,
+                step="retry_dispatch_failed",
+                progress=100,
+                message="重试任务未能提交，请稍后再试",
+                error_code="RETRY_DISPATCH_FAILED",
+                error_message=str(exc),
+            )
+        raise HTTPException(
+            status_code=503,
+            detail="重试任务未能提交，请稍后再试",
+        ) from exc
