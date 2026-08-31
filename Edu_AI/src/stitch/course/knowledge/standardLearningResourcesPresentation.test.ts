@@ -1,15 +1,78 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { StandardResourceBatch, StandardResourceLeaf } from "../../api/types";
+import type {
+  StandardResourceBatch,
+  StandardResourceLeaf,
+  StandardResourceSlot,
+} from "../../api/types";
 import {
+  canApproveStandardResource,
+  getStandardResourceDetailTarget,
   groupStandardResourceLeaves,
   standardBatchProgress,
+  standardResourceBody,
   standardReviewLabel,
   standardSelectionSummary,
   toggleStandardResourceLeafScope,
 } from "./standardLearningResourcesPresentation";
 import * as presentation from "./standardLearningResourcesPresentation";
+
+const slot = (overrides: Partial<StandardResourceSlot>): StandardResourceSlot => ({
+  standard_kind: "study_guide",
+  material_type: "report",
+  material_id: "guide-1",
+  review_status: "pending",
+  resource: { material_id: "guide-1", material_type: "report" },
+  ...overrides,
+});
+
+test("standard classrooms open the existing classroom player", () => {
+  assert.deepEqual(
+    getStandardResourceDetailTarget("course/中文", slot({
+      standard_kind: "classroom",
+      material_type: "classroom",
+      material_id: "classroom-1",
+    })),
+    {
+      kind: "route",
+      href: "#classroom-player?course_id=course%2F%E4%B8%AD%E6%96%87&classroom_id=classroom-1",
+    },
+  );
+});
+
+test("guides and practice resources open in a detail dialog", () => {
+  assert.deepEqual(getStandardResourceDetailTarget("course-1", slot({})), {
+    kind: "dialog",
+  });
+  assert.deepEqual(getStandardResourceDetailTarget("course-1", slot({
+    standard_kind: "practice",
+    material_type: "quiz",
+  })), { kind: "dialog" });
+});
+
+test("resource body supports markdown and structured content", () => {
+  assert.equal(standardResourceBody(slot({
+    resource: {
+      material_id: "guide-1",
+      material_type: "report",
+      final_markdown: "# 学习指南",
+    },
+  })), "# 学习指南");
+  assert.match(standardResourceBody(slot({
+    resource: {
+      material_id: "quiz-1",
+      material_type: "quiz",
+      content: { questions: [{ stem: "1 + 1" }] },
+    },
+  })), /1 \+ 1/);
+});
+
+test("only managers can approve pending resources", () => {
+  assert.equal(canApproveStandardResource(true, slot({ review_status: "pending" })), true);
+  assert.equal(canApproveStandardResource(false, slot({ review_status: "pending" })), false);
+  assert.equal(canApproveStandardResource(true, slot({ review_status: "approved" })), false);
+});
 
 test("knowledge leaves remain grouped in source chapter order", () => {
   const leaves = [

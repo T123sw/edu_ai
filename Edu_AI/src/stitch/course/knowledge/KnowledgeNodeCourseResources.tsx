@@ -1,67 +1,61 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getStandardResources } from "../../api/standardResources";
+import { getStandardResources, reviewStandardResource } from "../../api/standardResources";
 import type { StandardResourceLeaf, StandardResourceSlot } from "../../api/types";
 import { MaterialIcon } from "../../shared";
+import { KnowledgeNodeResourceDialog } from "./KnowledgeNodeResourceDialog";
 import {
+  canApproveStandardResource,
+  getStandardResourceDetailTarget,
   STANDARD_RESOURCE_KIND_META,
   standardResourceLeavesForKnowledgeScope,
   standardReviewLabel,
 } from "./standardLearningResourcesPresentation";
 
-function previewText(slot: StandardResourceSlot): string {
-  const resource = (slot.resource || {}) as Record<string, unknown>;
-  for (const key of ["final_markdown", "markdown", "report_content", "text", "content"]) {
-    const value = resource[key];
-    if (typeof value === "string" && value.trim()) return value;
-  }
-  return "该课程资料已经生成，可在资源中心查看完整内容。";
-}
-
 export function KnowledgeNodeCourseResources({
   courseId,
   nodeLabel,
   scopeNodeIds,
+  canManage,
 }: {
   courseId: string;
   nodeLabel: string;
   scopeNodeIds: ReadonlySet<string>;
+  canManage: boolean;
 }) {
   const [leaves, setLeaves] = useState<StandardResourceLeaf[]>([]);
   const [loading, setLoading] = useState(true);
+  const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
-  const [expandedMaterialId, setExpandedMaterialId] = useState<string | null>(null);
+  const [selectedResource, setSelectedResource] = useState<{
+    leaf: StandardResourceLeaf;
+    slot: StandardResourceSlot;
+  } | null>(null);
+
+  const loadCatalog = useCallback(async () => {
+    if (!courseId) return;
+    setLoading(true);
+    try {
+      const catalog = await getStandardResources(courseId);
+      setLeaves(catalog.leaves);
+      setError("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "课程资料暂时无法读取");
+    } finally {
+      setLoading(false);
+    }
+  }, [courseId]);
 
   useEffect(() => {
     if (!courseId) return;
-    let cancelled = false;
-    const load = () => {
-      setLoading(true);
-      getStandardResources(courseId)
-        .then((catalog) => {
-          if (!cancelled) {
-            setLeaves(catalog.leaves);
-            setError("");
-          }
-        })
-        .catch((reason) => {
-          if (!cancelled) {
-            setError(reason instanceof Error ? reason.message : "课程资料暂时无法读取");
-          }
-        })
-        .finally(() => !cancelled && setLoading(false));
-    };
     const handleMaterialUpdated = (event: Event) => {
       const detail = (event as CustomEvent<{ courseId?: string }>).detail;
-      if (!detail?.courseId || detail.courseId === courseId) load();
+      if (!detail?.courseId || detail.courseId === courseId) void loadCatalog();
     };
-    load();
+    void loadCatalog();
     window.addEventListener("edu-ai:course-material-updated", handleMaterialUpdated);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("edu-ai:course-material-updated", handleMaterialUpdated);
-    };
-  }, [courseId]);
+    return () => window.removeEventListener("edu-ai:course-material-updated", handleMaterialUpdated);
+  }, [courseId, loadCatalog]);
 
   const scopedLeaves = useMemo(
     () => standardResourceLeavesForKnowledgeScope(leaves, scopeNodeIds),
@@ -70,6 +64,30 @@ export function KnowledgeNodeCourseResources({
   const resources = scopedLeaves.flatMap((leaf) => leaf.slots
     .filter((slot) => Boolean(slot.resource))
     .map((slot) => ({ leaf, slot })));
+
+  function openResource(leaf: StandardResourceLeaf, slot: StandardResourceSlot) {
+    const target = getStandardResourceDetailTarget(courseId, slot);
+    if (target.kind === "route") {
+      window.location.hash = target.href;
+      return;
+    }
+    setSelectedResource({ leaf, slot });
+  }
+
+  async function approve(slot: StandardResourceSlot) {
+    if (!canApproveStandardResource(canManage, slot) || working) return;
+    setWorking(true);
+    setError("");
+    try {
+      await reviewStandardResource(courseId, slot.material_id, "approved");
+      setSelectedResource(null);
+      await loadCatalog();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "审核操作失败，请稍后重试");
+    } finally {
+      setWorking(false);
+    }
+  }
 
   return (
     <section className="knowledge-node-resources" aria-label="课程资料">
@@ -90,14 +108,13 @@ export function KnowledgeNodeCourseResources({
         <div className="knowledge-node-resources__list">
           {resources.map(({ leaf, slot }) => {
             const meta = STANDARD_RESOURCE_KIND_META[slot.standard_kind];
-            const expanded = expandedMaterialId === slot.material_id;
+            const canApprove = canApproveStandardResource(canManage, slot);
             return (
               <article key={`${leaf.leaf_id}:${slot.material_id}`} className="knowledge-node-resource">
                 <button
                   type="button"
                   className="knowledge-node-resource__summary"
-                  aria-expanded={expanded}
-                  onClick={() => setExpandedMaterialId((current) => current === slot.material_id ? null : slot.material_id)}
+                  onClick={() => openResource(leaf, slot)}
                 >
                   <span className="knowledge-node-resource__icon"><MaterialIcon name={meta.icon} /></span>
                   <span className="knowledge-node-resource__copy">
@@ -107,13 +124,38 @@ export function KnowledgeNodeCourseResources({
                   <span className={`knowledge-node-resource__status knowledge-node-resource__status--${slot.review_status}`}>
                     {standardReviewLabel(slot.review_status)}
                   </span>
-                  <MaterialIcon name={expanded ? "expand_less" : "expand_more"} />
+                  <MaterialIcon name={slot.standard_kind === "classroom" ? "play_circle" : "visibility"} />
                 </button>
-                {expanded ? <pre className="knowledge-node-resource__preview">{previewText(slot)}</pre> : null}
+                {canApprove && slot.standard_kind === "classroom" ? (
+                  <div className="knowledge-node-resource__actions">
+                    <button
+                      type="button"
+                      className="knowledge-node-resource__approve"
+                      disabled={working}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void approve(slot);
+                      }}
+                    >
+                      <MaterialIcon name="check_circle" />
+                      通过审核
+                    </button>
+                  </div>
+                ) : null}
               </article>
             );
           })}
         </div>
+      ) : null}
+      {selectedResource ? (
+        <KnowledgeNodeResourceDialog
+          leafTitle={selectedResource.leaf.title}
+          slot={selectedResource.slot}
+          canManage={canManage}
+          busy={working}
+          onApprove={() => void approve(selectedResource.slot)}
+          onClose={() => setSelectedResource(null)}
+        />
       ) : null}
     </section>
   );
