@@ -19,9 +19,19 @@ _TITLE_SUFFIX = {
     "practice": "练习",
 }
 
-_DEFAULT_WORKER_COUNT = 3
-_DEFAULT_ITEM_TIMEOUT_SECONDS = 300
-_MAX_BATCH_DEADLINE_SECONDS = 21600
+_DEFAULT_KIND_RUNTIME_SECONDS = {
+    "classroom": 3600,
+    "study_guide": 900,
+    "practice": 900,
+}
+MAX_STANDARD_RESOURCE_BATCH_DEADLINE_SECONDS = 86400
+
+
+def standard_resource_execution_timeout_seconds(standard_kind: str) -> int:
+    return _DEFAULT_KIND_RUNTIME_SECONDS.get(
+        str(standard_kind or ""),
+        _DEFAULT_KIND_RUNTIME_SECONDS["study_guide"],
+    )
 
 
 class StandardResourceBatchService:
@@ -32,15 +42,17 @@ class StandardResourceBatchService:
         graph_lookup: GraphLookup,
         submitter: Submitter,
         job_lookup: JobLookup,
-        worker_count: int = _DEFAULT_WORKER_COUNT,
-        item_timeout_seconds: int = _DEFAULT_ITEM_TIMEOUT_SECONDS,
     ):
         self.repository = repository
         self.graph_lookup = graph_lookup
         self.submitter = submitter
         self.job_lookup = job_lookup
-        self.worker_count = max(1, int(worker_count))
-        self.item_timeout_seconds = max(1, int(item_timeout_seconds))
+
+    @staticmethod
+    def _execution_timeout_seconds(item: dict[str, Any]) -> int:
+        return standard_resource_execution_timeout_seconds(
+            str(item.get("standard_kind") or "")
+        )
 
     def _selected_leaves(self, course_id: str, leaf_ids: list[str]):
         leaves = extract_leaf_nodes(self.graph_lookup(course_id))
@@ -69,6 +81,7 @@ class StandardResourceBatchService:
         created_by: str,
         batch_id: str,
         deadline_seconds: int,
+        execution_timeout_seconds: int,
     ) -> dict[str, Any]:
         return {
             "course_id": course_id,
@@ -81,6 +94,7 @@ class StandardResourceBatchService:
             "current_review_status": "pending",
             "review_status": "pending",
             "deadline_seconds": deadline_seconds,
+            "execution_timeout_seconds": execution_timeout_seconds,
             "title": f'{item["leaf_title"]}{_TITLE_SUFFIX[item["standard_kind"]]}',
             "idempotency_key": (
                 f'{batch_id}:{item["leaf_id"]}:{item["standard_kind"]}:'
@@ -96,6 +110,7 @@ class StandardResourceBatchService:
         created_by: str,
         batch_id: str,
         deadline_seconds: int,
+        execution_timeout_seconds: int,
     ) -> None:
         context = self._context(
             item=item,
@@ -103,6 +118,7 @@ class StandardResourceBatchService:
             created_by=created_by,
             batch_id=batch_id,
             deadline_seconds=deadline_seconds,
+            execution_timeout_seconds=execution_timeout_seconds,
         )
         try:
             job = await self.submitter(item, context)
@@ -134,18 +150,14 @@ class StandardResourceBatchService:
             created_by=created_by,
             leaves=leaves,
         )
-        for index, item in enumerate(batch["items"]):
+        for item in batch["items"]:
             await self._submit_item(
                 item=item,
                 course_id=course_id,
                 created_by=created_by,
                 batch_id=batch["batch_id"],
-                deadline_seconds=(
-                    min(
-                        _MAX_BATCH_DEADLINE_SECONDS,
-                        self.item_timeout_seconds * (index // self.worker_count + 1),
-                    )
-                ),
+                deadline_seconds=MAX_STANDARD_RESOURCE_BATCH_DEADLINE_SECONDS,
+                execution_timeout_seconds=self._execution_timeout_seconds(item),
             )
         return self.get_batch(course_id=course_id, batch_id=batch["batch_id"])
 
@@ -183,17 +195,13 @@ class StandardResourceBatchService:
     ) -> dict[str, Any]:
         batch = self.get_batch(course_id=course_id, batch_id=batch_id)
         failed_items = [item for item in batch["items"] if item["status"] == "failed"]
-        for index, item in enumerate(failed_items):
+        for item in failed_items:
             await self._submit_item(
                 item=item,
                 course_id=course_id,
                 created_by=requested_by,
                 batch_id=batch_id,
-                deadline_seconds=(
-                    min(
-                        _MAX_BATCH_DEADLINE_SECONDS,
-                        self.item_timeout_seconds * (index // self.worker_count + 1),
-                    )
-                ),
+                deadline_seconds=MAX_STANDARD_RESOURCE_BATCH_DEADLINE_SECONDS,
+                execution_timeout_seconds=self._execution_timeout_seconds(item),
             )
         return self.get_batch(course_id=course_id, batch_id=batch_id)

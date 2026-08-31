@@ -21,7 +21,7 @@ class _FakeResponse:
         return None
 
 
-def test_call_llm_uses_session_with_trust_env_disabled(monkeypatch):
+def test_call_llm_uses_session_with_system_proxy_support(monkeypatch):
     captured = {}
 
     class FakeSession:
@@ -56,5 +56,7 @@ def test_call_llm_uses_session_with_trust_env_disabled(monkeypatch):
     assert result == "ok"
     assert captured["url"] == "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     assert captured["json"]["messages"] == [{"role": "user", "content": "hello"}]
-    assert captured["trust_env"] is False
+    assert captured["json"]["enable_thinking"] is False
+    assert captured["timeout"] == 120
+    assert captured["trust_env"] is True
     assert captured["HTTP_PROXY"] == "http://127.0.0.1:9"

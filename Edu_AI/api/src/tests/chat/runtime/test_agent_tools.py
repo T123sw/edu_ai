@@ -146,6 +146,37 @@ def test_execute_tool_denies_web_search_when_capability_disallows_it():
     }
 
 
+def test_execute_tool_propagates_rag_retriever_failure():
+    def failed_retriever(**_kwargs):
+        return {
+            "ok": False,
+            "tool": "rag_search_tool",
+            "summary": "",
+            "payload": {},
+            "error": "DashScope connection timed out",
+        }
+
+    ctx = ToolExecutionContext(
+        capability=SimpleNamespace(
+            allow_rag=True,
+            allow_web=False,
+            selected_doc_ids=["doc-1"],
+        ),
+        request=SimpleNamespace(owner="teacher", course_id="course-1"),
+        rag_retriever=failed_retriever,
+        max_steps=4,
+    )
+
+    result = execute_tool("rag_search", {"query": "链表如何实现", "top_k": 5}, ctx)
+
+    assert result == {
+        "ok": False,
+        "tool": "rag_search",
+        "error": "DashScope connection timed out",
+        "summary": "RAG 检索失败：DashScope connection timed out",
+    }
+
+
 def test_execute_tool_submits_role_allowed_resource_commands(monkeypatch):
     captured = []
 

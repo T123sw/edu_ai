@@ -70,6 +70,34 @@ def _coerce_timestamp(value: float | datetime | str | None) -> float | None:
     return active.timestamp()
 
 
+def _execution_deadline_at(
+    command: Mapping[str, Any] | None,
+    *,
+    started_at: float,
+) -> float | None:
+    if not command or command.get("execution_timeout_seconds") is None:
+        return None
+    timeout_seconds = float(command["execution_timeout_seconds"])
+    if timeout_seconds <= 0:
+        raise ValueError("execution_timeout_seconds must be positive")
+    return float(started_at) + timeout_seconds
+
+
+def _queue_deadline_at(
+    command: Mapping[str, Any] | None,
+    *,
+    queued_at: float,
+) -> float | None:
+    if not command or command.get("execution_timeout_seconds") is None:
+        return None
+    timeout_seconds = float(
+        command.get("deadline_seconds") or DEFAULT_TASK_DEADLINE_SECONDS
+    )
+    if timeout_seconds <= 0:
+        raise ValueError("deadline_seconds must be positive")
+    return float(queued_at) + timeout_seconds
+
+
 def _json_load(value: Any) -> Any:
     if not value:
         return None
@@ -400,7 +428,7 @@ class TaskStore:
                 self._conn.execute("BEGIN IMMEDIATE")
                 candidate = self._conn.execute(
                     """
-                    SELECT task_id FROM tasks
+                    SELECT task_id, command_json, deadline_at FROM tasks
                     WHERE status='pending'
                       AND command_json IS NOT NULL
                       AND cancel_requested=0
@@ -414,6 +442,10 @@ class TaskStore:
                 if candidate is None:
                     self._conn.commit()
                     return None
+                execution_deadline = _execution_deadline_at(
+                    _json_load(candidate["command_json"]),
+                    started_at=active_now,
+                )
                 cursor = self._conn.execute(
                     """
                     UPDATE tasks
@@ -423,6 +455,7 @@ class TaskStore:
                         heartbeat_at=?,
                         attempt_count=attempt_count+1,
                         started_at=COALESCE(started_at, ?),
+                        deadline_at=?,
                         updated_at=?
                     WHERE task_id=? AND status='pending'
                     """,
@@ -431,6 +464,9 @@ class TaskStore:
                         active_now + float(lease_seconds),
                         active_now,
                         active_now,
+                        execution_deadline
+                        if execution_deadline is not None
+                        else candidate["deadline_at"],
                         active_now,
                         candidate["task_id"],
                     ),
@@ -609,7 +645,7 @@ class TaskStore:
                 self._conn.execute("BEGIN IMMEDIATE")
                 row = self._conn.execute(
                     """
-                    SELECT attempt_count, max_attempts FROM tasks
+                    SELECT attempt_count, max_attempts, command_json FROM tasks
                     WHERE task_id=? AND status='leased' AND lease_owner=?
                     """,
                     (task_id, lease_owner),
@@ -630,12 +666,17 @@ class TaskStore:
                         (error, active_now, active_now, task_id, lease_owner),
                     )
                 else:
+                    queue_deadline = _queue_deadline_at(
+                        _json_load(row["command_json"]),
+                        queued_at=active_now,
+                    )
                     self._conn.execute(
                         """
                         UPDATE tasks
                         SET status='pending', available_at=?,
                             error_code=?, error=?, lease_owner=NULL,
                             lease_expires_at=NULL, heartbeat_at=NULL,
+                            deadline_at=COALESCE(?, deadline_at),
                             updated_at=?
                         WHERE task_id=? AND status='leased' AND lease_owner=?
                         """,
@@ -643,6 +684,7 @@ class TaskStore:
                             float(available_at),
                             str(error_code or ""),
                             str(error or ""),
+                            queue_deadline,
                             active_now,
                             task_id,
                             lease_owner,
@@ -708,7 +750,7 @@ class TaskStore:
                 rows = self._conn.execute(
                     """
                     SELECT task_id, attempt_count, max_attempts,
-                           cancel_requested, deadline_at
+                           cancel_requested, deadline_at, command_json
                     FROM tasks
                     WHERE status='leased'
                       AND lease_expires_at IS NOT NULL
@@ -765,6 +807,10 @@ class TaskStore:
                         failed += 1
                         failed_task_ids.append(str(row["task_id"]))
                     else:
+                        queue_deadline = _queue_deadline_at(
+                            _json_load(row["command_json"]),
+                            queued_at=active_now,
+                        )
                         self._conn.execute(
                             """
                             UPDATE tasks
@@ -772,10 +818,16 @@ class TaskStore:
                                 error_code='LEASE_EXPIRED',
                                 error='Worker lease expired; task requeued',
                                 lease_owner=NULL, lease_expires_at=NULL,
-                                heartbeat_at=NULL, updated_at=?
+                                heartbeat_at=NULL,
+                                deadline_at=COALESCE(?, deadline_at), updated_at=?
                             WHERE task_id=? AND status='leased'
                             """,
-                            (active_now, active_now, row["task_id"]),
+                            (
+                                active_now,
+                                queue_deadline,
+                                active_now,
+                                row["task_id"],
+                            ),
                         )
                         requeued += 1
                         requeued_task_ids.append(str(row["task_id"]))

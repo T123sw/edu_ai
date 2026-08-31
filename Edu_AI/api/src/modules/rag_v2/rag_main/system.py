@@ -3504,6 +3504,8 @@ class RAGSystem:
             "max_tokens": 4096,
             "stream": stream,
         }
+        if str(model_name or "").lower().startswith("qwen3"):
+            payload["enable_thinking"] = False
         print(
             "[rag_llm_debug] "
             f"model={model_name} base={api_base} stream={stream} "
@@ -3511,9 +3513,8 @@ class RAGSystem:
         )
 
         session = requests.Session()
-        session.trust_env = False
         try:
-            request_timeout = float((llm_config or {}).get("timeout_seconds") or 360)
+            request_timeout = float((llm_config or {}).get("timeout_seconds") or 120)
             response = session.post(url, json=payload, headers=headers, timeout=request_timeout, stream=stream)
 
             if stream:

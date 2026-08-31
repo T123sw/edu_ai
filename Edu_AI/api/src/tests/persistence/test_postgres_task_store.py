@@ -78,6 +78,48 @@ def test_legacy_compatibility_interface_is_preserved():
     assert task["result"] == {"ok": True}
 
 
+def test_postgres_execution_timeout_starts_when_worker_claims_task():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    store = PostgresTaskStore(engine)
+    queued = store.enqueue(
+        task_id="task-start-timed",
+        workflow_type="classroom_generate",
+        handler_version=1,
+        owner_user_id="teacher-1",
+        course_id="course-1",
+        scope_type="knowledge_point",
+        scope_id="abstraction",
+        command={
+            "deadline_seconds": 86400,
+            "execution_timeout_seconds": 3600,
+        },
+        config_snapshot_id="cfg-1",
+        idempotency_key="start-timed",
+        available_at=100.0,
+        deadline_at=86500.0,
+    )
+
+    claimed = store.claim_next(
+        lease_owner="worker-1",
+        lease_seconds=30,
+        now=1000.0,
+    )
+
+    assert queued.deadline_at == 86500.0
+    assert claimed is not None
+    assert claimed.deadline_at == 4600.0
+    assert store.release_for_retry(
+        "task-start-timed",
+        lease_owner="worker-1",
+        available_at=1100.0,
+        error_code="PROVIDER_BUSY",
+        error="retry later",
+        now=1050.0,
+    )
+    assert store.get_durable("task-start-timed").deadline_at == 87450.0
+
+
 def test_factory_uses_postgres_mode_without_opening_legacy_sqlite(monkeypatch, tmp_path):
     target = tmp_path / "target.db"
     engine = create_engine(f"sqlite+pysqlite:///{target.as_posix()}")

@@ -15,6 +15,10 @@ from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
 )
+from app.standard_resources.batch_service import (
+    MAX_STANDARD_RESOURCE_BATCH_DEADLINE_SECONDS,
+    standard_resource_execution_timeout_seconds,
+)
 from core.course_storage import CourseStorageManager
 from modules.rag_v2.api import get_rag_system
 
@@ -34,6 +38,15 @@ def retry_durable_job(
         owner_user_id=owner_user_id,
     )
     try:
+        command = dict(original_task.command)
+        standard_kind = _standard_resource_kind(command)
+        if standard_kind is not None:
+            command["deadline_seconds"] = (
+                MAX_STANDARD_RESOURCE_BATCH_DEADLINE_SECONDS
+            )
+            command["execution_timeout_seconds"] = (
+                standard_resource_execution_timeout_seconds(standard_kind)
+            )
         task_store.enqueue(
             task_id=retried.edu_job_id,
             workflow_type=original_task.workflow_type,
@@ -42,7 +55,7 @@ def retry_durable_job(
             course_id=original_task.course_id,
             scope_type=original_task.scope_type,
             scope_id=original_task.scope_id,
-            command=dict(original_task.command),
+            command=command,
             config_snapshot_id=original_task.config_snapshot_id,
             idempotency_key=retried.edu_job_id,
             max_attempts=original_task.max_attempts,
@@ -61,6 +74,25 @@ def retry_durable_job(
             or retried
         )
     return retried
+
+
+def _standard_resource_kind(command: dict[str, Any]) -> str | None:
+    metadata_candidates = [
+        command.get("material_metadata"),
+        (command.get("config") or {}).get("standard_resource")
+        if isinstance(command.get("config"), dict)
+        else None,
+    ]
+    for metadata in metadata_candidates:
+        if (
+            isinstance(metadata, dict)
+            and (
+            metadata.get("origin_type") == "standard"
+            or bool(metadata.get("generation_batch_id"))
+            )
+        ):
+            return str(metadata.get("standard_kind") or "study_guide")
+    return None
 
 
 async def dispatch_retry_job(

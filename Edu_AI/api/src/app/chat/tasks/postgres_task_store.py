@@ -18,6 +18,8 @@ from .task_store import (
     DurableTask,
     LeaseRecoverySummary,
     _coerce_timestamp,
+    _execution_deadline_at,
+    _queue_deadline_at,
     _now_iso,
     _now_ts,
     _validate_command_payload,
@@ -193,6 +195,12 @@ class PostgresTaskStore:
             row.heartbeat_at = active_now
             row.attempt_count += 1
             row.started_at = row.started_at if row.started_at is not None else active_now
+            execution_deadline = _execution_deadline_at(
+                row.command,
+                started_at=active_now,
+            )
+            if execution_deadline is not None:
+                row.deadline_at = execution_deadline
             row.updated_at = active_now
         return self._to_durable(row)
 
@@ -263,6 +271,12 @@ class PostgresTaskStore:
                 row.status = "pending"
                 row.available_at = float(available_at)
                 row.error_code = str(error_code or "")
+                queue_deadline = _queue_deadline_at(
+                    row.command,
+                    queued_at=active_now,
+                )
+                if queue_deadline is not None:
+                    row.deadline_at = queue_deadline
             row.error = str(error or "")
             row.lease_owner = row.lease_expires_at = row.heartbeat_at = None
             row.updated_at = active_now
@@ -311,6 +325,12 @@ class PostgresTaskStore:
                     row.available_at = active_now
                     row.error_code = "LEASE_EXPIRED"
                     row.error = "Worker lease expired; task requeued"
+                    queue_deadline = _queue_deadline_at(
+                        row.command,
+                        queued_at=active_now,
+                    )
+                    if queue_deadline is not None:
+                        row.deadline_at = queue_deadline
                     requeued.append(row.task_id)
                 row.lease_owner = row.lease_expires_at = row.heartbeat_at = None
                 row.updated_at = active_now

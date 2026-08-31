@@ -25,6 +25,14 @@ def handle_rag_search(name: str, args: dict, ctx) -> dict:
     except (TypeError, ValueError):
         pass
     result = ctx.rag_retriever(**call_args)
+    if isinstance(result, dict) and result.get("ok") is False:
+        error = str(result.get("error") or "rag_search_failed").strip()
+        summary = str(result.get("summary") or "").strip()
+        return error_result(
+            "rag_search",
+            error,
+            summary or f"RAG 检索失败：{error}",
+        )
     payload = dict((result or {}).get("payload") or {}) if isinstance(result, dict) else {}
     answer = str(payload.get("answer") or "").strip()
     sources = list(payload.get("sources") or [])

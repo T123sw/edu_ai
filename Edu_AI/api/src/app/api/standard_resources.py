@@ -29,7 +29,6 @@ from app.standard_resources.repository import (
 )
 from app.standard_resources.service import StandardResourceService
 from core.course_storage import CourseStorageManager
-from core.config import Config
 
 
 router = APIRouter(prefix="/api/courses/{course_id}", tags=["standard-resources"])
@@ -102,6 +101,7 @@ def get_standard_resource_batch_service() -> StandardResourceBatchService:
                 material_id=item["material_id"],
                 material_metadata={"title": context["title"], **metadata},
                 deadline_seconds=context["deadline_seconds"],
+                execution_timeout_seconds=context["execution_timeout_seconds"],
             )
         config = {
             "entrypoint": "agent",
@@ -141,6 +141,7 @@ def get_standard_resource_batch_service() -> StandardResourceBatchService:
                 idempotency_key=context["idempotency_key"],
                 material_id=item["material_id"],
                 deadline_seconds=context["deadline_seconds"],
+                execution_timeout_seconds=context["execution_timeout_seconds"],
             )
         )
 
@@ -149,7 +150,6 @@ def get_standard_resource_batch_service() -> StandardResourceBatchService:
         graph_lookup=manager.get_knowledge_graph,
         submitter=submitter,
         job_lookup=get_job,
-        worker_count=Config.DURABLE_JOB_WORKERS,
     )
 
 

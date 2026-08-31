@@ -57,7 +57,7 @@ def test_create_batch_submits_each_slot_with_stable_standard_metadata(repository
     }
 
 
-def test_create_batch_assigns_queue_aware_deadlines(repository) -> None:
+def test_create_batch_separates_queue_and_execution_timeouts(repository) -> None:
     submitted: list[dict] = []
 
     async def submit(item, context):
@@ -79,14 +79,64 @@ def test_create_batch_assigns_queue_aware_deadlines(repository) -> None:
         )
     )
 
-    assert [call["context"].get("deadline_seconds") for call in submitted] == [
-        300,
-        300,
-        300,
-        600,
-        600,
-        600,
+    assert [
+        (
+            call["item"]["standard_kind"],
+            call["context"].get("deadline_seconds"),
+            call["context"].get("execution_timeout_seconds"),
+        )
+        for call in submitted
+    ] == [
+        ("classroom", 86400, 3600),
+        ("practice", 86400, 900),
+        ("study_guide", 86400, 900),
+        ("classroom", 86400, 3600),
+        ("practice", 86400, 900),
+        ("study_guide", 86400, 900),
     ]
+
+
+def test_retry_failed_classroom_keeps_long_runtime_budget(repository) -> None:
+    retry_budgets: list[tuple[int, int]] = []
+    classroom_attempts = 0
+
+    async def submit(item, context):
+        nonlocal classroom_attempts
+        if item["standard_kind"] == "classroom":
+            classroom_attempts += 1
+            if classroom_attempts == 1:
+                raise RuntimeError("temporary classroom failure")
+            retry_budgets.append(
+                (
+                    context["deadline_seconds"],
+                    context["execution_timeout_seconds"],
+                )
+            )
+        return SimpleNamespace(edu_job_id=f"job-{item['standard_kind']}-{classroom_attempts}")
+
+    service = StandardResourceBatchService(
+        repository=repository,
+        graph_lookup=lambda _course_id: GRAPH,
+        submitter=submit,
+        job_lookup=lambda _job_id: None,
+    )
+    created = asyncio.run(
+        service.create_batch(
+            course_id="course-1",
+            created_by="teacher",
+            leaf_ids=["relationships-and-keys"],
+        )
+    )
+
+    asyncio.run(
+        service.retry_failed(
+            course_id="course-1",
+            batch_id=created["batch_id"],
+            requested_by="teacher",
+        )
+    )
+
+    assert retry_budgets == [(86400, 3600)]
 
 
 def test_retry_submits_only_failed_items(repository) -> None:

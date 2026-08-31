@@ -52,11 +52,13 @@ def test_generation_command_accepts_queue_aware_batch_deadline():
         owner_user_id="teacher",
         course_id="course-1",
         source_mode="none",
-        deadline_seconds=7200,
+        deadline_seconds=86400,
+        execution_timeout_seconds=900,
         idempotency_key="large-batch-request",
     )
 
-    assert command.deadline_seconds == 7200
+    assert command.deadline_seconds == 86400
+    assert command.execution_timeout_seconds == 900
 
 
 def test_generation_command_infers_source_mode_for_legacy_payloads():

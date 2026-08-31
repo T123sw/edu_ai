@@ -448,6 +448,8 @@ async def test_submit_classroom_generation_job_persists_recoverable_command(
         owner="teacher-a",
         course_storage_manager=manager,
         client=client,
+        deadline_seconds=86400,
+        execution_timeout_seconds=3600,
     )
 
     assert job.status == JobStatus.QUEUED
@@ -456,6 +458,8 @@ async def test_submit_classroom_generation_job_persists_recoverable_command(
     assert durable.status == "pending"
     assert durable.workflow_type == "classroom_generate"
     assert durable.command["requirement"] == "Teach compound interest"
+    assert durable.command["deadline_seconds"] == 86400
+    assert durable.command["execution_timeout_seconds"] == 3600
     assert client.get_classroom_calls == []
 
 

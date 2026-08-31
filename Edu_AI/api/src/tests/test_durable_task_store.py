@@ -172,6 +172,50 @@ def test_durable_enqueue_assigns_a_default_deadline(tmp_path, monkeypatch):
     store.close()
 
 
+def test_execution_timeout_starts_when_worker_claims_task(tmp_path, monkeypatch):
+    store = TaskStore(str(tmp_path / "tasks.db"))
+    monkeypatch.setattr(
+        "app.chat.tasks.task_store._now_ts",
+        lambda: 100.0,
+    )
+    queued = store.enqueue(
+        task_id="job-start-timed",
+        workflow_type="classroom_generate",
+        handler_version=1,
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        scope_type="knowledge_point",
+        scope_id="abstraction",
+        command={
+            "deadline_seconds": 86400,
+            "execution_timeout_seconds": 3600,
+        },
+        config_snapshot_id="cfg-1",
+        idempotency_key="job-start-timed",
+        available_at=100.0,
+    )
+
+    claimed = store.claim_next(
+        lease_owner="worker-a",
+        lease_seconds=30,
+        now=1000.0,
+    )
+
+    assert queued.deadline_at == 86500.0
+    assert claimed is not None
+    assert claimed.deadline_at == 4600.0
+    assert store.release_for_retry(
+        "job-start-timed",
+        lease_owner="worker-a",
+        available_at=1100.0,
+        error_code="PROVIDER_BUSY",
+        error="retry later",
+        now=1050.0,
+    )
+    assert store.get_durable("job-start-timed").deadline_at == 87450.0
+    store.close()
+
+
 def test_recovery_fails_legacy_pending_task_after_bounded_deadline(tmp_path):
     db_path = tmp_path / "tasks.db"
     store = TaskStore(str(db_path))
