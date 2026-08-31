@@ -11,6 +11,7 @@ import { QuizScenePlayer } from './QuizScenePlayer';
 import { SlidePlayer } from './SlidePlayer';
 import type { PlaybackMode } from './playbackEngine';
 import type { PlaybackRuntimeHandle } from './pagePlaybackController';
+import type { QuizAnswers } from './quizScene';
 
 export interface ClassroomSceneRendererProps {
   scene: ClassroomScene;
@@ -20,6 +21,8 @@ export interface ClassroomSceneRendererProps {
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
+  onQuizSubmitAnswers?: (answers: QuizAnswers) => Promise<void>;
+  onDemoInteraction?: (actionId?: string) => void;
 }
 
 export function ClassroomSceneRenderer({
@@ -30,6 +33,8 @@ export function ClassroomSceneRenderer({
   onComplete,
   onModeChange,
   onRuntimeReady,
+  onQuizSubmitAnswers,
+  onDemoInteraction,
 }: ClassroomSceneRendererProps) {
   const kind = resolveClassroomSceneKind(scene);
 
@@ -48,6 +53,7 @@ export function ClassroomSceneRenderer({
           onComplete={onComplete}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
+          onInteraction={onDemoInteraction}
         />
       );
     }
@@ -61,6 +67,7 @@ export function ClassroomSceneRenderer({
           onComplete={onComplete}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
+          onSubmitAnswers={onQuizSubmitAnswers}
         />
       );
     case 'quiz':

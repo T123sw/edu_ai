@@ -9,6 +9,7 @@ type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 export type ResourceLearningTrackerOptions = {
   send: (events: ResourceLearningEventPayload[]) => Promise<unknown>;
   now?: () => number;
+  wallNow?: () => Date;
   heartbeatMs?: number;
   maxRangeMs?: number;
   outboxKey?: string;
@@ -40,6 +41,7 @@ function eventId(sequence: number) {
 export class ResourceLearningTracker {
   private readonly send: ResourceLearningTrackerOptions['send'];
   private readonly now: () => number;
+  private readonly wallNow: () => Date;
   readonly heartbeatMs: number;
   private readonly maxRangeMs: number;
   private readonly storage?: StorageLike;
@@ -53,6 +55,7 @@ export class ResourceLearningTracker {
   constructor(options: ResourceLearningTrackerOptions) {
     this.send = options.send;
     this.now = options.now ?? (() => performance.now());
+    this.wallNow = options.wallNow ?? (() => new Date());
     this.heartbeatMs = Math.max(1_000, options.heartbeatMs ?? 10_000);
     this.maxRangeMs = Math.min(15_000, Math.max(1_000, options.maxRangeMs ?? 15_000));
     this.storage = options.storage ?? defaultStorage();
@@ -166,7 +169,7 @@ export class ResourceLearningTracker {
       sequence_number: this.sequence,
       event_type: eventType,
       scene_id: sceneId,
-      occurred_at: new Date(this.now()).toISOString(),
+      occurred_at: this.wallNow().toISOString(),
       ...extra,
     });
   }
@@ -201,4 +204,3 @@ export class ResourceLearningTracker {
     }
   }
 }
-

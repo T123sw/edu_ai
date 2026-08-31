@@ -13,6 +13,7 @@ test('patchInteractiveHtml injects sandbox-safe runtime support into head', () =
   );
 
   assert.match(patched, /data-edu-runtime-error-shim/);
+  assert.match(patched, /data-edu-user-interaction-shim/);
   assert.match(patched, /data-edu-storage-shim/);
   assert.match(patched, /data-edu-iframe-style/);
   assert.ok(

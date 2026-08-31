@@ -16,12 +16,14 @@ export interface InteractiveScenePlayerProps {
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
+  onInteraction?: (actionId?: string) => void;
 }
 
 type InteractiveRuntimeMessage = {
   __eduClassroomInteractive?: boolean;
   kind?: string;
   message?: string;
+  actionId?: string;
 };
 
 export function InteractiveScenePlayer({
@@ -32,6 +34,7 @@ export function InteractiveScenePlayer({
   onComplete,
   onModeChange,
   onRuntimeReady,
+  onInteraction,
 }: InteractiveScenePlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -47,18 +50,17 @@ export function InteractiveScenePlayer({
     const handleMessage = (event: MessageEvent<InteractiveRuntimeMessage>) => {
       if (event.source !== iframeRef.current?.contentWindow) return;
       const message = event.data;
-      if (
-        !message ||
-        message.__eduClassroomInteractive !== true ||
-        message.kind !== 'runtime-error'
-      ) {
+      if (!message || message.__eduClassroomInteractive !== true) return;
+      if (message.kind === 'user-interaction') {
+        onInteraction?.(message.actionId);
         return;
       }
+      if (message.kind !== 'runtime-error') return;
       setRuntimeError(message.message || '互动内容运行时发生错误');
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [reloadKey]);
+  }, [onInteraction, reloadKey]);
 
   useEffect(() => () => widget.setSender(null), [widget]);
 
@@ -87,7 +89,10 @@ export function InteractiveScenePlayer({
       onModeChange={onModeChange}
       onRuntimeReady={onRuntimeReady}
     >
-      <div className="relative h-full w-full overflow-hidden bg-white">
+      <div
+        className="relative h-full w-full overflow-hidden bg-white"
+        onPointerDown={() => onInteraction?.()}
+      >
         <iframe
           key={reloadKey}
           ref={iframeRef}

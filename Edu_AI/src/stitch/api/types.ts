@@ -884,6 +884,7 @@ export type ClassroomQuizQuestion = {
   id: string;
   type: "single" | "multiple" | "short_answer" | string;
   question: string;
+  required?: boolean;
   options?: Array<{ value: string; label: string }>;
   answer?: string[];
   analysis?: string;

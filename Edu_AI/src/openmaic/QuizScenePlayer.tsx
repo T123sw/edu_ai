@@ -5,6 +5,7 @@ import type {
 } from '../stitch/api/types';
 import {
   clearQuizDraft,
+  buildResourceQuestionSubmission,
   gradeQuizQuestions,
   quizStorageKey,
   readQuizDraft,
@@ -28,6 +29,7 @@ export interface QuizScenePlayerProps {
   onComplete?: () => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
+  onSubmitAnswers?: (answers: QuizAnswers) => Promise<void>;
 }
 
 export function QuizScenePlayer({
@@ -41,6 +43,7 @@ export function QuizScenePlayer({
   onComplete,
   onModeChange,
   onRuntimeReady,
+  onSubmitAnswers,
 }: QuizScenePlayerProps) {
   const storageKey = useMemo(
     () => quizStorageKey(courseId, classroomId, sceneId),
@@ -55,6 +58,10 @@ export function QuizScenePlayer({
   );
   const [answers, setAnswers] = useState<QuizAnswers>(initialDraft.answers);
   const [submitted, setSubmitted] = useState(initialDraft.submitted);
+  const [submissionState, setSubmissionState] = useState<
+    'idle' | 'saving' | 'failed'
+  >('idle');
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const grade = useMemo(
     () =>
       submitted ? gradeQuizQuestions(content.questions, answers) : undefined,
@@ -75,11 +82,34 @@ export function QuizScenePlayer({
   const updateAnswer = (questionId: string, answer: QuizAnswer) => {
     setAnswers((current) => ({ ...current, [questionId]: answer }));
     setSubmitted(false);
+    setSubmissionState('idle');
+    setSubmissionError(null);
   };
   const reset = () => {
     clearQuizDraft(window.localStorage, storageKey);
     setAnswers({});
     setSubmitted(false);
+    setSubmissionState('idle');
+    setSubmissionError(null);
+  };
+
+  const submit = async () => {
+    setSubmissionError(null);
+    try {
+      const submission = buildResourceQuestionSubmission(
+        content.questions,
+        answers,
+      );
+      setSubmissionState('saving');
+      await onSubmitAnswers?.(submission.answers);
+      setSubmitted(true);
+      setSubmissionState('idle');
+    } catch (error) {
+      setSubmissionState('failed');
+      setSubmissionError(
+        error instanceof Error ? error.message : '提交失败，请稍后重试',
+      );
+    }
   };
 
   if (!content.questions.length) {
@@ -137,19 +167,26 @@ export function QuizScenePlayer({
         </div>
 
         <div className="sticky bottom-0 mt-5 flex justify-end gap-3 border-t border-slate-200 bg-[#f7f9fc]/95 py-4 backdrop-blur">
+          {submissionError ? (
+            <p className="mr-auto self-center text-sm font-medium text-rose-600" role="alert">
+              {submissionError}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={reset}
+            disabled={submissionState === 'saving'}
             className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700"
           >
             重新作答
           </button>
           <button
             type="button"
-            onClick={() => setSubmitted(true)}
+            onClick={() => void submit()}
+            disabled={submissionState === 'saving'}
             className="rounded-full bg-(--accent-strong) px-6 py-2.5 text-sm font-semibold text-white shadow-sm"
           >
-            提交并查看解析
+            {submissionState === 'saving' ? '正在提交…' : '提交并查看解析'}
           </button>
         </div>
       </section>

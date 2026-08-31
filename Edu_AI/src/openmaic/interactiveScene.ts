@@ -33,6 +33,24 @@ const RUNTIME_ERROR_SHIM = `<script data-edu-runtime-error-shim>
 })();
 </script>`;
 
+const USER_INTERACTION_SHIM = `<script data-edu-user-interaction-shim>
+(function () {
+  function notify(event) {
+    try {
+      var target = event && event.target;
+      window.parent.postMessage({
+        __eduClassroomInteractive: true,
+        kind: 'user-interaction',
+        actionId: target && (target.id || target.name) || undefined
+      }, '*');
+    } catch (ignored) {}
+  }
+  ['pointerdown', 'change', 'input'].forEach(function (type) {
+    document.addEventListener(type, notify, true);
+  });
+})();
+</script>`;
+
 const STORAGE_SHIM = `<script data-edu-storage-shim>
 (function () {
   function makeStore() {
@@ -80,7 +98,7 @@ body { min-height: 100vh; }
 
 export function patchInteractiveHtml(html: string): string {
   const compatibleHtml = patchLegacyWidgetScope(html);
-  const injection = `${RUNTIME_ERROR_SHIM}\n${STORAGE_SHIM}\n${IFRAME_STYLE}\n`;
+  const injection = `${RUNTIME_ERROR_SHIM}\n${USER_INTERACTION_SHIM}\n${STORAGE_SHIM}\n${IFRAME_STYLE}\n`;
   const headMatch = /<head(?:\s[^>]*)?>/i.exec(compatibleHtml);
   if (!headMatch || headMatch.index === undefined) {
     return injection + compatibleHtml;
