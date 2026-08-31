@@ -6,6 +6,8 @@ import {
   groupStandardResourceLeaves,
   standardBatchProgress,
   standardReviewLabel,
+  standardSelectionSummary,
+  toggleStandardResourceLeafScope,
 } from "./standardLearningResourcesPresentation";
 
 test("knowledge leaves remain grouped in source chapter order", () => {
@@ -43,4 +45,20 @@ test("review statuses have stable learner-facing labels", () => {
   assert.equal(standardReviewLabel("pending"), "待审核");
   assert.equal(standardReviewLabel("approved"), "已发布");
   assert.equal(standardReviewLabel("rejected"), "已退回");
+});
+
+test("selection summary reports knowledge points and three resources per point", () => {
+  assert.deepEqual(standardSelectionSummary(4), {
+    leafCount: 4,
+    resourceCount: 12,
+    label: "已选择 4 个知识点，将生成 12 项资源",
+  });
+});
+
+test("chapter selection adds and removes only that chapter scope", () => {
+  const current = new Set(["outside"]);
+  const selected = toggleStandardResourceLeafScope(current, ["a", "b"]);
+
+  assert.deepEqual([...selected], ["outside", "a", "b"]);
+  assert.deepEqual([...toggleStandardResourceLeafScope(selected, ["a", "b"])], ["outside"]);
 });

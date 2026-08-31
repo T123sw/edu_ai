@@ -75,3 +75,28 @@ export function standardReviewLabel(status: string): string {
     rejected: "已退回",
   }[status] || status;
 }
+
+export function standardSelectionSummary(selectedLeafCount: number) {
+  const leafCount = Math.max(0, selectedLeafCount);
+  const resourceCount = leafCount * 3;
+  return {
+    leafCount,
+    resourceCount,
+    label: `已选择 ${leafCount} 个知识点，将生成 ${resourceCount} 项资源`,
+  };
+}
+
+export function toggleStandardResourceLeafScope(
+  current: ReadonlySet<string>,
+  scopeLeafIds: readonly string[],
+) {
+  const next = new Set(current);
+  const scopeIsSelected = scopeLeafIds.length > 0
+    && scopeLeafIds.every((leafId) => next.has(leafId));
+
+  for (const leafId of scopeLeafIds) {
+    if (scopeIsSelected) next.delete(leafId);
+    else next.add(leafId);
+  }
+  return next;
+}
