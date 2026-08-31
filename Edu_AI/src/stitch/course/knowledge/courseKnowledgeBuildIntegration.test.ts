@@ -100,6 +100,19 @@ test("first and update build wizards keep the continue action reachable", async 
   );
 });
 
+test("course resources and knowledge documents share the outer content scrollbar", async () => {
+  const shellStyles = await readFile(new URL("../../styles.css", import.meta.url), "utf8");
+
+  assert.match(
+    shellStyles,
+    /\.knowledge-library__content\s*\{[^}]*overflow-y:\s*auto;/s,
+  );
+  assert.match(
+    shellStyles,
+    /\.knowledge-library__documents\s*\{[^}]*flex:\s*none;[^}]*overflow-y:\s*visible;/s,
+  );
+});
+
 test("course knowledge build card keeps the primary experience simple", async () => {
   const buildCard = await readFile(new URL("./CourseKnowledgeBuildCard.tsx", import.meta.url), "utf8");
 

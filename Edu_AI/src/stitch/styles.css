@@ -1116,7 +1116,7 @@ textarea {
 .knowledge-library__toolbar > button { display: flex; align-items: center; gap: 7px; border: 0; border-radius: 12px; background: #2460df; padding: 11px 16px; color: white; font-weight: 800; cursor: pointer; }
 .knowledge-library__toolbar > button:disabled { opacity: .6; cursor: wait; }
 .knowledge-library__error { margin: 14px 20px 0; border-radius: 12px; background: #fff1f0; padding: 11px 14px; color: #b42318; font-size: 13px; }
-.knowledge-library__documents { flex: 1; overflow-y: auto; padding: 14px 20px 22px; }
+.knowledge-library__documents { flex: none; overflow-y: visible; padding: 14px 20px 22px; }
 .knowledge-library-document { display: flex; align-items: center; gap: 13px; border-bottom: 1px solid #edf1f8; padding: 15px 4px; }
 .knowledge-library-document__preview { display: flex; min-width: 0; flex: 1; align-items: center; gap: 13px; border: 0; background: transparent; padding: 0; text-align: left; }
 .knowledge-library-document__icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: #edf3ff; color: #2861dc; }
