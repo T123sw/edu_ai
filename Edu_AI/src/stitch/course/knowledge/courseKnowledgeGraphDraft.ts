@@ -16,6 +16,31 @@ export type GraphNodeOption = {
   parentId: string | null;
 };
 
+export type GraphReviewFilter = "all" | "new" | "issues" | "mapped";
+
+export type GraphReviewIssue = {
+  code: "missing_content" | "needs_parent";
+  nodeId: string;
+  message: string;
+  severity: "error" | "warning";
+};
+
+export type GraphReviewNode = GraphNodeOption & {
+  node: KnowledgeGraphNode;
+  childCount: number;
+  isExisting: boolean;
+  isNew: boolean;
+  isMapped: boolean;
+  hasIssue: boolean;
+};
+
+export type GraphReviewModel = {
+  orderedIds: string[];
+  nodesById: Map<string, GraphReviewNode>;
+  issues: GraphReviewIssue[];
+  initialSelectedNodeId: string;
+};
+
 function clone(node: KnowledgeGraphNode): KnowledgeGraphNode {
   return {
     ...node,
@@ -192,4 +217,107 @@ export function graphDraftStats(root: KnowledgeGraphNode): GraphDraftStats {
 
 export function graphDraftEqual(left: KnowledgeGraphNode, right: KnowledgeGraphNode) {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+export function findGraphNode(root: KnowledgeGraphNode, nodeId: string): KnowledgeGraphNode | null {
+  if (root.id === nodeId) return root;
+  for (const child of root.children || []) {
+    const found = findGraphNode(child, nodeId);
+    if (found) return found;
+  }
+  return null;
+}
+
+export function canEditGraphNodeStructure(nodeId: string, baseline: KnowledgeGraphNode | null) {
+  return !baseline || !findGraphNode(baseline, nodeId);
+}
+
+export function buildGraphReviewModel(
+  root: KnowledgeGraphNode,
+  baseline: KnowledgeGraphNode | null,
+): GraphReviewModel {
+  const baselineIds = new Set(baseline ? graphNodeOptions(baseline).map((item) => item.id) : []);
+  const orderedIds: string[] = [];
+  const nodesById = new Map<string, GraphReviewNode>();
+  const issues: GraphReviewIssue[] = [];
+
+  function visit(node: KnowledgeGraphNode, depth: number, parentId: string | null) {
+    orderedIds.push(node.id);
+    const isExisting = baselineIds.has(node.id);
+    const summary = (node.data?.summary || "").trim();
+    if (!node.label.trim() || !summary) {
+      issues.push({
+        code: "missing_content",
+        nodeId: node.id,
+        message: `${node.label || "未命名节点"}缺少名称或说明`,
+        severity: "warning",
+      });
+    }
+    if (node.data?.review_state === "needs_parent" || node.data?.needs_parent) {
+      issues.push({
+        code: "needs_parent",
+        nodeId: node.id,
+        message: `${node.label || "未命名节点"}尚未选择父节点`,
+        severity: "error",
+      });
+    }
+    nodesById.set(node.id, {
+      id: node.id,
+      label: node.label,
+      depth,
+      parentId,
+      node,
+      childCount: node.children?.length || 0,
+      isExisting,
+      isNew: !isExisting,
+      isMapped: Boolean(node.data?.source_outline_refs?.length),
+      hasIssue: false,
+    });
+    (node.children || []).forEach((child) => visit(child, depth + 1, node.id));
+  }
+
+  visit(root, 1, null);
+  for (const issue of issues) {
+    const item = nodesById.get(issue.nodeId);
+    if (item) item.hasIssue = true;
+  }
+  return {
+    orderedIds,
+    nodesById,
+    issues,
+    initialSelectedNodeId: issues[0]?.nodeId || root.id,
+  };
+}
+
+export function ancestorNodeIds(model: GraphReviewModel, nodeId: string) {
+  const result: string[] = [];
+  let current = model.nodesById.get(nodeId);
+  while (current?.parentId) {
+    result.unshift(current.parentId);
+    current = model.nodesById.get(current.parentId);
+  }
+  return result;
+}
+
+export function visibleGraphNodeIds(
+  model: GraphReviewModel,
+  query: string,
+  filter: GraphReviewFilter,
+) {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const matches = new Set<string>();
+  for (const nodeId of model.orderedIds) {
+    const item = model.nodesById.get(nodeId);
+    if (!item) continue;
+    const matchesQuery = !normalizedQuery
+      || item.label.toLocaleLowerCase().includes(normalizedQuery);
+    const matchesFilter = filter === "all"
+      || (filter === "new" && item.isNew)
+      || (filter === "issues" && item.hasIssue)
+      || (filter === "mapped" && item.isMapped);
+    if (!matchesQuery || !matchesFilter) continue;
+    matches.add(nodeId);
+    ancestorNodeIds(model, nodeId).forEach((id) => matches.add(id));
+  }
+  return model.orderedIds.filter((id) => matches.has(id));
 }

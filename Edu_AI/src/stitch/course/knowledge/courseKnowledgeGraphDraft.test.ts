@@ -4,11 +4,14 @@ import test from "node:test";
 import type { KnowledgeGraphNode } from "../../api/types";
 import {
   addGraphChild,
+  buildGraphReviewModel,
+  canEditGraphNodeStructure,
   graphDraftStats,
   moveGraphNode,
   moveGraphSibling,
   removeGraphNode,
   updateGraphNode,
+  visibleGraphNodeIds,
 } from "./courseKnowledgeGraphDraft";
 
 function graph(): KnowledgeGraphNode {
@@ -76,4 +79,53 @@ test("graph stats report actual structure and textbook mappings", () => {
     mappedOutlineCount: 1,
     unmappedOutlineCount: 1,
   });
+});
+
+test("review model identifies baseline nodes and selects the first issue", () => {
+  const baseline = graph();
+  const current = graph();
+  current.children![0].children!.push({
+    id: "new-point",
+    label: "新增知识点",
+    data: { type: "knowledge_point", summary: "", review_state: "new" },
+    children: [],
+  });
+
+  const model = buildGraphReviewModel(current, baseline);
+
+  assert.equal(model.nodesById.get("p1")?.isExisting, true);
+  assert.equal(model.nodesById.get("new-point")?.isExisting, false);
+  assert.equal(model.issues[0].nodeId, "new-point");
+  assert.equal(model.initialSelectedNodeId, "new-point");
+});
+
+test("tree search keeps ancestors and filters retain matching nodes", () => {
+  const baseline = graph();
+  const current = graph();
+  current.children![0].children!.push({
+    id: "new-point",
+    label: "新方程方法",
+    data: { type: "knowledge_point", summary: "说明", review_state: "new" },
+    children: [],
+  });
+  const model = buildGraphReviewModel(current, baseline);
+
+  assert.deepEqual(visibleGraphNodeIds(model, "一次函数", "all"), ["root", "m2", "p3"]);
+  assert.deepEqual(visibleGraphNodeIds(model, "", "new"), ["root", "m1", "new-point"]);
+});
+
+test("existing node structural edits are rejected but summaries remain editable", () => {
+  const baseline = graph();
+  const current = graph();
+  current.children![0].children!.push({
+    id: "new-point",
+    label: "新增知识点",
+    data: { type: "knowledge_point", summary: "说明" },
+    children: [],
+  });
+
+  assert.equal(canEditGraphNodeStructure("p1", baseline), false);
+  assert.equal(canEditGraphNodeStructure("new-point", baseline), true);
+  const updated = updateGraphNode(current, "p1", { summary: "补充说明" });
+  assert.equal(updated.children?.[0].children?.[0].data?.summary, "补充说明");
 });
