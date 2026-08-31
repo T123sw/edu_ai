@@ -108,8 +108,13 @@ async function resolveClassroomAudioUrls(material: ClassroomMaterial): Promise<v
   await Promise.all(tasks);
 }
 
-export async function getClassroom(courseId: string, classroomId: string) {
-  const material = await apiRequest<ClassroomMaterial>(`/api/courses/${courseId}/classrooms/${classroomId}`);
+export async function getClassroom(courseId: string, classroomId: string, resourceVersion?: number) {
+  const versionQuery = resourceVersion == null
+    ? ''
+    : `?resource_version=${encodeURIComponent(String(resourceVersion))}`;
+  const material = await apiRequest<ClassroomMaterial>(
+    `/api/courses/${encodeURIComponent(courseId)}/classrooms/${encodeURIComponent(classroomId)}${versionQuery}`,
+  );
   await resolveClassroomAudioUrls(material);
   return material;
 }

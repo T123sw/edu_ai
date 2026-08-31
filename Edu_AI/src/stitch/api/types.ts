@@ -944,7 +944,97 @@ export type ClassroomMaterial = {
   course_id?: string;
   created_at?: string;
   updated_at?: string;
+  version?: number;
+  content_hash?: string;
 };
+
+export type ResourceLearningSceneKind = "explanation" | "exercise" | "demo";
+
+export type ResourceLearningManifestScene = {
+  scene_id: string;
+  kind: ResourceLearningSceneKind;
+  expected_duration_ms: number;
+  required_action_ids: string[];
+  required_question_ids: string[];
+};
+
+export type ResourceLearningManifest = {
+  manifest_id: string;
+  resource_version: number;
+  content_hash: string;
+  mode: "completable" | "behavior_only";
+  scenes: ResourceLearningManifestScene[];
+  required_question_ids: string[];
+};
+
+export type ResourceLearningProgress = {
+  course_id: string;
+  resource_id: string;
+  resource_version: number;
+  status: "not_started" | "in_progress" | "completed";
+  explanation_covered_ms: number;
+  explanation_total_ms: number;
+  explanation_coverage_percent: number;
+  required_question_count: number;
+  answered_question_count: number;
+  question_completion_percent: number;
+  correct_count_first: number;
+  correct_count_latest: number;
+  demo_view_count: number;
+  demo_interaction_count: number;
+  started_at: string | null;
+  completed_at: string | null;
+  last_activity_at: string | null;
+  updated_at: string;
+  manifest?: ResourceLearningManifest | null;
+};
+
+export type ResourceLearningSession = {
+  session_id: string;
+  course_id: string;
+  resource_id: string;
+  resource_version: number;
+  status: "active" | "ended" | "invalidated";
+  started_at: string;
+  last_heartbeat_at: string | null;
+  ended_at: string | null;
+};
+
+export type ResourceLearningEventType =
+  | "scene_entered"
+  | "timeline_heartbeat"
+  | "playback_paused"
+  | "scene_completed"
+  | "demo_entered"
+  | "demo_interacted"
+  | "demo_completed";
+
+export type ResourceLearningEventPayload = {
+  event_id: string;
+  sequence_number: number;
+  event_type: ResourceLearningEventType;
+  scene_id: string;
+  timeline_from_ms?: number;
+  timeline_to_ms?: number;
+  action_id?: string;
+  occurred_at: string;
+};
+
+export type ResourceLearningAnalytics = {
+  course_id: string;
+  resource_id: string;
+  resource_version: number;
+  tracked_student_count: number;
+  completed_student_count: number;
+  in_progress_student_count: number;
+  not_started_student_count: number;
+  average_explanation_coverage_percent: number;
+  average_question_completion_percent: number;
+  demo_view_count: number;
+  demo_interaction_count: number;
+};
+
+export type QuizAnswers = Record<string, string | string[]>;
 
 export type ClassroomQaCheckpoint = {
   scene_id: string;
