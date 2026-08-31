@@ -100,3 +100,13 @@ export function toggleStandardResourceLeafScope(
   }
   return next;
 }
+
+export function standardResourceLeavesForKnowledgeScope(
+  leaves: StandardResourceLeaf[],
+  scopeNodeIds: ReadonlySet<string>,
+): StandardResourceLeaf[] {
+  return leaves.filter(
+    (leaf) => scopeNodeIds.has(leaf.leaf_id)
+      && leaf.slots.some((slot) => Boolean(slot.resource)),
+  );
+}

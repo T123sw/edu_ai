@@ -46,6 +46,19 @@ def test_generation_command_preserves_explicit_source_intent_and_deadline():
     assert command.deadline_seconds == 45
 
 
+def test_generation_command_accepts_queue_aware_batch_deadline():
+    command = GenerationCommand(
+        resource_type="quiz",
+        owner_user_id="teacher",
+        course_id="course-1",
+        source_mode="none",
+        deadline_seconds=7200,
+        idempotency_key="large-batch-request",
+    )
+
+    assert command.deadline_seconds == 7200
+
+
 def test_generation_command_infers_source_mode_for_legacy_payloads():
     selected = GenerationCommand.model_validate(
         {

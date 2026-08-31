@@ -9,6 +9,7 @@ import {
   standardSelectionSummary,
   toggleStandardResourceLeafScope,
 } from "./standardLearningResourcesPresentation";
+import * as presentation from "./standardLearningResourcesPresentation";
 
 test("knowledge leaves remain grouped in source chapter order", () => {
   const leaves = [
@@ -61,4 +62,46 @@ test("chapter selection adds and removes only that chapter scope", () => {
 
   assert.deepEqual([...selected], ["outside", "a", "b"]);
   assert.deepEqual([...toggleStandardResourceLeafScope(selected, ["a", "b"])], ["outside"]);
+});
+
+test("knowledge scope keeps only generated resources for the selected node subtree", () => {
+  const selectForScope = (presentation as unknown as Record<string, unknown>)[
+    "standardResourceLeavesForKnowledgeScope"
+  ];
+  assert.equal(typeof selectForScope, "function");
+  if (typeof selectForScope !== "function") return;
+
+  const leaves = [
+    {
+      leaf_id: "selected-leaf",
+      title: "Selected",
+      path_titles: [],
+      slots: [
+        { standard_kind: "study_guide", material_type: "report", material_id: "r1", review_status: "pending", resource: { material_id: "r1", material_type: "report" } },
+      ],
+    },
+    {
+      leaf_id: "empty-leaf",
+      title: "Empty",
+      path_titles: [],
+      slots: [
+        { standard_kind: "practice", material_type: "quiz", material_id: "q1", review_status: "not_generated", resource: null },
+      ],
+    },
+    {
+      leaf_id: "outside-leaf",
+      title: "Outside",
+      path_titles: [],
+      slots: [
+        { standard_kind: "practice", material_type: "quiz", material_id: "q2", review_status: "approved", resource: { material_id: "q2", material_type: "quiz" } },
+      ],
+    },
+  ] satisfies StandardResourceLeaf[];
+
+  const selected = (selectForScope as (
+    items: StandardResourceLeaf[],
+    scopeIds: ReadonlySet<string>,
+  ) => StandardResourceLeaf[])(leaves, new Set(["selected-leaf", "empty-leaf"]));
+
+  assert.deepEqual(selected.map((leaf) => leaf.leaf_id), ["selected-leaf"]);
 });

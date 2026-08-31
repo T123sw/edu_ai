@@ -57,6 +57,38 @@ def test_create_batch_submits_each_slot_with_stable_standard_metadata(repository
     }
 
 
+def test_create_batch_assigns_queue_aware_deadlines(repository) -> None:
+    submitted: list[dict] = []
+
+    async def submit(item, context):
+        submitted.append({"item": item, "context": context})
+        return SimpleNamespace(edu_job_id=f"job-{len(submitted)}")
+
+    service = StandardResourceBatchService(
+        repository=repository,
+        graph_lookup=lambda _course_id: GRAPH,
+        submitter=submit,
+        job_lookup=lambda _job_id: None,
+    )
+
+    asyncio.run(
+        service.create_batch(
+            course_id="course-1",
+            created_by="teacher",
+            leaf_ids=["relationships-and-keys", "integrity-constraints"],
+        )
+    )
+
+    assert [call["context"].get("deadline_seconds") for call in submitted] == [
+        300,
+        300,
+        300,
+        600,
+        600,
+        600,
+    ]
+
+
 def test_retry_submits_only_failed_items(repository) -> None:
     call_count = 0
 

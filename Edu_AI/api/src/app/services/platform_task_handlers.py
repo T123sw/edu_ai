@@ -173,7 +173,6 @@ class PlatformTaskHandlers:
         manager = self.course_storage_factory()
         course_id = str(command.get("course_id") or context.course_id or "")
         requirement = _classroom_requirement(command)
-        client = get_openmaic_client(owner_user_id=context.owner_user_id)
         job = self._require_job(context.task_id)
         selected_doc_ids = list(command.get("selected_doc_ids") or [])
         source_mode = str(
@@ -202,54 +201,64 @@ class PlatformTaskHandlers:
         )
 
         async def run() -> None:
-            research_context = await _build_research_context(
-                course_storage_manager=manager,
-                course_id=course_id,
-                requirement=requirement,
-                web_research_context=command.get("web_research_context"),
-                rag_top_k=int(command.get("rag_top_k") or 5),
-                rag_system=None,
-                resolved_source=resolved_source,
+            client = get_openmaic_client(
+                owner_user_id=context.owner_user_id,
+                use_cache=False,
             )
-            selected_visuals = list(visual_snapshot.get("selected") or [])
-            if selected_visuals:
-                visual_context = (
-                    "【已锁定课堂配图】\n"
-                    + json.dumps(selected_visuals, ensure_ascii=False)
-                    + "\n请围绕这些真实图片组织相应课堂场景，不得伪造其他图片 URL。"
+            try:
+                research_context = await _build_research_context(
+                    course_storage_manager=manager,
+                    course_id=course_id,
+                    requirement=requirement,
+                    web_research_context=command.get("web_research_context"),
+                    rag_top_k=int(command.get("rag_top_k") or 5),
+                    rag_system=None,
+                    resolved_source=resolved_source,
                 )
-                research_context = "\n\n".join(
-                    item
-                    for item in (research_context, visual_context)
-                    if item
+                selected_visuals = list(visual_snapshot.get("selected") or [])
+                if selected_visuals:
+                    visual_context = (
+                        "【已锁定课堂配图】\n"
+                        + json.dumps(selected_visuals, ensure_ascii=False)
+                        + "\n请围绕这些真实图片组织相应课堂场景，不得伪造其他图片 URL。"
+                    )
+                    research_context = "\n\n".join(
+                        item
+                        for item in (research_context, visual_context)
+                        if item
+                    )
+                source_snapshot = resolved_source.to_snapshot()
+                if visual_snapshot:
+                    source_snapshot["visuals"] = visual_snapshot
+                callback = _make_on_sidecar_succeeded(
+                    active_client=client,
+                    course_storage_manager=manager,
+                    course_id=course_id,
+                    owner=context.owner_user_id,
+                    scope_type=str(command.get("scope_type") or "course"),
+                    scope_id=command.get("scope_id"),
+                    source_snapshot=source_snapshot,
+                    source_job_id=context.task_id,
+                    material_id=str(command.get("material_id") or "").strip()
+                    or None,
+                    material_metadata=dict(command.get("material_metadata") or {}),
                 )
-            source_snapshot = resolved_source.to_snapshot()
-            if visual_snapshot:
-                source_snapshot["visuals"] = visual_snapshot
-            callback = _make_on_sidecar_succeeded(
-                active_client=client,
-                course_storage_manager=manager,
-                course_id=course_id,
-                owner=context.owner_user_id,
-                scope_type=str(command.get("scope_type") or "course"),
-                scope_id=command.get("scope_id"),
-                source_snapshot=source_snapshot,
-                source_job_id=context.task_id,
-                material_id=str(command.get("material_id") or "").strip() or None,
-                material_metadata=dict(command.get("material_metadata") or {}),
-            )
-            await run_generate_classroom_job(
-                job,
-                requirement=requirement,
-                research_context=research_context,
-                pdf_content=command.get("pdf_content"),
-                enable_web_search=bool(
-                    command.get("enable_web_search", False)
-                ),
-                enable_tts=bool(command.get("enable_tts", True)),
-                client=client,
-                on_sidecar_succeeded=callback,
-            )
+                await run_generate_classroom_job(
+                    job,
+                    requirement=requirement,
+                    research_context=research_context,
+                    pdf_content=command.get("pdf_content"),
+                    enable_web_search=bool(
+                        command.get("enable_web_search", False)
+                    ),
+                    enable_tts=bool(command.get("enable_tts", True)),
+                    client=client,
+                    on_sidecar_succeeded=callback,
+                )
+            finally:
+                close = getattr(client, "aclose", None)
+                if close is not None:
+                    await close()
 
         context.progress(3, "research", "正在准备课程资料")
         asyncio.run(run())

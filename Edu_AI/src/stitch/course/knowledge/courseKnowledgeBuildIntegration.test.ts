@@ -13,10 +13,14 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   const nodeEditor = await readFile(new URL("./KnowledgeGraphNodeEditor.tsx", import.meta.url), "utf8");
   const reviewActions = await readFile(new URL("./KnowledgeGraphReviewActions.tsx", import.meta.url), "utf8");
   const configStep = await readFile(new URL("./CourseKnowledgeBuildConfigStep.tsx", import.meta.url), "utf8");
+  const nodeResources = await readFile(new URL("./KnowledgeNodeCourseResources.tsx", import.meta.url), "utf8");
 
   assert.match(source, /libraryType: "course"/);
   assert.doesNotMatch(source, /libraryType: "personal"/);
   assert.match(source, /<CourseKnowledgeBuildCard/);
+  assert.match(source, /<KnowledgeNodeCourseResources/);
+  assert.match(source, /scopeNodeIds=/);
+  assert.match(nodeResources, /edu-ai:course-material-updated/);
   assert.match(source, /edu-ai:knowledge-document-updated/);
   assert.match(source, /deleteKnowledgeBaseDocument/);
   assert.match(source, /删除当前节点下的文档/);

@@ -6,6 +6,7 @@
 """
 
 import base64
+import inspect
 import json
 import sys
 from pathlib import Path
@@ -29,7 +30,42 @@ from app.integrations.openmaic import (
     OpenMaicServerError,
     OpenMaicSSRFRejected,
     OpenMaicUnavailable,
+    get_openmaic_client,
 )
+
+
+async def test_openmaic_factory_can_return_uncached_clients(monkeypatch):
+    import app.integrations.openmaic as openmaic_module
+
+    monkeypatch.setattr(
+        openmaic_module.runtime_config_resolver,
+        "resolve",
+        lambda *_args, **_kwargs: {
+            "base_url": "http://sidecar-test:3000",
+            "api_key": "",
+            "timeout_seconds": 60,
+            "_revision_id": "test-revision",
+        },
+    )
+    openmaic_module._singletons.clear()
+    supports_uncached = "use_cache" in inspect.signature(get_openmaic_client).parameters
+    assert supports_uncached is True
+    if not supports_uncached:
+        return
+
+    cached = get_openmaic_client(owner_user_id="teacher")
+    same_cached = get_openmaic_client(owner_user_id="teacher")
+    fresh = get_openmaic_client(owner_user_id="teacher", use_cache=False)
+    another_fresh = get_openmaic_client(owner_user_id="teacher", use_cache=False)
+    try:
+        assert cached is same_cached
+        assert fresh is not cached
+        assert another_fresh is not fresh
+    finally:
+        await cached.aclose()
+        await fresh.aclose()
+        await another_fresh.aclose()
+        openmaic_module._singletons.clear()
 
 
 def _json_response(status_code: int, payload: dict) -> httpx.Response:

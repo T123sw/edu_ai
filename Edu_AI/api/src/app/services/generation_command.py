@@ -60,7 +60,7 @@ class GenerationCommand(BaseModel):
     scope_id: str | None = None
     source_mode: GenerationSourceMode = "course_auto"
     selected_doc_ids: list[str] = Field(default_factory=list)
-    deadline_seconds: int = Field(default=300, ge=1, le=3600)
+    deadline_seconds: int = Field(default=300, ge=1, le=21600)
     config: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str
     material_id: str | None = None

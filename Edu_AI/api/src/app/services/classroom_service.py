@@ -299,6 +299,7 @@ async def submit_classroom_generation_job(
     idempotency_key: str | None = None,
     material_id: str | None = None,
     material_metadata: dict[str, Any] | None = None,
+    deadline_seconds: int = 300,
 ) -> EduJob:
     """异步提交版：立即返回一个 `queued` 状态的 edu_job，真正的生成/校验/
     落库在后台 `asyncio.create_task` 里跑。调用方（HTTP 路由）应把返回的
@@ -388,6 +389,7 @@ async def submit_classroom_generation_job(
             "idempotency_key": normalized_key,
             "material_id": str(material_id or ""),
             "material_metadata": dict(material_metadata or {}),
+            "deadline_seconds": max(1, int(deadline_seconds)),
         },
         runtime_config_snapshot=runtime_snapshot,
     )

@@ -255,7 +255,7 @@ def _run_classroom_case(
 
     monkeypatch.setattr(
         "app.integrations.openmaic.get_openmaic_client",
-        lambda owner_user_id=None: FakeClient(),
+        lambda owner_user_id=None, **_kwargs: FakeClient(),
     )
 
     def fake_callback(**kwargs):

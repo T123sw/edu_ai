@@ -19,6 +19,10 @@ _TITLE_SUFFIX = {
     "practice": "练习",
 }
 
+_DEFAULT_WORKER_COUNT = 3
+_DEFAULT_ITEM_TIMEOUT_SECONDS = 300
+_MAX_BATCH_DEADLINE_SECONDS = 21600
+
 
 class StandardResourceBatchService:
     def __init__(
@@ -28,11 +32,15 @@ class StandardResourceBatchService:
         graph_lookup: GraphLookup,
         submitter: Submitter,
         job_lookup: JobLookup,
+        worker_count: int = _DEFAULT_WORKER_COUNT,
+        item_timeout_seconds: int = _DEFAULT_ITEM_TIMEOUT_SECONDS,
     ):
         self.repository = repository
         self.graph_lookup = graph_lookup
         self.submitter = submitter
         self.job_lookup = job_lookup
+        self.worker_count = max(1, int(worker_count))
+        self.item_timeout_seconds = max(1, int(item_timeout_seconds))
 
     def _selected_leaves(self, course_id: str, leaf_ids: list[str]):
         leaves = extract_leaf_nodes(self.graph_lookup(course_id))
@@ -60,6 +68,7 @@ class StandardResourceBatchService:
         course_id: str,
         created_by: str,
         batch_id: str,
+        deadline_seconds: int,
     ) -> dict[str, Any]:
         return {
             "course_id": course_id,
@@ -71,6 +80,7 @@ class StandardResourceBatchService:
             "generation_batch_id": batch_id,
             "current_review_status": "pending",
             "review_status": "pending",
+            "deadline_seconds": deadline_seconds,
             "title": f'{item["leaf_title"]}{_TITLE_SUFFIX[item["standard_kind"]]}',
             "idempotency_key": (
                 f'{batch_id}:{item["leaf_id"]}:{item["standard_kind"]}:'
@@ -85,12 +95,14 @@ class StandardResourceBatchService:
         course_id: str,
         created_by: str,
         batch_id: str,
+        deadline_seconds: int,
     ) -> None:
         context = self._context(
             item=item,
             course_id=course_id,
             created_by=created_by,
             batch_id=batch_id,
+            deadline_seconds=deadline_seconds,
         )
         try:
             job = await self.submitter(item, context)
@@ -122,12 +134,18 @@ class StandardResourceBatchService:
             created_by=created_by,
             leaves=leaves,
         )
-        for item in batch["items"]:
+        for index, item in enumerate(batch["items"]):
             await self._submit_item(
                 item=item,
                 course_id=course_id,
                 created_by=created_by,
                 batch_id=batch["batch_id"],
+                deadline_seconds=(
+                    min(
+                        _MAX_BATCH_DEADLINE_SECONDS,
+                        self.item_timeout_seconds * (index // self.worker_count + 1),
+                    )
+                ),
             )
         return self.get_batch(course_id=course_id, batch_id=batch["batch_id"])
 
@@ -164,13 +182,18 @@ class StandardResourceBatchService:
         requested_by: str,
     ) -> dict[str, Any]:
         batch = self.get_batch(course_id=course_id, batch_id=batch_id)
-        for item in batch["items"]:
-            if item["status"] != "failed":
-                continue
+        failed_items = [item for item in batch["items"] if item["status"] == "failed"]
+        for index, item in enumerate(failed_items):
             await self._submit_item(
                 item=item,
                 course_id=course_id,
                 created_by=requested_by,
                 batch_id=batch_id,
+                deadline_seconds=(
+                    min(
+                        _MAX_BATCH_DEADLINE_SECONDS,
+                        self.item_timeout_seconds * (index // self.worker_count + 1),
+                    )
+                ),
             )
         return self.get_batch(course_id=course_id, batch_id=batch_id)

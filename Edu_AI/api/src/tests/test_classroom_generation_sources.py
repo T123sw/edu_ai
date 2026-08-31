@@ -163,7 +163,7 @@ def test_classroom_worker_resolves_source_once(
 
     monkeypatch.setattr(
         "app.integrations.openmaic.get_openmaic_client",
-        lambda owner_user_id=None: _FakeClient(),
+        lambda owner_user_id=None, **_kwargs: _FakeClient(),
     )
 
     def fake_callback(**kwargs):

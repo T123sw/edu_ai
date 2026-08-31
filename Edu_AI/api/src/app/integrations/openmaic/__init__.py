@@ -49,6 +49,8 @@ _singletons: dict[str, OpenMaicClient] = {}
 def get_openmaic_client(
     owner_user_id: str | None = None,
     snapshot: dict[str, str] | None = None,
+    *,
+    use_cache: bool = True,
 ) -> OpenMaicClient:
     """Return a connection pool bound to the resolved classroom config revision."""
     resolved = runtime_config_resolver.resolve(
@@ -61,14 +63,17 @@ def get_openmaic_client(
         f"{resolved.get('_revision_id') or 'environment'}:"
         f"{base_url}:{bool(api_key)}:{timeout_seconds}"
     )
+    config = OpenMaicConfig(
+        base_url=base_url,
+        api_key=api_key,
+        connect_timeout=min(10.0, timeout_seconds),
+        request_timeout=timeout_seconds,
+    )
+    if not use_cache:
+        return OpenMaicClient(config)
     if cache_key not in _singletons:
         _singletons[cache_key] = OpenMaicClient(
-            OpenMaicConfig(
-                base_url=base_url,
-                api_key=api_key,
-                connect_timeout=min(10.0, timeout_seconds),
-                request_timeout=timeout_seconds,
-            )
+            config
         )
     return _singletons[cache_key]
 
