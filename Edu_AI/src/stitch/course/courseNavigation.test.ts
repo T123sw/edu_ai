@@ -35,7 +35,7 @@ test("every course member sees the personal resource workspace", () => {
   }
 });
 
-test("knowledge graph deep links belong to the course knowledge section", () => {
+test("knowledge graph and resource generation deep links belong to the course knowledge section", () => {
   const knowledge = getCourseNavigation("owner").find((item) => item.id === "knowledge");
-  assert.deepEqual(knowledge?.routes, ["knowledge", "graph"]);
+  assert.deepEqual(knowledge?.routes, ["knowledge", "graph", "learning-resource-generation"]);
 });
