@@ -23,7 +23,7 @@ const courseNavigation: readonly CourseNavigationItem[] = [
   { id: "overview", label: "课程概览", icon: "dashboard", hrefRoute: "course-detail", routes: ["course-detail"] },
   { id: "learning", label: "学习任务", icon: "fact_check", hrefRoute: "learning", routes: ["learning"] },
   { id: "workspace", label: "问答与生成", icon: "auto_awesome", hrefRoute: "ai", routes: ["ai"] },
-  { id: "knowledge", label: "课程知识", icon: "menu_book", hrefRoute: "knowledge", routes: ["knowledge", "graph", "learning-resource-generation"] },
+  { id: "knowledge", label: "课程知识", icon: "menu_book", hrefRoute: "knowledge", routes: ["knowledge", "graph"] },
   { id: "classroom", label: "AI 课堂", icon: "play_circle", hrefRoute: "classroom-studio", routes: ["classroom-studio"] },
   { id: "resources", label: "个人资源", icon: "folder_open", hrefRoute: "resources", routes: ["resources"] },
   { id: "settings", label: "课程设置", icon: "settings", hrefRoute: "edit", routes: ["edit"], editableOnly: true },

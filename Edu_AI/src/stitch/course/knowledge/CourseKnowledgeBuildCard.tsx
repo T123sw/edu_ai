@@ -11,8 +11,8 @@ import {
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
 import { MaterialIcon } from "../../shared";
-import { buildTeacherCourseHash } from "../../teacherRoutes";
 import { CourseKnowledgeBuildWizard } from "./CourseKnowledgeBuildWizard";
+import { LearningResourceGenerationPanel } from "./LearningResourceGenerationPanel";
 import "./CourseKnowledgeBuildCard.css";
 
 const PHASE_LABELS: Record<string, string> = {
@@ -55,6 +55,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const [plan, setPlan] = useState<CourseKnowledgeBuild | null>(null);
   const [planning, setPlanning] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [resourceConfigOpen, setResourceConfigOpen] = useState(false);
   const [versions, setVersions] = useState<CourseKnowledgeGraphVersion[]>([]);
   const [rollingBack, setRollingBack] = useState<number | null>(null);
   const [retrying, setRetrying] = useState(false);
@@ -94,6 +95,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
 
     try {
       if (plan?.status === "draft") {
+        setResourceConfigOpen(false);
         setWizardOpen(true);
         return;
       }
@@ -101,6 +103,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
       const buildPlan = await createCourseKnowledgeBuildDraft(courseId);
       window.localStorage.setItem(storageKey(courseId), buildPlan.build_id);
       setPlan(buildPlan);
+      setResourceConfigOpen(false);
       setWizardOpen(true);
     } catch (reason) {
       setSubmitError(reason instanceof Error ? reason.message : "知识库更新失败，请稍后重试。");
@@ -230,16 +233,25 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
           </button>
         ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
         {canBuild ? (
-          <a
+          <button
+            type="button"
             className="course-kb-builder__secondary"
-            href={buildTeacherCourseHash("learning-resource-generation", courseId)}
+            aria-expanded={resourceConfigOpen}
+            onClick={() => {
+              setWizardOpen(false);
+              setResourceConfigOpen((open) => !open);
+            }}
           >
             <MaterialIcon name="auto_awesome" />
             学习资源生成
-          </a>
+          </button>
         ) : null}
         {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
       </div>
+
+      {resourceConfigOpen ? (
+        <LearningResourceGenerationPanel onClose={() => setResourceConfigOpen(false)} />
+      ) : null}
 
       {wizardOpen && plan?.status === "draft" ? (
         <CourseKnowledgeBuildWizard

@@ -1,5 +1,7 @@
 # 学习资源生成入口与独立配置页实施计划
 
+> 已废弃：本计划实现的独立页面交互已被页内展开方案替代。当前实施计划见 [学习资源生成内嵌配置](./2026-08-31-learning-resource-generation-inline-implementation-cn.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在课程知识页“更新知识库”旁增加“学习资源生成”入口，并将教师端按知识点生成能力迁移到课程内独立配置页。

@@ -1,21 +1,26 @@
 import { expect, test } from "./fixtures/teacherApp";
 
-test("learning resource generation opens a dedicated configuration page", async ({ teacherPage }) => {
+test("learning resource generation opens inline without changing the route", async ({ teacherPage }) => {
   await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await teacherPage.getByRole("link", { name: "学习资源生成" }).click();
+  const originalUrl = teacherPage.url();
+  await teacherPage.getByRole("button", { name: "学习资源生成" }).click();
 
-  await expect(teacherPage).toHaveURL(/#learning-resource-generation\?course_id=course-physics/);
-  await expect(teacherPage.getByRole("heading", { name: "学习资源生成" })).toBeVisible();
-  await expect(teacherPage.getByRole("link", { name: "返回课程知识" })).toBeVisible();
-  await expect(teacherPage.getByText("力学", { exact: true })).toBeVisible();
-  await teacherPage.getByRole("checkbox", { name: "力学" }).check();
-  await expect(teacherPage.getByRole("button", { name: /生成 3 项资源/ })).toBeEnabled();
+  await expect(teacherPage).toHaveURL(originalUrl);
+  const resourcePanel = teacherPage.getByRole("dialog", { name: "学习资源生成" });
+  await expect(resourcePanel).toBeVisible();
+  await expect(resourcePanel.getByRole("button", { name: "收起", exact: true })).toBeVisible();
+  await expect(resourcePanel.getByText("力学", { exact: true })).toBeVisible();
+  await resourcePanel.getByRole("checkbox", { name: "力学" }).check();
+  await expect(resourcePanel.getByRole("button", { name: /生成 3 项资源/ })).toBeEnabled();
+
+  await resourcePanel.getByRole("button", { name: "收起", exact: true }).click();
+  await expect(resourcePanel).toHaveCount(0);
 });
 
 test("course knowledge keeps one document uploader and the resource generation entry", async ({ teacherPage }) => {
   await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
   await expect(teacherPage.getByRole("button", { name: "上传资料" })).toHaveCount(1);
-  await expect(teacherPage.getByRole("link", { name: "学习资源生成" })).toBeVisible();
+  await expect(teacherPage.getByRole("button", { name: "学习资源生成" })).toBeVisible();
   await expect(teacherPage.getByRole("navigation", { name: "课程知识视图" })).toHaveCount(0);
 });
 

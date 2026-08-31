@@ -3,7 +3,6 @@ export type TeacherCourseRoute =
   | "learning"
   | "ai"
   | "knowledge"
-  | "learning-resource-generation"
   | "graph"
   | "classroom-studio"
   | "resources"
@@ -62,7 +61,7 @@ export function readTeacherCourseLocation(hash: string): {
 } {
   const normalized = String(hash || "").replace(/^#/, "");
   const [routeName, query = ""] = normalized.split("?");
-  const route = ["course-detail", "learning", "ai", "knowledge", "learning-resource-generation", "graph", "classroom-studio", "resources", "edit"].includes(routeName)
+  const route = ["course-detail", "learning", "ai", "knowledge", "graph", "classroom-studio", "resources", "edit"].includes(routeName)
     ? routeName as TeacherCourseRoute
     : null;
   const courseId = normalizeCourseId(new URLSearchParams(query).get("course_id"));
