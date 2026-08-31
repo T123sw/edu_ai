@@ -92,6 +92,51 @@ def test_executor_filter_tool_schemas_strict_mode():
     assert names == ["draft_outline"]
 
 
+def test_executor_hides_mutating_tools_for_unplanned_qa_contract():
+    from app.chat.runtime.nodes.executor import _filter_tool_schemas_for_step
+
+    schemas = [
+        SCHEMA_RAG_SEARCH,
+        SCHEMA_IMAGE_SEARCH,
+        SCHEMA_DRAFT_OUTLINE,
+        SCHEMA_GENERATE_REPORT,
+    ]
+    state = {
+        "task_contract": {"intent": "qa"},
+        "plan_mode": "",
+        "current_plan": {},
+    }
+
+    filtered = _filter_tool_schemas_for_step(schemas, state)
+
+    assert [item["function"]["name"] for item in filtered] == [
+        "rag_search",
+        "image_search",
+    ]
+
+
+def test_executor_keeps_expected_generation_tool_for_generation_contract():
+    from app.chat.runtime.nodes.executor import _filter_tool_schemas_for_step
+
+    state = {
+        "task_contract": {"intent": "confirm"},
+        "plan_mode": "guided",
+        "plan_step_index": 0,
+        "current_plan": {
+            "steps": [{"expected_tools": ["generate_report"]}],
+        },
+    }
+
+    filtered = _filter_tool_schemas_for_step(
+        [SCHEMA_RAG_SEARCH, SCHEMA_GENERATE_REPORT], state
+    )
+
+    assert [item["function"]["name"] for item in filtered] == [
+        "rag_search",
+        "generate_report",
+    ]
+
+
 def test_executor_strict_empty_allowlist_exposes_no_tools_and_disables_tool_choice():
     from app.chat.runtime.nodes.executor import _filter_tool_schemas_for_step, _tool_choice_for_step
 
@@ -126,6 +171,34 @@ def test_tool_free_step_flattens_prior_function_protocol_to_read_only_context():
     assert all(item.get("role") != "tool" for item in prepared)
     assert any("课程证据" in item.get("content", "") for item in prepared)
     assert "不授予任何工具权限" in prepared[-1]["content"]
+
+
+def test_qa_step_hint_explicitly_forbids_resource_submission_claims():
+    from app.chat.runtime.nodes.executor import _inject_plan_step_hint
+
+    messages = [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "开始节点是什么"},
+    ]
+    state = {
+        "plan_mode": "guided",
+        "plan_step_index": 0,
+        "task_contract": {"intent": "qa"},
+        "current_plan": {
+            "steps": [{
+                "user_title": "回答问题",
+                "internal_action": "answer_question",
+                "expected_tools": [],
+            }]
+        },
+    }
+
+    rendered = _inject_plan_step_hint(messages, state)
+    hint = next(
+        item["content"] for item in rendered if "当前执行步骤" in item["content"]
+    )
+    assert "本轮是普通问答" in hint
+    assert "不得声称已创建或提交后台任务" in hint
 
 
 def test_strict_single_tool_step_is_compiled_without_model_choice():

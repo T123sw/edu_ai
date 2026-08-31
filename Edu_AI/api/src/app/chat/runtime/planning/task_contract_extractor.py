@@ -43,7 +43,30 @@ _STATUS_ACTION_PATTERN = re.compile(
     r"状态.{0,12}(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂))"
 )
 _MODIFY_KEYWORDS = ("修改", "改成", "改为", "改得", "改简单", "改难", "调整")
-_CONFIRM_KEYWORDS = ("确认", "按这个", "就按", "开始生成", "继续生成", "没问题", "可以生成")
+_CONFIRM_EXACT_REPLIES = {
+    "开始",
+    "好的",
+    "可以",
+    "确认",
+    "没问题",
+    "继续",
+    "ok",
+    "按这个",
+    "就按",
+    "确认生成",
+    "开始生成",
+    "继续生成",
+    "可以生成",
+    "按这个生成",
+    "就按这个生成",
+}
+_CONFIRM_COMMAND_PATTERN = re.compile(
+    r"^(?:"
+    r"(?:确认)?(?:按这个|就按这个)(?:大纲)?生成"
+    r"|确认生成(?:修订后的|修改后的|当前|这份|这个)?"
+    r"(?:报告|教案|ppt|课件|大纲)?"
+    r")$"
+)
 _WEB_KEYWORDS = ("查找网络", "查网络", "联网", "网上", "最新资料", "网络资料")
 _IMAGE_KEYWORDS = ("配图", "插图", "示意图", "流程图", "架构图", "图片")
 _GENERATION_KEYWORDS = (
@@ -264,7 +287,7 @@ def _intent(question: str, resource_types: list[str], active_outline: dict) -> s
         return "status"
     if _is_modification_request(question, resource_types, active_outline):
         return "modify"
-    if active_outline and any(keyword in question for keyword in _CONFIRM_KEYWORDS):
+    if active_outline and _is_outline_confirmation(question):
         return "confirm"
     if any(question.startswith(prefix) for prefix in _HOW_TO_PREFIXES):
         return "qa"
@@ -277,6 +300,18 @@ def _intent(question: str, resource_types: list[str], active_outline: dict) -> s
     if _requests_generation(question):
         return "generate_single"
     return "qa"
+
+
+def _is_outline_confirmation(question: str) -> bool:
+    normalized = re.sub(
+        r"[\s，,。.!！?？]+",
+        "",
+        str(question or "").lower(),
+    )
+    return (
+        normalized in _CONFIRM_EXACT_REPLIES
+        or bool(_CONFIRM_COMMAND_PATTERN.fullmatch(normalized))
+    )
 
 
 def _is_cancel_request(question: str) -> bool:
@@ -362,8 +397,9 @@ def _source_authority(capability: Any) -> tuple[str, list[str]]:
 
 
 def _topic(question: str, resource_types: list[str], active_outline: dict) -> str:
-    if active_outline and any(
-        token in question.lower() for token in (*_CONFIRM_KEYWORDS, *_MODIFY_KEYWORDS)
+    if active_outline and (
+        _is_outline_confirmation(question)
+        or any(token in question.lower() for token in _MODIFY_KEYWORDS)
     ):
         return str(active_outline.get("subject") or "").strip()
     topic = question

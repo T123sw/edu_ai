@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 
 from langgraph.config import get_config, get_stream_writer
 
 from app.chat.runtime.agent_tools import ToolExecutionContext
+from app.chat.runtime.agent_tools.tool_meta import get_tool_meta
 from app.chat.runtime.graph.state import AgentState
 from app.chat.runtime.nodes.constants import _TOOL_NAMES_CN
 from app.chat.runtime.tool_policy import choose_retrieval_tools
@@ -161,6 +163,9 @@ def executor_node(state: AgentState) -> dict:
     tool_calls_event = None
     answer_chunks: list[str] = []
     should_fallback: str | None = None
+    guard_qa_output = str(
+        (state.get("task_contract") or {}).get("intent") or ""
+    ) == "qa"
 
     tool_choice = _tool_choice_for_step(state, tool_schemas)
     for e in stream_fn(
@@ -176,7 +181,8 @@ def executor_node(state: AgentState) -> dict:
                 t_first = time.perf_counter()
                 print(f"[智能体] 第{step}轮 | ttft {(t_first - t_llm) * 1000:.0f}ms", flush=True)
             answer_chunks.append(e["content"])
-            writer({"type": "delta", "payload": {"content": e["content"]}})
+            if not guard_qa_output:
+                writer({"type": "delta", "payload": {"content": e["content"]}})
         elif etype == "tool_calls":
             tool_calls_event = e
         elif etype == "error":
@@ -221,6 +227,13 @@ def executor_node(state: AgentState) -> dict:
 
     # Final answer turn — emit result event and finish
     answer = "".join(answer_chunks)
+    guarded_answer = _guard_unverified_submission_claim(answer, state, ctx)
+    if guard_qa_output:
+        chunks = answer_chunks if guarded_answer == answer else [guarded_answer]
+        for chunk in chunks:
+            if chunk:
+                writer({"type": "delta", "payload": {"content": chunk}})
+    answer = guarded_answer
     # If this turn invoked draft_outline, append the structured outline_markdown to
     # the assistant answer. LLMs (esp. Qwen / DeepSeek) tend to strip # / ## / ###
     # symbols when reproducing markdown, losing visual hierarchy. We append server-side
@@ -261,6 +274,40 @@ def executor_node(state: AgentState) -> dict:
         "reflect_hint": "",
         "reflect_filtered": {},
     }
+
+
+_RESOURCE_SUBMISSION_CLAIM_PATTERNS = (
+    re.compile(
+        r"(?:报告|教案|PPT|课件|练习题|资源|生成任务)"
+        r"(?:生成)?(?:任务)?已(?:成功)?(?:提交|启动|创建|开始)",
+        flags=re.IGNORECASE,
+    ),
+    re.compile(
+        r"正在后台生成(?:报告|教案|PPT|课件|练习题|资源)?",
+        flags=re.IGNORECASE,
+    ),
+)
+
+
+def _guard_unverified_submission_claim(answer: str, state: dict, ctx) -> str:
+    """Replace a QA hallucination that claims a resource job was submitted."""
+
+    intent = str((state.get("task_contract") or {}).get("intent") or "")
+    if intent != "qa":
+        return answer
+    has_verified_generation = any(
+        bool(item.get("ok"))
+        and str(item.get("tool") or "").startswith("generate_")
+        and bool(str(item.get("task_id") or "").strip())
+        for item in list(getattr(ctx, "trace", {}).get("agent_steps") or [])
+        if isinstance(item, dict)
+    )
+    if has_verified_generation:
+        return answer
+    if not any(pattern.search(answer) for pattern in _RESOURCE_SUBMISSION_CLAIM_PATTERNS):
+        return answer
+    ctx.trace["truthfulness_guard"] = "blocked_unverified_submission_claim"
+    return "本轮未提交任何资源生成任务。"
 
 
 def _build_mandatory_retrieval_calls(state: AgentState, rt: dict, ctx: ToolExecutionContext) -> list[dict]:
@@ -884,6 +931,16 @@ def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
     current step explicitly expects them.  This prevents a model from skipping
     outline confirmation and submitting an irreversible task early.
     """
+    contract = dict(state.get("task_contract") or {})
+    if str(contract.get("intent") or "") == "qa":
+        tool_schemas = [
+            schema
+            for schema in tool_schemas
+            if not get_tool_meta(
+                str((schema.get("function") or {}).get("name") or "")
+            ).mutates_state
+        ]
+
     mode = state.get("plan_mode")
     if mode not in {"strict", "guided"}:
         return tool_schemas
@@ -1075,11 +1132,25 @@ def _inject_plan_step_hint(messages: list, state: dict) -> list:
     step = steps[idx]
     tools_str = "、".join(step.get("expected_tools", [])) or "无特定工具"
     extras = _build_visual_step_hint(step, state, idx)
+    intent = str((state.get("task_contract") or {}).get("intent") or "")
+    action = str(step.get("internal_action") or "")
+    mode_boundary = ""
+    if intent == "qa" or action == "answer_question":
+        mode_boundary = (
+            "本轮是普通问答：只回答当前问题；不得调用资源工具，"
+            "不得声称已创建或提交后台任务。\n"
+        )
+    elif action == "generate_resource":
+        mode_boundary = (
+            "本轮是资源生成步骤：只有生成工具成功返回 task_id 后，"
+            "才能向用户报告任务已提交。\n"
+        )
     hint = (
         f"【当前执行步骤 {idx + 1}/{len(steps)}】\n"
         f"任务：{step.get('user_title', '')}\n"
         f"预期工具：{tools_str}\n"
         f"{extras}"
+        f"{mode_boundary}"
         "请专注完成此步骤，不要跳步。"
     )
     note = {"role": "system", "content": hint}
