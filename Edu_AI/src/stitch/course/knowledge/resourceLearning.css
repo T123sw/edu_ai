@@ -1,0 +1,34 @@
+.resource-learning-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 12px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-subtle, #f8fafc);
+  color: var(--app-text-muted, #475569);
+  font-size: 12px;
+}
+
+.resource-learning-progress strong {
+  color: var(--app-primary, #2563eb);
+}
+
+.resource-learning-progress small {
+  flex-basis: 100%;
+  color: var(--app-text-muted, #64748b);
+}
+
+.resource-learning-progress--compact {
+  margin: 0;
+  border: 1px solid var(--app-border, #e2e8f0);
+  border-radius: 0;
+  background: var(--surface-card, #fff);
+  padding: 8px 18px;
+}
+
+.resource-learning-progress--compact small {
+  flex-basis: auto;
+  margin-left: auto;
+}

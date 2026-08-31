@@ -47,6 +47,7 @@ export function buildStudentHash(
     space?: StudentResourceSpace;
     materialType?: string;
     materialId?: string;
+    resourceVersion?: number | string;
     classroomId?: string;
     scopeType?: "course" | "knowledge_point";
     scopeId?: string;
@@ -64,6 +65,7 @@ export function buildStudentHash(
     space: options?.space,
     material_type: options?.materialType,
     material_id: options?.materialId,
+    resource_version: options?.resourceVersion,
     classroom_id: options?.classroomId,
     scopeType: options?.scopeType,
     scopeId: options?.scopeId,

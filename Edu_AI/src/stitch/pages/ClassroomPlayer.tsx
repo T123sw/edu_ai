@@ -29,13 +29,14 @@ import type {
 } from "../api/types";
 import { useAuthSession } from "../authSession";
 import { AppSurface, MaterialIcon } from "../shared";
-import { buildTeacherCourseHash } from "../teacherRoutes";
+import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
 import { ClassroomQaPanel } from "../classroomQa/ClassroomQaPanel";
 import { completeAndAdvance } from "../classroomQa/classroomAutoplay";
 import { useClassroomInterruption } from "../classroomQa/useClassroomInterruption";
 import { shouldTrackResourceLearning } from "./classroomResourceLearning";
+import { ResourceLearningProgress } from "../course/knowledge/ResourceLearningProgress";
 
 function getQueryParams(): {
   courseId: string | null;
@@ -473,7 +474,11 @@ export function ClassroomPlayerPage() {
         <header className="classroom-console__header">
           <div className="flex min-w-0 items-center gap-3">
             <a
-              href={buildTeacherCourseHash("classroom-studio", courseId)}
+              href={buildRoleCourseHash(
+                user?.role,
+                user?.role === "student" ? "knowledge" : "classroom-studio",
+                courseId,
+              )}
               className="classroom-icon-button"
               aria-label="返回 AI 课堂列表"
               title="返回 AI 课堂列表"
@@ -548,6 +553,14 @@ export function ClassroomPlayerPage() {
             ) : null}
           </div>
         </header>
+
+        {tracksResourceLearning && learningProgress && !presentationMode ? (
+          <ResourceLearningProgress
+            progress={learningProgress}
+            compact
+            syncState={learningSyncState}
+          />
+        ) : null}
 
         {loading ? (
           <ClassroomState
