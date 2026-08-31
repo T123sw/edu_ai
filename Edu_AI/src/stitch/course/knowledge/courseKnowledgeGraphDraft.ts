@@ -71,13 +71,16 @@ function normalize(root: KnowledgeGraphNode): KnowledgeGraphNode {
 export function updateGraphNode(
   root: KnowledgeGraphNode,
   nodeId: string,
-  patch: { label?: string; summary?: string },
+  patch: { label?: string; summary?: string; sourceOutlineRefs?: string[] },
 ) {
   const next = clone(root);
   function visit(node: KnowledgeGraphNode) {
     if (node.id === nodeId) {
       if (patch.label !== undefined) node.label = patch.label;
       if (patch.summary !== undefined) node.data = { ...(node.data || {}), summary: patch.summary };
+      if (patch.sourceOutlineRefs !== undefined) {
+        node.data = { ...(node.data || {}), source_outline_refs: [...patch.sourceOutlineRefs] };
+      }
       return true;
     }
     return (node.children || []).some(visit);

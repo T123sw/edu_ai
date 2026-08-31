@@ -43,10 +43,15 @@ function graph(): KnowledgeGraphNode {
 
 test("graph editor updates content without mutating source", () => {
   const source = graph();
-  const updated = updateGraphNode(source, "p1", { label: "线性方程", summary: "新的说明" });
+  const updated = updateGraphNode(source, "p1", {
+    label: "线性方程",
+    summary: "新的说明",
+    sourceOutlineRefs: ["chapter-1", "chapter-2"],
+  });
   assert.equal(source.children?.[0].children?.[0].label, "一元方程");
   assert.equal(updated.children?.[0].children?.[0].label, "线性方程");
   assert.equal(updated.children?.[0].children?.[0].data?.summary, "新的说明");
+  assert.deepEqual(updated.children?.[0].children?.[0].data?.source_outline_refs, ["chapter-1", "chapter-2"]);
 });
 
 test("graph editor adds, removes and reorders siblings", () => {

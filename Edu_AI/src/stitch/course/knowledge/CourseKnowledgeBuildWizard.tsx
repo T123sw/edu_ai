@@ -55,11 +55,12 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
 
   useEffect(() => {
     if (!build.graph_draft) return;
+    const incomingGraphDraft = build.graph_draft;
     const previouslySaved = lastSavedGraph.current;
-    lastSavedGraph.current = build.graph_draft;
+    lastSavedGraph.current = incomingGraphDraft;
     setGraphDraft((current) => {
       if (!current || !previouslySaved || graphDraftEqual(current, previouslySaved)) {
-        return build.graph_draft;
+        return incomingGraphDraft;
       }
       return current;
     });
@@ -265,6 +266,7 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
         <CourseKnowledgeGraphReviewStep
           root={graphDraft}
           savedRoot={build.graph_draft}
+          baselineRoot={build.baseline_graph || null}
           config={build.config || config}
           textbooks={build.textbooks || []}
           busy={graphBusy || generating}
