@@ -5,12 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import tempfile
 import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
-from uuid import uuid4
 
 from core.course_storage import CourseStorageManager
 
@@ -285,15 +285,25 @@ class ClassroomQaSessionStore:
     @staticmethod
     def _atomic_write(path: Path, payload: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
+        temporary: Path | None = None
         try:
-            with temporary.open("w", encoding="utf-8", newline="\n") as stream:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                dir=path.parent,
+                prefix=".",
+                suffix=".tmp",
+                delete=False,
+                encoding="utf-8",
+                newline="\n",
+            ) as stream:
+                temporary = Path(stream.name)
                 json.dump(payload, stream, ensure_ascii=False, indent=2)
                 stream.flush()
                 os.fsync(stream.fileno())
             os.replace(temporary, path)
         finally:
-            temporary.unlink(missing_ok=True)
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
 
     @staticmethod
     def _iso_now() -> str:

@@ -189,7 +189,9 @@ async def test_stale_checkpoint_and_missing_material_have_stable_errors(tmp_path
     assert stale.value.status_code == 409
     assert gateway.calls == 0
 
-    missing, _, _, _, _ = create_service(tmp_path / 'missing', material=False)
+    missing, missing_store, _, _, _ = create_service(
+        tmp_path / 'missing', material=False
+    )
     with pytest.raises(ClassroomQaError) as not_found:
         await missing.submit_turn(
             course_id='course-1',
@@ -198,6 +200,11 @@ async def test_stale_checkpoint_and_missing_material_have_stable_errors(tmp_path
             request=turn_request(),
         )
     assert not_found.value.status_code == 404
+    assert not missing_store.session_dir(
+        course_id='course-1',
+        classroom_id='classroom-1',
+        owner_user_id='student-a',
+    ).exists()
 
 
 async def test_busy_turn_maps_to_conflict_and_metrics_exclude_content(tmp_path):
