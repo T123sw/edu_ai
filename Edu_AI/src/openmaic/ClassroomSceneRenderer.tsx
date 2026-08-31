@@ -67,7 +67,7 @@ export function ClassroomSceneRenderer({
           onComplete={onComplete}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
-          onSubmitAnswers={onQuizSubmitAnswers}
+          onInteraction={onDemoInteraction}
         />
       );
     case 'quiz':
@@ -83,6 +83,7 @@ export function ClassroomSceneRenderer({
           onComplete={onComplete}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
+          onSubmitAnswers={onQuizSubmitAnswers}
         />
       );
     case 'invalid':
