@@ -471,3 +471,19 @@ course_knowledge_build
 6. 构建前后的当前版本、失败回滚、刷新恢复和历史版本可追溯。
 7. 当前课程知识页不再调用旧的预览后立即启动逻辑，旧教材旁路从主界面移除。
 8. 规格索引、验收索引、项目地图和验收结果同步更新。
+
+## 22. 2026-08-31 教材优先采集增量
+
+正式构建在 `prefer_complete_textbooks=true` 且 `COURSE_KB_TEXTBOOK_FIRST_ENABLED` 未关闭时，执行顺序调整为：课程级教材发现、PDF/HTML 安全采集、MinerU/结构化 HTML 解析、教材多叶映射、叶节点缺口补搜、AI 最后兜底、质量门禁、原子发布。历史 build 缺少新字段时继续走原链路。
+
+新增配置：
+
+- `prefer_complete_textbooks=true`
+- `max_online_textbooks=2`，范围 0～5
+- `max_search_rounds_per_leaf=2`，范围 1～3
+
+`target_materials_per_leaf` 在新链路中解释为有效覆盖单位。教材章节组正文达到 800 字且映射置信度不低于 0.25 时计 1 unit，达到 4000 字时计 2 units；网页正文达到 600 字计 1 unit；AI 审查通过计 1 unit。同一内容 hash 不重复计分，同一教材每叶最多 2 units，上传教材不计入外部非 AI 来源下限，在线教材计入。
+
+在线 PDF 下载强制执行 HTTPS、公网地址、逐跳重定向校验、robots、50 MB 上限和 `%PDF-` 签名校验。PDF 只调用一次 MinerU；原文件作为可见 artifact 保存，叶节点索引使用解析后聚合 Markdown，不再次导入原 PDF。低置信度和 top-2 分差小于 0.05 的歧义映射不计覆盖。
+
+新链路的 AI 文档必须记录 `fallback_reason=non_ai_search_exhausted`、非 AI 尝试次数和补充前覆盖快照。质量门禁升级为 9 项：图谱结构、图谱规模、教材映射质量、外部非 AI 覆盖、内容充分性、AI 兜底策略、来源完整性、索引完整性和发布原子性。

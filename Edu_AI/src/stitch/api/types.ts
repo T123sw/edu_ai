@@ -480,6 +480,9 @@ export type CourseKnowledgeBuildConfig = {
   minimum_web_materials_per_leaf: number;
   maximum_ai_materials_per_leaf: number;
   max_search_results_per_leaf: number;
+  prefer_complete_textbooks: boolean;
+  max_online_textbooks: number;
+  max_search_rounds_per_leaf: number;
   ai_supplement_enabled: boolean;
   content_language: string;
   update_strategy: "incremental" | "merge_rebuild" | "full_rebuild";

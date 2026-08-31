@@ -9,6 +9,13 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
+from app.services.course_knowledge_source_policy import (
+    build_course_source_queries,
+    build_leaf_source_queries,
+    classify_source_candidate,
+    rank_source_candidates,
+)
+
 
 SearchProvider = Callable[[str, int], Sequence[Any]]
 _TRACKING_KEYS = {"fbclid", "gclid", "mc_cid", "mc_eid"}
@@ -120,6 +127,111 @@ def _queries(
         supplemental = f"{base} tutorial educational resource language:{configured}"
         supplemental_language = configured
     return [(chinese, "zh-CN"), (supplemental, supplemental_language)]
+
+
+def discover_course_textbook_sources(
+    build: Mapping[str, Any],
+    *,
+    search_provider: SearchProvider | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> dict[str, Any]:
+    """Discover course-wide textbook candidates before leaf gap search."""
+
+    config = dict(build.get("config") or {})
+    max_textbooks = max(0, min(5, int(config.get("max_online_textbooks", 2))))
+    if max_textbooks == 0:
+        return {
+            "source_candidates": [],
+            "warnings": [],
+            "metrics": {"candidate_count": 0, "selected_textbook_count": 0, "search_failure_count": 0},
+        }
+    course = dict(build.get("course_snapshot") or {})
+    provider = search_provider
+    if provider is None:
+        from app.services.deepsearch_service import search_web_sources
+
+        provider = search_web_sources
+    timestamp = (now or (lambda: datetime.now(timezone.utc)))().isoformat()
+    recall_limit = max(6, max_textbooks * 3)
+    candidates_by_url: dict[str, dict[str, Any]] = {}
+    warnings: list[dict[str, str]] = []
+
+    for intent in build_course_source_queries(
+        course,
+        content_language=str(config.get("content_language") or "zh-CN"),
+    ):
+        try:
+            hits = provider(intent.query, recall_limit)
+        except Exception as exc:
+            warnings.append(
+                {
+                    "code": "SOURCE_SEARCH_FAILED",
+                    "topic_id": "",
+                    "query": intent.query,
+                    "message": str(exc),
+                }
+            )
+            continue
+        for rank, hit in enumerate(list(hits or []), start=1):
+            original_url = _clean(_hit_value(hit, "url"))
+            canonical_url = canonical_source_url(original_url)
+            candidate = classify_source_candidate(
+                intent=intent,
+                course=course,
+                title=_clean(_hit_value(hit, "title")) or original_url,
+                snippet=_clean(_hit_value(hit, "content")),
+                url=canonical_url or original_url,
+                bocha_rank=rank,
+            )
+            resource_kind = str((candidate.get("metadata") or {}).get("resource_kind") or "")
+            if resource_kind not in {"textbook", "course_notes"}:
+                candidate["selected"] = False
+                candidate["review_status"] = "rejected_irrelevant"
+                candidate["review_reason"] = "课程级教材发现只保留完整教材或课程讲义"
+            candidate.update(
+                {
+                    "candidate_id": _stable_id(f"course:{canonical_url or original_url}"),
+                    "topic_id": None,
+                    "license_name": None,
+                    "license_url": None,
+                }
+            )
+            candidate["metadata"] = {
+                **dict(candidate.get("metadata") or {}),
+                "provider": "configured_web_search",
+                "discovered_at": timestamp,
+                "original_url": original_url,
+                "canonical_url": canonical_url,
+            }
+            dedupe_url = canonical_url or original_url
+            existing = candidates_by_url.get(dedupe_url)
+            if existing is None or float(candidate["metadata"]["priority_score"]) > float(
+                (existing.get("metadata") or {}).get("priority_score") or 0
+            ):
+                candidates_by_url[dedupe_url] = candidate
+        ranked = rank_source_candidates(list(candidates_by_url.values()))
+        if sum(bool(item.get("selected")) for item in ranked) >= max_textbooks:
+            break
+
+    ranked = rank_source_candidates(list(candidates_by_url.values()))
+    selected_seen = 0
+    for candidate in ranked:
+        if not candidate.get("selected"):
+            continue
+        selected_seen += 1
+        if selected_seen > max_textbooks:
+            candidate["selected"] = False
+            candidate["review_status"] = "rejected_irrelevant"
+            candidate["review_reason"] = "已达到在线教材候选上限"
+    return {
+        "source_candidates": ranked,
+        "warnings": warnings,
+        "metrics": {
+            "candidate_count": len(ranked),
+            "selected_textbook_count": min(selected_seen, max_textbooks),
+            "search_failure_count": len(warnings),
+        },
+    }
 
 
 def discover_course_knowledge_sources(
@@ -244,5 +356,127 @@ def discover_course_knowledge_sources(
             "candidate_count": len(candidates),
             "selected_candidate_count": selected_count,
             "search_failure_count": len(warnings),
+        },
+    }
+
+
+def discover_leaf_gap_sources(
+    build: Mapping[str, Any],
+    *,
+    topic_ids: set[str],
+    round_index: int,
+    search_provider: SearchProvider | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> dict[str, Any]:
+    """Run one new query intent only for leaves that still have a coverage gap."""
+    topics = [
+        topic
+        for topic in confirmed_graph_topics(dict(build.get("graph_draft") or {}))
+        if topic["topic_id"] in topic_ids
+    ]
+    config = dict(build.get("config") or {})
+    course = dict(build.get("course_snapshot") or {})
+    max_results = max(1, int(config.get("max_search_results_per_leaf") or 6))
+    provider = search_provider
+    if provider is None:
+        from app.services.deepsearch_service import search_web_sources
+
+        provider = search_web_sources
+    timestamp = (now or (lambda: datetime.now(timezone.utc)))().isoformat()
+    candidates: list[dict[str, Any]] = []
+    warnings: list[dict[str, str]] = []
+
+    for topic in topics:
+        intents = build_leaf_source_queries(
+            course,
+            topic,
+            content_language=str(config.get("content_language") or "zh-CN"),
+        )
+        if not intents:
+            continue
+        intent = intents[min(max(0, int(round_index)), len(intents) - 1)]
+        try:
+            hits = provider(intent.query, max_results)
+        except Exception as exc:
+            warnings.append(
+                {
+                    "code": "SEARCH_PROVIDER_FAILED",
+                    "topic_id": topic["topic_id"],
+                    "query": intent.query,
+                    "message": str(exc),
+                }
+            )
+            continue
+        seen_urls: set[str] = set()
+        for rank, hit in enumerate(list(hits or []), start=1):
+            original_url = _clean(_hit_value(hit, "url"))
+            canonical_url = canonical_source_url(original_url)
+            dedupe_url = canonical_url or original_url
+            if not dedupe_url or dedupe_url in seen_urls:
+                continue
+            seen_urls.add(dedupe_url)
+            candidate = classify_source_candidate(
+                intent=intent,
+                course=course,
+                topic=topic,
+                title=_clean(_hit_value(hit, "title")),
+                snippet=_clean(_hit_value(hit, "content")),
+                url=canonical_url or original_url,
+                bocha_rank=rank,
+            )
+            candidate.update(
+                {
+                    "candidate_id": _stable_id(
+                        f"gap:{round_index}:{topic['topic_id']}:{dedupe_url}"
+                    ),
+                    "topic_id": topic["topic_id"],
+                    "license_name": None,
+                    "license_url": None,
+                }
+            )
+            candidate["metadata"] = {
+                **dict(candidate.get("metadata") or {}),
+                "provider": "configured_web_search",
+                "discovered_at": timestamp,
+                "original_url": original_url,
+                "canonical_url": canonical_url,
+                "search_round": int(round_index) + 1,
+                "matched_topic_ids": [topic["topic_id"]],
+            }
+            candidates.append(candidate)
+    merged_by_url: dict[str, dict[str, Any]] = {}
+    for candidate in candidates:
+        key = canonical_source_url(candidate.get("url")) or str(candidate.get("url") or "")
+        existing = merged_by_url.get(key)
+        if existing is None:
+            merged_by_url[key] = candidate
+            continue
+        matched = {
+            *list((existing.get("metadata") or {}).get("matched_topic_ids") or []),
+            *list((candidate.get("metadata") or {}).get("matched_topic_ids") or []),
+        }
+        existing["metadata"] = {
+            **dict(existing.get("metadata") or {}),
+            "matched_topic_ids": sorted(str(item) for item in matched if str(item)),
+        }
+        if float((candidate.get("metadata") or {}).get("priority_score") or 0) > float(
+            (existing.get("metadata") or {}).get("priority_score") or 0
+        ):
+            candidate["metadata"] = {
+                **dict(candidate.get("metadata") or {}),
+                "matched_topic_ids": existing["metadata"]["matched_topic_ids"],
+            }
+            merged_by_url[key] = candidate
+    ranked = rank_source_candidates(list(merged_by_url.values()))
+    return {
+        "topics": topics,
+        "source_candidates": ranked,
+        "warnings": warnings,
+        "metrics": {
+            "searched_leaf_count": len(topics),
+            "candidate_count": len(ranked),
+            "selected_candidate_count": sum(bool(item.get("selected")) for item in ranked),
+            "search_failure_count": len(warnings),
+            "search_round": int(round_index) + 1,
         },
     }

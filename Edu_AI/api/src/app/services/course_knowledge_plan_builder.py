@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import os
 import re
 from contextlib import nullcontext
 from collections.abc import Callable, Mapping
@@ -18,9 +19,19 @@ from bs4 import BeautifulSoup
 from app.persistence.dependencies import get_postgres_knowledge_repository
 from app.services.course_generated_material import generate_reviewed_supplement
 from app.services.course_knowledge_builder import _canonical_path, _robots_allows, _safe_material_filename, utc_now
+from app.services.course_knowledge_coverage import calculate_leaf_coverage
 from app.services.course_knowledge_source_discovery import (
     canonical_source_url,
+    confirmed_graph_topics,
     discover_course_knowledge_sources,
+    discover_course_textbook_sources,
+    discover_leaf_gap_sources,
+)
+from app.services.course_knowledge_source_ingestion import (
+    SourceIngestionError,
+    fetch_source,
+    parse_html_source,
+    parse_pdf_source,
 )
 from app.services.course_knowledge_textbook_mapping import map_textbook_chunks_to_graph
 from app.services.course_knowledge_quality_gate import evaluate_course_knowledge_quality
@@ -152,7 +163,18 @@ def _persist_candidate(
             and str(existing.get("scope_id") or "") == scope_id
             and existing.get("status") == "ready"
         ):
-            return {"document_id": str(existing.get("id") or ""), "scope_id": scope_id, "source_url": url, "reused": True, "source_type": "web"}
+            return {
+                "document_id": str(existing.get("id") or ""),
+                "scope_id": scope_id,
+                "source_url": str(existing.get("source_final_url") or existing.get("source_url") or url),
+                "final_url": str(existing.get("source_final_url") or existing.get("source_url") or url),
+                "reused": True,
+                "source_type": "web",
+                "content_hash": existing.get("content_hash"),
+                "content_chars": int(existing.get("content_chars") or 0),
+                "chunk_count": int(existing.get("chunk_count") or 0),
+                "provenance_ok": bool(existing.get("content_hash") and (existing.get("source_final_url") or existing.get("source_url"))),
+            }
     headers = {"User-Agent": "EduAI-CourseKnowledgeBuilder/2.0 (+source-attribution)"}
     with httpx.Client(timeout=30, follow_redirects=True, headers=headers) as client:
         title, content, final_url, content_hash = _extract_reviewed_page(client, candidate)
@@ -193,9 +215,12 @@ def _persist_candidate(
             "generated_by": PLAN_BUILDER_VERSION, "retrieved_at": utc_now(), "doc_kind": "web",
             "source_type": "web", "status": "received", "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
             "source_query": (candidate.get("metadata") or {}).get("query"),
+            "source_discovery_intent": (candidate.get("metadata") or {}).get("discovery_intent"),
+            "matched_topic_ids": (candidate.get("metadata") or {}).get("matched_topic_ids") or [scope_id],
             "source_original_url": url,
             "source_final_url": final_url,
             "content_hash": content_hash,
+            "content_chars": len(content),
         },
     )
     if seen_final_urls is not None:
@@ -209,6 +234,8 @@ def _persist_candidate(
         "reused": False,
         "source_type": "web",
         "content_hash": content_hash,
+        "content_chars": len(content),
+        "chunk_count": int(import_result.get("chunk_count") or 0),
         "final_url": final_url,
     }
 
@@ -223,6 +250,7 @@ def _generate_and_persist_supplement(
     topic: Mapping[str, Any],
     sequence: int,
     persistence_lock: RLock | None = None,
+    fallback_audit: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     leaf_title = str(topic.get("title") or "知识点")
     scope_id = str(topic.get("topic_id") or "")
@@ -264,20 +292,68 @@ def _generate_and_persist_supplement(
             fields={
                 "source_title": supplement.title, "source_language": "zh-CN", "content_language": "zh-CN",
                 "authority_tier": "model_generated_reviewed", "generated_by": PLAN_BUILDER_VERSION,
-                "generated_at": utc_now(), "generation_audit": {**supplement.audit, "model": resolved.get("model"), "prompt_version": "course-leaf-supplement-v1"},
+                "generated_at": utc_now(), "generation_audit": {
+                    **supplement.audit, **dict(fallback_audit or {}),
+                    "model": resolved.get("model"),
+                    "prompt_version": "course-leaf-supplement-v1",
+                },
                 "generation_review_score": supplement.review_score, "doc_kind": "generated",
                 "source_type": "model_generated", "status": "received",
                 "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+                "content_hash": hashlib.sha256(body.encode("utf-8")).hexdigest(),
+                "content_chars": len(body),
             },
         )
     return {
         "document_id": record["id"], "scope_id": scope_id, "source_url": "", "reused": False,
         "source_type": "model_generated", "review_score": supplement.review_score,
+        "content_hash": hashlib.sha256(body.encode("utf-8")).hexdigest(),
+        "content_chars": len(body),
+        "chunk_count": int(import_result.get("chunk_count") or 0),
+        "fallback_audit": dict(fallback_audit or {}),
     }
 
 
 def parsed_domain(url: str) -> str:
     return str(urlparse(url).hostname or "")
+
+
+def _ingest_online_textbook_candidate(
+    candidate: Mapping[str, Any],
+    *,
+    pdf_parser: Any | None = None,
+) -> dict[str, Any]:
+    headers = {"User-Agent": "EduAI-CourseKnowledgeBuilder/2.0 (+source-attribution)"}
+    with httpx.Client(timeout=60, follow_redirects=False, headers=headers) as client:
+        fetched = fetch_source(
+            client,
+            candidate,
+            robots_allowed=lambda url: _robots_allows(client, url),
+        )
+    parse_result = (
+        parse_pdf_source(fetched, pdf_parser=pdf_parser)
+        if fetched.content_format == "pdf"
+        else parse_html_source(fetched)
+    )
+    suffix = ".pdf" if fetched.content_format == "pdf" else ".html"
+    textbook_id = f"online-{fetched.content_hash[:20]}"
+    return {
+        "textbook_id": textbook_id,
+        "filename": _safe_material_filename(
+            "online-textbook", fetched.title, fetched.final_url
+        ).rsplit(".", 1)[0]
+        + suffix,
+        "status": "ready",
+        "payload": fetched.payload,
+        "content_hash": fetched.content_hash,
+        "source_url": fetched.final_url,
+        "original_url": fetched.original_url,
+        "retrieved_at": fetched.retrieved_at,
+        "content_format": fetched.content_format,
+        "parse_result": parse_result,
+        "source_candidate_id": candidate.get("candidate_id"),
+        "is_online_textbook": True,
+    }
 
 
 def _reviewed_generated_documents(
@@ -301,17 +377,21 @@ def _reviewed_generated_documents(
             or str(record.get("status") or "received") not in {"received", "ready"}
         ):
             continue
-        eligible.append(
-            {
-                "document_id": document_id,
-                "scope_id": scope_id,
-                "source_url": "",
-                "reused": str(record.get("status") or "received") == "ready",
-                "resumed": True,
-                "source_type": "model_generated",
-                "review_score": int(record.get("generation_review_score") or 0),
-            }
-        )
+        item = {
+            "document_id": document_id,
+            "scope_id": scope_id,
+            "source_url": "",
+            "reused": str(record.get("status") or "received") == "ready",
+            "resumed": True,
+            "source_type": "model_generated",
+            "review_score": int(record.get("generation_review_score") or 0),
+        }
+        for field in ("content_hash", "content_chars", "chunk_count"):
+            if record.get(field) is not None:
+                item[field] = record[field]
+        if record.get("generation_audit"):
+            item["fallback_audit"] = dict(record["generation_audit"])
+        eligible.append(item)
         if len(eligible) >= limit:
             break
     return eligible
@@ -332,7 +412,10 @@ def _persist_textbook_materials(
     existing_index = manager.get_knowledge_base_index(course_id)
     textbooks = {
         str(item.get("textbook_id") or ""): item
-        for item in build.get("textbooks") or []
+        for item in [
+            *(build.get("textbooks") or []),
+            *(build.get("online_textbooks") or []),
+        ]
         if item.get("status") == "ready"
     }
     for textbook_id, textbook in textbooks.items():
@@ -348,34 +431,52 @@ def _persist_textbook_materials(
         if existing:
             persisted.append({"document_id": str(existing.get("id") or ""), "scope_id": "", "source_type": "textbook_original", "reused": True})
             continue
-        source_path = (course_root / str(textbook.get("relative_path") or "")).resolve()
-        source_path.relative_to(course_root)
-        if not source_path.is_file():
-            raise FileNotFoundError(f"教材原文件不存在：{textbook.get('filename')}")
-        filename = f"kbbuild-textbook-{textbook_id}-{str(textbook.get('content_hash') or '')[:12]}{source_path.suffix.lower()}"
+        is_online = bool(textbook.get("is_online_textbook"))
+        if is_online:
+            payload = bytes(textbook.get("payload") or b"")
+            if not payload:
+                raise FileNotFoundError(f"在线教材缓存不存在：{textbook.get('filename')}")
+            suffix = ".pdf" if textbook.get("content_format") == "pdf" or payload.startswith(b"%PDF-") else ".html"
+        else:
+            source_path = (course_root / str(textbook.get("relative_path") or "")).resolve()
+            source_path.relative_to(course_root)
+            if not source_path.is_file():
+                raise FileNotFoundError(f"教材原文件不存在：{textbook.get('filename')}")
+            payload = source_path.read_bytes()
+            suffix = source_path.suffix.lower()
+        filename = f"kbbuild-textbook-{textbook_id}-{str(textbook.get('content_hash') or '')[:12]}{suffix}"
         relative_path = manager.save_knowledge_base_file(
-            course_id, source_path.read_bytes(), filename,
+            course_id, payload, filename,
             scope_type="course", scope_id=course_id, library_type=LIBRARY_TYPE_COURSE,
         )
         full_path = manager.get_course_dir(course_id) / relative_path
-        import_result = rag_system.import_document(
-            str(full_path), force_reimport=True, owner=owner_user_id,
-            metadata_overrides={
-                "course_id": course_id, "library_type": LIBRARY_TYPE_COURSE,
-                "scope_type": "course", "scope_id": course_id,
-                "source_type": "textbook_original", "source_build_id": build.get("build_id"),
-                "textbook_id": textbook_id,
-            },
-        )
+        if is_online:
+            import_result = {
+                "chunk_count": int((textbook.get("parse_result") or {}).get("chunk_count") or 0)
+            }
+        else:
+            import_result = rag_system.import_document(
+                str(full_path), force_reimport=True, owner=owner_user_id,
+                metadata_overrides={
+                    "course_id": course_id, "library_type": LIBRARY_TYPE_COURSE,
+                    "scope_type": "course", "scope_id": course_id,
+                    "source_type": "textbook_original", "source_build_id": build.get("build_id"),
+                    "textbook_id": textbook_id,
+                },
+            )
         record = _update_saved_record(
             manager=manager, course_id=course_id, relative_path=relative_path,
             fields={
                 "source_type": "textbook_original", "doc_kind": "textbook",
-                "source_build_id": build.get("build_id"), "textbook_id": textbook_id,
-                "content_hash": textbook.get("content_hash"), "status": "received",
-                "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
-            },
-        )
+                    "source_build_id": build.get("build_id"), "textbook_id": textbook_id,
+                    "content_hash": textbook.get("content_hash"), "status": "received",
+                    "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+                    "source_url": textbook.get("source_url"),
+                    "retrieved_at": textbook.get("retrieved_at"),
+                    "is_online_textbook": is_online,
+                    "parser_metadata": (textbook.get("parse_result") or {}).get("parser_metadata"),
+                },
+            )
         persisted.append({"document_id": record["id"], "scope_id": "", "source_type": "textbook_original", "reused": False})
 
     groups: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
@@ -410,6 +511,9 @@ def _persist_textbook_materials(
         )
         full_path = manager.get_course_dir(course_id) / relative_path
         minimum_confidence = min(float(item.get("mapping_confidence") or 0) for item in mappings)
+        content_hash = hashlib.sha256(body.encode("utf-8")).hexdigest()
+        content_chars = len(body)
+        is_online = bool(textbook.get("is_online_textbook"))
         import_result = rag_system.import_document(
             str(full_path), force_reimport=True, owner=owner_user_id,
             metadata_overrides={
@@ -428,9 +532,27 @@ def _persist_textbook_materials(
                 "textbook_mappings": [dict(item) for item in mappings],
                 "display_in_library": False, "status": "received",
                 "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
+                "content_hash": content_hash, "content_chars": content_chars,
+                "mapping_confidence": minimum_confidence,
+                "source_url": textbook.get("source_url"),
+                "source_artifact_id": textbook_id,
+                "is_online_textbook": is_online,
+                "provenance_ok": bool(
+                    content_hash and (textbook.get("source_url") or textbook_id)
+                ),
             },
         )
-        persisted.append({"document_id": record["id"], "scope_id": scope_id, "source_type": "textbook", "reused": False})
+        persisted.append({
+            "document_id": record["id"], "scope_id": scope_id,
+            "source_type": "textbook", "reused": False,
+            "content_hash": content_hash, "content_chars": content_chars,
+            "mapping_confidence": minimum_confidence,
+            "source_url": textbook.get("source_url"),
+            "source_artifact_id": textbook_id,
+            "is_online_textbook": is_online,
+            "provenance_ok": bool(content_hash and (textbook.get("source_url") or textbook_id)),
+            "chunk_count": int(import_result.get("chunk_count") or 0),
+        })
     return persisted
 
 
@@ -489,6 +611,372 @@ def _validate_graph_and_coverage(graph: Mapping[str, Any]) -> tuple[bool, dict[s
     return not issues, coverage, issues
 
 
+def _textbook_first_coverage(
+    topics: list[Mapping[str, Any]],
+    persisted: list[Mapping[str, Any]],
+    config: Mapping[str, Any],
+) -> dict[str, dict[str, Any]]:
+    return calculate_leaf_coverage(
+        topics,
+        persisted,
+        target_units=max(1, int(config.get("target_materials_per_leaf") or 3)),
+        minimum_external_sources=max(
+            0, int(config.get("minimum_web_materials_per_leaf") or 0)
+        ),
+        maximum_ai=max(0, int(config.get("maximum_ai_materials_per_leaf") or 0)),
+    )
+
+
+def _run_textbook_first_build(
+    *,
+    repository: Any,
+    build: dict[str, Any],
+    job_id: str,
+    manager: CourseStorageManager,
+    rag_system: Any,
+    course_id: str,
+    owner_user_id: str,
+    build_id: str,
+    progress: Callable[[int, str, str], None] | None,
+) -> dict[str, Any]:
+    config = dict(build.get("config") or {})
+    topics = confirmed_graph_topics(dict(build.get("graph_draft") or {}))
+    if not topics:
+        raise ValueError("构建计划没有叶级知识点")
+    persisted: list[dict[str, Any]] = []
+    failures: list[dict[str, str]] = []
+    warnings: list[dict[str, str]] = []
+    all_candidates: list[dict[str, Any]] = []
+
+    repository.update_build(build_id, status="running", phase="textbook_discovery", progress=3)
+    if progress:
+        progress(3, "textbook_discovery", "正在优先发现完整教材和课程讲义")
+    textbook_discovery = discover_course_textbook_sources(build)
+    all_candidates.extend(dict(item) for item in textbook_discovery["source_candidates"])
+    warnings.extend(dict(item) for item in textbook_discovery["warnings"])
+    build = repository.replace_build_source_candidates(
+        build_id,
+        topics=topics,
+        candidates=all_candidates,
+        warnings=warnings,
+        discovery_metrics={"textbook": dict(textbook_discovery["metrics"])},
+    )
+
+    online_textbooks: list[dict[str, Any]] = []
+    textbook_candidates = [
+        item for item in all_candidates
+        if item.get("selected") and item.get("review_status") == "relevant"
+    ]
+    for candidate in textbook_candidates:
+        try:
+            repository.update_build(
+                build_id, status="running", phase="textbook_ingestion", progress=10
+            )
+            if progress:
+                progress(10, "textbook_ingestion", f"正在下载并解析：{candidate.get('title')}")
+            textbook = _ingest_online_textbook_candidate(candidate)
+            online_textbooks.append(textbook)
+            repository.update_source_candidate_result(
+                build_id,
+                str(candidate.get("candidate_id") or ""),
+                review_status="ready",
+                review_reason="教材下载和结构化解析成功",
+                metadata={
+                    "final_url": textbook.get("source_url"),
+                    "content_hash": textbook.get("content_hash"),
+                    "content_format": textbook.get("content_format"),
+                    "parser": (textbook.get("parse_result") or {}).get("parser"),
+                    "parser_metadata": (textbook.get("parse_result") or {}).get("parser_metadata"),
+                    "parsed_at": (textbook.get("parse_result") or {}).get("parsed_at"),
+                },
+            )
+        except Exception as exc:
+            code = exc.code if isinstance(exc, SourceIngestionError) else "TEXTBOOK_INGESTION_FAILED"
+            failures.append({
+                "code": code,
+                "url": str(candidate.get("url") or ""),
+                "topic_id": "",
+                "error": str(exc),
+            })
+            repository.update_source_candidate_result(
+                build_id,
+                str(candidate.get("candidate_id") or ""),
+                review_status="fetch_failed",
+                review_reason=str(exc),
+                metadata={"failure_code": code, "fetch_failed_at": utc_now()},
+            )
+
+    build = {**build, "online_textbooks": online_textbooks}
+    mapping_result = map_textbook_chunks_to_graph(build)
+    if online_textbooks or any(
+        item.get("status") == "ready" for item in build.get("textbooks") or []
+    ):
+        repository.update_build(build_id, status="running", phase="textbook_mapping", progress=25)
+        if progress:
+            progress(25, "textbook_mapping", "正在将教材章节映射到已确认知识图谱")
+        persisted.extend(
+            _persist_textbook_materials(
+                manager=manager,
+                rag_system=rag_system,
+                course_id=course_id,
+                owner_user_id=owner_user_id,
+                build={**build, "build_id": build_id},
+                mapping_result=mapping_result,
+            )
+        )
+
+    max_rounds = min(3, max(1, int(config.get("max_search_rounds_per_leaf") or 2)))
+    seen_final_urls: set[str] = set()
+    seen_content_hashes: set[str] = set()
+    attempted_urls: set[str] = set()
+    leaf_search_rounds: dict[str, int] = {str(item["topic_id"]): 0 for item in topics}
+    for round_index in range(max_rounds):
+        coverage = _textbook_first_coverage(topics, persisted, config)
+        gap_ids = {topic_id for topic_id, item in coverage.items() if item["unmet"]}
+        if not gap_ids:
+            break
+        discovery = discover_leaf_gap_sources(
+            build, topic_ids=gap_ids, round_index=round_index
+        )
+        warnings.extend(dict(item) for item in discovery["warnings"])
+        round_candidates = [dict(item) for item in discovery["source_candidates"]]
+        all_candidates.extend(round_candidates)
+        build = repository.replace_build_source_candidates(
+            build_id,
+            topics=topics,
+            candidates=all_candidates,
+            warnings=warnings,
+            discovery_metrics={
+                "textbook": dict(textbook_discovery["metrics"]),
+                f"gap_round_{round_index + 1}": dict(discovery["metrics"]),
+            },
+        )
+        build = {**build, "online_textbooks": online_textbooks}
+        for topic_id in gap_ids:
+            leaf_search_rounds[topic_id] = round_index + 1
+        repository.update_build(
+            build_id, status="running", phase="gap_search", progress=35 + round_index * 15
+        )
+        if progress:
+            progress(
+                35 + round_index * 15,
+                "gap_search",
+                f"正在执行第 {round_index + 1} 轮知识点缺口检索",
+            )
+        for candidate in round_candidates:
+            if not candidate.get("selected") or candidate.get("review_status") != "relevant":
+                continue
+            topic_id = str(candidate.get("topic_id") or "")
+            attempted_url = canonical_source_url(candidate.get("url")) or str(
+                candidate.get("url") or ""
+            )
+            if attempted_url in attempted_urls:
+                continue
+            attempted_urls.add(attempted_url)
+            current = _textbook_first_coverage(topics, persisted, config).get(topic_id, {})
+            if not current.get("unmet"):
+                continue
+            try:
+                item = _persist_candidate(
+                    manager=manager,
+                    rag_system=rag_system,
+                    course_id=course_id,
+                    owner_user_id=owner_user_id,
+                    candidate=candidate,
+                    seen_final_urls=seen_final_urls,
+                    seen_content_hashes=seen_content_hashes,
+                )
+                item.setdefault("source_type", "web")
+                item["provenance_ok"] = bool(
+                    item.get("source_url") and item.get("content_hash")
+                )
+                persisted.append(item)
+                repository.update_source_candidate_result(
+                    build_id,
+                    str(candidate.get("candidate_id") or ""),
+                    review_status="ready",
+                    review_reason="网页正文抓取、清洗与索引成功",
+                    metadata={
+                        "final_url": item.get("final_url"),
+                        "content_hash": item.get("content_hash"),
+                        "fetched_at": utc_now(),
+                    },
+                )
+            except Exception as exc:
+                code = exc.code if isinstance(exc, SourceIngestionError) else "SOURCE_INGESTION_FAILED"
+                failures.append({
+                    "code": code,
+                    "url": str(candidate.get("url") or ""),
+                    "topic_id": topic_id,
+                    "error": str(exc),
+                })
+                repository.update_source_candidate_result(
+                    build_id,
+                    str(candidate.get("candidate_id") or ""),
+                    review_status="fetch_failed",
+                    review_reason=str(exc),
+                    metadata={"failure_code": code, "fetch_failed_at": utc_now()},
+                )
+
+    fetch_failed_by_leaf: dict[str, int] = {}
+    fetch_failed_by_code: dict[str, int] = {}
+    for failure in failures:
+        topic_id = str(failure.get("topic_id") or "")
+        code = str(failure.get("code") or "UNKNOWN")
+        if topic_id:
+            fetch_failed_by_leaf[topic_id] = fetch_failed_by_leaf.get(topic_id, 0) + 1
+        fetch_failed_by_code[code] = fetch_failed_by_code.get(code, 0) + 1
+    build["metrics"] = {
+        **dict(build.get("metrics") or {}),
+        "fetch_failed_by_leaf": fetch_failed_by_leaf,
+        "fetch_failed_by_code": fetch_failed_by_code,
+        "leaf_search_rounds": leaf_search_rounds,
+    }
+
+    maximum_ai = max(0, int(config.get("maximum_ai_materials_per_leaf") or 0))
+    ai_enabled = bool(config.get("ai_supplement_enabled", True))
+    before_ai = _textbook_first_coverage(topics, persisted, config)
+    deficits: list[tuple[Mapping[str, Any], int]] = []
+    for topic in topics:
+        topic_id = str(topic.get("topic_id") or "")
+        missing_units = max(
+            0,
+            int(config.get("target_materials_per_leaf") or 3)
+            - int(before_ai[topic_id]["effective_units"]),
+        )
+        ai_budget = min(maximum_ai, missing_units) if ai_enabled else 0
+        resumed = _reviewed_generated_documents(
+            manager, course_id=course_id, scope_id=topic_id, limit=ai_budget
+        )
+        persisted.extend(resumed)
+        deficits.extend(
+            (topic, sequence)
+            for sequence in range(1, max(0, ai_budget - len(resumed)) + 1)
+        )
+
+    course_title = str((build.get("course_snapshot") or {}).get("title") or "课程")
+    persistence_lock = RLock()
+    if deficits:
+        repository.update_build(build_id, status="running", phase="ai_fallback", progress=72)
+        if progress:
+            progress(72, "ai_fallback", "非 AI 路径已耗尽，正在补充剩余内容缺口")
+        with ThreadPoolExecutor(max_workers=min(3, len(deficits))) as pool:
+            future_map = {
+                pool.submit(
+                    _generate_and_persist_supplement,
+                    manager=manager,
+                    rag_system=rag_system,
+                    course_id=course_id,
+                    owner_user_id=owner_user_id,
+                    course_title=course_title,
+                    topic=topic,
+                    sequence=sequence,
+                    persistence_lock=persistence_lock,
+                    fallback_audit={
+                        "fallback_reason": "non_ai_search_exhausted",
+                        "non_ai_attempt_count": leaf_search_rounds[str(topic["topic_id"])],
+                        "pre_ai_coverage": before_ai[str(topic["topic_id"])],
+                    },
+                ): topic
+                for topic, sequence in deficits
+            }
+            for future in as_completed(future_map):
+                topic = future_map[future]
+                try:
+                    persisted.append(future.result())
+                except Exception as exc:
+                    failures.append({
+                        "code": "AI_SUPPLEMENT_FAILED",
+                        "url": "",
+                        "topic_id": str(topic.get("topic_id") or ""),
+                        "error": str(exc),
+                    })
+
+    graph = _published_graph({**build, "build_id": build_id}, persisted)
+    quality = evaluate_course_knowledge_quality(
+        build,
+        persisted,
+        textbook_metrics=dict(mapping_result.get("metrics") or {}),
+        index_integrity=all(str(item.get("document_id") or "") for item in persisted),
+        publication_atomicity=True,
+    )
+    final_coverage = quality["leaf_coverage"]
+    leaf_count = max(1, len(final_coverage))
+    non_ai_covered = sum(
+        item["textbook_units"] + item["web_units"]
+        >= int(config.get("target_materials_per_leaf") or 3)
+        for item in final_coverage.values()
+    )
+    ai_count = sum(item["ai_units"] for item in final_coverage.values())
+    effective_count = sum(item["effective_units"] for item in final_coverage.values())
+    quality_score = float(quality["quality_score"])
+    quality_details = {
+        **quality,
+        "selected_source_count": sum(bool(item.get("selected")) for item in all_candidates),
+        "persisted_document_count": len(persisted),
+        "topic_count": len(topics),
+        "failures": failures,
+        "textbook_mapping": mapping_result.get("metrics") or {},
+        "unmapped_textbook_chunks": mapping_result.get("unmapped") or [],
+        "acquisition_order": ["textbook", "gap_web", "model_generated"],
+        "textbook_candidates": len(textbook_candidates),
+        "textbook_ingested": len(online_textbooks),
+        "pdf_downloaded": sum(item.get("content_format") == "pdf" for item in online_textbooks),
+        "mineru_parsed": sum((item.get("parse_result") or {}).get("parser") != "structured-html" for item in online_textbooks),
+        "non_ai_coverage_rate": round(non_ai_covered / leaf_count, 4),
+        "ai_material_ratio": round(ai_count / effective_count, 4) if effective_count else 0,
+        "leaves_requiring_ai": sum(item["ai_units"] > 0 for item in final_coverage.values()),
+        "fetch_failed_by_code": fetch_failed_by_code,
+        "leaf_search_rounds": leaf_search_rounds,
+    }
+    for check in quality["checks"]:
+        repository.record_quality_check(
+            build_id,
+            check_type=check["check_type"],
+            status=check["status"],
+            score=1 if check["status"] == "passed" else 0,
+            threshold=1,
+            details=check["details"],
+        )
+    repository.update_build(
+        build_id, status="running", phase="quality_check", progress=85,
+        metrics=quality_details, quality_score=quality_score,
+    )
+    if not quality["passed"]:
+        failed_checks = [item["check_type"] for item in quality["checks"] if item["status"] == "failed"]
+        repository.update_build(
+            build_id, status="blocked", phase="quality_blocked", progress=100,
+            metrics=quality_details, quality_score=quality_score,
+            error={"code": "QUALITY_GATE_FAILED", "message": f"质量门禁未通过：{', '.join(failed_checks)}"},
+        )
+        raise RuntimeError(f"质量门禁未通过（{quality_score:.0f}/100）：{', '.join(failed_checks)}")
+    repository.update_build(
+        build_id, status="publishing", phase="publishing", progress=95,
+        metrics=quality_details, quality_score=quality_score,
+    )
+    if progress:
+        progress(95, "publishing", "质量门禁已通过，正在原子发布知识库")
+    published_version = repository.publish_build(
+        build_id,
+        graph=graph,
+        document_ids=[str(item.get("document_id") or "") for item in persisted if item.get("document_id")],
+        metrics=quality_details,
+        quality_score=quality_score,
+    )
+    result = {
+        "resource_type": "course_knowledge_base", "course_id": course_id,
+        "build_id": build_id, "document_count": len(persisted), "topic_count": len(topics),
+        "quality_score": quality_score, "published_version": published_version,
+        "warning_count": len(failures), "warnings": failures,
+        "leaf_coverage": final_coverage, "published_at": utc_now(),
+    }
+    update_job(
+        job_id, status=JobStatus.SUCCEEDED, step="completed", progress=100,
+        message="课程知识库已通过质量检查并发布", result_ref=result,
+    )
+    return result
+
+
 def run_course_knowledge_plan_build_job(
     *,
     job_id: str,
@@ -504,6 +992,23 @@ def run_course_knowledge_plan_build_job(
     try:
         if build is None or str(build.get("library_id") or "") != course_id:
             raise ValueError("知识库构建计划不存在")
+        feature_enabled = os.getenv(
+            "COURSE_KB_TEXTBOOK_FIRST_ENABLED", "true"
+        ).strip().casefold() not in {"0", "false", "off", "no"}
+        if feature_enabled and bool(
+            dict(build.get("config") or {}).get("prefer_complete_textbooks", False)
+        ):
+            return _run_textbook_first_build(
+                repository=repository,
+                build=dict(build),
+                job_id=job_id,
+                manager=manager,
+                rag_system=rag_system,
+                course_id=course_id,
+                owner_user_id=owner_user_id,
+                build_id=build_id,
+                progress=progress,
+            )
         repository.update_build(build_id, status="running", phase="source_discovery", progress=3)
         if progress:
             progress(3, "source_discovery", "正在按已确认图谱逐个搜索网络资料")

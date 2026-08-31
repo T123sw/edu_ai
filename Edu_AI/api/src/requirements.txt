@@ -18,17 +18,19 @@ python-jose[cryptography]>=3.3
 
 chromadb>=0.4
 langchain-chroma>=0.1
-langchain-core>=0.1
+langchain>=1.3.17,<2
+langchain-core>=1.6.1,<2
 langchain-community>=0.0.20
 langchain-ollama>=0.1
 langchain-text-splitters>=0.0.1
-langchain-openai>=0.1
-langgraph>=0.2
+langchain-openai>=1.4.2,<2
+langgraph>=1.2.11,<1.3
+langmem @ https://github.com/langchain-ai/langmem/archive/29cbe41e58528f92e9efa773c12e15c47be3808c.zip
 
 docx2txt>=0.8
 python-docx>=1.0.0
 Pillow>=10,<13
-openai>=1.90,<3
+openai>=2.45,<3
 playwright>=1.50,<2
 trio>=0.30,<1
 

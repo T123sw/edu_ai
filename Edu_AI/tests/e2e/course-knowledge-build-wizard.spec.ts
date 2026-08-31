@@ -11,8 +11,8 @@ async function configureSmallBuild(teacherPage: Parameters<typeof installCourseK
   await teacherPage.getByLabel("图谱深度").fill("3");
   await teacherPage.getByLabel("模块数量").fill("2");
   await teacherPage.getByLabel("每模块知识点").fill("2");
-  await teacherPage.getByLabel("每知识点资料目标").fill("2");
-  await teacherPage.getByLabel("每知识点网络资料下限").fill("1");
+  await teacherPage.getByLabel("每知识点有效覆盖目标").fill("2");
+  await teacherPage.getByLabel("外部非 AI 来源下限").fill("1");
   await teacherPage.getByLabel("每知识点 AI 补充上限").fill("1");
   await teacherPage.getByLabel("每知识点搜索候选上限").fill("4");
   await teacherPage.getByRole("button", { name: "保存并选择教材" }).click();

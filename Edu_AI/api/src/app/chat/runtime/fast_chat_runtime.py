@@ -15,6 +15,8 @@ import uuid
 
 from core.config import Config
 from app.chat.runtime.learning_context_prompt import build_learning_context_prompt
+from app.chat.memory.domain import AgentMemoryContext
+from app.chat.memory.service import AgentMemoryService
 from app.chat.domain.persona_policy import TEACHER_PERSONA, persona_for
 
 
@@ -436,6 +438,13 @@ class FastChatRuntime:
         )
         if learning_prompt:
             system_content = f"{system_content}\n\n{learning_prompt}"
+        long_term_raw = getattr(snapshot, "agent_memory_context", {}) if snapshot is not None else {}
+        if long_term_raw:
+            long_term_prompt = AgentMemoryService.build_prompt(
+                AgentMemoryContext.model_validate(long_term_raw)
+            )
+            if long_term_prompt:
+                system_content = f"{system_content}\n\n{long_term_prompt}"
         model_history_messages = [
             formatted_message
             for formatted_message in (

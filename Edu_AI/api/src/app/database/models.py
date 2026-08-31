@@ -11,6 +11,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     ForeignKeyConstraint,
+    Index,
     Integer,
     JSON,
     String,
@@ -919,3 +920,110 @@ class DurableTaskModel(Base):
     started_at: Mapped[float | None] = mapped_column(Float)
     finished_at: Mapped[float | None] = mapped_column(Float)
     updated_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+
+class ConversationEpisode(Base):
+    __tablename__ = "conversation_episodes"
+    __table_args__ = (
+        Index("ix_conversation_episodes_owner_course", "owner_user_id", "course_id"),
+    )
+
+    episode_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    conversation_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    owner_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    message_start_position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    message_end_position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    salient_points: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
+    extractor: Mapped[str] = mapped_column(String(120), nullable=False)
+    extractor_version: Mapped[str] = mapped_column(String(120), nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.8)
+    visibility: Mapped[str] = mapped_column(String(64), nullable=False, default="private")
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    extracted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class AgentMemoryItem(Base):
+    __tablename__ = "agent_memory_items"
+    __table_args__ = (
+        Index(
+            "ix_agent_memory_items_recall_scope",
+            "subject_user_id",
+            "course_id",
+            "status",
+            "visibility",
+        ),
+        UniqueConstraint("fingerprint", name="uq_agent_memory_items_fingerprint"),
+    )
+
+    memory_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    subject_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    owner_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    conversation_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    task_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    memory_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    fact_kind: Mapped[str] = mapped_column(String(64), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    structured_payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    importance: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
+    visibility: Mapped[str] = mapped_column(String(64), nullable=False, default="private")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="active", index=True)
+    source_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    source_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    source_span: Mapped[str] = mapped_column(Text, nullable=False)
+    profile_axis: Mapped[str | None] = mapped_column(String(80), index=True)
+    evidence_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    embedding: Mapped[list[Any] | None] = mapped_column(JSON_PAYLOAD)
+    embedding_model: Mapped[str | None] = mapped_column(String(200))
+    extractor: Mapped[str] = mapped_column(String(120), nullable=False)
+    extractor_version: Mapped[str] = mapped_column(String(120), nullable=False)
+    valid_from: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+    valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+
+
+class UserProfileFact(Base):
+    __tablename__ = "user_profile_facts"
+    __table_args__ = (
+        Index("ix_user_profile_facts_scope", "subject_user_id", "course_id", "status"),
+    )
+
+    profile_fact_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    subject_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    course_scope_key: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    profile_axis: Mapped[str] = mapped_column(String(80), nullable=False)
+    value: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    source_memory_ids: Mapped[list[Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=list)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    visibility: Mapped[str] = mapped_column(String(64), nullable=False, default="private")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+    last_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+
+
+class AgentMemoryAuditEvent(Base):
+    __tablename__ = "agent_memory_audit_events"
+
+    audit_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    subject_user_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    conversation_id: Mapped[str | None] = mapped_column(String(200), index=True)
+    event_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    provider: Mapped[str] = mapped_column(String(80), nullable=False)
+    decision: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(160), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
+    latency_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)

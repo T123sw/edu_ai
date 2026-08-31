@@ -17,6 +17,11 @@ import "./CourseKnowledgeBuildCard.css";
 const PHASE_LABELS: Record<string, string> = {
   queued: "正在排队",
   running: "正在更新知识库",
+  textbook_discovery: "正在发现完整教材",
+  textbook_ingestion: "正在下载 PDF 并调用 MinerU",
+  textbook_mapping: "正在将教材映射到知识点",
+  gap_search: "正在补充知识点网页",
+  ai_fallback: "正在处理最后的 AI 内容缺口",
   source_audit: "正在查找合适的课程资料",
   indexing: "正在整理课程资料",
   model_fallback: "正在补充缺少的内容",
@@ -25,6 +30,11 @@ const PHASE_LABELS: Record<string, string> = {
   publishing: "即将完成",
   completed: "更新完成",
 };
+
+function metricNumber(metrics: Record<string, unknown> | undefined, key: string) {
+  const value = Number(metrics?.[key] ?? 0);
+  return Number.isFinite(value) ? value : 0;
+}
 
 type Props = {
   courseId: string;
@@ -154,6 +164,17 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const approvedSourceCount = plan?.source_candidates.filter(
     (item) => item.selected && item.review_status === "ready",
   ).length ?? 0;
+  const textbookCount = metricNumber(plan?.metrics, "textbook_ingested");
+  const mineruCount = metricNumber(plan?.metrics, "mineru_parsed");
+  const nonAiCoverageRate = metricNumber(plan?.metrics, "non_ai_coverage_rate");
+  const aiMaterialRatio = metricNumber(plan?.metrics, "ai_material_ratio");
+  const leafCoverage = plan?.metrics?.leaf_coverage && typeof plan.metrics.leaf_coverage === "object"
+    ? plan.metrics.leaf_coverage as Record<string, { title?: string; unmet?: string[] }>
+    : {};
+  const unmetLeaves = Object.entries(leafCoverage).filter(([, value]) => value.unmet?.length);
+  const failedByCode = plan?.metrics?.fetch_failed_by_code && typeof plan.metrics.fetch_failed_by_code === "object"
+    ? plan.metrics.fetch_failed_by_code as Record<string, number>
+    : {};
 
   return (
     <section ref={cardRef} tabIndex={-1} className="course-kb-builder" aria-labelledby="course-kb-builder-title">
@@ -230,7 +251,34 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
               <div className="course-kb-builder__summary">
                 <span><strong>{plan.topics.length}</strong> 个知识点</span>
                 <span><strong>{approvedSourceCount}</strong> 份已确认来源</span>
+                <span><strong>{textbookCount}</strong> 本在线教材</span>
+                <span><strong>{mineruCount}</strong> 份 MinerU 解析</span>
+                <span><strong>{Math.round(nonAiCoverageRate * 100)}</strong>% 非 AI 覆盖</span>
+                <span><strong>{Math.round(aiMaterialRatio * 100)}</strong>% AI 占比</span>
                 {plan.quality_score != null ? <span><strong>{Math.round(plan.quality_score)}</strong> 分质量评分</span> : null}
+              </div>
+            ) : null}
+
+            {unmetLeaves.length ? (
+              <div className="course-kb-builder__quality">
+                <h3>仍有内容缺口</h3>
+                <ul>{unmetLeaves.map(([topicId, value]) => (
+                  <li key={topicId} className="is-failed">
+                    <MaterialIcon name="error" />
+                    <span>{value.title || topicId}：{value.unmet?.join("；")}</span>
+                  </li>
+                ))}</ul>
+              </div>
+            ) : null}
+
+            {Object.keys(failedByCode).length ? (
+              <div className="course-kb-builder__quality">
+                <h3>采集失败分类</h3>
+                <ul>{Object.entries(failedByCode).map(([code, count]) => (
+                  <li key={code} className="is-failed">
+                    <MaterialIcon name="error" /><span>{code}</span><strong>{count}</strong>
+                  </li>
+                ))}</ul>
               </div>
             ) : null}
 

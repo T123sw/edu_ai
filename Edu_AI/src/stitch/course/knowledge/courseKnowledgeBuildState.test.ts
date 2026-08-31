@@ -10,6 +10,9 @@ import {
 
 test("standard preset is the default and estimates sixteen leaves", () => {
   assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.preset, "standard");
+  assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.prefer_complete_textbooks, true);
+  assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.max_online_textbooks, 2);
+  assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.max_search_rounds_per_leaf, 2);
   assert.deepEqual(estimateCourseKnowledgeBuild(DEFAULT_COURSE_KNOWLEDGE_CONFIG), {
     leafCount: 16,
     materialCount: 48,
@@ -28,5 +31,11 @@ test("preset selection remains editable and manual limits are validated", () => 
     target_materials_per_leaf: 2,
     minimum_web_materials_per_leaf: 3,
   };
-  assert.match(validateCourseKnowledgeConfig(invalid).join("；"), /网络资料下限/);
+  assert.match(validateCourseKnowledgeConfig(invalid).join("；"), /外部非 AI 来源下限/);
+
+  assert.match(validateCourseKnowledgeConfig({
+    ...large,
+    max_online_textbooks: 6,
+    max_search_rounds_per_leaf: 4,
+  }).join("；"), /在线教材上限.*搜索轮次/);
 });
