@@ -914,6 +914,15 @@
 }
 
 @media (max-width: 680px) {
+  .learning-resource-modal {
+    max-width: calc(100vw - 16px);
+    margin: 8px auto;
+  }
+
+  .learning-resource-modal .ant-modal-content {
+    max-height: calc(100vh - 16px);
+  }
+
   .course-kb-builder__header {
     grid-template-columns: auto minmax(0, 1fr);
   }

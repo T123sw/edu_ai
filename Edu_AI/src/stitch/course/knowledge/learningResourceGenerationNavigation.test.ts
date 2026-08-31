@@ -42,6 +42,18 @@ test("knowledge and resource configuration panels are mutually exclusive", async
   assert.match(card, /setWizardOpen\(false\);\s*setResourceConfigOpen\(\(open\)\s*=>\s*!open\)/);
 });
 
+test("compact resources use progressive disclosure and a fixed action bar", async () => {
+  const resources = await source("./StandardLearningResources.tsx");
+
+  assert.match(resources, /compact\s*=\s*false/);
+  assert.match(resources, /expandedLeafId/);
+  assert.match(resources, /openChapterIds/);
+  assert.match(resources, /standard-resource-leaf__compact-row/);
+  assert.match(resources, /standard-resources__compact-footer/);
+  assert.match(resources, /查看详情/);
+  assert.match(resources, /toggleStandardResourceLeafScope/);
+});
+
 test("students keep read-only published resources", async () => {
   const knowledgePage = await source("../../pages/CourseKnowledge.tsx");
   assert.match(knowledgePage, /isStudent\s*\?\s*<StandardLearningResources\s+readOnly/);

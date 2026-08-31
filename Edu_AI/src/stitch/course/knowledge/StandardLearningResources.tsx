@@ -20,6 +20,8 @@ import {
   STANDARD_RESOURCE_KIND_META,
   standardBatchProgress,
   standardReviewLabel,
+  standardSelectionSummary,
+  toggleStandardResourceLeafScope,
 } from "./standardLearningResourcesPresentation";
 import "./standardLearningResources.css";
 
@@ -117,7 +119,17 @@ function ResourceSlotCard({
 }
 
 
-export function StandardLearningResources({ readOnly = false }: { readOnly?: boolean }) {
+type StandardLearningResourcesProps = {
+  readOnly?: boolean;
+  compact?: boolean;
+  onCancel?: () => void;
+};
+
+export function StandardLearningResources({
+  readOnly = false,
+  compact = false,
+  onCancel,
+}: StandardLearningResourcesProps) {
   const { courseId, courseRole } = useCourseRoute();
   const canManage = !readOnly && (courseRole === "owner" || courseRole === "editor");
   const [leaves, setLeaves] = useState<StandardResourceLeaf[]>([]);
@@ -126,6 +138,8 @@ export function StandardLearningResources({ readOnly = false }: { readOnly?: boo
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
+  const [expandedLeafId, setExpandedLeafId] = useState<string | null>(null);
+  const [openChapterIds, setOpenChapterIds] = useState<Set<string>>(new Set());
 
   const loadCatalog = useCallback(async () => {
     if (!courseId) return;
@@ -165,11 +179,26 @@ export function StandardLearningResources({ readOnly = false }: { readOnly?: boo
     0,
   );
 
+  useEffect(() => {
+    if (!compact || groups.length === 0) return;
+    setOpenChapterIds((current) => current.size
+      ? current
+      : new Set([groups[0].chapterId]));
+  }, [compact, groups]);
+
   function toggleLeaf(leafId: string) {
-    setSelectedLeafIds((current) => {
+    setSelectedLeafIds((current) => toggleStandardResourceLeafScope(current, [leafId]));
+  }
+
+  function toggleChapter(leafIds: readonly string[]) {
+    setSelectedLeafIds((current) => toggleStandardResourceLeafScope(current, leafIds));
+  }
+
+  function toggleChapterOpen(chapterId: string) {
+    setOpenChapterIds((current) => {
       const next = new Set(current);
-      if (next.has(leafId)) next.delete(leafId);
-      else next.add(leafId);
+      if (next.has(chapterId)) next.delete(chapterId);
+      else next.add(chapterId);
       return next;
     });
   }
@@ -242,46 +271,56 @@ export function StandardLearningResources({ readOnly = false }: { readOnly?: boo
   }
 
   if (loading) {
-    return <section className="standard-resources standard-resources--loading">正在读取标准学习资源…</section>;
+    return (
+      <section className={`standard-resources standard-resources--loading${compact ? " standard-resources--compact" : ""}`}>
+        正在读取标准学习资源…
+      </section>
+    );
   }
 
   return (
-    <section className="standard-resources" aria-labelledby="standard-resources-title">
-      <header className="standard-resources__header">
-        <div>
-          <span className="standard-resources__eyebrow">按知识点组织</span>
-          <h2 id="standard-resources-title">标准学习资源</h2>
-          <p>
-            {canManage
-              ? "系统只为叶子知识点生成 AI 课堂、学习指南和练习；审核通过后学生才能看到。"
-              : "这里汇集教师审核发布的课堂、学习指南和练习。"}
-          </p>
-        </div>
-        {canManage && leaves.length > 0 ? (
-          <div className="standard-resources__toolbar">
-            <button
-              type="button"
-              className="standard-resources__select-all"
-              onClick={() => setSelectedLeafIds(
-                selectedCount === leaves.length
-                  ? new Set()
-                  : new Set(leaves.map((leaf) => leaf.leaf_id)),
-              )}
-            >
-              {selectedCount === leaves.length ? "取消全选" : "选择全部知识点"}
-            </button>
-            <button
-              type="button"
-              className="standard-resources__generate"
-              disabled={!selectedCount || working}
-              onClick={() => void generateSelected()}
-            >
-              <MaterialIcon name="auto_awesome" />
-              {working ? "正在提交…" : `生成 ${selectedCount * 3} 项资源`}
-            </button>
+    <section
+      className={`standard-resources${compact ? " standard-resources--compact" : ""}`}
+      aria-labelledby={compact ? undefined : "standard-resources-title"}
+      aria-label={compact ? "学习资源生成配置" : undefined}
+    >
+      {!compact ? (
+        <header className="standard-resources__header">
+          <div>
+            <span className="standard-resources__eyebrow">按知识点组织</span>
+            <h2 id="standard-resources-title">标准学习资源</h2>
+            <p>
+              {canManage
+                ? "系统只为叶子知识点生成 AI 课堂、学习指南和练习；审核通过后学生才能看到。"
+                : "这里汇集教师审核发布的课堂、学习指南和练习。"}
+            </p>
           </div>
-        ) : null}
-      </header>
+          {canManage && leaves.length > 0 ? (
+            <div className="standard-resources__toolbar">
+              <button
+                type="button"
+                className="standard-resources__select-all"
+                onClick={() => setSelectedLeafIds(
+                  selectedCount === leaves.length
+                    ? new Set()
+                    : new Set(leaves.map((leaf) => leaf.leaf_id)),
+                )}
+              >
+                {selectedCount === leaves.length ? "取消全选" : "选择全部知识点"}
+              </button>
+              <button
+                type="button"
+                className="standard-resources__generate"
+                disabled={!selectedCount || working}
+                onClick={() => void generateSelected()}
+              >
+                <MaterialIcon name="auto_awesome" />
+                {working ? "正在提交…" : `生成 ${selectedCount * 3} 项资源`}
+              </button>
+            </div>
+          ) : null}
+        </header>
+      ) : null}
 
       {error && <div className="standard-resources__error" role="alert">{error}</div>}
 
@@ -320,6 +359,92 @@ export function StandardLearningResources({ readOnly = false }: { readOnly?: boo
           <MaterialIcon name="hourglass_empty" />
           <strong>教师还没有发布标准学习资源</strong>
           <p>资源审核完成后会自动出现在这里。</p>
+        </div>
+      ) : compact && canManage ? (
+        <div className="standard-resources__chapters">
+          {groups.map((group) => {
+            const chapterLeafIds = group.leaves.map((leaf) => leaf.leaf_id);
+            const chapterSelectedCount = chapterLeafIds.filter((leafId) => selectedLeafIds.has(leafId)).length;
+            const chapterOpen = openChapterIds.has(group.chapterId);
+            const chapterSelected = chapterSelectedCount === chapterLeafIds.length;
+
+            return (
+              <section key={group.chapterId} className="standard-resource-chapter standard-resource-chapter--compact">
+                <header className="standard-resource-chapter__compact-header">
+                  <button
+                    type="button"
+                    aria-expanded={chapterOpen}
+                    onClick={() => toggleChapterOpen(group.chapterId)}
+                  >
+                    <MaterialIcon name={chapterOpen ? "expand_less" : "chevron_right"} />
+                    <strong>{group.chapterTitle}</strong>
+                    <span>{group.leaves.length} 个知识点 · 已选 {chapterSelectedCount}</span>
+                  </button>
+                  <button type="button" onClick={() => toggleChapter(chapterLeafIds)}>
+                    {chapterSelected ? "取消本章" : "全选本章"}
+                  </button>
+                </header>
+
+                {chapterOpen ? (
+                  <div className="standard-resource-chapter__compact-leaves">
+                    {group.leaves.map((leaf) => {
+                      const detailsOpen = expandedLeafId === leaf.leaf_id;
+                      const path = leaf.path_titles.join(" / ");
+
+                      return (
+                        <section key={leaf.leaf_id} className="standard-resource-leaf standard-resource-leaf--compact">
+                          <div className="standard-resource-leaf__compact-row">
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={selectedLeafIds.has(leaf.leaf_id)}
+                                onChange={() => toggleLeaf(leaf.leaf_id)}
+                              />
+                              <span>
+                                <strong>{leaf.title}</strong>
+                                <small title={path}>{path}</small>
+                              </span>
+                            </label>
+                            <div className="standard-resource-leaf__status-summary" aria-label={`${leaf.title}资源状态`}>
+                              {leaf.slots.map((slot) => (
+                                <span
+                                  key={slot.standard_kind}
+                                  className={`standard-resource-status--${slot.review_status}`}
+                                >
+                                  {STANDARD_RESOURCE_KIND_META[slot.standard_kind].label} · {standardReviewLabel(slot.review_status)}
+                                </span>
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              aria-label={`${detailsOpen ? "收起" : "查看"}${leaf.title}详情`}
+                              aria-expanded={detailsOpen}
+                              onClick={() => setExpandedLeafId((current) => current === leaf.leaf_id ? null : leaf.leaf_id)}
+                            >
+                              {detailsOpen ? "收起详情" : "查看详情"}
+                            </button>
+                          </div>
+                          {detailsOpen ? (
+                            <div className="standard-resource-leaf__slots standard-resource-leaf__slots--compact">
+                              {leaf.slots.map((slot) => (
+                                <ResourceSlotCard
+                                  key={slot.standard_kind}
+                                  slot={slot}
+                                  canManage={canManage}
+                                  busy={working}
+                                  onReview={(target, decision) => void review(target, decision)}
+                                />
+                              ))}
+                            </div>
+                          ) : null}
+                        </section>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
         </div>
       ) : (
         <div className="standard-resources__chapters">
@@ -365,6 +490,42 @@ export function StandardLearningResources({ readOnly = false }: { readOnly?: boo
           ))}
         </div>
       )}
+
+      {compact && canManage && leaves.length > 0 ? (
+        <footer className="standard-resources__compact-footer">
+          <div className="standard-resources__compact-selection">
+            <strong>{standardSelectionSummary(selectedCount).label}</strong>
+            <button
+              type="button"
+              onClick={() => setSelectedLeafIds(
+                selectedCount === leaves.length
+                  ? new Set()
+                  : new Set(leaves.map((leaf) => leaf.leaf_id)),
+              )}
+            >
+              {selectedCount === leaves.length ? "取消全选" : "选择全部知识点"}
+            </button>
+          </div>
+          <div className="standard-resources__compact-actions">
+            <button
+              type="button"
+              className="standard-resources__compact-cancel"
+              onClick={() => onCancel?.()}
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              className="standard-resources__generate"
+              disabled={!selectedCount || working}
+              onClick={() => void generateSelected()}
+            >
+              <MaterialIcon name="auto_awesome" />
+              {working ? "正在提交…" : `开始生成 ${selectedCount * 3} 项资源`}
+            </button>
+          </div>
+        </footer>
+      ) : null}
     </section>
   );
 }
