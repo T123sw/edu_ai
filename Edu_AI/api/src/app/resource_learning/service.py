@@ -7,6 +7,7 @@ from typing import Any
 from .models import ResourceLearningManifestRecord
 from .analytics import build_resource_learning_analytics
 from .repository import ResourceLearningRepository
+from .task_evidence import TaskResourceEvidenceAdapter
 
 
 class ResourceLearningRuleError(ValueError):
@@ -35,9 +36,13 @@ class ResourceLearningService:
         repository: ResourceLearningRepository,
         *,
         clock: Callable[[], datetime] | None = None,
+        task_evidence_adapter: TaskResourceEvidenceAdapter | None = None,
     ):
         self.repository = repository
         self._clock = clock or (lambda: datetime.now(UTC))
+        self.task_evidence_adapter = task_evidence_adapter or TaskResourceEvidenceAdapter(
+            repository
+        )
 
     def freeze_manifest(self, manifest: ResourceLearningManifestRecord):
         return self.repository.freeze_manifest(manifest)
@@ -111,12 +116,19 @@ class ResourceLearningService:
                 raise ResourceLearningRuleError("SCENE_NOT_DEMO", "demo event scene is not a demo")
             validated.append(event)
         try:
-            return self.repository.record_events(
+            progress = self.repository.record_events(
                 session_id=session_id,
                 student_id=student_id,
                 events=validated,
                 now=self._clock(),
             )
+            try:
+                self.task_evidence_adapter.satisfy_for_progress(
+                    student_id=student_id, progress=progress
+                )
+            except Exception:
+                pass
+            return progress
         except PermissionError as error:
             raise ResourceLearningRuleError("SESSION_OWNER_MISMATCH", "session owner mismatch") from error
         except ValueError as error:
@@ -150,7 +162,7 @@ class ResourceLearningService:
                 valid = False
             if not valid:
                 raise ResourceLearningRuleError("ANSWER_INVALID", "answer must not be empty")
-        return self.repository.submit_questions(
+        progress = self.repository.submit_questions(
             course_id=course_id,
             resource_id=resource_id,
             resource_version=resource_version,
@@ -159,6 +171,13 @@ class ResourceLearningService:
             idempotency_key=idempotency_key,
             now=self._clock(),
         )
+        try:
+            self.task_evidence_adapter.satisfy_for_progress(
+                student_id=student_id, progress=progress
+            )
+        except Exception:
+            pass
+        return progress
 
     def end_session(self, session_id: str, student_id: str):
         try:

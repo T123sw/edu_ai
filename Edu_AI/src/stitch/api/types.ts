@@ -85,6 +85,14 @@ export type TaskProgress = {
   updated_at: string;
 };
 
+export type TaskResourceEvidence = {
+  resource_id: string;
+  resource_version: number;
+  condition_status: "pending" | "satisfied";
+  evidence_source: "course_resource_learning";
+  resource_completed_at: string | null;
+};
+
 export type LearningOverview = {
   course_id: string;
   pending_tasks: number;
@@ -111,6 +119,7 @@ export type LearningTask = {
   published_at: string | null;
   published_by: string | null;
   my_progress: TaskProgress | null;
+  resource_evidence?: TaskResourceEvidence[];
 };
 
 export type CourseLearningSummary = {

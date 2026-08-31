@@ -5,6 +5,7 @@ import {
   getCompletionBasisLabel,
   getLearningTaskPrimaryAction,
   getProgressLabel,
+  getTaskResourceEvidenceLabel,
 } from "./courseLearningPresentation";
 
 describe("course learning presentation", () => {
@@ -53,5 +54,16 @@ describe("course learning presentation", () => {
     assert.equal(getCompletionBasisLabel(undefined, "completed"), "学生自报完成");
     assert.equal(getCompletionBasisLabel(null, "completed"), "学生自报完成");
     assert.equal(getCompletionBasisLabel(undefined, "in_progress"), "暂无完成证据");
+  });
+
+  it("shows resource evidence without changing task completion", () => {
+    assert.equal(
+      getTaskResourceEvidenceLabel({ condition_status: "satisfied", resource_version: 3 }),
+      "资源条件已满足 · 证据版本 3",
+    );
+    assert.equal(
+      getTaskResourceEvidenceLabel({ condition_status: "pending", resource_version: 4 }),
+      "资源条件待完成 · 证据版本 4",
+    );
   });
 });

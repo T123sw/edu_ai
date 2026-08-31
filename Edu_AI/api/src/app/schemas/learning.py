@@ -28,6 +28,14 @@ class LearningTaskResourceSnapshotResponse(BaseModel):
     created_at: str
 
 
+class TaskResourceEvidenceResponse(BaseModel):
+    resource_id: str
+    resource_version: int
+    condition_status: Literal["pending", "satisfied"]
+    evidence_source: Literal["course_resource_learning"]
+    resource_completed_at: str | None = None
+
+
 class TaskProgressResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -69,6 +77,7 @@ class LearningTaskResponse(BaseModel):
     published_at: str | None = None
     published_by: str | None = None
     my_progress: TaskProgressResponse | None = None
+    resource_evidence: list[TaskResourceEvidenceResponse] = Field(default_factory=list)
 
 
 class LearningEvidencePayload(BaseModel):

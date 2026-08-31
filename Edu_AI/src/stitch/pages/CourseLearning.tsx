@@ -29,6 +29,7 @@ import {
   getCompletionBasisLabel,
   getLearningTaskPrimaryAction,
   getProgressLabel,
+  getTaskResourceEvidenceLabel,
 } from "./courseLearningPresentation";
 import {
   taskNeedsAssessment,
@@ -542,6 +543,21 @@ export function CourseLearningPage() {
                   <p className="learning-completion-basis">
                     完成口径：{getCompletionBasisLabel(task.my_progress.completion_basis, task.my_progress.status)}
                   </p>
+                ) : null}
+                {task.resource_evidence?.length ? (
+                  <div className="learning-resource-evidence">
+                    {task.resource_evidence.map((evidence) => (
+                      <p key={`${evidence.resource_id}:${evidence.resource_version}`}>
+                        <MaterialIcon
+                          name={evidence.condition_status === "satisfied" ? "verified" : "schedule"}
+                        />
+                        {getTaskResourceEvidenceLabel(evidence)}
+                        {evidence.resource_completed_at
+                          ? ` · ${formatUpdatedAt(evidence.resource_completed_at)}`
+                          : ""}
+                      </p>
+                    ))}
+                  </div>
                 ) : null}
                 <div className="learning-progress"><span style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} /></div>
                 <div className="learning-student-resources">
