@@ -104,6 +104,42 @@ def test_react_agent_keeps_ordinary_question_inside_agent_runtime():
     assert fast_runtime.calls == []
 
 
+def test_react_agent_blocks_unverified_resource_submission_claim_in_qa():
+    class HallucinatingGateway:
+        def stream_chat_with_tools(
+            self,
+            messages,
+            tools,
+            tool_choice="auto",
+            temperature=0.1,
+            max_tokens=1024,
+        ):
+            yield {
+                "type": "text_delta",
+                "content": "报告生成已启动，正在后台生成报告。",
+            }
+            yield {"type": "done"}
+
+    request, snapshot = _request_snapshot()
+    request.question = "链表如何实现"
+    agent = ReActAgent(
+        agent_gateway=HallucinatingGateway(),
+        fast_runtime=FakeFastRuntime(),
+        max_steps=4,
+        timeout_seconds=5,
+    )
+
+    events = list(agent.run_stream(request=request, snapshot=snapshot))
+
+    assert all(event["type"] != "task_submitted" for event in events)
+    assert events[-1]["payload"]["message"]["content"] == (
+        "本轮未提交任何资源生成任务。"
+    )
+    assert events[-1]["payload"]["trace"]["truthfulness_guard"] == (
+        "blocked_unverified_submission_claim"
+    )
+
+
 def test_react_agent_keeps_rag_question_inside_agent_runtime():
     request, snapshot = _request_snapshot()
     request.question = "链表如何实现"

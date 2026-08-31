@@ -89,7 +89,13 @@ def test_confirmation_words_inside_knowledge_questions_do_not_confirm_outline():
         }
     }
 
-    for text in ("开始节点是什么", "可以解释一下链表吗", "好的教案有哪些特点"):
+    for text in (
+        "开始节点是什么",
+        "可以解释一下链表吗",
+        "好的教案有哪些特点",
+        "为什么可以生成树的遍历序列",
+        "为什么不能按这个方法生成排列",
+    ):
         contract = extract_task_contract(request(text), capability(), state)
         assert contract.intent == "qa"
 

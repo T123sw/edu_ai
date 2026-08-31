@@ -51,14 +51,17 @@ _CONFIRM_EXACT_REPLIES = {
     "没问题",
     "继续",
     "ok",
-}
-_CONFIRM_PHRASES = (
     "按这个",
     "就按",
     "确认生成",
     "开始生成",
     "继续生成",
     "可以生成",
+    "按这个生成",
+    "就按这个生成",
+}
+_CONFIRM_COMMAND_PATTERN = re.compile(
+    r"^(?:确认)?(?:按这个|就按这个)(?:大纲)?生成$"
 )
 _WEB_KEYWORDS = ("查找网络", "查网络", "联网", "网上", "最新资料", "网络资料")
 _IMAGE_KEYWORDS = ("配图", "插图", "示意图", "流程图", "架构图", "图片")
@@ -301,8 +304,9 @@ def _is_outline_confirmation(question: str) -> bool:
         "",
         str(question or "").lower(),
     )
-    return normalized in _CONFIRM_EXACT_REPLIES or any(
-        phrase in normalized for phrase in _CONFIRM_PHRASES
+    return (
+        normalized in _CONFIRM_EXACT_REPLIES
+        or bool(_CONFIRM_COMMAND_PATTERN.fullmatch(normalized))
     )
 
 
