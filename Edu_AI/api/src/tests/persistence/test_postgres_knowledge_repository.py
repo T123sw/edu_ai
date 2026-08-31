@@ -334,10 +334,22 @@ def test_knowledge_repository_versions_and_rolls_back_published_graph(engine):
     )
 
     versions = repository.list_graph_versions("course-1")
+    latest = repository.get_latest_graph_version("course-1")
     rollback = repository.rollback_graph("course-1", 1)
 
     assert [item["version"] for item in versions] == [2, 1]
     assert versions[0]["source_build_id"] == "kb-2"
+    assert latest == {
+        "version": 2,
+        "graph": {
+            "id": "v2",
+            "data": {
+                "publication_status": "published",
+                "source_build_id": "kb-2",
+                "node_count": 3,
+            },
+        },
+    }
     assert rollback["version"] == 3
     assert repository.get_graph("course-1")["id"] == "v1"
     assert repository.get_graph("course-1")["data"]["rolled_back_from_version"] == 1

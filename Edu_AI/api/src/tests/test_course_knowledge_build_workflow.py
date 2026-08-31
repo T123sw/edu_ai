@@ -17,6 +17,10 @@ def test_create_build_draft_normalizes_config_without_searching(course_api, monk
     captured = {}
 
     class Repository:
+        def get_latest_graph_version(self, library_id):
+            assert library_id == "course-1"
+            return {"version": 7, "graph": _valid_small_graph()}
+
         def create_build_draft(self, *, course_id, triggered_by, plan):
             captured.update(
                 course_id=course_id,
@@ -57,6 +61,10 @@ def test_create_build_draft_normalizes_config_without_searching(course_api, monk
     assert body["config"]["prefer_complete_textbooks"] is True
     assert body["config"]["max_online_textbooks"] == 2
     assert body["config"]["max_search_rounds_per_leaf"] == 2
+    assert body["config"]["update_strategy"] == "incremental"
+    assert body["baseline_graph_version"] == 7
+    assert body["baseline_graph"] == _valid_small_graph()
+    assert body["current_graph_summary"]["node_count"] == 13
     assert body["graph_draft"] is None
     assert captured["course_id"] == "course-1"
     assert captured["plan"]["course_snapshot"]["title"] == "Course one"

@@ -81,6 +81,9 @@ from app.services.course_knowledge_graph_generator import (
     submit_course_knowledge_graph_generation_job,
     validate_graph_draft_for_build,
 )
+from app.services.course_knowledge_graph_incremental import (
+    summarize_course_knowledge_graph,
+)
 from app.services.job_store import JobKind, list_job_page
 from app.services.course_knowledge_textbook_inputs import (
     CourseKnowledgeTextbookInputError,
@@ -1069,10 +1072,16 @@ def create_knowledge_base_build_draft(
         raise HTTPException(status_code=404, detail="课程不存在")
     course_snapshot = dict(course)
     course_snapshot["id"] = course_id
+    repository = get_postgres_knowledge_repository()
+    latest_graph = repository.get_latest_graph_version(course_id)
+    baseline_graph = copy.deepcopy((latest_graph or {}).get("graph"))
     plan = {
         "course_id": course_id,
         "course_snapshot": course_snapshot,
         "config": payload.config.model_dump(mode="json"),
+        "baseline_graph_version": (latest_graph or {}).get("version"),
+        "baseline_graph": baseline_graph,
+        "current_graph_summary": summarize_course_knowledge_graph(baseline_graph),
         "textbooks": [],
         "graph_draft": None,
         "topics": [],
@@ -1080,7 +1089,7 @@ def create_knowledge_base_build_draft(
         "warnings": [],
     }
     try:
-        return get_postgres_knowledge_repository().create_build_draft(
+        return repository.create_build_draft(
             course_id=course_id,
             triggered_by=principal.user_id,
             plan=plan,

@@ -171,6 +171,21 @@ class PostgresKnowledgeRepository:
             )
             return dict(record.graph_payload) if record is not None else None
 
+    def get_latest_graph_version(self, library_id: str) -> dict[str, Any] | None:
+        with database_session(engine=self._engine) as session:
+            record = session.scalar(
+                select(KnowledgeGraphVersion)
+                .where(KnowledgeGraphVersion.library_id == library_id)
+                .order_by(KnowledgeGraphVersion.version.desc())
+                .limit(1)
+            )
+            if record is None:
+                return None
+            return {
+                "version": int(record.version),
+                "graph": dict(record.graph_payload or {}),
+            }
+
     def replace_runtime_index(
         self, index_name: str, entries: Mapping[str, Mapping[str, Any]]
     ) -> None:
