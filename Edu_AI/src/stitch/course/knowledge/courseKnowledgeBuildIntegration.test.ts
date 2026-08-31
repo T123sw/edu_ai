@@ -14,13 +14,22 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   const reviewActions = await readFile(new URL("./KnowledgeGraphReviewActions.tsx", import.meta.url), "utf8");
   const configStep = await readFile(new URL("./CourseKnowledgeBuildConfigStep.tsx", import.meta.url), "utf8");
   const nodeResources = await readFile(new URL("./KnowledgeNodeCourseResources.tsx", import.meta.url), "utf8");
+  const resourceDialog = await readFile(new URL("./KnowledgeNodeResourceDialog.tsx", import.meta.url), "utf8");
 
   assert.match(source, /libraryType: "course"/);
   assert.doesNotMatch(source, /libraryType: "personal"/);
   assert.match(source, /<CourseKnowledgeBuildCard/);
   assert.match(source, /<KnowledgeNodeCourseResources/);
   assert.match(source, /scopeNodeIds=/);
+  assert.match(source, /canManage=\{canUpload\}/);
   assert.match(nodeResources, /edu-ai:course-material-updated/);
+  assert.match(nodeResources, /reviewStandardResource/);
+  assert.match(nodeResources, /getStandardResourceDetailTarget/);
+  assert.match(nodeResources, /<KnowledgeNodeResourceDialog/);
+  assert.match(resourceDialog, /role="dialog"/);
+  assert.match(resourceDialog, /aria-modal="true"/);
+  assert.match(resourceDialog, /通过审核/);
+  assert.match(resourceDialog, /Escape/);
   assert.match(source, /edu-ai:knowledge-document-updated/);
   assert.match(source, /deleteKnowledgeBaseDocument/);
   assert.match(source, /删除当前节点下的文档/);

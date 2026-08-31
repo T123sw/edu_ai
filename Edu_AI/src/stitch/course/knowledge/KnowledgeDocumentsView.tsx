@@ -205,6 +205,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
           courseId={courseId || ""}
           nodeLabel={selectedNode?.label || "课程"}
           scopeNodeIds={scopeNodeIds}
+          canManage={canUpload}
         />
         <header className="knowledge-library__toolbar">
           <div>
