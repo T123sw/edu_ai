@@ -48,6 +48,7 @@ export function CourseKnowledgeGraphReviewStep({
 }: Props) {
   const model = useMemo(() => buildGraphReviewModel(root, baselineRoot), [root, baselineRoot]);
   const stats = useMemo(() => graphDraftStats(root), [root]);
+  const graphContentSignature = useMemo(() => JSON.stringify(root), [root]);
   const [selectedNodeId, setSelectedNodeId] = useState(model.initialSelectedNodeId);
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(
     () => new Set([root.id, ...(root.children || []).map((node) => node.id)]),
@@ -74,7 +75,7 @@ export function CourseKnowledgeGraphReviewStep({
 
   useEffect(() => {
     setImpactAccepted(false);
-  }, [root]);
+  }, [graphContentSignature]);
 
   useEffect(() => {
     if (!model.nodesById.has(selectedNodeId)) setSelectedNodeId(model.initialSelectedNodeId);
