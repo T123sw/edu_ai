@@ -21,3 +21,20 @@ test("the task center supports a shared inline trigger without duplicating its s
   assert.match(courseShell, /<JobCenterTrigger placement="inline" \/>/);
   assert.match(studentShell, /<JobCenterTrigger placement="inline" \/>/);
 });
+
+test("the task center renders three status totals and no task id copy action", async () => {
+  const drawer = await readFile(
+    new URL("./JobCenterDrawer.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(drawer, /<span>已完成<\/span>/);
+  assert.match(drawer, /<span>进行中<\/span>/);
+  assert.match(drawer, /<span>失败<\/span>/);
+  assert.doesNotMatch(
+    drawer,
+    /需关注率|平均耗时|复制任务 ID|navigator\.clipboard/,
+  );
+  assert.match(drawer, /getJobPrimaryAction/);
+  assert.match(drawer, /isJobCenterVisible/);
+});
