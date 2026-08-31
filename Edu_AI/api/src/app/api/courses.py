@@ -9,6 +9,7 @@ import mimetypes
 import json
 import re
 import copy
+import hashlib
 from datetime import datetime
 from uuid import uuid4
 from pathlib import Path
@@ -107,7 +108,11 @@ from app.services.personal_tool_access import (
     PersonalToolAccessDenied,
     require_personal_tool,
 )
-from app.persistence.dependencies import get_postgres_knowledge_repository
+from app.persistence.dependencies import (
+    get_postgres_knowledge_repository,
+    get_postgres_material_repository,
+    get_resource_learning_repository,
+)
 from app.persistence.postgres_knowledge_repository import (
     KnowledgeBuildRevisionConflict,
 )
@@ -2229,11 +2234,53 @@ async def generate_classroom(
 def get_classroom(
     course_id: str,
     classroom_id: str,
+    resource_version: int | None = None,
     principal: CoursePrincipal = Depends(require_course_read),
 ):
     mgr = _svc._get_manager()
     if not mgr.get_course_info(course_id):
         raise HTTPException(status_code=404, detail="课程不存在")
+
+    if resource_version is not None:
+        materials = get_postgres_material_repository()
+        material = materials.get(course_id, "classroom", classroom_id)
+        if (
+            material is None
+            or material.get("origin_type") != "standard"
+            or material.get("standard_kind") != "classroom"
+        ):
+            raise HTTPException(status_code=404, detail="课件不存在")
+        approved_version = material.get("approved_version")
+        if principal.course_role == "viewer" and int(approved_version or 0) != resource_version:
+            raise HTTPException(status_code=404, detail="课件版本不可用")
+        version_payload = materials.get_version(
+            course_id, "classroom", classroom_id, resource_version
+        )
+        if version_payload is None:
+            raise HTTPException(status_code=404, detail="课件版本不存在")
+        manifest = get_resource_learning_repository().get_manifest(
+            course_id, classroom_id, resource_version
+        )
+        content_hash = (
+            manifest.content_hash
+            if manifest is not None
+            else str(version_payload.get("content_hash") or "").strip()
+        )
+        if not content_hash:
+            content_hash = hashlib.sha256(
+                json.dumps(
+                    version_payload,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    default=str,
+                ).encode("utf-8")
+            ).hexdigest()
+        return {
+            **version_payload,
+            "version": resource_version,
+            "content_hash": content_hash,
+        }
 
     material = mgr.get_generated_material(
         course_id,

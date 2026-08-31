@@ -183,9 +183,64 @@ class ResourceLearningService:
             raise ResourceLearningRuleError("PROGRESS_NOT_FOUND", "learning progress was not found")
         return progress
 
+    def list_my_course_progress(self, course_id: str, student_id: str):
+        return [
+            progress
+            for _owner, progress in self.repository.list_progress(
+                course_id=course_id, student_id=student_id
+            )
+        ]
+
+    def get_student_progress(
+        self,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+        student_id: str,
+    ):
+        return self.get_my_progress(
+            course_id, resource_id, resource_version, student_id
+        )
+
+    def list_student_progress(
+        self, course_id: str, resource_id: str, resource_version: int
+    ):
+        return self.repository.list_progress(
+            course_id=course_id,
+            resource_id=resource_id,
+            resource_version=resource_version,
+        )
+
+    def get_analytics(
+        self, course_id: str, resource_id: str, resource_version: int
+    ) -> dict[str, Any]:
+        records = self.list_student_progress(course_id, resource_id, resource_version)
+        progress = [item for _student_id, item in records]
+        tracked = len(progress)
+        return {
+            "course_id": course_id,
+            "resource_id": resource_id,
+            "resource_version": resource_version,
+            "tracked_student_count": tracked,
+            "completed_student_count": sum(item.status == "completed" for item in progress),
+            "in_progress_student_count": sum(item.status == "in_progress" for item in progress),
+            "not_started_student_count": sum(item.status == "not_started" for item in progress),
+            "average_explanation_coverage_percent": (
+                sum(item.explanation_coverage_percent for item in progress) / tracked
+                if tracked
+                else 0.0
+            ),
+            "average_question_completion_percent": (
+                sum(item.question_completion_percent for item in progress) / tracked
+                if tracked
+                else 0.0
+            ),
+            "demo_view_count": sum(item.demo_view_count for item in progress),
+            "demo_interaction_count": sum(item.demo_interaction_count for item in progress),
+        }
+
     def _manifest(self, course_id: str, resource_id: str, resource_version: int):
         manifest = self.repository.get_manifest(course_id, resource_id, resource_version)
         if manifest is None:
             raise ResourceLearningRuleError("MANIFEST_NOT_FOUND", "learning manifest was not found")
         return manifest
-

@@ -315,6 +315,39 @@ class ResourceLearningRepository:
             )
             return self._progress(record) if record is not None else None
 
+    def list_progress(
+        self,
+        *,
+        course_id: str,
+        resource_id: str | None = None,
+        resource_version: int | None = None,
+        student_id: str | None = None,
+    ) -> list[tuple[str, ResourceLearningProgressRecord]]:
+        with database_session(engine=self._engine) as session:
+            statement = select(ResourceLearningProgressModel).where(
+                ResourceLearningProgressModel.course_id == course_id
+            )
+            if resource_id is not None:
+                statement = statement.where(
+                    ResourceLearningProgressModel.resource_id == resource_id
+                )
+            if resource_version is not None:
+                statement = statement.where(
+                    ResourceLearningProgressModel.resource_version == resource_version
+                )
+            if student_id is not None:
+                statement = statement.where(
+                    ResourceLearningProgressModel.student_id == student_id
+                )
+            records = session.scalars(
+                statement.order_by(
+                    ResourceLearningProgressModel.student_id,
+                    ResourceLearningProgressModel.resource_id,
+                    ResourceLearningProgressModel.resource_version,
+                )
+            ).all()
+            return [(item.student_id, self._progress(item)) for item in records]
+
     @staticmethod
     def _manifest_query(session, course_id: str, resource_id: str, resource_version: int):
         return session.scalar(

@@ -125,3 +125,49 @@ def test_student_cannot_load_or_export_another_students_private_classroom(
     assert read_response.status_code == 404
     assert export_response.status_code == 404
 
+
+def test_standard_classroom_version_is_pinned_for_students_but_previewable_by_teacher(
+    course_api,
+    monkeypatch,
+):
+    class Materials:
+        def get(self, course_id, material_type, material_id):
+            assert (course_id, material_type, material_id) == (
+                "course-1",
+                "classroom",
+                "classroom-1",
+            )
+            return {
+                "origin_type": "standard",
+                "standard_kind": "classroom",
+                "approved_version": 2,
+            }
+
+        def get_version(self, _course_id, _material_type, _material_id, version):
+            return {"title": f"version {version}", "scenes": []} if version in {1, 2} else None
+
+    class Learning:
+        def get_manifest(self, _course_id, _resource_id, version):
+            return SimpleNamespace(content_hash=f"hash-{version}")
+
+    monkeypatch.setattr(courses, "get_postgres_material_repository", lambda: Materials())
+    monkeypatch.setattr(courses, "get_resource_learning_repository", lambda: Learning())
+    student = course_api.client_for("student-a", "student")
+    teacher = course_api.client_for("teacher-a", "teacher")
+
+    approved = student.get(
+        "/api/courses/course-1/classrooms/classroom-1?resource_version=2"
+    )
+    hidden_old = student.get(
+        "/api/courses/course-1/classrooms/classroom-1?resource_version=1"
+    )
+    teacher_preview = teacher.get(
+        "/api/courses/course-1/classrooms/classroom-1?resource_version=1"
+    )
+
+    assert approved.status_code == 200
+    assert approved.json()["content_hash"] == "hash-2"
+    assert hidden_old.status_code == 404
+    assert teacher_preview.status_code == 200
+    assert teacher_preview.json()["version"] == 1
+
