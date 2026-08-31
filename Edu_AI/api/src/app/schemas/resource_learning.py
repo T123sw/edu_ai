@@ -98,12 +98,21 @@ class ResourceLearningAnalyticsResponse(BaseModel):
     course_id: str
     resource_id: str
     resource_version: int
+    enrolled_student_count: int
     tracked_student_count: int
+    started_student_count: int
     completed_student_count: int
     in_progress_student_count: int
     not_started_student_count: int
     average_explanation_coverage_percent: float
     average_question_completion_percent: float
+    completion_rate: float
+    completion_rate_ratio: dict[str, int | float]
+    all_questions_answered_student_count: int
+    demo_view_student_count: int
+    demo_interaction_student_count: int
     demo_view_count: int
     demo_interaction_count: int
-
+    queues: dict[str, int]
+    question_analytics: list[dict]
+    knowledge_point_errors: list[dict]

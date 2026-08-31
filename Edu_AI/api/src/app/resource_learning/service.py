@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from .models import ResourceLearningManifestRecord
+from .analytics import build_resource_learning_analytics
 from .repository import ResourceLearningRepository
 
 
@@ -212,32 +213,28 @@ class ResourceLearningService:
         )
 
     def get_analytics(
-        self, course_id: str, resource_id: str, resource_version: int
+        self,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+        enrolled_student_ids: Sequence[str] | None = None,
     ) -> dict[str, Any]:
         records = self.list_student_progress(course_id, resource_id, resource_version)
-        progress = [item for _student_id, item in records]
-        tracked = len(progress)
-        return {
-            "course_id": course_id,
-            "resource_id": resource_id,
-            "resource_version": resource_version,
-            "tracked_student_count": tracked,
-            "completed_student_count": sum(item.status == "completed" for item in progress),
-            "in_progress_student_count": sum(item.status == "in_progress" for item in progress),
-            "not_started_student_count": sum(item.status == "not_started" for item in progress),
-            "average_explanation_coverage_percent": (
-                sum(item.explanation_coverage_percent for item in progress) / tracked
-                if tracked
-                else 0.0
+        enrolled = (
+            list(enrolled_student_ids)
+            if enrolled_student_ids is not None
+            else [student_id for student_id, _progress in records]
+        )
+        return build_resource_learning_analytics(
+            manifest=self._manifest(course_id, resource_id, resource_version),
+            progress_records=records,
+            question_attempts=self.repository.list_question_attempts(
+                course_id=course_id,
+                resource_id=resource_id,
+                resource_version=resource_version,
             ),
-            "average_question_completion_percent": (
-                sum(item.question_completion_percent for item in progress) / tracked
-                if tracked
-                else 0.0
-            ),
-            "demo_view_count": sum(item.demo_view_count for item in progress),
-            "demo_interaction_count": sum(item.demo_interaction_count for item in progress),
-        }
+            enrolled_student_ids=enrolled,
+        )
 
     def _manifest(self, course_id: str, resource_id: str, resource_version: int):
         manifest = self.repository.get_manifest(course_id, resource_id, resource_version)

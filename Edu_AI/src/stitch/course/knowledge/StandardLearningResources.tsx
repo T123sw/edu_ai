@@ -27,6 +27,7 @@ import {
   toggleStandardResourceLeafScope,
 } from "./standardLearningResourcesPresentation";
 import { ResourceLearningProgress } from "./ResourceLearningProgress";
+import { ResourceLearningAnalytics } from "./ResourceLearningAnalytics";
 import {
   buildStudentClassroomLearningHref,
   resourceLearningProgressKey,
@@ -64,6 +65,7 @@ function ResourceSlotCard({
   onReview: (slot: StandardResourceSlot, decision: "approved" | "rejected") => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const meta = STANDARD_RESOURCE_KIND_META[slot.standard_kind];
   const generated = Boolean(slot.resource);
   const canReview = canManage && slot.review_status === "pending";
@@ -118,6 +120,26 @@ function ResourceSlotCard({
                 <MaterialIcon name="play_circle" />
                 {learningProgress ? "继续学习" : "开始学习"}
               </a>
+            </>
+          ) : null}
+          {canManage && slot.standard_kind === "classroom" && slot.approved_version ? (
+            <>
+              <button
+                type="button"
+                className="standard-resource-card__preview-toggle"
+                aria-expanded={analyticsOpen}
+                onClick={() => setAnalyticsOpen((current) => !current)}
+              >
+                <MaterialIcon name="analytics" />
+                {analyticsOpen ? "收起学习分析" : "学习分析"}
+              </button>
+              {analyticsOpen ? (
+                <ResourceLearningAnalytics
+                  courseId={courseId}
+                  resourceId={slot.material_id}
+                  version={slot.approved_version}
+                />
+              ) : null}
             </>
           ) : null}
           {canReview && (

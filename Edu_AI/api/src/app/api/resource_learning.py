@@ -6,7 +6,11 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.course_dependencies import require_course_edit, require_course_read
+from app.api.course_dependencies import (
+    get_course_membership_store,
+    require_course_edit,
+    require_course_read,
+)
 from app.persistence.dependencies import get_resource_learning_repository
 from app.resource_learning.service import ResourceLearningRuleError, ResourceLearningService
 from app.schemas.resource_learning import (
@@ -18,6 +22,7 @@ from app.schemas.resource_learning import (
     ResourceQuestionSubmissionRequest,
 )
 from app.services.course_access import CoursePrincipal
+from app.services.course_membership_store import CourseMembershipStore
 
 
 router = APIRouter(prefix="/api/courses/{course_id}", tags=["resource-learning"])
@@ -230,10 +235,21 @@ def get_resource_learning_analytics(
     resource_id: str,
     version: int,
     _principal: CoursePrincipal = Depends(require_course_edit),
+    memberships: CourseMembershipStore = Depends(get_course_membership_store),
     service: ResourceLearningService = Depends(get_resource_learning_service),
 ):
+    student_ids = [
+        item.user_id
+        for item in memberships.list_for_course(course_id)
+        if item.role == "viewer"
+    ]
     return ResourceLearningAnalyticsResponse.model_validate(
-        service.get_analytics(course_id, resource_id, version)
+        service.get_analytics(
+            course_id,
+            resource_id,
+            version,
+            enrolled_student_ids=student_ids,
+        )
     )
 
 
@@ -279,4 +295,3 @@ def get_resource_learning_student(
         )
     except ResourceLearningRuleError as error:
         raise _http_error(error) from error
-

@@ -1025,14 +1025,34 @@ export type ResourceLearningAnalytics = {
   course_id: string;
   resource_id: string;
   resource_version: number;
+  enrolled_student_count: number;
   tracked_student_count: number;
+  started_student_count: number;
   completed_student_count: number;
   in_progress_student_count: number;
   not_started_student_count: number;
   average_explanation_coverage_percent: number;
   average_question_completion_percent: number;
+  completion_rate: number;
+  completion_rate_ratio: { numerator: number; denominator: number; percent: number };
+  all_questions_answered_student_count: number;
+  demo_view_student_count: number;
+  demo_interaction_student_count: number;
   demo_view_count: number;
   demo_interaction_count: number;
+  queues: Record<string, number>;
+  question_analytics: Array<{
+    question_id: string;
+    response_rate: { numerator: number; denominator: number; percent: number };
+    first_correct_rate: { numerator: number; denominator: number; percent: number };
+    latest_correct_rate: { numerator: number; denominator: number; percent: number };
+    option_distribution: Array<{ value: string; count: number }>;
+  }>;
+  knowledge_point_errors: Array<{
+    knowledge_point_id: string;
+    incorrect_student_count: number;
+    incorrect_attempt_count: number;
+  }>;
 };
 
 export type QuizAnswers = Record<string, string | string[]>;

@@ -348,6 +348,35 @@ class ResourceLearningRepository:
             ).all()
             return [(item.student_id, self._progress(item)) for item in records]
 
+    def list_question_attempts(
+        self, *, course_id: str, resource_id: str, resource_version: int
+    ) -> list[dict[str, Any]]:
+        with database_session(engine=self._engine) as session:
+            records = session.scalars(
+                select(ResourceQuestionAttemptModel)
+                .where(
+                    ResourceQuestionAttemptModel.course_id == course_id,
+                    ResourceQuestionAttemptModel.resource_id == resource_id,
+                    ResourceQuestionAttemptModel.resource_version == resource_version,
+                )
+                .order_by(
+                    ResourceQuestionAttemptModel.question_id,
+                    ResourceQuestionAttemptModel.student_id,
+                    ResourceQuestionAttemptModel.attempt_number,
+                )
+            ).all()
+            return [
+                {
+                    "student_id": item.student_id,
+                    "question_id": item.question_id,
+                    "attempt_number": item.attempt_number,
+                    "values": list((item.answer_payload or {}).get("values") or ()),
+                    "is_correct": item.is_correct,
+                    "knowledge_point_ids": list(item.knowledge_point_ids or ()),
+                }
+                for item in records
+            ]
+
     @staticmethod
     def _manifest_query(session, course_id: str, resource_id: str, resource_version: int):
         return session.scalar(
