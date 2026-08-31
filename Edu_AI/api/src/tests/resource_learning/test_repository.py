@@ -48,7 +48,7 @@ def test_freeze_manifest_is_idempotent_for_the_same_immutable_content() -> None:
     assert repository.get_manifest("course-1", "classroom-1", 3) == first
 
 
-def test_starting_a_new_session_ends_the_previous_active_session() -> None:
+def test_starting_again_resumes_the_previous_active_session() -> None:
     repository = _repository()
     repository.freeze_manifest(_manifest())
     now = datetime(2026, 8, 31, tzinfo=UTC)
@@ -68,6 +68,5 @@ def test_starting_a_new_session_ends_the_previous_active_session() -> None:
         now=now,
     )
 
-    assert repository.get_session(first.session_id).status == "ended"
-    assert repository.get_session(second.session_id).status == "active"
-
+    assert second.session_id == first.session_id
+    assert repository.get_session(first.session_id).status == "active"

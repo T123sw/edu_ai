@@ -129,3 +129,43 @@ test('failed events persist in a versioned outbox and clear after retry', async 
   assert.deepEqual(sent[0].map((event) => event.sequence_number), [1, 2]);
 });
 
+test('a tracker rebuilt after refresh retries the exact persisted event ids and sequences', async () => {
+  const storage = memoryStorage();
+  const clock = fakeClock();
+  const first = new ResourceLearningTracker({
+    outboxKey: 'course-1:classroom-1:3:session-1',
+    storage,
+    now: clock.now,
+    send: async () => { throw new Error('offline'); },
+  });
+  first.enterExplanation('scene-1', 60_000);
+  first.play();
+  clock.advance(5_000);
+  await assert.rejects(first.flush(), /offline/);
+  const persisted = JSON.parse(storage.getItem('resource-learning-outbox:course-1:classroom-1:3:session-1')!);
+
+  let retried: ResourceLearningEventPayload[] = [];
+  const rebuilt = new ResourceLearningTracker({
+    outboxKey: 'course-1:classroom-1:3:session-1',
+    storage,
+    now: clock.now,
+    send: async (events) => { retried = events; },
+  });
+  await rebuilt.flush();
+
+  assert.deepEqual(
+    retried.map(({ event_id, sequence_number }) => [event_id, sequence_number]),
+    persisted.map(({ event_id, sequence_number }: ResourceLearningEventPayload) => [event_id, sequence_number]),
+  );
+});
+
+test('large recovered outboxes are delivered in server-safe batches', async () => {
+  const sentSizes: number[] = [];
+  const tracker = new ResourceLearningTracker({
+    send: async (events) => { sentSizes.push(events.length); },
+  });
+  tracker.enterDemo('demo-1');
+  for (let index = 0; index < 204; index += 1) tracker.demoInteracted();
+  await tracker.flush();
+  assert.deepEqual(sentSizes, [100, 100, 5]);
+});

@@ -8,6 +8,7 @@ from .models import ResourceLearningManifestRecord
 from .analytics import build_resource_learning_analytics
 from .repository import ResourceLearningRepository
 from .task_evidence import TaskResourceEvidenceAdapter
+from .metrics import resource_learning_metrics
 
 
 class ResourceLearningRuleError(ValueError):
@@ -55,13 +56,15 @@ class ResourceLearningService:
         student_id: str,
     ):
         self._manifest(course_id, resource_id, resource_version)
-        return self.repository.start_session(
+        session = self.repository.start_session(
             course_id=course_id,
             resource_id=resource_id,
             resource_version=resource_version,
             student_id=student_id,
             now=self._clock(),
         )
+        resource_learning_metrics.increment("sessions_started")
+        return session
 
     def record_events(
         self,
@@ -128,6 +131,9 @@ class ResourceLearningService:
                 )
             except Exception:
                 pass
+            resource_learning_metrics.increment(
+                "events_accepted", value=len(validated)
+            )
             return progress
         except PermissionError as error:
             raise ResourceLearningRuleError("SESSION_OWNER_MISMATCH", "session owner mismatch") from error
@@ -177,6 +183,7 @@ class ResourceLearningService:
             )
         except Exception:
             pass
+        resource_learning_metrics.increment("question_batches_submitted")
         return progress
 
     def end_session(self, session_id: str, student_id: str):
@@ -202,6 +209,48 @@ class ResourceLearningService:
         if progress is None:
             raise ResourceLearningRuleError("PROGRESS_NOT_FOUND", "learning progress was not found")
         return progress
+
+    def rebuild_progress(
+        self,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+        student_id: str,
+    ):
+        try:
+            progress = self.repository.rebuild_progress(
+                course_id=course_id,
+                resource_id=resource_id,
+                resource_version=resource_version,
+                student_id=student_id,
+                now=self._clock(),
+            )
+            resource_learning_metrics.increment("projections_rebuilt")
+            return progress
+        except KeyError as error:
+            raise ResourceLearningRuleError(
+                "MANIFEST_NOT_FOUND", "learning manifest was not found"
+            ) from error
+
+    def assert_session_resource(
+        self,
+        session_id: str,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+    ) -> None:
+        session = self.repository.get_session(session_id)
+        if session is None:
+            raise ResourceLearningRuleError("SESSION_NOT_FOUND", "session was not found")
+        if (session.course_id, session.resource_id, session.resource_version) != (
+            course_id,
+            resource_id,
+            resource_version,
+        ):
+            raise ResourceLearningRuleError(
+                "SESSION_RESOURCE_MISMATCH",
+                "session does not match the requested resource",
+            )
 
     def list_my_course_progress(self, course_id: str, student_id: str):
         return [

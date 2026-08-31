@@ -40,6 +40,7 @@ def _http_error(error: ResourceLearningRuleError) -> HTTPException:
         "SESSION_OWNER_MISMATCH": status.HTTP_403_FORBIDDEN,
         "SESSION_INACTIVE": status.HTTP_409_CONFLICT,
         "SEQUENCE_CONFLICT": status.HTTP_409_CONFLICT,
+        "SESSION_RESOURCE_MISMATCH": status.HTTP_409_CONFLICT,
     }
     return HTTPException(
         status_code=code_map.get(error.code, status.HTTP_422_UNPROCESSABLE_CONTENT),
@@ -151,19 +152,12 @@ def record_resource_learning_events(
     service: ResourceLearningService = Depends(get_resource_learning_service),
 ):
     try:
+        service.assert_session_resource(session_id, course_id, resource_id, version)
         progress = service.record_events(
             session_id,
             principal.user_id,
             [item.model_dump() for item in payload.events],
         )
-        if (progress.course_id, progress.resource_id, progress.resource_version) != (
-            course_id,
-            resource_id,
-            version,
-        ):
-            raise ResourceLearningRuleError(
-                "SESSION_RESOURCE_MISMATCH", "session does not match the requested resource"
-            )
         return ResourceLearningProgressResponse.model_validate(
             _progress_payload(service, progress)
         )
@@ -212,15 +206,8 @@ def end_resource_learning_session(
     service: ResourceLearningService = Depends(get_resource_learning_service),
 ):
     try:
+        service.assert_session_resource(session_id, course_id, resource_id, version)
         session = service.end_session(session_id, principal.user_id)
-        if (session.course_id, session.resource_id, session.resource_version) != (
-            course_id,
-            resource_id,
-            version,
-        ):
-            raise ResourceLearningRuleError(
-                "SESSION_RESOURCE_MISMATCH", "session does not match the requested resource"
-            )
         return ResourceLearningSessionResponse.model_validate(asdict(session))
     except ResourceLearningRuleError as error:
         raise _http_error(error) from error

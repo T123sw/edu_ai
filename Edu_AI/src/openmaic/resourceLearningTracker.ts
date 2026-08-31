@@ -24,6 +24,9 @@ type ActiveScene = {
 };
 
 const OUTBOX_PREFIX = 'resource-learning-outbox:';
+const MAX_BATCH_EVENTS = 100;
+const MAX_OUTBOX_EVENTS = 500;
+const MAX_OUTBOX_BYTES = 2 * 1024 * 1024;
 
 function defaultStorage(): StorageLike | undefined {
   try {
@@ -115,15 +118,29 @@ export class ResourceLearningTracker {
   async flush(): Promise<void> {
     this.capturePlayback(true);
     if (this.sending) return this.sending;
-    const events = [...this.readOutbox(), ...this.pending];
+    const events = compactOutbox([...this.readOutbox(), ...this.pending]);
     this.pending = [];
     if (events.length === 0) return;
-    this.sending = this.send(events)
-      .then(() => { this.clearOutbox(); })
-      .catch((error) => {
-        this.writeOutbox(events);
+    this.sequence = events.reduce(
+      (maximum, event) => Math.max(maximum, event.sequence_number),
+      0,
+    );
+    this.sending = (async () => {
+      let remaining = events;
+      this.writeOutbox(remaining);
+      try {
+        while (remaining.length > 0) {
+          const batch = remaining.slice(0, MAX_BATCH_EVENTS);
+          await this.send(batch);
+          remaining = remaining.slice(batch.length);
+          if (remaining.length) this.writeOutbox(remaining);
+          else this.clearOutbox();
+        }
+      } catch (error) {
+        this.writeOutbox(remaining);
         throw error;
-      })
+      }
+    })()
       .finally(() => { this.sending = null; });
     return this.sending;
   }
@@ -189,7 +206,12 @@ export class ResourceLearningTracker {
   private writeOutbox(events: ResourceLearningEventPayload[]) {
     if (!this.storage) return;
     try {
-      this.storage.setItem(this.storageKey, JSON.stringify(events));
+      const compacted = compactOutbox(events);
+      this.sequence = compacted.reduce(
+        (maximum, event) => Math.max(maximum, event.sequence_number),
+        0,
+      );
+      this.storage.setItem(this.storageKey, JSON.stringify(compacted));
     } catch {
       // The caller still receives the send failure; storage failure adds no new failure mode.
     }
@@ -203,4 +225,34 @@ export class ResourceLearningTracker {
       // Successful network delivery is authoritative even if local cleanup is unavailable.
     }
   }
+}
+
+function compactOutbox(
+  events: ResourceLearningEventPayload[],
+): ResourceLearningEventPayload[] {
+  if (
+    events.length <= MAX_OUTBOX_EVENTS &&
+    JSON.stringify(events).length <= MAX_OUTBOX_BYTES
+  ) {
+    return events;
+  }
+  const merged: ResourceLearningEventPayload[] = [];
+  for (const event of events) {
+    const previous = merged.at(-1);
+    if (
+      previous?.event_type === 'timeline_heartbeat' &&
+      event.event_type === 'timeline_heartbeat' &&
+      previous.scene_id === event.scene_id &&
+      previous.timeline_to_ms === event.timeline_from_ms &&
+      (event.timeline_to_ms ?? 0) - (previous.timeline_from_ms ?? 0) <= 20_000
+    ) {
+      previous.timeline_to_ms = event.timeline_to_ms;
+    } else {
+      merged.push({ ...event });
+    }
+  }
+  const bounded = merged.length > MAX_OUTBOX_EVENTS
+    ? merged.slice(merged.length - MAX_OUTBOX_EVENTS)
+    : merged;
+  return bounded.map((event, index) => ({ ...event, sequence_number: index + 1 }));
 }

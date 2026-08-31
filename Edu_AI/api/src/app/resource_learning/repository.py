@@ -112,10 +112,10 @@ class ResourceLearningRepository:
                     ResourceLearningSessionModel.resource_version == resource_version,
                     ResourceLearningSessionModel.status == "active",
                 )
+                .order_by(ResourceLearningSessionModel.started_at.desc())
             ).all()
-            for previous in active:
-                previous.status = "ended"
-                previous.ended_at = now
+            if active:
+                return self._session(active[0])
 
             record = ResourceLearningSessionModel(
                 session_id=f"rls_{uuid4().hex}",
@@ -376,6 +376,30 @@ class ResourceLearningRepository:
                 }
                 for item in records
             ]
+
+    def rebuild_progress(
+        self,
+        *,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+        student_id: str,
+        now: datetime,
+    ) -> ResourceLearningProgressRecord:
+        with database_session(engine=self._engine) as session:
+            if self._manifest_query(session, course_id, resource_id, resource_version) is None:
+                raise KeyError((course_id, resource_id, resource_version))
+            progress = self._ensure_progress(
+                session,
+                course_id=course_id,
+                resource_id=resource_id,
+                resource_version=resource_version,
+                student_id=student_id,
+                now=now,
+            )
+            self._recalculate_progress(session, progress, now=now)
+            session.flush()
+            return self._progress(progress)
 
     @staticmethod
     def _manifest_query(session, course_id: str, resource_id: str, resource_version: int):

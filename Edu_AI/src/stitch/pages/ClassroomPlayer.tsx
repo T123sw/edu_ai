@@ -297,7 +297,6 @@ export function ClassroomPlayerPage() {
       if (tracker && startedSessionId) {
         void tracker
           .dispose()
-          .catch(() => undefined)
           .then(() =>
             endResourceLearningSession(
               courseId,
