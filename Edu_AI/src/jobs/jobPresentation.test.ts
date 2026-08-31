@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  getJobPrimaryAction,
+  isJobCenterVisible,
   presentJobDetail,
   presentJobError,
   summarizeJobs,
@@ -34,8 +36,8 @@ function terminalJob(
   };
 }
 
-test("summarizeJobs reports terminal failure rate and average processing time", () => {
-  const summary = summarizeJobs([
+test("summarizeJobs reports completed, active, and failed counts", () => {
+  const jobs = [
     terminalJob(
       "success",
       "succeeded",
@@ -54,41 +56,67 @@ test("summarizeJobs reports terminal failure rate and average processing time", 
       "2026-08-06T10:02:00.000Z",
       "2026-08-06T10:02:03.000Z",
     ),
-  ]);
-
-  assert.deepEqual(summary, {
-    completedCount: 3,
-    failureCount: 2,
-    failureRate: 67,
-    averageDurationMs: 3000,
-  });
-});
-
-test("summarizeJobs excludes canceled and active jobs from quality metrics", () => {
-  const summary = summarizeJobs([
-    terminalJob(
-      "canceled",
-      "canceled",
-      "2026-08-06T10:00:00.000Z",
-      "2026-08-06T10:00:09.000Z",
-    ),
+    {
+      ...terminalJob(
+        "queued",
+        "queued",
+        "2026-08-06T10:03:00.000Z",
+        "2026-08-06T10:03:03.000Z",
+      ),
+      finished_at: null,
+    },
     {
       ...terminalJob(
         "running",
         "running",
-        "2026-08-06T10:01:00.000Z",
-        "2026-08-06T10:01:03.000Z",
+        "2026-08-06T10:04:00.000Z",
+        "2026-08-06T10:04:03.000Z",
       ),
       finished_at: null,
     },
-  ]);
+    terminalJob(
+      "canceled",
+      "canceled",
+      "2026-08-06T10:05:00.000Z",
+      "2026-08-06T10:05:03.000Z",
+    ),
+  ];
 
-  assert.deepEqual(summary, {
-    completedCount: 0,
-    failureCount: 0,
-    failureRate: 0,
-    averageDurationMs: 0,
+  assert.deepEqual(summarizeJobs(jobs), {
+    completedCount: 1,
+    activeCount: 2,
+    failedCount: 2,
   });
+  assert.equal(isJobCenterVisible(jobs[5]), false);
+});
+
+test("getJobPrimaryAction returns only the action for the current state", () => {
+  const running = {
+    ...terminalJob(
+      "running",
+      "running",
+      "2026-08-06T10:00:00.000Z",
+      "2026-08-06T10:00:01.000Z",
+    ),
+    cancelable: true,
+  };
+  const failed = terminalJob(
+    "failed",
+    "failed",
+    "2026-08-06T10:00:00.000Z",
+    "2026-08-06T10:00:01.000Z",
+  );
+  const succeeded = terminalJob(
+    "succeeded",
+    "succeeded",
+    "2026-08-06T10:00:00.000Z",
+    "2026-08-06T10:00:01.000Z",
+  );
+
+  assert.equal(getJobPrimaryAction(running), "cancel");
+  assert.equal(getJobPrimaryAction(failed), "retry");
+  assert.equal(getJobPrimaryAction(succeeded, "#/result"), "open-result");
+  assert.equal(getJobPrimaryAction(succeeded), null);
 });
 
 test("presentJobError maps stable codes to concise Chinese guidance", () => {
