@@ -160,6 +160,12 @@ function json(route: Route, body: unknown, status = 200) {
 }
 
 export async function installTeacherApiRoutes(page: Page) {
+  const standardReviewStatuses = {
+    classroom: "pending",
+    study_guide: "pending",
+    practice: "pending",
+  };
+
   await page.route("https://images.unsplash.com/**", (route) =>
     route.fulfill({
       status: 200,
@@ -233,9 +239,46 @@ export async function installTeacherApiRoutes(page: Page) {
             chapter_title: "大学物理",
             path_titles: ["大学物理", "力学"],
             slots: [
-              { standard_kind: "classroom", material_type: "classroom", material_id: "standard-mechanics-classroom", review_status: "not_generated", resource: null },
-              { standard_kind: "study_guide", material_type: "report", material_id: "standard-mechanics-guide", review_status: "not_generated", resource: null },
-              { standard_kind: "practice", material_type: "quiz", material_id: "standard-mechanics-practice", review_status: "not_generated", resource: null },
+              {
+                standard_kind: "classroom",
+                material_type: "classroom",
+                material_id: "standard-mechanics-classroom",
+                review_status: standardReviewStatuses.classroom,
+                resource: {
+                  material_id: "standard-mechanics-classroom",
+                  material_type: "classroom",
+                  course_id: physicsCourse.id,
+                  title: "力学互动课堂",
+                  stage: { id: "standard-mechanics-classroom", name: "力学互动课堂" },
+                  scenes: [],
+                },
+              },
+              {
+                standard_kind: "study_guide",
+                material_type: "report",
+                material_id: "standard-mechanics-guide",
+                review_status: standardReviewStatuses.study_guide,
+                resource: {
+                  material_id: "standard-mechanics-guide",
+                  material_type: "report",
+                  course_id: physicsCourse.id,
+                  title: "力学学习指南",
+                  final_markdown: "# 力学学习指南\n\n理解受力、加速度和运动状态之间的关系。",
+                },
+              },
+              {
+                standard_kind: "practice",
+                material_type: "quiz",
+                material_id: "standard-mechanics-practice",
+                review_status: standardReviewStatuses.practice,
+                resource: {
+                  material_id: "standard-mechanics-practice",
+                  material_type: "quiz",
+                  course_id: physicsCourse.id,
+                  title: "力学巩固练习",
+                  content: { questions: [{ id: "q1", stem: "合力为零时物体可能处于什么状态？" }] },
+                },
+              },
             ],
           },
           {
@@ -251,6 +294,30 @@ export async function installTeacherApiRoutes(page: Page) {
             ],
           },
         ],
+      });
+    }
+    if (
+      request.method() === "POST"
+      && path.endsWith("/standard-resources/standard-mechanics-guide/review")
+    ) {
+      standardReviewStatuses.study_guide = "approved";
+      return json(route, {
+        course_id: physicsCourse.id,
+        material_type: "report",
+        material_id: "standard-mechanics-guide",
+        version: 1,
+        current_review_status: "approved",
+        approved_version: 1,
+      });
+    }
+    if (path === `/api/courses/${physicsCourse.id}/classrooms/standard-mechanics-classroom`) {
+      return json(route, {
+        material_id: "standard-mechanics-classroom",
+        material_type: "classroom",
+        course_id: physicsCourse.id,
+        title: "力学互动课堂",
+        stage: { id: "standard-mechanics-classroom", name: "力学互动课堂" },
+        scenes: [],
       });
     }
     if (path === `/api/courses/${physicsCourse.id}/classrooms/classroom-mechanics`) {
