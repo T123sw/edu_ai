@@ -193,6 +193,9 @@ export function ClassroomPlayerPage() {
       ),
     [currentScene?.id, learningProgress?.manifest],
   );
+  const currentLearningSceneId = currentScene?.id;
+  const currentLearningSceneKind = learningManifestScene?.kind;
+  const currentLearningSceneDuration = learningManifestScene?.expected_duration_ms;
 
   useEffect(() => {
     if (
@@ -319,30 +322,30 @@ export function ClassroomPlayerPage() {
 
   useEffect(() => {
     const tracker = learningTrackerRef.current;
-    if (!tracker || !learningSessionId || !currentScene || !learningManifestScene) {
+    if (!tracker || !learningSessionId || !currentLearningSceneId || !currentLearningSceneKind) {
       return;
     }
-    if (learningManifestScene.kind === "explanation") {
+    if (currentLearningSceneKind === "explanation") {
       tracker.enterExplanation(
-        currentScene.id,
-        learningManifestScene.expected_duration_ms,
+        currentLearningSceneId,
+        currentLearningSceneDuration ?? 0,
       );
-    } else if (learningManifestScene.kind === "exercise") {
-      tracker.enterExercise(currentScene.id);
+    } else if (currentLearningSceneKind === "exercise") {
+      tracker.enterExercise(currentLearningSceneId);
     } else {
-      tracker.enterDemo(currentScene.id);
+      tracker.enterDemo(currentLearningSceneId);
     }
   }, [
-    currentScene?.id,
-    learningManifestScene?.expected_duration_ms,
-    learningManifestScene?.kind,
+    currentLearningSceneDuration,
+    currentLearningSceneId,
+    currentLearningSceneKind,
     learningSessionId,
     playback.revision,
   ]);
 
   useEffect(() => {
     const tracker = learningTrackerRef.current;
-    if (!tracker || !learningSessionId || !currentScene) return;
+    if (!tracker || !learningSessionId || !currentLearningSceneId) return;
     if (playback.status === "playing") {
       tracker.play();
       return;
@@ -350,7 +353,7 @@ export function ClassroomPlayerPage() {
     if (playback.status === "interrupted") tracker.interrupt();
     else tracker.pause();
     void tracker.flush().catch(() => undefined);
-  }, [currentScene?.id, learningSessionId, playback.status]);
+  }, [currentLearningSceneId, learningSessionId, playback.status]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
