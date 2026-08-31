@@ -59,10 +59,35 @@ export function CourseKnowledgeBuildConfigStep({ config, saving, onChange, onCon
         <label>每知识点搜索候选上限<input type="number" min={1} max={20} value={config.max_search_results_per_leaf} onChange={(event) => updateNumber("max_search_results_per_leaf", event.target.value)} /></label>
         <label>在线教材上限<input type="number" min={0} max={5} disabled={!config.prefer_complete_textbooks} value={config.max_online_textbooks} onChange={(event) => updateNumber("max_online_textbooks", event.target.value)} /></label>
         <label>内容语言<input type="text" value={config.content_language} onChange={(event) => onChange({ ...config, preset: "custom", content_language: event.target.value })} /></label>
-        <label>更新策略<select value={config.update_strategy} onChange={(event) => onChange({ ...config, update_strategy: event.target.value as CourseKnowledgeBuildConfig["update_strategy"] })}><option value="incremental">增量补充</option><option value="merge_rebuild">合并重建（默认）</option><option value="full_rebuild">完全重建</option></select></label>
         <label className="course-kb-wizard__checkbox"><input type="checkbox" checked={config.ai_supplement_enabled} onChange={(event) => onChange({ ...config, ai_supplement_enabled: event.target.checked, maximum_ai_materials_per_leaf: event.target.checked ? Math.max(1, config.maximum_ai_materials_per_leaf) : 0 })} />允许 AI 补充网络和教材未覆盖的缺口</label>
         <label className="course-kb-wizard__checkbox"><input type="checkbox" checked={config.prefer_complete_textbooks} onChange={(event) => onChange({ ...config, prefer_complete_textbooks: event.target.checked })} />优先查找并解析完整教材（含 PDF）</label>
       </div>
+
+      <div className="course-kb-wizard__strategy-note">
+        <strong>增量追加</strong>
+        <span>保留现有知识结构，只补充新节点与资料。</span>
+      </div>
+      <details className="course-kb-wizard__advanced">
+        <summary>高级设置</summary>
+        <label>
+          更新方式
+          <select
+            value={config.update_strategy}
+            onChange={(event) => {
+              const strategy = event.target.value as CourseKnowledgeBuildConfig["update_strategy"];
+              if (
+                strategy === "full_rebuild"
+                && !window.confirm("完全重建会用新结构替换当前知识图谱，但历史版本仍可恢复。确认继续吗？")
+              ) return;
+              onChange({ ...config, update_strategy: strategy });
+            }}
+          >
+            <option value="incremental">增量追加（推荐）</option>
+            <option value="merge_rebuild">合并重建</option>
+            <option value="full_rebuild">完全重建</option>
+          </select>
+        </label>
+      </details>
 
       <div className="course-kb-wizard__estimate">
         <span>预计 <strong>{estimate.leafCount}</strong> 个叶子知识点</span>

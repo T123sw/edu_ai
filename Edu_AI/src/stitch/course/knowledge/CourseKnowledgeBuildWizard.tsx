@@ -239,7 +239,7 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
   return (
     <div className="course-kb-wizard" role="dialog" aria-modal="false" aria-labelledby="kb-wizard-title">
       <header className="course-kb-wizard__header">
-        <div><span>构建方案 · 修订 {build.revision}</span><h2 id="kb-wizard-title">课程知识库构建向导</h2></div>
+        <div><span>构建方案 · 修订 {build.revision}</span><h2 id="kb-wizard-title">{build.baseline_graph ? "课程知识库增量更新向导" : "课程知识库构建向导"}</h2></div>
         <button type="button" aria-label="关闭构建向导" onClick={onClose}><MaterialIcon name="close" /></button>
       </header>
       <nav className="course-kb-wizard__steps" aria-label="构建步骤">

@@ -8,6 +8,7 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   const wizard = await readFile(new URL("./CourseKnowledgeBuildWizard.tsx", import.meta.url), "utf8");
   const textbookStep = await readFile(new URL("./CourseKnowledgeTextbookStep.tsx", import.meta.url), "utf8");
   const graphStep = await readFile(new URL("./CourseKnowledgeGraphReviewStep.tsx", import.meta.url), "utf8");
+  const configStep = await readFile(new URL("./CourseKnowledgeBuildConfigStep.tsx", import.meta.url), "utf8");
 
   assert.match(source, /libraryType: "course"/);
   assert.doesNotMatch(source, /libraryType: "personal"/);
@@ -30,6 +31,11 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.match(graphStep, /重新生成此模块/);
   assert.match(graphStep, /确认图谱并开始构建/);
   assert.match(graphStep, /重新生成会丢弃尚未保存的图谱修改/);
+  assert.match(buildCard, /增量更新知识库/);
+  assert.match(configStep, /增量追加/);
+  assert.match(configStep, /高级设置/);
+  assert.match(configStep, /完全重建/);
+  assert.match(configStep, /window\.confirm/);
   assert.match(textbookStep, /accept="\.pdf,\.docx,\.txt,\.md"/);
   assert.match(textbookStep, /可跳过/);
 });

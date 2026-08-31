@@ -13,6 +13,7 @@ test("standard preset is the default and estimates sixteen leaves", () => {
   assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.prefer_complete_textbooks, true);
   assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.max_online_textbooks, 2);
   assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.max_search_rounds_per_leaf, 2);
+  assert.equal(DEFAULT_COURSE_KNOWLEDGE_CONFIG.update_strategy, "incremental");
   assert.deepEqual(estimateCourseKnowledgeBuild(DEFAULT_COURSE_KNOWLEDGE_CONFIG), {
     leafCount: 16,
     materialCount: 48,

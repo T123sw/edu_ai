@@ -535,6 +535,15 @@ export type CourseKnowledgeBuild = {
   course_snapshot: Record<string, unknown>;
   topics: CourseKnowledgeTopic[];
   graph_draft?: KnowledgeGraphNode | null;
+  baseline_graph_version?: number | null;
+  baseline_graph?: KnowledgeGraphNode | null;
+  current_graph_summary?: {
+    root_id: string;
+    root_label: string;
+    node_count: number;
+    leaf_count: number;
+    modules: Array<{ id: string; label: string; child_count: number }>;
+  } | null;
   source_candidates: CourseKnowledgeSourceCandidate[];
   warnings: string[];
   metrics?: Record<string, unknown>;
@@ -592,6 +601,8 @@ export type KnowledgeGraphNode = {
     };
     edited_at?: string;
     edited_by?: string;
+    review_state?: "existing" | "new" | "needs_review" | "needs_parent";
+    needs_parent?: boolean;
   };
 };
 
