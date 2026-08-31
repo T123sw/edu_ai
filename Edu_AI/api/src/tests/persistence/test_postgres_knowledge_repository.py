@@ -215,6 +215,47 @@ def test_knowledge_build_draft_uses_revision_and_requires_graph_confirmation(eng
     assert repository.get_build(draft["build_id"])["status"] == "queued"
 
 
+def test_incremental_publish_rejects_a_newer_graph_version(engine):
+    from app.persistence.postgres_knowledge_repository import (
+        KnowledgeBuildBaselineConflict,
+        PostgresKnowledgeRepository,
+    )
+
+    repository = PostgresKnowledgeRepository(engine)
+    baseline = {"id": "root", "label": "课程", "data": {"type": "course"}, "children": []}
+    repository.upsert_graph("course-1", baseline)
+    draft = repository.create_build_draft(
+        course_id="course-1",
+        triggered_by="teacher-1",
+        plan={
+            "course_id": "course-1",
+            "config": {"update_strategy": "incremental"},
+            "baseline_graph_version": 1,
+            "baseline_graph": baseline,
+            "graph_draft": baseline,
+        },
+    )
+    repository.confirm_build_graph(
+        draft["build_id"], expected_revision=1, confirmed_by="teacher-1"
+    )
+    repository.queue_build(draft["build_id"], selected_source_count=0)
+    repository.update_build(
+        draft["build_id"], status="publishing", phase="publishing", progress=95
+    )
+    repository.upsert_graph("course-1", {**baseline, "id": "concurrent-root"})
+
+    with pytest.raises(KnowledgeBuildBaselineConflict):
+        repository.publish_build(
+            draft["build_id"],
+            graph=baseline,
+            document_ids=[],
+            metrics={},
+            quality_score=100,
+        )
+
+    assert [item["version"] for item in repository.list_graph_versions("course-1")] == [2, 1]
+
+
 def test_editing_confirmed_build_clears_confirmation(engine):
     from app.persistence.postgres_knowledge_repository import PostgresKnowledgeRepository
 
@@ -334,10 +375,22 @@ def test_knowledge_repository_versions_and_rolls_back_published_graph(engine):
     )
 
     versions = repository.list_graph_versions("course-1")
+    latest = repository.get_latest_graph_version("course-1")
     rollback = repository.rollback_graph("course-1", 1)
 
     assert [item["version"] for item in versions] == [2, 1]
     assert versions[0]["source_build_id"] == "kb-2"
+    assert latest == {
+        "version": 2,
+        "graph": {
+            "id": "v2",
+            "data": {
+                "publication_status": "published",
+                "source_build_id": "kb-2",
+                "node_count": 3,
+            },
+        },
+    }
     assert rollback["version"] == 3
     assert repository.get_graph("course-1")["id"] == "v1"
     assert repository.get_graph("course-1")["data"]["rolled_back_from_version"] == 1

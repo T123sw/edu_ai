@@ -20,7 +20,7 @@ export const DEFAULT_COURSE_KNOWLEDGE_CONFIG: CourseKnowledgeBuildConfig = {
   max_search_rounds_per_leaf: 2,
   ai_supplement_enabled: true,
   content_language: "zh-CN",
-  update_strategy: "merge_rebuild",
+  update_strategy: "incremental",
 };
 
 export function applyCourseKnowledgePreset(

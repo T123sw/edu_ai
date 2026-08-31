@@ -234,7 +234,7 @@ class CourseKnowledgeBuildConfig(BaseModel):
     ai_supplement_enabled: bool = True
     content_language: str = Field(default="zh-CN", min_length=1, max_length=50)
     update_strategy: Literal["incremental", "merge_rebuild", "full_rebuild"] = (
-        "merge_rebuild"
+        "incremental"
     )
 
     @model_validator(mode="before")

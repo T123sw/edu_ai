@@ -114,6 +114,43 @@ def test_graph_generation_always_calls_model_without_textbook():
     assert graph["data"]["validation"]["leaf_count"] == 16
 
 
+def test_incremental_generation_merges_candidate_without_changing_baseline_nodes():
+    build = _build(preset="small")
+    baseline = _valid_payload(modules=3, points=3)["root"]
+    build["config"]["update_strategy"] = "incremental"
+    build.update(
+        baseline_graph=baseline,
+        baseline_graph_version=4,
+        current_graph_summary={"node_count": 13},
+    )
+    candidate = _valid_payload(modules=3, points=3)
+    candidate["root"]["children"][0]["label"] = "模型试图改名"
+    candidate["root"]["children"][0]["children"].append(
+        {
+            "id": "point-new",
+            "label": "新增鉴赏方法",
+            "type": "knowledge_point",
+            "summary": "新增教材覆盖的方法",
+            "children": [],
+        }
+    )
+    adapter = FakeAdapter(candidate)
+
+    graph = generate_course_knowledge_graph_draft(
+        build,
+        owner_user_id="teacher-1",
+        model_adapter=adapter,
+    )
+
+    assert graph["children"][0]["label"] == baseline["children"][0]["label"]
+    assert [item["id"] for item in graph["children"][0]["children"]][-1] == "point-new"
+    assert graph["data"]["baseline_graph_version"] == 4
+    prompt = "\n".join(item["content"] for item in adapter.messages[0][0])
+    assert "保留全部已有节点" in prompt
+    assert "不得删除、改名、移动或重排已有节点" in prompt
+    assert '"current_graph": {"node_count": 13}' in prompt
+
+
 def test_invalid_semantic_label_is_repaired_by_model():
     invalid = _valid_payload()
     invalid["root"]["children"][0]["children"][0]["label"] = "1"
@@ -243,3 +280,46 @@ def test_module_regeneration_preserves_unselected_module_ids():
     ]
     assert regenerated["children"][1]["label"] == "诗歌语言与修辞证据"
     assert regenerated["data"]["regenerated_module_id"] == "module-2"
+
+
+def test_incremental_module_regeneration_cannot_replace_existing_module_structure():
+    build = _build(preset="small")
+    baseline = _valid_payload(modules=3, points=3)["root"]
+    build["config"]["update_strategy"] = "incremental"
+    build["baseline_graph"] = baseline
+    build["baseline_graph_version"] = 2
+    build["graph_draft"] = baseline
+    replacement = {
+        "root": {
+            "id": "module-2",
+            "label": "模型试图重命名模块",
+            "type": "knowledge_module",
+            "summary": "模块补充说明",
+            "children": [
+                {
+                    "id": "point-2-new",
+                    "label": "新增方法",
+                    "type": "knowledge_point",
+                    "summary": "新增方法说明",
+                    "children": [],
+                }
+            ],
+        },
+        "unmapped_outline_items": [],
+    }
+
+    regenerated = regenerate_course_knowledge_graph_module(
+        build,
+        module_id="module-2",
+        owner_user_id="teacher-1",
+        model_adapter=FakeAdapter(replacement),
+    )
+
+    module = regenerated["children"][1]
+    assert module["label"] == baseline["children"][1]["label"]
+    assert [item["id"] for item in module["children"][:3]] == [
+        "point-2-1",
+        "point-2-2",
+        "point-2-3",
+    ]
+    assert module["children"][-1]["id"] == "point-2-new"

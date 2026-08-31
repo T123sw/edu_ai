@@ -8,6 +8,11 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   const wizard = await readFile(new URL("./CourseKnowledgeBuildWizard.tsx", import.meta.url), "utf8");
   const textbookStep = await readFile(new URL("./CourseKnowledgeTextbookStep.tsx", import.meta.url), "utf8");
   const graphStep = await readFile(new URL("./CourseKnowledgeGraphReviewStep.tsx", import.meta.url), "utf8");
+  const graphSummary = await readFile(new URL("./KnowledgeGraphReviewSummary.tsx", import.meta.url), "utf8");
+  const graphTree = await readFile(new URL("./KnowledgeGraphTree.tsx", import.meta.url), "utf8");
+  const nodeEditor = await readFile(new URL("./KnowledgeGraphNodeEditor.tsx", import.meta.url), "utf8");
+  const reviewActions = await readFile(new URL("./KnowledgeGraphReviewActions.tsx", import.meta.url), "utf8");
+  const configStep = await readFile(new URL("./CourseKnowledgeBuildConfigStep.tsx", import.meta.url), "utf8");
 
   assert.match(source, /libraryType: "course"/);
   assert.doesNotMatch(source, /libraryType: "personal"/);
@@ -27,9 +32,29 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.match(wizard, /saveCourseKnowledgeGraphDraft/);
   assert.match(wizard, /confirmCourseKnowledgeGraph/);
   assert.match(wizard, /startCourseKnowledgeBuild/);
-  assert.match(graphStep, /重新生成此模块/);
-  assert.match(graphStep, /确认图谱并开始构建/);
+  assert.match(nodeEditor, /重新生成此模块/);
+  assert.match(reviewActions, /确认图谱并开始构建/);
   assert.match(graphStep, /重新生成会丢弃尚未保存的图谱修改/);
+  assert.match(buildCard, /增量更新知识库/);
+  assert.match(configStep, /增量追加/);
+  assert.match(configStep, /高级设置/);
+  assert.match(configStep, /完全重建/);
+  assert.match(configStep, /window\.confirm/);
+  assert.match(graphStep, /selectedNodeId/);
+  assert.match(graphStep, /expandedNodeIds/);
+  assert.match(graphStep, /mobilePane/);
+  assert.match(graphStep, /KnowledgeGraphReviewSummary/);
+  assert.match(graphStep, /KnowledgeGraphTree/);
+  assert.match(graphStep, /KnowledgeGraphNodeEditor/);
+  assert.match(graphStep, /KnowledgeGraphReviewActions/);
+  assert.doesNotMatch(graphStep, /function NodeEditor/);
+  assert.match(graphSummary, /本次新增/);
+  assert.match(graphSummary, /待完善/);
+  assert.match(graphTree, /role="tree"/);
+  assert.match(graphTree, /aria-expanded/);
+  assert.match(nodeEditor, /当前节点/);
+  assert.match(nodeEditor, /现有节点的名称、类型和位置受保护/);
+  assert.match(reviewActions, /保存草案/);
   assert.match(textbookStep, /accept="\.pdf,\.docx,\.txt,\.md"/);
   assert.match(textbookStep, /可跳过/);
 });
@@ -45,6 +70,20 @@ test("first and update build wizards keep the continue action reachable", async 
   assert.match(
     wizardStyles,
     /\.course-kb-wizard__footer\s*\{[^}]*position:\s*sticky;[^}]*bottom:\s*0;/s,
+  );
+  assert.match(
+    wizardStyles,
+    /\.course-kb-graph__workspace\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*35%\)\s+minmax\(0,\s*1fr\);[^}]*overflow:\s*hidden;/s,
+  );
+  assert.match(
+    wizardStyles,
+    /\.course-kb-graph__tree-pane,[\s\S]*?\.course-kb-graph__editor-pane\s*\{[^}]*overflow:\s*auto;/s,
+  );
+  assert.match(wizardStyles, /\.course-kb-graph\s+(?:input|textarea|select)[\s\S]*?font-size:\s*16px;/s);
+  assert.match(wizardStyles, /\.course-kb-graph\s+:focus-visible\s*\{/);
+  assert.match(
+    wizardStyles,
+    /@media\s*\(max-width:\s*767px\)[\s\S]*?\.course-kb-graph__mobile-tabs\s*\{[^}]*display:\s*grid;/s,
   );
 });
 

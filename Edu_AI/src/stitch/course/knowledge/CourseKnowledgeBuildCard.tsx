@@ -147,6 +147,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
   const isWorking = Boolean(activeJob) || planning;
   const failed = status?.status === "failed" || status?.status === "partially_succeeded";
   const succeeded = status?.status === "succeeded";
+  const hasKnowledgeBase = documentCount > 0 || versions.length > 0;
   const statusText = planning
     ? "正在分析课程内容"
     : status
@@ -162,8 +163,8 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
         ? "继续构建方案"
         : plan && ["blocked", "failed"].includes(plan.status)
           ? "新建方案调整配置"
-      : documentCount
-          ? "更新知识库"
+      : hasKnowledgeBase
+          ? "增量更新知识库"
           : "一键构建知识库";
   const approvedSourceCount = plan?.source_candidates.filter(
     (item) => item.selected && item.review_status === "ready",
@@ -188,7 +189,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
         </span>
         <div className="course-kb-builder__heading">
           <span>课程知识库</span>
-          <h2 id="course-kb-builder-title">{documentCount ? "更新课程知识库" : "构建课程知识库"}</h2>
+          <h2 id="course-kb-builder-title">{hasKnowledgeBase ? "更新课程知识库" : "构建课程知识库"}</h2>
           <p>系统会自动整理课程知识结构，并为每个知识点准备合适的学习资料。</p>
         </div>
         <span className={`course-kb-builder__badge${isWorking ? " is-working" : succeeded ? " is-success" : failed ? " is-error" : ""}`}>
