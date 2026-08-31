@@ -6,6 +6,7 @@ import time
 from langgraph.config import get_config, get_stream_writer
 
 from app.chat.runtime.agent_tools import ToolExecutionContext
+from app.chat.runtime.agent_tools.tool_meta import get_tool_meta
 from app.chat.runtime.graph.state import AgentState
 from app.chat.runtime.nodes.constants import _TOOL_NAMES_CN
 from app.chat.runtime.tool_policy import choose_retrieval_tools
@@ -884,6 +885,16 @@ def _filter_tool_schemas_for_step(tool_schemas: list, state: dict) -> list:
     current step explicitly expects them.  This prevents a model from skipping
     outline confirmation and submitting an irreversible task early.
     """
+    contract = dict(state.get("task_contract") or {})
+    if str(contract.get("intent") or "") == "qa":
+        tool_schemas = [
+            schema
+            for schema in tool_schemas
+            if not get_tool_meta(
+                str((schema.get("function") or {}).get("name") or "")
+            ).mutates_state
+        ]
+
     mode = state.get("plan_mode")
     if mode not in {"strict", "guided"}:
         return tool_schemas
