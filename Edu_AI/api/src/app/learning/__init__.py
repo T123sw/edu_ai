@@ -28,6 +28,16 @@ def get_learning_service() -> LearningService:
             membership_store = get_course_membership_store()
             manager = course_service._get_manager()
             from app.persistence.dependencies import get_postgres_material_repository
+            from app.persistence.dependencies import get_resource_learning_repository
+            from app.resource_learning.task_evidence import TaskResourceEvidenceAdapter
+            from app.database.session import DatabaseNotConfigured
+
+            try:
+                evidence_adapter = TaskResourceEvidenceAdapter(
+                    get_resource_learning_repository()
+                )
+            except DatabaseNotConfigured:
+                evidence_adapter = None
 
             _cached_path = path
             _cached_store = LearningStore(path)
@@ -47,6 +57,7 @@ def get_learning_service() -> LearningService:
                     )
                 ),
                 membership_lookup=membership_store.list_for_course,
+                task_evidence_adapter=evidence_adapter,
             )
         return _cached_service
 

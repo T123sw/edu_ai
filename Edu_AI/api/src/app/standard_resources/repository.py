@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Any, Iterable
 from uuid import uuid4
@@ -12,10 +13,12 @@ from sqlalchemy.engine import Engine
 from app.database import (
     Material,
     MaterialVersion,
+    ResourceLearningManifestModel,
     StandardResourceBatch,
     StandardResourceBatchItem,
     database_session,
 )
+from app.resource_learning.models import ResourceLearningManifestRecord
 from app.persistence.postgres_repositories import _iso_timestamp
 
 from .models import (
@@ -229,6 +232,25 @@ class StandardResourceRepository:
         decision: str,
         reason: str = "",
     ) -> dict[str, Any]:
+        return self.review_material_with_manifest(
+            course_id=course_id,
+            material_id=material_id,
+            reviewer_id=reviewer_id,
+            decision=decision,
+            reason=reason,
+            manifest=None,
+        )
+
+    def review_material_with_manifest(
+        self,
+        *,
+        course_id: str,
+        material_id: str,
+        reviewer_id: str,
+        decision: str,
+        reason: str = "",
+        manifest: ResourceLearningManifestRecord | None,
+    ) -> dict[str, Any]:
         normalized_decision = str(decision).strip().lower()
         if normalized_decision not in {"approved", "rejected"}:
             raise StandardResourceRuleError(
@@ -267,6 +289,51 @@ class StandardResourceRepository:
                 raise StandardResourceRuleError(
                     "VERSION_NOT_PENDING", "Only a pending version can be reviewed"
                 )
+            if manifest is not None:
+                if normalized_decision != "approved":
+                    raise StandardResourceRuleError(
+                        "LEARNING_MANIFEST_UNEXPECTED",
+                        "A learning manifest is only valid for approval",
+                    )
+                if (
+                    manifest.course_id != material.course_id
+                    or manifest.resource_id != material.material_id
+                    or manifest.resource_version != material.version
+                ):
+                    raise StandardResourceRuleError(
+                        "LEARNING_MANIFEST_MISMATCH",
+                        "Learning manifest does not match the reviewed version",
+                    )
+                existing_manifest = session.scalar(
+                    select(ResourceLearningManifestModel).where(
+                        ResourceLearningManifestModel.course_id == manifest.course_id,
+                        ResourceLearningManifestModel.resource_id == manifest.resource_id,
+                        ResourceLearningManifestModel.resource_version == manifest.resource_version,
+                    )
+                )
+                if existing_manifest is None:
+                    session.add(
+                        ResourceLearningManifestModel(
+                            manifest_id=manifest.manifest_id,
+                            course_id=manifest.course_id,
+                            resource_id=manifest.resource_id,
+                            resource_version=manifest.resource_version,
+                            content_hash=manifest.content_hash,
+                            mode=manifest.mode,
+                            manifest_json={
+                                "scenes": [asdict(item) for item in manifest.scenes],
+                                "questions": [asdict(item) for item in manifest.questions],
+                            },
+                            created_at=datetime.fromisoformat(
+                                manifest.created_at.replace("Z", "+00:00")
+                            ),
+                        )
+                    )
+                elif existing_manifest.content_hash != manifest.content_hash:
+                    raise StandardResourceRuleError(
+                        "LEARNING_MANIFEST_IMMUTABLE",
+                        "Published learning manifest is immutable",
+                    )
             version.review_status = normalized_decision
             version.reviewed_by = reviewer_id
             version.reviewed_at = now
@@ -306,11 +373,11 @@ class StandardResourceRepository:
             }
         return result
 
-    def approve_pending_in_batch(
-        self, *, course_id: str, batch_id: str, reviewer_id: str
-    ) -> list[dict[str, Any]]:
+    def list_pending_material_ids_in_batch(
+        self, *, course_id: str, batch_id: str
+    ) -> list[str]:
         with database_session(engine=self._engine) as session:
-            material_ids = list(
+            return list(
                 session.scalars(
                     select(Material.material_id).where(
                         Material.course_id == course_id,
@@ -320,6 +387,13 @@ class StandardResourceRepository:
                     )
                 ).all()
             )
+
+    def approve_pending_in_batch(
+        self, *, course_id: str, batch_id: str, reviewer_id: str
+    ) -> list[dict[str, Any]]:
+        material_ids = self.list_pending_material_ids_in_batch(
+            course_id=course_id, batch_id=batch_id
+        )
         return [
             self.review_material(
                 course_id=course_id,

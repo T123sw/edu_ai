@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ClassroomSceneRenderer } from "../../openmaic/ClassroomSceneRenderer";
+import { ResourceLearningTracker } from "../../openmaic/resourceLearningTracker";
+import type { QuizAnswers } from "../../openmaic/quizScene";
 import { ClassroomVideoExportButton } from "../../openmaic/ClassroomVideoExportButton";
 import {
   getClassroomScenePresentation,
@@ -13,21 +15,42 @@ import {
 import { PptxExportButton } from "../../openmaic/PptxExportButton";
 import type { PptxExportScene } from "../../openmaic/pptxExporter";
 import { getClassroom } from "../api/classroom";
-import type { ClassroomMaterial, ClassroomScene } from "../api/types";
+import {
+  endResourceLearningSession,
+  getMyResourceLearningProgress,
+  sendResourceLearningEvents,
+  startResourceLearningSession,
+  submitResourceQuestions,
+} from "../api/resourceLearning";
+import type {
+  ClassroomMaterial,
+  ClassroomScene,
+  ResourceLearningProgress,
+} from "../api/types";
+import { useAuthSession } from "../authSession";
 import { AppSurface, MaterialIcon } from "../shared";
-import { buildTeacherCourseHash } from "../teacherRoutes";
+import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { canCourse } from "../course/coursePermissions";
 import { ClassroomQaPanel } from "../classroomQa/ClassroomQaPanel";
 import { completeAndAdvance } from "../classroomQa/classroomAutoplay";
 import { useClassroomInterruption } from "../classroomQa/useClassroomInterruption";
+import { shouldTrackResourceLearning } from "./classroomResourceLearning";
+import { ResourceLearningProgress } from "../course/knowledge/ResourceLearningProgress";
 
-function getQueryParams(): { courseId: string | null; classroomId: string | null } {
+function getQueryParams(): {
+  courseId: string | null;
+  classroomId: string | null;
+  resourceVersion: number | null;
+} {
   const query = window.location.hash.split("?")[1] ?? "";
   const params = new URLSearchParams(query);
+  const rawVersion = Number(params.get("resource_version"));
   return {
     courseId: params.get("course_id"),
     classroomId: params.get("classroom_id"),
+    resourceVersion:
+      Number.isInteger(rawVersion) && rawVersion > 0 ? rawVersion : null,
   };
 }
 
@@ -49,10 +72,21 @@ function playbackLabel(
   return "播放当前页";
 }
 
+function newIdempotencyKey(sceneId: string): string {
+  const random = globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
+  return `classroom-quiz-${sceneId}-${random}`;
+}
+
 export function ClassroomPlayerPage() {
-  const { courseId, classroomId } = useMemo(getQueryParams, []);
+  const { courseId, classroomId, resourceVersion } = useMemo(getQueryParams, []);
+  const { user } = useAuthSession();
   const { courseRole } = useCourseRoute();
   const canGenerate = canCourse(courseRole, "generate");
+  const tracksResourceLearning = shouldTrackResourceLearning({
+    role: user?.role,
+    courseRole,
+    resourceVersion,
+  });
   const [material, setMaterial] = useState<ClassroomMaterial | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadToken, setLoadToken] = useState(0);
@@ -65,6 +99,16 @@ export function ClassroomPlayerPage() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const consoleRef = useRef<HTMLElement | null>(null);
   const controllerRef = useRef<ManagedPagePlaybackController | null>(null);
+  const learningTrackerRef = useRef<ResourceLearningTracker | null>(null);
+  const learningAttemptRef = useRef(
+    new Map<string, { fingerprint: string; idempotencyKey: string }>(),
+  );
+  const [learningSessionId, setLearningSessionId] = useState<string | null>(null);
+  const [learningProgress, setLearningProgress] =
+    useState<ResourceLearningProgress | null>(null);
+  const [learningSyncState, setLearningSyncState] = useState<
+    "idle" | "syncing" | "synced" | "failed"
+  >("idle");
 
   if (!controllerRef.current) {
     controllerRef.current =
@@ -89,7 +133,7 @@ export function ClassroomPlayerPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getClassroom(courseId, classroomId)
+    getClassroom(courseId, classroomId, resourceVersion ?? undefined)
       .then((data) => {
         if (!cancelled) setMaterial(data);
       })
@@ -105,7 +149,7 @@ export function ClassroomPlayerPage() {
     return () => {
       cancelled = true;
     };
-  }, [classroomId, courseId, loadToken]);
+  }, [classroomId, courseId, loadToken, resourceVersion]);
 
   const scenes: ClassroomScene[] = useMemo(() => material?.scenes ?? [], [material]);
   const scenePresentations = useMemo(
@@ -142,6 +186,174 @@ export function ClassroomPlayerPage() {
   const currentScene = currentIndex >= 0 ? scenes[currentIndex] : undefined;
   const currentPresentation =
     currentIndex >= 0 ? scenePresentations[currentIndex] : undefined;
+  const learningManifestScene = useMemo(
+    () =>
+      learningProgress?.manifest?.scenes.find(
+        (scene) => scene.scene_id === currentScene?.id,
+      ),
+    [currentScene?.id, learningProgress?.manifest],
+  );
+  const currentLearningSceneId = currentScene?.id;
+  const currentLearningSceneKind = learningManifestScene?.kind;
+  const currentLearningSceneDuration = learningManifestScene?.expected_duration_ms;
+
+  useEffect(() => {
+    if (
+      !tracksResourceLearning ||
+      !courseId ||
+      !classroomId ||
+      !resourceVersion ||
+      material?.version !== resourceVersion
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    let tracker: ResourceLearningTracker | null = null;
+    let startedSessionId: string | null = null;
+    let flushTimer: number | undefined;
+
+    void (async () => {
+      try {
+        setLearningSyncState("syncing");
+        const session = await startResourceLearningSession(
+          courseId,
+          classroomId,
+          resourceVersion,
+        );
+        startedSessionId = session.session_id;
+        if (cancelled) {
+          await endResourceLearningSession(
+            courseId,
+            classroomId,
+            resourceVersion,
+            session.session_id,
+          );
+          return;
+        }
+
+        const initialProgress = await getMyResourceLearningProgress(
+          courseId,
+          classroomId,
+          resourceVersion,
+        );
+        if (cancelled) {
+          await endResourceLearningSession(
+            courseId,
+            classroomId,
+            resourceVersion,
+            session.session_id,
+          );
+          return;
+        }
+
+        tracker = new ResourceLearningTracker({
+          outboxKey: `${courseId}:${classroomId}:${resourceVersion}:${session.session_id}`,
+          send: async (events) => {
+            if (!cancelled) setLearningSyncState("syncing");
+            try {
+              const progress = await sendResourceLearningEvents(
+                courseId,
+                classroomId,
+                resourceVersion,
+                session.session_id,
+                events,
+              );
+              if (!cancelled) {
+                setLearningProgress(progress);
+                setLearningSyncState("synced");
+              }
+              return progress;
+            } catch (error) {
+              if (!cancelled) setLearningSyncState("failed");
+              throw error;
+            }
+          },
+        });
+        learningTrackerRef.current = tracker;
+        setLearningProgress(initialProgress);
+        setLearningSessionId(session.session_id);
+        setLearningSyncState("synced");
+        flushTimer = window.setInterval(() => {
+          void tracker?.flush().catch(() => undefined);
+        }, tracker.heartbeatMs);
+      } catch {
+        if (!cancelled) setLearningSyncState("failed");
+        if (startedSessionId) {
+          void endResourceLearningSession(
+            courseId,
+            classroomId,
+            resourceVersion,
+            startedSessionId,
+          ).catch(() => undefined);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (flushTimer !== undefined) window.clearInterval(flushTimer);
+      if (learningTrackerRef.current === tracker) {
+        learningTrackerRef.current = null;
+      }
+      setLearningSessionId(null);
+      if (tracker && startedSessionId) {
+        void tracker
+          .dispose()
+          .then(() =>
+            endResourceLearningSession(
+              courseId,
+              classroomId,
+              resourceVersion,
+              startedSessionId!,
+            ),
+          )
+          .catch(() => undefined);
+      }
+    };
+  }, [
+    classroomId,
+    courseId,
+    material?.content_hash,
+    material?.version,
+    resourceVersion,
+    tracksResourceLearning,
+  ]);
+
+  useEffect(() => {
+    const tracker = learningTrackerRef.current;
+    if (!tracker || !learningSessionId || !currentLearningSceneId || !currentLearningSceneKind) {
+      return;
+    }
+    if (currentLearningSceneKind === "explanation") {
+      tracker.enterExplanation(
+        currentLearningSceneId,
+        currentLearningSceneDuration ?? 0,
+      );
+    } else if (currentLearningSceneKind === "exercise") {
+      tracker.enterExercise(currentLearningSceneId);
+    } else {
+      tracker.enterDemo(currentLearningSceneId);
+    }
+  }, [
+    currentLearningSceneDuration,
+    currentLearningSceneId,
+    currentLearningSceneKind,
+    learningSessionId,
+    playback.revision,
+  ]);
+
+  useEffect(() => {
+    const tracker = learningTrackerRef.current;
+    if (!tracker || !learningSessionId || !currentLearningSceneId) return;
+    if (playback.status === "playing") {
+      tracker.play();
+      return;
+    }
+    if (playback.status === "interrupted") tracker.interrupt();
+    else tracker.pause();
+    void tracker.flush().catch(() => undefined);
+  }, [currentLearningSceneId, learningSessionId, playback.status]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -191,6 +403,45 @@ export function ClassroomPlayerPage() {
     void controller.enter(nextIndex);
   };
 
+  const submitCurrentQuiz = async (answers: QuizAnswers) => {
+    if (
+      !courseId ||
+      !classroomId ||
+      !resourceVersion ||
+      !learningSessionId ||
+      !currentScene ||
+      learningManifestScene?.kind !== "exercise"
+    ) {
+      throw new Error("学习记录尚未就绪，请稍后重试");
+    }
+    const fingerprint = JSON.stringify(answers);
+    const previousAttempt = learningAttemptRef.current.get(currentScene.id);
+    const idempotencyKey =
+      previousAttempt?.fingerprint === fingerprint
+        ? previousAttempt.idempotencyKey
+        : newIdempotencyKey(currentScene.id);
+    learningAttemptRef.current.set(currentScene.id, {
+      fingerprint,
+      idempotencyKey,
+    });
+    setLearningSyncState("syncing");
+    try {
+      const progress = await submitResourceQuestions(
+        courseId,
+        classroomId,
+        resourceVersion,
+        idempotencyKey,
+        answers,
+      );
+      learningAttemptRef.current.delete(currentScene.id);
+      setLearningProgress(progress);
+      setLearningSyncState("synced");
+    } catch (error) {
+      setLearningSyncState("failed");
+      throw error;
+    }
+  };
+
   const togglePlayback = () => {
     if (qaLocksPlayback || !currentPresentation?.hasPlayback) return;
     if (playback.status === "playing") controller.pause();
@@ -225,7 +476,11 @@ export function ClassroomPlayerPage() {
         <header className="classroom-console__header">
           <div className="flex min-w-0 items-center gap-3">
             <a
-              href={buildTeacherCourseHash("classroom-studio", courseId)}
+              href={buildRoleCourseHash(
+                user?.role,
+                user?.role === "student" ? "knowledge" : "classroom-studio",
+                courseId,
+              )}
               className="classroom-icon-button"
               aria-label="返回 AI 课堂列表"
               title="返回 AI 课堂列表"
@@ -241,6 +496,20 @@ export function ClassroomPlayerPage() {
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {tracksResourceLearning ? (
+              <span
+                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600"
+                aria-live="polite"
+              >
+                {learningSyncState === "syncing"
+                  ? "学习记录同步中"
+                  : learningSyncState === "failed"
+                    ? "学习记录待重试"
+                    : learningSessionId
+                      ? "学习记录已开启"
+                      : "正在开启学习记录"}
+              </span>
+            ) : null}
             {material && !presentationMode ? (
               <button
                 type="button"
@@ -286,6 +555,14 @@ export function ClassroomPlayerPage() {
             ) : null}
           </div>
         </header>
+
+        {tracksResourceLearning && learningProgress && !presentationMode ? (
+          <ResourceLearningProgress
+            progress={learningProgress}
+            compact
+            syncState={learningSyncState}
+          />
+        ) : null}
 
         {loading ? (
           <ClassroomState
@@ -367,12 +644,22 @@ export function ClassroomPlayerPage() {
                       classroomId={classroomId}
                       autoPlay={playback.status === "playing"}
                       onComplete={() => {
+                        learningTrackerRef.current?.completeScene();
+                        void learningTrackerRef.current
+                          ?.flush()
+                          .catch(() => undefined);
                         void completeAndAdvance({
                           controller,
                           sceneIndex: currentIndex,
                           revision: playback.revision,
                           sceneCount: scenes.length,
                         });
+                      }}
+                      onQuizSubmitAnswers={
+                        tracksResourceLearning ? submitCurrentQuiz : undefined
+                      }
+                      onDemoInteraction={(actionId) => {
+                        learningTrackerRef.current?.demoInteracted(actionId);
                       }}
                       onRuntimeReady={(runtime) => {
                         if (runtime) {

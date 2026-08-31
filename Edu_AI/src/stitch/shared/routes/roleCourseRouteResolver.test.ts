@@ -34,3 +34,14 @@ test("role home links return to the correct global workspace", () => {
   assert.equal(homeHashForRole("student"), "#student-home");
   assert.equal(homeHashForRole("teacher"), "#home");
 });
+
+test("role course links preserve an exact resource version", () => {
+  assert.equal(
+    buildRoleCourseHash("student", "resources", "course-1", {
+      material_type: "classroom",
+      material_id: "classroom-1",
+      resource_version: 3,
+    }),
+    "#student-resources?course_id=course-1&material_type=classroom&material_id=classroom-1&resource_version=3",
+  );
+});

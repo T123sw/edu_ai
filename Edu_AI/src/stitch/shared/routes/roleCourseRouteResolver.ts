@@ -25,6 +25,7 @@ export type RoleCourseHashTarget = Readonly<{
   space?: string | null;
   material_type?: string | null;
   material_id?: string | null;
+  resource_version?: number | string | null;
   classroom_id?: string | null;
   action?: string | null;
   scopeType?: string | null;
@@ -48,6 +49,7 @@ export function buildRoleCourseHash(
     space: target?.space === "course" ? "course" : target?.space === "mine" ? "mine" : undefined,
     materialType: target?.material_type ?? undefined,
     materialId: target?.material_id ?? undefined,
+    resourceVersion: target?.resource_version ?? undefined,
     classroomId: target?.classroom_id ?? undefined,
     scopeType: target?.scopeType === "knowledge_point" ? "knowledge_point" : target?.scopeType === "course" ? "course" : undefined,
     scopeId: target?.scopeId ?? undefined,

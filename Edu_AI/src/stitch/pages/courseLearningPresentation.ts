@@ -1,4 +1,4 @@
-import type { CompletionBasis, LearningTask, TaskProgress } from "../api/types";
+import type { CompletionBasis, LearningTask, TaskProgress, TaskResourceEvidence } from "../api/types";
 
 export type LearningActor = "teacher" | "student";
 export type LearningTaskPrimaryAction =
@@ -46,4 +46,13 @@ export function getCompletionBasisLabel(
     activity_evidenced: "已有活动证据",
     assessment_verified: "测评已验证",
   }[resolvedBasis];
+}
+
+export function getTaskResourceEvidenceLabel(
+  evidence: Pick<TaskResourceEvidence, "condition_status" | "resource_version">,
+): string {
+  const status = evidence.condition_status === "satisfied"
+    ? "资源条件已满足"
+    : "资源条件待完成";
+  return `${status} · 证据版本 ${evidence.resource_version}`;
 }

@@ -1,5 +1,5 @@
-import { spawn, type ChildProcess } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync } from "node:fs";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { appendFileSync, cpSync, existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
@@ -18,6 +18,8 @@ export const learningFrontendPort = process.env.LEARNING_E2E_FRONTEND_PORT || "1
 export const learningFrontendBaseUrl = `http://127.0.0.1:${learningFrontendPort}`;
 export const learningCourseId = "computational-thinking";
 export const learningE2eTitle = `E2E-LOOP2-${Date.now()}`;
+export const learningResourceId = "standard-sequence-selection-loop-classroom";
+export const learningResourceVersion = 3;
 
 export type ApiEvidence = {
   label: string;
@@ -39,6 +41,7 @@ type LearningBackend = {
   dbPath: string;
   frontendBaseUrl: string;
   restart(): Promise<void>;
+  approveResourceVersion(version: number): Promise<void>;
 };
 
 type LearningFixtures = Record<string, never>;
@@ -105,6 +108,53 @@ export async function loginAs(
   await page.getByLabel("密码", { exact: true }).fill(password);
   await page.locator('button[type="submit"]').click();
   await expect(page.getByText("登录 Edu AI")).toBeHidden({ timeout: 30_000 });
+}
+
+function coveragePercent(text: string): number {
+  const match = text.match(/讲解完整度\s*(\d+)%/);
+  return match ? Number(match[1]) : 0;
+}
+
+export async function playExplanationToCoverage(
+  page: Page,
+  percent: number,
+): Promise<void> {
+  const target = Math.max(0, Math.min(100, Math.round(percent)));
+  const progress = page.locator(".resource-learning-progress").first();
+  await expect(progress).toBeVisible({ timeout: 30_000 });
+  if (coveragePercent(await progress.innerText()) >= target) return;
+
+  const pageCount = page.locator(".classroom-page-count");
+  const pause = page.getByRole("button", { name: "暂停", exact: true });
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const play = page.getByRole("button", {
+      name: /播放当前页|重新播放当前页|重播当前页/,
+    });
+    await expect(play).toBeEnabled();
+    await play.click();
+    await expect(pause).toBeEnabled();
+    await expect.poll(
+      async () => coveragePercent(await progress.innerText()),
+      { timeout: 2_600, intervals: [100, 100, 200, 200, 300] },
+    ).toBeGreaterThanOrEqual(target).catch(() => undefined);
+    if (await pause.isVisible()) await pause.click();
+    if (coveragePercent(await progress.innerText()) >= target) return;
+
+    const currentPage = Number((await pageCount.innerText()).split("/")[0].trim());
+    if (currentPage >= 3) break;
+    await page.getByRole("button", { name: "下一页", exact: true }).click();
+    await expect(pageCount).toHaveText(`${currentPage + 1} / 5`);
+  }
+
+  await expect.poll(
+    async () => coveragePercent(await progress.innerText()),
+    {
+      timeout: 10_000,
+      intervals: [100, 200, 300, 500],
+      message: `explanation coverage did not reach ${target}%`,
+    },
+  ).toBeGreaterThanOrEqual(target);
 }
 
 export async function installDeterministicLearningAgent(
@@ -251,9 +301,62 @@ export const test = base.extend<LearningFixtures, LearningWorkerFixtures>({
       `worker-${workerInfo.parallelIndex}-${Date.now()}`,
     );
     mkdirSync(artifactDir, { recursive: true });
-    const dbPath = resolve(artifactDir, "learning.db");
+    const dbPath = resolve(artifactDir, "app.db");
     const logPath = resolve(artifactDir, "backend.log");
     const frontendLogPath = resolve(artifactDir, "frontend.log");
+    const courseDataRoot = resolve(artifactDir, "course-data");
+    const sourceCourseDir = resolve(
+      eduRoot,
+      "api",
+      "course_data",
+      "courses",
+      learningCourseId,
+    );
+    const isolatedCourseDir = resolve(
+      courseDataRoot,
+      "courses",
+      learningCourseId,
+    );
+    mkdirSync(resolve(courseDataRoot, "courses"), { recursive: true });
+    cpSync(sourceCourseDir, isolatedCourseDir, { recursive: true });
+    const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
+    const databaseUrl = `sqlite+pysqlite:///${dbPath.replace(/\\/g, "/")}`;
+    const backendEnv = {
+      ...process.env,
+      PYTHONPATH: apiSrc,
+      DATABASE_URL: databaseUrl,
+      ALEMBIC_SQLITE_METADATA_BOOTSTRAP: "1",
+      STORAGE_ROOT: resolve(artifactDir, "storage"),
+      LEARNING_DB_PATH: dbPath,
+      COURSE_MEMBERSHIPS_FILE: resolve(artifactDir, "course-memberships.json"),
+      COURSE_STORAGE_ROOT: courseDataRoot,
+      DEV_AUTO_ENROLL_ALL_COURSES: "1",
+      USER_PERSISTENCE_MODE: "json",
+      COURSE_PERSISTENCE_MODE: "json",
+      COURSE_MEMBERSHIP_PERSISTENCE_MODE: "json",
+      MATERIAL_PERSISTENCE_MODE: "postgres",
+      LEARNING_PERSISTENCE_MODE: "postgres",
+      KNOWLEDGE_PERSISTENCE_MODE: "json",
+      USE_REACT_AGENT: process.env.LEARNING_E2E_REAL_MODEL === "1" ? "true" : "false",
+    };
+
+    const runSetup = (args: string[], label: string) => {
+      const result = spawnSync(python, args, {
+        cwd: apiSrc,
+        env: backendEnv,
+        encoding: "utf8",
+        windowsHide: true,
+      });
+      appendFileSync(logPath, `\n[${label}]\n${result.stdout || ""}${result.stderr || ""}`);
+      if (result.status !== 0) {
+        throw new Error(`${label} failed with exit code ${result.status}; see ${logPath}`);
+      }
+    };
+    runSetup(["-m", "alembic", "upgrade", "head"], "alembic upgrade");
+    runSetup(
+      [resolve(apiSrc, "scripts", "seed_resource_learning_e2e.py")],
+      "resource learning seed",
+    );
     let backendChild: ChildProcess | null = null;
     let frontendChild: ChildProcess | null = null;
 
@@ -278,32 +381,19 @@ export const test = base.extend<LearningFixtures, LearningWorkerFixtures>({
     };
 
     const startBackend = async () => {
-      const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
       backendChild = spawn(
         python,
         ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", learningApiPort],
         {
           cwd: artifactDir,
-          env: {
-            ...process.env,
-            PYTHONPATH: apiSrc,
-            STORAGE_ROOT: resolve(artifactDir, "storage"),
-            LEARNING_DB_PATH: dbPath,
-            COURSE_MEMBERSHIPS_FILE: resolve(artifactDir, "course-memberships.json"),
-            COURSE_STORAGE_ROOT: resolve(eduRoot, "api", "course_data"),
-            DEV_AUTO_ENROLL_ALL_COURSES: "1",
-            USER_PERSISTENCE_MODE: "json",
-            COURSE_PERSISTENCE_MODE: "json",
-            COURSE_MEMBERSHIP_PERSISTENCE_MODE: "json",
-            USE_REACT_AGENT: process.env.LEARNING_E2E_REAL_MODEL === "1" ? "true" : "false",
-          },
+          env: backendEnv,
           stdio: ["ignore", "pipe", "pipe"],
           windowsHide: true,
         },
       );
       backendChild.stdout?.on("data", (chunk) => appendFileSync(logPath, chunk));
       backendChild.stderr?.on("data", (chunk) => appendFileSync(logPath, chunk));
-      await waitForUrl(`${learningApiBaseUrl}/health`, "learning backend");
+      await waitForUrl(`${learningApiBaseUrl}/health/database`, "learning backend");
     };
 
     const startFrontend = async () => {
@@ -332,7 +422,7 @@ export const test = base.extend<LearningFixtures, LearningWorkerFixtures>({
 
     try {
       try {
-        const occupied = await fetch(`${learningApiBaseUrl}/health`);
+        const occupied = await fetch(`${learningApiBaseUrl}/health/database`);
         if (occupied.ok) {
           throw new Error(
             `port ${learningApiPort} is already serving a backend; stop it so E2E cannot accidentally use a non-isolated database`,
@@ -359,6 +449,16 @@ export const test = base.extend<LearningFixtures, LearningWorkerFixtures>({
         restart: async () => {
           await stopBackend();
           await startBackend();
+        },
+        approveResourceVersion: async (version: number) => {
+          runSetup(
+            [
+              resolve(apiSrc, "scripts", "seed_resource_learning_e2e.py"),
+              "--version",
+              String(version),
+            ],
+            `resource learning seed v${version}`,
+          );
         },
       });
     } finally {

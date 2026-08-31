@@ -112,6 +112,21 @@ class ClassroomQaService:
         started = self.clock()
         client_turn_id = str(request.client_turn_id)
         checkpoint = request.checkpoint.model_dump()
+        context_started = self.clock()
+        material = await self._run_sync(
+            self.material_loader,
+            course_id=course_id,
+            classroom_id=classroom_id,
+            owner_user_id=owner_user_id,
+        )
+        if not isinstance(material, dict):
+            raise ClassroomQaError(
+                "CLASSROOM_NOT_FOUND",
+                "课堂不存在或当前用户无权读取。",
+                status_code=404,
+                retryable=False,
+            )
+
         session = self.store.get_or_create(
             course_id=course_id,
             classroom_id=classroom_id,
@@ -145,27 +160,6 @@ class ClassroomQaService:
                 status_code=409,
                 retryable=True,
             ) from exc
-
-        context_started = self.clock()
-        material = await self._run_sync(
-            self.material_loader,
-            course_id=course_id,
-            classroom_id=classroom_id,
-            owner_user_id=owner_user_id,
-        )
-        if not isinstance(material, dict):
-            self.store.fail_turn(
-                session=session,
-                client_turn_id=client_turn_id,
-                error_code="CLASSROOM_NOT_FOUND",
-                retryable=False,
-            )
-            raise ClassroomQaError(
-                "CLASSROOM_NOT_FOUND",
-                "课堂不存在或当前用户无权读取。",
-                status_code=404,
-                retryable=False,
-            )
 
         try:
             context = build_classroom_qa_context(

@@ -26,6 +26,39 @@ export interface QuizDraft {
   submitted: boolean;
 }
 
+export interface ResourceQuestionSubmission {
+  answers: QuizAnswers;
+}
+
+export function buildResourceQuestionSubmission(
+  questions: ClassroomQuizQuestion[],
+  answers: QuizAnswers,
+): ResourceQuestionSubmission {
+  const submittedAnswers = Object.fromEntries(
+    questions.flatMap((question) => {
+      const answer = answers[question.id];
+      if (typeof answer === 'string') {
+        const normalized = answer.trim();
+        return normalized ? [[question.id, normalized] as const] : [];
+      }
+      if (Array.isArray(answer)) {
+        const normalized = [...new Set(answer.map((value) => value.trim()).filter(Boolean))];
+        return normalized.length ? [[question.id, normalized] as const] : [];
+      }
+      return [];
+    }),
+  );
+
+  const hasMissingRequiredAnswer = questions.some(
+    (question) =>
+      question.required !== false && submittedAnswers[question.id] === undefined,
+  );
+  if (hasMissingRequiredAnswer) {
+    throw new Error('请完成所有必答题后再提交');
+  }
+  return { answers: submittedAnswers };
+}
+
 export interface QuizStorage {
   getItem(key: string): string | null;
   setItem(key: string, value: string): unknown;

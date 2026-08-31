@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 from alembic import context
+from alembic.script import ScriptDirectory
 from sqlalchemy import engine_from_config, pool
 
 from app.database import Base
@@ -40,6 +41,22 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
     with connectable.connect() as connection:
+        if (
+            connection.dialect.name == "sqlite"
+            and os.getenv("ALEMBIC_SQLITE_METADATA_BOOTSTRAP") == "1"
+        ):
+            target_metadata.create_all(connection)
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                compare_type=True,
+            )
+            with context.begin_transaction():
+                context.get_context().stamp(
+                    ScriptDirectory.from_config(config),
+                    "head",
+                )
+            return
         context.configure(
             connection=connection,
             target_metadata=target_metadata,

@@ -181,9 +181,19 @@ class EventWriteResult:
 
 
 @dataclass(frozen=True)
+class TaskResourceEvidence:
+    resource_id: str
+    resource_version: int
+    condition_status: Literal["pending", "satisfied"]
+    evidence_source: Literal["course_resource_learning"] = "course_resource_learning"
+    resource_completed_at: str | None = None
+
+
+@dataclass(frozen=True)
 class LearningTaskView:
     task: LearningTaskRecord
     my_progress: TaskProgressRecord | None = None
+    resource_evidence: list[TaskResourceEvidence] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

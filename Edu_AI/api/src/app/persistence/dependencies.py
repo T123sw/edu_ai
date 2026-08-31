@@ -19,6 +19,7 @@ from .postgres_app_state_repository import PostgresAppStateRepository
 from .postgres_assessment_repository import PostgresAssessmentRepository
 from .postgres_learning_repository import PostgresLearningRepository
 from app.standard_resources.repository import StandardResourceRepository
+from app.resource_learning.repository import ResourceLearningRepository
 from .postgres_repositories import (
     PostgresCourseMembershipRepository,
     PostgresCourseRepository,
@@ -208,3 +209,15 @@ def _build_assessment_repository(database_url: str):
 def get_postgres_assessment_repository():
     database_url = str(os.getenv("DATABASE_URL", "")).strip()
     return _build_assessment_repository(database_url)
+
+
+@lru_cache(maxsize=8)
+def _build_resource_learning_repository(database_url: str):
+    if not database_url:
+        raise DatabaseNotConfigured("DATABASE_URL is not configured")
+    return ResourceLearningRepository(create_engine(database_url, pool_pre_ping=True))
+
+
+def get_resource_learning_repository():
+    database_url = str(os.getenv("DATABASE_URL", "")).strip()
+    return _build_resource_learning_repository(database_url)

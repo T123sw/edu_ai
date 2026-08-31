@@ -60,9 +60,13 @@ def _task_response(
         payload["my_progress"] = (
             asdict(task_or_view.my_progress) if task_or_view.my_progress else None
         )
+        payload["resource_evidence"] = [
+            asdict(item) for item in task_or_view.resource_evidence
+        ]
     else:
         payload = asdict(task_or_view)
         payload["my_progress"] = None
+        payload["resource_evidence"] = []
     return LearningTaskResponse.model_validate(payload)
 
 

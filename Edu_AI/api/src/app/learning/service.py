@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from dataclasses import asdict, replace
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from app.resource_learning.task_evidence import TaskResourceEvidenceAdapter
 
 from .models import (
     CourseTaskSummaryRecord,
@@ -48,11 +51,13 @@ class LearningService:
         material_lookup: MaterialLookup,
         membership_lookup: MembershipLookup,
         material_version_lookup: MaterialVersionLookup | None = None,
+        task_evidence_adapter: TaskResourceEvidenceAdapter | None = None,
     ):
         self.store = store
         self.material_lookup = material_lookup
         self.membership_lookup = membership_lookup
         self.material_version_lookup = material_version_lookup
+        self.task_evidence_adapter = task_evidence_adapter
 
     @staticmethod
     def _require_text(value: str, *, field: str) -> str:
@@ -261,7 +266,19 @@ class LearningService:
         self._teacher_membership(course_id=course_id, teacher_id=teacher_id)
         self._task_or_error(course_id=course_id, task_id=task_id)
         try:
-            return self.store.publish_task(task_id, course_id=course_id, published_by=teacher_id)
+            published = self.store.publish_task(
+                task_id, course_id=course_id, published_by=teacher_id
+            )
+            if self.task_evidence_adapter is not None:
+                try:
+                    self.task_evidence_adapter.initialize_task(
+                        published,
+                        student_ids=self._student_ids(course_id),
+                    )
+                except Exception:
+                    # Evidence is a retryable projection and must not roll back publishing.
+                    pass
+            return published
         except KeyError as exc:
             raise LearningRuleError("TASK_NOT_PUBLISHABLE", "Task cannot be published") from exc
 
@@ -275,13 +292,30 @@ class LearningService:
     ) -> list[LearningTaskView]:
         statuses = None if include_unpublished else {"published"}
         tasks = self.store.list_tasks(course_id, statuses=statuses, limit=limit)
-        return [
-            LearningTaskView(
-                task=task,
-                my_progress=self.store.get_progress(task.task_id, user_id),
+        membership = self._course_read_membership(course_id=course_id, user_id=user_id)
+        is_student = _membership_value(membership, "role") == "viewer"
+        views: list[LearningTaskView] = []
+        for task in tasks:
+            evidence = []
+            if (
+                is_student
+                and task.status == "published"
+                and self.task_evidence_adapter is not None
+            ):
+                try:
+                    evidence = self.task_evidence_adapter.ensure_for_student(
+                        task, student_id=user_id
+                    )
+                except Exception:
+                    evidence = []
+            views.append(
+                LearningTaskView(
+                    task=task,
+                    my_progress=self.store.get_progress(task.task_id, user_id),
+                    resource_evidence=evidence,
+                )
             )
-            for task in tasks
-        ]
+        return views
 
     def record_student_event(
         self,

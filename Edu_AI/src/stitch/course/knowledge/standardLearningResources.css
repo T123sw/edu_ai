@@ -303,6 +303,22 @@
   font-size: 12px;
 }
 
+.standard-resource-card__learn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  margin-top: 10px;
+  border-radius: 9px;
+  background: var(--app-primary, #2563eb);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .standard-resources__empty {
   display: grid;
   min-height: 180px;

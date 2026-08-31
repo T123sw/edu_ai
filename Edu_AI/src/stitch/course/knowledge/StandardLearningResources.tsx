@@ -8,11 +8,14 @@ import {
   retryStandardResourceBatch,
   reviewStandardResource,
 } from "../../api/standardResources";
+import { listMyCourseResourceLearningProgress } from "../../api/resourceLearning";
 import type {
+  ResourceLearningProgress as ResourceLearningProgressData,
   StandardResourceBatch,
   StandardResourceLeaf,
   StandardResourceSlot,
 } from "../../api/types";
+import { useAuthSession } from "../../authSession";
 import { MaterialIcon } from "../../shared";
 import { useCourseRoute } from "../CourseRouteProvider";
 import {
@@ -23,6 +26,12 @@ import {
   standardSelectionSummary,
   toggleStandardResourceLeafScope,
 } from "./standardLearningResourcesPresentation";
+import { ResourceLearningProgress } from "./ResourceLearningProgress";
+import { ResourceLearningAnalytics } from "./ResourceLearningAnalytics";
+import {
+  buildStudentClassroomLearningHref,
+  resourceLearningProgressKey,
+} from "./resourceLearningPresentation";
 import "./standardLearningResources.css";
 
 
@@ -40,19 +49,33 @@ function resourcePreview(slot: StandardResourceSlot): string {
 
 function ResourceSlotCard({
   slot,
+  courseId,
+  isStudent,
+  learningProgress,
   canManage,
   busy,
   onReview,
 }: {
   slot: StandardResourceSlot;
+  courseId: string;
+  isStudent: boolean;
+  learningProgress?: ResourceLearningProgressData;
   canManage: boolean;
   busy: boolean;
   onReview: (slot: StandardResourceSlot, decision: "approved" | "rejected") => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const meta = STANDARD_RESOURCE_KIND_META[slot.standard_kind];
   const generated = Boolean(slot.resource);
   const canReview = canManage && slot.review_status === "pending";
+  const approvedClassroomVersion =
+    isStudent &&
+    slot.standard_kind === "classroom" &&
+    slot.review_status === "approved" &&
+    slot.approved_version
+      ? slot.approved_version
+      : null;
 
   return (
     <article className={`standard-resource-card standard-resource-card--${slot.review_status}`}>
@@ -83,6 +106,42 @@ function ResourceSlotCard({
           {expanded && (
             <pre className="standard-resource-card__preview">{resourcePreview(slot)}</pre>
           )}
+          {approvedClassroomVersion ? (
+            <>
+              <ResourceLearningProgress progress={learningProgress} />
+              <a
+                className="standard-resource-card__learn"
+                href={buildStudentClassroomLearningHref(
+                  courseId,
+                  slot.material_id,
+                  approvedClassroomVersion,
+                )}
+              >
+                <MaterialIcon name="play_circle" />
+                {learningProgress ? "继续学习" : "开始学习"}
+              </a>
+            </>
+          ) : null}
+          {canManage && slot.standard_kind === "classroom" && slot.approved_version ? (
+            <>
+              <button
+                type="button"
+                className="standard-resource-card__preview-toggle"
+                aria-expanded={analyticsOpen}
+                onClick={() => setAnalyticsOpen((current) => !current)}
+              >
+                <MaterialIcon name="analytics" />
+                {analyticsOpen ? "收起学习分析" : "学习分析"}
+              </button>
+              {analyticsOpen ? (
+                <ResourceLearningAnalytics
+                  courseId={courseId}
+                  resourceId={slot.material_id}
+                  version={slot.approved_version}
+                />
+              ) : null}
+            </>
+          ) : null}
           {canReview && (
             <div className="standard-resource-card__review-actions">
               <button
@@ -131,6 +190,8 @@ export function StandardLearningResources({
   onCancel,
 }: StandardLearningResourcesProps) {
   const { courseId, courseRole } = useCourseRoute();
+  const { user } = useAuthSession();
+  const isStudent = user?.role === "student";
   const canManage = !readOnly && (courseRole === "owner" || courseRole === "editor");
   const [leaves, setLeaves] = useState<StandardResourceLeaf[]>([]);
   const [selectedLeafIds, setSelectedLeafIds] = useState<Set<string>>(new Set());
@@ -140,20 +201,39 @@ export function StandardLearningResources({
   const [error, setError] = useState("");
   const [expandedLeafId, setExpandedLeafId] = useState<string | null>(null);
   const [openChapterIds, setOpenChapterIds] = useState<Set<string>>(new Set());
+  const [progressByResourceKey, setProgressByResourceKey] = useState(
+    new Map<string, ResourceLearningProgressData>(),
+  );
 
   const loadCatalog = useCallback(async () => {
     if (!courseId) return;
     setLoading(true);
     try {
-      const catalog = await getStandardResources(courseId);
+      const [catalog, progressItems] = await Promise.all([
+        getStandardResources(courseId),
+        isStudent
+          ? listMyCourseResourceLearningProgress(courseId).catch(() => [])
+          : Promise.resolve([]),
+      ]);
       setLeaves(catalog.leaves);
+      setProgressByResourceKey(
+        new Map(
+          progressItems.map((progress) => [
+            resourceLearningProgressKey(
+              progress.resource_id,
+              progress.resource_version,
+            ),
+            progress,
+          ]),
+        ),
+      );
       setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "标准学习资源加载失败");
     } finally {
       setLoading(false);
     }
-  }, [courseId]);
+  }, [courseId, isStudent]);
 
   useEffect(() => {
     void loadCatalog();
@@ -430,6 +510,18 @@ export function StandardLearningResources({
                                 <ResourceSlotCard
                                   key={slot.standard_kind}
                                   slot={slot}
+                                  courseId={courseId ?? ""}
+                                  isStudent={isStudent}
+                                  learningProgress={
+                                    slot.approved_version
+                                      ? progressByResourceKey.get(
+                                          resourceLearningProgressKey(
+                                            slot.material_id,
+                                            slot.approved_version,
+                                          ),
+                                        )
+                                      : undefined
+                                  }
                                   canManage={canManage}
                                   busy={working}
                                   onReview={(target, decision) => void review(target, decision)}
@@ -477,6 +569,18 @@ export function StandardLearningResources({
                         <ResourceSlotCard
                           key={slot.standard_kind}
                           slot={slot}
+                          courseId={courseId ?? ""}
+                          isStudent={isStudent}
+                          learningProgress={
+                            slot.approved_version
+                              ? progressByResourceKey.get(
+                                  resourceLearningProgressKey(
+                                    slot.material_id,
+                                    slot.approved_version,
+                                  ),
+                                )
+                              : undefined
+                          }
                           canManage={canManage}
                           busy={working}
                           onReview={(target, decision) => void review(target, decision)}

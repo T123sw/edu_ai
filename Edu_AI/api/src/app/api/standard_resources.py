@@ -27,6 +27,7 @@ from app.standard_resources.repository import (
     StandardResourceRepository,
     StandardResourceRuleError,
 )
+from app.standard_resources.review_service import StandardResourceReviewService
 from app.standard_resources.service import StandardResourceService
 from core.course_storage import CourseStorageManager
 
@@ -46,6 +47,9 @@ def _rule_http_error(error: StandardResourceRuleError) -> HTTPException:
         "LEAF_NOT_FOUND": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "INVALID_REVIEW_DECISION": status.HTTP_422_UNPROCESSABLE_CONTENT,
         "REJECTION_REASON_REQUIRED": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "LEARNING_MANIFEST_INVALID": status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "LEARNING_MANIFEST_MISMATCH": status.HTTP_409_CONFLICT,
+        "LEARNING_MANIFEST_IMMUTABLE": status.HTTP_409_CONFLICT,
     }
     return HTTPException(
         status_code=code_map.get(error.code, status.HTTP_400_BAD_REQUEST),
@@ -153,6 +157,13 @@ def get_standard_resource_batch_service() -> StandardResourceBatchService:
     )
 
 
+def get_standard_resource_review_service() -> StandardResourceReviewService:
+    return StandardResourceReviewService(
+        repository=get_standard_resource_repository(),
+        material_repository=get_postgres_material_repository(),
+    )
+
+
 @router.get("/standard-resources", response_model=StandardResourceCatalogResponse)
 def list_standard_resources(
     course_id: str,
@@ -236,11 +247,11 @@ def review_standard_resource(
     material_id: str,
     payload: StandardResourceReviewRequest,
     principal: CoursePrincipal = Depends(require_course_generate),
-    repository: StandardResourceRepository = Depends(get_standard_resource_repository),
+    service: StandardResourceReviewService = Depends(get_standard_resource_review_service),
 ) -> StandardResourceReviewResponse:
     try:
         return StandardResourceReviewResponse.model_validate(
-            repository.review_material(
+            service.review(
                 course_id=course_id,
                 material_id=material_id,
                 reviewer_id=principal.user_id,
@@ -260,12 +271,12 @@ def approve_pending_standard_resources(
     course_id: str,
     batch_id: str,
     principal: CoursePrincipal = Depends(require_course_generate),
-    repository: StandardResourceRepository = Depends(get_standard_resource_repository),
+    service: StandardResourceReviewService = Depends(get_standard_resource_review_service),
 ) -> list[StandardResourceReviewResponse]:
     try:
         return [
             StandardResourceReviewResponse.model_validate(item)
-            for item in repository.approve_pending_in_batch(
+            for item in service.approve_pending_in_batch(
                 course_id=course_id,
                 batch_id=batch_id,
                 reviewer_id=principal.user_id,
