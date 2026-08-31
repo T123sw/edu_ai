@@ -30,14 +30,6 @@ from app.chat.runtime.learning_context_prompt import build_learning_context_prom
 from app.chat.runtime.planning.task_contract_extractor import extract_task_contract
 from app.chat.memory.domain import AgentMemoryContext
 from app.chat.memory.service import AgentMemoryService
-from app.chat.domain.route_decision import RouteDecision
-
-
-_AGENT_FOLLOWUP_MARKERS = (
-    "继续", "确认", "按这个", "就按", "开始", "没问题", "好的",
-    "修改", "调整", "完善", "重试",
-)
-_ACTIVE_TASK_INTENTS = {"generate_single", "prepare_bundle", "modify", "confirm"}
 
 
 class ReActAgent:
@@ -115,39 +107,15 @@ class ReActAgent:
         except Exception:
             pass
 
-        # Ordinary questions belong to the normal chat runtime.  It already
-        # applies enabled RAG/Web sources as answer context, while avoiding the
-        # resource-generation planner, outline checks and visual-material SOP.
-        # Extract against the restored state so confirmation/modification turns
-        # for an active draft continue through the agent workflow.
+        # Classify once against the restored cross-turn state. Every turn stays
+        # inside the Agent; the contract and server-side tool boundary decide
+        # whether it is ordinary QA or resource work.
         contract = extract_task_contract(
             request,
             capability,
             checkpoint_state,
             snapshot=snapshot,
         )
-        prior_contract = dict(checkpoint_state.get("task_contract") or {})
-        has_active_agent_task = bool(
-            checkpoint_state.get("active_draft_outline")
-            or str(prior_contract.get("intent") or "") in _ACTIVE_TASK_INTENTS
-        )
-        looks_like_agent_followup = has_active_agent_task and any(
-            marker in question for marker in _AGENT_FOLLOWUP_MARKERS
-        )
-        if (
-            contract.intent == "qa"
-            and not contract.requires_images
-            and not looks_like_agent_followup
-        ):
-            yield from self.fast_runtime.run_stream(
-                request=request,
-                snapshot=snapshot,
-                decision=RouteDecision.fast(
-                    action="chat.reply",
-                    reason="ordinary_question",
-                ),
-            )
-            return
 
         yield {"type": "status", "payload": {"stage": "thinking", "label": "正在分析请求..."}}
 
@@ -178,6 +146,8 @@ class ReActAgent:
         ctx.trace["path"] = "agent"
         ctx.trace["_t_start"] = t_start
         ctx.trace["needs_planning"] = needs_planning
+        ctx.trace["intent"] = contract.intent
+        ctx.trace["contract_hash"] = contract.contract_hash
         source_mode = str(getattr(capability, "source_mode", "") or "")
         if source_mode not in {"course_auto", "selected_documents", "none"}:
             if list(getattr(capability, "selected_doc_ids", []) or []):
@@ -229,7 +199,7 @@ class ReActAgent:
             "retrieval_sources": [],
             "fallback_reason": "",
             "needs_planning": needs_planning,
-            "task_contract": {},
+            "task_contract": contract.model_dump(mode="json"),
             "logical_task_id": str(checkpoint_state.get("logical_task_id") or ""),
             "verification_report": {},
             "active_draft_outline": active_draft_outline,
