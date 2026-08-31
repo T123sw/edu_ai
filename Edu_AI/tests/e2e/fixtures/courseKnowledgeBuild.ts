@@ -24,7 +24,7 @@ const defaultConfig: CourseKnowledgeBuildConfig = {
   max_search_rounds_per_leaf: 2,
   ai_supplement_enabled: true,
   content_language: "中文",
-  update_strategy: "merge_rebuild",
+  update_strategy: "incremental",
 };
 
 function graphDraft(withTextbook: boolean): KnowledgeGraphNode {
@@ -63,6 +63,10 @@ function graphDraft(withTextbook: boolean): KnowledgeGraphNode {
       },
     ],
   };
+}
+
+function allGraphNodes(root: KnowledgeGraphNode): KnowledgeGraphNode[] {
+  return [root, ...(root.children || []).flatMap(allGraphNodes)];
 }
 
 function job(id: string, buildId: string, kind: string, status: JobRecord["status"], step: string): JobRecord {
@@ -120,10 +124,14 @@ function json(route: Route, body: unknown, status = 200) {
 
 export type CourseKnowledgeBuildFixture = {
   events: string[];
+  baselineNodeIds: string[];
   build: () => CourseKnowledgeBuild;
 };
 
-export async function installCourseKnowledgeBuildRoutes(page: Page): Promise<CourseKnowledgeBuildFixture> {
+export async function installCourseKnowledgeBuildRoutes(
+  page: Page,
+  options: { existingGraph?: boolean } = {},
+): Promise<CourseKnowledgeBuildFixture> {
   await page.addInitScript(() => {
     Object.defineProperty(globalThis, "BroadcastChannel", {
       value: undefined,
@@ -137,6 +145,8 @@ export async function installCourseKnowledgeBuildRoutes(page: Page): Promise<Cou
   const events: string[] = [];
   const jobs: JobRecord[] = [];
   let completed = false;
+  const baselineGraph = options.existingGraph ? graphDraft(false) : null;
+  const baselineNodeIds = baselineGraph ? allGraphNodes(baselineGraph).map((node) => node.id) : [];
   let build: CourseKnowledgeBuild = {
     build_id: buildId,
     library_id: COURSE_ID,
@@ -153,6 +163,19 @@ export async function installCourseKnowledgeBuildRoutes(page: Page): Promise<Cou
     course_snapshot: { title: "大学物理", description: "本科物理基础课程" },
     topics: [],
     graph_draft: null,
+    baseline_graph_version: options.existingGraph ? 3 : null,
+    baseline_graph: baselineGraph,
+    current_graph_summary: baselineGraph ? {
+      root_id: baselineGraph.id,
+      root_label: baselineGraph.label,
+      node_count: baselineNodeIds.length,
+      leaf_count: 4,
+      modules: (baselineGraph.children || []).map((node) => ({
+        id: node.id,
+        label: node.label,
+        child_count: node.children?.length || 0,
+      })),
+    } : null,
     source_candidates: [],
     warnings: [],
     quality_score: null,
@@ -161,10 +184,24 @@ export async function installCourseKnowledgeBuildRoutes(page: Page): Promise<Cou
 
   function completeGraph() {
     events.push("graph:complete");
+    const nextGraph = graphDraft(Boolean(build.textbooks?.length));
+    if (options.existingGraph) {
+      nextGraph.children?.[1]?.children?.push({
+        id: "angular-momentum",
+        label: "角动量",
+        children: [],
+        data: {
+          level: 3,
+          summary: "角动量定理与角动量守恒的概念和应用",
+          source_outline_refs: [],
+          review_state: "new",
+        },
+      });
+    }
     build = {
       ...build,
       revision: build.revision + 1,
-      graph_draft: graphDraft(Boolean(build.textbooks?.length)),
+      graph_draft: nextGraph,
     };
   }
 
@@ -303,7 +340,10 @@ export async function installCourseKnowledgeBuildRoutes(page: Page): Promise<Cou
     }
 
     if (path === `/api/courses/${COURSE_ID}/knowledge-base/versions` && method === "GET") {
-      return json(route, completed ? [{ version: 5, source_build_id: buildId, created_at: NOW, published_at: NOW, node_count: 7 }] : []);
+      if (completed) return json(route, [{ version: 5, source_build_id: buildId, created_at: NOW, published_at: NOW, node_count: allGraphNodes(build.graph_draft!).length }]);
+      return json(route, options.existingGraph
+        ? [{ version: 3, source_build_id: "kb-existing", created_at: NOW, published_at: NOW, node_count: baselineNodeIds.length }]
+        : []);
     }
 
     if (path === `/api/courses/${COURSE_ID}/knowledge-base/documents` && method === "GET" && completed) {
@@ -340,5 +380,5 @@ export async function installCourseKnowledgeBuildRoutes(page: Page): Promise<Cou
     return route.fallback();
   });
 
-  return { events, build: () => build };
+  return { events, baselineNodeIds, build: () => build };
 }

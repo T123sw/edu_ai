@@ -4,7 +4,7 @@ import { installCourseKnowledgeBuildRoutes } from "./fixtures/courseKnowledgeBui
 async function openBuildWizard(teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0]) {
   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
   await teacherPage.getByRole("button", { name: /更新知识库|一键构建知识库/ }).click();
-  await expect(teacherPage.getByRole("dialog", { name: "课程知识库构建向导" })).toBeVisible();
+  await expect(teacherPage.getByRole("dialog", { name: /课程知识库.*向导/ })).toBeVisible();
 }
 
 async function configureSmallBuild(teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0]) {
@@ -22,11 +22,13 @@ async function configureSmallBuild(teacherPage: Parameters<typeof installCourseK
 async function reviewConfirmAndWaitForBuild(
   teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0],
   expectedTextbookCopy: string,
+  expectedLeafCount = 4,
 ) {
   await expect(teacherPage.getByRole("heading", { name: "审核知识图谱" })).toBeVisible({ timeout: 15_000 });
   await expect(teacherPage.getByText(expectedTextbookCopy, { exact: false })).toBeVisible();
-  await expect(teacherPage.getByLabel("图谱规模对照")).toContainText("4 / 4");
-  await teacherPage.getByLabel("大学物理名称").fill("大学物理（教师已审核）");
+  const overview = teacherPage.getByLabel("图谱审核概览");
+  await expect(overview.locator(".course-kb-graph__stats > span").filter({ hasText: "知识点" })).toContainText(String(expectedLeafCount));
+  await teacherPage.getByLabel("大学物理说明").fill("大学物理课程知识结构（教师已审核）");
   await teacherPage.getByRole("button", { name: "保存草案" }).click();
   await expect(teacherPage.getByRole("button", { name: "保存草案" })).toBeDisabled();
   await teacherPage.getByLabel(/我已审核图谱/).check();
@@ -77,4 +79,22 @@ test("有教材：教材解析参与模型图谱，并与网络和 AI 资料共�
   await expect(teacherPage.getByText("牛顿运动定律公开课程资料.md", { exact: true })).toBeVisible();
   await expect(teacherPage.getByText("大学物理验收教材.md", { exact: true })).toBeVisible();
   await expect(teacherPage.getByText("机械能守恒学习材料（AI 补充）.md", { exact: true })).toBeVisible();
+});
+
+test("已有知识库：增量生成只追加新节点并保留全部现有节点", async ({ teacherPage }) => {
+  const fixture = await installCourseKnowledgeBuildRoutes(teacherPage, { existingGraph: true });
+  await openBuildWizard(teacherPage);
+  await expect(teacherPage.getByRole("heading", { name: "课程知识库增量更新向导" })).toBeVisible();
+  await expect(teacherPage.getByText("增量追加", { exact: true })).toBeVisible();
+  await configureSmallBuild(teacherPage);
+
+  await teacherPage.getByRole("button", { name: "跳过教材并生成图谱" }).click();
+  await reviewConfirmAndWaitForBuild(teacherPage, "本次未使用教材", 5);
+
+  const finalRoot = fixture.build().graph_draft!;
+  const finalNodeIds = [finalRoot, ...(finalRoot.children || []), ...(finalRoot.children || []).flatMap((node) => node.children || [])]
+    .map((node) => node.id);
+  expect(fixture.baselineNodeIds.every((nodeId) => finalNodeIds.includes(nodeId))).toBe(true);
+  expect(finalNodeIds).toContain("angular-momentum");
+  expect(fixture.build().config?.update_strategy).toBe("incremental");
 });
