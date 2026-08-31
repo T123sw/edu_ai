@@ -351,7 +351,7 @@ test("learning resource generation opens a dedicated configuration page", async 
 
 - [ ] **Step 3: 运行浏览器测试**
 
-Run: `cd Edu_AI && pnpm exec playwright test tests/e2e/course-knowledge.spec.ts --project=chromium`
+Run: `cd Edu_AI && pnpm exec playwright test tests/e2e/course-knowledge.spec.ts --project=desktop1366`
 
 Expected: PASS，新增跳转测试及原课程知识测试全部通过。
 
@@ -381,7 +381,7 @@ Expected: PASS，Vite 构建成功且无 TypeScript 错误。
 
 - [ ] **Step 3: 运行课程知识浏览器测试**
 
-Run: `cd Edu_AI && pnpm exec playwright test tests/e2e/course-knowledge.spec.ts --project=chromium`
+Run: `cd Edu_AI && pnpm exec playwright test tests/e2e/course-knowledge.spec.ts --project=desktop1366`
 
 Expected: PASS。
 

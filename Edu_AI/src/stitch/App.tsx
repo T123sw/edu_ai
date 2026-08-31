@@ -41,6 +41,7 @@ const AIWorkspacePage = lazy(() => import("./pages/AIWorkspace").then((module) =
 const HomeDashboardPage = lazy(() => import("./pages/HomeDashboard").then((module) => ({ default: module.HomeDashboardPage })));
 const PptStudioPage = lazy(() => import("./pages/PptStudio").then((module) => ({ default: module.PptStudioPage })));
 const CourseKnowledgePage = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.CourseKnowledgePage })));
+const LearningResourceGenerationPage = lazy(() => import("./pages/LearningResourceGeneration").then((module) => ({ default: module.LearningResourceGenerationPage })));
 const LegacyKnowledgeGraphRedirect = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.LegacyKnowledgeGraphRedirect })));
 const CourseDetailPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseDetailPage })));
 const CourseListPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseListPage })));
@@ -68,6 +69,7 @@ const pages = [
   [routes.graph, "Knowledge Graph", LegacyKnowledgeGraphRedirect],
   [routes.ppt, "PPT Studio", PptStudioPage],
   [routes.knowledge, "Course Knowledge", CourseKnowledgePage],
+  [routes.learningResourceGeneration, "Learning Resource Generation", LearningResourceGenerationPage],
   [routes.edit, "Course Edit", CourseEditPage],
   [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
   [routes.videoRender, "Video Render", ClassroomVideoRenderPage],

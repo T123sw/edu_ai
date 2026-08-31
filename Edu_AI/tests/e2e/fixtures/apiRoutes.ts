@@ -222,6 +222,25 @@ export async function installTeacherApiRoutes(page: Page) {
         },
       });
     }
+    if (path === `/api/courses/${physicsCourse.id}/standard-resources`) {
+      return json(route, {
+        course_id: physicsCourse.id,
+        leaves: [
+          {
+            leaf_id: "mechanics",
+            title: "力学",
+            chapter_id: "physics",
+            chapter_title: "大学物理",
+            path_titles: ["大学物理", "力学"],
+            slots: [
+              { standard_kind: "classroom", material_type: "classroom", material_id: "standard-mechanics-classroom", review_status: "not_generated", resource: null },
+              { standard_kind: "study_guide", material_type: "report", material_id: "standard-mechanics-guide", review_status: "not_generated", resource: null },
+              { standard_kind: "practice", material_type: "quiz", material_id: "standard-mechanics-practice", review_status: "not_generated", resource: null },
+            ],
+          },
+        ],
+      });
+    }
     if (path === `/api/courses/${physicsCourse.id}/classrooms/classroom-mechanics`) {
       return json(route, materials.find((item) => item.material_id === "classroom-mechanics"));
     }

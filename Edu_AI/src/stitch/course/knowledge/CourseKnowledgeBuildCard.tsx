@@ -11,6 +11,7 @@ import {
 } from "../../api/courses";
 import type { CourseKnowledgeBuild, CourseKnowledgeGraphVersion } from "../../api/types";
 import { MaterialIcon } from "../../shared";
+import { buildTeacherCourseHash } from "../../teacherRoutes";
 import { CourseKnowledgeBuildWizard } from "./CourseKnowledgeBuildWizard";
 import "./CourseKnowledgeBuildCard.css";
 
@@ -228,6 +229,15 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
             {buttonText}
           </button>
         ) : <p>你可以查看课程知识库，但没有更新权限。</p>}
+        {canBuild ? (
+          <a
+            className="course-kb-builder__secondary"
+            href={buildTeacherCourseHash("learning-resource-generation", courseId)}
+          >
+            <MaterialIcon name="auto_awesome" />
+            学习资源生成
+          </a>
+        ) : null}
         {!isWorking && canBuild ? <span>资料查找、整理和质量检查会自动完成</span> : null}
       </div>
 

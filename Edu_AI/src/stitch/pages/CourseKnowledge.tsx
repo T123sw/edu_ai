@@ -13,7 +13,7 @@ export function CourseKnowledgePage() {
   return (
     <div className="course-knowledge">
       <KnowledgeDocumentsView readOnly={isStudent} />
-      <StandardLearningResources readOnly={isStudent} />
+      {isStudent ? <StandardLearningResources readOnly /> : null}
     </div>
   );
 }
