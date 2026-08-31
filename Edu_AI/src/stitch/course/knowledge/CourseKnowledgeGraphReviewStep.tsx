@@ -74,8 +74,11 @@ export function CourseKnowledgeGraphReviewStep({
 
   useEffect(() => {
     setImpactAccepted(false);
+  }, [root]);
+
+  useEffect(() => {
     if (!model.nodesById.has(selectedNodeId)) setSelectedNodeId(model.initialSelectedNodeId);
-  }, [model, root, selectedNodeId]);
+  }, [model, selectedNodeId]);
 
   function requestRegenerate(moduleId?: string) {
     if (dirty && !window.confirm("重新生成会丢弃尚未保存的图谱修改，是否继续？")) return;

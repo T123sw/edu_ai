@@ -49,7 +49,7 @@ export function KnowledgeGraphNodeEditor({
   return (
     <section className="course-kb-graph__editor-pane course-kb-graph__pane" aria-labelledby="graph-current-node">
       <header className="course-kb-graph__editor-heading">
-        <div><span>{typeLabel(node.data?.type)}</span><h4 id="graph-current-node">当前节点</h4></div>
+        <div><span>{typeLabel(node.data?.type)}</span><h4 id="graph-current-node" tabIndex={-1}>当前节点</h4></div>
         <strong>{node.label || "未命名节点"}</strong>
       </header>
 

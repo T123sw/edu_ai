@@ -71,6 +71,20 @@ test("first and update build wizards keep the continue action reachable", async 
     wizardStyles,
     /\.course-kb-wizard__footer\s*\{[^}]*position:\s*sticky;[^}]*bottom:\s*0;/s,
   );
+  assert.match(
+    wizardStyles,
+    /\.course-kb-graph__workspace\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*35%\)\s+minmax\(0,\s*1fr\);[^}]*overflow:\s*hidden;/s,
+  );
+  assert.match(
+    wizardStyles,
+    /\.course-kb-graph__tree-pane,[\s\S]*?\.course-kb-graph__editor-pane\s*\{[^}]*overflow:\s*auto;/s,
+  );
+  assert.match(wizardStyles, /\.course-kb-graph\s+(?:input|textarea|select)[\s\S]*?font-size:\s*16px;/s);
+  assert.match(wizardStyles, /\.course-kb-graph\s+:focus-visible\s*\{/);
+  assert.match(
+    wizardStyles,
+    /@media\s*\(max-width:\s*767px\)[\s\S]*?\.course-kb-graph__mobile-tabs\s*\{[^}]*display:\s*grid;/s,
+  );
 });
 
 test("course knowledge build card keeps the primary experience simple", async () => {
