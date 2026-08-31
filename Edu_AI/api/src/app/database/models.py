@@ -1027,3 +1027,189 @@ class AgentMemoryAuditEvent(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False, default=dict)
     latency_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class ResourceLearningManifestModel(Base):
+    __tablename__ = "resource_learning_manifests"
+    __table_args__ = (
+        UniqueConstraint(
+            "course_id",
+            "resource_id",
+            "resource_version",
+            name="uq_resource_learning_manifest_version",
+        ),
+    )
+
+    manifest_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    resource_id: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    mode: Mapped[str] = mapped_column(String(32), nullable=False)
+    manifest_json: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+
+
+class ResourceLearningSessionModel(Base):
+    __tablename__ = "resource_learning_sessions"
+    __table_args__ = (
+        Index(
+            "ix_resource_learning_sessions_active_scope",
+            "student_id",
+            "course_id",
+            "resource_id",
+            "resource_version",
+            "status",
+        ),
+    )
+
+    session_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    resource_id: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    last_heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    invalid_reason: Mapped[str | None] = mapped_column(Text)
+
+
+class ResourceLearningEventModel(Base):
+    __tablename__ = "resource_learning_events"
+    __table_args__ = (
+        UniqueConstraint(
+            "session_id",
+            "sequence_number",
+            name="uq_resource_learning_events_session_sequence",
+        ),
+    )
+
+    event_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    session_id: Mapped[str] = mapped_column(
+        ForeignKey("resource_learning_sessions.session_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    sequence_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    scene_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    timeline_from_ms: Mapped[int | None] = mapped_column(Integer)
+    timeline_to_ms: Mapped[int | None] = mapped_column(Integer)
+    action_id: Mapped[str | None] = mapped_column(String(240))
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    received_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    validation_status: Mapped[str] = mapped_column(String(32), nullable=False)
+
+
+class ResourceLearningCoverageModel(Base):
+    __tablename__ = "resource_learning_coverage"
+
+    student_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    resource_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    resource_version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    scene_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    covered_ranges_json: Mapped[list[Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=list
+    )
+    covered_duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+
+
+class ResourceQuestionAttemptModel(Base):
+    __tablename__ = "resource_question_attempts"
+    __table_args__ = (
+        UniqueConstraint(
+            "student_id",
+            "course_id",
+            "resource_id",
+            "resource_version",
+            "question_id",
+            "attempt_number",
+            name="uq_resource_question_attempt_number",
+        ),
+        UniqueConstraint(
+            "student_id",
+            "course_id",
+            "resource_id",
+            "resource_version",
+            "idempotency_key",
+            "question_id",
+            name="uq_resource_question_attempt_idempotency",
+        ),
+    )
+
+    question_attempt_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    resource_id: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    question_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    answer_payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    is_correct: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    knowledge_point_ids: Mapped[list[Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=list
+    )
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ResourceLearningProgressModel(Base):
+    __tablename__ = "resource_learning_progress"
+
+    student_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    resource_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    resource_version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    explanation_covered_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    explanation_total_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    explanation_coverage_percent: Mapped[float] = mapped_column(Float, nullable=False, default=0)
+    required_question_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    answered_question_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    question_completion_percent: Mapped[float] = mapped_column(Float, nullable=False, default=0)
+    correct_count_first: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    correct_count_latest: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    demo_view_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    demo_interaction_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_activity_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+
+
+class TaskResourceEvidenceRefModel(Base):
+    __tablename__ = "task_resource_evidence_refs"
+    __table_args__ = (
+        UniqueConstraint(
+            "task_id",
+            "student_id",
+            "resource_id",
+            "resource_version",
+            name="uq_task_resource_evidence_version",
+        ),
+    )
+
+    evidence_ref_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    task_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    resource_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    resource_progress_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
+    resource_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    condition_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    linked_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
