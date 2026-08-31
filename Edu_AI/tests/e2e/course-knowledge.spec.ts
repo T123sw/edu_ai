@@ -1,5 +1,17 @@
 import { expect, test } from "./fixtures/teacherApp";
 
+test("learning resource generation opens a dedicated configuration page", async ({ teacherPage }) => {
+  await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await teacherPage.getByRole("link", { name: "学习资源生成" }).click();
+
+  await expect(teacherPage).toHaveURL(/#learning-resource-generation\?course_id=course-physics/);
+  await expect(teacherPage.getByRole("heading", { name: "学习资源生成" })).toBeVisible();
+  await expect(teacherPage.getByRole("link", { name: "返回课程知识" })).toBeVisible();
+  await expect(teacherPage.getByText("力学", { exact: true })).toBeVisible();
+  await teacherPage.getByRole("checkbox", { name: "力学" }).check();
+  await expect(teacherPage.getByRole("button", { name: /生成 3 项资源/ })).toBeEnabled();
+});
+
 test("course knowledge has one document uploader and two durable views", async ({ teacherPage }) => {
   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
   await expect(teacherPage.getByRole("navigation", { name: "课程知识视图" })).toBeVisible();
