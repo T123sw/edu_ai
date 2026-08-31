@@ -26,6 +26,7 @@ export const routes = {
   ppt: "ppt",
   resources: "resources",
   knowledge: "knowledge",
+  learningResourceGeneration: "learning-resource-generation",
   edit: "edit",
   // Dev-only, not in any nav — Phase 3 player smoke test (SPEC-08 §6 / ACC-08 §3.2).
   playerSmoke: "player-smoke",
