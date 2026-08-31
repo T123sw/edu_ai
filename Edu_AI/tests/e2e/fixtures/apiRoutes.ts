@@ -238,6 +238,18 @@ export async function installTeacherApiRoutes(page: Page) {
               { standard_kind: "practice", material_type: "quiz", material_id: "standard-mechanics-practice", review_status: "not_generated", resource: null },
             ],
           },
+          {
+            leaf_id: "optics",
+            title: "几何光学",
+            chapter_id: "optics-chapter",
+            chapter_title: "光学",
+            path_titles: ["大学物理", "光学", "几何光学"],
+            slots: [
+              { standard_kind: "classroom", material_type: "classroom", material_id: "standard-optics-classroom", review_status: "not_generated", resource: null },
+              { standard_kind: "study_guide", material_type: "report", material_id: "standard-optics-guide", review_status: "not_generated", resource: null },
+              { standard_kind: "practice", material_type: "quiz", material_id: "standard-optics-practice", review_status: "not_generated", resource: null },
+            ],
+          },
         ],
       });
     }

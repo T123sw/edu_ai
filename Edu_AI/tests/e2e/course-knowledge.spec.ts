@@ -1,20 +1,27 @@
 import { expect, test } from "./fixtures/teacherApp";
 
-test("learning resource generation opens inline without changing the route", async ({ teacherPage }) => {
+test("learning resource generation uses a compact progressive-disclosure modal", async ({ teacherPage }) => {
   await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  const pageHeight = await teacherPage.evaluate(() => document.documentElement.scrollHeight);
   const originalUrl = teacherPage.url();
   await teacherPage.getByRole("button", { name: "学习资源生成" }).click();
 
   await expect(teacherPage).toHaveURL(originalUrl);
-  const resourcePanel = teacherPage.getByRole("dialog", { name: "学习资源生成" });
-  await expect(resourcePanel).toBeVisible();
-  await expect(resourcePanel.getByRole("button", { name: "收起", exact: true })).toBeVisible();
-  await expect(resourcePanel.getByText("力学", { exact: true })).toBeVisible();
-  await resourcePanel.getByRole("checkbox", { name: "力学" }).check();
-  await expect(resourcePanel.getByRole("button", { name: /生成 3 项资源/ })).toBeEnabled();
+  const dialog = teacherPage.getByRole("dialog", { name: "学习资源生成" });
+  await expect(dialog).toBeVisible();
+  expect(await teacherPage.evaluate(() => document.documentElement.scrollHeight)).toBe(pageHeight);
+  await expect(dialog.locator(".standard-resource-card")).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: /大学物理/ })).toHaveAttribute("aria-expanded", "true");
+  await expect(dialog.getByRole("button", { name: /^光学/ })).toHaveAttribute("aria-expanded", "false");
 
-  await resourcePanel.getByRole("button", { name: "收起", exact: true }).click();
-  await expect(resourcePanel).toHaveCount(0);
+  await dialog.getByRole("checkbox", { name: "力学" }).check();
+  await expect(dialog.getByText("已选择 1 个知识点，将生成 3 项资源")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "开始生成 3 项资源" })).toBeEnabled();
+  await dialog.getByRole("button", { name: "查看力学详情" }).click();
+  await expect(dialog.locator(".standard-resource-card")).toHaveCount(3);
+
+  await dialog.getByRole("button", { name: "取消", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
 });
 
 test("course knowledge keeps one document uploader and the resource generation entry", async ({ teacherPage }) => {
