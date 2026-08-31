@@ -502,7 +502,28 @@ def test_fast_runtime_uses_teacher_preparation_system_prompt():
     assert "教师的备课与教学资源助手" in system_prompt
     assert "不要把教师当学生教学" in system_prompt
     assert "不得擅自创建资源" in system_prompt
+    assert "不得主动建议生成教案、PPT 或其他资源" in system_prompt
+    assert "可整理成教案或习题" not in system_prompt
     assert "2-3个自然延伸" not in system_prompt
+
+
+def test_fast_runtime_fails_closed_when_required_rag_has_no_evidence():
+    gateway = DummyGateway()
+    retriever = DummyRetriever({"ok": True, "payload": {"answer": "", "sources": []}})
+    runtime = FastChatRuntime(model_gateway=gateway, rag_retriever=retriever)
+    request = ChatRequestV2(
+        question="课程资料里的唯一事实是什么",
+        conversation_id="conv-empty-rag",
+        owner="teacher-a",
+        capability=CapabilityPolicy(allow_rag=True, selected_doc_ids=["doc-empty"]),
+    )
+
+    result = runtime.run(request=request, snapshot=None, decision=None)
+
+    assert result["action"]["name"] == "agent.retrieval_incomplete"
+    assert "未找到" in result["message"]["content"]
+    assert result["sources"] == []
+    assert gateway.last_messages is None
 
 
 def test_fast_runtime_keeps_teacher_style_when_rag_context_exists():

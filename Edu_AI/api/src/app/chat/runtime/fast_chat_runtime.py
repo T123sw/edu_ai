@@ -21,7 +21,8 @@ from app.chat.domain.persona_policy import TEACHER_PERSONA, persona_for
 
 
 BASE_TEACHER_SYSTEM_PROMPT = TEACHER_PERSONA.system_instruction() + """
-普通问答先给出可直接用于备课或课堂讲解的简洁结论、教学重点、示例或易错点。需要时只提供一个轻量下一步，例如可整理成教案或习题；不得擅自创建资源。"""
+普通问答先直接回答用户当前问题，可给出简洁结论、必要示例或易错点。用户没有明确要求生成资源时，
+不得主动建议生成教案、PPT 或其他资源，也不得把问答改写成资源评审或备课任务；不得擅自创建资源。"""
 
 
 class FastChatRuntime:
@@ -321,6 +322,9 @@ class FastChatRuntime:
         rag_answer = ""
         video_summary = ""
         web_trace: dict[str, Any] = {}
+        rag_sources: list[dict[str, Any]] = []
+        web_sources: list[dict[str, Any]] = []
+        video_sources: list[dict[str, Any]] = []
 
         # ── 并发检索：RAG / Web / Video 同时发起，取最慢的时间而非累加 ──
         _retrieval_futures: dict[str, Any] = {}
@@ -461,12 +465,22 @@ class FastChatRuntime:
         ]
         t_total_prep = (time.perf_counter() - t_prep) * 1000
         action_name = getattr(decision, "action", "chat.reply") if decision is not None else "chat.reply"
+        source_mode = str(getattr(capability, "source_mode", "") or "")
+        if source_mode not in {"course_auto", "selected_documents", "none"}:
+            if list(getattr(capability, "selected_doc_ids", []) or []):
+                source_mode = "selected_documents"
+            elif bool(getattr(capability, "allow_rag", False)):
+                source_mode = "course_auto"
+            else:
+                source_mode = "none"
         trace = {
             "trace_id": str(uuid.uuid4()),
             "path": "fast",
             "rag_used": bool(getattr(capability, "allow_rag", False) and self.rag_retriever is not None),
             "web_used": bool(getattr(capability, "allow_web", False) and self.web_retriever is not None),
             "video_used": bool(getattr(capability, "allow_rag", False) and self.video_retriever is not None),
+            "source_mode": source_mode,
+            "selected_doc_ids": list(getattr(capability, "selected_doc_ids", []) or []),
             "input_image_count": len(list(getattr(request, "input_images", []) or [])),
             "input_video_count": len(list(getattr(request, "input_videos", []) or [])),
             "timings": {
@@ -482,6 +496,21 @@ class FastChatRuntime:
         if video_summary:
             trace["video_summary_used"] = True
 
+        retrieval_failure = ""
+        if bool(getattr(capability, "allow_rag", False)) and not (
+            rag_answer or rag_sources or video_summary or video_sources
+        ):
+            retrieval_failure = "已按你的资料范围检索，但未找到可用于回答当前问题的内容。请调整问题或资料范围后再试。"
+        elif bool(getattr(capability, "allow_web", False)) and not (
+            web_summary or web_sources
+        ):
+            retrieval_failure = "已执行联网检索，但未找到可核对的结果。请调整问题后再试。"
+        if retrieval_failure:
+            trace["retrieval_gate"] = {
+                "status": "blocked",
+                "reason": "required_source_has_no_evidence",
+            }
+
         print(
             f"[PREP] 准备完成 {t_total_prep:.0f}ms"
             f" | rag={trace['rag_used']} web={trace['web_used']}"
@@ -493,6 +522,7 @@ class FastChatRuntime:
             "sources": sources,
             "trace": trace,
             "action_name": action_name,
+            "retrieval_failure": retrieval_failure,
         }
 
     def _build_result(self, *, request, prepared: dict[str, Any], answer: str) -> dict[str, Any]:
@@ -509,6 +539,13 @@ class FastChatRuntime:
     def run(self, *, request, snapshot, decision):
         t_start = time.perf_counter()
         prepared = self._prepare_generation(request=request, snapshot=snapshot, decision=decision)
+        if prepared["retrieval_failure"]:
+            prepared["action_name"] = "agent.retrieval_incomplete"
+            return self._build_result(
+                request=request,
+                prepared=prepared,
+                answer=prepared["retrieval_failure"],
+            )
         t_llm = time.perf_counter()
         answer = self.model_gateway.chat(prepared["messages"])
         llm_ms = round((time.perf_counter() - t_llm) * 1000)
@@ -528,6 +565,20 @@ class FastChatRuntime:
                 "trace": prepared["trace"],
             },
         }
+
+        if prepared["retrieval_failure"]:
+            prepared["action_name"] = "agent.retrieval_incomplete"
+            message = prepared["retrieval_failure"]
+            yield {"type": "delta", "payload": {"content": message}}
+            yield {
+                "type": "result",
+                "payload": self._build_result(
+                    request=request,
+                    prepared=prepared,
+                    answer=message,
+                ),
+            }
+            return
 
         chunks: list[str] = []
         stream_chat = getattr(self.model_gateway, "stream_chat", None)

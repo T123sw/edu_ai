@@ -27,8 +27,17 @@ from app.chat.runtime.memory.manager import (
     update_agent_memory,
 )
 from app.chat.runtime.learning_context_prompt import build_learning_context_prompt
+from app.chat.runtime.planning.task_contract_extractor import extract_task_contract
 from app.chat.memory.domain import AgentMemoryContext
 from app.chat.memory.service import AgentMemoryService
+from app.chat.domain.route_decision import RouteDecision
+
+
+_AGENT_FOLLOWUP_MARKERS = (
+    "继续", "确认", "按这个", "就按", "开始", "没问题", "好的",
+    "修改", "调整", "完善", "重试",
+)
+_ACTIVE_TASK_INTENTS = {"generate_single", "prepare_bundle", "modify", "confirm"}
 
 
 class ReActAgent:
@@ -72,8 +81,6 @@ class ReActAgent:
         question = str(getattr(request, "question", "") or "")
         print(f"[智能体] 开始 | 用户={username}  问题=\"{question[:40]}\"", flush=True)
 
-        yield {"type": "status", "payload": {"stage": "thinking", "label": "正在分析请求..."}}
-
         actor_role = str(getattr(request, "actor_role", "teacher") or "teacher")
         tool_schemas = build_tool_schemas(capability, actor_role=actor_role)
         thread_config: dict = {"configurable": {"thread_id": conv_id}}
@@ -107,6 +114,42 @@ class ReActAgent:
             current_pending_tasks = list(checkpoint_state.get("pending_tasks") or [])
         except Exception:
             pass
+
+        # Ordinary questions belong to the normal chat runtime.  It already
+        # applies enabled RAG/Web sources as answer context, while avoiding the
+        # resource-generation planner, outline checks and visual-material SOP.
+        # Extract against the restored state so confirmation/modification turns
+        # for an active draft continue through the agent workflow.
+        contract = extract_task_contract(
+            request,
+            capability,
+            checkpoint_state,
+            snapshot=snapshot,
+        )
+        prior_contract = dict(checkpoint_state.get("task_contract") or {})
+        has_active_agent_task = bool(
+            checkpoint_state.get("active_draft_outline")
+            or str(prior_contract.get("intent") or "") in _ACTIVE_TASK_INTENTS
+        )
+        looks_like_agent_followup = has_active_agent_task and any(
+            marker in question for marker in _AGENT_FOLLOWUP_MARKERS
+        )
+        if (
+            contract.intent == "qa"
+            and not contract.requires_images
+            and not looks_like_agent_followup
+        ):
+            yield from self.fast_runtime.run_stream(
+                request=request,
+                snapshot=snapshot,
+                decision=RouteDecision.fast(
+                    action="chat.reply",
+                    reason="ordinary_question",
+                ),
+            )
+            return
+
+        yield {"type": "status", "payload": {"stage": "thinking", "label": "正在分析请求..."}}
 
         needs_planning = should_plan(request, snapshot, checkpoint_state)
 

@@ -144,6 +144,19 @@ def test_knowledge_question_containing_modify_word_is_not_a_modify_command():
     assert contract.clarification.required is False
 
 
+def test_resource_names_without_generation_request_remain_normal_questions():
+    questions = (
+        "教案通常包含哪些部分？",
+        "PPT 和教案有什么区别？",
+        "思维导图适合在什么时候使用？",
+    )
+
+    for question in questions:
+        contract = extract_task_contract(request(question), capability(), {})
+        assert contract.intent == "qa"
+        assert contract.clarification.required is False
+
+
 def test_contract_v2_records_field_origin_confidence_and_explicit_constraints():
     contract = extract_task_contract(
         request("为基础薄弱的高一学生生成一份40分钟快速排序教案"),

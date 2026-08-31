@@ -46,7 +46,10 @@ _MODIFY_KEYWORDS = ("修改", "改成", "改为", "改得", "改简单", "改难
 _CONFIRM_KEYWORDS = ("确认", "按这个", "就按", "开始生成", "继续生成", "没问题", "可以生成")
 _WEB_KEYWORDS = ("查找网络", "查网络", "联网", "网上", "最新资料", "网络资料")
 _IMAGE_KEYWORDS = ("配图", "插图", "示意图", "流程图", "架构图", "图片")
-_GENERATION_KEYWORDS = ("生成", "制作", "创建", "做一个", "写一份", "准备一个")
+_GENERATION_KEYWORDS = (
+    "生成", "制作", "创建", "做一个", "做一份", "写一份", "写个",
+    "准备一个", "准备一份", "整理成", "总结为", "转成", "改写成", "出题",
+)
 _HOW_TO_PREFIXES = ("如何", "怎么", "怎样", "为什么", "什么是")
 _KNOWLEDGE_QUESTION_MARKERS = ("哪些", "什么", "如何", "为什么", "怎么", "怎样")
 
@@ -267,7 +270,9 @@ def _intent(question: str, resource_types: list[str], active_outline: dict) -> s
         return "qa"
     if any(keyword in question for keyword in _BUNDLE_KEYWORDS):
         return "prepare_bundle"
-    if resource_types:
+    if resource_types and _requests_generation(question):
+        return "generate_single"
+    if resource_types and _looks_like_direct_resource_request(question):
         return "generate_single"
     if _requests_generation(question):
         return "generate_single"
@@ -320,6 +325,26 @@ def _requests_generation(question: str) -> bool:
         return False
     normalized = question.replace("生成式", "")
     return any(keyword in normalized for keyword in _GENERATION_KEYWORDS)
+
+
+def _looks_like_direct_resource_request(question: str) -> bool:
+    """Recognise terse creation commands without treating a resource noun as intent.
+
+    A mention such as ``教案包含哪些部分`` is a knowledge question.  Commands
+    such as ``给我一份教案`` still need to enter generation even when the user
+    omits the verb ``生成``.
+    """
+    normalized = str(question or "").strip().lower()
+    if any(marker in normalized for marker in _KNOWLEDGE_QUESTION_MARKERS):
+        return False
+    return bool(re.search(
+        r"(?:^|[，,。；;\s])(?:给我|来|帮我准备|请准备|准备|编写|出)"
+        r".{0,24}(?:教案|教学设计|教学方案|练习题|习题|测验|题目|"
+        r"教学博客|博客|博文|闪卡|复习卡|记忆卡|思维导图|知识图谱|导图|"
+        r"课堂小游戏|教学游戏|小游戏|ai\s*课堂|智能课堂|互动课堂|"
+        r"报告|ppt|幻灯片|课件)",
+        normalized,
+    ))
 
 
 def _resource_types(question: str) -> list[str]:

@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from app.chat.runtime.fast_chat_runtime import FastChatRuntime
 from app.chat.runtime.react_agent import ReActAgent
 
 
@@ -33,8 +34,27 @@ class FakeToolGateway:
         yield {"type": "done"}
 
 
+class DirectChatGateway:
+    def __init__(self, answer="正常回答"):
+        self.answer = answer
+        self.messages = []
+
+    def stream_chat(self, messages):
+        self.messages = messages
+        yield self.answer
+
+
 class FakeFastRuntime:
+    def __init__(self):
+        self.calls = []
+
     def run_stream(self, *, request, snapshot, decision):
+        self.calls.append(
+            {
+                "question": request.question,
+                "reason": decision.reason,
+            }
+        )
         yield {"type": "delta", "payload": {"content": f"fallback:{decision.reason}"}}
         yield {
             "type": "result",
@@ -63,20 +83,44 @@ def _request_snapshot():
         course_id="course-1",
         scope_type="course",
         scope_id=None,
+        capability=capability,
     )
     snapshot = SimpleNamespace(capability=capability, recent_messages=[], workflow_state=None)
     return request, snapshot
 
 
-def test_react_agent_streams_plain_text_and_final_result():
+def test_react_agent_delegates_plain_text_to_normal_chat_runtime():
     request, snapshot = _request_snapshot()
-    agent = ReActAgent(agent_gateway=FakeTextGateway(), fast_runtime=FakeFastRuntime(), max_steps=4, timeout_seconds=5)
+    fast_runtime = FakeFastRuntime()
+    agent = ReActAgent(agent_gateway=FakeTextGateway(), fast_runtime=fast_runtime, max_steps=4, timeout_seconds=5)
 
     events = list(agent.run_stream(request=request, snapshot=snapshot))
 
-    assert [event["type"] for event in events] == ["status", "delta", "delta", "result"]
-    assert events[-1]["payload"]["message"]["content"] == "你好，可以。"
-    assert events[-1]["payload"]["trace"]["path"] == "agent"
+    assert [event["type"] for event in events] == ["delta", "result"]
+    assert fast_runtime.calls == [{"question": "hello", "reason": "ordinary_question"}]
+
+
+def test_react_agent_delegates_ordinary_question_to_normal_chat_even_with_rag_enabled():
+    request, snapshot = _request_snapshot()
+    request.question = "链表如何实现"
+    snapshot.capability.allow_rag = True
+    snapshot.capability.selected_doc_ids = ["doc-linked-list"]
+    fast_runtime = FakeFastRuntime()
+    gateway = FakeTextGateway()
+    agent = ReActAgent(
+        agent_gateway=gateway,
+        fast_runtime=fast_runtime,
+        max_steps=4,
+        timeout_seconds=5,
+    )
+
+    events = list(agent.run_stream(request=request, snapshot=snapshot))
+
+    assert [event["type"] for event in events] == ["delta", "result"]
+    assert fast_runtime.calls == [
+        {"question": "链表如何实现", "reason": "ordinary_question"}
+    ]
+    assert all(event["type"] != "plan" for event in events)
 
 
 def test_react_agent_forces_selected_document_rag_before_plain_answer():
@@ -101,9 +145,13 @@ def test_react_agent_forces_selected_document_rag_before_plain_answer():
     request.question = "冒泡排序的原理"
     snapshot.capability.allow_rag = True
     snapshot.capability.selected_doc_ids = ["doc-1"]
+    fast_runtime = FastChatRuntime(
+        model_gateway=DirectChatGateway(),
+        rag_retriever=rag_retriever,
+    )
     agent = ReActAgent(
         agent_gateway=FakeTextGateway(),
-        fast_runtime=FakeFastRuntime(),
+        fast_runtime=fast_runtime,
         rag_retriever=rag_retriever,
         max_steps=4,
         timeout_seconds=5,
@@ -117,8 +165,7 @@ def test_react_agent_forces_selected_document_rag_before_plain_answer():
         "selected_doc_ids": ["doc-1"],
         "owner": "teacher-a",
     }
-    assert [event["type"] for event in events].count("tool_call") == 1
-    assert next(event for event in events if event["type"] == "tool_call")["payload"]["tool"] == "rag_search"
+    assert all(event["type"] != "plan" for event in events)
     assert events[-1]["payload"]["sources"] == [
         {"document_id": "doc-1", "title": "冒泡排序资料"}
     ]
@@ -152,9 +199,14 @@ def test_react_agent_forces_rag_and_web_when_both_are_enabled():
     snapshot.capability.allow_rag = True
     snapshot.capability.allow_web = True
     snapshot.capability.selected_doc_ids = ["doc-1", "doc-2"]
+    fast_runtime = FastChatRuntime(
+        model_gateway=DirectChatGateway(),
+        rag_retriever=rag_retriever,
+        web_retriever=web_retriever,
+    )
     agent = ReActAgent(
         agent_gateway=FakeTextGateway(),
-        fast_runtime=FakeFastRuntime(),
+        fast_runtime=fast_runtime,
         rag_retriever=rag_retriever,
         web_retriever=web_retriever,
         max_steps=4,
@@ -164,11 +216,7 @@ def test_react_agent_forces_rag_and_web_when_both_are_enabled():
     events = list(agent.run_stream(request=request, snapshot=snapshot))
 
     assert [call[0] for call in calls] == ["rag_search", "web_search"]
-    assert [
-        event["payload"]["tool"]
-        for event in events
-        if event["type"] == "tool_call"
-    ] == ["rag_search", "web_search"]
+    assert all(event["type"] != "plan" for event in events)
     assert events[-1]["payload"]["sources"] == [
         {"document_id": "doc-1", "title": "课程资料"},
         {"url": "https://example.com/source", "title": "网络来源"},
@@ -189,9 +237,13 @@ def test_react_agent_fails_closed_when_required_rag_has_no_evidence():
     request.question = "课程资料里的唯一事实是什么"
     snapshot.capability.allow_rag = True
     snapshot.capability.selected_doc_ids = ["doc-empty"]
+    fast_runtime = FastChatRuntime(
+        model_gateway=DirectChatGateway(),
+        rag_retriever=rag_retriever,
+    )
     agent = ReActAgent(
         agent_gateway=FakeTextGateway(),
-        fast_runtime=FakeFastRuntime(),
+        fast_runtime=fast_runtime,
         rag_retriever=rag_retriever,
         max_steps=4,
         timeout_seconds=5,
@@ -217,19 +269,21 @@ def test_react_agent_executes_generate_tool_and_emits_task_submitted(
         CommandService(),
     )
     request, snapshot = _request_snapshot()
+    request.question = "生成 Python 基础练习题"
     agent = ReActAgent(agent_gateway=FakeToolGateway(), fast_runtime=FakeFastRuntime(), max_steps=4, timeout_seconds=5)
 
     events = list(agent.run_stream(request=request, snapshot=snapshot))
 
-    assert [event["type"] for event in events] == [
-        "status",
-        "tool_call",
-        "tool_result",
-        "task_submitted",
-        "delta",
-        "result",
-    ]
-    task_payload = events[3]["payload"]
+    event_types = [event["type"] for event in events]
+    assert event_types[0] == "status"
+    assert "plan" in event_types
+    assert "tool_call" in event_types
+    assert "tool_result" in event_types
+    assert "task_submitted" in event_types
+    assert event_types[-1] == "result"
+    task_payload = next(
+        event["payload"] for event in events if event["type"] == "task_submitted"
+    )
     assert task_payload["workflow_type"] == "quiz"
     assert task_payload["task_id"]
     assert events[-1]["payload"]["trace"]["agent_steps"][0]["tool"] == "generate_quiz"
@@ -280,13 +334,11 @@ def test_react_agent_emits_plan_event_for_generation_request():
     assert plan_event["payload"]["steps"][0]["expected_tools"] == ["draft_outline"]
 
 
-def test_react_agent_falls_back_when_gateway_lacks_tool_streaming():
+def test_ordinary_question_does_not_require_agent_tool_streaming_gateway():
     request, snapshot = _request_snapshot()
     agent = ReActAgent(agent_gateway=object(), fast_runtime=FakeFastRuntime(), max_steps=4, timeout_seconds=5)
 
     events = list(agent.run_stream(request=request, snapshot=snapshot))
 
-    assert events[0]["type"] == "status"
-    assert events[1]["type"] == "status"
-    assert events[2]["type"] == "delta"
-    assert events[2]["payload"]["content"] == "fallback:gateway_no_tools_support"
+    assert [event["type"] for event in events] == ["delta", "result"]
+    assert events[0]["payload"]["content"] == "fallback:ordinary_question"
