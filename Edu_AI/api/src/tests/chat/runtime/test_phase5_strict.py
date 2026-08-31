@@ -173,6 +173,34 @@ def test_tool_free_step_flattens_prior_function_protocol_to_read_only_context():
     assert "不授予任何工具权限" in prepared[-1]["content"]
 
 
+def test_qa_step_hint_explicitly_forbids_resource_submission_claims():
+    from app.chat.runtime.nodes.executor import _inject_plan_step_hint
+
+    messages = [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "开始节点是什么"},
+    ]
+    state = {
+        "plan_mode": "guided",
+        "plan_step_index": 0,
+        "task_contract": {"intent": "qa"},
+        "current_plan": {
+            "steps": [{
+                "user_title": "回答问题",
+                "internal_action": "answer_question",
+                "expected_tools": [],
+            }]
+        },
+    }
+
+    rendered = _inject_plan_step_hint(messages, state)
+    hint = next(
+        item["content"] for item in rendered if "当前执行步骤" in item["content"]
+    )
+    assert "本轮是普通问答" in hint
+    assert "不得声称已创建或提交后台任务" in hint
+
+
 def test_strict_single_tool_step_is_compiled_without_model_choice():
     from types import SimpleNamespace
 

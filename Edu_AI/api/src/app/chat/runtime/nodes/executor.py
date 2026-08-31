@@ -1086,11 +1086,25 @@ def _inject_plan_step_hint(messages: list, state: dict) -> list:
     step = steps[idx]
     tools_str = "、".join(step.get("expected_tools", [])) or "无特定工具"
     extras = _build_visual_step_hint(step, state, idx)
+    intent = str((state.get("task_contract") or {}).get("intent") or "")
+    action = str(step.get("internal_action") or "")
+    mode_boundary = ""
+    if intent == "qa" or action == "answer_question":
+        mode_boundary = (
+            "本轮是普通问答：只回答当前问题；不得调用资源工具，"
+            "不得声称已创建或提交后台任务。\n"
+        )
+    elif action == "generate_resource":
+        mode_boundary = (
+            "本轮是资源生成步骤：只有生成工具成功返回 task_id 后，"
+            "才能向用户报告任务已提交。\n"
+        )
     hint = (
         f"【当前执行步骤 {idx + 1}/{len(steps)}】\n"
         f"任务：{step.get('user_title', '')}\n"
         f"预期工具：{tools_str}\n"
         f"{extras}"
+        f"{mode_boundary}"
         "请专注完成此步骤，不要跳步。"
     )
     note = {"role": "system", "content": hint}
