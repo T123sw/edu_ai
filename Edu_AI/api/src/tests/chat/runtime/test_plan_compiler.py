@@ -66,6 +66,22 @@ def test_confirmed_outline_only_exposes_single_generation_tool_after_retrieval()
     assert tools(plan)[1] == ["generate_report"]
 
 
+def test_bare_start_after_report_outline_compiles_real_report_generation():
+    state = {
+        "active_draft_outline": {
+            "resource_type": "report",
+            "subject": "链表实现报告大纲",
+            "outline_markdown": "# 链表实现报告大纲",
+        }
+    }
+    contract = extract_task_contract(request("开始"), capability(), state)
+    plan = compile_plan(contract, state)
+
+    assert contract.intent == "confirm"
+    assert actions(plan) == ["generate_resource", "verify", "report_result"]
+    assert tools(plan)[0] == ["generate_report"]
+
+
 def test_default_bundle_is_deterministic_and_has_one_confirmation_boundary():
     contract = extract_task_contract(request("准备快速排序教学材料"), capability(), {})
     plan = compile_plan(contract, {})

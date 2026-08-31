@@ -68,6 +68,32 @@ def test_bundle_confirmation_restores_all_resources_from_active_outline():
     assert contract.resource_types == ["lesson_plan", "quiz", "graph"]
 
 
+def test_active_outline_accepts_exact_short_confirmation_replies():
+    state = {
+        "active_draft_outline": {
+            "subject": "链表实现",
+            "resource_type": "report",
+        }
+    }
+
+    for text in ("开始", "好的", "可以", "确认", "没问题"):
+        contract = extract_task_contract(request(text), capability(), state)
+        assert contract.intent == "confirm"
+
+
+def test_confirmation_words_inside_knowledge_questions_do_not_confirm_outline():
+    state = {
+        "active_draft_outline": {
+            "subject": "链表实现",
+            "resource_type": "report",
+        }
+    }
+
+    for text in ("开始节点是什么", "可以解释一下链表吗", "好的教案有哪些特点"):
+        contract = extract_task_contract(request(text), capability(), state)
+        assert contract.intent == "qa"
+
+
 def test_control_intents_are_not_generation_requests():
     assert extract_task_contract(request("做到哪了"), capability(), {}).intent == "status"
     assert extract_task_contract(request("取消刚才的 AI 课堂"), capability(), {}).intent == "cancel"
