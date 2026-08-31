@@ -19,7 +19,7 @@ test("learning resource generation does not register a dedicated route", async (
   assert.doesNotMatch(app, /LearningResourceGenerationPage/);
 });
 
-test("knowledge build card opens learning resource generation inline", async () => {
+test("knowledge build card opens learning resource generation in a compact modal", async () => {
   const [card, panel] = await Promise.all([
     source("./CourseKnowledgeBuildCard.tsx"),
     source("./LearningResourceGenerationPanel.tsx"),
@@ -27,14 +27,12 @@ test("knowledge build card opens learning resource generation inline", async () 
 
   assert.doesNotMatch(card, /buildTeacherCourseHash\(["']learning-resource-generation["']/);
   assert.match(card, /const \[resourceConfigOpen, setResourceConfigOpen\] = useState\(false\)/);
-  assert.match(card, /<button[\s\S]*onClick=\{[^}]*setResourceConfigOpen/s);
-  assert.match(card, />\s*学习资源生成\s*</);
-  assert.match(card, /resourceConfigOpen\s*\?\s*\(/);
-  assert.match(card, /<LearningResourceGenerationPanel/);
-  assert.match(panel, /role=["']dialog["']/);
-  assert.match(panel, /aria-modal=["']false["']/);
-  assert.match(panel, /<StandardLearningResources\s*\/>/);
-  assert.match(panel, />\s*收起\s*</);
+  assert.match(card, /aria-expanded=\{resourceConfigOpen\}/);
+  assert.match(panel, /import \{ Modal \} from ["']antd["']/);
+  assert.match(panel, /<Modal[\s\S]*open[\s\S]*width=\{1080\}/);
+  assert.match(panel, /destroyOnHidden/);
+  assert.match(panel, /<StandardLearningResources\s+compact\s+onCancel=\{onClose\}/);
+  assert.doesNotMatch(panel, /aria-modal=["']false["']/);
 });
 
 test("knowledge and resource configuration panels are mutually exclusive", async () => {
