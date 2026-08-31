@@ -2,7 +2,9 @@ import type {
   StandardResourceBatch,
   StandardResourceKind,
   StandardResourceLeaf,
+  StandardResourceSlot,
 } from "../../api/types";
+import { buildClassroomPlayerHash } from "../../../openmaic/classroomGenerationFlow";
 
 export type StandardResourceLeafGroup = {
   chapterId: string;
@@ -74,6 +76,32 @@ export function standardReviewLabel(status: string): string {
     approved: "已发布",
     rejected: "已退回",
   }[status] || status;
+}
+
+export function getStandardResourceDetailTarget(
+  courseId: string,
+  slot: StandardResourceSlot,
+): { kind: "route"; href: string } | { kind: "dialog" } {
+  return slot.standard_kind === "classroom"
+    ? { kind: "route", href: buildClassroomPlayerHash(courseId, slot.material_id) }
+    : { kind: "dialog" };
+}
+
+export function standardResourceBody(slot: StandardResourceSlot): string {
+  const resource = (slot.resource || {}) as Record<string, unknown>;
+  for (const key of ["final_markdown", "markdown", "report_content", "text", "content"]) {
+    const value = resource[key];
+    if (typeof value === "string" && value.trim()) return value;
+    if (value && typeof value === "object") return JSON.stringify(value, null, 2);
+  }
+  return "该课程资料已经生成，暂无可展示的正文内容。";
+}
+
+export function canApproveStandardResource(
+  canManage: boolean,
+  slot: StandardResourceSlot,
+): boolean {
+  return canManage && slot.review_status === "pending" && Boolean(slot.resource);
 }
 
 export function standardSelectionSummary(selectedLeafCount: number) {
