@@ -20,6 +20,7 @@ import {
   type ClassroomQaEvent,
   type ClassroomQaState,
 } from './classroomQaState';
+import type { ClassroomQaController } from './classroomQaController';
 
 export interface AnswerAudioHandle {
   play(): Promise<'ended' | 'failed'>;
@@ -54,13 +55,7 @@ export type InterruptionDependencies = {
   revokeObjectUrl: (url: string) => void;
 };
 
-export type ClassroomInterruptionController = {
-  readonly state: ClassroomQaState;
-  submitQuestion(question: string): Promise<void>;
-  stopAnswerAndResume(): void;
-  retry(): Promise<void>;
-  resetForNavigation(): void;
-};
+export type ClassroomInterruptionController = ClassroomQaController;
 
 type ActiveOwnership = {
   clientTurnId: string;
@@ -69,8 +64,9 @@ type ActiveOwnership = {
 };
 
 export class ClassroomInterruptionCoordinator
-  implements ClassroomInterruptionController
+  implements ClassroomQaController
 {
+  readonly supportsPlaybackInterruption = true;
   private currentState: ClassroomQaState = { ...INITIAL_CLASSROOM_QA_STATE };
   private readonly listeners = new Set<() => void>();
   private checkpoint: PagePlaybackCheckpoint | null = null;
@@ -139,6 +135,10 @@ export class ClassroomInterruptionCoordinator
       clientTurnId: this.currentState.activeTurn.clientTurnId,
     });
     this.finishResume();
+  }
+
+  stopAnswer(): void {
+    this.stopAnswerAndResume();
   }
 
   resetForNavigation(): void {
@@ -380,8 +380,9 @@ export function useClassroomInterruption({
   return useMemo(
     () => ({
       state,
+      supportsPlaybackInterruption: true,
       submitQuestion: (question) => coordinator.submitQuestion(question),
-      stopAnswerAndResume: () => coordinator.stopAnswerAndResume(),
+      stopAnswer: () => coordinator.stopAnswerAndResume(),
       retry: () => coordinator.retry(),
       resetForNavigation: () => coordinator.resetForNavigation(),
     }),

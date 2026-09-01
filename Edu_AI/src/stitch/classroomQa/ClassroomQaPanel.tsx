@@ -2,14 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { MaterialIcon } from '../shared';
 import { toClassroomQaPresentation } from './classroomQaPresentation';
 import { selectVisibleTurns } from './classroomQaState';
-import type { ClassroomInterruptionController } from './useClassroomInterruption';
+import type { ClassroomQaController } from './classroomQaController';
 
 export function ClassroomQaPanel({
   controller,
   canAsk,
+  title = '课堂实时问答',
+  eyebrow,
 }: {
-  controller: ClassroomInterruptionController;
+  controller: ClassroomQaController;
   canAsk: boolean;
+  title?: string;
+  eyebrow?: string;
 }) {
   const { state } = controller;
   const presentation = toClassroomQaPresentation(state);
@@ -41,8 +45,13 @@ export function ClassroomQaPanel({
     <aside className="classroom-qa-panel" aria-label="课堂实时问答">
       <header className="classroom-qa-panel__header">
         <div>
-          <p className="classroom-qa-panel__eyebrow">随时提问 · 回答后续讲</p>
-          <h2>课堂实时问答</h2>
+          <p className="classroom-qa-panel__eyebrow">
+            {eyebrow ??
+              (controller.supportsPlaybackInterruption
+                ? '随时提问 · 回答后续讲'
+                : '围绕当前学习资料提问')}
+          </p>
+          <h2>{title}</h2>
         </div>
       </header>
 
@@ -91,7 +100,11 @@ export function ClassroomQaPanel({
         ) : (
           <div className="classroom-qa-empty">
             <MaterialIcon name="lightbulb" />
-            <p>可以针对当前讲授内容输入问题，发送时课堂会暂停，回答后自然继续。</p>
+            <p>
+              {controller.supportsPlaybackInterruption
+                ? '可以针对当前讲授内容输入问题，发送时课堂会暂停，回答后自然继续。'
+                : '可以针对当前资料输入问题，AI 会结合完整内容回答。'}
+            </p>
           </div>
         )}
       </div>
@@ -133,15 +146,19 @@ export function ClassroomQaPanel({
             <button
               type="button"
               className="is-danger"
-              onClick={controller.stopAnswerAndResume}
+              onClick={controller.stopAnswer}
             >
-              停止回答并继续授课
+              {controller.supportsPlaybackInterruption
+                ? '停止回答并继续授课'
+                : '停止回答'}
             </button>
           ) : null}
           {state.phase === 'error' ? (
             <div>
-              <button type="button" onClick={controller.stopAnswerAndResume}>
-                放弃并继续授课
+              <button type="button" onClick={controller.stopAnswer}>
+                {controller.supportsPlaybackInterruption
+                  ? '放弃并继续授课'
+                  : '放弃回答'}
               </button>
               <button
                 type="button"
