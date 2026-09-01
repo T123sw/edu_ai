@@ -795,7 +795,7 @@ textarea {
   top: 0;
   z-index: 60;
   display: grid;
-  grid-template-columns: auto minmax(140px, 240px) minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   min-height: var(--course-header-height);
   align-items: center;
   gap: 18px;
@@ -826,6 +826,7 @@ textarea {
 .course-shell__course {
   position: relative;
   min-width: 0;
+  max-width: 240px;
 }
 
 .course-shell__course-trigger,
@@ -844,6 +845,8 @@ textarea {
 }
 
 .course-shell__course-trigger {
+  width: fit-content;
+  max-width: 100%;
   padding: 0 10px;
   transition: background-color 160ms ease, color 160ms ease;
 }
@@ -860,7 +863,7 @@ textarea {
   white-space: nowrap;
 }
 
-.course-shell__course-trigger > span:first-child { flex: 1; }
+.course-shell__course-trigger > span:first-child { flex: 0 1 auto; }
 .course-shell__course-trigger .app-icon { flex: none; color: var(--course-shell-muted); }
 .course-shell__course-name { padding: 0 10px; }
 
@@ -923,7 +926,7 @@ textarea {
 .course-navigation__link.is-active { background: var(--course-shell-brand-soft); color: var(--course-shell-brand); box-shadow: inset 0 -2px 0 var(--course-shell-brand); }
 .course-navigation__icon { display: grid; width: 22px; height: 22px; flex: none; place-items: center; border-radius: 7px; background: color-mix(in srgb, currentColor 8%, transparent); }
 .course-navigation__icon .app-icon { font-size: 17px; }
-.course-navigation__link strong { display: block; font-size: 18px; font-weight: 760; }
+.course-navigation__link strong { display: block; font-size: 20px; font-weight: 760; }
 
 .course-shell__actions { display: flex; flex: none; align-items: center; gap: 10px; }
 .course-shell__actions .job-center-launcher__label { font-size: 16px; }
@@ -951,7 +954,8 @@ textarea {
 .course-shell__state-action { border-radius: 10px; background: var(--course-shell-brand); padding: 9px 15px; color: white; font-size: 13px; font-weight: 700; }
 
 @media (max-width: 1179px) {
-  .course-shell__workbar { grid-template-columns: auto minmax(110px, 190px) minmax(0, 1fr) auto; gap: 10px; padding-inline: 18px; }
+  .course-shell__workbar { grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px; padding-inline: 18px; }
+  .course-shell__course { max-width: 190px; }
   .course-navigation--desktop { gap: 1px; }
   .course-navigation__link { padding-inline: 10px; }
   .course-navigation--desktop .course-navigation__icon { display: none; }

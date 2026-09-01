@@ -148,6 +148,14 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
               <div className="course-shell__course-menu" role="menu">
                 <a
                   role="menuitem"
+                  href={buildRoleCourseHash(user?.role, "course-detail", courseId)}
+                  onClick={() => setCourseMenuOpen(false)}
+                >
+                  <MaterialIcon name="home" />
+                  <span>课程首页</span>
+                </a>
+                <a
+                  role="menuitem"
                   href={buildRoleCourseHash(user?.role, "edit", courseId)}
                   onClick={() => setCourseMenuOpen(false)}
                 >
