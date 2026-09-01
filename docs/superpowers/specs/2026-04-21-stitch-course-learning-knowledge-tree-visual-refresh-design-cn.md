@@ -151,7 +151,7 @@
 
 ## 7. 前端实现范围
 
-本次实现仅修改 `Edu_AI/src/stitch/pages/VideoPlayer.tsx` 中的知识树渲染逻辑与样式，主要包括：
+本次实现仅修改 `frontend/src/stitch/pages/VideoPlayer.tsx` 中的知识树渲染逻辑与样式，主要包括：
 
 - 重构 `renderStructureNode`
 - 引入按层级差异化的节点容器

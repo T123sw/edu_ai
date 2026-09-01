@@ -17,7 +17,7 @@
 新增后端目录：
 
 ```text
-Edu_AI/api/src/app/resource_learning/
+backend/src/app/resource_learning/
   __init__.py          依赖装配
   models.py            领域记录与状态类型
   manifest.py          AI 课堂场景分类和冻结清单
@@ -31,12 +31,12 @@ Edu_AI/api/src/app/resource_learning/
 新增前端文件：
 
 ```text
-Edu_AI/src/stitch/api/resourceLearning.ts
-Edu_AI/src/openmaic/resourceLearningTracker.ts
-Edu_AI/src/openmaic/resourceLearningTracker.test.ts
-Edu_AI/src/stitch/course/knowledge/ResourceLearningProgress.tsx
-Edu_AI/src/stitch/course/knowledge/ResourceLearningAnalytics.tsx
-Edu_AI/src/stitch/course/knowledge/resourceLearning.css
+frontend/src/stitch/api/resourceLearning.ts
+frontend/src/openmaic/resourceLearningTracker.ts
+frontend/src/openmaic/resourceLearningTracker.test.ts
+frontend/src/stitch/course/knowledge/ResourceLearningProgress.tsx
+frontend/src/stitch/course/knowledge/ResourceLearningAnalytics.tsx
+frontend/src/stitch/course/knowledge/resourceLearning.css
 ```
 
 新领域只跟踪 `origin_type=standard`、`standard_kind=classroom` 且具有明确 `approved_version` 的课程资源。私人课堂预览和教师演示模式不创建学生学习会话。
@@ -44,12 +44,12 @@ Edu_AI/src/stitch/course/knowledge/resourceLearning.css
 ## Task 1: 冻结 AI 课堂学习清单与区间算法
 
 **Files:**
-- Create: `Edu_AI/api/src/app/resource_learning/__init__.py`
-- Create: `Edu_AI/api/src/app/resource_learning/models.py`
-- Create: `Edu_AI/api/src/app/resource_learning/manifest.py`
-- Create: `Edu_AI/api/src/app/resource_learning/intervals.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_manifest.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_intervals.py`
+- Create: `backend/src/app/resource_learning/__init__.py`
+- Create: `backend/src/app/resource_learning/models.py`
+- Create: `backend/src/app/resource_learning/manifest.py`
+- Create: `backend/src/app/resource_learning/intervals.py`
+- Test: `backend/src/tests/resource_learning/test_manifest.py`
+- Test: `backend/src/tests/resource_learning/test_intervals.py`
 
 - [ ] **Step 1: 写场景分类和区间算法的失败测试**
 
@@ -82,7 +82,7 @@ def test_merge_ranges_deduplicates_replays_and_clamps_to_scene():
 
 - [ ] **Step 2: 运行测试并确认红灯**
 
-Run from `Edu_AI/api/src`:
+Run from `backend/src`:
 
 ```powershell
 python -m pytest tests/resource_learning/test_manifest.py tests/resource_learning/test_intervals.py -q
@@ -128,7 +128,7 @@ class ResourceLearningManifestRecord:
     created_at: str
 ```
 
-`manifest.py` 使用现有课堂类型做唯一映射：`slide -> explanation`、`quiz -> exercise`、`interactive -> demo`。只把 `slide` 的 Action 编入标准时长；`discussion` 为实时行为，时长为零。quiz 场景内题目默认 `required=True`，只有资源显式写入 `required: false` 才排除；标准答案只进入私有 manifest 存储，不进入学生投影。时长策略必须与 `Edu_AI/src/openmaic/timeline.ts` 一致：普通非 speech Action 为 1000ms，孤立 focus 不增加串行时长，speech 中文按 `max(2000, len(text) * 150) / speed`，英文按 `max(2000, word_count * 240) / speed`。将同一组固定 fixture 同时用于 Python 和 TypeScript 测试，防止算法漂移。
+`manifest.py` 使用现有课堂类型做唯一映射：`slide -> explanation`、`quiz -> exercise`、`interactive -> demo`。只把 `slide` 的 Action 编入标准时长；`discussion` 为实时行为，时长为零。quiz 场景内题目默认 `required=True`，只有资源显式写入 `required: false` 才排除；标准答案只进入私有 manifest 存储，不进入学生投影。时长策略必须与 `frontend/src/openmaic/timeline.ts` 一致：普通非 speech Action 为 1000ms，孤立 focus 不增加串行时长，speech 中文按 `max(2000, len(text) * 150) / speed`，英文按 `max(2000, word_count * 240) / speed`。将同一组固定 fixture 同时用于 Python 和 TypeScript 测试，防止算法漂移。
 
 `intervals.py` 暴露：
 
@@ -166,17 +166,17 @@ Expected: PASS，包含 slide/quiz/interactive、无题课堂 `behavior_only`、
 - [ ] **Step 5: 提交领域算法**
 
 ```powershell
-git add Edu_AI/api/src/app/resource_learning Edu_AI/api/src/tests/resource_learning
+git add backend/src/app/resource_learning backend/src/tests/resource_learning
 git commit -m "feat: add resource learning manifest and coverage rules"
 ```
 
 ## Task 2: 建立资源学习数据库模型与迁移
 
 **Files:**
-- Create: `Edu_AI/api/src/alembic/versions/20260831_0019_resource_learning.py`
-- Modify: `Edu_AI/api/src/app/database/models.py`
-- Modify: `Edu_AI/api/src/tests/database/test_alembic_revision_chain.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_database_schema.py`
+- Create: `backend/src/alembic/versions/20260831_0019_resource_learning.py`
+- Modify: `backend/src/app/database/models.py`
+- Modify: `backend/src/tests/database/test_alembic_revision_chain.py`
+- Test: `backend/src/tests/resource_learning/test_database_schema.py`
 
 - [ ] **Step 1: 写数据库约束失败测试**
 
@@ -264,19 +264,19 @@ Expected: 全部 PASS；升级创建七张表，降级只移除本 revision 表�
 - [ ] **Step 5: 提交数据库结构**
 
 ```powershell
-git add Edu_AI/api/src/alembic/versions/20260831_0019_resource_learning.py Edu_AI/api/src/app/database/models.py Edu_AI/api/src/tests/database/test_alembic_revision_chain.py Edu_AI/api/src/tests/resource_learning/test_database_schema.py
+git add backend/src/alembic/versions/20260831_0019_resource_learning.py backend/src/app/database/models.py backend/src/tests/database/test_alembic_revision_chain.py backend/src/tests/resource_learning/test_database_schema.py
 git commit -m "feat: persist versioned resource learning evidence"
 ```
 
 ## Task 3: 实现事务仓储、会话与进度投影
 
 **Files:**
-- Create: `Edu_AI/api/src/app/resource_learning/repository.py`
-- Create: `Edu_AI/api/src/app/resource_learning/service.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/models.py`
-- Modify: `Edu_AI/api/src/app/persistence/dependencies.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_repository.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_service.py`
+- Create: `backend/src/app/resource_learning/repository.py`
+- Create: `backend/src/app/resource_learning/service.py`
+- Modify: `backend/src/app/resource_learning/models.py`
+- Modify: `backend/src/app/persistence/dependencies.py`
+- Test: `backend/src/tests/resource_learning/test_repository.py`
+- Test: `backend/src/tests/resource_learning/test_service.py`
 
 - [ ] **Step 1: 写会话、心跳、答题和完成状态失败测试**
 
@@ -345,18 +345,18 @@ Expected: PASS，且全部答错用例仍得到 `completed`。
 - [ ] **Step 5: 提交服务核心**
 
 ```powershell
-git add Edu_AI/api/src/app/resource_learning Edu_AI/api/src/app/persistence/dependencies.py Edu_AI/api/src/tests/resource_learning
+git add backend/src/app/resource_learning backend/src/app/persistence/dependencies.py backend/src/tests/resource_learning
 git commit -m "feat: calculate trusted resource learning progress"
 ```
 
 ## Task 4: 在标准 AI 课堂审核时冻结学习清单
 
 **Files:**
-- Create: `Edu_AI/api/src/app/standard_resources/review_service.py`
-- Modify: `Edu_AI/api/src/app/api/standard_resources.py`
-- Modify: `Edu_AI/api/src/app/standard_resources/repository.py`
-- Test: `Edu_AI/api/src/tests/standard_resources/test_review_service.py`
-- Modify: `Edu_AI/api/src/tests/standard_resources/test_repository.py`
+- Create: `backend/src/app/standard_resources/review_service.py`
+- Modify: `backend/src/app/api/standard_resources.py`
+- Modify: `backend/src/app/standard_resources/repository.py`
+- Test: `backend/src/tests/standard_resources/test_review_service.py`
+- Modify: `backend/src/tests/standard_resources/test_repository.py`
 
 - [ ] **Step 1: 写批准 AI 课堂必须同时冻结 manifest 的失败测试**
 
@@ -415,19 +415,19 @@ Expected: PASS；学习指南和练习审核行为不变，AI 课堂批准后存
 - [ ] **Step 5: 提交发布接入**
 
 ```powershell
-git add Edu_AI/api/src/app/standard_resources Edu_AI/api/src/app/api/standard_resources.py Edu_AI/api/src/tests/standard_resources
+git add backend/src/app/standard_resources backend/src/app/api/standard_resources.py backend/src/tests/standard_resources
 git commit -m "feat: freeze learning manifests on classroom approval"
 ```
 
 ## Task 5: 提供角色安全的资源学习 API
 
 **Files:**
-- Create: `Edu_AI/api/src/app/schemas/resource_learning.py`
-- Create: `Edu_AI/api/src/app/api/resource_learning.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/__init__.py`
-- Modify: `Edu_AI/api/src/app/bootstrap.py`
-- Modify: `Edu_AI/api/src/app/api/courses.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_api.py`
+- Create: `backend/src/app/schemas/resource_learning.py`
+- Create: `backend/src/app/api/resource_learning.py`
+- Modify: `backend/src/app/resource_learning/__init__.py`
+- Modify: `backend/src/app/bootstrap.py`
+- Modify: `backend/src/app/api/courses.py`
+- Test: `backend/src/tests/resource_learning/test_api.py`
 
 - [ ] **Step 1: 写学生本人、教师聚合和越权失败测试**
 
@@ -514,18 +514,18 @@ Expected: PASS；学生不能覆盖身份或计算字段，教师只能读取本
 - [ ] **Step 5: 提交 API**
 
 ```powershell
-git add Edu_AI/api/src/app/schemas/resource_learning.py Edu_AI/api/src/app/api/resource_learning.py Edu_AI/api/src/app/resource_learning/__init__.py Edu_AI/api/src/app/bootstrap.py Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/tests/resource_learning/test_api.py
+git add backend/src/app/schemas/resource_learning.py backend/src/app/api/resource_learning.py backend/src/app/resource_learning/__init__.py backend/src/app/bootstrap.py backend/src/app/api/courses.py backend/src/tests/resource_learning/test_api.py
 git commit -m "feat: expose secure resource learning APIs"
 ```
 
 ## Task 6: 建立前端 API 类型和学习事件缓冲器
 
 **Files:**
-- Create: `Edu_AI/src/stitch/api/resourceLearning.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Create: `Edu_AI/src/openmaic/resourceLearningTracker.ts`
-- Create: `Edu_AI/src/openmaic/resourceLearningTracker.test.ts`
-- Modify: `Edu_AI/src/stitch/api/classroom.ts`
+- Create: `frontend/src/stitch/api/resourceLearning.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Create: `frontend/src/openmaic/resourceLearningTracker.ts`
+- Create: `frontend/src/openmaic/resourceLearningTracker.test.ts`
+- Modify: `frontend/src/stitch/api/classroom.ts`
 
 - [ ] **Step 1: 写前端 tracker 失败测试**
 
@@ -599,19 +599,19 @@ Expected: PASS；TypeScript 无新增错误。
 - [ ] **Step 5: 提交前端基础设施**
 
 ```powershell
-git add Edu_AI/src/stitch/api/resourceLearning.ts Edu_AI/src/stitch/api/types.ts Edu_AI/src/openmaic/resourceLearningTracker.ts Edu_AI/src/openmaic/resourceLearningTracker.test.ts Edu_AI/src/stitch/api/classroom.ts
+git add frontend/src/stitch/api/resourceLearning.ts frontend/src/stitch/api/types.ts frontend/src/openmaic/resourceLearningTracker.ts frontend/src/openmaic/resourceLearningTracker.test.ts frontend/src/stitch/api/classroom.ts
 git commit -m "feat: add classroom learning event tracker"
 ```
 
 ## Task 7: 将播放器和课堂习题接入资源学习会话
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Modify: `Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx`
-- Modify: `Edu_AI/src/openmaic/QuizScenePlayer.tsx`
-- Modify: `Edu_AI/src/openmaic/quizScene.ts`
-- Create: `Edu_AI/src/openmaic/QuizScenePlayer.test.ts`
-- Create: `Edu_AI/src/stitch/pages/classroomResourceLearning.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Modify: `frontend/src/openmaic/ClassroomSceneRenderer.tsx`
+- Modify: `frontend/src/openmaic/QuizScenePlayer.tsx`
+- Modify: `frontend/src/openmaic/quizScene.ts`
+- Create: `frontend/src/openmaic/QuizScenePlayer.test.ts`
+- Create: `frontend/src/stitch/pages/classroomResourceLearning.test.ts`
 
 - [ ] **Step 1: 写“仅学生标准资源模式记录”的失败测试**
 
@@ -679,20 +679,20 @@ Expected: PASS；QA 中断期间不产生 heartbeat，教师预览不创建 sess
 - [ ] **Step 5: 提交播放器接入**
 
 ```powershell
-git add Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx Edu_AI/src/openmaic/QuizScenePlayer.tsx Edu_AI/src/openmaic/quizScene.ts Edu_AI/src/openmaic/QuizScenePlayer.test.ts Edu_AI/src/stitch/pages/classroomResourceLearning.test.ts
+git add frontend/src/stitch/pages/ClassroomPlayer.tsx frontend/src/openmaic/ClassroomSceneRenderer.tsx frontend/src/openmaic/QuizScenePlayer.tsx frontend/src/openmaic/quizScene.ts frontend/src/openmaic/QuizScenePlayer.test.ts frontend/src/stitch/pages/classroomResourceLearning.test.ts
 git commit -m "feat: record classroom playback and quiz participation"
 ```
 
 ## Task 8: 在学生资源卡片和播放器展示独立进度
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/knowledge/ResourceLearningProgress.tsx`
-- Create: `Edu_AI/src/stitch/course/knowledge/resourceLearning.css`
-- Modify: `Edu_AI/src/stitch/course/knowledge/StandardLearningResources.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
-- Modify: `Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Create: `Edu_AI/src/stitch/course/knowledge/resourceLearningPresentation.test.ts`
+- Create: `frontend/src/stitch/course/knowledge/ResourceLearningProgress.tsx`
+- Create: `frontend/src/stitch/course/knowledge/resourceLearning.css`
+- Modify: `frontend/src/stitch/course/knowledge/StandardLearningResources.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
+- Modify: `frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Create: `frontend/src/stitch/course/knowledge/resourceLearningPresentation.test.ts`
 
 - [ ] **Step 1: 写资源学习展示与精确版本链接失败测试**
 
@@ -743,20 +743,20 @@ Expected: PASS；学生与教师路由保持角色正确。
 - [ ] **Step 5: 提交学生体验**
 
 ```powershell
-git add Edu_AI/src/stitch/course/knowledge Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts Edu_AI/src/stitch/pages/ClassroomPlayer.tsx
+git add frontend/src/stitch/course/knowledge frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts frontend/src/stitch/pages/ClassroomPlayer.tsx
 git commit -m "feat: show student classroom learning progress"
 ```
 
 ## Task 9: 提供教师资源学习分析
 
 **Files:**
-- Create: `Edu_AI/api/src/app/resource_learning/analytics.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/service.py`
-- Modify: `Edu_AI/api/src/app/api/resource_learning.py`
-- Create: `Edu_AI/src/stitch/course/knowledge/ResourceLearningAnalytics.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/StandardLearningResources.tsx`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_analytics.py`
-- Create: `Edu_AI/src/stitch/course/knowledge/resourceLearningAnalytics.test.ts`
+- Create: `backend/src/app/resource_learning/analytics.py`
+- Modify: `backend/src/app/resource_learning/service.py`
+- Modify: `backend/src/app/api/resource_learning.py`
+- Create: `frontend/src/stitch/course/knowledge/ResourceLearningAnalytics.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/StandardLearningResources.tsx`
+- Test: `backend/src/tests/resource_learning/test_analytics.py`
+- Create: `frontend/src/stitch/course/knowledge/resourceLearningAnalytics.test.ts`
 
 - [ ] **Step 1: 写聚合分母和队列失败测试**
 
@@ -812,22 +812,22 @@ Expected: PASS；比例都带分母，学生 API 无法读取班级聚合。
 - [ ] **Step 5: 提交教师分析**
 
 ```powershell
-git add Edu_AI/api/src/app/resource_learning Edu_AI/api/src/app/api/resource_learning.py Edu_AI/api/src/tests/resource_learning Edu_AI/src/stitch/course/knowledge
+git add backend/src/app/resource_learning backend/src/app/api/resource_learning.py backend/src/tests/resource_learning frontend/src/stitch/course/knowledge
 git commit -m "feat: add classroom resource learning analytics"
 ```
 
 ## Task 10: 让教师任务复用同版本资源证据
 
 **Files:**
-- Create: `Edu_AI/api/src/app/resource_learning/task_evidence.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/service.py`
-- Modify: `Edu_AI/api/src/app/learning/service.py`
-- Modify: `Edu_AI/api/src/app/learning/models.py`
-- Modify: `Edu_AI/api/src/app/schemas/learning.py`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.tsx`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_task_evidence.py`
-- Test: `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`
+- Create: `backend/src/app/resource_learning/task_evidence.py`
+- Modify: `backend/src/app/resource_learning/service.py`
+- Modify: `backend/src/app/learning/service.py`
+- Modify: `backend/src/app/learning/models.py`
+- Modify: `backend/src/app/schemas/learning.py`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/pages/CourseLearning.tsx`
+- Test: `backend/src/tests/resource_learning/test_task_evidence.py`
+- Test: `frontend/src/stitch/pages/courseLearningPresentation.test.ts`
 
 - [ ] **Step 1: 写同版本复用和跨版本拒绝失败测试**
 
@@ -883,19 +883,19 @@ Expected: PASS；资源证据与正式测评完成口径保持分离。
 - [ ] **Step 5: 提交任务证据复用**
 
 ```powershell
-git add Edu_AI/api/src/app/resource_learning Edu_AI/api/src/app/learning Edu_AI/api/src/app/schemas/learning.py Edu_AI/api/src/tests/resource_learning Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/pages/CourseLearning.tsx Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts
+git add backend/src/app/resource_learning backend/src/app/learning backend/src/app/schemas/learning.py backend/src/tests/resource_learning frontend/src/stitch/api/types.ts frontend/src/stitch/pages/CourseLearning.tsx frontend/src/stitch/pages/courseLearningPresentation.test.ts
 git commit -m "feat: reuse classroom learning evidence in tasks"
 ```
 
 ## Task 11: 加固恢复、可观察性和事件保留
 
 **Files:**
-- Create: `Edu_AI/api/src/app/resource_learning/metrics.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/repository.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/service.py`
-- Modify: `Edu_AI/src/openmaic/resourceLearningTracker.ts`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_recovery.py`
-- Modify: `Edu_AI/src/openmaic/resourceLearningTracker.test.ts`
+- Create: `backend/src/app/resource_learning/metrics.py`
+- Modify: `backend/src/app/resource_learning/repository.py`
+- Modify: `backend/src/app/resource_learning/service.py`
+- Modify: `frontend/src/openmaic/resourceLearningTracker.ts`
+- Test: `backend/src/tests/resource_learning/test_recovery.py`
+- Modify: `frontend/src/openmaic/resourceLearningTracker.test.ts`
 
 - [ ] **Step 1: 写重启恢复、补传和投影重算失败测试**
 
@@ -940,16 +940,16 @@ Expected: PASS；服务重启和客户端刷新均能恢复一致投影。
 - [ ] **Step 5: 提交可靠性加固**
 
 ```powershell
-git add Edu_AI/api/src/app/resource_learning Edu_AI/api/src/tests/resource_learning Edu_AI/src/openmaic/resourceLearningTracker.ts Edu_AI/src/openmaic/resourceLearningTracker.test.ts
+git add backend/src/app/resource_learning backend/src/tests/resource_learning frontend/src/openmaic/resourceLearningTracker.ts frontend/src/openmaic/resourceLearningTracker.test.ts
 git commit -m "feat: harden resource learning recovery"
 ```
 
 ## Task 12: 完成真实端到端验收与文档
 
 **Files:**
-- Create: `Edu_AI/tests/e2e/resource-learning.spec.ts`
-- Modify: `Edu_AI/tests/e2e/fixtures/learningLoop.ts`
-- Create: `Edu_AI/api/src/scripts/seed_resource_learning_e2e.py`
+- Create: `frontend/tests/e2e/resource-learning.spec.ts`
+- Modify: `frontend/tests/e2e/fixtures/learningLoop.ts`
+- Create: `backend/src/scripts/seed_resource_learning_e2e.py`
 - Create: `docs/superpowers/acceptance/2026-08-31-course-resource-learning-tracking-acceptance-cn.md`
 - Modify: `项目总览地图.md`
 
@@ -985,7 +985,7 @@ Expected: 若前序任务均完成则 PASS；若有失败，只修复本规格�
 
 - [ ] **Step 3: 运行全量相关验证**
 
-Backend from `Edu_AI/api/src`:
+Backend from `backend/src`:
 
 ```powershell
 python -m pytest tests/resource_learning tests/standard_resources tests/learning tests/assessment tests/test_classroom_service.py tests/test_classroom_qa_service.py -q
@@ -1009,7 +1009,7 @@ Expected: 全部 PASS；不存在 AI 课堂、标准资源、正式测评或教�
 - [ ] **Step 5: 提交验收收尾**
 
 ```powershell
-git add Edu_AI/tests/e2e/resource-learning.spec.ts Edu_AI/tests/e2e/fixtures/learningLoop.ts Edu_AI/api/src/scripts/seed_resource_learning_e2e.py docs/superpowers/acceptance/2026-08-31-course-resource-learning-tracking-acceptance-cn.md 项目总览地图.md
+git add frontend/tests/e2e/resource-learning.spec.ts frontend/tests/e2e/fixtures/learningLoop.ts backend/src/scripts/seed_resource_learning_e2e.py docs/superpowers/acceptance/2026-08-31-course-resource-learning-tracking-acceptance-cn.md 项目总览地图.md
 git commit -m "test: verify classroom resource learning loop"
 ```
 

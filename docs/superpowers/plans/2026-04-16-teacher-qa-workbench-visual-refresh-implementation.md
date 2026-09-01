@@ -12,24 +12,24 @@
 
 ## File Structure
 
-- Create: `Edu_AI/src/pages/teacher/aiStudioContext.ts`
+- Create: `frontend/src/pages/teacher/aiStudioContext.ts`
   - Page-scoped helpers that derive the display labels for the top context bar.
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.tsx`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.tsx`
   - Add the context bar, wire it to store state, and keep the existing dynamic grid behavior.
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.css`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.css`
   - Replace the current decorative shell styling with the calmer page background, context bar, and cleaner panel treatments.
-- Create: `Edu_AI/tests/frontend/aiStudioContext.test.ts`
+- Create: `frontend/tests/frontend/aiStudioContext.test.ts`
   - Unit coverage for the context-label derivation logic.
-- Create: `Edu_AI/tests/frontend/aiStudioLayout.test.ts`
+- Create: `frontend/tests/frontend/aiStudioLayout.test.ts`
   - Source-level regression checks for the new top context bar and refreshed shell styling.
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
   - Extend the existing text-safety checks so the new user-facing labels stay readable.
 
 ### Task 1: Add page-level context label helpers
 
 **Files:**
-- Create: `Edu_AI/src/pages/teacher/aiStudioContext.ts`
-- Test: `Edu_AI/tests/frontend/aiStudioContext.test.ts`
+- Create: `frontend/src/pages/teacher/aiStudioContext.ts`
+- Test: `frontend/tests/frontend/aiStudioContext.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -112,20 +112,20 @@ Expected: PASS with `aiStudioContext tests passed`
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/pages/teacher/aiStudioContext.ts Edu_AI/tests/frontend/aiStudioContext.test.ts
+git add frontend/src/pages/teacher/aiStudioContext.ts frontend/tests/frontend/aiStudioContext.test.ts
 git commit -m "feat: add ai studio context label helpers"
 ```
 
 ### Task 2: Add the top context bar to the AI studio page
 
 **Files:**
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.tsx`
-- Create: `Edu_AI/tests/frontend/aiStudioLayout.test.ts`
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.tsx`
+- Create: `frontend/tests/frontend/aiStudioLayout.test.ts`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Add `Edu_AI/tests/frontend/aiStudioLayout.test.ts`:
+Add `frontend/tests/frontend/aiStudioLayout.test.ts`:
 
 ```ts
 import assert from 'node:assert/strict';
@@ -169,7 +169,7 @@ assert.match(
 console.log('aiStudioLayout tests passed');
 ```
 
-Extend `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts` with:
+Extend `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts` with:
 
 ```ts
 const aiStudioPageFile = readFileSync(
@@ -197,7 +197,7 @@ Expected: FAIL because `AiStudioPage.tsx` does not yet contain the new labels, h
 
 - [ ] **Step 3: Write minimal implementation**
 
-Update `Edu_AI/src/pages/teacher/AiStudioPage.tsx` to pull state from both stores and render the top bar ahead of the grid:
+Update `frontend/src/pages/teacher/AiStudioPage.tsx` to pull state from both stores and render the top bar ahead of the grid:
 
 ```tsx
 import React, { useMemo, useState } from 'react';
@@ -254,19 +254,19 @@ Expected: PASS with both `aiStudioLayout tests passed` and `teacherWorkspace.tex
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/pages/teacher/AiStudioPage.tsx Edu_AI/tests/frontend/aiStudioLayout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+git add frontend/src/pages/teacher/AiStudioPage.tsx frontend/tests/frontend/aiStudioLayout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 git commit -m "feat: add ai studio top context bar"
 ```
 
 ### Task 3: Refresh the page shell styling and verify the full frontend build
 
 **Files:**
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.css`
-- Modify: `Edu_AI/tests/frontend/aiStudioLayout.test.ts`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.css`
+- Modify: `frontend/tests/frontend/aiStudioLayout.test.ts`
 
 - [ ] **Step 1: Write the failing CSS assertions**
 
-Extend `Edu_AI/tests/frontend/aiStudioLayout.test.ts`:
+Extend `frontend/tests/frontend/aiStudioLayout.test.ts`:
 
 ```ts
 const aiStudioCssFile = readFileSync(
@@ -312,7 +312,7 @@ Expected: FAIL because the CSS file does not yet define the new shell classes or
 
 - [ ] **Step 3: Write minimal implementation**
 
-Update `Edu_AI/src/pages/teacher/AiStudioPage.css`:
+Update `frontend/src/pages/teacher/AiStudioPage.css`:
 
 ```css
 .ai-studio-shell {
@@ -428,7 +428,7 @@ Expected: Vite production build completes successfully
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/pages/teacher/AiStudioPage.css Edu_AI/tests/frontend/aiStudioLayout.test.ts
+git add frontend/src/pages/teacher/AiStudioPage.css frontend/tests/frontend/aiStudioLayout.test.ts
 git commit -m "style: refresh ai studio workspace shell"
 ```
 

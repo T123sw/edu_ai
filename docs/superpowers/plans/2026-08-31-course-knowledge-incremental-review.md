@@ -12,37 +12,37 @@
 
 ## 文件结构与职责
 
-- 新建 `Edu_AI/api/src/app/services/course_knowledge_graph_incremental.py`：名称规范化、基线摘要、保留式合并、基线不变量校验和结构化问题定义。
-- 修改 `Edu_AI/api/src/app/persistence/postgres_knowledge_repository.py`：读取带版本号的最新图谱；发布事务内校验基线版本。
-- 修改 `Edu_AI/api/src/app/api/courses.py`：创建草案时写入基线；保存和确认时执行增量保护校验并返回稳定错误码。
-- 修改 `Edu_AI/api/src/app/schemas/course.py`：后端默认策略改为 `incremental`。
-- 修改 `Edu_AI/api/src/app/services/course_knowledge_graph_generator.py`：增量提示词、候选图谱与基线的确定性合并、增量校验。
-- 新建 `Edu_AI/api/src/tests/services/test_course_knowledge_graph_incremental.py`：合并和不变量的纯单元测试。
-- 修改 `Edu_AI/api/src/tests/services/test_course_knowledge_graph_generator.py`、`Edu_AI/api/src/tests/test_course_knowledge_build_workflow.py`、`Edu_AI/api/src/tests/persistence/test_postgres_knowledge_repository.py`：生成、接口和发布并发测试。
-- 修改 `Edu_AI/src/stitch/api/types.ts`：公开基线和审核元数据类型。
-- 修改 `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildState.ts`：前端默认策略改为 `incremental`。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`：已有版本时按钮文案改为“增量更新知识库”。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildConfigStep.tsx`：常规入口只展示增量说明；重建选项进入高级设置；完全重建二次确认。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx`：传入基线，处理完全重建确认和结构化图谱错误定位。
-- 修改 `Edu_AI/src/stitch/course/knowledge/courseKnowledgeGraphDraft.ts`：节点索引、问题列表、过滤、搜索和旧节点保护辅助函数。
-- 修改 `Edu_AI/src/stitch/course/knowledge/courseKnowledgeGraphDraft.test.ts`：纯函数测试。
-- 新建 `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphReviewSummary.tsx`：顶部六项统计、问题提醒和筛选。
-- 新建 `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphTree.tsx`：可折叠、可搜索、可键盘导航的左侧树。
-- 新建 `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphNodeEditor.tsx`：只渲染当前选中节点；锁定旧节点结构操作。
-- 新建 `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphReviewActions.tsx`：固定底部操作区和确认勾选。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeGraphReviewStep.tsx`：只负责状态编排、保存、定位问题和响应式面板切换。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`：桌面双栏、窄屏分页、字号、对比度、焦点和固定操作栏。
-- 修改 `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`：静态集成约束。
-- 修改 `Edu_AI/tests/e2e/fixtures/courseKnowledgeBuild.ts`、`Edu_AI/tests/e2e/course-knowledge-build-wizard.spec.ts`：增量更新和大图谱审核端到端覆盖。
+- 新建 `backend/src/app/services/course_knowledge_graph_incremental.py`：名称规范化、基线摘要、保留式合并、基线不变量校验和结构化问题定义。
+- 修改 `backend/src/app/persistence/postgres_knowledge_repository.py`：读取带版本号的最新图谱；发布事务内校验基线版本。
+- 修改 `backend/src/app/api/courses.py`：创建草案时写入基线；保存和确认时执行增量保护校验并返回稳定错误码。
+- 修改 `backend/src/app/schemas/course.py`：后端默认策略改为 `incremental`。
+- 修改 `backend/src/app/services/course_knowledge_graph_generator.py`：增量提示词、候选图谱与基线的确定性合并、增量校验。
+- 新建 `backend/src/tests/services/test_course_knowledge_graph_incremental.py`：合并和不变量的纯单元测试。
+- 修改 `backend/src/tests/services/test_course_knowledge_graph_generator.py`、`backend/src/tests/test_course_knowledge_build_workflow.py`、`backend/src/tests/persistence/test_postgres_knowledge_repository.py`：生成、接口和发布并发测试。
+- 修改 `frontend/src/stitch/api/types.ts`：公开基线和审核元数据类型。
+- 修改 `frontend/src/stitch/course/knowledge/courseKnowledgeBuildState.ts`：前端默认策略改为 `incremental`。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`：已有版本时按钮文案改为“增量更新知识库”。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildConfigStep.tsx`：常规入口只展示增量说明；重建选项进入高级设置；完全重建二次确认。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx`：传入基线，处理完全重建确认和结构化图谱错误定位。
+- 修改 `frontend/src/stitch/course/knowledge/courseKnowledgeGraphDraft.ts`：节点索引、问题列表、过滤、搜索和旧节点保护辅助函数。
+- 修改 `frontend/src/stitch/course/knowledge/courseKnowledgeGraphDraft.test.ts`：纯函数测试。
+- 新建 `frontend/src/stitch/course/knowledge/KnowledgeGraphReviewSummary.tsx`：顶部六项统计、问题提醒和筛选。
+- 新建 `frontend/src/stitch/course/knowledge/KnowledgeGraphTree.tsx`：可折叠、可搜索、可键盘导航的左侧树。
+- 新建 `frontend/src/stitch/course/knowledge/KnowledgeGraphNodeEditor.tsx`：只渲染当前选中节点；锁定旧节点结构操作。
+- 新建 `frontend/src/stitch/course/knowledge/KnowledgeGraphReviewActions.tsx`：固定底部操作区和确认勾选。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeGraphReviewStep.tsx`：只负责状态编排、保存、定位问题和响应式面板切换。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`：桌面双栏、窄屏分页、字号、对比度、焦点和固定操作栏。
+- 修改 `frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`：静态集成约束。
+- 修改 `frontend/tests/e2e/fixtures/courseKnowledgeBuild.ts`、`frontend/tests/e2e/course-knowledge-build-wizard.spec.ts`：增量更新和大图谱审核端到端覆盖。
 
 ### Task 1: 草案加载最新图谱基线并统一默认策略
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/schemas/course.py:222-241`
-- Modify: `Edu_AI/api/src/app/persistence/postgres_knowledge_repository.py:150-175`
-- Modify: `Edu_AI/api/src/app/api/courses.py:1056-1092`
-- Modify: `Edu_AI/api/src/tests/test_course_knowledge_build_workflow.py:11-55`
-- Modify: `Edu_AI/api/src/tests/persistence/test_postgres_knowledge_repository.py:324-345`
+- Modify: `backend/src/app/schemas/course.py:222-241`
+- Modify: `backend/src/app/persistence/postgres_knowledge_repository.py:150-175`
+- Modify: `backend/src/app/api/courses.py:1056-1092`
+- Modify: `backend/src/tests/test_course_knowledge_build_workflow.py:11-55`
+- Modify: `backend/src/tests/persistence/test_postgres_knowledge_repository.py:324-345`
 
 - [ ] **Step 1: 写出失败的仓储和创建草案测试**
 
@@ -103,7 +103,7 @@ assert body["current_graph_summary"]["node_count"] == 13
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/persistence/test_postgres_knowledge_repository.py::test_knowledge_repository_versions_and_rolls_back_published_graph tests/test_course_knowledge_build_workflow.py::test_create_build_draft_normalizes_config_without_searching -q
 ```
 
@@ -171,7 +171,7 @@ return repository.create_build_draft(
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/persistence/test_postgres_knowledge_repository.py::test_knowledge_repository_versions_and_rolls_back_published_graph tests/test_course_knowledge_build_workflow.py::test_create_build_draft_normalizes_config_without_searching -q
 ```
 
@@ -180,15 +180,15 @@ Expected: 2 passed。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/api/src/app/schemas/course.py Edu_AI/api/src/app/persistence/postgres_knowledge_repository.py Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/tests/test_course_knowledge_build_workflow.py Edu_AI/api/src/tests/persistence/test_postgres_knowledge_repository.py
+git add backend/src/app/schemas/course.py backend/src/app/persistence/postgres_knowledge_repository.py backend/src/app/api/courses.py backend/src/tests/test_course_knowledge_build_workflow.py backend/src/tests/persistence/test_postgres_knowledge_repository.py
 git commit -m "feat: snapshot published graph for incremental builds"
 ```
 
 ### Task 2: 实现确定性保留式合并与基线不变量校验
 
 **Files:**
-- Create: `Edu_AI/api/src/app/services/course_knowledge_graph_incremental.py`
-- Create: `Edu_AI/api/src/tests/services/test_course_knowledge_graph_incremental.py`
+- Create: `backend/src/app/services/course_knowledge_graph_incremental.py`
+- Create: `backend/src/tests/services/test_course_knowledge_graph_incremental.py`
 
 - [ ] **Step 1: 写出覆盖全部合并规则的失败测试**
 
@@ -222,7 +222,7 @@ def test_incremental_merge_preserves_existing_structure_and_appends_new_nodes():
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/services/test_course_knowledge_graph_incremental.py -q
 ```
 
@@ -480,7 +480,7 @@ def assert_baseline_graph_preserved(
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/services/test_course_knowledge_graph_incremental.py -q
 ```
 
@@ -489,15 +489,15 @@ Expected: 所有增量合并测试通过。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/api/src/app/services/course_knowledge_graph_incremental.py Edu_AI/api/src/tests/services/test_course_knowledge_graph_incremental.py
+git add backend/src/app/services/course_knowledge_graph_incremental.py backend/src/tests/services/test_course_knowledge_graph_incremental.py
 git commit -m "feat: add deterministic incremental graph merge"
 ```
 
 ### Task 3: 把保留式合并接入模型生成和图谱校验
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/services/course_knowledge_graph_generator.py:145-205, 405-485`
-- Modify: `Edu_AI/api/src/tests/services/test_course_knowledge_graph_generator.py:13-245`
+- Modify: `backend/src/app/services/course_knowledge_graph_generator.py:145-205, 405-485`
+- Modify: `backend/src/tests/services/test_course_knowledge_graph_generator.py:13-245`
 
 - [ ] **Step 1: 写出失败的增量生成测试**
 
@@ -544,7 +544,7 @@ def test_incremental_generation_merges_candidate_without_changing_baseline_nodes
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/services/test_course_knowledge_graph_generator.py -q
 ```
 
@@ -618,7 +618,7 @@ enforce_scale: bool = True,
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/services/test_course_knowledge_graph_generator.py -q
 ```
 
@@ -627,17 +627,17 @@ Expected: 所有生成器测试通过，原有首次构建、修复、教材映�
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/api/src/app/services/course_knowledge_graph_generator.py Edu_AI/api/src/tests/services/test_course_knowledge_graph_generator.py
+git add backend/src/app/services/course_knowledge_graph_generator.py backend/src/tests/services/test_course_knowledge_graph_generator.py
 git commit -m "feat: merge incremental graph candidates with baseline"
 ```
 
 ### Task 4: 保存、确认和发布三阶段强制保护旧节点
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/api/courses.py:1251-1355`
-- Modify: `Edu_AI/api/src/app/persistence/postgres_knowledge_repository.py:668-724`
-- Modify: `Edu_AI/api/src/tests/test_course_knowledge_build_workflow.py:200-335`
-- Modify: `Edu_AI/api/src/tests/persistence/test_postgres_knowledge_repository.py:140-190`
+- Modify: `backend/src/app/api/courses.py:1251-1355`
+- Modify: `backend/src/app/persistence/postgres_knowledge_repository.py:668-724`
+- Modify: `backend/src/tests/test_course_knowledge_build_workflow.py:200-335`
+- Modify: `backend/src/tests/persistence/test_postgres_knowledge_repository.py:140-190`
 
 - [ ] **Step 1: 写出保存、确认和并发发布失败测试**
 
@@ -664,7 +664,7 @@ assert response.json()["detail"]["code"] == "GRAPH_BASELINE_VERSION_CONFLICT"
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/test_course_knowledge_build_workflow.py tests/persistence/test_postgres_knowledge_repository.py -q
 ```
 
@@ -740,7 +740,7 @@ if config.get("update_strategy") == "incremental":
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/test_course_knowledge_build_workflow.py tests/persistence/test_postgres_knowledge_repository.py -q
 ```
 
@@ -749,20 +749,20 @@ Expected: 全部通过。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/api/src/app/api/courses.py Edu_AI/api/src/app/persistence/postgres_knowledge_repository.py Edu_AI/api/src/tests/test_course_knowledge_build_workflow.py Edu_AI/api/src/tests/persistence/test_postgres_knowledge_repository.py
+git add backend/src/app/api/courses.py backend/src/app/persistence/postgres_knowledge_repository.py backend/src/tests/test_course_knowledge_build_workflow.py backend/src/tests/persistence/test_postgres_knowledge_repository.py
 git commit -m "feat: enforce graph baseline invariants"
 ```
 
 ### Task 5: 前端默认增量更新并把重建收进高级设置
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/api/types.ts:476-580`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildState.ts:13-31`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildState.test.ts:9-45`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx:90-115, 166-185`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildConfigStep.tsx:1-100`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx:84-112, 226-232`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts:46-65`
+- Modify: `frontend/src/stitch/api/types.ts:476-580`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildState.ts:13-31`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildState.test.ts:9-45`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx:90-115, 166-185`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildConfigStep.tsx:1-100`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx:84-112, 226-232`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts:46-65`
 
 - [ ] **Step 1: 写出失败的前端默认值和静态集成测试**
 
@@ -862,15 +862,15 @@ Expected: 全部通过。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildState.ts Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildState.test.ts Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildConfigStep.tsx Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
+git add frontend/src/stitch/api/types.ts frontend/src/stitch/course/knowledge/courseKnowledgeBuildState.ts frontend/src/stitch/course/knowledge/courseKnowledgeBuildState.test.ts frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx frontend/src/stitch/course/knowledge/CourseKnowledgeBuildConfigStep.tsx frontend/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
 git commit -m "feat: make course knowledge updates incremental by default"
 ```
 
 ### Task 6: 建立审核树的纯状态模型和旧节点保护
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeGraphDraft.ts`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeGraphDraft.test.ts`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeGraphDraft.ts`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeGraphDraft.test.ts`
 
 - [ ] **Step 1: 写出失败的索引、筛选、问题和保护测试**
 
@@ -969,20 +969,20 @@ Expected: 全部通过。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/src/stitch/course/knowledge/courseKnowledgeGraphDraft.ts Edu_AI/src/stitch/course/knowledge/courseKnowledgeGraphDraft.test.ts
+git add frontend/src/stitch/course/knowledge/courseKnowledgeGraphDraft.ts frontend/src/stitch/course/knowledge/courseKnowledgeGraphDraft.test.ts
 git commit -m "feat: add knowledge graph review state model"
 ```
 
 ### Task 7: 拆分顶部汇总、折叠树、单节点编辑器和固定操作栏
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphReviewSummary.tsx`
-- Create: `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphTree.tsx`
-- Create: `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphNodeEditor.tsx`
-- Create: `Edu_AI/src/stitch/course/knowledge/KnowledgeGraphReviewActions.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeGraphReviewStep.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx:250-282`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`
+- Create: `frontend/src/stitch/course/knowledge/KnowledgeGraphReviewSummary.tsx`
+- Create: `frontend/src/stitch/course/knowledge/KnowledgeGraphTree.tsx`
+- Create: `frontend/src/stitch/course/knowledge/KnowledgeGraphNodeEditor.tsx`
+- Create: `frontend/src/stitch/course/knowledge/KnowledgeGraphReviewActions.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeGraphReviewStep.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx:250-282`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`
 
 - [ ] **Step 1: 写出失败的组件边界静态测试**
 
@@ -1072,15 +1072,15 @@ Expected: 全部通过。
 - [ ] **Step 8: 提交本任务**
 
 ```powershell
-git add Edu_AI/src/stitch/course/knowledge/KnowledgeGraphReviewSummary.tsx Edu_AI/src/stitch/course/knowledge/KnowledgeGraphTree.tsx Edu_AI/src/stitch/course/knowledge/KnowledgeGraphNodeEditor.tsx Edu_AI/src/stitch/course/knowledge/KnowledgeGraphReviewActions.tsx Edu_AI/src/stitch/course/knowledge/CourseKnowledgeGraphReviewStep.tsx Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
+git add frontend/src/stitch/course/knowledge/KnowledgeGraphReviewSummary.tsx frontend/src/stitch/course/knowledge/KnowledgeGraphTree.tsx frontend/src/stitch/course/knowledge/KnowledgeGraphNodeEditor.tsx frontend/src/stitch/course/knowledge/KnowledgeGraphReviewActions.tsx frontend/src/stitch/course/knowledge/CourseKnowledgeGraphReviewStep.tsx frontend/src/stitch/course/knowledge/CourseKnowledgeBuildWizard.tsx frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
 git commit -m "feat: redesign course knowledge graph review"
 ```
 
 ### Task 8: 完成可读性、焦点和响应式样式
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css:450-930`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css:450-930`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`
 
 - [ ] **Step 1: 写出失败的布局与无障碍样式约束**
 
@@ -1196,15 +1196,15 @@ Expected: 测试通过、TypeScript 无错误、Vite build 成功。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
+git add frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
 git commit -m "style: improve knowledge graph review readability"
 ```
 
 ### Task 9: 端到端验证增量保留、审核交互和历史版本
 
 **Files:**
-- Modify: `Edu_AI/tests/e2e/fixtures/courseKnowledgeBuild.ts`
-- Modify: `Edu_AI/tests/e2e/course-knowledge-build-wizard.spec.ts`
+- Modify: `frontend/tests/e2e/fixtures/courseKnowledgeBuild.ts`
+- Modify: `frontend/tests/e2e/course-knowledge-build-wizard.spec.ts`
 
 - [ ] **Step 1: 扩展夹具为“已有图谱 + 新候选节点”**
 
@@ -1272,7 +1272,7 @@ Expected: 文件内全部端到端测试通过。
 - [ ] **Step 5: 提交本任务**
 
 ```powershell
-git add Edu_AI/tests/e2e/fixtures/courseKnowledgeBuild.ts Edu_AI/tests/e2e/course-knowledge-build-wizard.spec.ts
+git add frontend/tests/e2e/fixtures/courseKnowledgeBuild.ts frontend/tests/e2e/course-knowledge-build-wizard.spec.ts
 git commit -m "test: cover incremental course knowledge updates"
 ```
 
@@ -1286,7 +1286,7 @@ git commit -m "test: cover incremental course knowledge updates"
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 .\.venv\Scripts\python.exe -m pytest tests/services/test_course_knowledge_graph_incremental.py tests/services/test_course_knowledge_graph_generator.py tests/test_course_knowledge_build_workflow.py tests/persistence/test_postgres_knowledge_repository.py -q
 ```
 
@@ -1333,7 +1333,7 @@ git log --oneline -10
 Expected: 仅包含本计划文件；`git diff --check` 无输出；每个任务有独立提交。若人工验收产生样式修正，重新执行 Steps 2-4 后提交：
 
 ```powershell
-git add Edu_AI/src/stitch/course/knowledge
+git add frontend/src/stitch/course/knowledge
 git commit -m "fix: finalize incremental graph review acceptance"
 ```
 

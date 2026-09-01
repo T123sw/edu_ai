@@ -37,7 +37,7 @@
 
 ### 后端
 
-在 `Edu_AI/api/src` 执行：
+在 `backend/src` 执行：
 
 ```powershell
 python -m pytest tests/resource_learning tests/classroom_catalog tests/standard_resources -q

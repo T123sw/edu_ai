@@ -12,13 +12,13 @@
 
 ## File Structure
 
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.tsx`
+- Modify: `frontend/src/components/teacher/SourcePanel.tsx`
   - Replace the current inline-heavy left-panel shell with semantic class-based sections for header, retrieval zone, selection controls, document list, and upload action area while preserving current business handlers.
-- Create: `Edu_AI/src/components/teacher/SourcePanel.css`
+- Create: `frontend/src/components/teacher/SourcePanel.css`
   - Hold the dedicated visual language for the teacher source panel, including collapsed state, preview state, list-item spacing, and the fixed upload action area.
-- Create: `Edu_AI/tests/frontend/sourcePanel.layout.test.ts`
+- Create: `frontend/tests/frontend/sourcePanel.layout.test.ts`
   - Add source-level regression checks for the new structural classes, section labels, and removal of the flatter inline-only shell.
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
   - Extend text-safety coverage so any new user-facing labels introduced in the source panel stay readable.
 
 ## Skill Execution Notes
@@ -48,12 +48,12 @@ Do not alter the business behavior of upload, preview, rename, delete, or deep r
 ### Task 1: Add failing regressions for the beautified source-panel shell
 
 **Files:**
-- Create: `Edu_AI/tests/frontend/sourcePanel.layout.test.ts`
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Create: `frontend/tests/frontend/sourcePanel.layout.test.ts`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `Edu_AI/tests/frontend/sourcePanel.layout.test.ts`:
+Create `frontend/tests/frontend/sourcePanel.layout.test.ts`:
 
 ```ts
 import assert from 'node:assert/strict';
@@ -115,7 +115,7 @@ assert.doesNotMatch(
 console.log('sourcePanel.layout tests passed');
 ```
 
-Extend `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts` with:
+Extend `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts` with:
 
 ```ts
 assert.match(
@@ -144,14 +144,14 @@ Expected: FAIL because the current source panel does not yet contain the new str
 - [ ] **Step 3: Commit the red test checkpoint**
 
 ```bash
-git add Edu_AI/tests/frontend/sourcePanel.layout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+git add frontend/tests/frontend/sourcePanel.layout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 git commit -m "test: cover beautified teacher source panel"
 ```
 
 ### Task 2: Move the source-panel shell to explicit semantic sections
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.tsx`
+- Modify: `frontend/src/components/teacher/SourcePanel.tsx`
 
 - [ ] **Step 1: Load the required beautification skills**
 
@@ -175,7 +175,7 @@ Expected: the design guidance is available before editing the component.
 
 - [ ] **Step 2: Import the dedicated stylesheet**
 
-Add this import near the top of `Edu_AI/src/components/teacher/SourcePanel.tsx`:
+Add this import near the top of `frontend/src/components/teacher/SourcePanel.tsx`:
 
 ```ts
 import './SourcePanel.css';
@@ -318,19 +318,19 @@ Expected: PASS for the new layout assertions, readable copy assertions, and the 
 - [ ] **Step 7: Commit the structural refactor**
 
 ```bash
-git add Edu_AI/src/components/teacher/SourcePanel.tsx Edu_AI/tests/frontend/sourcePanel.layout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+git add frontend/src/components/teacher/SourcePanel.tsx frontend/tests/frontend/sourcePanel.layout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 git commit -m "feat: restructure teacher source panel shell"
 ```
 
 ### Task 3: Add the dedicated source-panel stylesheet and align preview mode
 
 **Files:**
-- Create: `Edu_AI/src/components/teacher/SourcePanel.css`
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.tsx`
+- Create: `frontend/src/components/teacher/SourcePanel.css`
+- Modify: `frontend/src/components/teacher/SourcePanel.tsx`
 
 - [ ] **Step 1: Create the dedicated stylesheet**
 
-Create `Edu_AI/src/components/teacher/SourcePanel.css` with the beautified shell rules:
+Create `frontend/src/components/teacher/SourcePanel.css` with the beautified shell rules:
 
 ```css
 .source-panel {
@@ -513,15 +513,15 @@ Expected: PASS, proving the visual refactor did not disturb image preview or che
 - [ ] **Step 4: Commit the stylesheet pass**
 
 ```bash
-git add Edu_AI/src/components/teacher/SourcePanel.tsx Edu_AI/src/components/teacher/SourcePanel.css
+git add frontend/src/components/teacher/SourcePanel.tsx frontend/src/components/teacher/SourcePanel.css
 git commit -m "style: beautify teacher source panel"
 ```
 
 ### Task 4: Final polish and verification pass
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.tsx` (if needed)
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.css` (if needed)
+- Modify: `frontend/src/components/teacher/SourcePanel.tsx` (if needed)
+- Modify: `frontend/src/components/teacher/SourcePanel.css` (if needed)
 
 - [ ] **Step 1: Load the final polish skill**
 
@@ -577,7 +577,7 @@ Expected:
 - [ ] **Step 4: Commit the polish pass**
 
 ```bash
-git add Edu_AI/src/components/teacher/SourcePanel.tsx Edu_AI/src/components/teacher/SourcePanel.css Edu_AI/tests/frontend/sourcePanel.layout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+git add frontend/src/components/teacher/SourcePanel.tsx frontend/src/components/teacher/SourcePanel.css frontend/tests/frontend/sourcePanel.layout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 git commit -m "style: polish teacher source panel"
 ```
 

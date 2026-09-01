@@ -120,18 +120,18 @@
 
 ```powershell
 D:\anaconda\envs\edu-ai\python.exe -m pytest `
-  api/src/tests/services/test_personal_knowledge_service.py `
-  api/src/tests/services/test_personal_knowledge_index_lifecycle.py `
-  api/src/tests/test_personal_knowledge_api.py `
-  api/src/tests/chat/test_deepsearch_service_websearch.py `
-  api/src/tests/chat/test_deepsearch_personal_archive.py `
-  api/src/tests/chat/test_rag_access_scope.py `
-  api/src/tests/chat/runtime/test_student_rag_scope.py `
-  api/src/tests/chat/runtime/test_authenticated_actor_role.py `
-  api/src/tests/chat/runtime/test_persona_policy.py `
-  api/src/tests/chat/runtime/test_student_guided_dialogue.py `
-  api/src/tests/chat/test_personal_generation_authorization.py `
-  api/src/tests/services/test_personal_tool_access.py -q
+  backend/src/tests/services/test_personal_knowledge_service.py `
+  backend/src/tests/services/test_personal_knowledge_index_lifecycle.py `
+  backend/src/tests/test_personal_knowledge_api.py `
+  backend/src/tests/chat/test_deepsearch_service_websearch.py `
+  backend/src/tests/chat/test_deepsearch_personal_archive.py `
+  backend/src/tests/chat/test_rag_access_scope.py `
+  backend/src/tests/chat/runtime/test_student_rag_scope.py `
+  backend/src/tests/chat/runtime/test_authenticated_actor_role.py `
+  backend/src/tests/chat/runtime/test_persona_policy.py `
+  backend/src/tests/chat/runtime/test_student_guided_dialogue.py `
+  backend/src/tests/chat/test_personal_generation_authorization.py `
+  backend/src/tests/services/test_personal_tool_access.py -q
 ```
 
 | ID | 测试集 | 目标 | 实际 | 结果 |

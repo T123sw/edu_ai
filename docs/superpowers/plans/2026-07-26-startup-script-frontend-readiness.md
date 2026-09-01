@@ -12,14 +12,14 @@
 
 ## File Structure
 
-- Modify `Edu_AI/api/src/start_api.bat`: validate the Vite launcher, repair missing frontend dependencies, wait for the frontend HTTP service, and stop before backend startup on failure.
-- Modify `Edu_AI/api/src/tests/chat/test_start_api_bat.py`: enforce the dependency probe, post-install validation, frontend wait call, ordering, and nonzero failure path.
+- Modify `backend/src/start_api.bat`: validate the Vite launcher, repair missing frontend dependencies, wait for the frontend HTTP service, and stop before backend startup on failure.
+- Modify `backend/src/tests/chat/test_start_api_bat.py`: enforce the dependency probe, post-install validation, frontend wait call, ordering, and nonzero failure path.
 
 ### Task 1: Lock the Broken Startup Behaviors with Tests
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
-- Test: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
+- Modify: `backend/src/tests/chat/test_start_api_bat.py`
+- Test: `backend/src/tests/chat/test_start_api_bat.py`
 
 - [ ] **Step 1: Add the failing dependency-probe tests**
 
@@ -82,7 +82,7 @@ def test_start_api_bat_stops_when_frontend_never_becomes_ready():
 Run:
 
 ```powershell
-D:\anaconda\envs\edu-ai\python.exe -m pytest Edu_AI/api/src/tests/chat/test_start_api_bat.py -q
+D:\anaconda\envs\edu-ai\python.exe -m pytest backend/src/tests/chat/test_start_api_bat.py -q
 ```
 
 Expected: four new tests fail because the script still checks only `node_modules` and has no frontend readiness function.
@@ -90,15 +90,15 @@ Expected: four new tests fail because the script still checks only `node_modules
 - [ ] **Step 4: Commit the RED tests**
 
 ```powershell
-git add -- Edu_AI/api/src/tests/chat/test_start_api_bat.py
+git add -- backend/src/tests/chat/test_start_api_bat.py
 git commit -m "test(startup): require frontend readiness checks"
 ```
 
 ### Task 2: Repair Dependencies and Gate Backend Startup
 
 **Files:**
-- Modify: `Edu_AI/api/src/start_api.bat`
-- Test: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
+- Modify: `backend/src/start_api.bat`
+- Test: `backend/src/tests/chat/test_start_api_bat.py`
 
 - [ ] **Step 1: Replace the frontend directory probe with a launcher probe**
 
@@ -175,7 +175,7 @@ goto :wait_for_frontend_loop
 Run:
 
 ```powershell
-D:\anaconda\envs\edu-ai\python.exe -m pytest Edu_AI/api/src/tests/chat/test_start_api_bat.py -q
+D:\anaconda\envs\edu-ai\python.exe -m pytest backend/src/tests/chat/test_start_api_bat.py -q
 ```
 
 Expected: 14 tests pass.
@@ -185,7 +185,7 @@ Expected: 14 tests pass.
 Run:
 
 ```powershell
-cmd.exe /d /c Edu_AI\api\src\start_api.bat --check
+cmd.exe /d /c backend\src\start_api.bat --check
 ```
 
 Expected: `Startup script check passed.` and exit code 0.
@@ -193,7 +193,7 @@ Expected: `Startup script check passed.` and exit code 0.
 - [ ] **Step 6: Commit the implementation**
 
 ```powershell
-git add -- Edu_AI/api/src/start_api.bat
+git add -- backend/src/start_api.bat
 git commit -m "fix(startup): wait for frontend readiness"
 ```
 
@@ -201,7 +201,7 @@ git commit -m "fix(startup): wait for frontend readiness"
 
 **Files:**
 - Runtime repair only: `Edu_AI/node_modules`
-- Preserve: `Edu_AI/package.json`
+- Preserve: `frontend/package.json`
 - Preserve: `Edu_AI/package-lock.json`
 
 - [ ] **Step 1: Record the user-owned Git state**
@@ -210,10 +210,10 @@ Run in the main checkout:
 
 ```powershell
 git status --short
-git diff -- Edu_AI/package.json
+git diff -- frontend/package.json
 ```
 
-Expected: only the pre-existing `Edu_AI/package.json` edit is present.
+Expected: only the pre-existing `frontend/package.json` edit is present.
 
 - [ ] **Step 2: Recreate npm command launchers without changing the lockfile**
 
@@ -249,15 +249,15 @@ Expected: `package-lock.json` has no diff and the user-owned `package.json` edit
 ### Task 4: Full Verification and Integration
 
 **Files:**
-- Verify: `Edu_AI/api/src/start_api.bat`
-- Verify: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
+- Verify: `backend/src/start_api.bat`
+- Verify: `backend/src/tests/chat/test_start_api_bat.py`
 
 - [ ] **Step 1: Run startup and video backend regression tests**
 
 Run:
 
 ```powershell
-D:\anaconda\envs\edu-ai\python.exe -m pytest Edu_AI/api/src/tests/chat/test_start_api_bat.py Edu_AI/api/src/tests/test_classroom_video_export.py -q
+D:\anaconda\envs\edu-ai\python.exe -m pytest backend/src/tests/chat/test_start_api_bat.py backend/src/tests/test_classroom_video_export.py -q
 ```
 
 Expected: all selected tests pass.
@@ -292,14 +292,14 @@ Run:
 git -C D:\github\edu_ai merge --ff-only fix/startup-frontend-readiness
 ```
 
-Expected: `main` advances without including the user-owned `Edu_AI/package.json` edit.
+Expected: `main` advances without including the user-owned `frontend/package.json` edit.
 
 - [ ] **Step 5: Re-run focused tests on main**
 
 Run:
 
 ```powershell
-D:\anaconda\envs\edu-ai\python.exe -m pytest Edu_AI/api/src/tests/chat/test_start_api_bat.py Edu_AI/api/src/tests/test_classroom_video_export.py -q
+D:\anaconda\envs\edu-ai\python.exe -m pytest backend/src/tests/chat/test_start_api_bat.py backend/src/tests/test_classroom_video_export.py -q
 ```
 
 Expected: all selected tests pass on `main`.

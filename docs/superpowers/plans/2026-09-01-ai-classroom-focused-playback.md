@@ -12,22 +12,22 @@
 
 ## File map
 
-- Modify `Edu_AI/src/stitch/pages/ClassroomStudio.tsx`: remove the page toolbar, search state/filtering, and viewer breadcrumb; add breakpoint-only drawer launchers.
-- Modify `Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts`: lock the page-level focused workspace contract.
-- Modify `Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts`: lock responsive launcher and height behavior.
-- Modify `Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx`: remove classroom title/catalog/presentation chrome and move both exports into the core footer.
-- Modify `Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts`: lock the focused player DOM contract and existing autoplay integration.
-- Modify `Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`: reclaim page-toolbar height and style floating drawer launchers.
-- Modify `Edu_AI/src/stitch/styles.css`: reduce the classroom console to stage plus controls and remove dead classroom-catalog/presentation styles.
+- Modify `frontend/src/stitch/pages/ClassroomStudio.tsx`: remove the page toolbar, search state/filtering, and viewer breadcrumb; add breakpoint-only drawer launchers.
+- Modify `frontend/src/stitch/pages/classroomCatalogPage.test.ts`: lock the page-level focused workspace contract.
+- Modify `frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts`: lock responsive launcher and height behavior.
+- Modify `frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx`: remove classroom title/catalog/presentation chrome and move both exports into the core footer.
+- Modify `frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts`: lock the focused player DOM contract and existing autoplay integration.
+- Modify `frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`: reclaim page-toolbar height and style floating drawer launchers.
+- Modify `frontend/src/stitch/styles.css`: reduce the classroom console to stage plus controls and remove dead classroom-catalog/presentation styles.
 - Create `docs/acceptance/2026-09-01-ai-classroom-focused-playback.md`: record automated and viewport acceptance evidence.
 
 ### Task 1: Remove the AI classroom page toolbar without losing drawer access
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts`
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomStudio.tsx`
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`
+- Modify: `frontend/src/stitch/pages/classroomCatalogPage.test.ts`
+- Modify: `frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomStudio.tsx`
+- Modify: `frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`
 
 - [ ] **Step 1: Write the failing page-shell tests**
 
@@ -141,19 +141,19 @@ Expected: all page/catalog workspace tests PASS.
 
 ```powershell
 git add -- `
-  Edu_AI/src/stitch/pages/ClassroomStudio.tsx `
-  Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts `
-  Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts `
-  Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
+  frontend/src/stitch/pages/ClassroomStudio.tsx `
+  frontend/src/stitch/pages/classroomCatalogPage.test.ts `
+  frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts `
+  frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
 git commit -m "feat: focus AI classroom workspace on learning content"
 ```
 
 ### Task 2: Reduce the classroom player to stage and essential controls
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts`
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx`
-- Modify: `Edu_AI/src/stitch/styles.css`
+- Modify: `frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts`
+- Modify: `frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx`
+- Modify: `frontend/src/stitch/styles.css`
 
 - [ ] **Step 1: Write the failing player contract test**
 
@@ -300,9 +300,9 @@ Expected: focused player and all three autoplay behavior tests PASS.
 
 ```powershell
 git add -- `
-  Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx `
-  Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts `
-  Edu_AI/src/stitch/styles.css
+  frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx `
+  frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts `
+  frontend/src/stitch/styles.css
 git commit -m "feat: reduce classroom player to essential controls"
 ```
 

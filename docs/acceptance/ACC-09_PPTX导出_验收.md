@@ -46,7 +46,7 @@ npm run lint
 npm run build
 # success；PPTX exporter 为独立懒加载 chunk
 
-cd api/src
+cd backend/src
 conda run -n edu-ai python -m pytest `
   tests/test_classroom_media.py `
   tests/test_classroom_service.py `

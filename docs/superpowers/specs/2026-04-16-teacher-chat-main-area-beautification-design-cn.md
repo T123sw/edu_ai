@@ -157,9 +157,9 @@
 
 建议实现主要落在以下文件：
 
-- `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- `Edu_AI/src/components/teacher/StatusCardV2.tsx`（仅当需要彻底移除引用或停用残留逻辑时）
-- `Edu_AI/src/components/teacher/StatusCard.css`（仅在清理残留依赖时触及）
+- `frontend/src/components/teacher/ChatPanel.tsx`
+- `frontend/src/components/teacher/StatusCardV2.tsx`（仅当需要彻底移除引用或停用残留逻辑时）
+- `frontend/src/components/teacher/StatusCard.css`（仅在清理残留依赖时触及）
 
 实现中优先原则如下：
 

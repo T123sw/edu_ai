@@ -14,11 +14,11 @@
 
 **涉及文件**
 
-- 修改：`Edu_AI/api/src/app/database/models.py`
-- 修改：`Edu_AI/api/src/app/database/__init__.py`
-- 新增：`Edu_AI/api/alembic/versions/20260824_0016_standard_learning_resources.py`
-- 新增：`Edu_AI/api/src/tests/database/test_standard_learning_resource_models.py`
-- 修改：`Edu_AI/api/src/tests/database/test_alembic_chain.py`
+- 修改：`backend/src/app/database/models.py`
+- 修改：`backend/src/app/database/__init__.py`
+- 新增：`backend/alembic/versions/20260824_0016_standard_learning_resources.py`
+- 新增：`backend/src/tests/database/test_standard_learning_resource_models.py`
+- 修改：`backend/src/tests/database/test_alembic_chain.py`
 
 **失败测试**
 
@@ -39,7 +39,7 @@
 **验证命令**
 
 ```powershell
-python -m pytest Edu_AI/api/src/tests/database/test_standard_learning_resource_models.py Edu_AI/api/src/tests/database/test_alembic_chain.py -q
+python -m pytest backend/src/tests/database/test_standard_learning_resource_models.py backend/src/tests/database/test_alembic_chain.py -q
 ```
 
 ---
@@ -48,13 +48,13 @@ python -m pytest Edu_AI/api/src/tests/database/test_standard_learning_resource_m
 
 **涉及文件**
 
-- 新增：`Edu_AI/api/src/app/standard_resources/__init__.py`
-- 新增：`Edu_AI/api/src/app/standard_resources/models.py`
-- 新增：`Edu_AI/api/src/app/standard_resources/repository.py`
-- 新增：`Edu_AI/api/src/app/standard_resources/service.py`
-- 修改：`Edu_AI/api/src/app/persistence/postgres_material_repository.py`
-- 新增：`Edu_AI/api/src/tests/standard_resources/test_models.py`
-- 新增：`Edu_AI/api/src/tests/standard_resources/test_service.py`
+- 新增：`backend/src/app/standard_resources/__init__.py`
+- 新增：`backend/src/app/standard_resources/models.py`
+- 新增：`backend/src/app/standard_resources/repository.py`
+- 新增：`backend/src/app/standard_resources/service.py`
+- 修改：`backend/src/app/persistence/postgres_material_repository.py`
+- 新增：`backend/src/tests/standard_resources/test_models.py`
+- 新增：`backend/src/tests/standard_resources/test_service.py`
 
 **失败测试**
 
@@ -74,7 +74,7 @@ python -m pytest Edu_AI/api/src/tests/database/test_standard_learning_resource_m
 **验证命令**
 
 ```powershell
-python -m pytest Edu_AI/api/src/tests/standard_resources/test_models.py Edu_AI/api/src/tests/standard_resources/test_service.py -q
+python -m pytest backend/src/tests/standard_resources/test_models.py backend/src/tests/standard_resources/test_service.py -q
 ```
 
 ---
@@ -83,15 +83,15 @@ python -m pytest Edu_AI/api/src/tests/standard_resources/test_models.py Edu_AI/a
 
 **涉及文件**
 
-- 新增：`Edu_AI/api/src/app/schemas/standard_resources.py`
-- 新增：`Edu_AI/api/src/app/api/standard_resources.py`
-- 修改：`Edu_AI/api/src/app/bootstrap.py`
-- 修改：`Edu_AI/api/src/app/services/generation_command.py`
-- 修改：`Edu_AI/api/src/app/services/generation_task_handlers.py`
-- 修改：`Edu_AI/api/src/app/services/classroom_service.py`
-- 修改：`Edu_AI/api/src/core/course_storage.py`
-- 新增：`Edu_AI/api/src/tests/standard_resources/test_api.py`
-- 新增：`Edu_AI/api/src/tests/standard_resources/test_generation_batches.py`
+- 新增：`backend/src/app/schemas/standard_resources.py`
+- 新增：`backend/src/app/api/standard_resources.py`
+- 修改：`backend/src/app/bootstrap.py`
+- 修改：`backend/src/app/services/generation_command.py`
+- 修改：`backend/src/app/services/generation_task_handlers.py`
+- 修改：`backend/src/app/services/classroom_service.py`
+- 修改：`backend/src/core/course_storage.py`
+- 新增：`backend/src/tests/standard_resources/test_api.py`
+- 新增：`backend/src/tests/standard_resources/test_generation_batches.py`
 
 **失败测试**
 
@@ -114,7 +114,7 @@ python -m pytest Edu_AI/api/src/tests/standard_resources/test_models.py Edu_AI/a
 **验证命令**
 
 ```powershell
-python -m pytest Edu_AI/api/src/tests/standard_resources/test_api.py Edu_AI/api/src/tests/standard_resources/test_generation_batches.py -q
+python -m pytest backend/src/tests/standard_resources/test_api.py backend/src/tests/standard_resources/test_generation_batches.py -q
 ```
 
 ---
@@ -123,9 +123,9 @@ python -m pytest Edu_AI/api/src/tests/standard_resources/test_api.py Edu_AI/api/
 
 **涉及文件**
 
-- 新增：`Edu_AI/api/src/scripts/seed_standard_resource_test_course.py`
-- 新增：`Edu_AI/api/src/tests/standard_resources/test_seed_test_course.py`
-- 新增：`Edu_AI/api/src/tests/fixtures/database_test_lecture.md`
+- 新增：`backend/src/scripts/seed_standard_resource_test_course.py`
+- 新增：`backend/src/tests/standard_resources/test_seed_test_course.py`
+- 新增：`backend/src/tests/fixtures/database_test_lecture.md`
 
 **失败测试**
 
@@ -150,7 +150,7 @@ python -m pytest Edu_AI/api/src/tests/standard_resources/test_api.py Edu_AI/api/
 **验证命令**
 
 ```powershell
-python -m pytest Edu_AI/api/src/tests/standard_resources/test_seed_test_course.py -q
+python -m pytest backend/src/tests/standard_resources/test_seed_test_course.py -q
 ```
 
 ---
@@ -159,13 +159,13 @@ python -m pytest Edu_AI/api/src/tests/standard_resources/test_seed_test_course.p
 
 **涉及文件**
 
-- 新增：`Edu_AI/src/stitch/api/standardResources.ts`
-- 修改：`Edu_AI/src/stitch/api/types.ts`
-- 新增：`Edu_AI/src/stitch/course/knowledge/StandardLearningResources.tsx`
-- 新增：`Edu_AI/src/stitch/course/knowledge/standardLearningResources.css`
-- 新增：`Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
-- 新增：`Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts`
-- 修改：`Edu_AI/src/stitch/pages/CourseKnowledge.tsx`
+- 新增：`frontend/src/stitch/api/standardResources.ts`
+- 修改：`frontend/src/stitch/api/types.ts`
+- 新增：`frontend/src/stitch/course/knowledge/StandardLearningResources.tsx`
+- 新增：`frontend/src/stitch/course/knowledge/standardLearningResources.css`
+- 新增：`frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
+- 新增：`frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts`
+- 修改：`frontend/src/stitch/pages/CourseKnowledge.tsx`
 
 **界面规则**
 
@@ -195,14 +195,14 @@ pnpm build
 
 **涉及文件**
 
-- 修改：`Edu_AI/api/src/app/learning/models.py`
-- 修改：`Edu_AI/api/src/app/learning/service.py`
-- 修改：`Edu_AI/api/src/app/learning/store.py`
-- 修改：`Edu_AI/api/src/app/persistence/postgres_learning_repository.py`
-- 修改：`Edu_AI/api/src/app/schemas/learning.py`
-- 修改：`Edu_AI/api/src/app/api/learning.py`
-- 新增：`Edu_AI/api/src/tests/learning/test_task_resource_snapshots.py`
-- 修改：`Edu_AI/api/src/tests/learning/test_learning_service.py`
+- 修改：`backend/src/app/learning/models.py`
+- 修改：`backend/src/app/learning/service.py`
+- 修改：`backend/src/app/learning/store.py`
+- 修改：`backend/src/app/persistence/postgres_learning_repository.py`
+- 修改：`backend/src/app/schemas/learning.py`
+- 修改：`backend/src/app/api/learning.py`
+- 新增：`backend/src/tests/learning/test_task_resource_snapshots.py`
+- 修改：`backend/src/tests/learning/test_learning_service.py`
 
 **失败测试**
 
@@ -221,7 +221,7 @@ pnpm build
 **验证命令**
 
 ```powershell
-python -m pytest Edu_AI/api/src/tests/learning/test_task_resource_snapshots.py Edu_AI/api/src/tests/learning/test_learning_service.py -q
+python -m pytest backend/src/tests/learning/test_task_resource_snapshots.py backend/src/tests/learning/test_learning_service.py -q
 ```
 
 ---
@@ -230,13 +230,13 @@ python -m pytest Edu_AI/api/src/tests/learning/test_task_resource_snapshots.py E
 
 **涉及文件**
 
-- 修改：`Edu_AI/src/stitch/api/learning.ts`
-- 修改：`Edu_AI/src/stitch/api/types.ts`
-- 修改：`Edu_AI/src/stitch/pages/CourseLearning.tsx`
-- 新增：`Edu_AI/src/stitch/course/learning/learningEvidencePresentation.ts`
-- 新增：`Edu_AI/src/stitch/course/learning/learningEvidencePresentation.test.ts`
-- 修改：`Edu_AI/api/src/app/learning/service.py`
-- 修改：`Edu_AI/api/src/app/api/learning.py`
+- 修改：`frontend/src/stitch/api/learning.ts`
+- 修改：`frontend/src/stitch/api/types.ts`
+- 修改：`frontend/src/stitch/pages/CourseLearning.tsx`
+- 新增：`frontend/src/stitch/course/learning/learningEvidencePresentation.ts`
+- 新增：`frontend/src/stitch/course/learning/learningEvidencePresentation.test.ts`
+- 修改：`backend/src/app/learning/service.py`
+- 修改：`backend/src/app/api/learning.py`
 
 **界面与证据规则**
 
@@ -256,7 +256,7 @@ python -m pytest Edu_AI/api/src/tests/learning/test_task_resource_snapshots.py E
 
 ```powershell
 pnpm exec node --import tsx --test src/stitch/course/learning/learningEvidencePresentation.test.ts
-python -m pytest Edu_AI/api/src/tests/learning -q
+python -m pytest backend/src/tests/learning -q
 ```
 
 ---
@@ -272,7 +272,7 @@ python -m pytest Edu_AI/api/src/tests/learning -q
 **自动化回归**
 
 ```powershell
-python -m pytest Edu_AI/api/src/tests -q
+python -m pytest backend/src/tests -q
 pnpm test
 pnpm lint
 pnpm build

@@ -14,97 +14,97 @@
 
 Create or modify these files and directories:
 
-- Create: `Edu_AI/src/app/App.tsx`
-- Create: `Edu_AI/src/app/styles.css`
-- Create: `Edu_AI/src/app/routing/routes.ts`
-- Create: `Edu_AI/src/app/routing/routeState.ts`
-- Create: `Edu_AI/src/app/routing/index.ts`
-- Create: `Edu_AI/src/app/providers/AppShellProvider.tsx`
-- Create: `Edu_AI/src/app/providers/index.ts`
-- Create: `Edu_AI/src/app/shell/SidebarDock.tsx`
-- Create: `Edu_AI/src/app/shell/SidebarNav.tsx`
-- Create: `Edu_AI/src/app/shell/ThemeCustomizer.tsx`
-- Create: `Edu_AI/src/app/shell/index.ts`
-- Create: `Edu_AI/src/shared/ui/AppSurface.tsx`
-- Create: `Edu_AI/src/shared/ui/MaterialIcon.tsx`
-- Create: `Edu_AI/src/shared/ui/MarkdownPreview.tsx`
-- Create: `Edu_AI/src/shared/ui/ProgressBar.tsx`
-- Create: `Edu_AI/src/shared/ui/Badge.tsx`
-- Create: `Edu_AI/src/shared/ui/GlassPanel.tsx`
-- Create: `Edu_AI/src/shared/ui/SectionHeading.tsx`
-- Create: `Edu_AI/src/shared/ui/index.ts`
-- Create: `Edu_AI/src/shared/utils/cx.ts`
-- Create: `Edu_AI/src/shared/utils/wordExport.ts`
-- Create: `Edu_AI/src/shared/utils/index.ts`
-- Create: `Edu_AI/src/shared/api/client.ts`
-- Create: `Edu_AI/src/shared/api/types.ts`
-- Create: `Edu_AI/src/shared/api/courses.ts`
-- Create: `Edu_AI/src/shared/api/video.ts`
-- Create: `Edu_AI/src/shared/api/chat.ts`
-- Create: `Edu_AI/src/shared/api/index.ts`
-- Create: `Edu_AI/src/features/home/HomeDashboardPage.tsx`
-- Create: `Edu_AI/src/features/home/HomeDashboard.css`
-- Create: `Edu_AI/src/features/courses/CourseDetailPage.tsx`
-- Create: `Edu_AI/src/features/courses/CourseEditPage.tsx`
-- Create: `Edu_AI/src/features/courses/CourseResourcesPage.tsx`
-- Create: `Edu_AI/src/features/courses/CourseKnowledgeBasePage.tsx`
-- Create: `Edu_AI/src/features/ai-workspace/AIWorkspacePage.tsx`
-- Create: `Edu_AI/src/features/ai-workspace/WorkspaceOverviewPage.ts`
-- Create: `Edu_AI/src/features/ai-workspace/AIWorkspacePage.css`
-- Create: `Edu_AI/src/features/knowledge-graph/KnowledgeGraphPage.tsx`
-- Create: `Edu_AI/src/features/teaching-video/VideoPlayerPage.tsx`
-- Create: `Edu_AI/src/features/teaching-video/components/TransparentAvatarCanvas.tsx`
-- Create: `Edu_AI/src/features/teaching-video/components/TransparentAvatarCanvas.test.ts`
-- Create: `Edu_AI/src/features/teaching-video/components/avatarTransparency.ts`
-- Create: `Edu_AI/src/features/teaching-video/components/index.ts`
-- Create: `Edu_AI/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts`
-- Create: `Edu_AI/src/features/ppt/PptStudioPage.tsx`
-- Create: `Edu_AI/src/features/profile/ProfilePage.tsx`
-- Create: `Edu_AI/src/features/auth/LoginPage.tsx`
-- Create: `Edu_AI/src/features/auth/LoginPage.css`
-- Create: `Edu_AI/src/features/auth/login-bg.png`
-- Create: `Edu_AI/src/legacy/routes/AppRoutes.tsx`
-- Create: `Edu_AI/src/legacy/layout/GlobalLayout.tsx`
-- Create: `Edu_AI/src/legacy/layout/CourseContextLayout.tsx`
-- Create: `Edu_AI/src/legacy/layout/SharedHeader.tsx`
-- Create: `Edu_AI/src/legacy/layout/GlobalLayout.css`
-- Create directory: `Edu_AI/src/legacy/pages`
-- Modify: `Edu_AI/src/main.tsx`
+- Create: `frontend/src/app/App.tsx`
+- Create: `frontend/src/app/styles.css`
+- Create: `frontend/src/app/routing/routes.ts`
+- Create: `frontend/src/app/routing/routeState.ts`
+- Create: `frontend/src/app/routing/index.ts`
+- Create: `frontend/src/app/providers/AppShellProvider.tsx`
+- Create: `frontend/src/app/providers/index.ts`
+- Create: `frontend/src/app/shell/SidebarDock.tsx`
+- Create: `frontend/src/app/shell/SidebarNav.tsx`
+- Create: `frontend/src/app/shell/ThemeCustomizer.tsx`
+- Create: `frontend/src/app/shell/index.ts`
+- Create: `frontend/src/shared/ui/AppSurface.tsx`
+- Create: `frontend/src/shared/ui/MaterialIcon.tsx`
+- Create: `frontend/src/shared/ui/MarkdownPreview.tsx`
+- Create: `frontend/src/shared/ui/ProgressBar.tsx`
+- Create: `frontend/src/shared/ui/Badge.tsx`
+- Create: `frontend/src/shared/ui/GlassPanel.tsx`
+- Create: `frontend/src/shared/ui/SectionHeading.tsx`
+- Create: `frontend/src/shared/ui/index.ts`
+- Create: `frontend/src/shared/utils/cx.ts`
+- Create: `frontend/src/shared/utils/wordExport.ts`
+- Create: `frontend/src/shared/utils/index.ts`
+- Create: `frontend/src/shared/api/client.ts`
+- Create: `frontend/src/shared/api/types.ts`
+- Create: `frontend/src/shared/api/courses.ts`
+- Create: `frontend/src/shared/api/video.ts`
+- Create: `frontend/src/shared/api/chat.ts`
+- Create: `frontend/src/shared/api/index.ts`
+- Create: `frontend/src/features/home/HomeDashboardPage.tsx`
+- Create: `frontend/src/features/home/HomeDashboard.css`
+- Create: `frontend/src/features/courses/CourseDetailPage.tsx`
+- Create: `frontend/src/features/courses/CourseEditPage.tsx`
+- Create: `frontend/src/features/courses/CourseResourcesPage.tsx`
+- Create: `frontend/src/features/courses/CourseKnowledgeBasePage.tsx`
+- Create: `frontend/src/features/ai-workspace/AIWorkspacePage.tsx`
+- Create: `frontend/src/features/ai-workspace/WorkspaceOverviewPage.ts`
+- Create: `frontend/src/features/ai-workspace/AIWorkspacePage.css`
+- Create: `frontend/src/features/knowledge-graph/KnowledgeGraphPage.tsx`
+- Create: `frontend/src/features/teaching-video/VideoPlayerPage.tsx`
+- Create: `frontend/src/features/teaching-video/components/TransparentAvatarCanvas.tsx`
+- Create: `frontend/src/features/teaching-video/components/TransparentAvatarCanvas.test.ts`
+- Create: `frontend/src/features/teaching-video/components/avatarTransparency.ts`
+- Create: `frontend/src/features/teaching-video/components/index.ts`
+- Create: `frontend/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts`
+- Create: `frontend/src/features/ppt/PptStudioPage.tsx`
+- Create: `frontend/src/features/profile/ProfilePage.tsx`
+- Create: `frontend/src/features/auth/LoginPage.tsx`
+- Create: `frontend/src/features/auth/LoginPage.css`
+- Create: `frontend/src/features/auth/login-bg.png`
+- Create: `frontend/src/legacy/routes/AppRoutes.tsx`
+- Create: `frontend/src/legacy/layout/GlobalLayout.tsx`
+- Create: `frontend/src/legacy/layout/CourseContextLayout.tsx`
+- Create: `frontend/src/legacy/layout/SharedHeader.tsx`
+- Create: `frontend/src/legacy/layout/GlobalLayout.css`
+- Create directory: `frontend/src/legacy/pages`
+- Modify: `frontend/src/main.tsx`
 - Modify: active feature files after moving to update import paths
-- Delete after replacement: `Edu_AI/src/stitch/App.tsx`
-- Delete after replacement: `Edu_AI/src/stitch/shared.tsx`
-- Delete after replacement: `Edu_AI/src/stitch/styles.css`
-- Delete after replacement: `Edu_AI/src/stitch/wordExport.ts`
-- Delete after replacement: `Edu_AI/src/stitch/api/*`
-- Delete after replacement: `Edu_AI/src/stitch/components/*`
-- Delete after replacement: `Edu_AI/src/stitch/hooks/*`
-- Delete after replacement: `Edu_AI/src/stitch/pages/*`
+- Delete after replacement: `frontend/src/stitch/App.tsx`
+- Delete after replacement: `frontend/src/stitch/shared.tsx`
+- Delete after replacement: `frontend/src/stitch/styles.css`
+- Delete after replacement: `frontend/src/stitch/wordExport.ts`
+- Delete after replacement: `frontend/src/stitch/api/*`
+- Delete after replacement: `frontend/src/stitch/components/*`
+- Delete after replacement: `frontend/src/stitch/hooks/*`
+- Delete after replacement: `frontend/src/stitch/pages/*`
 
 Do not modify these active-but-out-of-scope areas in this phase except for import path fallout caused by moved files:
 
-- `Edu_AI/src/components/teacher/*`
-- `Edu_AI/src/components/student/*`
-- `Edu_AI/src/services/teacher/*`
-- `Edu_AI/src/services/rag.ts`
-- `Edu_AI/src/services/video.ts`
-- `Edu_AI/src/services/knowledgeBase.ts`
-- `Edu_AI/src/store/teacher/*`
-- `Edu_AI/src/store/course/*`
+- `frontend/src/components/teacher/*`
+- `frontend/src/components/student/*`
+- `frontend/src/services/teacher/*`
+- `frontend/src/services/rag.ts`
+- `frontend/src/services/video.ts`
+- `frontend/src/services/knowledgeBase.ts`
+- `frontend/src/store/teacher/*`
+- `frontend/src/store/course/*`
 
 Known unrelated working tree files must remain untouched:
 
-- `Edu_AI/api/Edu_AI/AI_Lecturer.zip`
-- `Edu_AI/api/Edu_AI/rag_v2.zip`
-- `Edu_AI/api/Edu_AI/tests/chat/test_report_edit_numbered_section.py`
+- `backend/src/AI_Lecturer.zip`
+- `backend/src/rag_v2.zip`
+- `backend/src/tests/chat/test_report_edit_numbered_section.py`
 
 ---
 
 ### Task 1: Baseline Verification And Safety Snapshot
 
 **Files:**
-- Read: `Edu_AI/src/main.tsx`
-- Read: `Edu_AI/src/stitch/App.tsx`
-- Read: `Edu_AI/src/stitch/shared.tsx`
+- Read: `frontend/src/main.tsx`
+- Read: `frontend/src/stitch/App.tsx`
+- Read: `frontend/src/stitch/shared.tsx`
 - Read: `docs/superpowers/specs/2026-05-06-frontend-architecture-refactor-design-cn.md`
 - Modify: none
 
@@ -133,7 +133,7 @@ Expected: Vite build succeeds. The existing large chunk warning is acceptable.
 Run:
 
 ```powershell
-rg "src/stitch|\\.\\./stitch|\\./stitch|stitch/" Edu_AI/src
+rg "src/stitch|\\.\\./stitch|\\./stitch|stitch/" frontend/src
 ```
 
 Expected: references include `src/main.tsx` importing `./stitch/App` and `./stitch/styles.css`. Later tasks remove these references.
@@ -147,27 +147,27 @@ No commit is needed for this read-only task.
 ### Task 2: Move The Active App Shell Into `src/app`
 
 **Files:**
-- Create: `Edu_AI/src/app/App.tsx`
-- Create: `Edu_AI/src/app/styles.css`
-- Modify: `Edu_AI/src/main.tsx`
-- Delete after move: `Edu_AI/src/stitch/App.tsx`
-- Delete after move: `Edu_AI/src/stitch/styles.css`
+- Create: `frontend/src/app/App.tsx`
+- Create: `frontend/src/app/styles.css`
+- Modify: `frontend/src/main.tsx`
+- Delete after move: `frontend/src/stitch/App.tsx`
+- Delete after move: `frontend/src/stitch/styles.css`
 
 - [ ] **Step 1: Move shell files with Git**
 
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/app | Out-Null
-git mv Edu_AI/src/stitch/App.tsx Edu_AI/src/app/App.tsx
-git mv Edu_AI/src/stitch/styles.css Edu_AI/src/app/styles.css
+New-Item -ItemType Directory -Force frontend/src/app | Out-Null
+git mv frontend/src/stitch/App.tsx frontend/src/app/App.tsx
+git mv frontend/src/stitch/styles.css frontend/src/app/styles.css
 ```
 
-Expected: `Edu_AI/src/app/App.tsx` and `Edu_AI/src/app/styles.css` exist, and the old files are staged as renames.
+Expected: `frontend/src/app/App.tsx` and `frontend/src/app/styles.css` exist, and the old files are staged as renames.
 
 - [ ] **Step 2: Update `main.tsx` imports**
 
-Change `Edu_AI/src/main.tsx` to:
+Change `frontend/src/main.tsx` to:
 
 ```tsx
 import { StrictMode } from 'react';
@@ -237,7 +237,7 @@ Expected: build succeeds.
 Run:
 
 ```powershell
-git add Edu_AI/src/main.tsx Edu_AI/src/app/App.tsx Edu_AI/src/app/styles.css
+git add frontend/src/main.tsx frontend/src/app/App.tsx frontend/src/app/styles.css
 git commit -m "refactor(frontend): move active app shell"
 ```
 
@@ -248,12 +248,12 @@ Expected: one commit containing only the shell move and `main.tsx` import update
 ### Task 3: Extract Routing And AppShell Provider From `stitch/shared.tsx`
 
 **Files:**
-- Create: `Edu_AI/src/app/routing/routes.ts`
-- Create: `Edu_AI/src/app/routing/routeState.ts`
-- Create: `Edu_AI/src/app/routing/index.ts`
-- Create: `Edu_AI/src/app/providers/AppShellProvider.tsx`
-- Create: `Edu_AI/src/app/providers/index.ts`
-- Modify: `Edu_AI/src/app/App.tsx`
+- Create: `frontend/src/app/routing/routes.ts`
+- Create: `frontend/src/app/routing/routeState.ts`
+- Create: `frontend/src/app/routing/index.ts`
+- Create: `frontend/src/app/providers/AppShellProvider.tsx`
+- Create: `frontend/src/app/providers/index.ts`
+- Modify: `frontend/src/app/App.tsx`
 - Modify later import paths in files that currently import route or provider exports from `../shared`
 
 - [ ] **Step 1: Create routing constants**
@@ -261,10 +261,10 @@ Expected: one commit containing only the shell move and `main.tsx` import update
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/app/routing,Edu_AI/src/app/providers | Out-Null
+New-Item -ItemType Directory -Force frontend/src/app/routing,frontend/src/app/providers | Out-Null
 ```
 
-Create `Edu_AI/src/app/routing/routes.ts`:
+Create `frontend/src/app/routing/routes.ts`:
 
 ```ts
 export const routes = {
@@ -292,7 +292,7 @@ export function routeHref(route: RouteKey) {
 
 - [ ] **Step 2: Create route state helpers**
 
-Create `Edu_AI/src/app/routing/routeState.ts`:
+Create `frontend/src/app/routing/routeState.ts`:
 
 ```ts
 import { routes, type RouteKey, type ThemeName } from "./routes";
@@ -336,7 +336,7 @@ export function resetRouteScrollPosition() {
 
 - [ ] **Step 3: Create routing barrel**
 
-Create `Edu_AI/src/app/routing/index.ts`:
+Create `frontend/src/app/routing/index.ts`:
 
 ```ts
 export * from "./routes";
@@ -345,7 +345,7 @@ export * from "./routeState";
 
 - [ ] **Step 4: Create AppShell provider**
 
-Create `Edu_AI/src/app/providers/AppShellProvider.tsx` by moving these exact exports and types from `Edu_AI/src/stitch/shared.tsx` without changing behavior:
+Create `frontend/src/app/providers/AppShellProvider.tsx` by moving these exact exports and types from `frontend/src/stitch/shared.tsx` without changing behavior:
 
 ```text
 CourseSummary
@@ -370,7 +370,7 @@ Keep the current `defaultCourse` values exactly as they exist, including existin
 
 - [ ] **Step 5: Create provider barrel**
 
-Create `Edu_AI/src/app/providers/index.ts`:
+Create `frontend/src/app/providers/index.ts`:
 
 ```ts
 export * from "./AppShellProvider";
@@ -426,7 +426,7 @@ Expected: build succeeds.
 Run:
 
 ```powershell
-git add Edu_AI/src/app
+git add frontend/src/app
 git commit -m "refactor(frontend): extract app routing and provider"
 ```
 
@@ -437,19 +437,19 @@ Expected: one commit containing `app/routing`, `app/providers`, and `app/App.tsx
 ### Task 4: Extract Shared UI And Shell Components
 
 **Files:**
-- Create: `Edu_AI/src/shared/utils/cx.ts`
-- Create: `Edu_AI/src/shared/utils/index.ts`
-- Create: `Edu_AI/src/shared/ui/MaterialIcon.tsx`
-- Create: `Edu_AI/src/shared/ui/AppSurface.tsx`
-- Create: `Edu_AI/src/shared/ui/GlassPanel.tsx`
-- Create: `Edu_AI/src/shared/ui/SectionHeading.tsx`
-- Create: `Edu_AI/src/shared/ui/ProgressBar.tsx`
-- Create: `Edu_AI/src/shared/ui/Badge.tsx`
-- Create: `Edu_AI/src/shared/ui/index.ts`
-- Create: `Edu_AI/src/app/shell/SidebarDock.tsx`
-- Create: `Edu_AI/src/app/shell/SidebarNav.tsx`
-- Create: `Edu_AI/src/app/shell/ThemeCustomizer.tsx`
-- Create: `Edu_AI/src/app/shell/index.ts`
+- Create: `frontend/src/shared/utils/cx.ts`
+- Create: `frontend/src/shared/utils/index.ts`
+- Create: `frontend/src/shared/ui/MaterialIcon.tsx`
+- Create: `frontend/src/shared/ui/AppSurface.tsx`
+- Create: `frontend/src/shared/ui/GlassPanel.tsx`
+- Create: `frontend/src/shared/ui/SectionHeading.tsx`
+- Create: `frontend/src/shared/ui/ProgressBar.tsx`
+- Create: `frontend/src/shared/ui/Badge.tsx`
+- Create: `frontend/src/shared/ui/index.ts`
+- Create: `frontend/src/app/shell/SidebarDock.tsx`
+- Create: `frontend/src/app/shell/SidebarNav.tsx`
+- Create: `frontend/src/app/shell/ThemeCustomizer.tsx`
+- Create: `frontend/src/app/shell/index.ts`
 - Modify: files that still import these exports from `src/stitch/shared.tsx`
 
 - [ ] **Step 1: Create `cx` utility**
@@ -457,10 +457,10 @@ Expected: one commit containing `app/routing`, `app/providers`, and `app/App.tsx
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/shared/utils,Edu_AI/src/shared/ui,Edu_AI/src/app/shell | Out-Null
+New-Item -ItemType Directory -Force frontend/src/shared/utils,frontend/src/shared/ui,frontend/src/app/shell | Out-Null
 ```
 
-Create `Edu_AI/src/shared/utils/cx.ts`:
+Create `frontend/src/shared/utils/cx.ts`:
 
 ```ts
 export function cx(...values: Array<string | false | null | undefined>) {
@@ -468,7 +468,7 @@ export function cx(...values: Array<string | false | null | undefined>) {
 }
 ```
 
-Create `Edu_AI/src/shared/utils/index.ts`:
+Create `frontend/src/shared/utils/index.ts`:
 
 ```ts
 export * from "./cx";
@@ -476,7 +476,7 @@ export * from "./cx";
 
 - [ ] **Step 2: Create `MaterialIcon`**
 
-Create `Edu_AI/src/shared/ui/MaterialIcon.tsx` by moving the existing `MaterialIcon` implementation from `Edu_AI/src/stitch/shared.tsx`.
+Create `frontend/src/shared/ui/MaterialIcon.tsx` by moving the existing `MaterialIcon` implementation from `frontend/src/stitch/shared.tsx`.
 
 Use this import:
 
@@ -488,14 +488,14 @@ Do not change the `iconGlyphs` map in this phase.
 
 - [ ] **Step 3: Create generic UI files**
 
-Move these exports from `Edu_AI/src/stitch/shared.tsx` into separate files:
+Move these exports from `frontend/src/stitch/shared.tsx` into separate files:
 
 ```text
-AppSurface -> Edu_AI/src/shared/ui/AppSurface.tsx
-GlassPanel -> Edu_AI/src/shared/ui/GlassPanel.tsx
-SectionHeading -> Edu_AI/src/shared/ui/SectionHeading.tsx
-ProgressBar -> Edu_AI/src/shared/ui/ProgressBar.tsx
-Badge -> Edu_AI/src/shared/ui/Badge.tsx
+AppSurface -> frontend/src/shared/ui/AppSurface.tsx
+GlassPanel -> frontend/src/shared/ui/GlassPanel.tsx
+SectionHeading -> frontend/src/shared/ui/SectionHeading.tsx
+ProgressBar -> frontend/src/shared/ui/ProgressBar.tsx
+Badge -> frontend/src/shared/ui/Badge.tsx
 ```
 
 Each file should import only what it needs:
@@ -513,7 +513,7 @@ import { MaterialIcon } from "./MaterialIcon";
 
 - [ ] **Step 4: Create shared UI barrel**
 
-Create `Edu_AI/src/shared/ui/index.ts`:
+Create `frontend/src/shared/ui/index.ts`:
 
 ```ts
 export * from "./AppSurface";
@@ -526,13 +526,13 @@ export * from "./SectionHeading";
 
 - [ ] **Step 5: Create shell files**
 
-Move these exports from `Edu_AI/src/stitch/shared.tsx`:
+Move these exports from `frontend/src/stitch/shared.tsx`:
 
 ```text
-SidebarDock -> Edu_AI/src/app/shell/SidebarDock.tsx
-SidebarLink and SidebarNav -> Edu_AI/src/app/shell/SidebarNav.tsx
-SidebarBackLink -> Edu_AI/src/app/shell/SidebarNav.tsx
-ThemeCustomizer -> Edu_AI/src/app/shell/ThemeCustomizer.tsx
+SidebarDock -> frontend/src/app/shell/SidebarDock.tsx
+SidebarLink and SidebarNav -> frontend/src/app/shell/SidebarNav.tsx
+SidebarBackLink -> frontend/src/app/shell/SidebarNav.tsx
+ThemeCustomizer -> frontend/src/app/shell/ThemeCustomizer.tsx
 ```
 
 Use these imports in shell files:
@@ -549,7 +549,7 @@ Keep the current sidebar labels, theme labels, and encoded strings unchanged.
 
 - [ ] **Step 6: Create shell barrel**
 
-Create `Edu_AI/src/app/shell/index.ts`:
+Create `frontend/src/app/shell/index.ts`:
 
 ```ts
 export * from "./SidebarDock";
@@ -577,7 +577,7 @@ import { routeHref, routes } from "../../app/routing";
 import { useAppShell } from "../../app/providers";
 ```
 
-In `Edu_AI/src/app/App.tsx`, replace:
+In `frontend/src/app/App.tsx`, replace:
 
 ```tsx
 import { ThemeCustomizer } from "../stitch/shared";
@@ -604,7 +604,7 @@ Expected: build succeeds.
 Run:
 
 ```powershell
-git add Edu_AI/src/app Edu_AI/src/shared Edu_AI/src/stitch
+git add frontend/src/app frontend/src/shared frontend/src/stitch
 git commit -m "refactor(frontend): extract shared shell UI"
 ```
 
@@ -615,35 +615,35 @@ Expected: one commit with new shared UI and shell modules plus import updates.
 ### Task 5: Move Shared API, Markdown, Video Support, And Word Export
 
 **Files:**
-- Create: `Edu_AI/src/shared/api/client.ts`
-- Create: `Edu_AI/src/shared/api/types.ts`
-- Create: `Edu_AI/src/shared/api/courses.ts`
-- Create: `Edu_AI/src/shared/api/video.ts`
-- Create: `Edu_AI/src/shared/api/chat.ts`
-- Create: `Edu_AI/src/shared/api/index.ts`
-- Create: `Edu_AI/src/shared/ui/MarkdownPreview.tsx`
-- Create: `Edu_AI/src/shared/utils/wordExport.ts`
-- Create: `Edu_AI/src/features/teaching-video/components/TransparentAvatarCanvas.tsx`
-- Create: `Edu_AI/src/features/teaching-video/components/TransparentAvatarCanvas.test.ts`
-- Create: `Edu_AI/src/features/teaching-video/components/avatarTransparency.ts`
-- Create: `Edu_AI/src/features/teaching-video/components/index.ts`
-- Create: `Edu_AI/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts`
-- Delete after move: `Edu_AI/src/stitch/api/*`
-- Delete after move: `Edu_AI/src/stitch/components/*`
-- Delete after move: `Edu_AI/src/stitch/hooks/*`
-- Delete after move: `Edu_AI/src/stitch/wordExport.ts`
+- Create: `frontend/src/shared/api/client.ts`
+- Create: `frontend/src/shared/api/types.ts`
+- Create: `frontend/src/shared/api/courses.ts`
+- Create: `frontend/src/shared/api/video.ts`
+- Create: `frontend/src/shared/api/chat.ts`
+- Create: `frontend/src/shared/api/index.ts`
+- Create: `frontend/src/shared/ui/MarkdownPreview.tsx`
+- Create: `frontend/src/shared/utils/wordExport.ts`
+- Create: `frontend/src/features/teaching-video/components/TransparentAvatarCanvas.tsx`
+- Create: `frontend/src/features/teaching-video/components/TransparentAvatarCanvas.test.ts`
+- Create: `frontend/src/features/teaching-video/components/avatarTransparency.ts`
+- Create: `frontend/src/features/teaching-video/components/index.ts`
+- Create: `frontend/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts`
+- Delete after move: `frontend/src/stitch/api/*`
+- Delete after move: `frontend/src/stitch/components/*`
+- Delete after move: `frontend/src/stitch/hooks/*`
+- Delete after move: `frontend/src/stitch/wordExport.ts`
 
 - [ ] **Step 1: Move API files**
 
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/shared/api | Out-Null
-git mv Edu_AI/src/stitch/api/client.ts Edu_AI/src/shared/api/client.ts
-git mv Edu_AI/src/stitch/api/types.ts Edu_AI/src/shared/api/types.ts
-git mv Edu_AI/src/stitch/api/courses.ts Edu_AI/src/shared/api/courses.ts
-git mv Edu_AI/src/stitch/api/video.ts Edu_AI/src/shared/api/video.ts
-git mv Edu_AI/src/stitch/api/chat.ts Edu_AI/src/shared/api/chat.ts
+New-Item -ItemType Directory -Force frontend/src/shared/api | Out-Null
+git mv frontend/src/stitch/api/client.ts frontend/src/shared/api/client.ts
+git mv frontend/src/stitch/api/types.ts frontend/src/shared/api/types.ts
+git mv frontend/src/stitch/api/courses.ts frontend/src/shared/api/courses.ts
+git mv frontend/src/stitch/api/video.ts frontend/src/shared/api/video.ts
+git mv frontend/src/stitch/api/chat.ts frontend/src/shared/api/chat.ts
 ```
 
 - [ ] **Step 2: Update `shared/api/courses.ts` CourseSummary import**
@@ -664,7 +664,7 @@ Internal imports such as `./client` and `./types` stay unchanged.
 
 - [ ] **Step 3: Create API barrel**
 
-Create `Edu_AI/src/shared/api/index.ts`:
+Create `frontend/src/shared/api/index.ts`:
 
 ```ts
 export * from "./client";
@@ -679,10 +679,10 @@ export * from "./chat";
 Run:
 
 ```powershell
-git mv Edu_AI/src/stitch/components/MarkdownPreview.tsx Edu_AI/src/shared/ui/MarkdownPreview.tsx
+git mv frontend/src/stitch/components/MarkdownPreview.tsx frontend/src/shared/ui/MarkdownPreview.tsx
 ```
 
-Add this line to `Edu_AI/src/shared/ui/index.ts`:
+Add this line to `frontend/src/shared/ui/index.ts`:
 
 ```ts
 export * from "./MarkdownPreview";
@@ -693,20 +693,20 @@ export * from "./MarkdownPreview";
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/features/teaching-video/components,Edu_AI/src/features/teaching-video/hooks | Out-Null
-git mv Edu_AI/src/stitch/components/TransparentAvatarCanvas.tsx Edu_AI/src/features/teaching-video/components/TransparentAvatarCanvas.tsx
-git mv Edu_AI/src/stitch/components/TransparentAvatarCanvas.test.ts Edu_AI/src/features/teaching-video/components/TransparentAvatarCanvas.test.ts
-git mv Edu_AI/src/stitch/components/avatarTransparency.ts Edu_AI/src/features/teaching-video/components/avatarTransparency.ts
-git mv Edu_AI/src/stitch/hooks/useAiLecturerWebRtc.ts Edu_AI/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts
+New-Item -ItemType Directory -Force frontend/src/features/teaching-video/components,frontend/src/features/teaching-video/hooks | Out-Null
+git mv frontend/src/stitch/components/TransparentAvatarCanvas.tsx frontend/src/features/teaching-video/components/TransparentAvatarCanvas.tsx
+git mv frontend/src/stitch/components/TransparentAvatarCanvas.test.ts frontend/src/features/teaching-video/components/TransparentAvatarCanvas.test.ts
+git mv frontend/src/stitch/components/avatarTransparency.ts frontend/src/features/teaching-video/components/avatarTransparency.ts
+git mv frontend/src/stitch/hooks/useAiLecturerWebRtc.ts frontend/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts
 ```
 
-Create `Edu_AI/src/features/teaching-video/components/index.ts`:
+Create `frontend/src/features/teaching-video/components/index.ts`:
 
 ```ts
 export * from "./TransparentAvatarCanvas";
 ```
 
-In `Edu_AI/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts`, replace:
+In `frontend/src/features/teaching-video/hooks/useAiLecturerWebRtc.ts`, replace:
 
 ```ts
 import { getAiLecturerOfferUrl } from "../api/video";
@@ -725,10 +725,10 @@ import type { AiLecturerOfferAnswer } from "../../../shared/api/types";
 Run:
 
 ```powershell
-git mv Edu_AI/src/stitch/wordExport.ts Edu_AI/src/shared/utils/wordExport.ts
+git mv frontend/src/stitch/wordExport.ts frontend/src/shared/utils/wordExport.ts
 ```
 
-In `Edu_AI/src/shared/utils/wordExport.ts`, replace:
+In `frontend/src/shared/utils/wordExport.ts`, replace:
 
 ```ts
 import { API_BASE_URL } from "./api/client";
@@ -742,7 +742,7 @@ import { API_BASE_URL } from "../api/client";
 import type { CourseMaterial } from "../api/types";
 ```
 
-Ensure `Edu_AI/src/shared/utils/index.ts` contains:
+Ensure `frontend/src/shared/utils/index.ts` contains:
 
 ```ts
 export * from "./cx";
@@ -781,7 +781,7 @@ Expected: build succeeds.
 Run:
 
 ```powershell
-git add Edu_AI/src/shared Edu_AI/src/features/teaching-video Edu_AI/src/stitch
+git add frontend/src/shared frontend/src/features/teaching-video frontend/src/stitch
 git commit -m "refactor(frontend): move shared api and video support"
 ```
 
@@ -792,54 +792,54 @@ Expected: one commit with API, Markdown, video support, and word export relocati
 ### Task 6: Move Active Pages Into `src/features`
 
 **Files:**
-- Create: `Edu_AI/src/features/home/HomeDashboardPage.tsx`
-- Create: `Edu_AI/src/features/home/HomeDashboard.css`
-- Create: `Edu_AI/src/features/courses/CourseDetailPage.tsx`
-- Create: `Edu_AI/src/features/courses/CourseEditPage.tsx`
-- Create: `Edu_AI/src/features/courses/CourseResourcesPage.tsx`
-- Create: `Edu_AI/src/features/courses/CourseKnowledgeBasePage.tsx`
-- Create: `Edu_AI/src/features/ai-workspace/AIWorkspacePage.tsx`
-- Create: `Edu_AI/src/features/ai-workspace/WorkspaceOverviewPage.ts`
-- Create: `Edu_AI/src/features/ai-workspace/AIWorkspacePage.css`
-- Create: `Edu_AI/src/features/knowledge-graph/KnowledgeGraphPage.tsx`
-- Create: `Edu_AI/src/features/teaching-video/VideoPlayerPage.tsx`
-- Create: `Edu_AI/src/features/ppt/PptStudioPage.tsx`
-- Create: `Edu_AI/src/features/profile/ProfilePage.tsx`
-- Create: `Edu_AI/src/features/auth/LoginPage.tsx`
-- Create: `Edu_AI/src/features/auth/LoginPage.css`
-- Create: `Edu_AI/src/features/auth/login-bg.png`
-- Modify: `Edu_AI/src/app/App.tsx`
-- Delete after move: `Edu_AI/src/stitch/pages/*`
-- Delete after move: `Edu_AI/src/stitch/login-bg.png`
-- Move: `Edu_AI/src/pages/teacher/AiStudioPage.css` to `Edu_AI/src/features/ai-workspace/AIWorkspacePage.css`
+- Create: `frontend/src/features/home/HomeDashboardPage.tsx`
+- Create: `frontend/src/features/home/HomeDashboard.css`
+- Create: `frontend/src/features/courses/CourseDetailPage.tsx`
+- Create: `frontend/src/features/courses/CourseEditPage.tsx`
+- Create: `frontend/src/features/courses/CourseResourcesPage.tsx`
+- Create: `frontend/src/features/courses/CourseKnowledgeBasePage.tsx`
+- Create: `frontend/src/features/ai-workspace/AIWorkspacePage.tsx`
+- Create: `frontend/src/features/ai-workspace/WorkspaceOverviewPage.ts`
+- Create: `frontend/src/features/ai-workspace/AIWorkspacePage.css`
+- Create: `frontend/src/features/knowledge-graph/KnowledgeGraphPage.tsx`
+- Create: `frontend/src/features/teaching-video/VideoPlayerPage.tsx`
+- Create: `frontend/src/features/ppt/PptStudioPage.tsx`
+- Create: `frontend/src/features/profile/ProfilePage.tsx`
+- Create: `frontend/src/features/auth/LoginPage.tsx`
+- Create: `frontend/src/features/auth/LoginPage.css`
+- Create: `frontend/src/features/auth/login-bg.png`
+- Modify: `frontend/src/app/App.tsx`
+- Delete after move: `frontend/src/stitch/pages/*`
+- Delete after move: `frontend/src/stitch/login-bg.png`
+- Move: `frontend/src/pages/teacher/AiStudioPage.css` to `frontend/src/features/ai-workspace/AIWorkspacePage.css`
 
 - [ ] **Step 1: Move page files**
 
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/features/home,Edu_AI/src/features/courses,Edu_AI/src/features/ai-workspace,Edu_AI/src/features/knowledge-graph,Edu_AI/src/features/teaching-video,Edu_AI/src/features/ppt,Edu_AI/src/features/profile,Edu_AI/src/features/auth | Out-Null
-git mv Edu_AI/src/stitch/pages/HomeDashboard.tsx Edu_AI/src/features/home/HomeDashboardPage.tsx
-git mv Edu_AI/src/stitch/pages/HomeDashboard.css Edu_AI/src/features/home/HomeDashboard.css
-git mv Edu_AI/src/stitch/pages/CourseDetail.tsx Edu_AI/src/features/courses/CourseDetailPage.tsx
-git mv Edu_AI/src/stitch/pages/CourseEdit.tsx Edu_AI/src/features/courses/CourseEditPage.tsx
-git mv Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/src/features/courses/CourseResourcesPage.tsx
-git mv Edu_AI/src/stitch/pages/CourseKnowledgeBase.tsx Edu_AI/src/features/courses/CourseKnowledgeBasePage.tsx
-git mv Edu_AI/src/stitch/pages/AIWorkspace.tsx Edu_AI/src/features/ai-workspace/AIWorkspacePage.tsx
-git mv Edu_AI/src/stitch/pages/WorkspaceOverview.tsx Edu_AI/src/features/ai-workspace/WorkspaceOverviewPage.ts
-git mv Edu_AI/src/pages/teacher/AiStudioPage.css Edu_AI/src/features/ai-workspace/AIWorkspacePage.css
-git mv Edu_AI/src/stitch/pages/KnowledgeGraph.tsx Edu_AI/src/features/knowledge-graph/KnowledgeGraphPage.tsx
-git mv Edu_AI/src/stitch/pages/VideoPlayer.tsx Edu_AI/src/features/teaching-video/VideoPlayerPage.tsx
-git mv Edu_AI/src/stitch/pages/PptStudio.tsx Edu_AI/src/features/ppt/PptStudioPage.tsx
-git mv Edu_AI/src/stitch/pages/Profile.tsx Edu_AI/src/features/profile/ProfilePage.tsx
-git mv Edu_AI/src/stitch/pages/LoginPage.tsx Edu_AI/src/features/auth/LoginPage.tsx
-git mv Edu_AI/src/stitch/pages/LoginPage.css Edu_AI/src/features/auth/LoginPage.css
-git mv Edu_AI/src/stitch/login-bg.png Edu_AI/src/features/auth/login-bg.png
+New-Item -ItemType Directory -Force frontend/src/features/home,frontend/src/features/courses,frontend/src/features/ai-workspace,frontend/src/features/knowledge-graph,frontend/src/features/teaching-video,frontend/src/features/ppt,frontend/src/features/profile,frontend/src/features/auth | Out-Null
+git mv frontend/src/stitch/pages/HomeDashboard.tsx frontend/src/features/home/HomeDashboardPage.tsx
+git mv frontend/src/stitch/pages/HomeDashboard.css frontend/src/features/home/HomeDashboard.css
+git mv frontend/src/stitch/pages/CourseDetail.tsx frontend/src/features/courses/CourseDetailPage.tsx
+git mv frontend/src/stitch/pages/CourseEdit.tsx frontend/src/features/courses/CourseEditPage.tsx
+git mv frontend/src/stitch/pages/CourseResources.tsx frontend/src/features/courses/CourseResourcesPage.tsx
+git mv frontend/src/stitch/pages/CourseKnowledgeBase.tsx frontend/src/features/courses/CourseKnowledgeBasePage.tsx
+git mv frontend/src/stitch/pages/AIWorkspace.tsx frontend/src/features/ai-workspace/AIWorkspacePage.tsx
+git mv frontend/src/stitch/pages/WorkspaceOverview.tsx frontend/src/features/ai-workspace/WorkspaceOverviewPage.ts
+git mv frontend/src/pages/teacher/AiStudioPage.css frontend/src/features/ai-workspace/AIWorkspacePage.css
+git mv frontend/src/stitch/pages/KnowledgeGraph.tsx frontend/src/features/knowledge-graph/KnowledgeGraphPage.tsx
+git mv frontend/src/stitch/pages/VideoPlayer.tsx frontend/src/features/teaching-video/VideoPlayerPage.tsx
+git mv frontend/src/stitch/pages/PptStudio.tsx frontend/src/features/ppt/PptStudioPage.tsx
+git mv frontend/src/stitch/pages/Profile.tsx frontend/src/features/profile/ProfilePage.tsx
+git mv frontend/src/stitch/pages/LoginPage.tsx frontend/src/features/auth/LoginPage.tsx
+git mv frontend/src/stitch/pages/LoginPage.css frontend/src/features/auth/LoginPage.css
+git mv frontend/src/stitch/login-bg.png frontend/src/features/auth/login-bg.png
 ```
 
 - [ ] **Step 2: Fix page-local CSS imports**
 
-In `Edu_AI/src/features/home/HomeDashboardPage.tsx`, replace:
+In `frontend/src/features/home/HomeDashboardPage.tsx`, replace:
 
 ```tsx
 import "./HomeDashboard.css";
@@ -847,13 +847,13 @@ import "./HomeDashboard.css";
 
 with the same line. The file moved with its CSS, so the import remains valid.
 
-In `Edu_AI/src/features/auth/LoginPage.tsx`, keep:
+In `frontend/src/features/auth/LoginPage.tsx`, keep:
 
 ```tsx
 import "./LoginPage.css";
 ```
 
-In `Edu_AI/src/features/auth/LoginPage.css`, replace:
+In `frontend/src/features/auth/LoginPage.css`, replace:
 
 ```css
 url("../login-bg.png") center/cover no-repeat;
@@ -865,7 +865,7 @@ with:
 url("./login-bg.png") center/cover no-repeat;
 ```
 
-In `Edu_AI/src/features/ai-workspace/AIWorkspacePage.tsx`, replace:
+In `frontend/src/features/ai-workspace/AIWorkspacePage.tsx`, replace:
 
 ```tsx
 import "../../pages/teacher/AiStudioPage.css";
@@ -906,7 +906,7 @@ These stay correct from `src/features/ai-workspace`.
 
 - [ ] **Step 4: Update teaching video imports**
 
-In `Edu_AI/src/features/teaching-video/VideoPlayerPage.tsx`, use:
+In `frontend/src/features/teaching-video/VideoPlayerPage.tsx`, use:
 
 ```tsx
 import { MarkdownPreview } from "../../shared/ui";
@@ -952,7 +952,7 @@ import { LoginPage } from "../features/auth/LoginPage";
 
 - [ ] **Step 6: Update workspace overview alias**
 
-In `Edu_AI/src/features/ai-workspace/WorkspaceOverviewPage.ts`, replace the old relative export with:
+In `frontend/src/features/ai-workspace/WorkspaceOverviewPage.ts`, replace the old relative export with:
 
 ```ts
 export { AIWorkspacePage as WorkspaceOverviewPage } from "./AIWorkspacePage";
@@ -973,7 +973,7 @@ Expected: build succeeds.
 Run:
 
 ```powershell
-git add Edu_AI/src/app Edu_AI/src/features Edu_AI/src/stitch Edu_AI/src/pages
+git add frontend/src/app frontend/src/features frontend/src/stitch frontend/src/pages
 git commit -m "refactor(frontend): move active pages into features"
 ```
 
@@ -984,21 +984,21 @@ Expected: one commit with active page relocation and import updates.
 ### Task 7: Move Disconnected Routes, Layouts, And Old Pages Into `legacy`
 
 **Files:**
-- Create: `Edu_AI/src/legacy/routes/AppRoutes.tsx`
-- Create: `Edu_AI/src/legacy/layout/*`
-- Create: `Edu_AI/src/legacy/pages/*`
-- Delete after move: `Edu_AI/src/routes/*`
-- Delete after move: `Edu_AI/src/layout/*`
-- Delete after move: old files under `Edu_AI/src/pages/*`
+- Create: `frontend/src/legacy/routes/AppRoutes.tsx`
+- Create: `frontend/src/legacy/layout/*`
+- Create: `frontend/src/legacy/pages/*`
+- Delete after move: `frontend/src/routes/*`
+- Delete after move: `frontend/src/layout/*`
+- Delete after move: old files under `frontend/src/pages/*`
 
 - [ ] **Step 1: Move disconnected route and layout folders**
 
 Run:
 
 ```powershell
-New-Item -ItemType Directory -Force Edu_AI/src/legacy | Out-Null
-git mv Edu_AI/src/routes Edu_AI/src/legacy/routes
-git mv Edu_AI/src/layout Edu_AI/src/legacy/layout
+New-Item -ItemType Directory -Force frontend/src/legacy | Out-Null
+git mv frontend/src/routes frontend/src/legacy/routes
+git mv frontend/src/layout frontend/src/legacy/layout
 ```
 
 - [ ] **Step 2: Move remaining old pages**
@@ -1006,7 +1006,7 @@ git mv Edu_AI/src/layout Edu_AI/src/legacy/layout
 Run:
 
 ```powershell
-git mv Edu_AI/src/pages Edu_AI/src/legacy/pages
+git mv frontend/src/pages frontend/src/legacy/pages
 ```
 
 This must happen only after Task 6 has moved `src/pages/teacher/AiStudioPage.css` into `src/features/ai-workspace/AIWorkspacePage.css`.
@@ -1016,7 +1016,7 @@ This must happen only after Task 6 has moved `src/pages/teacher/AiStudioPage.css
 Run:
 
 ```powershell
-rg "from ['\\\"].*legacy|from ['\\\"].*/legacy" Edu_AI/src/app Edu_AI/src/features Edu_AI/src/shared Edu_AI/src/components Edu_AI/src/services Edu_AI/src/store
+rg "from ['\\\"].*legacy|from ['\\\"].*/legacy" frontend/src/app frontend/src/features frontend/src/shared frontend/src/components frontend/src/services frontend/src/store
 ```
 
 Expected: no output.
@@ -1026,7 +1026,7 @@ Expected: no output.
 Run:
 
 ```powershell
-rg "pages/teacher|pages/student|\\.\\./pages|\\.\\./\\.\\./pages" Edu_AI/src/app Edu_AI/src/features Edu_AI/src/shared Edu_AI/src/components Edu_AI/src/services Edu_AI/src/store
+rg "pages/teacher|pages/student|\\.\\./pages|\\.\\./\\.\\./pages" frontend/src/app frontend/src/features frontend/src/shared frontend/src/components frontend/src/services frontend/src/store
 ```
 
 Expected: no output.
@@ -1046,7 +1046,7 @@ Expected: build succeeds.
 Run:
 
 ```powershell
-git add Edu_AI/src
+git add frontend/src
 git commit -m "refactor(frontend): isolate legacy route pages"
 ```
 
@@ -1057,7 +1057,7 @@ Expected: one commit moving old route, layout, and pages into `src/legacy`.
 ### Task 8: Remove Empty `stitch` Directory And Verify New Architecture
 
 **Files:**
-- Delete if empty: `Edu_AI/src/stitch`
+- Delete if empty: `frontend/src/stitch`
 - Modify: none unless import scans reveal missed references
 
 - [ ] **Step 1: Check for remaining `stitch` references**
@@ -1065,7 +1065,7 @@ Expected: one commit moving old route, layout, and pages into `src/legacy`.
 Run:
 
 ```powershell
-rg "src/stitch|\\.\\./stitch|\\./stitch|stitch/" Edu_AI/src
+rg "src/stitch|\\.\\./stitch|\\./stitch|stitch/" frontend/src
 ```
 
 Expected: no output.
@@ -1075,7 +1075,7 @@ Expected: no output.
 Run:
 
 ```powershell
-Get-ChildItem Edu_AI/src/stitch -Recurse -Force
+Get-ChildItem frontend/src/stitch -Recurse -Force
 ```
 
 Expected: either the directory does not exist, or it contains no files.
@@ -1085,10 +1085,10 @@ Expected: either the directory does not exist, or it contains no files.
 Run this only if Step 2 shows an empty directory:
 
 ```powershell
-Remove-Item -LiteralPath Edu_AI/src/stitch -Force
+Remove-Item -LiteralPath frontend/src/stitch -Force
 ```
 
-Expected: `Edu_AI/src/stitch` no longer exists.
+Expected: `frontend/src/stitch` no longer exists.
 
 - [ ] **Step 4: Run final build**
 
@@ -1105,8 +1105,8 @@ Expected: build succeeds. The large chunk warning is acceptable.
 Run:
 
 ```powershell
-rg "from ['\\\"].*legacy|from ['\\\"].*/legacy" Edu_AI/src/app Edu_AI/src/features Edu_AI/src/shared Edu_AI/src/components Edu_AI/src/services Edu_AI/src/store
-rg "src/stitch|\\.\\./stitch|\\./stitch|stitch/" Edu_AI/src
+rg "from ['\\\"].*legacy|from ['\\\"].*/legacy" frontend/src/app frontend/src/features frontend/src/shared frontend/src/components frontend/src/services frontend/src/store
+rg "src/stitch|\\.\\./stitch|\\./stitch|stitch/" frontend/src
 ```
 
 Expected: both commands produce no output.
@@ -1116,7 +1116,7 @@ Expected: both commands produce no output.
 Run:
 
 ```powershell
-git add Edu_AI/src
+git add frontend/src
 git commit -m "refactor(frontend): remove stitch shell leftovers"
 ```
 

@@ -114,7 +114,7 @@
 | `npm run lint` | 0 error；82 个仓库既有 warning |
 | `npm run build` | 通过；仅有大 chunk 提示 |
 | `git diff --check` | 通过 |
-| 完整后端 `pytest api/src/tests -q` | 851 通过、21 失败、1 error；详见第 8 节 |
+| 完整后端 `pytest backend/src/tests -q` | 851 通过、21 失败、1 error；详见第 8 节 |
 
 P0/P1 后端定向套件覆盖任务状态机/API、RAG 生命周期、资源 manifest/权限/迁移、统一生成命令、运行配置、视频入库、课堂任务/视频导出和真实用户资料。
 
@@ -150,12 +150,12 @@ P0/P1 后端定向套件覆盖任务状态机/API、RAG 生命周期、资源 ma
 - `src/components/teacher/studioActions.ts`：八类正式生成能力注册表。
 - `src/openmaic/pagePlaybackController.ts`：当前页运行时所有权和释放边界。
 - `src/jobs/`：全局任务 store、单调度器、多标签页租约、任务抽屉与质量概览。
-- `api/src/app/services/job_store.py`：owner-scoped v2 EduJob 原子账本。
-- `api/src/app/services/knowledge_document_service.py`：RAG 文档生命周期与索引版本切换。
-- `api/src/core/course_storage.py`：v2 资源 manifest、原子发布、权限、完整性和旧数据迁移。
-- `api/src/app/services/generation_command.py`：统一生成提交、幂等和部分成功语义。
-- `api/src/app/services/runtime_config_store.py`：不可变配置 revision、密钥加密和审计状态。
-- `api/src/app/services/runtime_config_resolver.py`：个人 → 系统 → 环境默认的解析与任务快照。
+- `backend/src/app/services/job_store.py`：owner-scoped v2 EduJob 原子账本。
+- `backend/src/app/services/knowledge_document_service.py`：RAG 文档生命周期与索引版本切换。
+- `backend/src/core/course_storage.py`：v2 资源 manifest、原子发布、权限、完整性和旧数据迁移。
+- `backend/src/app/services/generation_command.py`：统一生成提交、幂等和部分成功语义。
+- `backend/src/app/services/runtime_config_store.py`：不可变配置 revision、密钥加密和审计状态。
+- `backend/src/app/services/runtime_config_resolver.py`：个人 → 系统 → 环境默认的解析与任务快照。
 
 ## 8. 已知基线与非阻断债务
 

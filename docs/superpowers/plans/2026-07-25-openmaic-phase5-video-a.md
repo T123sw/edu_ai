@@ -27,9 +27,9 @@ and classroom regression.
 
 **Files**
 
-- Create `Edu_AI/src/openmaic/videoExport.ts`
-- Create `Edu_AI/src/openmaic/videoExport.test.ts`
-- Modify `Edu_AI/src/openmaic/timeline.ts`
+- Create `frontend/src/openmaic/videoExport.ts`
+- Create `frontend/src/openmaic/videoExport.test.ts`
+- Modify `frontend/src/openmaic/timeline.ts`
 
 1. Add failing tests for SRT time formatting, narration ordering, multiline
    text, invalid/overlapping timeline validation, and scene offset merging.
@@ -42,11 +42,11 @@ and classroom regression.
 
 **Files**
 
-- Create `Edu_AI/src/stitch/pages/_dev/ClassroomVideoRender.tsx`
-- Create `Edu_AI/src/openmaic/videoRenderState.ts`
-- Create `Edu_AI/src/openmaic/videoRenderState.test.ts`
-- Modify `Edu_AI/src/stitch/App.tsx`
-- Modify `Edu_AI/src/stitch/shared.tsx`
+- Create `frontend/src/stitch/pages/_dev/ClassroomVideoRender.tsx`
+- Create `frontend/src/openmaic/videoRenderState.ts`
+- Create `frontend/src/openmaic/videoRenderState.test.ts`
+- Modify `frontend/src/stitch/App.tsx`
+- Modify `frontend/src/stitch/shared.tsx`
 
 1. Add failing tests for scene selection, unsupported-scene skipping, cumulative
    timeline state, and terminal success/failure state.
@@ -62,11 +62,11 @@ and classroom regression.
 
 **Files**
 
-- Modify `Edu_AI/package.json`
+- Modify `frontend/package.json`
 - Modify `Edu_AI/package-lock.json`
-- Create `Edu_AI/scripts/export-classroom-video.ts`
-- Create `Edu_AI/scripts/videoPipeline.ts`
-- Create `Edu_AI/scripts/videoPipeline.test.ts`
+- Create `frontend/scripts/export-classroom-video.ts`
+- Create `frontend/scripts/videoPipeline.ts`
+- Create `frontend/scripts/videoPipeline.test.ts`
 
 1. Add Playwright as a dev/runtime export dependency.
 2. Add failing tests for FFmpeg concat/mux argument generation, safe output
@@ -82,11 +82,11 @@ and classroom regression.
 
 **Files**
 
-- Create `Edu_AI/api/src/app/services/classroom_video_service.py`
+- Create `backend/src/app/services/classroom_video_service.py`
 - Modify classroom routes/job types as required
 - Add backend service/API tests
-- Create `Edu_AI/src/openmaic/VideoExportButton.tsx`
-- Modify `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
+- Create `frontend/src/openmaic/VideoExportButton.tsx`
+- Modify `frontend/src/stitch/pages/ClassroomPlayer.tsx`
 
 1. Add failing tests for job submission, duplicate active-job guard, progress,
    subprocess failure, artifact persistence, authorization, and downloads.

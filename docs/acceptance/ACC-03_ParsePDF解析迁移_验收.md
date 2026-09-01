@@ -13,7 +13,7 @@
 
 **做**：edu_ai 用**直连 MinerU Cloud provider** 替换 `scripts/mineru.py` 本地解析链路，RAG 入库改走在线解析；强制默认 `mineru-cloud` 不回退 unpdf；影子模式并行比对确认不劣化。
 
-**做（Phase 1 收口新增）**：删 legacy 死目录 `Edu_AI/api/src/modules/rag_v2/rag-main/`（连字符，Python 无法 import 的旧本地 CLI 死代码）；归档删除 `scripts/mineru.py`（已无 Python 引用）。
+**做（Phase 1 收口新增）**：删 legacy 死目录 `backend/src/modules/rag_v2/rag-main/`（连字符，Python 无法 import 的旧本地 CLI 死代码）；归档删除 `scripts/mineru.py`（已无 Python 引用）。
 
 **做（Phase 1 收口第二轮，2026-07-01 `f40ccbf`/`cd85567`）**：① 删净本地解析降级——移除 `system.py` 里 PyMuPDF(`fitz`)/docling 的全部 import、探测、docling converter 装配、`force_docling`/`force_mineru` 分支、`_extract_image_documents_from_docling`；`config.py` 去 `PyMuPDFLoader`；`EduAgent/chunks.py`、`EduAgent/services/content_cleaner.py` 本地 PDF 解析改存根 + `requirements*` 去 `pymupdf`。PDF 转 MinerU-only、失败即失败，不再回退 PyMuPDF。② 图片存储收口——MinerU 配图端到端 `linked_images`（落 `storage/images/{owner}/{doc_id}/` + 文本 chunk/索引 metadata）+ `_rewrite_markdown_media_urls` 把相对图片/视频引用改写为 guarded URL；`rag_main/core/config.py` `BASE_DIR` `parents[3]→[4]` 对齐 host `src`。详见 SPEC-03 §7。
 

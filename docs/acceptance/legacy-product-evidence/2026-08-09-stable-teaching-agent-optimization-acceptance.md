@@ -15,7 +15,7 @@
 
 | 检查 | 实际结果 | 结论 |
 |---|---:|---|
-| `api/src/tests/chat/runtime` | 151 passed | 现有 Agent runtime 回归为绿 |
+| `backend/src/tests/chat/runtime` | 151 passed | 现有 Agent runtime 回归为绿 |
 | 工具注册、模型注册、GenerationCommand、durable task store | 34 passed，1 warning | 工具和后台任务基础设施可作为优化底座 |
 | 后端全量 | 1369 passed，2 skipped，2 warnings | Task 11—17 最终全量回归通过（303.13 秒） |
 | 前端单元/构建 | 223 passed；生产构建通过 | 前端回归通过；真实浏览器核心流程通过 |
@@ -53,7 +53,7 @@
 本轮目标回归命令：
 
 ```powershell
-cd D:\github\edu_ai\Edu_AI\api
+cd D:\github\edu_ai\backend
 $env:PYTHONPATH='src'
 D:\anaconda\envs\edu-ai\python.exe -m pytest src/tests/chat/runtime src/tests/chat/test_fast_chat_runtime.py src/tests/chat/test_tool_registry.py src/tests/chat/test_model_registry.py src/tests/chat/test_generation_command.py src/tests/test_durable_task_store.py src/tests/test_classroom_service.py src/tests/test_classroom_generation_sources.py -q
 ```
@@ -328,7 +328,7 @@ planner_ms, agent_ms, job_ms, provider, warnings
 
 ```powershell
 # Agent/runtime 目标回归
-cd D:\github\edu_ai\Edu_AI\api
+cd D:\github\edu_ai\backend
 $env:PYTHONPATH='src'
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests/chat/runtime
 

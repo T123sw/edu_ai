@@ -15,8 +15,8 @@ recovery, clearing storage only on terminal completion/failure.
 ### Task 1: Persistent pending-job store
 
 **Files:**
-- Create: `Edu_AI/src/openmaic/classroomGenerationRecovery.ts`
-- Create: `Edu_AI/src/openmaic/classroomGenerationRecovery.test.ts`
+- Create: `frontend/src/openmaic/classroomGenerationRecovery.ts`
+- Create: `frontend/src/openmaic/classroomGenerationRecovery.test.ts`
 
 - [ ] Write tests for save/read, per-course isolation, replacement, guarded clearing, and malformed data.
 - [ ] Run the new test and confirm it fails because the module is missing.
@@ -27,8 +27,8 @@ recovery, clearing storage only on terminal completion/failure.
 ### Task 2: Resume polling in the workbench entry
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/ClassroomGenerationEntry.tsx`
-- Modify: `Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`
+- Modify: `frontend/src/components/teacher/ClassroomGenerationEntry.tsx`
+- Modify: `frontend/src/openmaic/classroomGenerationFlow.test.ts`
 
 - [ ] Add a failing source-contract test for recovery integration.
 - [ ] Refactor submission and recovery through one polling function.

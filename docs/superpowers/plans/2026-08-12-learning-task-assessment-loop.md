@@ -28,45 +28,45 @@
 
 ### Backend files to create
 
-- `Edu_AI/api/src/app/assessment/models.py`：测评、版本、题目、分配、作答、答案、复核和分析领域记录。
-- `Edu_AI/api/src/app/assessment/policies.py`：阈值、题目校验、客观评分、最佳成绩和答案揭示纯规则。
-- `Edu_AI/api/src/app/assessment/extractors.py`：从 `quiz` 材料与 AI 课堂 Quiz scene 提取统一题目。
-- `Edu_AI/api/src/app/assessment/quality.py`：结构、答案、覆盖、重复、来源和学生投影泄露门禁。
-- `Edu_AI/api/src/app/assessment/generator.py`：使用现有 QuizGenerator/LLM 基于选中材料补齐测评草稿。
-- `Edu_AI/api/src/app/assessment/store.py`：SQLite 测评事务仓储与自动兼容建表。
-- `Edu_AI/api/src/app/assessment/service.py`：创作、发布、作答、评分、揭示、复核和分析用例。
-- `Edu_AI/api/src/app/assessment/__init__.py`：生产依赖组装与 FastAPI dependency。
-- `Edu_AI/api/src/app/schemas/assessment.py`：角色安全的请求和响应模型。
-- `Edu_AI/api/src/app/api/assessment.py`：教师创作、学生作答和教师分析路由。
-- `Edu_AI/api/src/app/persistence/postgres_assessment_repository.py`：PostgreSQL 测评仓储。
-- `Edu_AI/api/src/alembic/versions/20260812_0013_assessments.py`：测评表、约束、索引与学习任务绑定迁移。
-- `Edu_AI/api/src/tests/assessment/`：领域、仓储、服务、API、安全和分析测试。
-- `Edu_AI/api/src/tests/persistence/test_postgres_assessment_repository.py`：双数据库行为测试。
+- `backend/src/app/assessment/models.py`：测评、版本、题目、分配、作答、答案、复核和分析领域记录。
+- `backend/src/app/assessment/policies.py`：阈值、题目校验、客观评分、最佳成绩和答案揭示纯规则。
+- `backend/src/app/assessment/extractors.py`：从 `quiz` 材料与 AI 课堂 Quiz scene 提取统一题目。
+- `backend/src/app/assessment/quality.py`：结构、答案、覆盖、重复、来源和学生投影泄露门禁。
+- `backend/src/app/assessment/generator.py`：使用现有 QuizGenerator/LLM 基于选中材料补齐测评草稿。
+- `backend/src/app/assessment/store.py`：SQLite 测评事务仓储与自动兼容建表。
+- `backend/src/app/assessment/service.py`：创作、发布、作答、评分、揭示、复核和分析用例。
+- `backend/src/app/assessment/__init__.py`：生产依赖组装与 FastAPI dependency。
+- `backend/src/app/schemas/assessment.py`：角色安全的请求和响应模型。
+- `backend/src/app/api/assessment.py`：教师创作、学生作答和教师分析路由。
+- `backend/src/app/persistence/postgres_assessment_repository.py`：PostgreSQL 测评仓储。
+- `backend/src/alembic/versions/20260812_0013_assessments.py`：测评表、约束、索引与学习任务绑定迁移。
+- `backend/src/tests/assessment/`：领域、仓储、服务、API、安全和分析测试。
+- `backend/src/tests/persistence/test_postgres_assessment_repository.py`：双数据库行为测试。
 
 ### Backend files to modify
 
-- `Edu_AI/api/src/app/database/models.py`、`Edu_AI/api/src/app/database/__init__.py`：SQLAlchemy 测评模型导出。
-- `Edu_AI/api/src/app/bootstrap.py`：注册 assessment router。
-- `Edu_AI/api/src/app/learning/models.py`、`service.py`、`store.py`：测评状态投影和内部可信结果同步。
-- `Edu_AI/api/src/app/schemas/learning.py`、`app/api/learning.py`：移除学生可写 `assessment_scored`，返回任务测评摘要。
-- `Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/learning.py`、`nodes/executor.py`、`learning_context_prompt.py`：双角色测评事实与回答约束。
+- `backend/src/app/database/models.py`、`backend/src/app/database/__init__.py`：SQLAlchemy 测评模型导出。
+- `backend/src/app/bootstrap.py`：注册 assessment router。
+- `backend/src/app/learning/models.py`、`service.py`、`store.py`：测评状态投影和内部可信结果同步。
+- `backend/src/app/schemas/learning.py`、`app/api/learning.py`：移除学生可写 `assessment_scored`，返回任务测评摘要。
+- `backend/src/app/chat/runtime/agent_tools/handlers/learning.py`、`nodes/executor.py`、`learning_context_prompt.py`：双角色测评事实与回答约束。
 
 ### Frontend files to create
 
-- `Edu_AI/src/stitch/assessment/assessmentAuthoring.ts`：创作步骤、草稿验证和发布门禁纯函数。
-- `Edu_AI/src/stitch/assessment/AssessmentEditor.tsx`：题目导入/生成、编辑、覆盖和学生预览。
-- `Edu_AI/src/stitch/assessment/AssessmentRunner.tsx`：学生作答、自动保存、提交、揭示和重做。
-- `Edu_AI/src/stitch/assessment/AssessmentReview.tsx`：教师待复核队列和评分量规。
-- `Edu_AI/src/stitch/assessment/AssessmentAnalytics.tsx`：任务、题目、知识点和学生反馈。
-- `Edu_AI/src/stitch/assessment/*.test.ts`：纯逻辑和源码契约测试。
-- `Edu_AI/tests/e2e/learning-task-assessment-loop.spec.ts`：确定性浏览器闭环。
+- `frontend/src/stitch/assessment/assessmentAuthoring.ts`：创作步骤、草稿验证和发布门禁纯函数。
+- `frontend/src/stitch/assessment/AssessmentEditor.tsx`：题目导入/生成、编辑、覆盖和学生预览。
+- `frontend/src/stitch/assessment/AssessmentRunner.tsx`：学生作答、自动保存、提交、揭示和重做。
+- `frontend/src/stitch/assessment/AssessmentReview.tsx`：教师待复核队列和评分量规。
+- `frontend/src/stitch/assessment/AssessmentAnalytics.tsx`：任务、题目、知识点和学生反馈。
+- `frontend/src/stitch/assessment/*.test.ts`：纯逻辑和源码契约测试。
+- `frontend/tests/e2e/learning-task-assessment-loop.spec.ts`：确定性浏览器闭环。
 
 ### Frontend files to modify
 
-- `Edu_AI/src/stitch/api/types.ts`、`learning.ts`：测评契约和 API 客户端。
-- `Edu_AI/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`：教师四步创建、学生测评入口和教师反馈入口。
-- `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`、测试：分离学习、提交、待复核、未通过和已验证文案。
-- `Edu_AI/src/stitch/pages/CourseMaterialArtifactPreview.tsx`：学生角色不再显示正式测评答案，教师与练习资源保持可配置预览。
+- `frontend/src/stitch/api/types.ts`、`learning.ts`：测评契约和 API 客户端。
+- `frontend/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`：教师四步创建、学生测评入口和教师反馈入口。
+- `frontend/src/stitch/pages/courseLearningPresentation.ts`、测试：分离学习、提交、待复核、未通过和已验证文案。
+- `frontend/src/stitch/pages/CourseMaterialArtifactPreview.tsx`：学生角色不再显示正式测评答案，教师与练习资源保持可配置预览。
 
 ### Documentation files to create or update
 
@@ -81,10 +81,10 @@
 ### Task 1: 建立测评领域记录与纯策略
 
 **Files:**
-- Create: `Edu_AI/api/src/app/assessment/__init__.py`
-- Create: `Edu_AI/api/src/app/assessment/models.py`
-- Create: `Edu_AI/api/src/app/assessment/policies.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_policies.py`
+- Create: `backend/src/app/assessment/__init__.py`
+- Create: `backend/src/app/assessment/models.py`
+- Create: `backend/src/app/assessment/policies.py`
+- Test: `backend/src/tests/assessment/test_assessment_policies.py`
 
 **Interfaces:**
 - Produces: `AssessmentVersionRecord`、`AssessmentItemRecord`、`AssessmentAssignmentRecord`、`AssessmentAttemptRecord`、`AssessmentAnswerRecord`、`AssessmentReviewRecord`。
@@ -114,7 +114,7 @@ def test_subjective_item_never_receives_final_ai_score():
 
 - [x] **Step 2: 运行红灯测试**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_policies.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_policies.py -q`
 
 Expected: FAIL，`app.assessment` 尚不存在。
 
@@ -124,7 +124,7 @@ Expected: FAIL，`app.assessment` 尚不存在。
 
 - [x] **Step 4: 运行测试并提交**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_policies.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_policies.py -q`
 
 Expected: PASS。
 
@@ -133,13 +133,13 @@ Commit: `git commit -m "feat: add assessment domain policies"`
 ### Task 2: 建立 SQLite/PostgreSQL 持久化与版本约束
 
 **Files:**
-- Create: `Edu_AI/api/src/app/assessment/store.py`
-- Create: `Edu_AI/api/src/app/persistence/postgres_assessment_repository.py`
-- Create: `Edu_AI/api/src/alembic/versions/20260812_0013_assessments.py`
-- Modify: `Edu_AI/api/src/app/database/models.py`
-- Modify: `Edu_AI/api/src/app/database/__init__.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_store.py`
-- Test: `Edu_AI/api/src/tests/persistence/test_postgres_assessment_repository.py`
+- Create: `backend/src/app/assessment/store.py`
+- Create: `backend/src/app/persistence/postgres_assessment_repository.py`
+- Create: `backend/src/alembic/versions/20260812_0013_assessments.py`
+- Modify: `backend/src/app/database/models.py`
+- Modify: `backend/src/app/database/__init__.py`
+- Test: `backend/src/tests/assessment/test_assessment_store.py`
+- Test: `backend/src/tests/persistence/test_postgres_assessment_repository.py`
 
 **Interfaces:**
 - Produces: `AssessmentStore.create_draft`、`replace_draft_items`、`publish_version`、`get_task_assessment`、`create_assignment`、`create_attempt`、`save_answers`、`submit_attempt`、`append_review`、`list_task_attempts`。
@@ -160,7 +160,7 @@ def test_publish_freezes_content_and_is_idempotent(store):
 
 - [x] **Step 2: 运行红灯测试**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_store.py tests/persistence/test_postgres_assessment_repository.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_store.py tests/persistence/test_postgres_assessment_repository.py -q`
 
 Expected: FAIL，仓储和 ORM 模型缺失。
 
@@ -173,7 +173,7 @@ Expected: FAIL，仓储和 ORM 模型缺失。
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/assessment/test_assessment_store.py tests/persistence/test_postgres_assessment_repository.py tests/database/test_alembic_revision_chain.py -q
 python -m alembic heads
 ```
@@ -185,10 +185,10 @@ Commit: `git commit -m "feat: persist versioned learning assessments"`
 ### Task 3: 实现已有习题抽取、材料生成与质量门禁
 
 **Files:**
-- Create: `Edu_AI/api/src/app/assessment/extractors.py`
-- Create: `Edu_AI/api/src/app/assessment/quality.py`
-- Create: `Edu_AI/api/src/app/assessment/generator.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_authoring.py`
+- Create: `backend/src/app/assessment/extractors.py`
+- Create: `backend/src/app/assessment/quality.py`
+- Create: `backend/src/app/assessment/generator.py`
+- Test: `backend/src/tests/assessment/test_assessment_authoring.py`
 
 **Interfaces:**
 - Produces: `extract_assessment_items(materials) -> ExtractionResult`，支持 `quiz.questions` 和 `classroom.scenes[].content.questions`。
@@ -213,7 +213,7 @@ def test_missing_coverage_generates_only_gaps(generator_spy):
 
 - [x] **Step 2: 运行红灯测试**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_authoring.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_authoring.py -q`
 
 Expected: FAIL，抽取器、生成器和质量服务缺失。
 
@@ -223,7 +223,7 @@ Expected: FAIL，抽取器、生成器和质量服务缺失。
 
 - [x] **Step 4: 运行测试并提交**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_authoring.py tests/chat/test_quiz_generator.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_authoring.py tests/chat/test_quiz_generator.py -q`
 
 Expected: PASS。
 
@@ -232,17 +232,17 @@ Commit: `git commit -m "feat: author grounded task assessments"`
 ### Task 4: 建立教师创作 API、原子发布门禁和四步前端
 
 **Files:**
-- Create: `Edu_AI/api/src/app/schemas/assessment.py`
-- Create: `Edu_AI/api/src/app/api/assessment.py`
-- Create/Modify: `Edu_AI/api/src/app/assessment/service.py`、`__init__.py`
-- Modify: `Edu_AI/api/src/app/bootstrap.py`
-- Modify: `Edu_AI/api/src/app/api/learning.py`
-- Create: `Edu_AI/src/stitch/assessment/assessmentAuthoring.ts`
-- Create: `Edu_AI/src/stitch/assessment/AssessmentEditor.tsx`
-- Modify: `Edu_AI/src/stitch/api/types.ts`、`learning.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_authoring_api.py`
-- Test: `Edu_AI/src/stitch/assessment/assessmentAuthoring.test.ts`
+- Create: `backend/src/app/schemas/assessment.py`
+- Create: `backend/src/app/api/assessment.py`
+- Create/Modify: `backend/src/app/assessment/service.py`、`__init__.py`
+- Modify: `backend/src/app/bootstrap.py`
+- Modify: `backend/src/app/api/learning.py`
+- Create: `frontend/src/stitch/assessment/assessmentAuthoring.ts`
+- Create: `frontend/src/stitch/assessment/AssessmentEditor.tsx`
+- Modify: `frontend/src/stitch/api/types.ts`、`learning.ts`
+- Modify: `frontend/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`
+- Test: `backend/src/tests/assessment/test_assessment_authoring_api.py`
+- Test: `frontend/src/stitch/assessment/assessmentAuthoring.test.ts`
 
 **Interfaces:**
 - Produces: detect/draft/generate/validate endpoints and replacement `POST .../tasks/{task_id}/publish` atomic use case.
@@ -262,7 +262,7 @@ def test_new_task_cannot_publish_without_confirmed_assessment(teacher_client, ta
 Run:
 
 ```powershell
-cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_authoring_api.py -q
+cd backend/src; python -m pytest tests/assessment/test_assessment_authoring_api.py -q
 cd ..; npm test -- src/stitch/assessment/assessmentAuthoring.test.ts
 ```
 
@@ -277,7 +277,7 @@ Expected: 两组均 FAIL。
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/assessment/test_assessment_policies.py tests/assessment/test_assessment_store.py tests/assessment/test_assessment_authoring.py tests/assessment/test_assessment_authoring_api.py tests/learning -q
 cd ../..
 npm test -- src/stitch/assessment/assessmentAuthoring.test.ts src/stitch/pages/courseLearningPresentation.test.ts
@@ -297,9 +297,9 @@ Push: `git push origin main`
 ### Task 5: 实现测评分配、草稿、提交和客观评分
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/assessment/service.py`、`store.py`、`policies.py`
-- Create: `Edu_AI/api/src/alembic/versions/20260812_0014_attempt_idempotency.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_attempt_service.py`
+- Modify: `backend/src/app/assessment/service.py`、`store.py`、`policies.py`
+- Create: `backend/src/alembic/versions/20260812_0014_attempt_idempotency.py`
+- Test: `backend/src/tests/assessment/test_assessment_attempt_service.py`
 
 **Interfaces:**
 - Produces: `start_attempt`、`save_answers(expected_revision)`、`submit_attempt(idempotency_key)`、`reveal_answers`、`get_student_feedback`。
@@ -322,7 +322,7 @@ def test_three_attempts_keep_best_score_and_all_history(service):
 
 - [x] **Step 2: 运行红灯、实现事务，再运行绿灯**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_attempt_service.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_attempt_service.py -q`
 
 Expected before/after: 首次 FAIL；实现后 PASS。并覆盖重复提交不重复扣次数、修订冲突 409、答案揭示后拒绝计分作答。
 
@@ -331,13 +331,13 @@ Commit: `git commit -m "feat: grade durable assessment attempts"`
 ### Task 6: 建立学生安全投影 API 并关闭伪造成绩入口
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/api/assessment.py`
-- Modify: `Edu_AI/api/src/app/schemas/assessment.py`
-- Modify: `Edu_AI/api/src/app/schemas/learning.py`
-- Modify: `Edu_AI/api/src/app/api/learning.py`
-- Modify: `Edu_AI/api/src/app/learning/service.py`、`store.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_student_api.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_api.py`
+- Modify: `backend/src/app/api/assessment.py`
+- Modify: `backend/src/app/schemas/assessment.py`
+- Modify: `backend/src/app/schemas/learning.py`
+- Modify: `backend/src/app/api/learning.py`
+- Modify: `backend/src/app/learning/service.py`、`store.py`
+- Test: `backend/src/tests/assessment/test_assessment_student_api.py`
+- Test: `backend/src/tests/learning/test_learning_api.py`
 
 **Interfaces:**
 - Produces: student assessment, current attempt, answer save, submit, history, feedback and reveal endpoints.
@@ -367,7 +367,7 @@ def test_student_cannot_submit_assessment_scored_event(student_client, task_id):
 
 - [x] **Step 3: 运行测试并提交**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_student_api.py tests/learning/test_learning_api.py tests/learning/test_learning_service.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_student_api.py tests/learning/test_learning_api.py tests/learning/test_learning_service.py -q`
 
 Expected: PASS。
 
@@ -376,12 +376,12 @@ Commit: `git commit -m "security: isolate trusted assessment outcomes"`
 ### Task 7: 实现学生作答、恢复、补学和揭示界面
 
 **Files:**
-- Create: `Edu_AI/src/stitch/assessment/assessmentRunnerState.ts`
-- Create: `Edu_AI/src/stitch/assessment/AssessmentRunner.tsx`
-- Create: `Edu_AI/src/stitch/assessment/assessmentRunner.test.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`、`learning.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`
-- Modify: `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`、测试
+- Create: `frontend/src/stitch/assessment/assessmentRunnerState.ts`
+- Create: `frontend/src/stitch/assessment/AssessmentRunner.tsx`
+- Create: `frontend/src/stitch/assessment/assessmentRunner.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`、`learning.ts`
+- Modify: `frontend/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`
+- Modify: `frontend/src/stitch/pages/courseLearningPresentation.ts`、测试
 
 **Interfaces:**
 - Produces: `deriveAssessmentAction(summary)`、`mergeServerDraft(local, remote)`、学生安全题目控件和状态文案。
@@ -402,7 +402,7 @@ Expected before/after: 首次 FAIL；实现后 PASS。
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/assessment tests/learning -q
 cd ../..
 npm test -- src/stitch/assessment/assessmentRunner.test.ts src/stitch/assessment/assessmentAuthoring.test.ts src/stitch/pages/courseLearningPresentation.test.ts
@@ -423,10 +423,10 @@ Push: `git push origin main`
 ### Task 8: 实现 AI 建议、教师复核和追加式审计
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/assessment/service.py`、`store.py`
-- Create: `Edu_AI/api/src/app/assessment/rubric.py`
-- Modify: `Edu_AI/api/src/app/api/assessment.py`、`schemas/assessment.py`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_review.py`
+- Modify: `backend/src/app/assessment/service.py`、`store.py`
+- Create: `backend/src/app/assessment/rubric.py`
+- Modify: `backend/src/app/api/assessment.py`、`schemas/assessment.py`
+- Test: `backend/src/tests/assessment/test_assessment_review.py`
 
 **Interfaces:**
 - Produces: `RubricSuggestion`，字段为建议分、分维度得分、理由、置信度、量规版本、模型版本和时间。
@@ -453,7 +453,7 @@ def test_subjective_attempt_waits_for_teacher_and_review_recomputes_best(service
 
 - [x] **Step 2: 实现服务/API 并运行测试**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/assessment/test_assessment_review.py -q`
+Run: `cd backend/src; python -m pytest tests/assessment/test_assessment_review.py -q`
 
 Expected before/after: 首次 FAIL；实现后 PASS。
 
@@ -462,13 +462,13 @@ Commit: `git commit -m "feat: add audited assessment reviews"`
 ### Task 9: 实现四级分析、教师复核与反馈界面
 
 **Files:**
-- Create: `Edu_AI/api/src/app/assessment/analytics.py`
-- Modify: `Edu_AI/api/src/app/assessment/service.py`、`api/assessment.py`、`schemas/assessment.py`
-- Create: `Edu_AI/src/stitch/assessment/AssessmentReview.tsx`
-- Create: `Edu_AI/src/stitch/assessment/AssessmentAnalytics.tsx`
-- Create: `Edu_AI/src/stitch/assessment/assessmentAnalytics.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_analytics.py`
+- Create: `backend/src/app/assessment/analytics.py`
+- Modify: `backend/src/app/assessment/service.py`、`api/assessment.py`、`schemas/assessment.py`
+- Create: `frontend/src/stitch/assessment/AssessmentReview.tsx`
+- Create: `frontend/src/stitch/assessment/AssessmentAnalytics.tsx`
+- Create: `frontend/src/stitch/assessment/assessmentAnalytics.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseLearning.tsx`、`CourseLearning.css`
+- Test: `backend/src/tests/assessment/test_assessment_analytics.py`
 
 **Interfaces:**
 - Produces: task summary、student queues、item analysis、knowledge-point analysis。
@@ -487,7 +487,7 @@ Commit: `git commit -m "feat: add audited assessment reviews"`
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/assessment tests/learning -q
 cd ../..
 npm test -- src/stitch/assessment/assessmentAnalytics.test.ts src/stitch/assessment/assessmentRunner.test.ts src/stitch/assessment/assessmentAuthoring.test.ts
@@ -507,13 +507,13 @@ Push: `git push origin main`
 ### Task 10: 将测评事实接入双端 Agent
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/learning/context_reader.py`、`service.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/learning.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/nodes/executor.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/learning_context_prompt.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_learning_agent_tools.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py`
-- Test: `Edu_AI/api/src/tests/chat/test_learning_context_injection.py`
+- Modify: `backend/src/app/learning/context_reader.py`、`service.py`
+- Modify: `backend/src/app/chat/runtime/agent_tools/handlers/learning.py`
+- Modify: `backend/src/app/chat/runtime/nodes/executor.py`
+- Modify: `backend/src/app/chat/runtime/learning_context_prompt.py`
+- Test: `backend/src/tests/chat/runtime/test_learning_agent_tools.py`
+- Test: `backend/src/tests/chat/runtime/test_learning_task_domain.py`
+- Test: `backend/src/tests/chat/test_learning_context_injection.py`
 
 **Interfaces:**
 - Student projection: 本人任务结果、剩余次数、最佳最终成绩、可见反馈和薄弱知识点。
@@ -525,7 +525,7 @@ Push: `git push origin main`
 
 - [x] **Step 2: 实现投影和回答模板并运行测试**
 
-Run: `cd Edu_AI/api/src; python -m pytest tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_learning_task_domain.py tests/chat/test_learning_context_injection.py -q`
+Run: `cd backend/src; python -m pytest tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_learning_task_domain.py tests/chat/test_learning_context_injection.py -q`
 
 Expected: PASS。
 
@@ -534,12 +534,12 @@ Commit: `git commit -m "feat: ground agents in assessment outcomes"`
 ### Task 11: 完成遗留迁移、安全门禁和确定性 E2E
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/learning/store.py`、`service.py`
-- Modify: `Edu_AI/src/stitch/pages/CourseMaterialArtifactPreview.tsx`
-- Create: `Edu_AI/tests/e2e/learning-task-assessment-loop.spec.ts`
-- Test: `Edu_AI/api/src/tests/assessment/test_assessment_student_api.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_api.py`
-- Test: `Edu_AI/api/src/tests/database/test_alembic_revision_chain.py`
+- Modify: `backend/src/app/learning/store.py`、`service.py`
+- Modify: `frontend/src/stitch/pages/CourseMaterialArtifactPreview.tsx`
+- Create: `frontend/tests/e2e/learning-task-assessment-loop.spec.ts`
+- Test: `backend/src/tests/assessment/test_assessment_student_api.py`
+- Test: `backend/src/tests/learning/test_learning_api.py`
+- Test: `backend/src/tests/database/test_alembic_revision_chain.py`
 
 **Interfaces:**
 - Produces: legacy tasks show `legacy_unassessed` and cannot generate verified evidence until supplemented。
@@ -575,7 +575,7 @@ Commit: `git commit -m "test: harden the assessment learning loop"`
 - [x] **Step 1: 运行全量后端、前端和迁移门禁**
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests -q
 python -m alembic heads
 cd ../..

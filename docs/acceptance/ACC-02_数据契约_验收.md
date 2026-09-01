@@ -34,7 +34,7 @@
 ## 3. 测试方法
 
 ### 3.1 单元测试（校验器，pytest）
-落点建议 `Edu_AI/api/tests/test_classroom_contract.py`。构造夹具（fixtures）覆盖每条不变量的**正例 + 反例**。
+落点建议 `backend/tests/test_classroom_contract.py`。构造夹具（fixtures）覆盖每条不变量的**正例 + 反例**。
 
 **T-02-A 合法样本通过（AC-02-1/7）**
 - 输入：一份合法 Stage（1 slide scene，含 text+latex 元素，1 speech + 1 spotlight 指向存在元素，audioUrl 为 edu_ai 地址）。

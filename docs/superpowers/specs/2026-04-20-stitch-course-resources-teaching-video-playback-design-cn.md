@@ -11,8 +11,8 @@
 但这条链路还缺一段前端落地能力：
 
 - 教师工作台点击右侧教学视频文件时，当前仍然走本地预览逻辑，而不是进入课程资料。
-- `stitch` 的课程资料页 [CourseResources.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/pages/CourseResources.tsx) 目前默认按 Markdown 资料展示，不支持视频详情分支。
-- `stitch` 路由层当前会把 `#resources` 直接重定向到 `#video`，导致课程资料页本身并未真正承接展示入口，[App.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/App.tsx:35)。
+- `stitch` 的课程资料页 [CourseResources.tsx](/d:/Edu_AI_1/frontend/src/stitch/pages/CourseResources.tsx) 目前默认按 Markdown 资料展示，不支持视频详情分支。
+- `stitch` 路由层当前会把 `#resources` 直接重定向到 `#video`，导致课程资料页本身并未真正承接展示入口，[App.tsx](/d:/Edu_AI_1/frontend/src/stitch/App.tsx:35)。
 
 本次目标是打通“工作台文件列表 -> stitch 课程资料 -> 教学视频播放”的最小闭环。
 
@@ -25,8 +25,8 @@
 
 ## 非目标
 
-- 不改造教师端真实业务页 [CourseMaterialsPage.tsx](/d:/Edu_AI_1/Edu_AI/src/pages/teacher/CourseMaterialsPage.tsx)。
-- 不改造独立的 [VideoPlayer.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/pages/VideoPlayer.tsx)。
+- 不改造教师端真实业务页 [CourseMaterialsPage.tsx](/d:/Edu_AI_1/frontend/src/pages/teacher/CourseMaterialsPage.tsx)。
+- 不改造独立的 [VideoPlayer.tsx](/d:/Edu_AI_1/frontend/src/stitch/pages/VideoPlayer.tsx)。
 - 不补“课程资料页自动轮询生成中视频直至完成”。
 - 不处理聊天主系统中的视频工作流入口。
 - 不处理工作台右侧视频本地预览体验，后续如仍需保留再单独设计。
@@ -86,7 +86,7 @@
 
 本次需要：
 
-- 在 [App.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/App.tsx) 中正式注册 `CourseResourcesPage`。
+- 在 [App.tsx](/d:/Edu_AI_1/frontend/src/stitch/App.tsx) 中正式注册 `CourseResourcesPage`。
 - 删除或调整 `getCurrentRoute()` 中对 `routes.resources` 的硬编码跳转。
 - 保持 `#resources?...` 这类带查询参数的 hash 能被正确识别为 `resources` 路由。
 
@@ -100,7 +100,7 @@
 
 ### 2. 工作台点击行为
 
-工作台右侧文件列表位于 [StudioPanel.tsx](/d:/Edu_AI_1/Edu_AI/src/components/teacher/StudioPanel.tsx)。
+工作台右侧文件列表位于 [StudioPanel.tsx](/d:/Edu_AI_1/frontend/src/components/teacher/StudioPanel.tsx)。
 
 当前行为是：
 
@@ -130,7 +130,7 @@
 
 ### 3. stitch 课程资料页参数解析
 
-`stitch` 课程资料页位于 [CourseResources.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/pages/CourseResources.tsx)。
+`stitch` 课程资料页位于 [CourseResources.tsx](/d:/Edu_AI_1/frontend/src/stitch/pages/CourseResources.tsx)。
 
 本次增加一个轻量参数解析层：
 
@@ -269,11 +269,11 @@
 
 ## 影响文件
 
-- [StudioPanel.tsx](/d:/Edu_AI_1/Edu_AI/src/components/teacher/StudioPanel.tsx)
-- [App.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/App.tsx)
-- [CourseResources.tsx](/d:/Edu_AI_1/Edu_AI/src/stitch/pages/CourseResources.tsx)
-- [courses.ts](/d:/Edu_AI_1/Edu_AI/src/stitch/api/courses.ts)
-- [types.ts](/d:/Edu_AI_1/Edu_AI/src/stitch/api/types.ts)
+- [StudioPanel.tsx](/d:/Edu_AI_1/frontend/src/components/teacher/StudioPanel.tsx)
+- [App.tsx](/d:/Edu_AI_1/frontend/src/stitch/App.tsx)
+- [CourseResources.tsx](/d:/Edu_AI_1/frontend/src/stitch/pages/CourseResources.tsx)
+- [courses.ts](/d:/Edu_AI_1/frontend/src/stitch/api/courses.ts)
+- [types.ts](/d:/Edu_AI_1/frontend/src/stitch/api/types.ts)
 
 ## 实施边界
 

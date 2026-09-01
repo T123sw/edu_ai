@@ -13,7 +13,7 @@
 
 ## 2. 当前上下文
 
-当前教师端实际入口为 `Edu_AI/src/pages/teacher/AiStudioPage.tsx`，路由位于 `/course/:courseId/studio`。
+当前教师端实际入口为 `frontend/src/pages/teacher/AiStudioPage.tsx`，路由位于 `/course/:courseId/studio`。
 
 页面当前特征如下：
 
@@ -199,8 +199,8 @@
 
 建议主要触达以下文件：
 
-- `Edu_AI/src/pages/teacher/AiStudioPage.tsx`
-- `Edu_AI/src/pages/teacher/AiStudioPage.css`
+- `frontend/src/pages/teacher/AiStudioPage.tsx`
+- `frontend/src/pages/teacher/AiStudioPage.css`
 
 如确有必要，可增加很轻量的页面级上下文展示辅助逻辑，但不应扩散到三栏内部大规模改造。
 

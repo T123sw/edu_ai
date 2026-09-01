@@ -128,42 +128,42 @@
 
 预计修改：
 
-- `Edu_AI/src/stitch/pages/CourseKnowledge.tsx`
+- `frontend/src/stitch/pages/CourseKnowledge.tsx`
   - 删除标签导航、视图状态和 `KnowledgeStructureView` 依赖；直接渲染课程知识库。
   - 调整历史图谱重定向目标。
-- `Edu_AI/src/stitch/teacherRoutes.ts`
+- `frontend/src/stitch/teacherRoutes.ts`
   - 教师知识路由不再默认解析为 `structure`；保留 `graph` 兼容别名。
   - 侧栏资源名称改为“个人资源”。
-- `Edu_AI/src/stitch/student/routes/studentRoutes.ts`
+- `frontend/src/stitch/student/routes/studentRoutes.ts`
   - 课程知识不再产生或解析有效的图谱视图；兼容参数被忽略。
-- `Edu_AI/src/stitch/student/shell/StudentShell.tsx`
+- `frontend/src/stitch/student/shell/StudentShell.tsx`
   - 不再为课程知识入口注入 `view=structure`。
-- `Edu_AI/src/stitch/student/shell/studentNavigation.ts`
+- `frontend/src/stitch/student/shell/studentNavigation.ts`
   - “资源管理”改为“个人资源”。
-- `Edu_AI/src/stitch/pages/CourseResources.tsx`
+- `frontend/src/stitch/pages/CourseResources.tsx`
   - 收口为个人资源单空间；删除课程共享切换和发布/撤回界面逻辑。
   - 保留现有个人资源维护行为。
-- `Edu_AI/src/stitch/pages/CourseDetail.tsx`
+- `frontend/src/stitch/pages/CourseDetail.tsx`
   - 课程概览中的资源列表、数量、入口和文案统一为个人资源口径，并只请求 `space=mine`。
-- `Edu_AI/src/stitch/pages/HomeDashboard.tsx`
+- `frontend/src/stitch/pages/HomeDashboard.tsx`
   - 首页课程卡的资源计数只请求 `space=mine`。
-- `Edu_AI/src/stitch/pages/courseCardPresentation.ts`
+- `frontend/src/stitch/pages/courseCardPresentation.ts`
   - 课程卡指标名称从“课程资源”改为“个人资源”。
-- `Edu_AI/src/stitch/pages/Profile.tsx`
+- `frontend/src/stitch/pages/Profile.tsx`
   - 增加共享外观设置区域。
-- `Edu_AI/src/stitch/shared.tsx`
+- `frontend/src/stitch/shared.tsx`
   - 抽取或复用主题选项展示组件；增加 `palette` 图标映射；移除悬浮主题组件或停止导出无消费者实现。
-- `Edu_AI/src/stitch/App.tsx`
+- `frontend/src/stitch/App.tsx`
   - 删除 `ThemeCustomizer` 的导入与全局悬浮渲染。
 - 相关 CSS 与测试文件
   - 删除无消费者样式时仅处理本阶段明确关联的选择器，不做全局样式清理。
 
 明确不修改：
 
-- `Edu_AI/api/src/app/database/**`
+- `backend/src/app/database/**`
 - Alembic 迁移
 - 材料、知识库、学习、测评和 RAG 后端接口
-- `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx` 的后端依赖语义；组件是否删除由引用清理结果决定，但不得影响后端图结构。
+- `frontend/src/stitch/pages/KnowledgeGraph.tsx` 的后端依赖语义；组件是否删除由引用清理结果决定，但不得影响后端图结构。
 
 ## 7. 兼容性与错误处理
 

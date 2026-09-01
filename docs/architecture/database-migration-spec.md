@@ -10,7 +10,7 @@
 
 Edu AI 当前的大部分业务状态由 JSON 文件持久化。这个方案适合早期原型，但随着用户、课程、对话、生成任务、教学资源和知识库持续增长，已经出现以下问题：
 
-1. 数据分散在 `api/storage`、`api/src/storage` 和 `api/course_data`，运行目录不同会产生两套数据根目录。
+1. 数据分散在 `backend/storage`、`backend/src/storage` 和 `backend/course_data`，运行目录不同会产生两套数据根目录。
 2. 多进程或并发请求写同一文件时，只能依赖进程内锁和临时文件替换，无法提供跨进程事务。
 3. 课程、用户、任务、对话和资源之间缺少数据库级外键，孤立记录和重复记录难以及时发现。
 4. 分页、筛选、统计、审计和后台管理需要加载大量文件，性能和可维护性会持续恶化。
@@ -23,23 +23,23 @@ Edu AI 当前的大部分业务状态由 JSON 文件持久化。这个方案适�
 
 | 数据域 | 当前主要位置 | 当前规模 | 备注 |
 |---|---|---:|---|
-| 用户 | `api/src/storage/users.json` | 7 用户 | 另有历史根目录 3 用户 |
-| 课程 | `api/course_data/courses/*/course_info.json` | 6 个正式课程已导入 | 文件系统还存在测试/临时课程目录 |
-| 课程成员 | `api/src/storage/course_memberships.json` | 42 条 | 另有历史根目录 18 条 |
-| 对话 | `api/src/storage/conversations.json` | 149 个对话、1147 条消息 | 单文件约 2 MB；另有历史根目录 12 个对话 |
-| 后台任务 | `api/src/storage/jobs/*.json` | 272 个 | 以 RAG 导入、课堂、报告生成为主 |
-| 抓取批次 | `api/src/storage/crawl_batches` | 396 个 JSON | 部分批次包含多文件状态 |
-| 课程数据 | `api/course_data` | 203 个 JSON，约 6.23 MB | 包含课程信息、资源清单、知识库索引及备份 |
+| 用户 | `backend/src/storage/users.json` | 7 用户 | 另有历史根目录 3 用户 |
+| 课程 | `backend/course_data/courses/*/course_info.json` | 6 个正式课程已导入 | 文件系统还存在测试/临时课程目录 |
+| 课程成员 | `backend/src/storage/course_memberships.json` | 42 条 | 另有历史根目录 18 条 |
+| 对话 | `backend/src/storage/conversations.json` | 149 个对话、1147 条消息 | 单文件约 2 MB；另有历史根目录 12 个对话 |
+| 后台任务 | `backend/src/storage/jobs/*.json` | 272 个 | 以 RAG 导入、课堂、报告生成为主 |
+| 抓取批次 | `backend/src/storage/crawl_batches` | 396 个 JSON | 部分批次包含多文件状态 |
+| 课程数据 | `backend/course_data` | 203 个 JSON，约 6.23 MB | 包含课程信息、资源清单、知识库索引及备份 |
 | 生成教学资源 | `generated_materials` | 约 172 个 JSON | 测验、报告、教案、课堂、博客等 |
 | 课程知识库索引 | `knowledge_base/index.json` | 计算思维课程 149 条 | 文档本体仍是文件 |
-| 全局文档索引 | `api/src/storage/document_index.json` | 183 条 | 当前键包含用户和绝对文件路径 |
-| 图片索引 | `api/src/storage/image_index.json` | 47 条 | 图片本体不应放入普通关系表 |
-| 搜图缓存元数据 | `api/src/storage/searched_images` | 601 个 JSON | 属于可重建或可过期数据 |
-| 学习任务和进度 | `api/src/storage/learning.db` | SQLite | 已是数据库，但不是统一数据源 |
+| 全局文档索引 | `backend/src/storage/document_index.json` | 183 条 | 当前键包含用户和绝对文件路径 |
+| 图片索引 | `backend/src/storage/image_index.json` | 47 条 | 图片本体不应放入普通关系表 |
+| 搜图缓存元数据 | `backend/src/storage/searched_images` | 601 个 JSON | 属于可重建或可过期数据 |
+| 学习任务和进度 | `backend/src/storage/learning.db` | SQLite | 已是数据库，但不是统一数据源 |
 
 ### 2.1 双存储根目录
 
-`Config.STORAGE_ROOT` 当前默认值是相对路径 `storage`。从 `api/src` 启动时，活跃目录是 `api/src/storage`；从 `api` 启动过的历史进程则产生了 `api/storage`。迁移工具必须同时扫描这两个目录，但不得简单覆盖：
+`Config.STORAGE_ROOT` 当前默认值是相对路径 `storage`。从 `backend/src` 启动时，活跃目录是 `backend/src/storage`；从 `api` 启动过的历史进程则产生了 `backend/storage`。迁移工具必须同时扫描这两个目录，但不得简单覆盖：
 
 - 同 ID、内容相同：去重。
 - 同 ID、内容不同：按业务时间戳选取较新版本，同时记录冲突报告。

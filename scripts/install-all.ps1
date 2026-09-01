@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $FrontendDir = Join-Path $RepoRoot "Edu_AI"
-$BackendDir = Join-Path $FrontendDir "api\src"
+$BackendDir = Join-Path $FrontendDir "backend\src"
 
 function Invoke-Step {
     param(

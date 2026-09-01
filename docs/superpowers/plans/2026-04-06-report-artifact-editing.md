@@ -13,72 +13,72 @@
 ## File Map
 
 ### Frontend files to modify
-- `Edu_AI/src/services/teacher/chatV2.ts`
+- `frontend/src/services/teacher/chatV2.ts`
   - Extend request typing for `artifact_reference`.
-- `Edu_AI/src/store/teacher/useStore.ts`
+- `frontend/src/store/teacher/useStore.ts`
   - Persist active artifact reference and expose actions to set/clear it.
-- `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- `frontend/src/components/teacher/StudioPanel.tsx`
   - Add `添加到对话` action for report artifacts.
-- `Edu_AI/src/components/teacher/ChatPanel.tsx`
+- `frontend/src/components/teacher/ChatPanel.tsx`
   - Render the reference card, include reference in send payload, restore reference from conversation detail.
-- `Edu_AI/src/services/teacher/chatV2.helpers.ts`
+- `frontend/src/services/teacher/chatV2.helpers.ts`
   - Extract and restore version metadata / generation state from backend artifacts.
-- `Edu_AI/src/services/teacher/materials.helpers.ts`
+- `frontend/src/services/teacher/materials.helpers.ts`
   - Keep newest derived versions at the top and preserve version metadata for list rendering.
-- `Edu_AI/src/services/teacher/api.ts`
+- `frontend/src/services/teacher/api.ts`
   - Carry reference-aware conversation detail fields if frontend restore needs a typed helper.
 
 ### Frontend files to create
-- `Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- `frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
   - Reference card behavior, send payload shape, restore behavior.
-- `Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts`
+- `frontend/tests/frontend/studioPanel.add-to-chat.test.ts`
   - `添加到对话` action availability and store write.
 
 ### Backend files to modify
-- `Edu_AI/api/Edu_AI/app/chat/api/schemas_v2.py`
+- `backend/src/app/chat/api/schemas_v2.py`
   - Add `ArtifactReferencePayload` and request fields.
-- `Edu_AI/api/Edu_AI/app/chat/persistence/conversation_store_adapter.py`
+- `backend/src/app/chat/persistence/conversation_store_adapter.py`
   - Persist active artifact reference and active reference mode in state.
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/context_builder.py`
+- `backend/src/app/chat/orchestrator/context_builder.py`
   - Restore active reference into snapshot-compatible structures.
-- `Edu_AI/api/Edu_AI/app/chat/domain/conversation_snapshot.py`
+- `backend/src/app/chat/domain/conversation_snapshot.py`
   - Add reference payload fields if needed for runtime decisions.
-- `Edu_AI/api/Edu_AI/app/chat/domain/generation_context.py`
+- `backend/src/app/chat/domain/generation_context.py`
   - Surface active artifact reference / generation state to report workflow.
-- `Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py`
+- `backend/src/app/chat/application/reply_service_v2.py`
   - Detect reference-aware report edit flow and dispatch into report edit service/runtime.
-- `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
+- `backend/src/app/chat/application/report_service_v2.py`
   - Add version metadata sync, generation-state persistence, and compact reply behavior for derived artifacts.
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py`
+- `backend/src/app/chat/orchestrator/route_rules.py`
   - Prioritize artifact-edit route when `artifact_reference` is present.
-- `Edu_AI/api/Edu_AI/core/conversation_storage.py`
+- `backend/src/core/conversation_storage.py`
   - Preserve reference state in conversation detail payload.
-- `Edu_AI/api/Edu_AI/core/course_storage.py`
+- `backend/src/core/course_storage.py`
   - Persist derived report versions and generation-state metadata in generated materials.
 
 ### Backend files to create
-- `Edu_AI/api/Edu_AI/app/chat/domain/artifact_reference.py`
+- `backend/src/app/chat/domain/artifact_reference.py`
   - Shared typed models for reference payload, version metadata, generation state, edit request.
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/report_structure_parser.py`
+- `backend/src/app/chat/orchestrator/report_structure_parser.py`
   - Normalize report outline/report markdown into structure nodes.
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/report_edit_intent_parser.py`
+- `backend/src/app/chat/orchestrator/report_edit_intent_parser.py`
   - Turn `artifact_reference + user text` into a normalized `ArtifactEditRequest`.
-- `Edu_AI/api/Edu_AI/app/chat/workflows/report/edit_runtime.py`
+- `backend/src/app/chat/workflows/report/edit_runtime.py`
   - Stage-one MVP runtime for outline section rewrite, regenerate from outline, report summary/conclusion rewrite.
 
 ### Backend tests to create
-- `Edu_AI/api/Edu_AI/tests/chat/test_report_structure_parser.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_report_edit_intent_parser.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_report_edit_runtime.py`
-- `Edu_AI/api/Edu_AI/tests/core/test_conversation_storage_artifact_reference.py`
+- `backend/src/tests/chat/test_report_structure_parser.py`
+- `backend/src/tests/chat/test_report_edit_intent_parser.py`
+- `backend/src/tests/chat/test_reply_service_v2_artifact_reference.py`
+- `backend/src/tests/chat/test_report_edit_runtime.py`
+- `backend/src/tests/core/test_conversation_storage_artifact_reference.py`
 
 ## Task 1: Frontend Artifact Reference State
 
 **Files:**
-- Modify: `Edu_AI/src/services/teacher/chatV2.ts`
-- Modify: `Edu_AI/src/store/teacher/useStore.ts`
-- Test: `Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- Modify: `frontend/src/services/teacher/chatV2.ts`
+- Modify: `frontend/src/store/teacher/useStore.ts`
+- Test: `frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -103,7 +103,7 @@ assert.equal(useStore.getState().artifactReference, null);
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node --experimental-strip-types Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+Run: `node --experimental-strip-types frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 Expected: FAIL because `artifactReference` state/actions do not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -125,23 +125,23 @@ clearArtifactReference: () => void;
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node --experimental-strip-types Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+Run: `node --experimental-strip-types frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/services/teacher/chatV2.ts Edu_AI/src/store/teacher/useStore.ts Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts
+git add frontend/src/services/teacher/chatV2.ts frontend/src/store/teacher/useStore.ts frontend/tests/frontend/chatPanel.artifact-reference.test.ts
 git commit -m "feat: add frontend artifact reference state"
 ```
 
 ## Task 2: Right-Side “添加到对话” Action And Reference Card
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- Test: `Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts`
-- Test: `Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
+- Test: `frontend/tests/frontend/studioPanel.add-to-chat.test.ts`
+- Test: `frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -181,8 +181,8 @@ assert.deepEqual(sentPayload.artifact_reference, {
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run:
-- `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts`
-- `node --experimental-strip-types Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- `node --experimental-strip-types frontend/tests/frontend/studioPanel.add-to-chat.test.ts`
+- `node --experimental-strip-types frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 
 Expected: FAIL because StudioPanel has no add-to-chat action and ChatPanel does not send reference payload.
 
@@ -219,28 +219,28 @@ Expected: FAIL because StudioPanel has no add-to-chat action and ChatPanel does 
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run:
-- `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts`
-- `node --experimental-strip-types Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- `node --experimental-strip-types frontend/tests/frontend/studioPanel.add-to-chat.test.ts`
+- `node --experimental-strip-types frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/src/components/teacher/ChatPanel.tsx Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts
+git add frontend/src/components/teacher/StudioPanel.tsx frontend/src/components/teacher/ChatPanel.tsx frontend/tests/frontend/studioPanel.add-to-chat.test.ts frontend/tests/frontend/chatPanel.artifact-reference.test.ts
 git commit -m "feat: add report artifact references to chat UI"
 ```
 
 ## Task 3: Backend Request Schema And Conversation State Persistence
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/api/schemas_v2.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/domain/artifact_reference.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/persistence/conversation_store_adapter.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/context_builder.py`
-- Modify: `Edu_AI/api/Edu_AI/core/conversation_storage.py`
-- Test: `Edu_AI/api/Edu_AI/tests/core/test_conversation_storage_artifact_reference.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py`
+- Modify: `backend/src/app/chat/api/schemas_v2.py`
+- Create: `backend/src/app/chat/domain/artifact_reference.py`
+- Modify: `backend/src/app/chat/persistence/conversation_store_adapter.py`
+- Modify: `backend/src/app/chat/orchestrator/context_builder.py`
+- Modify: `backend/src/core/conversation_storage.py`
+- Test: `backend/src/tests/core/test_conversation_storage_artifact_reference.py`
+- Test: `backend/src/tests/chat/test_reply_service_v2_artifact_reference.py`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -263,8 +263,8 @@ def test_write_v2_result_persists_active_artifact_reference():
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run:
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/core/test_conversation_storage_artifact_reference.py -q`
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py -q`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/core/test_conversation_storage_artifact_reference.py -q`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/chat/test_reply_service_v2_artifact_reference.py -q`
 
 Expected: FAIL because request schema and persistence do not support artifact reference yet.
 
@@ -304,17 +304,17 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/api/schemas_v2.py Edu_AI/api/Edu_AI/app/chat/domain/artifact_reference.py Edu_AI/api/Edu_AI/app/chat/persistence/conversation_store_adapter.py Edu_AI/api/Edu_AI/app/chat/orchestrator/context_builder.py Edu_AI/api/Edu_AI/core/conversation_storage.py Edu_AI/api/Edu_AI/tests/core/test_conversation_storage_artifact_reference.py Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py
+git add backend/src/app/chat/api/schemas_v2.py backend/src/app/chat/domain/artifact_reference.py backend/src/app/chat/persistence/conversation_store_adapter.py backend/src/app/chat/orchestrator/context_builder.py backend/src/core/conversation_storage.py backend/src/tests/core/test_conversation_storage_artifact_reference.py backend/src/tests/chat/test_reply_service_v2_artifact_reference.py
 git commit -m "feat: persist chat artifact references"
 ```
 
 ## Task 4: Report Structure Parser And Edit Intent Parser
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/chat/orchestrator/report_structure_parser.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/orchestrator/report_edit_intent_parser.py`
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_report_structure_parser.py`
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_report_edit_intent_parser.py`
+- Create: `backend/src/app/chat/orchestrator/report_structure_parser.py`
+- Create: `backend/src/app/chat/orchestrator/report_edit_intent_parser.py`
+- Create: `backend/src/tests/chat/test_report_structure_parser.py`
+- Create: `backend/src/tests/chat/test_report_edit_intent_parser.py`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -341,8 +341,8 @@ def test_parse_edit_intent_for_summary_compress():
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run:
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/chat/test_report_structure_parser.py -q`
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/chat/test_report_edit_intent_parser.py -q`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/chat/test_report_structure_parser.py -q`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/chat/test_report_edit_intent_parser.py -q`
 
 Expected: FAIL because parser modules do not exist.
 
@@ -380,20 +380,20 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/orchestrator/report_structure_parser.py Edu_AI/api/Edu_AI/app/chat/orchestrator/report_edit_intent_parser.py Edu_AI/api/Edu_AI/tests/chat/test_report_structure_parser.py Edu_AI/api/Edu_AI/tests/chat/test_report_edit_intent_parser.py
+git add backend/src/app/chat/orchestrator/report_structure_parser.py backend/src/app/chat/orchestrator/report_edit_intent_parser.py backend/src/tests/chat/test_report_structure_parser.py backend/src/tests/chat/test_report_edit_intent_parser.py
 git commit -m "feat: parse report structure and edit intent"
 ```
 
 ## Task 5: Stage-One Report Edit Runtime
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/chat/workflows/report/edit_runtime.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/domain/generation_context.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_edit_runtime.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py`
+- Create: `backend/src/app/chat/workflows/report/edit_runtime.py`
+- Modify: `backend/src/app/chat/application/reply_service_v2.py`
+- Modify: `backend/src/app/chat/application/report_service_v2.py`
+- Modify: `backend/src/app/chat/orchestrator/route_rules.py`
+- Modify: `backend/src/app/chat/domain/generation_context.py`
+- Test: `backend/src/tests/chat/test_report_edit_runtime.py`
+- Test: `backend/src/tests/chat/test_reply_service_v2_artifact_reference.py`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -414,8 +414,8 @@ def test_report_edit_runtime_rewrites_summary_and_returns_new_artifact():
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run:
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/chat/test_report_edit_runtime.py -q`
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py -q`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/chat/test_report_edit_runtime.py -q`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/chat/test_reply_service_v2_artifact_reference.py -q`
 
 Expected: FAIL because no edit runtime or route exists.
 
@@ -444,19 +444,19 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/workflows/report/edit_runtime.py Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py Edu_AI/api/Edu_AI/app/chat/domain/generation_context.py Edu_AI/api/Edu_AI/tests/chat/test_report_edit_runtime.py Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py
+git add backend/src/app/chat/workflows/report/edit_runtime.py backend/src/app/chat/application/reply_service_v2.py backend/src/app/chat/application/report_service_v2.py backend/src/app/chat/orchestrator/route_rules.py backend/src/app/chat/domain/generation_context.py backend/src/tests/chat/test_report_edit_runtime.py backend/src/tests/chat/test_reply_service_v2_artifact_reference.py
 git commit -m "feat: add report artifact edit runtime"
 ```
 
 ## Task 6: Version Metadata, Generation State, And Course Material Persistence
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/core/course_storage.py`
-- Modify: `Edu_AI/src/services/teacher/chatV2.helpers.ts`
-- Modify: `Edu_AI/src/services/teacher/materials.helpers.ts`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_service_v2.py`
-- Test: `Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- Modify: `backend/src/app/chat/application/report_service_v2.py`
+- Modify: `backend/src/core/course_storage.py`
+- Modify: `frontend/src/services/teacher/chatV2.helpers.ts`
+- Modify: `frontend/src/services/teacher/materials.helpers.ts`
+- Test: `backend/src/tests/chat/test_report_service_v2.py`
+- Test: `frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -481,8 +481,8 @@ def test_finalize_report_result_preserves_generation_state_and_version_metadata(
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run:
-- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest Edu_AI/api/Edu_AI/tests/chat/test_report_service_v2.py -q`
-- `node --experimental-strip-types Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
+- `d:\\github\\edu_ai\\Edu_AI\\api\\Edu_AI\\.venv\\Scripts\\python.exe -m pytest backend/src/tests/chat/test_report_service_v2.py -q`
+- `node --experimental-strip-types frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
 
 Expected: FAIL because metadata is not yet preserved end-to-end.
 
@@ -513,28 +513,28 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py Edu_AI/api/Edu_AI/core/course_storage.py Edu_AI/src/services/teacher/chatV2.helpers.ts Edu_AI/src/services/teacher/materials.helpers.ts Edu_AI/api/Edu_AI/tests/chat/test_report_service_v2.py Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts
+git add backend/src/app/chat/application/report_service_v2.py backend/src/core/course_storage.py frontend/src/services/teacher/chatV2.helpers.ts frontend/src/services/teacher/materials.helpers.ts backend/src/tests/chat/test_report_service_v2.py frontend/tests/frontend/chatPanel.artifact-reference.test.ts
 git commit -m "feat: persist report version metadata and generation state"
 ```
 
 ## Task 7: End-To-End Verification
 
 **Files:**
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_edit_runtime.py`
-- Test: `Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
-- Test: `Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts`
+- Test: `backend/src/tests/chat/test_reply_service_v2_artifact_reference.py`
+- Test: `backend/src/tests/chat/test_report_edit_runtime.py`
+- Test: `frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
+- Test: `frontend/tests/frontend/studioPanel.add-to-chat.test.ts`
 
 - [ ] **Step 1: Run backend targeted test suite**
 
 Run:
 ```bash
-d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest \
-  Edu_AI/api/Edu_AI/tests/chat/test_report_structure_parser.py \
-  Edu_AI/api/Edu_AI/tests/chat/test_report_edit_intent_parser.py \
-  Edu_AI/api/Edu_AI/tests/chat/test_report_edit_runtime.py \
-  Edu_AI/api/Edu_AI/tests/chat/test_reply_service_v2_artifact_reference.py \
-  Edu_AI/api/Edu_AI/tests/chat/test_report_service_v2.py -q
+d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest \
+  backend/src/tests/chat/test_report_structure_parser.py \
+  backend/src/tests/chat/test_report_edit_intent_parser.py \
+  backend/src/tests/chat/test_report_edit_runtime.py \
+  backend/src/tests/chat/test_reply_service_v2_artifact_reference.py \
+  backend/src/tests/chat/test_report_service_v2.py -q
 ```
 
 Expected: PASS
@@ -543,8 +543,8 @@ Expected: PASS
 
 Run:
 ```bash
-node --experimental-strip-types Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts
-node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts
+node --experimental-strip-types frontend/tests/frontend/chatPanel.artifact-reference.test.ts
+node --experimental-strip-types frontend/tests/frontend/studioPanel.add-to-chat.test.ts
 ```
 
 Expected: PASS

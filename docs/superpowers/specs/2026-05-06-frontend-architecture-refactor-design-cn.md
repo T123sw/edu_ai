@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-06
 
-**Scope:** Edu_AI frontend architecture refactor, starting from the currently running React + Vite frontend under `Edu_AI/src`.
+**Scope:** Edu_AI frontend architecture refactor, starting from the currently running React + Vite frontend under `frontend/src`.
 
 **Decision:** Use the currently running `stitch` shell as the first-phase mainline, then reorganize it into a clearer application architecture.
 
@@ -13,14 +13,14 @@
 The frontend is not only bloated; it currently contains two competing mental models:
 
 1. The active runtime path:
-   - `Edu_AI/src/main.tsx`
-   - `Edu_AI/src/stitch/App.tsx`
-   - `Edu_AI/src/stitch/pages/*`
+   - `frontend/src/main.tsx`
+   - `frontend/src/stitch/App.tsx`
+   - `frontend/src/stitch/pages/*`
 
 2. A mostly disconnected React Router structure:
-   - `Edu_AI/src/routes/AppRoutes.tsx`
-   - `Edu_AI/src/layout/*`
-   - many older pages under `Edu_AI/src/pages`
+   - `frontend/src/routes/AppRoutes.tsx`
+   - `frontend/src/layout/*`
+   - many older pages under `frontend/src/pages`
 
 The production build currently passes, so the first refactor phase should not replace the application shell wholesale. The safer path is to treat the current `stitch` shell as the active product shell, migrate it into a stable architecture, and isolate legacy structures before deleting them.
 
@@ -78,7 +78,7 @@ This would produce the cleanest final shape, but it would mix architecture clean
 The target first-phase structure is:
 
 ```text
-Edu_AI/src/
+frontend/src/
   main.tsx
 
   app/
@@ -309,8 +309,8 @@ The lint command currently cannot run because ESLint 9 requires `eslint.config.j
 After the migration, run import scans to verify:
 
 ```bash
-rg "from ['\\\"].*legacy|from ['\\\"].*/legacy" Edu_AI/src
-rg "src/stitch|\\.\\./stitch|\\./stitch" Edu_AI/src
+rg "from ['\\\"].*legacy|from ['\\\"].*/legacy" frontend/src
+rg "src/stitch|\\.\\./stitch|\\./stitch" frontend/src
 ```
 
 ## 12. Risks And Controls

@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-06
 
-**Scope:** `Edu_AI/api/Edu_AI` 后端架构重构，重点是可读性、职责边界和可维护性，外部接口尽量保持兼容。
+**Scope:** `backend/src` 后端架构重构，重点是可读性、职责边界和可维护性，外部接口尽量保持兼容。
 
 **Decision:** 保持现有 HTTP 接口和返回结构优先兼容，先重构内部结构，再逐步收口历史实现与测试残留。
 
@@ -12,11 +12,11 @@
 
 当前后端可以运行，但结构已经明显失去层次感：
 
-1. `api/Edu_AI/app/main.py` 同时承担应用装配、Pydantic 模型定义、业务编排、文档拼接、错误处理和部分领域逻辑。
-2. `api/Edu_AI/app/auth.py`、`pipeline/routes.py`、`video_routes.py`、`speech/routes.py`、`courses.py` 等模块虽然已经按路由分散，但业务与基础设施仍然混在一起。
-3. `api/Edu_AI/app/chat/` 已经有 `domain / agents / workflows / memory / legacy` 等子目录，说明系统已经具备分层雏形，但没有统一收口。
-4. `api/Edu_AI/core/config.py`、`core/auth.py`、`core/*_storage.py` 负责配置与持久化，但还没有清晰地和业务层隔离开。
-5. `api/Edu_AI/scripts/` 里堆着大量 `test_*.py`、探针脚本和一次性验证脚本，它们对开发有帮助，但不应继续混在主业务结构里。
+1. `backend/src/app/main.py` 同时承担应用装配、Pydantic 模型定义、业务编排、文档拼接、错误处理和部分领域逻辑。
+2. `backend/src/app/auth.py`、`pipeline/routes.py`、`video_routes.py`、`speech/routes.py`、`courses.py` 等模块虽然已经按路由分散，但业务与基础设施仍然混在一起。
+3. `backend/src/app/chat/` 已经有 `domain / agents / workflows / memory / legacy` 等子目录，说明系统已经具备分层雏形，但没有统一收口。
+4. `backend/src/core/config.py`、`core/auth.py`、`core/*_storage.py` 负责配置与持久化，但还没有清晰地和业务层隔离开。
+5. `api/frontend/scripts/` 里堆着大量 `test_*.py`、探针脚本和一次性验证脚本，它们对开发有帮助，但不应继续混在主业务结构里。
 6. `AI_Lecturer/`、`html2ppt/`、`rag_v2/` 等子系统很重，必须通过明确的适配层接入，不能继续让总入口直接背实现细节。
 
 这个项目的问题不是“没有功能”，而是“功能太多，入口太胖，边界太松”。
@@ -77,7 +77,7 @@
 ## 6. 目标目录结构
 
 ```text
-api/Edu_AI/
+backend/src/
   app/
     main.py
     bootstrap.py
@@ -359,20 +359,20 @@ domain 层只放纯结构和规则：
 
 ```bash
 cd D:\Edu_AI_1\Edu_AI
-python -m compileall api\Edu_AI
-python -m pytest api\Edu_AI\tests
+python -m compileall backend\src
+python -m pytest api\frontend\tests
 ```
 
 另外再做一次导入检查，确保主线代码没有反向依赖 legacy：
 
 ```bash
-rg "from ['\"].*legacy|from ['\"].*/legacy" Edu_AI/api/Edu_AI
+rg "from ['\"].*legacy|from ['\"].*/legacy" backend/src
 ```
 
 以及确认入口文件已经足够薄：
 
 ```bash
-rg -n "class .*BaseModel|@app\\.|def .*lesson_plan|def .*chat|def .*questions" Edu_AI/api/Edu_AI/app/main.py
+rg -n "class .*BaseModel|@app\\.|def .*lesson_plan|def .*chat|def .*questions" backend/src/app/main.py
 ```
 
 ## 13. 风险与控制

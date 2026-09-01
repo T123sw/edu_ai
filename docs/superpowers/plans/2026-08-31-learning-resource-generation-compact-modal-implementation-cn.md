@@ -12,19 +12,19 @@
 
 ## 文件结构
 
-- 修改 `Edu_AI/src/stitch/course/knowledge/LearningResourceGenerationPanel.tsx`：将内嵌区域改为 Ant Design 模态弹窗。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`：入口按钮打开弹窗，不再在文档流中插入长面板。
-- 修改 `Edu_AI/src/stitch/course/knowledge/StandardLearningResources.tsx`：增加紧凑模式、章节选择、单行状态摘要和单详情展开。
-- 修改 `Edu_AI/src/stitch/course/knowledge/standardLearningResources.css`：紧凑列表、固定底栏和响应式样式。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`：删除旧内嵌面板样式，增加弹窗外壳样式。
-- 修改 `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`：增加可独立测试的选择统计和章节选择函数。
-- 修改对应单元测试与 `Edu_AI/tests/e2e/course-knowledge.spec.ts`：覆盖弹窗、折叠、单详情和固定操作栏。
+- 修改 `frontend/src/stitch/course/knowledge/LearningResourceGenerationPanel.tsx`：将内嵌区域改为 Ant Design 模态弹窗。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`：入口按钮打开弹窗，不再在文档流中插入长面板。
+- 修改 `frontend/src/stitch/course/knowledge/StandardLearningResources.tsx`：增加紧凑模式、章节选择、单行状态摘要和单详情展开。
+- 修改 `frontend/src/stitch/course/knowledge/standardLearningResources.css`：紧凑列表、固定底栏和响应式样式。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`：删除旧内嵌面板样式，增加弹窗外壳样式。
+- 修改 `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`：增加可独立测试的选择统计和章节选择函数。
+- 修改对应单元测试与 `frontend/tests/e2e/course-knowledge.spec.ts`：覆盖弹窗、折叠、单详情和固定操作栏。
 
 ### Task 1: 用纯函数锁定选择统计与章节批量选择
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts`
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts`
 
 - [ ] **Step 1: 写失败测试**
 
@@ -99,10 +99,10 @@ Expected: PASS。
 ### Task 2: 把入口改为真正的模态弹窗
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
-- Modify: `Edu_AI/src/stitch/course/knowledge/LearningResourceGenerationPanel.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`
+- Modify: `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
+- Modify: `frontend/src/stitch/course/knowledge/LearningResourceGenerationPanel.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`
 
 - [ ] **Step 1: 写弹窗结构失败测试**
 
@@ -228,9 +228,9 @@ Expected: PASS。
 ### Task 3: 实现章节折叠与紧凑知识点行
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/StandardLearningResources.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResources.css`
-- Modify: `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
+- Modify: `frontend/src/stitch/course/knowledge/StandardLearningResources.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResources.css`
+- Modify: `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
 
 - [ ] **Step 1: 添加紧凑模式失败断言**
 
@@ -487,8 +487,8 @@ Expected: PASS。
 ### Task 4: 浏览器验收与完整验证
 
 **Files:**
-- Modify: `Edu_AI/tests/e2e/fixtures/apiRoutes.ts`
-- Modify: `Edu_AI/tests/e2e/course-knowledge.spec.ts`
+- Modify: `frontend/tests/e2e/fixtures/apiRoutes.ts`
+- Modify: `frontend/tests/e2e/course-knowledge.spec.ts`
 
 - [ ] **Step 1: 扩展测试目录为两个章节**
 

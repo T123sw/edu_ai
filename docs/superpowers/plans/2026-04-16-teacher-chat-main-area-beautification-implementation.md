@@ -12,13 +12,13 @@
 
 ## File Structure
 
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
   - Remove the top status card from the render tree, introduce semantic wrappers for the top controls, message-stage shell, and composer shell, and preserve all existing chat/workflow behaviors.
-- Create: `Edu_AI/src/components/teacher/ChatPanel.css`
+- Create: `frontend/src/components/teacher/ChatPanel.css`
   - Hold the dedicated middle-panel visual language: top control strip, message rhythm, avatar tone, bubble hierarchy, and the stable bottom composer shell.
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
   - Keep coverage for readable user-facing chat copy after the middle-panel refactor.
-- Create: `Edu_AI/tests/frontend/chatPanel.layout.test.ts`
+- Create: `frontend/tests/frontend/chatPanel.layout.test.ts`
   - Add source-level regression checks for the new middle-area shell and the removal of the status-card render.
 
 ## Skill Execution Notes
@@ -48,12 +48,12 @@ Do not rewrite chat business logic, conversation history behavior, workflow poll
 ### Task 1: Add failing regressions for the new middle-area shell
 
 **Files:**
-- Create: `Edu_AI/tests/frontend/chatPanel.layout.test.ts`
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Create: `frontend/tests/frontend/chatPanel.layout.test.ts`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
 
 - [ ] **Step 1: Write the failing layout regression**
 
-Create `Edu_AI/tests/frontend/chatPanel.layout.test.ts`:
+Create `frontend/tests/frontend/chatPanel.layout.test.ts`:
 
 ```ts
 import assert from 'node:assert/strict';
@@ -99,7 +99,7 @@ console.log('chatPanel.layout tests passed');
 
 - [ ] **Step 2: Extend text-safety coverage for the middle panel**
 
-Keep `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts` aligned with the current readable chat copy by ensuring it still checks the visible composer placeholder:
+Keep `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts` aligned with the current readable chat copy by ensuring it still checks the visible composer placeholder:
 
 ```ts
 assert.match(
@@ -122,14 +122,14 @@ Expected: FAIL because the current middle-area shell does not yet contain the ne
 - [ ] **Step 4: Commit the red test checkpoint**
 
 ```bash
-git add Edu_AI/tests/frontend/chatPanel.layout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+git add frontend/tests/frontend/chatPanel.layout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 git commit -m "test: cover beautified teacher chat main area"
 ```
 
 ### Task 2: Remove the status-card shell and introduce semantic middle-area structure
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
 
 - [ ] **Step 1: Load the required beautification skills**
 
@@ -153,7 +153,7 @@ Expected: the design guidance is available before editing the component.
 
 - [ ] **Step 2: Import the dedicated stylesheet**
 
-Add this import near the top of `Edu_AI/src/components/teacher/ChatPanel.tsx`:
+Add this import near the top of `frontend/src/components/teacher/ChatPanel.tsx`:
 
 ```ts
 import './ChatPanel.css';
@@ -239,19 +239,19 @@ Expected: PASS.
 - [ ] **Step 8: Commit the structural refactor**
 
 ```bash
-git add Edu_AI/src/components/teacher/ChatPanel.tsx Edu_AI/tests/frontend/chatPanel.layout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+git add frontend/src/components/teacher/ChatPanel.tsx frontend/tests/frontend/chatPanel.layout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 git commit -m "feat: restructure teacher chat main area shell"
 ```
 
 ### Task 3: Implement the middle-area visual language in a dedicated stylesheet
 
 **Files:**
-- Create: `Edu_AI/src/components/teacher/ChatPanel.css`
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
+- Create: `frontend/src/components/teacher/ChatPanel.css`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
 
 - [ ] **Step 1: Create the stylesheet shell**
 
-Create `Edu_AI/src/components/teacher/ChatPanel.css` with the core layers:
+Create `frontend/src/components/teacher/ChatPanel.css` with the core layers:
 
 ```css
 .chat-panel {
@@ -314,7 +314,7 @@ Update the message render block so the avatar and bubble wrappers carry semantic
 
 - [ ] **Step 3: Implement the calmer message-stage styling**
 
-Extend `Edu_AI/src/components/teacher/ChatPanel.css` with:
+Extend `frontend/src/components/teacher/ChatPanel.css` with:
 
 ```css
 .chat-panel__message-row {
@@ -431,16 +431,16 @@ Expected: PASS. If `chatPanel.workflow-polling.test.ts` still fails due to a sta
 - [ ] **Step 7: Commit the visual-language pass**
 
 ```bash
-git add Edu_AI/src/components/teacher/ChatPanel.tsx Edu_AI/src/components/teacher/ChatPanel.css Edu_AI/tests/frontend/chatPanel.layout.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts Edu_AI/tests/frontend/chatPanel.workflow-polling.test.ts
+git add frontend/src/components/teacher/ChatPanel.tsx frontend/src/components/teacher/ChatPanel.css frontend/tests/frontend/chatPanel.layout.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts frontend/tests/frontend/chatPanel.workflow-polling.test.ts
 git commit -m "style: beautify teacher chat main area"
 ```
 
 ### Task 4: Polish spacing, input emphasis, and remaining regression edges
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.css`
-- Modify: `Edu_AI/tests/frontend/chatPanel.workflow-polling.test.ts` (only if needed)
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
+- Modify: `frontend/src/components/teacher/ChatPanel.css`
+- Modify: `frontend/tests/frontend/chatPanel.workflow-polling.test.ts` (only if needed)
 
 - [ ] **Step 1: Load the final polish guidance**
 
@@ -481,7 +481,7 @@ And ensure the composer controls align cleanly with the send button and attachme
 
 - [ ] **Step 3: Update the workflow polling source-level test only if it is stale**
 
-If `Edu_AI/tests/frontend/chatPanel.workflow-polling.test.ts` still fails despite unchanged behavior, update only the assertion regex to match the current code shape, for example:
+If `frontend/tests/frontend/chatPanel.workflow-polling.test.ts` still fails despite unchanged behavior, update only the assertion regex to match the current code shape, for example:
 
 ```ts
 assert.match(
@@ -510,7 +510,7 @@ Expected:
 - [ ] **Step 5: Commit the polish pass**
 
 ```bash
-git add Edu_AI/src/components/teacher/ChatPanel.tsx Edu_AI/src/components/teacher/ChatPanel.css Edu_AI/tests/frontend/chatPanel.layout.test.ts Edu_AI/tests/frontend/chatPanel.workflow-polling.test.ts
+git add frontend/src/components/teacher/ChatPanel.tsx frontend/src/components/teacher/ChatPanel.css frontend/tests/frontend/chatPanel.layout.test.ts frontend/tests/frontend/chatPanel.workflow-polling.test.ts
 git commit -m "style: polish teacher chat main area"
 ```
 

@@ -12,11 +12,11 @@
 
 ## File Map
 
-- Modify: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Modify: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
   Responsibility: Add the node-detail upload button, file input wiring, scope-aware upload request, and post-upload refresh behavior.
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
+- Test: `frontend/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
   Responsibility: Assert that the node-detail upload button exists and sends uploads into the correct course knowledge-base scope.
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_course_scope_routes.py`
+- Modify: `backend/src/tests/chat/test_course_scope_routes.py`
   Responsibility: Cover direct course knowledge-base uploads for both knowledge-point nodes and the course root scope.
 
 ---

@@ -59,7 +59,7 @@ SPEC-12 的以下约定保持不变：只接受文字提问；单次只处理一
 
 ### 4.1 问答检索
 
-`Edu_AI/api/src/app/services/classroom_qa_service.py` 当前注入 `rag_search`，在 `submit_turn` 中同步执行检索并把 `rag_answer` 传入 prompt；日志含 `rag_ms` 和 `rag_degraded`。`classroom_qa_prompt.py` 明确拼接“课程知识库参考”。因此日志中会出现 VectorSearch、BM25 和 reranker，且请求必须等待检索结束。
+`backend/src/app/services/classroom_qa_service.py` 当前注入 `rag_search`，在 `submit_turn` 中同步执行检索并把 `rag_answer` 传入 prompt；日志含 `rag_ms` 和 `rag_degraded`。`classroom_qa_prompt.py` 明确拼接“课程知识库参考”。因此日志中会出现 VectorSearch、BM25 和 reranker，且请求必须等待检索结束。
 
 ### 4.2 消息延迟与布局
 

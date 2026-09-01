@@ -23,7 +23,7 @@
 
 ## 当前行为
 
-- 主后端在 `Edu_AI/api/src/app/teaching_video_bridge.py` 的 `TeachingVideoBridgeService._build_pages()` 中本地导出 PPT 图片。
+- 主后端在 `backend/src/app/teaching_video_bridge.py` 的 `TeachingVideoBridgeService._build_pages()` 中本地导出 PPT 图片。
 - 主后端现在把每一页图片按本机绝对路径发给 `AI_Lecturer`：
 
 ```json
@@ -33,7 +33,7 @@
 }
 ```
 
-- `AI_Lecturer` 在 `Edu_AI/api/src/modules/AI_Lecturer/unified_gateway.py` 的 `SlidePage.ppt_image_path` 中接收该路径。
+- `AI_Lecturer` 在 `backend/src/modules/AI_Lecturer/unified_gateway.py` 的 `SlidePage.ppt_image_path` 中接收该路径。
 - `AI_Lecturer` 再通过 `background_full_course_worker()` 把这个路径传给 `offline_video_maker.build_course_video()`。
 - 这种方式只适合主后端和 `AI_Lecturer` 在同一台机器上运行，或者两台机器挂载了完全一致的共享文件系统。
 
@@ -71,21 +71,21 @@ temp_export/
 
 ## 涉及文件
 
-- 修改：`Edu_AI/api/src/modules/AI_Lecturer/unified_gateway.py`
+- 修改：`backend/src/modules/AI_Lecturer/unified_gateway.py`
   - 新增 multipart 上传接口。
   - 新增任务工作区创建逻辑。
   - 保存上传图片到 GPU 服务器本地。
   - 保留现有 `/api/v1/offline/generate_full_video` 接口。
-- 修改：`Edu_AI/api/src/app/teaching_video_bridge.py`
+- 修改：`backend/src/app/teaching_video_bridge.py`
   - 给 `AiLecturerGatewayClient` 新增上传模式方法。
   - 让 `TeachingVideoBridgeService.create_task()` 使用上传图片，而不是传远程无法读取的绝对路径。
-- 修改：`Edu_AI/api/src/core/config.py`
+- 修改：`backend/src/core/config.py`
   - 新增迁移开关：`AI_LECTURER_TRANSFER_MODE=upload`。
-- 修改：`Edu_AI/api/src/.env.production.example`
+- 修改：`backend/src/.env.production.example`
   - 补充远程 GPU 部署配置。
-- 新增测试：`Edu_AI/api/src/tests/chat/test_ai_lecturer_remote_upload.py`
+- 新增测试：`backend/src/tests/chat/test_ai_lecturer_remote_upload.py`
   - 验证网关可以接收 multipart 图片上传，并保存为任务素材。
-- 修改测试：`Edu_AI/api/src/tests/chat/test_teaching_video_bridge.py`
+- 修改测试：`backend/src/tests/chat/test_teaching_video_bridge.py`
   - 验证主后端在 upload 模式下发送文件，而不是发送绝对路径。
 
 ---
@@ -93,8 +93,8 @@ temp_export/
 ### Task 1：锁定网络协议
 
 **文件：**
-- 修改：`Edu_AI/api/src/modules/AI_Lecturer/unified_gateway.py`
-- 新增测试：`Edu_AI/api/src/tests/chat/test_ai_lecturer_remote_upload.py`
+- 修改：`backend/src/modules/AI_Lecturer/unified_gateway.py`
+- 新增测试：`backend/src/tests/chat/test_ai_lecturer_remote_upload.py`
 
 - [ ] **Step 1：定义 multipart 请求协议**
 
@@ -126,7 +126,7 @@ files:
 
 - [ ] **Step 2：新增一个先失败的网关测试**
 
-创建 `Edu_AI/api/src/tests/chat/test_ai_lecturer_remote_upload.py`：
+创建 `backend/src/tests/chat/test_ai_lecturer_remote_upload.py`：
 
 ```python
 from fastapi.testclient import TestClient
@@ -179,7 +179,7 @@ def test_offline_upload_endpoint_accepts_slide_files(monkeypatch, tmp_path):
 运行：
 
 ```bash
-cd Edu_AI/api/src
+cd backend/src
 pytest tests/chat/test_ai_lecturer_remote_upload.py -v
 ```
 
@@ -190,8 +190,8 @@ pytest tests/chat/test_ai_lecturer_remote_upload.py -v
 ### Task 2：新增 AI_Lecturer 上传接口
 
 **文件：**
-- 修改：`Edu_AI/api/src/modules/AI_Lecturer/unified_gateway.py`
-- 测试：`Edu_AI/api/src/tests/chat/test_ai_lecturer_remote_upload.py`
+- 修改：`backend/src/modules/AI_Lecturer/unified_gateway.py`
+- 测试：`backend/src/tests/chat/test_ai_lecturer_remote_upload.py`
 
 - [ ] **Step 1：新增上传模型和辅助函数**
 
@@ -297,7 +297,7 @@ async def generate_full_course_video_upload(
 运行：
 
 ```bash
-cd Edu_AI/api/src
+cd backend/src
 pytest tests/chat/test_ai_lecturer_remote_upload.py -v
 ```
 
@@ -308,8 +308,8 @@ pytest tests/chat/test_ai_lecturer_remote_upload.py -v
 ### Task 3：给主后端新增上传客户端
 
 **文件：**
-- 修改：`Edu_AI/api/src/app/teaching_video_bridge.py`
-- 修改测试：`Edu_AI/api/src/tests/chat/test_teaching_video_bridge.py`
+- 修改：`backend/src/app/teaching_video_bridge.py`
+- 修改测试：`backend/src/tests/chat/test_teaching_video_bridge.py`
 
 - [ ] **Step 1：新增一个先失败的客户端测试**
 
@@ -420,7 +420,7 @@ import json
 运行：
 
 ```bash
-cd Edu_AI/api/src
+cd backend/src
 pytest tests/chat/test_teaching_video_bridge.py::test_ai_lecturer_client_uploads_slide_files -v
 ```
 
@@ -431,9 +431,9 @@ pytest tests/chat/test_teaching_video_bridge.py::test_ai_lecturer_client_uploads
 ### Task 4：把教学视频创建切到上传模式
 
 **文件：**
-- 修改：`Edu_AI/api/src/core/config.py`
-- 修改：`Edu_AI/api/src/app/teaching_video_bridge.py`
-- 测试：`Edu_AI/api/src/tests/chat/test_teaching_video_bridge.py`
+- 修改：`backend/src/core/config.py`
+- 修改：`backend/src/app/teaching_video_bridge.py`
+- 测试：`backend/src/tests/chat/test_teaching_video_bridge.py`
 
 - [ ] **Step 1：新增配置开关**
 
@@ -466,7 +466,7 @@ else:
 运行：
 
 ```bash
-cd Edu_AI/api/src
+cd backend/src
 pytest tests/chat/test_teaching_video_bridge.py -v
 ```
 
@@ -477,7 +477,7 @@ pytest tests/chat/test_teaching_video_bridge.py -v
 ### Task 5：补充远程 GPU 配置文档
 
 **文件：**
-- 修改：`Edu_AI/api/src/.env.production.example`
+- 修改：`backend/src/.env.production.example`
 
 - [ ] **Step 1：更新 AI Lecturer 部署配置块**
 
@@ -518,7 +518,7 @@ AI_LECTURER_STARTUP_TIMEOUT_SEC=15
 在 GPU 服务器运行：
 
 ```bash
-cd Edu_AI/api/src/modules/AI_Lecturer
+cd backend/src/modules/AI_Lecturer
 python start_unified.py
 ```
 

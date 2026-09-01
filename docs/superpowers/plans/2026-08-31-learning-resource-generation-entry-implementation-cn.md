@@ -14,23 +14,23 @@
 
 ## 文件结构
 
-- 新建 `Edu_AI/src/stitch/pages/LearningResourceGeneration.tsx`：独立配置页外壳、返回入口及标准资源组件复用。
-- 新建 `Edu_AI/src/stitch/pages/learningResourceGeneration.css`：独立配置页布局和返回链接样式。
-- 新建 `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`：入口、路由归属和教师/学生页面分流的集成约束。
-- 修改 `Edu_AI/src/stitch/shared.tsx`：注册路由常量。
-- 修改 `Edu_AI/src/stitch/teacherRoutes.ts`：扩展教师课程路由类型与解析白名单。
-- 修改 `Edu_AI/src/stitch/course/courseNavigation.ts`：把新路由归入课程知识导航分组。
-- 修改 `Edu_AI/src/stitch/App.tsx`：懒加载并挂载独立配置页。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`：增加“学习资源生成”入口。
-- 修改 `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`：为次级入口添加与现有操作区一致的按钮样式。
-- 修改 `Edu_AI/src/stitch/pages/CourseKnowledge.tsx`：教师端移除内联配置区，学生端保留只读发布资源。
-- 修改 `Edu_AI/tests/e2e/fixtures/apiRoutes.ts`：为独立配置页提供标准资源目录响应。
-- 修改 `Edu_AI/tests/e2e/course-knowledge.spec.ts`：验证按钮跳转和配置页关键内容。
+- 新建 `frontend/src/stitch/pages/LearningResourceGeneration.tsx`：独立配置页外壳、返回入口及标准资源组件复用。
+- 新建 `frontend/src/stitch/pages/learningResourceGeneration.css`：独立配置页布局和返回链接样式。
+- 新建 `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`：入口、路由归属和教师/学生页面分流的集成约束。
+- 修改 `frontend/src/stitch/shared.tsx`：注册路由常量。
+- 修改 `frontend/src/stitch/teacherRoutes.ts`：扩展教师课程路由类型与解析白名单。
+- 修改 `frontend/src/stitch/course/courseNavigation.ts`：把新路由归入课程知识导航分组。
+- 修改 `frontend/src/stitch/App.tsx`：懒加载并挂载独立配置页。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`：增加“学习资源生成”入口。
+- 修改 `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`：为次级入口添加与现有操作区一致的按钮样式。
+- 修改 `frontend/src/stitch/pages/CourseKnowledge.tsx`：教师端移除内联配置区，学生端保留只读发布资源。
+- 修改 `frontend/tests/e2e/fixtures/apiRoutes.ts`：为独立配置页提供标准资源目录响应。
+- 修改 `frontend/tests/e2e/course-knowledge.spec.ts`：验证按钮跳转和配置页关键内容。
 
 ### Task 1: 用失败测试锁定入口、路由和页面分流
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
+- Create: `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
 
 - [ ] **Step 1: 写入口和路由约束测试**
 
@@ -84,17 +84,17 @@ Expected: FAIL，错误指出缺少 `learning-resource-generation` 路由、入�
 - [ ] **Step 3: 提交失败测试**
 
 ```powershell
-git add -- Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts
+git add -- frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts
 git commit -m "test: define learning resource generation navigation"
 ```
 
 ### Task 2: 注册独立课程路由
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/shared.tsx`
-- Modify: `Edu_AI/src/stitch/teacherRoutes.ts`
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.ts`
-- Modify: `Edu_AI/src/stitch/App.tsx`
+- Modify: `frontend/src/stitch/shared.tsx`
+- Modify: `frontend/src/stitch/teacherRoutes.ts`
+- Modify: `frontend/src/stitch/course/courseNavigation.ts`
+- Modify: `frontend/src/stitch/App.tsx`
 
 - [ ] **Step 1: 增加路由常量和教师课程路由类型**
 
@@ -151,18 +151,18 @@ Expected: FAIL，但路由相关断言通过；失败集中在尚未创建的页
 - [ ] **Step 5: 提交路由变更**
 
 ```powershell
-git add -- Edu_AI/src/stitch/shared.tsx Edu_AI/src/stitch/teacherRoutes.ts Edu_AI/src/stitch/course/courseNavigation.ts Edu_AI/src/stitch/App.tsx
+git add -- frontend/src/stitch/shared.tsx frontend/src/stitch/teacherRoutes.ts frontend/src/stitch/course/courseNavigation.ts frontend/src/stitch/App.tsx
 git commit -m "feat: register learning resource generation route"
 ```
 
 ### Task 3: 增加入口并创建独立配置页
 
 **Files:**
-- Create: `Edu_AI/src/stitch/pages/LearningResourceGeneration.tsx`
-- Create: `Edu_AI/src/stitch/pages/learningResourceGeneration.css`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`
-- Modify: `Edu_AI/src/stitch/pages/CourseKnowledge.tsx`
+- Create: `frontend/src/stitch/pages/LearningResourceGeneration.tsx`
+- Create: `frontend/src/stitch/pages/learningResourceGeneration.css`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`
+- Modify: `frontend/src/stitch/pages/CourseKnowledge.tsx`
 
 - [ ] **Step 1: 创建独立配置页**
 
@@ -297,15 +297,15 @@ Expected: PASS，3 项测试全部通过。
 - [ ] **Step 6: 提交入口与页面变更**
 
 ```powershell
-git add -- Edu_AI/src/stitch/pages/LearningResourceGeneration.tsx Edu_AI/src/stitch/pages/learningResourceGeneration.css Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css Edu_AI/src/stitch/pages/CourseKnowledge.tsx
+git add -- frontend/src/stitch/pages/LearningResourceGeneration.tsx frontend/src/stitch/pages/learningResourceGeneration.css frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css frontend/src/stitch/pages/CourseKnowledge.tsx
 git commit -m "feat: add learning resource generation page"
 ```
 
 ### Task 4: 增加浏览器验收覆盖
 
 **Files:**
-- Modify: `Edu_AI/tests/e2e/fixtures/apiRoutes.ts`
-- Modify: `Edu_AI/tests/e2e/course-knowledge.spec.ts`
+- Modify: `frontend/tests/e2e/fixtures/apiRoutes.ts`
+- Modify: `frontend/tests/e2e/course-knowledge.spec.ts`
 
 - [ ] **Step 1: 为测试夹具补充标准资源目录**
 
@@ -360,7 +360,7 @@ Expected: PASS，新增跳转测试及原课程知识测试全部通过。
 - [ ] **Step 4: 提交验收覆盖**
 
 ```powershell
-git add -- Edu_AI/tests/e2e/fixtures/apiRoutes.ts Edu_AI/tests/e2e/course-knowledge.spec.ts
+git add -- frontend/tests/e2e/fixtures/apiRoutes.ts frontend/tests/e2e/course-knowledge.spec.ts
 git commit -m "test: cover learning resource generation navigation"
 ```
 
@@ -396,6 +396,6 @@ Expected: `git diff --check` 无输出；状态中只包含本计划涉及文件
 - [ ] **Step 5: 如仍有本功能未提交变更则提交**
 
 ```powershell
-git add -- Edu_AI/src/stitch Edu_AI/tests/e2e/course-knowledge.spec.ts Edu_AI/tests/e2e/fixtures/apiRoutes.ts
+git add -- frontend/src/stitch frontend/tests/e2e/course-knowledge.spec.ts frontend/tests/e2e/fixtures/apiRoutes.ts
 git commit -m "feat: finish learning resource generation entry"
 ```

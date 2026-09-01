@@ -14,7 +14,7 @@
 
 **Files:**
 - Create: `Edu_AI/eslint.config.js`
-- Modify: `Edu_AI/package.json`
+- Modify: `frontend/package.json`
 - Modify: `Edu_AI/package-lock.json`
 
 - [ ] **Step 1: Install the TypeScript-aware ESLint flat-config dependency**
@@ -55,15 +55,15 @@ Expected: existing Node tests pass; lint reaches source files and reports only a
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add Edu_AI/eslint.config.js Edu_AI/package.json Edu_AI/package-lock.json
+git add Edu_AI/eslint.config.js frontend/package.json Edu_AI/package-lock.json
 git commit -m "test(frontend): restore TypeScript quality gates"
 ```
 
 ### Task 2: Define and compile LessonTimeline
 
 **Files:**
-- Create: `Edu_AI/src/openmaic/timeline.ts`
-- Create: `Edu_AI/src/openmaic/timeline.test.ts`
+- Create: `frontend/src/openmaic/timeline.ts`
+- Create: `frontend/src/openmaic/timeline.test.ts`
 
 - [ ] **Step 1: Write failing contract/compiler tests**
 
@@ -130,18 +130,18 @@ Expected: timeline tests and existing tests pass; lint/build exit 0.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add Edu_AI/src/openmaic/timeline.ts Edu_AI/src/openmaic/timeline.test.ts
+git add frontend/src/openmaic/timeline.ts frontend/src/openmaic/timeline.test.ts
 git commit -m "feat(player): compile OpenMAIC actions into lesson timeline"
 ```
 
 ### Task 3: Record measured playback timings and consume timeline order
 
 **Files:**
-- Create: `Edu_AI/src/openmaic/timelineRecorder.ts`
-- Create: `Edu_AI/src/openmaic/timelineRecorder.test.ts`
-- Modify: `Edu_AI/src/openmaic/playbackEngine.ts`
-- Create: `Edu_AI/src/openmaic/playbackEngine.test.ts`
-- Modify: `Edu_AI/src/openmaic/SlidePlayer.tsx`
+- Create: `frontend/src/openmaic/timelineRecorder.ts`
+- Create: `frontend/src/openmaic/timelineRecorder.test.ts`
+- Modify: `frontend/src/openmaic/playbackEngine.ts`
+- Create: `frontend/src/openmaic/playbackEngine.test.ts`
+- Modify: `frontend/src/openmaic/SlidePlayer.tsx`
 
 - [ ] **Step 1: Write failing recorder and engine tests**
 
@@ -182,15 +182,15 @@ Compile its scene once, attach a recorder, retain `renderVideo`, and expose opti
 Run all frontend tests, lint, and build; then:
 
 ```powershell
-git add Edu_AI/src/openmaic
+git add frontend/src/openmaic
 git commit -m "feat(player): record measured lesson timelines"
 ```
 
 ### Task 4: Complete narration fallback and focus concurrency
 
 **Files:**
-- Modify: `Edu_AI/src/openmaic/actionEngine.ts`
-- Create: `Edu_AI/src/openmaic/actionEngine.test.ts`
+- Modify: `frontend/src/openmaic/actionEngine.ts`
+- Create: `frontend/src/openmaic/actionEngine.test.ts`
 
 - [ ] **Step 1: Write failing regression tests**
 
@@ -217,18 +217,18 @@ Use the compiled `concurrentWith` relationship or explicit playback context. Do 
 Run frontend tests, lint, and build; commit:
 
 ```powershell
-git add Edu_AI/src/openmaic/actionEngine.ts Edu_AI/src/openmaic/actionEngine.test.ts
+git add frontend/src/openmaic/actionEngine.ts frontend/src/openmaic/actionEngine.test.ts
 git commit -m "fix(player): make narration fallback and focus timing deterministic"
 ```
 
 ### Task 5: Implement controlled embedded-video playback
 
 **Files:**
-- Create: `Edu_AI/src/openmaic/videoRegistry.ts`
-- Create: `Edu_AI/src/openmaic/videoRegistry.test.ts`
-- Modify: `Edu_AI/src/openmaic/actionEngine.ts`
-- Modify: `Edu_AI/src/openmaic/SlidePlayer.tsx`
-- Create or modify: `Edu_AI/src/stitch/pages/_dev/PlayerSmoke.tsx`
+- Create: `frontend/src/openmaic/videoRegistry.ts`
+- Create: `frontend/src/openmaic/videoRegistry.test.ts`
+- Modify: `frontend/src/openmaic/actionEngine.ts`
+- Modify: `frontend/src/openmaic/SlidePlayer.tsx`
+- Create or modify: `frontend/src/stitch/pages/_dev/PlayerSmoke.tsx`
 
 - [ ] **Step 1: Write failing registry/action tests**
 
@@ -247,14 +247,14 @@ Add a real video element and `play_video` action. Include visible data attribute
 Run frontend tests, lint, build, and browser smoke; commit:
 
 ```powershell
-git add Edu_AI/src/openmaic Edu_AI/src/stitch/pages/_dev/PlayerSmoke.tsx
+git add frontend/src/openmaic frontend/src/stitch/pages/_dev/PlayerSmoke.tsx
 git commit -m "feat(player): control embedded video through timeline actions"
 ```
 
 ### Task 6: Finish Chinese rendering and Phase 3 acceptance
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/_dev/PlayerSmoke.tsx`
+- Modify: `frontend/src/stitch/pages/_dev/PlayerSmoke.tsx`
 - Modify: `docs/spec/SPEC-08_前端集成_DSL与Renderer播放.md`
 - Modify: `docs/acceptance/ACC-08_前端集成播放_验收.md`
 - Modify: `docs/acceptance/README.md`
@@ -288,7 +288,7 @@ Mark only evidenced AC-08 items complete. Record commands, counts, browser fixtu
 - [ ] **Step 4: Commit**
 
 ```powershell
-git add Edu_AI/src/stitch/pages/_dev/PlayerSmoke.tsx docs 项目总览地图.md
+git add frontend/src/stitch/pages/_dev/PlayerSmoke.tsx docs 项目总览地图.md
 git commit -m "docs(migration): close Phase 3 interaction classroom acceptance"
 ```
 
@@ -305,7 +305,7 @@ npm test
 npm run lint
 npm run build
 
-cd api/src
+cd backend/src
 conda run -n edu-ai python -m pytest tests/test_classroom_media.py tests/test_classroom_service.py tests/test_classroom_validation.py -q
 ```
 

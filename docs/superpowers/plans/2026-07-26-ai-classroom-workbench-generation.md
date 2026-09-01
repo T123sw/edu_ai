@@ -12,19 +12,19 @@
 
 ## File map
 
-- Create `Edu_AI/src/openmaic/classroomGenerationFlow.ts`: deterministic polling, cancellation, result validation, and player hash construction.
-- Create `Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`: unit coverage for the complete asynchronous state flow.
-- Create `Edu_AI/src/components/teacher/ClassroomGenerationEntry.tsx`: full-width card, topic modal, progress, retry, and success navigation.
-- Create `Edu_AI/src/components/teacher/ClassroomGenerationEntry.css`: isolated card and modal presentation.
-- Modify `Edu_AI/src/components/teacher/StudioPanel.tsx`: mount the entry immediately after the workbench title divider.
-- Verify `Edu_AI/src/stitch/api/classroom.ts`: reuse `generateClassroom` and `getJobStatus`; no duplicate client.
-- Verify `Edu_AI/api/src/app/schemas/course.py` and `Edu_AI/api/src/app/api/courses.py`: existing `enable_tts=true`, `202` submission, and job polling contract remain unchanged.
+- Create `frontend/src/openmaic/classroomGenerationFlow.ts`: deterministic polling, cancellation, result validation, and player hash construction.
+- Create `frontend/src/openmaic/classroomGenerationFlow.test.ts`: unit coverage for the complete asynchronous state flow.
+- Create `frontend/src/components/teacher/ClassroomGenerationEntry.tsx`: full-width card, topic modal, progress, retry, and success navigation.
+- Create `frontend/src/components/teacher/ClassroomGenerationEntry.css`: isolated card and modal presentation.
+- Modify `frontend/src/components/teacher/StudioPanel.tsx`: mount the entry immediately after the workbench title divider.
+- Verify `frontend/src/stitch/api/classroom.ts`: reuse `generateClassroom` and `getJobStatus`; no duplicate client.
+- Verify `backend/src/app/schemas/course.py` and `backend/src/app/api/courses.py`: existing `enable_tts=true`, `202` submission, and job polling contract remain unchanged.
 
 ### Task 1: Build the tested classroom generation flow
 
 **Files:**
-- Create: `Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`
-- Create: `Edu_AI/src/openmaic/classroomGenerationFlow.ts`
+- Create: `frontend/src/openmaic/classroomGenerationFlow.test.ts`
+- Create: `frontend/src/openmaic/classroomGenerationFlow.ts`
 
 - [ ] **Step 1: Write the failing result and URL tests**
 
@@ -219,21 +219,21 @@ Expected: targeted tests PASS; full frontend suite PASS.
 - [ ] **Step 6: Commit the flow**
 
 ```powershell
-git add Edu_AI/src/openmaic/classroomGenerationFlow.ts Edu_AI/src/openmaic/classroomGenerationFlow.test.ts
+git add frontend/src/openmaic/classroomGenerationFlow.ts frontend/src/openmaic/classroomGenerationFlow.test.ts
 git commit -m "feat(classroom): add generation polling flow"
 ```
 
 ### Task 2: Add the full-width workbench entry and modal
 
 **Files:**
-- Create: `Edu_AI/src/components/teacher/ClassroomGenerationEntry.tsx`
-- Create: `Edu_AI/src/components/teacher/ClassroomGenerationEntry.css`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx:70-80`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx:2861-2890`
+- Create: `frontend/src/components/teacher/ClassroomGenerationEntry.tsx`
+- Create: `frontend/src/components/teacher/ClassroomGenerationEntry.css`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx:70-80`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx:2861-2890`
 
 - [ ] **Step 1: Add a failing placement regression test**
 
-Append to `Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`:
+Append to `frontend/src/openmaic/classroomGenerationFlow.test.ts`:
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -498,24 +498,24 @@ Expected: all targeted tests PASS and the full suite PASS.
 - [ ] **Step 7: Commit the UI integration**
 
 ```powershell
-git add Edu_AI/src/components/teacher/ClassroomGenerationEntry.tsx Edu_AI/src/components/teacher/ClassroomGenerationEntry.css Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/src/openmaic/classroomGenerationFlow.test.ts
+git add frontend/src/components/teacher/ClassroomGenerationEntry.tsx frontend/src/components/teacher/ClassroomGenerationEntry.css frontend/src/components/teacher/StudioPanel.tsx frontend/src/openmaic/classroomGenerationFlow.test.ts
 git commit -m "feat(frontend): generate AI classroom from chat workbench"
 ```
 
 ### Task 3: Verify the existing backend contract and production frontend
 
 **Files:**
-- Verify only: `Edu_AI/src/stitch/api/classroom.ts`
-- Verify only: `Edu_AI/api/src/app/schemas/course.py`
-- Verify only: `Edu_AI/api/src/app/api/courses.py`
-- Verify only: `Edu_AI/api/src/app/api/jobs.py`
+- Verify only: `frontend/src/stitch/api/classroom.ts`
+- Verify only: `backend/src/app/schemas/course.py`
+- Verify only: `backend/src/app/api/courses.py`
+- Verify only: `backend/src/app/api/jobs.py`
 
 - [ ] **Step 1: Run classroom generation and job-service backend tests**
 
 Run:
 
 ```powershell
-Set-Location Edu_AI/api/src
+Set-Location backend/src
 python -m pytest tests/test_classroom_job_service.py tests/test_classroom_service.py tests/test_classroom_persistence.py tests/test_classroom_media.py -q
 ```
 

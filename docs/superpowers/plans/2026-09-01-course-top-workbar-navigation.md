@@ -12,16 +12,16 @@
 
 ## File map
 
-- `Edu_AI/src/stitch/course/courseNavigation.ts`: canonical workbar order, labels, route grouping, and page-title metadata.
-- `Edu_AI/src/stitch/course/courseNavigation.test.ts`: behavior tests for the canonical navigation model.
-- `Edu_AI/src/stitch/course/CourseShell.tsx`: top workbar, teacher course menu, mobile top menu, active state, and role-aware links.
-- `Edu_AI/src/stitch/course/CourseShell.test.ts`: source-contract regression test for removal of sidebar/drawer markup and preservation of teacher/student rules.
-- `Edu_AI/src/stitch/styles.css`: desktop and responsive visual layout for the top workbar and menus.
+- `frontend/src/stitch/course/courseNavigation.ts`: canonical workbar order, labels, route grouping, and page-title metadata.
+- `frontend/src/stitch/course/courseNavigation.test.ts`: behavior tests for the canonical navigation model.
+- `frontend/src/stitch/course/CourseShell.tsx`: top workbar, teacher course menu, mobile top menu, active state, and role-aware links.
+- `frontend/src/stitch/course/CourseShell.test.ts`: source-contract regression test for removal of sidebar/drawer markup and preservation of teacher/student rules.
+- `frontend/src/stitch/styles.css`: desktop and responsive visual layout for the top workbar and menus.
 
 ### Task 1: Lock the canonical workbar model with failing tests
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.test.ts`
+- Modify: `frontend/src/stitch/course/courseNavigation.test.ts`
 
 - [ ] **Step 1: Replace the old seven-item assertions with the approved five-item contract**
 
@@ -77,8 +77,8 @@ The failing test and its minimal implementation are committed together in Task 2
 ### Task 2: Separate workbar navigation from course route metadata
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.ts`
-- Test: `Edu_AI/src/stitch/course/courseNavigation.test.ts`
+- Modify: `frontend/src/stitch/course/courseNavigation.ts`
+- Test: `frontend/src/stitch/course/courseNavigation.test.ts`
 
 - [ ] **Step 1: Replace the navigation types and data with a five-item workbar definition**
 
@@ -141,14 +141,14 @@ Expected: the three navigation tests PASS.
 - [ ] **Step 3: Commit the navigation model**
 
 ```text
-git add Edu_AI/src/stitch/course/courseNavigation.ts Edu_AI/src/stitch/course/courseNavigation.test.ts
+git add frontend/src/stitch/course/courseNavigation.ts frontend/src/stitch/course/courseNavigation.test.ts
 git commit -m "refactor: define course top workbar navigation"
 ```
 
 ### Task 3: Lock the shell structure and role rules with a failing contract test
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/CourseShell.test.ts`
+- Create: `frontend/src/stitch/course/CourseShell.test.ts`
 
 - [ ] **Step 1: Add a source-contract test for the approved shell**
 
@@ -186,9 +186,9 @@ Expected: FAIL because the current shell still contains sidebar and left-drawer 
 ### Task 4: Build the responsive top workbar
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/CourseShell.tsx`
-- Modify: `Edu_AI/src/stitch/styles.css:782-904,1138-1146`
-- Test: `Edu_AI/src/stitch/course/CourseShell.test.ts`
+- Modify: `frontend/src/stitch/course/CourseShell.tsx`
+- Modify: `frontend/src/stitch/styles.css:782-904,1138-1146`
+- Test: `frontend/src/stitch/course/CourseShell.test.ts`
 
 - [ ] **Step 1: Replace drawer state with course-menu and mobile-menu state**
 
@@ -312,16 +312,16 @@ Expected: both focused test files PASS.
 - [ ] **Step 6: Commit the shell implementation**
 
 ```text
-git add Edu_AI/src/stitch/course/CourseShell.tsx Edu_AI/src/stitch/course/CourseShell.test.ts Edu_AI/src/stitch/styles.css
+git add frontend/src/stitch/course/CourseShell.tsx frontend/src/stitch/course/CourseShell.test.ts frontend/src/stitch/styles.css
 git commit -m "feat: move course navigation to top workbar"
 ```
 
 ### Task 5: Run regression and production verification
 
 **Files:**
-- Verify: `Edu_AI/src/stitch/course/courseNavigation.ts`
-- Verify: `Edu_AI/src/stitch/course/CourseShell.tsx`
-- Verify: `Edu_AI/src/stitch/styles.css`
+- Verify: `frontend/src/stitch/course/courseNavigation.ts`
+- Verify: `frontend/src/stitch/course/CourseShell.tsx`
+- Verify: `frontend/src/stitch/styles.css`
 
 - [ ] **Step 1: Run the complete frontend test suite**
 

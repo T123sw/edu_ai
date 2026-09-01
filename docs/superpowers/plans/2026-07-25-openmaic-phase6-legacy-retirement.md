@@ -56,7 +56,7 @@ must stay green.
 
 **Vendor**
 
-- Delete `Edu_AI/api/src/modules/AI_Lecturer/`.
+- Delete `backend/src/modules/AI_Lecturer/`.
 
 **Verification**
 
@@ -81,7 +81,7 @@ must stay green.
 **Startup/vendor**
 
 - Remove html2ppt launch/install/config steps.
-- Delete `Edu_AI/api/src/modules/html2ppt/`.
+- Delete `backend/src/modules/html2ppt/`.
 - Remove html2ppt-only tests and replace route/tool expectations with an
   explicit unsupported/redirected legacy behavior where needed.
 
@@ -100,7 +100,7 @@ must stay green.
 - Modify `docs/deployment/README.md`
 - Modify `scripts/install-all.ps1`
 - Modify `scripts/install-all.sh`
-- Modify `Edu_AI/api/src/start_api.bat`
+- Modify `backend/src/start_api.bat`
 - Modify active `.env.example` files
 
 1. Remove CUDA, PyTorch, Wav2Lip/MuseTalk, LiveTalking, AI Lecturer ports, and

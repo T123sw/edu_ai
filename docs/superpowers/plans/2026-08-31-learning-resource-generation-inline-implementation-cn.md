@@ -13,8 +13,8 @@
 ### Task 1: 用失败测试锁定内嵌展开行为
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
-- Modify: `Edu_AI/tests/e2e/course-knowledge.spec.ts`
+- Modify: `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
+- Modify: `frontend/tests/e2e/course-knowledge.spec.ts`
 
 - [ ] **Step 1: 把源码约束改为按钮、内嵌面板和无独立路由**
 
@@ -33,9 +33,9 @@ Expected: FAIL，失败信息表明入口仍是独立路由链接，尚无内嵌
 ### Task 2: 实现内嵌配置并保证面板互斥
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/knowledge/LearningResourceGenerationPanel.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`
+- Create: `frontend/src/stitch/course/knowledge/LearningResourceGenerationPanel.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.css`
 
 - [ ] **Step 1: 创建内嵌配置面板**
 
@@ -62,13 +62,13 @@ Expected: PASS。
 ### Task 3: 删除独立页面与路由
 
 **Files:**
-- Delete: `Edu_AI/src/stitch/pages/LearningResourceGeneration.tsx`
-- Delete: `Edu_AI/src/stitch/pages/learningResourceGeneration.css`
-- Modify: `Edu_AI/src/stitch/App.tsx`
-- Modify: `Edu_AI/src/stitch/shared.tsx`
-- Modify: `Edu_AI/src/stitch/teacherRoutes.ts`
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.ts`
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.test.ts`
+- Delete: `frontend/src/stitch/pages/LearningResourceGeneration.tsx`
+- Delete: `frontend/src/stitch/pages/learningResourceGeneration.css`
+- Modify: `frontend/src/stitch/App.tsx`
+- Modify: `frontend/src/stitch/shared.tsx`
+- Modify: `frontend/src/stitch/teacherRoutes.ts`
+- Modify: `frontend/src/stitch/course/courseNavigation.ts`
+- Modify: `frontend/src/stitch/course/courseNavigation.test.ts`
 
 - [ ] **Step 1: 移除页面懒加载和路由表项**
 
@@ -91,7 +91,7 @@ Expected: PASS。
 ### Task 4: 验证完整行为
 
 **Files:**
-- Verify: `Edu_AI/tests/e2e/course-knowledge.spec.ts`
+- Verify: `frontend/tests/e2e/course-knowledge.spec.ts`
 
 - [ ] **Step 1: 运行前端全量测试和构建**
 

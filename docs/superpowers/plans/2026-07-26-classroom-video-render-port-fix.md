@@ -13,8 +13,8 @@
 ### Task 1: Lock the unified video render URL with failing tests
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/test_classroom_video_export.py`
-- Modify: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
+- Modify: `backend/src/tests/test_classroom_video_export.py`
+- Modify: `backend/src/tests/chat/test_start_api_bat.py`
 
 - [ ] **Step 1: Make the existing export orchestration test exercise the default URL**
 
@@ -73,9 +73,9 @@ Expected: failures show the backend fallback, startup environment, and environme
 ### Task 2: Align the backend and startup configuration
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/services/classroom_video_export.py`
-- Modify: `Edu_AI/api/src/.env.example`
-- Modify: `Edu_AI/api/src/start_api.bat`
+- Modify: `backend/src/app/services/classroom_video_export.py`
+- Modify: `backend/src/.env.example`
+- Modify: `backend/src/start_api.bat`
 
 - [ ] **Step 1: Change the backend local fallback**
 
@@ -118,7 +118,7 @@ Run:
 ```powershell
 cmd.exe /d /c start_api.bat --check
 git diff --check
-git add Edu_AI/api/src/app/services/classroom_video_export.py Edu_AI/api/src/.env.example Edu_AI/api/src/start_api.bat Edu_AI/api/src/tests/test_classroom_video_export.py Edu_AI/api/src/tests/chat/test_start_api_bat.py
+git add backend/src/app/services/classroom_video_export.py backend/src/.env.example backend/src/start_api.bat backend/src/tests/test_classroom_video_export.py backend/src/tests/chat/test_start_api_bat.py
 git commit -m "fix(video): align classroom renderer with frontend port"
 ```
 
@@ -127,7 +127,7 @@ Expected: startup check succeeds and the fix is committed without unrelated file
 ### Task 3: Verify the complete export path
 
 **Files:**
-- Verify: `Edu_AI/api/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/`
+- Verify: `backend/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/`
 
 - [ ] **Step 1: Run the backend regression suite**
 
@@ -163,17 +163,17 @@ Expected: lint has no errors and the build exits successfully.
 
 - [ ] **Step 4: Merge the verified fix into `main`**
 
-From the original repository, merge the isolated branch without including the user's existing `Edu_AI/package.json` change:
+From the original repository, merge the isolated branch without including the user's existing `frontend/package.json` change:
 
 ```powershell
 git merge --ff-only fix/classroom-video-render-port
 ```
 
-Expected: `main` fast-forwards to the tested fix commit and `Edu_AI/package.json` remains modified but uncommitted.
+Expected: `main` fast-forwards to the tested fix commit and `frontend/package.json` remains modified but uncommitted.
 
 - [ ] **Step 5: Run a real classroom export against port `5173`**
 
-From `Edu_AI/api/src`, run:
+From `backend/src`, run:
 
 ```powershell
 @'

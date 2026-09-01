@@ -35,7 +35,7 @@ POST /agent/deepsearch-and-crawl  (app/api/deepsearch.py)
 - 双档：`basic`（Bocha 摘要，快）/ `full`（Bocha URL → Tavily Extract 全文）。
 - 主对话 `web_search` 改接 Bocha basic，避免继续调用旧 `deepsearch_pipeline`。
 - 图片搜索 `image_search` 也从 SearXNG 切到 Bocha，Bocha 作为统一外部搜索入口。
-- 本阶段完成 `api/src` 内旧 `deepsearch_pipeline` / `deepsearch_loader` / EduAgent web 文本检索引用清理。
+- 本阶段完成 `backend/src` 内旧 `deepsearch_pipeline` / `deepsearch_loader` / EduAgent web 文本检索引用清理。
 
 **非目标**：
 - 不改前端端点/请求主签名（只加一个可选 `depth`）。
@@ -131,7 +131,7 @@ body: {
 
 ## 5. 新模块与落点
 
-`Edu_AI/api/src/app/integrations/websearch/`
+`backend/src/app/integrations/websearch/`
 
 ```python
 # bocha_search.py
@@ -226,7 +226,7 @@ class DeepSearchAndCrawlRequest(BaseModel):
 
 ## 11. 旧链路下线登记（v0.2 本阶段执行）
 
-本阶段目标是 `Edu_AI/api/src` 内无旧 web 文本检索链路引用，并且图片搜索不再依赖 SearXNG。
+本阶段目标是 `backend/src` 内无旧 web 文本检索链路引用，并且图片搜索不再依赖 SearXNG。
 
 **删除/清理清单**：
 
@@ -257,5 +257,5 @@ class DeepSearchAndCrawlRequest(BaseModel):
 - [ ] `run_deepsearch_and_crawl` 签名 + 端点 + 前端不变（回归）
 - [ ] 降级：Bocha 失败返回空、Tavily 部分失败跳过、全失败退回 basic
 - [ ] `BOCHA_API_KEY` / `TAVILY_API_KEY` 不出现在日志
-- [ ] `rg -n "deepsearch_pipeline|deepsearch_loader|load_eduagent_capabilities|EduAgent|crawler_service|content_cleaner|storage_service|deepsearch_large_llm" Edu_AI/api/src/app Edu_AI/api/src/tests` 无旧链路业务引用
-- [ ] `rg -n "SearXNG|searxng|SEARXNG_BASE_URL" Edu_AI/api/src/app Edu_AI/api/src/tests Edu_AI/api/src/.env.example` 无运行时依赖
+- [ ] `rg -n "deepsearch_pipeline|deepsearch_loader|load_eduagent_capabilities|EduAgent|crawler_service|content_cleaner|storage_service|deepsearch_large_llm" backend/src/app backend/src/tests` 无旧链路业务引用
+- [ ] `rg -n "SearXNG|searxng|SEARXNG_BASE_URL" backend/src/app backend/src/tests backend/src/.env.example` 无运行时依赖

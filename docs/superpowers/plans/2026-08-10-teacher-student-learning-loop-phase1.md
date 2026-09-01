@@ -28,59 +28,59 @@ Phase 1 intentionally excludes numeric knowledge mastery, vector memory, private
 
 ### Backend files to create
 
-- `Edu_AI/api/src/app/schemas/learning.py`: public request/response contracts.
-- `Edu_AI/api/src/app/learning/models.py`: internal immutable records and enums.
-- `Edu_AI/api/src/app/learning/store.py`: SQLite schema and transactional queries.
-- `Edu_AI/api/src/app/learning/service.py`: task, event, progress, and aggregate business rules.
-- `Edu_AI/api/src/app/learning/context_reader.py`: role-specific Agent memory projections.
-- `Edu_AI/api/src/app/learning/__init__.py`: package exports.
-- `Edu_AI/api/src/app/api/learning.py`: authenticated course-scoped HTTP routes.
-- `Edu_AI/api/src/tests/learning/test_learning_store.py`: persistence and idempotency tests.
-- `Edu_AI/api/src/tests/learning/test_learning_service.py`: business rule tests.
-- `Edu_AI/api/src/tests/learning/test_learning_api.py`: authorization and response tests.
-- `Edu_AI/api/src/tests/chat/test_learning_context_injection.py`: Agent context tests.
+- `backend/src/app/schemas/learning.py`: public request/response contracts.
+- `backend/src/app/learning/models.py`: internal immutable records and enums.
+- `backend/src/app/learning/store.py`: SQLite schema and transactional queries.
+- `backend/src/app/learning/service.py`: task, event, progress, and aggregate business rules.
+- `backend/src/app/learning/context_reader.py`: role-specific Agent memory projections.
+- `backend/src/app/learning/__init__.py`: package exports.
+- `backend/src/app/api/learning.py`: authenticated course-scoped HTTP routes.
+- `backend/src/tests/learning/test_learning_store.py`: persistence and idempotency tests.
+- `backend/src/tests/learning/test_learning_service.py`: business rule tests.
+- `backend/src/tests/learning/test_learning_api.py`: authorization and response tests.
+- `backend/src/tests/chat/test_learning_context_injection.py`: Agent context tests.
 
 ### Backend files to modify
 
-- `Edu_AI/api/src/core/config.py`: add `LEARNING_DB_PATH`.
-- `Edu_AI/api/src/app/bootstrap.py`: register the learning router.
-- `Edu_AI/api/src/app/chat/domain/conversation_snapshot.py`: add `learning_context`.
-- `Edu_AI/api/src/app/chat/orchestrator/context_builder.py`: load role-appropriate learning context.
-- `Edu_AI/api/src/app/chat/application/route_chat_service.py`: inject the production context reader.
-- `Edu_AI/api/src/app/chat/runtime/fast_chat_runtime.py`: include structured learning context in the system prompt.
-- `Edu_AI/api/src/app/chat/runtime/react_agent.py`: include the same context in ReAct messages.
+- `backend/src/core/config.py`: add `LEARNING_DB_PATH`.
+- `backend/src/app/bootstrap.py`: register the learning router.
+- `backend/src/app/chat/domain/conversation_snapshot.py`: add `learning_context`.
+- `backend/src/app/chat/orchestrator/context_builder.py`: load role-appropriate learning context.
+- `backend/src/app/chat/application/route_chat_service.py`: inject the production context reader.
+- `backend/src/app/chat/runtime/fast_chat_runtime.py`: include structured learning context in the system prompt.
+- `backend/src/app/chat/runtime/react_agent.py`: include the same context in ReAct messages.
 
 ### Frontend files to create
 
-- `Edu_AI/src/stitch/api/learning.ts`: typed learning API client.
-- `Edu_AI/src/stitch/pages/CourseLearning.tsx`: shared route entry that selects teacher/student presentation.
-- `Edu_AI/src/stitch/pages/CourseLearning.css`: learning task and progress styling.
-- `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`: pure formatting and permission helpers.
-- `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`: pure helper tests.
-- `Edu_AI/src/stitch/pages/CourseLearning.test.tsx`: component interaction tests.
+- `frontend/src/stitch/api/learning.ts`: typed learning API client.
+- `frontend/src/stitch/pages/CourseLearning.tsx`: shared route entry that selects teacher/student presentation.
+- `frontend/src/stitch/pages/CourseLearning.css`: learning task and progress styling.
+- `frontend/src/stitch/pages/courseLearningPresentation.ts`: pure formatting and permission helpers.
+- `frontend/src/stitch/pages/courseLearningPresentation.test.ts`: pure helper tests.
+- `frontend/src/stitch/pages/CourseLearning.test.tsx`: component interaction tests.
 
 ### Frontend files to modify
 
-- `Edu_AI/src/stitch/api/types.ts`: add learning API types.
-- `Edu_AI/src/stitch/shared.tsx`: register `learning` route.
-- `Edu_AI/src/stitch/teacherRoutes.ts`: add teacher learning route.
-- `Edu_AI/src/stitch/course/courseNavigation.ts`: add course learning navigation item.
-- `Edu_AI/src/stitch/student/routes/studentRoutes.ts`: add `student-learning` route.
-- `Edu_AI/src/stitch/student/shell/studentNavigation.ts`: add 学习任务 item.
-- `Edu_AI/src/stitch/student/StudentApp.tsx`: map student route to the shared page.
-- `Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts`: map teacher and student learning routes.
-- `Edu_AI/src/stitch/App.tsx`: map the teacher route to the shared page.
+- `frontend/src/stitch/api/types.ts`: add learning API types.
+- `frontend/src/stitch/shared.tsx`: register `learning` route.
+- `frontend/src/stitch/teacherRoutes.ts`: add teacher learning route.
+- `frontend/src/stitch/course/courseNavigation.ts`: add course learning navigation item.
+- `frontend/src/stitch/student/routes/studentRoutes.ts`: add `student-learning` route.
+- `frontend/src/stitch/student/shell/studentNavigation.ts`: add 学习任务 item.
+- `frontend/src/stitch/student/StudentApp.tsx`: map student route to the shared page.
+- `frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts`: map teacher and student learning routes.
+- `frontend/src/stitch/App.tsx`: map the teacher route to the shared page.
 - Corresponding existing route/navigation tests.
 
 ## Task 1: Define and persist the learning domain
 
 **Files:**
 
-- Create: `Edu_AI/api/src/app/learning/models.py`
-- Create: `Edu_AI/api/src/app/learning/store.py`
-- Create: `Edu_AI/api/src/app/learning/__init__.py`
-- Modify: `Edu_AI/api/src/core/config.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_store.py`
+- Create: `backend/src/app/learning/models.py`
+- Create: `backend/src/app/learning/store.py`
+- Create: `backend/src/app/learning/__init__.py`
+- Modify: `backend/src/core/config.py`
+- Test: `backend/src/tests/learning/test_learning_store.py`
 
 - [ ] **Step 1: Write the failing store tests**
 
@@ -273,7 +273,7 @@ Expected: all store tests pass, including duplicate event idempotency, course fi
 - [ ] **Step 7: Commit the learning store**
 
 ```powershell
-git add Edu_AI/api/src/app/learning Edu_AI/api/src/core/config.py Edu_AI/api/src/tests/learning/test_learning_store.py
+git add backend/src/app/learning backend/src/core/config.py backend/src/tests/learning/test_learning_store.py
 git commit -m "feat: add durable course learning store"
 ```
 
@@ -281,9 +281,9 @@ git commit -m "feat: add durable course learning store"
 
 **Files:**
 
-- Create: `Edu_AI/api/src/app/schemas/learning.py`
-- Create: `Edu_AI/api/src/app/learning/service.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_service.py`
+- Create: `backend/src/app/schemas/learning.py`
+- Create: `backend/src/app/learning/service.py`
+- Test: `backend/src/tests/learning/test_learning_service.py`
 
 - [ ] **Step 1: Write failing service tests**
 
@@ -418,7 +418,7 @@ Expected: all rule, material-reference, publication, progress, and aggregate tes
 - [ ] **Step 6: Commit the service layer**
 
 ```powershell
-git add Edu_AI/api/src/app/schemas/learning.py Edu_AI/api/src/app/learning/service.py Edu_AI/api/src/tests/learning/test_learning_service.py
+git add backend/src/app/schemas/learning.py backend/src/app/learning/service.py backend/src/tests/learning/test_learning_service.py
 git commit -m "feat: add course learning task rules"
 ```
 
@@ -426,9 +426,9 @@ git commit -m "feat: add course learning task rules"
 
 **Files:**
 
-- Create: `Edu_AI/api/src/app/api/learning.py`
-- Modify: `Edu_AI/api/src/app/bootstrap.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_api.py`
+- Create: `backend/src/app/api/learning.py`
+- Modify: `backend/src/app/bootstrap.py`
+- Test: `backend/src/tests/learning/test_learning_api.py`
 
 - [ ] **Step 1: Write API authorization tests**
 
@@ -523,7 +523,7 @@ Expected: all tests pass; a non-member receives 403, a student cannot create/pub
 - [ ] **Step 6: Commit the API**
 
 ```powershell
-git add Edu_AI/api/src/app/api/learning.py Edu_AI/api/src/app/bootstrap.py Edu_AI/api/src/tests/learning/test_learning_api.py
+git add backend/src/app/api/learning.py backend/src/app/bootstrap.py backend/src/tests/learning/test_learning_api.py
 git commit -m "feat: expose authorized course learning APIs"
 ```
 
@@ -531,10 +531,10 @@ git commit -m "feat: expose authorized course learning APIs"
 
 **Files:**
 
-- Create: `Edu_AI/src/stitch/api/learning.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Test: `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`
-- Create: `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`
+- Create: `frontend/src/stitch/api/learning.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Test: `frontend/src/stitch/pages/courseLearningPresentation.test.ts`
+- Create: `frontend/src/stitch/pages/courseLearningPresentation.ts`
 
 - [ ] **Step 1: Add pure presentation tests**
 
@@ -608,7 +608,7 @@ Expected: all helper tests pass.
 - [ ] **Step 6: Commit the frontend client**
 
 ```powershell
-git add Edu_AI/src/stitch/api/learning.ts Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/pages/courseLearningPresentation.ts Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts
+git add frontend/src/stitch/api/learning.ts frontend/src/stitch/api/types.ts frontend/src/stitch/pages/courseLearningPresentation.ts frontend/src/stitch/pages/courseLearningPresentation.test.ts
 git commit -m "feat: add typed learning interaction client"
 ```
 
@@ -616,9 +616,9 @@ git commit -m "feat: add typed learning interaction client"
 
 **Files:**
 
-- Create: `Edu_AI/src/stitch/pages/CourseLearning.tsx`
-- Create: `Edu_AI/src/stitch/pages/CourseLearning.css`
-- Create: `Edu_AI/src/stitch/pages/CourseLearning.test.tsx`
+- Create: `frontend/src/stitch/pages/CourseLearning.tsx`
+- Create: `frontend/src/stitch/pages/CourseLearning.css`
+- Create: `frontend/src/stitch/pages/CourseLearning.test.tsx`
 - Modify: route, navigation, and page-map files listed in the file structure
 - Modify: corresponding existing route/navigation tests
 
@@ -713,7 +713,7 @@ Expected: both commands exit 0 with no TypeScript errors.
 - [ ] **Step 8: Commit the dual-end UI**
 
 ```powershell
-git add Edu_AI/src/stitch
+git add frontend/src/stitch
 git commit -m "feat: add teacher student learning workspace"
 ```
 
@@ -721,13 +721,13 @@ git commit -m "feat: add teacher student learning workspace"
 
 **Files:**
 
-- Create: `Edu_AI/api/src/app/learning/context_reader.py`
-- Modify: `Edu_AI/api/src/app/chat/domain/conversation_snapshot.py`
-- Modify: `Edu_AI/api/src/app/chat/orchestrator/context_builder.py`
-- Modify: `Edu_AI/api/src/app/chat/application/route_chat_service.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/fast_chat_runtime.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/react_agent.py`
-- Test: `Edu_AI/api/src/tests/chat/test_learning_context_injection.py`
+- Create: `backend/src/app/learning/context_reader.py`
+- Modify: `backend/src/app/chat/domain/conversation_snapshot.py`
+- Modify: `backend/src/app/chat/orchestrator/context_builder.py`
+- Modify: `backend/src/app/chat/application/route_chat_service.py`
+- Modify: `backend/src/app/chat/runtime/fast_chat_runtime.py`
+- Modify: `backend/src/app/chat/runtime/react_agent.py`
+- Test: `backend/src/tests/chat/test_learning_context_injection.py`
 
 - [ ] **Step 1: Write failing role-boundary tests**
 
@@ -823,7 +823,7 @@ Expected: all tests pass and prompt-capture fixtures show role-separated structu
 - [ ] **Step 8: Commit Agent learning context**
 
 ```powershell
-git add Edu_AI/api/src/app/learning/context_reader.py Edu_AI/api/src/app/chat Edu_AI/api/src/tests/chat/test_learning_context_injection.py
+git add backend/src/app/learning/context_reader.py backend/src/app/chat backend/src/tests/chat/test_learning_context_injection.py
 git commit -m "feat: ground both agents in learning progress"
 ```
 
@@ -831,8 +831,8 @@ git commit -m "feat: ground both agents in learning progress"
 
 **Files:**
 
-- Modify: `Edu_AI/api/src/app/chat/runtime/react_agent.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_agent_memory_restore.py`
+- Modify: `backend/src/app/chat/runtime/react_agent.py`
+- Test: `backend/src/tests/chat/runtime/test_agent_memory_restore.py`
 
 - [ ] **Step 1: Write a failing two-turn restore test**
 
@@ -878,7 +878,7 @@ Expected: all tests pass in same-process and restart scenarios.
 - [ ] **Step 5: Commit the reliability fix**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/runtime/react_agent.py Edu_AI/api/src/tests/chat/runtime/test_agent_memory_restore.py
+git add backend/src/app/chat/runtime/react_agent.py backend/src/tests/chat/runtime/test_agent_memory_restore.py
 git commit -m "fix: restore latest agent working memory"
 ```
 
@@ -886,7 +886,7 @@ git commit -m "fix: restore latest agent working memory"
 
 **Files:**
 
-- Create: `Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py`
+- Create: `backend/src/tests/learning/test_learning_loop_acceptance.py`
 - Modify: `docs/superpowers/specs/2026-08-10-agent-memory-v2-design-cn.md` only if implementation evidence changes a documented decision
 
 - [ ] **Step 1: Add a backend acceptance test**
@@ -940,7 +940,7 @@ Verify in the app:
 - [ ] **Step 6: Commit acceptance coverage**
 
 ```powershell
-git add Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py
+git add backend/src/tests/learning/test_learning_loop_acceptance.py
 git commit -m "test: cover teacher student learning loop"
 ```
 

@@ -9,7 +9,7 @@
 
 ## 1. 功能范围
 
-**做**：`Edu_AI/api/src/app/integrations/openmaic/` 下 httpx 客户端，封装 `health/parse_pdf/generate_classroom/poll_job/wait_job/verify_*/server_providers`，统一超时/重试/错误映射，把 sidecar job 适配到 edu_ai 任务表。
+**做**：`backend/src/app/integrations/openmaic/` 下 httpx 客户端，封装 `health/parse_pdf/generate_classroom/poll_job/wait_job/verify_*/server_providers`，统一超时/重试/错误映射，把 sidecar job 适配到 edu_ai 任务表。
 
 **不做**：`tts/generate_video` 薄封装（后置到 Phase 5）；不重定义 DSL 字段语义（stage/scenes 保持 dict 透传）。
 
@@ -33,7 +33,7 @@
 
 ## 3. 测试方法
 
-落点建议 `Edu_AI/api/tests/test_openmaic_client.py`（pytest-asyncio + `respx`/`httpx.MockTransport` mock sidecar）。
+落点建议 `backend/tests/test_openmaic_client.py`（pytest-asyncio + `respx`/`httpx.MockTransport` mock sidecar）。
 
 ### 3.1 契约与默认值（AC-07-2/3/9）
 ```python

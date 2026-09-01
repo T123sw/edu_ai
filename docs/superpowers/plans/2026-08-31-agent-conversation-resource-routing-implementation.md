@@ -12,21 +12,21 @@
 
 ## File Structure
 
-- Modify `Edu_AI/api/src/app/chat/runtime/react_agent.py`: remove the normal FastChat bypass, extract the task contract once, and seed it into graph state for every turn.
-- Modify `Edu_AI/api/src/app/chat/runtime/planning/task_contract_extractor.py`: recognize exact short outline confirmations without matching confirmation words inside knowledge questions.
-- Modify `Edu_AI/api/src/app/chat/runtime/nodes/executor.py`: hide state-mutating tools for unplanned QA and inject mode-specific execution instructions.
-- Modify `Edu_AI/api/src/app/chat/runtime/nodes/prompts.py`: replace mixed global instructions with explicit role, intent, tool, and truthfulness boundaries.
-- Modify `Edu_AI/api/src/tests/chat/runtime/test_react_agent.py`: verify every ordinary conversation stays inside ReAct Agent and generation still emits real task events.
-- Modify `Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py`: cover exact confirmation and false-positive boundaries.
-- Modify `Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py`: verify a bare `开始` after an active report outline compiles a `generate_report` step.
-- Modify `Edu_AI/api/src/tests/chat/runtime/test_phase5_strict.py`: verify QA cannot see mutating tools even when no plan was compiled.
-- Modify `Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py`: lock down the redesigned prompt and truthful-submission rules.
+- Modify `backend/src/app/chat/runtime/react_agent.py`: remove the normal FastChat bypass, extract the task contract once, and seed it into graph state for every turn.
+- Modify `backend/src/app/chat/runtime/planning/task_contract_extractor.py`: recognize exact short outline confirmations without matching confirmation words inside knowledge questions.
+- Modify `backend/src/app/chat/runtime/nodes/executor.py`: hide state-mutating tools for unplanned QA and inject mode-specific execution instructions.
+- Modify `backend/src/app/chat/runtime/nodes/prompts.py`: replace mixed global instructions with explicit role, intent, tool, and truthfulness boundaries.
+- Modify `backend/src/tests/chat/runtime/test_react_agent.py`: verify every ordinary conversation stays inside ReAct Agent and generation still emits real task events.
+- Modify `backend/src/tests/chat/runtime/test_teaching_task_contract.py`: cover exact confirmation and false-positive boundaries.
+- Modify `backend/src/tests/chat/runtime/test_plan_compiler.py`: verify a bare `开始` after an active report outline compiles a `generate_report` step.
+- Modify `backend/src/tests/chat/runtime/test_phase5_strict.py`: verify QA cannot see mutating tools even when no plan was compiled.
+- Modify `backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py`: lock down the redesigned prompt and truthful-submission rules.
 
 ### Task 1: Restore the Unified ReAct Agent Entry
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_react_agent.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/react_agent.py:27-155`
+- Modify: `backend/src/tests/chat/runtime/test_react_agent.py`
+- Modify: `backend/src/app/chat/runtime/react_agent.py:27-155`
 
 - [ ] **Step 1: Replace the FastChat-delegation regression test with an Agent-entry test**
 
@@ -57,7 +57,7 @@ def test_react_agent_keeps_ordinary_question_inside_agent_runtime():
 Run:
 
 ```powershell
-$env:PYTHONPATH='D:\Edu_AI_1\Edu_AI\api\src'
+$env:PYTHONPATH='D:\Edu_AI_1\backend\src'
 python -m pytest src/tests/chat/runtime/test_react_agent.py::test_react_agent_keeps_ordinary_question_inside_agent_runtime -q
 ```
 
@@ -116,15 +116,15 @@ Expected: all tests pass; ordinary QA ends with `trace.path == "agent"`.
 - [ ] **Step 5: Commit the unified entry change**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/runtime/react_agent.py Edu_AI/api/src/tests/chat/runtime/test_react_agent.py
+git add backend/src/app/chat/runtime/react_agent.py backend/src/tests/chat/runtime/test_react_agent.py
 git commit -m "fix: restore unified react agent entry"
 ```
 
 ### Task 2: Enforce QA Tool Boundaries Without a Compiled Plan
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_phase5_strict.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/nodes/executor.py:31-45,879-948`
+- Modify: `backend/src/tests/chat/runtime/test_phase5_strict.py`
+- Modify: `backend/src/app/chat/runtime/nodes/executor.py:31-45,879-948`
 
 - [ ] **Step 1: Add a failing test for unplanned QA mutation filtering**
 
@@ -226,16 +226,16 @@ Expected: all tests pass.
 - [ ] **Step 6: Commit the tool-boundary change**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/runtime/nodes/executor.py Edu_AI/api/src/tests/chat/runtime/test_phase5_strict.py
+git add backend/src/app/chat/runtime/nodes/executor.py backend/src/tests/chat/runtime/test_phase5_strict.py
 git commit -m "fix: close resource tools during ordinary qa"
 ```
 
 ### Task 3: Make Active-Outline Confirmation Exact and Consistent
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py`
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/planning/task_contract_extractor.py:45-54,260-279`
+- Modify: `backend/src/tests/chat/runtime/test_teaching_task_contract.py`
+- Modify: `backend/src/tests/chat/runtime/test_plan_compiler.py`
+- Modify: `backend/src/app/chat/runtime/planning/task_contract_extractor.py:45-54,260-279`
 
 - [ ] **Step 1: Add failing contract tests for bare confirmation and knowledge questions**
 
@@ -350,16 +350,16 @@ Expected: all tests pass, including the three false-positive knowledge questions
 - [ ] **Step 6: Commit the confirmation fix**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/runtime/planning/task_contract_extractor.py Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py
+git add backend/src/app/chat/runtime/planning/task_contract_extractor.py backend/src/tests/chat/runtime/test_teaching_task_contract.py backend/src/tests/chat/runtime/test_plan_compiler.py
 git commit -m "fix: align outline confirmation intent"
 ```
 
 ### Task 4: Redesign the Agent Prompt Around Explicit Modes
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/nodes/prompts.py:5-74`
-- Modify: `Edu_AI/api/src/app/chat/runtime/nodes/executor.py:1064-1088`
+- Modify: `backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py`
+- Modify: `backend/src/app/chat/runtime/nodes/prompts.py:5-74`
+- Modify: `backend/src/app/chat/runtime/nodes/executor.py:1064-1088`
 
 - [ ] **Step 1: Add failing assertions for the four prompt boundaries**
 
@@ -494,17 +494,17 @@ Expected: all tests pass.
 - [ ] **Step 6: Commit the Prompt redesign**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/runtime/nodes/prompts.py Edu_AI/api/src/app/chat/runtime/nodes/executor.py Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py Edu_AI/api/src/tests/chat/runtime/test_phase5_strict.py
+git add backend/src/app/chat/runtime/nodes/prompts.py backend/src/app/chat/runtime/nodes/executor.py backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py backend/src/tests/chat/runtime/test_phase5_strict.py
 git commit -m "fix: isolate qa and resource agent prompts"
 ```
 
 ### Task 5: Verify Real Report Submission and Full Regression
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_react_agent.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_agent_report_grounding.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py`
+- Modify: `backend/src/tests/chat/runtime/test_react_agent.py`
+- Test: `backend/src/tests/chat/runtime/test_agent_report_grounding.py`
+- Test: `backend/src/tests/chat/runtime/test_plan_compiler.py`
+- Test: `backend/src/tests/chat/runtime/test_teaching_task_contract.py`
 
 - [ ] **Step 1: Add an end-to-end Agent confirmation test**
 
@@ -605,8 +605,8 @@ Expected: all selected tests pass. FastChat remains available only as fallback o
 Run:
 
 ```powershell
-git diff --check -- Edu_AI/api/src/app/chat/runtime Edu_AI/api/src/tests/chat/runtime
-python -m compileall -q Edu_AI/api/src/app/chat/runtime
+git diff --check -- backend/src/app/chat/runtime backend/src/tests/chat/runtime
+python -m compileall -q backend/src/app/chat/runtime
 ```
 
 Expected: exit code 0; no whitespace errors or Python compilation failures.
@@ -614,7 +614,7 @@ Expected: exit code 0; no whitespace errors or Python compilation failures.
 - [ ] **Step 6: Commit the integration regression coverage**
 
 ```powershell
-git add Edu_AI/api/src/tests/chat/runtime/test_react_agent.py
+git add backend/src/tests/chat/runtime/test_react_agent.py
 git commit -m "test: verify confirmed report task submission"
 ```
 

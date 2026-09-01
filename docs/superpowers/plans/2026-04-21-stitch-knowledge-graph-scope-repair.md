@@ -13,9 +13,9 @@
 ### Task 1: Lock the expected stitch behavior in tests
 
 **Files:**
-- Modify: `Edu_AI/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
-- Modify: `Edu_AI/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
-- Modify: `Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+- Modify: `frontend/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
+- Modify: `frontend/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
+- Modify: `frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Write/update the failing assertions**
 
@@ -29,10 +29,10 @@ assert.doesNotMatch(file, /\?node=/);
 
 - [ ] **Step 2: Run the focused assertions and verify they fail before implementation**
 
-Run: `node Edu_AI/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
+Run: `node frontend/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
 Expected: FAIL because `src/stitch/pages/KnowledgeGraph.tsx` still uses the old `?node=` jump flow.
 
-Run: `node Edu_AI/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
+Run: `node frontend/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
 Expected: FAIL because the current variable naming/patterns do not yet match the scoped upload contract.
 
 - [ ] **Step 3: Keep the textbook import assertion compatible with the real stitch type name**
@@ -43,15 +43,15 @@ assert.match(typesFile, /export type KnowledgeGraphTextbookImportResponse/);
 
 - [ ] **Step 4: Re-run the textbook import assertion**
 
-Run: `node Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: PASS once the assertion matches the actual exported type name.
 
 ### Task 2: Repair stitch knowledge graph scope handling
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
-- Reference: `Edu_AI/src/services/teacher/workspaceScope.ts`
-- Reference: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Modify: `frontend/src/stitch/pages/KnowledgeGraph.tsx`
+- Reference: `frontend/src/services/teacher/workspaceScope.ts`
+- Reference: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
 
 - [ ] **Step 1: Import the shared workspace scope serializer**
 
@@ -108,27 +108,27 @@ const documents = await getKnowledgeBaseDocuments(course.id, {
 ### Task 3: Verify the regression is fixed
 
 **Files:**
-- Test: `Edu_AI/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
-- Test: `Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+- Test: `frontend/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
+- Test: `frontend/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
+- Test: `frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+- Test: `frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Run the scoped jump assertion**
 
-Run: `node Edu_AI/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
+Run: `node frontend/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
 Expected: PASS with `writeWorkspaceScopeToSearch`, `scopeType`, and `scopeId` patterns present and no `?node=`.
 
 - [ ] **Step 2: Run the scoped upload assertion**
 
-Run: `node Edu_AI/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
+Run: `node frontend/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
 Expected: PASS with `isCourseRootNode` driving both `scopeType` and `scopeId`.
 
 - [ ] **Step 3: Run the textbook import assertions**
 
-Run: `node Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: PASS.
 
-Run: `node Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+Run: `node frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 Expected: PASS.
 
 - [ ] **Step 4: Summarize any remaining gaps**

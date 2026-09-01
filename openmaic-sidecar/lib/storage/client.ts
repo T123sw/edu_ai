@@ -22,7 +22,7 @@ export async function uploadBlobToStorage(
     formData.append('hash', hash);
     formData.append('type', type);
     formData.append('file', blob);
-    const res = await fetch('/api/storage/upload', { method: 'POST', body: formData, signal });
+    const res = await fetch('/backend/storage/upload', { method: 'POST', body: formData, signal });
     if (!res.ok) return null;
     const { url } = await res.json();
     return typeof url === 'string' ? url : null;

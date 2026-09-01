@@ -27,75 +27,75 @@
 
 ### Backend files to create
 
-- `Edu_AI/api/src/app/chat/domain/task_domain.py`：任务领域判定、显式 ID 防错和当前请求优先规则。
-- `Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/learning.py`：学生与教师课程学习只读工具。
-- `Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py`：任务领域与计划编译契约。
-- `Edu_AI/api/src/tests/chat/runtime/test_learning_agent_tools.py`：双端工具、权限和领域冲突测试。
+- `backend/src/app/chat/domain/task_domain.py`：任务领域判定、显式 ID 防错和当前请求优先规则。
+- `backend/src/app/chat/runtime/agent_tools/handlers/learning.py`：学生与教师课程学习只读工具。
+- `backend/src/tests/chat/runtime/test_learning_task_domain.py`：任务领域与计划编译契约。
+- `backend/src/tests/chat/runtime/test_learning_agent_tools.py`：双端工具、权限和领域冲突测试。
 
 ### Backend files to modify
 
-- `Edu_AI/api/src/app/learning/models.py`：完成口径、证据、扩展事件与进度字段。
-- `Edu_AI/api/src/app/learning/store.py`：兼容迁移、证据持久化和单调投影。
-- `Edu_AI/api/src/app/learning/service.py`：课程/学生 overview、证据汇总和 Agent 投影。
-- `Edu_AI/api/src/app/schemas/learning.py`：新增字段与 overview 响应。
-- `Edu_AI/api/src/app/api/learning.py`：新增 `/overview` 路由。
-- `Edu_AI/api/src/app/chat/domain/teaching_task_contract.py`：新增 `task_domain`。
-- `Edu_AI/api/src/app/chat/runtime/planning/task_contract_extractor.py`：从当前请求解析任务领域并隔离历史引用。
-- `Edu_AI/api/src/app/chat/runtime/planning/compiler.py`：按角色和任务领域编译专用工具。
-- `Edu_AI/api/src/app/chat/runtime/agent_tools/schemas.py`：替换模糊任务工具并添加学习工具 schema。
-- `Edu_AI/api/src/app/chat/runtime/agent_tools/registry.py`：注册学习工具和生成任务工具新名称。
-- `Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/control.py`：将现有状态工具明确重命名为生成任务状态工具。
-- `Edu_AI/api/src/app/chat/runtime/nodes/executor.py`：工具调用约束和任务 ID 领域校验。
-- `Edu_AI/api/src/app/chat/runtime/learning_context_prompt.py`：补充完成口径与禁止跨域回退规则。
-- `Edu_AI/api/src/tests/learning/test_learning_store.py`
-- `Edu_AI/api/src/tests/learning/test_learning_service.py`
-- `Edu_AI/api/src/tests/learning/test_learning_api.py`
-- `Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py`
-- `Edu_AI/api/src/tests/chat/test_learning_context_injection.py`
-- `Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py`
-- `Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py`
-- `Edu_AI/api/src/tests/chat/runtime/test_agent_tools.py`
+- `backend/src/app/learning/models.py`：完成口径、证据、扩展事件与进度字段。
+- `backend/src/app/learning/store.py`：兼容迁移、证据持久化和单调投影。
+- `backend/src/app/learning/service.py`：课程/学生 overview、证据汇总和 Agent 投影。
+- `backend/src/app/schemas/learning.py`：新增字段与 overview 响应。
+- `backend/src/app/api/learning.py`：新增 `/overview` 路由。
+- `backend/src/app/chat/domain/teaching_task_contract.py`：新增 `task_domain`。
+- `backend/src/app/chat/runtime/planning/task_contract_extractor.py`：从当前请求解析任务领域并隔离历史引用。
+- `backend/src/app/chat/runtime/planning/compiler.py`：按角色和任务领域编译专用工具。
+- `backend/src/app/chat/runtime/agent_tools/schemas.py`：替换模糊任务工具并添加学习工具 schema。
+- `backend/src/app/chat/runtime/agent_tools/registry.py`：注册学习工具和生成任务工具新名称。
+- `backend/src/app/chat/runtime/agent_tools/handlers/control.py`：将现有状态工具明确重命名为生成任务状态工具。
+- `backend/src/app/chat/runtime/nodes/executor.py`：工具调用约束和任务 ID 领域校验。
+- `backend/src/app/chat/runtime/learning_context_prompt.py`：补充完成口径与禁止跨域回退规则。
+- `backend/src/tests/learning/test_learning_store.py`
+- `backend/src/tests/learning/test_learning_service.py`
+- `backend/src/tests/learning/test_learning_api.py`
+- `backend/src/tests/learning/test_learning_loop_acceptance.py`
+- `backend/src/tests/chat/test_learning_context_injection.py`
+- `backend/src/tests/chat/runtime/test_teaching_task_contract.py`
+- `backend/src/tests/chat/runtime/test_plan_compiler.py`
+- `backend/src/tests/chat/runtime/test_agent_tools.py`
 
 ### Frontend files to create
 
-- `Edu_AI/src/stitch/pages/courseLearningOverview.ts`：课程卡片学习指标映射和失败降级。
-- `Edu_AI/src/stitch/pages/courseLearningOverview.test.ts`：教师/学生卡片指标单元测试。
-- `Edu_AI/src/components/teacher/chatHistoryRecovery.ts`：历史对话恢复的纯状态决策。
-- `Edu_AI/src/components/teacher/chatHistoryRecovery.test.ts`：失败隔离与重试决策测试。
-- `Edu_AI/src/stitch/pages/profilePresentation.ts`：个人中心真实课程数量的纯展示映射。
-- `Edu_AI/src/stitch/pages/profilePresentation.test.ts`：课程数量成功与失败状态测试。
-- `Edu_AI/tests/e2e/teacher-student-learning-loop.spec.ts`：真实双账号闭环和 Agent 领域验收。
+- `frontend/src/stitch/pages/courseLearningOverview.ts`：课程卡片学习指标映射和失败降级。
+- `frontend/src/stitch/pages/courseLearningOverview.test.ts`：教师/学生卡片指标单元测试。
+- `frontend/src/components/teacher/chatHistoryRecovery.ts`：历史对话恢复的纯状态决策。
+- `frontend/src/components/teacher/chatHistoryRecovery.test.ts`：失败隔离与重试决策测试。
+- `frontend/src/stitch/pages/profilePresentation.ts`：个人中心真实课程数量的纯展示映射。
+- `frontend/src/stitch/pages/profilePresentation.test.ts`：课程数量成功与失败状态测试。
+- `frontend/tests/e2e/teacher-student-learning-loop.spec.ts`：真实双账号闭环和 Agent 领域验收。
 
 ### Frontend files to modify
 
-- `Edu_AI/src/stitch/api/types.ts`：完成口径、证据字段和 overview 类型。
-- `Edu_AI/src/stitch/api/learning.ts`：overview 客户端。
-- `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`：真实进度和证据标签。
-- `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`
-- `Edu_AI/src/stitch/pages/CourseLearning.tsx`：学生自报文案、教师证据列、资源搜索与重名元数据。
-- `Edu_AI/src/stitch/pages/CourseLearning.css`
-- `Edu_AI/src/stitch/pages/courseCardPresentation.ts`：拆分学习任务和后台生成指标。
-- `Edu_AI/src/stitch/pages/courseCardPresentation.test.ts`
-- `Edu_AI/src/stitch/pages/HomeDashboard.tsx`：教师课程学习 overview。
-- `Edu_AI/src/stitch/student/pages/StudentHome.tsx`：学生待学习任务 overview。
-- `Edu_AI/src/components/teacher/ChatPanel.tsx`：恢复失败隔离、局部错误和重试。
-- `Edu_AI/src/services/teacher/api.ts`：对话详情错误归一化。
-- `Edu_AI/src/stitch/pages/LoginPage.tsx`：登录页统一角色文案并维持只记用户名的边界。
-- `Edu_AI/src/stitch/pages/Profile.tsx`：真实课程数量。
+- `frontend/src/stitch/api/types.ts`：完成口径、证据字段和 overview 类型。
+- `frontend/src/stitch/api/learning.ts`：overview 客户端。
+- `frontend/src/stitch/pages/courseLearningPresentation.ts`：真实进度和证据标签。
+- `frontend/src/stitch/pages/courseLearningPresentation.test.ts`
+- `frontend/src/stitch/pages/CourseLearning.tsx`：学生自报文案、教师证据列、资源搜索与重名元数据。
+- `frontend/src/stitch/pages/CourseLearning.css`
+- `frontend/src/stitch/pages/courseCardPresentation.ts`：拆分学习任务和后台生成指标。
+- `frontend/src/stitch/pages/courseCardPresentation.test.ts`
+- `frontend/src/stitch/pages/HomeDashboard.tsx`：教师课程学习 overview。
+- `frontend/src/stitch/student/pages/StudentHome.tsx`：学生待学习任务 overview。
+- `frontend/src/components/teacher/ChatPanel.tsx`：恢复失败隔离、局部错误和重试。
+- `frontend/src/services/teacher/api.ts`：对话详情错误归一化。
+- `frontend/src/stitch/pages/LoginPage.tsx`：登录页统一角色文案并维持只记用户名的边界。
+- `frontend/src/stitch/pages/Profile.tsx`：真实课程数量。
 
 ---
 
 ### Task 1: 建立不可混淆的任务领域契约
 
 **Files:**
-- Create: `Edu_AI/api/src/app/chat/domain/task_domain.py`
-- Create: `Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py`
-- Modify: `Edu_AI/api/src/app/chat/domain/teaching_task_contract.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/planning/task_contract_extractor.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/planning/compiler.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/agent_tools/schemas.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py`
-- Test: `Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py`
+- Create: `backend/src/app/chat/domain/task_domain.py`
+- Create: `backend/src/tests/chat/runtime/test_learning_task_domain.py`
+- Modify: `backend/src/app/chat/domain/teaching_task_contract.py`
+- Modify: `backend/src/app/chat/runtime/planning/task_contract_extractor.py`
+- Modify: `backend/src/app/chat/runtime/planning/compiler.py`
+- Modify: `backend/src/app/chat/runtime/agent_tools/schemas.py`
+- Test: `backend/src/tests/chat/runtime/test_teaching_task_contract.py`
+- Test: `backend/src/tests/chat/runtime/test_plan_compiler.py`
 
 **Interfaces:**
 - Produces: `TaskDomain`, `resolve_task_domain(question, explicit_task_ids) -> TaskDomain`。
@@ -154,7 +154,7 @@ def test_student_completed_learning_never_falls_back_to_generation_job():
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest -q tests/chat/runtime/test_learning_task_domain.py
 ```
 
@@ -259,7 +259,7 @@ Expected: PASS，且既有生成任务状态/取消测试使用 `generation_job`
 - [ ] **Step 7: 提交任务领域契约**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/domain/task_domain.py Edu_AI/api/src/app/chat/domain/teaching_task_contract.py Edu_AI/api/src/app/chat/runtime/planning/task_contract_extractor.py Edu_AI/api/src/app/chat/runtime/planning/compiler.py Edu_AI/api/src/app/chat/runtime/agent_tools/schemas.py Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py Edu_AI/api/src/tests/chat/runtime/test_teaching_task_contract.py Edu_AI/api/src/tests/chat/runtime/test_plan_compiler.py
+git add backend/src/app/chat/domain/task_domain.py backend/src/app/chat/domain/teaching_task_contract.py backend/src/app/chat/runtime/planning/task_contract_extractor.py backend/src/app/chat/runtime/planning/compiler.py backend/src/app/chat/runtime/agent_tools/schemas.py backend/src/tests/chat/runtime/test_learning_task_domain.py backend/src/tests/chat/runtime/test_teaching_task_contract.py backend/src/tests/chat/runtime/test_plan_compiler.py
 git commit -m "feat: separate learning and generation task domains"
 ```
 
@@ -268,12 +268,12 @@ git commit -m "feat: separate learning and generation task domains"
 ### Task 2: 扩展可信学习证据与兼容迁移
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/learning/models.py`
-- Modify: `Edu_AI/api/src/app/learning/store.py`
-- Modify: `Edu_AI/api/src/app/learning/service.py`
-- Modify: `Edu_AI/api/src/app/schemas/learning.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_store.py`
-- Test: `Edu_AI/api/src/tests/learning/test_learning_service.py`
+- Modify: `backend/src/app/learning/models.py`
+- Modify: `backend/src/app/learning/store.py`
+- Modify: `backend/src/app/learning/service.py`
+- Modify: `backend/src/app/schemas/learning.py`
+- Test: `backend/src/tests/learning/test_learning_store.py`
+- Test: `backend/src/tests/learning/test_learning_service.py`
 
 **Interfaces:**
 - Produces: `CompletionBasis`、`LearningEvidence`。
@@ -458,7 +458,7 @@ Expected: PASS；旧库迁移、自报、活动证据、测评证据、重复事
 - [ ] **Step 8: 提交可信学习事实**
 
 ```powershell
-git add Edu_AI/api/src/app/learning/models.py Edu_AI/api/src/app/learning/store.py Edu_AI/api/src/app/learning/service.py Edu_AI/api/src/app/schemas/learning.py Edu_AI/api/src/tests/learning/test_learning_store.py Edu_AI/api/src/tests/learning/test_learning_service.py
+git add backend/src/app/learning/models.py backend/src/app/learning/store.py backend/src/app/learning/service.py backend/src/app/schemas/learning.py backend/src/tests/learning/test_learning_store.py backend/src/tests/learning/test_learning_service.py
 git commit -m "feat: add evidence-based learning progress"
 ```
 
@@ -467,13 +467,13 @@ git commit -m "feat: add evidence-based learning progress"
 ### Task 3: 提供 UI 与 Agent 共用的学习摘要
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/learning/models.py`
-- Modify: `Edu_AI/api/src/app/learning/service.py`
-- Modify: `Edu_AI/api/src/app/schemas/learning.py`
-- Modify: `Edu_AI/api/src/app/api/learning.py`
-- Modify: `Edu_AI/api/src/tests/learning/test_learning_api.py`
-- Modify: `Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py`
-- Modify: `Edu_AI/api/src/tests/chat/test_learning_context_injection.py`
+- Modify: `backend/src/app/learning/models.py`
+- Modify: `backend/src/app/learning/service.py`
+- Modify: `backend/src/app/schemas/learning.py`
+- Modify: `backend/src/app/api/learning.py`
+- Modify: `backend/src/tests/learning/test_learning_api.py`
+- Modify: `backend/src/tests/learning/test_learning_loop_acceptance.py`
+- Modify: `backend/src/tests/chat/test_learning_context_injection.py`
 
 **Interfaces:**
 - Produces: `LearningOverviewRecord`。
@@ -579,7 +579,7 @@ Expected: PASS；学生响应无他人身份，教师 overview 与任务汇总�
 - [ ] **Step 7: 提交统一学习摘要**
 
 ```powershell
-git add Edu_AI/api/src/app/learning/models.py Edu_AI/api/src/app/learning/service.py Edu_AI/api/src/app/schemas/learning.py Edu_AI/api/src/app/api/learning.py Edu_AI/api/src/tests/learning/test_learning_api.py Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py Edu_AI/api/src/tests/chat/test_learning_context_injection.py
+git add backend/src/app/learning/models.py backend/src/app/learning/service.py backend/src/app/schemas/learning.py backend/src/app/api/learning.py backend/src/tests/learning/test_learning_api.py backend/src/tests/learning/test_learning_loop_acceptance.py backend/src/tests/chat/test_learning_context_injection.py
 git commit -m "feat: expose role-scoped learning overview"
 ```
 
@@ -588,14 +588,14 @@ git commit -m "feat: expose role-scoped learning overview"
 ### Task 4: 让双端 Agent 使用专用学习工具
 
 **Files:**
-- Create: `Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/learning.py`
-- Create: `Edu_AI/api/src/tests/chat/runtime/test_learning_agent_tools.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/agent_tools/schemas.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/agent_tools/registry.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/control.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/nodes/executor.py`
-- Modify: `Edu_AI/api/src/app/chat/runtime/learning_context_prompt.py`
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_agent_tools.py`
+- Create: `backend/src/app/chat/runtime/agent_tools/handlers/learning.py`
+- Create: `backend/src/tests/chat/runtime/test_learning_agent_tools.py`
+- Modify: `backend/src/app/chat/runtime/agent_tools/schemas.py`
+- Modify: `backend/src/app/chat/runtime/agent_tools/registry.py`
+- Modify: `backend/src/app/chat/runtime/agent_tools/handlers/control.py`
+- Modify: `backend/src/app/chat/runtime/nodes/executor.py`
+- Modify: `backend/src/app/chat/runtime/learning_context_prompt.py`
+- Modify: `backend/src/tests/chat/runtime/test_agent_tools.py`
 
 **Interfaces:**
 - Produces: `handle_get_my_learning_progress`。
@@ -749,7 +749,7 @@ Expected: PASS；学生无教师工具，教师无他人私聊，生成工具拒
 - [ ] **Step 8: 提交双端 Agent 学习工具**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/learning.py Edu_AI/api/src/app/chat/runtime/agent_tools/schemas.py Edu_AI/api/src/app/chat/runtime/agent_tools/registry.py Edu_AI/api/src/app/chat/runtime/agent_tools/handlers/control.py Edu_AI/api/src/app/chat/runtime/nodes/executor.py Edu_AI/api/src/app/chat/runtime/learning_context_prompt.py Edu_AI/api/src/tests/chat/runtime/test_learning_agent_tools.py Edu_AI/api/src/tests/chat/runtime/test_agent_tools.py Edu_AI/api/src/tests/chat/test_learning_context_injection.py
+git add backend/src/app/chat/runtime/agent_tools/handlers/learning.py backend/src/app/chat/runtime/agent_tools/schemas.py backend/src/app/chat/runtime/agent_tools/registry.py backend/src/app/chat/runtime/agent_tools/handlers/control.py backend/src/app/chat/runtime/nodes/executor.py backend/src/app/chat/runtime/learning_context_prompt.py backend/src/tests/chat/runtime/test_learning_agent_tools.py backend/src/tests/chat/runtime/test_agent_tools.py backend/src/tests/chat/test_learning_context_injection.py
 git commit -m "feat: ground agents in typed learning tools"
 ```
 
@@ -758,18 +758,18 @@ git commit -m "feat: ground agents in typed learning tools"
 ### Task 5: 收口双端学习界面与课程首页指标
 
 **Files:**
-- Create: `Edu_AI/src/stitch/pages/courseLearningOverview.ts`
-- Create: `Edu_AI/src/stitch/pages/courseLearningOverview.test.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/api/learning.ts`
-- Modify: `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`
-- Modify: `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.tsx`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.css`
-- Modify: `Edu_AI/src/stitch/pages/courseCardPresentation.ts`
-- Modify: `Edu_AI/src/stitch/pages/courseCardPresentation.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/HomeDashboard.tsx`
-- Modify: `Edu_AI/src/stitch/student/pages/StudentHome.tsx`
+- Create: `frontend/src/stitch/pages/courseLearningOverview.ts`
+- Create: `frontend/src/stitch/pages/courseLearningOverview.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/learning.ts`
+- Modify: `frontend/src/stitch/pages/courseLearningPresentation.ts`
+- Modify: `frontend/src/stitch/pages/courseLearningPresentation.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseLearning.tsx`
+- Modify: `frontend/src/stitch/pages/CourseLearning.css`
+- Modify: `frontend/src/stitch/pages/courseCardPresentation.ts`
+- Modify: `frontend/src/stitch/pages/courseCardPresentation.test.ts`
+- Modify: `frontend/src/stitch/pages/HomeDashboard.tsx`
+- Modify: `frontend/src/stitch/student/pages/StudentHome.tsx`
 
 **Interfaces:**
 - Produces: `LearningOverview` TypeScript 类型与 `getLearningOverview(courseId)`。
@@ -922,7 +922,7 @@ Expected: lint 0 errors；build 成功。既有 warning 只允许保持不增加
 - [ ] **Step 9: 提交双端学习界面**
 
 ```powershell
-git add Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/api/learning.ts Edu_AI/src/stitch/pages/courseLearningOverview.ts Edu_AI/src/stitch/pages/courseLearningOverview.test.ts Edu_AI/src/stitch/pages/courseLearningPresentation.ts Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts Edu_AI/src/stitch/pages/CourseLearning.tsx Edu_AI/src/stitch/pages/CourseLearning.css Edu_AI/src/stitch/pages/courseCardPresentation.ts Edu_AI/src/stitch/pages/courseCardPresentation.test.ts Edu_AI/src/stitch/pages/HomeDashboard.tsx Edu_AI/src/stitch/student/pages/StudentHome.tsx
+git add frontend/src/stitch/api/types.ts frontend/src/stitch/api/learning.ts frontend/src/stitch/pages/courseLearningOverview.ts frontend/src/stitch/pages/courseLearningOverview.test.ts frontend/src/stitch/pages/courseLearningPresentation.ts frontend/src/stitch/pages/courseLearningPresentation.test.ts frontend/src/stitch/pages/CourseLearning.tsx frontend/src/stitch/pages/CourseLearning.css frontend/src/stitch/pages/courseCardPresentation.ts frontend/src/stitch/pages/courseCardPresentation.test.ts frontend/src/stitch/pages/HomeDashboard.tsx frontend/src/stitch/student/pages/StudentHome.tsx
 git commit -m "feat: show truthful learning progress across workspaces"
 ```
 
@@ -931,14 +931,14 @@ git commit -m "feat: show truthful learning progress across workspaces"
 ### Task 6: 隔离历史对话恢复失败并修正双角色入口
 
 **Files:**
-- Create: `Edu_AI/src/components/teacher/chatHistoryRecovery.ts`
-- Create: `Edu_AI/src/components/teacher/chatHistoryRecovery.test.ts`
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Modify: `Edu_AI/src/stitch/pages/LoginPage.tsx`
-- Modify: `Edu_AI/src/stitch/pages/Profile.tsx`
-- Create: `Edu_AI/src/stitch/pages/profilePresentation.ts`
-- Create: `Edu_AI/src/stitch/pages/profilePresentation.test.ts`
+- Create: `frontend/src/components/teacher/chatHistoryRecovery.ts`
+- Create: `frontend/src/components/teacher/chatHistoryRecovery.test.ts`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Modify: `frontend/src/stitch/pages/LoginPage.tsx`
+- Modify: `frontend/src/stitch/pages/Profile.tsx`
+- Create: `frontend/src/stitch/pages/profilePresentation.ts`
+- Create: `frontend/src/stitch/pages/profilePresentation.test.ts`
 
 **Interfaces:**
 - Produces: `recoverConversationFailure(currentId, failedId) -> RecoveryDecision`。
@@ -1043,7 +1043,7 @@ Expected: PASS；失败历史不会成为下一轮 Agent 的 pending task 来源
 - [ ] **Step 7: 提交恢复与双角色修正**
 
 ```powershell
-git add Edu_AI/src/components/teacher/chatHistoryRecovery.ts Edu_AI/src/components/teacher/chatHistoryRecovery.test.ts Edu_AI/src/components/teacher/ChatPanel.tsx Edu_AI/src/services/teacher/api.ts Edu_AI/src/stitch/pages/LoginPage.tsx Edu_AI/src/stitch/pages/Profile.tsx Edu_AI/src/stitch/pages/profilePresentation.ts Edu_AI/src/stitch/pages/profilePresentation.test.ts
+git add frontend/src/components/teacher/chatHistoryRecovery.ts frontend/src/components/teacher/chatHistoryRecovery.test.ts frontend/src/components/teacher/ChatPanel.tsx frontend/src/services/teacher/api.ts frontend/src/stitch/pages/LoginPage.tsx frontend/src/stitch/pages/Profile.tsx frontend/src/stitch/pages/profilePresentation.ts frontend/src/stitch/pages/profilePresentation.test.ts
 git commit -m "fix: isolate failed chat history from learning turns"
 ```
 
@@ -1054,10 +1054,10 @@ git commit -m "fix: isolate failed chat history from learning turns"
 ### Task 7: 建立真实双账号 E2E 与 Agent 行为门禁
 
 **Files:**
-- Create: `Edu_AI/tests/e2e/teacher-student-learning-loop.spec.ts`
-- Create: `Edu_AI/tests/e2e/fixtures/learningLoop.ts`
-- Modify: `Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py`
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py`
+- Create: `frontend/tests/e2e/teacher-student-learning-loop.spec.ts`
+- Create: `frontend/tests/e2e/fixtures/learningLoop.ts`
+- Modify: `backend/src/tests/learning/test_learning_loop_acceptance.py`
+- Modify: `backend/src/tests/chat/runtime/test_learning_task_domain.py`
 - Modify: `docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md`
 
 **Interfaces:**
@@ -1164,7 +1164,7 @@ Expected: PASS，0 retries；失败时保留 screenshot、trace 和 API 响应�
 - [ ] **Step 7: 提交 E2E 门禁**
 
 ```powershell
-git add Edu_AI/tests/e2e/teacher-student-learning-loop.spec.ts Edu_AI/tests/e2e/fixtures/learningLoop.ts Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md
+git add frontend/tests/e2e/teacher-student-learning-loop.spec.ts frontend/tests/e2e/fixtures/learningLoop.ts backend/src/tests/learning/test_learning_loop_acceptance.py backend/src/tests/chat/runtime/test_learning_task_domain.py docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md
 git commit -m "test: gate the real teacher student learning loop"
 ```
 
@@ -1185,7 +1185,7 @@ git commit -m "test: gate the real teacher student learning loop"
 Run:
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest -q tests/learning tests/chat/test_learning_context_injection.py tests/chat/runtime/test_learning_task_domain.py tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_teaching_task_contract.py tests/chat/runtime/test_plan_compiler.py tests/chat/runtime/test_agent_tools.py tests/chat/runtime/test_agent_memory_restore.py
 ```
 

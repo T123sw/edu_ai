@@ -12,11 +12,11 @@ The populated PostgreSQL database from the other device will be transferred late
 
 Included:
 
-- Create the Python 3.12 virtual environment at `Edu_AI/api/src/.venv`, which is the first environment discovered by the repository startup script.
+- Create the Python 3.12 virtual environment at `backend/src/.venv`, which is the first environment discovered by the repository startup script.
 - Install locked frontend dependencies and required backend dependencies.
 - Install the browser/runtime dependencies required by the repository's normal local startup path.
-- Create a local, Git-ignored `infra/postgres/.env.postgres` with a generated password.
-- Start PostgreSQL 17 from `infra/postgres/compose.yml`.
+- Create a local, Git-ignored `deploy/postgres/.env.postgres` with a generated password.
+- Start PostgreSQL 17 from `deploy/postgres/compose.yml`.
 - Persist the database in the named Docker volume `edu_ai_postgres_data`.
 - Apply all Alembic migrations to create the current schema.
 - Start the normal local application services.
@@ -33,7 +33,7 @@ Excluded:
 
 The FastAPI backend runs on the Windows host and connects to PostgreSQL through `127.0.0.1:5432`. Docker Compose exposes the container only on loopback. PostgreSQL stores its files in the named Docker volume rather than in the Git worktree.
 
-`infra/postgres/.env.postgres` is the local source of the database name, user, password, port, and SQLAlchemy `DATABASE_URL`. The existing startup script reads this file, starts PostgreSQL, waits for its health check, injects `DATABASE_URL`, and applies Alembic migrations before starting the backend.
+`deploy/postgres/.env.postgres` is the local source of the database name, user, password, port, and SQLAlchemy `DATABASE_URL`. The existing startup script reads this file, starts PostgreSQL, waits for its health check, injects `DATABASE_URL`, and applies Alembic migrations before starting the backend.
 
 The React frontend connects to the FastAPI backend through the existing `VITE_API_BASE_URL`. OpenMAIC and any other repository-managed runtime required by the normal startup script remain host processes and do not store PostgreSQL data.
 
@@ -47,7 +47,7 @@ The React frontend connects to the FastAPI backend through the existing `VITE_AP
 
 ## Dependency Strategy
 
-Use the repository's installation scripts and lockfiles. Prefer the `Edu_AI/api/src/.venv` Python interpreter for all backend commands. Install the required backend, frontend, and Playwright dependencies; skip only components explicitly marked optional when they are not required by the normal Edu AI startup path.
+Use the repository's installation scripts and lockfiles. Prefer the `backend/src/.venv` Python interpreter for all backend commands. Install the required backend, frontend, and Playwright dependencies; skip only components explicitly marked optional when they are not required by the normal Edu AI startup path.
 
 Before installation, record installed versions of Docker, Docker Compose, Python, Node.js, npm, FFmpeg, and ffprobe. A version mismatch is handled as an environment issue rather than by changing application source code.
 

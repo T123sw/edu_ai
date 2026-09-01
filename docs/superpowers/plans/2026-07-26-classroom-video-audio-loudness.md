@@ -12,16 +12,16 @@
 
 ## File structure
 
-- Modify `Edu_AI/scripts/videoPipeline.test.ts`: define the expected FFmpeg filter graph and output parameters, including a 47-clip regression case.
-- Modify `Edu_AI/scripts/videoPipeline.ts`: build the corrected `amix`/`loudnorm` graph and AAC output options.
+- Modify `frontend/scripts/videoPipeline.test.ts`: define the expected FFmpeg filter graph and output parameters, including a 47-clip regression case.
+- Modify `frontend/scripts/videoPipeline.ts`: build the corrected `amix`/`loudnorm` graph and AAC output options.
 - No API, frontend route, database, classroom schema, or OpenMAIC source file changes are required.
 
 ### Task 1: Add the narration-count attenuation regression test
 
 **Files:**
 
-- Modify: `Edu_AI/scripts/videoPipeline.test.ts:121-148`
-- Test: `Edu_AI/scripts/videoPipeline.test.ts`
+- Modify: `frontend/scripts/videoPipeline.test.ts:121-148`
+- Test: `frontend/scripts/videoPipeline.test.ts`
 
 - [ ] **Step 1: Update the existing exact-arguments test**
 
@@ -81,8 +81,8 @@ Expected: the exact-arguments test fails because `normalize=0`, `loudnorm`, `-ar
 
 **Files:**
 
-- Modify: `Edu_AI/scripts/videoPipeline.ts:152-180`
-- Test: `Edu_AI/scripts/videoPipeline.test.ts`
+- Modify: `frontend/scripts/videoPipeline.ts:152-180`
+- Test: `frontend/scripts/videoPipeline.test.ts`
 
 - [ ] **Step 1: Update the filter graph**
 
@@ -123,7 +123,7 @@ Run from the repository root:
 
 ```powershell
 git diff --check
-git diff -- Edu_AI/scripts/videoPipeline.ts Edu_AI/scripts/videoPipeline.test.ts
+git diff -- frontend/scripts/videoPipeline.ts frontend/scripts/videoPipeline.test.ts
 ```
 
 Expected: `git diff --check` prints no errors; the diff contains only the intended filter, AAC options, and regression tests.
@@ -133,7 +133,7 @@ Expected: `git diff --check` prints no errors; the diff contains only the intend
 Run from the repository root:
 
 ```powershell
-git add -- Edu_AI/scripts/videoPipeline.ts Edu_AI/scripts/videoPipeline.test.ts
+git add -- frontend/scripts/videoPipeline.ts frontend/scripts/videoPipeline.test.ts
 git commit -m "fix(video): normalize classroom narration loudness"
 ```
 
@@ -236,7 +236,7 @@ git -C C:\Users\Tang\.config\superpowers\worktrees\edu_ai\fix-classroom-audio-lo
 git -C D:\github\edu_ai status --short
 ```
 
-Expected: the feature worktree is clean. The main worktree may still contain the user's pre-existing `Edu_AI/package.json` change, which must not be staged or overwritten.
+Expected: the feature worktree is clean. The main worktree may still contain the user's pre-existing `frontend/package.json` change, which must not be staged or overwritten.
 
 - [ ] **Step 2: Merge the feature branch into main without touching the user change**
 
@@ -246,7 +246,7 @@ Run from `D:\github\edu_ai`:
 git merge --no-ff fix/classroom-audio-loudness -m "merge: fix classroom video narration loudness"
 ```
 
-Expected: the design, plan, tests, and implementation merge cleanly; `Edu_AI/package.json` remains an unrelated unstaged user modification.
+Expected: the design, plan, tests, and implementation merge cleanly; `frontend/package.json` remains an unrelated unstaged user modification.
 
 - [ ] **Step 3: Re-run the focused test on main**
 
@@ -265,4 +265,4 @@ Record in the task handoff:
 - feature and merge commit identifiers;
 - focused/full test and build results;
 - synthetic MP4 measured LUFS and true peak;
-- confirmation that the user's unrelated `Edu_AI/package.json` change was preserved.
+- confirmation that the user's unrelated `frontend/package.json` change was preserved.

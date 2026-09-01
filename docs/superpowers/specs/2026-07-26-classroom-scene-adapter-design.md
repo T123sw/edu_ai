@@ -134,7 +134,7 @@ courseId + classroomId + sceneId
 4. quiz 渲染、评分与本地恢复。
 5. 真实课堂浏览器验收及文档状态更新。
 
-每个阶段独立测试和提交，最后快进合并到 `main`，不包含用户当前对 `Edu_AI/package.json` 的未提交修改。
+每个阶段独立测试和提交，最后快进合并到 `main`，不包含用户当前对 `frontend/package.json` 的未提交修改。
 
 ## 验收结果（2026-07-26）
 

@@ -147,7 +147,7 @@ migration 收口的最后一环：把 PDF 链路**彻底**收敛到 MinerU Cloud
 
 ### 7.1 删净本地解析降级（PDF 转 MinerU-only）
 - `rag_main/system.py`：删除 `fitz`(PyMuPDF) 与 docling 的全部 import、可用性探测、`DocumentProcessor.__init__` 里的 docling converter 装配、`force_docling` / `force_mineru` 分支、`_extract_image_documents_from_docling`。PDF 分支不再有任何本地降级：`MINERU_AVAILABLE=False` 直接 `RuntimeError`，MinerU 解析失败直接抛错（**不再 fallback 到 PyMuPDF**）。
-- `Edu_AI/api/src/config.py`：删 `PyMuPDFLoader` import。
+- `backend/src/config.py`：删 `PyMuPDFLoader` import。
 - `EduAgent/chunks.py` `pdf_chunks_by_page()`、`EduAgent/services/content_cleaner.py` PDF 分支：改为存根，明确报错「本地 PDF 解析已移除，请走主 MinerU 导入管线」；`requirements*.txt` 去 `pymupdf`。
 - 回归护栏：`test_active_runtime_has_no_legacy_pdf_parser_residue` 白名单文件里禁止再出现 `docling/PyMuPDF/pymupdf/fitz/DOCLING_AVAILABLE` 等 token。
 

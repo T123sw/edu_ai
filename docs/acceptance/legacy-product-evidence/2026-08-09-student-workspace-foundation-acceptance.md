@@ -126,7 +126,7 @@
 AUTO-06 命令：
 
 ```powershell
-python -m pytest api/src/tests/services/test_personal_tool_access.py api/src/tests/chat/test_personal_generation_authorization.py api/src/tests/test_personal_knowledge_api.py api/src/tests/test_student_classroom_permissions.py api/src/tests/test_course_access.py api/src/tests/test_course_route_authorization.py api/src/tests/core/test_course_material_permissions.py api/src/tests/services/test_material_publication_service.py -q
+python -m pytest backend/src/tests/services/test_personal_tool_access.py backend/src/tests/chat/test_personal_generation_authorization.py backend/src/tests/test_personal_knowledge_api.py backend/src/tests/test_student_classroom_permissions.py backend/src/tests/test_course_access.py backend/src/tests/test_course_route_authorization.py backend/src/tests/core/test_course_material_permissions.py backend/src/tests/services/test_material_publication_service.py -q
 ```
 
 AUTO-08 命令：

@@ -3,7 +3,7 @@
 > **验收文档**：[`../acceptance/ACC-05_异步任务协议_验收.md`](../acceptance/ACC-05_异步任务协议_验收.md) · **地图**：[`../../项目总览地图.md`](../../项目总览地图.md)
 > 目标：把 sidecar 的 `{jobId, pollUrl, pollIntervalMs}` + `{status, step, progress, message, done}` 收成 **edu_ai 全系统统一的长任务协议**，前端只有一套进度组件。
 > 上游（已核对）：`app/api/generate-classroom/route.ts`（提交 202）、`[jobId]/route.ts`（轮询）、`lib/server/classroom-job-store.ts`（job 状态机）。
-> 关联：SPEC-03（parse-pdf 是同步，见 §6）、SPEC-04（generate-classroom 是 job）、`Edu_AI/api/src/app/pipeline/`（承接方，已存在）。
+> 关联：SPEC-03（parse-pdf 是同步，见 §6）、SPEC-04（generate-classroom 是 job）、`backend/src/app/pipeline/`（承接方，已存在）。
 
 ---
 

@@ -14,72 +14,72 @@
 
 ### Backend
 
-- Create: `Edu_AI/api/Edu_AI/app/workspace_scope.py`
+- Create: `backend/src/app/workspace_scope.py`
   Responsibility: Normalize `scope_type/scope_id`, resolve knowledge-point subtrees from stored course graphs, and expose helpers used by chat/course APIs.
-- Modify: `Edu_AI/api/Edu_AI/app/chat/schemas.py`
+- Modify: `backend/src/app/chat/schemas.py`
   Responsibility: Accept scope fields on chat requests and include scope metadata in conversation history payloads.
-- Modify: `Edu_AI/api/Edu_AI/app/chat/routes.py`
+- Modify: `backend/src/app/chat/routes.py`
   Responsibility: Parse scope query params for list/detail endpoints and forward them into filtered conversation reads.
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/route_chat_service.py`
+- Modify: `backend/src/app/chat/application/route_chat_service.py`
   Responsibility: Persist workspace scope into conversation state and outgoing workflow context.
-- Modify: `Edu_AI/api/Edu_AI/core/conversation_storage.py`
+- Modify: `backend/src/core/conversation_storage.py`
   Responsibility: Store normalized scope metadata on conversations and support filtered/paginated list queries.
-- Modify: `Edu_AI/api/Edu_AI/core/course_storage.py`
+- Modify: `backend/src/core/course_storage.py`
   Responsibility: Persist scope metadata on knowledge-base index entries and generated materials, plus add filtered list helpers.
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
+- Modify: `backend/src/app/courses.py`
   Responsibility: Accept scope fields on knowledge-base/material routes, call storage filters, and aggregate course-root reads.
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py`
+- Test: `backend/src/tests/chat/test_workspace_scope.py`
   Responsibility: Cover normalization and subtree resolution.
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py`
+- Test: `backend/src/tests/chat/test_conversation_scope_routes.py`
   Responsibility: Cover scoped conversation create/list/detail behavior.
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py`
+- Test: `backend/src/tests/chat/test_course_scope_materials_routes.py`
   Responsibility: Cover scoped knowledge-base and generated-material reads.
 
 ### Frontend
 
-- Create: `Edu_AI/src/pages/teacher/aiWorkspaceScope.ts`
+- Create: `frontend/src/pages/teacher/aiWorkspaceScope.ts`
   Responsibility: Parse/query/update workspace scope and generate labels for course-root vs knowledge-point modes.
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.tsx`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.tsx`
   Responsibility: Build the active scope from route/query params and pass it into all three workspace columns.
-- Modify: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Modify: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
   Responsibility: Add the “和 AI 聊一聊” jump using the selected node’s scope.
-- Modify: `Edu_AI/src/store/teacher/useStore.ts`
+- Modify: `frontend/src/store/teacher/useStore.ts`
   Responsibility: Persist the active workspace scope and scope-aware conversation state.
-- Modify: `Edu_AI/src/store/teacher/useCourseMaterialsStore.ts`
+- Modify: `frontend/src/store/teacher/useCourseMaterialsStore.ts`
   Responsibility: Hold paged/generated material results keyed by scope.
-- Modify: `Edu_AI/src/services/teacher/api.ts`
+- Modify: `frontend/src/services/teacher/api.ts`
   Responsibility: Add scope params to conversation/material requests and support `limit/offset`.
-- Modify: `Edu_AI/src/services/teacher/chatV2.ts`
+- Modify: `frontend/src/services/teacher/chatV2.ts`
   Responsibility: Add scope fields to chat reply payloads.
-- Modify: `Edu_AI/src/services/knowledgeBase.ts`
+- Modify: `frontend/src/services/knowledgeBase.ts`
   Responsibility: Add scope-aware list/upload APIs.
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
   Responsibility: Load/send history within the active scope and page course-root history 20 at a time.
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.tsx`
+- Modify: `frontend/src/components/teacher/SourcePanel.tsx`
   Responsibility: Load scope-specific documents, label uploads against the current scope, and support course-root aggregation.
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
   Responsibility: Load generated artifacts by scope, page course-root results, and keep newly generated items scoped.
-- Test: `Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts`
+- Test: `frontend/tests/frontend/aiStudioScopeRouting.test.ts`
   Responsibility: Assert scope parsing and knowledge-graph jump wiring.
-- Test: `Edu_AI/tests/frontend/chatPanel.scope-history.test.ts`
+- Test: `frontend/tests/frontend/chatPanel.scope-history.test.ts`
   Responsibility: Assert scope-aware conversation loading and “load more” behavior.
-- Test: `Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts`
+- Test: `frontend/tests/frontend/sourcePanel.scope-documents.test.ts`
   Responsibility: Assert scope-aware document reads/uploads.
-- Test: `Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts`
+- Test: `frontend/tests/frontend/studioPanel.scope-materials.test.ts`
   Responsibility: Assert scope-aware generated material hydration and paging.
 
 ### Existing Docs To Reference While Implementing
 
 - Read: `docs/superpowers/specs/2026-04-20-knowledge-point-scoped-ai-workspace-design-cn.md`
-- Read: `Edu_AI/api/Edu_AI/core/README_COURSE_STORAGE.md`
+- Read: `backend/src/core/README_COURSE_STORAGE.md`
 
 ---
 
 ### Task 1: Add Shared Workspace Scope Helpers
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/workspace_scope.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py`
+- Create: `backend/src/app/workspace_scope.py`
+- Test: `backend/src/tests/chat/test_workspace_scope.py`
 
 - [ ] **Step 1: Write the failing backend scope tests**
 
@@ -135,7 +135,7 @@ def test_collect_scope_ids_for_query_returns_parent_and_descendants():
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py -v`
+Run: `pytest backend/src/tests/chat/test_workspace_scope.py -v`
 
 Expected: FAIL with `ModuleNotFoundError: No module named 'app.workspace_scope'`
 
@@ -221,25 +221,25 @@ def collect_scope_ids_for_query(
 
 - [ ] **Step 4: Run the tests to verify they pass**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py -v`
+Run: `pytest backend/src/tests/chat/test_workspace_scope.py -v`
 
 Expected: PASS for all 3 tests
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/workspace_scope.py Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py
+git add backend/src/app/workspace_scope.py backend/src/tests/chat/test_workspace_scope.py
 git commit -m "feat: add workspace scope helpers"
 ```
 
 ### Task 2: Persist Scope Metadata on Conversations and Add Scoped History Reads
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/schemas.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/routes.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/route_chat_service.py`
-- Modify: `Edu_AI/api/Edu_AI/core/conversation_storage.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py`
+- Modify: `backend/src/app/chat/schemas.py`
+- Modify: `backend/src/app/chat/routes.py`
+- Modify: `backend/src/app/chat/application/route_chat_service.py`
+- Modify: `backend/src/core/conversation_storage.py`
+- Test: `backend/src/tests/chat/test_conversation_scope_routes.py`
 
 - [ ] **Step 1: Write the failing scoped conversation route tests**
 
@@ -311,14 +311,14 @@ def test_list_conversations_filters_course_root_aggregate(monkeypatch):
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py -v`
+Run: `pytest backend/src/tests/chat/test_conversation_scope_routes.py -v`
 
 Expected: FAIL because `ChatRequest` does not accept `scope_type/scope_id` and `/api/chat/conversations` does not accept pagination/scope params
 
 - [ ] **Step 3: Implement scoped conversation persistence and list filtering**
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/schemas.py
+# backend/src/app/chat/schemas.py
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, description="用户输入")
     conversation_id: Optional[str] = Field(default=None, description="会话ID")
@@ -336,7 +336,7 @@ class ChatRequest(BaseModel):
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/core/conversation_storage.py
+# backend/src/core/conversation_storage.py
 def list_conversations(
     self,
     *,
@@ -391,7 +391,7 @@ def list_conversations(
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/application/route_chat_service.py
+# backend/src/app/chat/application/route_chat_service.py
 from app.workspace_scope import normalize_workspace_scope
 
 scope = normalize_workspace_scope(
@@ -412,7 +412,7 @@ state_patch["active_context"] = {
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/routes.py
+# backend/src/app/chat/routes.py
 @router.get("/conversations")
 async def list_conversations(
     course_id: str | None = None,
@@ -441,23 +441,23 @@ async def list_conversations(
 
 - [ ] **Step 4: Run the scoped conversation tests**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py -v`
+Run: `pytest backend/src/tests/chat/test_conversation_scope_routes.py -v`
 
 Expected: PASS for scoped create/list tests
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/schemas.py Edu_AI/api/Edu_AI/app/chat/routes.py Edu_AI/api/Edu_AI/app/chat/application/route_chat_service.py Edu_AI/api/Edu_AI/core/conversation_storage.py Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py
+git add backend/src/app/chat/schemas.py backend/src/app/chat/routes.py backend/src/app/chat/application/route_chat_service.py backend/src/core/conversation_storage.py backend/src/tests/chat/test_conversation_scope_routes.py
 git commit -m "feat: add scoped conversation history support"
 ```
 
 ### Task 3: Persist Scope Metadata for Knowledge-Base Documents and Generated Materials
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/core/course_storage.py`
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py`
+- Modify: `backend/src/core/course_storage.py`
+- Modify: `backend/src/app/courses.py`
+- Test: `backend/src/tests/chat/test_course_scope_materials_routes.py`
 
 - [ ] **Step 1: Write the failing material/document scope tests**
 
@@ -502,14 +502,14 @@ def test_materials_endpoint_supports_course_aggregate_paging(monkeypatch):
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py -v`
+Run: `pytest backend/src/tests/chat/test_course_scope_materials_routes.py -v`
 
 Expected: FAIL because the routes ignore `scope_type/scope_id/aggregate/limit/offset`
 
 - [ ] **Step 3: Implement scoped storage metadata and filtered list helpers**
 
 ```python
-# Edu_AI/api/Edu_AI/core/course_storage.py
+# backend/src/core/course_storage.py
 def save_knowledge_base_file(
     self,
     course_id: str,
@@ -586,7 +586,7 @@ def list_generated_materials(
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/courses.py
+# backend/src/app/courses.py
 @router.get("/{course_id}/knowledge-base/documents")
 def get_knowledge_base_documents(
     course_id: str,
@@ -609,25 +609,25 @@ def get_knowledge_base_documents(
 
 - [ ] **Step 4: Run the scoped material/document tests**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py -v`
+Run: `pytest backend/src/tests/chat/test_course_scope_materials_routes.py -v`
 
 Expected: PASS for both route tests
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/core/course_storage.py Edu_AI/api/Edu_AI/app/courses.py Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py
+git add backend/src/core/course_storage.py backend/src/app/courses.py backend/src/tests/chat/test_course_scope_materials_routes.py
 git commit -m "feat: add scoped course assets support"
 ```
 
 ### Task 4: Add Frontend Workspace Scope State and Knowledge-Graph Jump Entry
 
 **Files:**
-- Create: `Edu_AI/src/pages/teacher/aiWorkspaceScope.ts`
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.tsx`
-- Modify: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
-- Modify: `Edu_AI/src/store/teacher/useStore.ts`
-- Test: `Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts`
+- Create: `frontend/src/pages/teacher/aiWorkspaceScope.ts`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.tsx`
+- Modify: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Modify: `frontend/src/store/teacher/useStore.ts`
+- Test: `frontend/tests/frontend/aiStudioScopeRouting.test.ts`
 
 - [ ] **Step 1: Write the failing frontend scope-routing tests**
 
@@ -648,14 +648,14 @@ console.log('aiStudioScopeRouting tests passed');
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `node --test Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts`
+Run: `node --test frontend/tests/frontend/aiStudioScopeRouting.test.ts`
 
 Expected: FAIL because no workspace scope helper or route jump exists yet
 
 - [ ] **Step 3: Implement frontend scope parsing and knowledge-graph jump**
 
 ```ts
-// Edu_AI/src/pages/teacher/aiWorkspaceScope.ts
+// frontend/src/pages/teacher/aiWorkspaceScope.ts
 export type WorkspaceScope =
   | { scopeType: 'course'; scopeId: null; courseId: string }
   | { scopeType: 'knowledge_point'; scopeId: string; courseId: string };
@@ -672,7 +672,7 @@ export function getWorkspaceScopeFromLocation(courseId: string, search: string):
 ```
 
 ```tsx
-// Edu_AI/src/pages/teacher/AiStudioPage.tsx
+// frontend/src/pages/teacher/AiStudioPage.tsx
 import { useLocation } from 'react-router-dom';
 import { getWorkspaceScopeFromLocation } from './aiWorkspaceScope';
 
@@ -692,7 +692,7 @@ useEffect(() => {
 ```
 
 ```tsx
-// Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx
+// frontend/src/pages/teacher/KnowledgeGraphPage.tsx
 import { useNavigate } from 'react-router-dom';
 
 const navigate = useNavigate();
@@ -711,24 +711,24 @@ const navigate = useNavigate();
 
 - [ ] **Step 4: Run the frontend routing tests**
 
-Run: `node --test Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts`
+Run: `node --test frontend/tests/frontend/aiStudioScopeRouting.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/pages/teacher/aiWorkspaceScope.ts Edu_AI/src/pages/teacher/AiStudioPage.tsx Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx Edu_AI/src/store/teacher/useStore.ts Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts
+git add frontend/src/pages/teacher/aiWorkspaceScope.ts frontend/src/pages/teacher/AiStudioPage.tsx frontend/src/pages/teacher/KnowledgeGraphPage.tsx frontend/src/store/teacher/useStore.ts frontend/tests/frontend/aiStudioScopeRouting.test.ts
 git commit -m "feat: add workspace scope routing"
 ```
 
 ### Task 5: Make Chat and History Scope-Aware With 20-Item Paging
 
 **Files:**
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Modify: `Edu_AI/src/services/teacher/chatV2.ts`
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- Test: `Edu_AI/tests/frontend/chatPanel.scope-history.test.ts`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Modify: `frontend/src/services/teacher/chatV2.ts`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
+- Test: `frontend/tests/frontend/chatPanel.scope-history.test.ts`
 
 - [ ] **Step 1: Write the failing chat-panel scope tests**
 
@@ -750,14 +750,14 @@ console.log('chatPanel.scope-history tests passed');
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `node --test Edu_AI/tests/frontend/chatPanel.scope-history.test.ts`
+Run: `node --test frontend/tests/frontend/chatPanel.scope-history.test.ts`
 
 Expected: FAIL because the API and panel still use unscoped history calls
 
 - [ ] **Step 3: Implement scoped/paged history requests and chat payload fields**
 
 ```ts
-// Edu_AI/src/services/teacher/api.ts
+// frontend/src/services/teacher/api.ts
 export interface ConversationScopeRequest {
   course_id?: string;
   scope_type?: 'course' | 'knowledge_point';
@@ -784,7 +784,7 @@ export const listChatConversations = async (
 ```
 
 ```ts
-// Edu_AI/src/services/teacher/chatV2.ts
+// frontend/src/services/teacher/chatV2.ts
 export interface ChatReplyRequestV2 {
   question: string;
   conversation_id?: string;
@@ -797,7 +797,7 @@ export interface ChatReplyRequestV2 {
 ```
 
 ```tsx
-// Edu_AI/src/components/teacher/ChatPanel.tsx
+// frontend/src/components/teacher/ChatPanel.tsx
 const HISTORY_PAGE_SIZE = 20;
 
 const historyRequest = workspaceScope?.scopeType === 'knowledge_point'
@@ -821,23 +821,23 @@ const result = await listChatConversations(historyRequest);
 
 - [ ] **Step 4: Run the chat-panel scope tests**
 
-Run: `node --test Edu_AI/tests/frontend/chatPanel.scope-history.test.ts`
+Run: `node --test frontend/tests/frontend/chatPanel.scope-history.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/services/teacher/api.ts Edu_AI/src/services/teacher/chatV2.ts Edu_AI/src/components/teacher/ChatPanel.tsx Edu_AI/tests/frontend/chatPanel.scope-history.test.ts
+git add frontend/src/services/teacher/api.ts frontend/src/services/teacher/chatV2.ts frontend/src/components/teacher/ChatPanel.tsx frontend/tests/frontend/chatPanel.scope-history.test.ts
 git commit -m "feat: add scoped chat history paging"
 ```
 
 ### Task 6: Make SourcePanel Scope-Aware for Reads and Uploads
 
 **Files:**
-- Modify: `Edu_AI/src/services/knowledgeBase.ts`
-- Modify: `Edu_AI/src/components/teacher/SourcePanel.tsx`
-- Test: `Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts`
+- Modify: `frontend/src/services/knowledgeBase.ts`
+- Modify: `frontend/src/components/teacher/SourcePanel.tsx`
+- Test: `frontend/tests/frontend/sourcePanel.scope-documents.test.ts`
 
 - [ ] **Step 1: Write the failing source-panel scope tests**
 
@@ -858,14 +858,14 @@ console.log('sourcePanel.scope-documents tests passed');
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `node --test Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts`
+Run: `node --test frontend/tests/frontend/sourcePanel.scope-documents.test.ts`
 
 Expected: FAIL because document APIs and upload labeling are still course-only
 
 - [ ] **Step 3: Implement scope-aware document list/upload behavior**
 
 ```ts
-// Edu_AI/src/services/knowledgeBase.ts
+// frontend/src/services/knowledgeBase.ts
 export interface KnowledgeBaseScopeParams {
   scope_type?: 'course' | 'knowledge_point';
   scope_id?: string;
@@ -888,7 +888,7 @@ export async function getKnowledgeBaseDocuments(
 ```
 
 ```tsx
-// Edu_AI/src/components/teacher/SourcePanel.tsx
+// frontend/src/components/teacher/SourcePanel.tsx
 const documentScopeParams =
   workspaceScope?.scopeType === 'knowledge_point'
     ? { scope_type: 'knowledge_point' as const, scope_id: workspaceScope.scopeId }
@@ -902,24 +902,24 @@ const uploadScopeLabel =
 
 - [ ] **Step 4: Run the source-panel scope tests**
 
-Run: `node --test Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts`
+Run: `node --test frontend/tests/frontend/sourcePanel.scope-documents.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/services/knowledgeBase.ts Edu_AI/src/components/teacher/SourcePanel.tsx Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts
+git add frontend/src/services/knowledgeBase.ts frontend/src/components/teacher/SourcePanel.tsx frontend/tests/frontend/sourcePanel.scope-documents.test.ts
 git commit -m "feat: scope source panel documents"
 ```
 
 ### Task 7: Make StudioPanel Scope-Aware and Page Course-Root Generated Materials
 
 **Files:**
-- Modify: `Edu_AI/src/store/teacher/useCourseMaterialsStore.ts`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Test: `Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts`
+- Modify: `frontend/src/store/teacher/useCourseMaterialsStore.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Test: `frontend/tests/frontend/studioPanel.scope-materials.test.ts`
 
 - [ ] **Step 1: Write the failing studio-panel scope tests**
 
@@ -941,14 +941,14 @@ console.log('studioPanel.scope-materials tests passed');
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `node --test Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts`
+Run: `node --test frontend/tests/frontend/studioPanel.scope-materials.test.ts`
 
 Expected: FAIL because StudioPanel still hydrates from course-only materials
 
 - [ ] **Step 3: Implement scope-aware generated-material reads and store hydration**
 
 ```ts
-// Edu_AI/src/services/teacher/api.ts
+// frontend/src/services/teacher/api.ts
 export interface CourseMaterialsScopeRequest {
   material_type?: string;
   scope_type?: 'course' | 'knowledge_point';
@@ -974,7 +974,7 @@ export const getCourseMaterials = async (
 ```
 
 ```ts
-// Edu_AI/src/store/teacher/useCourseMaterialsStore.ts
+// frontend/src/store/teacher/useCourseMaterialsStore.ts
 interface CourseMaterialsState {
   materialsByScope: Record<string, CourseMaterial[]>;
   setMaterialsForScope: (scopeKey: string, materials: CourseMaterial[]) => void;
@@ -990,7 +990,7 @@ setMaterialsForScope: (scopeKey, materials) =>
 ```
 
 ```tsx
-// Edu_AI/src/components/teacher/StudioPanel.tsx
+// frontend/src/components/teacher/StudioPanel.tsx
 const MATERIAL_PAGE_SIZE = 20;
 const materialScopeRequest =
   workspaceScope?.scopeType === 'knowledge_point'
@@ -1002,24 +1002,24 @@ const materials = await getCourseMaterials(courseId, materialScopeRequest);
 
 - [ ] **Step 4: Run the studio-panel scope tests**
 
-Run: `node --test Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts`
+Run: `node --test frontend/tests/frontend/studioPanel.scope-materials.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/store/teacher/useCourseMaterialsStore.ts Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/src/services/teacher/api.ts Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts
+git add frontend/src/store/teacher/useCourseMaterialsStore.ts frontend/src/components/teacher/StudioPanel.tsx frontend/src/services/teacher/api.ts frontend/tests/frontend/studioPanel.scope-materials.test.ts
 git commit -m "feat: scope generated materials in studio"
 ```
 
 ### Task 8: End-to-End Regression Pass for Scope Inheritance and Verification
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py`
-- Modify: `Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
-- Modify: `Edu_AI/tests/frontend/aiStudioLayout.test.ts`
+- Modify: `backend/src/tests/chat/test_conversation_scope_routes.py`
+- Modify: `backend/src/tests/chat/test_course_scope_materials_routes.py`
+- Modify: `frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
+- Modify: `frontend/tests/frontend/aiStudioLayout.test.ts`
 
 - [ ] **Step 1: Add failing regression assertions for scope inheritance**
 
@@ -1057,11 +1057,11 @@ console.log('scope regression text checks passed');
 
 - [ ] **Step 2: Run the focused regression suite and confirm failures**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py -v`
+Run: `pytest backend/src/tests/chat/test_workspace_scope.py backend/src/tests/chat/test_conversation_scope_routes.py backend/src/tests/chat/test_course_scope_materials_routes.py -v`
 
 Expected: PASS for earlier cases and FAIL for any newly added inheritance gap
 
-Run: `node --test Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts Edu_AI/tests/frontend/chatPanel.scope-history.test.ts Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts`
+Run: `node --test frontend/tests/frontend/aiStudioScopeRouting.test.ts frontend/tests/frontend/chatPanel.scope-history.test.ts frontend/tests/frontend/sourcePanel.scope-documents.test.ts frontend/tests/frontend/studioPanel.scope-materials.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts`
 
 Expected: PASS for earlier checks and FAIL if any new readable labels or scope wiring are missing
 
@@ -1080,18 +1080,18 @@ const scopeLabel = workspaceScope?.scopeType === 'knowledge_point' ? knowledgePo
 
 - [ ] **Step 4: Run the final verification suite**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py -v`
+Run: `pytest backend/src/tests/chat/test_workspace_scope.py backend/src/tests/chat/test_conversation_scope_routes.py backend/src/tests/chat/test_course_scope_materials_routes.py -v`
 
 Expected: PASS
 
-Run: `node --test Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts Edu_AI/tests/frontend/chatPanel.scope-history.test.ts Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts Edu_AI/tests/frontend/aiStudioLayout.test.ts`
+Run: `node --test frontend/tests/frontend/aiStudioScopeRouting.test.ts frontend/tests/frontend/chatPanel.scope-history.test.ts frontend/tests/frontend/sourcePanel.scope-documents.test.ts frontend/tests/frontend/studioPanel.scope-materials.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts frontend/tests/frontend/aiStudioLayout.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/tests/chat/test_workspace_scope.py Edu_AI/api/Edu_AI/tests/chat/test_conversation_scope_routes.py Edu_AI/api/Edu_AI/tests/chat/test_course_scope_materials_routes.py Edu_AI/tests/frontend/aiStudioScopeRouting.test.ts Edu_AI/tests/frontend/chatPanel.scope-history.test.ts Edu_AI/tests/frontend/sourcePanel.scope-documents.test.ts Edu_AI/tests/frontend/studioPanel.scope-materials.test.ts Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts Edu_AI/tests/frontend/aiStudioLayout.test.ts
+git add backend/src/tests/chat/test_workspace_scope.py backend/src/tests/chat/test_conversation_scope_routes.py backend/src/tests/chat/test_course_scope_materials_routes.py frontend/tests/frontend/aiStudioScopeRouting.test.ts frontend/tests/frontend/chatPanel.scope-history.test.ts frontend/tests/frontend/sourcePanel.scope-documents.test.ts frontend/tests/frontend/studioPanel.scope-materials.test.ts frontend/tests/frontend/teacherWorkspace.text-safety.test.ts frontend/tests/frontend/aiStudioLayout.test.ts
 git commit -m "test: verify scoped AI workspace flows"
 ```
 

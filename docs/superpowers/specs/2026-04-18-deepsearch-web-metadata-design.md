@@ -99,8 +99,8 @@ Add a shared helper in the deep-search ingestion path that:
 - returns a normalized metadata payload for web documents
 
 Apply the helper in both:
-- `Edu_AI/api/Edu_AI/app/deepsearch.py`
-- `Edu_AI/api/Edu_AI/app/deepsearch_pipeline.py`
+- `backend/src/app/deepsearch.py`
+- `backend/src/app/deepsearch_pipeline.py`
 
 Both code paths should produce identical web metadata so that direct API usage and tool-driven deep-search imports stay aligned.
 
@@ -122,7 +122,7 @@ Existing consumers remain backward-compatible because the new fields are additiv
 
 ### Frontend Rendering
 
-Update `Edu_AI/src/components/teacher/SourcePanel.tsx` so web documents:
+Update `frontend/src/components/teacher/SourcePanel.tsx` so web documents:
 - prefer `source_logo_url` for the list icon
 - fall back to `GlobalOutlined` on load failure or missing URL
 - prefer the backend-provided `file_name`

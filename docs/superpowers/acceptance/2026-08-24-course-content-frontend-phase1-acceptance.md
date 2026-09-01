@@ -41,7 +41,7 @@
 
 ## 3. 非功能与边界验收
 
-- [x] `ACC-BOUND-01` `git diff` 不包含 `Edu_AI/api/`、Alembic、数据库文件、`storage/`、`course_data/` 或密钥。
+- [x] `ACC-BOUND-01` `git diff` 不包含 `backend/`、Alembic、数据库文件、`storage/`、`course_data/` 或密钥。
 - [ ] `ACC-BOUND-02` 教师端与学生端窄屏导航、个人资源列表和个人中心无新增水平溢出。
 - [x] `ACC-BOUND-03` 历史图谱兼容路由存在，但新导航和按钮不再生成 `#graph`。
 - [x] `ACC-BOUND-04` 前端生产构建成功，未引入新的 TypeScript 或 ESLint 错误。

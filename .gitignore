@@ -63,17 +63,18 @@ output/
 **/storage/temp/
 **/storage/vector_db/
 /models/
-Edu_AI/backup/
-Edu_AI/vector_db/
-Edu_AI/api/data/
-Edu_AI/api/storage/
-Edu_AI/api/src/storage/
-Edu_AI/api/Edu_AI/
-Edu_AI/api/course_data/**/generated_materials/
-Edu_AI/api/course_data/**/knowledge_base/documents/
-Edu_AI/evaluation/reports/
-openmaic-sidecar/data/
-openmaic-sidecar/public/vendor/
+/backend/data/
+/backend/storage/
+/backend/src/storage/
+/backend/course_data/**/generated_materials/
+/backend/course_data/**/knowledge_base/documents/
+/frontend/evaluation/reports/
+/frontend/tests/.tmp/
+/openmaic-sidecar/data/
+/openmaic-sidecar/public/vendor/
+# Local data and environments left under the pre-migration nested layout.
+# Remove this compatibility ignore after those local files have been migrated or archived.
+/Edu_AI/
 uploads/
 **/uploads/
 *.pth

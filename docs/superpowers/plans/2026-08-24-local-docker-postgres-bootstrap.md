@@ -12,8 +12,8 @@
 
 ## Runtime File Map
 
-- Create: `infra/postgres/.env.postgres` — ignored PostgreSQL credentials and host connection URL.
-- Create: `Edu_AI/api/src/.venv/` — ignored backend Python environment used automatically by `start_api.bat`.
+- Create: `deploy/postgres/.env.postgres` — ignored PostgreSQL credentials and host connection URL.
+- Create: `backend/src/.venv/` — ignored backend Python environment used automatically by `start_api.bat`.
 - Refresh: `Edu_AI/node_modules/` — frontend packages installed from `package-lock.json` by the repository installer.
 - Refresh: `openmaic-sidecar/node_modules/` — sidecar workspace packages installed from `pnpm-lock.yaml`.
 - Create/update: Docker volume `edu_ai_postgres_data` — PostgreSQL data files outside the Git worktree.
@@ -22,10 +22,10 @@
 ### Task 1: Preflight and Local PostgreSQL Configuration
 
 **Files:**
-- Create: `infra/postgres/.env.postgres`
-- Verify: `infra/postgres/compose.yml`
+- Create: `deploy/postgres/.env.postgres`
+- Verify: `deploy/postgres/compose.yml`
 - Preserve: `Edu_AI/.env`
-- Preserve: `Edu_AI/api/src/.env`
+- Preserve: `backend/src/.env`
 - Preserve: `openmaic-sidecar/.env.local`
 
 - [x] **Step 1: Verify the clean tracked worktree and required tools**
@@ -51,9 +51,9 @@ Expected: the worktree contains only the plan/design documentation changes; Dock
 Run from the repository root:
 
 ```powershell
-$postgresEnv = 'infra/postgres/.env.postgres'
+$postgresEnv = 'deploy/postgres/.env.postgres'
 if (-not (Test-Path -LiteralPath $postgresEnv)) {
-    Copy-Item -LiteralPath 'infra/postgres/.env.example' -Destination $postgresEnv
+    Copy-Item -LiteralPath 'deploy/postgres/.env.example' -Destination $postgresEnv
     $passwordBytes = New-Object byte[] 32
     [Security.Cryptography.RandomNumberGenerator]::Fill($passwordBytes)
     $password = [Convert]::ToHexString($passwordBytes).ToLowerInvariant()
@@ -64,15 +64,15 @@ if (-not (Test-Path -LiteralPath $postgresEnv)) {
 }
 ```
 
-Expected: `infra/postgres/.env.postgres` exists, remains ignored by Git, and contains matching URL-safe password values without printing them.
+Expected: `deploy/postgres/.env.postgres` exists, remains ignored by Git, and contains matching URL-safe password values without printing them.
 
 - [x] **Step 3: Validate startup and Compose configuration without starting services**
 
 Run:
 
 ```powershell
-cmd /c Edu_AI\api\src\start_api.bat --check
-docker compose --env-file infra/postgres/.env.postgres -f infra/postgres/compose.yml config -q
+cmd /c backend\src\start_api.bat --check
+docker compose --env-file deploy/postgres/.env.postgres -f deploy/postgres/compose.yml config -q
 ```
 
 Expected: both commands exit `0`; the startup script prints `Startup script check passed.`
@@ -80,7 +80,7 @@ Expected: both commands exit `0`; the startup script prints `Startup script chec
 ### Task 2: Install Host Dependencies
 
 **Files:**
-- Create: `Edu_AI/api/src/.venv/`
+- Create: `backend/src/.venv/`
 - Refresh: `Edu_AI/node_modules/`
 - Refresh: `openmaic-sidecar/node_modules/`
 
@@ -89,8 +89,8 @@ Expected: both commands exit `0`; the startup script prints `Startup script chec
 Run:
 
 ```powershell
-python -m venv Edu_AI/api/src/.venv
-Edu_AI/api/src/.venv/Scripts/python.exe --version
+python -m venv backend/src/.venv
+backend/src/.venv/Scripts/python.exe --version
 ```
 
 Expected: the second command reports Python 3.12 and `start_api.bat` can discover this environment.
@@ -102,7 +102,7 @@ Run with the local proxy only for package downloads:
 ```powershell
 $env:HTTP_PROXY = 'http://127.0.0.1:7897'
 $env:HTTPS_PROXY = 'http://127.0.0.1:7897'
-& .\scripts\install-all.ps1 -Python '.\Edu_AI\api\src\.venv\Scripts\python.exe' -SkipOptional
+& .\scripts\install-all.ps1 -Python '.\backend\src\.venv\Scripts\python.exe' -SkipOptional
 Remove-Item Env:HTTP_PROXY -ErrorAction SilentlyContinue
 Remove-Item Env:HTTPS_PROXY -ErrorAction SilentlyContinue
 ```
@@ -128,7 +128,7 @@ Expected: pnpm exits `0` and does not change `pnpm-lock.yaml`.
 Run:
 
 ```powershell
-Edu_AI/api/src/.venv/Scripts/python.exe -m pip check
+backend/src/.venv/Scripts/python.exe -m pip check
 npm test --prefix Edu_AI
 npm run build --prefix Edu_AI
 ```
@@ -138,8 +138,8 @@ Expected: pip reports no broken requirements; frontend tests and production buil
 ### Task 3: Start and Migrate the Empty PostgreSQL Database
 
 **Files:**
-- Use: `infra/postgres/.env.postgres`
-- Use: `infra/postgres/compose.yml`
+- Use: `deploy/postgres/.env.postgres`
+- Use: `deploy/postgres/compose.yml`
 - Create/update: Docker volume `edu_ai_postgres_data`
 
 - [x] **Step 1: Start Docker Desktop and prepare the database**
@@ -147,7 +147,7 @@ Expected: pip reports no broken requirements; frontend tests and production buil
 Run:
 
 ```powershell
-cmd /c Edu_AI\api\src\start_api.bat --database-only
+cmd /c backend\src\start_api.bat --database-only
 ```
 
 Expected: the script starts Docker Desktop if required, starts `edu-ai-postgres`, waits for a healthy state, applies Alembic migrations, and prints `Database-only startup completed successfully.`
@@ -157,11 +157,11 @@ Expected: the script starts Docker Desktop if required, starts `edu-ai-postgres`
 Run:
 
 ```powershell
-docker compose --env-file infra/postgres/.env.postgres -f infra/postgres/compose.yml ps
+docker compose --env-file deploy/postgres/.env.postgres -f deploy/postgres/compose.yml ps
 docker volume inspect edu_ai_postgres_data --format '{{.Name}}'
-$databaseUrlLine = Get-Content -LiteralPath 'infra/postgres/.env.postgres' | Where-Object { $_ -like 'DATABASE_URL=*' } | Select-Object -First 1
+$databaseUrlLine = Get-Content -LiteralPath 'deploy/postgres/.env.postgres' | Where-Object { $_ -like 'DATABASE_URL=*' } | Select-Object -First 1
 $env:DATABASE_URL = $databaseUrlLine.Substring('DATABASE_URL='.Length)
-Push-Location Edu_AI/api/src
+Push-Location backend/src
 & .\.venv\Scripts\python.exe -m alembic current
 & .\.venv\Scripts\python.exe -m alembic heads
 Pop-Location
@@ -173,22 +173,22 @@ Expected: Compose reports `edu-ai-postgres` healthy, the named volume exists, an
 ### Task 4: Launch and Verify the Application Stack
 
 **Files:**
-- Use: `Edu_AI/api/src/.env`
+- Use: `backend/src/.env`
 - Use: `openmaic-sidecar/.env.local`
-- Use: `infra/postgres/.env.postgres`
+- Use: `deploy/postgres/.env.postgres`
 
 - [x] **Step 1: Start OpenMAIC, the frontend, and the backend as hidden host processes**
 
 Run from PowerShell:
 
 ```powershell
-$databaseUrlLine = Get-Content -LiteralPath 'infra/postgres/.env.postgres' | Where-Object { $_ -like 'DATABASE_URL=*' } | Select-Object -First 1
+$databaseUrlLine = Get-Content -LiteralPath 'deploy/postgres/.env.postgres' | Where-Object { $_ -like 'DATABASE_URL=*' } | Select-Object -First 1
 $env:DATABASE_URL = $databaseUrlLine.Substring('DATABASE_URL='.Length)
 $env:VITE_API_BASE_URL = 'http://localhost:8001'
 $env:CLASSROOM_VIDEO_FRONTEND_URL = 'http://127.0.0.1:5173'
 Start-Process -FilePath 'pnpm.cmd' -ArgumentList 'dev' -WorkingDirectory (Resolve-Path 'openmaic-sidecar') -WindowStyle Hidden
 Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','--host','0.0.0.0','--port','5173' -WorkingDirectory (Resolve-Path 'Edu_AI') -WindowStyle Hidden
-Start-Process -FilePath (Resolve-Path 'Edu_AI/api/src/.venv/Scripts/python.exe') -ArgumentList '-m','uvicorn','app.main:app','--host','0.0.0.0','--port','8001' -WorkingDirectory (Resolve-Path 'Edu_AI/api/src') -WindowStyle Hidden
+Start-Process -FilePath (Resolve-Path 'backend/src/.venv/Scripts/python.exe') -ArgumentList '-m','uvicorn','app.main:app','--host','0.0.0.0','--port','8001' -WorkingDirectory (Resolve-Path 'backend/src') -WindowStyle Hidden
 Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue
 ```
 
@@ -223,7 +223,7 @@ Run:
 docker inspect --format '{{.State.Health.Status}}' edu-ai-postgres
 docker volume inspect edu_ai_postgres_data --format '{{.Mountpoint}}'
 git status --short --branch
-git check-ignore -v infra/postgres/.env.postgres Edu_AI/api/src/.venv
+git check-ignore -v deploy/postgres/.env.postgres backend/src/.venv
 ```
 
 Expected: PostgreSQL is healthy, the volume has a Docker-managed mount point, local secrets and the virtual environment are ignored, and no unintended tracked files changed.
@@ -242,7 +242,7 @@ Update each successful step from `- [ ]` to `- [x]`. Leave any failed step unche
 Run:
 
 ```powershell
-docker compose --env-file infra/postgres/.env.postgres -f infra/postgres/compose.yml ps
+docker compose --env-file deploy/postgres/.env.postgres -f deploy/postgres/compose.yml ps
 Invoke-RestMethod -Uri 'http://127.0.0.1:8001/health/database' -TimeoutSec 5
 (Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5173/' -TimeoutSec 5).StatusCode
 (Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:3000/api/health' -TimeoutSec 5).StatusCode

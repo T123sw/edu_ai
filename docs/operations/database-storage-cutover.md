@@ -13,7 +13,7 @@ API 通过 `PERSISTENCE_PROFILE=database` 执行强制校验。用户、课程�
 继续使用：
 
 ```bat
-D:\github\edu_ai\Edu_AI\api\src\start_api.bat
+D:\github\edu_ai\backend\src\start_api.bat
 ```
 
 脚本会自动启动 Docker 中的 PostgreSQL、等待健康检查、执行 Alembic 升级，再启动 API 和前端。无需单独手工启动数据库容器。
@@ -21,12 +21,12 @@ D:\github\edu_ai\Edu_AI\api\src\start_api.bat
 只启动并检查数据库：
 
 ```bat
-D:\github\edu_ai\Edu_AI\api\src\start_api.bat --database-only
+D:\github\edu_ai\backend\src\start_api.bat --database-only
 ```
 
 ## 验收与诊断
 
-在 `Edu_AI/api/src` 加载数据库环境变量后执行：
+在 `backend/src` 加载数据库环境变量后执行：
 
 ```powershell
 python -m app.database.cutover_report_cli

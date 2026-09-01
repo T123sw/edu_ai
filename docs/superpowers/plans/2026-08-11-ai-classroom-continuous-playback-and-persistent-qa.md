@@ -22,10 +22,10 @@
 
 **Files:**
 
-- Modify: `Edu_AI/api/src/app/services/classroom_qa_prompt.py`
-- Modify: `Edu_AI/api/src/app/services/classroom_qa_service.py`
-- Modify: `Edu_AI/api/src/tests/test_classroom_qa_prompt.py`
-- Modify: `Edu_AI/api/src/tests/test_classroom_qa_service.py`
+- Modify: `backend/src/app/services/classroom_qa_prompt.py`
+- Modify: `backend/src/app/services/classroom_qa_service.py`
+- Modify: `backend/src/tests/test_classroom_qa_prompt.py`
+- Modify: `backend/src/tests/test_classroom_qa_service.py`
 
 - [ ] Add a failing prompt test that constructs `ClassroomQaContext` without `rag_answer`, asserts current/previous speech and recent turns are present, and asserts all retrieval labels are absent:
 
@@ -47,7 +47,7 @@ The final service constructor must no longer accept or invoke this dependency; t
 - [ ] Run the focused tests and confirm they fail for the old `rag_answer` field/call:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_classroom_qa_prompt.py src/tests/test_classroom_qa_service.py -q
 ```
 
@@ -58,7 +58,7 @@ python -m pytest src/tests/test_classroom_qa_prompt.py src/tests/test_classroom_
 - [ ] Rerun the focused tests and the static absence gate:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_classroom_qa_prompt.py src/tests/test_classroom_qa_service.py -q
 rg -n "rag_search|rag_answer|_search_course_knowledge|课程知识库参考|rag_ms|rag_degraded" src/app/services/classroom_qa_prompt.py src/app/services/classroom_qa_service.py
 ```
@@ -68,7 +68,7 @@ Expected: pytest passes; `rg` has no matches and exits 1.
 - [ ] Commit:
 
 ```powershell
-git add Edu_AI/api/src/app/services/classroom_qa_prompt.py Edu_AI/api/src/app/services/classroom_qa_service.py Edu_AI/api/src/tests/test_classroom_qa_prompt.py Edu_AI/api/src/tests/test_classroom_qa_service.py
+git add backend/src/app/services/classroom_qa_prompt.py backend/src/app/services/classroom_qa_service.py backend/src/tests/test_classroom_qa_prompt.py backend/src/tests/test_classroom_qa_service.py
 git commit -m "perf(classroom): remove retrieval from live qa"
 ```
 
@@ -76,8 +76,8 @@ git commit -m "perf(classroom): remove retrieval from live qa"
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/classroomQa/classroomQaState.ts`
-- Modify: `Edu_AI/src/stitch/classroomQa/classroomQaState.test.ts`
+- Modify: `frontend/src/stitch/classroomQa/classroomQaState.ts`
+- Modify: `frontend/src/stitch/classroomQa/classroomQaState.test.ts`
 
 - [ ] Add failing reducer tests for the initial `ready` phase, immediate `activeTurn`, server reconciliation by `clientTurnId`, retry retention, and duplicate prevention:
 
@@ -106,7 +106,7 @@ npm test -- src/stitch/classroomQa/classroomQaState.test.ts
 Set-Location Edu_AI
 npm test -- src/stitch/classroomQa/classroomQaState.test.ts
 Set-Location ..
-git add Edu_AI/src/stitch/classroomQa/classroomQaState.ts Edu_AI/src/stitch/classroomQa/classroomQaState.test.ts
+git add frontend/src/stitch/classroomQa/classroomQaState.ts frontend/src/stitch/classroomQa/classroomQaState.test.ts
 git commit -m "feat(classroom): model persistent optimistic qa"
 ```
 
@@ -114,8 +114,8 @@ git commit -m "feat(classroom): model persistent optimistic qa"
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts`
-- Modify: `Edu_AI/src/stitch/classroomQa/useClassroomInterruption.test.ts`
+- Modify: `frontend/src/stitch/classroomQa/useClassroomInterruption.ts`
+- Modify: `frontend/src/stitch/classroomQa/useClassroomInterruption.test.ts`
 
 - [ ] Add failing hook-orchestrator tests proving that initialization/focus/typing never call `suspend`, while a valid submit calls operations in this order:
 
@@ -144,7 +144,7 @@ npm test -- src/stitch/classroomQa/useClassroomInterruption.test.ts
 Set-Location Edu_AI
 npm test -- src/stitch/classroomQa/useClassroomInterruption.test.ts
 Set-Location ..
-git add Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts Edu_AI/src/stitch/classroomQa/useClassroomInterruption.test.ts
+git add frontend/src/stitch/classroomQa/useClassroomInterruption.ts frontend/src/stitch/classroomQa/useClassroomInterruption.test.ts
 git commit -m "feat(classroom): interrupt lecture when question is sent"
 ```
 
@@ -152,11 +152,11 @@ git commit -m "feat(classroom): interrupt lecture when question is sent"
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx`
-- Modify: `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css`
-- Modify: `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Modify: `Edu_AI/src/stitch/styles.css`
+- Modify: `frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx`
+- Modify: `frontend/src/stitch/classroomQa/ClassroomQaPanel.css`
+- Modify: `frontend/src/stitch/classroomQa/ClassroomQaPanel.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Modify: `frontend/src/stitch/styles.css`
 
 - [ ] Add failing component/source tests that assert:
 
@@ -190,7 +190,7 @@ Set-Location Edu_AI
 npm test -- src/stitch/classroomQa/ClassroomQaPanel.test.ts src/stitch/classroomQa/classroomQaState.test.ts src/stitch/classroomQa/useClassroomInterruption.test.ts
 npm run lint
 Set-Location ..
-git add Edu_AI/src/stitch/classroomQa Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/src
+git add frontend/src/stitch/classroomQa frontend/src/stitch/pages/ClassroomPlayer.tsx frontend/src
 git commit -m "feat(classroom): replace prompt overlay with persistent qa rail"
 ```
 
@@ -200,11 +200,11 @@ Before committing, inspect `git diff --cached --name-only` and unstage any unrel
 
 **Files:**
 
-- Modify: `Edu_AI/src/openmaic/pagePlaybackController.ts`
-- Modify: `Edu_AI/src/openmaic/pagePlaybackController.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Add: `Edu_AI/src/stitch/classroomQa/classroomAutoplay.ts`
-- Add: `Edu_AI/src/stitch/classroomQa/classroomAutoplay.test.ts`
+- Modify: `frontend/src/openmaic/pagePlaybackController.ts`
+- Modify: `frontend/src/openmaic/pagePlaybackController.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Add: `frontend/src/stitch/classroomQa/classroomAutoplay.ts`
+- Add: `frontend/src/stitch/classroomQa/classroomAutoplay.test.ts`
 
 - [ ] Add controller tests asserting `complete` returns `true` only once for the current playing scene/revision and returns `false` for stale, repeated, non-playing, and already-navigated completions.
 
@@ -235,7 +235,7 @@ npm test -- src/openmaic/pagePlaybackController.test.ts src/stitch/classroomQa/c
 Set-Location Edu_AI
 npm test -- src/openmaic/pagePlaybackController.test.ts src/stitch/classroomQa/classroomAutoplay.test.ts
 Set-Location ..
-git add Edu_AI/src/openmaic/pagePlaybackController.ts Edu_AI/src/openmaic/pagePlaybackController.test.ts Edu_AI/src/stitch/classroomQa/classroomAutoplay.ts Edu_AI/src/stitch/classroomQa/classroomAutoplay.test.ts Edu_AI/src/stitch/pages/ClassroomPlayer.tsx
+git add frontend/src/openmaic/pagePlaybackController.ts frontend/src/openmaic/pagePlaybackController.test.ts frontend/src/stitch/classroomQa/classroomAutoplay.ts frontend/src/stitch/classroomQa/classroomAutoplay.test.ts frontend/src/stitch/pages/ClassroomPlayer.tsx
 git commit -m "feat(classroom): autoplay the next lesson page"
 ```
 
@@ -243,13 +243,13 @@ git commit -m "feat(classroom): autoplay the next lesson page"
 
 **Files:**
 
-- Modify: `Edu_AI/api/src/core/config.py`
-- Modify: `Edu_AI/api/src/app/integrations/openmaic/client.py`
-- Modify: `Edu_AI/api/src/app/services/classroom_qa_tts.py`
-- Add: `Edu_AI/api/src/app/services/openmaic_tts_service.py`
-- Modify: `Edu_AI/api/src/tests/test_openmaic_client.py`
-- Modify: `Edu_AI/api/src/tests/test_classroom_qa_service.py`
-- Add: `Edu_AI/api/src/tests/test_openmaic_tts_service.py`
+- Modify: `backend/src/core/config.py`
+- Modify: `backend/src/app/integrations/openmaic/client.py`
+- Modify: `backend/src/app/services/classroom_qa_tts.py`
+- Add: `backend/src/app/services/openmaic_tts_service.py`
+- Modify: `backend/src/tests/test_openmaic_client.py`
+- Modify: `backend/src/tests/test_classroom_qa_service.py`
+- Add: `backend/src/tests/test_openmaic_tts_service.py`
 
 - [ ] Add failing tests that expect `generate_classroom` to emit all explicit fields:
 
@@ -264,7 +264,7 @@ assert request_json["ttsSpeed"] == 1.0
 - [ ] Run focused backend tests and confirm missing generation fields/shared service failures:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_openmaic_client.py src/tests/test_openmaic_tts_service.py src/tests/test_classroom_qa_service.py -q
 ```
 
@@ -277,10 +277,10 @@ python -m pytest src/tests/test_openmaic_client.py src/tests/test_openmaic_tts_s
 - [ ] Rerun focused tests and commit:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_openmaic_client.py src/tests/test_openmaic_tts_service.py src/tests/test_classroom_qa_service.py -q
 Set-Location ../..
-git add Edu_AI/api/src/core/config.py Edu_AI/api/src/app/integrations/openmaic/client.py Edu_AI/api/src/app/services/classroom_qa_tts.py Edu_AI/api/src/app/services/openmaic_tts_service.py Edu_AI/api/src/tests/test_openmaic_client.py Edu_AI/api/src/tests/test_openmaic_tts_service.py Edu_AI/api/src/tests/test_classroom_qa_service.py
+git add backend/src/core/config.py backend/src/app/integrations/openmaic/client.py backend/src/app/services/classroom_qa_tts.py backend/src/app/services/openmaic_tts_service.py backend/src/tests/test_openmaic_client.py backend/src/tests/test_openmaic_tts_service.py backend/src/tests/test_classroom_qa_service.py
 git commit -m "refactor(classroom): share the openmaic speech profile"
 ```
 
@@ -325,9 +325,9 @@ git commit -m "feat(sidecar): honor explicit classroom tts profile"
 
 **Files:**
 
-- Modify: `Edu_AI/api/src/app/services/classroom_media.py`
-- Modify: `Edu_AI/api/src/tests/test_classroom_media.py`
-- Modify callers located by `rg -n "synthesize_classroom_speech_audio" Edu_AI/api/src`
+- Modify: `backend/src/app/services/classroom_media.py`
+- Modify: `backend/src/tests/test_classroom_media.py`
+- Modify callers located by `rg -n "synthesize_classroom_speech_audio" backend/src`
 
 - [ ] Add failing tests that inject the shared OpenMAIC TTS service, synthesize two missing speech actions, and assert both use `qwen-tts / Cherry / 1.0`. Add a guard asserting no request is sent to `/audio/speech` and no `alloy` default appears.
 
@@ -336,7 +336,7 @@ git commit -m "feat(sidecar): honor explicit classroom tts profile"
 - [ ] Run the focused media tests and confirm the old OpenAI-compatible path fails the profile assertions:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_classroom_media.py -q
 ```
 
@@ -347,10 +347,10 @@ python -m pytest src/tests/test_classroom_media.py -q
 - [ ] Rerun tests and commit:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_classroom_media.py src/tests/test_openmaic_tts_service.py src/tests/test_openmaic_client.py -q
 Set-Location ../..
-git add Edu_AI/api/src/app/services/classroom_media.py Edu_AI/api/src/tests/test_classroom_media.py Edu_AI/api/src/app
+git add backend/src/app/services/classroom_media.py backend/src/tests/test_classroom_media.py backend/src/app
 git diff --cached --name-only
 git commit -m "fix(classroom): use shared voice for missing narration"
 ```
@@ -361,8 +361,8 @@ Unstage any unrelated file before committing.
 
 **Files:**
 
-- Add: `Edu_AI/e2e/classroom-persistent-qa.spec.ts`
-- Modify: `Edu_AI/playwright.config.ts` only if the existing web-server configuration cannot run this spec
+- Add: `frontend/e2e/classroom-persistent-qa.spec.ts`
+- Modify: `frontend/playwright.config.ts` only if the existing web-server configuration cannot run this spec
 - Modify: `docs/acceptance/ACC-13_AI课堂连续授课与常驻问答体验优化_验收.md` to record actual evidence
 
 - [ ] Add a deterministic Playwright route-stub test that delays the QA POST and verifies the student bubble is already visible while the request is pending, then returns an answer and verifies left/right alignment through bounding boxes.
@@ -385,7 +385,7 @@ npx playwright test e2e/classroom-persistent-qa.spec.ts
 - [ ] Commit deterministic E2E and evidence updates:
 
 ```powershell
-git add Edu_AI/e2e/classroom-persistent-qa.spec.ts Edu_AI/playwright.config.ts docs/acceptance/ACC-13_AI课堂连续授课与常驻问答体验优化_验收.md
+git add frontend/e2e/classroom-persistent-qa.spec.ts frontend/playwright.config.ts docs/acceptance/ACC-13_AI课堂连续授课与常驻问答体验优化_验收.md
 git diff --cached --name-only
 git commit -m "test(classroom): cover persistent qa and continuous playback"
 ```
@@ -403,7 +403,7 @@ git commit -m "test(classroom): cover persistent qa and continuous playback"
 - [ ] Run the backend Q&A/media regression suite:
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_classroom_qa_prompt.py src/tests/test_classroom_qa_store.py src/tests/test_classroom_qa_service.py src/tests/test_classroom_qa_routes.py src/tests/test_openmaic_client.py src/tests/test_openmaic_tts_service.py src/tests/test_classroom_media.py -q
 ```
 

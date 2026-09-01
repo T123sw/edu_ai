@@ -80,8 +80,8 @@
 
 主要改动文件：
 
-- `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
-- `Edu_AI/src/services/teacher/api.ts`
+- `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
+- `frontend/src/services/teacher/api.ts`
 
 职责划分：
 
@@ -97,7 +97,7 @@
 
 ### Stitch 页面
 
-如果 `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx` 是当前启用的知识图谱主页面，也需要同步补上相同能力，避免新旧页面行为漂移。实现策略保持一致：
+如果 `frontend/src/stitch/pages/KnowledgeGraph.tsx` 是当前启用的知识图谱主页面，也需要同步补上相同能力，避免新旧页面行为漂移。实现策略保持一致：
 
 - 入口为课程级，不是节点级
 - 成功后用返回的图谱刷新视图
@@ -133,7 +133,7 @@
 
 用户提供的 `textbook_knowledge_graph.py` 不应继续停留在聊天附件目录下，而应纳入项目后端代码目录。归位原则如下：
 
-- 落到 `Edu_AI/api/Edu_AI/app/` 相邻的教材导入服务位置
+- 落到 `backend/src/app/` 相邻的教材导入服务位置
 - 由后端正式模块 import，而不是运行时从外部绝对路径加载
 - 保持其主入口函数 `import_textbook_into_knowledge_graph(...)` 可被路由层直接调用
 

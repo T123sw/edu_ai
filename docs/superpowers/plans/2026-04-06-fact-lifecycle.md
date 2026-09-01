@@ -13,9 +13,9 @@
 ### Task 1: Lock the expected behavior with failing tests
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_conversation_fact_layering.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_generation_context_builder.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_status_card_builder.py`
+- Modify: `backend/src/tests/chat/test_conversation_fact_layering.py`
+- Modify: `backend/src/tests/chat/test_generation_context_builder.py`
+- Modify: `backend/src/tests/chat/test_status_card_builder.py`
 
 - [ ] **Step 1: Write the failing extractor test**
 
@@ -45,7 +45,7 @@ def test_extractor_retracts_previous_user_claim_when_user_corrects_fact():
 
 - [ ] **Step 2: Run the extractor test and verify RED**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_conversation_fact_layering.py -k retracts_previous_user_claim -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\backend\src\tests\chat\test_conversation_fact_layering.py -k retracts_previous_user_claim -v`
 
 Expected: `FAILED` because the extractor currently keeps both claims active.
 
@@ -66,7 +66,7 @@ def test_generation_context_builder_ignores_retracted_user_claims():
 
 - [ ] **Step 4: Run the generation-context test and verify RED**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_generation_context_builder.py -k ignores_retracted_user_claims -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\backend\src\tests\chat\test_generation_context_builder.py -k ignores_retracted_user_claims -v`
 
 Expected: `FAILED` because the projection currently includes all user claims.
 
@@ -95,14 +95,14 @@ def test_status_card_builder_hides_retracted_claims():
 
 - [ ] **Step 6: Run the status-card test and verify RED**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_status_card_builder.py -k hides_retracted_claims -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\backend\src\tests\chat\test_status_card_builder.py -k hides_retracted_claims -v`
 
 Expected: `FAILED` because the status card currently displays all claims.
 
 ### Task 2: Implement fact lifecycle in the extractor
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/conversation_memory_extractor_v2.py`
+- Modify: `backend/src/app/chat/orchestrator/conversation_memory_extractor_v2.py`
 
 - [ ] **Step 1: Add correction detection helpers**
 
@@ -141,15 +141,15 @@ if str((item or {}).get("status") or "").strip() == "retracted":
 
 - [ ] **Step 4: Run extractor tests and verify GREEN**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_conversation_fact_layering.py -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\backend\src\tests\chat\test_conversation_fact_layering.py -v`
 
 Expected: all extractor tests pass.
 
 ### Task 3: Update downstream projections
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/generation_context_builder.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/status_card_builder.py`
+- Modify: `backend/src/app/chat/orchestrator/generation_context_builder.py`
+- Modify: `backend/src/app/chat/orchestrator/status_card_builder.py`
 
 - [ ] **Step 1: Ignore retracted claims in generation-context projection**
 
@@ -167,20 +167,20 @@ if isinstance(item, dict) and str(item.get("status") or "").strip() == "retracte
 
 - [ ] **Step 3: Run focused downstream tests and verify GREEN**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_generation_context_builder.py d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_status_card_builder.py -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\backend\src\tests\chat\test_generation_context_builder.py d:\github\edu_ai\backend\src\tests\chat\test_status_card_builder.py -v`
 
 Expected: both suites pass with the corrected fact projection.
 
 ### Task 4: Run regression coverage
 
 **Files:**
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_context_handoff_regressions.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_generation_context_relevance.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_workflow_runtime_context.py`
+- Test: `backend/src/tests/chat/test_report_context_handoff_regressions.py`
+- Test: `backend/src/tests/chat/test_generation_context_relevance.py`
+- Test: `backend/src/tests/chat/test_report_workflow_runtime_context.py`
 
 - [ ] **Step 1: Run the targeted regression bundle**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_conversation_fact_layering.py d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_generation_context_builder.py d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_status_card_builder.py d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_report_context_handoff_regressions.py d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_generation_context_relevance.py d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_report_workflow_runtime_context.py -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest d:\github\edu_ai\backend\src\tests\chat\test_conversation_fact_layering.py d:\github\edu_ai\backend\src\tests\chat\test_generation_context_builder.py d:\github\edu_ai\backend\src\tests\chat\test_status_card_builder.py d:\github\edu_ai\backend\src\tests\chat\test_report_context_handoff_regressions.py d:\github\edu_ai\backend\src\tests\chat\test_generation_context_relevance.py d:\github\edu_ai\backend\src\tests\chat\test_report_workflow_runtime_context.py -v`
 
 Expected: all tests pass and no retracted fact leaks into report handoff or status-card display.
 
@@ -189,11 +189,11 @@ Expected: all tests pass and no retracted fact leaks into report handoff or stat
 ```bash
 git -C d:\github\edu_ai add \
   d:\github\edu_ai\docs\superpowers\plans\2026-04-06-fact-lifecycle.md \
-  d:\github\edu_ai\Edu_AI\api\Edu_AI\app\chat\orchestrator\conversation_memory_extractor_v2.py \
-  d:\github\edu_ai\Edu_AI\api\Edu_AI\app\chat\orchestrator\generation_context_builder.py \
-  d:\github\edu_ai\Edu_AI\api\Edu_AI\app\chat\orchestrator\status_card_builder.py \
-  d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_conversation_fact_layering.py \
-  d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_generation_context_builder.py \
-  d:\github\edu_ai\Edu_AI\api\Edu_AI\tests\chat\test_status_card_builder.py
+  d:\github\edu_ai\backend\src\app\chat\orchestrator\conversation_memory_extractor_v2.py \
+  d:\github\edu_ai\backend\src\app\chat\orchestrator\generation_context_builder.py \
+  d:\github\edu_ai\backend\src\app\chat\orchestrator\status_card_builder.py \
+  d:\github\edu_ai\backend\src\tests\chat\test_conversation_fact_layering.py \
+  d:\github\edu_ai\backend\src\tests\chat\test_generation_context_builder.py \
+  d:\github\edu_ai\backend\src\tests\chat\test_status_card_builder.py
 git -C d:\github\edu_ai commit -m "feat: add fact lifecycle retraction guards"
 ```

@@ -12,37 +12,37 @@
 
 ## File Structure
 
-- Create: `Edu_AI/api/Edu_AI/app/ai_lecturer_bridge.py`
+- Create: `backend/src/app/ai_lecturer_bridge.py`
   - Own AI Lecturer process management, health inspection, PPT filtering, task bridging, and result persistence.
-- Modify: `Edu_AI/api/Edu_AI/app/main.py`
+- Modify: `backend/src/app/main.py`
   - Register startup/shutdown hooks for AI Lecturer management and include any new system-health routes if needed.
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
+- Modify: `backend/src/app/courses.py`
   - Add teacher-video PPT list, task creation, and task status routes under the course namespace.
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
+- Modify: `backend/src/app/chat/application/report_service_v2.py`
   - Persist `ppt_content_markdown` alongside completed PPT deck materials.
-- Modify: `Edu_AI/api/Edu_AI/core/config.py`
+- Modify: `backend/src/core/config.py`
   - Add AI Lecturer management configuration defaults.
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecturer_bridge.py`
+- Create: `backend/src/tests/chat/test_ai_lecturer_bridge.py`
   - Cover PPT filtering, task bridging, and result persistence.
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_courses_teaching_video_routes.py`
+- Create: `backend/src/tests/chat/test_courses_teaching_video_routes.py`
   - Cover the new course-scoped teaching-video routes.
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py`
+- Modify: `backend/src/tests/chat/test_routes_v2.py`
   - Add regression coverage for PPT persistence including `content_markdown`.
-- Modify: `Edu_AI/src/services/teacher/api.ts`
+- Modify: `frontend/src/services/teacher/api.ts`
   - Add client functions for teaching-video PPT listing, task creation, and task polling.
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
   - Add the “教学视频” action, PPT selection modal, bridge-task polling, and generated video insertion.
 
 ## Task 1: Add failing backend tests for PPT persistence and bridge behavior
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecturer_bridge.py`
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_courses_teaching_video_routes.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py`
+- Create: `backend/src/tests/chat/test_ai_lecturer_bridge.py`
+- Create: `backend/src/tests/chat/test_courses_teaching_video_routes.py`
+- Modify: `backend/src/tests/chat/test_routes_v2.py`
 
 - [ ] **Step 1: Add a failing PPT persistence regression**
 
-Append a test to `Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py` that proves completed PPT materials must retain markdown content:
+Append a test to `backend/src/tests/chat/test_routes_v2.py` that proves completed PPT materials must retain markdown content:
 
 ```python
 def test_persist_ppt_course_material_keeps_content_markdown():
@@ -86,7 +86,7 @@ def test_persist_ppt_course_material_keeps_content_markdown():
 
 - [ ] **Step 2: Add a failing bridge unit test**
 
-Create `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecturer_bridge.py`:
+Create `backend/src/tests/chat/test_ai_lecturer_bridge.py`:
 
 ```python
 from app.ai_lecturer_bridge import build_teaching_video_ppt_candidates
@@ -117,7 +117,7 @@ def test_build_teaching_video_ppt_candidates_filters_incomplete_ppt_materials():
 
 - [ ] **Step 3: Add failing route tests**
 
-Create `Edu_AI/api/Edu_AI/tests/chat/test_courses_teaching_video_routes.py`:
+Create `backend/src/tests/chat/test_courses_teaching_video_routes.py`:
 
 ```python
 from fastapi import FastAPI
@@ -147,8 +147,8 @@ def test_list_teaching_video_ppts_route_returns_candidates(monkeypatch):
 Run:
 
 ```bash
-pytest Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py -k content_markdown -q
-pytest Edu_AI/api/Edu_AI/tests/chat/test_ai_lecturer_bridge.py Edu_AI/api/Edu_AI/tests/chat/test_courses_teaching_video_routes.py -q
+pytest backend/src/tests/chat/test_routes_v2.py -k content_markdown -q
+pytest backend/src/tests/chat/test_ai_lecturer_bridge.py backend/src/tests/chat/test_courses_teaching_video_routes.py -q
 ```
 
 Expected: FAIL because the bridge module and routes do not exist yet, and PPT persistence does not yet retain `content_markdown`.
@@ -156,11 +156,11 @@ Expected: FAIL because the bridge module and routes do not exist yet, and PPT pe
 ## Task 2: Implement backend PPT persistence and AI Lecturer bridge
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
-- Create: `Edu_AI/api/Edu_AI/app/ai_lecturer_bridge.py`
-- Modify: `Edu_AI/api/Edu_AI/core/config.py`
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Modify: `Edu_AI/api/Edu_AI/app/main.py`
+- Modify: `backend/src/app/chat/application/report_service_v2.py`
+- Create: `backend/src/app/ai_lecturer_bridge.py`
+- Modify: `backend/src/core/config.py`
+- Modify: `backend/src/app/courses.py`
+- Modify: `backend/src/app/main.py`
 
 - [ ] **Step 1: Extend PPT material persistence**
 
@@ -206,7 +206,7 @@ AI_LECTURER_GATEWAY_ENTRY = Path(os.getenv("AI_LECTURER_GATEWAY_ENTRY", AI_LECTU
 
 - [ ] **Step 3: Create the bridge module**
 
-Implement `Edu_AI/api/Edu_AI/app/ai_lecturer_bridge.py` with:
+Implement `backend/src/app/ai_lecturer_bridge.py` with:
 
 ```python
 def build_teaching_video_ppt_candidates(materials: list[dict]) -> list[dict]:
@@ -287,8 +287,8 @@ Also expose a small system health route if the bridge module does not already at
 Run:
 
 ```bash
-pytest Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py -k content_markdown -q
-pytest Edu_AI/api/Edu_AI/tests/chat/test_ai_lecturer_bridge.py Edu_AI/api/Edu_AI/tests/chat/test_courses_teaching_video_routes.py -q
+pytest backend/src/tests/chat/test_routes_v2.py -k content_markdown -q
+pytest backend/src/tests/chat/test_ai_lecturer_bridge.py backend/src/tests/chat/test_courses_teaching_video_routes.py -q
 ```
 
 Expected: PASS
@@ -296,12 +296,12 @@ Expected: PASS
 ## Task 3: Add failing frontend tests or source-level regressions for the new entry
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- Modify or Create: `Edu_AI/tests/frontend/aiStudioTeachingVideo.test.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
+- Modify or Create: `frontend/tests/frontend/aiStudioTeachingVideo.test.ts`
 
 - [ ] **Step 1: Add a failing source regression**
 
-Create `Edu_AI/tests/frontend/aiStudioTeachingVideo.test.ts`:
+Create `frontend/tests/frontend/aiStudioTeachingVideo.test.ts`:
 
 ```ts
 import assert from 'node:assert/strict';
@@ -322,7 +322,7 @@ assert.match(studioPanel, /createTeachingVideoTask/, 'StudioPanel should call th
 Run:
 
 ```bash
-node --test Edu_AI/tests/frontend/aiStudioTeachingVideo.test.ts
+node --test frontend/tests/frontend/aiStudioTeachingVideo.test.ts
 ```
 
 Expected: FAIL because the new teaching-video entry and API calls are not implemented yet.
@@ -330,8 +330,8 @@ Expected: FAIL because the new teaching-video entry and API calls are not implem
 ## Task 4: Implement frontend teaching-video entry and task polling
 
 **Files:**
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
 
 - [ ] **Step 1: Add API client methods**
 
@@ -421,7 +421,7 @@ Reuse the existing `video` generated-file rendering path in `StudioPanel`; if ne
 Run:
 
 ```bash
-node --test Edu_AI/tests/frontend/aiStudioTeachingVideo.test.ts
+node --test frontend/tests/frontend/aiStudioTeachingVideo.test.ts
 ```
 
 Expected: PASS
@@ -436,8 +436,8 @@ Expected: PASS
 Run:
 
 ```bash
-pytest Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py -k content_markdown -q
-pytest Edu_AI/api/Edu_AI/tests/chat/test_ai_lecturer_bridge.py Edu_AI/api/Edu_AI/tests/chat/test_courses_teaching_video_routes.py -q
+pytest backend/src/tests/chat/test_routes_v2.py -k content_markdown -q
+pytest backend/src/tests/chat/test_ai_lecturer_bridge.py backend/src/tests/chat/test_courses_teaching_video_routes.py -q
 ```
 
 Expected: PASS
@@ -447,7 +447,7 @@ Expected: PASS
 Run:
 
 ```bash
-node --test Edu_AI/tests/frontend/aiStudioTeachingVideo.test.ts
+node --test frontend/tests/frontend/aiStudioTeachingVideo.test.ts
 ```
 
 Expected: PASS
@@ -457,8 +457,8 @@ Expected: PASS
 Run:
 
 ```bash
-pytest Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py -q
-node --test Edu_AI/tests/frontend/teacherWorkspace.text-safety.test.ts
+pytest backend/src/tests/chat/test_routes_v2.py -q
+node --test frontend/tests/frontend/teacherWorkspace.text-safety.test.ts
 ```
 
 Expected: PASS, confirming the new teaching-video path did not regress the nearby teacher workspace flows.

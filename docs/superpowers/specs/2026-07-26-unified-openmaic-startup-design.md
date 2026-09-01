@@ -2,7 +2,7 @@
 
 ## 目标
 
-更新 `Edu_AI/api/src/start_api.bat`，让一次启动同时拉起：
+更新 `backend/src/start_api.bat`，让一次启动同时拉起：
 
 1. `openmaic-sidecar`（Next.js，端口 3000）；
 2. Edu-AI 前端（Vite，端口 5173）；

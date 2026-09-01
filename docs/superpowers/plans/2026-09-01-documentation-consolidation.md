@@ -31,7 +31,7 @@
 - Move: `Edu_AI/docs/database-storage-cutover.md` to `docs/operations/database-storage-cutover.md`
 - Move: `Edu_AI/docs/specs/2026-08-10-database-migration-spec.md` to `docs/architecture/database-migration-spec.md`
 - Move: `Edu_AI/docs/qa/*.md` to `docs/operations/qa/`
-- Modify: `Edu_AI/tests/frontend/profile-kb-courseedit-replacement.test.ts`
+- Modify: `frontend/tests/frontend/profile-kb-courseedit-replacement.test.ts`
 
 - [x] **Step 1:** Move the unique August acceptance records and screenshots under a clearly labelled legacy product-evidence directory without changing their contents.
 - [x] **Step 2:** Move the three still-useful architecture/operations documents to their canonical responsibility directories.
@@ -41,14 +41,14 @@
 
 **Files:**
 - Delete: remaining `Edu_AI/docs/**`
-- Delete: `Edu_AI/api/src/docs/**`
+- Delete: `backend/src/docs/**`
 - Delete: Markdown/HTML documentation under `EduAgent/**`
 - Delete: Markdown documentation under `automation_spider/**`
 - Delete: root plans/specifications dedicated to generic PPT/HTML2PPT workflows
 - Delete: obsolete root roadmaps dedicated to P4A, SearXNG, HTML2PPT, or superseded migration comparisons
 
 - [x] **Step 1:** Delete duplicate frontend-local documentation after the current evidence and contracts have been moved.
-- [x] **Step 2:** Delete the obsolete backend-local documentation tree, whose paths and architecture predate `Edu_AI/api/src`.
+- [x] **Step 2:** Delete the obsolete backend-local documentation tree, whose paths and architecture predate `backend/src`.
 - [x] **Step 3:** Delete documentation owned by the retired EduAgent and crawler subsystems.
 - [x] **Step 4:** Delete generic PPT/HTML2PPT plans while preserving OpenMAIC PPTX specifications and acceptance records.
 
@@ -56,11 +56,11 @@
 
 **Files:**
 - Modify: root `docs/superpowers/specs/*.md` and `docs/superpowers/plans/*.md` files that reference moved acceptance records
-- Modify: `Edu_AI/README.md`
+- Modify: `README.md`
 - Modify: `DEPENDENCIES.md`
 
 - [x] **Step 1:** Replace active `docs/acceptance/legacy-product-evidence/...` links with `docs/acceptance/legacy-product-evidence/...` paths.
-- [x] **Step 2:** Replace the old nested deployment links in `Edu_AI/README.md` with the canonical deployment index.
+- [x] **Step 2:** Replace the old nested deployment links in `README.md` with the canonical deployment index.
 - [x] **Step 3:** Rewrite `DEPENDENCIES.md` to remove EduAgent, npm lockfile, venv, old startup scripts, and generic PPT service instructions; record the agreed Conda, Python 3.12, Node 22, pnpm 10.28, and FFmpeg 6+ baseline.
 
 ### Task 5: Verify the documentation tree
@@ -68,10 +68,10 @@
 **Files:**
 - Verify: `docs/**`
 - Verify: `项目总览地图.md`
-- Verify: `Edu_AI/README.md`
+- Verify: `README.md`
 - Verify: `DEPENDENCIES.md`
 
-- [x] **Step 1:** Run a repository search for references to `Edu_AI/docs`, `Edu_AI/api/src/docs`, EduAgent, automation_spider, HTML2PPT, ports 8000/46080, and deleted document paths.
+- [x] **Step 1:** Run a repository search for references to `Edu_AI/docs`, `backend/src/docs`, EduAgent, automation_spider, HTML2PPT, ports 8000/46080, and deleted document paths.
 - [x] **Step 2:** Confirm OpenMAIC PPTX specification and acceptance documents still exist.
 - [x] **Step 3:** Confirm no recently updated 2026-08-31 or 2026-09-01 root specification, plan, or acceptance document was deleted.
 - [x] **Step 4:** Inspect `git diff --check` and `git status --short`; do not run or repair the known failing backend test suite in this documentation-only pass.

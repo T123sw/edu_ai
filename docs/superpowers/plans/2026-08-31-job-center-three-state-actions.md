@@ -12,18 +12,18 @@
 
 ## 文件结构
 
-- `Edu_AI/src/jobs/jobPresentation.ts`：新增任务中心可见性、三状态统计和唯一主操作的纯函数。
-- `Edu_AI/src/jobs/jobPresentation.test.ts`：以真实 `JobRecord` 验证状态映射、取消隐藏和操作选择。
-- `Edu_AI/src/jobs/JobCenterDrawer.tsx`：使用纯函数过滤、分组、渲染三个统计项，并显示后端重试错误。
-- `Edu_AI/api/src/app/api/jobs.py`：校验新重试任务的接受状态，异常时终止“成功”响应并落失败状态。
-- `Edu_AI/api/src/tests/test_jobs_api_v2.py`：验证真实入队成功、分发失败与异常时的 HTTP 语义和台账状态。
-- `Edu_AI/api/src/tests/test_job_retry_service.py`：验证非持久化任务会调用原业务提交器并传回原始输入。
+- `frontend/src/jobs/jobPresentation.ts`：新增任务中心可见性、三状态统计和唯一主操作的纯函数。
+- `frontend/src/jobs/jobPresentation.test.ts`：以真实 `JobRecord` 验证状态映射、取消隐藏和操作选择。
+- `frontend/src/jobs/JobCenterDrawer.tsx`：使用纯函数过滤、分组、渲染三个统计项，并显示后端重试错误。
+- `backend/src/app/api/jobs.py`：校验新重试任务的接受状态，异常时终止“成功”响应并落失败状态。
+- `backend/src/tests/test_jobs_api_v2.py`：验证真实入队成功、分发失败与异常时的 HTTP 语义和台账状态。
+- `backend/src/tests/test_job_retry_service.py`：验证非持久化任务会调用原业务提交器并传回原始输入。
 
 ### Task 1: 建立前端三状态契约
 
 **Files:**
-- Modify: `Edu_AI/src/jobs/jobPresentation.test.ts`
-- Modify: `Edu_AI/src/jobs/jobPresentation.ts`
+- Modify: `frontend/src/jobs/jobPresentation.test.ts`
+- Modify: `frontend/src/jobs/jobPresentation.ts`
 
 - [ ] **Step 1: 写入失败测试**
 
@@ -122,15 +122,15 @@ Expected: PASS，所有 `jobPresentation` 测试通过。
 - [ ] **Step 5: 提交三状态契约**
 
 ```powershell
-git add -- Edu_AI/src/jobs/jobPresentation.ts Edu_AI/src/jobs/jobPresentation.test.ts
+git add -- frontend/src/jobs/jobPresentation.ts frontend/src/jobs/jobPresentation.test.ts
 git commit -m "test: define job center three-state contract"
 ```
 
 ### Task 2: 收敛任务中心界面与操作
 
 **Files:**
-- Modify: `Edu_AI/src/jobs/JobCenterDrawer.tsx`
-- Modify: `Edu_AI/src/jobs/jobCenterPlacement.test.ts`
+- Modify: `frontend/src/jobs/JobCenterDrawer.tsx`
+- Modify: `frontend/src/jobs/jobCenterPlacement.test.ts`
 
 - [ ] **Step 1: 写入失败的界面结构测试**
 
@@ -228,15 +228,15 @@ Expected: PASS，两份测试文件全部通过。
 - [ ] **Step 6: 提交界面修改**
 
 ```powershell
-git add -- Edu_AI/src/jobs/JobCenterDrawer.tsx Edu_AI/src/jobs/jobCenterPlacement.test.ts
+git add -- frontend/src/jobs/JobCenterDrawer.tsx frontend/src/jobs/jobCenterPlacement.test.ts
 git commit -m "feat: simplify job center states and actions"
 ```
 
 ### Task 3: 阻止后端返回假重试成功
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/test_jobs_api_v2.py`
-- Modify: `Edu_AI/api/src/app/api/jobs.py`
+- Modify: `backend/src/tests/test_jobs_api_v2.py`
+- Modify: `backend/src/app/api/jobs.py`
 
 - [ ] **Step 1: 写入失败响应测试**
 
@@ -294,7 +294,7 @@ def test_retry_marks_new_job_failed_when_dispatch_raises(client, monkeypatch):
 
 - [ ] **Step 2: 运行测试并确认当前 API 错误地返回 202 或遗留排队任务**
 
-Run: `Edu_AI/api/src/.venv/Scripts/python.exe -m pytest Edu_AI/api/src/tests/test_jobs_api_v2.py -q`
+Run: `backend/src/.venv/Scripts/python.exe -m pytest backend/src/tests/test_jobs_api_v2.py -q`
 
 Expected: FAIL；第一例得到 202，第二例虽得到 500 但新任务仍是 `queued`。
 
@@ -362,21 +362,21 @@ def _accepted_retry(job: EduJob) -> dict:
 
 - [ ] **Step 4: 运行后端重试 API 测试**
 
-Run: `Edu_AI/api/src/.venv/Scripts/python.exe -m pytest Edu_AI/api/src/tests/test_jobs_api_v2.py -q`
+Run: `backend/src/.venv/Scripts/python.exe -m pytest backend/src/tests/test_jobs_api_v2.py -q`
 
 Expected: PASS，所有重试、取消和权限测试通过。
 
 - [ ] **Step 5: 提交后端重试契约**
 
 ```powershell
-git add -- Edu_AI/api/src/app/api/jobs.py Edu_AI/api/src/tests/test_jobs_api_v2.py
+git add -- backend/src/app/api/jobs.py backend/src/tests/test_jobs_api_v2.py
 git commit -m "fix: reject job retries that are not dispatched"
 ```
 
 ### Task 4: 验证非持久化任务的真实业务分发
 
 **Files:**
-- Create: `Edu_AI/api/src/tests/test_job_retry_service.py`
+- Create: `backend/src/tests/test_job_retry_service.py`
 
 - [ ] **Step 1: 写入业务分发测试**
 
@@ -433,23 +433,23 @@ async def test_classroom_retry_calls_original_business_submitter(monkeypatch, tm
 
 - [ ] **Step 2: 运行真实业务分发契约测试**
 
-Run: `Edu_AI/api/src/.venv/Scripts/python.exe -m pytest Edu_AI/api/src/tests/test_job_retry_service.py -q`
+Run: `backend/src/.venv/Scripts/python.exe -m pytest backend/src/tests/test_job_retry_service.py -q`
 
 Expected: PASS，说明非持久化课堂任务确实调用原业务提交器，而不是只创建台账记录。
 
 - [ ] **Step 3: 提交业务分发测试**
 
 ```powershell
-git add -- Edu_AI/api/src/tests/test_job_retry_service.py
+git add -- backend/src/tests/test_job_retry_service.py
 git commit -m "test: verify job retry business dispatch"
 ```
 
 ### Task 5: 完整验证
 
 **Files:**
-- Verify: `Edu_AI/src/jobs/*`
-- Verify: `Edu_AI/api/src/app/api/jobs.py`
-- Verify: `Edu_AI/api/src/tests/test_jobs_api_v2.py`
+- Verify: `frontend/src/jobs/*`
+- Verify: `backend/src/app/api/jobs.py`
+- Verify: `backend/src/tests/test_jobs_api_v2.py`
 
 - [ ] **Step 1: 运行前端完整单元测试**
 
@@ -477,7 +477,7 @@ Expected: exit 0，Vite 生成生产资源。
 
 Run: `.venv/Scripts/python.exe -m pytest tests/test_jobs_api_v2.py -q`
 
-Working directory: `Edu_AI/api/src`
+Working directory: `backend/src`
 
 Expected: PASS，0 failed。
 

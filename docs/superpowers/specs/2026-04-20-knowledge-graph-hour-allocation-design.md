@@ -216,7 +216,7 @@ The existing local browser-only `generateHours` behavior should be removed or ke
 
 Recommended new service module:
 
-`Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py`
+`backend/src/app/knowledge_graph_hours.py`
 
 Responsibilities:
 - graph traversal
@@ -228,7 +228,7 @@ Responsibilities:
 
 Recommended route change:
 
-`Edu_AI/api/Edu_AI/app/courses.py`
+`backend/src/app/courses.py`
 
 Responsibilities:
 - request/response models
@@ -241,19 +241,19 @@ Responsibilities:
 
 Update:
 
-`Edu_AI/src/stitch/api/types.ts`
+`frontend/src/stitch/api/types.ts`
 
 Add `hours?: number` under `KnowledgeGraphNode.data`.
 
 Update:
 
-`Edu_AI/src/stitch/api/courses.ts`
+`frontend/src/stitch/api/courses.ts`
 
 Add an `allocateKnowledgeGraphHours(courseId, payload)` API helper.
 
 Update:
 
-`Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
+`frontend/src/stitch/pages/KnowledgeGraph.tsx`
 
 Use returned `data.hours` when flattening nodes and call the new API from the total-hours button.
 

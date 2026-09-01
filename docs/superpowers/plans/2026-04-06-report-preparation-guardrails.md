@@ -13,7 +13,7 @@
 ### Task 1: Lock the weak cases with failing tests
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_report_context_organizer_guardrails.py`
+- Modify: `backend/src/tests/chat/test_report_context_organizer_guardrails.py`
 
 - [ ] **Step 1: Add a failing test for generic report requests**
 
@@ -72,14 +72,14 @@ def test_report_context_organizer_rewrites_low_signal_llm_subject_and_focus():
 
 - [ ] **Step 4: Run the organizer guardrail tests and verify RED**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest tests\chat\test_report_context_organizer_guardrails.py -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest tests\chat\test_report_context_organizer_guardrails.py -v`
 
 Expected: the new tests fail because the organizer currently accepts generic request text and low-signal LLM output too easily.
 
 ### Task 2: Add subject extraction and result sanitization
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/report_context_organizer.py`
+- Modify: `backend/src/app/chat/orchestrator/report_context_organizer.py`
 
 - [ ] **Step 1: Add request-level subject extraction**
 
@@ -103,19 +103,19 @@ result = self._sanitize_result(...)
 
 - [ ] **Step 4: Run the guardrail tests and verify GREEN**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest tests\chat\test_report_context_organizer_guardrails.py -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest tests\chat\test_report_context_organizer_guardrails.py -v`
 
 Expected: all guardrail tests pass.
 
 ### Task 3: Run related regression coverage
 
 **Files:**
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_context_organizer.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_generation_readiness_judge.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_report_runtime_preparation_flow.py`
+- Test: `backend/src/tests/chat/test_report_context_organizer.py`
+- Test: `backend/src/tests/chat/test_generation_readiness_judge.py`
+- Test: `backend/src/tests/chat/test_report_runtime_preparation_flow.py`
 
 - [ ] **Step 1: Run the report-preparation regression bundle**
 
-Run: `d:\github\edu_ai\Edu_AI\api\Edu_AI\.venv\Scripts\python.exe -m pytest tests\chat\test_report_context_organizer.py tests\chat\test_report_context_organizer_guardrails.py tests\chat\test_generation_readiness_judge.py tests\chat\test_report_runtime_preparation_flow.py tests\chat\test_report_workflow_runtime_context.py -v`
+Run: `d:\github\edu_ai\backend\src\.venv\Scripts\python.exe -m pytest tests\chat\test_report_context_organizer.py tests\chat\test_report_context_organizer_guardrails.py tests\chat\test_generation_readiness_judge.py tests\chat\test_report_runtime_preparation_flow.py tests\chat\test_report_workflow_runtime_context.py -v`
 
 Expected: all tests pass and sanitized subject/focus still integrate with readiness and runtime flow.

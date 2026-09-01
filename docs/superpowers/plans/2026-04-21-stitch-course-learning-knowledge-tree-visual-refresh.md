@@ -4,7 +4,7 @@
 
 **Goal:** Redesign the `课程学习` page knowledge tree so parent/child relationships are visually obvious, duplicate labels are removed, and the active learning path is easier to scan.
 
-**Architecture:** Keep the existing knowledge graph data shape and selection behavior intact, but refactor `renderStructureNode` in `Edu_AI/src/stitch/pages/VideoPlayer.tsx` so root and top-level nodes render as stronger cards while nested nodes render as indented tree items with guide lines. Add a small text helper to suppress repeated summaries and add text-level regression tests that lock the new hierarchy, indentation, and reduced-noise rendering structure.
+**Architecture:** Keep the existing knowledge graph data shape and selection behavior intact, but refactor `renderStructureNode` in `frontend/src/stitch/pages/VideoPlayer.tsx` so root and top-level nodes render as stronger cards while nested nodes render as indented tree items with guide lines. Add a small text helper to suppress repeated summaries and add text-level regression tests that lock the new hierarchy, indentation, and reduced-noise rendering structure.
 
 **Tech Stack:** React 18, TypeScript, Tailwind utility classes in JSX, Node-based regex/assert frontend tests
 
@@ -13,8 +13,8 @@
 ### Task 1: Lock the New Tree Layout Contract with a Failing Test
 
 **Files:**
-- Create: `Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
-- Test: `Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+- Create: `frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+- Test: `frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -65,22 +65,22 @@ console.log("videoPlayer.knowledge-tree-visual-refresh tests passed");
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+Run: `node frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
 
 Expected: `AssertionError` because `VideoPlayer.tsx` does not yet define the duplicate-summary helper or the new indented tree structure.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
+git add frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
 git commit -m "test: cover course learning knowledge tree refresh"
 ```
 
 ### Task 2: Refactor the Knowledge Tree Renderer for Clear Parent/Child Hierarchy
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/VideoPlayer.tsx`
-- Test: `Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+- Modify: `frontend/src/stitch/pages/VideoPlayer.tsx`
+- Test: `frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
 
 - [ ] **Step 1: Add the summary dedupe helper near the other local helpers**
 
@@ -166,7 +166,7 @@ function renderStructureNode(node: KnowledgeGraphNode, depth = 0): ReactNode {
 
 - [ ] **Step 3: Run the new test to verify it passes**
 
-Run: `node Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+Run: `node frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
 
 Expected: `videoPlayer.knowledge-tree-visual-refresh tests passed`
 
@@ -175,8 +175,8 @@ Expected: `videoPlayer.knowledge-tree-visual-refresh tests passed`
 Run:
 
 ```bash
-node Edu_AI/tests/frontend/videoPlayer.knowledge-point-materials.test.ts
-node Edu_AI/tests/frontend/videoPlayer.course-material-scroll-layout.test.ts
+node frontend/tests/frontend/videoPlayer.knowledge-point-materials.test.ts
+node frontend/tests/frontend/videoPlayer.course-material-scroll-layout.test.ts
 ```
 
 Expected:
@@ -187,15 +187,15 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/stitch/pages/VideoPlayer.tsx Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
+git add frontend/src/stitch/pages/VideoPlayer.tsx frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
 git commit -m "feat: refresh course learning knowledge tree styling"
 ```
 
 ### Task 3: Tighten the Container Rhythm Around the Updated Tree
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/VideoPlayer.tsx`
-- Test: `Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+- Modify: `frontend/src/stitch/pages/VideoPlayer.tsx`
+- Test: `frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
 
 - [ ] **Step 1: Lightly tune the left-side shell copy block so the refreshed tree breathes**
 
@@ -221,37 +221,37 @@ This keeps the summary header separate from the new hierarchical tree rhythm.
 
 - [ ] **Step 2: Re-run the tree refresh test**
 
-Run: `node Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+Run: `node frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
 
 Expected: `videoPlayer.knowledge-tree-visual-refresh tests passed`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add Edu_AI/src/stitch/pages/VideoPlayer.tsx
+git add frontend/src/stitch/pages/VideoPlayer.tsx
 git commit -m "style: refine course learning tree spacing"
 ```
 
 ### Task 4: Final Verification Sweep
 
 **Files:**
-- Verify: `Edu_AI/src/stitch/pages/VideoPlayer.tsx`
-- Verify: `Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
-- Verify: `Edu_AI/tests/frontend/videoPlayer.knowledge-point-materials.test.ts`
-- Verify: `Edu_AI/tests/frontend/videoPlayer.course-material-scroll-layout.test.ts`
-- Verify: `Edu_AI/tests/frontend/videoPlayer.ppt-preview.test.ts`
-- Verify: `Edu_AI/tests/frontend/videoPlayer.material-doc-export.test.ts`
+- Verify: `frontend/src/stitch/pages/VideoPlayer.tsx`
+- Verify: `frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts`
+- Verify: `frontend/tests/frontend/videoPlayer.knowledge-point-materials.test.ts`
+- Verify: `frontend/tests/frontend/videoPlayer.course-material-scroll-layout.test.ts`
+- Verify: `frontend/tests/frontend/videoPlayer.ppt-preview.test.ts`
+- Verify: `frontend/tests/frontend/videoPlayer.material-doc-export.test.ts`
 
 - [ ] **Step 1: Run the complete focused verification set**
 
 Run:
 
 ```bash
-node Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
-node Edu_AI/tests/frontend/videoPlayer.knowledge-point-materials.test.ts
-node Edu_AI/tests/frontend/videoPlayer.course-material-scroll-layout.test.ts
-node Edu_AI/tests/frontend/videoPlayer.ppt-preview.test.ts
-node Edu_AI/tests/frontend/videoPlayer.material-doc-export.test.ts
+node frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
+node frontend/tests/frontend/videoPlayer.knowledge-point-materials.test.ts
+node frontend/tests/frontend/videoPlayer.course-material-scroll-layout.test.ts
+node frontend/tests/frontend/videoPlayer.ppt-preview.test.ts
+node frontend/tests/frontend/videoPlayer.material-doc-export.test.ts
 ```
 
 Expected:
@@ -267,7 +267,7 @@ Expected:
 Run:
 
 ```bash
-git diff -- Edu_AI/src/stitch/pages/VideoPlayer.tsx Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
+git diff -- frontend/src/stitch/pages/VideoPlayer.tsx frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
 ```
 
 Expected: only tree-visual hierarchy, duplicate-summary suppression, and nearby spacing adjustments are present.
@@ -275,6 +275,6 @@ Expected: only tree-visual hierarchy, duplicate-summary suppression, and nearby 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add Edu_AI/src/stitch/pages/VideoPlayer.tsx Edu_AI/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
+git add frontend/src/stitch/pages/VideoPlayer.tsx frontend/tests/frontend/videoPlayer.knowledge-tree-visual-refresh.test.ts
 git commit -m "test: verify course learning knowledge tree refresh"
 ```

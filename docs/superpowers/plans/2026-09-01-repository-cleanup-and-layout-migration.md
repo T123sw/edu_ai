@@ -53,9 +53,9 @@ Completed in commit `762e60d`.
 
 ### Scope
 
-- Delete unreachable legacy frontend `Edu_AI/src/pages/**`.
+- Delete unreachable legacy frontend `frontend/src/pages/**`.
 - Delete frontend tests that exist only to assert legacy `src/pages` styles or paths.
-- Delete backend `Edu_AI/api/src/app/pipeline/**` and unregister `/api/pipeline` from `app/bootstrap.py`.
+- Delete backend `backend/src/app/pipeline/**` and unregister `/api/pipeline` from `app/bootstrap.py`.
 - Delete the repository-root `automation_spider/**` implementation and its dedicated smoke script.
 - Delete the complete repository-root `EduAgent/**` product.
 - Delete retired `infra/searxng/**` configuration.
@@ -99,6 +99,8 @@ Completed in commit `5dd4c90`.
 
 ## Phase 3 — Remove tracked residue and define runtime-data boundaries
 
+Completed in commit `269098b`.
+
 ### Scope
 
 - Inspect root `app/`, `models/`, `storage/`, `tests/`, temporary import-test directories, caches, build output, and duplicate configuration.
@@ -117,6 +119,8 @@ Completed in commit `5dd4c90`.
 `chore: remove generated residue and isolate runtime data`
 
 ## Phase 4 — Migrate to the canonical root layout
+
+In progress on `codex/repository-cleanup`.
 
 ### Scope
 

@@ -30,7 +30,7 @@
 
 引入方式（对齐 SPEC-01 §2）：起步用 pnpm workspace 指向 `openmaic-sidecar/packages/@openmaic/*` 或 vendor 复制为本地包；稳定后私有 registry 按版本。edu_ai 前端是 Vite/React，`@openmaic/*` 为 ESM/TS，配好 workspace 解析即可。
 
-前端封装落点：`Edu_AI/src/openmaic/`（renderer 封装、播放器、聚焦 overlay 接线、进度组件）。
+前端封装落点：`frontend/src/openmaic/`（renderer 封装、播放器、聚焦 overlay 接线、进度组件）。
 
 ---
 

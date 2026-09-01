@@ -13,8 +13,8 @@
 ### Task 1: 移除主导航图标结构
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/CourseShell.test.ts`
-- Modify: `Edu_AI/src/stitch/course/CourseShell.tsx`
+- Modify: `frontend/src/stitch/course/CourseShell.test.ts`
+- Modify: `frontend/src/stitch/course/CourseShell.tsx`
 
 - [ ] **Step 1: 写入失败测试**
 
@@ -56,15 +56,15 @@ Expected: 3 tests PASS。
 - [ ] **Step 5: 提交结构修改**
 
 ```bash
-git add Edu_AI/src/stitch/course/CourseShell.test.ts Edu_AI/src/stitch/course/CourseShell.tsx
+git add frontend/src/stitch/course/CourseShell.test.ts frontend/src/stitch/course/CourseShell.tsx
 git commit -m "refactor: remove course navigation icons"
 ```
 
 ### Task 2: 应用 B1 字体、颜色和选中态
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/CourseShell.test.ts`
-- Modify: `Edu_AI/src/stitch/styles.css`
+- Modify: `frontend/src/stitch/course/CourseShell.test.ts`
+- Modify: `frontend/src/stitch/styles.css`
 
 - [ ] **Step 1: 写入失败样式测试**
 
@@ -161,6 +161,6 @@ Expected: 402 tests PASS；lint 为 0 errors；Vite production build succeeds。
 
 ```bash
 git diff --check
-git add Edu_AI/src/stitch/course/CourseShell.test.ts Edu_AI/src/stitch/styles.css
+git add frontend/src/stitch/course/CourseShell.test.ts frontend/src/stitch/styles.css
 git commit -m "style: refine course navigation typography"
 ```

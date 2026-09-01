@@ -14,7 +14,7 @@ Edu-AI 的统一启动脚本在 `5173` 端口启动 Vite 前端，但课堂视�
 ## 设计
 
 1. 将 `classroom_video_export.py` 的本地默认渲染地址改为 `http://127.0.0.1:5173`。
-2. 将 `api/src/.env.example` 中的 `CLASSROOM_VIDEO_FRONTEND_URL` 同步为 `http://127.0.0.1:5173`。
+2. 将 `backend/src/.env.example` 中的 `CLASSROOM_VIDEO_FRONTEND_URL` 同步为 `http://127.0.0.1:5173`。
 3. 在 `start_api.bat` 中根据 `FRONTEND_PORT` 显式设置 `CLASSROOM_VIDEO_FRONTEND_URL`，让后端与脚本配置保持一致。
 4. 扩展后端与启动脚本测试，断言默认地址和统一启动地址均为 `5173`，防止以后再次漂移。
 

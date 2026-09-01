@@ -42,10 +42,10 @@
 
 相关实现：
 
-- `Edu_AI/api/src/core/conversation_storage.py`
-- `Edu_AI/api/src/app/chat/persistence/conversation_store_adapter.py`
-- `Edu_AI/api/src/app/chat/orchestrator/conversation_memory_extractor_v2.py`
-- `Edu_AI/api/src/app/chat/orchestrator/llm_enhancement_router.py`
+- `backend/src/core/conversation_storage.py`
+- `backend/src/app/chat/persistence/conversation_store_adapter.py`
+- `backend/src/app/chat/orchestrator/conversation_memory_extractor_v2.py`
+- `backend/src/app/chat/orchestrator/llm_enhancement_router.py`
 
 ### 2.2 ReAct Agent 工作记忆
 
@@ -59,10 +59,10 @@ LangGraph `MemorySaver` 保存进程内 checkpoint；允许持久化的工作流
 
 相关实现：
 
-- `Edu_AI/api/src/app/chat/runtime/memory/manager.py`
-- `Edu_AI/api/src/app/chat/runtime/graph/builder.py`
-- `Edu_AI/api/src/app/chat/persistence/agent_run_store.py`
-- `Edu_AI/api/src/app/chat/runtime/react_agent.py`
+- `backend/src/app/chat/runtime/memory/manager.py`
+- `backend/src/app/chat/runtime/graph/builder.py`
+- `backend/src/app/chat/persistence/agent_run_store.py`
+- `backend/src/app/chat/runtime/react_agent.py`
 
 ### 2.3 当前 RAG 的边界
 

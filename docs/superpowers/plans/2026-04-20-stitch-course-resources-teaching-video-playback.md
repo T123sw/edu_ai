@@ -12,32 +12,32 @@
 
 ## File Map
 
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
   - Change video artifact click behavior so only completed teaching videos navigate to stitch resources.
-- Modify: `Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`
+- Modify: `frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`
   - Extend the existing text-level assertions for the new jump behavior.
-- Modify: `Edu_AI/src/stitch/App.tsx`
+- Modify: `frontend/src/stitch/App.tsx`
   - Register `resources` as a real stitch route and stop redirecting it to `video`.
-- Create: `Edu_AI/tests/frontend/stitchApp.resources-route.test.ts`
+- Create: `frontend/tests/frontend/stitchApp.resources-route.test.ts`
   - Lock the stitch route behavior with a text-level route test.
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
+- Modify: `frontend/src/stitch/api/courses.ts`
   - Reuse `getCourse()` from stitch API and add any small helper needed for course-summary restoration.
-- Modify: `Edu_AI/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
   - Expand stitch `CourseMaterial` typing to include `video`-specific payload fields used by the detail page.
-- Modify: `Edu_AI/src/stitch/pages/CourseResources.tsx`
+- Modify: `frontend/src/stitch/pages/CourseResources.tsx`
   - Parse hash query params, restore course context from `courseId`, select `materialId`, and render a dedicated video detail view.
-- Create: `Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+- Create: `frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
   - Lock parameter parsing, `video` type labels, and `<video>` detail rendering with text-level assertions.
 
 ## Task 1: Restore Stitch `resources` Route
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/App.tsx`
-- Test: `Edu_AI/tests/frontend/stitchApp.resources-route.test.ts`
+- Modify: `frontend/src/stitch/App.tsx`
+- Test: `frontend/tests/frontend/stitchApp.resources-route.test.ts`
 
 - [ ] **Step 1: Write the failing route test**
 
-Create `Edu_AI/tests/frontend/stitchApp.resources-route.test.ts` with:
+Create `frontend/tests/frontend/stitchApp.resources-route.test.ts` with:
 
 ```ts
 import assert from "node:assert/strict";
@@ -62,13 +62,13 @@ console.log("stitchApp.resources-route tests passed");
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node --test Edu_AI/tests/frontend/stitchApp.resources-route.test.ts`
+Run: `node --test frontend/tests/frontend/stitchApp.resources-route.test.ts`
 
 Expected: FAIL because `CourseResourcesPage` is not registered in `pages` and `getCurrentRoute()` still redirects `resources` to `video`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Update `Edu_AI/src/stitch/App.tsx`:
+Update `frontend/src/stitch/App.tsx`:
 
 ```ts
 import { CourseResourcesPage } from "./pages/CourseResources";
@@ -96,26 +96,26 @@ function getCurrentRoute(): RouteKey {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node --test Edu_AI/tests/frontend/stitchApp.resources-route.test.ts`
+Run: `node --test frontend/tests/frontend/stitchApp.resources-route.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/stitch/App.tsx Edu_AI/tests/frontend/stitchApp.resources-route.test.ts
+git add frontend/src/stitch/App.tsx frontend/tests/frontend/stitchApp.resources-route.test.ts
 git commit -m "feat: enable stitch resources route"
 ```
 
 ## Task 2: Make Completed Workbench Videos Jump to Stitch Resources
 
 **Files:**
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- Modify: `Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
-Append these assertions to `Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`:
+Append these assertions to `frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`:
 
 ```ts
 assert.match(
@@ -139,13 +139,13 @@ assert.match(
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node --test Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`
+Run: `node --test frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`
 
 Expected: FAIL because artifact clicks still call `setViewingFile(item)` for all types.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Add a focused click helper in `Edu_AI/src/components/teacher/StudioPanel.tsx` near the artifact list rendering:
+Add a focused click helper in `frontend/src/components/teacher/StudioPanel.tsx` near the artifact list rendering:
 
 ```ts
   const handleArtifactOpen = (item: GeneratedFile) => {
@@ -196,28 +196,28 @@ onClick={(e) => {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node --test Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`
+Run: `node --test frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts
+git add frontend/src/components/teacher/StudioPanel.tsx frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts
 git commit -m "feat: route completed teaching videos to stitch resources"
 ```
 
 ## Task 3: Restore Course Context and Targeted Material Selection in Stitch Resources
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseResources.tsx`
-- Test: `Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+- Modify: `frontend/src/stitch/api/courses.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/pages/CourseResources.tsx`
+- Test: `frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
-Create `Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts` with:
+Create `frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts` with:
 
 ```ts
 import assert from "node:assert/strict";
@@ -263,13 +263,13 @@ console.log("stitchCourseResources.teaching-video tests passed");
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node --test Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+Run: `node --test frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 Expected: FAIL because `CourseResources.tsx` currently only uses `selectedCourse ?? defaultCourse` and always selects the first material.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Update `Edu_AI/src/stitch/pages/CourseResources.tsx` imports and setup:
+Update `frontend/src/stitch/pages/CourseResources.tsx` imports and setup:
 
 ```ts
 import { backendCourseToSummary, getCourse, courseMaterialToMarkdown, getCourseMaterials } from "../api/courses";
@@ -322,7 +322,7 @@ Select the requested material after material load:
         }
 ```
 
-Extend stitch `CourseMaterial` typing in `Edu_AI/src/stitch/api/types.ts` so the page can read the video payload safely:
+Extend stitch `CourseMaterial` typing in `frontend/src/stitch/api/types.ts` so the page can read the video payload safely:
 
 ```ts
 export type CourseMaterial = {
@@ -342,26 +342,26 @@ export type CourseMaterial = {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node --test Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+Run: `node --test frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/stitch/api/courses.ts Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts
+git add frontend/src/stitch/api/courses.ts frontend/src/stitch/api/types.ts frontend/src/stitch/pages/CourseResources.tsx frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts
 git commit -m "feat: restore stitch resource context from video deep links"
 ```
 
 ## Task 4: Render Video Materials Inside Stitch Course Resources
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/CourseResources.tsx`
-- Modify: `Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseResources.tsx`
+- Modify: `frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
-Append these assertions to `Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`:
+Append these assertions to `frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`:
 
 ```ts
 assert.match(
@@ -385,7 +385,7 @@ assert.match(
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node --test Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+Run: `node --test frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 Expected: FAIL because `CourseResources.tsx` only renders `MarkdownPreview`.
 
@@ -440,14 +440,14 @@ Replace the detail body with a video branch before `MarkdownPreview`:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node --test Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+Run: `node --test frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts
+git add frontend/src/stitch/pages/CourseResources.tsx frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts
 git commit -m "feat: render teaching videos in stitch course resources"
 ```
 
@@ -455,9 +455,9 @@ git commit -m "feat: render teaching videos in stitch course resources"
 
 **Files:**
 - No code changes required unless a verification failure reveals a missing edge case.
-- Test: `Edu_AI/tests/frontend/stitchApp.resources-route.test.ts`
-- Test: `Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`
-- Test: `Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts`
+- Test: `frontend/tests/frontend/stitchApp.resources-route.test.ts`
+- Test: `frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`
+- Test: `frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts`
 
 - [ ] **Step 1: Run the focused frontend tests**
 
@@ -465,9 +465,9 @@ Run:
 
 ```bash
 node --test \
-  Edu_AI/tests/frontend/stitchApp.resources-route.test.ts \
-  Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts \
-  Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts
+  frontend/tests/frontend/stitchApp.resources-route.test.ts \
+  frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts \
+  frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts
 ```
 
 Expected: PASS for all three files.
@@ -477,7 +477,7 @@ Expected: PASS for all three files.
 Run:
 
 ```bash
-node --test Edu_AI/tests/frontend/teacherApi.teaching-video.test.ts
+node --test frontend/tests/frontend/teacherApi.teaching-video.test.ts
 ```
 
 Expected: PASS, proving the teacher-side API contract was not broken by the navigation changes.
@@ -501,7 +501,7 @@ Use this checklist:
 - [ ] **Step 4: Commit any final fixups**
 
 ```bash
-git add Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/src/stitch/App.tsx Edu_AI/src/stitch/api/courses.ts Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/tests/frontend/stitchApp.resources-route.test.ts Edu_AI/tests/frontend/stitchCourseResources.teaching-video.test.ts Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts
+git add frontend/src/components/teacher/StudioPanel.tsx frontend/src/stitch/App.tsx frontend/src/stitch/api/courses.ts frontend/src/stitch/api/types.ts frontend/src/stitch/pages/CourseResources.tsx frontend/tests/frontend/stitchApp.resources-route.test.ts frontend/tests/frontend/stitchCourseResources.teaching-video.test.ts frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts
 git commit -m "test: verify stitch teaching video resource playback flow"
 ```
 

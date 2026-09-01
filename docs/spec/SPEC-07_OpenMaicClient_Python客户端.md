@@ -2,7 +2,7 @@
 
 > **验收文档**：[`../acceptance/ACC-07_OpenMaicClient客户端_验收.md`](../acceptance/ACC-07_OpenMaicClient客户端_验收.md) · **地图**：[`../../项目总览地图.md`](../../项目总览地图.md)
 > 目标：edu_ai 后端一个 httpx 客户端，封装所有 sidecar 调用，统一超时/重试/错误映射，把 sidecar job 适配到 edu_ai 任务表。
-> 落点：`Edu_AI/api/src/app/integrations/openmaic/`（`client.py` + `types.py` + `errors.py`）。
+> 落点：`backend/src/app/integrations/openmaic/`（`client.py` + `types.py` + `errors.py`）。
 > 关联：SPEC-01（端点）、SPEC-03/04（契约）、SPEC-05（job/poll）、SPEC-06（key）。
 
 ---

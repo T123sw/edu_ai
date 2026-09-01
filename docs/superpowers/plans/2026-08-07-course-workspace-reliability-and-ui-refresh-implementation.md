@@ -15,8 +15,8 @@
 ## 执行约束
 
 1. 不修改或提交用户/运行数据：
-   - `Edu_AI/api/course_data/courses/computational-thinking/knowledge_base/index.json`
-   - `Edu_AI/api/data/`
+   - `backend/course_data/courses/computational-thinking/knowledge_base/index.json`
+   - `backend/data/`
 2. 当前未提交的生成服务和测试修改属于已有起始补丁。先审查和验证，不覆盖、不回退。
 3. 所有生产修改先有失败测试；修复后运行聚焦测试，再运行阶段回归。
 4. 不删除持久任务库来消除幽灵任务。
@@ -27,16 +27,16 @@
 
 主要修改区域：
 
-- 全局课程框架：`Edu_AI/src/stitch/course/*`、`Edu_AI/src/stitch/styles.css`
-- 页面：`Edu_AI/src/stitch/pages/*`
-- 问答来源：`Edu_AI/src/components/teacher/SourcePanel.tsx`、`ChatPanel.tsx`
-- 生成工厂：`Edu_AI/src/components/teacher/generation/*`、`StudioPanel.tsx`
-- 后台任务：`Edu_AI/src/jobs/*`
-- 前端课程 API：`Edu_AI/src/stitch/api/*`、`Edu_AI/src/services/teacher/*`
-- 后端课程 API：`Edu_AI/api/src/app/api/courses.py`
-- 后端聊天/生成契约：`Edu_AI/api/src/app/chat/api/*`、`Edu_AI/api/src/app/services/generation_*`
-- 持久任务：`Edu_AI/api/src/app/chat/tasks/task_store.py`、`Edu_AI/api/src/app/services/durable_*`
-- 课程存储：`Edu_AI/api/src/core/course_storage.py`
+- 全局课程框架：`frontend/src/stitch/course/*`、`frontend/src/stitch/styles.css`
+- 页面：`frontend/src/stitch/pages/*`
+- 问答来源：`frontend/src/components/teacher/SourcePanel.tsx`、`ChatPanel.tsx`
+- 生成工厂：`frontend/src/components/teacher/generation/*`、`StudioPanel.tsx`
+- 后台任务：`frontend/src/jobs/*`
+- 前端课程 API：`frontend/src/stitch/api/*`、`frontend/src/services/teacher/*`
+- 后端课程 API：`backend/src/app/api/courses.py`
+- 后端聊天/生成契约：`backend/src/app/chat/api/*`、`backend/src/app/services/generation_*`
+- 持久任务：`backend/src/app/chat/tasks/task_store.py`、`backend/src/app/services/durable_*`
+- 课程存储：`backend/src/core/course_storage.py`
 - 验收记录：`docs/acceptance/2026-08-08-course-workspace-reliability-and-ui-refresh.md`
 
 ---
@@ -64,7 +64,7 @@ git status --short
 cd Edu_AI
 node --import tsx --test src/jobs/jobPolling.test.ts src/jobs/jobPresentation.test.ts src/stitch/pages/courseResourcesManagement.test.ts src/stitch/api/courseMaterialPresentation.test.ts tests/frontend/sourcePanel.rag-participation.test.ts tests/frontend/knowledgeGraphWorkspaceJump.test.ts
 npm.cmd run build
-cd api/src
+cd backend/src
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_service.py tests/test_durable_executor_pool.py tests/core/test_course_storage_generated_materials.py tests/chat/test_courses_rag_v2_document_resolution.py
 ```
 
@@ -76,16 +76,16 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/api/src/app/chat/tasks/task_store.py`
-- 修改：`Edu_AI/api/src/app/services/durable_task_executor.py`
-- 修改：`Edu_AI/api/src/app/services/durable_executor_pool.py`
-- 修改：`Edu_AI/api/src/app/services/job_reconciliation_service.py`
-- 修改：`Edu_AI/api/src/app/services/durable_job_runtime.py`
-- 测试：`Edu_AI/api/src/tests/test_durable_task_store.py`
-- 测试：`Edu_AI/api/src/tests/test_durable_task_executor.py`
-- 测试：`Edu_AI/api/src/tests/test_durable_executor_pool.py`
-- 测试：`Edu_AI/api/src/tests/test_job_reconciliation_service.py`
-- 测试：`Edu_AI/api/src/tests/test_job_worker_lifespan.py`
+- 修改：`backend/src/app/chat/tasks/task_store.py`
+- 修改：`backend/src/app/services/durable_task_executor.py`
+- 修改：`backend/src/app/services/durable_executor_pool.py`
+- 修改：`backend/src/app/services/job_reconciliation_service.py`
+- 修改：`backend/src/app/services/durable_job_runtime.py`
+- 测试：`backend/src/tests/test_durable_task_store.py`
+- 测试：`backend/src/tests/test_durable_task_executor.py`
+- 测试：`backend/src/tests/test_durable_executor_pool.py`
+- 测试：`backend/src/tests/test_job_reconciliation_service.py`
+- 测试：`backend/src/tests/test_job_worker_lifespan.py`
 
 - [ ] 写失败测试：没有 deadline 的旧任务在协调时获得有界期限，不能永久 pending。
 - [ ] 写失败测试：租约反复过期达到最大次数后转为失败，错误码稳定。
@@ -107,15 +107,15 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/jobs/GlobalJobManager.tsx`
-- 修改：`Edu_AI/src/jobs/jobPolling.ts`
-- 修改：`Edu_AI/src/jobs/jobPresentation.ts`
-- 修改：`Edu_AI/src/jobs/JobCenterDrawer.tsx`
-- 修改：`Edu_AI/src/jobs/JobCenterTrigger.tsx`
-- 测试：`Edu_AI/src/jobs/jobPolling.test.ts`
-- 测试：`Edu_AI/src/jobs/jobPresentation.test.ts`
-- 测试：`Edu_AI/src/jobs/jobCenterLayout.test.ts`
-- 测试：`Edu_AI/api/src/tests/test_jobs_api_v2.py`
+- 修改：`frontend/src/jobs/GlobalJobManager.tsx`
+- 修改：`frontend/src/jobs/jobPolling.ts`
+- 修改：`frontend/src/jobs/jobPresentation.ts`
+- 修改：`frontend/src/jobs/JobCenterDrawer.tsx`
+- 修改：`frontend/src/jobs/JobCenterTrigger.tsx`
+- 测试：`frontend/src/jobs/jobPolling.test.ts`
+- 测试：`frontend/src/jobs/jobPresentation.test.ts`
+- 测试：`frontend/src/jobs/jobCenterLayout.test.ts`
+- 测试：`backend/src/tests/test_jobs_api_v2.py`
 
 - [ ] 写失败测试：全部任务终态后 `nextDelay` 返回空，不再定时请求。
 - [ ] 写失败测试：英文技术错误按 `error_code` 映射为中文原因与建议。
@@ -136,15 +136,15 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 审查/修改：`Edu_AI/api/src/app/chat/api/routes_v2.py`
-- 审查/修改：`Edu_AI/api/src/app/chat/application/knowledge_base_direct_*_service_v2.py`
-- 审查/修改：`Edu_AI/api/src/app/services/generation_task_handlers.py`
-- 修改：`Edu_AI/api/src/app/services/generation_source_resolver.py`
-- 修改：`Edu_AI/api/src/app/services/generation_command.py`
-- 修改：`Edu_AI/src/components/teacher/generation/generationSourceSelection.ts`
+- 审查/修改：`backend/src/app/chat/api/routes_v2.py`
+- 审查/修改：`backend/src/app/chat/application/knowledge_base_direct_*_service_v2.py`
+- 审查/修改：`backend/src/app/services/generation_task_handlers.py`
+- 修改：`backend/src/app/services/generation_source_resolver.py`
+- 修改：`backend/src/app/services/generation_command.py`
+- 修改：`frontend/src/components/teacher/generation/generationSourceSelection.ts`
 - 测试：现有 `test_direct_*_service_v2.py`
-- 测试：`Edu_AI/api/src/tests/test_generation_task_handlers.py`
-- 测试：`Edu_AI/api/src/tests/acceptance/test_generation_reliability_matrix.py`
+- 测试：`backend/src/tests/test_generation_task_handlers.py`
+- 测试：`backend/src/tests/acceptance/test_generation_reliability_matrix.py`
 
 - [ ] 审查当前未提交的报告、PPT、习题、闪卡、思维导图和游戏修复差异。
 - [ ] 写/补失败测试：空显式文档选择但存在合法课程范围时，各类生成不会错误要求 `selected_doc_ids`。
@@ -165,16 +165,16 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/components/teacher/generation/generationRegistry.ts`
-- 修改：`Edu_AI/src/stitch/api/courseMaterialPresentation.ts`
-- 修改：`Edu_AI/src/stitch/api/courses.ts`
-- 修改：`Edu_AI/src/stitch/pages/CourseResources.tsx`
-- 修改：`Edu_AI/api/src/app/api/courses.py`
-- 修改：`Edu_AI/api/src/core/course_storage.py`
-- 测试：`Edu_AI/src/stitch/api/courseMaterialPresentation.test.ts`
-- 测试：`Edu_AI/src/stitch/pages/courseResourcesManagement.test.ts`
-- 测试：`Edu_AI/api/src/tests/core/test_course_storage_generated_materials.py`
-- 测试：`Edu_AI/tests/e2e/resources-and-classroom.spec.ts`
+- 修改：`frontend/src/components/teacher/generation/generationRegistry.ts`
+- 修改：`frontend/src/stitch/api/courseMaterialPresentation.ts`
+- 修改：`frontend/src/stitch/api/courses.ts`
+- 修改：`frontend/src/stitch/pages/CourseResources.tsx`
+- 修改：`backend/src/app/api/courses.py`
+- 修改：`backend/src/core/course_storage.py`
+- 测试：`frontend/src/stitch/api/courseMaterialPresentation.test.ts`
+- 测试：`frontend/src/stitch/pages/courseResourcesManagement.test.ts`
+- 测试：`backend/src/tests/core/test_course_storage_generated_materials.py`
+- 测试：`frontend/tests/e2e/resources-and-classroom.spec.ts`
 
 - [ ] 写失败测试：筛选项与九类注册表一一对应，不包含“互动”。
 - [ ] 写失败测试：`updated_desc` 严格按更新时间，置顶不改变顺序。
@@ -194,13 +194,13 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/stitch/course/CourseShell.tsx`
-- 修改：`Edu_AI/src/stitch/course/courseNavigation.ts`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 测试：`Edu_AI/src/stitch/course/courseNavigation.test.ts`
-- 测试：`Edu_AI/tests/frontend/coursePermissionRendering.test.ts`
-- 测试：`Edu_AI/tests/e2e/course-shell.spec.ts`
-- 测试：`Edu_AI/tests/e2e/keyboard-accessibility.spec.ts`
+- 修改：`frontend/src/stitch/course/CourseShell.tsx`
+- 修改：`frontend/src/stitch/course/courseNavigation.ts`
+- 修改：`frontend/src/stitch/styles.css`
+- 测试：`frontend/src/stitch/course/courseNavigation.test.ts`
+- 测试：`frontend/tests/frontend/coursePermissionRendering.test.ts`
+- 测试：`frontend/tests/e2e/course-shell.spec.ts`
+- 测试：`frontend/tests/e2e/keyboard-accessibility.spec.ts`
 
 - [ ] 写失败测试：六个课程页面顶栏都包含后台任务和个人中心。
 - [ ] 写失败测试：导航不再渲染课程身份卡和说明小字。
@@ -220,13 +220,13 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/stitch/pages/CourseDetail.tsx`
-- 修改：`Edu_AI/src/stitch/pages/CourseEdit.tsx`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 修改：`Edu_AI/src/stitch/api/courses.ts`
-- 测试：`Edu_AI/tests/frontend/courseRouteAcceptance.test.ts`
-- 测试：`Edu_AI/tests/frontend/profile-kb-courseedit-replacement.test.ts`
-- 测试：`Edu_AI/tests/e2e/core-pages.spec.ts`
+- 修改：`frontend/src/stitch/pages/CourseDetail.tsx`
+- 修改：`frontend/src/stitch/pages/CourseEdit.tsx`
+- 修改：`frontend/src/stitch/styles.css`
+- 修改：`frontend/src/stitch/api/courses.ts`
+- 测试：`frontend/tests/frontend/courseRouteAcceptance.test.ts`
+- 测试：`frontend/tests/frontend/profile-kb-courseedit-replacement.test.ts`
+- 测试：`frontend/tests/e2e/core-pages.spec.ts`
 
 - [ ] 写失败测试：课程概览无角色提示、无课程版本、常用入口无课程概览。
 - [ ] 写失败测试：五张统计卡显示课程资料、课程资源和已完成/进行中/失败任务，课程资料卡同时显示可检索数。
@@ -246,16 +246,16 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/api/src/app/api/courses.py`
-- 修改：`Edu_AI/api/src/app/chat/api/schemas_v2.py`
-- 修改：`Edu_AI/api/src/app/chat/api/routes_v2.py`
-- 修改：`Edu_AI/api/src/app/chat/application/*` 中公共请求归一化路径
-- 修改：`Edu_AI/api/src/app/services/generation_source_resolver.py`
-- 修改：`Edu_AI/api/src/core/course_storage.py`
-- 测试：`Edu_AI/api/src/tests/core/test_course_storage_scope_filters.py`
-- 测试：`Edu_AI/api/src/tests/chat/test_courses_rag_v2_document_resolution.py`
-- 测试：`Edu_AI/api/src/tests/chat/test_main_query_selected_doc_resolution.py`
-- 新增：`Edu_AI/api/src/tests/chat/test_knowledge_point_selection_resolution.py`
+- 修改：`backend/src/app/api/courses.py`
+- 修改：`backend/src/app/chat/api/schemas_v2.py`
+- 修改：`backend/src/app/chat/api/routes_v2.py`
+- 修改：`backend/src/app/chat/application/*` 中公共请求归一化路径
+- 修改：`backend/src/app/services/generation_source_resolver.py`
+- 修改：`backend/src/core/course_storage.py`
+- 测试：`backend/src/tests/core/test_course_storage_scope_filters.py`
+- 测试：`backend/src/tests/chat/test_courses_rag_v2_document_resolution.py`
+- 测试：`backend/src/tests/chat/test_main_query_selected_doc_resolution.py`
+- 新增：`backend/src/tests/chat/test_knowledge_point_selection_resolution.py`
 
 - [ ] 先修复旧 `current_user` 测试调用与当前 principal 契约不一致的基线问题。
 - [ ] 写三层树失败测试：父节点包含自身和全部后代。
@@ -278,16 +278,16 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/stitch/pages/CourseKnowledge.tsx`
-- 修改：`Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
-- 修改：`Edu_AI/src/stitch/pages/CourseKnowledgeBase.tsx`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 修改：`Edu_AI/src/stitch/api/courses.ts`
-- 测试：`Edu_AI/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
-- 测试：`Edu_AI/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
-- 测试：`Edu_AI/tests/frontend/knowledgeBase.dual-library.test.ts`
-- 测试：`Edu_AI/tests/e2e/course-knowledge.spec.ts`
-- 测试：`Edu_AI/tests/e2e/overflow-regression.spec.ts`
+- 修改：`frontend/src/stitch/pages/CourseKnowledge.tsx`
+- 修改：`frontend/src/stitch/pages/KnowledgeGraph.tsx`
+- 修改：`frontend/src/stitch/pages/CourseKnowledgeBase.tsx`
+- 修改：`frontend/src/stitch/styles.css`
+- 修改：`frontend/src/stitch/api/courses.ts`
+- 测试：`frontend/tests/frontend/stitchKnowledgeGraph.scope-link.test.ts`
+- 测试：`frontend/tests/frontend/knowledgeGraph.node-course-kb-upload.test.ts`
+- 测试：`frontend/tests/frontend/knowledgeBase.dual-library.test.ts`
+- 测试：`frontend/tests/e2e/course-knowledge.spec.ts`
+- 测试：`frontend/tests/e2e/overflow-regression.spec.ts`
 
 - [ ] 写失败测试：默认 view 是知识图谱，标签顺序正确。
 - [ ] 写失败测试：图谱页不显示课程学时/编辑/上传区。
@@ -308,15 +308,15 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/components/teacher/SourcePanel.tsx`
-- 修改：`Edu_AI/src/components/teacher/ChatPanel.tsx`
-- 修改：`Edu_AI/src/stitch/pages/AIWorkspace.tsx`
-- 修改：`Edu_AI/src/services/teacher/chatV2.ts`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 测试：`Edu_AI/tests/frontend/sourcePanel.workspace-scope.test.ts`
-- 测试：`Edu_AI/tests/frontend/sourcePanel.rag-participation.test.ts`
-- 测试：`Edu_AI/tests/frontend/chatPanel.scoped-default-docs.test.ts`
-- 测试：`Edu_AI/tests/frontend/stitchAIWorkspace.scope.test.ts`
+- 修改：`frontend/src/components/teacher/SourcePanel.tsx`
+- 修改：`frontend/src/components/teacher/ChatPanel.tsx`
+- 修改：`frontend/src/stitch/pages/AIWorkspace.tsx`
+- 修改：`frontend/src/services/teacher/chatV2.ts`
+- 修改：`frontend/src/stitch/styles.css`
+- 测试：`frontend/tests/frontend/sourcePanel.workspace-scope.test.ts`
+- 测试：`frontend/tests/frontend/sourcePanel.rag-participation.test.ts`
+- 测试：`frontend/tests/frontend/chatPanel.scoped-default-docs.test.ts`
+- 测试：`frontend/tests/frontend/stitchAIWorkspace.scope.test.ts`
 
 - [ ] 写失败测试：课程库/个人库使用顶部标签切换而非上下堆叠。
 - [ ] 写失败测试：课程节点勾选发送 `selected_knowledge_point_ids`，不只发送展开后的文档快照。
@@ -337,16 +337,16 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/components/teacher/generation/GenerationFactory.tsx`
-- 修改：`Edu_AI/src/components/teacher/generation/generationRegistry.ts`
-- 修改：`Edu_AI/src/components/teacher/generation/definitions/*.tsx`
-- 修改：`Edu_AI/src/components/teacher/StudioPanel.tsx`
-- 修改：`Edu_AI/src/stitch/pages/AIWorkspace.tsx`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 测试：`Edu_AI/src/components/teacher/generation/generationRegistry.test.ts`
-- 测试：`Edu_AI/src/components/teacher/generation/definitions/*.test.ts`
-- 测试：`Edu_AI/tests/frontend/studioPanel.*.test.ts`
-- 测试：`Edu_AI/tests/e2e/generation-factory-shell.spec.ts`
+- 修改：`frontend/src/components/teacher/generation/GenerationFactory.tsx`
+- 修改：`frontend/src/components/teacher/generation/generationRegistry.ts`
+- 修改：`frontend/src/components/teacher/generation/definitions/*.tsx`
+- 修改：`frontend/src/components/teacher/StudioPanel.tsx`
+- 修改：`frontend/src/stitch/pages/AIWorkspace.tsx`
+- 修改：`frontend/src/stitch/styles.css`
+- 测试：`frontend/src/components/teacher/generation/generationRegistry.test.ts`
+- 测试：`frontend/src/components/teacher/generation/definitions/*.test.ts`
+- 测试：`frontend/tests/frontend/studioPanel.*.test.ts`
+- 测试：`frontend/tests/e2e/generation-factory-shell.spec.ts`
 
 - [ ] 写失败测试：不存在步骤 1/4、上一步和下一步交互。
 - [ ] 写失败测试：九类工具均为独立入口，桌面端每行三个。
@@ -367,15 +367,15 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/stitch/pages/AIWorkspace.tsx`
-- 修改：`Edu_AI/src/components/teacher/SourcePanel.tsx`
-- 修改：`Edu_AI/src/components/teacher/ChatPanel.tsx`
-- 修改：`Edu_AI/src/components/teacher/StudioPanel.tsx`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 测试：`Edu_AI/tests/frontend/aiWorkspaceEntryLayout.test.ts`
-- 测试：`Edu_AI/tests/frontend/chatPanel.layout.test.ts`
-- 测试：`Edu_AI/tests/frontend/studioPanel.responsive-layout.test.ts`
-- 测试：`Edu_AI/tests/e2e/overflow-regression.spec.ts`
+- 修改：`frontend/src/stitch/pages/AIWorkspace.tsx`
+- 修改：`frontend/src/components/teacher/SourcePanel.tsx`
+- 修改：`frontend/src/components/teacher/ChatPanel.tsx`
+- 修改：`frontend/src/components/teacher/StudioPanel.tsx`
+- 修改：`frontend/src/stitch/styles.css`
+- 测试：`frontend/tests/frontend/aiWorkspaceEntryLayout.test.ts`
+- 测试：`frontend/tests/frontend/chatPanel.layout.test.ts`
+- 测试：`frontend/tests/frontend/studioPanel.responsive-layout.test.ts`
+- 测试：`frontend/tests/e2e/overflow-regression.spec.ts`
 
 - [ ] 写失败测试：删除内部课程信息横条和生成工厂/个人中心重复按钮。
 - [ ] 写失败测试：页面级容器固定为顶栏以下高度且 overflow hidden。
@@ -394,13 +394,13 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q tests/test_job_reconciliation_se
 
 **文件：**
 
-- 修改：`Edu_AI/src/stitch/pages/ClassroomStudio.tsx`
-- 修改：`Edu_AI/src/components/teacher/ClassroomGenerationEntry.tsx`
-- 修改：`Edu_AI/src/openmaic/classroomGenerationFlow.ts`
-- 修改：`Edu_AI/src/stitch/styles.css`
-- 测试：`Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`
-- 测试：`Edu_AI/src/openmaic/classroomGenerationRecovery.test.ts`
-- 测试：`Edu_AI/tests/e2e/resources-and-classroom.spec.ts`
+- 修改：`frontend/src/stitch/pages/ClassroomStudio.tsx`
+- 修改：`frontend/src/components/teacher/ClassroomGenerationEntry.tsx`
+- 修改：`frontend/src/openmaic/classroomGenerationFlow.ts`
+- 修改：`frontend/src/stitch/styles.css`
+- 测试：`frontend/src/openmaic/classroomGenerationFlow.test.ts`
+- 测试：`frontend/src/openmaic/classroomGenerationRecovery.test.ts`
+- 测试：`frontend/tests/e2e/resources-and-classroom.spec.ts`
 
 - [ ] 写失败测试：首屏只要求研究主题，其他字段使用 schema 默认值。
 - [ ] 写失败测试：不再渲染返回课程详情、重复课程名、AI 课件生成标题和内嵌完成进度块。
@@ -443,7 +443,7 @@ node --import tsx --test $frontendTestFiles
 npm.cmd run lint
 npm.cmd run build
 npm.cmd run test:e2e -- tests/e2e/course-shell.spec.ts tests/e2e/course-knowledge.spec.ts tests/e2e/generation-factory-shell.spec.ts tests/e2e/resources-and-classroom.spec.ts tests/e2e/overflow-regression.spec.ts tests/e2e/keyboard-accessibility.spec.ts
-cd api/src
+cd backend/src
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q
 cd ../../..
 git diff --check

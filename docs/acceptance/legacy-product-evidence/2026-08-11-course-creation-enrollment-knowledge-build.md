@@ -95,7 +95,7 @@
 执行：
 
 ```powershell
-Set-Location D:\github\edu_ai\Edu_AI\api\src
+Set-Location D:\github\edu_ai\backend\src
 D:\anaconda\envs\edu-ai\python.exe -m alembic -c alembic.ini upgrade head
 D:\anaconda\envs\edu-ai\python.exe -m alembic -c alembic.ini current
 D:\anaconda\envs\edu-ai\python.exe -m alembic -c alembic.ini check

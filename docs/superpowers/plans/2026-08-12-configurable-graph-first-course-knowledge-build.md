@@ -17,8 +17,8 @@
 
 1. 所有生产修改测试先行；每个任务先增加能暴露当前行为的失败测试，再实现，再运行聚焦回归。
 2. 不修改、删除或提交现有运行数据，尤其是：
-   - `Edu_AI/api/course_data/courses/**`
-   - `Edu_AI/api/data/**`
+   - `backend/course_data/courses/**`
+   - `backend/data/**`
    - 当前 PostgreSQL 中的用户课程、构建、文档和图谱版本
 3. 数据库变更通过 Alembic 或仓库当前迁移机制完成；测试使用临时 PostgreSQL/测试 engine，不手改生产表。
 4. 不回退工作区已有未提交修改；提交时只暂存本任务涉及文件，禁止 `git add .`。
@@ -49,36 +49,36 @@
 ### 3.1 后端主要修改
 
 - API 与 schema：
-  - `Edu_AI/api/src/app/api/courses.py`
-  - `Edu_AI/api/src/app/schemas/course.py`
+  - `backend/src/app/api/courses.py`
+  - `backend/src/app/schemas/course.py`
 - 持久化与迁移：
-  - `Edu_AI/api/src/app/database/models.py`
-  - `Edu_AI/api/src/app/persistence/postgres_knowledge_repository.py`
-  - `Edu_AI/api/src/app/database/migrations/*` 或当前 Alembic revisions
+  - `backend/src/app/database/models.py`
+  - `backend/src/app/persistence/postgres_knowledge_repository.py`
+  - `backend/src/app/database/migrations/*` 或当前 Alembic revisions
 - 构建服务：
-  - `Edu_AI/api/src/app/services/course_knowledge_planner.py`
-  - `Edu_AI/api/src/app/services/course_knowledge_plan_builder.py`
+  - `backend/src/app/services/course_knowledge_planner.py`
+  - `backend/src/app/services/course_knowledge_plan_builder.py`
   - 新增 `course_knowledge_graph_generator.py`
   - 新增 `course_knowledge_textbook_inputs.py`
   - 新增 `course_knowledge_source_discovery.py`
   - 新增 `course_knowledge_quality_gate.py`
-  - `Edu_AI/api/src/app/services/platform_task_handlers.py`
+  - `backend/src/app/services/platform_task_handlers.py`
 - 教材与解析复用：
-  - `Edu_AI/api/src/app/textbook_knowledge_graph.py`
-  - `Edu_AI/api/src/core/course_storage.py`
+  - `backend/src/app/textbook_knowledge_graph.py`
+  - `backend/src/core/course_storage.py`
 - Web 与模型运行配置：
-  - `Edu_AI/api/src/app/services/deepsearch_service.py`
-  - `Edu_AI/api/src/app/services/runtime_config_resolver.py`
+  - `backend/src/app/services/deepsearch_service.py`
+  - `backend/src/app/services/runtime_config_resolver.py`
 
 ### 3.2 前端主要修改
 
 - API 与类型：
-  - `Edu_AI/src/stitch/api/courses.ts`
-  - `Edu_AI/src/stitch/api/types.ts`
+  - `frontend/src/stitch/api/courses.ts`
+  - `frontend/src/stitch/api/types.ts`
 - 当前课程知识页：
-  - `Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
-  - `Edu_AI/src/stitch/course/knowledge/KnowledgeDocumentsView.tsx`
-  - `Edu_AI/src/stitch/course/knowledge/KnowledgeStructureView.tsx`
+  - `frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx`
+  - `frontend/src/stitch/course/knowledge/KnowledgeDocumentsView.tsx`
+  - `frontend/src/stitch/course/knowledge/KnowledgeStructureView.tsx`
 - 新增构建向导组件：
   - `CourseKnowledgeBuildWizard.tsx`
   - `CourseKnowledgeBuildConfigStep.tsx`
@@ -90,16 +90,16 @@
   - 新增 `courseKnowledgeBuildState.ts`
   - `CourseKnowledgeBuildCard.css` 或拆分后的 wizard CSS
 - 统一后台任务：
-  - `Edu_AI/src/jobs/jobStore.ts`
-  - `Edu_AI/src/jobs/types.ts`
+  - `frontend/src/jobs/jobStore.ts`
+  - `frontend/src/jobs/types.ts`
 
 ### 3.3 主要测试
 
-- 后端：`Edu_AI/api/src/tests/services/test_course_knowledge_*.py`
-- API：新增 `Edu_AI/api/src/tests/test_course_knowledge_build_workflow.py`
-- 持久化：`Edu_AI/api/src/tests/persistence/test_postgres_knowledge_repository.py`
-- 前端：`Edu_AI/src/stitch/course/knowledge/*.test.ts(x)`
-- E2E：新增 `Edu_AI/tests/e2e/course-knowledge-build-wizard.spec.ts`
+- 后端：`backend/src/tests/services/test_course_knowledge_*.py`
+- API：新增 `backend/src/tests/test_course_knowledge_build_workflow.py`
+- 持久化：`backend/src/tests/persistence/test_postgres_knowledge_repository.py`
+- 前端：`frontend/src/stitch/course/knowledge/*.test.ts(x)`
+- E2E：新增 `frontend/tests/e2e/course-knowledge-build-wizard.spec.ts`
 
 ---
 
@@ -122,7 +122,7 @@
 Set-Location Edu_AI
 node --import tsx --test src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts
 
-Set-Location api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
   src/tests/services/test_course_knowledge_planner.py `
   src/tests/services/test_course_knowledge_plan_builder.py `
@@ -453,7 +453,7 @@ npm run lint
 npm run build
 pnpm exec playwright test tests/e2e/course-knowledge-build-wizard.spec.ts
 
-Set-Location api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests
 ```
 

@@ -88,7 +88,7 @@
 ### A1：policy 与领域模型
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_memory_policy.py -q
 ```
 
@@ -101,7 +101,7 @@ python -m pytest tests/chat/memory/test_memory_policy.py -q
 ### A2：迁移与 repository
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_memory_repository.py tests/database/test_alembic_revision_chain.py -q
 ```
 
@@ -114,7 +114,7 @@ python -m pytest tests/chat/memory/test_memory_repository.py tests/database/test
 ### A3：Reader 与上下文组装
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_memory_e2e.py tests/chat/memory/test_memory_chat_runtime_e2e.py tests/chat/memory/test_memory_api_e2e.py -q
 ```
 
@@ -127,7 +127,7 @@ python -m pytest tests/chat/memory/test_memory_e2e.py tests/chat/memory/test_mem
 ### A4：Writer 与对话记忆
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_memory_reply_service_integration.py -q
 ```
 
@@ -140,7 +140,7 @@ python -m pytest tests/chat/memory/test_memory_reply_service_integration.py -q
 ### A5：LangMem adapter
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_langmem_adapter.py tests/chat/memory/test_memory_eval.py -q
 ```
 
@@ -158,7 +158,7 @@ python -m pytest tests/chat/memory/test_langmem_adapter.py tests/chat/memory/tes
 ### A6：Agent runtime 集成
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_memory_chat_runtime_e2e.py tests/chat/runtime/test_agent_three_layer_memory.py tests/chat/runtime/test_agent_memory_restore.py -q
 ```
 
@@ -173,7 +173,7 @@ python -m pytest tests/chat/memory/test_memory_chat_runtime_e2e.py tests/chat/ru
 状态：沿用现有 learning/assessment 结构化事实链路，本阶段只验证 Memory policy 不会伪造或覆盖这些事实；新的掌握度投影与教师聚合洞察延期到 Phase 5。
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/learning/test_memory_learning_fact_reader.py tests/learning -q
 ```
 

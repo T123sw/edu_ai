@@ -53,7 +53,7 @@
 
 ## 2. 后端接口
 
-文件：`api/Edu_AI/app/video_routes.py`
+文件：`backend/src/app/video_routes.py`
 
 ### 2.1 视频流播放
 

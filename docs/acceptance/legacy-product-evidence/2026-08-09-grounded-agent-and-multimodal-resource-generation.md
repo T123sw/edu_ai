@@ -133,7 +133,7 @@
 本次实际执行的可复验命令：
 
 ```powershell
-cd api
+cd backend
 $env:PYTHONPATH='src'
 python -m pytest -q
 python -m compileall src/app src/scripts/smoke_teacher_agent_tools.py src/scripts/smoke_teacher_generation.py src/scripts/teacher_smoke_common.py -q

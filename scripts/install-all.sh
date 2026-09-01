@@ -23,7 +23,7 @@ done
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FRONTEND_DIR="$REPO_ROOT/Edu_AI"
-BACKEND_DIR="$FRONTEND_DIR/api/src"
+BACKEND_DIR="$FRONTEND_DIR/backend/src"
 
 step() {
   echo

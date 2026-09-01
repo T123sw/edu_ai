@@ -12,21 +12,21 @@
 
 ## File Structure
 
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts` — 资源打开目标、正文和审核可见性的纯函数。
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts` — 纯函数单元测试。
-- Create: `Edu_AI/src/stitch/course/knowledge/KnowledgeNodeResourceDialog.tsx` — 学习指南和练习详情弹窗。
-- Modify: `Edu_AI/src/stitch/course/knowledge/KnowledgeNodeCourseResources.tsx` — 点击分流、审核提交和目录刷新。
-- Modify: `Edu_AI/src/stitch/course/knowledge/KnowledgeDocumentsView.tsx` — 传递课程编辑权限。
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts` — 组件接线回归测试。
-- Modify: `Edu_AI/src/stitch/styles.css` — 资源操作区和详情弹窗样式。
-- Modify: `Edu_AI/tests/e2e/fixtures/apiRoutes.ts` — 待审核资源与审核后状态夹具。
-- Modify: `Edu_AI/tests/e2e/course-knowledge.spec.ts` — 详情、审核与课堂跳转浏览器验收。
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts` — 资源打开目标、正文和审核可见性的纯函数。
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts` — 纯函数单元测试。
+- Create: `frontend/src/stitch/course/knowledge/KnowledgeNodeResourceDialog.tsx` — 学习指南和练习详情弹窗。
+- Modify: `frontend/src/stitch/course/knowledge/KnowledgeNodeCourseResources.tsx` — 点击分流、审核提交和目录刷新。
+- Modify: `frontend/src/stitch/course/knowledge/KnowledgeDocumentsView.tsx` — 传递课程编辑权限。
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts` — 组件接线回归测试。
+- Modify: `frontend/src/stitch/styles.css` — 资源操作区和详情弹窗样式。
+- Modify: `frontend/tests/e2e/fixtures/apiRoutes.ts` — 待审核资源与审核后状态夹具。
+- Modify: `frontend/tests/e2e/course-knowledge.spec.ts` — 详情、审核与课堂跳转浏览器验收。
 
 ### Task 1: Standard Resource Presentation Decisions
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
-- Test: `Edu_AI/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts`
+- Modify: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.ts`
+- Test: `frontend/src/stitch/course/knowledge/standardLearningResourcesPresentation.test.ts`
 
 - [ ] **Step 1: Write the failing presentation tests**
 
@@ -148,11 +148,11 @@ git commit -m "test: define knowledge resource detail behavior"
 ### Task 2: Detail Dialog and Single-Resource Approval
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/knowledge/KnowledgeNodeResourceDialog.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/KnowledgeNodeCourseResources.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/KnowledgeDocumentsView.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`
-- Modify: `Edu_AI/src/stitch/styles.css`
+- Create: `frontend/src/stitch/course/knowledge/KnowledgeNodeResourceDialog.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/KnowledgeNodeCourseResources.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/KnowledgeDocumentsView.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts`
+- Modify: `frontend/src/stitch/styles.css`
 
 - [ ] **Step 1: Write failing component wiring assertions**
 
@@ -324,8 +324,8 @@ git commit -m "feat: review learning resources from knowledge nodes"
 ### Task 3: Browser Regression Coverage and Final Verification
 
 **Files:**
-- Modify: `Edu_AI/tests/e2e/fixtures/apiRoutes.ts`
-- Modify: `Edu_AI/tests/e2e/course-knowledge.spec.ts`
+- Modify: `frontend/tests/e2e/fixtures/apiRoutes.ts`
+- Modify: `frontend/tests/e2e/course-knowledge.spec.ts`
 
 - [ ] **Step 1: Add mutable standard-resource fixture state**
 
@@ -413,4 +413,4 @@ git add -- tests/e2e/fixtures/apiRoutes.ts tests/e2e/course-knowledge.spec.ts
 git commit -m "test: cover knowledge resource review flow"
 ```
 
-Confirm that the existing unrelated changes under `Edu_AI/api/src` are not staged.
+Confirm that the existing unrelated changes under `backend/src` are not staged.

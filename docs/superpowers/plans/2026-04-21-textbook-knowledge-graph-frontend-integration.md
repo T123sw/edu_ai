@@ -12,33 +12,33 @@
 
 ## File Map
 
-- Create: `Edu_AI/api/Edu_AI/app/textbook_knowledge_graph.py`
+- Create: `backend/src/app/textbook_knowledge_graph.py`
   Responsibility: Project-local home for the provided textbook import pipeline module.
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
+- Modify: `backend/src/app/courses.py`
   Responsibility: Confirm or add the textbook-import route and wire it to the moved module if backend glue is still missing.
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py`
+- Test: `backend/src/tests/chat/test_textbook_knowledge_graph_routes.py`
   Responsibility: Verify the dedicated textbook-import route shape if `courses.py` requires changes.
-- Modify: `Edu_AI/src/services/teacher/api.ts`
+- Modify: `frontend/src/services/teacher/api.ts`
   Responsibility: Add the teacher-side textbook-import API types and request helper.
-- Modify: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Modify: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
   Responsibility: Add the course-level textbook-import control, loading state, success summary, and graph refresh.
-- Modify: `Edu_AI/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
   Responsibility: Add stitch-side textbook-import response types.
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
+- Modify: `frontend/src/stitch/api/courses.ts`
   Responsibility: Add the stitch-side textbook-import request helper.
-- Modify: `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
+- Modify: `frontend/src/stitch/pages/KnowledgeGraph.tsx`
   Responsibility: Add the same course-level textbook-import flow to the stitch knowledge-graph page.
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+- Test: `frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
   Responsibility: Assert the teacher knowledge-graph page exposes and wires the textbook-import flow.
-- Test: `Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+- Test: `frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
   Responsibility: Assert the stitch knowledge-graph page exposes and wires the textbook-import flow.
 
 ## Task 1: Move the Textbook Import Module into the Backend Package
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/textbook_knowledge_graph.py`
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py`
+- Create: `backend/src/app/textbook_knowledge_graph.py`
+- Modify: `backend/src/app/courses.py`
+- Test: `backend/src/tests/chat/test_textbook_knowledge_graph_routes.py`
 
 - [ ] **Step 1: Write the failing backend route test if the route is not already project-visible**
 
@@ -91,7 +91,7 @@ def test_textbook_import_route_returns_graph_payload(monkeypatch):
 
 - [ ] **Step 2: Run the targeted backend test to verify the current route behavior fails or is missing**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py -q`
+Run: `pytest backend/src/tests/chat/test_textbook_knowledge_graph_routes.py -q`
 Expected: FAIL because the route file or route handler does not exist yet, or the import helper is not exposed from `courses.py`.
 
 - [ ] **Step 3: Copy the provided module into the backend package and make imports project-local**
@@ -113,7 +113,7 @@ def import_textbook_into_knowledge_graph(
 ```
 
 Implementation notes:
-- Copy `D:\Documents\xwechat_files\wxid_2641gv25syvc22_4a94\msg\file\2026-04\textbook_knowledge_graph.py` to `Edu_AI/api/Edu_AI/app/textbook_knowledge_graph.py`.
+- Copy `D:\Documents\xwechat_files\wxid_2641gv25syvc22_4a94\msg\file\2026-04\textbook_knowledge_graph.py` to `backend/src/app/textbook_knowledge_graph.py`.
 - Preserve the public `import_textbook_into_knowledge_graph(...)` entry point.
 - Fix obvious mojibake or broken string literals if the copied module contains encoding damage.
 - Remove assumptions that the file is running from an external chat attachment directory.
@@ -160,14 +160,14 @@ If this route already exists elsewhere in the dirty worktree, adapt the moved mo
 
 - [ ] **Step 5: Run the backend route test again**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py -q`
+Run: `pytest backend/src/tests/chat/test_textbook_knowledge_graph_routes.py -q`
 Expected: PASS
 
 ## Task 2: Add the Teacher-Side Textbook Import API Helper
 
 **Files:**
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Test: `frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Write the failing frontend structure test for the teacher API helper**
 
@@ -198,7 +198,7 @@ assert.match(
 
 - [ ] **Step 2: Run the teacher frontend test to verify the helper is not present yet**
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 Expected: FAIL because the new response type and API helper are not defined.
 
 - [ ] **Step 3: Add the teacher-side response types and API helper**
@@ -250,14 +250,14 @@ export const importTextbookKnowledgeGraph = async (
 
 - [ ] **Step 4: Run the teacher frontend test again**
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 Expected: PASS for the API helper assertions, even though the page assertions will still fail until Task 3.
 
 ## Task 3: Add the Course-Level Teacher Knowledge-Graph Import UI
 
 **Files:**
-- Modify: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+- Modify: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Test: `frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Extend the failing teacher frontend test to require the course-level UI flow**
 
@@ -289,7 +289,7 @@ assert.match(
 
 - [ ] **Step 2: Run the teacher frontend test to verify the page flow fails**
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 Expected: FAIL because the page does not yet import the new helper or expose the course-level textbook control.
 
 - [ ] **Step 3: Implement the course-level textbook import flow in `KnowledgeGraphPage.tsx`**
@@ -330,15 +330,15 @@ UI notes:
 
 - [ ] **Step 4: Run the teacher frontend test again**
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 Expected: PASS
 
 ## Task 4: Add the Stitch-Side Textbook Import API Helper
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
-- Test: `Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/courses.ts`
+- Test: `frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Write the failing stitch frontend test for the new API helper**
 
@@ -356,7 +356,7 @@ assert.match(apiFile, /\/api\/courses\/\$\{courseId\}\/knowledge-graph\/textbook
 
 - [ ] **Step 2: Run the stitch frontend test to verify the helper is missing**
 
-Run: `node --test Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: FAIL because the stitch types and API helper do not exist yet.
 
 - [ ] **Step 3: Add the stitch-side response type and API helper**
@@ -396,14 +396,14 @@ export function importTextbookKnowledgeGraph(courseId: string, file: File) {
 
 - [ ] **Step 4: Run the stitch frontend test again**
 
-Run: `node --test Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: PASS for the API assertions, while the page assertions still fail until Task 5.
 
 ## Task 5: Add the Course-Level Stitch Knowledge-Graph Import UI
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
-- Test: `Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+- Modify: `frontend/src/stitch/pages/KnowledgeGraph.tsx`
+- Test: `frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Extend the failing stitch frontend test to require the page-level import flow**
 
@@ -435,7 +435,7 @@ assert.match(
 
 - [ ] **Step 2: Run the stitch frontend test to verify the page flow fails**
 
-Run: `node --test Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: FAIL because the page does not yet expose the textbook-import UI.
 
 - [ ] **Step 3: Implement the course-level textbook import flow in the stitch page**
@@ -475,50 +475,50 @@ UI notes:
 
 - [ ] **Step 4: Run the stitch frontend test again**
 
-Run: `node --test Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: PASS
 
 ## Task 6: Run the Verification Pass
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/textbook_knowledge_graph.py`
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Modify: `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
-- Modify: `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py`
-- Test: `Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
-- Test: `Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+- Modify: `backend/src/app/textbook_knowledge_graph.py`
+- Modify: `backend/src/app/courses.py`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Modify: `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/courses.ts`
+- Modify: `frontend/src/stitch/pages/KnowledgeGraph.tsx`
+- Test: `backend/src/tests/chat/test_textbook_knowledge_graph_routes.py`
+- Test: `frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+- Test: `frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 
 - [ ] **Step 1: Run the backend route test if backend glue changed**
 
-Run: `pytest Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py -q`
+Run: `pytest backend/src/tests/chat/test_textbook_knowledge_graph_routes.py -q`
 Expected: PASS
 
 - [ ] **Step 2: Run the teacher frontend test**
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts`
 Expected: PASS
 
 - [ ] **Step 3: Run the stitch frontend test**
 
-Run: `node --test Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
+Run: `node --test frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts`
 Expected: PASS
 
 - [ ] **Step 4: Run the existing knowledge-graph frontend regression tests**
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraphWorkspaceJump.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraphWorkspaceJump.test.ts`
 Expected: PASS
 
-Run: `node --test Edu_AI/tests/frontend/knowledgeGraphHours.test.ts`
+Run: `node --test frontend/tests/frontend/knowledgeGraphHours.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-04-21-textbook-knowledge-graph-frontend-integration-design-cn.md docs/superpowers/plans/2026-04-21-textbook-knowledge-graph-frontend-integration.md Edu_AI/api/Edu_AI/app/textbook_knowledge_graph.py Edu_AI/api/Edu_AI/app/courses.py Edu_AI/api/Edu_AI/tests/chat/test_textbook_knowledge_graph_routes.py Edu_AI/src/services/teacher/api.ts Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/api/courses.ts Edu_AI/src/stitch/pages/KnowledgeGraph.tsx Edu_AI/tests/frontend/knowledgeGraph.textbook-import.test.ts Edu_AI/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts
+git add docs/superpowers/specs/2026-04-21-textbook-knowledge-graph-frontend-integration-design-cn.md docs/superpowers/plans/2026-04-21-textbook-knowledge-graph-frontend-integration.md backend/src/app/textbook_knowledge_graph.py backend/src/app/courses.py backend/src/tests/chat/test_textbook_knowledge_graph_routes.py frontend/src/services/teacher/api.ts frontend/src/pages/teacher/KnowledgeGraphPage.tsx frontend/src/stitch/api/types.ts frontend/src/stitch/api/courses.ts frontend/src/stitch/pages/KnowledgeGraph.tsx frontend/tests/frontend/knowledgeGraph.textbook-import.test.ts frontend/tests/frontend/stitchKnowledgeGraph.textbook-import.test.ts
 git commit -m "feat: add textbook knowledge graph import flow"
 ```
 

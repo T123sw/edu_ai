@@ -34,59 +34,59 @@
 
 实施时按现有 `app.chat.memory` 模块边界收敛，实际文件为 `domain.py`、`repository.py`、`service.py`、`policy.py`、`rule_extractor.py`、`langmem_adapter.py`、`embedding.py`、`api.py`、`dependencies.py` 和 `eval.py`；下列名称是设计阶段的职责拆分，不再作为最终路径清单。
 
-- `Edu_AI/api/src/app/chat/memory/__init__.py`
-- `Edu_AI/api/src/app/chat/memory/models.py`
-- `Edu_AI/api/src/app/chat/memory/policies.py`
-- `Edu_AI/api/src/app/chat/memory/store.py`
-- `Edu_AI/api/src/app/chat/memory/context_assembler.py`
-- `Edu_AI/api/src/app/chat/memory/write_pipeline.py`
-- `Edu_AI/api/src/app/chat/memory/langmem_adapter.py`
-- `Edu_AI/api/src/app/persistence/postgres_agent_memory_repository.py`
-- `Edu_AI/api/src/app/schemas/agent_memory.py`
-- `Edu_AI/api/src/app/api/agent_memory.py`
-- `Edu_AI/api/src/alembic/versions/20260831_0015_agent_memory_v2.py`
+- `backend/src/app/chat/memory/__init__.py`
+- `backend/src/app/chat/memory/models.py`
+- `backend/src/app/chat/memory/policies.py`
+- `backend/src/app/chat/memory/store.py`
+- `backend/src/app/chat/memory/context_assembler.py`
+- `backend/src/app/chat/memory/write_pipeline.py`
+- `backend/src/app/chat/memory/langmem_adapter.py`
+- `backend/src/app/persistence/postgres_agent_memory_repository.py`
+- `backend/src/app/schemas/agent_memory.py`
+- `backend/src/app/api/agent_memory.py`
+- `backend/src/alembic/versions/20260831_0015_agent_memory_v2.py`
 
 Alembic revision 编号需要在实施时以当前 head 为准；上面的文件名只表达期望语义。
 
 ### 3.2 后端修改
 
-- `Edu_AI/api/src/app/database/models.py`
-- `Edu_AI/api/src/app/database/__init__.py`
-- `Edu_AI/api/src/app/bootstrap.py`
-- `Edu_AI/api/src/app/chat/runtime/react_agent.py`
-- `Edu_AI/api/src/app/chat/runtime/memory/manager.py`
-- `Edu_AI/api/src/app/chat/persistence/agent_run_store.py`
-- `Edu_AI/api/src/app/chat/persistence/conversation_store_adapter.py`
-- `Edu_AI/api/src/app/learning/context_reader.py`
-- `Edu_AI/api/src/app/chat/runtime/nodes/prompts.py`
+- `backend/src/app/database/models.py`
+- `backend/src/app/database/__init__.py`
+- `backend/src/app/bootstrap.py`
+- `backend/src/app/chat/runtime/react_agent.py`
+- `backend/src/app/chat/runtime/memory/manager.py`
+- `backend/src/app/chat/persistence/agent_run_store.py`
+- `backend/src/app/chat/persistence/conversation_store_adapter.py`
+- `backend/src/app/learning/context_reader.py`
+- `backend/src/app/chat/runtime/nodes/prompts.py`
 
 ### 3.3 前端与调试入口
 
-- `Edu_AI/src/stitch/memory/agentMemory.ts`
-- `Edu_AI/src/stitch/memory/AgentMemoryPanel.tsx`
-- `Edu_AI/src/stitch/api/agentMemory.ts`
-- `Edu_AI/src/stitch/types/agentMemory.ts`
+- `frontend/src/stitch/memory/agentMemory.ts`
+- `frontend/src/stitch/memory/AgentMemoryPanel.tsx`
+- `frontend/src/stitch/api/agentMemory.ts`
+- `frontend/src/stitch/types/agentMemory.ts`
 
 第一版 UI 只做教师/学生可见的记忆检查、撤回和纠错入口，不做自动画像编辑器。
 
 ### 3.4 测试新增
 
-- `Edu_AI/api/src/tests/chat/memory/test_memory_policies.py`
-- `Edu_AI/api/src/tests/chat/memory/test_memory_repository.py`
-- `Edu_AI/api/src/tests/chat/memory/test_context_assembler.py`
-- `Edu_AI/api/src/tests/chat/memory/test_write_pipeline.py`
-- `Edu_AI/api/src/tests/chat/memory/test_langmem_adapter.py`
-- `Edu_AI/api/src/tests/chat/memory/test_langmem_candidate_eval.py`
-- `Edu_AI/api/src/tests/chat/runtime/test_agent_memory_integration.py`
-- `Edu_AI/api/src/tests/learning/test_memory_learning_fact_reader.py`
-- `Edu_AI/tests/e2e/agent-memory-v2.spec.ts`
+- `backend/src/tests/chat/memory/test_memory_policies.py`
+- `backend/src/tests/chat/memory/test_memory_repository.py`
+- `backend/src/tests/chat/memory/test_context_assembler.py`
+- `backend/src/tests/chat/memory/test_write_pipeline.py`
+- `backend/src/tests/chat/memory/test_langmem_adapter.py`
+- `backend/src/tests/chat/memory/test_langmem_candidate_eval.py`
+- `backend/src/tests/chat/runtime/test_agent_memory_integration.py`
+- `backend/src/tests/learning/test_memory_learning_fact_reader.py`
+- `frontend/tests/e2e/agent-memory-v2.spec.ts`
 
 ### 3.5 LangMem 接入配置
 
-- `Edu_AI/api/src/requirements*.txt` 或项目实际依赖文件：加入固定版本的 LangMem 依赖。
-- `Edu_AI/api/src/app/core/config.py`：增加 `AGENT_MEMORY_LANGMEM_ENABLED`、`AGENT_MEMORY_LANGMEM_SHADOW_MODE`、`AGENT_MEMORY_LANGMEM_TIMEOUT_MS`。
-- `Edu_AI/api/src/app/chat/memory/langmem_prompts.py`：集中维护候选记忆抽取 schema、允许类型和拒绝类型。
-- `Edu_AI/api/src/tests/fixtures/memory/langmem_candidate_cases.jsonl`：沉淀候选抽取评测集。
+- `backend/src/requirements*.txt` 或项目实际依赖文件：加入固定版本的 LangMem 依赖。
+- `backend/src/app/core/config.py`：增加 `AGENT_MEMORY_LANGMEM_ENABLED`、`AGENT_MEMORY_LANGMEM_SHADOW_MODE`、`AGENT_MEMORY_LANGMEM_TIMEOUT_MS`。
+- `backend/src/app/chat/memory/langmem_prompts.py`：集中维护候选记忆抽取 schema、允许类型和拒绝类型。
+- `backend/src/tests/fixtures/memory/langmem_candidate_cases.jsonl`：沉淀候选抽取评测集。
 
 ## 4. 阶段计划
 
@@ -105,7 +105,7 @@ Alembic revision 编号需要在实施时以当前 head 为准；上面的文件
 建议命令：
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/runtime tests/chat/persistence -q
 ```
 
@@ -125,7 +125,7 @@ python -m pytest tests/chat/runtime tests/chat/persistence -q
 建议命令：
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_memory_policy.py tests/chat/memory/test_memory_repository.py -q
 ```
 
@@ -144,7 +144,7 @@ python -m pytest tests/chat/memory/test_memory_policy.py tests/chat/memory/test_
 建议命令：
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_context_assembler.py tests/chat/runtime/test_agent_memory_integration.py -q
 ```
 
@@ -163,7 +163,7 @@ python -m pytest tests/chat/memory/test_context_assembler.py tests/chat/runtime/
 建议命令：
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_write_pipeline.py tests/chat/persistence -q
 ```
 
@@ -189,7 +189,7 @@ python -m pytest tests/chat/memory/test_write_pipeline.py tests/chat/persistence
 建议命令：
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/chat/memory/test_langmem_adapter.py tests/chat/memory/test_langmem_candidate_eval.py tests/chat/memory/test_write_pipeline.py -q
 ```
 
@@ -214,7 +214,7 @@ LangMem 接入必须满足的局部完成条件：
 建议命令：
 
 ```powershell
-cd Edu_AI/api/src
+cd backend/src
 python -m pytest tests/learning tests/chat/memory -q
 ```
 

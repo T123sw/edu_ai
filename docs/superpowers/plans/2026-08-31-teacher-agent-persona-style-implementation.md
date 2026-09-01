@@ -12,18 +12,18 @@
 
 ## File Structure
 
-- Modify `Edu_AI/api/src/app/chat/domain/persona_policy.py`: update the teacher role, collaboration style, and style metadata.
-- Modify `Edu_AI/api/src/app/chat/runtime/nodes/prompts.py`: remove the shared instruction that forces concise expression.
-- Modify `Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py`: verify the teacher collaboration persona and absence of fixed length/template rules.
-- Test `Edu_AI/api/src/tests/chat/test_fast_chat_runtime.py`: confirm the shared teacher persona still reaches the FastChat fallback.
+- Modify `backend/src/app/chat/domain/persona_policy.py`: update the teacher role, collaboration style, and style metadata.
+- Modify `backend/src/app/chat/runtime/nodes/prompts.py`: remove the shared instruction that forces concise expression.
+- Modify `backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py`: verify the teacher collaboration persona and absence of fixed length/template rules.
+- Test `backend/src/tests/chat/test_fast_chat_runtime.py`: confirm the shared teacher persona still reaches the FastChat fallback.
 
 ### Task 1: Make Teacher Answers Professional, Collaborative, and Naturally Detailed
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/chat/domain/persona_policy.py:17-41`
-- Modify: `Edu_AI/api/src/app/chat/runtime/nodes/prompts.py:26-28`
-- Modify: `Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py`
-- Test: `Edu_AI/api/src/tests/chat/test_fast_chat_runtime.py`
+- Modify: `backend/src/app/chat/domain/persona_policy.py:17-41`
+- Modify: `backend/src/app/chat/runtime/nodes/prompts.py:26-28`
+- Modify: `backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py`
+- Test: `backend/src/tests/chat/test_fast_chat_runtime.py`
 
 - [ ] **Step 1: Add failing prompt assertions**
 
@@ -53,7 +53,7 @@ def test_student_prompt_keeps_guided_learning_persona():
 Run:
 
 ```powershell
-$env:PYTHONPATH='D:\Edu_AI_1\Edu_AI\api\src'
+$env:PYTHONPATH='D:\Edu_AI_1\backend\src'
 python -m pytest src/tests/chat/runtime/test_agent_prompt_boundaries.py -q
 ```
 
@@ -119,7 +119,7 @@ Run:
 ```powershell
 python -m pytest src/tests/chat/runtime -q
 python -m compileall -q src/app/chat/domain/persona_policy.py src/app/chat/runtime/nodes/prompts.py
-git diff --check -- Edu_AI/api/src/app/chat/domain/persona_policy.py Edu_AI/api/src/app/chat/runtime/nodes/prompts.py Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py
+git diff --check -- backend/src/app/chat/domain/persona_policy.py backend/src/app/chat/runtime/nodes/prompts.py backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py
 ```
 
 Expected: all commands exit with code 0.
@@ -127,6 +127,6 @@ Expected: all commands exit with code 0.
 - [ ] **Step 7: Commit the implementation**
 
 ```powershell
-git add Edu_AI/api/src/app/chat/domain/persona_policy.py Edu_AI/api/src/app/chat/runtime/nodes/prompts.py Edu_AI/api/src/tests/chat/runtime/test_agent_prompt_boundaries.py
+git add backend/src/app/chat/domain/persona_policy.py backend/src/app/chat/runtime/nodes/prompts.py backend/src/tests/chat/runtime/test_agent_prompt_boundaries.py
 git commit -m "fix: refine teacher agent collaboration persona"
 ```

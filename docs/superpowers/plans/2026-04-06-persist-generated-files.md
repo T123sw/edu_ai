@@ -13,7 +13,7 @@
 ### Task 1: Define failing frontend expectations for merged report artifacts
 
 **Files:**
-- Modify: `d:\github\edu_ai\Edu_AI\tests\frontend\chatV2.helpers.test.ts`
+- Modify: `d:\github\edu_ai\frontend\tests\frontend\chatV2.helpers.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -24,7 +24,7 @@ Add assertions that:
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node Edu_AI/tests/frontend/chatV2.helpers.test.ts`
+Run: `node frontend/tests/frontend/chatV2.helpers.test.ts`
 Expected: FAIL because helper still returns separate outline and report items.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -33,14 +33,14 @@ Update the helper so it merges outline data into the final report artifact when 
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node Edu_AI/tests/frontend/chatV2.helpers.test.ts`
+Run: `node frontend/tests/frontend/chatV2.helpers.test.ts`
 Expected: PASS
 
 ### Task 2: Define failing expectations for restoring generated files from conversation detail
 
 **Files:**
-- Create: `d:\github\edu_ai\Edu_AI\tests\frontend\generatedFiles.restore.test.ts`
-- Modify: `d:\github\edu_ai\Edu_AI\src\services\teacher\chatV2.helpers.ts`
+- Create: `d:\github\edu_ai\frontend\tests\frontend\generatedFiles.restore.test.ts`
+- Modify: `d:\github\edu_ai\frontend\src\services\teacher\chatV2.helpers.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -51,7 +51,7 @@ Add tests for a helper that rebuilds generated files from persisted conversation
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `node Edu_AI/tests/frontend/generatedFiles.restore.test.ts`
+Run: `node frontend/tests/frontend/generatedFiles.restore.test.ts`
 Expected: FAIL because restore helper does not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -60,14 +60,14 @@ Add a helper that reads `state.workflow_state.artifacts` from conversation detai
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node Edu_AI/tests/frontend/generatedFiles.restore.test.ts`
+Run: `node frontend/tests/frontend/generatedFiles.restore.test.ts`
 Expected: PASS
 
 ### Task 3: Expose persisted artifact state from conversation detail API
 
 **Files:**
-- Modify: `d:\github\edu_ai\Edu_AI\api\Edu_AI\core\conversation_storage.py`
-- Modify: `d:\github\edu_ai\Edu_AI\src\services\teacher\api.ts`
+- Modify: `d:\github\edu_ai\backend\src\core\conversation_storage.py`
+- Modify: `d:\github\edu_ai\frontend\src\services\teacher\api.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -84,15 +84,15 @@ Return `state` from `ConversationStorage.get_conversation(...)` and reflect that
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `node Edu_AI/tests/frontend/generatedFiles.restore.test.ts`
+Run: `node frontend/tests/frontend/generatedFiles.restore.test.ts`
 Expected: PASS
 
 ### Task 4: Restore and maintain generated files in the frontend store
 
 **Files:**
-- Modify: `d:\github\edu_ai\Edu_AI\src\store\teacher\useStore.ts`
-- Modify: `d:\github\edu_ai\Edu_AI\src\components\teacher\ChatPanel.tsx`
-- Modify: `d:\github\edu_ai\Edu_AI\src\components\teacher\StudioPanel.tsx`
+- Modify: `d:\github\edu_ai\frontend\src\store\teacher\useStore.ts`
+- Modify: `d:\github\edu_ai\frontend\src\components\teacher\ChatPanel.tsx`
+- Modify: `d:\github\edu_ai\frontend\src\components\teacher\StudioPanel.tsx`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -118,7 +118,7 @@ Expected: PASS
 ### Task 5: Add inline outline/body switching for report preview
 
 **Files:**
-- Modify: `d:\github\edu_ai\Edu_AI\src\components\teacher\StudioPanel.tsx`
+- Modify: `d:\github\edu_ai\frontend\src\components\teacher\StudioPanel.tsx`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -149,8 +149,8 @@ Expected: PASS
 - [ ] **Step 1: Run targeted tests**
 
 Run:
-- `node Edu_AI/tests/frontend/chatV2.helpers.test.ts`
-- `node Edu_AI/tests/frontend/generatedFiles.restore.test.ts`
+- `node frontend/tests/frontend/chatV2.helpers.test.ts`
+- `node frontend/tests/frontend/generatedFiles.restore.test.ts`
 
 Expected: PASS
 

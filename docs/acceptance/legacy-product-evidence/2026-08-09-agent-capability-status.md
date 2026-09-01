@@ -127,10 +127,10 @@ Agent 规划器和执行器现在与报告正文生成一样具备模型故障�
 
 ## 7. 可复现验收入口
 
-- 问答/RAG/Web：`api/src/scripts/smoke_teacher_agent_tools.py`；
-- 对话资源生成：`api/src/scripts/smoke_teacher_agent_generation.py`；
-- 直接资源面板：`api/src/scripts/smoke_teacher_generation.py`；
-- 完整后端回归：在 `api/src` 运行 `python -m pytest -q`。
+- 问答/RAG/Web：`backend/src/scripts/smoke_teacher_agent_tools.py`；
+- 对话资源生成：`backend/src/scripts/smoke_teacher_agent_generation.py`；
+- 直接资源面板：`backend/src/scripts/smoke_teacher_generation.py`；
+- 完整后端回归：在 `backend/src` 运行 `python -m pytest -q`。
 
 执行真实烟测时通过环境变量提供本机 Token 和课程 ID，不应把 Token 写入脚本、日志或本文档。
 

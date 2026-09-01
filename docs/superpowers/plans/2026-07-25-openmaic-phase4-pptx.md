@@ -8,7 +8,7 @@ order, geometry, Chinese text, editable formulas, and speaker notes.
 
 **Architecture:** Reuse the vendored OpenMAIC fork of PptxGenJS and its
 MathML→OMML package as local `file:` dependencies. Keep edu_ai integration in a
-small browser-side adapter under `Edu_AI/src/openmaic/`; it accepts plain
+small browser-side adapter under `frontend/src/openmaic/`; it accepts plain
 classroom scenes and has no dependency on the sidecar's React stores. The
 classroom page owns download state and invokes the pure blob builder.
 
@@ -21,10 +21,10 @@ lint/build must pass; browser acceptance must produce a non-empty `.pptx`.
 
 **Files**
 
-- Modify `Edu_AI/package.json`
+- Modify `frontend/package.json`
 - Modify `Edu_AI/package-lock.json`
-- Create `Edu_AI/src/openmaic/pptxExporter.ts`
-- Create `Edu_AI/src/openmaic/pptxExporter.test.ts`
+- Create `frontend/src/openmaic/pptxExporter.ts`
+- Create `frontend/src/openmaic/pptxExporter.test.ts`
 
 1. Add local `pptxgenjs` and `mathml2omml` dependencies plus the minimal
    browser conversion dependencies used by the exporter.
@@ -39,8 +39,8 @@ lint/build must pass; browser acceptance must produce a non-empty `.pptx`.
 
 **Files**
 
-- Modify `Edu_AI/src/openmaic/pptxExporter.ts`
-- Modify `Edu_AI/src/openmaic/pptxExporter.test.ts`
+- Modify `frontend/src/openmaic/pptxExporter.ts`
+- Modify `frontend/src/openmaic/pptxExporter.test.ts`
 
 1. Add failing OOXML tests for background, text content/formatting, geometry,
    z-order, and image embedding.
@@ -54,9 +54,9 @@ lint/build must pass; browser acceptance must produce a non-empty `.pptx`.
 
 **Files**
 
-- Create `Edu_AI/src/openmaic/latexToOmml.ts`
-- Modify `Edu_AI/src/openmaic/pptxExporter.ts`
-- Modify `Edu_AI/src/openmaic/pptxExporter.test.ts`
+- Create `frontend/src/openmaic/latexToOmml.ts`
+- Modify `frontend/src/openmaic/pptxExporter.ts`
+- Modify `frontend/src/openmaic/pptxExporter.test.ts`
 
 1. Add failing tests proving LaTeX becomes editable OMML and video poster/media
    failures do not corrupt the deck.
@@ -70,8 +70,8 @@ lint/build must pass; browser acceptance must produce a non-empty `.pptx`.
 
 **Files**
 
-- Create `Edu_AI/src/openmaic/PptxExportButton.tsx`
-- Modify `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
+- Create `frontend/src/openmaic/PptxExportButton.tsx`
+- Modify `frontend/src/stitch/pages/ClassroomPlayer.tsx`
 
 1. Add a button-level test or pure download-helper test for filename
    sanitization, duplicate-click guard, success, and failure cleanup.

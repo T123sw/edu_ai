@@ -14,7 +14,7 @@
 
 - 工作目录：D:\Edu_AI_1。
 - 前端目录：D:\Edu_AI_1\Edu_AI。
-- 后端目录：D:\Edu_AI_1\Edu_AI\api。
+- 后端目录：D:\Edu_AI_1\backend。
 - 设计依据：docs/superpowers/specs/2026-09-01-ai-classroom-three-column-context-workspace-design-cn.md。
 - 不改变标准资源审核发布口径和学生学习进度口径。
 - 不新增数据库表；静态资源问答会话沿用原子文件会话存储，使用包含资源类型与版本的隔离键。
@@ -24,60 +24,60 @@
 
 ### 前端新文件
 
-- Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx：三栏语义结构和响应式抽屉入口。
-- Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts：布局结构和 CSS 合同测试。
-- Edu_AI/src/stitch/course/classroomCatalog/MyClassroomList.tsx：当前课程个人课堂列表。
-- Edu_AI/src/stitch/course/classroomCatalog/myClassroomPresentation.ts：个人课堂过滤、排序和状态文案。
-- Edu_AI/src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts：个人课堂纯函数测试。
-- Edu_AI/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.ts：课程资源与个人课堂的互斥选中目标及深链接解析。
-- Edu_AI/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts：目标切换、版本和路由测试。
-- Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx：可嵌入中栏的课堂播放体验。
-- Edu_AI/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.tsx：右栏上下文标题和复用问答面板。
-- Edu_AI/src/stitch/classroomQa/classroomQaController.ts：课堂与静态资源共用的最小问答控制器契约。
-- Edu_AI/src/stitch/classroomQa/useStaticResourceQa.ts：文档和习题问答控制器。
-- Edu_AI/src/stitch/classroomQa/useStaticResourceQa.test.ts：会话隔离和迟到响应测试。
-- Edu_AI/src/stitch/api/resourceQa.ts：静态资源问答 API。
-- Edu_AI/src/stitch/api/resourceQa.test.ts：路径、请求和鉴权音频测试。
+- frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx：三栏语义结构和响应式抽屉入口。
+- frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts：布局结构和 CSS 合同测试。
+- frontend/src/stitch/course/classroomCatalog/MyClassroomList.tsx：当前课程个人课堂列表。
+- frontend/src/stitch/course/classroomCatalog/myClassroomPresentation.ts：个人课堂过滤、排序和状态文案。
+- frontend/src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts：个人课堂纯函数测试。
+- frontend/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.ts：课程资源与个人课堂的互斥选中目标及深链接解析。
+- frontend/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts：目标切换、版本和路由测试。
+- frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx：可嵌入中栏的课堂播放体验。
+- frontend/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.tsx：右栏上下文标题和复用问答面板。
+- frontend/src/stitch/classroomQa/classroomQaController.ts：课堂与静态资源共用的最小问答控制器契约。
+- frontend/src/stitch/classroomQa/useStaticResourceQa.ts：文档和习题问答控制器。
+- frontend/src/stitch/classroomQa/useStaticResourceQa.test.ts：会话隔离和迟到响应测试。
+- frontend/src/stitch/api/resourceQa.ts：静态资源问答 API。
+- frontend/src/stitch/api/resourceQa.test.ts：路径、请求和鉴权音频测试。
 
 ### 前端修改文件
 
-- Edu_AI/src/stitch/pages/ClassroomStudio.tsx：加载目录与个人课堂、维护当前目标、组合三栏。
-- Edu_AI/src/stitch/pages/ClassroomPlayer.tsx：改为薄页面包装，复用 ClassroomPlaybackSurface。
-- Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx：课堂改为中栏直接播放，并向右栏公开资源上下文。
-- Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css：全宽三栏、栏内滚动和断点。
-- Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx：面向通用控制器，播放中断操作改为可选。
-- Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css：右栏固定高度、上下文标题和小屏抽屉样式。
-- Edu_AI/src/stitch/api/types.ts：个人课堂目标和静态资源问答契约。
-- Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts：三栏、个人课堂与内嵌播放器集成合同。
+- frontend/src/stitch/pages/ClassroomStudio.tsx：加载目录与个人课堂、维护当前目标、组合三栏。
+- frontend/src/stitch/pages/ClassroomPlayer.tsx：改为薄页面包装，复用 ClassroomPlaybackSurface。
+- frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx：课堂改为中栏直接播放，并向右栏公开资源上下文。
+- frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css：全宽三栏、栏内滚动和断点。
+- frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx：面向通用控制器，播放中断操作改为可选。
+- frontend/src/stitch/classroomQa/ClassroomQaPanel.css：右栏固定高度、上下文标题和小屏抽屉样式。
+- frontend/src/stitch/api/types.ts：个人课堂目标和静态资源问答契约。
+- frontend/src/stitch/pages/classroomCatalogPage.test.ts：三栏、个人课堂与内嵌播放器集成合同。
 
 ### 后端新文件
 
-- Edu_AI/api/src/app/schemas/resource_qa.py：静态资源问答请求与响应。
-- Edu_AI/api/src/app/services/resource_qa_prompt.py：完整文档/习题抽取、问题相关片段选择和提示词。
-- Edu_AI/api/src/app/services/resource_qa_service.py：资源权限解析、版本锁定、会话和回答编排。
-- Edu_AI/api/src/app/api/resource_qa.py：静态资源问答及音频路由。
-- Edu_AI/api/src/tests/test_resource_qa_prompt.py：全文命中和答案隐藏测试。
-- Edu_AI/api/src/tests/test_resource_qa_service.py：幂等、版本隔离、权限和失败恢复测试。
-- Edu_AI/api/src/tests/test_resource_qa_routes.py：认证、课程角色、跨用户和音频访问测试。
+- backend/src/app/schemas/resource_qa.py：静态资源问答请求与响应。
+- backend/src/app/services/resource_qa_prompt.py：完整文档/习题抽取、问题相关片段选择和提示词。
+- backend/src/app/services/resource_qa_service.py：资源权限解析、版本锁定、会话和回答编排。
+- backend/src/app/api/resource_qa.py：静态资源问答及音频路由。
+- backend/src/tests/test_resource_qa_prompt.py：全文命中和答案隐藏测试。
+- backend/src/tests/test_resource_qa_service.py：幂等、版本隔离、权限和失败恢复测试。
+- backend/src/tests/test_resource_qa_routes.py：认证、课程角色、跨用户和音频访问测试。
 
 ### 后端修改文件
 
-- Edu_AI/api/src/app/services/classroom_qa_prompt.py：课堂上下文加入全课堂可检索内容。
-- Edu_AI/api/src/app/services/classroom_qa_service.py：指标加入资源版本，并保持旧接口兼容。
-- Edu_AI/api/src/app/bootstrap.py：注册静态资源问答路由。
-- Edu_AI/api/src/tests/test_classroom_qa_prompt.py：完整课堂后段内容命中测试。
-- Edu_AI/api/src/tests/test_classroom_qa_service.py：原课堂问答回归。
-- Edu_AI/api/src/tests/test_student_classroom_permissions.py：个人课堂列表与读取隔离回归。
+- backend/src/app/services/classroom_qa_prompt.py：课堂上下文加入全课堂可检索内容。
+- backend/src/app/services/classroom_qa_service.py：指标加入资源版本，并保持旧接口兼容。
+- backend/src/app/bootstrap.py：注册静态资源问答路由。
+- backend/src/tests/test_classroom_qa_prompt.py：完整课堂后段内容命中测试。
+- backend/src/tests/test_classroom_qa_service.py：原课堂问答回归。
+- backend/src/tests/test_student_classroom_permissions.py：个人课堂列表与读取隔离回归。
 
 ---
 
 ### Task 1: 建立全宽三栏布局合同
 
 **Files:**
-- Create: Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx
-- Create: Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
-- Modify: Edu_AI/src/stitch/pages/ClassroomStudio.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts
+- Modify: frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
+- Modify: frontend/src/stitch/pages/ClassroomStudio.tsx
 
 - [ ] **Step 1: 写布局失败测试**
 
@@ -196,20 +196,20 @@ Expected: PASS。
 - [ ] **Step 5: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css Edu_AI/src/stitch/pages/ClassroomStudio.tsx
+git add frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css frontend/src/stitch/pages/ClassroomStudio.tsx
 git commit -m "feat: add full-width classroom workspace shell"
 ~~~
 
 ### Task 2: 增加“我的课堂”列表与互斥目标模型
 
 **Files:**
-- Create: Edu_AI/src/stitch/course/classroomCatalog/MyClassroomList.tsx
-- Create: Edu_AI/src/stitch/course/classroomCatalog/myClassroomPresentation.ts
-- Create: Edu_AI/src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts
-- Create: Edu_AI/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.ts
-- Create: Edu_AI/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts
-- Modify: Edu_AI/src/stitch/pages/ClassroomStudio.tsx
-- Modify: Edu_AI/src/stitch/api/types.ts
+- Create: frontend/src/stitch/course/classroomCatalog/MyClassroomList.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/myClassroomPresentation.ts
+- Create: frontend/src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts
+- Create: frontend/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.ts
+- Create: frontend/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts
+- Modify: frontend/src/stitch/pages/ClassroomStudio.tsx
+- Modify: frontend/src/stitch/api/types.ts
 
 - [ ] **Step 1: 写个人课堂排序和路由失败测试**
 
@@ -315,17 +315,17 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/course/classroomCatalog/MyClassroomList.tsx Edu_AI/src/stitch/course/classroomCatalog/myClassroomPresentation.ts Edu_AI/src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts Edu_AI/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.ts Edu_AI/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts Edu_AI/src/stitch/pages/ClassroomStudio.tsx Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
+git add frontend/src/stitch/course/classroomCatalog/MyClassroomList.tsx frontend/src/stitch/course/classroomCatalog/myClassroomPresentation.ts frontend/src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts frontend/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.ts frontend/src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts frontend/src/stitch/pages/ClassroomStudio.tsx frontend/src/stitch/api/types.ts frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
 git commit -m "feat: add current-course personal classrooms"
 ~~~
 
 ### Task 3: 将课堂播放器抽为可嵌入中栏的 Surface
 
 **Files:**
-- Create: Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx
-- Create: Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts
-- Modify: Edu_AI/src/stitch/pages/ClassroomPlayer.tsx
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts
+- Modify: frontend/src/stitch/pages/ClassroomPlayer.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx
 
 - [ ] **Step 1: 写播放器复用失败测试**
 
@@ -391,16 +391,16 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx Edu_AI/src/stitch/pages/ClassroomStudio.tsx
+git add frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.test.ts frontend/src/stitch/pages/ClassroomPlayer.tsx frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx frontend/src/stitch/pages/ClassroomStudio.tsx
 git commit -m "refactor: embed classroom playback in learning workspace"
 ~~~
 
 ### Task 4: 让现有课堂问答读取完整课堂并优先当前场景
 
 **Files:**
-- Modify: Edu_AI/api/src/app/services/classroom_qa_prompt.py
-- Modify: Edu_AI/api/src/tests/test_classroom_qa_prompt.py
-- Modify: Edu_AI/api/src/tests/test_classroom_qa_service.py
+- Modify: backend/src/app/services/classroom_qa_prompt.py
+- Modify: backend/src/tests/test_classroom_qa_prompt.py
+- Modify: backend/src/tests/test_classroom_qa_service.py
 
 - [ ] **Step 1: 写后半课堂内容命中失败测试**
 
@@ -421,7 +421,7 @@ assert "哈希冲突" in messages[-1]["content"]
 
 - [ ] **Step 2: 运行测试并确认失败**
 
-Run: 在 Edu_AI/api 中执行 python -m pytest src/tests/test_classroom_qa_prompt.py -q
+Run: 在 backend 中执行 python -m pytest src/tests/test_classroom_qa_prompt.py -q
 
 Expected: FAIL，ClassroomQaContext 没有 full_classroom_sections。
 
@@ -457,16 +457,16 @@ Expected: PASS，旧 checkpoint、中断恢复、幂等和音频权限测试继�
 - [ ] **Step 5: 提交**
 
 ~~~powershell
-git add Edu_AI/api/src/app/services/classroom_qa_prompt.py Edu_AI/api/src/tests/test_classroom_qa_prompt.py Edu_AI/api/src/tests/test_classroom_qa_service.py
+git add backend/src/app/services/classroom_qa_prompt.py backend/src/tests/test_classroom_qa_prompt.py backend/src/tests/test_classroom_qa_service.py
 git commit -m "feat: ground classroom questions in full lesson content"
 ~~~
 
 ### Task 5: 定义静态资源问答契约和完整资源提示词
 
 **Files:**
-- Create: Edu_AI/api/src/app/schemas/resource_qa.py
-- Create: Edu_AI/api/src/app/services/resource_qa_prompt.py
-- Create: Edu_AI/api/src/tests/test_resource_qa_prompt.py
+- Create: backend/src/app/schemas/resource_qa.py
+- Create: backend/src/app/services/resource_qa_prompt.py
+- Create: backend/src/tests/test_resource_qa_prompt.py
 
 - [ ] **Step 1: 写全文档和习题答案保护失败测试**
 
@@ -562,16 +562,16 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/api/src/app/schemas/resource_qa.py Edu_AI/api/src/app/services/resource_qa_prompt.py Edu_AI/api/src/tests/test_resource_qa_prompt.py
+git add backend/src/app/schemas/resource_qa.py backend/src/app/services/resource_qa_prompt.py backend/src/tests/test_resource_qa_prompt.py
 git commit -m "feat: define full-resource QA context contracts"
 ~~~
 
 ### Task 6: 实现静态资源问答服务、权限和版本隔离
 
 **Files:**
-- Create: Edu_AI/api/src/app/services/resource_qa_service.py
-- Create: Edu_AI/api/src/tests/test_resource_qa_service.py
-- Modify: Edu_AI/api/src/app/services/classroom_qa_store.py
+- Create: backend/src/app/services/resource_qa_service.py
+- Create: backend/src/tests/test_resource_qa_service.py
+- Modify: backend/src/app/services/classroom_qa_store.py
 
 - [ ] **Step 1: 写权限、版本和幂等失败测试**
 
@@ -651,16 +651,16 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/api/src/app/services/resource_qa_service.py Edu_AI/api/src/app/services/classroom_qa_store.py Edu_AI/api/src/tests/test_resource_qa_service.py
+git add backend/src/app/services/resource_qa_service.py backend/src/app/services/classroom_qa_store.py backend/src/tests/test_resource_qa_service.py
 git commit -m "feat: add version-isolated static resource QA service"
 ~~~
 
 ### Task 7: 暴露静态资源问答 API 与受保护音频
 
 **Files:**
-- Create: Edu_AI/api/src/app/api/resource_qa.py
-- Create: Edu_AI/api/src/tests/test_resource_qa_routes.py
-- Modify: Edu_AI/api/src/app/bootstrap.py
+- Create: backend/src/app/api/resource_qa.py
+- Create: backend/src/tests/test_resource_qa_routes.py
+- Modify: backend/src/app/bootstrap.py
 
 - [ ] **Step 1: 写路由失败测试**
 
@@ -708,19 +708,19 @@ Expected: PASS。
 - [ ] **Step 5: 提交**
 
 ~~~powershell
-git add Edu_AI/api/src/app/api/resource_qa.py Edu_AI/api/src/app/bootstrap.py Edu_AI/api/src/tests/test_resource_qa_routes.py
+git add backend/src/app/api/resource_qa.py backend/src/app/bootstrap.py backend/src/tests/test_resource_qa_routes.py
 git commit -m "feat: expose authorized static resource QA API"
 ~~~
 
 ### Task 8: 增加前端静态资源问答 API 与迟到响应隔离
 
 **Files:**
-- Create: Edu_AI/src/stitch/api/resourceQa.ts
-- Create: Edu_AI/src/stitch/api/resourceQa.test.ts
-- Create: Edu_AI/src/stitch/classroomQa/classroomQaController.ts
-- Create: Edu_AI/src/stitch/classroomQa/useStaticResourceQa.ts
-- Create: Edu_AI/src/stitch/classroomQa/useStaticResourceQa.test.ts
-- Modify: Edu_AI/src/stitch/api/types.ts
+- Create: frontend/src/stitch/api/resourceQa.ts
+- Create: frontend/src/stitch/api/resourceQa.test.ts
+- Create: frontend/src/stitch/classroomQa/classroomQaController.ts
+- Create: frontend/src/stitch/classroomQa/useStaticResourceQa.ts
+- Create: frontend/src/stitch/classroomQa/useStaticResourceQa.test.ts
+- Modify: frontend/src/stitch/api/types.ts
 
 - [ ] **Step 1: 写 API 路径和控制器失败测试**
 
@@ -789,18 +789,18 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/api/resourceQa.ts Edu_AI/src/stitch/api/resourceQa.test.ts Edu_AI/src/stitch/classroomQa/classroomQaController.ts Edu_AI/src/stitch/classroomQa/useStaticResourceQa.ts Edu_AI/src/stitch/classroomQa/useStaticResourceQa.test.ts Edu_AI/src/stitch/api/types.ts
+git add frontend/src/stitch/api/resourceQa.ts frontend/src/stitch/api/resourceQa.test.ts frontend/src/stitch/classroomQa/classroomQaController.ts frontend/src/stitch/classroomQa/useStaticResourceQa.ts frontend/src/stitch/classroomQa/useStaticResourceQa.test.ts frontend/src/stitch/api/types.ts
 git commit -m "feat: add static resource QA client controller"
 ~~~
 
 ### Task 9: 让一个问答面板同时服务课堂、文档和习题
 
 **Files:**
-- Create: Edu_AI/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.tsx
-- Create: Edu_AI/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.test.ts
-- Modify: Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx
-- Modify: Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts
-- Modify: Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css
+- Create: frontend/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.test.ts
+- Modify: frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx
+- Modify: frontend/src/stitch/classroomQa/useClassroomInterruption.ts
+- Modify: frontend/src/stitch/classroomQa/ClassroomQaPanel.css
 
 - [ ] **Step 1: 写通用面板失败测试**
 
@@ -861,20 +861,20 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.tsx Edu_AI/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.test.ts Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css
+git add frontend/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.tsx frontend/src/stitch/course/classroomCatalog/ContextualClassroomQaPanel.test.ts frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx frontend/src/stitch/classroomQa/useClassroomInterruption.ts frontend/src/stitch/classroomQa/ClassroomQaPanel.css
 git commit -m "refactor: reuse classroom QA panel across resource types"
 ~~~
 
 ### Task 10: 将右栏绑定到中间当前展示物
 
 **Files:**
-- Create: Edu_AI/src/stitch/course/classroomCatalog/workspaceQaBinding.ts
-- Create: Edu_AI/src/stitch/course/classroomCatalog/workspaceQaBinding.test.ts
-- Modify: Edu_AI/src/stitch/pages/ClassroomStudio.tsx
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/StudentReadingView.tsx
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/StudentPracticeView.tsx
+- Create: frontend/src/stitch/course/classroomCatalog/workspaceQaBinding.ts
+- Create: frontend/src/stitch/course/classroomCatalog/workspaceQaBinding.test.ts
+- Modify: frontend/src/stitch/pages/ClassroomStudio.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/StudentReadingView.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/StudentPracticeView.tsx
 
 - [ ] **Step 1: 写绑定选择失败测试**
 
@@ -935,17 +935,17 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/course/classroomCatalog/workspaceQaBinding.ts Edu_AI/src/stitch/course/classroomCatalog/workspaceQaBinding.test.ts Edu_AI/src/stitch/pages/ClassroomStudio.tsx Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx Edu_AI/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx Edu_AI/src/stitch/course/classroomCatalog/StudentReadingView.tsx Edu_AI/src/stitch/course/classroomCatalog/StudentPracticeView.tsx
+git add frontend/src/stitch/course/classroomCatalog/workspaceQaBinding.ts frontend/src/stitch/course/classroomCatalog/workspaceQaBinding.test.ts frontend/src/stitch/pages/ClassroomStudio.tsx frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx frontend/src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx frontend/src/stitch/course/classroomCatalog/StudentReadingView.tsx frontend/src/stitch/course/classroomCatalog/StudentPracticeView.tsx
 git commit -m "feat: bind workspace QA to the active learning resource"
 ~~~
 
 ### Task 11: 完成响应式抽屉、栏内滚动和可访问性
 
 **Files:**
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts
-- Modify: Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
-- Modify: Edu_AI/src/stitch/pages/ClassroomStudio.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx
+- Modify: frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts
+- Modify: frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css
+- Modify: frontend/src/stitch/pages/ClassroomStudio.tsx
 
 - [ ] **Step 1: 写断点和焦点合同失败测试**
 
@@ -991,7 +991,7 @@ Expected: TypeScript 与 Vite build 成功，无未使用类型和 JSX 错误。
 - [ ] **Step 6: 提交**
 
 ~~~powershell
-git add Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx Edu_AI/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css Edu_AI/src/stitch/pages/ClassroomStudio.tsx
+git add frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.tsx frontend/src/stitch/course/classroomCatalog/ClassroomWorkspaceLayout.test.ts frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css frontend/src/stitch/pages/ClassroomStudio.tsx
 git commit -m "feat: make classroom workspace responsive and accessible"
 ~~~
 
@@ -1003,7 +1003,7 @@ git commit -m "feat: make classroom workspace responsive and accessible"
 
 - [ ] **Step 1: 运行后端目标测试**
 
-Run: 在 Edu_AI/api 中执行：
+Run: 在 backend 中执行：
 
 ~~~powershell
 python -m pytest src/tests/test_resource_qa_prompt.py src/tests/test_resource_qa_service.py src/tests/test_resource_qa_routes.py src/tests/test_classroom_qa_prompt.py src/tests/test_classroom_qa_service.py src/tests/test_classroom_qa_routes.py src/tests/test_student_classroom_permissions.py src/tests/classroom_catalog -q

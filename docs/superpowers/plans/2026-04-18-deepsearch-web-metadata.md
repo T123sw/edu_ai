@@ -12,50 +12,50 @@
 
 ## File Structure
 
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch.py`
+- Modify: `D:/Edu_AI_1/backend/src/app/deepsearch.py`
   Purpose: apply normalized web metadata in the API-driven deep-search import flow.
 
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch_pipeline.py`
+- Modify: `D:/Edu_AI_1/backend/src/app/deepsearch_pipeline.py`
   Purpose: apply the same normalized web metadata in the tool-driven deep-search import flow.
 
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/web_source_metadata.py`
+- Create: `D:/Edu_AI_1/backend/src/app/web_source_metadata.py`
   Purpose: single-responsibility helper for deriving `source_site_name`, `source_logo_url`, and readable web `file_name`.
 
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py`
+- Create: `D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py`
   Purpose: unit tests for site-name, display-name, and favicon fallback logic.
 
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py`
+- Create: `D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py`
   Purpose: regression tests that prove imported web records persist the new metadata.
 
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/api.py`
+- Modify: `D:/Edu_AI_1/backend/src/rag_v2/rag_main/api.py`
   Purpose: extend `DocumentInfo` and related response models with `source_site_name` and `source_logo_url`.
 
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/system.py`
+- Modify: `D:/Edu_AI_1/backend/src/rag_v2/rag_main/system.py`
   Purpose: include `source_site_name` and `source_logo_url` in `RAGSystem.list_documents()`.
 
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py`
+- Modify: `D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py`
   Purpose: lock the new API fields into the compatibility surface.
 
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py`
+- Create: `D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py`
   Purpose: prove `RAGSystem.list_documents()` serializes the new web fields.
 
-- Modify: `D:/Edu_AI_1/Edu_AI/src/services/rag.ts`
+- Modify: `D:/Edu_AI_1/frontend/src/services/rag.ts`
   Purpose: add `source_site_name` and `source_logo_url` to the `KnowledgeDocument` interface.
 
-- Create: `D:/Edu_AI_1/Edu_AI/src/components/teacher/sourcePanel.webDoc.helpers.ts`
+- Create: `D:/Edu_AI_1/frontend/src/components/teacher/sourcePanel.webDoc.helpers.ts`
   Purpose: extracted pure helper for source-panel web labels and icon decisions.
 
-- Modify: `D:/Edu_AI_1/Edu_AI/src/components/teacher/SourcePanel.tsx`
+- Modify: `D:/Edu_AI_1/frontend/src/components/teacher/SourcePanel.tsx`
   Purpose: render favicon-based logos for web documents and keep existing fallbacks for older data.
 
-- Create: `D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
+- Create: `D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
   Purpose: node-based tests for frontend label and logo fallback behavior.
 
 ## Task 1: Build the Shared Web Metadata Helper
 
 **Files:**
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/web_source_metadata.py`
-- Test: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py`
+- Create: `D:/Edu_AI_1/backend/src/app/web_source_metadata.py`
+- Test: `D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py`
 
 - [ ] **Step 1: Write the failing helper tests**
 
@@ -109,7 +109,7 @@ def test_build_web_source_metadata_avoids_duplicate_site_prefix():
 
 - [ ] **Step 2: Run the helper tests to verify they fail**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py -q`
 
 Expected: FAIL with `ModuleNotFoundError: No module named 'app.web_source_metadata'`.
 
@@ -194,23 +194,23 @@ def build_web_source_metadata(*, url: str, page_title: str, metadata: Dict[str, 
 
 - [ ] **Step 4: Run the helper tests to verify they pass**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py -q`
 
 Expected: PASS with `3 passed`.
 
 - [ ] **Step 5: Commit the helper task**
 
 ```bash
-git add D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/web_source_metadata.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py
+git add D:/Edu_AI_1/backend/src/app/web_source_metadata.py D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py
 git commit -m "feat: add deepsearch web metadata helper"
 ```
 
 ## Task 2: Apply the Helper to Both Deep-Search Import Flows
 
 **Files:**
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch.py`
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch_pipeline.py`
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py`
+- Modify: `D:/Edu_AI_1/backend/src/app/deepsearch.py`
+- Modify: `D:/Edu_AI_1/backend/src/app/deepsearch_pipeline.py`
+- Create: `D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py`
 
 - [ ] **Step 1: Write the failing ingestion regression test**
 
@@ -281,7 +281,7 @@ def test_run_deepsearch_pipeline_persists_site_name_and_logo(monkeypatch, tmp_pa
 
 - [ ] **Step 2: Run the ingestion test to verify it fails**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py -q`
 
 Expected: FAIL because `source_site_name` and `source_logo_url` are not written into `resolved.record`.
 
@@ -313,30 +313,30 @@ Apply the same block in both import loops:
 
 - [ ] **Step 4: Run the ingestion test to verify it passes**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py -q`
 
 Expected: PASS with `1 passed`.
 
 - [ ] **Step 5: Run the nearby deep-search regression tests**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_tool_registry.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_tool_registry.py -q`
 
 Expected: PASS and existing web-search tool behavior remains green.
 
 - [ ] **Step 6: Commit the deep-search integration task**
 
 ```bash
-git add D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch_pipeline.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py
+git add D:/Edu_AI_1/backend/src/app/deepsearch.py D:/Edu_AI_1/backend/src/app/deepsearch_pipeline.py D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py
 git commit -m "feat: apply normalized metadata to deepsearch imports"
 ```
 
 ## Task 3: Expose the New Fields Through the RAG API Surface
 
 **Files:**
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/api.py`
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/system.py`
-- Modify: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py`
-- Create: `D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py`
+- Modify: `D:/Edu_AI_1/backend/src/rag_v2/rag_main/api.py`
+- Modify: `D:/Edu_AI_1/backend/src/rag_v2/rag_main/system.py`
+- Modify: `D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py`
+- Create: `D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py`
 
 - [ ] **Step 1: Write the failing API-surface tests**
 
@@ -383,7 +383,7 @@ def test_list_documents_returns_web_logo_fields():
 
 - [ ] **Step 2: Run the API-surface tests to verify they fail**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py -q`
 
 Expected: FAIL because `DocumentInfo` and `RAGSystem.list_documents()` do not yet include the new fields.
 
@@ -440,24 +440,24 @@ documents.append(
 
 - [ ] **Step 4: Run the API-surface tests to verify they pass**
 
-Run: `pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py -q`
+Run: `pytest D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py -q`
 
 Expected: PASS with all tests green.
 
 - [ ] **Step 5: Commit the RAG surface task**
 
 ```bash
-git add D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/api.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/system.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py
+git add D:/Edu_AI_1/backend/src/rag_v2/rag_main/api.py D:/Edu_AI_1/backend/src/rag_v2/rag_main/system.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py
 git commit -m "feat: expose deepsearch web metadata in rag api"
 ```
 
 ## Task 4: Render Web Logos in the Teacher Source Panel
 
 **Files:**
-- Modify: `D:/Edu_AI_1/Edu_AI/src/services/rag.ts`
-- Create: `D:/Edu_AI_1/Edu_AI/src/components/teacher/sourcePanel.webDoc.helpers.ts`
-- Modify: `D:/Edu_AI_1/Edu_AI/src/components/teacher/SourcePanel.tsx`
-- Create: `D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
+- Modify: `D:/Edu_AI_1/frontend/src/services/rag.ts`
+- Create: `D:/Edu_AI_1/frontend/src/components/teacher/sourcePanel.webDoc.helpers.ts`
+- Modify: `D:/Edu_AI_1/frontend/src/components/teacher/SourcePanel.tsx`
+- Create: `D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
 
 - [ ] **Step 1: Write the failing frontend helper test**
 
@@ -497,7 +497,7 @@ console.log('sourcePanel.webDoc.helpers tests passed');
 
 - [ ] **Step 2: Run the frontend helper test to verify it fails**
 
-Run: `node --test D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
+Run: `node --test D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
 
 Expected: FAIL with `Cannot find module '../../src/components/teacher/sourcePanel.webDoc.helpers.ts'`.
 
@@ -607,7 +607,7 @@ export interface KnowledgeDocument {
 
 - [ ] **Step 5: Run the frontend helper test and the frontend build**
 
-Run: `node --test D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
+Run: `node --test D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts`
 
 Expected: PASS and prints `sourcePanel.webDoc.helpers tests passed`.
 
@@ -618,7 +618,7 @@ Expected: PASS with Vite production build completed.
 - [ ] **Step 6: Commit the frontend task**
 
 ```bash
-git add D:/Edu_AI_1/Edu_AI/src/services/rag.ts D:/Edu_AI_1/Edu_AI/src/components/teacher/sourcePanel.webDoc.helpers.ts D:/Edu_AI_1/Edu_AI/src/components/teacher/SourcePanel.tsx D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts
+git add D:/Edu_AI_1/frontend/src/services/rag.ts D:/Edu_AI_1/frontend/src/components/teacher/sourcePanel.webDoc.helpers.ts D:/Edu_AI_1/frontend/src/components/teacher/SourcePanel.tsx D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts
 git commit -m "feat: show web logos in teacher source panel"
 ```
 
@@ -627,7 +627,7 @@ git commit -m "feat: show web logos in teacher source panel"
 - [ ] Run the focused backend suite:
 
 ```bash
-pytest D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_tool_registry.py -q
+pytest D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py D:/Edu_AI_1/backend/src/tests/chat/test_tool_registry.py -q
 ```
 
 Expected: PASS with all selected backend tests green.
@@ -635,7 +635,7 @@ Expected: PASS with all selected backend tests green.
 - [ ] Run the focused frontend verification:
 
 ```bash
-node --test D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts
+node --test D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts
 cmd /c "cd /d D:\Edu_AI_1\Edu_AI && npm run build"
 ```
 
@@ -644,6 +644,6 @@ Expected: PASS for both commands.
 - [ ] Create the integration commit:
 
 ```bash
-git add D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/deepsearch_pipeline.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/app/web_source_metadata.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/api.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/rag_v2/rag_main/system.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_web_metadata.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_deepsearch_pipeline_web_import.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/Edu_AI/api/Edu_AI/tests/chat/test_rag_v2_web_document_fields.py D:/Edu_AI_1/Edu_AI/src/services/rag.ts D:/Edu_AI_1/Edu_AI/src/components/teacher/sourcePanel.webDoc.helpers.ts D:/Edu_AI_1/Edu_AI/src/components/teacher/SourcePanel.tsx D:/Edu_AI_1/Edu_AI/tests/frontend/sourcePanel.webDoc.helpers.test.ts
+git add D:/Edu_AI_1/backend/src/app/deepsearch.py D:/Edu_AI_1/backend/src/app/deepsearch_pipeline.py D:/Edu_AI_1/backend/src/app/web_source_metadata.py D:/Edu_AI_1/backend/src/rag_v2/rag_main/api.py D:/Edu_AI_1/backend/src/rag_v2/rag_main/system.py D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_web_metadata.py D:/Edu_AI_1/backend/src/tests/chat/test_deepsearch_pipeline_web_import.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_compat_surface.py D:/Edu_AI_1/backend/src/tests/chat/test_rag_v2_web_document_fields.py D:/Edu_AI_1/frontend/src/services/rag.ts D:/Edu_AI_1/frontend/src/components/teacher/sourcePanel.webDoc.helpers.ts D:/Edu_AI_1/frontend/src/components/teacher/SourcePanel.tsx D:/Edu_AI_1/frontend/tests/frontend/sourcePanel.webDoc.helpers.test.ts
 git commit -m "feat: improve deepsearch web document metadata"
 ```

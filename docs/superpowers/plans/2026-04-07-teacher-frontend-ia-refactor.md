@@ -14,48 +14,48 @@
 
 **Create:**
 
-- `Edu_AI/src/routes/teacherRouteModel.ts`
-- `Edu_AI/src/layout/teacherHeaderModel.ts`
-- `Edu_AI/src/layout/TeacherHeader.tsx`
-- `Edu_AI/src/layout/TeacherWelcomeLayout.tsx`
-- `Edu_AI/src/layout/TeacherCourseLayout.tsx`
-- `Edu_AI/src/pages/teacher/teacherWelcomeModel.ts`
-- `Edu_AI/src/pages/teacher/TeacherWelcomePage.tsx`
-- `Edu_AI/src/pages/teacher/TeacherCourseAssistantPage.tsx`
-- `Edu_AI/src/pages/teacher/TeacherCourseResourcesPage.tsx`
-- `Edu_AI/src/pages/teacher/TeacherCourseVideosPage.tsx`
-- `Edu_AI/src/pages/teacher/TeacherCourseKnowledgeBasePage.tsx`
-- `Edu_AI/src/pages/teacher/TeacherCourseDetailsPage.tsx`
-- `Edu_AI/src/pages/teacher/courseAssetPlacement.ts`
-- `Edu_AI/tests/frontend/teacherRouteModel.test.ts`
-- `Edu_AI/tests/frontend/teacherHeaderModel.test.ts`
-- `Edu_AI/tests/frontend/teacherWelcomeModel.test.ts`
-- `Edu_AI/tests/frontend/teacherLegacyRedirects.test.ts`
-- `Edu_AI/tests/frontend/courseAssetPlacement.test.ts`
+- `frontend/src/routes/teacherRouteModel.ts`
+- `frontend/src/layout/teacherHeaderModel.ts`
+- `frontend/src/layout/TeacherHeader.tsx`
+- `frontend/src/layout/TeacherWelcomeLayout.tsx`
+- `frontend/src/layout/TeacherCourseLayout.tsx`
+- `frontend/src/pages/teacher/teacherWelcomeModel.ts`
+- `frontend/src/pages/teacher/TeacherWelcomePage.tsx`
+- `frontend/src/pages/teacher/TeacherCourseAssistantPage.tsx`
+- `frontend/src/pages/teacher/TeacherCourseResourcesPage.tsx`
+- `frontend/src/pages/teacher/TeacherCourseVideosPage.tsx`
+- `frontend/src/pages/teacher/TeacherCourseKnowledgeBasePage.tsx`
+- `frontend/src/pages/teacher/TeacherCourseDetailsPage.tsx`
+- `frontend/src/pages/teacher/courseAssetPlacement.ts`
+- `frontend/tests/frontend/teacherRouteModel.test.ts`
+- `frontend/tests/frontend/teacherHeaderModel.test.ts`
+- `frontend/tests/frontend/teacherWelcomeModel.test.ts`
+- `frontend/tests/frontend/teacherLegacyRedirects.test.ts`
+- `frontend/tests/frontend/courseAssetPlacement.test.ts`
 
 **Modify:**
 
-- `Edu_AI/src/routes/AppRoutes.tsx`
-- `Edu_AI/src/layout/GlobalLayout.tsx`
-- `Edu_AI/src/layout/CourseContextLayout.tsx`
-- `Edu_AI/src/layout/SharedHeader.tsx`
-- `Edu_AI/src/pages/WelcomePage.tsx`
-- `Edu_AI/src/pages/teacher/CourseDetailPage.tsx`
-- `Edu_AI/src/pages/teacher/CourseMaterialsPage.tsx`
-- `Edu_AI/src/store/course/useCourseStore.ts`
+- `frontend/src/routes/AppRoutes.tsx`
+- `frontend/src/layout/GlobalLayout.tsx`
+- `frontend/src/layout/CourseContextLayout.tsx`
+- `frontend/src/layout/SharedHeader.tsx`
+- `frontend/src/pages/WelcomePage.tsx`
+- `frontend/src/pages/teacher/CourseDetailPage.tsx`
+- `frontend/src/pages/teacher/CourseMaterialsPage.tsx`
+- `frontend/src/store/course/useCourseStore.ts`
 
 **Keep but route through wrappers/adapters:**
 
-- `Edu_AI/src/pages/teacher/AiStudioPage.tsx`
-- `Edu_AI/src/pages/teacher/KnowledgeGraphPage.tsx`
+- `frontend/src/pages/teacher/AiStudioPage.tsx`
+- `frontend/src/pages/teacher/KnowledgeGraphPage.tsx`
 
 ---
 
 ### Task 1: Establish the Teacher Route Model
 
 **Files:**
-- Create: `Edu_AI/src/routes/teacherRouteModel.ts`
-- Test: `Edu_AI/tests/frontend/teacherRouteModel.test.ts`
+- Create: `frontend/src/routes/teacherRouteModel.ts`
+- Test: `frontend/tests/frontend/teacherRouteModel.test.ts`
 
 - [ ] **Step 1: Write the failing route-model test**
 
@@ -126,7 +126,7 @@ Expected: FAIL with `Cannot find module '../../src/routes/teacherRouteModel.ts'`
 - [ ] **Step 3: Implement the route model**
 
 ```ts
-// Edu_AI/src/routes/teacherRouteModel.ts
+// frontend/src/routes/teacherRouteModel.ts
 export const TEACHER_HOME_PATH = '/teacher/welcome';
 export const TEACHER_SETTINGS_PATH = '/settings';
 
@@ -192,11 +192,11 @@ git commit -m "feat: add teacher route model"
 ### Task 2: Build the Lightweight Teacher Header and Shell Layouts
 
 **Files:**
-- Create: `Edu_AI/src/layout/teacherHeaderModel.ts`
-- Create: `Edu_AI/src/layout/TeacherHeader.tsx`
-- Create: `Edu_AI/src/layout/TeacherWelcomeLayout.tsx`
-- Create: `Edu_AI/src/layout/TeacherCourseLayout.tsx`
-- Test: `Edu_AI/tests/frontend/teacherHeaderModel.test.ts`
+- Create: `frontend/src/layout/teacherHeaderModel.ts`
+- Create: `frontend/src/layout/TeacherHeader.tsx`
+- Create: `frontend/src/layout/TeacherWelcomeLayout.tsx`
+- Create: `frontend/src/layout/TeacherCourseLayout.tsx`
+- Test: `frontend/tests/frontend/teacherHeaderModel.test.ts`
 
 - [ ] **Step 1: Write the failing header-model test**
 
@@ -231,7 +231,7 @@ Expected: FAIL with `Cannot find module '../../src/layout/teacherHeaderModel.ts'
 - [ ] **Step 3: Implement the header model and teacher shell components**
 
 ```ts
-// Edu_AI/src/layout/teacherHeaderModel.ts
+// frontend/src/layout/teacherHeaderModel.ts
 import type { Course } from '../store/course/useCourseStore';
 import { TEACHER_HOME_PATH } from '../routes/teacherRouteModel';
 
@@ -256,7 +256,7 @@ export function buildTeacherHeaderState(args: {
 ```
 
 ```tsx
-// Edu_AI/src/layout/TeacherHeader.tsx
+// frontend/src/layout/TeacherHeader.tsx
 import React from 'react';
 import { Layout, Avatar, Dropdown, Space, Select, Input, Button } from 'antd';
 import type { MenuProps } from 'antd';
@@ -326,7 +326,7 @@ export default function TeacherHeader() {
 ```
 
 ```tsx
-// Edu_AI/src/layout/TeacherWelcomeLayout.tsx
+// frontend/src/layout/TeacherWelcomeLayout.tsx
 import React from 'react';
 import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
@@ -347,7 +347,7 @@ export default function TeacherWelcomeLayout() {
 ```
 
 ```tsx
-// Edu_AI/src/layout/TeacherCourseLayout.tsx
+// frontend/src/layout/TeacherCourseLayout.tsx
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -398,10 +398,10 @@ git commit -m "feat: add teacher header and shell layouts"
 ### Task 3: Create the Teacher Welcome Page
 
 **Files:**
-- Create: `Edu_AI/src/pages/teacher/teacherWelcomeModel.ts`
-- Create: `Edu_AI/src/pages/teacher/TeacherWelcomePage.tsx`
-- Modify: `Edu_AI/src/store/course/useCourseStore.ts`
-- Test: `Edu_AI/tests/frontend/teacherWelcomeModel.test.ts`
+- Create: `frontend/src/pages/teacher/teacherWelcomeModel.ts`
+- Create: `frontend/src/pages/teacher/TeacherWelcomePage.tsx`
+- Modify: `frontend/src/store/course/useCourseStore.ts`
+- Test: `frontend/tests/frontend/teacherWelcomeModel.test.ts`
 
 - [ ] **Step 1: Write the failing welcome-model test**
 
@@ -433,7 +433,7 @@ Expected: FAIL with `Cannot find module '../../src/pages/teacher/teacherWelcomeM
 - [ ] **Step 3: Implement the welcome model and page**
 
 ```ts
-// Edu_AI/src/pages/teacher/teacherWelcomeModel.ts
+// frontend/src/pages/teacher/teacherWelcomeModel.ts
 import type { Course } from '../../store/course/useCourseStore';
 
 export function buildTeacherWelcomeViewModel(args: {
@@ -456,7 +456,7 @@ export function buildTeacherWelcomeViewModel(args: {
 ```
 
 ```tsx
-// Edu_AI/src/pages/teacher/TeacherWelcomePage.tsx
+// frontend/src/pages/teacher/TeacherWelcomePage.tsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Col, Form, Input, Modal, Row, Space, Statistic, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -556,7 +556,7 @@ export default function TeacherWelcomePage() {
 ```
 
 ```ts
-// Edu_AI/src/store/course/useCourseStore.ts
+// frontend/src/store/course/useCourseStore.ts
 // Change the addCourse signature and implementation so it returns the saved course.
 addCourse: async (course) => {
   const payload: BackendCourse = {
@@ -592,12 +592,12 @@ git commit -m "feat: add teacher welcome page"
 ### Task 4: Wire Teacher Routes, Shells, and Legacy Redirects
 
 **Files:**
-- Create: `Edu_AI/src/pages/teacher/TeacherCourseAssistantPage.tsx`
-- Create: `Edu_AI/src/pages/teacher/TeacherCourseResourcesPage.tsx`
-- Modify: `Edu_AI/src/routes/AppRoutes.tsx`
-- Modify: `Edu_AI/src/layout/GlobalLayout.tsx`
-- Modify: `Edu_AI/src/layout/CourseContextLayout.tsx`
-- Test: `Edu_AI/tests/frontend/teacherLegacyRedirects.test.ts`
+- Create: `frontend/src/pages/teacher/TeacherCourseAssistantPage.tsx`
+- Create: `frontend/src/pages/teacher/TeacherCourseResourcesPage.tsx`
+- Modify: `frontend/src/routes/AppRoutes.tsx`
+- Modify: `frontend/src/layout/GlobalLayout.tsx`
+- Modify: `frontend/src/layout/CourseContextLayout.tsx`
+- Test: `frontend/tests/frontend/teacherLegacyRedirects.test.ts`
 
 - [ ] **Step 1: Write the failing legacy-redirect test**
 
@@ -635,7 +635,7 @@ Expected: FAIL with `resolveTeacherLegacyRedirect is not a function` or equivale
 - [ ] **Step 3: Implement wrappers and route wiring**
 
 ```tsx
-// Edu_AI/src/pages/teacher/TeacherCourseAssistantPage.tsx
+// frontend/src/pages/teacher/TeacherCourseAssistantPage.tsx
 import React from 'react';
 import AiStudioPage from './AiStudioPage';
 
@@ -645,7 +645,7 @@ export default function TeacherCourseAssistantPage() {
 ```
 
 ```tsx
-// Edu_AI/src/pages/teacher/TeacherCourseResourcesPage.tsx
+// frontend/src/pages/teacher/TeacherCourseResourcesPage.tsx
 import React from 'react';
 import CourseMaterialsPage from './CourseMaterialsPage';
 

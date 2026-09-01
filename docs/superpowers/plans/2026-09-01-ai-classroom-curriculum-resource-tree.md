@@ -16,55 +16,55 @@ This is one dependent feature rather than independent products: the catalog proj
 
 ### Backend files
 
-- Create `Edu_AI/api/src/app/classroom_catalog/__init__.py`: package marker.
-- Create `Edu_AI/api/src/app/classroom_catalog/service.py`: compose the role-safe catalog projection.
-- Create `Edu_AI/api/src/app/schemas/classroom_catalog.py`: HTTP response contracts.
-- Create `Edu_AI/api/src/app/api/classroom_catalog.py`: `GET /classroom-catalog` route.
-- Create `Edu_AI/api/src/alembic/versions/20260901_0020_resource_learning_activity.py`: explicit-reading event storage and completion basis.
-- Modify `Edu_AI/api/src/app/bootstrap.py`: register the catalog router.
-- Modify `Edu_AI/api/src/app/database/models.py`: map activity events and progress completion basis.
-- Modify `Edu_AI/api/src/app/resource_learning/models.py`: add manifest completion rule and progress completion basis.
-- Modify `Edu_AI/api/src/app/resource_learning/manifest.py`: build immutable practice manifests.
-- Modify `Edu_AI/api/src/app/resource_learning/repository.py`: calculate practice completion and persist idempotent reading activity.
-- Modify `Edu_AI/api/src/app/resource_learning/service.py`: expose explicit reading activity and keep task evidence synchronized.
-- Modify `Edu_AI/api/src/app/resource_learning/task_evidence.py`: allow all standard resource types, not only classroom snapshots.
-- Modify `Edu_AI/api/src/app/schemas/resource_learning.py`: add activity request and completion basis response.
-- Modify `Edu_AI/api/src/app/api/resource_learning.py`: add the explicit reading activity endpoint and published-version guard.
-- Modify `Edu_AI/api/src/app/standard_resources/review_service.py`: freeze practice manifests before approval becomes visible.
+- Create `backend/src/app/classroom_catalog/__init__.py`: package marker.
+- Create `backend/src/app/classroom_catalog/service.py`: compose the role-safe catalog projection.
+- Create `backend/src/app/schemas/classroom_catalog.py`: HTTP response contracts.
+- Create `backend/src/app/api/classroom_catalog.py`: `GET /classroom-catalog` route.
+- Create `backend/src/alembic/versions/20260901_0020_resource_learning_activity.py`: explicit-reading event storage and completion basis.
+- Modify `backend/src/app/bootstrap.py`: register the catalog router.
+- Modify `backend/src/app/database/models.py`: map activity events and progress completion basis.
+- Modify `backend/src/app/resource_learning/models.py`: add manifest completion rule and progress completion basis.
+- Modify `backend/src/app/resource_learning/manifest.py`: build immutable practice manifests.
+- Modify `backend/src/app/resource_learning/repository.py`: calculate practice completion and persist idempotent reading activity.
+- Modify `backend/src/app/resource_learning/service.py`: expose explicit reading activity and keep task evidence synchronized.
+- Modify `backend/src/app/resource_learning/task_evidence.py`: allow all standard resource types, not only classroom snapshots.
+- Modify `backend/src/app/schemas/resource_learning.py`: add activity request and completion basis response.
+- Modify `backend/src/app/api/resource_learning.py`: add the explicit reading activity endpoint and published-version guard.
+- Modify `backend/src/app/standard_resources/review_service.py`: freeze practice manifests before approval becomes visible.
 
 ### Frontend files
 
-- Create `Edu_AI/src/stitch/api/classroomCatalog.ts`: catalog request.
-- Modify `Edu_AI/src/stitch/api/types.ts`: catalog and generalized progress contracts.
-- Modify `Edu_AI/src/stitch/api/resourceLearning.ts`: explicit reading activity request.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.ts`: pure tree, status, summary, selection, and deep-link helpers.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.test.ts`: pure helper coverage.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/CurriculumResourceTree.tsx`: accessible left directory.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/CurriculumNodeOverview.tsx`: selected-section overview.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx`: resource-type dispatch.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/TeacherResourceReviewPanel.tsx`: version-safe approval and rejection.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/StudentReadingView.tsx`: direct document preview and explicit completion.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/StudentPracticeView.tsx`: required-question submission.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/StudentResourceProgressPanel.tsx`: explanatory progress display.
-- Create `Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`: desktop, drawer, focus, status, and overflow styles.
-- Rewrite `Edu_AI/src/stitch/pages/ClassroomStudio.tsx`: catalog page coordinator; generation remains a contextual modal.
-- Create `Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts`: source-contract checks for component boundaries and role separation.
-- Modify `Edu_AI/src/openmaic/classroomGenerationFlow.ts`: preserve catalog return context in player links.
-- Modify `Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`: verify encoded context.
-- Modify `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`: return to the originating catalog selection.
-- Modify `Edu_AI/src/stitch/student/routes/studentRoutes.ts`: accept `node_id` and `resource_id`.
-- Modify `Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts`: forward catalog targets.
+- Create `frontend/src/stitch/api/classroomCatalog.ts`: catalog request.
+- Modify `frontend/src/stitch/api/types.ts`: catalog and generalized progress contracts.
+- Modify `frontend/src/stitch/api/resourceLearning.ts`: explicit reading activity request.
+- Create `frontend/src/stitch/course/classroomCatalog/catalogPresentation.ts`: pure tree, status, summary, selection, and deep-link helpers.
+- Create `frontend/src/stitch/course/classroomCatalog/catalogPresentation.test.ts`: pure helper coverage.
+- Create `frontend/src/stitch/course/classroomCatalog/CurriculumResourceTree.tsx`: accessible left directory.
+- Create `frontend/src/stitch/course/classroomCatalog/CurriculumNodeOverview.tsx`: selected-section overview.
+- Create `frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx`: resource-type dispatch.
+- Create `frontend/src/stitch/course/classroomCatalog/TeacherResourceReviewPanel.tsx`: version-safe approval and rejection.
+- Create `frontend/src/stitch/course/classroomCatalog/StudentReadingView.tsx`: direct document preview and explicit completion.
+- Create `frontend/src/stitch/course/classroomCatalog/StudentPracticeView.tsx`: required-question submission.
+- Create `frontend/src/stitch/course/classroomCatalog/StudentResourceProgressPanel.tsx`: explanatory progress display.
+- Create `frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`: desktop, drawer, focus, status, and overflow styles.
+- Rewrite `frontend/src/stitch/pages/ClassroomStudio.tsx`: catalog page coordinator; generation remains a contextual modal.
+- Create `frontend/src/stitch/pages/classroomCatalogPage.test.ts`: source-contract checks for component boundaries and role separation.
+- Modify `frontend/src/openmaic/classroomGenerationFlow.ts`: preserve catalog return context in player links.
+- Modify `frontend/src/openmaic/classroomGenerationFlow.test.ts`: verify encoded context.
+- Modify `frontend/src/stitch/pages/ClassroomPlayer.tsx`: return to the originating catalog selection.
+- Modify `frontend/src/stitch/student/routes/studentRoutes.ts`: accept `node_id` and `resource_id`.
+- Modify `frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts`: forward catalog targets.
 - Modify the corresponding route tests.
-- Modify `Edu_AI/src/stitch/pages/CourseKnowledge.tsx`: remove the duplicate student resource tree.
-- Modify `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`: assert the new canonical entry.
-- Modify `Edu_AI/src/stitch/pages/CourseLearning.tsx` and `courseLearningPresentation.ts`: link standard snapshots to the catalog.
-- Modify `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`: verify routing.
+- Modify `frontend/src/stitch/pages/CourseKnowledge.tsx`: remove the duplicate student resource tree.
+- Modify `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`: assert the new canonical entry.
+- Modify `frontend/src/stitch/pages/CourseLearning.tsx` and `courseLearningPresentation.ts`: link standard snapshots to the catalog.
+- Modify `frontend/src/stitch/pages/courseLearningPresentation.test.ts`: verify routing.
 
 ### Acceptance files
 
-- Create `Edu_AI/tests/e2e/classroom-catalog.spec.ts`: teacher catalog, review, responsive directory, and preview acceptance.
-- Modify `Edu_AI/tests/e2e/fixtures/apiRoutes.ts`: deterministic teacher catalog fixtures.
-- Modify `Edu_AI/tests/e2e/resource-learning.spec.ts`: student entry, return context, and versioned progress acceptance.
+- Create `frontend/tests/e2e/classroom-catalog.spec.ts`: teacher catalog, review, responsive directory, and preview acceptance.
+- Modify `frontend/tests/e2e/fixtures/apiRoutes.ts`: deterministic teacher catalog fixtures.
+- Modify `frontend/tests/e2e/resource-learning.spec.ts`: student entry, return context, and versioned progress acceptance.
 - Update `docs/acceptance/README.md` and create `docs/acceptance/AI课堂课程目录化验收_2026-09-01.md`: commands and evidence locations.
 
 ---
@@ -72,13 +72,13 @@ This is one dependent feature rather than independent products: the catalog proj
 ### Task 1: Freeze practice manifests and calculate question-only completion
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/resource_learning/models.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/manifest.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/repository.py`
-- Modify: `Edu_AI/api/src/app/standard_resources/review_service.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_manifest.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_service.py`
-- Test: `Edu_AI/api/src/tests/standard_resources/test_review_service.py`
+- Modify: `backend/src/app/resource_learning/models.py`
+- Modify: `backend/src/app/resource_learning/manifest.py`
+- Modify: `backend/src/app/resource_learning/repository.py`
+- Modify: `backend/src/app/standard_resources/review_service.py`
+- Test: `backend/src/tests/resource_learning/test_manifest.py`
+- Test: `backend/src/tests/resource_learning/test_service.py`
+- Test: `backend/src/tests/standard_resources/test_review_service.py`
 
 - [ ] **Step 1: Write failing practice-manifest tests**
 
@@ -115,7 +115,7 @@ assert progress.correct_count_latest == 0
 
 - [ ] **Step 2: Run the focused tests and confirm failure**
 
-Run from `Edu_AI/api/src`:
+Run from `backend/src`:
 
 ```powershell
 python -m pytest tests/resource_learning/test_manifest.py tests/resource_learning/test_service.py tests/standard_resources/test_review_service.py -q
@@ -208,7 +208,7 @@ Expected: PASS; classroom still requires 80% plus all questions, while practice 
 - [ ] **Step 5: Commit the manifest slice**
 
 ```powershell
-git add Edu_AI/api/src/app/resource_learning Edu_AI/api/src/app/standard_resources/review_service.py Edu_AI/api/src/tests/resource_learning Edu_AI/api/src/tests/standard_resources/test_review_service.py
+git add backend/src/app/resource_learning backend/src/app/standard_resources/review_service.py backend/src/tests/resource_learning backend/src/tests/standard_resources/test_review_service.py
 git commit -m "feat: track practice resource completion"
 ```
 
@@ -217,18 +217,18 @@ git commit -m "feat: track practice resource completion"
 ### Task 2: Add idempotent explicit-reading progress
 
 **Files:**
-- Create: `Edu_AI/api/src/alembic/versions/20260901_0020_resource_learning_activity.py`
-- Modify: `Edu_AI/api/src/app/database/models.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/models.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/repository.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/service.py`
-- Modify: `Edu_AI/api/src/app/resource_learning/task_evidence.py`
-- Modify: `Edu_AI/api/src/app/schemas/resource_learning.py`
-- Modify: `Edu_AI/api/src/app/api/resource_learning.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_database_schema.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_repository.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_api.py`
-- Test: `Edu_AI/api/src/tests/resource_learning/test_task_evidence.py`
+- Create: `backend/src/alembic/versions/20260901_0020_resource_learning_activity.py`
+- Modify: `backend/src/app/database/models.py`
+- Modify: `backend/src/app/resource_learning/models.py`
+- Modify: `backend/src/app/resource_learning/repository.py`
+- Modify: `backend/src/app/resource_learning/service.py`
+- Modify: `backend/src/app/resource_learning/task_evidence.py`
+- Modify: `backend/src/app/schemas/resource_learning.py`
+- Modify: `backend/src/app/api/resource_learning.py`
+- Test: `backend/src/tests/resource_learning/test_database_schema.py`
+- Test: `backend/src/tests/resource_learning/test_repository.py`
+- Test: `backend/src/tests/resource_learning/test_api.py`
+- Test: `backend/src/tests/resource_learning/test_task_evidence.py`
 
 - [ ] **Step 1: Write failing schema, repository, API, and task-evidence tests**
 
@@ -325,7 +325,7 @@ Expected: PASS with duplicate activity IDs producing no duplicate event and ever
 - [ ] **Step 6: Commit explicit-reading progress**
 
 ```powershell
-git add Edu_AI/api/src/alembic/versions/20260901_0020_resource_learning_activity.py Edu_AI/api/src/app/database/models.py Edu_AI/api/src/app/resource_learning Edu_AI/api/src/app/schemas/resource_learning.py Edu_AI/api/src/app/api/resource_learning.py Edu_AI/api/src/tests/resource_learning Edu_AI/api/src/tests/learning/test_task_resource_snapshots.py
+git add backend/src/alembic/versions/20260901_0020_resource_learning_activity.py backend/src/app/database/models.py backend/src/app/resource_learning backend/src/app/schemas/resource_learning.py backend/src/app/api/resource_learning.py backend/src/tests/resource_learning backend/src/tests/learning/test_task_resource_snapshots.py
 git commit -m "feat: record explicit reading progress"
 ```
 
@@ -334,13 +334,13 @@ git commit -m "feat: record explicit reading progress"
 ### Task 3: Add the role-safe classroom catalog projection
 
 **Files:**
-- Create: `Edu_AI/api/src/app/classroom_catalog/__init__.py`
-- Create: `Edu_AI/api/src/app/classroom_catalog/service.py`
-- Create: `Edu_AI/api/src/app/schemas/classroom_catalog.py`
-- Create: `Edu_AI/api/src/app/api/classroom_catalog.py`
-- Modify: `Edu_AI/api/src/app/bootstrap.py`
-- Test: `Edu_AI/api/src/tests/classroom_catalog/test_service.py`
-- Test: `Edu_AI/api/src/tests/classroom_catalog/test_api.py`
+- Create: `backend/src/app/classroom_catalog/__init__.py`
+- Create: `backend/src/app/classroom_catalog/service.py`
+- Create: `backend/src/app/schemas/classroom_catalog.py`
+- Create: `backend/src/app/api/classroom_catalog.py`
+- Modify: `backend/src/app/bootstrap.py`
+- Test: `backend/src/tests/classroom_catalog/test_service.py`
+- Test: `backend/src/tests/classroom_catalog/test_api.py`
 
 - [ ] **Step 1: Write failing projection tests**
 
@@ -411,7 +411,7 @@ Expected: PASS; student payloads contain only approved resources and the caller'
 - [ ] **Step 6: Commit the catalog API**
 
 ```powershell
-git add Edu_AI/api/src/app/classroom_catalog Edu_AI/api/src/app/schemas/classroom_catalog.py Edu_AI/api/src/app/api/classroom_catalog.py Edu_AI/api/src/app/bootstrap.py Edu_AI/api/src/tests/classroom_catalog
+git add backend/src/app/classroom_catalog backend/src/app/schemas/classroom_catalog.py backend/src/app/api/classroom_catalog.py backend/src/app/bootstrap.py backend/src/tests/classroom_catalog
 git commit -m "feat: expose role-safe classroom catalog"
 ```
 
@@ -420,15 +420,15 @@ git commit -m "feat: expose role-safe classroom catalog"
 ### Task 4: Add frontend catalog contracts, tree construction, and deep links
 
 **Files:**
-- Create: `Edu_AI/src/stitch/api/classroomCatalog.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/api/resourceLearning.ts`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.ts`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.test.ts`
-- Modify: `Edu_AI/src/stitch/student/routes/studentRoutes.ts`
-- Modify: `Edu_AI/src/stitch/student/routes/studentRoutes.test.ts`
-- Modify: `Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts`
-- Modify: `Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.test.ts`
+- Create: `frontend/src/stitch/api/classroomCatalog.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/resourceLearning.ts`
+- Create: `frontend/src/stitch/course/classroomCatalog/catalogPresentation.ts`
+- Create: `frontend/src/stitch/course/classroomCatalog/catalogPresentation.test.ts`
+- Modify: `frontend/src/stitch/student/routes/studentRoutes.ts`
+- Modify: `frontend/src/stitch/student/routes/studentRoutes.test.ts`
+- Modify: `frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts`
+- Modify: `frontend/src/stitch/shared/routes/roleCourseRouteResolver.test.ts`
 
 - [ ] **Step 1: Write failing pure TypeScript tests**
 
@@ -509,7 +509,7 @@ Expected: PASS with Chinese IDs and titles safely encoded and round-tripped.
 - [ ] **Step 6: Commit contracts and helpers**
 
 ```powershell
-git add Edu_AI/src/stitch/api Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.ts Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.test.ts Edu_AI/src/stitch/student/routes Edu_AI/src/stitch/shared/routes
+git add frontend/src/stitch/api frontend/src/stitch/course/classroomCatalog/catalogPresentation.ts frontend/src/stitch/course/classroomCatalog/catalogPresentation.test.ts frontend/src/stitch/student/routes frontend/src/stitch/shared/routes
 git commit -m "feat: add classroom catalog presentation model"
 ```
 
@@ -518,11 +518,11 @@ git commit -m "feat: add classroom catalog presentation model"
 ### Task 5: Build the responsive curriculum directory page
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/CurriculumResourceTree.tsx`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/CurriculumNodeOverview.tsx`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`
-- Rewrite: `Edu_AI/src/stitch/pages/ClassroomStudio.tsx`
-- Create: `Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts`
+- Create: `frontend/src/stitch/course/classroomCatalog/CurriculumResourceTree.tsx`
+- Create: `frontend/src/stitch/course/classroomCatalog/CurriculumNodeOverview.tsx`
+- Create: `frontend/src/stitch/course/classroomCatalog/courseClassroomCatalog.css`
+- Rewrite: `frontend/src/stitch/pages/ClassroomStudio.tsx`
+- Create: `frontend/src/stitch/pages/classroomCatalogPage.test.ts`
 
 - [ ] **Step 1: Write failing page-boundary tests**
 
@@ -599,7 +599,7 @@ Expected: all commands succeed; the production build has no TypeScript errors, a
 - [ ] **Step 7: Commit the catalog shell**
 
 ```powershell
-git add Edu_AI/src/stitch/course/classroomCatalog Edu_AI/src/stitch/pages/ClassroomStudio.tsx Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts
+git add frontend/src/stitch/course/classroomCatalog frontend/src/stitch/pages/ClassroomStudio.tsx frontend/src/stitch/pages/classroomCatalogPage.test.ts
 git commit -m "feat: build curriculum classroom directory"
 ```
 
@@ -608,12 +608,12 @@ git commit -m "feat: build curriculum classroom directory"
 ### Task 6: Integrate teacher preview, version-safe review, and publishing
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/TeacherResourceReviewPanel.tsx`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomStudio.tsx`
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.ts`
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/catalogPresentation.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts`
+- Create: `frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx`
+- Create: `frontend/src/stitch/course/classroomCatalog/TeacherResourceReviewPanel.tsx`
+- Modify: `frontend/src/stitch/pages/ClassroomStudio.tsx`
+- Modify: `frontend/src/stitch/course/classroomCatalog/catalogPresentation.ts`
+- Modify: `frontend/src/stitch/course/classroomCatalog/catalogPresentation.test.ts`
+- Modify: `frontend/src/stitch/pages/classroomCatalogPage.test.ts`
 
 - [ ] **Step 1: Write failing review-state tests**
 
@@ -682,7 +682,7 @@ Expected: PASS; existing compact generation and standard review helpers remain v
 - [ ] **Step 6: Commit teacher workflow**
 
 ```powershell
-git add Edu_AI/src/stitch/course/classroomCatalog Edu_AI/src/stitch/pages/ClassroomStudio.tsx Edu_AI/src/stitch/pages/classroomCatalogPage.test.ts
+git add frontend/src/stitch/course/classroomCatalog frontend/src/stitch/pages/ClassroomStudio.tsx frontend/src/stitch/pages/classroomCatalogPage.test.ts
 git commit -m "feat: review resources from classroom catalog"
 ```
 
@@ -691,15 +691,15 @@ git commit -m "feat: review resources from classroom catalog"
 ### Task 7: Integrate student document, practice, classroom, and progress flows
 
 **Files:**
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/StudentReadingView.tsx`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/StudentPracticeView.tsx`
-- Create: `Edu_AI/src/stitch/course/classroomCatalog/StudentResourceProgressPanel.tsx`
-- Modify: `Edu_AI/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx`
-- Modify: `Edu_AI/src/openmaic/classroomGenerationFlow.ts`
-- Modify: `Edu_AI/src/openmaic/classroomGenerationFlow.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Modify: `Edu_AI/src/stitch/pages/classroomResourceLearning.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomStudio.tsx`
+- Create: `frontend/src/stitch/course/classroomCatalog/StudentReadingView.tsx`
+- Create: `frontend/src/stitch/course/classroomCatalog/StudentPracticeView.tsx`
+- Create: `frontend/src/stitch/course/classroomCatalog/StudentResourceProgressPanel.tsx`
+- Modify: `frontend/src/stitch/course/classroomCatalog/CourseResourceViewer.tsx`
+- Modify: `frontend/src/openmaic/classroomGenerationFlow.ts`
+- Modify: `frontend/src/openmaic/classroomGenerationFlow.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Modify: `frontend/src/stitch/pages/classroomResourceLearning.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomStudio.tsx`
 
 - [ ] **Step 1: Write failing student-flow tests**
 
@@ -762,7 +762,7 @@ Expected: all commands pass; student progress is type-specific and classroom tra
 - [ ] **Step 7: Commit student learning flows**
 
 ```powershell
-git add Edu_AI/src/stitch/course/classroomCatalog Edu_AI/src/openmaic/classroomGenerationFlow.ts Edu_AI/src/openmaic/classroomGenerationFlow.test.ts Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/src/stitch/pages/classroomResourceLearning.test.ts Edu_AI/src/stitch/pages/ClassroomStudio.tsx
+git add frontend/src/stitch/course/classroomCatalog frontend/src/openmaic/classroomGenerationFlow.ts frontend/src/openmaic/classroomGenerationFlow.test.ts frontend/src/stitch/pages/ClassroomPlayer.tsx frontend/src/stitch/pages/classroomResourceLearning.test.ts frontend/src/stitch/pages/ClassroomStudio.tsx
 git commit -m "feat: learn catalog resources by type"
 ```
 
@@ -771,13 +771,13 @@ git commit -m "feat: learn catalog resources by type"
 ### Task 8: Make the catalog canonical and remove duplicate resource entry points
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/CourseKnowledge.tsx`
-- Modify: `Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/courseLearningPresentation.ts`
-- Modify: `Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseLearning.tsx`
-- Modify: `Edu_AI/src/stitch/student/pages/studentRecentLearning.ts`
-- Modify: `Edu_AI/src/stitch/student/pages/studentRecentLearning.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseKnowledge.tsx`
+- Modify: `frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts`
+- Modify: `frontend/src/stitch/pages/courseLearningPresentation.ts`
+- Modify: `frontend/src/stitch/pages/courseLearningPresentation.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseLearning.tsx`
+- Modify: `frontend/src/stitch/student/pages/studentRecentLearning.ts`
+- Modify: `frontend/src/stitch/student/pages/studentRecentLearning.test.ts`
 
 - [ ] **Step 1: Write failing canonical-entry tests**
 
@@ -830,7 +830,7 @@ Expected: PASS; course knowledge, resource management, learning tasks, and AI cl
 - [ ] **Step 6: Commit entry-point cleanup**
 
 ```powershell
-git add Edu_AI/src/stitch/pages/CourseKnowledge.tsx Edu_AI/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts Edu_AI/src/stitch/pages/CourseLearning.tsx Edu_AI/src/stitch/pages/courseLearningPresentation.ts Edu_AI/src/stitch/pages/courseLearningPresentation.test.ts Edu_AI/src/stitch/student/pages/studentRecentLearning.ts Edu_AI/src/stitch/student/pages/studentRecentLearning.test.ts
+git add frontend/src/stitch/pages/CourseKnowledge.tsx frontend/src/stitch/course/knowledge/learningResourceGenerationNavigation.test.ts frontend/src/stitch/pages/CourseLearning.tsx frontend/src/stitch/pages/courseLearningPresentation.ts frontend/src/stitch/pages/courseLearningPresentation.test.ts frontend/src/stitch/student/pages/studentRecentLearning.ts frontend/src/stitch/student/pages/studentRecentLearning.test.ts
 git commit -m "refactor: make AI classroom the resource learning entry"
 ```
 
@@ -839,9 +839,9 @@ git commit -m "refactor: make AI classroom the resource learning entry"
 ### Task 9: Add browser acceptance, migration verification, and release evidence
 
 **Files:**
-- Create: `Edu_AI/tests/e2e/classroom-catalog.spec.ts`
-- Modify: `Edu_AI/tests/e2e/fixtures/apiRoutes.ts`
-- Modify: `Edu_AI/tests/e2e/resource-learning.spec.ts`
+- Create: `frontend/tests/e2e/classroom-catalog.spec.ts`
+- Modify: `frontend/tests/e2e/fixtures/apiRoutes.ts`
+- Modify: `frontend/tests/e2e/resource-learning.spec.ts`
 - Create: `docs/acceptance/AI课堂课程目录化验收_2026-09-01.md`
 - Modify: `docs/acceptance/README.md`
 
@@ -871,7 +871,7 @@ Change the entry URL in `resource-learning.spec.ts` from `student-course-knowled
 
 - [ ] **Step 4: Run backend schema and focused browser acceptance**
 
-From `Edu_AI/api/src`:
+From `backend/src`:
 
 ```powershell
 python -m pytest tests/resource_learning/test_database_schema.py tests/resource_learning tests/classroom_catalog tests/standard_resources -q
@@ -889,7 +889,7 @@ Expected: backend suites pass; teacher catalog passes at desktop and compact wid
 - [ ] **Step 5: Run the complete release gate**
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\src
+cd D:\Edu_AI_1\backend\src
 python -m pytest -q
 cd D:\Edu_AI_1\Edu_AI
 pnpm test
@@ -903,7 +903,7 @@ Expected: every command exits 0. Record actual command output, screenshots, know
 - [ ] **Step 6: Commit acceptance evidence**
 
 ```powershell
-git add Edu_AI/tests/e2e docs/acceptance
+git add frontend/tests/e2e docs/acceptance
 git commit -m "test: verify curriculum classroom workflow"
 ```
 

@@ -18,15 +18,15 @@
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/teacherRoutes.test.ts`
-- Modify: `Edu_AI/src/stitch/student/routes/studentRoutes.test.ts`
-- Modify: `Edu_AI/src/stitch/legacyRetirement.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseKnowledge.tsx`
-- Modify: `Edu_AI/src/stitch/teacherRoutes.ts`
-- Modify: `Edu_AI/src/stitch/student/routes/studentRoutes.ts`
-- Modify: `Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts`
-- Modify: `Edu_AI/src/stitch/student/shell/StudentShell.tsx`
-- Modify: `Edu_AI/src/stitch/pages/CourseDetail.tsx`
+- Modify: `frontend/src/stitch/teacherRoutes.test.ts`
+- Modify: `frontend/src/stitch/student/routes/studentRoutes.test.ts`
+- Modify: `frontend/src/stitch/legacyRetirement.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseKnowledge.tsx`
+- Modify: `frontend/src/stitch/teacherRoutes.ts`
+- Modify: `frontend/src/stitch/student/routes/studentRoutes.ts`
+- Modify: `frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts`
+- Modify: `frontend/src/stitch/student/shell/StudentShell.tsx`
+- Modify: `frontend/src/stitch/pages/CourseDetail.tsx`
 
 - [ ] **Step 1：先写路由与页面失败测试**
 
@@ -99,7 +99,7 @@
 - [ ] **Step 6：提交任务**
 
   ```powershell
-  git add Edu_AI/src/stitch/pages/CourseKnowledge.tsx Edu_AI/src/stitch/teacherRoutes.ts Edu_AI/src/stitch/teacherRoutes.test.ts Edu_AI/src/stitch/student/routes/studentRoutes.ts Edu_AI/src/stitch/student/routes/studentRoutes.test.ts Edu_AI/src/stitch/shared/routes/roleCourseRouteResolver.ts Edu_AI/src/stitch/student/shell/StudentShell.tsx Edu_AI/src/stitch/pages/CourseDetail.tsx Edu_AI/src/stitch/legacyRetirement.test.ts
+  git add frontend/src/stitch/pages/CourseKnowledge.tsx frontend/src/stitch/teacherRoutes.ts frontend/src/stitch/teacherRoutes.test.ts frontend/src/stitch/student/routes/studentRoutes.ts frontend/src/stitch/student/routes/studentRoutes.test.ts frontend/src/stitch/shared/routes/roleCourseRouteResolver.ts frontend/src/stitch/student/shell/StudentShell.tsx frontend/src/stitch/pages/CourseDetail.tsx frontend/src/stitch/legacyRetirement.test.ts
   git commit -m "feat: retire course knowledge graph frontend"
   ```
 
@@ -107,20 +107,20 @@
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/teacherRoutes.test.ts`
-- Modify: `Edu_AI/src/stitch/student/routes/studentRoutes.test.ts`
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/courseCardPresentation.test.ts`
-- Modify: `Edu_AI/src/stitch/teacherRoutes.ts`
-- Modify: `Edu_AI/src/stitch/student/shell/studentNavigation.ts`
-- Modify: `Edu_AI/src/stitch/student/shell/StudentShell.tsx`
-- Modify: `Edu_AI/src/stitch/course/CourseShell.tsx`
-- Modify: `Edu_AI/src/stitch/course/courseNavigation.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseDetail.tsx`
-- Modify: `Edu_AI/src/stitch/pages/HomeDashboard.tsx`
-- Modify: `Edu_AI/src/stitch/pages/courseCardPresentation.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseMaterialArtifactPreview.tsx`
-- Modify: `Edu_AI/src/stitch/App.tsx`
+- Modify: `frontend/src/stitch/teacherRoutes.test.ts`
+- Modify: `frontend/src/stitch/student/routes/studentRoutes.test.ts`
+- Modify: `frontend/src/stitch/course/courseNavigation.test.ts`
+- Modify: `frontend/src/stitch/pages/courseCardPresentation.test.ts`
+- Modify: `frontend/src/stitch/teacherRoutes.ts`
+- Modify: `frontend/src/stitch/student/shell/studentNavigation.ts`
+- Modify: `frontend/src/stitch/student/shell/StudentShell.tsx`
+- Modify: `frontend/src/stitch/course/CourseShell.tsx`
+- Modify: `frontend/src/stitch/course/courseNavigation.ts`
+- Modify: `frontend/src/stitch/pages/CourseDetail.tsx`
+- Modify: `frontend/src/stitch/pages/HomeDashboard.tsx`
+- Modify: `frontend/src/stitch/pages/courseCardPresentation.ts`
+- Modify: `frontend/src/stitch/pages/CourseMaterialArtifactPreview.tsx`
+- Modify: `frontend/src/stitch/App.tsx`
 
 - [ ] **Step 1：先把导航和指标测试改为新产品语言**
 
@@ -178,7 +178,7 @@
 - [ ] **Step 5：提交任务**
 
   ```powershell
-  git add Edu_AI/src/stitch/teacherRoutes.ts Edu_AI/src/stitch/teacherRoutes.test.ts Edu_AI/src/stitch/student/routes/studentRoutes.test.ts Edu_AI/src/stitch/student/shell/studentNavigation.ts Edu_AI/src/stitch/student/shell/StudentShell.tsx Edu_AI/src/stitch/course/CourseShell.tsx Edu_AI/src/stitch/course/courseNavigation.ts Edu_AI/src/stitch/course/courseNavigation.test.ts Edu_AI/src/stitch/pages/CourseDetail.tsx Edu_AI/src/stitch/pages/HomeDashboard.tsx Edu_AI/src/stitch/pages/courseCardPresentation.ts Edu_AI/src/stitch/pages/courseCardPresentation.test.ts Edu_AI/src/stitch/pages/CourseMaterialArtifactPreview.tsx Edu_AI/src/stitch/App.tsx
+  git add frontend/src/stitch/teacherRoutes.ts frontend/src/stitch/teacherRoutes.test.ts frontend/src/stitch/student/routes/studentRoutes.test.ts frontend/src/stitch/student/shell/studentNavigation.ts frontend/src/stitch/student/shell/StudentShell.tsx frontend/src/stitch/course/CourseShell.tsx frontend/src/stitch/course/courseNavigation.ts frontend/src/stitch/course/courseNavigation.test.ts frontend/src/stitch/pages/CourseDetail.tsx frontend/src/stitch/pages/HomeDashboard.tsx frontend/src/stitch/pages/courseCardPresentation.ts frontend/src/stitch/pages/courseCardPresentation.test.ts frontend/src/stitch/pages/CourseMaterialArtifactPreview.tsx frontend/src/stitch/App.tsx
   git commit -m "feat: rename personal resource workspace"
   ```
 
@@ -186,8 +186,8 @@
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/pages/courseResourcesManagement.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/CourseResources.tsx`
+- Modify: `frontend/src/stitch/pages/courseResourcesManagement.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseResources.tsx`
 
 - [ ] **Step 1：增加个人单空间失败测试**
 
@@ -255,7 +255,7 @@
 - [ ] **Step 6：提交任务**
 
   ```powershell
-  git add Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/src/stitch/pages/courseResourcesManagement.test.ts
+  git add frontend/src/stitch/pages/CourseResources.tsx frontend/src/stitch/pages/courseResourcesManagement.test.ts
   git commit -m "feat: make personal resources private-only"
   ```
 
@@ -263,12 +263,12 @@
 
 **Files:**
 
-- Create: `Edu_AI/src/stitch/theme/ThemeAppearanceSettings.tsx`
-- Create: `Edu_AI/src/stitch/theme/ThemeAppearanceSettings.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/Profile.tsx`
-- Modify: `Edu_AI/src/stitch/shared.tsx`
-- Modify: `Edu_AI/src/stitch/App.tsx`
-- Modify: `Edu_AI/src/stitch/legacyRetirement.test.ts`
+- Create: `frontend/src/stitch/theme/ThemeAppearanceSettings.tsx`
+- Create: `frontend/src/stitch/theme/ThemeAppearanceSettings.test.ts`
+- Modify: `frontend/src/stitch/pages/Profile.tsx`
+- Modify: `frontend/src/stitch/shared.tsx`
+- Modify: `frontend/src/stitch/App.tsx`
+- Modify: `frontend/src/stitch/legacyRetirement.test.ts`
 
 - [ ] **Step 1：先写主题入口失败测试**
 
@@ -318,7 +318,7 @@
 - [ ] **Step 5：提交任务**
 
   ```powershell
-  git add Edu_AI/src/stitch/theme/ThemeAppearanceSettings.tsx Edu_AI/src/stitch/theme/ThemeAppearanceSettings.test.ts Edu_AI/src/stitch/pages/Profile.tsx Edu_AI/src/stitch/shared.tsx Edu_AI/src/stitch/App.tsx Edu_AI/src/stitch/legacyRetirement.test.ts
+  git add frontend/src/stitch/theme/ThemeAppearanceSettings.tsx frontend/src/stitch/theme/ThemeAppearanceSettings.test.ts frontend/src/stitch/pages/Profile.tsx frontend/src/stitch/shared.tsx frontend/src/stitch/App.tsx frontend/src/stitch/legacyRetirement.test.ts
   git commit -m "feat: move theme controls to profile"
   ```
 
@@ -349,7 +349,7 @@
   git status --short
   ```
 
-  Expected: 实施差异只包含阶段一前端、测试和文档；不包含 `Edu_AI/api/`、Alembic、数据库文件、`storage/`、`course_data/` 或密钥文件。
+  Expected: 实施差异只包含阶段一前端、测试和文档；不包含 `backend/`、Alembic、数据库文件、`storage/`、`course_data/` 或密钥文件。
 
 - [ ] **Step 3：手工烟雾验收**
 

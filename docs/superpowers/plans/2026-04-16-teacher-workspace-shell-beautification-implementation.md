@@ -12,13 +12,13 @@
 
 ## File Structure
 
-- Modify: `Edu_AI/src/stitch/pages/AIWorkspace.tsx`
+- Modify: `frontend/src/stitch/pages/AIWorkspace.tsx`
   - Refine the entry page shell, top context bar framing, main workbench wrapper, and center-column emphasis.
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.css`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.css`
   - Update shared workspace shell tokens and panel styles for calmer backgrounds, tighter borders, cleaner spacing, and stronger visual hierarchy.
-- Modify: `Edu_AI/tests/frontend/aiWorkspaceEntryLayout.test.ts`
+- Modify: `frontend/tests/frontend/aiWorkspaceEntryLayout.test.ts`
   - Add source-level regression checks for the upgraded workspace shell classes and removal of the flatter previous framing.
-- Modify: `Edu_AI/tests/frontend/aiStudioLayout.test.ts`
+- Modify: `frontend/tests/frontend/aiStudioLayout.test.ts`
   - Update source-level assertions so the shared shell styles reflect the new beautified design direction.
 
 ## Skill Execution Notes
@@ -39,12 +39,12 @@ Do not expand into `SourcePanel`, `ChatPanel`, or `StudioPanel` internals during
 ### Task 1: Add failing layout regressions for the beautified shell
 
 **Files:**
-- Modify: `Edu_AI/tests/frontend/aiWorkspaceEntryLayout.test.ts`
-- Modify: `Edu_AI/tests/frontend/aiStudioLayout.test.ts`
+- Modify: `frontend/tests/frontend/aiWorkspaceEntryLayout.test.ts`
+- Modify: `frontend/tests/frontend/aiStudioLayout.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Update `Edu_AI/tests/frontend/aiWorkspaceEntryLayout.test.ts` so it asserts the entry page includes the new shell classes and drops the flatter wrapper treatment:
+Update `frontend/tests/frontend/aiWorkspaceEntryLayout.test.ts` so it asserts the entry page includes the new shell classes and drops the flatter wrapper treatment:
 
 ```ts
 assert.match(
@@ -72,7 +72,7 @@ assert.doesNotMatch(
 );
 ```
 
-Update `Edu_AI/tests/frontend/aiStudioLayout.test.ts` so it asserts the shared CSS contains the new shell selectors and refined styling targets:
+Update `frontend/tests/frontend/aiStudioLayout.test.ts` so it asserts the shared CSS contains the new shell selectors and refined styling targets:
 
 ```ts
 assert.match(
@@ -109,14 +109,14 @@ Expected: FAIL because the current entry page and shared CSS do not yet contain 
 - [ ] **Step 3: Commit the red test snapshot**
 
 ```bash
-git add Edu_AI/tests/frontend/aiWorkspaceEntryLayout.test.ts Edu_AI/tests/frontend/aiStudioLayout.test.ts
+git add frontend/tests/frontend/aiWorkspaceEntryLayout.test.ts frontend/tests/frontend/aiStudioLayout.test.ts
 git commit -m "test: cover beautified teacher workspace shell"
 ```
 
 ### Task 2: Rebuild the entry page shell with stronger page-level hierarchy
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/AIWorkspace.tsx`
+- Modify: `frontend/src/stitch/pages/AIWorkspace.tsx`
 
 - [ ] **Step 1: Load the required beautification skills**
 
@@ -178,18 +178,18 @@ Expected: PASS with `aiWorkspaceEntryLayout tests passed`
 - [ ] **Step 4: Commit the page-shell structure change**
 
 ```bash
-git add Edu_AI/src/stitch/pages/AIWorkspace.tsx
+git add frontend/src/stitch/pages/AIWorkspace.tsx
 git commit -m "feat: upgrade teacher workspace shell structure"
 ```
 
 ### Task 3: Refresh the shared shell styling for hierarchy, rhythm, and restraint
 
 **Files:**
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.css`
+- Modify: `frontend/src/pages/teacher/AiStudioPage.css`
 
 - [ ] **Step 1: Implement the beautified shell styles**
 
-Update `Edu_AI/src/pages/teacher/AiStudioPage.css` so it adds dedicated workspace shell selectors and upgrades the shared page-level styles:
+Update `frontend/src/pages/teacher/AiStudioPage.css` so it adds dedicated workspace shell selectors and upgrades the shared page-level styles:
 
 ```css
 .ai-workspace-shell {
@@ -276,15 +276,15 @@ Expected: PASS with Vite build output and no TypeScript or CSS errors.
 - [ ] **Step 4: Commit the beautified shell styling**
 
 ```bash
-git add Edu_AI/src/pages/teacher/AiStudioPage.css Edu_AI/tests/frontend/aiWorkspaceEntryLayout.test.ts Edu_AI/tests/frontend/aiStudioLayout.test.ts
+git add frontend/src/pages/teacher/AiStudioPage.css frontend/tests/frontend/aiWorkspaceEntryLayout.test.ts frontend/tests/frontend/aiStudioLayout.test.ts
 git commit -m "style: beautify teacher workspace shell"
 ```
 
 ### Task 4: Final polish and verification pass
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/AIWorkspace.tsx` (if small polish tweaks are needed)
-- Modify: `Edu_AI/src/pages/teacher/AiStudioPage.css` (if small polish tweaks are needed)
+- Modify: `frontend/src/stitch/pages/AIWorkspace.tsx` (if small polish tweaks are needed)
+- Modify: `frontend/src/pages/teacher/AiStudioPage.css` (if small polish tweaks are needed)
 
 - [ ] **Step 1: Load the final polish skill**
 
@@ -334,7 +334,7 @@ Expected:
 - [ ] **Step 4: Commit the polish pass**
 
 ```bash
-git add Edu_AI/src/stitch/pages/AIWorkspace.tsx Edu_AI/src/pages/teacher/AiStudioPage.css
+git add frontend/src/stitch/pages/AIWorkspace.tsx frontend/src/pages/teacher/AiStudioPage.css
 git commit -m "style: polish teacher workspace workbench shell"
 ```
 

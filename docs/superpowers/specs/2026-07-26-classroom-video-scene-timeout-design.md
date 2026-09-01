@@ -84,7 +84,7 @@ sceneTimeoutMs = 600000
 产物位于：
 
 ```text
-Edu_AI/api/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/
+backend/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/
 ```
 
 因此 MP4 导出失败的两个根因均已关闭：渲染端口与实际 Vite 端口一致，长场景使用独立的 600 秒播放超时。

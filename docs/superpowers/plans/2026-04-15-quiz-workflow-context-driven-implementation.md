@@ -14,35 +14,35 @@
 
 **Create:**
 
-- `Edu_AI/api/Edu_AI/app/chat/domain/quiz_preparation.py`
+- `backend/src/app/chat/domain/quiz_preparation.py`
   Defines `QuizContextSummary` and `QuizPreparationResult`.
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_context_organizer.py`
+- `backend/src/app/chat/orchestrator/quiz_context_organizer.py`
   LLM-backed quiz preparation organizer with deterministic fallback.
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_readiness_judge.py`
+- `backend/src/app/chat/orchestrator/quiz_readiness_judge.py`
   Quiz-specific “ask gap vs soft confirm” rules.
-- `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/__init__.py`
+- `backend/src/app/chat/workflows/quiz/__init__.py`
   Package marker for the new workflow.
-- `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/assembler.py`
+- `backend/src/app/chat/workflows/quiz/assembler.py`
   Reduces `GenerationContext` into quiz-oriented slot hints and source summaries.
-- `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/generator.py`
+- `backend/src/app/chat/workflows/quiz/generator.py`
   Builds the quiz prompt, optionally enriches with RAG, parses JSON, and normalizes the final artifact payload.
-- `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/runtime.py`
+- `backend/src/app/chat/workflows/quiz/runtime.py`
   Handles quiz soft-confirm, resume, and final generation.
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_context_organizer.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_readiness_judge.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_generator.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_workflow_runtime.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py`
-- `Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py`
+- `backend/src/tests/chat/test_quiz_context_organizer.py`
+- `backend/src/tests/chat/test_quiz_readiness_judge.py`
+- `backend/src/tests/chat/test_quiz_generator.py`
+- `backend/src/tests/chat/test_quiz_workflow_runtime.py`
+- `backend/src/tests/chat/test_quiz_route_rules.py`
+- `backend/src/tests/chat/test_quiz_reply_service_v2.py`
+- `backend/src/tests/chat/test_quiz_routes_v2.py`
 
 **Modify:**
 
-- `Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py`
+- `backend/src/app/chat/orchestrator/route_rules.py`
   Add explicit quiz routing and quiz follow-up detection.
-- `Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py`
+- `backend/src/app/chat/application/reply_service_v2.py`
   Register the quiz runtime and persist completed quiz artifacts into course storage.
-- `Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py`
+- `backend/src/app/chat/api/routes_v2.py`
   Ensure `/api/chat/v2/reply` error responses use `trace.path = "workflow"` for quiz workflow requests.
 
 No change is required in `schemas_v2.py`, `status_card_label_mapper.py`, or `conversation_store_adapter.py` if the quiz runtime emits `workflow.filled_slots` directly and keeps using the generic `quiz` workflow name already recognized by the status-card label mapper.
@@ -50,13 +50,13 @@ No change is required in `schemas_v2.py`, `status_card_label_mapper.py`, or `con
 ### Task 1: Add Quiz Preparation Models, Assembler, Organizer, and Judge
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/chat/domain/quiz_preparation.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/__init__.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/assembler.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_context_organizer.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_readiness_judge.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_context_organizer.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_readiness_judge.py`
+- Create: `backend/src/app/chat/domain/quiz_preparation.py`
+- Create: `backend/src/app/chat/workflows/quiz/__init__.py`
+- Create: `backend/src/app/chat/workflows/quiz/assembler.py`
+- Create: `backend/src/app/chat/orchestrator/quiz_context_organizer.py`
+- Create: `backend/src/app/chat/orchestrator/quiz_readiness_judge.py`
+- Test: `backend/src/tests/chat/test_quiz_context_organizer.py`
+- Test: `backend/src/tests/chat/test_quiz_readiness_judge.py`
 
 - [ ] **Step 1: Write the failing organizer and judge tests**
 
@@ -146,14 +146,14 @@ def test_quiz_readiness_judge_returns_strong_soft_confirm_when_topic_and_basis_e
 
 - [ ] **Step 2: Run the new preparation tests to verify they fail**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_context_organizer.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_readiness_judge.py -q`
+Run: `python -m pytest backend/src/tests/chat/test_quiz_context_organizer.py backend/src/tests/chat/test_quiz_readiness_judge.py -q`
 
 Expected: `4 passed` does not appear yet; imports should fail because the quiz preparation modules do not exist.
 
 - [ ] **Step 3: Implement the quiz preparation models, assembler, organizer, and judge**
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/domain/quiz_preparation.py
+# backend/src/app/chat/domain/quiz_preparation.py
 from __future__ import annotations
 
 from typing import Any
@@ -195,7 +195,7 @@ class QuizPreparationResult(BaseModel):
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/workflows/quiz/assembler.py
+# backend/src/app/chat/workflows/quiz/assembler.py
 from __future__ import annotations
 
 import re
@@ -265,7 +265,7 @@ class QuizAssembler:
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_context_organizer.py
+# backend/src/app/chat/orchestrator/quiz_context_organizer.py
 from __future__ import annotations
 
 import re
@@ -385,7 +385,7 @@ class QuizContextOrganizer:
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_readiness_judge.py
+# backend/src/app/chat/orchestrator/quiz_readiness_judge.py
 from __future__ import annotations
 
 from app.chat.domain.quiz_preparation import QuizPreparationResult
@@ -433,24 +433,24 @@ class QuizReadinessJudge:
 
 - [ ] **Step 4: Run the preparation tests to verify they pass**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_context_organizer.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_readiness_judge.py -q`
+Run: `python -m pytest backend/src/tests/chat/test_quiz_context_organizer.py backend/src/tests/chat/test_quiz_readiness_judge.py -q`
 
 Expected: `4 passed`
 
 - [ ] **Step 5: Commit the preparation layer**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/domain/quiz_preparation.py Edu_AI/api/Edu_AI/app/chat/workflows/quiz/__init__.py Edu_AI/api/Edu_AI/app/chat/workflows/quiz/assembler.py Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_context_organizer.py Edu_AI/api/Edu_AI/app/chat/orchestrator/quiz_readiness_judge.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_context_organizer.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_readiness_judge.py
+git add backend/src/app/chat/domain/quiz_preparation.py backend/src/app/chat/workflows/quiz/__init__.py backend/src/app/chat/workflows/quiz/assembler.py backend/src/app/chat/orchestrator/quiz_context_organizer.py backend/src/app/chat/orchestrator/quiz_readiness_judge.py backend/src/tests/chat/test_quiz_context_organizer.py backend/src/tests/chat/test_quiz_readiness_judge.py
 git commit -m "feat: add quiz preparation layer"
 ```
 
 ### Task 2: Implement Quiz Generator and Workflow Runtime
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/generator.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/workflows/quiz/runtime.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_generator.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_workflow_runtime.py`
+- Create: `backend/src/app/chat/workflows/quiz/generator.py`
+- Create: `backend/src/app/chat/workflows/quiz/runtime.py`
+- Test: `backend/src/tests/chat/test_quiz_generator.py`
+- Test: `backend/src/tests/chat/test_quiz_workflow_runtime.py`
 
 - [ ] **Step 1: Write the failing generator and runtime tests**
 
@@ -607,14 +607,14 @@ def test_quiz_workflow_runtime_resumes_generation_after_soft_confirm():
 
 - [ ] **Step 2: Run the runtime tests to verify they fail**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_generator.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_workflow_runtime.py -q`
+Run: `python -m pytest backend/src/tests/chat/test_quiz_generator.py backend/src/tests/chat/test_quiz_workflow_runtime.py -q`
 
 Expected: `3 passed` does not appear yet; imports should fail because the quiz generator and runtime do not exist.
 
 - [ ] **Step 3: Implement the generator and runtime**
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/workflows/quiz/generator.py
+# backend/src/app/chat/workflows/quiz/generator.py
 from __future__ import annotations
 
 import json
@@ -734,7 +734,7 @@ class QuizGenerator:
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/workflows/quiz/runtime.py
+# backend/src/app/chat/workflows/quiz/runtime.py
 from __future__ import annotations
 
 from typing import Any
@@ -879,31 +879,31 @@ class QuizWorkflowRuntime:
 
 - [ ] **Step 4: Run the generator and runtime tests to verify they pass**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_generator.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_workflow_runtime.py -q`
+Run: `python -m pytest backend/src/tests/chat/test_quiz_generator.py backend/src/tests/chat/test_quiz_workflow_runtime.py -q`
 
 Expected: `3 passed`
 
 - [ ] **Step 5: Commit the quiz runtime**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/workflows/quiz/generator.py Edu_AI/api/Edu_AI/app/chat/workflows/quiz/runtime.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_generator.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_workflow_runtime.py
+git add backend/src/app/chat/workflows/quiz/generator.py backend/src/app/chat/workflows/quiz/runtime.py backend/src/tests/chat/test_quiz_generator.py backend/src/tests/chat/test_quiz_workflow_runtime.py
 git commit -m "feat: add quiz workflow runtime"
 ```
 
 ### Task 3: Wire Quiz Routing, Reply Service Registration, Persistence, and API Error Tracing
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py`
+- Modify: `backend/src/app/chat/orchestrator/route_rules.py`
+- Modify: `backend/src/app/chat/application/reply_service_v2.py`
+- Modify: `backend/src/app/chat/api/routes_v2.py`
+- Test: `backend/src/tests/chat/test_quiz_route_rules.py`
+- Test: `backend/src/tests/chat/test_quiz_reply_service_v2.py`
+- Test: `backend/src/tests/chat/test_quiz_routes_v2.py`
 
 - [ ] **Step 1: Write the failing routing, registration, and API tests**
 
 ```python
-# Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py
+# backend/src/tests/chat/test_quiz_route_rules.py
 from types import SimpleNamespace
 
 from app.chat.orchestrator.route_rules import decide_route
@@ -956,7 +956,7 @@ def test_decide_route_detects_quiz_followup_from_active_context():
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py
+# backend/src/tests/chat/test_quiz_reply_service_v2.py
 from types import SimpleNamespace
 
 from app.chat.application.reply_service_v2 import ReplyServiceV2
@@ -1029,7 +1029,7 @@ def test_reply_service_persists_completed_quiz_artifact():
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py
+# backend/src/tests/chat/test_quiz_routes_v2.py
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -1065,14 +1065,14 @@ def test_chat_reply_quiz_failure_returns_workflow_trace(monkeypatch):
 
 - [ ] **Step 2: Run the new wiring tests to verify they fail**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py -q`
+Run: `python -m pytest backend/src/tests/chat/test_quiz_route_rules.py backend/src/tests/chat/test_quiz_reply_service_v2.py backend/src/tests/chat/test_quiz_routes_v2.py -q`
 
 Expected: at least one assertion fails because quiz routing, reply-service registration, or quiz workflow error tracing is not wired yet.
 
 - [ ] **Step 3: Implement route detection, workflow registration, quiz persistence, and quiz workflow trace-path handling**
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py
+# backend/src/app/chat/orchestrator/route_rules.py
 ACTION_TO_WORKFLOW = {
     "generate.report": "report",
     "generate.ppt": "ppt",
@@ -1173,7 +1173,7 @@ if (
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py
+# backend/src/app/chat/application/reply_service_v2.py
 from app.chat.orchestrator.quiz_context_organizer import QuizContextOrganizer
 from app.chat.orchestrator.quiz_readiness_judge import QuizReadinessJudge
 from app.chat.workflows.quiz.assembler import QuizAssembler
@@ -1235,7 +1235,7 @@ _persist_quiz_course_material(
 ```
 
 ```python
-# Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py
+# backend/src/app/chat/api/routes_v2.py
 def _is_workflow_intent_from_reply(payload: ChatReplyRequestV2) -> bool:
     question = str(payload.question or "")
     if payload.action_hint in {"generate.report", "generate.ppt", "generate.lesson_plan", "generate.quiz"}:
@@ -1264,17 +1264,17 @@ async def reply(payload: ChatReplyRequestV2, current_user: dict = Depends(get_cu
 
 Run:
 
-`python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py -q`
+`python -m pytest backend/src/tests/chat/test_quiz_route_rules.py backend/src/tests/chat/test_quiz_reply_service_v2.py backend/src/tests/chat/test_quiz_routes_v2.py -q`
 
 Then run:
 
-`python -m pytest Edu_AI/api/Edu_AI/tests/chat/test_quiz_context_organizer.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_readiness_judge.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_generator.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_workflow_runtime.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py -q`
+`python -m pytest backend/src/tests/chat/test_quiz_context_organizer.py backend/src/tests/chat/test_quiz_readiness_judge.py backend/src/tests/chat/test_quiz_generator.py backend/src/tests/chat/test_quiz_workflow_runtime.py backend/src/tests/chat/test_quiz_route_rules.py backend/src/tests/chat/test_quiz_reply_service_v2.py backend/src/tests/chat/test_quiz_routes_v2.py -q`
 
 Expected: all seven quiz-specific tests pass.
 
 - [ ] **Step 5: Commit the quiz workflow wiring**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py Edu_AI/api/Edu_AI/app/chat/application/reply_service_v2.py Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_route_rules.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_reply_service_v2.py Edu_AI/api/Edu_AI/tests/chat/test_quiz_routes_v2.py
+git add backend/src/app/chat/orchestrator/route_rules.py backend/src/app/chat/application/reply_service_v2.py backend/src/app/chat/api/routes_v2.py backend/src/tests/chat/test_quiz_route_rules.py backend/src/tests/chat/test_quiz_reply_service_v2.py backend/src/tests/chat/test_quiz_routes_v2.py
 git commit -m "feat: wire quiz workflow into chat v2"
 ```

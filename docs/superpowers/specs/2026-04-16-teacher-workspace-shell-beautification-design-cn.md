@@ -168,8 +168,8 @@
 
 建议实现主要落在以下文件：
 
-- `Edu_AI/src/stitch/pages/AIWorkspace.tsx`
-- `Edu_AI/src/pages/teacher/AiStudioPage.css`
+- `frontend/src/stitch/pages/AIWorkspace.tsx`
+- `frontend/src/pages/teacher/AiStudioPage.css`
 
 其中：
 

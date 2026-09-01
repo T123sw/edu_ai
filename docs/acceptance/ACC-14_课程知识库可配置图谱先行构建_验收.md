@@ -69,7 +69,7 @@
 ### A1. 配置、持久草案、revision 与权限
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
   src/tests/test_course_knowledge_build_workflow.py `
   src/tests/persistence/test_postgres_knowledge_repository.py `
@@ -88,7 +88,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
 ### A2. 强制模型图谱与结构修复
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
   src/tests/services/test_course_knowledge_graph_generator.py `
   src/tests/services/test_course_knowledge_planner.py
@@ -108,8 +108,8 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
 
 ```powershell
 rg -n "_fallback_graph|build_course_graph_draft\(" `
-  Edu_AI/api/src/app/services/course_knowledge_plan_builder.py `
-  Edu_AI/api/src/app/services/course_knowledge_graph_generator.py
+  backend/src/app/services/course_knowledge_plan_builder.py `
+  backend/src/app/services/course_knowledge_graph_generator.py
 ```
 
 预期：生产图谱生成/发布链路无硬编码 fallback 调用；若保留兼容 helper，必须不被上述生产路径引用并有弃用说明。
@@ -117,7 +117,7 @@ rg -n "_fallback_graph|build_course_graph_draft\(" `
 ### A3. 教材暂存、解析、拆分和映射
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
   src/tests/services/test_course_knowledge_textbook_inputs.py `
   src/tests/test_textbook_knowledge_graph.py `
@@ -139,7 +139,7 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
 ### A4. 网络发现、许可取消、AI 配额与质量门禁
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
   src/tests/services/test_course_knowledge_source_discovery.py `
   src/tests/services/test_course_knowledge_plan_builder.py `
@@ -162,8 +162,8 @@ D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
 
 ```powershell
 rg -n "未找到可验证的开放许可|license_name.*approved|license_url.*approved|_REVIEWED_DOMAIN_POLICIES" `
-  Edu_AI/api/src/app/services/course_knowledge_source_discovery.py `
-  Edu_AI/api/src/app/services/course_knowledge_plan_builder.py
+  backend/src/app/services/course_knowledge_source_discovery.py `
+  backend/src/app/services/course_knowledge_plan_builder.py
 ```
 
 预期：没有把许可/固定许可域名作为批准或发布条件的代码。兼容元数据读取不算失败，但必须由测试证明不影响决策。
@@ -171,7 +171,7 @@ rg -n "未找到可验证的开放许可|license_name.*approved|license_url.*app
 ### A5. 原子发布、更新策略、取消和幂等
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q `
   src/tests/persistence/test_postgres_knowledge_repository.py `
   src/tests/services/test_course_knowledge_plan_builder.py `
@@ -218,7 +218,7 @@ node --import tsx --test `
 
 ```powershell
 rg -n "previewCourseKnowledgeBuild\(courseId\)[\s\S]*startCourseKnowledgeBuild" `
-  Edu_AI/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx
+  frontend/src/stitch/course/knowledge/CourseKnowledgeBuildCard.tsx
 ```
 
 预期：无匹配。
@@ -253,7 +253,7 @@ npm run build
 ```
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 D:\anaconda\envs\edu-ai\python.exe -m pytest -q src/tests
 ```
 

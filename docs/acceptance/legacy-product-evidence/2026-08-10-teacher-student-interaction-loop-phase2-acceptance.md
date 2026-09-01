@@ -80,7 +80,7 @@
 
 ### 5.1 后端学习与 Agent 目标测试
 
-在 `Edu_AI/api/src` 执行：
+在 `backend/src` 执行：
 
 ```powershell
 python -m pytest -q tests/learning tests/chat/test_learning_context_injection.py tests/chat/runtime/test_learning_task_domain.py tests/chat/runtime/test_learning_agent_tools.py tests/chat/runtime/test_teaching_task_contract.py tests/chat/runtime/test_plan_compiler.py tests/chat/runtime/test_agent_tools.py tests/chat/runtime/test_agent_memory_restore.py
@@ -90,7 +90,7 @@ python -m pytest -q tests/learning tests/chat/test_learning_context_injection.py
 
 ### 5.2 权限与聊天回归
 
-在 `Edu_AI/api/src` 执行：
+在 `backend/src` 执行：
 
 ```powershell
 python -m pytest -q tests/test_course_access.py tests/test_course_route_authorization.py tests/chat

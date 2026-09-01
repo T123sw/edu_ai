@@ -43,7 +43,7 @@ edu_ai 统一异步任务驱动，教师不需要离开课堂页。
 
 ## 4. Playwright / FFmpeg 流水线
 
-`Edu_AI/scripts/videoPipeline.ts` 按下列顺序运行：
+`frontend/scripts/videoPipeline.ts` 按下列顺序运行：
 
 1. Playwright Chromium 逐场景打开渲染路由并录制 WebM。
 2. 等待播放器报告完成，读取该场景实测时间线。
@@ -116,10 +116,10 @@ npm run export:classroom-video -- -- --base-url=http://127.0.0.1:5173 `
 
 | 位置 | 职责 |
 | --- | --- |
-| `Edu_AI/src/openmaic/videoExport.ts` | 时间线合并与 SRT |
-| `Edu_AI/src/openmaic/ClassroomVideoRender.tsx` | 无头渲染路由 |
-| `Edu_AI/scripts/videoPipeline.ts` | Playwright 录制与 FFmpeg 合成 |
-| `Edu_AI/scripts/export-classroom-video.ts` | CLI |
-| `Edu_AI/api/src/app/services/classroom_video_export.py` | 后端任务编排与原子发布 |
-| `Edu_AI/src/openmaic/ClassroomVideoExportButton.tsx` | 提交、轮询与下载 |
+| `frontend/src/openmaic/videoExport.ts` | 时间线合并与 SRT |
+| `frontend/src/openmaic/ClassroomVideoRender.tsx` | 无头渲染路由 |
+| `frontend/scripts/videoPipeline.ts` | Playwright 录制与 FFmpeg 合成 |
+| `frontend/scripts/export-classroom-video.ts` | CLI |
+| `backend/src/app/services/classroom_video_export.py` | 后端任务编排与原子发布 |
+| `frontend/src/openmaic/ClassroomVideoExportButton.tsx` | 提交、轮询与下载 |
 

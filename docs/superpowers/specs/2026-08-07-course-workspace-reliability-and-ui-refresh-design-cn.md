@@ -257,7 +257,7 @@
 
 ## 8. 安全与数据保护
 
-1. `Edu_AI/api/course_data/.../knowledge_base/index.json` 和 `Edu_AI/api/data/` 属于用户/运行数据，不纳入代码提交。
+1. `backend/course_data/.../knowledge_base/index.json` 和 `backend/data/` 属于用户/运行数据，不纳入代码提交。
 2. 现有未提交的生成修复代码先审查、测试，再作为阶段 1 的起始补丁处理。
 3. 不通过删除任务库来“修复”幽灵任务；必须修复生命周期并保留历史可解释性。
 4. 不使用破坏性 Git 操作，不覆盖与本设计无关的工作区修改。

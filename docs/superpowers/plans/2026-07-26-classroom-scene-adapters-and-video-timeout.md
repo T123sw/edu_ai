@@ -14,39 +14,39 @@
 
 ## 文件结构
 
-- `Edu_AI/scripts/videoPipeline.ts`
+- `frontend/scripts/videoPipeline.ts`
   - 新增独立的 `sceneTimeoutMs`，页面连接继续使用 `timeoutMs`。
-- `Edu_AI/scripts/videoPipeline.test.ts`
+- `frontend/scripts/videoPipeline.test.ts`
   - 覆盖默认值、覆盖参数和非法参数。
-- `Edu_AI/src/stitch/api/types.ts`
+- `frontend/src/stitch/api/types.ts`
   - 定义 slide、interactive、quiz 的课堂内容和题目契约。
-- `Edu_AI/src/openmaic/classroomScene.ts`
+- `frontend/src/openmaic/classroomScene.ts`
   - 纯函数校验并解析场景类型。
-- `Edu_AI/src/openmaic/classroomScene.test.ts`
+- `frontend/src/openmaic/classroomScene.test.ts`
   - 覆盖三类分发、类型错配和未知类型。
-- `Edu_AI/src/openmaic/interactiveScene.ts`
+- `frontend/src/openmaic/interactiveScene.ts`
   - HTML 安全修补、widget 动作到 postMessage 的映射。
-- `Edu_AI/src/openmaic/interactiveScene.test.ts`
+- `frontend/src/openmaic/interactiveScene.test.ts`
   - 覆盖修补注入、消息映射和非法动作。
-- `Edu_AI/src/openmaic/actionEngine.ts`
+- `frontend/src/openmaic/actionEngine.ts`
   - 增加可注入的 widget controller。
-- `Edu_AI/src/openmaic/actionEngine.test.ts`
+- `frontend/src/openmaic/actionEngine.test.ts`
   - 验证四类 widget 动作发往当前控制器。
-- `Edu_AI/src/openmaic/SceneActionPlayback.tsx`
+- `frontend/src/openmaic/SceneActionPlayback.tsx`
   - 为非 slide 内容复用现有顺序播放引擎和旁白兜底。
-- `Edu_AI/src/openmaic/InteractiveScenePlayer.tsx`
+- `frontend/src/openmaic/InteractiveScenePlayer.tsx`
   - 沙箱 iframe、运行时错误提示和重新加载。
-- `Edu_AI/src/openmaic/quizScene.ts`
+- `frontend/src/openmaic/quizScene.ts`
   - 客观题评分、简答自评、缓存序列化和容错。
-- `Edu_AI/src/openmaic/quizScene.test.ts`
+- `frontend/src/openmaic/quizScene.test.ts`
   - 覆盖评分、分值、未知题型和损坏缓存。
-- `Edu_AI/src/openmaic/QuizScenePlayer.tsx`
+- `frontend/src/openmaic/QuizScenePlayer.tsx`
   - 答题、提交、解析、重做和本地恢复界面。
-- `Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx`
+- `frontend/src/openmaic/ClassroomSceneRenderer.tsx`
   - 统一派发三个播放器。
-- `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
+- `frontend/src/stitch/pages/ClassroomPlayer.tsx`
   - 使用统一派发器，保留导航、PPTX 和 MP4 按钮。
-- `Edu_AI/tests/frontend/classroomSceneAdapters.source.test.ts`
+- `frontend/tests/frontend/classroomSceneAdapters.source.test.ts`
   - 静态集成守卫，确保课堂页面不再内联 slide-only 分支。
 
 ### Task 1: 建立隔离工作区测试基线
@@ -79,8 +79,8 @@ Expected: 无未提交文件。
 
 **Files:**
 
-- Modify: `Edu_AI/scripts/videoPipeline.test.ts`
-- Modify: `Edu_AI/scripts/videoPipeline.ts`
+- Modify: `frontend/scripts/videoPipeline.test.ts`
+- Modify: `frontend/scripts/videoPipeline.ts`
 
 - [ ] **Step 1: 写默认值和覆盖参数的失败测试**
 
@@ -182,7 +182,7 @@ Expected: 测试与构建退出码均为 0。
 - [ ] **Step 6: 提交**
 
 ```powershell
-git add -- Edu_AI/scripts/videoPipeline.ts Edu_AI/scripts/videoPipeline.test.ts
+git add -- frontend/scripts/videoPipeline.ts frontend/scripts/videoPipeline.test.ts
 git commit -m "fix(video): allow long classroom scenes"
 ```
 
@@ -190,7 +190,7 @@ git commit -m "fix(video): allow long classroom scenes"
 
 **Files:**
 
-- Verify only: `Edu_AI/api/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/`
+- Verify only: `backend/course_data/courses/computational-thinking/generated_materials/classrooms/Ii0-7a0bpN_media/video/`
 
 - [ ] **Step 1: 使用本地教师认证创建验证任务**
 
@@ -208,7 +208,7 @@ run_classroom_video_export_job(
 
 - [ ] **Step 2: 轮询任务直到终态**
 
-每次读取 `Edu_AI/api/src/storage/jobs/<job_id>.json`，记录 `status`、`step`、`progress` 和 `message`。轮询间隔不超过 60 秒。
+每次读取 `backend/src/storage/jobs/<job_id>.json`，记录 `status`、`step`、`progress` 和 `message`。轮询间隔不超过 60 秒。
 
 Expected: 任务越过此前第五个可录制场景并最终 `succeeded`。
 
@@ -232,9 +232,9 @@ Expected:
 
 **Files:**
 
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Create: `Edu_AI/src/openmaic/classroomScene.ts`
-- Create: `Edu_AI/src/openmaic/classroomScene.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Create: `frontend/src/openmaic/classroomScene.ts`
+- Create: `frontend/src/openmaic/classroomScene.test.ts`
 
 - [ ] **Step 1: 写场景解析失败测试**
 
@@ -322,7 +322,7 @@ Expected: 全部通过。
 - [ ] **Step 6: 提交**
 
 ```powershell
-git add -- Edu_AI/src/stitch/api/types.ts Edu_AI/src/openmaic/classroomScene.ts Edu_AI/src/openmaic/classroomScene.test.ts
+git add -- frontend/src/stitch/api/types.ts frontend/src/openmaic/classroomScene.ts frontend/src/openmaic/classroomScene.test.ts
 git commit -m "feat(classroom): add typed scene dispatch"
 ```
 
@@ -330,10 +330,10 @@ git commit -m "feat(classroom): add typed scene dispatch"
 
 **Files:**
 
-- Create: `Edu_AI/src/openmaic/interactiveScene.ts`
-- Create: `Edu_AI/src/openmaic/interactiveScene.test.ts`
-- Modify: `Edu_AI/src/openmaic/actionEngine.ts`
-- Modify: `Edu_AI/src/openmaic/actionEngine.test.ts`
+- Create: `frontend/src/openmaic/interactiveScene.ts`
+- Create: `frontend/src/openmaic/interactiveScene.test.ts`
+- Modify: `frontend/src/openmaic/actionEngine.ts`
+- Modify: `frontend/src/openmaic/actionEngine.test.ts`
 
 - [ ] **Step 1: 写 HTML 修补和消息映射失败测试**
 
@@ -406,7 +406,7 @@ Expected: 全部通过。
 - [ ] **Step 7: 提交**
 
 ```powershell
-git add -- Edu_AI/src/openmaic/interactiveScene.ts Edu_AI/src/openmaic/interactiveScene.test.ts Edu_AI/src/openmaic/actionEngine.ts Edu_AI/src/openmaic/actionEngine.test.ts
+git add -- frontend/src/openmaic/interactiveScene.ts frontend/src/openmaic/interactiveScene.test.ts frontend/src/openmaic/actionEngine.ts frontend/src/openmaic/actionEngine.test.ts
 git commit -m "feat(classroom): support interactive widget actions"
 ```
 
@@ -414,11 +414,11 @@ git commit -m "feat(classroom): support interactive widget actions"
 
 **Files:**
 
-- Create: `Edu_AI/src/openmaic/SceneActionPlayback.tsx`
-- Create: `Edu_AI/src/openmaic/InteractiveScenePlayer.tsx`
-- Create: `Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Create: `Edu_AI/tests/frontend/classroomSceneAdapters.source.test.ts`
+- Create: `frontend/src/openmaic/SceneActionPlayback.tsx`
+- Create: `frontend/src/openmaic/InteractiveScenePlayer.tsx`
+- Create: `frontend/src/openmaic/ClassroomSceneRenderer.tsx`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Create: `frontend/tests/frontend/classroomSceneAdapters.source.test.ts`
 
 - [ ] **Step 1: 写集成守卫失败测试**
 
@@ -473,7 +473,7 @@ Expected: 测试通过；lint 无 error；构建退出码 0。
 - [ ] **Step 7: 提交**
 
 ```powershell
-git add -- Edu_AI/src/openmaic/SceneActionPlayback.tsx Edu_AI/src/openmaic/InteractiveScenePlayer.tsx Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/tests/frontend/classroomSceneAdapters.source.test.ts
+git add -- frontend/src/openmaic/SceneActionPlayback.tsx frontend/src/openmaic/InteractiveScenePlayer.tsx frontend/src/openmaic/ClassroomSceneRenderer.tsx frontend/src/stitch/pages/ClassroomPlayer.tsx frontend/tests/frontend/classroomSceneAdapters.source.test.ts
 git commit -m "feat(classroom): render interactive scenes"
 ```
 
@@ -481,8 +481,8 @@ git commit -m "feat(classroom): render interactive scenes"
 
 **Files:**
 
-- Create: `Edu_AI/src/openmaic/quizScene.ts`
-- Create: `Edu_AI/src/openmaic/quizScene.test.ts`
+- Create: `frontend/src/openmaic/quizScene.ts`
+- Create: `frontend/src/openmaic/quizScene.test.ts`
 
 - [ ] **Step 1: 写评分失败测试**
 
@@ -544,7 +544,7 @@ Expected: 全部通过。
 - [ ] **Step 6: 提交**
 
 ```powershell
-git add -- Edu_AI/src/openmaic/quizScene.ts Edu_AI/src/openmaic/quizScene.test.ts
+git add -- frontend/src/openmaic/quizScene.ts frontend/src/openmaic/quizScene.test.ts
 git commit -m "feat(classroom): add quiz grading and recovery"
 ```
 
@@ -552,9 +552,9 @@ git commit -m "feat(classroom): add quiz grading and recovery"
 
 **Files:**
 
-- Create: `Edu_AI/src/openmaic/QuizScenePlayer.tsx`
-- Modify: `Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx`
-- Modify: `Edu_AI/tests/frontend/classroomSceneAdapters.source.test.ts`
+- Create: `frontend/src/openmaic/QuizScenePlayer.tsx`
+- Modify: `frontend/src/openmaic/ClassroomSceneRenderer.tsx`
+- Modify: `frontend/tests/frontend/classroomSceneAdapters.source.test.ts`
 
 - [ ] **Step 1: 扩展集成守卫并确认 RED**
 
@@ -599,7 +599,7 @@ Expected: 所有测试通过；lint 无 error；构建退出码 0。
 - [ ] **Step 5: 提交**
 
 ```powershell
-git add -- Edu_AI/src/openmaic/QuizScenePlayer.tsx Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx Edu_AI/tests/frontend/classroomSceneAdapters.source.test.ts
+git add -- frontend/src/openmaic/QuizScenePlayer.tsx frontend/src/openmaic/ClassroomSceneRenderer.tsx frontend/tests/frontend/classroomSceneAdapters.source.test.ts
 git commit -m "feat(classroom): render quiz scenes"
 ```
 
@@ -668,4 +668,4 @@ Expected:
 
 - [ ] **Step 7: 快进合并到 main**
 
-在主工作区确认只有用户原有的 `Edu_AI/package.json` 修改，然后执行快进合并。合并后重复关键测试，不暂存或修改该用户文件。
+在主工作区确认只有用户原有的 `frontend/package.json` 修改，然后执行快进合并。合并后重复关键测试，不暂存或修改该用户文件。

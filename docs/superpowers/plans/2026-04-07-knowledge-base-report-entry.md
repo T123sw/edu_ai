@@ -30,74 +30,74 @@ It does **not** include:
 
 ### Frontend
 
-- `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- `frontend/src/components/teacher/StudioPanel.tsx`
   - Current report entry opens the generic config modal and submits `sendReportV2(...)`.
-- `Edu_AI/src/services/teacher/chatV2.ts`
+- `frontend/src/services/teacher/chatV2.ts`
   - Current `/api/chat/v2/report` request client.
-- `Edu_AI/src/services/teacher/chatV2.helpers.ts`
+- `frontend/src/services/teacher/chatV2.helpers.ts`
   - Current report prompt assembly still references “当前会话”.
-- `Edu_AI/src/store/teacher/useStore.ts`
+- `frontend/src/store/teacher/useStore.ts`
   - Holds `selectedDocs`, generated files, preview state.
-- `Edu_AI/src/services/rag.ts`
+- `frontend/src/services/rag.ts`
   - Shows document list/summary capabilities already exist in the frontend layer, even though recommendation logic should live on the backend.
 
 ### Backend
 
-- `Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py`
+- `backend/src/app/chat/api/routes_v2.py`
   - Current `/api/chat/v2/reply` and `/api/chat/v2/report` entry points.
-- `Edu_AI/api/Edu_AI/app/chat/api/schemas_v2.py`
+- `backend/src/app/chat/api/schemas_v2.py`
   - Current v2 request/response contracts.
-- `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
+- `backend/src/app/chat/application/report_service_v2.py`
   - Current report workflow orchestration and persistence.
-- `Edu_AI/api/Edu_AI/new_rag/api.py`
+- `backend/src/new_rag/api.py`
   - Existing document list and summary generation capabilities.
-- `Edu_AI/api/Edu_AI/new_rag/system.py`
+- `backend/src/new_rag/system.py`
   - Existing `list_documents(...)` and `summarize_document(...)`.
 
 ## File Map
 
 ### Frontend files to create
 
-- `Edu_AI/src/components/teacher/ReportEntryModal.tsx`
+- `frontend/src/components/teacher/ReportEntryModal.tsx`
   - Two-step report card modal UI, including cards screen and prompt editor screen.
-- `Edu_AI/src/services/teacher/reportEntry.helpers.ts`
+- `frontend/src/services/teacher/reportEntry.helpers.ts`
   - Preset card definitions, card-to-editor mapping, editor dirty-check rules, local state helpers.
-- `Edu_AI/tests/frontend/reportEntry.helpers.test.ts`
+- `frontend/tests/frontend/reportEntry.helpers.test.ts`
   - Card model helper coverage.
-- `Edu_AI/tests/frontend/studioPanel.report-entry.test.ts`
+- `frontend/tests/frontend/studioPanel.report-entry.test.ts`
   - Entry wiring, loading state, modal screen switching, and generate payload coverage.
 
 ### Frontend files to modify
 
-- `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- `frontend/src/components/teacher/StudioPanel.tsx`
   - Replace the old report config modal flow with the new report-entry modal flow.
-- `Edu_AI/src/services/teacher/chatV2.ts`
+- `frontend/src/services/teacher/chatV2.ts`
   - Add report-card request/response types and `fetchReportEntryCardsV2(...)`.
-- `Edu_AI/src/services/teacher/chatV2.helpers.ts`
+- `frontend/src/services/teacher/chatV2.helpers.ts`
   - Replace conversation-based report question assembly with knowledge-base entry helpers for the new flow.
 
 ### Backend files to create
 
-- `Edu_AI/api/Edu_AI/app/chat/application/report_entry_cards_service_v2.py`
+- `backend/src/app/chat/application/report_entry_cards_service_v2.py`
   - Builds fixed cards plus summary-driven recommended cards and cache lookup.
-- `Edu_AI/api/Edu_AI/app/chat/application/knowledge_base_summary_provider.py`
+- `backend/src/app/chat/application/knowledge_base_summary_provider.py`
   - Resolves selected document summaries via `new_rag`, applies missing-summary fallback, and returns summary metadata for caching.
-- `Edu_AI/api/Edu_AI/tests/chat/test_report_entry_cards_service_v2.py`
+- `backend/src/tests/chat/test_report_entry_cards_service_v2.py`
   - Recommendation rules, caching, and fallback coverage.
 
 ### Backend files to modify
 
-- `Edu_AI/api/Edu_AI/app/chat/api/schemas_v2.py`
+- `backend/src/app/chat/api/schemas_v2.py`
   - Add report-card endpoint contracts and knowledge-base report request fields.
-- `Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py`
+- `backend/src/app/chat/api/routes_v2.py`
   - Add `POST /api/chat/v2/report/cards`.
-- `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
+- `backend/src/app/chat/application/report_service_v2.py`
   - Honor `entry_mode`, ignore conversation context for knowledge-base entry requests, and preserve trace metadata.
-- `Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py`
+- `backend/src/tests/chat/test_routes_v2.py`
   - Add route coverage for the new cards endpoint.
-- `Edu_AI/api/Edu_AI/tests/chat/test_schemas_v2.py`
+- `backend/src/tests/chat/test_schemas_v2.py`
   - Add contract coverage for new request/response models.
-- `Edu_AI/api/Edu_AI/tests/chat/test_report_service_v2.py`
+- `backend/src/tests/chat/test_report_service_v2.py`
   - Add isolation coverage for `entry_mode = "knowledge_base_report"`.
 
 ## Interface Contract
@@ -317,10 +317,10 @@ Editor behavior:
 
 **Files:**
 
-- Modify: `Edu_AI/api/Edu_AI/app/chat/api/schemas_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_schemas_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_routes_v2.py`
+- Modify: `backend/src/app/chat/api/schemas_v2.py`
+- Modify: `backend/src/app/chat/api/routes_v2.py`
+- Modify: `backend/src/tests/chat/test_schemas_v2.py`
+- Modify: `backend/src/tests/chat/test_routes_v2.py`
 
 - [ ] **Step 1: Write the failing schema and route tests**
   - Add a schema test that instantiates a cards request and cards response.
@@ -351,9 +351,9 @@ Editor behavior:
 
 **Files:**
 
-- Create: `Edu_AI/api/Edu_AI/app/chat/application/knowledge_base_summary_provider.py`
-- Create: `Edu_AI/api/Edu_AI/app/chat/application/report_entry_cards_service_v2.py`
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_report_entry_cards_service_v2.py`
+- Create: `backend/src/app/chat/application/knowledge_base_summary_provider.py`
+- Create: `backend/src/app/chat/application/report_entry_cards_service_v2.py`
+- Create: `backend/src/tests/chat/test_report_entry_cards_service_v2.py`
 
 - [ ] **Step 1: Write the failing recommendation tests**
   - Cover:
@@ -393,8 +393,8 @@ Editor behavior:
 
 **Files:**
 
-- Modify: `Edu_AI/api/Edu_AI/app/chat/application/report_service_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_report_service_v2.py`
+- Modify: `backend/src/app/chat/application/report_service_v2.py`
+- Modify: `backend/src/tests/chat/test_report_service_v2.py`
 
 - [ ] **Step 1: Write the failing isolation tests**
   - Add one test proving `entry_mode = "knowledge_base_report"` ignores conversation-derived snapshot content.
@@ -420,10 +420,10 @@ Editor behavior:
 
 **Files:**
 
-- Modify: `Edu_AI/src/services/teacher/chatV2.ts`
-- Modify: `Edu_AI/src/services/teacher/chatV2.helpers.ts`
-- Create: `Edu_AI/src/services/teacher/reportEntry.helpers.ts`
-- Create: `Edu_AI/tests/frontend/reportEntry.helpers.test.ts`
+- Modify: `frontend/src/services/teacher/chatV2.ts`
+- Modify: `frontend/src/services/teacher/chatV2.helpers.ts`
+- Create: `frontend/src/services/teacher/reportEntry.helpers.ts`
+- Create: `frontend/tests/frontend/reportEntry.helpers.test.ts`
 
 - [ ] **Step 1: Write the failing frontend helper test**
   - Cover:
@@ -433,7 +433,7 @@ Editor behavior:
     - dirty-check before switching cards
 
 - [ ] **Step 2: Run the helper test**
-  - Run: `node --experimental-strip-types Edu_AI/tests/frontend/reportEntry.helpers.test.ts`
+  - Run: `node --experimental-strip-types frontend/tests/frontend/reportEntry.helpers.test.ts`
   - Expected: FAIL because the helper module does not exist yet.
 
 - [ ] **Step 3: Implement frontend API types and helper functions**
@@ -446,16 +446,16 @@ Editor behavior:
     - `shouldConfirmCardSwitch(...)`
 
 - [ ] **Step 4: Re-run the helper test**
-  - Run: `node --experimental-strip-types Edu_AI/tests/frontend/reportEntry.helpers.test.ts`
+  - Run: `node --experimental-strip-types frontend/tests/frontend/reportEntry.helpers.test.ts`
   - Expected: PASS
 
 ## Task 5: Replace the old report modal flow in StudioPanel
 
 **Files:**
 
-- Create: `Edu_AI/src/components/teacher/ReportEntryModal.tsx`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- Create: `Edu_AI/tests/frontend/studioPanel.report-entry.test.ts`
+- Create: `frontend/src/components/teacher/ReportEntryModal.tsx`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
+- Create: `frontend/tests/frontend/studioPanel.report-entry.test.ts`
 
 - [ ] **Step 1: Write the failing StudioPanel entry test**
   - Assert:
@@ -466,7 +466,7 @@ Editor behavior:
     - successful generation still auto-opens the latest report
 
 - [ ] **Step 2: Run the StudioPanel test**
-  - Run: `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.report-entry.test.ts`
+  - Run: `node --experimental-strip-types frontend/tests/frontend/studioPanel.report-entry.test.ts`
   - Expected: FAIL because the new modal/component flow does not exist yet.
 
 - [ ] **Step 3: Implement `ReportEntryModal`**
@@ -485,7 +485,7 @@ Editor behavior:
   - Keep the existing simple file ordering behavior intact.
 
 - [ ] **Step 5: Re-run the StudioPanel test**
-  - Run: `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.report-entry.test.ts`
+  - Run: `node --experimental-strip-types frontend/tests/frontend/studioPanel.report-entry.test.ts`
   - Expected: PASS
 
 ## Task 6: Verify the end-to-end surface
@@ -496,10 +496,10 @@ Editor behavior:
 
 - [ ] **Step 1: Run targeted frontend tests**
   - Run:
-    - `node --experimental-strip-types Edu_AI/tests/frontend/reportEntry.helpers.test.ts`
-    - `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.report-entry.test.ts`
-    - `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.refresh-order.test.ts`
-    - `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.course-material-sync.test.ts`
+    - `node --experimental-strip-types frontend/tests/frontend/reportEntry.helpers.test.ts`
+    - `node --experimental-strip-types frontend/tests/frontend/studioPanel.report-entry.test.ts`
+    - `node --experimental-strip-types frontend/tests/frontend/studioPanel.refresh-order.test.ts`
+    - `node --experimental-strip-types frontend/tests/frontend/studioPanel.course-material-sync.test.ts`
   - Expected: PASS
 
 - [ ] **Step 2: Run targeted backend tests**

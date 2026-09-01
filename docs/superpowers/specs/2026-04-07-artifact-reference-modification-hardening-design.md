@@ -37,12 +37,12 @@ Use lightweight frontend tests to verify:
 
 **Files**
 
-- `Edu_AI/src/services/teacher/materials.helpers.ts`
-- `Edu_AI/src/store/teacher/useStore.ts`
-- `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- `Edu_AI/src/services/teacher/chatV2.helpers.ts`
-- `Edu_AI/tests/frontend/*.test.ts`
+- `frontend/src/services/teacher/materials.helpers.ts`
+- `frontend/src/store/teacher/useStore.ts`
+- `frontend/src/components/teacher/ChatPanel.tsx`
+- `frontend/src/components/teacher/StudioPanel.tsx`
+- `frontend/src/services/teacher/chatV2.helpers.ts`
+- `frontend/tests/frontend/*.test.ts`
 
 **Out of Scope**
 

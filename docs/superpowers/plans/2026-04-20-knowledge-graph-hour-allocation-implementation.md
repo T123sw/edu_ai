@@ -12,37 +12,37 @@
 
 ## File Structure
 
-- Create `Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py`
+- Create `backend/src/app/knowledge_graph_hours.py`
   - Owns pure graph-hour allocation helpers and the LLM-backed orchestration function.
   - Defines deterministic exceptions and return metadata used by the route.
-- Create `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py`
+- Create `backend/src/tests/chat/test_knowledge_graph_hours.py`
   - Pure backend tests for leaf extraction, JSON parsing, one-decimal normalization, and parent rollup.
-- Create `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py`
+- Create `backend/src/tests/chat/test_knowledge_graph_hour_routes.py`
   - FastAPI route tests with a dummy course manager and monkeypatched allocation service.
-- Modify `Edu_AI/api/Edu_AI/app/courses.py`
+- Modify `backend/src/app/courses.py`
   - Adds request/response models and `POST /{course_id}/knowledge-graph/allocate-hours`.
   - Adds a small internal LLM caller wrapper that uses the configured backend model.
-- Modify `Edu_AI/src/stitch/api/types.ts`
+- Modify `frontend/src/stitch/api/types.ts`
   - Adds `hours?: number` to `KnowledgeGraphNode.data`.
   - Adds allocation request/response types.
-- Modify `Edu_AI/src/stitch/api/courses.ts`
+- Modify `frontend/src/stitch/api/courses.ts`
   - Adds `allocateKnowledgeGraphHours`.
-- Modify `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
+- Modify `frontend/src/stitch/pages/KnowledgeGraph.tsx`
   - Preserves `data.hours` in flatten/build helpers.
   - Calls backend allocation route from the total-hours button.
   - Displays allocation loading/error state.
-- Create `Edu_AI/tests/frontend/knowledgeGraphHours.test.ts`
+- Create `frontend/tests/frontend/knowledgeGraphHours.test.ts`
   - Lightweight frontend regression test that checks API helper, type field, and page wiring exist.
 
 ## Task 1: Backend Pure Tests For Allocation Helpers
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py`
-- Later implementation target: `Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py`
+- Create: `backend/src/tests/chat/test_knowledge_graph_hours.py`
+- Later implementation target: `backend/src/app/knowledge_graph_hours.py`
 
 - [ ] **Step 1: Write the failing pure-helper tests**
 
-Create `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py`:
+Create `backend/src/tests/chat/test_knowledge_graph_hours.py`:
 
 ```python
 import pytest
@@ -221,7 +221,7 @@ def test_allocate_graph_hours_rejects_graph_without_leaves():
 Run:
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd backend/src
 python -m pytest tests/chat/test_knowledge_graph_hours.py -q
 ```
 
@@ -230,19 +230,19 @@ Expected: FAIL during import with `ModuleNotFoundError: No module named 'app.kno
 - [ ] **Step 3: Commit the RED test**
 
 ```bash
-git add Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py
+git add backend/src/tests/chat/test_knowledge_graph_hours.py
 git commit -m "test: add knowledge graph hour allocation helper tests"
 ```
 
 ## Task 2: Backend Allocation Service
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py`
+- Create: `backend/src/app/knowledge_graph_hours.py`
+- Test: `backend/src/tests/chat/test_knowledge_graph_hours.py`
 
 - [ ] **Step 1: Implement the minimal service module**
 
-Create `Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py`:
+Create `backend/src/app/knowledge_graph_hours.py`:
 
 ```python
 """Knowledge graph teaching-hour allocation helpers."""
@@ -501,7 +501,7 @@ def allocate_graph_hours_from_llm(
 Run:
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd backend/src
 python -m pytest tests/chat/test_knowledge_graph_hours.py -q
 ```
 
@@ -510,19 +510,19 @@ Expected: all tests in `test_knowledge_graph_hours.py` PASS.
 - [ ] **Step 3: Commit the service**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py
+git add backend/src/app/knowledge_graph_hours.py backend/src/tests/chat/test_knowledge_graph_hours.py
 git commit -m "feat: add knowledge graph hour allocation service"
 ```
 
 ## Task 3: Backend Route Tests
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py`
-- Modify later: `Edu_AI/api/Edu_AI/app/courses.py`
+- Create: `backend/src/tests/chat/test_knowledge_graph_hour_routes.py`
+- Modify later: `backend/src/app/courses.py`
 
 - [ ] **Step 1: Write the failing route tests**
 
-Create `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py`:
+Create `backend/src/tests/chat/test_knowledge_graph_hour_routes.py`:
 
 ```python
 from fastapi import FastAPI
@@ -656,7 +656,7 @@ def test_allocate_hours_route_does_not_save_when_llm_call_fails(monkeypatch):
 Run:
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd backend/src
 python -m pytest tests/chat/test_knowledge_graph_hour_routes.py -q
 ```
 
@@ -665,16 +665,16 @@ Expected: FAIL with `AttributeError` for missing `allocate_graph_hours_from_llm`
 - [ ] **Step 3: Commit the RED route tests**
 
 ```bash
-git add Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py
+git add backend/src/tests/chat/test_knowledge_graph_hour_routes.py
 git commit -m "test: add knowledge graph hour allocation route tests"
 ```
 
 ## Task 4: Backend Route Implementation
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py`
+- Modify: `backend/src/app/courses.py`
+- Test: `backend/src/tests/chat/test_knowledge_graph_hour_routes.py`
+- Test: `backend/src/tests/chat/test_knowledge_graph_hours.py`
 
 - [ ] **Step 1: Add imports in `courses.py`**
 
@@ -766,7 +766,7 @@ def allocate_knowledge_graph_hours(
 Run:
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd backend/src
 python -m pytest tests/chat/test_knowledge_graph_hours.py tests/chat/test_knowledge_graph_hour_routes.py -q
 ```
 
@@ -775,21 +775,21 @@ Expected: all tests PASS.
 - [ ] **Step 6: Commit the route**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/courses.py Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py
+git add backend/src/app/courses.py backend/src/tests/chat/test_knowledge_graph_hour_routes.py
 git commit -m "feat: expose knowledge graph hour allocation API"
 ```
 
 ## Task 5: Frontend API, Types, And Wiring Tests
 
 **Files:**
-- Create: `Edu_AI/tests/frontend/knowledgeGraphHours.test.ts`
-- Modify later: `Edu_AI/src/stitch/api/types.ts`
-- Modify later: `Edu_AI/src/stitch/api/courses.ts`
-- Modify later: `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
+- Create: `frontend/tests/frontend/knowledgeGraphHours.test.ts`
+- Modify later: `frontend/src/stitch/api/types.ts`
+- Modify later: `frontend/src/stitch/api/courses.ts`
+- Modify later: `frontend/src/stitch/pages/KnowledgeGraph.tsx`
 
 - [ ] **Step 1: Write the failing frontend regression test**
 
-Create `Edu_AI/tests/frontend/knowledgeGraphHours.test.ts`:
+Create `frontend/tests/frontend/knowledgeGraphHours.test.ts`:
 
 ```typescript
 import assert from 'node:assert/strict';
@@ -876,20 +876,20 @@ Expected: FAIL because `hours?: number`, allocation types, and `allocateKnowledg
 - [ ] **Step 3: Commit the RED frontend test**
 
 ```bash
-git add Edu_AI/tests/frontend/knowledgeGraphHours.test.ts
+git add frontend/tests/frontend/knowledgeGraphHours.test.ts
 git commit -m "test: add knowledge graph hour frontend wiring checks"
 ```
 
 ## Task 6: Frontend Types And API Helper
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
-- Test: `Edu_AI/tests/frontend/knowledgeGraphHours.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/courses.ts`
+- Test: `frontend/tests/frontend/knowledgeGraphHours.test.ts`
 
 - [ ] **Step 1: Update `KnowledgeGraphNode` and add allocation types**
 
-In `Edu_AI/src/stitch/api/types.ts`, change `KnowledgeGraphNode.data` to include `hours?: number`:
+In `frontend/src/stitch/api/types.ts`, change `KnowledgeGraphNode.data` to include `hours?: number`:
 
 ```typescript
 export type KnowledgeGraphNode = {
@@ -926,7 +926,7 @@ export type KnowledgeGraphHourAllocationResponse = KnowledgeGraphData & {
 
 - [ ] **Step 2: Import the new types in `courses.ts`**
 
-Update the type import in `Edu_AI/src/stitch/api/courses.ts`:
+Update the type import in `frontend/src/stitch/api/courses.ts`:
 
 ```typescript
 import type {
@@ -941,7 +941,7 @@ import type {
 
 - [ ] **Step 3: Add the API helper**
 
-Add below `saveKnowledgeGraph` in `Edu_AI/src/stitch/api/courses.ts`:
+Add below `saveKnowledgeGraph` in `frontend/src/stitch/api/courses.ts`:
 
 ```typescript
 export function allocateKnowledgeGraphHours(courseId: string, payload: KnowledgeGraphHourAllocationRequest) {
@@ -966,19 +966,19 @@ Expected: still FAIL because `KnowledgeGraphPage.tsx` has not been wired yet.
 - [ ] **Step 5: Commit API/type changes**
 
 ```bash
-git add Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/api/courses.ts
+git add frontend/src/stitch/api/types.ts frontend/src/stitch/api/courses.ts
 git commit -m "feat: add knowledge graph hour allocation API helper"
 ```
 
 ## Task 7: Frontend Knowledge Graph Page Wiring
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`
-- Test: `Edu_AI/tests/frontend/knowledgeGraphHours.test.ts`
+- Modify: `frontend/src/stitch/pages/KnowledgeGraph.tsx`
+- Test: `frontend/tests/frontend/knowledgeGraphHours.test.ts`
 
 - [ ] **Step 1: Import the API helper**
 
-Change the import at the top of `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx` from:
+Change the import at the top of `frontend/src/stitch/pages/KnowledgeGraph.tsx` from:
 
 ```typescript
 import { getKnowledgeGraph, saveKnowledgeGraph } from "../api/courses";
@@ -1099,7 +1099,7 @@ The final button should look like:
 
 - [ ] **Step 8: Remove the obsolete local `generateHours` helper**
 
-Delete the `generateHours(totalHours: number, nodes: FlatNode[])` function from `Edu_AI/src/stitch/pages/KnowledgeGraph.tsx`. It should no longer be referenced.
+Delete the `generateHours(totalHours: number, nodes: FlatNode[])` function from `frontend/src/stitch/pages/KnowledgeGraph.tsx`. It should no longer be referenced.
 
 - [ ] **Step 9: Run frontend wiring test**
 
@@ -1115,7 +1115,7 @@ Expected: PASS with `knowledgeGraphHours frontend tests passed`.
 - [ ] **Step 10: Commit page wiring**
 
 ```bash
-git add Edu_AI/src/stitch/pages/KnowledgeGraph.tsx Edu_AI/tests/frontend/knowledgeGraphHours.test.ts
+git add frontend/src/stitch/pages/KnowledgeGraph.tsx frontend/tests/frontend/knowledgeGraphHours.test.ts
 git commit -m "feat: wire knowledge graph hour allocation UI"
 ```
 
@@ -1129,7 +1129,7 @@ git commit -m "feat: wire knowledge graph hour allocation UI"
 Run:
 
 ```bash
-cd Edu_AI/api/Edu_AI
+cd backend/src
 python -m pytest tests/chat/test_knowledge_graph_hours.py tests/chat/test_knowledge_graph_hour_routes.py -q
 ```
 
@@ -1172,7 +1172,7 @@ Expected: only intentional files from this feature are modified or untracked. Do
 If there are any remaining unstaged intentional feature changes:
 
 ```bash
-git add Edu_AI/api/Edu_AI/app/knowledge_graph_hours.py Edu_AI/api/Edu_AI/app/courses.py Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hours.py Edu_AI/api/Edu_AI/tests/chat/test_knowledge_graph_hour_routes.py Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/api/courses.ts Edu_AI/src/stitch/pages/KnowledgeGraph.tsx Edu_AI/tests/frontend/knowledgeGraphHours.test.ts
+git add backend/src/app/knowledge_graph_hours.py backend/src/app/courses.py backend/src/tests/chat/test_knowledge_graph_hours.py backend/src/tests/chat/test_knowledge_graph_hour_routes.py frontend/src/stitch/api/types.ts frontend/src/stitch/api/courses.ts frontend/src/stitch/pages/KnowledgeGraph.tsx frontend/tests/frontend/knowledgeGraphHours.test.ts
 git commit -m "feat: allocate knowledge graph hours"
 ```
 

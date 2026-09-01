@@ -58,7 +58,7 @@
 ### A1. live Q&A 无 RAG 静态门禁
 
 ```powershell
-rg -n "rag_search|rag_answer|_search_course_knowledge|课程知识库参考|rag_ms|rag_degraded" Edu_AI/api/src/app/services/classroom_qa_prompt.py Edu_AI/api/src/app/services/classroom_qa_service.py
+rg -n "rag_search|rag_answer|_search_course_knowledge|课程知识库参考|rag_ms|rag_degraded" backend/src/app/services/classroom_qa_prompt.py backend/src/app/services/classroom_qa_service.py
 ```
 
 预期：无输出，退出码 1。
@@ -66,7 +66,7 @@ rg -n "rag_search|rag_answer|_search_course_knowledge|课程知识库参考|rag_
 再检查 live Q&A 服务没有间接导入检索组件：
 
 ```powershell
-rg -n "VectorSearch|BM25|Reranker|hybrid_search|knowledge_base" Edu_AI/api/src/app/services/classroom_qa_service.py Edu_AI/api/src/app/services/classroom_qa_prompt.py
+rg -n "VectorSearch|BM25|Reranker|hybrid_search|knowledge_base" backend/src/app/services/classroom_qa_service.py backend/src/app/services/classroom_qa_prompt.py
 ```
 
 预期：无输出，退出码 1。
@@ -74,7 +74,7 @@ rg -n "VectorSearch|BM25|Reranker|hybrid_search|knowledge_base" Edu_AI/api/src/a
 ### A2. prompt 与服务单元测试
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_classroom_qa_prompt.py src/tests/test_classroom_qa_service.py -q
 ```
 
@@ -132,7 +132,7 @@ npm test -- src/openmaic/pagePlaybackController.test.ts src/stitch/classroomQa/c
 ### A6. Python TTS 与媒体回归
 
 ```powershell
-Set-Location Edu_AI/api
+Set-Location backend
 python -m pytest src/tests/test_openmaic_client.py src/tests/test_openmaic_tts_service.py src/tests/test_classroom_media.py src/tests/test_classroom_qa_routes.py src/tests/test_classroom_qa_store.py -q
 ```
 
@@ -161,7 +161,7 @@ pnpm test -- tests/server/classroom-media-generation.test.ts tests/server/classr
 静态补充检查：
 
 ```powershell
-rg -n 'alloy|/audio/speech' Edu_AI/api/src/app/services/classroom_media.py
+rg -n 'alloy|/audio/speech' backend/src/app/services/classroom_media.py
 ```
 
 预期：无输出，退出码 1。

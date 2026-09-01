@@ -63,12 +63,12 @@
 
 ## 文件与自查
 
-- `Edu_AI/tests/e2e/fixtures/learningLoop.ts`
-- `Edu_AI/tests/e2e/teacher-student-learning-loop.spec.ts`
-- `Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py`
-- `Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py`
-- `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- `Edu_AI/src/components/teacher/chatHistoryRecovery.test.ts`
+- `frontend/tests/e2e/fixtures/learningLoop.ts`
+- `frontend/tests/e2e/teacher-student-learning-loop.spec.ts`
+- `backend/src/tests/learning/test_learning_loop_acceptance.py`
+- `backend/src/tests/chat/runtime/test_learning_task_domain.py`
+- `frontend/src/components/teacher/ChatPanel.tsx`
+- `frontend/src/components/teacher/chatHistoryRecovery.test.ts`
 - `Edu_AI/docs/acceptance/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md`
 - `.superpowers/sdd/2026-08-10-teacher-student-interaction-loop-phase2/task-7-report.md`
 

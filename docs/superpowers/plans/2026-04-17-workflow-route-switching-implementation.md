@@ -13,7 +13,7 @@
 ### Task 1: Route Tests
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_route_rules.py`
+- Modify: `backend/src/tests/chat/test_route_rules.py`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -21,14 +21,14 @@ Add tests for switching from running and completed report workflows back to fast
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `python -m pytest tests/chat/test_route_rules.py -q` from `Edu_AI/api/Edu_AI`.
+Run: `python -m pytest tests/chat/test_route_rules.py -q` from `backend/src`.
 
 Expected: the new tests fail because current routing resumes the existing report workflow.
 
 ### Task 2: Route Rule Implementation
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py`
+- Modify: `backend/src/app/chat/orchestrator/route_rules.py`
 
 - [ ] **Step 1: Add explicit chat-exit markers**
 
@@ -44,7 +44,7 @@ Inside `decide_route()`, before existing interrupt and resume handling, route ex
 
 - [ ] **Step 4: Run route tests**
 
-Run: `python -m pytest tests/chat/test_route_rules.py -q` from `Edu_AI/api/Edu_AI`.
+Run: `python -m pytest tests/chat/test_route_rules.py -q` from `backend/src`.
 
 Expected: all route-rule tests pass.
 
@@ -55,12 +55,12 @@ Expected: all route-rule tests pass.
 
 - [ ] **Step 1: Run related route suites**
 
-Run: `python -m pytest tests/chat/test_route_rules.py tests/chat/test_route_rules_ppt.py tests/chat/test_quiz_route_rules.py -q` from `Edu_AI/api/Edu_AI`.
+Run: `python -m pytest tests/chat/test_route_rules.py tests/chat/test_route_rules_ppt.py tests/chat/test_quiz_route_rules.py -q` from `backend/src`.
 
 Expected: all selected route tests pass.
 
 - [ ] **Step 2: Inspect changed files**
 
-Run: `git diff -- Edu_AI/api/Edu_AI/app/chat/orchestrator/route_rules.py Edu_AI/api/Edu_AI/tests/chat/test_route_rules.py`.
+Run: `git diff -- backend/src/app/chat/orchestrator/route_rules.py backend/src/tests/chat/test_route_rules.py`.
 
 Expected: diff only contains route switching tests and route switching logic.

@@ -82,7 +82,7 @@ pnpm exec tsx --test `
 ### 4.2 后端定向测试
 
 ```powershell
-Set-Location D:\github\edu_ai\Edu_AI\api\src
+Set-Location D:\github\edu_ai\backend\src
 python -m pytest `
   tests/test_openmaic_client.py `
   tests/test_classroom_qa_store.py `
@@ -112,7 +112,7 @@ pnpm run build
 ### 4.4 后端相关回归
 
 ```powershell
-Set-Location D:\github\edu_ai\Edu_AI\api\src
+Set-Location D:\github\edu_ai\backend\src
 python -m pytest `
   tests/app/test_legacy_services_retired.py `
   tests/test_classroom_media.py `
@@ -128,10 +128,10 @@ python -m pytest `
 ```powershell
 Set-Location D:\github\edu_ai
 rg -n -S "LiveTalking|teaching_video_bridge|ai_lecturer_bridge|RTCPeerConnection" `
-  Edu_AI/src `
-  Edu_AI/api/src/app `
-  Edu_AI/.env.example `
-  Edu_AI/api/src/.env.example
+  frontend/src `
+  backend/src/app `
+  .env.example `
+  backend/src/.env.example
 ```
 
 预期：无本功能新增的运行时代码命中；历史注释或退休断言必须逐条说明，不得构成 import、路由、环境依赖或启动项。

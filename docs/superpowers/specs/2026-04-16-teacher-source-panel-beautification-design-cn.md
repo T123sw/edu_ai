@@ -153,7 +153,7 @@
 
 建议实现主要落在以下文件：
 
-- `Edu_AI/src/components/teacher/SourcePanel.tsx`
+- `frontend/src/components/teacher/SourcePanel.tsx`
 
 如果需要补充样式承载，优先采用以下方式之一：
 

@@ -1,7 +1,9 @@
-"""Diagnostic: call the planner gateway directly to see why create_plan isn't being invoked."""
+"""Diagnostic: call the planner gateway directly to inspect tool-call behavior."""
 import sys
+from pathlib import Path
 
-sys.path.insert(0, r"D:\Edu_AI_1\Edu_AI\api\src")
+BACKEND_SRC = Path(__file__).resolve().parents[1] / "backend" / "src"
+sys.path.insert(0, str(BACKEND_SRC))
 
 from app.chat.runtime.model_registry import build_planner_gateway
 from app.chat.runtime.planning.prompts import CREATE_PLAN_SCHEMA, PLANNER_SYSTEM_PROMPT

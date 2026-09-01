@@ -201,7 +201,7 @@ PPT 生成教学视频这条链路不能按单纯 `mp4` 文件播放来设计。
 推荐目录：
 
 ```text
-api/course_data/courses/{course_id}/generated_materials/lecture_sessions/{session_id}/
+backend/course_data/courses/{course_id}/generated_materials/lecture_sessions/{session_id}/
   snapshot.json
   recording.mp4
   metadata.json

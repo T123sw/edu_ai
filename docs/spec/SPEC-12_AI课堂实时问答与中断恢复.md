@@ -414,7 +414,7 @@ sidecar 返回 base64 后，后端解码、限制最大 10 MiB、按返回 forma
 ### 11.1 目录
 
 ```text
-api/course_data/courses/{course_id}/generated_materials/classrooms/
+backend/course_data/courses/{course_id}/generated_materials/classrooms/
   {classroom_id}_media/qa/{owner_hash}/
     session.json
     audio/

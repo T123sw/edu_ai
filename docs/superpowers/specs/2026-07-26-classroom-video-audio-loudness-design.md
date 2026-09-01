@@ -118,10 +118,10 @@ loudnorm=I=-16:TP=-1.5:LRA=11
 
 预计仅修改：
 
-- `Edu_AI/scripts/videoPipeline.ts`
+- `frontend/scripts/videoPipeline.ts`
   - 更新音频滤镜图；
   - 补充最终音频采样率和码率参数。
-- `Edu_AI/scripts/videoPipeline.test.ts`
+- `frontend/scripts/videoPipeline.test.ts`
   - 更新现有参数断言；
   - 增加多旁白输入不再按输入数衰减的回归断言；
   - 保留无旁白行为测试。
@@ -176,4 +176,4 @@ loudnorm=I=-16:TP=-1.5:LRA=11
 2. 实施计划单独提交；
 3. 失败测试与实现按可验证的小阶段提交；
 4. 验证通过后再合并到 `main`；
-5. 不带入 `main` 工作区中用户尚未提交的 `Edu_AI/package.json` 修改。
+5. 不带入 `main` 工作区中用户尚未提交的 `frontend/package.json` 修改。

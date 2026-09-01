@@ -29,41 +29,41 @@
 
 | File | Responsibility |
 | --- | --- |
-| `Edu_AI/src/openmaic/playbackEngine.ts` | Sentence-level checkpoint semantics and suspend/resume |
-| `Edu_AI/src/openmaic/actionEngine.ts` | Cancel current media without disposing the reusable action engine |
-| `Edu_AI/src/openmaic/pagePlaybackController.ts` | Bind the concrete scene runtime and coordinate interruption state |
-| `Edu_AI/src/openmaic/SceneActionPlayback.tsx` | Expose a `PlaybackRuntimeHandle` from the renderer-owned engine |
-| `Edu_AI/src/openmaic/{SlidePlayer,InteractiveScenePlayer,QuizScenePlayer,ClassroomSceneRenderer}.tsx` | Forward runtime-ready callbacks |
-| `Edu_AI/src/stitch/api/classroomQa.ts` | Session, turn, and authenticated audio API adapter |
-| `Edu_AI/src/stitch/classroomQa/classroomQaState.ts` | Pure Q&A state transitions |
-| `Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts` | Pause → submit → speak → resume orchestration |
-| `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx` | Accessible question/history/status UI |
-| `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css` | Normal, fullscreen, and narrow-layout styling |
-| `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx` | Compose the playback controller and Q&A feature |
+| `frontend/src/openmaic/playbackEngine.ts` | Sentence-level checkpoint semantics and suspend/resume |
+| `frontend/src/openmaic/actionEngine.ts` | Cancel current media without disposing the reusable action engine |
+| `frontend/src/openmaic/pagePlaybackController.ts` | Bind the concrete scene runtime and coordinate interruption state |
+| `frontend/src/openmaic/SceneActionPlayback.tsx` | Expose a `PlaybackRuntimeHandle` from the renderer-owned engine |
+| `frontend/src/openmaic/{SlidePlayer,InteractiveScenePlayer,QuizScenePlayer,ClassroomSceneRenderer}.tsx` | Forward runtime-ready callbacks |
+| `frontend/src/stitch/api/classroomQa.ts` | Session, turn, and authenticated audio API adapter |
+| `frontend/src/stitch/classroomQa/classroomQaState.ts` | Pure Q&A state transitions |
+| `frontend/src/stitch/classroomQa/useClassroomInterruption.ts` | Pause → submit → speak → resume orchestration |
+| `frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx` | Accessible question/history/status UI |
+| `frontend/src/stitch/classroomQa/ClassroomQaPanel.css` | Normal, fullscreen, and narrow-layout styling |
+| `frontend/src/stitch/pages/ClassroomPlayer.tsx` | Compose the playback controller and Q&A feature |
 
 ### Backend
 
 | File | Responsibility |
 | --- | --- |
-| `Edu_AI/api/src/app/schemas/classroom_qa.py` | Pydantic request/response contracts |
-| `Edu_AI/api/src/app/services/classroom_qa_store.py` | Per-student atomic session persistence and idempotency |
-| `Edu_AI/api/src/app/services/classroom_qa_prompt.py` | Trusted classroom context and structured prompt/parser |
-| `Edu_AI/api/src/app/services/classroom_qa_tts.py` | Qwen TTS call, validation, and atomic audio persistence |
-| `Edu_AI/api/src/app/services/classroom_qa_service.py` | End-to-end turn orchestration and stable errors |
-| `Edu_AI/api/src/app/api/classroom_qa.py` | Course-authorized session, turn, and audio routes |
-| `Edu_AI/api/src/app/integrations/openmaic/client.py` | `/api/generate/tts` client method |
-| `Edu_AI/api/src/core/course_storage.py` | Resolve the owner-hashed classroom Q&A directory |
-| `Edu_AI/api/src/app/bootstrap.py` | Register the new router |
+| `backend/src/app/schemas/classroom_qa.py` | Pydantic request/response contracts |
+| `backend/src/app/services/classroom_qa_store.py` | Per-student atomic session persistence and idempotency |
+| `backend/src/app/services/classroom_qa_prompt.py` | Trusted classroom context and structured prompt/parser |
+| `backend/src/app/services/classroom_qa_tts.py` | Qwen TTS call, validation, and atomic audio persistence |
+| `backend/src/app/services/classroom_qa_service.py` | End-to-end turn orchestration and stable errors |
+| `backend/src/app/api/classroom_qa.py` | Course-authorized session, turn, and audio routes |
+| `backend/src/app/integrations/openmaic/client.py` | `/api/generate/tts` client method |
+| `backend/src/core/course_storage.py` | Resolve the owner-hashed classroom Q&A directory |
+| `backend/src/app/bootstrap.py` | Register the new router |
 
 ---
 
 ### Task 1: Add cancellable action execution and playback checkpoints
 
 **Files:**
-- Modify: `Edu_AI/src/openmaic/actionEngine.ts`
-- Modify: `Edu_AI/src/openmaic/actionEngine.test.ts`
-- Modify: `Edu_AI/src/openmaic/playbackEngine.ts`
-- Modify: `Edu_AI/src/openmaic/playbackEngine.test.ts`
+- Modify: `frontend/src/openmaic/actionEngine.ts`
+- Modify: `frontend/src/openmaic/actionEngine.test.ts`
+- Modify: `frontend/src/openmaic/playbackEngine.ts`
+- Modify: `frontend/src/openmaic/playbackEngine.test.ts`
 
 **Interfaces:**
 - Consumes: existing `ActionMediaAdapter.cancel()`, `ActionEngine.execute()`, compiled timeline entries.
@@ -238,7 +238,7 @@ Expected: PASS; no existing cancellation, focus, video, ordering, or stale-run t
 - [ ] **Step 8: Commit Task 1**
 
 ```powershell
-git add Edu_AI/src/openmaic/actionEngine.ts Edu_AI/src/openmaic/actionEngine.test.ts Edu_AI/src/openmaic/playbackEngine.ts Edu_AI/src/openmaic/playbackEngine.test.ts
+git add frontend/src/openmaic/actionEngine.ts frontend/src/openmaic/actionEngine.test.ts frontend/src/openmaic/playbackEngine.ts frontend/src/openmaic/playbackEngine.test.ts
 git commit -m "feat(classroom): add resumable playback checkpoints"
 ```
 
@@ -247,13 +247,13 @@ git commit -m "feat(classroom): add resumable playback checkpoints"
 ### Task 2: Expose the concrete playback runtime to the classroom page
 
 **Files:**
-- Modify: `Edu_AI/src/openmaic/pagePlaybackController.ts`
-- Modify: `Edu_AI/src/openmaic/pagePlaybackController.test.ts`
-- Modify: `Edu_AI/src/openmaic/SceneActionPlayback.tsx`
-- Modify: `Edu_AI/src/openmaic/SlidePlayer.tsx`
-- Modify: `Edu_AI/src/openmaic/InteractiveScenePlayer.tsx`
-- Modify: `Edu_AI/src/openmaic/QuizScenePlayer.tsx`
-- Modify: `Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx`
+- Modify: `frontend/src/openmaic/pagePlaybackController.ts`
+- Modify: `frontend/src/openmaic/pagePlaybackController.test.ts`
+- Modify: `frontend/src/openmaic/SceneActionPlayback.tsx`
+- Modify: `frontend/src/openmaic/SlidePlayer.tsx`
+- Modify: `frontend/src/openmaic/InteractiveScenePlayer.tsx`
+- Modify: `frontend/src/openmaic/QuizScenePlayer.tsx`
+- Modify: `frontend/src/openmaic/ClassroomSceneRenderer.tsx`
 
 **Interfaces:**
 - Consumes: `PlaybackEngine.suspend/resume`, `PlaybackCheckpoint` from Task 1.
@@ -366,7 +366,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit Task 2**
 
 ```powershell
-git add Edu_AI/src/openmaic/pagePlaybackController.ts Edu_AI/src/openmaic/pagePlaybackController.test.ts Edu_AI/src/openmaic/SceneActionPlayback.tsx Edu_AI/src/openmaic/SlidePlayer.tsx Edu_AI/src/openmaic/InteractiveScenePlayer.tsx Edu_AI/src/openmaic/QuizScenePlayer.tsx Edu_AI/src/openmaic/ClassroomSceneRenderer.tsx
+git add frontend/src/openmaic/pagePlaybackController.ts frontend/src/openmaic/pagePlaybackController.test.ts frontend/src/openmaic/SceneActionPlayback.tsx frontend/src/openmaic/SlidePlayer.tsx frontend/src/openmaic/InteractiveScenePlayer.tsx frontend/src/openmaic/QuizScenePlayer.tsx frontend/src/openmaic/ClassroomSceneRenderer.tsx
 git commit -m "refactor(classroom): expose interruptible scene runtime"
 ```
 
@@ -375,11 +375,11 @@ git commit -m "refactor(classroom): expose interruptible scene runtime"
 ### Task 3: Define classroom Q&A contracts and atomic per-student storage
 
 **Files:**
-- Create: `Edu_AI/api/src/app/schemas/classroom_qa.py`
-- Create: `Edu_AI/api/src/app/services/classroom_qa_store.py`
-- Create: `Edu_AI/api/src/tests/test_classroom_qa_store.py`
-- Modify: `Edu_AI/api/src/core/course_storage.py`
-- Modify: `Edu_AI/api/src/tests/core/test_course_storage_generated_materials.py`
+- Create: `backend/src/app/schemas/classroom_qa.py`
+- Create: `backend/src/app/services/classroom_qa_store.py`
+- Create: `backend/src/tests/test_classroom_qa_store.py`
+- Modify: `backend/src/core/course_storage.py`
+- Modify: `backend/src/tests/core/test_course_storage_generated_materials.py`
 
 **Interfaces:**
 - Consumes: `CourseStorageManager.get_classroom_video_dir` directory conventions and atomic material persistence patterns.
@@ -423,7 +423,7 @@ Add store tests for read-without-write on an empty session, same owner idempoten
 - [ ] **Step 2: Run storage tests and verify failure**
 
 ```powershell
-Set-Location D:\github\edu_ai\Edu_AI\api\src
+Set-Location D:\github\edu_ai\backend\src
 python -m pytest tests/test_classroom_qa_store.py tests/core/test_course_storage_generated_materials.py -q
 ```
 
@@ -481,7 +481,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit Task 3**
 
 ```powershell
-git add Edu_AI/api/src/app/schemas/classroom_qa.py Edu_AI/api/src/app/services/classroom_qa_store.py Edu_AI/api/src/tests/test_classroom_qa_store.py Edu_AI/api/src/core/course_storage.py Edu_AI/api/src/tests/core/test_course_storage_generated_materials.py
+git add backend/src/app/schemas/classroom_qa.py backend/src/app/services/classroom_qa_store.py backend/src/tests/test_classroom_qa_store.py backend/src/core/course_storage.py backend/src/tests/core/test_course_storage_generated_materials.py
 git commit -m "feat(classroom): add isolated QA session storage"
 ```
 
@@ -490,10 +490,10 @@ git commit -m "feat(classroom): add isolated QA session storage"
 ### Task 4: Add OpenMAIC Qwen TTS synthesis to the Python client
 
 **Files:**
-- Modify: `Edu_AI/api/src/app/integrations/openmaic/client.py`
-- Modify: `Edu_AI/api/src/tests/test_openmaic_client.py`
-- Modify: `Edu_AI/api/src/core/config.py`
-- Modify: `Edu_AI/api/src/.env.example`
+- Modify: `backend/src/app/integrations/openmaic/client.py`
+- Modify: `backend/src/tests/test_openmaic_client.py`
+- Modify: `backend/src/core/config.py`
+- Modify: `backend/src/.env.example`
 
 **Interfaces:**
 - Consumes: sidecar `POST /api/generate/tts` success envelope `{success,data:{audioId,base64,format}}`.
@@ -584,7 +584,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit Task 4**
 
 ```powershell
-git add Edu_AI/api/src/app/integrations/openmaic/client.py Edu_AI/api/src/tests/test_openmaic_client.py Edu_AI/api/src/core/config.py Edu_AI/api/src/.env.example
+git add backend/src/app/integrations/openmaic/client.py backend/src/tests/test_openmaic_client.py backend/src/core/config.py backend/src/.env.example
 git commit -m "feat(openmaic): add server-managed Qwen TTS client"
 ```
 
@@ -593,8 +593,8 @@ git commit -m "feat(openmaic): add server-managed Qwen TTS client"
 ### Task 5: Build trusted classroom context and the focused answer generator
 
 **Files:**
-- Create: `Edu_AI/api/src/app/services/classroom_qa_prompt.py`
-- Create: `Edu_AI/api/src/tests/test_classroom_qa_prompt.py`
+- Create: `backend/src/app/services/classroom_qa_prompt.py`
+- Create: `backend/src/tests/test_classroom_qa_prompt.py`
 
 **Interfaces:**
 - Consumes: persisted classroom material, validated checkpoint, recent session turns, RAG payload, existing model gateway.
@@ -688,7 +688,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit Task 5**
 
 ```powershell
-git add Edu_AI/api/src/app/services/classroom_qa_prompt.py Edu_AI/api/src/tests/test_classroom_qa_prompt.py
+git add backend/src/app/services/classroom_qa_prompt.py backend/src/tests/test_classroom_qa_prompt.py
 git commit -m "feat(classroom): build trusted QA teaching context"
 ```
 
@@ -697,9 +697,9 @@ git commit -m "feat(classroom): build trusted QA teaching context"
 ### Task 6: Orchestrate idempotent Agent answers and Qwen audio persistence
 
 **Files:**
-- Create: `Edu_AI/api/src/app/services/classroom_qa_tts.py`
-- Create: `Edu_AI/api/src/app/services/classroom_qa_service.py`
-- Create: `Edu_AI/api/src/tests/test_classroom_qa_service.py`
+- Create: `backend/src/app/services/classroom_qa_tts.py`
+- Create: `backend/src/app/services/classroom_qa_service.py`
+- Create: `backend/src/tests/test_classroom_qa_service.py`
 
 **Interfaces:**
 - Consumes: Task 3 store, Task 4 `OpenMaicClient.synthesize_tts`, Task 5 prompt functions, existing `rag_search_tool`, existing model gateway.
@@ -791,7 +791,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit Task 6**
 
 ```powershell
-git add Edu_AI/api/src/app/services/classroom_qa_tts.py Edu_AI/api/src/app/services/classroom_qa_service.py Edu_AI/api/src/tests/test_classroom_qa_service.py
+git add backend/src/app/services/classroom_qa_tts.py backend/src/app/services/classroom_qa_service.py backend/src/tests/test_classroom_qa_service.py
 git commit -m "feat(classroom): answer QA turns with Qwen speech"
 ```
 
@@ -800,9 +800,9 @@ git commit -m "feat(classroom): answer QA turns with Qwen speech"
 ### Task 7: Expose authorized classroom Q&A and audio routes
 
 **Files:**
-- Create: `Edu_AI/api/src/app/api/classroom_qa.py`
-- Create: `Edu_AI/api/src/tests/test_classroom_qa_routes.py`
-- Modify: `Edu_AI/api/src/app/bootstrap.py`
+- Create: `backend/src/app/api/classroom_qa.py`
+- Create: `backend/src/tests/test_classroom_qa_routes.py`
+- Modify: `backend/src/app/bootstrap.py`
 
 **Interfaces:**
 - Consumes: `require_course_read`, Task 3 schemas/store, Task 6 service.
@@ -873,7 +873,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit Task 7**
 
 ```powershell
-git add Edu_AI/api/src/app/api/classroom_qa.py Edu_AI/api/src/tests/test_classroom_qa_routes.py Edu_AI/api/src/app/bootstrap.py
+git add backend/src/app/api/classroom_qa.py backend/src/tests/test_classroom_qa_routes.py backend/src/app/bootstrap.py
 git commit -m "feat(api): expose student classroom QA sessions"
 ```
 
@@ -882,11 +882,11 @@ git commit -m "feat(api): expose student classroom QA sessions"
 ### Task 8: Add the frontend Q&A API and pure state machine
 
 **Files:**
-- Create: `Edu_AI/src/stitch/api/classroomQa.ts`
-- Create: `Edu_AI/src/stitch/api/classroomQa.test.ts`
-- Create: `Edu_AI/src/stitch/classroomQa/classroomQaState.ts`
-- Create: `Edu_AI/src/stitch/classroomQa/classroomQaState.test.ts`
-- Modify: `Edu_AI/src/stitch/api/types.ts`
+- Create: `frontend/src/stitch/api/classroomQa.ts`
+- Create: `frontend/src/stitch/api/classroomQa.test.ts`
+- Create: `frontend/src/stitch/classroomQa/classroomQaState.ts`
+- Create: `frontend/src/stitch/classroomQa/classroomQaState.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
 
 **Interfaces:**
 - Consumes: Task 7 HTTP contracts and existing `apiRequest`, `apiBlob` patterns.
@@ -944,7 +944,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit Task 8**
 
 ```powershell
-git add Edu_AI/src/stitch/api/classroomQa.ts Edu_AI/src/stitch/api/classroomQa.test.ts Edu_AI/src/stitch/classroomQa/classroomQaState.ts Edu_AI/src/stitch/classroomQa/classroomQaState.test.ts Edu_AI/src/stitch/api/types.ts
+git add frontend/src/stitch/api/classroomQa.ts frontend/src/stitch/api/classroomQa.test.ts frontend/src/stitch/classroomQa/classroomQaState.ts frontend/src/stitch/classroomQa/classroomQaState.test.ts frontend/src/stitch/api/types.ts
 git commit -m "feat(classroom): add QA client state and API"
 ```
 
@@ -953,8 +953,8 @@ git commit -m "feat(classroom): add QA client state and API"
 ### Task 9: Implement the interruption coordinator
 
 **Files:**
-- Create: `Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts`
-- Create: `Edu_AI/src/stitch/classroomQa/useClassroomInterruption.test.ts`
+- Create: `frontend/src/stitch/classroomQa/useClassroomInterruption.ts`
+- Create: `frontend/src/stitch/classroomQa/useClassroomInterruption.test.ts`
 
 **Interfaces:**
 - Consumes: Task 2 page controller/runtime, Task 8 API/reducer, browser Audio and SpeechSynthesis adapters.
@@ -1034,7 +1034,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit Task 9**
 
 ```powershell
-git add Edu_AI/src/stitch/classroomQa/useClassroomInterruption.ts Edu_AI/src/stitch/classroomQa/useClassroomInterruption.test.ts
+git add frontend/src/stitch/classroomQa/useClassroomInterruption.ts frontend/src/stitch/classroomQa/useClassroomInterruption.test.ts
 git commit -m "feat(classroom): orchestrate QA interruption and resume"
 ```
 
@@ -1043,11 +1043,11 @@ git commit -m "feat(classroom): orchestrate QA interruption and resume"
 ### Task 10: Add the Q&A panel and integrate it into Classroom Player
 
 **Files:**
-- Create: `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx`
-- Create: `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css`
-- Create: `Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.test.ts`
-- Modify: `Edu_AI/src/stitch/pages/ClassroomPlayer.tsx`
-- Modify: `Edu_AI/src/stitch/styles.css`
+- Create: `frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx`
+- Create: `frontend/src/stitch/classroomQa/ClassroomQaPanel.css`
+- Create: `frontend/src/stitch/classroomQa/ClassroomQaPanel.test.ts`
+- Modify: `frontend/src/stitch/pages/ClassroomPlayer.tsx`
+- Modify: `frontend/src/stitch/styles.css`
 
 **Interfaces:**
 - Consumes: Task 2 runtime-ready callback, Task 9 hook controller.
@@ -1117,7 +1117,7 @@ Expected: tests PASS, lint 0 errors, build success.
 - [ ] **Step 7: Commit Task 10**
 
 ```powershell
-git add Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.tsx Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.css Edu_AI/src/stitch/classroomQa/ClassroomQaPanel.test.ts Edu_AI/src/stitch/pages/ClassroomPlayer.tsx Edu_AI/src/stitch/styles.css
+git add frontend/src/stitch/classroomQa/ClassroomQaPanel.tsx frontend/src/stitch/classroomQa/ClassroomQaPanel.css frontend/src/stitch/classroomQa/ClassroomQaPanel.test.ts frontend/src/stitch/pages/ClassroomPlayer.tsx frontend/src/stitch/styles.css
 git commit -m "feat(classroom): add realtime student QA panel"
 ```
 
@@ -1153,7 +1153,7 @@ Expected: exit 0.
 - [ ] **Step 2: Run all focused backend tests**
 
 ```powershell
-Set-Location D:\github\edu_ai\Edu_AI\api\src
+Set-Location D:\github\edu_ai\backend\src
 python -m pytest `
   tests/test_openmaic_client.py `
   tests/test_classroom_qa_store.py `
@@ -1181,7 +1181,7 @@ Expected: all commands exit 0; lint has no new warnings attributable to this fea
 - [ ] **Step 4: Run classroom backend regressions**
 
 ```powershell
-Set-Location D:\github\edu_ai\Edu_AI\api\src
+Set-Location D:\github\edu_ai\backend\src
 python -m pytest `
   tests/test_classroom_media.py `
   tests/test_classroom_persistence.py `
@@ -1197,7 +1197,7 @@ Expected: exit 0.
 
 ```powershell
 Set-Location D:\github\edu_ai
-rg -n -S "LiveTalking|teaching_video_bridge|ai_lecturer_bridge|RTCPeerConnection" Edu_AI/src Edu_AI/api/src/app Edu_AI/.env.example Edu_AI/api/src/.env.example
+rg -n -S "LiveTalking|teaching_video_bridge|ai_lecturer_bridge|RTCPeerConnection" frontend/src backend/src/app .env.example backend/src/.env.example
 ```
 
 Expected: no new runtime dependency; document any pre-existing retirement assertion hit.

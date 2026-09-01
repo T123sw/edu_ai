@@ -34,8 +34,8 @@
 
 ## D-005 后端测试执行目录
 
-- 问题：计划最初从 `Edu_AI/api` 执行 `python -m pytest src/tests/...`，当前工程的 `app` 包并未在该目录自动进入模块搜索路径，导致 `No module named app`，无法形成有效红灯或回归证据。
-- 采用：所有后端 pytest 与 Alembic 命令从 `Edu_AI/api/src` 执行，测试路径相应写为 `tests/...`。
+- 问题：计划最初从 `backend` 执行 `python -m pytest src/tests/...`，当前工程的 `app` 包并未在该目录自动进入模块搜索路径，导致 `No module named app`，无法形成有效红灯或回归证据。
+- 采用：所有后端 pytest 与 Alembic 命令从 `backend/src` 执行，测试路径相应写为 `tests/...`。
 - 备选：在命令中临时设置 `PYTHONPATH`；修改全局 Python 环境；为测试安装可编辑包。
 - 影响：不改变开发机或 CI 全局环境，命令与仓库现有导入布局一致；计划中的执行命令同步修正。
 

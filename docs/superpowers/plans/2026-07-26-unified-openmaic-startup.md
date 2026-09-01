@@ -16,7 +16,7 @@ pytest static startup tests.
 ### Task 1: Add startup contract tests
 
 **Files:**
-- Modify: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
+- Modify: `backend/src/tests/chat/test_start_api_bat.py`
 
 - [ ] Add tests asserting `start_api.bat` contains `openmaic-sidecar`, port `3000`,
   `pnpm.cmd dev`, `/api/health`, and waits for sidecar health before invoking uvicorn.
@@ -27,7 +27,7 @@ pytest static startup tests.
 ### Task 2: Implement safe sidecar orchestration
 
 **Files:**
-- Modify: `Edu_AI/api/src/start_api.bat`
+- Modify: `backend/src/start_api.bat`
 
 - [ ] Resolve `REPO_ROOT` and `SIDECAR_DIR` from the script location.
 - [ ] Extend `--check` with sidecar structure checks.
@@ -41,8 +41,8 @@ pytest static startup tests.
 ### Task 3: Verify and commit
 
 **Files:**
-- Test: `Edu_AI/api/src/tests/chat/test_start_api_bat.py`
-- Test: `Edu_AI/api/src/tests/app/test_legacy_services_retired.py`
+- Test: `backend/src/tests/chat/test_start_api_bat.py`
+- Test: `backend/src/tests/app/test_legacy_services_retired.py`
 
 - [ ] Run the focused startup tests.
 - [ ] Run `start_api.bat --check`.

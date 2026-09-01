@@ -186,9 +186,9 @@ OpenMAIC 这块设计值得**整体保留** —— **BYOK（用户自带 key）+
 
 | 现有 | 处置 | 说明 |
 | --- | --- | --- |
-| `Edu_AI/api/src/app/chat/workflows/ppt/`（html2ppt 整链：content_markdown_generator、html2ppt_client、content_* 等）| **删/归档** | 被 sidecar generate-classroom + Slide DSL 取代 |
-| `Edu_AI/api/src/modules/AI_Lecturer/` 全套（`Wav2Lip_Offline/`、`LiveTalking-main/`、`offline_video_maker.py`、`unified_gateway.py`、`assets/avatar_*`）| **删/归档** | 数字人放弃；视频改无头回放录制 |
-| `Edu_AI/api/src/app/teaching_video_bridge.py` | **删/归档** | PPT→视频桥接逻辑被「同源时间线」取代 |
+| `backend/src/app/chat/workflows/ppt/`（html2ppt 整链：content_markdown_generator、html2ppt_client、content_* 等）| **删/归档** | 被 sidecar generate-classroom + Slide DSL 取代 |
+| `backend/src/modules/AI_Lecturer/` 全套（`Wav2Lip_Offline/`、`LiveTalking-main/`、`offline_video_maker.py`、`unified_gateway.py`、`assets/avatar_*`）| **删/归档** | 数字人放弃；视频改无头回放录制 |
+| `backend/src/app/teaching_video_bridge.py` | **删/归档** | PPT→视频桥接逻辑被「同源时间线」取代 |
 | `scripts/mineru.py` 本地解析链路 | **替换** | 改调 sidecar `/api/parse-pdf`（mineru-cloud）|
 
 ### 5.2 替换映射

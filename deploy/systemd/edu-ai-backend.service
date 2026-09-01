@@ -1,0 +1,16 @@
+[Unit]
+Description=Edu-AI FastAPI Backend
+After=network.target
+
+[Service]
+Type=simple
+User=zxqs_ep
+Group=zxqs_ep
+WorkingDirectory=/home/zxqs_ep/Edu_AI/backend/src
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

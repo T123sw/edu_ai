@@ -13,22 +13,22 @@
 ### Task 1: Lock helper behavior
 
 **Files:**
-- Modify: `Edu_AI/tests/frontend/materials.helpers.test.ts`
-- Modify: `Edu_AI/src/services/teacher/materials.helpers.ts`
+- Modify: `frontend/tests/frontend/materials.helpers.test.ts`
+- Modify: `frontend/src/services/teacher/materials.helpers.ts`
 
 - [ ] **Step 1: Write the failing test**
-- [ ] **Step 2: Run `node --experimental-strip-types Edu_AI/tests/frontend/materials.helpers.test.ts` and verify it fails**
+- [ ] **Step 2: Run `node --experimental-strip-types frontend/tests/frontend/materials.helpers.test.ts` and verify it fails**
 - [ ] **Step 3: Add `isArtifactReferenceEligible`, `replaceConversationGeneratedFiles`, `clearConversationGeneratedFiles`, and `origin: 'course_material'` metadata**
 - [ ] **Step 4: Re-run the helper test and verify it passes**
 
 ### Task 2: Tighten store and chat restore flow
 
 **Files:**
-- Modify: `Edu_AI/tests/frontend/chatPanel.artifact-reference.test.ts`
-- Modify: `Edu_AI/tests/frontend/chatPanel.restore-preview.test.ts`
-- Modify: `Edu_AI/src/store/teacher/useStore.ts`
-- Modify: `Edu_AI/src/components/teacher/ChatPanel.tsx`
-- Modify: `Edu_AI/src/services/teacher/chatV2.helpers.ts`
+- Modify: `frontend/tests/frontend/chatPanel.artifact-reference.test.ts`
+- Modify: `frontend/tests/frontend/chatPanel.restore-preview.test.ts`
+- Modify: `frontend/src/store/teacher/useStore.ts`
+- Modify: `frontend/src/components/teacher/ChatPanel.tsx`
+- Modify: `frontend/src/services/teacher/chatV2.helpers.ts`
 
 - [ ] **Step 1: Write failing tests for store methods and restore behavior**
 - [ ] **Step 2: Run the two frontend tests and verify they fail**
@@ -40,11 +40,11 @@
 ### Task 3: Restrict add-to-chat to report artifacts
 
 **Files:**
-- Modify: `Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/tests/frontend/studioPanel.add-to-chat.test.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
 
 - [ ] **Step 1: Write the failing test for report-only add-to-chat eligibility**
-- [ ] **Step 2: Run `node --experimental-strip-types Edu_AI/tests/frontend/studioPanel.add-to-chat.test.ts` and verify it fails**
+- [ ] **Step 2: Run `node --experimental-strip-types frontend/tests/frontend/studioPanel.add-to-chat.test.ts` and verify it fails**
 - [ ] **Step 3: Update `StudioPanel` to hide unsupported add-to-chat entries**
 - [ ] **Step 4: Re-run the test and verify it passes**
 
@@ -55,4 +55,4 @@
 
 - [ ] **Step 1: Run the targeted frontend tests**
 - [ ] **Step 2: Run `cmd /c npm run build` in `Edu_AI/`**
-- [ ] **Step 3: Re-run backend artifact-reference tests in `Edu_AI/api/Edu_AI/` to confirm no regression**
+- [ ] **Step 3: Re-run backend artifact-reference tests in `backend/src/` to confirm no regression**

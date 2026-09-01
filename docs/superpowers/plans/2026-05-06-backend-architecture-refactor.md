@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 把 `Edu_AI/api/Edu_AI` 后端重构为分层清晰、职责明确、接口尽量兼容的单体架构。
+**Goal:** 把 `backend/src` 后端重构为分层清晰、职责明确、接口尽量兼容的单体架构。
 
 **Architecture:** 先瘦身 `app/main.py`，再把请求/响应模型、业务编排、领域规则和外部适配拆到独立层。路由层保留现有对外 API，service 层承接业务流程，domain 层只保留纯数据与规则，integrations 层封装 RAG、LLM、视频、语音和外部进程。`legacy` 只接短期兼容逻辑，`scripts/` 只保留开发验证工具。
 
@@ -13,12 +13,12 @@
 ### Task 1: Thin the application entrypoint
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/bootstrap.py`
-- Create: `Edu_AI/api/Edu_AI/app/dependencies.py`
-- Create: `Edu_AI/api/Edu_AI/app/exceptions.py`
-- Create: `Edu_AI/api/Edu_AI/app/api/__init__.py`
-- Modify: `Edu_AI/api/Edu_AI/app/main.py`
-- Test: `Edu_AI/api/Edu_AI/tests/app/test_bootstrap.py`
+- Create: `backend/src/app/bootstrap.py`
+- Create: `backend/src/app/dependencies.py`
+- Create: `backend/src/app/exceptions.py`
+- Create: `backend/src/app/api/__init__.py`
+- Modify: `backend/src/app/main.py`
+- Test: `backend/src/tests/app/test_bootstrap.py`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -41,13 +41,13 @@ def test_app_responds_to_health():
 
 - [ ] **Step 2: Run the test to confirm current entrypoint is too coupled**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/app/test_bootstrap.py -q`
+Run: `python -m pytest backend/src/tests/app/test_bootstrap.py -q`
 
 Expected: fail or import error until `main.py` becomes a stable import surface.
 
 - [ ] **Step 3: Implement the thin bootstrap layer**
 
-`Edu_AI/api/Edu_AI/app/bootstrap.py`
+`backend/src/app/bootstrap.py`
 ```python
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -97,7 +97,7 @@ def create_app() -> FastAPI:
     return app
 ```
 
-`Edu_AI/api/Edu_AI/app/main.py`
+`backend/src/app/main.py`
 ```python
 from app.bootstrap import create_app
 
@@ -111,29 +111,29 @@ if __name__ == "__main__":
 
 - [ ] **Step 4: Run the test again**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/app/test_bootstrap.py -q`
+Run: `python -m pytest backend/src/tests/app/test_bootstrap.py -q`
 
 Expected: pass.
 
 - [ ] **Step 5: Keep the import surface stable**
 
-Run: `python -m compileall Edu_AI/api/Edu_AI/app`
+Run: `python -m compileall backend/src/app`
 
 Expected: no syntax errors.
 
 ### Task 2: Extract request/response schemas out of `main.py` and auth routes
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/schemas/common.py`
-- Create: `Edu_AI/api/Edu_AI/app/schemas/auth.py`
-- Create: `Edu_AI/api/Edu_AI/app/schemas/chat.py`
-- Create: `Edu_AI/api/Edu_AI/app/schemas/lesson_plan.py`
-- Create: `Edu_AI/api/Edu_AI/app/schemas/report.py`
-- Create: `Edu_AI/api/Edu_AI/app/schemas/quiz.py`
-- Create: `Edu_AI/api/Edu_AI/app/schemas/question.py`
-- Modify: `Edu_AI/api/Edu_AI/app/main.py`
-- Modify: `Edu_AI/api/Edu_AI/app/auth.py`
-- Test: `Edu_AI/api/Edu_AI/tests/app/test_schema_imports.py`
+- Create: `backend/src/app/schemas/common.py`
+- Create: `backend/src/app/schemas/auth.py`
+- Create: `backend/src/app/schemas/chat.py`
+- Create: `backend/src/app/schemas/lesson_plan.py`
+- Create: `backend/src/app/schemas/report.py`
+- Create: `backend/src/app/schemas/quiz.py`
+- Create: `backend/src/app/schemas/question.py`
+- Modify: `backend/src/app/main.py`
+- Modify: `backend/src/app/auth.py`
+- Test: `backend/src/tests/app/test_schema_imports.py`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -148,13 +148,13 @@ def test_schema_modules_import_cleanly():
 
 - [ ] **Step 2: Run the test to confirm schemas are still embedded**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/app/test_schema_imports.py -q`
+Run: `python -m pytest backend/src/tests/app/test_schema_imports.py -q`
 
 Expected: fail until schema classes move out of `main.py` and `auth.py`.
 
 - [ ] **Step 3: Move the models into schema modules**
 
-`Edu_AI/api/Edu_AI/app/schemas/auth.py`
+`backend/src/app/schemas/auth.py`
 ```python
 from typing import Optional
 from pydantic import BaseModel, Field
@@ -177,7 +177,7 @@ class UserInfoResponse(BaseModel):
     role: str
 ```
 
-`Edu_AI/api/Edu_AI/app/schemas/chat.py`
+`backend/src/app/schemas/chat.py`
 ```python
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
@@ -207,23 +207,23 @@ Update `app/auth.py` and `app/main.py` so they import models from `app.schemas.*
 - [ ] **Step 5: Run the import test and compile**
 
 Run:
-`python -m pytest Edu_AI/api/Edu_AI/tests/app/test_schema_imports.py -q`
-`python -m compileall Edu_AI/api/Edu_AI/app`
+`python -m pytest backend/src/tests/app/test_schema_imports.py -q`
+`python -m compileall backend/src/app`
 
 Expected: both pass.
 
 ### Task 3: Split chat orchestration into service, domain, and integration layers
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/services/chat_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/domain/chat_models.py`
-- Create: `Edu_AI/api/Edu_AI/app/integrations/rag_client.py`
-- Create: `Edu_AI/api/Edu_AI/app/integrations/llm_client.py`
-- Create: `Edu_AI/api/Edu_AI/app/api/chat.py`
-- Modify: `Edu_AI/api/Edu_AI/app/main.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/api/routes_v2.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/__init__.py`
-- Test: `Edu_AI/api/Edu_AI/tests/app/test_chat_service.py`
+- Create: `backend/src/app/services/chat_service.py`
+- Create: `backend/src/app/domain/chat_models.py`
+- Create: `backend/src/app/integrations/rag_client.py`
+- Create: `backend/src/app/integrations/llm_client.py`
+- Create: `backend/src/app/api/chat.py`
+- Modify: `backend/src/app/main.py`
+- Modify: `backend/src/app/chat/api/routes_v2.py`
+- Modify: `backend/src/app/chat/__init__.py`
+- Test: `backend/src/tests/app/test_chat_service.py`
 
 - [ ] **Step 1: Write the failing service test**
 
@@ -239,13 +239,13 @@ def test_chat_service_assembles_history_and_calls_rag():
 
 - [ ] **Step 2: Run the test to confirm service does not exist yet**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/app/test_chat_service.py -q`
+Run: `python -m pytest backend/src/tests/app/test_chat_service.py -q`
 
 Expected: fail with import or attribute errors.
 
 - [ ] **Step 3: Implement the chat service boundary**
 
-`Edu_AI/api/Edu_AI/app/services/chat_service.py`
+`backend/src/app/services/chat_service.py`
 ```python
 from datetime import datetime
 from core.config import Config
@@ -288,31 +288,31 @@ If any internal module still imports the old chat entry, point it to the new ser
 - [ ] **Step 5: Run the chat test and a focused import scan**
 
 Run:
-`python -m pytest Edu_AI/api/Edu_AI/tests/app/test_chat_service.py -q`
-`rg -n "def chat\\(|def generate_lesson_plan\\(|def generate_questions\\(" Edu_AI/api/Edu_AI/app/main.py`
+`python -m pytest backend/src/tests/app/test_chat_service.py -q`
+`rg -n "def chat\\(|def generate_lesson_plan\\(|def generate_questions\\(" backend/src/app/main.py`
 
 Expected: test passes and `main.py` no longer holds chat business logic.
 
 ### Task 4: Move lesson plan, report, quiz, question, course, pipeline, video, speech, and deepsearch logic behind services
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/services/lesson_plan_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/report_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/quiz_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/question_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/course_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/pipeline_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/video_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/speech_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/services/deepsearch_service.py`
-- Create: `Edu_AI/api/Edu_AI/app/integrations/lecturer_manager.py`
-- Modify: `Edu_AI/api/Edu_AI/app/main.py`
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Modify: `Edu_AI/api/Edu_AI/app/pipeline/routes.py`
-- Modify: `Edu_AI/api/Edu_AI/app/video_routes.py`
-- Modify: `Edu_AI/api/Edu_AI/app/speech/routes.py`
-- Modify: `Edu_AI/api/Edu_AI/app/deepsearch.py`
-- Test: `Edu_AI/api/Edu_AI/tests/app/test_service_boundaries.py`
+- Create: `backend/src/app/services/lesson_plan_service.py`
+- Create: `backend/src/app/services/report_service.py`
+- Create: `backend/src/app/services/quiz_service.py`
+- Create: `backend/src/app/services/question_service.py`
+- Create: `backend/src/app/services/course_service.py`
+- Create: `backend/src/app/services/pipeline_service.py`
+- Create: `backend/src/app/services/video_service.py`
+- Create: `backend/src/app/services/speech_service.py`
+- Create: `backend/src/app/services/deepsearch_service.py`
+- Create: `backend/src/app/integrations/lecturer_manager.py`
+- Modify: `backend/src/app/main.py`
+- Modify: `backend/src/app/courses.py`
+- Modify: `backend/src/app/pipeline/routes.py`
+- Modify: `backend/src/app/video_routes.py`
+- Modify: `backend/src/app/speech/routes.py`
+- Modify: `backend/src/app/deepsearch.py`
+- Test: `backend/src/tests/app/test_service_boundaries.py`
 
 - [ ] **Step 1: Write the failing boundary test**
 
@@ -326,7 +326,7 @@ def test_main_has_no_business_functions():
 
 - [ ] **Step 2: Run the boundary test**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/app/test_service_boundaries.py -q`
+Run: `python -m pytest backend/src/tests/app/test_service_boundaries.py -q`
 
 Expected: fail until the business functions are removed from `main.py`.
 
@@ -350,36 +350,36 @@ Each route file should keep only the request/response mapping and `HTTPException
 - [ ] **Step 4: Run the boundary test and a focused endpoint smoke test**
 
 Run:
-`python -m pytest Edu_AI/api/Edu_AI/tests/app/test_service_boundaries.py -q`
-`python -m compileall Edu_AI/api/Edu_AI/app`
+`python -m pytest backend/src/tests/app/test_service_boundaries.py -q`
+`python -m compileall backend/src/app`
 
 Expected: boundary test passes, compile passes.
 
 ### Task 5: Isolate legacy code and test/probe scripts from the mainline
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/legacy/route_compat.py`
-- Create: `Edu_AI/api/Edu_AI/app/legacy/old_handlers/__init__.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/legacy/legacy_chat_runtime.py`
-- Modify: `Edu_AI/api/Edu_AI/app/chat/legacy/compat_service.py`
-- Modify: `Edu_AI/api/Edu_AI/scripts/check_report_skill_wiring.py`
-- Modify: `Edu_AI/api/Edu_AI/scripts/phase_a_smoke_test.py`
-- Modify: `Edu_AI/api/Edu_AI/scripts/test_report_service.py`
-- Modify: `Edu_AI/api/Edu_AI/scripts/test_stream_chat.py`
-- Test: `Edu_AI/api/Edu_AI/tests/app/test_legacy_boundary.py`
+- Create: `backend/src/app/legacy/route_compat.py`
+- Create: `backend/src/app/legacy/old_handlers/__init__.py`
+- Modify: `backend/src/app/chat/legacy/legacy_chat_runtime.py`
+- Modify: `backend/src/app/chat/legacy/compat_service.py`
+- Modify: `backend/src/scripts/check_report_skill_wiring.py`
+- Modify: `backend/src/scripts/phase_a_smoke_test.py`
+- Modify: `backend/src/scripts/test_report_service.py`
+- Modify: `backend/src/scripts/test_stream_chat.py`
+- Test: `backend/src/tests/app/test_legacy_boundary.py`
 
 - [ ] **Step 1: Write the failing boundary test**
 
 ```python
 def test_mainline_does_not_import_legacy_modules():
     import pathlib
-    main_text = pathlib.Path("Edu_AI/api/Edu_AI/app/main.py").read_text(encoding="utf-8")
+    main_text = pathlib.Path("backend/src/app/main.py").read_text(encoding="utf-8")
     assert "legacy" not in main_text.lower()
 ```
 
 - [ ] **Step 2: Run the boundary test**
 
-Run: `python -m pytest Edu_AI/api/Edu_AI/tests/app/test_legacy_boundary.py -q`
+Run: `python -m pytest backend/src/tests/app/test_legacy_boundary.py -q`
 
 Expected: fail until legacy references are removed from the mainline entrypoints.
 
@@ -394,18 +394,18 @@ Leave `scripts/` runnable for developer validation, but make sure nothing in `ap
 - [ ] **Step 5: Run the boundary test and import scan**
 
 Run:
-`python -m pytest Edu_AI/api/Edu_AI/tests/app/test_legacy_boundary.py -q`
-`rg "scripts\\.|from scripts|import scripts" Edu_AI/api/Edu_AI/app`
+`python -m pytest backend/src/tests/app/test_legacy_boundary.py -q`
+`rg "scripts\\.|from scripts|import scripts" backend/src/app`
 
 Expected: boundary test passes and `app/` has no imports from `scripts/`.
 
 ### Task 6: Verify, clean up, and document the new structure
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/README.md`
-- Modify: `Edu_AI/api/Edu_AI/STRUCTURE.md`
-- Modify: `Edu_AI/api/Edu_AI/docs/REFACTORING_SUMMARY.md`
-- Test: `Edu_AI/api/Edu_AI/tests/app/test_import_surface.py`
+- Modify: `backend/src/README.md`
+- Modify: `backend/src/STRUCTURE.md`
+- Modify: `backend/src/docs/REFACTORING_SUMMARY.md`
+- Test: `backend/src/tests/app/test_import_surface.py`
 
 - [ ] **Step 1: Write the final import-surface test**
 
@@ -421,8 +421,8 @@ def test_app_package_import_surface_is_small():
 - [ ] **Step 2: Run the full backend verification set**
 
 Run:
-`python -m pytest Edu_AI/api/Edu_AI/tests -q`
-`python -m compileall Edu_AI/api/Edu_AI`
+`python -m pytest backend/src/tests -q`
+`python -m compileall backend/src`
 
 Expected: pass, or fail only in clearly unrelated legacy pockets that are explicitly out of scope for this phase.
 
@@ -433,13 +433,13 @@ Document the new `app/api`, `app/services`, `app/domain`, `app/integrations`, `a
 - [ ] **Step 4: Final import scan**
 
 Run:
-`rg -n "from app\\.main import|from .*legacy|import .*scripts" Edu_AI/api/Edu_AI`
+`rg -n "from app\\.main import|from .*legacy|import .*scripts" backend/src`
 
 Expected: no new mainline imports from legacy or scripts.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Edu_AI/api/Edu_AI/app Edu_AI/api/Edu_AI/tests Edu_AI/api/Edu_AI/README.md Edu_AI/api/Edu_AI/STRUCTURE.md Edu_AI/api/Edu_AI/docs/REFACTORING_SUMMARY.md
+git add backend/src/app backend/src/tests backend/src/README.md backend/src/STRUCTURE.md backend/src/docs/REFACTORING_SUMMARY.md
 git commit -m "refactor: clarify backend architecture"
 ```

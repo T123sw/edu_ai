@@ -12,33 +12,33 @@
 
 ## File Structure
 
-- Modify `Edu_AI/api/Edu_AI/core/course_storage.py`: add `ai_lecture_session` to generated material storage mapping.
-- Create `Edu_AI/api/Edu_AI/app/ai_lecture_sessions.py`: service, request models, response models, snapshot helpers, recording client, and recording file persistence.
-- Modify `Edu_AI/api/Edu_AI/app/courses.py`: expose lecture-session routes and delegate to the new service.
-- Modify `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/avatars/base_avatar.py`: make recording output session-specific instead of `data/record.mp4`.
-- Modify `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/routes.py`: return recording file metadata from `/record`.
-- Create `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/recording_paths.py`: pure helper for safe recording output paths.
-- Create `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_service.py`: backend service tests.
-- Create `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_routes.py`: route tests.
-- Create `Edu_AI/api/Edu_AI/tests/chat/test_livetalking_recording_paths.py`: path-contract test for LiveTalking recording helper.
-- Modify `Edu_AI/src/stitch/api/types.ts`: add AI lecture session, snapshot, and WebRTC offer types.
-- Modify `Edu_AI/src/stitch/api/video.ts`: add AI lecture session APIs and `offer` URL helper.
-- Create `Edu_AI/src/stitch/hooks/useAiLecturerWebRtc.ts`: React hook that owns `RTCPeerConnection`, media streams, `sessionId`, and cleanup.
-- Modify `Edu_AI/src/stitch/pages/VideoPlayer.tsx`: remove iframe path, use hook session id, load snapshots, patch events.
-- Modify `Edu_AI/src/stitch/pages/CourseResources.tsx`: render `ai_lecture_session` details with replay and continue-interaction entries.
-- Modify `Edu_AI/src/stitch/api/courses.ts`: add helper functions for lecture-session URLs and type-aware markdown fallback.
-- Create `Edu_AI/tests/frontend/aiLecturerApi.session.test.ts`: static API contract tests.
-- Create `Edu_AI/tests/frontend/aiLecturerWebRtcHook.test.ts`: static WebRTC hook contract tests.
-- Create `Edu_AI/tests/frontend/stitchCourseResources.aiLectureSession.test.ts`: static resource rendering tests.
-- Create `Edu_AI/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts`: static VideoPlayer session-id tests.
+- Modify `backend/src/core/course_storage.py`: add `ai_lecture_session` to generated material storage mapping.
+- Create `backend/src/app/ai_lecture_sessions.py`: service, request models, response models, snapshot helpers, recording client, and recording file persistence.
+- Modify `backend/src/app/courses.py`: expose lecture-session routes and delegate to the new service.
+- Modify `backend/src/AI_Lecturer/LiveTalking-main/avatars/base_avatar.py`: make recording output session-specific instead of `data/record.mp4`.
+- Modify `backend/src/AI_Lecturer/LiveTalking-main/server/routes.py`: return recording file metadata from `/record`.
+- Create `backend/src/AI_Lecturer/LiveTalking-main/server/recording_paths.py`: pure helper for safe recording output paths.
+- Create `backend/src/tests/chat/test_ai_lecture_session_service.py`: backend service tests.
+- Create `backend/src/tests/chat/test_ai_lecture_session_routes.py`: route tests.
+- Create `backend/src/tests/chat/test_livetalking_recording_paths.py`: path-contract test for LiveTalking recording helper.
+- Modify `frontend/src/stitch/api/types.ts`: add AI lecture session, snapshot, and WebRTC offer types.
+- Modify `frontend/src/stitch/api/video.ts`: add AI lecture session APIs and `offer` URL helper.
+- Create `frontend/src/stitch/hooks/useAiLecturerWebRtc.ts`: React hook that owns `RTCPeerConnection`, media streams, `sessionId`, and cleanup.
+- Modify `frontend/src/stitch/pages/VideoPlayer.tsx`: remove iframe path, use hook session id, load snapshots, patch events.
+- Modify `frontend/src/stitch/pages/CourseResources.tsx`: render `ai_lecture_session` details with replay and continue-interaction entries.
+- Modify `frontend/src/stitch/api/courses.ts`: add helper functions for lecture-session URLs and type-aware markdown fallback.
+- Create `frontend/tests/frontend/aiLecturerApi.session.test.ts`: static API contract tests.
+- Create `frontend/tests/frontend/aiLecturerWebRtcHook.test.ts`: static WebRTC hook contract tests.
+- Create `frontend/tests/frontend/stitchCourseResources.aiLectureSession.test.ts`: static resource rendering tests.
+- Create `frontend/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts`: static VideoPlayer session-id tests.
 
 ---
 
 ### Task 1: Add Storage Type For AI Lecture Sessions
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/core/course_storage.py`
-- Test: `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_service.py`
+- Modify: `backend/src/core/course_storage.py`
+- Test: `backend/src/tests/chat/test_ai_lecture_session_service.py`
 
 - [ ] **Step 1: Write the failing storage test**
 
@@ -103,7 +103,7 @@ def test_storage_maps_ai_lecture_sessions_to_dedicated_directory():
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_service.py::test_storage_maps_ai_lecture_sessions_to_dedicated_directory -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -111,7 +111,7 @@ Expected: FAIL because `ai_lecture_session` currently maps to `generated_materia
 
 - [ ] **Step 3: Add the storage mapping**
 
-In `Edu_AI/api/Edu_AI/core/course_storage.py`, update `TYPE_MAPPING`:
+In `backend/src/core/course_storage.py`, update `TYPE_MAPPING`:
 
 ```python
 TYPE_MAPPING = {
@@ -138,7 +138,7 @@ In `create_course_structure`, add the directory:
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_service.py::test_storage_maps_ai_lecture_sessions_to_dedicated_directory -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -147,7 +147,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/api/Edu_AI/core/course_storage.py Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_service.py
+git -C D:\Edu_AI_1 add backend/src/core/course_storage.py backend/src/tests/chat/test_ai_lecture_session_service.py
 git -C D:\Edu_AI_1 commit -m "Add AI lecture session material storage"
 ```
 
@@ -156,8 +156,8 @@ git -C D:\Edu_AI_1 commit -m "Add AI lecture session material storage"
 ### Task 2: Build Backend AI Lecture Session Service
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/app/ai_lecture_sessions.py`
-- Modify: `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_service.py`
+- Create: `backend/src/app/ai_lecture_sessions.py`
+- Modify: `backend/src/tests/chat/test_ai_lecture_session_service.py`
 
 - [ ] **Step 1: Extend service tests**
 
@@ -277,7 +277,7 @@ def test_recording_stop_copies_file_to_session_directory_and_updates_material():
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_service.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -285,7 +285,7 @@ Expected: FAIL because `app.ai_lecture_sessions` does not exist.
 
 - [ ] **Step 3: Create the service**
 
-Create `Edu_AI/api/Edu_AI/app/ai_lecture_sessions.py` with these definitions:
+Create `backend/src/app/ai_lecture_sessions.py` with these definitions:
 
 ```python
 from __future__ import annotations
@@ -501,7 +501,7 @@ def get_ai_lecture_session_service() -> AiLectureSessionService:
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_service.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -510,7 +510,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/api/Edu_AI/app/ai_lecture_sessions.py Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_service.py
+git -C D:\Edu_AI_1 add backend/src/app/ai_lecture_sessions.py backend/src/tests/chat/test_ai_lecture_session_service.py
 git -C D:\Edu_AI_1 commit -m "Add AI lecture session service"
 ```
 
@@ -519,12 +519,12 @@ git -C D:\Edu_AI_1 commit -m "Add AI lecture session service"
 ### Task 3: Expose AI Lecture Session Course Routes
 
 **Files:**
-- Modify: `Edu_AI/api/Edu_AI/app/courses.py`
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_routes.py`
+- Modify: `backend/src/app/courses.py`
+- Create: `backend/src/tests/chat/test_ai_lecture_session_routes.py`
 
 - [ ] **Step 1: Write route tests**
 
-Create `Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_routes.py`:
+Create `backend/src/tests/chat/test_ai_lecture_session_routes.py`:
 
 ```python
 from fastapi import FastAPI
@@ -632,7 +632,7 @@ def test_ai_lecture_session_routes_create_get_patch_and_record():
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_routes.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -640,7 +640,7 @@ Expected: FAIL because routes are missing.
 
 - [ ] **Step 3: Add imports and route handlers**
 
-In `Edu_AI/api/Edu_AI/app/courses.py`, add imports:
+In `backend/src/app/courses.py`, add imports:
 
 ```python
 from fastapi.responses import FileResponse
@@ -772,7 +772,7 @@ def get_ai_lecture_session_recording(
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_routes.py tests/chat/test_ai_lecture_session_service.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -781,7 +781,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/api/Edu_AI/app/courses.py Edu_AI/api/Edu_AI/tests/chat/test_ai_lecture_session_routes.py
+git -C D:\Edu_AI_1 add backend/src/app/courses.py backend/src/tests/chat/test_ai_lecture_session_routes.py
 git -C D:\Edu_AI_1 commit -m "Expose AI lecture session routes"
 ```
 
@@ -790,14 +790,14 @@ git -C D:\Edu_AI_1 commit -m "Expose AI lecture session routes"
 ### Task 4: Make LiveTalking Recording Output Session-Specific
 
 **Files:**
-- Create: `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/recording_paths.py`
-- Modify: `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/avatars/base_avatar.py`
-- Modify: `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/routes.py`
-- Create: `Edu_AI/api/Edu_AI/tests/chat/test_livetalking_recording_paths.py`
+- Create: `backend/src/AI_Lecturer/LiveTalking-main/server/recording_paths.py`
+- Modify: `backend/src/AI_Lecturer/LiveTalking-main/avatars/base_avatar.py`
+- Modify: `backend/src/AI_Lecturer/LiveTalking-main/server/routes.py`
+- Create: `backend/src/tests/chat/test_livetalking_recording_paths.py`
 
 - [ ] **Step 1: Write path-contract test**
 
-Create `Edu_AI/api/Edu_AI/tests/chat/test_livetalking_recording_paths.py`:
+Create `backend/src/tests/chat/test_livetalking_recording_paths.py`:
 
 ```python
 import importlib.util
@@ -806,7 +806,7 @@ from pathlib import Path
 
 def _load_recording_paths_module():
     module_path = (
-        Path("D:/Edu_AI_1/Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/recording_paths.py")
+        Path("D:/Edu_AI_1/backend/src/AI_Lecturer/LiveTalking-main/server/recording_paths.py")
         .resolve()
     )
     spec = importlib.util.spec_from_file_location("livetalking_recording_paths", module_path)
@@ -833,7 +833,7 @@ def test_recording_output_paths_are_session_specific_and_safe():
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_livetalking_recording_paths.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -841,7 +841,7 @@ Expected: FAIL because helper does not exist.
 
 - [ ] **Step 3: Add recording path helper**
 
-Create `Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/recording_paths.py`:
+Create `backend/src/AI_Lecturer/LiveTalking-main/server/recording_paths.py`:
 
 ```python
 from __future__ import annotations
@@ -922,7 +922,7 @@ In `server/routes.py`, change the `record` handler branch:
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_livetalking_recording_paths.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -931,7 +931,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/recording_paths.py Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/avatars/base_avatar.py Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/server/routes.py Edu_AI/api/Edu_AI/tests/chat/test_livetalking_recording_paths.py
+git -C D:\Edu_AI_1 add backend/src/AI_Lecturer/LiveTalking-main/server/recording_paths.py backend/src/AI_Lecturer/LiveTalking-main/avatars/base_avatar.py backend/src/AI_Lecturer/LiveTalking-main/server/routes.py backend/src/tests/chat/test_livetalking_recording_paths.py
 git -C D:\Edu_AI_1 commit -m "Make LiveTalking recordings session specific"
 ```
 
@@ -940,13 +940,13 @@ git -C D:\Edu_AI_1 commit -m "Make LiveTalking recordings session specific"
 ### Task 5: Add Frontend AI Lecture Session API Contracts
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/api/types.ts`
-- Modify: `Edu_AI/src/stitch/api/video.ts`
-- Create: `Edu_AI/tests/frontend/aiLecturerApi.session.test.ts`
+- Modify: `frontend/src/stitch/api/types.ts`
+- Modify: `frontend/src/stitch/api/video.ts`
+- Create: `frontend/tests/frontend/aiLecturerApi.session.test.ts`
 
 - [ ] **Step 1: Write static API test**
 
-Create `Edu_AI/tests/frontend/aiLecturerApi.session.test.ts`:
+Create `frontend/tests/frontend/aiLecturerApi.session.test.ts`:
 
 ```typescript
 import assert from 'node:assert/strict';
@@ -984,7 +984,7 @@ Expected: FAIL because types and functions do not exist.
 
 - [ ] **Step 3: Add frontend types**
 
-Append to `Edu_AI/src/stitch/api/types.ts`:
+Append to `frontend/src/stitch/api/types.ts`:
 
 ```typescript
 export type AiLectureSessionSnapshotEvent = {
@@ -1043,7 +1043,7 @@ export type AiLecturerOfferAnswer = {
 
 - [ ] **Step 4: Add frontend API functions**
 
-In `Edu_AI/src/stitch/api/video.ts`, import the new types and add:
+In `frontend/src/stitch/api/video.ts`, import the new types and add:
 
 ```typescript
 const AI_LECTURER_LIVETALKING_URL = (import.meta.env.VITE_AI_LECTURER_LIVETALKING_URL || "http://127.0.0.1:8010").replace(/\/$/, "");
@@ -1103,7 +1103,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/src/stitch/api/types.ts Edu_AI/src/stitch/api/video.ts Edu_AI/tests/frontend/aiLecturerApi.session.test.ts
+git -C D:\Edu_AI_1 add frontend/src/stitch/api/types.ts frontend/src/stitch/api/video.ts frontend/tests/frontend/aiLecturerApi.session.test.ts
 git -C D:\Edu_AI_1 commit -m "Add Stitch AI lecture session API"
 ```
 
@@ -1112,12 +1112,12 @@ git -C D:\Edu_AI_1 commit -m "Add Stitch AI lecture session API"
 ### Task 6: Add React WebRTC Hook For LiveTalking
 
 **Files:**
-- Create: `Edu_AI/src/stitch/hooks/useAiLecturerWebRtc.ts`
-- Create: `Edu_AI/tests/frontend/aiLecturerWebRtcHook.test.ts`
+- Create: `frontend/src/stitch/hooks/useAiLecturerWebRtc.ts`
+- Create: `frontend/tests/frontend/aiLecturerWebRtcHook.test.ts`
 
 - [ ] **Step 1: Write static hook test**
 
-Create `Edu_AI/tests/frontend/aiLecturerWebRtcHook.test.ts`:
+Create `frontend/tests/frontend/aiLecturerWebRtcHook.test.ts`:
 
 ```typescript
 import assert from 'node:assert/strict';
@@ -1150,7 +1150,7 @@ Expected: FAIL because hook does not exist.
 
 - [ ] **Step 3: Create the hook**
 
-Create `Edu_AI/src/stitch/hooks/useAiLecturerWebRtc.ts`:
+Create `frontend/src/stitch/hooks/useAiLecturerWebRtc.ts`:
 
 ```typescript
 import { useRef, useState } from "react";
@@ -1262,7 +1262,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/src/stitch/hooks/useAiLecturerWebRtc.ts Edu_AI/tests/frontend/aiLecturerWebRtcHook.test.ts
+git -C D:\Edu_AI_1 add frontend/src/stitch/hooks/useAiLecturerWebRtc.ts frontend/tests/frontend/aiLecturerWebRtcHook.test.ts
 git -C D:\Edu_AI_1 commit -m "Add AI Lecturer WebRTC hook"
 ```
 
@@ -1271,12 +1271,12 @@ git -C D:\Edu_AI_1 commit -m "Add AI Lecturer WebRTC hook"
 ### Task 7: Wire VideoPlayer To Real Session IDs And Snapshots
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/VideoPlayer.tsx`
-- Create: `Edu_AI/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts`
+- Modify: `frontend/src/stitch/pages/VideoPlayer.tsx`
+- Create: `frontend/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts`
 
 - [ ] **Step 1: Write VideoPlayer static test**
 
-Create `Edu_AI/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts`:
+Create `frontend/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts`:
 
 ```typescript
 import assert from 'node:assert/strict';
@@ -1526,7 +1526,7 @@ Expected: PASS.
 - [ ] **Step 10: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/src/stitch/pages/VideoPlayer.tsx Edu_AI/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts
+git -C D:\Edu_AI_1 add frontend/src/stitch/pages/VideoPlayer.tsx frontend/tests/frontend/stitchVideoPlayer.aiLecturerSession.test.ts
 git -C D:\Edu_AI_1 commit -m "Wire Stitch AI Lecturer to realtime session ids"
 ```
 
@@ -1535,13 +1535,13 @@ git -C D:\Edu_AI_1 commit -m "Wire Stitch AI Lecturer to realtime session ids"
 ### Task 8: Render AI Lecture Session In Course Resources
 
 **Files:**
-- Modify: `Edu_AI/src/stitch/pages/CourseResources.tsx`
-- Modify: `Edu_AI/src/stitch/api/courses.ts`
-- Create: `Edu_AI/tests/frontend/stitchCourseResources.aiLectureSession.test.ts`
+- Modify: `frontend/src/stitch/pages/CourseResources.tsx`
+- Modify: `frontend/src/stitch/api/courses.ts`
+- Create: `frontend/tests/frontend/stitchCourseResources.aiLectureSession.test.ts`
 
 - [ ] **Step 1: Write static resource test**
 
-Create `Edu_AI/tests/frontend/stitchCourseResources.aiLectureSession.test.ts`:
+Create `frontend/tests/frontend/stitchCourseResources.aiLectureSession.test.ts`:
 
 ```typescript
 import assert from 'node:assert/strict';
@@ -1659,7 +1659,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/src/stitch/pages/CourseResources.tsx Edu_AI/src/stitch/api/courses.ts Edu_AI/tests/frontend/stitchCourseResources.aiLectureSession.test.ts
+git -C D:\Edu_AI_1 add frontend/src/stitch/pages/CourseResources.tsx frontend/src/stitch/api/courses.ts frontend/tests/frontend/stitchCourseResources.aiLectureSession.test.ts
 git -C D:\Edu_AI_1 commit -m "Render AI lecture sessions in course resources"
 ```
 
@@ -1668,10 +1668,10 @@ git -C D:\Edu_AI_1 commit -m "Render AI lecture sessions in course resources"
 ### Task 9: Add Workbench Entry Path For AI Lecture Sessions
 
 **Files:**
-- Modify: `Edu_AI/src/services/teacher/api.ts`
-- Modify: `Edu_AI/src/components/teacher/StudioPanel.tsx`
-- Modify: `Edu_AI/tests/frontend/teacherApi.teaching-video.test.ts`
-- Modify: `Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts`
+- Modify: `frontend/src/services/teacher/api.ts`
+- Modify: `frontend/src/components/teacher/StudioPanel.tsx`
+- Modify: `frontend/tests/frontend/teacherApi.teaching-video.test.ts`
+- Modify: `frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts`
 
 - [ ] **Step 1: Extend teacher API static test**
 
@@ -1718,7 +1718,7 @@ Expected: FAIL because teacher API and StudioPanel still use teaching-video task
 
 - [ ] **Step 4: Add teacher API wrapper**
 
-In `Edu_AI/src/services/teacher/api.ts`, add:
+In `frontend/src/services/teacher/api.ts`, add:
 
 ```typescript
 export interface AiLectureSessionResponse {
@@ -1798,7 +1798,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/src/services/teacher/api.ts Edu_AI/src/components/teacher/StudioPanel.tsx Edu_AI/tests/frontend/teacherApi.teaching-video.test.ts Edu_AI/tests/frontend/studioPanel.teaching-video-entry.test.ts
+git -C D:\Edu_AI_1 add frontend/src/services/teacher/api.ts frontend/src/components/teacher/StudioPanel.tsx frontend/tests/frontend/teacherApi.teaching-video.test.ts frontend/tests/frontend/studioPanel.teaching-video-entry.test.ts
 git -C D:\Edu_AI_1 commit -m "Create AI lecture sessions from workbench"
 ```
 
@@ -1814,7 +1814,7 @@ git -C D:\Edu_AI_1 commit -m "Create AI lecture sessions from workbench"
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_ai_lecture_session_service.py tests/chat/test_ai_lecture_session_routes.py tests/chat/test_livetalking_recording_paths.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -1825,7 +1825,7 @@ Expected: all tests PASS.
 Run:
 
 ```powershell
-cd D:\Edu_AI_1\Edu_AI\api\Edu_AI
+cd D:\Edu_AI_1\backend\src
 python -m pytest tests/chat/test_teaching_video_bridge.py tests/chat/test_teaching_video_routes.py -q -o cache_dir=D:\Edu_AI_1\tmp\pytest_cache
 ```
 
@@ -1880,7 +1880,7 @@ Expected: only files touched by this plan are modified.
 If verification required small test or type fixes, commit them:
 
 ```powershell
-git -C D:\Edu_AI_1 add Edu_AI/api/Edu_AI Edu_AI/src Edu_AI/tests/frontend
+git -C D:\Edu_AI_1 add backend/src frontend/src frontend/tests/frontend
 git -C D:\Edu_AI_1 commit -m "Verify AI lecture session resource flow"
 ```
 
