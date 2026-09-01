@@ -30,6 +30,7 @@ import {
   getLearningTaskPrimaryAction,
   getProgressLabel,
   getTaskResourceEvidenceLabel,
+  buildLearningResourceHref,
 } from "./courseLearningPresentation";
 import {
   taskNeedsAssessment,
@@ -315,8 +316,10 @@ export function CourseLearningPage() {
       );
       return;
     }
-    window.location.hash = buildRoleCourseHash(user?.role, routes.resources, courseId, {
-      space: "course",
+    const material = sharedMaterialByKey.get(materialKey(ref));
+    window.location.hash = buildLearningResourceHref(user?.role, courseId, {
+      origin_type: material?.origin_type,
+      scope_id: material?.scope_id,
       material_type: ref.material_type,
       material_id: ref.material_id,
     });
@@ -640,7 +643,7 @@ function ResourceLinks({
             </span>
           </div>
         ) : (
-          <a key={materialKey(ref)} href={buildRoleCourseHash(role, routes.resources, courseId, { space: "course", material_type: ref.material_type, material_id: ref.material_id })}>
+          <a key={materialKey(ref)} href={buildLearningResourceHref(role, courseId, materials.get(materialKey(ref)) ?? { ...ref, origin_type: null, scope_id: null })}>
             <MaterialIcon name="menu_book" />
             <span><strong>{materialTitle(materials.get(materialKey(ref)) ?? { ...ref, title: ref.material_id })}</strong><small>{ref.material_type}</small></span>
           </a>

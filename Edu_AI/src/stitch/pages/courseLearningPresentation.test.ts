@@ -6,6 +6,7 @@ import {
   getLearningTaskPrimaryAction,
   getProgressLabel,
   getTaskResourceEvidenceLabel,
+  buildLearningResourceHref,
 } from "./courseLearningPresentation";
 
 describe("course learning presentation", () => {
@@ -65,5 +66,19 @@ describe("course learning presentation", () => {
       getTaskResourceEvidenceLabel({ condition_status: "pending", resource_version: 4 }),
       "资源条件待完成 · 证据版本 4",
     );
+  });
+});
+
+describe("learning resource destinations", () => {
+  it("routes standard resources to the curriculum classroom", () => {
+    assert.equal(buildLearningResourceHref("student", "course-1", {
+      origin_type: "standard", scope_id: "leaf-1", material_id: "guide-1", material_type: "report",
+    }), "#student-classroom?course_id=course-1&node_id=leaf-1&resource_id=guide-1");
+  });
+
+  it("keeps non-standard resources in resource management", () => {
+    assert.equal(buildLearningResourceHref("teacher", "course-1", {
+      origin_type: "personal", scope_id: null, material_id: "report-1", material_type: "report",
+    }), "#resources?course_id=course-1&space=course&material_type=report&material_id=report-1");
   });
 });

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 
 import { KnowledgeDocumentsView } from "../course/knowledge/KnowledgeDocumentsView";
-import { StandardLearningResources } from "../course/knowledge/StandardLearningResources";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { useAuthSession } from "../authSession";
 import { buildTeacherCourseHash } from "../teacherRoutes";
@@ -13,7 +12,6 @@ export function CourseKnowledgePage() {
   return (
     <div className="course-knowledge">
       <KnowledgeDocumentsView readOnly={isStudent} />
-      {isStudent ? <StandardLearningResources readOnly /> : null}
     </div>
   );
 }

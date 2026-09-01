@@ -56,5 +56,6 @@ test("compact resources use progressive disclosure and a fixed action bar", asyn
 
 test("students keep read-only published resources", async () => {
   const knowledgePage = await source("../../pages/CourseKnowledge.tsx");
-  assert.match(knowledgePage, /isStudent\s*\?\s*<StandardLearningResources\s+readOnly/);
+  assert.doesNotMatch(knowledgePage, /<StandardLearningResources\s+readOnly/);
+  assert.match(knowledgePage, /<KnowledgeDocumentsView\s+readOnly=\{isStudent\}/);
 });

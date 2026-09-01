@@ -1,4 +1,5 @@
 import type { CompletionBasis, LearningTask, TaskProgress, TaskResourceEvidence } from "../api/types";
+import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 
 export type LearningActor = "teacher" | "student";
 export type LearningTaskPrimaryAction =
@@ -55,4 +56,27 @@ export function getTaskResourceEvidenceLabel(
     ? "资源条件已满足"
     : "资源条件待完成";
   return `${status} · 证据版本 ${evidence.resource_version}`;
+}
+
+export function buildLearningResourceHref(
+  role: "admin" | "teacher" | "student" | undefined,
+  courseId: string | null,
+  material: {
+    origin_type?: string | null;
+    scope_id?: string | null;
+    material_id: string;
+    material_type: string;
+  },
+): string {
+  if (material.origin_type === "standard") {
+    return buildRoleCourseHash(role, "classroom-studio", courseId, {
+      node_id: material.scope_id,
+      resource_id: material.material_id,
+    });
+  }
+  return buildRoleCourseHash(role, "resources", courseId, {
+    space: "course",
+    material_type: material.material_type,
+    material_id: material.material_id,
+  });
 }
