@@ -51,7 +51,7 @@ _SAMPLE_NO_TRIPLE = """## 第一章
 
 
 def _make_asset(url: str, alt: str = "图片") -> object:
-    from app.chat.workflows.ppt.rag_image_bridge import MediaAsset
+    from app.chat.workflows.report.media_assets import MediaAsset
     return MediaAsset(url=url, alt=alt, caption="")
 
 

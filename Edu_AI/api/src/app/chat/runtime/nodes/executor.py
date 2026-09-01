@@ -278,12 +278,12 @@ def executor_node(state: AgentState) -> dict:
 
 _RESOURCE_SUBMISSION_CLAIM_PATTERNS = (
     re.compile(
-        r"(?:报告|教案|PPT|课件|练习题|资源|生成任务)"
+        r"(?:报告|教案|练习题|资源|生成任务)"
         r"(?:生成)?(?:任务)?已(?:成功)?(?:提交|启动|创建|开始)",
         flags=re.IGNORECASE,
     ),
     re.compile(
-        r"正在后台生成(?:报告|教案|PPT|课件|练习题|资源)?",
+        r"正在后台生成(?:报告|教案|练习题|资源)?",
         flags=re.IGNORECASE,
     ),
 )

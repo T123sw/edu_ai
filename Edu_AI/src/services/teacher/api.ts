@@ -583,8 +583,6 @@ const normalizeCourseMaterialItem = (courseId: string, item: Record<string, any>
       content = item.plan;
     } else if (type === 'report') {
       content = item.report;
-    } else if (type === 'ppt') {
-      content = item.content || item.ppt || item.deck || item;
     } else if (type === 'quiz') {
       content = item.quiz;
     } else if (type === 'blog') {

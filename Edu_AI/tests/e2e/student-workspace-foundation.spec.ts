@@ -107,7 +107,7 @@ async function installStudentApi(page: Page) {
     if (path === "/api/courses") return json(route, [course]);
     if (request.method() === "DELETE" && path === `/api/courses/${course.id}/membership`) return json(route, { ok: true, message: "已退出课程" });
     if (path === `/api/courses/${course.id}`) return json(route, course);
-    if (path === "/api/chat/v2/generation/tools") return json(route, { tools: ["report", "ppt", "mind_map", "quiz", "classroom", "flashcard", "game"].map((tool_id) => ({ tool_id, output_scope: "personal", allowed_source_scopes: ["none", "personal", "course"], can_publish: false })) });
+    if (path === "/api/chat/v2/generation/tools") return json(route, { tools: ["report", "mind_map", "quiz", "classroom", "flashcard", "game"].map((tool_id) => ({ tool_id, output_scope: "personal", allowed_source_scopes: ["none", "personal", "course"], can_publish: false })) });
     if (path === "/api/chat/v2/reply") return json(route, { message: { role: "assistant", content: "牛顿第二定律说明合力决定加速度。" }, conversation: { conversation_id: "student-conversation-1" }, action: {}, artifacts: [], trace: { path: "fast" } });
     if (path === "/api/personal-knowledge/documents") return json(route, [personalDocument]);
     if (path === `/api/personal-knowledge/documents/${personalDocument.id}/content`) return json(route, { document_id: personalDocument.id, content: "# 我的复习笔记\n\n合力与加速度同向。" });
@@ -156,7 +156,7 @@ test("student enters the isolated six-destination workspace and can ask with cou
   await expect(page.getByText("牛顿第二定律说明合力决定加速度。")).toBeVisible();
 
   if ((page.viewportSize()?.width ?? 0) <= 1180) await page.getByRole("button", { name: "生成工具", exact: true }).first().click();
-  for (const allowed of ["教学报告", "PPT", "思维导图", "习题", "AI 课堂", "闪卡", "课堂小游戏"]) await expect(page.getByRole("button", { name: allowed, exact: true })).toBeVisible();
+  for (const allowed of ["教学报告", "思维导图", "习题", "AI 课堂", "闪卡", "课堂小游戏"]) await expect(page.getByRole("button", { name: allowed, exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "教案", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "教学博客", exact: true })).toHaveCount(0);
 });

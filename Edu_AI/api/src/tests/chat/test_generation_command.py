@@ -147,7 +147,7 @@ def test_generation_enqueue_failure_marks_public_job_failed(
         snapshot_provider=lambda owner: {},
     )
     command = GenerationCommand(
-        resource_type="ppt",
+        resource_type="report",
         owner_user_id="teacher-a",
         course_id="course-1",
         selected_doc_ids=["doc-1"],

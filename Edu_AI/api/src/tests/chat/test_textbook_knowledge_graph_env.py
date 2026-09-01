@@ -13,7 +13,7 @@ def test_resolve_llm_env_values_prefers_backend_repo_env(monkeypatch, tmp_path):
     app_dir = backend_root / "app"
     app_dir.mkdir(parents=True)
     env_path = backend_root / ".env"
-    env_path.write_text("PPT_LLM_API_KEY=test-key\nPPT_LLM_API_BASE=https://example.com\n", encoding="utf-8")
+    env_path.write_text("ANSWER_LLM_API_KEY=test-key\nANSWER_LLM_API_BASE=https://example.com\n", encoding="utf-8")
 
     fake_module_file = app_dir / "textbook_knowledge_graph.py"
     fake_module_file.write_text("# test placeholder\n", encoding="utf-8")
@@ -23,5 +23,5 @@ def test_resolve_llm_env_values_prefers_backend_repo_env(monkeypatch, tmp_path):
 
     values, resolved_path = textbook_module._resolve_llm_env_values()
 
-    assert values["PPT_LLM_API_KEY"] == "test-key"
+    assert values["ANSWER_LLM_API_KEY"] == "test-key"
     assert resolved_path == env_path

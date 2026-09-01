@@ -14,17 +14,10 @@ async function enterConfig(page: Page, resourceName: string) {
 test("visual resources use structured, shared, non-overflowing forms", async ({ teacherPage }) => {
   const requests: Array<{ url: string; body: Record<string, unknown> }> = [];
   teacherPage.on("request", (request) => {
-    if (/\/ppt\/(outline|generate)$|\/graph\/direct$|\/classrooms\/generate$/u.test(request.url())) {
+    if (/\/graph\/direct$|\/classrooms\/generate$/u.test(request.url())) {
       requests.push({ url: request.url(), body: request.postDataJSON() as Record<string, unknown> });
     }
   });
-
-  await enterConfig(teacherPage, "PPT");
-  await teacherPage.getByLabel("PPT 标题 *").fill("电磁感应");
-  const firstSlide = teacherPage.getByRole("region", { name: "第 1 页大纲" });
-  await firstSlide.getByLabel("页面标题 *").fill("生活中的电磁感应");
-  await expect(teacherPage.getByLabel("PPT 大纲")).toHaveCount(0);
-  await teacherPage.getByRole("button", { name: "开始后台生成" }).click();
 
   await enterConfig(teacherPage, "思维导图");
   await teacherPage.getByLabel("思维导图主题 *").fill("电磁学");
@@ -42,10 +35,7 @@ test("visual resources use structured, shared, non-overflowing forms", async ({ 
   await expect(submit).toBeInViewport();
   await submit.click();
 
-  await expect.poll(() => requests.length).toBe(4);
-  const pptGenerate = requests.find((item) => item.url.endsWith("/ppt/generate"))!;
-  const slides = (pptGenerate.body.outline as { slides: Array<{ title: string }> }).slides;
-  expect(slides[0].title).toBe("生活中的电磁感应");
+  await expect.poll(() => requests.length).toBe(2);
   const graph = requests.find((item) => item.url.endsWith("/graph/direct"))!;
   expect(graph.body.description).toBe("突出概念关系");
   expect(graph.body.max_depth).toBe(4);

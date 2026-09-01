@@ -23,7 +23,6 @@ export const routes = {
   profile: "profile",
   settings: "settings",
   graph: "graph",
-  ppt: "ppt",
   resources: "resources",
   knowledge: "knowledge",
   edit: "edit",

@@ -9,7 +9,7 @@ from .schemas import IntentCategory
 INTENT_ROUTER_PROMPT = """你是“流量意图分类器”，只负责语义分类，不负责流程控制。
 请根据用户输入，在以下三类中选择其一：
 1) chat：普通问答、解释、讨论、闲聊，不要求生成正式产物。
-2) generate_content：明确要求生成结构化内容，如教案、报告、课件、试题、讲稿、PPT。
+2) generate_content：明确要求生成结构化内容，如教案、报告、试题、讲稿。
 3) research：明确要求联网搜索、全网查资料、网页信息整合、最新资讯检索。
 
 输出要求（必须严格遵守）：
@@ -69,8 +69,8 @@ class IntentRouter:
 
         generate_keywords = [
             "生成", "做一份", "写一份", "出一份", "做个", "写个",
-            "ppt", "课件", "教案", "报告", "试题", "讲稿", "思维导图", "总结文档",
-            "generate", "create", "build", "lesson plan", "slides", "report", "quiz",
+            "教案", "报告", "试题", "讲稿", "思维导图", "总结文档",
+            "generate", "create", "build", "lesson plan", "report", "quiz",
         ]
         matched = [k for k in generate_keywords if k in text]
         if matched:

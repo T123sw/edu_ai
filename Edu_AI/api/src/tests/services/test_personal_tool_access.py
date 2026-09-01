@@ -16,7 +16,6 @@ def _tool_ids(role: str) -> list[str]:
 def test_teacher_and_student_receive_exact_role_scoped_tool_catalogs():
     assert _tool_ids("teacher") == [
         "report",
-        "ppt",
         "mind_map",
         "quiz",
         "classroom",
@@ -25,7 +24,6 @@ def test_teacher_and_student_receive_exact_role_scoped_tool_catalogs():
     ]
     assert _tool_ids("student") == [
         "report",
-        "ppt",
         "mind_map",
         "quiz",
         "classroom",

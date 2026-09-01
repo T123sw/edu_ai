@@ -4,7 +4,6 @@ import { VideoPlayerPage } from "./pages/VideoPlayer";
 import { AIWorkspacePage } from "./pages/AIWorkspace";
 import { HomeDashboardPage } from "./pages/HomeDashboard";
 import { KnowledgeGraphPage } from "./pages/KnowledgeGraph";
-import { PptStudioPage } from "./pages/PptStudio";
 import { CourseKnowledgeBasePage } from "./pages/CourseKnowledgeBase";
 import { CourseDetailPage, CourseListPage } from "./pages/CourseDetail";
 import { CourseEditPage } from "./pages/CourseEdit";
@@ -31,7 +30,6 @@ const pages = [
   [routes.video, "视频学习", VideoPlayerPage],
   [routes.ai, "AI 问答", AIWorkspacePage],
   [routes.graph, "知识图谱", KnowledgeGraphPage],
-  [routes.ppt, "PPT 工作室", PptStudioPage],
   [routes.knowledge, "课程知识库", CourseKnowledgeBasePage],
   [routes.edit, "详情编辑", CourseEditPage],
 ] as const;

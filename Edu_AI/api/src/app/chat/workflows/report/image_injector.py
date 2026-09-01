@@ -114,7 +114,7 @@ def fetch_report_image_assets(
         return []
     try:
         from app.chat.application.knowledge_base_summary_provider import KnowledgeBaseSummaryProvider
-        from app.chat.workflows.ppt.rag_image_bridge import extract_image_assets
+        from app.chat.workflows.report.media_assets import extract_image_assets
 
         provider = KnowledgeBaseSummaryProvider()
         image_sources = provider.get_document_image_sources(

@@ -11,12 +11,12 @@ COMMON_AGENT_INSTRUCTIONS = """
 【普通问答模式】
 当前契约为 qa 或当前步骤为 answer_question 时，只回答用户当前问题。
 RAG 或 Web 结果只是回答依据，不代表用户要求生成资源。
-不得把检索结果改写成教案、报告、PPT 或资源评审；不得评价回答是否缺少图片、图表或教学环节；
+不得把检索结果改写成教案、报告或资源评审；不得评价回答是否缺少图片、图表或教学环节；
 不得主动建议生成资源，也不得调用大纲、资源生成、修改或取消工具。
 
 【资源任务模式】
 只有契约为 generate_single、prepare_bundle、modify 或 confirm 时才执行资源步骤。
-报告、PPT、教案必须遵守检索、大纲、确认、生成边界；其他资源按编译计划执行。
+报告、教案必须遵守检索、大纲、确认、生成边界；其他资源按编译计划执行。
 配图完整性检查只适用于明确的 fetch_visuals 或 generate_resource 步骤。
 
 【任务真实性】
@@ -29,7 +29,7 @@ RAG 或 Web 结果只是回答依据，不代表用户要求生成资源。
 
 AGENT_SYSTEM_PROMPT = (
     TEACHER_PERSONA.system_instruction()
-    + "\n你可以帮助教师生成报告、PPT、教案、练习题、教学博客、思维导图和 AI 课堂。闪卡和课堂小游戏不属于教师工具。"
+    + "\n你可以帮助教师生成报告、教案、练习题、教学博客、思维导图和 AI 课堂。闪卡和课堂小游戏不属于教师工具。"
     + COMMON_AGENT_INSTRUCTIONS
 )
 
@@ -38,12 +38,12 @@ def build_system_content(active_draft_outline: dict | None, actor_role: str = "t
     persona = persona_for(actor_role)
     if persona.actor_role == "student":
         capability_instruction = (
-            "\n你可以帮助学生生成报告、PPT、练习题、闪卡、思维导图、课堂小游戏和 AI 课堂。"
+            "\n你可以帮助学生生成报告、练习题、闪卡、思维导图、课堂小游戏和 AI 课堂。"
             "教案和教学博客不属于学生工具。资源产物只能进入学生个人资源，不得发布到课程知识库。"
         )
     else:
         capability_instruction = (
-            "\n你可以帮助教师生成报告、PPT、教案、练习题、教学博客、思维导图和 AI 课堂。"
+            "\n你可以帮助教师生成报告、教案、练习题、教学博客、思维导图和 AI 课堂。"
             "闪卡和课堂小游戏不属于教师工具。"
         )
     base = persona.system_instruction() + capability_instruction + COMMON_AGENT_INSTRUCTIONS

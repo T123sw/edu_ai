@@ -43,8 +43,8 @@ test("preview constraint class is applied to rich content", () => {
 
 test("all generated resources select a factual preview", () => {
   assert.deepEqual(
-    ["report", "lesson_plan", "blog", "quiz", "flashcard", "ppt", "graph", "game", "classroom"]
+    ["report", "lesson_plan", "blog", "quiz", "flashcard", "graph", "game", "classroom"]
       .map((material_type) => getCourseMaterialPreviewKind({ ...fixture, material_type })),
-    ["rich-text", "rich-text", "blog", "quiz", "flashcard", "ppt", "mind-map", "game", "classroom"],
+    ["rich-text", "rich-text", "blog", "quiz", "flashcard", "mind-map", "game", "classroom"],
   );
 });

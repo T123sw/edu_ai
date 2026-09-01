@@ -17,7 +17,6 @@ def test_build_tool_schemas_filters_retrieval_tools_by_capability():
     assert "web_search" not in names
     assert "draft_outline" in names
     assert "generate_report" in names
-    assert "generate_ppt" in names
     assert "generate_lesson_plan" in names
     assert "generate_quiz" in names
     assert "generate_blog" in names
@@ -62,7 +61,6 @@ def test_learning_and_generation_status_schemas_are_typed_and_role_scoped():
 def test_tool_workflow_mapping_is_available_from_constants_module():
     assert TOOL_TO_WORKFLOW == {
         "generate_report": "report",
-        "generate_ppt": "ppt",
         "generate_lesson_plan": "lesson_plan",
         "generate_quiz": "quiz",
         "generate_blog": "blog",

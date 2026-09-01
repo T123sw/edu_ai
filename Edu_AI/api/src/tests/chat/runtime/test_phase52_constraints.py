@@ -19,19 +19,6 @@ def test_retrieve_context_gets_relevance_and_source_checks():
     assert "require_images" not in c
 
 
-def test_retrieve_context_for_ppt_also_requires_images():
-    plan = {
-        "resource_type": "ppt",
-        "steps": [
-            {"index": 1, "user_title": "搜索", "internal_action": "retrieve_context",
-             "expected_tools": ["web_search"], "constraints": {}},
-        ],
-    }
-    _attach_step_constraints(plan)
-    c = plan["steps"][0]["constraints"]
-    assert c.get("require_images") is True
-
-
 def test_fetch_visuals_step_activates_vision_reflector_via_require_images():
     plan = {
         "resource_type": "report",

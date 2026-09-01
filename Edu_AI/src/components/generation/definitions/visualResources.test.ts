@@ -4,7 +4,6 @@ import test from "node:test";
 import { generationRegistry } from "../generationRegistry";
 import { classroomDefinition } from "./classroom";
 import { mindMapDefinition } from "./mindMap";
-import { pptDefinition } from "./ppt";
 import { classroomPageDefinition } from "../../../stitch/pages/classroomPageDefinition";
 
 const source = { mode: "none" as const, selectedDocumentIds: [] };
@@ -14,13 +13,6 @@ test("mind-map description and depth are serialized", () => {
   const payload = mindMapDefinition.serialize({ courseId: "course-1", source, config });
   assert.equal(payload.description, "突出概念关系");
   assert.equal(payload.max_depth, 4);
-});
-
-test("PPT outline is structured and survives serialization", () => {
-  const config = { ...pptDefinition.defaultConfig(), deckTitle: "电磁感应", outline: [{ id: "slide-1", title: "导入", keyPoints: ["生活现象"], speakerNotes: "提问", visualInstruction: "线圈示意图" }] };
-  const payload = pptDefinition.serialize({ courseId: "course-1", source, config });
-  assert.deepEqual(payload.outline, config.outline);
-  assert.equal(JSON.stringify(payload).includes("outlineText"), false);
 });
 
 test("classroom voice and teaching settings reach the request", () => {

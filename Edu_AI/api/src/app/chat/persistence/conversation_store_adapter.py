@@ -228,11 +228,6 @@ class ConversationStoreAdapter:
     @staticmethod
     def _pick_active_artifact(*, artifacts: list[dict], artifact_reference: dict) -> dict:
         if artifacts:
-            for artifact in reversed(list(artifacts or [])):
-                if not isinstance(artifact, dict):
-                    continue
-                if str(artifact.get("artifact_type") or "").strip() == "ppt_deck":
-                    return artifact
             return artifacts[0]
         return artifact_reference
 
@@ -293,31 +288,6 @@ class ConversationStoreAdapter:
             filled_slots["__preparation_source"] = source
         if model:
             filled_slots["__preparation_model"] = model
-        if filled_slots:
-            return filled_slots
-
-        preparation = dict(trace.get("ppt_preparation_result") or {})
-        topic = str(preparation.get("topic") or "").strip()
-        audience = str(preparation.get("audience") or "").strip()
-        objective = str(preparation.get("objective") or "").strip()
-        key_points = [str(item).strip() for item in list(preparation.get("key_points") or []) if str(item).strip()]
-        theme_id = str(preparation.get("theme") or "").strip()
-        page_count = preparation.get("page_count")
-        source_basis = [str(item).strip() for item in list(preparation.get("source_basis") or []) if str(item).strip()]
-        if topic:
-            filled_slots["deck_topic"] = topic
-        if audience:
-            filled_slots["audience"] = audience
-        if objective:
-            filled_slots["objective"] = objective
-        if key_points:
-            filled_slots["key_points"] = " | ".join(key_points)
-        if theme_id:
-            filled_slots["theme_id"] = theme_id
-        if page_count:
-            filled_slots["slide_count"] = str(page_count)
-        if source_basis:
-            filled_slots["__ppt_source_basis"] = " | ".join(source_basis)
         return filled_slots
 
     def write_v2_result(self, conversation_id: str, request, result: dict, *, append_user_message: bool = True):

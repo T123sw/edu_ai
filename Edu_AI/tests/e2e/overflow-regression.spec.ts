@@ -40,14 +40,13 @@ test("every approved page stays within the viewport without new React warnings",
   expect(forbiddenWarnings).toEqual([]);
 });
 
-test("all nine generation configuration shells keep title and action reachable", async ({ teacherPage }) => {
+test("all eight generation configuration shells keep title and action reachable", async ({ teacherPage }) => {
   const resources = [
     ["教学报告", "report"],
     ["教案", "lesson_plan"],
     ["教学博客", "blog"],
     ["习题", "quiz"],
     ["闪卡", "flashcard"],
-    ["PPT", "ppt"],
     ["思维导图", "mind_map"],
     ["课堂小游戏", "game"],
     ["AI 课堂", "classroom"],

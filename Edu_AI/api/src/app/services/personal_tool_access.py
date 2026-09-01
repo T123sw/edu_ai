@@ -8,7 +8,6 @@ from typing import Literal, cast
 
 PersonalToolId = Literal[
     "report",
-    "ppt",
     "mind_map",
     "quiz",
     "classroom",
@@ -53,7 +52,6 @@ _SHARED_ROLES = _TEACHER_ROLES | _STUDENT_ROLES
 
 _TOOL_DEFINITIONS: tuple[PersonalToolDefinition, ...] = (
     PersonalToolDefinition("report", _SHARED_ROLES),
-    PersonalToolDefinition("ppt", _SHARED_ROLES),
     PersonalToolDefinition("mind_map", _SHARED_ROLES),
     PersonalToolDefinition("quiz", _SHARED_ROLES),
     PersonalToolDefinition("classroom", _SHARED_ROLES),

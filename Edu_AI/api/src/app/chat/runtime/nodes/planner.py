@@ -70,7 +70,7 @@ def _attach_step_constraints(plan_dict: dict) -> None:
             constraints.setdefault("check_relevance", True)
             constraints.setdefault("require_sources", True)
             constraints.setdefault("min_sources", 1)
-            if resource_type in ("ppt", "lesson_plan"):
+            if resource_type == "lesson_plan":
                 constraints.setdefault("require_images", True)
         elif action == "fetch_visuals":
             # image_search step — activate VisionReflector by setting require_images.
@@ -90,9 +90,6 @@ def _attach_step_constraints(plan_dict: dict) -> None:
             if resource_type == "report":
                 constraints.setdefault("min_chapters", 4)
                 constraints.setdefault("min_outline_length", 300)
-            elif resource_type == "ppt":
-                constraints.setdefault("min_chapters", 3)
-                constraints.setdefault("min_outline_length", 200)
             elif resource_type == "lesson_plan":
                 constraints.setdefault("min_chapters", 3)
 
@@ -174,11 +171,11 @@ def _ensure_outline_confirmation_boundary(plan_dict: dict, state: dict) -> None:
     """Do not let an initial outline workflow submit a resource in one turn.
 
     Models occasionally omit ``confirm_outline`` or continue past it.  Report,
-    PPT and lesson-plan generation are irreversible background submissions, so
+    Report and lesson-plan generation are irreversible background submissions, so
     the initial turn must end at confirmation.  A later turn that starts with a
     persisted outline is the only turn allowed to plan ``generate_resource``.
     """
-    if plan_dict.get("resource_type") not in {"report", "ppt", "lesson_plan"}:
+    if plan_dict.get("resource_type") not in {"report", "lesson_plan"}:
         return
     if state.get("active_draft_outline"):
         return
@@ -296,7 +293,6 @@ def _call_planner_llm(planner_gateway, messages: list[dict]) -> dict | None:
 
 
 _RESOURCE_KEYWORDS = {
-    "ppt": ("ppt", "PPT", "幻灯片", "课件"),
     "lesson_plan": ("教案", "教学设计", "教学方案"),
     "quiz": ("练习题", "测验", "题目", "习题", "出题"),
     "blog": ("教学博客", "博客", "博文"),
@@ -476,7 +472,7 @@ def _build_visual_query_candidates(subject: str, visual_type: str = "diagram") -
 def _build_visual_need(subject: str, resource_type: str) -> dict:
     """Construct the VisualNeed dict attached to a fetch_visuals plan step.
     Returns plain dict (not the dataclass) for direct embedding in plan_dict."""
-    visual_type = "diagram"  # default for教学 content; PPT/lesson_plan rarely want real photos
+    visual_type = "diagram"
     return {
         "required": True,
         "type": visual_type,
@@ -507,8 +503,8 @@ def _extract_subject(question: str) -> str:
     s = re.split(r"[，,]", s, maxsplit=1)[0]
     # 5) strip trailing word-count / page-count specs
     s = re.sub(r"\d+\s*(字|页|张|道题?|分钟|min|words?)\s*$", "", s, flags=re.IGNORECASE)
-    # 6) strip trailing resource-type noise (报告/PPT/教案/练习题)
-    s = re.sub(r"(报告|分析报告|研究报告|综述报告|PPT课件|PPT|课件|教案|教学设计|教学方案|练习题|测验|题目|习题|教学博客|博客|博文|闪卡|复习卡|记忆卡|思维导图|导图|知识图谱|课堂小游戏|小游戏|教学游戏|AI课堂|AI 课堂|智能课堂|互动课堂)\s*$", "", s, flags=re.IGNORECASE)
+    # 6) strip trailing resource-type noise
+    s = re.sub(r"(报告|分析报告|研究报告|综述报告|教案|教学设计|教学方案|练习题|测验|题目|习题|教学博客|博客|博文|闪卡|复习卡|记忆卡|思维导图|导图|知识图谱|课堂小游戏|小游戏|教学游戏|AI课堂|AI 课堂|智能课堂|互动课堂)\s*$", "", s, flags=re.IGNORECASE)
 
     s = s.strip(" .。、,，:：;；")
     return s[:40] if s else question[:40].strip()
@@ -572,7 +568,7 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
                 "expected_tools": [f"generate_{resource_type}"],
             }
         ]
-    elif resource_type in ("report", "ppt", "lesson_plan"):
+    elif resource_type in ("report", "lesson_plan"):
         type_cn = _RTYPE_CN.get(resource_type, "内容")
         tool_name = f"generate_{resource_type}"
         steps = [
@@ -616,7 +612,6 @@ def _fallback_plan(question: str, state: dict, capability=None) -> dict:
 
 _RTYPE_CN = {
     "report":      "报告",
-    "ppt":         "PPT课件",
     "lesson_plan": "教案",
     "quiz":        "练习题",
     "blog":        "教学博客",

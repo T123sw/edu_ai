@@ -105,13 +105,6 @@ export interface ChatReportCardsRequestV2 {
   selected_doc_ids?: string[];
 }
 
-export interface ChatPptCardsRequestV2 {
-  course_id?: string;
-  scope_type?: 'course' | 'knowledge_point';
-  scope_id?: string;
-  selected_doc_ids?: string[];
-}
-
 export interface ChatLessonPlanCardsRequestV2 {
   course_id?: string;
   scope_type?: 'course' | 'knowledge_point';
@@ -189,33 +182,6 @@ export interface KnowledgeBaseDirectFlashcardRequestV2 {
   idempotency_key: string;
 }
 
-export interface KnowledgeBaseDirectPptOutlineRequestV2 {
-  course_id: string;
-  scope_type?: 'course' | 'knowledge_point';
-  scope_id?: string;
-  selected_doc_ids: string[];
-  ppt_config: {
-    deck_title: string;
-    deck_subtitle?: string;
-    audience?: string;
-    objective?: string;
-    theme_id: 'heu_academic_elegant' | 'heu_academic_basic';
-    length_option: 'short' | 'medium' | 'long';
-    target_slide_count?: number;
-    key_points: string[];
-    style_hint?: string;
-    special_requirements?: string;
-    general_requirements?: string;
-  };
-}
-
-export interface KnowledgeBaseDirectPptGenerateRequestV2 {
-  draft_id: string;
-  confirm: true;
-  outline?: Record<string, unknown>;
-  idempotency_key: string;
-}
-
 export interface KnowledgeBaseDirectGraphRequestV2 {
   course_id: string;
   scope_type?: 'course' | 'knowledge_point';
@@ -235,13 +201,6 @@ export interface KnowledgeBaseDirectBlogRequestV2 {
   idempotency_key: string;
 }
 
-export interface ChatDirectPptOutlineResponseV2 {
-  action: { name: string };
-  draft: { draft_id: string; status: string };
-  artifacts: Array<Record<string, unknown>>;
-  trace: Record<string, unknown>;
-}
-
 export interface ReportEntryCardSelection {
   card_id: string;
   card_type: 'preset' | 'recommended';
@@ -253,13 +212,6 @@ export interface ReportEntryCardSelection {
     | 'teaching_suggestion'
     | 'study_focus'
     | 'theme_outline';
-}
-
-export interface PptEntryCardSelection {
-  card_id: string;
-  card_type: 'preset' | 'recommended';
-  preset_key?: 'knowledge_lecture' | 'topic_briefing' | 'comparison_analysis' | 'defense_summary';
-  recommendation_type?: 'concept_focus' | 'process_flow' | 'comparison_view' | 'case_application';
 }
 
 export interface LessonPlanEntryCardPrefillConfig {
@@ -292,20 +244,6 @@ export interface ReportEntryCard {
   fit_score?: 'high' | 'medium' | 'low';
 }
 
-export interface PptEntryCard {
-  card_id: string;
-  card_type: 'preset' | 'recommended';
-  title: string;
-  description: string;
-  objective_hint?: string;
-  length_option?: 'short' | 'medium' | 'long';
-  preset_key?: 'knowledge_lecture' | 'topic_briefing' | 'comparison_analysis' | 'defense_summary';
-  recommendation_type?: 'concept_focus' | 'process_flow' | 'comparison_view' | 'case_application';
-  recommendation_source?: 'doc_summaries';
-  fit_score?: 'high' | 'medium' | 'low';
-  style_hint?: string;
-}
-
 export interface LessonPlanEntryCard {
   card_id: string;
   card_type: 'preset' | 'recommended';
@@ -327,12 +265,6 @@ export interface LessonPlanEntryCard {
 export interface ChatReportCardsResponseV2 {
   entry_mode: 'knowledge_base_report';
   cards: ReportEntryCard[];
-  trace?: Record<string, unknown>;
-}
-
-export interface ChatPptCardsResponseV2 {
-  entry_mode: 'knowledge_base_ppt';
-  cards: PptEntryCard[];
   trace?: Record<string, unknown>;
 }
 
@@ -743,10 +675,6 @@ export async function fetchReportEntryCardsV2(
   return postV2<ChatReportCardsResponseV2, ChatReportCardsRequestV2>('/api/chat/v2/report/cards', payload);
 }
 
-export async function fetchPptEntryCardsV2(payload: ChatPptCardsRequestV2): Promise<ChatPptCardsResponseV2> {
-  return postV2<ChatPptCardsResponseV2, ChatPptCardsRequestV2>('/api/chat/v2/ppt/cards', payload);
-}
-
 export async function fetchLessonPlanEntryCardsV2(
   payload: ChatLessonPlanCardsRequestV2,
 ): Promise<ChatLessonPlanCardsResponseV2> {
@@ -785,24 +713,6 @@ export async function generateKnowledgeBaseFlashcardV2(
 ): Promise<ChatDirectTaskSubmittedV2> {
   return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectFlashcardRequestV2>(
     '/api/chat/v2/flashcard/direct',
-    payload,
-  );
-}
-
-export async function generateKnowledgeBasePptOutlineV2(
-  payload: KnowledgeBaseDirectPptOutlineRequestV2,
-): Promise<ChatDirectPptOutlineResponseV2> {
-  return postV2<ChatDirectPptOutlineResponseV2, KnowledgeBaseDirectPptOutlineRequestV2>(
-    '/api/chat/v2/ppt/outline',
-    payload,
-  );
-}
-
-export async function generateKnowledgeBasePptV2(
-  payload: KnowledgeBaseDirectPptGenerateRequestV2,
-): Promise<ChatDirectTaskSubmittedV2> {
-  return postV2<ChatDirectTaskSubmittedV2, KnowledgeBaseDirectPptGenerateRequestV2>(
-    '/api/chat/v2/ppt/generate',
     payload,
   );
 }

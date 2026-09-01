@@ -25,7 +25,6 @@ test("all formal resource types have explicit labels", () => {
     quiz: "习题",
     game: "课堂小游戏",
     graph: "思维导图",
-    ppt: "PPT",
     flashcard: "闪卡",
   };
 
@@ -60,7 +59,6 @@ test("filters mirror every formal generation type without invented groups", () =
       "lesson_plan",
       "blog",
       "quiz",
-      "ppt",
       "flashcard",
       "mind_map",
       "game",
@@ -69,7 +67,6 @@ test("filters mirror every formal generation type without invented groups", () =
   assert.equal(isCourseMaterialInFilter(material("classroom"), "classroom"), true);
   assert.equal(isCourseMaterialInFilter(material("report"), "report"), true);
   assert.equal(isCourseMaterialInFilter(material("blog"), "blog"), true);
-  assert.equal(isCourseMaterialInFilter(material("ppt"), "ppt"), true);
   assert.equal(isCourseMaterialInFilter(material("flashcard"), "flashcard"), true);
   assert.equal(isCourseMaterialInFilter(material("game"), "game"), true);
   assert.equal(isCourseMaterialInFilter(material("graph"), "mind_map"), true);

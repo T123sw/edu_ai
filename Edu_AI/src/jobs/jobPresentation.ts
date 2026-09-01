@@ -7,7 +7,6 @@ const JOB_KIND_LABELS: Record<string, string> = {
   generate_lesson_plan: "教案生成",
   generate_blog: "教学博客生成",
   generate_quiz: "习题生成",
-  generate_ppt: "PPT 生成",
   generate_flashcard: "闪卡生成",
   generate_graph: "思维导图生成",
   generate_game: "小游戏生成",

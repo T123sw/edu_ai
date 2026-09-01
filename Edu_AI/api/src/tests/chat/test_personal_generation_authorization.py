@@ -55,20 +55,6 @@ def authorization_client(monkeypatch):
         "submit",
         lambda _command: SimpleNamespace(edu_job_id="job-1"),
     )
-    monkeypatch.setattr(
-        routes_v2,
-        "_get_direct_ppt_service",
-        lambda: SimpleNamespace(
-            generate_outline=lambda _request: {"draft_id": "draft-1"},
-            get_draft=lambda **_kwargs: {
-                "course_id": "c1",
-                "source_mode": "none",
-                "selected_doc_ids": [],
-                "normalized_ppt_config": {"deck_title": "Deck"},
-            },
-        ),
-    )
-
     with TestClient(app) as client:
         yield client, active_user, access_service
 
@@ -147,30 +133,6 @@ def test_teacher_cannot_call_student_only_direct_tools(
 
     assert response.status_code == 403
     assert response.json()["detail"]["code"] == "PERSONAL_TOOL_ACCESS_DENIED"
-
-
-def test_ppt_outline_requires_read_access_to_its_course(
-    authorization_client,
-):
-    client, _, access_service = authorization_client
-    access_service.allow_read = False
-
-    response = client.post(
-        "/api/chat/v2/ppt/outline",
-        json={
-            "course_id": "c1",
-            "ppt_config": {
-                "deck_title": "函数",
-                "audience": "高中生",
-                "objective": "理解函数",
-            },
-            "source_mode": "none",
-            "selected_doc_ids": [],
-        },
-    )
-
-    assert response.status_code == 403
-    assert response.json()["detail"]["code"] == "COURSE_ACCESS_DENIED"
 
 
 def test_allowed_student_direct_tool_uses_course_read_not_generate(

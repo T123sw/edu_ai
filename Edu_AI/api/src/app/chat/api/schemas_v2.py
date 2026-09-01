@@ -14,13 +14,11 @@ TracePath = Literal["fast", "workflow"]
 DirectTracePath = Literal["direct"]
 WorkflowStatus = Literal["running", "awaiting_confirm", "completed", "interrupted", "failed"]
 ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
-PptEntryMode = Literal["knowledge_base_ppt"]
 LessonPlanEntryMode = Literal["knowledge_base_lesson_plan"]
 QuizEntryMode = Literal["knowledge_base_quiz"]
 GameType = Literal["category_sort", "drag_match", "memory_flip"]
 ReportEntryCardType = Literal["preset", "recommended"]
 PresetKey = Literal["brief", "detailed", "study_plan", "custom"]
-PptPresetKey = Literal["knowledge_lecture", "topic_briefing", "comparison_analysis", "defense_summary"]
 LessonPlanPresetKey = Literal["new_lesson", "review_lesson", "inquiry_lesson", "practice_lesson"]
 RecommendationType = Literal[
     "summary",
@@ -30,7 +28,6 @@ RecommendationType = Literal[
     "study_focus",
     "theme_outline",
 ]
-PptRecommendationType = Literal["concept_focus", "process_flow", "comparison_view", "case_application"]
 LessonPlanRecommendationType = Literal[
     "knowledge_building",
     "historical_inquiry",
@@ -39,8 +36,6 @@ LessonPlanRecommendationType = Literal[
     "material_analysis",
 ]
 FitScore = Literal["high", "medium", "low"]
-PptLengthOption = Literal["short", "medium", "long"]
-PptThemeId = Literal["heu_academic_elegant", "heu_academic_basic"]
 QuizDifficulty = Literal["easy", "medium", "hard"]
 QuizQuestionType = Literal["choice", "blank", "short", "judge"]
 GenerationPreflightResourceType = Literal[
@@ -48,7 +43,6 @@ GenerationPreflightResourceType = Literal[
     "lesson_plan",
     "blog",
     "quiz",
-    "ppt",
     "flashcard",
     "graph",
     "game",
@@ -56,7 +50,6 @@ GenerationPreflightResourceType = Literal[
 ]
 GenerationToolIdV2 = Literal[
     "report",
-    "ppt",
     "mind_map",
     "quiz",
     "classroom",
@@ -173,13 +166,6 @@ class ChatReportCardsRequestV2(BaseModel):
     selected_doc_ids: List[str] = Field(default_factory=list)
 
 
-class ChatPptCardsRequestV2(BaseModel):
-    course_id: Optional[str] = None
-    scope_type: Optional[str] = None
-    scope_id: Optional[str] = None
-    selected_doc_ids: List[str] = Field(default_factory=list)
-
-
 class ChatLessonPlanCardsRequestV2(BaseModel):
     course_id: Optional[str] = None
     scope_type: Optional[str] = None
@@ -274,34 +260,6 @@ class KnowledgeBaseDirectFlashcardRequestV2(GenerationSourceRequest):
     idempotency_key: str = Field(min_length=1, max_length=160)
 
 
-class PptEntryPrefillConfigV2(BaseModel):
-    deck_title: str
-    deck_subtitle: Optional[str] = None
-    audience: str = ""
-    objective: str = ""
-    theme_id: PptThemeId = "heu_academic_elegant"
-    length_option: PptLengthOption = "medium"
-    target_slide_count: int = 0
-    key_points: List[str] = Field(default_factory=list)
-    style_hint: Optional[str] = None
-    special_requirements: Optional[str] = None
-    general_requirements: Optional[str] = None
-
-
-class KnowledgeBaseDirectPptOutlineRequestV2(GenerationSourceRequest):
-    course_id: str
-    scope_type: Optional[str] = None
-    scope_id: Optional[str] = None
-    ppt_config: PptEntryPrefillConfigV2
-
-
-class KnowledgeBaseDirectPptGenerateRequestV2(BaseModel):
-    draft_id: str = Field(min_length=1)
-    confirm: bool = True
-    outline: Optional[Dict[str, Any]] = None
-    idempotency_key: str = Field(min_length=1, max_length=160)
-
-
 class KnowledgeBaseDirectGraphRequestV2(GenerationSourceRequest):
     course_id: str
     scope_type: Optional[str] = None
@@ -338,13 +296,6 @@ class LessonPlanEntryPrefillConfigV2(BaseModel):
     style_hint: Optional[str] = None
 
 
-class PptEntryCardSelectionV2(BaseModel):
-    card_id: str
-    card_type: ReportEntryCardType
-    preset_key: Optional[PptPresetKey] = None
-    recommendation_type: Optional[PptRecommendationType] = None
-
-
 class ReportEntryCardSelectionV2(BaseModel):
     card_id: str
     card_type: ReportEntryCardType
@@ -367,31 +318,6 @@ class ReportEntryCardV2(BaseModel):
 class ChatReportCardsResponseV2(BaseModel):
     entry_mode: ReportEntryMode
     cards: List[ReportEntryCardV2] = Field(default_factory=list)
-    trace: Dict[str, Any] = Field(default_factory=dict)
-
-
-class PptEntryCardV2(BaseModel):
-    card_id: str
-    card_type: ReportEntryCardType
-    title: str
-    description: str
-    objective_hint: str
-    length_option: PptLengthOption
-    prefill_config: PptEntryPrefillConfigV2
-    preset_key: Optional[PptPresetKey] = None
-    recommendation_type: Optional[PptRecommendationType] = None
-    recommendation_source: Optional[Literal["doc_summaries"]] = None
-    fit_score: Optional[FitScore] = None
-    deck_title_hint: Optional[str] = None
-    audience_hint: Optional[str] = None
-    key_points_hint: List[str] = Field(default_factory=list)
-    style_hint: Optional[str] = None
-
-
-class ChatPptCardsResponseV2(BaseModel):
-    entry_mode: PptEntryMode
-    cards: List[PptEntryCardV2] = Field(default_factory=list)
-    default_selected_card_id: Optional[str] = None
     trace: Dict[str, Any] = Field(default_factory=dict)
 
 

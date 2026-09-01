@@ -502,7 +502,7 @@ def test_fast_runtime_uses_teacher_preparation_system_prompt():
     assert "教师的备课与教学资源助手" in system_prompt
     assert "不要把教师当学生教学" in system_prompt
     assert "不得擅自创建资源" in system_prompt
-    assert "不得主动建议生成教案、PPT 或其他资源" in system_prompt
+    assert "不得主动建议生成资源" in system_prompt
     assert "可整理成教案或习题" not in system_prompt
     assert "2-3个自然延伸" not in system_prompt
 

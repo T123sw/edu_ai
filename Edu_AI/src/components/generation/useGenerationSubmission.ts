@@ -13,7 +13,6 @@ import { reportDefinition } from "./definitions/report";
 import { quizDefinition } from "./definitions/quiz";
 import { flashcardDefinition } from "./definitions/flashcard";
 import { gameDefinition } from "./definitions/game";
-import { pptDefinition } from "./definitions/ppt";
 import { mindMapDefinition } from "./definitions/mindMap";
 import { classroomDefinition } from "./definitions/classroom";
 
@@ -26,7 +25,7 @@ export type GenerationDraft = {
   config?: Record<string, unknown>;
 };
 
-type Submitted = { task_id?: string; edu_job_id?: string; draft_id?: string; draft?: { draft_id?: string }; outline?: unknown; [key: string]: unknown };
+type Submitted = { task_id?: string; edu_job_id?: string; [key: string]: unknown };
 
 function sourcePayload(draft: GenerationDraft, courseId: string) {
   return {
@@ -48,7 +47,6 @@ export function buildGenerationRequest(draft: GenerationDraft, courseId: string,
     case "mind_map": return { path: "/api/chat/v2/graph/direct", body: { ...source, ...mindMapDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "game": return { path: "/api/chat/v2/game/direct", body: { ...source, ...gameDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, ...classroomDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }), idempotency_key: idempotencyKey } };
-    case "ppt": { const serialized = pptDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }); return { path: "/api/chat/v2/ppt/outline", body: { ...source, ppt_config: serialized.ppt_config } }; }
   }
 }
 
@@ -82,12 +80,7 @@ export function useGenerationSubmission(courseId: string | undefined) {
       });
       const idempotencyKey = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `ui-${draft.resourceType}-${Date.now()}`;
       const request = buildGenerationRequest(draft, courseId, idempotencyKey);
-      let submitted = await apiRequest<Submitted>(request.path, { method: "POST", body: JSON.stringify(request.body) });
-      const pptDraftId = submitted.draft_id || submitted.draft?.draft_id;
-      if (draft.resourceType === "ppt" && pptDraftId) {
-        const configuredOutline = Array.isArray(draft.config?.outline) ? { slides: draft.config.outline } : submitted.outline;
-        submitted = await apiRequest<Submitted>("/api/chat/v2/ppt/generate", { method: "POST", body: JSON.stringify({ draft_id: pptDraftId, outline: configuredOutline, confirm: true, idempotency_key: `${idempotencyKey}-generate` }) });
-      }
+      const submitted = await apiRequest<Submitted>(request.path, { method: "POST", body: JSON.stringify(request.body) });
       const nextJobId = submitted.edu_job_id || submitted.task_id;
       if (!nextJobId) throw new Error("生成任务未返回可恢复的任务编号");
       setJobId(nextJobId);

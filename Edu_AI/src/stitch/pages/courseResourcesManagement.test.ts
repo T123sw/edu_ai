@@ -38,7 +38,6 @@ test("formal generated types have dedicated storage directories", async () => {
     "utf8",
   );
   for (const mapping of [
-    '"ppt": "ppts"',
     '"flashcard": "flashcards"',
     '"game": "games"',
     '"classroom": "classrooms"',

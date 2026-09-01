@@ -98,7 +98,6 @@ TYPE_MAPPING = {
     "lesson_plan": "lesson_plans",
     "graph": "graphs",
     "report": "reports",
-    "ppt": "ppts",
     "video": "videos",
     "ai_lecture_session": "lecture_sessions",
     "blog": "blogs",
@@ -715,7 +714,6 @@ class CourseStorageManager:
         (course_dir / "generated_materials" / "lesson_plans").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "graphs").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "reports").mkdir(parents=True, exist_ok=True)
-        (course_dir / "generated_materials" / "ppts").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "videos").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "lecture_sessions").mkdir(parents=True, exist_ok=True)
         (course_dir / "generated_materials" / "blogs").mkdir(parents=True, exist_ok=True)

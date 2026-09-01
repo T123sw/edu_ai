@@ -299,7 +299,7 @@ def _build_default_visual_pipeline():
         from app.chat.application.knowledge_base_summary_provider import (
             KnowledgeBaseSummaryProvider,
         )
-        from app.chat.workflows.ppt.rag_image_bridge import extract_image_assets
+        from app.chat.workflows.report.media_assets import extract_image_assets
 
         sources = KnowledgeBaseSummaryProvider().get_document_image_sources(
             selected_doc_ids=list(selected_document_ids),

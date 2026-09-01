@@ -95,48 +95,8 @@ const generatedFromKnowledgePointMaterial = toGeneratedFileFromCourseMaterial({
 assert.equal(generatedFromKnowledgePointMaterial?.meta?.scopeType, 'knowledge_point');
 assert.equal(generatedFromKnowledgePointMaterial?.meta?.scopeId, 'kp-001');
 
-const generatedPptFromMaterial = toGeneratedFileFromCourseMaterial({
-  id: 'ppt-deck-1',
-  name: 'AI Agent中的Skills与MCP：概念、区别与应用.pptx',
-  type: 'ppt',
-  content: {
-    job_id: 'job_001',
-    revision_id: 'rev_0001',
-    html_full_url: '/ppt/artifacts/job_001/rev_0001/deck.html',
-    pptx_url: '/ppt/artifacts/job_001/rev_0001/deck.pptx',
-    manifest_url: '/ppt/artifacts/job_001/rev_0001/manifest.json',
-  },
-  outline: {
-    deck_title: 'AI Agent中的Skills与MCP：概念、区别与应用',
-    slides: [
-      { slide_index: 1, title: '封面', role: 'cover' },
-      { slide_index: 2, title: 'Skills 与 MCP 的区别', role: 'content' },
-    ],
-  },
-  generationState: {
-    status: 'completed',
-    phase: 'completed',
-  },
-} as any);
-
-assert.equal(generatedPptFromMaterial?.type, 'ppt');
-assert.equal(generatedPptFromMaterial?.meta?.kind, 'ppt_deck');
-assert.equal(generatedPptFromMaterial?.meta?.jobId, 'job_001');
-assert.equal(generatedPptFromMaterial?.meta?.revisionId, 'rev_0001');
-assert.equal(
-  generatedPptFromMaterial?.meta?.htmlPreviewUrl,
-  'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0001/deck.html',
-);
-assert.equal(
-  generatedPptFromMaterial?.meta?.pptxUrl,
-  'http://127.0.0.1:46080/ppt/artifacts/job_001/rev_0001/deck.pptx',
-);
-assert.match(String(generatedPptFromMaterial?.meta?.outlineContent), /Skills 与 MCP 的区别/);
-
 assert.equal(isArtifactReferenceEligible({ id: 'report-1', type: 'report', meta: { kind: 'final_report' } } as any), true);
 assert.equal(isArtifactReferenceEligible({ id: 'outline-1', type: 'report', meta: { kind: 'outline' } } as any), true);
-assert.equal(isArtifactReferenceEligible({ id: 'ppt-deck-1', type: 'ppt', meta: { kind: 'ppt_deck' } } as any), true);
-assert.equal(isArtifactReferenceEligible({ id: 'ppt-outline-1', type: 'ppt', meta: { kind: 'ppt_outline' } } as any), false);
 assert.equal(isArtifactReferenceEligible({ id: 'quiz-1', type: 'quiz', meta: {} } as any), false);
 
 const replacedConversationFiles = replaceConversationGeneratedFiles(
@@ -166,7 +126,7 @@ const replacedCourseMaterialFiles = replaceCourseMaterialGeneratedFiles(
     { id: 'conv-new', name: 'conversation-report', type: 'report', meta: { origin: 'conversation', conversationId: 'conv-new', addedAt: '2026-04-06T12:00:00' } },
   ] as any,
   [
-    { id: 'course-fresh', name: 'fresh-course-ppt', type: 'ppt', meta: { origin: 'course_material', addedAt: '2026-04-06T13:00:00' } },
+    { id: 'course-fresh', name: 'fresh-course-report', type: 'report', meta: { origin: 'course_material', addedAt: '2026-04-06T13:00:00' } },
   ] as any,
 );
 

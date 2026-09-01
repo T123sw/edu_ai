@@ -6,7 +6,7 @@ from app.chat.runtime.planning.schema import Plan, PlanStep
 from app.chat.runtime.research.planner import build_research_plan
 
 
-_CONFIRMABLE = {"report", "lesson_plan", "ppt", "classroom"}
+_CONFIRMABLE = {"report", "lesson_plan", "classroom"}
 
 
 def compile_plan(contract: TeachingTaskContract, state: dict | None = None) -> Plan:
@@ -151,8 +151,6 @@ def compile_plan(contract: TeachingTaskContract, state: dict | None = None) -> P
 
 def _append_generation_steps(add, contract: TeachingTaskContract, resources: list[str], active_outline: dict) -> None:
     for resource in resources:
-        if resource == "ppt":
-            continue  # API compatibility only; PPT is not in this delivery scope.
         label = {
             "report": "报告", "lesson_plan": "教案", "quiz": "练习题", "blog": "教学博客",
             "flashcard": "闪卡", "graph": "思维导图", "game": "课堂小游戏", "classroom": "AI 课堂",

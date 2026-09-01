@@ -8,7 +8,6 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectFlashcardRequestV2,
     KnowledgeBaseDirectGameRequestV2,
     KnowledgeBaseDirectGraphRequestV2,
-    KnowledgeBaseDirectPptOutlineRequestV2,
     KnowledgeBaseDirectQuizRequestV2,
     KnowledgeBaseDirectReportRequestV2,
 )
@@ -33,13 +32,6 @@ SOURCE_REQUESTS = [
             "course_id": "c1",
             "flashcard_config": {"title": "Cards"},
             "idempotency_key": "cards-1",
-        },
-    ),
-    (
-        KnowledgeBaseDirectPptOutlineRequestV2,
-        {
-            "course_id": "c1",
-            "ppt_config": {"deck_title": "Slides"},
         },
     ),
     (

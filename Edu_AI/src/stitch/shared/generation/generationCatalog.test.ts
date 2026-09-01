@@ -7,11 +7,11 @@ test("generation catalog preserves authenticated server order and ignores duplic
   assert.deepEqual(
     sanitizeGenerationCatalog([
       { tool_id: "report" },
-      { tool_id: "ppt" },
-      { tool_id: "report" },
       { tool_id: "mind_map" },
+      { tool_id: "report" },
+      { tool_id: "quiz" },
     ]),
-    ["report", "ppt", "mind_map"],
+    ["report", "mind_map", "quiz"],
   );
 });
 
@@ -20,8 +20,8 @@ test("generation catalog rejects unknown tool ids instead of widening access", (
 });
 
 test("teacher and student catalogs match the exact product matrices", () => {
-  const teacher = ["report", "ppt", "mind_map", "quiz", "classroom", "lesson_plan", "blog"];
-  const student = ["report", "ppt", "mind_map", "quiz", "classroom", "flashcard", "game"];
+  const teacher = ["report", "mind_map", "quiz", "classroom", "lesson_plan", "blog"];
+  const student = ["report", "mind_map", "quiz", "classroom", "flashcard", "game"];
   assert.deepEqual(sanitizeGenerationCatalog(teacher.map((tool_id) => ({ tool_id }))), teacher);
   assert.deepEqual(sanitizeGenerationCatalog(student.map((tool_id) => ({ tool_id }))), student);
 });

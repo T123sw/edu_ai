@@ -20,7 +20,6 @@ export const routes = {
   home: "home",
   profile: "profile",
   graph: "graph",
-  ppt: "ppt",
   resources: "resources",
   knowledge: "knowledge",
   edit: "edit",

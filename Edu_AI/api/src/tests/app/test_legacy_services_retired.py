@@ -20,16 +20,15 @@ def test_bootstrap_has_no_ai_lecturer_process_lifecycle():
     assert not hasattr(bootstrap, "_shutdown_ai_lecturer_bridge")
 
 
-def test_application_keeps_existing_ppt_routes_while_ppt_redesign_is_deferred():
+def test_application_does_not_register_retired_ppt_routes():
     from app.bootstrap import create_app
 
     paths = {route.path for route in create_app().routes if hasattr(route, "path")}
 
-    assert "/api/chat/v2/ppt/outline" in paths
-    assert "/api/chat/v2/ppt/generate" in paths
+    assert not any("/ppt/" in path for path in paths)
 
 
-def test_deferred_html2ppt_runtime_does_not_expand_beyond_its_existing_boundary():
+def test_html2ppt_runtime_is_fully_retired():
     app_root = Path(__file__).resolve().parents[2] / "app"
     matches = []
 
@@ -37,7 +36,4 @@ def test_deferred_html2ppt_runtime_does_not_expand_beyond_its_existing_boundary(
         if "html2ppt" in path.read_text(encoding="utf-8", errors="ignore").lower():
             matches.append(path.relative_to(app_root).as_posix())
 
-    assert sorted(matches) == [
-        "chat/application/knowledge_base_direct_ppt_service_v2.py",
-        "chat/workflows/ppt/html2ppt_client.py",
-    ]
+    assert matches == []

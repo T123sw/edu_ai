@@ -19,7 +19,6 @@ const typeLabels: Record<string, string> = {
   blog: "博客",
   report: "报告",
   lesson_plan: "教案",
-  ppt: "PPT",
   quiz: "测验",
 };
 

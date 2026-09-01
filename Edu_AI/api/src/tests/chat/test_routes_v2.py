@@ -12,71 +12,6 @@ from app.services.course_access import CourseAccessDenied
 from core.config import Config
 
 
-def test_ppt_outline_resolves_course_auto_documents_without_changing_source_intent(
-    monkeypatch,
-):
-    app = FastAPI()
-    app.include_router(v2_router)
-    app.dependency_overrides[get_current_user] = lambda: {
-        "username": "tester",
-        "role": "teacher",
-    }
-    app.dependency_overrides[get_course_access_service] = lambda: SimpleNamespace(
-        require=lambda course_id, user, capability: SimpleNamespace(
-            course_id=course_id,
-            user_id=user["username"],
-            course_role="editor",
-        )
-    )
-
-    class DummyResolver:
-        def resolve(self, course_id, source_mode, selected_doc_ids):
-            assert (course_id, source_mode, selected_doc_ids) == (
-                "course-1",
-                "course_auto",
-                [],
-            )
-            return SimpleNamespace(
-                documents=[SimpleNamespace(rag_index_key="rag/course-1/doc-1")]
-            )
-
-    class DummyPptService:
-        def generate_outline(self, payload):
-            assert payload.owner == "tester"
-            assert payload.source_mode == "course_auto"
-            assert payload.selected_doc_ids == []
-            assert payload.resolved_doc_ids == ["rag/course-1/doc-1"]
-            return {"draft": {"draft_id": "draft-1", "status": "outline_ready"}}
-
-    monkeypatch.setattr(
-        routes_v2_module,
-        "_get_generation_source_resolver",
-        lambda: DummyResolver(),
-    )
-    monkeypatch.setattr(
-        routes_v2_module,
-        "_get_direct_ppt_service",
-        lambda: DummyPptService(),
-    )
-
-    response = TestClient(app).post(
-        "/api/chat/v2/ppt/outline",
-        json={
-            "course_id": "course-1",
-            "source_mode": "course_auto",
-            "selected_doc_ids": [],
-            "ppt_config": {
-                "deck_title": "Agent principles",
-                "theme_id": "heu_academic_elegant",
-                "length_option": "short",
-            },
-        },
-    )
-
-    assert response.status_code == 200
-    assert response.json()["draft"]["draft_id"] == "draft-1"
-
-
 def test_reply_v2_route_returns_v2_payload(monkeypatch):
     app = FastAPI()
     app.include_router(v2_router)
@@ -496,56 +431,6 @@ def test_report_cards_v2_route_returns_cards_payload(monkeypatch):
     assert response.status_code == 200
     assert response.json()["entry_mode"] == "knowledge_base_report"
     assert response.json()["cards"][0]["card_id"] == "preset-brief"
-
-
-def test_ppt_cards_v2_route_returns_cards_payload(monkeypatch):
-    app = FastAPI()
-    app.include_router(v2_router)
-    app.dependency_overrides[get_current_user] = lambda: {"username": "tester"}
-
-    class DummyService:
-        def get_cards(self, payload):
-            assert payload.owner == "tester"
-            assert payload.selected_doc_ids == ["doc-1"]
-            return {
-                "entry_mode": "knowledge_base_ppt",
-                "default_selected_card_id": "rec-concept-focus",
-                "cards": [
-                    {
-                        "card_id": "preset-knowledge-lecture",
-                        "card_type": "preset",
-                        "title": "Knowledge lecture",
-                        "description": "Lecture-oriented PPT entry.",
-                        "objective_hint": "课堂讲解",
-                        "length_option": "medium",
-                        "preset_key": "knowledge_lecture",
-                        "prefill_config": {
-                            "deck_title": "System skills",
-                            "audience": "本科生",
-                            "objective": "课堂讲解",
-                            "theme_id": "heu_academic_elegant",
-                            "length_option": "medium",
-                            "target_slide_count": 16,
-                            "key_points": ["定义"],
-                        },
-                    }
-                ],
-                "trace": {
-                    "selected_doc_count": 1,
-                },
-            }
-
-    monkeypatch.setattr("app.chat.api.routes_v2._get_ppt_entry_cards_service", lambda: DummyService())
-    client = TestClient(app)
-    response = client.post(
-        "/api/chat/v2/ppt/cards",
-        json={"course_id": "course-1", "selected_doc_ids": ["doc-1"]},
-    )
-
-    assert response.status_code == 200
-    assert response.json()["entry_mode"] == "knowledge_base_ppt"
-    assert response.json()["default_selected_card_id"] == "rec-concept-focus"
-    assert response.json()["cards"][0]["prefill_config"]["theme_id"] == "heu_academic_elegant"
 
 
 def test_lesson_plan_cards_v2_route_returns_cards_payload(monkeypatch):

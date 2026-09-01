@@ -406,9 +406,6 @@ def _default_service_factories() -> dict[str, Callable[[], Any]]:
     from app.chat.application.knowledge_base_direct_graph_service_v2 import (
         build_default_knowledge_base_direct_graph_service_v2,
     )
-    from app.chat.application.knowledge_base_direct_ppt_service_v2 import (
-        build_default_knowledge_base_direct_ppt_service_v2,
-    )
     from app.chat.application.knowledge_base_direct_quiz_service_v2 import (
         build_default_knowledge_base_direct_quiz_service_v2,
     )
@@ -423,7 +420,6 @@ def _default_service_factories() -> dict[str, Callable[[], Any]]:
         "report": build_default_knowledge_base_direct_report_service_v2,
         "blog": BlogGenerationAdapterV2,
         "quiz": build_default_knowledge_base_direct_quiz_service_v2,
-        "ppt": build_default_knowledge_base_direct_ppt_service_v2,
         "flashcard": build_default_knowledge_base_direct_flashcard_service_v2,
         "graph": build_default_knowledge_base_direct_graph_service_v2,
         "game": build_default_knowledge_base_direct_game_service_v2,
@@ -683,14 +679,6 @@ class GenerationTaskHandler:
         elif resource_type == "blog":
             base.update(config)
             base["topic"] = config.get("topic") or config.get("title")
-        elif resource_type == "ppt":
-            base.update(
-                {
-                    "draft_id": config.get("draft_id"),
-                    "confirm": bool(config.get("confirm", True)),
-                    "outline": config.get("outline"),
-                }
-            )
         elif resource_type == "lesson_plan":
             base.update(config)
         if config.get("entrypoint") == "agent":
@@ -837,7 +825,6 @@ def register_generation_task_handlers(
         "lesson_plan",
         "blog",
         "quiz",
-        "ppt",
         "flashcard",
         "graph",
         "game",

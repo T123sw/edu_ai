@@ -27,7 +27,6 @@ class JobKind(str, Enum):
     GENERATE_LESSON_PLAN = "generate_lesson_plan"
     GENERATE_BLOG = "generate_blog"
     GENERATE_QUIZ = "generate_quiz"
-    GENERATE_PPT = "generate_ppt"
     GENERATE_FLASHCARD = "generate_flashcard"
     GENERATE_GRAPH = "generate_graph"
     GENERATE_GAME = "generate_game"

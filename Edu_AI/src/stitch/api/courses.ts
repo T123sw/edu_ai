@@ -584,30 +584,6 @@ function formatReportMarkdown(material: CourseMaterial): string {
     .join("\n\n");
 }
 
-function formatPptDeckMarkdown(material: CourseMaterial): string {
-  const record = toPlainRecord(material.content);
-  const deckTitle = textFromUnknown(record.deck_title) || textFromUnknown(record.title) || material.title || material.material_id;
-  const slides = Array.isArray(record.slides) ? record.slides : [];
-
-  const slideMarkdown = slides
-    .map((slide, index) => {
-      const slideRecord = toPlainRecord(slide);
-      const title = textFromUnknown(slideRecord.title) || `Slide ${index + 1}`;
-      const bullets = Array.isArray(slideRecord.bullets)
-        ? slideRecord.bullets.map((item) => textFromUnknown(item)).filter(Boolean)
-        : [];
-      const notes = textFromUnknown(slideRecord.notes) || textFromUnknown(slideRecord.content);
-      const bulletText = bullets.length > 0 ? bullets.map((item) => `- ${item}`).join("\n") : "";
-      return [`## ${title}`, bulletText, notes].filter(Boolean).join("\n\n");
-    })
-    .filter(Boolean)
-    .join("\n\n");
-
-  return [`# ${deckTitle}`, material.summary || "", slideMarkdown || "当前 PPT 暂无可展示的页面内容。"]
-    .filter(Boolean)
-    .join("\n\n");
-}
-
 function formatQuizMarkdown(material: CourseMaterial): string {
   const questions = Array.isArray(material.questions) ? material.questions : [];
   if (questions.length === 0) return "";
@@ -732,10 +708,6 @@ export function courseMaterialToMarkdown(material: CourseMaterial) {
   if (material.material_type === "report") {
     const reportMarkdown = formatReportMarkdown(material);
     if (reportMarkdown) return reportMarkdown;
-  }
-
-  if (material.material_type === "ppt") {
-    return formatPptDeckMarkdown(material);
   }
 
   if (material.material_type === "quiz") {

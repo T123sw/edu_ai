@@ -18,7 +18,6 @@ import type { BlogConfig } from "./definitions/blog";
 import type { QuizConfig } from "./definitions/quiz";
 import type { FlashcardConfig } from "./definitions/flashcard";
 import type { GameConfig } from "./definitions/game";
-import type { PptConfig } from "./definitions/ppt";
 import type { MindMapConfig } from "./definitions/mindMap";
 import type { ClassroomConfig } from "./definitions/classroom";
 import { ReportForm } from "./forms/ReportForm";
@@ -27,14 +26,13 @@ import { BlogForm } from "./forms/BlogForm";
 import { QuizForm } from "./forms/QuizForm";
 import { FlashcardForm } from "./forms/FlashcardForm";
 import { GameForm } from "./forms/GameForm";
-import { PptForm } from "./forms/PptForm";
 import { MindMapForm } from "./forms/MindMapForm";
 import { ClassroomForm } from "./forms/ClassroomForm";
 import "./generationFactory.css";
 
 const GENERATION_KINDS = new Set([
   "generate_report", "generate_lesson_plan", "generate_blog", "generate_quiz",
-  "generate_ppt", "generate_flashcard", "generate_graph", "generate_game", "generate_classroom",
+  "generate_flashcard", "generate_graph", "generate_game", "generate_classroom",
 ]);
 
 function ConfigForm({ type, config, errors, onChange }: {
@@ -49,7 +47,6 @@ function ConfigForm({ type, config, errors, onChange }: {
   if (type === "quiz") return <QuizForm value={config as unknown as QuizConfig} onChange={(next) => onChange(next as unknown as Record<string, unknown>)} errors={errors} />;
   if (type === "flashcard") return <FlashcardForm value={config as unknown as FlashcardConfig} onChange={(next) => onChange(next as unknown as Record<string, unknown>)} errors={errors} />;
   if (type === "game") return <GameForm value={config as unknown as GameConfig} onChange={(next) => onChange(next as unknown as Record<string, unknown>)} errors={errors} />;
-  if (type === "ppt") return <PptForm value={config as unknown as PptConfig} onChange={(next) => onChange(next as unknown as Record<string, unknown>)} errors={errors} />;
   if (type === "mind_map") return <MindMapForm value={config as unknown as MindMapConfig} onChange={(next) => onChange(next as unknown as Record<string, unknown>)} errors={errors} />;
   return <ClassroomForm value={config as unknown as ClassroomConfig} onChange={(next) => onChange(next as unknown as Record<string, unknown>)} errors={errors} />;
 }

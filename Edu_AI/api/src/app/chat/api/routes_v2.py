@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import inspect
 import mimetypes
 import re
 from pathlib import Path
@@ -22,8 +21,6 @@ from app.chat.api.schemas_v2 import (
     ChatQuizPrefillResponseV2,
     ChatLessonPlanCardsRequestV2,
     ChatLessonPlanCardsResponseV2,
-    ChatPptCardsRequestV2,
-    ChatPptCardsResponseV2,
     ChatReplyRequestV2,
     ChatReportCardsRequestV2,
     ChatReportCardsResponseV2,
@@ -33,8 +30,6 @@ from app.chat.api.schemas_v2 import (
     KnowledgeBaseDirectQuizRequestV2,
     KnowledgeBaseDirectGameRequestV2,
     KnowledgeBaseDirectFlashcardRequestV2,
-    KnowledgeBaseDirectPptGenerateRequestV2,
-    KnowledgeBaseDirectPptOutlineRequestV2,
     KnowledgeBaseDirectGraphRequestV2,
     KnowledgeBaseDirectBlogRequestV2,
     KnowledgeBaseDirectReportRequestV2,
@@ -245,20 +240,6 @@ def _get_direct_flashcard_service():
     return build_default_knowledge_base_direct_flashcard_service_v2()
 
 
-def _get_direct_ppt_service():
-    from app.chat.application.knowledge_base_direct_ppt_service_v2 import (
-        build_default_knowledge_base_direct_ppt_service_v2,
-    )
-
-    return build_default_knowledge_base_direct_ppt_service_v2()
-
-
-def _get_ppt_entry_cards_service():
-    from app.chat.application.ppt_entry_cards_service_v2 import build_default_ppt_entry_cards_service_v2
-
-    return build_default_ppt_entry_cards_service_v2()
-
-
 def _get_lesson_plan_entry_cards_service():
     from app.chat.application.lesson_plan_entry_cards_service_v2 import (
         build_default_lesson_plan_entry_cards_service_v2,
@@ -295,12 +276,12 @@ def _stream_json_frame(event: dict) -> str:
 
 def _is_workflow_intent_from_reply(payload: ChatReplyRequestV2) -> bool:
     question = str(payload.question or "")
-    if payload.action_hint in {"generate.report", "generate.ppt", "generate.lesson_plan", "generate.quiz"}:
+    if payload.action_hint in {"generate.report", "generate.lesson_plan", "generate.quiz"}:
         return True
     lowered = question.lower()
-    if any(token in lowered for token in ("ppt", "quiz", "report", "lesson plan", "exercise", "practice", "test")):
+    if any(token in lowered for token in ("quiz", "report", "lesson plan", "exercise", "practice", "test")):
         return True
-    return any(token in question for token in ("报告", "课件", "教案", "习题", "练习题", "测试题"))
+    return any(token in question for token in ("报告", "教案", "习题", "练习题", "测试题"))
 
 
 def _is_report_intent_from_reply(payload: ChatReplyRequestV2) -> bool:
@@ -575,21 +556,6 @@ async def report_cards(payload: ChatReportCardsRequestV2, current_user: dict = D
         return JSONResponse(status_code=500, content=body)
 
 
-@router.post("/ppt/cards", response_model=ChatPptCardsResponseV2)
-async def ppt_cards(payload: ChatPptCardsRequestV2, current_user: dict = Depends(get_current_user)):
-    try:
-        return _get_ppt_entry_cards_service().get_cards(_with_owner(payload, current_user))
-    except Exception as exc:
-        body = build_v2_error_response(
-            code="workflow_failed",
-            message=str(exc),
-            conversation_id="",
-            trace_path="direct",
-            retryable=False,
-        )
-        return JSONResponse(status_code=500, content=body)
-
-
 @router.post("/lesson-plan/cards", response_model=ChatLessonPlanCardsResponseV2)
 async def lesson_plan_cards(payload: ChatLessonPlanCardsRequestV2, current_user: dict = Depends(get_current_user)):
     try:
@@ -812,98 +778,6 @@ async def direct_flashcard(
         "task_id": job.edu_job_id,
         "status": "pending",
         "workflow_type": "flashcard_direct",
-    }
-
-
-@router.post("/ppt/outline")
-async def direct_ppt_outline(
-    payload: KnowledgeBaseDirectPptOutlineRequestV2,
-    current_user: dict = Depends(get_current_user),
-    access_service: CourseAccessService = Depends(get_course_access_service),
-):
-    _require_personal_generation_access(
-        tool_id="ppt",
-        course_id=payload.course_id,
-        current_user=current_user,
-        access_service=access_service,
-    )
-    try:
-        resolver = _get_generation_source_resolver()
-        resolve_kwargs = {}
-        if "owner" in inspect.signature(resolver.resolve).parameters:
-            resolve_kwargs["owner"] = str(
-                current_user.get("username") or ""
-            ).strip()
-        source = resolver.resolve(
-            payload.course_id,
-            payload.source_mode,
-            payload.selected_doc_ids,
-            **resolve_kwargs,
-        )
-    except GenerationSourceError as exc:
-        raise HTTPException(
-            status_code=422,
-            detail={"code": exc.code, "message": exc.message},
-        ) from exc
-    request_data = payload.model_dump()
-    request_data["owner"] = current_user.get("username")
-    request_data["resolved_doc_ids"] = [
-        item.rag_index_key for item in source.documents
-    ]
-    request = SimpleNamespace(**request_data)
-    return _get_direct_ppt_service().generate_outline(request)
-
-
-@router.post("/ppt/generate", response_model=ChatDirectTaskSubmittedResponseV2, status_code=202)
-async def direct_ppt_generate(
-    payload: KnowledgeBaseDirectPptGenerateRequestV2,
-    current_user: dict = Depends(get_current_user),
-    access_service: CourseAccessService = Depends(get_course_access_service),
-):
-    owner = str(current_user.get("username") or "").strip()
-    service = _get_direct_ppt_service()
-    try:
-        draft = service.get_draft(owner=owner, draft_id=payload.draft_id)
-    except KeyError as exc:
-        raise HTTPException(status_code=404, detail="ppt_draft_not_found") from exc
-    _require_personal_generation_access(
-        tool_id="ppt",
-        course_id=str(draft.get("course_id") or ""),
-        current_user=current_user,
-        access_service=access_service,
-    )
-    command = GenerationCommand(
-        resource_type="ppt",
-        owner_user_id=owner,
-        course_id=str(draft.get("course_id") or ""),
-        scope_type=str(draft.get("scope_type") or "course"),
-        scope_id=draft.get("scope_id"),
-        source_mode=str(
-            draft.get("source_mode")
-            or (
-                "selected_documents"
-                if draft.get("selected_doc_ids")
-                else "course_auto"
-            )
-        ),
-        selected_doc_ids=list(draft.get("selected_doc_ids") or []),
-        config={
-            **dict(draft.get("normalized_ppt_config") or {}),
-            "title": str(
-                dict(draft.get("normalized_ppt_config") or {}).get("deck_title")
-                or "PPT"
-            ),
-            "draft_id": payload.draft_id,
-            "confirm": payload.confirm,
-            "outline": payload.outline,
-        },
-        idempotency_key=payload.idempotency_key,
-    )
-    job = generation_command_service.submit(command)
-    return {
-        "task_id": job.edu_job_id,
-        "status": "pending",
-        "workflow_type": "ppt_direct",
     }
 
 

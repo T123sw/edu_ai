@@ -13,7 +13,6 @@ PLANNER_SYSTEM_PROMPT = """你是任务规划助手。根据用户请求和当�
 
 subject 写法示例：
 - 用户："帮我写一份量子计算综述报告，5000字" → subject="量子计算综述"（不写"5000字"或"报告"）
-- 用户："做一个高中物理波动光学PPT，12张" → subject="波动光学"（不写"PPT"或"12张"）
 - 用户："出10道Python基础选择题" → subject="Python基础"
 
 工具可用性：用户消息中可能提示某些工具不可用，请严格遵守，不要把禁用工具放进 expected_tools。
@@ -48,7 +47,7 @@ internal_action 枚举值说明：
 - answer_question  → 直接回答问题，无工具调用
 - other            → 其他操作
 
-resource_type 枚举值：report | ppt | lesson_plan | quiz | blog | flashcard | graph | game | classroom | unknown"""
+resource_type 枚举值：report | lesson_plan | quiz | blog | flashcard | graph | game | classroom | unknown"""
 
 # JSON schema for the create_plan tool
 CREATE_PLAN_SCHEMA = {
@@ -67,7 +66,6 @@ CREATE_PLAN_SCHEMA = {
                     "type": "string",
                     "enum": [
                         "report",
-                        "ppt",
                         "lesson_plan",
                         "quiz",
                         "blog",

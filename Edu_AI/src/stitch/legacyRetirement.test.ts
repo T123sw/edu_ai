@@ -36,7 +36,7 @@ test('knowledge structure cannot restore a second upload workflow', () => {
   assert.doesNotMatch(structure, /textbook-import|上传教材并解析|上传节点文件/u);
 });
 
-test('legacy generation modals and raw PPT JSON editor stay removed', () => {
+test('legacy generation modals and the retired PPT generator stay removed', () => {
   for (const relativePath of [
     '../components/teacher/ReportEntryModal.tsx',
     '../components/teacher/LessonPlanEntryModal.tsx',
@@ -44,14 +44,15 @@ test('legacy generation modals and raw PPT JSON editor stay removed', () => {
     '../components/teacher/FlashcardEntryModal.tsx',
     '../components/teacher/GameEntryModal.tsx',
     '../components/teacher/PptEntryPanel.tsx',
+    '../components/generation/forms/PptForm.tsx',
+    '../components/generation/previews/PptOutlineEditor.tsx',
+    '../components/generation/previews/PptArtifactPreview.tsx',
   ]) {
     assert.equal(existsSync(fileURLToPath(new URL(relativePath, import.meta.url))), false, relativePath);
   }
   const factory = source('../components/generation/GenerationFactory.tsx');
-  const pptForm = source('../components/generation/forms/PptForm.tsx');
-  const outline = source('../components/generation/previews/PptOutlineEditor.tsx');
   assert.equal((factory.match(/<QuizForm\b/gu) || []).length, 1);
-  assert.doesNotMatch(`${pptForm}\n${outline}`, /JSON\.stringify|PPT 大纲["']\s*\/?>/u);
+  assert.doesNotMatch(factory, /PptForm|resourceType:\s*["']ppt["']/u);
 });
 
 test('course identity never falls back to local storage on a course page', () => {

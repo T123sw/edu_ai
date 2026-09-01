@@ -4,21 +4,15 @@ from __future__ import annotations
 class StatusCardLabelMapper:
     _WORKFLOW_LABELS = {
         "report": "报告",
-        "ppt": "PPT",
-        "ppt_deck": "PPT 文件",
-        "ppt_content_markdown": "PPT 协议稿",
         "lesson_plan": "教案",
         "quiz": "练习",
-        "ppt_outline": "PPT 大纲",
         "flashcard": "闪卡",
     }
 
     _WORKFLOW_GOALS = {
         "report": "生成报告",
-        "ppt": "生成 PPT",
         "lesson_plan": "整理教案",
         "quiz": "生成练习",
-        "ppt_outline": "整理 PPT 大纲",
         "flashcard": "生成闪卡",
     }
 
@@ -38,10 +32,6 @@ class StatusCardLabelMapper:
             return "普通对话"
         if status == "awaiting_confirm" and workflow_type == "report":
             return "等待你确认报告大纲"
-        if status == "awaiting_confirm" and workflow_type == "ppt" and str(phase or "").strip() == "awaiting_outline_confirmation":
-            return "等待你确认 PPT 大纲"
-        if status == "awaiting_confirm" and workflow_type == "ppt":
-            return "等待你补充 PPT 信息"
         if status == "awaiting_confirm":
             return "等待你确认并继续"
         if status == "running":
@@ -63,10 +53,6 @@ class StatusCardLabelMapper:
         required_slots = list(required_slots or [])
         if status == "awaiting_confirm" and workflow_type == "report":
             return "等待你确认报告大纲"
-        if status == "awaiting_confirm" and workflow_type == "ppt" and str(phase or "").strip() == "awaiting_outline_confirmation":
-            return "等待你确认 PPT 大纲"
-        if status == "awaiting_confirm" and workflow_type == "ppt":
-            return "等待你补充 PPT 关键信息"
         if status == "awaiting_confirm":
             return "等待你确认并继续"
         if "audience" in required_slots:
@@ -78,13 +64,9 @@ class StatusCardLabelMapper:
     def map_suggested_actions(self, *, workflow_type: str | None, status: str | None, required_slots: list[str] | None) -> list[str]:
         required_slots = list(required_slots or [])
         if status == "awaiting_confirm":
-            if workflow_type == "ppt":
-                return ["确认并生成", "调整要求"]
             return ["确认并继续", "调整要求"]
         if "source_docs" in required_slots:
             return ["选择资料", "跳过资料直接生成"]
         if status == "running" and workflow_type:
             return ["继续生成"]
-        if workflow_type == "ppt":
-            return ["继续补充", "生成 PPT"]
         return ["继续提问", "生成报告"]

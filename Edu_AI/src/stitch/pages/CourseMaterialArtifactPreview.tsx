@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { BlogArtifactPreview } from "../../components/generation/previews/BlogArtifactPreview";
-import { PptArtifactPreview } from "../../components/generation/previews/PptArtifactPreview";
 import { courseMaterialToMarkdown } from "../api/courses";
 import type { CourseMaterial } from "../api/types";
 import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
@@ -99,7 +98,6 @@ export function CourseMaterialArtifactPreview({ material }: { material: CourseMa
   const markdown = useMemo(() => courseMaterialToMarkdown(material), [material]);
   const exportButton = <button type="button" onClick={() => downloadMaterialFile(material, markdown)} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">导出</button>;
   if (previewKind === "blog") return <><div className="mb-3 flex justify-end">{exportButton}</div><BlogArtifactPreview material={material} markdown={markdown} /></>;
-  if (previewKind === "ppt") return <PptArtifactPreview material={material} />;
   if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview material={material} /></>;
   if (previewKind === "flashcard") return <><div className="mb-3 flex justify-end">{exportButton}</div><FlashcardPreview material={material} /></>;
   if (previewKind === "mind-map") return <MindMapPreview material={material} />;

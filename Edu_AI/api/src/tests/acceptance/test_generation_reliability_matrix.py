@@ -53,7 +53,6 @@ RESOURCE_CASES = (
     ResourceCase("lesson_plan", "/api/chat/v2/lesson-plan/direct"),
     ResourceCase("blog", "/api/chat/v2/blog/direct"),
     ResourceCase("quiz", "/api/chat/v2/quiz/direct"),
-    ResourceCase("ppt", "/api/chat/v2/ppt/generate"),
     ResourceCase("flashcard", "/api/chat/v2/flashcard/direct"),
     ResourceCase("graph", "/api/chat/v2/graph/direct"),
     ResourceCase("game", "/api/chat/v2/game/direct"),

@@ -16,8 +16,6 @@ def route_after_supervisor(state: Dict[str, Any]) -> str:
         return "research"
 
     if rt in {"text_generate", "multimodal_generate", "generate"}:
-        if resource in {"ppt"}:
-            return "ppt"
         if resource in {"video"}:
             return "video"
         if resource in {"podcast"}:

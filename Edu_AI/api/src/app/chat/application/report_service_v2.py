@@ -138,75 +138,6 @@ def _persist_report_course_material(*, payload, result: dict, course_storage_man
     )
 
 
-def _persist_ppt_course_material(*, payload, result: dict, course_storage_manager=None) -> None:
-    course_id = str(getattr(payload, "course_id", "") or "").strip()
-    if not course_id or course_storage_manager is None:
-        return
-
-    artifacts = list(result.get("artifacts") or [])
-    deck_artifact = next(
-        (
-            artifact
-            for artifact in artifacts
-            if isinstance(artifact, dict) and str(artifact.get("artifact_type") or "").strip() == "ppt_deck"
-        ),
-        None,
-    )
-    if not deck_artifact:
-        return
-
-    generation_state = dict(deck_artifact.get("generation_state") or {})
-    if str(generation_state.get("status") or "").strip() != "completed":
-        return
-
-    material_id = str(deck_artifact.get("artifact_id") or "").strip()
-    if not material_id:
-        return
-
-    outline_artifact = next(
-        (
-            artifact
-            for artifact in artifacts
-            if isinstance(artifact, dict) and str(artifact.get("artifact_type") or "").strip() == "ppt_outline"
-        ),
-        None,
-    )
-    markdown_artifact = next(
-        (
-            artifact
-            for artifact in artifacts
-            if isinstance(artifact, dict) and str(artifact.get("artifact_type") or "").strip() == "ppt_content_markdown"
-        ),
-        None,
-    )
-    content_payload = deck_artifact.get("content")
-    if isinstance(content_payload, dict):
-        content_payload = dict(content_payload)
-    else:
-        content_payload = {}
-    content_markdown = str(markdown_artifact.get("content") or "") if isinstance(markdown_artifact, dict) else ""
-    if content_markdown.strip():
-        content_payload["content_markdown"] = content_markdown
-
-    now = datetime.now().isoformat()
-    course_storage_manager.save_generated_material(
-        course_id=course_id,
-        material_type="ppt",
-        material_id=material_id,
-        scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
-        scope_id=getattr(payload, "scope_id", None),
-        material_data={
-            "title": str(deck_artifact.get("title") or "PPT").strip(),
-            "material_type": "ppt",
-            "created_at": now,
-            "updated_at": now,
-            "content": content_payload,
-            "outline": outline_artifact.get("content") if isinstance(outline_artifact, dict) else None,
-            "generation_state": generation_state,
-        },
-    )
-
-
 def finalize_report_result(*, payload, result: dict, course_storage_manager=None, compact_message: bool = False) -> None:
     _sync_report_artifact_titles(payload=payload, result=result)
     _persist_report_course_material(
@@ -214,12 +145,6 @@ def finalize_report_result(*, payload, result: dict, course_storage_manager=None
         result=result,
         course_storage_manager=course_storage_manager,
     )
-    _persist_ppt_course_material(
-        payload=payload,
-        result=result,
-        course_storage_manager=course_storage_manager,
-    )
-
     if not compact_message:
         return
 

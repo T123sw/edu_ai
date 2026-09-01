@@ -10,7 +10,6 @@ class LLMEnhancementRouter:
         "workflow.report.requested",
         "workflow.lesson_plan.requested",
         "workflow.quiz.requested",
-        "workflow.ppt.requested",
     }
 
     def __init__(

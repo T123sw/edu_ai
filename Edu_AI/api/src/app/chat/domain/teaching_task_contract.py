@@ -16,7 +16,7 @@ TaskIntent = Literal[
 SourceMode = Literal["selected_documents", "course_auto", "none"]
 Policy = Literal["required", "allowed", "disabled"]
 ResourceType = Literal[
-    "report", "lesson_plan", "quiz", "blog", "flashcard", "graph", "game", "classroom", "ppt"
+    "report", "lesson_plan", "quiz", "blog", "flashcard", "graph", "game", "classroom"
 ]
 
 

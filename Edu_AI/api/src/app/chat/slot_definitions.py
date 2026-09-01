@@ -105,23 +105,6 @@ class BlogSlots(BaseSlots):
         }
 
 
-class PPTSlots(BaseSlots):
-    slide_count: int = 12
-    template_style: str = "教学简洁风"
-    include_notes: bool = True
-    visual_preference: str = "图文并茂"
-
-    class SlotMeta:
-        core_slots: ClassVar[List[str]] = ["topic", "audience", "objective", "slide_count"]
-        secondary_slots: ClassVar[List[str]] = ["template_style", "include_notes", "visual_preference"]
-        defaults: ClassVar[Dict[str, Any]] = {
-            "slide_count": 12,
-            "template_style": "教学简洁风",
-            "include_notes": True,
-            "visual_preference": "图文并茂",
-        }
-
-
 class VideoSlots(BaseSlots):
     video_duration: str = ""
     video_type: str = ""
@@ -160,7 +143,6 @@ SLOT_REGISTRY: Dict[str, SlotModel] = {
     "quiz": QuizSlots,
     "flashcard": FlashcardSlots,
     "blog": BlogSlots,
-    "ppt": PPTSlots,
     "video": VideoSlots,
     "podcast": PodcastSlots,
 }

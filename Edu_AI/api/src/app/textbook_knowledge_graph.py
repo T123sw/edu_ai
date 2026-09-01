@@ -230,12 +230,6 @@ def _resolve_openai_compatible_config(explicit_env_path: Optional[str] = None) -
     values, env_path = _resolve_llm_env_values(explicit_env_path)
     candidates = [
         {
-            "label": "ppt_llm",
-            "base": ["PPT_LLM_API_BASE"],
-            "key": ["PPT_LLM_API_KEY"],
-            "model": ["PPT_LLM_MODEL"],
-        },
-        {
             "label": "answer_llm",
             "base": ["ANSWER_LLM_API_BASE", "QWEN_BASE_URL"],
             "key": ["ANSWER_LLM_API_KEY", "QWEN_API_KEY"],

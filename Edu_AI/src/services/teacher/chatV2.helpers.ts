@@ -29,13 +29,12 @@ export interface ConversationDetailLike {
 export interface GeneratedFileLike {
   id: string;
   name: string;
-  type: 'report' | 'ppt' | 'lesson_plan' | 'quiz' | 'game';
+  type: 'report' | 'lesson_plan' | 'quiz' | 'game';
   content: unknown;
   meta?: Record<string, unknown>;
 }
 
 import { normalizeGeneratedFileId } from './materials.helpers.ts';
-import { resolvePptAssetUrl } from './pptAssets.ts';
 
 function formatOutlineContent(content: unknown): string {
   if (!Array.isArray(content)) {
@@ -89,151 +88,6 @@ function buildReportFileName(baseTitle: string, fallbackName: string): string {
     return fallbackName;
   }
   return `${normalized}.md`;
-}
-
-function formatPptOutlineContent(content: unknown): string {
-  const deck = content && typeof content === 'object' ? (content as Record<string, unknown>) : {};
-  const deckTitle = String(deck.deck_title || deck.title || '').trim();
-  const deckSubtitle = String(deck.deck_subtitle || deck.subtitle || '').trim();
-  const slides = Array.isArray(deck.slides) ? deck.slides : [];
-
-  const lines: string[] = [];
-  if (deckTitle) {
-    lines.push(`# ${deckTitle}`);
-  }
-  if (deckSubtitle) {
-    lines.push(`> ${deckSubtitle}`);
-  }
-  if (slides.length > 0) {
-    if (lines.length > 0) {
-      lines.push('');
-    }
-    slides.forEach((slide: any, index: number) => {
-      const slideNo = Number(slide?.slide_index) || index + 1;
-      const title = String(slide?.title || `第 ${slideNo} 页`).trim();
-      const role = String(slide?.role || '').trim();
-      const goal = String(slide?.goal || '').trim();
-      const keyPoints = Array.isArray(slide?.key_points)
-        ? slide.key_points.map((item: unknown) => String(item || '').trim()).filter(Boolean)
-        : [];
-
-      lines.push(`## ${slideNo}. ${title}`);
-      if (role) {
-        lines.push(`- 角色：${role}`);
-      }
-      if (goal) {
-        lines.push(`- 目标：${goal}`);
-      }
-      keyPoints.forEach((item) => {
-        lines.push(`- ${item}`);
-      });
-      lines.push('');
-    });
-  }
-
-  return lines.join('\n').trim();
-}
-
-function buildPptFileName(baseTitle: string, fallbackName: string): string {
-  const normalized = String(baseTitle || '').trim();
-  if (!normalized) {
-    return fallbackName;
-  }
-  return normalized;
-}
-
-function mergePptArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] {
-  const outlineArtifact = artifacts.find(
-    (artifact) => String(artifact.artifact_type || '').trim() === 'ppt_outline',
-  );
-  const markdownArtifact = artifacts.find(
-    (artifact) => String(artifact.artifact_type || '').trim() === 'ppt_content_markdown',
-  );
-  const deckArtifact = artifacts.find(
-    (artifact) => String(artifact.artifact_type || '').trim() === 'ppt_deck',
-  );
-
-  const outlineContent = outlineArtifact ? formatPptOutlineContent(outlineArtifact.content) : '';
-  const markdownContent = String(markdownArtifact?.content || '').trim();
-
-  if (deckArtifact) {
-    const artifactId = normalizeGeneratedFileId(String(deckArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
-    const deckContent = deckArtifact.content && typeof deckArtifact.content === 'object'
-      ? (deckArtifact.content as Record<string, unknown>)
-      : {};
-    const title = buildPptFileName(
-      String(deckArtifact.title || '').trim(),
-      `${String(deckContent.deck_title || 'PPT').trim() || 'PPT'}.pptx`,
-    );
-    return [
-      {
-        id: artifactId,
-        name: title,
-        type: 'ppt',
-        content: deckContent,
-        meta: {
-          kind: 'ppt_deck',
-          outlineContent: outlineContent || undefined,
-          contentMarkdown: markdownContent || undefined,
-          originalArtifactId: String(deckArtifact.artifact_id || '').trim() || undefined,
-          htmlPreviewUrl: resolvePptAssetUrl(deckContent.html_full_url || deckContent.html_url),
-          pptxUrl: resolvePptAssetUrl(deckContent.pptx_url),
-          manifestUrl: resolvePptAssetUrl(deckContent.manifest_url),
-          jobId: String(deckContent.job_id || '').trim() || undefined,
-          revisionId: String(deckContent.revision_id || '').trim() || undefined,
-          generationState:
-            deckArtifact.generation_state && typeof deckArtifact.generation_state === 'object'
-              ? deckArtifact.generation_state
-              : undefined,
-        },
-      },
-    ];
-  }
-
-  if (markdownArtifact) {
-    const artifactId = normalizeGeneratedFileId(String(markdownArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
-    const title = buildPptFileName(String(markdownArtifact.title || '').trim(), 'PPT-content.md');
-    return [
-      {
-        id: artifactId,
-        name: title,
-        type: 'ppt',
-        content: markdownContent,
-        meta: {
-          kind: 'ppt_content_markdown',
-          outlineContent: outlineContent || undefined,
-          originalArtifactId: String(markdownArtifact.artifact_id || '').trim() || undefined,
-          generationState:
-            markdownArtifact.generation_state && typeof markdownArtifact.generation_state === 'object'
-              ? markdownArtifact.generation_state
-              : undefined,
-        },
-      },
-    ];
-  }
-
-  if (outlineArtifact) {
-    const artifactId = normalizeGeneratedFileId(String(outlineArtifact.artifact_id || '').trim()) || `artifact-${Date.now()}`;
-    const title = buildPptFileName(String(outlineArtifact.title || '').trim(), 'PPT-大纲.md');
-    return [
-      {
-        id: artifactId,
-        name: title,
-        type: 'ppt',
-        content: outlineContent,
-        meta: {
-          kind: 'ppt_outline',
-          originalArtifactId: String(outlineArtifact.artifact_id || '').trim() || undefined,
-          generationState:
-            outlineArtifact.generation_state && typeof outlineArtifact.generation_state === 'object'
-              ? outlineArtifact.generation_state
-              : undefined,
-        },
-      },
-    ];
-  }
-
-  return [];
 }
 
 function mergeReportArtifacts(artifacts: V2ArtifactLike[]): GeneratedFileLike[] {
@@ -470,7 +324,6 @@ export function extractGeneratedFilesFromV2Response(response: V2ResponseLike): G
   const artifacts = Array.isArray(response.artifacts) ? response.artifacts : [];
   return [
     ...mergeReportArtifacts(artifacts),
-    ...mergePptArtifacts(artifacts),
     ...mergeLessonPlanArtifacts(artifacts),
     ...mergeQuizArtifacts(artifacts),
     ...mergeGameArtifacts(artifacts),
@@ -486,7 +339,6 @@ export function restoreGeneratedFilesFromConversationDetail(
     : [];
   const files = [
     ...mergeReportArtifacts(artifacts),
-    ...mergePptArtifacts(artifacts),
     ...mergeLessonPlanArtifacts(artifacts),
     ...mergeQuizArtifacts(artifacts),
     ...mergeGameArtifacts(artifacts),

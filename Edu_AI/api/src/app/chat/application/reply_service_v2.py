@@ -21,7 +21,6 @@ from app.chat.runtime.react_agent import ReActAgent
 from app.chat.tasks import background_runner
 from app.chat.tools.agent_tools import rag_search_tool, web_search_tool
 from app.chat.tools.video_search import video_search_tool
-from app.chat.workflows.ppt.runtime import PptWorkflowRuntime
 from app.chat.workflows.quiz.assembler import QuizAssembler
 from app.chat.workflows.quiz.generator import QuizGenerator
 from app.chat.workflows.quiz.runtime import QuizWorkflowRuntime
@@ -84,7 +83,6 @@ class ReplyServiceV2:
         status_card_builder=None,
         course_storage_manager=None,
         report_edit_runtime=None,
-        ppt_edit_runtime=None,
         memory_writer=None,
     ):
         self.orchestrator = orchestrator
@@ -94,7 +92,6 @@ class ReplyServiceV2:
         self.status_card_builder = status_card_builder or StatusCardBuilder()
         self.course_storage_manager = course_storage_manager
         self.report_edit_runtime = report_edit_runtime
-        self.ppt_edit_runtime = ppt_edit_runtime
         self.memory_writer = memory_writer
 
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
@@ -157,9 +154,6 @@ class ReplyServiceV2:
         if artifact_reference is None:
             return None
 
-        artifact_type = str(getattr(artifact_reference, "artifact_type", "") or "").strip()
-        if artifact_type in {"ppt_deck", "ppt_outline", "ppt_content_markdown"}:
-            return PptWorkflowRuntime().run(request=request, snapshot=snapshot, decision=None)
         if self.report_edit_runtime is not None:
             return self.report_edit_runtime.run_from_request(
                 request=request,
@@ -220,33 +214,6 @@ class ReplyServiceV2:
         conversation_id = str(((final_result or {}).get("conversation") or {}).get("conversation_id") or request.conversation_id or "")
         yield {"type": "done", "payload": {"conversation_id": conversation_id}}
 
-    def refresh_running_conversation(self, request):
-        if self.context_builder is None or self.ppt_edit_runtime is None:
-            return None
-
-        snapshot = self.context_builder.build(request)
-        result = self.ppt_edit_runtime.resume_from_snapshot(
-            request=request,
-            snapshot=snapshot,
-            course_storage_manager=self.course_storage_manager,
-        )
-        if not result:
-            return None
-
-        workflow_status = str(((result.get("workflow") or {}).get("status")) or "").strip()
-        conversation_id = str(getattr(request, "conversation_id", "") or "").strip()
-        if conversation_id and workflow_status in {"completed", "failed"}:
-            self.conversation_store.write_v2_poll_result(conversation_id, request, result)
-            refreshed_snapshot = self.context_builder.build(request)
-            status_card = self.status_card_builder.build(
-                snapshot=refreshed_snapshot,
-                workflow=result.get("workflow"),
-                capability=getattr(request, "capability", None),
-            )
-            result["status_card"] = status_card if isinstance(status_card, dict) else status_card.model_dump(exclude_none=True)
-        return result
-
-
 def build_default_reply_service_v2():
     conversation_store = ConversationStoreAdapter()
     from app.chat.memory.dependencies import get_agent_memory_service
@@ -291,7 +258,6 @@ def build_default_reply_service_v2():
                 report_context_organizer=ReportContextOrganizer(llm=get_fallback_llm()),
                 generation_readiness_judge=GenerationReadinessJudge(),
             ),
-            "ppt": PptWorkflowRuntime(),
             "lesson_plan": LessonPlanWorkflowRuntime(
                 engine_resolver=lambda *, request, snapshot, decision: build_default_lesson_plan_engine(
                     llm=get_fallback_llm()
@@ -344,6 +310,5 @@ def build_default_reply_service_v2():
         status_card_builder=StatusCardBuilder(),
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
-        ppt_edit_runtime=None,
         memory_writer=memory_service,
     )

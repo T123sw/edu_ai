@@ -50,7 +50,6 @@ const TOOL_NAME_CN: Record<string, string> = {
   web_search: '联网搜索',
   draft_outline: '起草大纲',
   generate_report: '生成报告',
-  generate_ppt: '生成PPT',
   generate_lesson_plan: '生成教案',
   generate_quiz: '生成练习题',
 };

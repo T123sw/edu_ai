@@ -39,12 +39,6 @@ _TOOL_META: dict[str, ToolMeta] = {
         mutates_state=True,
         depends_on=frozenset({"draft_outline"}),
     ),
-    "generate_ppt": ToolMeta(
-        name="generate_ppt",
-        parallel_safe=False,
-        mutates_state=True,
-        depends_on=frozenset({"draft_outline"}),
-    ),
     "generate_lesson_plan": ToolMeta(
         name="generate_lesson_plan",
         parallel_safe=False,

@@ -7,14 +7,12 @@ from .route_rules import decide_route
 
 _WORKFLOW_LABELS = {
     "report": "报告",
-    "ppt": "PPT课件",
     "lesson_plan": "教案",
     "quiz": "练习题",
 }
 
 _HINT_TO_WORKFLOW = {
     "generate.report":      "report",
-    "generate.ppt":         "ppt",
     "generate.lesson_plan": "lesson_plan",
     "generate.quiz":        "quiz",
     "research.lookup":      "research",

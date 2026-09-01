@@ -1,11 +1,6 @@
 import { apiRequest } from "./client";
 import type {
   ChatCardsRequestV2,
-  ChatDirectPptGenerateRequest,
-  ChatDirectPptGenerateResponse,
-  ChatDirectPptOutlineRequest,
-  ChatDirectPptOutlineResponse,
-  ChatPptCardsResponse,
   ChatReplyRequestV2,
   ChatResponseV2,
   KnowledgePointsResponse,
@@ -17,30 +12,6 @@ import type {
 
 export function sendChatReply(payload: ChatReplyRequestV2) {
   return apiRequest<ChatResponseV2>("/api/chat/v2/reply", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-}
-
-export function fetchPptEntryCards(payload: ChatCardsRequestV2) {
-  return apiRequest<ChatPptCardsResponse>("/api/chat/v2/ppt/cards", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-}
-
-export function generatePptOutline(payload: ChatDirectPptOutlineRequest) {
-  return apiRequest<ChatDirectPptOutlineResponse>("/api/chat/v2/ppt/outline", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-}
-
-export function generatePpt(payload: ChatDirectPptGenerateRequest) {
-  return apiRequest<ChatDirectPptGenerateResponse>("/api/chat/v2/ppt/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

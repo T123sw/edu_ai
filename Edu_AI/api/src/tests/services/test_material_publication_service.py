@@ -119,29 +119,6 @@ def test_publish_creates_sanitized_independent_course_snapshot(tmp_path):
             ["公开题干", "A", "B"],
         ),
         (
-            "ppt",
-            {
-                "title": "课件",
-                "content": {
-                    "pptx_url": "/files/deck.pptx",
-                    "content_markdown": "# 公开课件",
-                    "provider_debug": "PRIVATE_PROVIDER_DEBUG",
-                },
-                "outline": {
-                    "deck_title": "公开大纲",
-                    "slides": [
-                        {
-                            "slide_index": 1,
-                            "title": "公开页面",
-                            "goal": "公开目标",
-                            "chain_of_thought": "PRIVATE_REASONING",
-                        }
-                    ],
-                },
-            },
-            ["/files/deck.pptx", "# 公开课件", "公开大纲", "公开页面"],
-        ),
-        (
             "classroom",
             {
                 "title": "课堂",
@@ -211,7 +188,6 @@ def test_publication_uses_positive_nested_schema_per_material_type(
     [
         ("report", "questions"),
         ("quiz", "stage"),
-        ("ppt", "report"),
         ("classroom", "flashcards"),
     ],
 )

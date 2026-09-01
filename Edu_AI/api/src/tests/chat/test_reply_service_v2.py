@@ -1049,7 +1049,7 @@ def test_build_default_reply_service_v2_registers_lesson_plan_workflow(monkeypat
     assert seen["runtime_kwargs"]["lesson_plan_readiness_judge"] is not None
 
 
-def test_build_default_reply_service_v2_uses_lightweight_ppt_handoff(monkeypatch):
+def test_build_default_reply_service_v2_configures_report_runtime(monkeypatch):
     seen = {}
     fallback_llm_marker = object()
 
@@ -1088,21 +1088,6 @@ def test_build_default_reply_service_v2_uses_lightweight_ppt_handoff(monkeypatch
                 "trace": {"path": "workflow", "workflow_name": "report"},
             }
 
-    class DummyPptRuntime:
-        def __init__(self, **kwargs):
-            seen["ppt_runtime_kwargs"] = kwargs
-
-        def run(self, *, request, snapshot, decision):
-            return {
-                "message": {"role": "assistant", "content": "ppt"},
-                "conversation": {"conversation_id": request.conversation_id or "conv-2"},
-                "action": {"name": "generate.ppt"},
-                "workflow": {"type": "ppt", "status": "running"},
-                "artifacts": [],
-                "sources": [],
-                "trace": {"path": "workflow", "workflow_name": "ppt"},
-            }
-
     monkeypatch.setattr(
         "app.chat.application.reply_service_v2.ConversationStoreAdapter",
         lambda: SimpleNamespace(
@@ -1116,12 +1101,11 @@ def test_build_default_reply_service_v2_uses_lightweight_ppt_handoff(monkeypatch
         lambda model_id=None: DummyGateway(),
     )
     monkeypatch.setattr("app.chat.application.reply_service_v2.ReportWorkflowRuntime", DummyReportRuntime)
-    monkeypatch.setattr("app.chat.application.reply_service_v2.PptWorkflowRuntime", DummyPptRuntime)
     monkeypatch.setattr("app.chat.application.reply_service_v2.get_fallback_llm", lambda: fallback_llm_marker)
 
     service = build_default_reply_service_v2()
     payload = SimpleNamespace(
-        question="生成 PPT",
+        question="生成报告",
         conversation_id="conv-2",
         model_id=None,
         course_id=None,
@@ -1129,11 +1113,10 @@ def test_build_default_reply_service_v2_uses_lightweight_ppt_handoff(monkeypatch
         allow_rag=False,
         allow_web=False,
         selected_doc_ids=[],
-        action_hint="generate.ppt",
+        action_hint="generate.report",
         owner="u1",
     )
 
     service.reply(payload)
 
     assert getattr(seen["report_runtime_kwargs"]["report_context_organizer"], "llm", None) is fallback_llm_marker
-    assert seen["ppt_runtime_kwargs"] == {}

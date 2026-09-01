@@ -1,6 +1,5 @@
 _WORKFLOW_LABELS = {
     "report":      "报告",
-    "ppt":         "PPT课件",
     "lesson_plan": "教案",
     "quiz":        "练习题",
     "blog":        "教学博客",
@@ -16,7 +15,6 @@ _TOOL_NAMES_CN = {
     "image_search":         "图片搜索",
     "draft_outline":        "起草大纲",
     "generate_report":      "生成报告",
-    "generate_ppt":         "生成PPT",
     "generate_lesson_plan": "生成教案",
     "generate_quiz":        "生成练习题",
     "generate_blog":        "生成教学博客",
@@ -35,7 +33,6 @@ _ARG_KEYS_CN = {
     "grade":             "年级",
     "difficulty":        "难度",
     "question_count":    "题数",
-    "slide_count":       "页数",
     "duration_minutes":  "时长",
     "question_types":    "题型",
     "outline_type":      "类型",

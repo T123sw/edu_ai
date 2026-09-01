@@ -1,5 +1,5 @@
 export type GenerationResourceType =
-  | "report" | "lesson_plan" | "blog" | "quiz" | "ppt"
+  | "report" | "lesson_plan" | "blog" | "quiz"
   | "flashcard" | "mind_map" | "game" | "classroom";
 
 export type GenerationRegistryItem = {
@@ -16,7 +16,6 @@ export const generationRegistry: readonly GenerationRegistryItem[] = [
   { resourceType: "lesson_plan", label: "教案", description: "生成可编辑的教学目标和教学过程", icon: "menu_book", accent: "#5b6fd8", definition: lessonPlanDefinition },
   { resourceType: "blog", label: "教学博客", description: "生成适合分享和延伸阅读的长文", icon: "description", accent: "#d65f59", definition: blogDefinition },
   { resourceType: "quiz", label: "习题", description: "生成题目、答案与可选解析", icon: "quiz", accent: "#3157d5", definition: quizDefinition },
-  { resourceType: "ppt", label: "PPT", description: "先生成并编辑大纲，再制作演示文稿", icon: "slideshow", accent: "#c65f20", definition: pptDefinition },
   { resourceType: "flashcard", label: "闪卡", description: "生成便于复习和课堂抽查的卡片", icon: "fact_check", accent: "#8b4bc2", definition: flashcardDefinition },
   { resourceType: "mind_map", label: "思维导图", description: "梳理主题层级与概念关系", icon: "account_tree", accent: "#c0448a", definition: mindMapDefinition },
   { resourceType: "game", label: "课堂小游戏", description: "生成分类、配对或记忆互动", icon: "play_circle", accent: "#26765b", definition: gameDefinition },
@@ -43,7 +42,6 @@ import { reportDefinition } from "./definitions/report";
 import { lessonPlanDefinition } from "./definitions/lessonPlan";
 import { blogDefinition } from "./definitions/blog";
 import { quizDefinition } from "./definitions/quiz";
-import { pptDefinition } from "./definitions/ppt";
 import { flashcardDefinition } from "./definitions/flashcard";
 import { mindMapDefinition } from "./definitions/mindMap";
 import { gameDefinition } from "./definitions/game";

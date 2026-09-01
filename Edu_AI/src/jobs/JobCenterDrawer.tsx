@@ -243,7 +243,7 @@ export function JobCenterDrawer({
                   detail={
                     currentCourseId
                       ? "在当前课程中发起生成或知识库任务后，可在这里持续查看进度。"
-                      : "进入任一课程发起课堂、报告、PPT 等任务后，可在这里按课程查看进度。"
+                      : "进入任一课程发起课堂、报告等任务后，可在这里按课程查看进度。"
                   }
                 />
               ) : (
@@ -434,7 +434,6 @@ function JobEmpty({ title, detail }: { title: string; detail: string }) {
 function jobIcon(kind: string) {
   if (kind === "generate_classroom") return "slideshow";
   if (kind === "render_video") return "play_circle";
-  if (kind.includes("ppt")) return "picture_as_pdf";
   if (kind.includes("quiz")) return "quiz";
   if (kind.includes("graph")) return "hub";
   if (kind.includes("document") || kind.includes("index")) return "menu_book";

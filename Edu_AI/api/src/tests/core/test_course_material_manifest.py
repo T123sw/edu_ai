@@ -62,13 +62,13 @@ def test_manifest_write_failure_removes_new_attachment(tmp_path, monkeypatch):
     monkeypatch.setattr(manager, "_write_json", fail_write)
     assert manager.save_generated_material(
         "course-1",
-        "ppt",
-        "deck-1",
-        {"title": "PPT", "file_extension": ".pptx"},
-        file_data=b"pptx",
+        "report",
+        "report-1",
+        {"title": "Report", "file_extension": ".md"},
+        file_data=b"report",
     ) is False
-    material_dir = manager._material_dir("course-1", "ppt")
-    assert list(material_dir.glob("deck-1*")) == []
+    material_dir = manager._material_dir("course-1", "report")
+    assert list(material_dir.glob("report-1*")) == []
     assert list(material_dir.glob("*.tmp")) == []
 
 
@@ -99,7 +99,7 @@ def test_concurrent_manifest_updates_never_leave_invalid_json(tmp_path):
 def test_formal_types_never_fall_back_to_others(tmp_path):
     manager = CourseStorageManager(root_path=str(tmp_path))
     manager.create_course_structure("course-1")
-    for material_type in ("ppt", "flashcard", "game", "classroom"):
+    for material_type in ("flashcard", "game", "classroom"):
         assert manager.save_generated_material(
             "course-1", material_type, f"{material_type}-1", {"title": material_type}
         )

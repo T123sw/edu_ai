@@ -9,7 +9,6 @@ const RESOURCE_TYPE_BY_JOB_KIND: Record<string, GenerationResourceType> = {
   generate_lesson_plan: "lesson_plan",
   generate_blog: "blog",
   generate_quiz: "quiz",
-  generate_ppt: "ppt",
   generate_flashcard: "flashcard",
   generate_graph: "mind_map",
   generate_game: "game",

@@ -3,7 +3,6 @@ export const TEACHER_STUDIO_ACTION_ORDER = [
   "lesson_plan",
   "blog",
   "quiz",
-  "ppt",
   "flashcard",
   "graph",
   "game",
@@ -43,12 +42,6 @@ export const TEACHER_STUDIO_ACTIONS: readonly TeacherStudioAction[] = [
     title: "习题",
     description: "围绕当前知识点生成课堂练习。",
     color: "#4a8df5",
-  },
-  {
-    type: "ppt",
-    title: "PPT",
-    description: "基于课程资料生成可编辑的演示文稿。",
-    color: "#e9782f",
   },
   {
     type: "flashcard",

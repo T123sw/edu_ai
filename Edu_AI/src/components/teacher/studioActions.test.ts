@@ -6,13 +6,12 @@ import {
   TEACHER_STUDIO_ACTION_ORDER,
 } from "./studioActions.ts";
 
-test("generation studio exposes all eight approved resource entries in order", () => {
+test("generation studio exposes all seven approved resource entries in order", () => {
   const expectedOrder = [
     "report",
     "lesson_plan",
     "blog",
     "quiz",
-    "ppt",
     "flashcard",
     "graph",
     "game",
@@ -23,7 +22,7 @@ test("generation studio exposes all eight approved resource entries in order", (
     TEACHER_STUDIO_ACTIONS.map((action) => action.type),
     expectedOrder,
   );
-  assert.equal(new Set(TEACHER_STUDIO_ACTION_ORDER).size, 8);
+  assert.equal(new Set(TEACHER_STUDIO_ACTION_ORDER).size, 7);
 });
 
 test("every generation entry has visible user-facing copy and a stable accent", () => {

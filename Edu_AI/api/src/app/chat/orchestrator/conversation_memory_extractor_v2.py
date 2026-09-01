@@ -104,7 +104,7 @@ class ConversationMemoryExtractor:
     ]
 
     _USER_WORKFLOW_CONTROL_PATTERNS = [
-        r"^请?基于(当前|以上).*(生成|整理).*(报告|教案|练习|测验|ppt|PPT)",
+        r"^请?基于(当前|以上).*(生成|整理).*(报告|教案|练习|测验)",
         r"^根据已确认的?大纲开始生成",
         r"^确认并继续$",
         r"^继续生成(报告|正文)?$",

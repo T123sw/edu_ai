@@ -102,44 +102,6 @@ def _build_status_card_for_conversation(conversation_id: str, owner: str | None)
     return card.model_dump(exclude_none=True)
 
 
-def _maybe_refresh_running_ppt_edit_conversation(conversation_id: str, owner: str | None):
-    get_state = getattr(conversation_storage, "get_state", None)
-    if not callable(get_state):
-        return None
-
-    state = get_state(conversation_id)
-    workflow_state = dict(state.get("workflow_state") or {})
-    if str(workflow_state.get("workflow_type") or "").strip() != "ppt":
-        return None
-    if str(workflow_state.get("status") or "").strip() != "running":
-        return None
-    if str(workflow_state.get("stage") or "").strip() != "polling_revision":
-        return None
-
-    artifact_reference = dict(state.get("artifact_reference") or {})
-    if str(artifact_reference.get("artifact_type") or "").strip() != "ppt_deck":
-        return None
-
-    active_context = dict(state.get("active_context") or {})
-    capability_state = dict(state.get("capability_policy") or {})
-    selected_doc_ids = list(capability_state.get("selected_doc_ids") or [])
-    request = SimpleNamespace(
-        question="",
-        conversation_id=conversation_id,
-        owner=owner,
-        course_id=active_context.get("current_course_id"),
-        capability=CapabilityPolicy(
-            allow_rag=bool(capability_state.get("allow_rag")),
-            allow_web=bool(capability_state.get("allow_web")),
-            # Phase 6-A.2: image_search default True; planner gates real usage.
-            allow_image_search=bool(capability_state.get("allow_image_search", True)),
-            selected_doc_ids=selected_doc_ids,
-        ),
-        artifact_reference=SimpleNamespace(**artifact_reference),
-    )
-    return _get_reply_service_v2().refresh_running_conversation(request)
-
-
 @router.post("", response_model=ChatResponse)
 async def chat(payload: ChatRequest, current_user: dict = Depends(get_current_user)):
     t0 = time.perf_counter()
@@ -311,10 +273,6 @@ async def list_conversations(
 @router.get("/conversations/{conversation_id}")
 async def get_conversation(conversation_id: str, current_user: dict = Depends(get_current_user)):
     try:
-        _maybe_refresh_running_ppt_edit_conversation(
-            conversation_id,
-            current_user.get("username"),
-        )
         payload = conversation_storage.get_conversation(conversation_id, owner=current_user.get("username"))
         payload["status_card"] = _build_status_card_for_conversation(
             conversation_id,

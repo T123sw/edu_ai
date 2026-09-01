@@ -7,7 +7,6 @@ export type CourseMaterialPreviewKind =
   | "blog"
   | "quiz"
   | "flashcard"
-  | "ppt"
   | "mind-map"
   | "game"
   | "classroom"
@@ -22,7 +21,6 @@ export function getCourseMaterialPreviewKind(
     blog: "blog",
     quiz: "quiz",
     flashcard: "flashcard",
-    ppt: "ppt",
     graph: "mind-map",
     game: "game",
     classroom: "classroom",

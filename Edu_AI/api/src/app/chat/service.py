@@ -68,7 +68,7 @@ def _load_prompt_from_skill(skill_name: str, section_name: str, fallback: str = 
 
 
 SYSTEM_PROMPT = _load_prompt_from_skill("edu-dialogue-agent", "SYSTEM_PROMPT", "你是教学对话助手，请提供准确、清晰、可执行的回答。")
-GENERATE_PLACEHOLDER = "我已识别到你希望生成教学内容（如PPT/教案/报告）。当前版本先完成了对话与意图识别，生成功能即将接入。你可以先告诉我你的主题、受众和目标，我先帮你梳理需求。"
+GENERATE_PLACEHOLDER = "我已识别到你希望生成教学内容。当前版本先完成了对话与意图识别，生成功能即将接入。你可以先告诉我你的主题、受众和目标，我先帮你梳理需求。"
 MAX_CLARIFICATION_TURNS = 2
 
 REPORT_DYNAMIC_ASK_SYSTEM_PROMPT = _load_prompt_from_skill("edu-report-agent", "REPORT_HARD_ASK_PROMPT", "你是报告助理，请回显已知信息并追问一个缺失点。")
@@ -1497,7 +1497,6 @@ class ChatService:
                 "chat": "chat_agent",
                 "research": "research_agent",
                 "text_generate": "report_agent",
-                "ppt": "report_agent",
                 "video": "report_agent",
                 "podcast": "report_agent",
             },

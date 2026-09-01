@@ -253,7 +253,6 @@ def test_generation_tool_catalog_is_filtered_by_authenticated_role(
     assert response.status_code == 200
     assert [item["tool_id"] for item in response.json()["tools"]] == [
         "report",
-        "ppt",
         "mind_map",
         "quiz",
         "classroom",

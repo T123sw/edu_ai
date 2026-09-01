@@ -1,8 +1,6 @@
-import { API_BASE_URL } from "./api/client";
 import type { CourseMaterial } from "./api/types";
 
 const WORD_EXPORTABLE_TYPES = new Set(["report", "lesson_plan", "quiz", "blog"]);
-const WORD_BLOCKED_TYPES = new Set(["ppt"]);
 
 function escapeHtml(value: string) {
   return value
@@ -111,13 +109,6 @@ function sanitizeFileName(fileName: string) {
   return normalized || "course-material";
 }
 
-function resolveAssetUrl(value: unknown) {
-  const normalized = typeof value === "string" ? value.trim() : "";
-  if (!normalized) return "";
-  if (/^https?:\/\//i.test(normalized)) return normalized;
-  return `${API_BASE_URL}${normalized.startsWith("/") ? normalized : `/${normalized}`}`;
-}
-
 function buildWordDocumentHtml(title: string, bodyHtml: string) {
   const safeTitle = escapeHtml(title);
   const content = bodyHtml || `<p>${safeTitle}</p>`;
@@ -147,7 +138,6 @@ export function isCourseMaterialWordExportable(material: CourseMaterial | null |
   if (!material || !markdown.trim()) return false;
 
   const normalizedType = String(material.material_type || "").trim().toLowerCase();
-  if (WORD_BLOCKED_TYPES.has(normalizedType)) return false;
   if (WORD_EXPORTABLE_TYPES.has(normalizedType)) return true;
 
   return Boolean(material.report)
@@ -155,38 +145,6 @@ export function isCourseMaterialWordExportable(material: CourseMaterial | null |
     || (Array.isArray(material.questions) && material.questions.length > 0)
     || (Array.isArray(material.mainContent) && material.mainContent.length > 0)
     || (Array.isArray(material.outline) && material.outline.length > 0);
-}
-
-export function getCourseMaterialPptExportUrl(material: CourseMaterial | null | undefined) {
-  if (!material) return "";
-
-  const normalizedType = String(material.material_type || "").trim().toLowerCase();
-  if (normalizedType !== "ppt") return "";
-
-  const topLevelRecord = material as Record<string, unknown>;
-  const contentRecord =
-    material.content && typeof material.content === "object" && !Array.isArray(material.content)
-      ? (material.content as Record<string, unknown>)
-      : {};
-
-  return resolveAssetUrl(topLevelRecord.pptx_url || contentRecord.pptx_url);
-}
-
-export function getCourseMaterialPptPreviewUrl(material: CourseMaterial | null | undefined) {
-  if (!material) return "";
-
-  const normalizedType = String(material.material_type || "").trim().toLowerCase();
-  if (normalizedType !== "ppt") return "";
-
-  const topLevelRecord = material as Record<string, unknown>;
-  const contentRecord =
-    material.content && typeof material.content === "object" && !Array.isArray(material.content)
-      ? (material.content as Record<string, unknown>)
-      : {};
-
-  return resolveAssetUrl(
-    topLevelRecord.html_full_url || contentRecord.html_full_url || topLevelRecord.html_url || contentRecord.html_url,
-  );
 }
 
 export function exportCourseMaterialAsWord(material: CourseMaterial, markdown: string) {

@@ -122,18 +122,6 @@ export default defineConfig({
       ? { ignored: BACKEND_RUNTIME_WATCH_IGNORES }
       : null,
     proxy: {
-      '/ppt': {
-        target: 'http://127.0.0.1:46080',
-        changeOrigin: true,
-      },
-      '/assets/HEU': {
-        target: 'http://127.0.0.1:46080',
-        changeOrigin: true,
-      },
-      '/assets/test': {
-        target: 'http://127.0.0.1:46080',
-        changeOrigin: true,
-      },
     },
   },
 });

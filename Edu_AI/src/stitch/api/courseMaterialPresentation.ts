@@ -8,7 +8,6 @@ export type CourseMaterialFilterKey =
   | "lesson_plan"
   | "blog"
   | "quiz"
-  | "ppt"
   | "flashcard"
   | "mind_map"
   | "game";
@@ -23,7 +22,6 @@ export const COURSE_MATERIAL_FILTERS: ReadonlyArray<{
   { key: "lesson_plan", label: "教案" },
   { key: "blog", label: "教学博客" },
   { key: "quiz", label: "习题" },
-  { key: "ppt", label: "PPT" },
   { key: "flashcard", label: "闪卡" },
   { key: "mind_map", label: "思维导图" },
   { key: "game", label: "课堂小游戏" },
@@ -57,7 +55,6 @@ const MATERIAL_TYPE_META: Record<
   game: { label: "课堂小游戏", icon: "sports_esports", known: true },
   graph: { label: "思维导图", icon: "account_tree", known: true },
   mind_map: { label: "思维导图", icon: "account_tree", known: true },
-  ppt: { label: "PPT", icon: "co_present", known: true },
   flashcard: { label: "闪卡", icon: "style", known: true },
   video: { label: "视频", icon: "movie", known: true },
   audio: { label: "音频", icon: "headphones", known: true },
@@ -89,7 +86,6 @@ export function isCourseMaterialInFilter(
   if (filter === "lesson_plan") return type === "lesson_plan";
   if (filter === "blog") return type === "blog";
   if (filter === "quiz") return type === "quiz";
-  if (filter === "ppt") return type === "ppt";
   if (filter === "flashcard") return type === "flashcard";
   if (filter === "mind_map") return type === "mind_map" || type === "graph";
   return type === "game";

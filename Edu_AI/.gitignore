@@ -96,13 +96,6 @@ api/course_data/**/knowledge_base/build_cache/
 api/data/*.db
 api/data/*.db-shm
 api/data/*.db-wal
-api/Edu_AI/html2ppt/data/
-api/Edu_AI/html2ppt/temp-runlogs/
-api/Edu_AI/html2ppt/e2e_conversation_runs/
-api/Edu_AI/html2ppt/content.md
-api/Edu_AI/html2ppt/deck.raw*.html
-api/Edu_AI/html2ppt/temp.txt
-api/Edu_AI/html2ppt/--bare
 api/Edu_AI/__MACOSX/
 
 # 备份目录

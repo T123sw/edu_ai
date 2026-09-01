@@ -9,7 +9,6 @@ RESOURCE_TYPES: List[str] = [
     "quiz",
     "flashcard",
     "blog",
-    "ppt",
     "video",
     "podcast",
 ]
@@ -22,7 +21,6 @@ RESOURCE_TYPE_ROUTER_PROMPT = """你是“资源类型分类器”，只负责�
 - quiz
 - flashcard
 - blog
-- ppt
 - video
 - podcast
 
@@ -39,7 +37,6 @@ RESOURCE_TYPE_KEYWORDS: Dict[str, List[str]] = {
     "quiz": ["试题", "题目", "测验", "quiz", "题库"],
     "flashcard": ["闪卡", "记忆卡", "卡片", "flashcard", "flash card"],
     "blog": ["博客", "公众号", "文章", "blog", "推文"],
-    "ppt": ["ppt", "课件", "幻灯片", "slides", "slide deck"],
     "video": ["视频", "视频脚本", "短视频", "video", "script"],
     "podcast": ["播客", "音频脚本", "podcast", "播客稿"],
 }

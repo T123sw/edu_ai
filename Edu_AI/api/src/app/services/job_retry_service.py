@@ -170,16 +170,6 @@ async def dispatch_retry_job(
             existing_job=job,
         )
 
-    if job.kind == JobKind.GENERATE_PPT:
-        command = _generation_command_from_retry(job, owner=owner)
-        draft_id = str(command.config.get("draft_id") or "").strip()
-        if not draft_id:
-            return _dispatch_failure(job, "重试任务缺少 PPT 草稿信息")
-        return generation_command_service.submit(
-            command,
-            existing_job=job,
-        )
-
     return _dispatch_failure(job, "当前任务类型暂不支持自动重试")
 
 

@@ -30,7 +30,6 @@ _WORKFLOW_JOB_KINDS = {
     "blog": JobKind.GENERATE_BLOG,
     "quiz": JobKind.GENERATE_QUIZ,
     "quiz_direct": JobKind.GENERATE_QUIZ,
-    "ppt": JobKind.GENERATE_PPT,
     "flashcard": JobKind.GENERATE_FLASHCARD,
     "game": JobKind.GENERATE_GAME,
     "game_direct": JobKind.GENERATE_GAME,

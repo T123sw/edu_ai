@@ -58,7 +58,6 @@ def test_default_runtime_registers_all_generation_workflows(tmp_path):
         "lesson_plan_direct",
         "blog_direct",
         "quiz_direct",
-        "ppt_direct",
         "flashcard_direct",
         "graph_direct",
         "game_direct",

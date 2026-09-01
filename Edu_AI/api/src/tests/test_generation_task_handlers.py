@@ -16,7 +16,6 @@ RESOURCE_CASES = [
     ("lesson_plan", {"subject": "Sorting", "grade": "Grade 7"}),
     ("blog", {"topic": "Sorting"}),
     ("quiz", {"quiz_config": {"topic": "Sorting", "question_count": 5}}),
-    ("ppt", {"draft_id": "draft-1", "confirm": True, "outline": None}),
     ("flashcard", {"flashcard_config": {"title": "Sorting", "count": 8}}),
     ("graph", {"title": "Sorting graph", "max_depth": 3}),
     ("game", {"game_type": "quiz"}),

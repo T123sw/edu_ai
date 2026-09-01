@@ -188,30 +188,6 @@ def get_fallback_llm() -> Optional[Any]:
         return None
 
 
-def get_ppt_llm() -> Optional[ChatOpenAI]:
-    selected_base = _normalize_openai_compatible_base_url(
-        os.getenv("PPT_LLM_API_BASE") or ""
-    )
-    selected_key = str(os.getenv("PPT_LLM_API_KEY") or "").strip()
-    selected_model = str(os.getenv("PPT_LLM_MODEL") or "").strip()
-
-    if not (selected_base and selected_key and selected_model):
-        return get_fallback_llm()
-
-    try:
-        extra_body = _thinking_extra_body(selected_model)
-        return ChatOpenAI(
-            api_key=selected_key,
-            base_url=selected_base,
-            model=selected_model,
-            temperature=0.4,
-            **({"extra_body": extra_body} if extra_body else {}),
-        )
-    except Exception as e:
-        print(f"[report_model_debug] stage=ppt_llm error={e}")
-        return get_fallback_llm()
-
-
 def _extract_text_from_response(response: Any) -> str:
     content = getattr(response, "content", response)
     if isinstance(content, str):

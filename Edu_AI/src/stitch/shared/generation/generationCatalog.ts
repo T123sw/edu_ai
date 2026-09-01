@@ -1,6 +1,5 @@
 export type GenerationToolId =
   | "report"
-  | "ppt"
   | "mind_map"
   | "quiz"
   | "classroom"
@@ -10,7 +9,7 @@ export type GenerationToolId =
   | "game";
 
 const generationToolIds = new Set<GenerationToolId>([
-  "report", "ppt", "mind_map", "quiz", "classroom",
+  "report", "mind_map", "quiz", "classroom",
   "lesson_plan", "blog", "flashcard", "game",
 ]);
 

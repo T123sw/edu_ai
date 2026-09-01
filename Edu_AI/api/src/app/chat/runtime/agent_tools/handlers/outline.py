@@ -8,11 +8,6 @@ DRAFT_OUTLINE_PROMPTS = {
         "报告主题：{subject}\n重点方向：{focus}\n补充约束：{constraints}\n\n"
         "只输出大纲，不要其他说明。"
     ),
-    "ppt": (
-        "请为以下PPT生成幻灯片大纲（Markdown 格式，每页用 ## 标题，下方 - 列要点）。\n"
-        "PPT主题：{subject}\n幻灯片数量：{slide_count}张\n补充约束：{constraints}\n\n"
-        "只输出大纲，不要其他说明。"
-    ),
     "lesson_plan": (
         "请为以下教案生成教学大纲（Markdown 格式）。\n"
         "课题：{subject}\n年级：{grade}\n课时：{duration_minutes}分钟\n补充约束：{constraints}\n\n"
@@ -39,7 +34,6 @@ def handle_draft_outline(name: str, args: dict, ctx) -> dict:
         subject=subject,
         focus=str(args.get("focus", "")),
         constraints=str(args.get("constraints", "")),
-        slide_count=int(args.get("slide_count", 10)),
         grade=str(args.get("grade", "")),
         audience=str(args.get("audience", "")),
         duration_minutes=int(args.get("duration_minutes", 45)),

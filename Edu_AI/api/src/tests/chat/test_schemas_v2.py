@@ -3,16 +3,12 @@ from app.chat.api.schemas_v2 import (
     ChatDirectReportResponseV2,
     ChatLessonPlanCardsRequestV2,
     ChatLessonPlanCardsResponseV2,
-    ChatPptCardsRequestV2,
-    ChatPptCardsResponseV2,
     ChatReportCardsRequestV2,
     ChatReportCardsResponseV2,
     ChatReportRequestV2,
     ChatResponseV2,
     KnowledgeBaseDirectGameRequestV2,
     KnowledgeBaseDirectReportRequestV2,
-    PptEntryCardSelectionV2,
-    PptEntryPrefillConfigV2,
     ReportEntryCardSelectionV2,
 )
 from app.chat.schemas import ChatRequest
@@ -43,16 +39,6 @@ def test_chat_response_v2_supports_new_top_level_shape():
 
 def test_chat_report_cards_request_supports_selected_docs():
     payload = ChatReportCardsRequestV2(
-        course_id="course-1",
-        selected_doc_ids=["doc-1", "doc-2"],
-    )
-
-    assert payload.course_id == "course-1"
-    assert payload.selected_doc_ids == ["doc-1", "doc-2"]
-
-
-def test_chat_ppt_cards_request_supports_selected_docs():
-    payload = ChatPptCardsRequestV2(
         course_id="course-1",
         selected_doc_ids=["doc-1", "doc-2"],
     )
@@ -210,54 +196,6 @@ def test_chat_direct_report_response_supports_artifact_only_shape():
     assert payload.action["name"] == "generate.report.direct"
     assert payload.trace.path == "direct"
     assert payload.artifacts[0]["artifact_type"] == "report"
-
-
-def test_chat_ppt_cards_response_supports_ppt_card_model():
-    payload = ChatPptCardsResponseV2(
-        entry_mode="knowledge_base_ppt",
-        default_selected_card_id="preset-knowledge-lecture",
-        cards=[
-            {
-                "card_id": "preset-knowledge-lecture",
-                "card_type": "preset",
-                "title": "Knowledge lecture",
-                "description": "Lecture-oriented PPT entry.",
-                "objective_hint": "课堂讲解",
-                "length_option": "medium",
-                "preset_key": "knowledge_lecture",
-                "prefill_config": {
-                    "deck_title": "System skills",
-                    "audience": "本科生",
-                    "objective": "课堂讲解",
-                    "theme_id": "heu_academic_basic",
-                    "length_option": "medium",
-                    "target_slide_count": 16,
-                    "key_points": ["定义", "流程"],
-                },
-            }
-        ],
-        trace={"selected_doc_count": 1},
-    )
-
-    assert payload.entry_mode == "knowledge_base_ppt"
-    assert payload.default_selected_card_id == "preset-knowledge-lecture"
-    assert payload.cards[0].preset_key == "knowledge_lecture"
-    assert payload.cards[0].prefill_config.theme_id == "heu_academic_basic"
-
-
-def test_ppt_entry_prefill_config_supports_allowed_themes():
-    payload = PptEntryPrefillConfigV2(
-        deck_title="System skills",
-        audience="本科生",
-        objective="课堂讲解",
-        theme_id="heu_academic_basic",
-        length_option="short",
-        target_slide_count=10,
-        key_points=["定义"],
-    )
-
-    assert payload.theme_id == "heu_academic_basic"
-    assert payload.length_option == "short"
 
 
 def test_game_direct_request_requires_supported_game_type():

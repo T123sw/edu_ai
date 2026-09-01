@@ -181,14 +181,9 @@ interface PendingChatVideo extends ChatInputVideoV2 {
 
 const normalizeArtifactReferenceType = (
   value: unknown,
-): 'report' | 'report_outline' | 'ppt_outline' | 'ppt_content_markdown' | 'ppt_deck' => {
+): 'report' | 'report_outline' => {
   const artifactType = String(value || '').trim();
-  if (
-    artifactType === 'report_outline'
-    || artifactType === 'ppt_outline'
-    || artifactType === 'ppt_content_markdown'
-    || artifactType === 'ppt_deck'
-  ) {
+  if (artifactType === 'report_outline') {
     return artifactType;
   }
   return 'report';
@@ -957,9 +952,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         } else {
           clearConversationReference();
         }
-        if (silent && nextWorkflowType === 'ppt' && nextWorkflowStatus === 'completed' && restoredFiles.length > 0) {
-          setViewingFile(restoredFiles[restoredFiles.length - 1]);
-        } else if (!silent) {
+        if (!silent) {
           setViewingFile(null);
         }
         if (showSuccess && !silent) {
@@ -1432,18 +1425,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       }));
 
       generatedFiles.forEach((file) => addGeneratedFile(file));
-      const nextPptArtifact = generatedFiles.find((file) => file.meta?.kind === 'ppt_deck');
-      if (artifactReference?.artifact_type === 'ppt_deck' && nextPptArtifact) {
-        setArtifactReference({
-          artifact_id: String(nextPptArtifact.meta?.originalArtifactId || nextPptArtifact.id).trim(),
-          artifact_type: 'ppt_deck',
-          title: nextPptArtifact.name,
-          source_conversation_id: String(
-            nextPptArtifact.meta?.conversationId || nextConversationId || currentConversationId || '',
-          ).trim() || undefined,
-          source_course_id: String(courseId || '').trim() || undefined,
-        });
-      }
       if (courseId) {
         generatedFiles.forEach((file) =>
           addMaterial({
@@ -1503,18 +1484,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     if (!queuedMessage || isLoading) return;
     void handleSendMessage(queuedMessage, true);
   }, [queuedMessage, isLoading, pendingImages, pendingVideos]);
-
-  useEffect(() => {
-    if (isLoading || !currentConversationId || workflowType !== 'ppt' || workflowStatus !== 'running') {
-      return undefined;
-    }
-
-    const timer = window.setInterval(() => {
-      void loadConversation(currentConversationId, false, true);
-    }, 3000);
-
-    return () => window.clearInterval(timer);
-  }, [currentConversationId, isLoading, workflowStatus, workflowType]);
 
   // Consume the result once the global task manager observes a terminal state.
   useEffect(() => {
@@ -1599,17 +1568,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                 },
               }));
               genFiles.forEach((file) => addGeneratedFile(file));
-              const nextPptArtifact = genFiles.find((f) => f.meta?.kind === 'ppt_deck');
-              const activeArtifactReference = useStore.getState().artifactReference;
-              if (activeArtifactReference?.artifact_type === 'ppt_deck' && nextPptArtifact) {
-                setArtifactReference({
-                  artifact_id: String(nextPptArtifact.meta?.originalArtifactId || nextPptArtifact.id).trim(),
-                  artifact_type: 'ppt_deck',
-                  title: nextPptArtifact.name,
-                  source_conversation_id: String(nextPptArtifact.meta?.conversationId || nextConversationId || activeConversationId || '').trim() || undefined,
-                  source_course_id: String(courseId || '').trim() || undefined,
-                });
-              }
               if (courseId) {
                 genFiles.forEach((file) =>
                   addMaterial({
@@ -2193,13 +2151,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               <Text type="secondary">
                 {artifactReference.artifact_type === 'report_outline'
                   ? '报告大纲'
-                  : artifactReference.artifact_type === 'ppt_deck'
-                    ? 'PPT 文件'
-                    : artifactReference.artifact_type === 'ppt_outline'
-                      ? 'PPT 大纲'
-                      : artifactReference.artifact_type === 'ppt_content_markdown'
-                        ? 'PPT 文稿'
-                        : '报告正文'}
+                  : '报告正文'}
                 {artifactReference.version_id ? ` · 版本 ${artifactReference.version_id}` : ''}
               </Text>
             </div>

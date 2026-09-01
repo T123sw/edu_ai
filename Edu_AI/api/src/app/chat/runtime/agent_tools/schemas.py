@@ -43,7 +43,7 @@ SCHEMA_IMAGE_SEARCH = {
     "function": {
         "name": "image_search",
         "description": (
-            "为正在生成的报告/PPT/教案小节搜索配图。"
+            "为正在生成的报告或教案小节搜索配图。"
             "仅在确实需要视觉素材的章节调用（流程/结构/案例/人物/场景类），"
             "概念定义或纯文字章节不需要调用。"
             "使用英文检索词通常命中率更高；可通过 style 指定 diagram（示意图）、"
@@ -77,20 +77,19 @@ SCHEMA_DRAFT_OUTLINE = {
         "description": (
             "当你已收集到足够信息（主题明确），需要生成结构化大纲供用户确认时调用。"
             "调用后将返回的大纲展示给用户，询问是否需要调整。"
-            "resource_type 填写 'report'/'ppt'/'lesson_plan'。"
+            "resource_type 填写 'report'/'lesson_plan'。"
         ),
         "parameters": {
             "type": "object",
             "properties": {
                 "resource_type": {
                     "type": "string",
-                    "enum": ["report", "ppt", "lesson_plan"],
+                    "enum": ["report", "lesson_plan"],
                     "description": "资源类型",
                 },
                 "subject": {"type": "string", "description": "主题/课题"},
                 "focus": {"type": "string", "description": "重点方向（可选）", "default": ""},
                 "constraints": {"type": "string", "description": "用户的补充约束，如'加一节量子纠错'", "default": ""},
-                "slide_count": {"type": "integer", "description": "PPT 页数（resource_type=ppt 时有效）", "default": 10},
                 "grade": {"type": "string", "description": "年级（resource_type=lesson_plan 时有效）", "default": ""},
                 "duration_minutes": {"type": "integer", "description": "课时分钟数", "default": 45},
             },
@@ -116,26 +115,6 @@ SCHEMA_GENERATE_REPORT = {
                 "length_hint": {"type": "string", "description": "字数要求（如'5000字'）", "default": ""},
             },
             "required": ["subject", "confirmed_outline"],
-        },
-    },
-}
-
-SCHEMA_GENERATE_PPT = {
-    "type": "function",
-    "function": {
-        "name": "generate_ppt",
-        "description": (
-            "仅在用户已确认PPT大纲后调用（必须传入 confirmed_outline）。"
-            "会触发后台PPT生成任务，不可中断。"
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "topic": {"type": "string", "description": "PPT 主题"},
-                "confirmed_outline": {"type": "string", "description": "用户已确认的PPT大纲（Markdown格式）"},
-                "slide_count": {"type": "integer", "description": "幻灯片数量", "default": 10},
-            },
-            "required": ["topic", "confirmed_outline"],
         },
     },
 }
@@ -351,7 +330,7 @@ SCHEMA_QUERY_GENERATION_JOB_STATUS = {
     "type": "function",
     "function": {
         "name": "query_generation_job_status",
-        "description": "只读查询报告、闪卡、PPT、课堂等后台内容生成任务状态。",
+        "description": "只读查询报告、闪卡、课堂等后台内容生成任务状态。",
         "parameters": {
             "type": "object",
             "properties": {"task_id": {"type": "string", "pattern": "^job_"}},
@@ -377,7 +356,6 @@ def build_tool_schemas(capability, *, actor_role: str = "teacher") -> list[dict]
     generation_schemas = [
             SCHEMA_DRAFT_OUTLINE,
             SCHEMA_GENERATE_REPORT,
-            SCHEMA_GENERATE_PPT,
             SCHEMA_GENERATE_LESSON_PLAN,
             SCHEMA_GENERATE_QUIZ,
             SCHEMA_GENERATE_BLOG,

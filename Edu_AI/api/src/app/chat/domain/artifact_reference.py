@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class ArtifactReferencePayload(BaseModel):
     artifact_id: str
-    artifact_type: Literal["report", "report_outline", "ppt_outline", "ppt_content_markdown", "ppt_deck"]
+    artifact_type: Literal["report", "report_outline"]
     version_id: str | None = None
     title: str | None = None
     source_conversation_id: str | None = None

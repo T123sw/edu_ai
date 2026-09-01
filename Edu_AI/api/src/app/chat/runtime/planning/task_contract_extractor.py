@@ -28,13 +28,12 @@ _RESOURCE_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("game", ("课堂小游戏", "教学游戏", "小游戏")),
     ("classroom", ("互动 ai 课堂", "互动ai课堂", "ai课堂", "ai 课堂", "智能课堂", "互动课堂")),
     ("report", ("报告", "分析报告", "研究报告")),
-    ("ppt", ("ppt", "幻灯片", "课件")),
 )
 _BUNDLE_KEYWORDS = ("教学材料", "备课材料", "整套材料", "材料包")
 _CANCEL_ACTION_PATTERN = re.compile(
     r"(?:取消|终止|停止)(?:掉|一下)?"
     r"(?:当前|这个|刚才|上一个|最近)?(?:的)?\s*"
-    r"(?:学习)?(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|课件|ppt|教案|测验|闪卡|小游戏)"
+    r"(?:学习)?(?:任务|生成|处理|执行|作业|工作流|ai\s*课堂|互动课堂|报告|教案|测验|闪卡|小游戏)"
 )
 _CANCEL_ONLY_PATTERN = re.compile(r"^(?:请|帮我|现在|立刻|先)?(?:取消|终止|停止)(?:掉|一下)?[。！!\s]*$")
 _STATUS_DIRECT_KEYWORDS = ("做到哪", "进度", "完成了吗", "完成没有", "完成情况", "刚完成")
@@ -64,7 +63,7 @@ _CONFIRM_COMMAND_PATTERN = re.compile(
     r"^(?:"
     r"(?:确认)?(?:按这个|就按这个)(?:大纲)?生成"
     r"|确认生成(?:修订后的|修改后的|当前|这份|这个)?"
-    r"(?:报告|教案|ppt|课件|大纲)?"
+    r"(?:报告|教案|大纲)?"
     r")$"
 )
 _WEB_KEYWORDS = ("查找网络", "查网络", "联网", "网上", "最新资料", "网络资料")
@@ -142,7 +141,7 @@ def extract_task_contract(
         constraints["question_count"] = question_count
 
     confirmation_required = intent in {"prepare_bundle"} or any(
-        resource in {"report", "lesson_plan", "ppt", "classroom"} for resource in resource_types
+        resource in {"report", "lesson_plan", "classroom"} for resource in resource_types
     )
     if intent == "confirm":
         confirmation_policy = "none"
@@ -376,8 +375,7 @@ def _looks_like_direct_resource_request(question: str) -> bool:
         r"(?:^|[，,。；;\s])(?:给我|来|帮我准备|请准备|准备|编写|出)"
         r".{0,24}(?:教案|教学设计|教学方案|练习题|习题|测验|题目|"
         r"教学博客|博客|博文|闪卡|复习卡|记忆卡|思维导图|知识图谱|导图|"
-        r"课堂小游戏|教学游戏|小游戏|ai\s*课堂|智能课堂|互动课堂|"
-        r"报告|ppt|幻灯片|课件)",
+        r"课堂小游戏|教学游戏|小游戏|ai\s*课堂|智能课堂|互动课堂|报告)",
         normalized,
     ))
 

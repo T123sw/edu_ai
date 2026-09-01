@@ -35,8 +35,6 @@ _runtime_import_test_tmp_root/
 _pytest_tmp/
 tmp/
 temp-runlogs/
-ppt_extract_review/
-ppt_extract_review_*/
 **/.runtime_import_test_tmp/
 **/.pytest-core-basetemp/
 **/tests/.tmp_pytest/
@@ -66,28 +64,7 @@ Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/models/
 Edu_AI/api/Edu_AI/AI_Lecturer/Wav2Lip_Offline/temp/
 Edu_AI/api/course_data/**/generated_materials/
 Edu_AI/api/course_data/**/knowledge_base/documents/
-Edu_AI/api/Edu_AI/html2ppt/data/
-Edu_AI/api/Edu_AI/html2ppt/temp-runlogs/
-Edu_AI/api/Edu_AI/html2ppt/e2e_conversation_runs/
-Edu_AI/api/Edu_AI/html2ppt/content.md
-Edu_AI/api/Edu_AI/html2ppt/deck.raw*.html
-Edu_AI/api/Edu_AI/html2ppt/temp.txt
-Edu_AI/api/Edu_AI/html2ppt/--bare
 Edu_AI/api/Edu_AI/__MACOSX/
-
-# html2ppt（2026-06-30 扁平化进主仓库，当前真实路径在 api/src/modules 下）
-# 只带源码，排除依赖/运行产物/构建产物/测试输出
-Edu_AI/api/src/modules/html2ppt/data/
-Edu_AI/api/src/modules/html2ppt/temp-runlogs/
-Edu_AI/api/src/modules/html2ppt/e2e_conversation_runs/
-Edu_AI/api/src/modules/html2ppt/test-harness/output/
-Edu_AI/api/src/modules/html2ppt/dom-to-pptx/dist/
-Edu_AI/api/src/modules/html2ppt/content.md
-Edu_AI/api/src/modules/html2ppt/content2.md
-Edu_AI/api/src/modules/html2ppt/cmd.md
-Edu_AI/api/src/modules/html2ppt/deck.raw*.html
-Edu_AI/api/src/modules/html2ppt/temp.txt
-Edu_AI/api/src/modules/html2ppt/--bare
 *.pth
 *.onnx
 *.exe

@@ -22,7 +22,7 @@ from app.chat.domain.persona_policy import TEACHER_PERSONA, persona_for
 
 BASE_TEACHER_SYSTEM_PROMPT = TEACHER_PERSONA.system_instruction() + """
 普通问答先直接回答用户当前问题，可给出简洁结论、必要示例或易错点。用户没有明确要求生成资源时，
-不得主动建议生成教案、PPT 或其他资源，也不得把问答改写成资源评审或备课任务；不得擅自创建资源。"""
+不得主动建议生成资源，也不得把问答改写成资源评审或备课任务；不得擅自创建资源。"""
 
 
 class FastChatRuntime:

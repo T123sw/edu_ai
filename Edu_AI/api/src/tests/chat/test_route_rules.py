@@ -109,40 +109,6 @@ def test_existing_completed_workflow_can_switch_back_to_fast_chat():
     assert decision.reason == "explicit_chat_exit"
 
 
-def test_existing_running_workflow_can_switch_to_ppt():
-    workflow_state = WorkflowState(
-        workflow_id="wf-1",
-        workflow_type="report",
-        status="running",
-        stage="collecting",
-    )
-    request = ChatRequestV2(question="基于以上内容，生成PPT")
-
-    decision = decide_route(request=request, snapshot=None, workflow_state=workflow_state)
-
-    assert decision.path == "workflow"
-    assert decision.action == "generate.ppt"
-    assert decision.workflow_name == "ppt"
-    assert decision.reason == "explicit_ppt"
-
-
-def test_existing_completed_workflow_can_switch_to_ppt():
-    workflow_state = WorkflowState(
-        workflow_id="wf-1",
-        workflow_type="report",
-        status="completed",
-        stage="completed",
-    )
-    request = ChatRequestV2(question="基于以上内容，生成PPT")
-
-    decision = decide_route(request=request, snapshot=None, workflow_state=workflow_state)
-
-    assert decision.path == "workflow"
-    assert decision.action == "generate.ppt"
-    assert decision.workflow_name == "ppt"
-    assert decision.reason == "explicit_ppt"
-
-
 def test_interrupt_signal_breaks_existing_workflow_and_starts_new_action():
     workflow_state = WorkflowState(
         workflow_id="wf-1",

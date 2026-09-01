@@ -3,10 +3,10 @@ import test from "node:test";
 
 import { generationRegistry, selectGenerationResources } from "./generationRegistry.ts";
 
-test("registry contains exactly nine distinct resources", () => {
+test("registry contains exactly eight distinct resources", () => {
   const types = generationRegistry.map((item) => item.resourceType);
-  assert.deepEqual(types, ["report", "lesson_plan", "blog", "quiz", "ppt", "flashcard", "mind_map", "game", "classroom"]);
-  assert.equal(new Set(types).size, 9);
+  assert.deepEqual(types, ["report", "lesson_plan", "blog", "quiz", "flashcard", "mind_map", "game", "classroom"]);
+  assert.equal(new Set(types).size, 8);
 });
 
 test("every generation resource has teacher-facing copy", () => {
@@ -19,7 +19,7 @@ test("every generation resource has teacher-facing copy", () => {
 test("rendered generation resources require an explicit allowlist", () => {
   assert.deepEqual(selectGenerationResources([]), []);
   assert.deepEqual(
-    selectGenerationResources(["report", "ppt", "report", "flashcard"]).map((item) => item.resourceType),
-    ["report", "ppt", "flashcard"],
+    selectGenerationResources(["report", "report", "flashcard"]).map((item) => item.resourceType),
+    ["report", "flashcard"],
   );
 });

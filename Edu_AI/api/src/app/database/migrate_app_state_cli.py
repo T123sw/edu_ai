@@ -66,9 +66,6 @@ def _scan(storage_root: Path, courses_root: Path, agent_runs_db: Path | None = N
                 elif parts and parts[0] in {"crawl_batches", "blog_tasks", "tasks"}:
                     namespace = {"tasks": "pipeline_tasks"}.get(parts[0], parts[0])
                     records.append(_record(namespace, path.stem, value, relative))
-                elif parts and parts[0] == "ppt_drafts":
-                    owner_hash = parts[-2] if len(parts) > 2 else "unknown"
-                    records.append(_record("ppt_drafts", f"{owner_hash}:{path.stem}", value, relative))
                 elif parts and parts[0] == "runtime_config":
                     records.append(_record("runtime_config", ":".join(parts[1:]).removesuffix(".json"), value, relative))
                 elif parts and parts[0] == "searched_images":

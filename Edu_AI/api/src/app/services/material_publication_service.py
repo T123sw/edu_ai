@@ -60,7 +60,6 @@ _PUBLICATION_FIELDS_BY_TYPE: dict[str, frozenset[str]] = {
     | frozenset({"content", "flashcards"}),
     "graph": _COMMON_PUBLICATION_FIELDS | frozenset({"content"}),
     "game": _COMMON_PUBLICATION_FIELDS | frozenset({"content"}),
-    "ppt": _COMMON_PUBLICATION_FIELDS | frozenset({"content", "outline"}),
     "classroom": _COMMON_PUBLICATION_FIELDS
     | frozenset(
         {"content", "stage", "scenes", "scenes_count", "voice_status", "video_status"}
@@ -117,17 +116,6 @@ _PUBLIC_NESTED_KEYS_BY_TYPE: dict[str, frozenset[str]] = {
             "game_type", "template_id", "game_data", "html_path", "html_url",
             "categories", "items", "categoryId", "pairs", "left", "right", "matches",
             "pair_id", "card_a", "card_b",
-        }
-    ),
-    "ppt": _COMMON_PUBLIC_KEYS
-    | frozenset(
-        {
-            "pptx_url", "html_full_url", "html_url", "preview_url", "download_url",
-            "job_id", "slide_count", "content_markdown", "outline", "deck_title",
-            "deck_subtitle", "theme_id", "confirmation_status", "chapters", "slides",
-            "chapter_index", "chapter_title", "chapter_goal", "slide_index", "role",
-            "goal", "key_points", "presenter_notes", "layout_intent", "lead", "bullets",
-            "cards", "process_steps", "comparison", "items", "left", "right",
         }
     ),
     "classroom": _COMMON_PUBLIC_KEYS

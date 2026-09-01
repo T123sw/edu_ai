@@ -96,7 +96,7 @@ class PlanStep:
 @dataclass
 class Plan:
     steps: list[PlanStep]
-    resource_type: str  # report | ppt | lesson_plan | quiz | blog | flashcard | graph | game | classroom | unknown
+    resource_type: str  # report | lesson_plan | quiz | blog | flashcard | graph | game | classroom | unknown
     subject: str
     global_constraints: dict = field(default_factory=lambda: {
         "max_retries_per_step": 2,

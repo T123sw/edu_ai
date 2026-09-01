@@ -1,7 +1,7 @@
 """Thread-local progress callback registry.
 
 background_runner sets a callback per task before calling workflow.run().
-Long-running sub-processes (e.g. PPT polling loop) call report_progress()
+Long-running sub-processes call report_progress()
 to surface intermediate state through the task store without coupling to
 the task_id or TaskStore directly.
 """
