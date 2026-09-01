@@ -47,16 +47,16 @@ test('presentation labels expose stable live status text', () => {
   );
 });
 
-test('ClassroomPlayer binds the runtime and always renders the QA panel', () => {
+test('Classroom playback surface binds the runtime and exposes QA to its host', () => {
   const sourcePath = fileURLToPath(
-    new URL('../pages/ClassroomPlayer.tsx', import.meta.url),
+    new URL('../course/classroomCatalog/ClassroomPlaybackSurface.tsx', import.meta.url),
   );
   const source = readFileSync(sourcePath, 'utf8');
 
-  assert.match(source, /<ClassroomQaPanel/);
+  assert.match(source, /onQaControllerChange/);
   assert.match(source, /onRuntimeReady=/);
   assert.match(source, /controller\.bindRuntime/);
-  assert.match(source, /classroom-console__workspace[\s\S]*<ClassroomQaPanel/);
+  assert.doesNotMatch(source, /<ClassroomQaPanel/);
   assert.doesNotMatch(source, /讲解提词|secondaryPanel === "transcript"/);
 });
 

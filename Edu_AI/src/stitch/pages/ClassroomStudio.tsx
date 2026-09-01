@@ -5,6 +5,7 @@ import type { ClassroomCatalog, ClassroomMaterial } from "../api/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { LearningResourceGenerationPanel } from "../course/knowledge/LearningResourceGenerationPanel";
 import { CourseResourceViewer } from "../course/classroomCatalog/CourseResourceViewer";
+import { ClassroomPlaybackSurface } from "../course/classroomCatalog/ClassroomPlaybackSurface";
 import { ClassroomWorkspaceLayout } from "../course/classroomCatalog/ClassroomWorkspaceLayout";
 import { buildWorkspaceHash, readWorkspaceTarget, type ClassroomWorkspaceTarget } from "../course/classroomCatalog/classroomWorkspaceTarget";
 import { CurriculumNodeOverview } from "../course/classroomCatalog/CurriculumNodeOverview";
@@ -144,9 +145,12 @@ export function ClassroomStudioPage() {
             onSelect={selectPersonalClassroom} onRetry={() => setPersonalReloadToken((value) => value + 1)} />
         </div>}
         viewer={<section className="course-classroom-catalog__content">
-          {selectedPersonalClassroom ? <div className="personal-classroom-placeholder">
-            <MaterialIcon name="smart_display" /><p>个人 AI 课堂</p><h2>{selectedPersonalClassroom.title}</h2><span>可观看</span>
-          </div> : <>
+          {selectedPersonalClassroom ? <ClassroomPlaybackSurface
+            courseId={courseId}
+            classroomId={selectedPersonalClassroom.id}
+            mode={catalog.mode}
+            kind="personal_classroom"
+          /> : <>
             {selectedLeaf ? <p className="course-classroom-catalog__breadcrumb">{selectedLeaf.path_titles.join(" / ")}</p> : null}
             {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} />
               : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}

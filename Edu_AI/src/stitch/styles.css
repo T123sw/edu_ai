@@ -423,6 +423,20 @@ textarea {
   gap: 14px;
 }
 
+.classroom-playback-surface .classroom-console__workspace {
+  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+}
+
+.standalone-classroom-player {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
+  min-height: 100vh;
+}
+
+.standalone-classroom-player > .classroom-qa-panel {
+  margin: 16px 16px 16px 0;
+}
+
 .classroom-console__catalog {
   display: flex;
   min-height: 0;
@@ -665,6 +679,10 @@ textarea {
 
 .classroom-console.is-presenting .classroom-console__workspace {
   grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
+}
+
+.classroom-playback-surface.is-presenting .classroom-console__workspace {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .classroom-console.is-presenting .classroom-console__stage-column {
