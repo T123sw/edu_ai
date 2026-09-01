@@ -47,28 +47,47 @@ pytest-run-*/
 dist/
 build/
 coverage/
+.next/
+.turbo/
+test-results/
+playwright-report/
 **/dist/
 **/build/
 **/coverage/
+**/.next/
+**/.turbo/
+**/test-results/
+**/playwright-report/
 output/
 /storage/
-storage/temp/
-storage/vector_db/
+**/storage/temp/
+**/storage/vector_db/
 /models/
-Edu_AI/api/Edu_AI/storage/
+Edu_AI/backup/
 Edu_AI/vector_db/
-Edu_AI/api/Edu_AI/.tmp_runtime/
-Edu_AI/api/Edu_AI/AI_Lecturer/temp_export/
-Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/data/
-Edu_AI/api/Edu_AI/AI_Lecturer/LiveTalking-main/models/
-Edu_AI/api/Edu_AI/AI_Lecturer/Wav2Lip_Offline/temp/
+Edu_AI/api/data/
+Edu_AI/api/storage/
+Edu_AI/api/src/storage/
+Edu_AI/api/Edu_AI/
 Edu_AI/api/course_data/**/generated_materials/
 Edu_AI/api/course_data/**/knowledge_base/documents/
-Edu_AI/api/Edu_AI/__MACOSX/
+Edu_AI/evaluation/reports/
+openmaic-sidecar/data/
+openmaic-sidecar/public/vendor/
+uploads/
+**/uploads/
 *.pth
 *.onnx
+*.bin
+*.safetensors
 *.exe
 *.coords.npy
+*.dump
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
 
 # Local editor and agent configuration
 .vscode/
@@ -96,8 +115,7 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# OpenMAIC sidecar（vendored，方案 A；node_modules/dist/build/.env/*.log 已被上方通配覆盖，
-# .next/public/vendor/test-results 亦由 sidecar 自带嵌套 .gitignore 覆盖，这里补显式兜底）
+# OpenMAIC sidecar
 openmaic-sidecar/.next/
 openmaic-sidecar/**/.next/
 openmaic-sidecar/public/vendor/maic-importer/

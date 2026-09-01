@@ -80,7 +80,7 @@ def main() -> int:
     parser.add_argument(
         "--evaluation",
         type=Path,
-        default=Path("evaluation/reports/2026-08-08-shadow-index-retrieval.json"),
+        default=Path("scripts/fixtures/course_corpus_20260808/2026-08-08-shadow-index-retrieval.json"),
     )
     args = parser.parse_args()
     load_dotenv(Path.cwd() / ".env", override=False)

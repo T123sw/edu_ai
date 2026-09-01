@@ -49,6 +49,8 @@ Completed in commit `d57fbfc`.
 
 ## Phase 1 — Remove confirmed retired modules
 
+Completed in commit `762e60d`.
+
 ### Scope
 
 - Delete unreachable legacy frontend `Edu_AI/src/pages/**`.
@@ -72,6 +74,8 @@ Completed in commit `d57fbfc`.
 `refactor: remove retired frontend and data pipeline modules`
 
 ## Phase 2 — Retire generic PPT and HTML2PPT
+
+Completed in commit `5dd4c90`.
 
 ### Scope
 

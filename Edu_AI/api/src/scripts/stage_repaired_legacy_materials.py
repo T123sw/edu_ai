@@ -37,7 +37,11 @@ def _download_image(session: requests.Session, url: str, referer: str) -> bytes:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="在影子区修复旧开放教材资料的本地图表")
-    parser.add_argument("--mapping", type=Path, default=Path("evaluation/reports/2026-08-08-legacy-to-v2-mapping.json"))
+    parser.add_argument(
+        "--mapping",
+        type=Path,
+        default=Path("scripts/fixtures/course_corpus_20260808/2026-08-08-legacy-to-v2-mapping.json"),
+    )
     parser.add_argument("--course-dir", type=Path, default=Path("../course_data/courses/computational-thinking"))
     parser.add_argument("--output-root", type=Path, default=Path("evaluation/shadow/computational-thinking-v2/legacy-repaired/v1"))
     args = parser.parse_args()

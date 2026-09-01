@@ -63,7 +63,7 @@ def main() -> int:
     parser.add_argument(
         "--audit",
         type=Path,
-        default=Path("evaluation/reports/2026-08-08-shadow-corpus-audit.json"),
+        default=Path("scripts/fixtures/course_corpus_20260808/2026-08-08-shadow-corpus-audit.json"),
     )
     parser.add_argument(
         "--output",

@@ -50,7 +50,11 @@ def _content_quality(text: str, language: str) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="审计 v2 影子课程语料与节点覆盖")
     parser.add_argument("--graph", type=Path, default=Path("evaluation/candidates/computational-thinking-knowledge-graph-v2.json"))
-    parser.add_argument("--legacy-mapping", type=Path, default=Path("evaluation/reports/2026-08-08-legacy-to-v2-mapping.json"))
+    parser.add_argument(
+        "--legacy-mapping",
+        type=Path,
+        default=Path("scripts/fixtures/course_corpus_20260808/2026-08-08-legacy-to-v2-mapping.json"),
+    )
     parser.add_argument("--course-dir", type=Path, default=Path("../course_data/courses/computational-thinking"))
     parser.add_argument("--shadow-root", type=Path, default=Path("evaluation/shadow/computational-thinking-v2"))
     parser.add_argument("--output", type=Path)

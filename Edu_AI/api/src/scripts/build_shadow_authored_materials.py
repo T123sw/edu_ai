@@ -110,7 +110,7 @@ def main() -> int:
     parser.add_argument(
         "--legacy-mapping",
         type=Path,
-        default=Path("evaluation/reports/2026-08-08-legacy-to-v2-mapping.json"),
+        default=Path("scripts/fixtures/course_corpus_20260808/2026-08-08-legacy-to-v2-mapping.json"),
     )
     parser.add_argument(
         "--shadow-root",
@@ -120,7 +120,7 @@ def main() -> int:
     parser.add_argument(
         "--coverage-audit",
         type=Path,
-        default=Path("evaluation/reports/2026-08-08-shadow-corpus-audit.json"),
+        default=Path("scripts/fixtures/course_corpus_20260808/2026-08-08-shadow-corpus-audit.json"),
     )
     parser.add_argument("--max-nodes", type=int, default=49)
     parser.add_argument("--output-version", default="v1")
