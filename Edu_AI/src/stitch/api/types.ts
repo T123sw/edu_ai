@@ -353,6 +353,7 @@ export type CourseMaterial = {
     options?: string[] | null;
     answer?: string;
     explanation?: string;
+    required?: boolean;
   }>;
   plan?: {
     title?: string;

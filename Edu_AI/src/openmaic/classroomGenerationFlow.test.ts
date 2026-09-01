@@ -31,6 +31,17 @@ test('buildClassroomPlayerHash encodes course and classroom ids', () => {
   );
 });
 
+test('classroom player links preserve catalog return context', () => {
+  assert.equal(
+    buildClassroomPlayerHash("course-1", "classroom-1", {
+      resourceVersion: 3,
+      catalogNodeId: "leaf-1",
+      catalogResourceId: "classroom-1",
+    }),
+    "#classroom-player?course_id=course-1&classroom_id=classroom-1&resource_version=3&catalog_node_id=leaf-1&catalog_resource_id=classroom-1",
+  );
+});
+
 test('waitForClassroomGenerationJob reports progress and returns the classroom result', async () => {
   const states = [
     job('running', { step: 'researching', progress: 30 }),

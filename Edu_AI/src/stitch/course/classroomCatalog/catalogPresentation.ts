@@ -101,6 +101,22 @@ export function catalogLeafSummary(leaf: ClassroomCatalogLeaf): string {
   return leaf.resources.length ? `共 ${leaf.resources.length} 项资料` : "暂无资料";
 }
 
+export function teacherReviewState(resource: ClassroomCatalogResource): {
+  label: string;
+  canReview: boolean;
+  previewVersion: number | null;
+} {
+  const current = resource.current_version ?? null;
+  const approved = resource.approved_version ?? null;
+  if (resource.review_status === "pending") return {
+    label: approved ? `已发布第 ${approved} 版 · 第 ${current} 版待审核` : `第 ${current} 版待审核`,
+    canReview: true,
+    previewVersion: current,
+  };
+  if (resource.review_status === "rejected") return { label: `第 ${current} 版已退回`, canReview: false, previewVersion: current };
+  return { label: approved ? `已发布第 ${approved} 版` : "尚未发布", canReview: false, previewVersion: current ?? approved };
+}
+
 
 export function readCatalogTarget(hash: string): {
   nodeId: string | null;

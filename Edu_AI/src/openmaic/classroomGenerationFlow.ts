@@ -41,11 +41,17 @@ function sleepWithAbort(durationMs: number, signal?: AbortSignal): Promise<void>
 export function buildClassroomPlayerHash(
   courseId: string,
   classroomId: string,
+  options?: {
+    resourceVersion?: number | null;
+    catalogNodeId?: string | null;
+    catalogResourceId?: string | null;
+  },
 ): string {
-  return (
-    `#classroom-player?course_id=${encodeURIComponent(courseId)}` +
-    `&classroom_id=${encodeURIComponent(classroomId)}`
-  );
+  const params = new URLSearchParams({ course_id: courseId, classroom_id: classroomId });
+  if (options?.resourceVersion) params.set("resource_version", String(options.resourceVersion));
+  if (options?.catalogNodeId) params.set("catalog_node_id", options.catalogNodeId);
+  if (options?.catalogResourceId) params.set("catalog_resource_id", options.catalogResourceId);
+  return `#classroom-player?${params.toString()}`;
 }
 
 export async function waitForClassroomGenerationJob(

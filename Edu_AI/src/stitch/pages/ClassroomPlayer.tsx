@@ -25,7 +25,7 @@ import {
 import type {
   ClassroomMaterial,
   ClassroomScene,
-  ResourceLearningProgress,
+  ResourceLearningProgress as ResourceLearningProgressRecord,
 } from "../api/types";
 import { useAuthSession } from "../authSession";
 import { AppSurface, MaterialIcon } from "../shared";
@@ -42,6 +42,8 @@ function getQueryParams(): {
   courseId: string | null;
   classroomId: string | null;
   resourceVersion: number | null;
+  catalogNodeId: string | null;
+  catalogResourceId: string | null;
 } {
   const query = window.location.hash.split("?")[1] ?? "";
   const params = new URLSearchParams(query);
@@ -51,6 +53,8 @@ function getQueryParams(): {
     classroomId: params.get("classroom_id"),
     resourceVersion:
       Number.isInteger(rawVersion) && rawVersion > 0 ? rawVersion : null,
+    catalogNodeId: params.get("catalog_node_id"),
+    catalogResourceId: params.get("catalog_resource_id"),
   };
 }
 
@@ -78,7 +82,7 @@ function newIdempotencyKey(sceneId: string): string {
 }
 
 export function ClassroomPlayerPage() {
-  const { courseId, classroomId, resourceVersion } = useMemo(getQueryParams, []);
+  const { courseId, classroomId, resourceVersion, catalogNodeId, catalogResourceId } = useMemo(getQueryParams, []);
   const { user } = useAuthSession();
   const { courseRole } = useCourseRoute();
   const canGenerate = canCourse(courseRole, "generate");
@@ -105,7 +109,7 @@ export function ClassroomPlayerPage() {
   );
   const [learningSessionId, setLearningSessionId] = useState<string | null>(null);
   const [learningProgress, setLearningProgress] =
-    useState<ResourceLearningProgress | null>(null);
+    useState<ResourceLearningProgressRecord | null>(null);
   const [learningSyncState, setLearningSyncState] = useState<
     "idle" | "syncing" | "synced" | "failed"
   >("idle");
@@ -478,8 +482,9 @@ export function ClassroomPlayerPage() {
             <a
               href={buildRoleCourseHash(
                 user?.role,
-                user?.role === "student" ? "knowledge" : "classroom-studio",
+                "classroom-studio",
                 courseId,
+                { node_id: catalogNodeId, resource_id: catalogResourceId },
               )}
               className="classroom-icon-button"
               aria-label="返回 AI 课堂列表"

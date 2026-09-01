@@ -8,6 +8,7 @@ import {
   catalogLeafSummary,
   filterCurriculumTree,
   readCatalogTarget,
+  teacherReviewState,
 } from "./catalogPresentation.ts";
 
 
@@ -62,4 +63,20 @@ test("student leaf summaries use resource completion counts", () => {
     ...leaf("partial", ["课程", "部分"]),
     learning_summary: { completed: 2, total: 3 },
   }), "已完成 2/3");
+});
+
+test("teacher review state shows published and pending versions together", () => {
+  assert.deepEqual(teacherReviewState({
+    standard_kind: "study_guide",
+    material_type: "report",
+    material_id: "guide-1",
+    review_status: "pending",
+    current_version: 3,
+    approved_version: 2,
+    resource: null,
+  }), {
+    label: "已发布第 2 版 · 第 3 版待审核",
+    canReview: true,
+    previewVersion: 3,
+  });
 });
