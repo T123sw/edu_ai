@@ -33,6 +33,10 @@ test("responsive rails use two breakpoints and contain their own scrolling", asy
   assert.match(css, /overscroll-behavior:\s*contain/);
   assert.match(css, /env\(safe-area-inset-bottom/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
+  assert.match(css, /\.course-classroom-catalog__mobile-tools\s*\{[^}]*display:\s*none/s);
+  assert.match(css, /@media\s*\(max-width:\s*1279px\)[\s\S]*course-classroom-catalog__mobile-tools/);
+  assert.match(css, /@media\s*\(max-width:\s*959px\)[\s\S]*catalog-qa-toggle/);
+  assert.match(css, /position:\s*fixed/);
 });
 
 test("drawers expose controls, escape handling, and trigger focus restoration", async () => {

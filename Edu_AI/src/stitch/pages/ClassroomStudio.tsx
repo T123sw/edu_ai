@@ -13,7 +13,7 @@ import { CurriculumResourceTree } from "../course/classroomCatalog/CurriculumRes
 import { MyClassroomList } from "../course/classroomCatalog/MyClassroomList";
 import { ContextualClassroomQaPanel, type WorkspaceQaBinding } from "../course/classroomCatalog/ContextualClassroomQaPanel";
 import { presentMyClassrooms } from "../course/classroomCatalog/myClassroomPresentation";
-import { buildCurriculumResourceTree, filterCurriculumTree, type CurriculumTreeNode } from "../course/classroomCatalog/catalogPresentation";
+import { buildCurriculumResourceTree, type CurriculumTreeNode } from "../course/classroomCatalog/catalogPresentation";
 import {
   describeCatalogResourceQa,
   describeOverviewQa,
@@ -44,7 +44,6 @@ export function ClassroomStudioPage() {
   const [personalLoading, setPersonalLoading] = useState(true);
   const [personalError, setPersonalError] = useState<string | null>(null);
   const [personalReloadToken, setPersonalReloadToken] = useState(0);
-  const [query, setQuery] = useState("");
   const [openKeys, setOpenKeys] = useState<Set<string>>(new Set());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
@@ -83,7 +82,6 @@ export function ClassroomStudioPage() {
   }, [courseId, personalReloadToken]);
 
   const tree = useMemo(() => buildCurriculumResourceTree(catalog?.leaves ?? []), [catalog?.leaves]);
-  const filteredTree = useMemo(() => filterCurriculumTree(tree, query), [query, tree]);
   const myClassroomItems = useMemo(() => presentMyClassrooms(personalClassrooms), [personalClassrooms]);
 
   useEffect(() => {
@@ -126,13 +124,6 @@ export function ClassroomStudioPage() {
       setQaBinding({ status: "loading", title: qaTarget.title, kindLabel: qaTarget.kindLabel });
     }
   }, [qaTarget.key, qaTarget.status, qaTarget.status === "loading" ? qaTarget.kindLabel : "", qaTarget.status === "loading" ? qaTarget.title : ""]);
-  const effectiveOpenKeys = useMemo(() => {
-    if (!query.trim()) return openKeys;
-    const keys = new Set(openKeys);
-    const collect = (nodes: CurriculumTreeNode[]) => nodes.forEach((node) => { if (node.kind === "branch") keys.add(node.key); collect(node.children); });
-    collect(filteredTree); return keys;
-  }, [filteredTree, openKeys, query]);
-
   const updateLocation = (target: ClassroomWorkspaceTarget) => {
     if (!courseId || !catalog) return;
     window.history.replaceState(null, "", buildWorkspaceHash(catalog.mode === "learn" ? "student" : "teacher", courseId, target));
@@ -152,14 +143,10 @@ export function ClassroomStudioPage() {
 
   if (!courseId) return <AppSurface><main className="course-classroom-catalog"><p>请先选择一门课程。</p></main></AppSurface>;
   return <AppSurface><main className="course-classroom-catalog">
-    <header className="course-classroom-catalog__toolbar"><div><p>课程学习资源</p><h1>AI 课堂</h1></div>
-      <div className="course-classroom-catalog__tools">
-        <button ref={directoryTriggerRef} type="button" className="catalog-directory-toggle" aria-expanded={drawerOpen} aria-controls="classroom-workspace-directory" onClick={() => { setQaOpen(false); setDrawerOpen(true); }}><MaterialIcon name="menu_book" />课程目录</button>
-        <button ref={qaTriggerRef} type="button" className="catalog-qa-toggle" aria-expanded={qaOpen} aria-controls="classroom-workspace-qa" onClick={() => { setDrawerOpen(false); setQaOpen(true); }}><MaterialIcon name="forum" />AI 问答</button>
-        <label className="course-classroom-catalog__search"><MaterialIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="搜索课程目录" placeholder="搜索章节、小节或资料" /></label>
-        {catalog?.mode === "manage" ? <button type="button" className="catalog-primary-action" onClick={() => setGenerationOpen(true)}><MaterialIcon name="auto_awesome" />生成学习资源</button> : null}
-      </div>
-    </header>
+    <nav className="course-classroom-catalog__mobile-tools" aria-label="课堂侧栏入口">
+      <button ref={directoryTriggerRef} type="button" className="catalog-directory-toggle" aria-label="打开课程目录" aria-expanded={drawerOpen} aria-controls="classroom-workspace-directory" onClick={() => { setQaOpen(false); setDrawerOpen(true); }}><MaterialIcon name="menu_book" /></button>
+      <button ref={qaTriggerRef} type="button" className="catalog-qa-toggle" aria-label="打开 AI 问答" aria-expanded={qaOpen} aria-controls="classroom-workspace-qa" onClick={() => { setDrawerOpen(false); setQaOpen(true); }}><MaterialIcon name="forum" /></button>
+    </nav>
     {loading ? <div className="course-classroom-catalog__layout catalog-loading" aria-label="正在加载课程目录"><span /><span /></div>
       : error ? <section className="catalog-retry"><div><h2>课程目录暂时无法加载</h2><p>{error}</p><button type="button" onClick={reload}>重新加载</button></div></section>
       : catalog ? <ClassroomWorkspaceLayout
@@ -172,7 +159,7 @@ export function ClassroomStudioPage() {
         directory={<div className="course-classroom-catalog__directory">
           <div className="course-classroom-catalog__directory-heading"><div><strong>课程目录</strong><small> · {catalog.leaves.length} 个小节</small></div><button type="button" className="catalog-drawer-close" aria-label="关闭课程目录" onClick={() => setDrawerOpen(false)}><MaterialIcon name="close" /></button></div>
           <div className="course-classroom-catalog__directory-tree">
-            <CurriculumResourceTree nodes={filteredTree} selectedNodeId={selectedNodeId} selectedResourceId={selectedResourceId} openKeys={effectiveOpenKeys}
+            <CurriculumResourceTree nodes={tree} selectedNodeId={selectedNodeId} selectedResourceId={selectedResourceId} openKeys={openKeys}
               onToggle={(key) => setOpenKeys((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })}
               onSelectNode={selectNode} onSelectResource={selectResource} />
           </div>
@@ -188,7 +175,6 @@ export function ClassroomStudioPage() {
             qaTargetKey={qaTarget.key}
             onQaControllerChange={handleQaControllerChange}
           /> : <>
-            {selectedLeaf ? <p className="course-classroom-catalog__breadcrumb">{selectedLeaf.path_titles.join(" / ")}</p> : null}
             {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} onQaControllerChange={handleQaControllerChange} />
               : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
           </>}

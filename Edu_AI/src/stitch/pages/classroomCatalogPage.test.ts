@@ -18,6 +18,18 @@ test("AI classroom page is coordinated by the role-safe curriculum catalog", asy
   assert.match(page, /课程目录/);
 });
 
+test("AI classroom uses a focused workspace without a page toolbar or breadcrumb", async () => {
+  const page = await source("./ClassroomStudio.tsx");
+
+  assert.doesNotMatch(page, /course-classroom-catalog__toolbar/);
+  assert.doesNotMatch(page, /course-classroom-catalog__search/);
+  assert.doesNotMatch(page, /course-classroom-catalog__breadcrumb/);
+  assert.doesNotMatch(page, /filterCurriculumTree/);
+  assert.match(page, /course-classroom-catalog__mobile-tools/);
+  assert.match(page, /aria-controls="classroom-workspace-directory"/);
+  assert.match(page, /aria-controls="classroom-workspace-qa"/);
+});
+
 
 test("curriculum directory exposes keyboard tree semantics and visible statuses", async () => {
   const tree = await source("../course/classroomCatalog/CurriculumResourceTree.tsx");
