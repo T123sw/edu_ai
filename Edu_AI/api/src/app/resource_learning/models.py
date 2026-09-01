@@ -6,6 +6,7 @@ from typing import Literal
 
 SceneKind = Literal["explanation", "exercise", "demo"]
 ManifestMode = Literal["completable", "behavior_only"]
+CompletionRule = Literal["classroom", "questions_only"]
 SessionStatus = Literal["active", "ended", "invalidated"]
 ProgressStatus = Literal["not_started", "in_progress", "completed"]
 
@@ -40,6 +41,7 @@ class ResourceLearningManifestRecord:
     scenes: tuple[ManifestScene, ...]
     questions: tuple[ManifestQuestion, ...]
     created_at: str
+    completion_rule: CompletionRule = "classroom"
 
     @property
     def required_question_ids(self) -> tuple[str, ...]:

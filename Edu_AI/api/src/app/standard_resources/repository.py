@@ -323,6 +323,7 @@ class StandardResourceRepository:
                             manifest_json={
                                 "scenes": [asdict(item) for item in manifest.scenes],
                                 "questions": [asdict(item) for item in manifest.questions],
+                                "completion_rule": manifest.completion_rule,
                             },
                             created_at=datetime.fromisoformat(
                                 manifest.created_at.replace("Z", "+00:00")

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from app.resource_learning.manifest import build_classroom_learning_manifest
+from app.resource_learning.manifest import (
+    build_classroom_learning_manifest,
+    build_practice_learning_manifest,
+)
 
 from .repository import StandardResourceRepository, StandardResourceRuleError
 
@@ -38,7 +41,8 @@ class StandardResourceReviewService:
             )
 
         manifest = None
-        if str(decision).strip().lower() == "approved" and material.get("standard_kind") == "classroom":
+        standard_kind = str(material.get("standard_kind") or "")
+        if str(decision).strip().lower() == "approved" and standard_kind in {"classroom", "practice"}:
             version_number = int(material.get("version") or 0)
             version = self.material_repository.get_version(
                 course_id,
@@ -62,13 +66,19 @@ class StandardResourceReviewService:
                 }
             )
             try:
-                manifest = build_classroom_learning_manifest(manifest_payload)
-                if not manifest.scenes or manifest.explanation_total_ms <= 0:
+                manifest = (
+                    build_classroom_learning_manifest(manifest_payload)
+                    if standard_kind == "classroom"
+                    else build_practice_learning_manifest(manifest_payload)
+                )
+                if standard_kind == "classroom" and (
+                    not manifest.scenes or manifest.explanation_total_ms <= 0
+                ):
                     raise ValueError("classroom has no measurable explanation scene")
             except (TypeError, ValueError) as error:
                 raise StandardResourceRuleError(
                     "LEARNING_MANIFEST_INVALID",
-                    "AI classroom cannot be approved because its learning structure is invalid",
+                    "Learning resource cannot be approved because its learning structure is invalid",
                 ) from error
 
         return self.repository.review_material_with_manifest(

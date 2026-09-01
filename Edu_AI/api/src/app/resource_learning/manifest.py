@@ -171,4 +171,52 @@ def build_classroom_learning_manifest(
         scenes=tuple(manifest_scenes),
         questions=tuple(manifest_questions),
         created_at=timestamp.isoformat(),
+        completion_rule="classroom",
+    )
+
+
+def build_practice_learning_manifest(
+    payload: Mapping[str, Any],
+    *,
+    created_at: datetime | None = None,
+) -> ResourceLearningManifestRecord:
+    course_id = str(payload.get("course_id") or "").strip()
+    resource_id = str(payload.get("material_id") or payload.get("resource_id") or "").strip()
+    resource_version = int(payload.get("version") or 0)
+    if not course_id or not resource_id or resource_version <= 0:
+        raise ValueError("course_id, material_id/resource_id and a positive version are required")
+
+    content = _as_mapping(payload.get("content"))
+    raw_questions = payload.get("questions") or content.get("questions") or ()
+    scene_id = f"practice-{resource_id}-v{resource_version}"
+    questions = tuple(
+        question
+        for item in _as_sequence(raw_questions)
+        if (question := _question_record(_as_mapping(item), scene_id=scene_id)) is not None
+    )
+    required = tuple(question for question in questions if question.required)
+    if not required:
+        raise ValueError("practice resource requires at least one stable required question")
+
+    identity = f"{course_id}:{resource_id}:{resource_version}"
+    timestamp = created_at or datetime.now(UTC)
+    return ResourceLearningManifestRecord(
+        manifest_id=f"rlm_{hashlib.sha256(identity.encode('utf-8')).hexdigest()[:32]}",
+        course_id=course_id,
+        resource_id=resource_id,
+        resource_version=resource_version,
+        content_hash=_canonical_hash(payload),
+        mode="completable",
+        scenes=(
+            ManifestScene(
+                scene_id=scene_id,
+                kind="exercise",
+                expected_duration_ms=0,
+                required_action_ids=(),
+                required_question_ids=tuple(question.question_id for question in required),
+            ),
+        ),
+        questions=questions,
+        created_at=timestamp.isoformat(),
+        completion_rule="questions_only",
     )

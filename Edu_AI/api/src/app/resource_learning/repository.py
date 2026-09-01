@@ -78,6 +78,7 @@ class ResourceLearningRepository:
                 manifest_json={
                     "scenes": [asdict(item) for item in manifest.scenes],
                     "questions": [asdict(item) for item in manifest.questions],
+                    "completion_rule": manifest.completion_rule,
                 },
                 created_at=_timestamp(manifest.created_at),
             )
@@ -553,8 +554,11 @@ class ResourceLearningRepository:
         has_activity = bool(covered_ms or attempts or demo_views or demo_interactions)
         completed = (
             manifest.mode == "completable"
-            and explanation_percent >= 80.0
             and answered == required
+            and (
+                manifest.completion_rule == "questions_only"
+                or explanation_percent >= 80.0
+            )
         )
         if completed or progress.status == "completed":
             progress.status = "completed"
@@ -610,6 +614,7 @@ class ResourceLearningRepository:
             scenes=scenes,
             questions=questions,
             created_at=_iso(record.created_at) or "",
+            completion_rule=payload.get("completion_rule", "classroom"),
         )
 
     @staticmethod

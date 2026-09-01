@@ -130,3 +130,39 @@ def test_non_classroom_review_keeps_existing_behavior(review_fixture) -> None:
 
     assert result["approved_version"] == 1
     assert learning.get_manifest("course-1", "guide-1", 1) is None
+
+
+def test_approving_practice_freezes_question_only_manifest(review_fixture) -> None:
+    service, materials, learning = review_fixture
+    materials.upsert(
+        {
+            "course_id": "course-1",
+            "material_type": "quiz",
+            "material_id": "practice-1",
+            "title": "巩固练习",
+            "origin_type": "standard",
+            "standard_kind": "practice",
+            "current_review_status": "pending",
+            "review_status": "pending",
+            "version": 1,
+            "content": {
+                "questions": [
+                    {"id": "q1", "type": "single", "answer": "B"},
+                ]
+            },
+        }
+    )
+
+    result = service.review(
+        course_id="course-1",
+        material_id="practice-1",
+        reviewer_id="teacher-1",
+        decision="approved",
+        reason="",
+    )
+
+    manifest = learning.get_manifest("course-1", "practice-1", 1)
+    assert result["approved_version"] == 1
+    assert manifest is not None
+    assert manifest.completion_rule == "questions_only"
+    assert manifest.required_question_ids == ("q1",)

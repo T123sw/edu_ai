@@ -153,3 +153,35 @@ def test_behavior_only_classroom_records_activity_but_never_completes() -> None:
     progress = service.get_my_progress("course-1", "classroom-1", 3, "student-1")
     assert progress.explanation_coverage_percent == 100.0
     assert progress.status == "in_progress"
+
+
+def test_question_only_resource_completes_after_all_required_submissions() -> None:
+    service = _service()
+    manifest = _manifest()
+    service.freeze_manifest(
+        ResourceLearningManifestRecord(
+            manifest_id="manifest-practice",
+            course_id="course-1",
+            resource_id="practice-1",
+            resource_version=2,
+            content_hash="practice-hash",
+            mode="completable",
+            scenes=(ManifestScene("practice-1", "exercise", 0, (), ("q1", "q2")),),
+            questions=manifest.questions,
+            created_at="2026-08-31T00:00:00+00:00",
+            completion_rule="questions_only",
+        )
+    )
+
+    progress = service.submit_questions(
+        "course-1",
+        "practice-1",
+        2,
+        "student-1",
+        {"q1": "wrong", "q2": "wrong"},
+        "practice-submit-1",
+    )
+
+    assert progress.status == "completed"
+    assert progress.answered_question_count == 2
+    assert progress.correct_count_latest == 0

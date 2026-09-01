@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from app.resource_learning.manifest import build_classroom_learning_manifest
+from app.resource_learning.manifest import (
+    build_classroom_learning_manifest,
+    build_practice_learning_manifest,
+)
 
 
 def _classroom_payload() -> dict:
@@ -106,3 +109,24 @@ def test_manifest_identity_and_hash_are_deterministic() -> None:
 
     assert first.manifest_id == second.manifest_id
     assert first.content_hash == second.content_hash
+
+
+def test_practice_manifest_uses_required_questions_without_explanation() -> None:
+    manifest = build_practice_learning_manifest(
+        {
+            "course_id": "course-1",
+            "material_id": "practice-1",
+            "version": 2,
+            "content": {
+                "questions": [
+                    {"id": "q1", "type": "single", "answer": "B", "required": True},
+                    {"id": "q2", "type": "blank", "answer": "递归", "required": True},
+                ]
+            },
+        }
+    )
+
+    assert manifest.completion_rule == "questions_only"
+    assert manifest.explanation_total_ms == 0
+    assert manifest.required_question_ids == ("q1", "q2")
+    assert manifest.scenes[0].kind == "exercise"
