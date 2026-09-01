@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -11,10 +12,14 @@ from app.api.course_dependencies import (
     require_course_edit,
     require_course_read,
 )
-from app.persistence.dependencies import get_resource_learning_repository
+from app.persistence.dependencies import (
+    get_postgres_material_repository,
+    get_resource_learning_repository,
+)
 from app.resource_learning.service import ResourceLearningRuleError, ResourceLearningService
 from app.schemas.resource_learning import (
     ResourceLearningAnalyticsResponse,
+    ResourceLearningActivityRequest,
     ResourceLearningEventBatchRequest,
     ResourceLearningProgressResponse,
     ResourceLearningSessionResponse,
@@ -32,6 +37,42 @@ def get_resource_learning_service() -> ResourceLearningService:
     return ResourceLearningService(get_resource_learning_repository())
 
 
+def get_published_reading_validator() -> Callable[[str, str, int], None]:
+    repository = get_postgres_material_repository()
+
+    def validate(course_id: str, resource_id: str, version: int) -> None:
+        material = next(
+            (
+                item
+                for item in repository.list(course_id, "report")
+                if item.get("material_id") == resource_id
+                and item.get("origin_type") == "standard"
+                and item.get("standard_kind") == "study_guide"
+            ),
+            None,
+        )
+        approved_version = (
+            int(material["approved_version"])
+            if material and material.get("approved_version") is not None
+            else None
+        )
+        approved = (
+            repository.get_version(course_id, "report", resource_id, version)
+            if approved_version == version
+            else None
+        )
+        if approved is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "code": "PUBLISHED_RESOURCE_NOT_FOUND",
+                    "message": "published reading resource was not found",
+                },
+            )
+
+    return validate
+
+
 def _http_error(error: ResourceLearningRuleError) -> HTTPException:
     code_map = {
         "MANIFEST_NOT_FOUND": status.HTTP_404_NOT_FOUND,
@@ -41,6 +82,7 @@ def _http_error(error: ResourceLearningRuleError) -> HTTPException:
         "SESSION_INACTIVE": status.HTTP_409_CONFLICT,
         "SEQUENCE_CONFLICT": status.HTTP_409_CONFLICT,
         "SESSION_RESOURCE_MISMATCH": status.HTTP_409_CONFLICT,
+        "ACTIVITY_EVENT_CONFLICT": status.HTTP_409_CONFLICT,
     }
     return HTTPException(
         status_code=code_map.get(error.code, status.HTTP_422_UNPROCESSABLE_CONTENT),
@@ -48,10 +90,12 @@ def _http_error(error: ResourceLearningRuleError) -> HTTPException:
     )
 
 
-def _safe_manifest(service: ResourceLearningService, course_id: str, resource_id: str, version: int) -> dict:
+def _safe_manifest(
+    service: ResourceLearningService, course_id: str, resource_id: str, version: int
+) -> dict | None:
     manifest = service.repository.get_manifest(course_id, resource_id, version)
     if manifest is None:
-        raise ResourceLearningRuleError("MANIFEST_NOT_FOUND", "learning manifest was not found")
+        return None
     return {
         "manifest_id": manifest.manifest_id,
         "resource_version": manifest.resource_version,
@@ -185,6 +229,39 @@ def submit_resource_questions(
             principal.user_id,
             payload.answers,
             payload.idempotency_key,
+        )
+        return ResourceLearningProgressResponse.model_validate(
+            _progress_payload(service, progress)
+        )
+    except ResourceLearningRuleError as error:
+        raise _http_error(error) from error
+
+
+@router.post(
+    "/resources/{resource_id}/versions/{version}/learning/activity",
+    response_model=ResourceLearningProgressResponse,
+)
+def record_resource_learning_activity(
+    course_id: str,
+    resource_id: str,
+    version: int,
+    payload: ResourceLearningActivityRequest,
+    principal: CoursePrincipal = Depends(require_course_read),
+    validate_published_reading: Callable[[str, str, int], None] = Depends(
+        get_published_reading_validator
+    ),
+    service: ResourceLearningService = Depends(get_resource_learning_service),
+):
+    validate_published_reading(course_id, resource_id, version)
+    try:
+        progress = service.record_explicit_activity(
+            course_id,
+            resource_id,
+            version,
+            principal.user_id,
+            event_id=payload.event_id,
+            action=payload.action,
+            occurred_at=payload.occurred_at,
         )
         return ResourceLearningProgressResponse.model_validate(
             _progress_payload(service, progress)

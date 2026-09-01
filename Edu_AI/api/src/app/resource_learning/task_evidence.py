@@ -32,11 +32,11 @@ class TaskResourceEvidenceAdapter:
         self.repository = repository
 
     @staticmethod
-    def _classroom_refs(task: LearningTaskRecord) -> list[tuple[str, int]]:
+    def _standard_refs(task: LearningTaskRecord) -> list[tuple[str, int]]:
         return [
             (snapshot.source_material_id, snapshot.source_version)
             for snapshot in task.resource_snapshots
-            if snapshot.source_material_type == "classroom"
+            if snapshot.source_material_type in {"classroom", "report", "quiz"}
             and snapshot.origin_type == "standard"
         ]
 
@@ -52,7 +52,7 @@ class TaskResourceEvidenceAdapter:
     def ensure_for_student(
         self, task: LearningTaskRecord, *, student_id: str
     ) -> list[TaskResourceEvidence]:
-        refs = self._classroom_refs(task)
+        refs = self._standard_refs(task)
         if not refs:
             return []
         with database_session(engine=self.repository._engine) as session:

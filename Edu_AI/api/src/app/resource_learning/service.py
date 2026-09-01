@@ -48,6 +48,47 @@ class ResourceLearningService:
     def freeze_manifest(self, manifest: ResourceLearningManifestRecord):
         return self.repository.freeze_manifest(manifest)
 
+    def record_explicit_activity(
+        self,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+        student_id: str,
+        *,
+        event_id: str,
+        action: str,
+        occurred_at: str | datetime,
+    ):
+        if not event_id.strip():
+            raise ResourceLearningRuleError("EVENT_ID_REQUIRED", "event id is required")
+        if action not in {"opened", "completed"}:
+            raise ResourceLearningRuleError("ACTIVITY_INVALID", "activity action is invalid")
+        try:
+            progress = self.repository.record_explicit_activity(
+                course_id=course_id,
+                resource_id=resource_id,
+                resource_version=resource_version,
+                student_id=student_id,
+                event_id=event_id,
+                action=action,
+                occurred_at=occurred_at,
+                now=self._clock(),
+            )
+        except ValueError as error:
+            if "activity event id conflict" in str(error):
+                raise ResourceLearningRuleError(
+                    "ACTIVITY_EVENT_CONFLICT", "activity event id is already in use"
+                ) from error
+            raise
+        try:
+            self.task_evidence_adapter.satisfy_for_progress(
+                student_id=student_id, progress=progress
+            )
+        except Exception:
+            pass
+        resource_learning_metrics.increment("explicit_activities_accepted")
+        return progress
+
     def start_session(
         self,
         course_id: str,

@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.engine import Engine
 
 from app.database.models import (
+    ResourceLearningActivityEventModel,
     ResourceLearningCoverageModel,
     ResourceLearningEventModel,
     ResourceLearningManifestModel,
@@ -291,6 +292,95 @@ class ResourceLearningRepository:
             session.flush()
             return self._progress(progress)
 
+    def record_explicit_activity(
+        self,
+        *,
+        course_id: str,
+        resource_id: str,
+        resource_version: int,
+        student_id: str,
+        event_id: str,
+        action: str,
+        occurred_at: str | datetime,
+        now: datetime,
+    ) -> ResourceLearningProgressRecord:
+        with database_session(engine=self._engine) as session:
+            existing = session.get(ResourceLearningActivityEventModel, event_id)
+            if existing is not None:
+                identity = (
+                    existing.student_id,
+                    existing.course_id,
+                    existing.resource_id,
+                    existing.resource_version,
+                    existing.action,
+                )
+                requested = (
+                    student_id,
+                    course_id,
+                    resource_id,
+                    resource_version,
+                    action,
+                )
+                if identity != requested:
+                    raise ValueError("activity event id conflict")
+                progress = session.get(
+                    ResourceLearningProgressModel,
+                    (student_id, course_id, resource_id, resource_version),
+                )
+                if progress is None:
+                    raise ValueError("activity progress is missing")
+                return self._progress(progress)
+
+            progress = session.get(
+                ResourceLearningProgressModel,
+                (student_id, course_id, resource_id, resource_version),
+            )
+            if progress is None:
+                progress = ResourceLearningProgressModel(
+                    student_id=student_id,
+                    course_id=course_id,
+                    resource_id=resource_id,
+                    resource_version=resource_version,
+                    status="not_started",
+                    completion_basis="explicit_read",
+                    explanation_covered_ms=0,
+                    explanation_total_ms=0,
+                    explanation_coverage_percent=0,
+                    required_question_count=0,
+                    answered_question_count=0,
+                    question_completion_percent=0,
+                    correct_count_first=0,
+                    correct_count_latest=0,
+                    demo_view_count=0,
+                    demo_interaction_count=0,
+                    updated_at=now,
+                )
+                session.add(progress)
+
+            session.add(
+                ResourceLearningActivityEventModel(
+                    event_id=event_id,
+                    student_id=student_id,
+                    course_id=course_id,
+                    resource_id=resource_id,
+                    resource_version=resource_version,
+                    action=action,
+                    occurred_at=_timestamp(occurred_at),
+                    received_at=now,
+                )
+            )
+            progress.completion_basis = "explicit_read"
+            progress.started_at = progress.started_at or now
+            progress.last_activity_at = now
+            if action == "completed":
+                progress.status = "completed"
+                progress.completed_at = progress.completed_at or now
+            elif progress.status != "completed":
+                progress.status = "in_progress"
+            progress.updated_at = now
+            session.flush()
+            return self._progress(progress)
+
     def end_session(
         self, *, session_id: str, student_id: str, now: datetime
     ) -> ResourceLearningSessionRecord:
@@ -438,6 +528,11 @@ class ResourceLearningRepository:
             resource_id=resource_id,
             resource_version=resource_version,
             status="not_started",
+            completion_basis=(
+                "required_questions_submitted"
+                if domain.completion_rule == "questions_only"
+                else "classroom_requirements"
+            ),
             explanation_covered_ms=0,
             explanation_total_ms=domain.explanation_total_ms,
             explanation_coverage_percent=0,
@@ -565,6 +660,11 @@ class ResourceLearningRepository:
             progress.completed_at = progress.completed_at or now
         elif has_activity:
             progress.status = "in_progress"
+        progress.completion_basis = (
+            "required_questions_submitted"
+            if manifest.completion_rule == "questions_only"
+            else "classroom_requirements"
+        )
         progress.explanation_covered_ms = covered_ms
         progress.explanation_total_ms = manifest.explanation_total_ms
         progress.explanation_coverage_percent = explanation_percent
@@ -651,4 +751,5 @@ class ResourceLearningRepository:
             completed_at=_iso(record.completed_at),
             last_activity_at=_iso(record.last_activity_at),
             updated_at=_iso(record.updated_at) or "",
+            completion_basis=record.completion_basis,
         )

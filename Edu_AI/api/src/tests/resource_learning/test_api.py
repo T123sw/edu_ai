@@ -52,6 +52,9 @@ def api_clients():
             course_role=role,
         )
         app.dependency_overrides[api.get_resource_learning_service] = lambda: service
+        app.dependency_overrides[api.get_published_reading_validator] = (
+            lambda: lambda *_args: None
+        )
         app.dependency_overrides[api.require_course_read] = lambda: principal
         if role == "viewer":
             def deny_edit():
@@ -138,3 +141,41 @@ def test_teacher_can_read_student_progress_but_not_write_for_them(api_clients) -
 
     assert response.status_code == 200
     assert response.json()["status"] == "not_started"
+
+
+def test_student_can_record_own_explicit_reading_progress(api_clients) -> None:
+    student, _teacher = api_clients
+    endpoint = "/api/courses/course-1/resources/report-1/versions/2/learning/activity"
+
+    opened = student.post(endpoint, json={
+        "event_id": "read-open-1",
+        "action": "opened",
+        "occurred_at": datetime.now(UTC).isoformat(),
+    })
+    completed = student.post(endpoint, json={
+        "event_id": "read-complete-1",
+        "action": "completed",
+        "occurred_at": datetime.now(UTC).isoformat(),
+    })
+
+    assert opened.status_code == 200
+    assert opened.json()["status"] == "in_progress"
+    assert opened.json()["manifest"] is None
+    assert completed.status_code == 200
+    assert completed.json()["status"] == "completed"
+    assert completed.json()["completion_basis"] == "explicit_read"
+
+
+def test_explicit_reading_payload_cannot_forge_student_identity(api_clients) -> None:
+    student, _teacher = api_clients
+    response = student.post(
+        "/api/courses/course-1/resources/report-1/versions/2/learning/activity",
+        json={
+            "event_id": "read-open-forged",
+            "action": "opened",
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "student_id": "student-2",
+        },
+    )
+
+    assert response.status_code == 422

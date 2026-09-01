@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
@@ -70,3 +71,60 @@ def test_starting_again_resumes_the_previous_active_session() -> None:
 
     assert second.session_id == first.session_id
     assert repository.get_session(first.session_id).status == "active"
+
+
+def test_explicit_reading_activity_is_idempotent_and_completes_without_manifest() -> None:
+    repository = _repository()
+    now = datetime(2026, 9, 1, tzinfo=UTC)
+
+    opened = repository.record_explicit_activity(
+        course_id="course-1",
+        resource_id="report-1",
+        resource_version=2,
+        student_id="student-1",
+        event_id="activity-1",
+        action="opened",
+        occurred_at=now,
+        now=now,
+    )
+    repeated = repository.record_explicit_activity(
+        course_id="course-1",
+        resource_id="report-1",
+        resource_version=2,
+        student_id="student-1",
+        event_id="activity-1",
+        action="opened",
+        occurred_at=now,
+        now=now,
+    )
+    completed = repository.record_explicit_activity(
+        course_id="course-1",
+        resource_id="report-1",
+        resource_version=2,
+        student_id="student-1",
+        event_id="activity-2",
+        action="completed",
+        occurred_at=now,
+        now=now,
+    )
+
+    assert opened.status == repeated.status == "in_progress"
+    assert completed.status == "completed"
+    assert completed.completion_basis == "explicit_read"
+
+
+def test_explicit_reading_activity_rejects_event_id_reuse_for_another_resource() -> None:
+    repository = _repository()
+    now = datetime(2026, 9, 1, tzinfo=UTC)
+    repository.record_explicit_activity(
+        course_id="course-1", resource_id="report-1", resource_version=2,
+        student_id="student-1", event_id="activity-1", action="opened",
+        occurred_at=now, now=now,
+    )
+
+    with pytest.raises(ValueError, match="activity event id conflict"):
+        repository.record_explicit_activity(
+            course_id="course-1", resource_id="report-2", resource_version=2,
+            student_id="student-1", event_id="activity-1", action="opened",
+            occurred_at=now, now=now,
+        )

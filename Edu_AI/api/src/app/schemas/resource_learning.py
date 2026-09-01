@@ -40,6 +40,14 @@ class ResourceQuestionSubmissionRequest(BaseModel):
     answers: dict[str, str | list[str]]
 
 
+class ResourceLearningActivityRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: str = Field(min_length=1, max_length=200)
+    action: Literal["opened", "completed"]
+    occurred_at: datetime
+
+
 class ResourceLearningSessionResponse(BaseModel):
     session_id: str
     course_id: str
@@ -73,6 +81,11 @@ class ResourceLearningProgressResponse(BaseModel):
     resource_id: str
     resource_version: int
     status: str
+    completion_basis: Literal[
+        "classroom_requirements",
+        "required_questions_submitted",
+        "explicit_read",
+    ] | None = None
     explanation_covered_ms: int
     explanation_total_ms: int
     explanation_coverage_percent: float

@@ -46,11 +46,18 @@ def _setup(*, complete=True):
     return service, TaskResourceEvidenceAdapter(repository), progress
 
 
-def _task(task_id: str, version: int):
+def _task(
+    task_id: str,
+    version: int,
+    *,
+    source_material_type: str = "classroom",
+    source_material_id: str = "classroom-1",
+    standard_kind: str = "classroom",
+):
     snapshot = LearningTaskResourceSnapshot(
         snapshot_id=f"snap-{task_id}", task_id=task_id, position=0,
-        source_material_type="classroom", source_material_id="classroom-1",
-        source_version=version, origin_type="standard", standard_kind="classroom",
+        source_material_type=source_material_type, source_material_id=source_material_id,
+        source_version=version, origin_type="standard", standard_kind=standard_kind,
         title="课堂", content_payload={}, file_refs=[],
     )
     return LearningTaskRecord(
@@ -103,3 +110,25 @@ def test_later_resource_completion_satisfies_pending_reference():
     )
 
     assert adapter.list_for_task_student("task-later", student_id="student-1")[0].condition_status == "satisfied"
+
+
+def test_standard_report_snapshot_uses_explicit_reading_progress_as_evidence():
+    service, adapter, _progress = _setup(complete=False)
+    task = _task(
+        "task-report",
+        2,
+        source_material_type="report",
+        source_material_id="report-1",
+        standard_kind="study_guide",
+    )
+    assert adapter.initialize_task(task, student_ids=["student-1"])[0].condition_status == "pending"
+
+    service.record_explicit_activity(
+        "course-1", "report-1", 2, "student-1",
+        event_id="read-complete-1", action="completed",
+        occurred_at="2026-09-01T00:00:00+00:00",
+    )
+
+    assert adapter.list_for_task_student(
+        "task-report", student_id="student-1"
+    )[0].condition_status == "satisfied"

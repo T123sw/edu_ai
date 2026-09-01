@@ -88,3 +88,4 @@ class ResourceLearningProgressRecord:
     completed_at: str | None
     last_activity_at: str | None
     updated_at: str
+    completion_basis: str | None = None

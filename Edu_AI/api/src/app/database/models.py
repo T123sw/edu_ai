@@ -1106,6 +1106,21 @@ class ResourceLearningEventModel(Base):
     validation_status: Mapped[str] = mapped_column(String(32), nullable=False)
 
 
+class ResourceLearningActivityEventModel(Base):
+    __tablename__ = "resource_learning_activity_events"
+
+    event_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    resource_id: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    action: Mapped[str] = mapped_column(String(32), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    received_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+
+
 class ResourceLearningCoverageModel(Base):
     __tablename__ = "resource_learning_coverage"
 
@@ -1170,6 +1185,7 @@ class ResourceLearningProgressModel(Base):
     resource_id: Mapped[str] = mapped_column(String(240), primary_key=True)
     resource_version: Mapped[int] = mapped_column(Integer, primary_key=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
+    completion_basis: Mapped[str | None] = mapped_column(String(64))
     explanation_covered_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     explanation_total_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     explanation_coverage_percent: Mapped[float] = mapped_column(Float, nullable=False, default=0)

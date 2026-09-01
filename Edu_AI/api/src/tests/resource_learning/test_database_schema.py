@@ -16,11 +16,17 @@ def test_resource_learning_schema_has_versioned_progress_and_idempotent_events()
         "resource_learning_manifests",
         "resource_learning_sessions",
         "resource_learning_events",
+        "resource_learning_activity_events",
         "resource_learning_coverage",
         "resource_question_attempts",
         "resource_learning_progress",
         "task_resource_evidence_refs",
     } <= names
+
+    progress_columns = {
+        item["name"] for item in inspector.get_columns("resource_learning_progress")
+    }
+    assert "completion_basis" in progress_columns
 
     event_constraints = inspector.get_unique_constraints("resource_learning_events")
     assert any(
