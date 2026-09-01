@@ -4,7 +4,6 @@ import { readFile } from "node:fs/promises";
 
 const migratedComponents = [
   "../components/teacher/ClassroomGenerationEntry.tsx",
-  "../stitch/pages/ClassroomStudio.tsx",
   "../openmaic/ClassroomVideoExportButton.tsx",
 ];
 
@@ -17,6 +16,9 @@ test("classroom generation and video export use the global task source", async (
     assert.doesNotMatch(source, /waitFor(?:ClassroomGeneration|VideoExport)Job/);
     assert.doesNotMatch(source, /setInterval/);
   }
+  const catalog = await readFile(new URL("../stitch/pages/ClassroomStudio.tsx", import.meta.url), "utf8");
+  assert.match(catalog, /LearningResourceGenerationPanel/);
+  assert.doesNotMatch(catalog, /getJobStatus|waitForClassroomGenerationJob|setInterval/);
 });
 
 test("the global manager is mounted outside the keyed route subtree", async () => {
