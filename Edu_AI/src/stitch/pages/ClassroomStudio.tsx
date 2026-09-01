@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { listClassrooms } from "../api/classroom";
 import { getClassroomCatalog } from "../api/classroomCatalog";
-import type { ClassroomCatalog } from "../api/types";
+import type { ClassroomCatalog, ClassroomMaterial } from "../api/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { LearningResourceGenerationPanel } from "../course/knowledge/LearningResourceGenerationPanel";
 import { CourseResourceViewer } from "../course/classroomCatalog/CourseResourceViewer";
 import { ClassroomWorkspaceLayout } from "../course/classroomCatalog/ClassroomWorkspaceLayout";
+import { buildWorkspaceHash, readWorkspaceTarget, type ClassroomWorkspaceTarget } from "../course/classroomCatalog/classroomWorkspaceTarget";
 import { CurriculumNodeOverview } from "../course/classroomCatalog/CurriculumNodeOverview";
 import { CurriculumResourceTree } from "../course/classroomCatalog/CurriculumResourceTree";
-import { buildCatalogHash, buildCurriculumResourceTree, filterCurriculumTree, readCatalogTarget, type CurriculumTreeNode } from "../course/classroomCatalog/catalogPresentation";
+import { MyClassroomList } from "../course/classroomCatalog/MyClassroomList";
+import { presentMyClassrooms } from "../course/classroomCatalog/myClassroomPresentation";
+import { buildCurriculumResourceTree, filterCurriculumTree, type CurriculumTreeNode } from "../course/classroomCatalog/catalogPresentation";
 import "../course/classroomCatalog/courseClassroomCatalog.css";
 import { AppSurface, MaterialIcon } from "../shared";
 export { classroomPageDefinition } from "./classroomPageDefinition";
@@ -27,10 +31,18 @@ export function ClassroomStudioPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [personalClassrooms, setPersonalClassrooms] = useState<ClassroomMaterial[]>([]);
+  const [personalLoading, setPersonalLoading] = useState(true);
+  const [personalError, setPersonalError] = useState<string | null>(null);
+  const [personalReloadToken, setPersonalReloadToken] = useState(0);
   const [query, setQuery] = useState("");
   const [openKeys, setOpenKeys] = useState<Set<string>>(new Set());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
+  const [selectedPersonalClassroomId, setSelectedPersonalClassroomId] = useState<string | null>(() => {
+    const target = readWorkspaceTarget(window.location.hash);
+    return target.kind === "personal_classroom" ? target.classroomId : null;
+  });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [generationOpen, setGenerationOpen] = useState(false);
   const reload = useCallback(() => setReloadToken((value) => value + 1), []);
@@ -46,14 +58,32 @@ export function ClassroomStudioPage() {
     return () => { cancelled = true; };
   }, [courseId, reloadToken]);
 
+  useEffect(() => {
+    if (!courseId) { setPersonalClassrooms([]); setPersonalLoading(false); return; }
+    let cancelled = false;
+    setPersonalLoading(true); setPersonalError(null);
+    listClassrooms(courseId, "mine")
+      .then((value) => { if (!cancelled) setPersonalClassrooms(value); })
+      .catch((reason) => { if (!cancelled) setPersonalError(reason instanceof Error ? reason.message : "个人课堂加载失败"); })
+      .finally(() => { if (!cancelled) setPersonalLoading(false); });
+    return () => { cancelled = true; };
+  }, [courseId, personalReloadToken]);
+
   const tree = useMemo(() => buildCurriculumResourceTree(catalog?.leaves ?? []), [catalog?.leaves]);
   const filteredTree = useMemo(() => filterCurriculumTree(tree, query), [query, tree]);
+  const myClassroomItems = useMemo(() => presentMyClassrooms(personalClassrooms), [personalClassrooms]);
 
   useEffect(() => {
     if (!catalog || !tree.length) return;
-    const target = readCatalogTarget(window.location.hash);
+    const target = readWorkspaceTarget(window.location.hash);
+    if (target.kind === "personal_classroom") {
+      setSelectedNodeId(null); setSelectedResourceId(null);
+      return;
+    }
     const leaf = catalog.leaves.find((item) => item.leaf_id === target.nodeId);
-    const resource = leaf?.resources.find((item) => item.material_id === target.resourceId);
+    const resource = target.kind === "catalog_resource"
+      ? leaf?.resources.find((item) => item.material_id === target.resourceId)
+      : null;
     if (leaf) {
       setSelectedNodeId(leaf.leaf_id); setSelectedResourceId(resource?.material_id ?? null);
       setOpenKeys((current) => new Set([...current, ...ancestorKeys(tree, leaf.leaf_id)]));
@@ -62,6 +92,7 @@ export function ClassroomStudioPage() {
 
   const selectedLeaf = catalog?.leaves.find((leaf) => leaf.leaf_id === selectedNodeId) ?? null;
   const selectedResource = selectedLeaf?.resources.find((resource) => resource.material_id === selectedResourceId) ?? null;
+  const selectedPersonalClassroom = myClassroomItems.find((item) => item.id === selectedPersonalClassroomId) ?? null;
   const effectiveOpenKeys = useMemo(() => {
     if (!query.trim()) return openKeys;
     const keys = new Set(openKeys);
@@ -69,12 +100,22 @@ export function ClassroomStudioPage() {
     collect(filteredTree); return keys;
   }, [filteredTree, openKeys, query]);
 
-  const updateLocation = (nodeId: string | null, resourceId: string | null) => {
+  const updateLocation = (target: ClassroomWorkspaceTarget) => {
     if (!courseId || !catalog) return;
-    window.history.replaceState(null, "", buildCatalogHash(catalog.mode === "learn" ? "student" : "teacher", courseId, nodeId, resourceId));
+    window.history.replaceState(null, "", buildWorkspaceHash(catalog.mode === "learn" ? "student" : "teacher", courseId, target));
   };
-  const selectNode = (nodeId: string) => { setSelectedNodeId(nodeId); setSelectedResourceId(null); setDrawerOpen(false); updateLocation(nodeId, null); };
-  const selectResource = (nodeId: string, resourceId: string) => { setSelectedNodeId(nodeId); setSelectedResourceId(resourceId); setDrawerOpen(false); updateLocation(nodeId, resourceId); };
+  const selectNode = (nodeId: string) => {
+    setSelectedPersonalClassroomId(null); setSelectedNodeId(nodeId); setSelectedResourceId(null); setDrawerOpen(false);
+    updateLocation({ kind: "overview", nodeId });
+  };
+  const selectResource = (nodeId: string, resourceId: string) => {
+    setSelectedPersonalClassroomId(null); setSelectedNodeId(nodeId); setSelectedResourceId(resourceId); setDrawerOpen(false);
+    updateLocation({ kind: "catalog_resource", nodeId, resourceId });
+  };
+  const selectPersonalClassroom = (classroomId: string) => {
+    setSelectedNodeId(null); setSelectedResourceId(null); setSelectedPersonalClassroomId(classroomId); setDrawerOpen(false);
+    updateLocation({ kind: "personal_classroom", classroomId });
+  };
 
   if (!courseId) return <AppSurface><main className="course-classroom-catalog"><p>请先选择一门课程。</p></main></AppSurface>;
   return <AppSurface><main className="course-classroom-catalog">
@@ -94,14 +135,22 @@ export function ClassroomStudioPage() {
         onCloseQa={() => undefined}
         directory={<div className="course-classroom-catalog__directory">
           <div className="course-classroom-catalog__directory-heading"><div><strong>课程目录</strong><small> · {catalog.leaves.length} 个小节</small></div><button type="button" className="catalog-drawer-close" aria-label="关闭课程目录" onClick={() => setDrawerOpen(false)}><MaterialIcon name="close" /></button></div>
-          <CurriculumResourceTree nodes={filteredTree} selectedNodeId={selectedNodeId} selectedResourceId={selectedResourceId} openKeys={effectiveOpenKeys}
-            onToggle={(key) => setOpenKeys((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })}
-            onSelectNode={selectNode} onSelectResource={selectResource} />
+          <div className="course-classroom-catalog__directory-tree">
+            <CurriculumResourceTree nodes={filteredTree} selectedNodeId={selectedNodeId} selectedResourceId={selectedResourceId} openKeys={effectiveOpenKeys}
+              onToggle={(key) => setOpenKeys((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })}
+              onSelectNode={selectNode} onSelectResource={selectResource} />
+          </div>
+          <MyClassroomList items={myClassroomItems} loading={personalLoading} error={personalError} selectedId={selectedPersonalClassroomId}
+            onSelect={selectPersonalClassroom} onRetry={() => setPersonalReloadToken((value) => value + 1)} />
         </div>}
         viewer={<section className="course-classroom-catalog__content">
-          {selectedLeaf ? <p className="course-classroom-catalog__breadcrumb">{selectedLeaf.path_titles.join(" / ")}</p> : null}
-          {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} />
-            : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
+          {selectedPersonalClassroom ? <div className="personal-classroom-placeholder">
+            <MaterialIcon name="smart_display" /><p>个人 AI 课堂</p><h2>{selectedPersonalClassroom.title}</h2><span>可观看</span>
+          </div> : <>
+            {selectedLeaf ? <p className="course-classroom-catalog__breadcrumb">{selectedLeaf.path_titles.join(" / ")}</p> : null}
+            {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} />
+              : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
+          </>}
         </section>}
         qa={<div className="course-classroom-workspace__qa-empty"><MaterialIcon name="forum" /><strong>当前内容问答</strong><p>选择一份学习资料后，即可围绕当前内容提问。</p></div>}
       /> : null}

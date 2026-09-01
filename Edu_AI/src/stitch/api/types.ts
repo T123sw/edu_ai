@@ -975,6 +975,10 @@ export type ClassroomMaterial = {
   material_type: string;
   title?: string;
   owner?: string | null;
+  owner_user_id?: string | null;
+  visibility?: "private" | "course" | string;
+  video_status?: "queued" | "running" | "ready" | "failed" | string;
+  video_url?: string | null;
   stage?: { id: string; name?: string; [key: string]: unknown };
   scenes?: ClassroomScene[];
   scenes_count?: number;

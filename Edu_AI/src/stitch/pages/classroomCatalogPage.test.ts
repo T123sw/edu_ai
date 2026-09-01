@@ -31,6 +31,23 @@ test("curriculum directory exposes keyboard tree semantics and visible statuses"
   }
 });
 
+test("personal classrooms stay at the bottom of the directory with local loading states", async () => {
+  const [page, personalList] = await Promise.all([
+    source("./ClassroomStudio.tsx"),
+    source("../course/classroomCatalog/MyClassroomList.tsx"),
+  ]);
+  assert.match(page, /listClassrooms\(courseId,\s*"mine"\)/);
+  assert.match(page, /<MyClassroomList/);
+  assert.match(page, /personal_classroom_id|buildWorkspaceHash/);
+  assert.match(personalList, /我的课堂/);
+  assert.match(personalList, /aria-labelledby="my-classroom-title"/);
+  for (const status of ["可观看", "生成中", "生成失败", "暂无内容"]) {
+    assert.match(personalList, new RegExp(status));
+  }
+  assert.match(personalList, /个人课堂暂时无法加载/);
+  assert.match(personalList, /重新加载/);
+});
+
 test("teacher reviews a selected version without hiding its preview", async () => {
   const [page, viewer, review] = await Promise.all([
     source("./ClassroomStudio.tsx"),
