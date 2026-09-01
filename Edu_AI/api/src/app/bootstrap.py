@@ -113,6 +113,7 @@ def create_app(
     from app.api.teacher import router as teacher_router
     from app.api.chat_legacy import router as chat_legacy_router
     from app.api.classroom_qa import router as classroom_qa_router
+    from app.api.resource_qa import router as resource_qa_router
     from app.api.searched_images import router as searched_images_router
     from modules.rag_v2.api import router as rag_router
 
@@ -129,6 +130,7 @@ def create_app(
     app.include_router(teacher_router)
     app.include_router(chat_legacy_router)
     app.include_router(classroom_qa_router)
+    app.include_router(resource_qa_router)
     app.include_router(searched_images_router)
     app.include_router(rag_router)
 

@@ -648,6 +648,10 @@ class CourseStorageManager:
     ) -> Path:
         """Per-student classroom Q&A root without exposing the owner in paths."""
         owner_hash = hashlib.sha256(owner_user_id.encode("utf-8")).hexdigest()[:24]
+        if classroom_id.startswith("resource_"):
+            # Static-resource sessions reuse the same atomic store but avoid the
+            # longer classroom media path, which can exceed Windows path limits.
+            return self.get_course_dir(course_id) / "resource_qa" / classroom_id[9:] / owner_hash
         return self._classroom_media_dir(course_id, classroom_id) / "qa" / owner_hash
 
     def _classroom_media_dir(self, course_id: str, classroom_id: str) -> Path:

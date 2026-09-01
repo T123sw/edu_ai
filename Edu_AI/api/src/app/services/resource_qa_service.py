@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from datetime import datetime, timezone
 from functools import partial
 from typing import Any
@@ -30,6 +31,7 @@ from core.course_storage import CourseStorageManager, storage_manager
 
 
 MATERIAL_TYPE_BY_RESOURCE_KIND = {"study_guide": "report", "practice": "quiz"}
+log = logging.getLogger("resource.qa")
 
 
 class ResourceQaError(RuntimeError):
@@ -205,7 +207,8 @@ class ResourceQaService:
                 filename=filename,
                 resource_version=resource_version,
             )
-        except (OpenMaicError, OSError, ValueError):
+        except (OpenMaicError, OSError, ValueError) as exc:
+            log.warning("resource_qa_tts_failed turn_id=%s error=%r", turn_id, exc)
             filename, mime_type, tts_status, audio_url = None, None, "failed", None
 
         turn = {
