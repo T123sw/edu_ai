@@ -81,7 +81,6 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
             aria-current={active ? "page" : undefined}
             onClick={() => setMobileMenuOpen(false)}
           >
-            <span className="course-navigation__icon"><MaterialIcon name={item.icon} /></span>
             <strong>{item.label}</strong>
           </a>
         );

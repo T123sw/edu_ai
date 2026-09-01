@@ -9,6 +9,7 @@ test("course shell uses a top workbar without a sidebar or left drawer", async (
   assert.match(shell, /course-navigation--desktop/u);
   assert.match(shell, /className="course-shell__mobile-panel"/u);
   assert.doesNotMatch(shell, /course-shell__sidebar|course-shell__drawer|course-shell__back/u);
+  assert.doesNotMatch(shell, /course-navigation__icon|<MaterialIcon name=\{item\.icon\}/u);
 });
 
 test("desktop workbar navigation is left aligned with readable labels", async () => {
