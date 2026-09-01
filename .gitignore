@@ -25,6 +25,7 @@ env/
 # Test and tool temp files
 tests/.tmp/
 **/tests/.tmp/
+/.runtime/
 pytest-cache-files-*/
 **/pytest-cache-files-*/
 .merge-backups/
