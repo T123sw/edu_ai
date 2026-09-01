@@ -52,17 +52,17 @@ function Import-DotEnv {
             continue
         }
 
-        $parts = $trimmed.Split(@('='), 2)
-        if ($parts.Count -ne 2) {
+        $separator = $trimmed.IndexOf('=')
+        if ($separator -lt 1) {
             continue
         }
 
-        $name = $parts[0].Trim()
+        $name = $trimmed.Substring(0, $separator).Trim()
         if ($name -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') {
             continue
         }
 
-        $value = $parts[1].Trim()
+        $value = $trimmed.Substring($separator + 1).Trim()
         if ($value.Length -ge 2) {
             $first = $value.Substring(0, 1)
             $last = $value.Substring($value.Length - 1, 1)
@@ -223,7 +223,7 @@ try {
             Name = 'openmaic'
             DisplayName = 'OpenMAIC'
             WorkingDirectory = $openmaicDir
-            Command = "call `"$corepackPath`" pnpm dev -- --hostname 127.0.0.1 --port 3000"
+            Command = "call `"$corepackPath`" pnpm dev --webpack --hostname 127.0.0.1 --port 3000"
             Port = 3000
             Health = 'http://127.0.0.1:3000/api/health'
         },
@@ -239,7 +239,7 @@ try {
             Name = 'frontend'
             DisplayName = 'Frontend'
             WorkingDirectory = $frontendDir
-            Command = "set `"VITE_API_BASE_URL=http://127.0.0.1:8001`" && call `"$corepackPath`" pnpm dev -- --host 127.0.0.1 --port 5173"
+            Command = "set `"VITE_API_BASE_URL=http://127.0.0.1:8001`" && call `"$corepackPath`" pnpm dev --host 127.0.0.1 --port 5173"
             Port = 5173
             Health = 'http://127.0.0.1:5173/'
         }

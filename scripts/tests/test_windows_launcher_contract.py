@@ -47,6 +47,19 @@ class WindowsLauncherContractTests(unittest.TestCase):
         self.assertNotIn("stop-process", source)
         self.assertIn("get-nettcpconnection", source)
 
+    def test_dotenv_parser_splits_on_the_first_equals_sign(self) -> None:
+        source = (ROOT / "scripts/start-dev.ps1").read_text(encoding="utf-8")
+        self.assertIn("$separator = $trimmed.IndexOf('=')", source)
+        self.assertNotIn(".Split(@('='), 2)", source)
+
+    def test_pnpm_dev_arguments_do_not_include_a_literal_separator(self) -> None:
+        source = (ROOT / "scripts/start-dev.ps1").read_text(encoding="utf-8")
+        self.assertNotIn("pnpm dev -- --", source)
+
+    def test_openmaic_uses_windows_compatible_webpack_dev_server(self) -> None:
+        source = (ROOT / "scripts/start-dev.ps1").read_text(encoding="utf-8")
+        self.assertIn("pnpm dev --webpack --hostname 127.0.0.1 --port 3000", source)
+
     def test_stop_requires_owned_pid_manifest(self) -> None:
         source = (ROOT / "scripts/stop-dev.ps1").read_text(encoding="utf-8")
         self.assertIn("dev-processes.json", source)
