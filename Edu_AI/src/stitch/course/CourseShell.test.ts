@@ -16,11 +16,11 @@ test("desktop workbar navigation is left aligned with readable labels", async ()
 
   assert.match(styles, /\.course-navigation--desktop\s*\{[^}]*justify-content:\s*flex-start;/u);
   assert.match(styles, /\.course-shell__brand\s*\{[^}]*font-size:\s*22px;/u);
-  assert.match(styles, /\.course-shell__course-trigger,[\s\S]*?\.course-shell__course-name\s*\{[^}]*font-size:\s*17px;/u);
+  assert.match(styles, /\.course-shell__course-trigger,[\s\S]*?\.course-shell__course-name\s*\{[^}]*font-size:\s*25px;/u);
   assert.match(styles, /\.course-shell__workbar\s*\{[^}]*grid-template-columns:\s*auto auto minmax\(0, 1fr\) auto;/u);
   assert.match(styles, /\.course-shell__course-trigger\s*\{[^}]*width:\s*fit-content;/u);
   assert.match(styles, /\.course-shell__course-trigger > span:first-child\s*\{\s*flex:\s*0 1 auto;/u);
-  assert.match(styles, /\.course-navigation__link strong\s*\{[^}]*font-size:\s*20px;/u);
+  assert.match(styles, /\.course-navigation__link strong\s*\{[^}]*font-size:\s*25px;/u);
   assert.match(styles, /\.course-navigation__icon \.app-icon\s*\{[^}]*font-size:\s*17px;/u);
   assert.match(styles, /\.course-shell__profile\s*\{[^}]*font-size:\s*16px;/u);
   assert.match(styles, /\.course-shell__actions \.job-center-launcher__label\s*\{[^}]*font-size:\s*16px;/u);

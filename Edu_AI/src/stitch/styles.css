@@ -839,7 +839,7 @@ textarea {
   gap: 6px;
   border-radius: 11px;
   color: var(--course-shell-ink);
-  font-size: 17px;
+  font-size: 25px;
   font-weight: 800;
   text-align: left;
 }
@@ -926,7 +926,7 @@ textarea {
 .course-navigation__link.is-active { background: var(--course-shell-brand-soft); color: var(--course-shell-brand); box-shadow: inset 0 -2px 0 var(--course-shell-brand); }
 .course-navigation__icon { display: grid; width: 22px; height: 22px; flex: none; place-items: center; border-radius: 7px; background: color-mix(in srgb, currentColor 8%, transparent); }
 .course-navigation__icon .app-icon { font-size: 17px; }
-.course-navigation__link strong { display: block; font-size: 20px; font-weight: 760; }
+.course-navigation__link strong { display: block; font-size: 25px; font-weight: 760; }
 
 .course-shell__actions { display: flex; flex: none; align-items: center; gap: 10px; }
 .course-shell__actions .job-center-launcher__label { font-size: 16px; }
