@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type PropsWithChildren } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 
 import { JobCenterTrigger } from "../../jobs/JobCenterDrawer";
 import { PageState } from "../components/PageState";
@@ -11,63 +10,79 @@ import { buildRoleCourseHash, homeHashForRole } from "../shared/routes/roleCours
 import { useCourseRoute } from "./CourseRouteProvider";
 import { getCourseNavigation, getCoursePageTitle, type CourseNavigationId } from "./courseNavigation";
 
-export function CourseShellHeaderSlot({ children }: PropsWithChildren) {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-
-  useLayoutEffect(() => {
-    setTarget(document.querySelector<HTMLElement>("[data-course-shell-page-actions]"));
-  }, []);
-
-  return target ? createPortal(children, target) : null;
-}
-
 type CourseShellRoute = TeacherCourseRoute | StudentRoute;
+type CourseNavigationVariant = "desktop" | "mobile";
 
-const studentRouteByNavigationId: Partial<Record<CourseNavigationId, StudentRoute>> = {
-  overview: "student-course-detail",
-  learning: "student-learning",
+const studentRouteByNavigationId: Record<CourseNavigationId, StudentRoute> = {
   workspace: "student-ai",
   knowledge: "student-course-knowledge",
   classroom: "student-classroom",
   resources: "student-resources",
-};
-
-const studentNavigationLabels: Partial<Record<CourseNavigationId, string>> = {
-  overview: "课程概览",
-  learning: "学习任务",
-  workspace: "AI问答",
-  knowledge: "课程知识",
-  classroom: "AI课堂",
-  resources: "个人资源",
+  learning: "student-learning",
 };
 
 export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activeRoute: CourseShellRoute }>) {
   const { user } = useAuthSession();
-  const { courseId, course, courseRole, loading, error, reload } = useCourseRoute();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { courseId, course, loading, error, reload } = useCourseRoute();
+  const [courseMenuOpen, setCourseMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const courseMenuRef = useRef<HTMLDivElement | null>(null);
   const isStudent = user?.role === "student";
-  const navigation = getCourseNavigation(courseRole).filter((item) => !isStudent || item.id !== "settings");
-  const activeStudentNavigation = navigation.find((item) => studentRouteByNavigationId[item.id] === activeRoute);
+  const navigation = getCourseNavigation();
+  const activeNavigation = navigation.find((item) => (
+    isStudent
+      ? studentRouteByNavigationId[item.id] === activeRoute
+      : item.routes.includes(activeRoute as TeacherCourseRoute)
+  ));
   const homeHref = homeHashForRole(user?.role);
+  const pageTitle = activeNavigation?.label
+    ?? (isStudent ? "课程概览" : getCoursePageTitle(activeRoute as TeacherCourseRoute));
 
-  useEffect(() => setDrawerOpen(false), [activeRoute]);
+  useEffect(() => {
+    setCourseMenuOpen(false);
+    setMobileMenuOpen(false);
+  }, [activeRoute]);
 
-  const nav = (compact = false) => (
-    <nav className={cx("course-navigation", compact && "course-navigation--compact")} aria-label="课程工作区">
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setCourseMenuOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    const closeCourseMenuOutside = (event: PointerEvent) => {
+      if (!courseMenuRef.current?.contains(event.target as Node)) {
+        setCourseMenuOpen(false);
+      }
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("pointerdown", closeCourseMenuOutside);
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("pointerdown", closeCourseMenuOutside);
+    };
+  }, []);
+
+  const renderNavigation = (variant: CourseNavigationVariant) => (
+    <nav
+      className={cx(
+        "course-navigation",
+        variant === "desktop" ? "course-navigation--desktop" : "course-navigation--mobile",
+      )}
+      aria-label={variant === "desktop" ? "课程工作栏" : "移动端课程工作栏"}
+    >
       {navigation.map((item) => {
-        const active = isStudent
-          ? studentRouteByNavigationId[item.id] === activeRoute
-          : item.routes.includes(activeRoute as TeacherCourseRoute);
+        const active = item.id === activeNavigation?.id;
         return (
           <a
             key={item.id}
             href={buildRoleCourseHash(user?.role, item.hrefRoute, courseId)}
             className={cx("course-navigation__link", active && "is-active")}
             aria-current={active ? "page" : undefined}
-            onClick={() => setDrawerOpen(false)}
+            onClick={() => setMobileMenuOpen(false)}
           >
             <span className="course-navigation__icon"><MaterialIcon name={item.icon} /></span>
-            <strong>{isStudent ? studentNavigationLabels[item.id] ?? item.label : item.label}</strong>
+            <strong>{item.label}</strong>
           </a>
         );
       })}
@@ -103,55 +118,75 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
   return (
     <UnifiedCourseShellProvider>
       <div className="course-shell" data-testid="course-shell">
-        <aside className="course-shell__sidebar">
-          <a href={homeHref} className="course-shell__brand">Edu AI</a>
-          {nav()}
-          <a href={homeHref} className="course-shell__back"><MaterialIcon name="arrow_back" /> 返回全部课程</a>
-        </aside>
+        <header className="course-shell__workbar">
+          <a href={homeHref} className="course-shell__brand" aria-label="返回全部课程">Edu AI</a>
 
-        <div className="course-shell__content">
-          <header className="course-shell__header">
+          <div className="course-shell__course" ref={courseMenuRef}>
+            {!isStudent ? (
+              <button
+                type="button"
+                className="course-shell__course-trigger"
+                aria-label="打开当前课程菜单"
+                aria-haspopup="menu"
+                aria-expanded={courseMenuOpen}
+                title={course?.title ?? "当前课程"}
+                onClick={() => {
+                  setCourseMenuOpen((open) => !open);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <span>{course?.title ?? "当前课程"}</span>
+                <MaterialIcon name={courseMenuOpen ? "expand_less" : "expand_more"} />
+              </button>
+            ) : (
+              <span className="course-shell__course-name" title={course?.title ?? "当前课程"}>
+                {course?.title ?? "当前课程"}
+              </span>
+            )}
+
+            {!isStudent && courseMenuOpen ? (
+              <div className="course-shell__course-menu" role="menu">
+                <a
+                  role="menuitem"
+                  href={buildRoleCourseHash(user?.role, "edit", courseId)}
+                  onClick={() => setCourseMenuOpen(false)}
+                >
+                  <MaterialIcon name="settings" />
+                  <span>课程设置</span>
+                </a>
+              </div>
+            ) : null}
+          </div>
+
+          {renderNavigation("desktop")}
+
+          <div className="course-shell__actions">
+            <JobCenterTrigger placement="inline" />
+            <a className="course-shell__profile" href={routeHref(routes.profile)}>
+              <MaterialIcon name="person" />
+              <span>个人中心</span>
+            </a>
             <button
               type="button"
-              className="course-shell__menu"
-              aria-label="打开课程导航"
-              aria-expanded={drawerOpen}
-              onClick={() => setDrawerOpen(true)}
-            ><MaterialIcon name="menu_book" /></button>
-            <div className="course-shell__heading">
-              <p><a href={homeHref}>全部课程</a><span>/</span>{course?.title ?? "课程"}</p>
-              <div className="course-shell__heading-row">
-                <h1>{isStudent
-                  ? activeStudentNavigation
-                    ? studentNavigationLabels[activeStudentNavigation.id] ?? activeStudentNavigation.label
-                    : "课程学习"
-                  : getCoursePageTitle(activeRoute as TeacherCourseRoute)}</h1>
-                <div className="course-shell__page-actions" data-course-shell-page-actions />
-              </div>
-            </div>
-            <div className="course-shell__actions">
-              <JobCenterTrigger placement="inline" />
-              <a className="course-shell__profile" href={routeHref(routes.profile)}>
-                <MaterialIcon name="person" />
-                <span>个人中心</span>
-              </a>
-            </div>
-          </header>
-          <div className="course-shell__page">{content}</div>
-        </div>
+              className="course-shell__mobile-menu"
+              aria-label={mobileMenuOpen ? "关闭课程工作栏" : "打开课程工作栏"}
+              aria-expanded={mobileMenuOpen}
+              onClick={() => {
+                setMobileMenuOpen((open) => !open);
+                setCourseMenuOpen(false);
+              }}
+            ><MaterialIcon name={mobileMenuOpen ? "close" : "menu_book"} /></button>
+          </div>
+        </header>
 
-        {drawerOpen ? (
-          <div className="course-shell__drawer-layer" data-testid="course-navigation-drawer">
-            <button type="button" className="course-shell__drawer-backdrop" aria-label="关闭课程导航" onClick={() => setDrawerOpen(false)} />
-            <aside className="course-shell__drawer" aria-label="课程导航菜单">
-              <div className="course-shell__drawer-head">
-                <strong>{course?.title ?? "课程工作区"}</strong>
-                <button type="button" aria-label="关闭课程导航" onClick={() => setDrawerOpen(false)}><MaterialIcon name="close" /></button>
-              </div>
-              {nav(true)}
-            </aside>
+        {mobileMenuOpen ? (
+          <div className="course-shell__mobile-panel">
+            {renderNavigation("mobile")}
           </div>
         ) : null}
+
+        <h1 className="sr-only">{pageTitle}</h1>
+        <div className="course-shell__page">{content}</div>
       </div>
     </UnifiedCourseShellProvider>
   );
