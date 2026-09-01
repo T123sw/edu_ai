@@ -48,11 +48,34 @@ test("student location sanitizes course id and ignores legacy knowledge views", 
     route: "student-course-knowledge",
     courseId: "c 1",
     space: undefined,
+    nodeId: null,
+    resourceId: null,
   });
   assert.deepEqual(readStudentLocation("#student-resources?course_id=undefined&space=course"), {
     route: "student-resources",
     courseId: null,
     space: "course",
+    nodeId: null,
+    resourceId: null,
   });
   assert.equal(readStudentLocation("#edit?course_id=c1").route, null);
+});
+
+test("student classroom links preserve catalog node and resource targets", () => {
+  const hash = buildStudentHash("student-classroom", {
+    courseId: "course-1",
+    nodeId: "leaf-1",
+    resourceId: "guide-1",
+  });
+  assert.equal(
+    hash,
+    "#student-classroom?course_id=course-1&node_id=leaf-1&resource_id=guide-1",
+  );
+  assert.deepEqual(readStudentLocation(hash), {
+    route: "student-classroom",
+    courseId: "course-1",
+    space: "mine",
+    nodeId: "leaf-1",
+    resourceId: "guide-1",
+  });
 });

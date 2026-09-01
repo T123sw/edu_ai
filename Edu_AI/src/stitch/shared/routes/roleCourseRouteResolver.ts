@@ -31,6 +31,8 @@ export type RoleCourseHashTarget = Readonly<{
   scopeType?: string | null;
   scopeId?: string | null;
   scopeLabel?: string | null;
+  node_id?: string | null;
+  resource_id?: string | null;
 }>;
 
 export function buildRoleCourseHash(
@@ -54,6 +56,8 @@ export function buildRoleCourseHash(
     scopeType: target?.scopeType === "knowledge_point" ? "knowledge_point" : target?.scopeType === "course" ? "course" : undefined,
     scopeId: target?.scopeId ?? undefined,
     scopeLabel: target?.scopeLabel ?? undefined,
+    nodeId: target?.node_id ?? undefined,
+    resourceId: target?.resource_id ?? undefined,
   });
 }
 

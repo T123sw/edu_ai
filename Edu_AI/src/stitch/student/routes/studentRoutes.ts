@@ -52,6 +52,8 @@ export function buildStudentHash(
     scopeType?: "course" | "knowledge_point";
     scopeId?: string;
     scopeLabel?: string;
+    nodeId?: string;
+    resourceId?: string;
   },
 ): string {
   if (route === "student-home" || route === "student-personal-knowledge") {
@@ -70,6 +72,8 @@ export function buildStudentHash(
     scopeType: options?.scopeType,
     scopeId: options?.scopeId,
     scopeLabel: options?.scopeLabel,
+    node_id: options?.nodeId,
+    resource_id: options?.resourceId,
   };
   for (const [key, value] of Object.entries(target)) {
     const normalized = String(value ?? "").trim();
@@ -82,6 +86,8 @@ export function readStudentLocation(hash: string): {
   route: StudentRoute | null;
   courseId: string | null;
   space: StudentResourceSpace | undefined;
+  nodeId: string | null;
+  resourceId: string | null;
 } {
   const normalized = String(hash || "").replace(/^#/, "");
   const [routeName, query = ""] = normalized.split("?");
@@ -94,5 +100,7 @@ export function readStudentLocation(hash: string): {
     route,
     courseId: normalizeStudentCourseId(params.get("course_id")),
     space,
+    nodeId: normalizeStudentCourseId(params.get("node_id")),
+    resourceId: normalizeStudentCourseId(params.get("resource_id")),
   };
 }

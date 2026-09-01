@@ -62,6 +62,20 @@ export const endResourceLearningSession = (
   { method: 'POST' },
 );
 
+export const recordReadingActivity = (
+  courseId: string,
+  resourceId: string,
+  version: number,
+  payload: {
+    event_id: string;
+    action: "opened" | "completed";
+    occurred_at: string;
+  },
+) => apiRequest<ResourceLearningProgress>(`${base(courseId, resourceId, version)}/activity`, {
+  method: "POST",
+  body: JSON.stringify(payload),
+});
+
 export const getResourceLearningAnalytics = (
   courseId: string,
   resourceId: string,

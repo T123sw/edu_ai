@@ -45,3 +45,15 @@ test("role course links preserve an exact resource version", () => {
     "#student-resources?course_id=course-1&material_type=classroom&material_id=classroom-1&resource_version=3",
   );
 });
+
+test("role classroom links forward catalog selection for both workspaces", () => {
+  const target = { node_id: "leaf-1", resource_id: "guide-1" };
+  assert.equal(
+    buildRoleCourseHash("student", "classroom-studio", "course-1", target),
+    "#student-classroom?course_id=course-1&node_id=leaf-1&resource_id=guide-1",
+  );
+  assert.equal(
+    buildRoleCourseHash("teacher", "classroom-studio", "course-1", target),
+    "#classroom-studio?course_id=course-1&node_id=leaf-1&resource_id=guide-1",
+  );
+});

@@ -645,6 +645,35 @@ export type StandardResourceCatalog = {
   leaves: StandardResourceLeaf[];
 };
 
+export type ClassroomCatalogProgress = Pick<
+  ResourceLearningProgress,
+  | "resource_id"
+  | "resource_version"
+  | "status"
+  | "completion_basis"
+  | "explanation_coverage_percent"
+  | "answered_question_count"
+  | "required_question_count"
+  | "completed_at"
+  | "last_activity_at"
+>;
+
+export type ClassroomCatalogResource = StandardResourceSlot & {
+  progress?: ClassroomCatalogProgress | null;
+};
+
+export type ClassroomCatalogLeaf = Omit<StandardResourceLeaf, "slots"> & {
+  resources: ClassroomCatalogResource[];
+  summary?: { pending: number; published: number };
+  learning_summary?: { completed: number; total: number };
+};
+
+export type ClassroomCatalog = {
+  course_id: string;
+  mode: "manage" | "learn";
+  leaves: ClassroomCatalogLeaf[];
+};
+
 export type StandardResourceBatchItem = {
   batch_item_id: string;
   batch_id: string;
@@ -982,6 +1011,11 @@ export type ResourceLearningProgress = {
   resource_id: string;
   resource_version: number;
   status: "not_started" | "in_progress" | "completed";
+  completion_basis?:
+    | "classroom_requirements"
+    | "required_questions_submitted"
+    | "explicit_read"
+    | null;
   explanation_covered_ms: number;
   explanation_total_ms: number;
   explanation_coverage_percent: number;
