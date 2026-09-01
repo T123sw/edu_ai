@@ -131,13 +131,14 @@ test("student resource learning remains versioned and separate from teacher task
   try {
     await loginAs(studentPage, studentCredentials.username, studentCredentials.password);
     await studentPage.goto(
-      `/#student-course-knowledge?course_id=${learningCourseId}`,
+      `/#student-classroom?course_id=${learningCourseId}&node_id=sequence-selection-loop&resource_id=${learningResourceId}`,
       { waitUntil: "domcontentloaded" },
     );
-    const leaf = studentPage.locator(".standard-resource-leaf").filter({
-      hasText: "顺序、分支与循环结构",
-    });
-    await expect(leaf).toBeVisible({ timeout: 30_000 });
+    const directory = studentPage.getByRole("tree", { name: "课程目录" });
+    await expect(directory).toBeVisible({ timeout: 30_000 });
+    await expect(directory.getByRole("treeitem", {
+      name: /顺序、分支与循环结构 AI 课堂/,
+    })).toBeVisible();
 
     const sameVersionTask = await createPublishedReadingTask(
       request,
@@ -172,11 +173,27 @@ test("student resource learning remains versioned and separate from teacher task
       response.request().method() === "POST"
       && response.url().endsWith(`/versions/${learningResourceVersion}/learning/sessions`),
     );
-    await leaf.locator("a.standard-resource-card__learn").click();
-    const session = await (await sessionResponsePromise).json() as Record<string, any>;
+    await studentPage.getByRole("link", { name: "进入课堂学习" }).click();
+    let session = await (await sessionResponsePromise).json() as Record<string, any>;
     await expect(studentPage.getByRole("heading", {
       name: "顺序、分支与循环结构 AI 课堂",
     })).toBeVisible();
+    await studentPage.getByRole("link", { name: "返回 AI 课堂列表" }).click();
+    await expect(studentPage).toHaveURL(new RegExp(
+      `student-classroom\\?course_id=${learningCourseId}.*node_id=sequence-selection-loop.*resource_id=${learningResourceId}`,
+    ));
+    await expect(studentPage.getByRole("tree", { name: "课程目录" })
+      .getByRole("treeitem", { name: /顺序、分支与循环结构 AI 课堂/ })).toBeVisible();
+    const reopenedSessionResponse = studentPage.waitForResponse((response) =>
+      response.request().method() === "POST"
+      && response.url().endsWith(`/versions/${learningResourceVersion}/learning/sessions`),
+    );
+    await studentPage.getByRole("link", { name: "进入课堂学习" }).click();
+    session = await (await reopenedSessionResponse).json() as Record<string, any>;
+    await expect(studentPage.getByRole("heading", {
+      name: "顺序、分支与循环结构 AI 课堂",
+    })).toBeVisible();
+    capturedEventBatches.length = 0;
     const progress = studentPage.locator(".resource-learning-progress").first();
     await expect(progress).toContainText("讲解完整度 0%");
 
@@ -299,13 +316,12 @@ test("student resource learning remains versioned and separate from teacher task
     const recoveryPage = await recoveryContext.newPage();
     await loginAs(recoveryPage, studentCredentials.username, studentCredentials.password);
     await recoveryPage.goto(
-      `/#student-course-knowledge?course_id=${learningCourseId}`,
+      `/#student-classroom?course_id=${learningCourseId}&node_id=sequence-selection-loop&resource_id=${learningResourceId}`,
       { waitUntil: "domcontentloaded" },
     );
-    const recoveredLeaf = recoveryPage.locator(".standard-resource-leaf").filter({
-      hasText: "顺序、分支与循环结构",
-    });
-    await expect(recoveredLeaf).toContainText("已完成");
+    const recoveredResource = recoveryPage.getByRole("tree", { name: "课程目录" })
+      .getByRole("treeitem", { name: /顺序、分支与循环结构 AI 课堂.*已完成/ });
+    await expect(recoveredResource).toBeVisible({ timeout: 30_000 });
     await recoveryPage.screenshot({
       path: `${learningBackend.artifactDir}/student-resource-learning-completed.png`,
       fullPage: true,

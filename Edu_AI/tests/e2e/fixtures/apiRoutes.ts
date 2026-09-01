@@ -228,6 +228,82 @@ export async function installTeacherApiRoutes(page: Page) {
         },
       });
     }
+    if (path === `/api/courses/${physicsCourse.id}/classroom-catalog`) {
+      return json(route, {
+        course_id: physicsCourse.id,
+        mode: "manage",
+        leaves: [
+          {
+            leaf_id: "mechanics",
+            title: "1.1 力与运动",
+            chapter_id: "physics",
+            chapter_title: "大学物理",
+            path_titles: ["大学物理", "第一章 经典力学", "1.1 力与运动"],
+            summary: {
+              pending: Object.values(standardReviewStatuses).filter((status) => status === "pending").length,
+              published: Object.values(standardReviewStatuses).filter((status) => status === "approved").length,
+            },
+            resources: [
+              {
+                standard_kind: "classroom",
+                material_type: "classroom",
+                material_id: "standard-mechanics-classroom",
+                review_status: standardReviewStatuses.classroom,
+                current_version: 2,
+                approved_version: 1,
+                resource: {
+                  material_id: "standard-mechanics-classroom",
+                  material_type: "classroom",
+                  course_id: physicsCourse.id,
+                  title: "力学互动课堂",
+                  stage: { id: "standard-mechanics-classroom", name: "力学互动课堂" },
+                  scenes: [],
+                },
+              },
+              {
+                standard_kind: "study_guide",
+                material_type: "report",
+                material_id: "standard-mechanics-guide",
+                review_status: standardReviewStatuses.study_guide,
+                current_version: 1,
+                approved_version: standardReviewStatuses.study_guide === "approved" ? 1 : null,
+                resource: {
+                  material_id: "standard-mechanics-guide",
+                  material_type: "report",
+                  course_id: physicsCourse.id,
+                  title: "力学学习指南",
+                  final_markdown: "# 力学学习指南\n\n理解受力、加速度和运动状态之间的关系。",
+                },
+              },
+              {
+                standard_kind: "practice",
+                material_type: "quiz",
+                material_id: "standard-mechanics-practice",
+                review_status: standardReviewStatuses.practice,
+                current_version: 1,
+                approved_version: null,
+                resource: {
+                  material_id: "standard-mechanics-practice",
+                  material_type: "quiz",
+                  course_id: physicsCourse.id,
+                  title: "力学巩固练习",
+                  content: { questions: [{ id: "q1", stem: "合力为零时物体可能处于什么状态？" }] },
+                },
+              },
+            ],
+          },
+          {
+            leaf_id: "optics",
+            title: "1.2 几何光学",
+            chapter_id: "optics-chapter",
+            chapter_title: "第二章 光学",
+            path_titles: ["大学物理", "第二章 光学", "1.2 几何光学"],
+            summary: { pending: 0, published: 0 },
+            resources: [],
+          },
+        ],
+      });
+    }
     if (path === `/api/courses/${physicsCourse.id}/standard-resources`) {
       return json(route, {
         course_id: physicsCourse.id,
