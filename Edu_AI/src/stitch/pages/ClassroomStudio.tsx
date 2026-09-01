@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listClassrooms } from "../api/classroom";
 import { getClassroomCatalog } from "../api/classroomCatalog";
 import type { ClassroomCatalog, ClassroomMaterial } from "../api/types";
@@ -53,7 +53,10 @@ export function ClassroomStudioPage() {
     return target.kind === "personal_classroom" ? target.classroomId : null;
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [qaOpen, setQaOpen] = useState(false);
   const [generationOpen, setGenerationOpen] = useState(false);
+  const directoryTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const qaTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [qaBinding, setQaBinding] = useState<WorkspaceQaBinding>({ status: "empty" });
   const reload = useCallback(() => setReloadToken((value) => value + 1), []);
 
@@ -151,7 +154,8 @@ export function ClassroomStudioPage() {
   return <AppSurface><main className="course-classroom-catalog">
     <header className="course-classroom-catalog__toolbar"><div><p>课程学习资源</p><h1>AI 课堂</h1></div>
       <div className="course-classroom-catalog__tools">
-        <button type="button" className="catalog-directory-toggle" onClick={() => setDrawerOpen(true)}><MaterialIcon name="menu_book" />课程目录</button>
+        <button ref={directoryTriggerRef} type="button" className="catalog-directory-toggle" aria-expanded={drawerOpen} aria-controls="classroom-workspace-directory" onClick={() => { setQaOpen(false); setDrawerOpen(true); }}><MaterialIcon name="menu_book" />课程目录</button>
+        <button ref={qaTriggerRef} type="button" className="catalog-qa-toggle" aria-expanded={qaOpen} aria-controls="classroom-workspace-qa" onClick={() => { setDrawerOpen(false); setQaOpen(true); }}><MaterialIcon name="forum" />AI 问答</button>
         <label className="course-classroom-catalog__search"><MaterialIcon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="搜索课程目录" placeholder="搜索章节、小节或资料" /></label>
         {catalog?.mode === "manage" ? <button type="button" className="catalog-primary-action" onClick={() => setGenerationOpen(true)}><MaterialIcon name="auto_awesome" />生成学习资源</button> : null}
       </div>
@@ -160,9 +164,11 @@ export function ClassroomStudioPage() {
       : error ? <section className="catalog-retry"><div><h2>课程目录暂时无法加载</h2><p>{error}</p><button type="button" onClick={reload}>重新加载</button></div></section>
       : catalog ? <ClassroomWorkspaceLayout
         directoryOpen={drawerOpen}
-        qaOpen={false}
+        qaOpen={qaOpen}
         onCloseDirectory={() => setDrawerOpen(false)}
-        onCloseQa={() => undefined}
+        onCloseQa={() => setQaOpen(false)}
+        directoryTriggerRef={directoryTriggerRef}
+        qaTriggerRef={qaTriggerRef}
         directory={<div className="course-classroom-catalog__directory">
           <div className="course-classroom-catalog__directory-heading"><div><strong>课程目录</strong><small> · {catalog.leaves.length} 个小节</small></div><button type="button" className="catalog-drawer-close" aria-label="关闭课程目录" onClick={() => setDrawerOpen(false)}><MaterialIcon name="close" /></button></div>
           <div className="course-classroom-catalog__directory-tree">
@@ -187,7 +193,7 @@ export function ClassroomStudioPage() {
               : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
           </>}
         </section>}
-        qa={<ContextualClassroomQaPanel binding={qaBinding} />}
+        qa={<><button type="button" className="catalog-qa-drawer-close" aria-label="关闭 AI 问答" onClick={() => setQaOpen(false)}><MaterialIcon name="close" /></button><ContextualClassroomQaPanel binding={qaBinding} /></>}
       /> : null}
     {generationOpen ? <LearningResourceGenerationPanel onClose={() => { setGenerationOpen(false); reload(); }} /> : null}
   </main></AppSurface>;
