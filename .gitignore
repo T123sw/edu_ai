@@ -102,6 +102,7 @@ Edu_AI/api/src/modules/html2ppt/--bare
 .codex/
 .claude/
 **/.claude/
+.superpowers/
 .idea/
 **/.idea/
 EduAgent/config.toml
