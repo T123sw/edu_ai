@@ -25,6 +25,7 @@ class ClassroomQaContext:
     completed_speech: tuple[str, ...]
     interrupted_speech: str | None
     previous_scene_speech: tuple[str, ...]
+    full_classroom_sections: tuple[str, ...]
     recent_turns: tuple[dict[str, Any], ...]
 
 
@@ -106,6 +107,7 @@ def build_classroom_qa_context(
     bounded_history = tuple(
         dict(turn) for turn in list(recent_turns or [])[-6:] if isinstance(turn, dict)
     )
+    full_classroom_sections = _build_full_classroom_sections(scenes)
     return ClassroomQaContext(
         classroom_title=_normalized(material.get("title")) or "AI 课堂",
         scene_id=str(scene["id"]),
@@ -114,8 +116,41 @@ def build_classroom_qa_context(
         completed_speech=completed_speech,
         interrupted_speech=interrupted_speech,
         previous_scene_speech=previous_scene_speech,
+        full_classroom_sections=full_classroom_sections,
         recent_turns=bounded_history,
     )
+
+
+def select_relevant_classroom_sections(
+    question: str,
+    sections: tuple[str, ...],
+    *,
+    limit: int = 12,
+) -> tuple[str, ...]:
+    """Select bounded full-lesson evidence without silently favoring the beginning."""
+    if limit <= 0 or not sections:
+        return ()
+    terms = _question_terms(question)
+    scored = []
+    for index, section in enumerate(sections):
+        lowered = section.lower()
+        score = sum((len(term) ** 2) * lowered.count(term) for term in terms)
+        if score:
+            scored.append((score, index, section[:1200]))
+    if scored:
+        scored.sort(key=lambda item: (-item[0], item[1]))
+        chosen = sorted(scored[:limit], key=lambda item: item[1])
+        return tuple(item[2] for item in chosen)
+
+    # With no lexical hit, retain a balanced sample from both ends rather than
+    # making later lesson content permanently invisible.
+    take = min(limit, len(sections))
+    front_count = (take + 1) // 2
+    back_count = take - front_count
+    indices = list(range(front_count))
+    if back_count:
+        indices.extend(range(len(sections) - back_count, len(sections)))
+    return tuple(sections[index][:1200] for index in dict.fromkeys(indices))
 
 
 def build_classroom_qa_messages(
@@ -125,7 +160,8 @@ def build_classroom_qa_messages(
 ) -> list[dict[str, str]]:
     system = (
         "你是正在授课的 AI 教师。只回答学生当前问题，不创建课件、报告或其他资源。\n"
-        "只能依据服务端提供的当前课堂讲授与本课堂最近问答作答。\n"
+        "只能依据服务端提供的当前课堂讲授、完整课堂相关内容与本课堂最近问答作答。\n"
+        "当前场景和被打断句子优先；问题涉及其他场景时，可以使用完整课堂相关内容。\n"
         "回答正文通常为 80～300 个中文字符；当前信息不足时明确说明，并把话题引回当前知识点。\n"
         "另写一句 10～40 个中文字符的自然衔接语，回到当前场景。\n"
         '只输出 JSON：{"answer_text":"...","transition_text":"..."}。'
@@ -137,6 +173,10 @@ def build_classroom_qa_messages(
         }
         for turn in context.recent_turns
     ]
+    relevant_sections = select_relevant_classroom_sections(
+        question,
+        context.full_classroom_sections,
+    )
     user = "\n".join(
         [
             f"课堂：{context.classroom_title}",
@@ -145,6 +185,7 @@ def build_classroom_qa_messages(
             f"已完成讲授：{' | '.join(context.completed_speech) or '无'}",
             f"被打断句子：{context.interrupted_speech or '无'}",
             f"上一场景末尾：{' | '.join(context.previous_scene_speech) or '无'}",
+            "完整课堂相关内容：" + json.dumps(relevant_sections, ensure_ascii=False),
             "最近问答：" + json.dumps(history, ensure_ascii=False),
             f"学生当前问题：{_normalized(question)}",
         ]
@@ -189,3 +230,52 @@ def parse_classroom_qa_answer(
 
 def _normalized(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _build_full_classroom_sections(scenes: list[Any]) -> tuple[str, ...]:
+    sections: list[str] = []
+    for index, scene in enumerate(scenes):
+        if not isinstance(scene, dict):
+            continue
+        title = _normalized(scene.get("title")) or f"第 {index + 1} 页"
+        values = [title]
+        actions = scene.get("actions") or []
+        if isinstance(actions, list):
+            values.extend(
+                text
+                for action in actions
+                if isinstance(action, dict) and action.get("type") == "speech"
+                if (text := _normalized(action.get("text")))
+            )
+        values.extend(_string_leaves(scene.get("content")))
+        body = " | ".join(dict.fromkeys(value for value in values if value))
+        if not body:
+            continue
+        prefix = f"场景 {index + 1} · {title}："
+        room = max(1, 1200 - len(prefix))
+        sections.extend(prefix + body[start : start + room] for start in range(0, len(body), room))
+    return tuple(sections)
+
+
+def _string_leaves(value: Any) -> list[str]:
+    if isinstance(value, str):
+        normalized = _normalized(value)
+        return [normalized] if normalized else []
+    if isinstance(value, list):
+        return [text for item in value for text in _string_leaves(item)]
+    if isinstance(value, dict):
+        return [text for item in value.values() for text in _string_leaves(item)]
+    return []
+
+
+def _question_terms(question: str) -> tuple[str, ...]:
+    terms: set[str] = set()
+    for token in re.findall(r"[a-zA-Z0-9_]+|[\u4e00-\u9fff]+", question.lower()):
+        if re.fullmatch(r"[\u4e00-\u9fff]+", token):
+            for size in range(2, min(4, len(token)) + 1):
+                terms.update(token[index : index + size] for index in range(len(token) - size + 1))
+            if len(token) <= 12:
+                terms.add(token)
+        elif len(token) > 1:
+            terms.add(token)
+    return tuple(terms)

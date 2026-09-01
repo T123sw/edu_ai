@@ -10,6 +10,7 @@ from app.services.classroom_qa_prompt import (
     build_classroom_qa_context,
     build_classroom_qa_messages,
     parse_classroom_qa_answer,
+    select_relevant_classroom_sections,
 )
 
 
@@ -121,6 +122,48 @@ def test_prompt_limits_agent_to_focused_json_answer(material):
     assert '课程知识库参考' not in messages[1]['content']
     assert 'RAG' not in messages[0]['content']
     assert not hasattr(context, 'rag_answer')
+
+
+def test_prompt_can_retrieve_content_from_a_later_classroom_scene(material):
+    material['scenes'].append(
+        {
+            'id': 'scene-3',
+            'title': '哈希表冲突处理',
+            'content': {
+                'summary': '开放寻址会在发生哈希冲突时继续探测空槽。',
+                'details': ['链地址法把同一桶中的元素组织成链表。'],
+            },
+            'actions': [
+                {'id': 'speech-3a', 'type': 'speech', 'text': '还可以通过再哈希缓解聚集。'},
+            ],
+        }
+    )
+    checkpoint = {
+        'scene_id': 'scene-1',
+        'scene_index': 0,
+        'action_index': 0,
+        'action_id': 'speech-1a',
+        'phase': 'executing_action',
+        'page_revision': 1,
+    }
+
+    context = build_classroom_qa_context(
+        material=material,
+        checkpoint=checkpoint,
+        recent_turns=[],
+    )
+
+    assert any('哈希冲突' in section for section in context.full_classroom_sections)
+    selected = select_relevant_classroom_sections(
+        '后面如何处理哈希冲突？',
+        context.full_classroom_sections,
+    )
+    assert any('开放寻址' in section for section in selected)
+    messages = build_classroom_qa_messages(
+        question='后面如何处理哈希冲突？',
+        context=context,
+    )
+    assert '哈希冲突' in messages[-1]['content']
 
 
 @pytest.mark.parametrize(
