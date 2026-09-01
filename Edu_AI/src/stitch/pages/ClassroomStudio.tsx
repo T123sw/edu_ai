@@ -4,6 +4,7 @@ import type { ClassroomCatalog } from "../api/types";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { LearningResourceGenerationPanel } from "../course/knowledge/LearningResourceGenerationPanel";
 import { CourseResourceViewer } from "../course/classroomCatalog/CourseResourceViewer";
+import { ClassroomWorkspaceLayout } from "../course/classroomCatalog/ClassroomWorkspaceLayout";
 import { CurriculumNodeOverview } from "../course/classroomCatalog/CurriculumNodeOverview";
 import { CurriculumResourceTree } from "../course/classroomCatalog/CurriculumResourceTree";
 import { buildCatalogHash, buildCurriculumResourceTree, filterCurriculumTree, readCatalogTarget, type CurriculumTreeNode } from "../course/classroomCatalog/catalogPresentation";
@@ -86,20 +87,24 @@ export function ClassroomStudioPage() {
     </header>
     {loading ? <div className="course-classroom-catalog__layout catalog-loading" aria-label="正在加载课程目录"><span /><span /></div>
       : error ? <section className="catalog-retry"><div><h2>课程目录暂时无法加载</h2><p>{error}</p><button type="button" onClick={reload}>重新加载</button></div></section>
-      : catalog ? <div className="course-classroom-catalog__layout">
-        {drawerOpen ? <button type="button" className="catalog-drawer-scrim" aria-label="关闭课程目录" onClick={() => setDrawerOpen(false)} /> : null}
-        <aside className={`course-classroom-catalog__directory${drawerOpen ? " is-open" : ""}`}>
+      : catalog ? <ClassroomWorkspaceLayout
+        directoryOpen={drawerOpen}
+        qaOpen={false}
+        onCloseDirectory={() => setDrawerOpen(false)}
+        onCloseQa={() => undefined}
+        directory={<div className="course-classroom-catalog__directory">
           <div className="course-classroom-catalog__directory-heading"><div><strong>课程目录</strong><small> · {catalog.leaves.length} 个小节</small></div><button type="button" className="catalog-drawer-close" aria-label="关闭课程目录" onClick={() => setDrawerOpen(false)}><MaterialIcon name="close" /></button></div>
           <CurriculumResourceTree nodes={filteredTree} selectedNodeId={selectedNodeId} selectedResourceId={selectedResourceId} openKeys={effectiveOpenKeys}
             onToggle={(key) => setOpenKeys((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })}
             onSelectNode={selectNode} onSelectResource={selectResource} />
-        </aside>
-        <section className="course-classroom-catalog__content">
+        </div>}
+        viewer={<section className="course-classroom-catalog__content">
           {selectedLeaf ? <p className="course-classroom-catalog__breadcrumb">{selectedLeaf.path_titles.join(" / ")}</p> : null}
           {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} />
             : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
-        </section>
-      </div> : null}
+        </section>}
+        qa={<div className="course-classroom-workspace__qa-empty"><MaterialIcon name="forum" /><strong>当前内容问答</strong><p>选择一份学习资料后，即可围绕当前内容提问。</p></div>}
+      /> : null}
     {generationOpen ? <LearningResourceGenerationPanel onClose={() => { setGenerationOpen(false); reload(); }} /> : null}
   </main></AppSurface>;
 }
