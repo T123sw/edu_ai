@@ -3,7 +3,6 @@ set -euo pipefail
 
 SKIP_PYTHON=0
 SKIP_NODE=0
-SKIP_OPTIONAL=0
 SKIP_PLAYWRIGHT_BROWSERS=0
 SKIP_ENV_FILES=0
 PYTHON_BIN="${PYTHON:-python3}"
@@ -12,7 +11,6 @@ for arg in "$@"; do
   case "$arg" in
     --skip-python) SKIP_PYTHON=1 ;;
     --skip-node) SKIP_NODE=1 ;;
-    --skip-optional) SKIP_OPTIONAL=1 ;;
     --skip-playwright-browsers) SKIP_PLAYWRIGHT_BROWSERS=1 ;;
     --skip-env-files) SKIP_ENV_FILES=1 ;;
     --python=*) PYTHON_BIN="${arg#--python=}" ;;
@@ -26,7 +24,6 @@ done
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FRONTEND_DIR="$REPO_ROOT/Edu_AI"
 BACKEND_DIR="$FRONTEND_DIR/api/src"
-EDU_AGENT_DIR="$REPO_ROOT/EduAgent"
 
 step() {
   echo
@@ -69,11 +66,6 @@ if [[ "$SKIP_PYTHON" -eq 0 ]]; then
   step "Install backend Python dependencies"
   "$PYTHON_BIN" -m pip install -r "$BACKEND_DIR/requirements-media.txt"
 
-  if [[ "$SKIP_OPTIONAL" -eq 0 ]]; then
-    step "Install EduAgent Python dependencies"
-    "$PYTHON_BIN" -m pip install -r "$EDU_AGENT_DIR/requirements.txt"
-  fi
-
   if [[ "$SKIP_PLAYWRIGHT_BROWSERS" -eq 0 ]]; then
     step "Install Playwright Chromium browser"
     "$PYTHON_BIN" -m playwright install chromium
@@ -90,9 +82,8 @@ if [[ "$SKIP_ENV_FILES" -eq 0 ]]; then
   step "Create local env/config files when missing"
   copy_if_missing "$FRONTEND_DIR/.env.example" "$FRONTEND_DIR/.env"
   copy_if_missing "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
-  copy_if_missing "$EDU_AGENT_DIR/config.toml.example" "$EDU_AGENT_DIR/config.toml"
 fi
 
 echo
 echo "Dependency installation finished."
-echo "Next: fill local .env/config.toml files with real API keys and machine-specific paths."
+echo "Next: fill local .env files with real API keys and machine-specific paths."

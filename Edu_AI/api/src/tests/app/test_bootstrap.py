@@ -48,4 +48,4 @@ def test_main_app_keeps_major_routes(monkeypatch):
     paths = {route.path for route in app.routes if hasattr(route, "path")}
 
     assert {"/health", "/chat", "/teacher/lesson_plan", "/models"}.issubset(paths)
-    assert any(p.startswith("/api/pipeline") for p in paths)
+    assert not any(p.startswith("/api/pipeline") for p in paths)

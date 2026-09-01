@@ -14,7 +14,6 @@ from app.chat import router as chat_router
 from app.chat.api.routes_v2 import router as chat_v2_router
 from app.chat.memory.api import router as agent_memory_router
 from app.deepsearch import router as deepsearch_router
-from app.pipeline import router as pipeline_router
 from app.speech.routes import router as speech_router
 from app.video_routes import router as video_router
 from core import Config
@@ -95,7 +94,6 @@ def create_app(
     app.include_router(agent_memory_router)
     app.include_router(speech_router)
     app.include_router(video_router)
-    app.include_router(pipeline_router, prefix="/api/pipeline")
     app.include_router(blog_agent_router, prefix="/api/blog")
     app.include_router(deepsearch_router)
 

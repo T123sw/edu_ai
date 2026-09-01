@@ -1,7 +1,6 @@
 param(
     [switch]$SkipPython,
     [switch]$SkipNode,
-    [switch]$SkipOptional,
     [switch]$SkipPlaywrightBrowsers,
     [switch]$SkipEnvFiles,
     [string]$Python = "python"
@@ -12,7 +11,6 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $FrontendDir = Join-Path $RepoRoot "Edu_AI"
 $BackendDir = Join-Path $FrontendDir "api\src"
-$EduAgentDir = Join-Path $RepoRoot "EduAgent"
 
 function Invoke-Step {
     param(
@@ -82,11 +80,6 @@ if (-not $SkipPython) {
     Invoke-Step "Install backend Python dependencies" {
         & $Python -m pip install -r (Join-Path $BackendDir "requirements-media.txt")
     }
-    if (-not $SkipOptional) {
-        Invoke-Step "Install EduAgent Python dependencies" {
-            & $Python -m pip install -r (Join-Path $EduAgentDir "requirements.txt")
-        }
-    }
     if (-not $SkipPlaywrightBrowsers) {
         Invoke-Step "Install Playwright Chromium browser" {
             & $Python -m playwright install chromium
@@ -104,10 +97,9 @@ if (-not $SkipEnvFiles) {
     Invoke-Step "Create local env/config files when missing" {
         Copy-IfMissing (Join-Path $FrontendDir ".env.example") (Join-Path $FrontendDir ".env")
         Copy-IfMissing (Join-Path $BackendDir ".env.example") (Join-Path $BackendDir ".env")
-        Copy-IfMissing (Join-Path $EduAgentDir "config.toml.example") (Join-Path $EduAgentDir "config.toml")
     }
 }
 
 Write-Host ""
 Write-Host "Dependency installation finished." -ForegroundColor Green
-Write-Host "Next: fill local .env/config.toml files with real API keys and machine-specific paths."
+Write-Host "Next: fill local .env files with real API keys and machine-specific paths."

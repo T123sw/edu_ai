@@ -56,9 +56,6 @@ output/
 /storage/
 storage/temp/
 storage/vector_db/
-EduAgent/crawled_data/
-EduAgent/logs/
-EduAgent/models/
 /models/
 Edu_AI/api/Edu_AI/storage/
 Edu_AI/vector_db/
@@ -105,7 +102,6 @@ Edu_AI/api/src/modules/html2ppt/--bare
 .superpowers/
 .idea/
 **/.idea/
-EduAgent/config.toml
 
 # Logs
 *.log

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
 import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
-import "../../pages/teacher/AiStudioPage.css";
+import "./AIWorkspace.css";
 import { useStore } from "../../store/teacher/useStore";
 import {
   AppSurface,
@@ -18,8 +18,8 @@ import {
 import {
   getAiStudioGridTemplate,
   resolveCompactPanelState,
-} from "../../pages/teacher/aiStudioLayout";
-import { useAiStudioLayout } from "../../pages/teacher/useAiStudioLayout";
+} from "./aiStudioLayout";
+import { useAiStudioLayout } from "./useAiStudioLayout";
 import { useAuthSession } from "../authSession";
 
 function getHashSearchParams(hash = window.location.hash): URLSearchParams {
