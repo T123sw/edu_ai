@@ -24,22 +24,22 @@ To avoid duplicate effort, please **comment on an issue** to claim it before you
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 20.9.0
-- [pnpm](https://pnpm.io/) (latest)
-- A copy of `.env.local` — see [`.env.example`](.env.example) for reference
+- [Node.js](https://nodejs.org/) 22
+- [pnpm](https://pnpm.io/) 10.28
+- A copy of `.env.local` — use the repository-root [`.env.example`](../.env.example) as the only environment template
 
 ## Getting Started
 
 ```bash
 # Clone the repository
-git clone https://github.com/THU-MAIC/OpenMAIC.git
-cd OpenMAIC
+git clone https://github.com/T123sw/edu_ai.git Edu_AI
+cd Edu_AI/openmaic-sidecar
 
 # Install dependencies
 pnpm install
 
-# Set up environment variables
-cp .env.example .env.local
+# Set up environment variables from the repository-root template
+cp ../.env.example .env.local
 # Edit .env.local with your API keys
 
 # Start the development server
@@ -72,7 +72,7 @@ pnpm format
 pnpm lint --fix
 
 # 3. TypeScript type checking
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 ```
 
 If formatting or lint auto-fixes produce changes, include them in your commit.
@@ -91,7 +91,7 @@ If you have not completed local verification, keep your PR in **Draft** status. 
 
 - **Every PR must link to an issue** — use `Closes #123` or `Fixes #456` in the PR description. If no issue exists yet, create one first. PRs without a linked issue will not be reviewed.
 - **Keep PRs focused** — one concern per PR; do not mix unrelated changes
-- **Describe what and why** — fill out the [PR template](.github/pull_request_template.md)
+- **Describe what and why** — include a concise summary, verification evidence, and any migration impact
 - **Include screenshots** — for UI changes, show before/after
 - **Ensure CI passes** before requesting review
 - **All UI text must be internationalized (i18n)** — do not hardcode user-facing strings

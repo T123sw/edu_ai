@@ -1,6 +1,6 @@
 # Repository Cleanup and Layout Migration Plan
 
-> Status: approved and in progress. This plan implements the cleanup decisions confirmed on 2026-09-01. Every phase is an independent Git commit and must leave the repository in a reviewable state.
+> Status: implementation and local acceptance completed; awaiting branch review and merge. This plan implements the cleanup decisions confirmed on 2026-09-01. Every phase is an independent Git commit and leaves the repository in a reviewable state.
 
 ## Objective
 
@@ -37,7 +37,7 @@ Edu_AI/
 └── 项目总览地图.md
 ```
 
-Windows working root becomes `D:\Edu_AI`; Linux deployment root becomes `/home/zxqs_ep/Edu_AI`.
+The canonical project name is `Edu_AI`, and the Linux deployment root is `/home/zxqs_ep/Edu_AI`. The current Windows checkout remains at `D:\Edu_AI_1` until the other active worktree/window is closed; that filesystem-only rename is intentionally outside this cleanup branch.
 
 ## Phase 0 — Documentation checkpoint
 
@@ -145,7 +145,7 @@ Completed in commit `72d916d`.
 
 ## Phase 5 — Unify environment and Linux deployment
 
-In progress on `codex/repository-cleanup`.
+Completed in commit `91852c1`.
 
 ### Supported baseline
 
@@ -178,6 +178,8 @@ In progress on `codex/repository-cleanup`.
 `deploy: unify Linux environment and service configuration`
 
 ## Final acceptance and integration
+
+Local acceptance completed on 2026-09-01 and is recorded in [`docs/operations/qa/2026-09-01-repository-cleanup-acceptance.md`](../../operations/qa/2026-09-01-repository-cleanup-acceptance.md). Branch review and merge into `main` remain manual integration steps.
 
 1. Run frontend tests and production build.
 2. Run backend tests and distinguish pre-existing baseline failures from cleanup regressions.

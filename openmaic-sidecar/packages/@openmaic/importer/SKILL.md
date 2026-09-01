@@ -10,7 +10,7 @@
 
 
 
-项目根目录 [`iterate-prompt.md`](../../iterate-prompt.md) 规定如何从 `comparison_run` 拉低分、聚类、写报告。每批迭代交付：
+从 `comparison_run` 拉低分、聚类并写报告时，以本包 `DESIGN.md` 和现有测试为当前规范。每批迭代交付：
 
 
 
