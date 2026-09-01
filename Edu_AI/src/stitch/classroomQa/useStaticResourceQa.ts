@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import {
   fetchResourceQaAudioBlobUrl,
   getResourceQaSession,
@@ -31,6 +31,7 @@ export type StaticResourceQaDependencies = {
   revokeObjectUrl: (url: string) => void;
   resourceVersion?: number;
   anchor?: ResourceQaAnchor | null;
+  getAnchor?: () => ResourceQaAnchor | null | undefined;
 };
 
 export class StaticResourceQaCoordinator implements ClassroomQaController {
@@ -119,7 +120,7 @@ export class StaticResourceQaCoordinator implements ClassroomQaController {
         question,
         resource_version: this.dependencies.resourceVersion ?? 1,
         context_scope: "full_resource",
-        anchor: this.dependencies.anchor ?? null,
+        anchor: this.dependencies.getAnchor?.() ?? this.dependencies.anchor ?? null,
       });
       if (!this.ownsOperation(token, resourceKey)) return;
       this.dispatch({ type: "turn_received", clientTurnId, turn: submission.turn });
@@ -210,10 +211,12 @@ type UseStaticResourceQaOptions = {
 
 export function useStaticResourceQa(options: UseStaticResourceQaOptions): ClassroomQaController {
   const resourceKey = `${options.kind}:${options.resourceId}:${options.resourceVersion}`;
+  const anchorRef = useRef(options.anchor);
+  anchorRef.current = options.anchor;
   const coordinator = useMemo(() => new StaticResourceQaCoordinator({
     resourceKey,
     resourceVersion: options.resourceVersion,
-    anchor: options.anchor,
+    getAnchor: () => anchorRef.current,
     loadSession: () => getResourceQaSession(options.courseId, options.kind, options.resourceId, options.resourceVersion),
     submitTurn: (request) => submitResourceQaTurn(options.courseId, options.kind, options.resourceId, request),
     loadAudio: fetchResourceQaAudioBlobUrl,
@@ -222,7 +225,7 @@ export function useStaticResourceQa(options: UseStaticResourceQaOptions): Classr
     cancelBrowserSpeech: () => window.speechSynthesis?.cancel(),
     createClientTurnId: () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2),
     revokeObjectUrl: (url) => URL.revokeObjectURL(url),
-  }), [options.anchor, options.courseId, options.kind, options.resourceId, options.resourceVersion, resourceKey]);
+  }), [options.courseId, options.kind, options.resourceId, options.resourceVersion, resourceKey]);
   const state = useSyncExternalStore(coordinator.subscribe, coordinator.getSnapshot, coordinator.getSnapshot);
   useEffect(() => {
     void coordinator.loadSession();

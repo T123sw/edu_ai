@@ -39,7 +39,7 @@ export function ClassroomPlayerPage() {
         catalogNodeId={target.catalogNodeId}
         catalogResourceId={target.catalogResourceId}
         mode={canCourse(courseRole, "generate") ? "manage" : "learn"}
-        onQaControllerChange={setQaBinding}
+        onQaControllerChange={(_targetKey, binding) => setQaBinding(binding)}
       />
       {qaBinding ? <ClassroomQaPanel controller={qaBinding.controller} canAsk={qaBinding.canAsk} /> : null}
     </div>

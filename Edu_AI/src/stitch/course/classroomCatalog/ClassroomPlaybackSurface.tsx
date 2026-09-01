@@ -32,14 +32,12 @@ import { MaterialIcon } from "../../shared";
 import { useCourseRoute } from "../CourseRouteProvider";
 import { canCourse } from "../coursePermissions";
 import { completeAndAdvance } from "../../classroomQa/classroomAutoplay";
-import { useClassroomInterruption, type ClassroomInterruptionController } from "../../classroomQa/useClassroomInterruption";
+import { useClassroomInterruption } from "../../classroomQa/useClassroomInterruption";
 import { shouldTrackResourceLearning } from "../../pages/classroomResourceLearning";
 import { ResourceLearningProgress } from "../knowledge/ResourceLearningProgress";
+import type { WorkspaceQaRegistration } from "./workspaceQaBinding";
 
-export type ClassroomQaBinding = {
-  controller: ClassroomInterruptionController;
-  canAsk: boolean;
-  title: string;
+export type ClassroomQaBinding = WorkspaceQaRegistration & {
   kind: "classroom" | "personal_classroom";
   version: number | null;
 };
@@ -52,7 +50,8 @@ export type ClassroomPlaybackSurfaceProps = {
   catalogNodeId?: string | null;
   catalogResourceId?: string | null;
   kind?: "classroom" | "personal_classroom";
-  onQaControllerChange?: (binding: ClassroomQaBinding | null) => void;
+  qaTargetKey?: string;
+  onQaControllerChange?: (targetKey: string, binding: ClassroomQaBinding | null) => void;
 };
 
 const INITIAL_PLAYBACK: PagePlaybackSnapshot = {
@@ -84,6 +83,7 @@ export function ClassroomPlaybackSurface({
   resourceVersion,
   mode,
   kind = "classroom",
+  qaTargetKey,
   onQaControllerChange,
 }: ClassroomPlaybackSurfaceProps) {
   const { user } = useAuthSession();
@@ -196,19 +196,25 @@ export function ClassroomPlaybackSurface({
   const canAsk = playback.status === "playing" && Boolean(currentPresentation?.hasPlayback);
 
   useEffect(() => {
+    const targetKey = qaTargetKey ?? `${kind}:${classroomId}:v${resourceVersion ?? "none"}`;
     if (!material) {
-      onQaControllerChange?.(null);
+      onQaControllerChange?.(targetKey, null);
       return;
     }
-    onQaControllerChange?.({
+    onQaControllerChange?.(targetKey, {
+      key: targetKey,
       controller: qaController,
       canAsk,
       title: material.title || "AI 课堂",
       kind,
+      kindLabel: kind === "personal_classroom" ? "个人课堂" : "AI 课堂",
+      scopeLabel: "已读取完整课堂",
+      resourceId: classroomId,
+      resourceVersion: material.version ?? resourceVersion ?? null,
       version: material.version ?? resourceVersion ?? null,
     });
-    return () => onQaControllerChange?.(null);
-  }, [canAsk, kind, material, onQaControllerChange, qaController, resourceVersion]);
+    return () => onQaControllerChange?.(targetKey, null);
+  }, [canAsk, classroomId, kind, material, onQaControllerChange, qaController, qaTargetKey, resourceVersion]);
   const learningManifestScene = useMemo(
     () =>
       learningProgress?.manifest?.scenes.find(

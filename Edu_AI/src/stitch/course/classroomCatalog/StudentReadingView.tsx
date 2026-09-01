@@ -32,7 +32,7 @@ export function StudentReadingView({ courseId, resource, onProgress }: Props) {
     } catch { setSync("failed"); }
   }, [courseId, onProgress, resource.material_id, version]);
   useEffect(() => { if (!opened.current) { opened.current = true; void send("opened"); } }, [send]); // explicit open evidence only
-  return <section className="student-reading-view">
+  return <section className="student-reading-view" data-qa-context="full-document">
     <header><div><p className="curriculum-node-overview__eyebrow">学习指南</p><h2>{resource.resource?.title || "学习指南"}</h2></div><StudentResourceProgressPanel progress={progress} /></header>
     {resource.resource ? <CourseMaterialArtifactPreview material={resource.resource} /> : <p className="catalog-panel-message">当前文档暂时无法预览。</p>}
     <footer><span>{sync === "failed" ? "进度暂时无法同步" : sync === "syncing" ? "正在同步进度…" : "阅读内容后，请主动确认完成。"}</span>

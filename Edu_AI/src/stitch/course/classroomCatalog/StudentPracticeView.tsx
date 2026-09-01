@@ -4,8 +4,13 @@ import type { ClassroomCatalogResource, QuizAnswers, ResourceLearningProgress } 
 import { getQuizQuestions } from "../../pages/courseMaterialPreviewData";
 import { StudentResourceProgressPanel } from "./StudentResourceProgressPanel";
 
-type Props = { courseId: string; resource: ClassroomCatalogResource; onProgress?: (progress: ResourceLearningProgress) => void };
-export function StudentPracticeView({ courseId, resource, onProgress }: Props) {
+type Props = {
+  courseId: string;
+  resource: ClassroomCatalogResource;
+  onProgress?: (progress: ResourceLearningProgress) => void;
+  onQuestionFocus?: (questionId: string | null) => void;
+};
+export function StudentPracticeView({ courseId, resource, onProgress, onQuestionFocus }: Props) {
   const questions = resource.resource ? getQuizQuestions(resource.resource) : [];
   const required = questions.filter((question) => question.required !== false && question.id);
   const [answers, setAnswers] = useState<QuizAnswers>({});
@@ -28,7 +33,7 @@ export function StudentPracticeView({ courseId, resource, onProgress }: Props) {
     finally { setSubmitting(false); }
   };
   return <section className="student-practice-view"><header><div><p className="curriculum-node-overview__eyebrow">课程练习</p><h2>{resource.resource?.title || "练习题"}</h2></div><StudentResourceProgressPanel progress={progress} /></header>
-    <div className="student-practice-view__questions">{questions.map((question, index) => <fieldset key={question.id || index}><legend><span>第 {index + 1} 题</span>{question.stem || "未命名题目"}</legend>
+    <div className="student-practice-view__questions">{questions.map((question, index) => <fieldset key={question.id || index} onFocus={() => onQuestionFocus?.(question.id || null)}><legend><span>第 {index + 1} 题</span>{question.stem || "未命名题目"}</legend>
       {question.options?.length ? question.options.map((option) => <label key={option}><input type="radio" name={question.id || String(index)} value={option} checked={answers[question.id || String(index)] === option} onChange={() => setAnswers((current) => ({ ...current, [question.id || String(index)]: option }))} />{option}</label>)
         : <input aria-label={`第 ${index + 1} 题答案`} value={String(answers[question.id || String(index)] ?? "")} onChange={(event) => setAnswers((current) => ({ ...current, [question.id || String(index)]: event.target.value }))} />}
     </fieldset>)}</div>

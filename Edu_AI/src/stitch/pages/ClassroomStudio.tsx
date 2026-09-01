@@ -11,8 +11,16 @@ import { buildWorkspaceHash, readWorkspaceTarget, type ClassroomWorkspaceTarget 
 import { CurriculumNodeOverview } from "../course/classroomCatalog/CurriculumNodeOverview";
 import { CurriculumResourceTree } from "../course/classroomCatalog/CurriculumResourceTree";
 import { MyClassroomList } from "../course/classroomCatalog/MyClassroomList";
+import { ContextualClassroomQaPanel, type WorkspaceQaBinding } from "../course/classroomCatalog/ContextualClassroomQaPanel";
 import { presentMyClassrooms } from "../course/classroomCatalog/myClassroomPresentation";
 import { buildCurriculumResourceTree, filterCurriculumTree, type CurriculumTreeNode } from "../course/classroomCatalog/catalogPresentation";
+import {
+  describeCatalogResourceQa,
+  describeOverviewQa,
+  describePersonalClassroomQa,
+  registrationToBinding,
+  type WorkspaceQaRegistration,
+} from "../course/classroomCatalog/workspaceQaBinding";
 import "../course/classroomCatalog/courseClassroomCatalog.css";
 import { AppSurface, MaterialIcon } from "../shared";
 export { classroomPageDefinition } from "./classroomPageDefinition";
@@ -46,6 +54,7 @@ export function ClassroomStudioPage() {
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [generationOpen, setGenerationOpen] = useState(false);
+  const [qaBinding, setQaBinding] = useState<WorkspaceQaBinding>({ status: "empty" });
   const reload = useCallback(() => setReloadToken((value) => value + 1), []);
 
   useEffect(() => {
@@ -94,6 +103,26 @@ export function ClassroomStudioPage() {
   const selectedLeaf = catalog?.leaves.find((leaf) => leaf.leaf_id === selectedNodeId) ?? null;
   const selectedResource = selectedLeaf?.resources.find((resource) => resource.material_id === selectedResourceId) ?? null;
   const selectedPersonalClassroom = myClassroomItems.find((item) => item.id === selectedPersonalClassroomId) ?? null;
+  const qaTarget = useMemo(() => {
+    if (selectedPersonalClassroom) return describePersonalClassroomQa(selectedPersonalClassroom.id, selectedPersonalClassroom.title);
+    if (selectedResource && catalog) return describeCatalogResourceQa(selectedResource, catalog.mode);
+    return describeOverviewQa();
+  }, [catalog, selectedPersonalClassroom, selectedResource]);
+  useEffect(() => {
+    setQaBinding(qaTarget.status === "empty"
+      ? { status: "empty" }
+      : { status: "loading", title: qaTarget.title, kindLabel: qaTarget.kindLabel });
+  }, [qaTarget.key, qaTarget.status]);
+  const handleQaControllerChange = useCallback((targetKey: string, registration: WorkspaceQaRegistration | null) => {
+    if (targetKey !== qaTarget.key) return;
+    if (registration) {
+      setQaBinding(registrationToBinding(registration));
+      return;
+    }
+    if (qaTarget.status === "loading") {
+      setQaBinding({ status: "loading", title: qaTarget.title, kindLabel: qaTarget.kindLabel });
+    }
+  }, [qaTarget.key, qaTarget.status, qaTarget.status === "loading" ? qaTarget.kindLabel : "", qaTarget.status === "loading" ? qaTarget.title : ""]);
   const effectiveOpenKeys = useMemo(() => {
     if (!query.trim()) return openKeys;
     const keys = new Set(openKeys);
@@ -150,13 +179,15 @@ export function ClassroomStudioPage() {
             classroomId={selectedPersonalClassroom.id}
             mode={catalog.mode}
             kind="personal_classroom"
+            qaTargetKey={qaTarget.key}
+            onQaControllerChange={handleQaControllerChange}
           /> : <>
             {selectedLeaf ? <p className="course-classroom-catalog__breadcrumb">{selectedLeaf.path_titles.join(" / ")}</p> : null}
-            {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} />
+            {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} onQaControllerChange={handleQaControllerChange} />
               : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
           </>}
         </section>}
-        qa={<div className="course-classroom-workspace__qa-empty"><MaterialIcon name="forum" /><strong>当前内容问答</strong><p>选择一份学习资料后，即可围绕当前内容提问。</p></div>}
+        qa={<ContextualClassroomQaPanel binding={qaBinding} />}
       /> : null}
     {generationOpen ? <LearningResourceGenerationPanel onClose={() => { setGenerationOpen(false); reload(); }} /> : null}
   </main></AppSurface>;
