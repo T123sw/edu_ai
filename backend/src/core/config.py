@@ -9,6 +9,7 @@ try:
     from dotenv import load_dotenv
 
     for candidate in (
+        BASE_DIR.parent.parent / ".env",
         BASE_DIR / ".env",
         BASE_DIR / "config_openai.env",
         Path.cwd() / ".env",

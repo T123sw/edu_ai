@@ -78,7 +78,7 @@ def build_resource_requests(
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base-url", default=os.getenv("EDU_AI_SMOKE_BASE_URL", "http://127.0.0.1:8000"))
+    parser.add_argument("--base-url", default=os.getenv("EDU_AI_SMOKE_BASE_URL", "http://127.0.0.1:8001"))
     parser.add_argument("--course-id", default=os.getenv("EDU_AI_SMOKE_COURSE_ID"))
     parser.add_argument("--topic", default="链表的实现")
     parser.add_argument("--source-mode", choices=["none", "course_auto", "selected_documents"], default="course_auto")

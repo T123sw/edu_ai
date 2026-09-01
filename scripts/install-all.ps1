@@ -1,105 +1,45 @@
 param(
-    [switch]$SkipPython,
-    [switch]$SkipNode,
-    [switch]$SkipPlaywrightBrowsers,
-    [switch]$SkipEnvFiles,
-    [string]$Python = "python"
+    [switch]$SkipBrowsers,
+    [switch]$SkipEnvFile
 )
 
 $ErrorActionPreference = "Stop"
-
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$FrontendDir = Join-Path $RepoRoot "Edu_AI"
-$BackendDir = Join-Path $FrontendDir "backend\src"
+$EnvironmentFile = Join-Path $RepoRoot "environment.yml"
+$EnvTemplate = Join-Path $RepoRoot ".env.example"
+$EnvFile = Join-Path $RepoRoot ".env"
 
-function Invoke-Step {
-    param(
-        [string]$Name,
-        [scriptblock]$Block
-    )
-    Write-Host ""
-    Write-Host "==> $Name" -ForegroundColor Cyan
-    & $Block
+if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
+    throw "Conda was not found. Install Miniforge first, then rerun this script."
 }
 
-function Assert-Command {
-    param([string]$Name)
-    if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
-        throw "Required command '$Name' was not found in PATH."
+function Invoke-InEduAiEnvironment {
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+    & conda run --no-capture-output --name edu-ai @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "Command failed in the edu-ai environment: $($Arguments -join ' ')"
     }
 }
 
-function Get-NpmCommand {
-    $npmCmd = Get-Command "npm.cmd" -ErrorAction SilentlyContinue
-    if ($npmCmd) {
-        return $npmCmd.Source
-    }
+Write-Host "==> Create or update the edu-ai Conda environment" -ForegroundColor Cyan
+& conda env update --name edu-ai --file $EnvironmentFile --prune
+if ($LASTEXITCODE -ne 0) { throw "Conda environment update failed." }
 
-    $npm = Get-Command "npm" -ErrorAction SilentlyContinue
-    if ($npm) {
-        return $npm.Source
-    }
+Write-Host "==> Install OpenMAIC dependencies" -ForegroundColor Cyan
+Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "openmaic-sidecar") install --frozen-lockfile
 
-    throw "Required command 'npm' was not found in PATH."
+Write-Host "==> Install frontend dependencies" -ForegroundColor Cyan
+Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "frontend") install --frozen-lockfile
+
+if (-not $SkipBrowsers) {
+    Write-Host "==> Install Playwright Chromium binaries" -ForegroundColor Cyan
+    Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "openmaic-sidecar") exec playwright install chromium
+    Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "frontend") exec playwright install chromium
 }
 
-function Invoke-NpmCi {
-    param([string]$Directory)
-    $npm = Get-NpmCommand
-    & $npm ci --prefix $Directory
+if (-not $SkipEnvFile -and -not (Test-Path -LiteralPath $EnvFile)) {
+    Copy-Item -LiteralPath $EnvTemplate -Destination $EnvFile
+    Write-Host "==> Created $EnvFile; fill in secrets before starting services" -ForegroundColor Yellow
 }
 
-function Copy-IfMissing {
-    param(
-        [string]$Source,
-        [string]$Destination
-    )
-
-    if (-not (Test-Path -LiteralPath $Source)) {
-        Write-Host "Skip missing template: $Source" -ForegroundColor Yellow
-        return
-    }
-
-    if (Test-Path -LiteralPath $Destination) {
-        Write-Host "Keep existing file: $Destination"
-        return
-    }
-
-    Copy-Item -LiteralPath $Source -Destination $Destination
-    Write-Host "Created: $Destination"
-}
-
-Write-Host "Edu-AI dependency installer"
-Write-Host "Repository: $RepoRoot"
-
-if (-not $SkipPython) {
-    Assert-Command $Python
-    Invoke-Step "Upgrade pip tooling" {
-        & $Python -m pip install --upgrade pip setuptools wheel
-    }
-    Invoke-Step "Install backend Python dependencies" {
-        & $Python -m pip install -r (Join-Path $BackendDir "requirements-media.txt")
-    }
-    if (-not $SkipPlaywrightBrowsers) {
-        Invoke-Step "Install Playwright Chromium browser" {
-            & $Python -m playwright install chromium
-        }
-    }
-}
-
-if (-not $SkipNode) {
-    Invoke-Step "Install frontend Node dependencies" {
-        Invoke-NpmCi $FrontendDir
-    }
-}
-
-if (-not $SkipEnvFiles) {
-    Invoke-Step "Create local env/config files when missing" {
-        Copy-IfMissing (Join-Path $FrontendDir ".env.example") (Join-Path $FrontendDir ".env")
-        Copy-IfMissing (Join-Path $BackendDir ".env.example") (Join-Path $BackendDir ".env")
-    }
-}
-
-Write-Host ""
-Write-Host "Dependency installation finished." -ForegroundColor Green
-Write-Host "Next: fill local .env files with real API keys and machine-specific paths."
+Write-Host "Installation complete." -ForegroundColor Green

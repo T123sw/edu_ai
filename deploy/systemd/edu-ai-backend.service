@@ -1,6 +1,7 @@
 [Unit]
-Description=Edu-AI FastAPI Backend
-After=network.target
+Description=Edu-AI FastAPI backend
+Wants=network-online.target postgresql.service edu-ai-openmaic.service
+After=network-online.target postgresql.service edu-ai-openmaic.service
 
 [Service]
 Type=simple
@@ -8,9 +9,14 @@ User=zxqs_ep
 Group=zxqs_ep
 WorkingDirectory=/home/zxqs_ep/Edu_AI/backend/src
 EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStartPre=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m alembic upgrade head
 ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
-Restart=always
+Restart=on-failure
 RestartSec=5
+TimeoutStartSec=180
+UMask=0027
 
 [Install]
 WantedBy=multi-user.target

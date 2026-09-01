@@ -20,15 +20,15 @@
     "LICENSE"
   ],
   "scripts": {
-    "clean:dist": "rimraf dist",
-    "build": "rm -rf dist && rollup -c && tsc --emitDeclarationOnly",
+    "clean:dist": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "pnpm run clean:dist && rollup -c && tsc --emitDeclarationOnly",
     "dev": "rollup -c -w",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "pnpm run build",
-    "transvert": "npx tsx scripts/transvert.js",
-    "transvert:pro": "npx tsx scripts/transvert.ts"
+    "transvert": "pnpm exec tsx scripts/transvert.js",
+    "transvert:pro": "pnpm exec tsx scripts/transvert.ts"
   },
   "keywords": [
     "ppt",

@@ -145,7 +145,7 @@ def validate_reply(
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base-url", default=os.getenv("EDU_AI_SMOKE_BASE_URL", "http://127.0.0.1:8000"))
+    parser.add_argument("--base-url", default=os.getenv("EDU_AI_SMOKE_BASE_URL", "http://127.0.0.1:8001"))
     parser.add_argument("--course-id", default=os.getenv("EDU_AI_SMOKE_COURSE_ID"), required=False)
     parser.add_argument("--selected-doc-id", default=os.getenv("EDU_AI_SMOKE_DOCUMENT_ID"))
     parser.add_argument("--include-web", action="store_true", help="Call the configured live Web provider")

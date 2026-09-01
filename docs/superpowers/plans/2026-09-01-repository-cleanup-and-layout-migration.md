@@ -120,7 +120,7 @@ Completed in commit `269098b`.
 
 ## Phase 4 — Migrate to the canonical root layout
 
-In progress on `codex/repository-cleanup`.
+Completed in commit `72d916d`.
 
 ### Scope
 
@@ -144,6 +144,8 @@ In progress on `codex/repository-cleanup`.
 `refactor: adopt canonical Edu_AI repository layout`
 
 ## Phase 5 — Unify environment and Linux deployment
+
+In progress on `codex/repository-cleanup`.
 
 ### Supported baseline
 

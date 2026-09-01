@@ -1,64 +1,29 @@
-# Edu AI PostgreSQL 本地环境
+# PostgreSQL 系统服务
 
-首次启动前，将 `.env.example` 复制为不会提交到 Git 的 `.env.postgres`，并同时修改 `POSTGRES_PASSWORD` 与 `DATABASE_URL` 中经过 URL 编码的密码。
+Linux 生产部署使用 Ubuntu 自带的 PostgreSQL 系统服务，不依赖 Docker。数据库仅监听本机 `127.0.0.1:5432`，应用通过根目录 `.env` 中的 `DATABASE_URL` 连接。
 
-通常直接启动 Edu AI 即可。`start_api.bat` 会检查 Docker、启动 PostgreSQL、等待健康状态并执行 Alembic 迁移：
+首次安装与建库：
 
-```powershell
-Set-Location .\backend\src
-.\start_api.bat
+```bash
+sudo apt update
+sudo apt install -y postgresql postgresql-contrib
+sudo systemctl enable --now postgresql
+sudo -u postgres createuser --pwprompt edu_ai
+sudo -u postgres createdb --owner=edu_ai edu_ai
 ```
 
-只准备和验证数据库，不启动前端、后端和 OpenMAIC：
-
-```powershell
-.\start_api.bat --database-only
-```
-
-只检查项目与 PostgreSQL 配置，不启动任何服务：
-
-```powershell
-.\start_api.bat --check
-```
-
-也可以在仓库根目录手动管理数据库：
-
-```powershell
-docker compose --env-file .\deploy\postgres\.env.postgres -f .\deploy\postgres\compose.yml up -d
-docker compose --env-file .\deploy\postgres\.env.postgres -f .\deploy\postgres\compose.yml ps
-```
-
-后端在宿主机运行时使用以下连接地址；`start_api.bat` 会从 `.env.postgres` 自动注入：
+`createuser` 会交互式要求设置密码。随后将同一密码进行 URL 编码，写入 `/home/zxqs_ep/Edu_AI/.env`：
 
 ```dotenv
-DATABASE_URL=postgresql+psycopg://edu_ai:<password>@127.0.0.1:5432/edu_ai
+DATABASE_URL=postgresql+psycopg://edu_ai:<url-encoded-password>@127.0.0.1:5432/edu_ai
 ```
 
-执行数据库结构迁移：
+验证连接并执行结构迁移：
 
-```powershell
-Set-Location .\backend\src
-python -m alembic upgrade head
+```bash
+sudo -u postgres psql -d edu_ai -c '\conninfo'
+cd /home/zxqs_ep/Edu_AI/backend/src
+/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m alembic upgrade head
 ```
 
-先只读预览现有用户、课程和成员数据：
-
-```powershell
-python -m app.database.migrate_cli
-```
-
-确认预览数量后再导入；命令可重复执行，不会产生重复记录：
-
-```powershell
-python -m app.database.migrate_cli --apply
-```
-
-当前阶段导入不会切换业务读取路径，也不会修改或删除源 JSON。
-
-停止容器但保留数据：
-
-```powershell
-docker compose --env-file .\deploy\postgres\.env.postgres -f .\deploy\postgres\compose.yml down
-```
-
-不要在有用数据时执行 `down -v`；该命令会删除数据库卷。
+systemd 后端服务也会在每次启动前安全地执行 `alembic upgrade head`。数据库备份必须写到 `/data/edu_ai/backups/postgres/`，不要写入代码仓库。

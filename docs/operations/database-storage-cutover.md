@@ -10,23 +10,16 @@ API 通过 `PERSISTENCE_PROFILE=database` 执行强制校验。用户、课程�
 
 ## 日常启动
 
-继续使用：
+Linux 生产环境使用 PostgreSQL 系统服务和两个 systemd 应用服务。后端启动前会自动执行 Alembic 升级：
 
-```bat
-D:\github\edu_ai\backend\src\start_api.bat
-```
-
-脚本会自动启动 Docker 中的 PostgreSQL、等待健康检查、执行 Alembic 升级，再启动 API 和前端。无需单独手工启动数据库容器。
-
-只启动并检查数据库：
-
-```bat
-D:\github\edu_ai\backend\src\start_api.bat --database-only
+```bash
+sudo systemctl start postgresql edu-ai-openmaic edu-ai-backend
+sudo systemctl status edu-ai-openmaic edu-ai-backend --no-pager
 ```
 
 ## 验收与诊断
 
-在 `backend/src` 加载数据库环境变量后执行：
+在 `/home/zxqs_ep/Edu_AI/backend/src` 加载根目录环境变量后执行：
 
 ```powershell
 python -m app.database.cutover_report_cli

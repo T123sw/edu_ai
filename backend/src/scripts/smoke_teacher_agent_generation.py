@@ -329,7 +329,7 @@ def run_long_dialogue(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base-url", default="http://127.0.0.1:8000")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8001")
     parser.add_argument("--course-id", default=os.getenv("EDU_AI_SMOKE_COURSE_ID"))
     parser.add_argument("--timeout", type=float, default=900)
     parser.add_argument("--long-dialogue-turns", type=int, default=12)

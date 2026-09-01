@@ -18,19 +18,33 @@ Edu_AI/
 
 普通 PPT/HTML2PPT、EduAgent、旧数据采集管道、数字人和 WebRTC 不再属于支持范围。
 
-## 本地前端
+## 安装环境
 
-要求 Node.js 22 与 pnpm 10.28：
+项目只使用根目录 `environment.yml`。安装 Miniforge 后，在 Linux 执行：
 
 ```bash
-cd frontend
-corepack enable
-corepack prepare pnpm@10.28.0 --activate
-pnpm install --frozen-lockfile
+bash scripts/install-all.sh
+conda activate edu-ai
+```
+
+该环境统一提供 Python 3.12、Node.js 22、pnpm 10.28 和 FFmpeg/ffprobe 6+，并安装前端、后端、OpenMAIC 与 Playwright 依赖。真实配置只保存在根目录 `.env`；首次安装会根据 `.env.example` 创建它。
+
+## 本地开发
+
+先把 `.env.example` 复制为 `.env`，并将 `VITE_API_BASE_URL` 临时改为 `http://127.0.0.1:8001`。分别启动：
+
+```bash
+cd backend/src
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+
+cd ../../openmaic-sidecar
+pnpm dev --hostname 127.0.0.1 --port 3000
+
+cd ../frontend
 pnpm dev
 ```
 
-默认地址：`http://127.0.0.1:5173`。
+前端默认地址为 `http://127.0.0.1:5173`。
 
 验证命令：
 
@@ -38,15 +52,6 @@ pnpm dev
 pnpm test
 pnpm build
 ```
-
-## 本地后端
-
-```bash
-cd backend/src
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
-```
-
-Python 目标版本为 3.12，正式环境使用根目录统一的 Conda 环境。旧 `start_api.*` 和 `start_simple_chat.*` 仅是待清理的历史脚本，不作为生产部署方式。
 
 ## OpenMAIC
 
@@ -57,5 +62,7 @@ OpenMAIC sidecar 位于仓库根目录 `openmaic-sidecar/`，默认端口 3000�
 - [项目文档入口](docs/README.md)
 - [部署入口](docs/deployment/README.md)
 - [依赖与运行基线](DEPENDENCIES.md)
+
+Linux 正式上线按 [部署入口](docs/deployment/README.md) 执行。生产端口为 FastAPI `8001`、OpenMAIC `3000`、PostgreSQL `5432`，三者都只监听本机，由 Nginx 提供公开入口。
 
 真实 `.env`、运行数据、依赖目录、构建产物和日志不得提交。

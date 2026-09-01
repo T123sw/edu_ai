@@ -1,0 +1,21 @@
+[Unit]
+Description=Edu-AI OpenMAIC sidecar
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=zxqs_ep
+Group=zxqs_ep
+WorkingDirectory=/home/zxqs_ep/Edu_AI/openmaic-sidecar
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+Environment=NODE_ENV=production
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/pnpm start --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=120
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

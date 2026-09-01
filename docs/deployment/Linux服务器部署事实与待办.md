@@ -16,7 +16,7 @@
 | GPU | 2 张 RTX 3090 24 GiB；驱动 535.309.01，CUDA 12.2 | 首轮远程模型部署不依赖 GPU |
 | 账号 | `zxqs_ep`，属于 `sudo` 组；sudo 需要密码 | 可安装系统依赖和系统服务 |
 | 用户服务 | `systemd --user` 可用，`Linger=no` | 正式部署优先使用系统级 systemd |
-| 容器 | Docker 未安装 | PostgreSQL 容器方案当前不可用 |
+| 容器 | Docker 未安装 | 部署方案不依赖 Docker |
 | Python | 系统 Python 3.10.12；无 Python 3.12、Conda 或 Mamba | 需要安装 Miniforge/Conda |
 | Node | Node.js、npm、pnpm 均未安装 | 需要安装 Node.js 22 和 pnpm 10.28 |
 | 媒体 | FFmpeg、ffprobe 未安装 | 需要安装 FFmpeg 6+ |
@@ -33,6 +33,7 @@
 - 普通 PPT/HTML2PPT 接口删除，只保留 OpenMAIC PPTX 导出。
 - 不部署 EduAgent、旧数据采集管道、SearXNG、数字人、LiveTalking 或 WebRTC。
 - 首轮使用远程模型 API；GPU 本地模型另立部署任务。
+- PostgreSQL 使用 Ubuntu 系统服务，不安装 Docker。
 
 ## 仍待确认
 
@@ -40,7 +41,6 @@
 - [ ] 学校分配的正式域名、HTTP/HTTPS 入口和 TLS 方式。
 - [ ] 3000、5432、8001 的当前占用情况和防火墙策略。
 - [ ] PyPI、npm registry、GitHub、模型提供方、MinerU Cloud、Bocha 和 Tavily 的网络连通性。
-- [ ] 是否允许安装 Docker；如果不允许，PostgreSQL 改为系统服务或学校提供的数据库。
 - [ ] 现有 Windows 用户、课程、知识库和媒体数据的迁移范围、规模与停机窗口。
 - [ ] 系统时区、NTP 状态和备份保留策略。
 

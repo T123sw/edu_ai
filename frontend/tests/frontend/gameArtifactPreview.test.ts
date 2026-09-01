@@ -65,7 +65,7 @@ assert.equal((restoredGame?.meta as any)?.templateId, 'drag-match');
 
 assert.equal(
   resolveGameHtmlUrl('/api/chat/v2/games/html?path=tester/course-1/game-1/index.html'),
-  'http://localhost:8000/api/chat/v2/games/html?path=tester/course-1/game-1/index.html',
+  'http://localhost:8001/api/chat/v2/games/html?path=tester/course-1/game-1/index.html',
 );
 
 const chatV2Source = readFileSync(new URL('../../src/services/teacher/chatV2.ts', import.meta.url), 'utf8');

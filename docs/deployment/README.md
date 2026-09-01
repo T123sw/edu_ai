@@ -1,48 +1,150 @@
-# Edu-AI 部署入口
+# Edu-AI Linux 部署指南
 
-最近更新：2026-09-01
+适用环境：Ubuntu 22.04 x86_64，部署用户 `zxqs_ep`，代码目录 `/home/zxqs_ep/Edu_AI`。本指南只使用系统 PostgreSQL、系统级 systemd 和 Nginx，不要求 Docker。
 
-当前状态：部署前仓库清理中。代码目录、systemd、Nginx 和安装脚本完成统一前，不应直接复制旧配置到服务器运行。
+## 1. 安装系统组件
 
-## 支持范围
+```bash
+sudo apt update
+sudo apt install -y git curl ca-certificates nginx postgresql postgresql-contrib
+```
 
-生产部署只包含：
+Playwright 的系统库在 Miniforge 环境创建后安装，见第 4 步。
 
-- React/Vite 前端；
-- FastAPI 后端；
-- PostgreSQL；
-- OpenMAIC sidecar；
-- Playwright Chromium 与 FFmpeg 视频导出链路。
+## 2. 安装 Miniforge
 
-不再部署 EduAgent、旧数据采集管道、SearXNG、HTML2PPT、普通 PPT 生成接口、数字人、LiveTalking 或 WebRTC 服务。
+```bash
+curl -L -o /tmp/Miniforge3.sh \
+  https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash /tmp/Miniforge3.sh -b -p /home/zxqs_ep/miniforge3
+source /home/zxqs_ep/miniforge3/etc/profile.d/conda.sh
+conda init bash
+```
 
-## 统一运行基线
+重新打开终端后，`conda --version` 应能正常输出。
 
-| 项目 | 目标 |
-| --- | --- |
-| Linux | Ubuntu 22.04 x86_64 |
-| Python | 3.12，使用 Miniforge/Conda 管理 |
-| Node.js | 22 |
-| pnpm | 10.28 |
-| FFmpeg/ffprobe | 6+ |
-| PostgreSQL | 5432，仅内部访问 |
-| OpenMAIC sidecar | 3000，仅内部访问 |
-| FastAPI | 8001，由 Nginx 代理 |
-| 前端开发端口 | 5173，不用于正式生产 |
+## 3. 放置代码与数据目录
 
-前端只使用 `pnpm-lock.yaml`。PPTX 只由 OpenMAIC 课堂数据导出，不依赖 46080 或外部 HTML2PPT 服务。
+```bash
+cd /home/zxqs_ep
+git clone <repository-url> Edu_AI
+cd Edu_AI
 
-## 目录原则
+sudo install -d -o zxqs_ep -g zxqs_ep -m 750 \
+  /data/edu_ai/storage \
+  /data/edu_ai/course_data \
+  /data/edu_ai/openmaic \
+  /data/edu_ai/tmp \
+  /data/edu_ai/models \
+  /data/edu_ai/logs \
+  /data/edu_ai/backups/postgres
+```
 
-- 仓库最终目录：Windows `D:\Edu_AI`，Linux `/home/zxqs_ep/Edu_AI`。
-- 代码与运行数据分离；课程、上传、模型、缓存、日志和备份放在 `/data/edu_ai/` 下。
-- 真实 `.env` 仅保存在服务器，不提交 Git。
-- systemd、Nginx 和 PostgreSQL 配置统一从根目录 `deploy/` 发布。
+将 `<repository-url>` 替换为实际远程仓库地址。运行数据不通过 Git 传输，迁移规则见 [`运行时数据边界.md`](运行时数据边界.md)。
 
-## 当前服务器资料
+## 4. 创建统一环境
 
-- [`Linux服务器部署事实与待办.md`](Linux服务器部署事实与待办.md)：已经确认的硬件、权限和软件现状，以及仍需确认的服务器事项。
-- [`运行时数据边界.md`](运行时数据边界.md)：代码仓库与用户数据、模型、缓存、日志和备份的目录边界。
-- 根目录 [`DEPENDENCIES.md`](../../DEPENDENCIES.md)：项目依赖和安装基线。
+```bash
+cd /home/zxqs_ep/Edu_AI
+bash scripts/install-all.sh
+source /home/zxqs_ep/miniforge3/etc/profile.d/conda.sh
+conda activate edu-ai
 
-在仓库重构完成前，本文只定义目标基线，不代表旧的 `deploy/` 配置已经可直接上线。
+# 安装 Chromium 在 Ubuntu 上需要的系统库
+sudo env "PATH=$PATH" pnpm --dir openmaic-sidecar exec playwright install-deps chromium
+```
+
+安装脚本使用根目录 `environment.yml`，统一安装 Python 3.12、Node.js 22、pnpm 10.28、FFmpeg/ffprobe 6+、后端依赖、两个 Node 项目和 Chromium。
+
+验证版本：
+
+```bash
+python --version
+node --version
+pnpm --version
+ffmpeg -version | head -n 1
+ffprobe -version | head -n 1
+```
+
+## 5. 初始化 PostgreSQL
+
+按 [`deploy/postgres/README.md`](../../deploy/postgres/README.md) 创建 `edu_ai` 用户和数据库。数据库只监听 `127.0.0.1:5432`。
+
+## 6. 配置环境
+
+安装脚本首次运行会复制 `.env.example` 为 `.env`。编辑根目录唯一配置文件：
+
+```bash
+cd /home/zxqs_ep/Edu_AI
+chmod 600 .env
+nano .env
+```
+
+必须至少填写 `DATABASE_URL` 和实际使用的模型 API Key。生产构建保持：
+
+```dotenv
+VITE_API_BASE_URL=/backend
+OPENMAIC_BASE_URL=http://127.0.0.1:3000
+CLASSROOM_VIDEO_FRONTEND_URL=http://127.0.0.1
+```
+
+所有运行目录都应指向 `/data/edu_ai/`；不要把密钥写入 systemd 或 Nginx 文件。
+
+## 7. 执行迁移与生产构建
+
+```bash
+cd /home/zxqs_ep/Edu_AI
+conda activate edu-ai
+
+cd backend/src
+python -m alembic upgrade head
+cd ../..
+
+bash scripts/build-production.sh
+```
+
+构建结果应为 `frontend/dist/` 和 `openmaic-sidecar/.next/`。
+
+## 8. 安装 systemd 与 Nginx
+
+```bash
+cd /home/zxqs_ep/Edu_AI
+sudo install -m 644 deploy/systemd/edu-ai-openmaic.service /etc/systemd/system/
+sudo install -m 644 deploy/systemd/edu-ai-backend.service /etc/systemd/system/
+sudo install -m 644 deploy/nginx/edu-ai.conf /etc/nginx/sites-available/edu-ai.conf
+sudo ln -sfn /etc/nginx/sites-available/edu-ai.conf /etc/nginx/sites-enabled/edu-ai.conf
+sudo rm -f /etc/nginx/sites-enabled/default
+
+sudo systemd-analyze verify \
+  /etc/systemd/system/edu-ai-openmaic.service \
+  /etc/systemd/system/edu-ai-backend.service
+sudo nginx -t
+sudo systemctl daemon-reload
+sudo systemctl enable --now edu-ai-openmaic edu-ai-backend nginx
+```
+
+这里的 `rm -f` 只删除 Ubuntu 的 Nginx 默认站点软链接，不删除项目或用户数据。
+
+## 9. 验收
+
+```bash
+systemctl is-active postgresql edu-ai-openmaic edu-ai-backend nginx
+curl --fail http://127.0.0.1:3000/api/health
+curl --fail http://127.0.0.1:8001/health
+curl --fail http://127.0.0.1/backend/health
+```
+
+浏览器访问服务器的 HTTP 地址后，再验证登录、课程列表、知识库检索、AI 课堂生成、OpenMAIC 播放、PPTX 导出和视频导出。若失败，查看：
+
+```bash
+journalctl -u edu-ai-openmaic -u edu-ai-backend -n 200 --no-pager
+sudo tail -n 200 /var/log/nginx/error.log
+```
+
+正式域名与 HTTPS 尚未确定，因此当前 Nginx 配置以 IP/任意主机名接入。确认域名后再单独配置证书和 443，不要在本轮仓库清理中开放额外端口。
+
+## 相关资料
+
+- [`Linux服务器部署事实与待办.md`](Linux服务器部署事实与待办.md)
+- [`运行时数据边界.md`](运行时数据边界.md)
+- [`../../DEPENDENCIES.md`](../../DEPENDENCIES.md)

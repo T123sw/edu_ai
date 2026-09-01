@@ -1131,7 +1131,7 @@ async def rag_query_stream(
                 image_path = raw_metadata.get("image_path", "")
                 # 转换为 HTTP URL
                 if image_path:
-                    # 将本地路径转换为 URL（./storage/images/xxx.jpg -> http://localhost:8000/storage/images/xxx.jpg）
+                    # 将本地路径转换为 URL（./storage/images/xxx.jpg -> http://localhost:8001/storage/images/xxx.jpg）
                     relative_path = str(image_path).replace("\\", "/").replace("./", "")
                     # 如果路径不是以 storage/ 开头，补全它
                     if not relative_path.startswith("storage/"):
@@ -1209,18 +1209,18 @@ async def rag_query_stream(
 **关键规则**：参考资料中如果包含图片 Markdown 语法或视频标签，你**必须原样复制**到回答中！
 
 **图片格式**：
-参考资料包含：![二叉树结构图](http://localhost:8000/api/rag/image?path=%2Fstorage%2Fimages%2Fadmin%2Fabc123.jpg)
+参考资料包含：![二叉树结构图](http://localhost:8001/api/rag/image?path=%2Fstorage%2Fimages%2Fadmin%2Fabc123.jpg)
 你的回答：直接原样复制该行
 
 **视频格式**：
-参考资料包含：<video src="http://localhost:8000/api/rag/media?path=%2Fstorage%2Fvideos%2Fadmin%2Fxxx.mp4" controls style="max-width: 100%; width: 800px; height: auto;"></video>
+参考资料包含：<video src="http://localhost:8001/api/rag/media?path=%2Fstorage%2Fvideos%2Fadmin%2Fxxx.mp4" controls style="max-width: 100%; width: 800px; height: auto;"></video>
 你的回答：直接原样复制该行（包括所有 HTML 属性）
 
 **正确示例**：
 ```
 队列是一种先进先出的数据结构，相关视频讲解如下：
 
-<video src="http://localhost:8000/api/rag/media?path=%2Fstorage%2Fvideos%2Fadmin%2F%E9%98%9F%E5%88%97%E8%AE%B2%E8%A7%A3.mp4" controls style="max-width: 100%; width: 800px; height: auto;"></video>
+<video src="http://localhost:8001/api/rag/media?path=%2Fstorage%2Fvideos%2Fadmin%2F%E9%98%9F%E5%88%97%E8%AE%B2%E8%A7%A3.mp4" controls style="max-width: 100%; width: 800px; height: auto;"></video>
 
 从视频中可以看到队列的基本操作...
 ```

@@ -28,7 +28,7 @@
 
 ## 依赖文件
 
-- 根目录 `environment.yml`：唯一 Conda 环境定义；目录重构阶段统一生成。
+- 根目录 `environment.yml`：唯一 Conda 环境定义。
 - 后端 `requirements.txt`、`requirements-lock.txt`、`requirements-media.txt`：Python 依赖来源。
 - 前端和 sidecar 的 `pnpm-lock.yaml`：Node 依赖锁文件。
 - `.env.example`：配置字段模板，不包含真实密钥。
@@ -44,17 +44,14 @@
 | 8001 | FastAPI | 由 Nginx 代理 |
 | 5173 | Vite 开发服务器 | 仅本地开发 |
 
-46080 和 8888 不属于部署范围。
-
 ## 包管理规则
 
 ```bash
-corepack enable
-corepack prepare pnpm@10.28.0 --activate
-pnpm install --frozen-lockfile
+bash scripts/install-all.sh
+conda activate edu-ai
 ```
 
-前端、sidecar 和仓库内 OpenMAIC packages 均使用 pnpm。安装顺序和 Linux 服务配置将在目录重构完成后写入 `docs/deployment/`，旧启动脚本不作为生产部署入口。
+前端、sidecar 和仓库内 OpenMAIC packages 均使用 pnpm。安装脚本先构建 sidecar 工作区依赖，再安装前端文件依赖；旧的 npm、批处理启动器和 Docker 数据库入口已删除。
 
 ## 运行数据
 
