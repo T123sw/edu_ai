@@ -1144,3 +1144,37 @@ export type ClassroomQaTurnSubmission = {
   session_id: string;
   turn: ClassroomQaTurn;
 };
+
+export type ResourceQaKind = "study_guide" | "practice";
+
+export type ResourceQaAnchor = {
+  scene_id?: string | null;
+  page_number?: number | null;
+  question_id?: string | null;
+};
+
+export type ResourceQaTurnRequest = {
+  client_turn_id: string;
+  question: string;
+  resource_version: number;
+  context_scope: "full_resource";
+  anchor: ResourceQaAnchor | null;
+};
+
+export type ResourceQaTurn = ClassroomQaTurn;
+
+export type ResourceQaSession = {
+  session_id: string;
+  course_id: string;
+  resource_kind: ResourceQaKind;
+  resource_id: string;
+  resource_version: number;
+  owner_user_id: string;
+  status: "ready";
+  turns: ResourceQaTurn[];
+};
+
+export type ResourceQaTurnSubmission = {
+  session_id: string;
+  turn: ResourceQaTurn;
+};
