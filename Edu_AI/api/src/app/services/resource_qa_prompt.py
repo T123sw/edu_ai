@@ -68,7 +68,7 @@ def build_resource_qa_messages(
     recent_turns: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
 ) -> list[dict[str, str]]:
     answer_policy = (
-        "当前是学生习题模式：禁止猜测或泄露标准答案、正确选项和解析；可以解释相关知识与解题思路。"
+        "当前是学生习题模式：禁止猜测或泄露答案、正确选项和解析；可以解释相关知识与解题思路。"
         if context.resource_kind == "practice" and not context.include_answers
         else "可以依据提供内容回答，但不得补造资料中不存在的事实。"
     )

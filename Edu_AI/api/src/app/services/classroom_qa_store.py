@@ -23,6 +23,18 @@ class ClassroomQaBusyError(RuntimeError):
     code = "CLASSROOM_QA_BUSY"
 
 
+def resource_session_id(
+    *,
+    resource_kind: str,
+    resource_id: str,
+    resource_version: int,
+) -> str:
+    digest = hashlib.sha256(
+        f"{resource_kind}\0{resource_id}\0{resource_version}".encode("utf-8")
+    ).hexdigest()[:24]
+    return f"resource_{digest}"
+
+
 class ClassroomQaSessionStore:
     def __init__(
         self,
