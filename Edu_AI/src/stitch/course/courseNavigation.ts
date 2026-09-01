@@ -1,14 +1,11 @@
-import type { CourseRole } from "./coursePermissions";
 import type { TeacherCourseRoute } from "../teacherRoutes";
 
 export type CourseNavigationId =
-  | "overview"
-  | "learning"
   | "workspace"
   | "knowledge"
   | "classroom"
   | "resources"
-  | "settings";
+  | "learning";
 
 export type CourseNavigationItem = {
   id: CourseNavigationId;
@@ -16,27 +13,35 @@ export type CourseNavigationItem = {
   icon: string;
   hrefRoute: TeacherCourseRoute;
   routes: readonly TeacherCourseRoute[];
-  editableOnly?: boolean;
 };
 
 const courseNavigation: readonly CourseNavigationItem[] = [
-  { id: "overview", label: "课程概览", icon: "dashboard", hrefRoute: "course-detail", routes: ["course-detail"] },
-  { id: "learning", label: "学习任务", icon: "fact_check", hrefRoute: "learning", routes: ["learning"] },
-  { id: "workspace", label: "问答与生成", icon: "auto_awesome", hrefRoute: "ai", routes: ["ai"] },
+  { id: "workspace", label: "工作台", icon: "auto_awesome", hrefRoute: "ai", routes: ["ai"] },
   { id: "knowledge", label: "课程知识", icon: "menu_book", hrefRoute: "knowledge", routes: ["knowledge", "graph"] },
-  { id: "classroom", label: "AI 课堂", icon: "play_circle", hrefRoute: "classroom-studio", routes: ["classroom-studio"] },
-  { id: "resources", label: "个人资源", icon: "folder_open", hrefRoute: "resources", routes: ["resources"] },
-  { id: "settings", label: "课程设置", icon: "settings", hrefRoute: "edit", routes: ["edit"], editableOnly: true },
+  { id: "classroom", label: "AI课堂", icon: "play_circle", hrefRoute: "classroom-studio", routes: ["classroom-studio"] },
+  { id: "resources", label: "资源管理", icon: "folder_open", hrefRoute: "resources", routes: ["resources"] },
+  { id: "learning", label: "学习任务", icon: "fact_check", hrefRoute: "learning", routes: ["learning"] },
 ];
 
-export function getCourseNavigation(role: CourseRole | null | undefined) {
-  return courseNavigation.filter((item) => !item.editableOnly || role !== "viewer");
+const coursePageTitles: Readonly<Record<TeacherCourseRoute, string>> = {
+  "course-detail": "课程概览",
+  learning: "学习任务",
+  ai: "工作台",
+  knowledge: "课程知识",
+  graph: "课程知识",
+  "classroom-studio": "AI课堂",
+  resources: "资源管理",
+  edit: "课程设置",
+};
+
+export function getCourseNavigation() {
+  return courseNavigation;
 }
 
 export function getCoursePageTitle(route: TeacherCourseRoute): string {
-  return courseNavigation.find((item) => item.routes.includes(route))?.label ?? "课程工作区";
+  return coursePageTitles[route] ?? "课程工作区";
 }
 
 export function isCourseWorkspaceRoute(route: string): route is TeacherCourseRoute {
-  return courseNavigation.some((item) => item.routes.includes(route as TeacherCourseRoute));
+  return Object.hasOwn(coursePageTitles, route);
 }

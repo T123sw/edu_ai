@@ -1,41 +1,36 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getCourseNavigation } from "./courseNavigation.ts";
+import {
+  getCourseNavigation,
+  getCoursePageTitle,
+  isCourseWorkspaceRoute,
+} from "./courseNavigation.ts";
 
-test("editors see the complete course workspace navigation", () => {
+test("course workbar exposes the approved destinations in order", () => {
   assert.deepEqual(
-    getCourseNavigation("editor").map((item) => item.id),
-    ["overview", "learning", "workspace", "knowledge", "classroom", "resources", "settings"],
-  );
-  assert.equal(
-    getCourseNavigation("editor").some((item) => "description" in item),
-    false,
-  );
-});
-
-test("viewers cannot open course settings", () => {
-  assert.equal(
-    getCourseNavigation("viewer").some((item) => item.id === "settings"),
-    false,
+    getCourseNavigation().map(({ id, label }) => [id, label]),
+    [
+      ["workspace", "工作台"],
+      ["knowledge", "课程知识"],
+      ["classroom", "AI课堂"],
+      ["resources", "资源管理"],
+      ["learning", "学习任务"],
+    ],
   );
 });
 
-test("every course member can open learning tasks", () => {
-  for (const role of ["owner", "editor", "viewer"] as const) {
-    const learning = getCourseNavigation(role).find((item) => item.id === "learning");
-    assert.equal(learning?.label, "学习任务");
-  }
+test("overview and settings stay routable without occupying the workbar", () => {
+  const ids = getCourseNavigation().map((item) => item.id);
+  assert.equal(ids.includes("overview"), false);
+  assert.equal(ids.includes("settings"), false);
+  assert.equal(getCoursePageTitle("course-detail"), "课程概览");
+  assert.equal(getCoursePageTitle("edit"), "课程设置");
+  assert.equal(isCourseWorkspaceRoute("course-detail"), true);
+  assert.equal(isCourseWorkspaceRoute("edit"), true);
 });
 
-test("every course member sees the personal resource workspace", () => {
-  for (const role of ["owner", "editor", "viewer"] as const) {
-    const resources = getCourseNavigation(role).find((item) => item.id === "resources");
-    assert.equal(resources?.label, "个人资源");
-  }
-});
-
-test("knowledge graph deep links belong to the course knowledge section", () => {
-  const knowledge = getCourseNavigation("owner").find((item) => item.id === "knowledge");
+test("knowledge graph deep links belong to course knowledge", () => {
+  const knowledge = getCourseNavigation().find((item) => item.id === "knowledge");
   assert.deepEqual(knowledge?.routes, ["knowledge", "graph"]);
 });
