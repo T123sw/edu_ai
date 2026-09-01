@@ -45,8 +45,8 @@
 
 1. 校验根目录和三个应用入口存在。
 2. 校验 `.env` 存在；缺失时提示从 `.env.example` 创建。
-3. 定位 Python 3.12：优先使用已激活的 `edu-ai` 环境，其次使用可执行且依赖完整的 Python 3.12。
-4. 校验 Node.js 22、pnpm 10.28、前端与 OpenMAIC 的 `node_modules`。
+3. 定位可执行且依赖完整的 Python 3.12。
+4. 校验 Node.js 22 或更新版本、pnpm 10.28、前端与 OpenMAIC 的 `node_modules`。Linux 生产环境仍固定 Node.js 22；Windows 已验证的系统 Node.js 24 可用于本地开发，不选择 `edu-ai` Conda 环境中残留的 Node.js 20。
 5. 校验 8001、3000、5173 均未被占用。任何端口被占用时停止启动并报告，不结束未知进程。
 6. `start.bat --check` 只执行上述检查，不创建进程。
 

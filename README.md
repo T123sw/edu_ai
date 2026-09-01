@@ -46,6 +46,20 @@ pnpm dev
 
 前端默认地址为 `http://127.0.0.1:5173`。
 
+### Windows 一键启动
+
+完成依赖安装并准备好根目录 `.env` 后，可在项目根目录执行：
+
+```bat
+start.bat --check
+start.bat
+stop.bat
+```
+
+`start.bat` 会分别打开 OpenMAIC、FastAPI 和 Vite 三个可见终端，使用端口 `3000`、`8001` 和 `5173`。环境或端口检查失败时不会启动部分服务，也不会自动安装依赖或结束占用端口的未知程序。`stop.bat` 只停止由本次启动记录管理的进程。
+
+Windows 本地开发支持 Node.js 22 或更新版本；Linux 正式部署仍以 `environment.yml` 固定的 Node.js 22 为准。
+
 验证命令：
 
 ```bash
