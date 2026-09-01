@@ -34,7 +34,6 @@ import { canCourse } from "../coursePermissions";
 import { completeAndAdvance } from "../../classroomQa/classroomAutoplay";
 import { useClassroomInterruption } from "../../classroomQa/useClassroomInterruption";
 import { shouldTrackResourceLearning } from "../../pages/classroomResourceLearning";
-import { ResourceLearningProgress } from "../knowledge/ResourceLearningProgress";
 import type { WorkspaceQaRegistration } from "./workspaceQaBinding";
 
 export type ClassroomQaBinding = WorkspaceQaRegistration & {
@@ -100,10 +99,7 @@ export function ClassroomPlaybackSurface({
   const [error, setError] = useState<string | null>(null);
   const [playback, setPlayback] =
     useState<PagePlaybackSnapshot>(INITIAL_PLAYBACK);
-  const [presentationMode, setPresentationMode] = useState(false);
-  const [subtitlesVisible, setSubtitlesVisible] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
-  const [catalogOpen, setCatalogOpen] = useState(false);
   const consoleRef = useRef<HTMLElement | null>(null);
   const controllerRef = useRef<ManagedPagePlaybackController | null>(null);
   const learningTrackerRef = useRef<ResourceLearningTracker | null>(null);
@@ -113,7 +109,7 @@ export function ClassroomPlaybackSurface({
   const [learningSessionId, setLearningSessionId] = useState<string | null>(null);
   const [learningProgress, setLearningProgress] =
     useState<ResourceLearningProgressRecord | null>(null);
-  const [learningSyncState, setLearningSyncState] = useState<
+  const [, setLearningSyncState] = useState<
     "idle" | "syncing" | "synced" | "failed"
   >("idle");
 
@@ -183,7 +179,6 @@ export function ClassroomPlaybackSurface({
     const onFullscreenChange = () => {
       const active = document.fullscreenElement === consoleRef.current;
       setFullscreen(active);
-      if (!active) setPresentationMode(false);
     };
     document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
@@ -487,99 +482,11 @@ export function ClassroomPlaybackSurface({
     }
   };
 
-  const enterPresentation = async () => {
-    setPresentationMode(true);
-    try {
-      await consoleRef.current?.requestFullscreen();
-    } catch {
-      // Presentation layout remains useful when fullscreen permission is unavailable.
-    }
-  };
-
   return (
     <main
       ref={consoleRef}
-      className={`classroom-console classroom-playback-surface ${presentationMode ? "is-presenting" : ""}`}
+      className="classroom-console classroom-playback-surface"
     >
-        <header className="classroom-console__header">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="min-w-0">
-              <p className="classroom-console__eyebrow">AI 课堂</p>
-              <h1 className="truncate text-lg font-black text-(--app-text)">
-                {material?.title || "课堂预览"}
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            {tracksResourceLearning ? (
-              <span
-                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600"
-                aria-live="polite"
-              >
-                {learningSyncState === "syncing"
-                  ? "学习记录同步中"
-                  : learningSyncState === "failed"
-                    ? "学习记录待重试"
-                    : learningSessionId
-                      ? "学习记录已开启"
-                      : "正在开启学习记录"}
-              </span>
-            ) : null}
-            {material && !presentationMode ? (
-              <button
-                type="button"
-                className="classroom-secondary-toggle classroom-icon-button"
-                aria-label="打开课堂目录"
-                aria-expanded={catalogOpen}
-                onClick={() => setCatalogOpen((value) => !value)}
-              >
-                <span>目录</span>
-              </button>
-            ) : null}
-            {material && !presentationMode ? (
-              <>
-                {courseId && classroomId && canGenerate ? (
-                  <ClassroomVideoExportButton
-                    courseId={courseId}
-                    classroomId={classroomId}
-                    title={material.title || "课堂视频"}
-                  />
-                ) : null}
-                <PptxExportButton
-                  title={material.title || "课堂课件"}
-                  scenes={exportScenes}
-                />
-              </>
-            ) : null}
-            {material ? (
-              <button
-                type="button"
-                onClick={
-                  presentationMode
-                    ? async () => {
-                        if (document.fullscreenElement) await document.exitFullscreen();
-                        else setPresentationMode(false);
-                      }
-                    : enterPresentation
-                }
-                className="classroom-primary-button"
-              >
-                <MaterialIcon name={presentationMode ? "close_fullscreen" : "present_to_all"} />
-                {presentationMode ? "退出演示" : "进入演示"}
-              </button>
-            ) : null}
-          </div>
-        </header>
-
-        {tracksResourceLearning && learningProgress && !presentationMode ? (
-          <ResourceLearningProgress
-            progress={learningProgress}
-            compact
-            syncState={learningSyncState}
-          />
-        ) : null}
-
         {loading ? (
           <ClassroomState
             icon="hourglass_top"
@@ -613,43 +520,6 @@ export function ClassroomPlaybackSurface({
         ) : (
           <>
             <div className="classroom-console__workspace">
-              {!presentationMode ? (
-                <aside className={`classroom-console__catalog ${catalogOpen ? "is-open" : ""}`} aria-label="课堂页面目录">
-                  <div className="classroom-panel-heading">
-                    <div>
-                      <p className="font-bold text-(--app-text)">课堂目录</p>
-                      <p className="mt-0.5 text-xs text-(--muted-text)">
-                        共 {scenes.length} 页
-                      </p>
-                    </div>
-                  </div>
-                  <nav className="classroom-scene-list">
-                    {scenePresentations.map((item, index) => (
-                      <button
-                        key={scenes[index].id}
-                        type="button"
-                        onClick={() => goTo(index)}
-                        className={`classroom-scene-item ${
-                          index === currentIndex ? "is-active" : ""
-                        }`}
-                        aria-current={index === currentIndex ? "page" : undefined}
-                      >
-                        <span className="classroom-scene-item__number">{index + 1}</span>
-                        <span className="min-w-0">
-                          <span className="block truncate font-semibold">{item.title}</span>
-                          <span className="mt-0.5 block text-xs opacity-65">
-                            {item.kindLabel}
-                          </span>
-                        </span>
-                        {item.hasPlayback ? (
-                          <MaterialIcon name="graphic_eq" className="ml-auto shrink-0 text-sm" />
-                        ) : null}
-                      </button>
-                    ))}
-                  </nav>
-                </aside>
-              ) : null}
-
               <section className="classroom-console__stage-column" aria-label="课堂舞台">
                 <div className="classroom-stage-shell">
                   {currentScene && courseId && classroomId ? (
@@ -688,8 +558,7 @@ export function ClassroomPlaybackSurface({
                       }}
                     />
                   ) : null}
-                  {subtitlesVisible &&
-                  currentPresentation?.narration.length &&
+                  {currentPresentation?.narration.length &&
                   playback.status === "playing" ? (
                     <div className="classroom-subtitle" aria-live="polite">
                       {currentPresentation.narration.join(" ")}
@@ -697,76 +566,72 @@ export function ClassroomPlaybackSurface({
                   ) : null}
                 </div>
               </section>
-
             </div>
 
             <footer className="classroom-console__controls" data-testid="classroom-core-controls">
-              <button
-                type="button"
-                onClick={() => goTo(currentIndex - 1)}
-                disabled={qaLocksPlayback || currentIndex <= 0}
-                className="classroom-control-button"
-              >
-                <MaterialIcon name="skip_previous" />
-                <span className="classroom-control-label">上一页</span>
-              </button>
-              <button
-                type="button"
-                onClick={togglePlayback}
-                disabled={qaLocksPlayback || !currentPresentation?.hasPlayback}
-                className="classroom-play-button"
-              >
-                <MaterialIcon
-                  name={
-                    playback.status === "playing"
-                      ? "pause"
-                      : playback.status === "completed"
-                        ? "replay"
-                        : "play_arrow"
-                  }
+              <div className="classroom-console__export-controls">
+                {courseId && classroomId && canGenerate ? (
+                  <ClassroomVideoExportButton
+                    courseId={courseId}
+                    classroomId={classroomId}
+                    title={material.title || "课堂视频"}
+                  />
+                ) : null}
+                <PptxExportButton
+                  title={material.title || "课堂课件"}
+                  scenes={exportScenes}
                 />
-                {playbackLabel(currentPresentation, playback)}
-              </button>
-              <span className="classroom-current-scene" title={currentPresentation?.title}>
-                {currentPresentation?.title || `第 ${currentIndex + 1} 页`}
-              </span>
-              <button
-                type="button"
-                onClick={() => setSubtitlesVisible((value) => !value)}
-                className={`classroom-control-button ${
-                  subtitlesVisible ? "is-active" : ""
-                }`}
-                aria-pressed={subtitlesVisible}
-              >
-                <MaterialIcon name="subtitles" />
-                <span className="classroom-control-label">字幕</span>
-              </button>
-              <span className="classroom-page-count">
-                {currentIndex + 1} / {scenes.length}
-              </span>
-              <span className="classroom-voice-status" aria-label="语音状态">
-                <MaterialIcon name={material.voice_status === "disabled" ? "volume_off" : "volume_up"} />
-                {material.voice_status === "disabled" ? "语音关闭" : "语音可用"}
-              </span>
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="classroom-control-button"
-              >
-                <MaterialIcon name={fullscreen ? "fullscreen_exit" : "fullscreen"} />
-                <span className="classroom-control-label">
-                  {fullscreen ? "退出全屏" : "全屏"}
+              </div>
+              <div className="classroom-console__playback-controls">
+                <button
+                  type="button"
+                  onClick={() => goTo(currentIndex - 1)}
+                  disabled={qaLocksPlayback || currentIndex <= 0}
+                  className="classroom-control-button"
+                >
+                  <MaterialIcon name="skip_previous" />
+                  <span className="classroom-control-label">上一页</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePlayback}
+                  disabled={qaLocksPlayback || !currentPresentation?.hasPlayback}
+                  className="classroom-play-button"
+                >
+                  <MaterialIcon
+                    name={
+                      playback.status === "playing"
+                        ? "pause"
+                        : playback.status === "completed"
+                          ? "replay"
+                          : "play_arrow"
+                    }
+                  />
+                  {playbackLabel(currentPresentation, playback)}
+                </button>
+                <span className="classroom-page-count">
+                  {currentIndex + 1} / {scenes.length}
                 </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => goTo(currentIndex + 1)}
-                disabled={qaLocksPlayback || currentIndex >= scenes.length - 1}
-                className="classroom-control-button"
-              >
-                <span className="classroom-control-label">下一页</span>
-                <MaterialIcon name="skip_next" />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => goTo(currentIndex + 1)}
+                  disabled={qaLocksPlayback || currentIndex >= scenes.length - 1}
+                  className="classroom-control-button"
+                >
+                  <span className="classroom-control-label">下一页</span>
+                  <MaterialIcon name="skip_next" />
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="classroom-control-button"
+                >
+                  <MaterialIcon name={fullscreen ? "fullscreen_exit" : "fullscreen"} />
+                  <span className="classroom-control-label">
+                    {fullscreen ? "退出全屏" : "全屏"}
+                  </span>
+                </button>
+              </div>
             </footer>
           </>
         )}

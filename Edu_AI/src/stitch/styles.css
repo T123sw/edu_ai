@@ -331,7 +331,7 @@ textarea {
 
 .classroom-console {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   width: 100%;
   min-height: 100vh;
   padding: 16px;
@@ -346,7 +346,6 @@ textarea {
   background: var(--app-bg);
 }
 
-.classroom-console__header,
 .classroom-console__controls {
   display: flex;
   align-items: center;
@@ -357,19 +356,6 @@ textarea {
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 12px 32px rgba(49, 75, 123, 0.08);
   backdrop-filter: blur(20px);
-}
-
-.classroom-console__header {
-  min-height: 62px;
-  padding: 10px 14px;
-}
-
-.classroom-console__eyebrow {
-  color: var(--accent-strong);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
 }
 
 .classroom-icon-button,
@@ -418,13 +404,13 @@ textarea {
 .classroom-console__workspace {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) minmax(340px, 380px);
+  grid-template-columns: minmax(0, 1fr);
   min-height: 0;
   gap: 14px;
 }
 
 .classroom-playback-surface .classroom-console__workspace {
-  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .standalone-classroom-player {
@@ -435,75 +421,6 @@ textarea {
 
 .standalone-classroom-player > .classroom-qa-panel {
   margin: 16px 16px 16px 0;
-}
-
-.classroom-console__catalog {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--shell-border);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 14px 36px rgba(49, 75, 123, 0.07);
-}
-
-.classroom-panel-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  border-bottom: 1px solid var(--shell-border);
-  padding: 16px;
-}
-
-.classroom-scene-list {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  gap: 7px;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.classroom-scene-item {
-  display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  padding: 10px;
-  background: transparent;
-  color: var(--muted-text);
-  text-align: left;
-  cursor: pointer;
-}
-
-.classroom-scene-item:hover {
-  border-color: var(--shell-border);
-  background: var(--surface-subtle);
-}
-
-.classroom-scene-item.is-active {
-  border-color: var(--accent-border);
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-}
-
-.classroom-scene-item__number {
-  display: inline-flex;
-  width: 28px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  background: white;
-  box-shadow: inset 0 0 0 1px var(--shell-border);
-  font-size: 0.74rem;
-  font-weight: 800;
 }
 
 .classroom-console__stage-column {
@@ -523,8 +440,8 @@ textarea {
 
 .classroom-stage-shell {
   position: relative;
-  width: min(100%, calc((100vh - 196px) * 16 / 9));
-  max-height: calc(100vh - 196px);
+  width: min(100%, calc((100vh - 128px) * 16 / 9));
+  max-height: calc(100vh - 128px);
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 12px;
@@ -570,14 +487,38 @@ textarea {
 
 .classroom-console__controls {
   min-height: 58px;
-  justify-content: center;
-  padding: 8px 12px;
+  justify-content: space-between;
+  padding: 8px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.classroom-console__export-controls,
+.classroom-console__playback-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.classroom-console__export-controls > div {
+  gap: 6px;
+}
+
+.classroom-console__export-controls button {
+  padding-inline: 10px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.classroom-console__export-controls [role="status"]:empty {
+  display: none;
 }
 
 .classroom-control-button {
   min-height: 38px;
   border-radius: 11px;
-  padding: 0 12px;
+  padding: 0 8px;
   background: transparent;
   color: var(--muted-text);
   font-size: 0.76rem;
@@ -596,7 +537,7 @@ textarea {
 }
 
 .classroom-play-button {
-  min-width: 146px;
+  min-width: 132px;
   min-height: 42px;
   border-radius: 13px;
   padding: 0 18px;
@@ -614,29 +555,6 @@ textarea {
   font-weight: 800;
   text-align: center;
 }
-
-.classroom-current-scene {
-  min-width: 0;
-  max-width: 220px;
-  overflow: hidden;
-  color: var(--app-text);
-  font-size: 0.76rem;
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.classroom-voice-status {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 5px;
-  color: var(--muted-text);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.classroom-secondary-toggle { display: none; width: auto; padding: 0 12px; font-size: 0.75rem; font-weight: 800; }
 
 .classroom-console__state {
   display: flex;
@@ -661,73 +579,14 @@ textarea {
   font-size: 1.6rem;
 }
 
-.classroom-console.is-presenting {
-  padding: 10px;
-  gap: 10px;
-  background: #07101f;
-}
-
-.classroom-console.is-presenting .classroom-console__header,
-.classroom-console.is-presenting .classroom-console__controls {
-  border-color: rgba(255, 255, 255, 0.13);
-  background: rgba(15, 23, 42, 0.95);
-}
-
-.classroom-console.is-presenting .classroom-console__header h1 {
-  color: white;
-}
-
-.classroom-console.is-presenting .classroom-console__workspace {
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
-}
-
-.classroom-playback-surface.is-presenting .classroom-console__workspace {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.classroom-console.is-presenting .classroom-console__stage-column {
-  border: 0;
-  padding: 0;
-  background: #07101f;
-}
-
-.classroom-console.is-presenting .classroom-stage-shell {
-  width: min(100%, calc((100vh - 158px) * 16 / 9));
-  max-height: calc(100vh - 158px);
-}
-
-.classroom-console.is-presenting .classroom-control-button,
-.classroom-console.is-presenting .classroom-page-count {
-  color: #dbe7ff;
-}
-
 @media (max-width: 1390px) {
   .classroom-console__workspace {
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 360px);
+    grid-template-columns: minmax(0, 1fr);
   }
-
-  .classroom-secondary-toggle { display: inline-flex; }
-
-  .classroom-console__catalog {
-    display: none;
-  }
-
-  .classroom-console__catalog.is-open {
-    position: absolute;
-    z-index: 30;
-    top: 8px;
-    bottom: 8px;
-    display: flex;
-    width: min(320px, calc(100% - 32px));
-    box-shadow: 0 24px 70px rgba(20, 34, 60, 0.28);
-  }
-
-  .classroom-console__catalog.is-open { left: 8px; }
 }
 
 @media (max-width: 960px) {
-  .classroom-console__workspace,
-  .classroom-console.is-presenting .classroom-console__workspace {
+  .classroom-console__workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -740,14 +599,6 @@ textarea {
     gap: 8px;
   }
 
-  .classroom-console__header {
-    align-items: flex-start;
-  }
-
-  .classroom-console__catalog {
-    display: none;
-  }
-
   .classroom-stage-shell {
     width: 100%;
   }
@@ -756,9 +607,6 @@ textarea {
     display: none;
   }
 
-  .classroom-current-scene,
-  .classroom-voice-status { display: none; }
-
   .classroom-control-button {
     padding: 0 9px;
   }
@@ -766,6 +614,16 @@ textarea {
   .classroom-play-button {
     min-width: 118px;
     padding: 0 12px;
+  }
+}
+
+.classroom-playback-surface {
+  container-type: inline-size;
+}
+
+@container (max-width: 680px) {
+  .classroom-playback-surface .classroom-control-label {
+    display: none;
   }
 }
 
