@@ -15,7 +15,12 @@ test("desktop workbar navigation is left aligned with readable labels", async ()
   const styles = await readFile(new URL("../styles.css", import.meta.url), "utf8");
 
   assert.match(styles, /\.course-navigation--desktop\s*\{[^}]*justify-content:\s*flex-start;/u);
-  assert.match(styles, /\.course-navigation__link strong\s*\{[^}]*font-size:\s*15px;/u);
+  assert.match(styles, /\.course-shell__brand\s*\{[^}]*font-size:\s*22px;/u);
+  assert.match(styles, /\.course-shell__course-trigger,[\s\S]*?\.course-shell__course-name\s*\{[^}]*font-size:\s*17px;/u);
+  assert.match(styles, /\.course-navigation__link strong\s*\{[^}]*font-size:\s*18px;/u);
+  assert.match(styles, /\.course-navigation__icon \.app-icon\s*\{[^}]*font-size:\s*17px;/u);
+  assert.match(styles, /\.course-shell__profile\s*\{[^}]*font-size:\s*16px;/u);
+  assert.match(styles, /\.course-shell__actions \.job-center-launcher__label\s*\{[^}]*font-size:\s*16px;/u);
 });
 
 test("course settings live only in the teacher course menu", async () => {
