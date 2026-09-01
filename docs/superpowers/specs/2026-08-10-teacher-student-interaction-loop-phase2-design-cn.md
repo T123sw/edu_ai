@@ -6,7 +6,7 @@
 
 前置交付：Teacher–Student Learning Loop Phase 1、Agent Memory V2 设计
 
-问题证据：`Edu_AI/docs/acceptance/2026-08-10-teacher-student-learning-loop-real-e2e.md`
+问题证据：`docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-learning-loop-real-e2e.md`
 
 ## 0. 决策摘要
 

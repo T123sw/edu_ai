@@ -12,7 +12,7 @@ function assertIncludes(filePath: string, snippet: string) {
   }
 }
 
-const videoDocPath = "D:/Edu_AI_1/Edu_AI/docs/video-playback-interfaces.md";
+const videoDocPath = "D:/Edu_AI_1/docs/architecture/video-playback-interfaces.md";
 if (!existsSync(resolve(videoDocPath))) {
   throw new Error(`Expected ${videoDocPath} to exist`);
 }

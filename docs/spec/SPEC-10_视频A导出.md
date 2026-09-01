@@ -108,8 +108,8 @@ npm run export:classroom-video -- -- --base-url=http://127.0.0.1:5173 `
 | `CLASSROOM_VIDEO_NODE_BIN` | Node 可执行文件，默认从 PATH 解析 |
 | `CLASSROOM_VIDEO_FFMPEG_BIN` | FFmpeg 可执行文件，默认从 PATH 解析 |
 
-部署机必须安装与 `package-lock.json` 匹配的 Playwright，并执行
-`npx playwright install chromium`；同时提供 FFmpeg/ffprobe。生产前端必须允许后端
+部署机必须按 `pnpm-lock.yaml` 安装 Node 依赖，并执行
+`pnpm exec playwright install chromium`；同时提供 FFmpeg/ffprobe。生产前端必须允许后端
 导出进程访问内部渲染路由。
 
 ## 8. 代码落点

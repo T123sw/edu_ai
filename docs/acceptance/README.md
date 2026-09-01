@@ -25,3 +25,5 @@
 | [ACC-MEM-V2 Agent Memory V2 与 LangMem 集成](2026-08-31-agent-memory-v2-langmem-integration-acceptance.md) | [MEM-V2](../superpowers/specs/2026-08-31-agent-memory-v2-langmem-integration-design-cn.md) | Agent Memory | 后端闸门通过，待产品签收；[扩展评测](2026-08-31-agent-memory-v2-expanded-evaluation-report.md) |
 
 “通过”要求对应 ACC 中的可判定标准和自动化/实物证据成立。历史或全仓既有失败必须在对应 ACC 中明确隔离，不能隐瞒为全绿。
+
+2026-08-06 至 2026-08-12 的早期产品验收记录集中保存在 [`legacy-product-evidence/`](legacy-product-evidence/README.md)，仅用于追溯。

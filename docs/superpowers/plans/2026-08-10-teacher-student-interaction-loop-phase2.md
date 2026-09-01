@@ -1058,7 +1058,7 @@ git commit -m "fix: isolate failed chat history from learning turns"
 - Create: `Edu_AI/tests/e2e/fixtures/learningLoop.ts`
 - Modify: `Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py`
 - Modify: `Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py`
-- Modify: `Edu_AI/docs/acceptance/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md`
+- Modify: `docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md`
 
 **Interfaces:**
 - Produces: 可重复的教师/学生浏览器场景和唯一 E2E 数据前缀。
@@ -1159,12 +1159,12 @@ Expected: PASS，0 retries；失败时保留 screenshot、trace 和 API 响应�
 
 - [ ] **Step 6: 更新验收文档实测栏**
 
-把 `Edu_AI/docs/acceptance/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md` 中每个 `未执行` 改为 `通过` 或 `不通过`，填入提交、命令、时间、证据文件。不得仅因为单元测试通过就签署 Agent 真实可用。
+把 `docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md` 中每个 `未执行` 改为 `通过` 或 `不通过`，填入提交、命令、时间、证据文件。不得仅因为单元测试通过就签署 Agent 真实可用。
 
 - [ ] **Step 7: 提交 E2E 门禁**
 
 ```powershell
-git add Edu_AI/tests/e2e/teacher-student-learning-loop.spec.ts Edu_AI/tests/e2e/fixtures/learningLoop.ts Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py Edu_AI/docs/acceptance/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md
+git add Edu_AI/tests/e2e/teacher-student-learning-loop.spec.ts Edu_AI/tests/e2e/fixtures/learningLoop.ts Edu_AI/api/src/tests/learning/test_learning_loop_acceptance.py Edu_AI/api/src/tests/chat/runtime/test_learning_task_domain.py docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md
 git commit -m "test: gate the real teacher student learning loop"
 ```
 
@@ -1173,8 +1173,8 @@ git commit -m "test: gate the real teacher student learning loop"
 ### Task 8: 全量回归、迁移演练与发布签字
 
 **Files:**
-- Modify: `Edu_AI/docs/acceptance/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md`
-- Read: `Edu_AI/docs/acceptance/2026-08-10-teacher-student-learning-loop-real-e2e.md`
+- Modify: `docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md`
+- Read: `docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-learning-loop-real-e2e.md`
 
 **Interfaces:**
 - Produces: 最终发布结论、已知限制和可复验证据。
@@ -1256,7 +1256,7 @@ UI/API/Agent 对同一任务数字一致
 - [ ] **Step 7: 提交最终验收记录**
 
 ```powershell
-git add Edu_AI/docs/acceptance/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md
+git add docs/acceptance/legacy-product-evidence/2026-08-10-teacher-student-interaction-loop-phase2-acceptance.md
 git commit -m "docs: record phase 2 learning loop acceptance"
 ```
 

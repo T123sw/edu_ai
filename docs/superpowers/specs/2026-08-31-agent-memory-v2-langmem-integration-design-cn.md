@@ -11,7 +11,7 @@
 - `docs/superpowers/specs/2026-08-10-agent-memory-v2-design-cn.md`
 - `docs/superpowers/specs/2026-08-10-teacher-student-interaction-loop-phase2-design-cn.md`
 - `docs/superpowers/specs/2026-08-12-learning-task-assessment-loop-design-cn.md`
-- `Edu_AI/docs/acceptance/2026-08-12-learning-task-assessment-loop-acceptance.md`
+- `docs/acceptance/legacy-product-evidence/2026-08-12-learning-task-assessment-loop-acceptance.md`
 
 交付文档：
 

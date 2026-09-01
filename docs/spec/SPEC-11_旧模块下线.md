@@ -15,8 +15,8 @@ OpenMAIC 课堂链路完成互动播放、PPTX 和 MP4 导出后，仓库只保�
 1. 教师从“AI 课堂 / Classroom Studio”生成、编辑和播放课件。
 2. 同一份 `Stage / Scene / Action / Slide` 数据导出 PPTX。
 3. 同一份课堂与 `LessonTimeline` 导出 MP4、SRT 和时间轴。
-4. 旧聊天 PPT 意图返回 `classroom_handoff`，不再提交旧服务任务。
-5. 历史 PPT 材料仍可预览；不再提供旧式新建、修订或轮询接口。
+4. 聊天不再识别普通 PPT/课件生成意图，也不再跳转到 AI 课堂。
+5. 用户上传的 `.ppt`/`.pptx` 仍可作为知识资源或教学视频输入；普通 PPT 生成草稿和任务不再作为产品材料。
 6. 数字人、WebRTC 讲师、旧教学视频会话不再是产品能力。
 
 ## 3. 后端约束
@@ -24,7 +24,7 @@ OpenMAIC 课堂链路完成互动播放、PPTX 和 MP4 导出后，仓库只保�
 - FastAPI 不注册旧教学视频、讲师会话和旧直连 PPT 路由。
 - 应用启动与关闭不管理旧外部进程。
 - `app/` 运行时源码不引用已退休 vendor。
-- 聊天中的 PPT 生成工具与 workflow 只返回 AI 课堂跳转信息。
+- 普通 PPT 生成工具、workflow、草稿存储和 HTML2PPT 客户端全部删除，不注册兼容入口。
 - 旧 vendor 目录不再是 Git tracked content。
 
 ## 4. 前端约束
@@ -36,14 +36,14 @@ OpenMAIC 课堂链路完成互动播放、PPTX 和 MP4 导出后，仓库只保�
 
 ## 5. 部署约束
 
-- 安装脚本只安装主前端、主后端、Playwright Chromium，并可选安装 EduAgent。
-- 启动脚本只启动主前端与 FastAPI。
+- 安装脚本只安装主前端、主后端、OpenMAIC sidecar、PostgreSQL 客户端、Playwright Chromium 和 FFmpeg。
+- 启动配置只管理主前端、FastAPI、OpenMAIC sidecar 与 PostgreSQL，不安装 EduAgent。
 - 不需要 GPU、数字人模型权重或独立课件服务端口。
 - FFmpeg/ffprobe 与 Chromium 继续服务于 OpenMAIC 课堂视频导出。
 
 ## 6. 删除边界
 
-本阶段删除运行时代码、入口、配置、测试和 vendor 源码。历史设计文档与 Git 历史保留，用于审计迁移决策；它们不是当前部署依据。
+本阶段删除运行时代码、入口、配置、测试、vendor 源码以及专门描述已下线实现的文档。需要审计时通过 Git 历史读取，不在当前文档树保留重复副本。
 
 ## 7. 回退
 

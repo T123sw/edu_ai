@@ -2,7 +2,7 @@
 
 > 对应 spec：[`../spec/SPEC-08_前端集成_DSL与Renderer播放.md`](../spec/SPEC-08_前端集成_DSL与Renderer播放.md)
 > 对应 Phase：3（交互课堂）· 地图：[`../../项目总览地图.md`](../../项目总览地图.md) §4.1 前端 / §5 视频接缝
-> 相关：视频 A→B 三接缝细节见 [`../课件视频_统一时间线契约与AB演进预留设计_2026-06-30.md`](../课件视频_统一时间线契约与AB演进预留设计_2026-06-30.md)
+> 相关：视频 A→B 三接缝细节见 [`../architecture/lesson-timeline-contract.md`](../architecture/lesson-timeline-contract.md)
 > 通用环境：见 [验收 README §2](README.md)
 > 状态：✅ Phase 3 已通过（2026-07-25）。AC-08-1～9 均有代码、自动化测试或浏览器
 > 证据；中文音色自然度因自动化浏览器不暴露系统语音列表，保留为人工听感复核项，

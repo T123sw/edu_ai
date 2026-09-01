@@ -94,7 +94,7 @@ else (BYOK):
 | 默认 LLM | 托管 | `deepseek-v4-pro` 等 |
 | TTS | 托管 | 中文音色实测后固定 |
 | 用户自带 LLM/图片/视频 key | 开放 BYOK（可选）| 需保留 SSRF + verify |
-| webSearch | **默认开（主力外部源）** | 托管 search API（课件中文→Bocha/Baidu 优先，或 Tavily）；与 RAG 注入合并叠加、非二选一（SPEC-04 §4）。EduAgent deepsearch 作深度增强后置（SPEC-04 §0.1 D7）|
+| webSearch | **默认开（主力外部源）** | 托管 search API 使用 Bocha，正文抽取按现行接口使用 Tavily；与 RAG 注入合并叠加、非二选一（SPEC-04 §4），不再回退 EduAgent 或 SearXNG。|
 
 ---
 

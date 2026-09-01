@@ -71,7 +71,7 @@
 ### Documentation files to create or update
 
 - `docs/superpowers/decisions/2026-08-12-learning-task-assessment-loop.md`：实施决策日志。
-- `Edu_AI/docs/acceptance/2026-08-12-learning-task-assessment-loop-acceptance.md`：独立验收标准和证据记录。
+- `docs/acceptance/legacy-product-evidence/2026-08-12-learning-task-assessment-loop-acceptance.md`：独立验收标准和证据记录。
 - `docs/superpowers/plans/2026-08-12-learning-task-assessment-loop.md`：本计划，实施时逐项勾选。
 
 ---
@@ -568,7 +568,7 @@ Commit: `git commit -m "test: harden the assessment learning loop"`
 ### Task 12: 全量验证、验收取证、文档收口和最终推送
 
 **Files:**
-- Modify: `Edu_AI/docs/acceptance/2026-08-12-learning-task-assessment-loop-acceptance.md`
+- Modify: `docs/acceptance/legacy-product-evidence/2026-08-12-learning-task-assessment-loop-acceptance.md`
 - Modify: `docs/superpowers/decisions/2026-08-12-learning-task-assessment-loop.md`
 - Modify: `docs/superpowers/plans/2026-08-12-learning-task-assessment-loop.md`
 

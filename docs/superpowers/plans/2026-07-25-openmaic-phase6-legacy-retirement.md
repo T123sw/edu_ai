@@ -97,7 +97,7 @@ must stay green.
 **Files**
 
 - Modify `DEPENDENCIES.md`
-- Modify `Edu_AI/docs/DEPLOYMENT_DEPENDENCIES.md`
+- Modify `docs/deployment/README.md`
 - Modify `scripts/install-all.ps1`
 - Modify `scripts/install-all.sh`
 - Modify `Edu_AI/api/src/start_api.bat`

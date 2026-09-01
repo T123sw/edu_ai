@@ -1,93 +1,66 @@
-# Edu-AI 依赖与安装
+# Edu-AI 依赖与运行基线
 
-更新日期：2026-07-25
+更新日期：2026-09-01
 
-迁移完成后的主应用只需要三组运行时：React 前端、FastAPI 后端和仓库内的 OpenMAIC packages。课程 PPTX 与视频均由 AI 课堂链路导出，不需要额外的课件或数字人服务。
+本文记录项目重构和 Linux 部署采用的唯一环境基线。具体服务器事实与上线待办见 [`docs/deployment/`](docs/deployment/README.md)。
 
-## 系统要求
+## 支持的运行组件
 
-| 依赖 | 建议版本 | 用途 |
+- React/Vite 前端；
+- FastAPI 后端；
+- PostgreSQL；
+- OpenMAIC sidecar；
+- Playwright Chromium 与 FFmpeg 视频导出。
+
+不安装 EduAgent、旧数据采集管道、SearXNG、HTML2PPT、普通 PPT 服务、数字人或 WebRTC 组件。
+
+## 版本基线
+
+| 依赖 | 版本 | 用途 |
 | --- | --- | --- |
+| Miniforge/Conda | 当前稳定版 | Python 与系统库环境管理 |
 | Python | 3.12 | FastAPI、RAG、媒体处理 |
-| Node.js / npm | 20 / 10 | 前端与仓库内 OpenMAIC packages |
-| FFmpeg / ffprobe | 6+ | AI 课堂 MP4、音频与字幕合成 |
-| Chromium | 当前稳定版 | Playwright 课堂渲染 |
+| Node.js | 22 | 前端、OpenMAIC 和视频脚本 |
+| pnpm | 10.28 | 唯一 Node 包管理器 |
+| FFmpeg/ffprobe | 6+ | MP4、音频、字幕和媒体探测 |
+| PostgreSQL | 14+ | 生产数据库 |
+| Chromium | 与 Playwright 匹配 | 课堂渲染与视频导出 |
 
-## 一键安装
+## 依赖文件
 
-Windows：
+- 根目录 `environment.yml`：唯一 Conda 环境定义；目录重构阶段统一生成。
+- 后端 `requirements.txt`、`requirements-lock.txt`、`requirements-media.txt`：Python 依赖来源。
+- 前端和 sidecar 的 `pnpm-lock.yaml`：Node 依赖锁文件。
+- `.env.example`：配置字段模板，不包含真实密钥。
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-.\scripts\install-all.ps1
-```
+项目不再使用 `package-lock.json`、应用目录内重复的 `environment.yml` 或生产 venv 安装说明。
 
-Linux / macOS：
+## 统一端口
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-bash scripts/install-all.sh
-```
+| 端口 | 服务 | 暴露方式 |
+| --- | --- | --- |
+| 3000 | OpenMAIC sidecar | 仅内部访问 |
+| 5432 | PostgreSQL | 仅内部访问 |
+| 8001 | FastAPI | 由 Nginx 代理 |
+| 5173 | Vite 开发服务器 | 仅本地开发 |
 
-安装器会：
+46080 和 8888 不属于部署范围。
 
-1. 安装 `Edu_AI/api/src/requirements-media.txt`；
-2. 安装 `Edu_AI/package-lock.json` 锁定的前端依赖；
-3. 安装 Playwright Chromium；
-4. 可选安装 `EduAgent`；
-5. 在本地配置不存在时复制 `.env.example`。
-
-可用跳过参数：`SkipPython`、`SkipNode`、`SkipOptional`、`SkipPlaywrightBrowsers`、`SkipEnvFiles`。bash 版本使用对应的 `--skip-*` 参数。
-
-## 配置
-
-前端配置：
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8001
-```
-
-后端视频导出配置：
-
-```env
-OPENMAIC_BASE_URL=http://localhost:3000
-CLASSROOM_VIDEO_FRONTEND_URL=http://127.0.0.1:4173
-CLASSROOM_VIDEO_NODE=node
-CLASSROOM_VIDEO_FFMPEG=ffmpeg
-```
-
-模型、Embedding、搜索与语音识别配置见 `Edu_AI/api/src/.env.example`。真实密钥只写入本机 `.env`，不要提交。
-
-## 启动
-
-Windows 可执行：
-
-```powershell
-Edu_AI\api\src\start_api.bat
-```
-
-也可以分别启动：
+## 包管理规则
 
 ```bash
-cd Edu_AI/api/src
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
-
-cd Edu_AI
-npm run dev
+corepack enable
+corepack prepare pnpm@10.28.0 --activate
+pnpm install --frozen-lockfile
 ```
 
-## 验证
+前端、sidecar 和仓库内 OpenMAIC packages 均使用 pnpm。安装顺序和 Linux 服务配置将在目录重构完成后写入 `docs/deployment/`，旧启动脚本不作为生产部署入口。
 
-```bash
-python -m pip check
-npm test --prefix Edu_AI
-npm run build --prefix Edu_AI
-```
+## 运行数据
 
-视频导出还需要确认 `ffmpeg -version`、`ffprobe -version` 和 Playwright Chromium 可用。
+代码与运行数据必须分离。Linux 目标数据根目录为 `/data/edu_ai/`，用于保存课程、上传、模型、缓存、日志和备份。以下内容不得提交：
 
-## 不应提交
-
-不要提交 `.env`、虚拟环境、`node_modules/`、`dist/`、运行缓存、课程生成物、视频成品或真实密钥。
+- `.env` 和密钥；
+- Conda 环境、虚拟环境和 `node_modules/`；
+- `dist/`、`.next/`、测试输出和缓存；
+- 用户数据、课程生成物、向量库、模型和日志。
