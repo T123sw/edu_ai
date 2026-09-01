@@ -911,22 +911,53 @@ textarea {
 }
 
 .course-navigation__link {
+  position: relative;
   display: inline-flex;
-  min-height: 42px;
+  min-height: 48px;
   align-items: center;
-  gap: 7px;
-  border-radius: 11px;
-  padding: 0 13px;
-  color: var(--course-shell-muted);
+  border-radius: 10px;
+  padding: 0 15px;
+  color: color-mix(in srgb, var(--course-shell-ink) 72%, var(--course-shell-muted));
   white-space: nowrap;
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
-.course-navigation__link:hover { background: var(--course-shell-bg); color: var(--course-shell-ink); }
-.course-navigation__link.is-active { background: var(--course-shell-brand-soft); color: var(--course-shell-brand); box-shadow: inset 0 -2px 0 var(--course-shell-brand); }
-.course-navigation__icon { display: grid; width: 22px; height: 22px; flex: none; place-items: center; border-radius: 7px; background: color-mix(in srgb, currentColor 8%, transparent); }
-.course-navigation__icon .app-icon { font-size: 17px; }
-.course-navigation__link strong { display: block; font-size: 25px; font-weight: 760; }
+.course-navigation__link::after {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--course-shell-brand);
+  content: "";
+  transform: translateX(-50%);
+  transition: width 160ms ease;
+}
+
+.course-navigation__link:hover {
+  background: color-mix(in srgb, var(--course-shell-brand-soft) 38%, transparent);
+  color: var(--course-shell-ink);
+}
+
+.course-navigation__link.is-active {
+  background: transparent;
+  color: var(--course-shell-brand);
+  box-shadow: none;
+}
+
+.course-navigation__link.is-active::after { width: 30px; }
+
+.course-navigation__link strong {
+  display: block;
+  font-family: "Microsoft YaHei UI", "PingFang SC", "Segoe UI", sans-serif;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.course-navigation__link.is-active strong { font-weight: 700; }
 
 .course-shell__actions { display: flex; flex: none; align-items: center; gap: 10px; }
 .course-shell__actions .job-center-launcher__label { font-size: 16px; }
@@ -958,7 +989,6 @@ textarea {
   .course-shell__course { max-width: 190px; }
   .course-navigation--desktop { gap: 1px; }
   .course-navigation__link { padding-inline: 10px; }
-  .course-navigation--desktop .course-navigation__icon { display: none; }
 }
 
 @media (max-width: 980px) {

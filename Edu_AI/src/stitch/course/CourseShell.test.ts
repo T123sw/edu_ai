@@ -21,8 +21,11 @@ test("desktop workbar navigation is left aligned with readable labels", async ()
   assert.match(styles, /\.course-shell__workbar\s*\{[^}]*grid-template-columns:\s*auto auto minmax\(0, 1fr\) auto;/u);
   assert.match(styles, /\.course-shell__course-trigger\s*\{[^}]*width:\s*fit-content;/u);
   assert.match(styles, /\.course-shell__course-trigger > span:first-child\s*\{\s*flex:\s*0 1 auto;/u);
-  assert.match(styles, /\.course-navigation__link strong\s*\{[^}]*font-size:\s*25px;/u);
-  assert.match(styles, /\.course-navigation__icon \.app-icon\s*\{[^}]*font-size:\s*17px;/u);
+  assert.match(styles, /\.course-navigation__link strong\s*\{[^}]*font-family:\s*"Microsoft YaHei UI"[^}]*font-size:\s*25px;[^}]*font-weight:\s*600;/u);
+  assert.match(styles, /\.course-navigation__link\.is-active strong\s*\{[^}]*font-weight:\s*700;/u);
+  assert.match(styles, /\.course-navigation__link\.is-active::after\s*\{[^}]*width:\s*30px;/u);
+  assert.match(styles, /\.course-navigation__link::after\s*\{[^}]*height:\s*2px;/u);
+  assert.doesNotMatch(styles, /\.course-navigation__icon/u);
   assert.match(styles, /\.course-shell__profile\s*\{[^}]*font-size:\s*16px;/u);
   assert.match(styles, /\.course-shell__actions \.job-center-launcher__label\s*\{[^}]*font-size:\s*16px;/u);
 });
