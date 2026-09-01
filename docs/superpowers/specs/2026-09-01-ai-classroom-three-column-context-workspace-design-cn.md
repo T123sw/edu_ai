@@ -2,7 +2,7 @@
 
 日期：2026-09-01
 
-状态：设计已确认，待实施
+状态：已实施；代码、自动化测试与响应式视口验收通过
 
 关联设计：`2026-09-01-ai-classroom-curriculum-resource-tree-design-cn.md`
 
