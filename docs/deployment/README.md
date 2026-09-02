@@ -145,6 +145,7 @@ sudo tail -n 200 /var/log/nginx/error.log
 
 ## 相关资料
 
+- [`服务器Codex部署交接.md`](服务器Codex部署交接.md)
 - [`Linux服务器部署事实与待办.md`](Linux服务器部署事实与待办.md)
 - [`运行时数据边界.md`](运行时数据边界.md)
 - [`../../DEPENDENCIES.md`](../../DEPENDENCIES.md)
