@@ -37,7 +37,7 @@ export function CourseDetailPage() {
     : '尚无备课位置记录';
 
   return (
-    <AppSurface className="min-h-screen">
+    <AppSurface className="course-overview-page">
       <main className="course-overview">
         <article className="course-overview__sheet" aria-labelledby="course-title">
           <header className="course-overview__header">

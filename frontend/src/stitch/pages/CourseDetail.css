@@ -1,3 +1,11 @@
+.course-overview-page {
+  background-color: var(--course-shell-bg);
+  background-image:
+    radial-gradient(ellipse 620px 560px at 0% 5%, color-mix(in srgb, var(--course-shell-brand) 13%, transparent), transparent 75%),
+    radial-gradient(ellipse 560px 640px at 100% 75%, color-mix(in srgb, #8b78cf 11%, transparent), transparent 75%),
+    radial-gradient(circle, color-mix(in srgb, var(--course-shell-brand) 16%, transparent) .7px, transparent 1px);
+  background-size: auto, auto, 28px 28px;
+}
 .course-overview { width: min(1240px, 100%); margin: 0 auto; padding: 24px 32px; color: var(--course-shell-ink); }
 .course-overview__sheet { position: relative; display: flex; flex-direction: column; min-height: calc(100dvh - 120px); overflow: hidden; border: 1px solid var(--course-shell-line); border-radius: 22px; background: var(--course-shell-nav); box-shadow: 0 12px 40px #24355208; }
 .course-overview__sheet::before { content: ""; position: absolute; z-index: 2; pointer-events: none; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--course-shell-brand), color-mix(in srgb, var(--course-shell-brand) 18%, var(--course-shell-nav))); }
