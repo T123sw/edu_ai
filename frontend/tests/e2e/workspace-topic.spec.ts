@@ -11,7 +11,8 @@ test('chat title precedes its topic subtitle and the picker expands chapters to 
   }}));
   await page.goto('/#ai?course_id=course-physics');
   const bar = page.getByTestId('workspace-context-bar');
-  await expect(page.locator('.chat-panel__heading').getByTestId('workspace-context-bar')).toBeVisible();
+  // The AI workspace is lazy-loaded; parallel cold starts can exceed five seconds.
+  await expect(page.locator('.chat-panel__heading').getByTestId('workspace-context-bar')).toBeVisible({ timeout: 15000 });
   const titleBox = await page.locator('.chat-panel__title').boundingBox();
   const barBox = await bar.boundingBox();
   expect(barBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
