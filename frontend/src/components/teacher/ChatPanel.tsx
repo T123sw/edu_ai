@@ -1311,10 +1311,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       const currentCapabilityState = useStore.getState();
       const currentAllowRag = currentCapabilityState.allowRag;
       const currentAllowWeb = currentCapabilityState.allowWeb;
-      // Checked documents are always a mandatory, scoped RAG source.
-      // Enabling the RAG knowledge-base button expands that scope to every
-      // document currently mounted in the workspace, regardless of which
-      // individual rows are checked.
+      // Personal selections are explicit sources. Without selections the RAG
+      // toggle enables automatic retrieval within the current course scope.
       const effectiveSelectedDocIds = resolveChatRetrievalDocIds({
         mountFullKnowledgeBase: currentAllowRag,
         selectedDocIds: selectedDocs,
@@ -2359,10 +2357,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               </Popover>
 
               <div className="chat-panel__composer-toggle-group">
-                <Tooltip title="开启后，本轮强制检索当前工作区的整个知识库">
+                <Tooltip title="开启后允许检索当前课程知识库；勾选的个人资料作为指定来源">
                   <Button
                     size="large"
                     className={`chat-panel__composer-mode-button ${allowRag ? 'chat-panel__composer-mode-button--active' : ''}`}
+                    aria-pressed={allowRag}
                     onClick={() => setAllowRag(!useStore.getState().allowRag)}
                     disabled={isLoading}
                   >
@@ -2414,6 +2413,5 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 };
 
 export default ChatPanel;
-
 
 

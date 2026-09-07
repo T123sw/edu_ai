@@ -30,19 +30,25 @@ test("generation factory is keyboard operable and keeps its footer reachable", a
   await expect(teacherPage.getByRole("dialog", { name: "配置教学报告" })).toHaveCount(0);
 });
 
-test("documents checked on the left become the generation source automatically", async ({ teacherPage }) => {
+test("personal documents checked on the left become the generation source automatically", async ({ teacherPage }, testInfo) => {
+  await teacherPage.route("**/api/chat/v2/generation/tools", route => route.fulfill({ json: { tools: [{ tool_id: "report" }] } }));
+  await teacherPage.route('**/api/personal-knowledge/documents?**', route => route.fulfill({ json: [
+    { id: 'personal-1', name: '教师讲义.pdf', type: 'file', library_type: 'personal', status: 'ready', owner_user_id: 'teacher-a' },
+  ] }));
   await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await teacherPage.getByRole("button", { name: "知识库", exact: true }).click();
-  const documentRow = teacherPage.locator(".source-panel__item").filter({ hasText: "大学物理·力学.pdf" }).first();
+  await teacherPage.getByRole("button", { name: testInfo.project.name === "mobile" ? "知识库" : "展开知识库", exact: true }).click();
+  await teacherPage.getByRole('tab', { name: /个人知识库/ }).click();
+  const documentRow = teacherPage.locator(".source-panel__item").filter({ hasText: "教师讲义.pdf" }).first();
   await expect(documentRow).toBeVisible();
   await documentRow.locator('input[type="checkbox"]').check();
 
-  await teacherPage.getByRole("button", { name: "生成工厂", exact: true }).click();
+  await teacherPage.getByRole("button", { name: testInfo.project.name === "mobile" ? "知识库" : "折叠知识库", exact: true }).click();
+  await teacherPage.getByRole("button", { name: testInfo.project.name === "mobile" ? "生成工厂" : "打开生成工厂", exact: true }).click();
   await teacherPage.getByRole("button", { name: "教学报告", exact: true }).click();
   await expect(teacherPage.getByText("资料范围（已选 1 份文档）")).toBeVisible();
   await teacherPage.getByText("资料范围（已选 1 份文档）").click();
   await expect(teacherPage.getByRole("radio", { name: "仅使用选中文档", exact: false })).toBeChecked();
-  await expect(teacherPage.getByLabel("资料范围").getByText("大学物理·力学.pdf", { exact: true })).toBeVisible();
+  await expect(teacherPage.getByLabel("资料范围").getByText("教师讲义.pdf", { exact: true })).toBeVisible();
 });
 
 test("generation modal keeps a teacher's unfinished configuration", async ({ teacherPage }, testInfo) => {

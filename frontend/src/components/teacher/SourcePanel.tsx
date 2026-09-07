@@ -66,10 +66,6 @@ import { deepSearchAndCrawl, getCrawlResults, type CrawlResult } from '../../ser
 import { uploadVideo } from '../../services/video';
 import type { WorkspaceScope } from '../../services/teacher/workspaceScope';
 import {
-  collectKnowledgeSubtreeNodeIds,
-  collectScopedKnowledgeNodeIds,
-} from './knowledgeScopeSelection';
-import {
   buildWebsiteFaviconUrl,
   inferWebsiteUrlFromFileName,
 } from './websiteIcon';
@@ -342,7 +338,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const [personalFileList, setPersonalFileList] = useState<FileItem[]>([]);
   const [courseKnowledgeGraphRoot, setCourseKnowledgeGraphRoot] = useState<KnowledgeGraphNode | null>(null);
   const [expandedCourseNodeIds, setExpandedCourseNodeIds] = useState<string[]>([]);
-  const [checkedCourseNodeIds, setCheckedCourseNodeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>(selectedDocs);
   const [searchValue, setSearchValue] = useState('');
@@ -436,15 +431,13 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     setFileList(combinedFiles);
     setScopedSourceDocIds(combinedFiles.map(sourceSelectionId));
 
-    const visibleKeys = new Set(combinedFiles.map(sourceSelectionId));
+    const visibleKeys = new Set(formattedFiles.personalFiles.map(sourceSelectionId));
     const currentSelectedDocs = useStore.getState().selectedDocs;
-    const nextSelectedDocs = workspaceScope?.scopeType === 'knowledge_point'
-      ? formattedFiles.courseFiles.map(sourceSelectionId)
-      : currentSelectedDocs.filter((docId) => visibleKeys.has(docId));
+    const nextSelectedDocs = currentSelectedDocs.filter((docId) => visibleKeys.has(docId));
     if (nextSelectedDocs.length !== currentSelectedDocs.length || nextSelectedDocs.some((id, index) => id !== currentSelectedDocs[index])) {
       setSelectedDocs(nextSelectedDocs);
     }
-  }, [setScopedSourceDocIds, setSelectedDocs, workspaceScope?.scopeType]);
+  }, [setScopedSourceDocIds, setSelectedDocs]);
 
   useEffect(() => {
     if (!courseId) {
@@ -498,18 +491,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     ));
   }, [courseKnowledgeGraphRoot?.id, workspaceScope?.scopeId, workspaceScope?.scopeType]);
 
-  useEffect(() => {
-    if (workspaceScope?.scopeType !== 'knowledge_point') {
-      setCheckedCourseNodeIds([]);
-      return;
-    }
-    setCheckedCourseNodeIds(
-      collectScopedKnowledgeNodeIds(
-        courseKnowledgeGraphRoot,
-        workspaceScope.scopeId,
-      ),
-    );
-  }, [courseKnowledgeGraphRoot, workspaceScope?.scopeId, workspaceScope?.scopeType]);
 
   useEffect(() => {
     return () => {
@@ -677,9 +658,9 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   useEffect(() => {
     setCheckedKeys(selectedDocs);
     setSelectAllChecked(
-      fileList.length > 0 && fileList.every((file) => selectedDocs.includes(sourceSelectionId(file))),
+      personalFileList.length > 0 && personalFileList.every((file) => selectedDocs.includes(sourceSelectionId(file))),
     );
-  }, [selectedDocs, fileList]);
+  }, [selectedDocs, personalFileList]);
 
   // 监听高亮请求（依赖 requestId，确保重复点击也触发）
   useEffect(() => {
@@ -1007,11 +988,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   }, [highlightedContent, setHighlightRequest]);
 
   const applyCheckedFileKeys = React.useCallback((nextKeys: React.Key[]) => {
-    const dedupedKeys = Array.from(new Set(nextKeys));
+    const personalIds = new Set(personalFileList.map(sourceSelectionId));
+    const dedupedKeys = Array.from(new Set(nextKeys)).filter((key) => personalIds.has(String(key)));
     setCheckedKeys(dedupedKeys);
     setSelectedDocs(dedupedKeys as string[]);
-    setSelectAllChecked(fileList.length > 0 && fileList.every((file) => dedupedKeys.includes(sourceSelectionId(file))));
-  }, [fileList, setSelectedDocs]);
+    setSelectAllChecked(personalFileList.length > 0 && personalFileList.every((file) => dedupedKeys.includes(sourceSelectionId(file))));
+  }, [personalFileList, setSelectedDocs]);
 
   const onCheck = (key: React.Key, checked: boolean) => {
     const newChecked = checked ? [...checkedKeys, key] : checkedKeys.filter(k => k !== key);
@@ -1020,7 +1002,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      const allFileKeys = fileList.map(sourceSelectionId);
+      const allFileKeys = personalFileList.map(sourceSelectionId);
       applyCheckedFileKeys(allFileKeys);
     } else {
       applyCheckedFileKeys([]);
@@ -1468,16 +1450,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     });
   };
 
-  const collectCourseNodeIdsForNode = (node: KnowledgeGraphNode): string[] => {
-    return collectKnowledgeSubtreeNodeIds(node);
-  };
-
-  const collectCourseFileKeysForNode = (node: KnowledgeGraphNode): React.Key[] => {
-    const directFileKeys = getCourseFilesForNode(node).map(sourceSelectionId);
-    const descendantFileKeys = (node.children || []).flatMap((childNode) => collectCourseFileKeysForNode(childNode));
-    return Array.from(new Set([...directFileKeys, ...descendantFileKeys]));
-  };
-
   const collectCourseDocumentCountForNode = (node: KnowledgeGraphNode): number => {
     const directCount = getCourseFilesForNode(node).length;
     const descendantCount = (node.children || []).reduce(
@@ -1485,32 +1457,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       0,
     );
     return directCount + descendantCount;
-  };
-
-  const handleCourseNodeSelectAll = (node: KnowledgeGraphNode, checked: boolean) => {
-    const subtreeNodeIds = collectCourseNodeIdsForNode(node);
-    const subtreeFileKeys = collectCourseFileKeysForNode(node);
-    const nextCheckedNodeIds = new Set(checkedCourseNodeIds);
-    const nextCheckedKeys = new Set(checkedKeys);
-
-    subtreeNodeIds.forEach((nodeId) => {
-      if (checked) {
-        nextCheckedNodeIds.add(nodeId);
-      } else {
-        nextCheckedNodeIds.delete(nodeId);
-      }
-    });
-
-    subtreeFileKeys.forEach((fileKey) => {
-      if (checked) {
-        nextCheckedKeys.add(fileKey);
-      } else {
-        nextCheckedKeys.delete(fileKey);
-      }
-    });
-
-    setCheckedCourseNodeIds(Array.from(nextCheckedNodeIds));
-    applyCheckedFileKeys(Array.from(nextCheckedKeys));
   };
 
   const renderCourseLibraryTreeNode = (
@@ -1528,17 +1474,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     });
 
     const nodeFiles = getCourseFilesForNode(node);
-    const subtreeNodeIds = collectCourseNodeIdsForNode(node);
-    const subtreeFileKeys = collectCourseFileKeysForNode(node);
     const subtreeDocumentCount = collectCourseDocumentCountForNode(node);
-    const selectedSubtreeNodeCount = subtreeNodeIds.filter((nodeId) => checkedCourseNodeIds.includes(nodeId)).length;
-    const selectedSubtreeFileCount = subtreeFileKeys.filter((fileKey) => checkedKeys.includes(fileKey)).length;
-    const subtreeFullyChecked = subtreeFileKeys.length > 0
-      ? selectedSubtreeFileCount === subtreeFileKeys.length
-      : selectedSubtreeNodeCount > 0 && selectedSubtreeNodeCount === subtreeNodeIds.length;
-    const subtreeIndeterminate = subtreeFileKeys.length > 0
-      ? selectedSubtreeFileCount > 0 && selectedSubtreeFileCount < subtreeFileKeys.length
-      : selectedSubtreeNodeCount > 0 && selectedSubtreeNodeCount < subtreeNodeIds.length;
     const isExpanded = expandedCourseNodeIds.includes(node.id);
     const showToggle = childNodes.length > 0;
 
@@ -1565,15 +1501,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           )}
           <span className="source-panel__tree-node-label" title={node.label}>{node.label}</span>
           <Text type="secondary" className="source-panel__tree-node-count">{subtreeDocumentCount}</Text>
-          <Checkbox
-            checked={subtreeFullyChecked}
-            indeterminate={subtreeIndeterminate}
-            onChange={(e) => {
-              e.stopPropagation();
-              handleCourseNodeSelectAll(node, e.target.checked);
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
+
         </div>
 
         {showToggle && isExpanded ? (
@@ -1732,10 +1660,10 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               onClick={(e) => e.stopPropagation()}
             />
           </Dropdown>
-          <Checkbox checked={checkedKeys.includes(sourceSelectionId(file))} onChange={(e) => {
+          {file.libraryType === PERSONAL_LIBRARY_TYPE ? <Checkbox aria-label={`选择资料：${file.title}`} checked={checkedKeys.includes(sourceSelectionId(file))} onChange={(e) => {
             e.stopPropagation();
             onCheck(sourceSelectionId(file), e.target.checked);
-          }} className="source-panel__item-checkbox" />
+          }} className="source-panel__item-checkbox" /> : null}
         </div>
       </div>
     );
@@ -2023,10 +1951,10 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           <div className="source-panel__section-heading">
             <span className="source-panel__section-label">资料列表</span>
           </div>
-          <div className="source-panel__select-all">
+          {libraryTab === PERSONAL_LIBRARY_TYPE ? <div className="source-panel__select-all">
             <span className="source-panel__select-all-text">选择所有来源</span>
-            <Checkbox checked={selectAllChecked} onChange={(e) => handleSelectAll(e.target.checked)} />
-          </div>
+            <Checkbox aria-label="选择全部个人资料" checked={selectAllChecked} onChange={(e) => handleSelectAll(e.target.checked)} />
+          </div> : null}
         </div>
 
         <div className="source-panel__list">
@@ -2069,10 +1997,10 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
                             onClick={(e) => e.stopPropagation()}
                           />
                         </Dropdown>
-                        <Checkbox checked={checkedKeys.includes(sourceSelectionId(file))} onChange={(e) => {
+                        {file.libraryType === PERSONAL_LIBRARY_TYPE ? <Checkbox aria-label={`选择资料：${file.title}`} checked={checkedKeys.includes(sourceSelectionId(file))} onChange={(e) => {
                           e.stopPropagation();
                           onCheck(sourceSelectionId(file), e.target.checked);
-                        }} className="source-panel__item-checkbox" />
+                        }} className="source-panel__item-checkbox" /> : null}
                       </div>
                     </div>
                   );
