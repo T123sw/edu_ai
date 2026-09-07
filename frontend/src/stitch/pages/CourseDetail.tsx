@@ -54,19 +54,19 @@ export function CourseDetailPage() {
               <p>{objective}</p>
             </li>)}</ol>
           </section> : null}
-          <footer className="course-overview__continuation">
             <div className="course-overview__history" aria-busy={history.loading}>
-              <div>
-                <span>上次{user?.role === 'student' ? '学习' : '备课'}位置</span>
+              <section aria-labelledby="preparation-location-title">
+                <h2 id="preparation-location-title">上次{user?.role === 'student' ? '学习' : '备课'}位置</h2>
                 <strong>{locationText}</strong>
                 {previous ? <small>{new Date(previous.record.visitedAt).toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}</small> : null}
-              </div>
-              <div>
-                <span>最近资料</span>
+              </section>
+              <section aria-labelledby="recent-material-title">
+                <h2 id="recent-material-title">最近资料</h2>
                 <strong>{history.loading ? '正在读取最近资料…' : history.materialFailed ? '暂时无法读取资料' : history.material?.title || history.material?.topic || (history.material ? '未命名资料' : '还没有生成资料')}</strong>
                 {history.material ? <small>{getCourseMaterialTypeMeta(history.material.material_type).label}{history.material.updated_at && Number.isFinite(Date.parse(history.material.updated_at)) ? ` · 更新于 ${new Date(history.material.updated_at).toLocaleDateString('zh-CN')}` : ''}</small> : null}
-              </div>
+              </section>
             </div>
+          <footer className="course-overview__continuation">
             <a className="course-overview__primary" href={workspaceHref}>
               {user?.role === "student" ? "开始学习" : "开始备课"}<MaterialIcon name="arrow_forward" />
             </a>
