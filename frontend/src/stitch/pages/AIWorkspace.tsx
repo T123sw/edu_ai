@@ -1,3 +1,4 @@
+import { WorkspaceContextBar } from "../../components/teacher/WorkspaceContextBar";
 import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
 import ChatPanel from "../../components/teacher/ChatPanel";
@@ -171,6 +172,12 @@ export function AIWorkspacePage() {
             <div className="ai-studio-content">
               <div className="ai-panel">
                 <ChatPanel
+                  topicSelector={<WorkspaceContextBar
+                    courseId={selectedCourse?.id}
+                    courseTitle={selectedCourse?.title || ''}
+                    scope={workspaceScope}
+                    onChange={(nextScope) => writeAiWorkspaceHash(nextScope, user?.role === "student")}
+                  />}
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
                   onWorkspaceScopeChange={(nextScope) => {

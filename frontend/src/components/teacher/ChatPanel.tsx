@@ -97,6 +97,7 @@ interface Message {
 }
 
 interface ChatPanelProps {
+  topicSelector?: React.ReactNode;
   courseId?: string;
   workspaceScope?: WorkspaceScope;
   onWorkspaceScopeChange?: (scope: WorkspaceScope) => void;
@@ -309,7 +310,7 @@ function buildInlineSourcePlan(markdown: string, sources: ChatSourceV2[]): Inlin
   };
 }
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorkspaceScopeChange }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorkspaceScopeChange, topicSelector }) => {
   const {
     messages,
     addMessage,
@@ -1732,7 +1733,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           <Title level={5} className="chat-panel__title">
             对话
           </Title>
-          <div className="chat-panel__subtitle">当前知识库：{workspaceKnowledgeBaseLabel}</div>
+          {topicSelector}
+          {!topicSelector && <div className="chat-panel__subtitle">当前知识库：{workspaceKnowledgeBaseLabel}</div>}
         </div>
 
         <div className="chat-panel__controls">
