@@ -5,7 +5,7 @@ import { validateResume, type ResumeResult } from './validateResume';
 import { resumeApi } from './resumeApi';
 import './resume.css';
 
-export function ResumeEntry({ refreshToken = 0 }: { refreshToken?: number }) {
+export function ResumeEntry({ refreshToken = 0, featured = false }: { refreshToken?: number; featured?: boolean }) {
   const { user, authenticated } = useAuthSession();
   const identity = authenticated && user ? resumeKey(user) : '';
   const [state, setState] = useState<{ identity: string; result: ResumeResult | null; busy: boolean }>({ identity: '', result: null, busy: false });
@@ -45,7 +45,12 @@ export function ResumeEntry({ refreshToken = 0 }: { refreshToken?: number }) {
     window.location.hash = resumeHash(user, checked.record);
   }
   return (
-    <section className="resume-entry" aria-label={action} aria-busy={state.busy}>
+    <section className={`resume-entry${featured ? ' resume-entry--featured' : ''}`} aria-label={action} aria-busy={state.busy}>
+      {featured ? <svg className="resume-entry__art" aria-hidden="true" viewBox="0 0 420 240" fill="none">
+        <circle cx="230" cy="120" r="102" /><circle cx="230" cy="120" r="75" />
+        <path d="m144 80 91-23 91 23v117l-91-24-91 24V80Zm91-23v116M160 100l56-15m-56 39 56-15m38-24 53 15m-53 9 53 15" />
+        <path d="m111 36 9 9-9 9-9-9 9-9Zm233 124 9 9-9 9-9-9 9-9Z" />
+      </svg> : null}
       <span className="resume-entry__icon" aria-hidden="true">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 5.5C9 3.5 5.5 3.5 3 4.5v14c2.5-1 6-1 9 1 3-2 6.5-2 9-1v-14c-2.5-1-6-1-9 1Z" />
@@ -59,6 +64,7 @@ export function ResumeEntry({ refreshToken = 0 }: { refreshToken?: number }) {
             <strong>{result.course.title}</strong>
             {result.label ? <span> · {result.label}</span> : null}
           </span>
+          {featured ? <time className="resume-entry__visited" dateTime={result.record.visitedAt}>最近使用 {new Date(result.record.visitedAt).toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}</time> : null}
           {result.status === 'fallback' ? <small role="status">原位置已不可用，将返回本课程概览。</small> : null}
         </> : <span role="status">{state.busy ? '正在确认上次课程…' : '暂时无法确认上次课程，请重试。'}</span>}
       </div>

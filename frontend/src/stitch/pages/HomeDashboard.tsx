@@ -19,6 +19,7 @@ import { AppSurface, MaterialIcon, routeHref, routes, useAppShell } from "../sha
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { toCourseCardPresentation, type CourseCardFacts } from "./courseCardPresentation";
 import "./HomeDashboard.css";
+import "./TeacherCourseHome.css";
 
 const emptyFacts: CourseCardFacts = {
   documentCount: 0,
@@ -120,8 +121,8 @@ export function HomeDashboardPage() {
       <main className="teacher-home__main">
         <section className="teacher-home__intro">
           <div>
-            <p className="teacher-home__eyebrow">教师课程工作台</p>
-            <h1>选择课程，继续今天的教学工作</h1>
+            <p className="teacher-home__eyebrow">教学工作台</p>
+            <h1>我的课程<span>每一堂好课，从这里开始。</span></h1>
           </div>
           <div className="teacher-home__actions">
             {user?.role !== "student" ? (
@@ -129,18 +130,18 @@ export function HomeDashboardPage() {
                 <MaterialIcon name="add" /> 创建课程
               </button>
             ) : null}
-            <label className="teacher-home__search">
-              <MaterialIcon name="search" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
-            </label>
           </div>
         </section>
 
-        <ResumeEntry />
+        <ResumeEntry featured />
 
         <section aria-labelledby="course-grid-title">
           <div className="teacher-home__section-head">
-            <div><h2 id="course-grid-title">全部课程</h2><p>{courses.length} 门可访问课程</p></div>
+            <div className="teacher-home__collection-title"><h2 id="course-grid-title">全部课程</h2><span>{courses.length}</span></div>
+            <label className="teacher-home__search">
+              <MaterialIcon name="search" />
+              <input aria-label="搜索课程" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索课程名称或简介" />
+            </label>
           </div>
 
           {loading ? <div className="teacher-home__state">正在加载课程…</div> : null}
@@ -167,7 +168,7 @@ export function HomeDashboardPage() {
                   aria-label={course.title}
                   onClick={() => setSelectedCourse(backendCourseToSummary(course, index))}
                 >
-                  <CourseCardContent card={card} action="进入课程" />
+                  <CourseCardContent card={card} action="进入课程" illustrated />
                 </a>
               );
             })}

@@ -1,0 +1,62 @@
+.teacher-home { background: radial-gradient(ellipse at 80% 0%, #eaf0fc 0, transparent 38%), #f5f7fb; }
+.teacher-home__topbar { padding-right: 84px; }
+body:has(.teacher-home) .job-center-launcher:not(.job-center-launcher--inline) { top: 14px; right: 20px; width: 40px; height: 40px; border: 1px solid #e3e9f3; border-radius: 12px; background: #f8faff; box-shadow: none; }
+.teacher-home__main { width: min(1512px, 100%); padding: 40px clamp(24px, 4vw, 64px) 72px; }
+.teacher-home__intro { align-items: center; margin-bottom: 28px; }
+.teacher-home__intro .teacher-home__eyebrow { margin: 0 0 8px; font-size: 12px !important; font-weight: 650; letter-spacing: .12em; }
+.teacher-home__intro h1 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px 22px; margin: 0; font-size: 34px; letter-spacing: -.03em; line-height: 1.4; }
+.teacher-home__intro h1 span { color: #7a879d; font-size: 14px; font-weight: 400; letter-spacing: 0; }
+.teacher-home__actions { width: auto; }
+.teacher-home__create { min-height: 44px; padding: 10px 19px; border-radius: 11px; font-weight: 650; font-size: 14px; }
+.teacher-home__section-head { align-items: center; gap: 20px; margin-bottom: 22px; }
+.teacher-home__collection-title { display: flex; align-items: center; gap: 10px; }
+.teacher-home__collection-title h2 { font-size: 21px; font-weight: 750; }
+.teacher-home__collection-title > span { display: grid; place-items: center; min-width: 28px; height: 26px; padding: 0 7px; border-radius: 8px; background: #e8edf6; color: #596984; font-size: 12px; font-weight: 650; }
+.teacher-home__search { width: min(320px, 50%); box-shadow: none; border-color: #e0e6ef; }
+.teacher-home__search input { padding: 11px 0; color: #334155; font-size: 13px; }
+.teacher-home__search:focus-within { border-color: #6682db; box-shadow: 0 0 0 3px #3157d515; }
+.teacher-home .teacher-course-grid { gap: 24px; }
+.teacher-home .teacher-course-card { padding: 0; overflow: hidden; border-radius: 17px; border-color: #e3e8f0; background: #fff; box-shadow: 0 3px 10px #23355404; }
+.teacher-home .teacher-course-card:hover { transform: translateY(-4px); border-color: #b7c6e5; box-shadow: 0 14px 32px #23355412; }
+.teacher-home .teacher-course-card__heading { padding: 20px 22px 0; min-height: 0; }
+.teacher-home .teacher-course-card__icon { display: none; }
+.teacher-home .teacher-course-card h3 { font-size: 20px; font-weight: 750; line-height: 1.5; }
+.teacher-home .teacher-course-card__description { margin: 8px 22px 0; color: #78859a; font-size: 12px; line-height: 21px; height: 42px; }
+.teacher-home .teacher-course-card__metrics { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 18px 22px; }
+.teacher-home .teacher-course-card__metrics div { flex-direction: row; align-items: baseline; gap: 6px; }
+.teacher-home .teacher-course-card__metrics div + div { padding-left: 0; border: 0; }
+.teacher-home .teacher-course-card__metrics dd { color: #3e506c; font-size: 17px; font-weight: 700; }
+.teacher-home .teacher-course-card__metrics dt { color: #7b879a; font-size: 12px; }
+.teacher-home .teacher-course-card__footer { margin: auto 22px 0; padding: 13px 0 16px; flex-wrap: wrap; color: #718098; font-size: 11px; }
+.teacher-home .teacher-course-card__footer strong { padding: 5px 0 5px 8px; background: transparent; color: #4263cb; font-size: 12px; }
+.teacher-home .teacher-course-card:hover .teacher-course-card__footer strong { background: transparent; color: #254bc5; }
+.resume-entry--featured { position: relative; isolation: isolate; min-height: 198px; overflow: hidden; gap: 24px; padding: 34px 40px; margin-bottom: 36px; border: 1px solid #ffffff30; border-radius: 20px; color: #fff; background: radial-gradient(ellipse at 87% 90%, #7277de70, transparent 65%), linear-gradient(112deg, #294aaa, #405cc4 55%, #6264c6); box-shadow: 0 12px 30px #3157d51a; }
+.resume-entry--featured .resume-entry__icon { width: 64px; height: 72px; background: #ffffff16; color: #fff; border-color: #ffffff30; border-radius: 18px; box-shadow: inset 0 1px 0 #ffffff25; }
+.resume-entry--featured .resume-entry__icon svg { width: 32px; height: 32px; }
+.resume-entry--featured .resume-entry__eyebrow { margin-bottom: 9px; color: #e0e7ff; font-size: 12px; font-weight: 500; }
+.resume-entry--featured .resume-entry__summary { color: #e0e7ff; }
+.resume-entry--featured .resume-entry__summary strong { color: #fff; font-size: 31px; font-weight: 700; line-height: 1.4; }
+.resume-entry--featured .resume-entry__text small { color: #e0e7ff; }
+.resume-entry__visited { display: block; margin-top: 12px; color: #dbe4ff; font-size: 12px; }
+.resume-entry--featured button { margin-left: 80px; padding: 12px 22px; border: 1px solid #ffffff90; background: #fff; color: #3451b0; box-shadow: 0 4px 12px #1d2b681a; }
+.resume-entry--featured button:hover:not(:disabled) { background: #edf2ff; box-shadow: 0 6px 18px #1d2b6830; }
+.resume-entry--featured button:focus-visible { outline-color: #fff; }
+.resume-entry__art { position: absolute; z-index: -1; right: 100px; top: -28px; height: 250px; width: 440px; color: #fff; stroke: currentColor; stroke-width: 1.2; opacity: .16; pointer-events: none; }
+@media (min-width: 1800px) { .teacher-home__main { width: min(1640px, 100%); } }
+@media (max-width: 1100px) { .teacher-home__intro h1 span { flex-basis: 100%; } .resume-entry--featured { padding: 28px; } .resume-entry--featured button { margin-left: 0; } }
+@media (max-width: 760px) {
+  .teacher-home__main { padding: 28px 20px 48px; }
+  .teacher-home__intro { flex-direction: row; align-items: center; gap: 14px; }
+  .teacher-home__intro h1 { font-size: 28px; }
+  .teacher-home__intro h1 span { display: none; }
+  .teacher-home__create { padding: 10px 12px; font-size: 12px; }
+  .teacher-home__section-head { flex-wrap: wrap; gap: 14px; }
+  .teacher-home__search { width: 100%; }
+  .resume-entry--featured { min-height: 190px; padding: 24px; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+  .resume-entry--featured .resume-entry__icon { width: 44px; height: 52px; border-radius: 12px; }
+  .resume-entry--featured .resume-entry__text { flex-basis: calc(100% - 58px); }
+  .resume-entry--featured .resume-entry__summary strong { font-size: 25px; }
+  .resume-entry--featured button { margin-left: 58px; padding: 9px 16px; }
+  .resume-entry__art { right: -120px; top: 0; opacity: .1; }
+}
+@media (prefers-reduced-motion: reduce) { .teacher-home .teacher-course-card:hover { transform: none; } }

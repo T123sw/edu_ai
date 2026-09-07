@@ -1,0 +1,10 @@
+.course-cover { --cover-bg: #e9edff; --cover-ink: #6175c8; height: 116px; flex: none; overflow: hidden; background: linear-gradient(110deg, var(--cover-bg), color-mix(in srgb, var(--cover-bg) 55%, white)); color: var(--cover-ink); }
+.course-cover--teal { --cover-bg: #ddf2ee; --cover-ink: #358a88; }
+.course-cover--violet { --cover-bg: #eee5fa; --cover-ink: #9270bc; }
+.course-cover--slate { --cover-bg: #e3ebf4; --cover-ink: #607c9e; }
+.course-cover--amber { --cover-bg: #f8eedc; --cover-ink: #b39458; }
+.course-cover--ink { --cover-bg: #e9efe6; --cover-ink: #6e8973; }
+.course-cover svg { width: 100%; height: 100%; }
+.course-cover__grid { stroke: currentColor; opacity: .065; }
+.course-cover__halo { stroke: currentColor; opacity: .12; }
+.course-cover__drawing { stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .75; }

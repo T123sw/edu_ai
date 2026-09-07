@@ -1,12 +1,15 @@
 import type { toCourseCardPresentation } from './courseCardPresentation';
+import { CourseCover } from './CourseCover';
 
 type Props = {
   card: ReturnType<typeof toCourseCardPresentation>;
   action: string;
+  illustrated?: boolean;
 };
 
-export function CourseCardContent({ card, action }: Props) {
+export function CourseCardContent({ card, action, illustrated = false }: Props) {
   return <>
+    {illustrated ? <CourseCover title={card.title} id={card.id} /> : null}
     <div className="teacher-course-card__heading">
       <span className="teacher-course-card__icon" aria-hidden="true">
         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
