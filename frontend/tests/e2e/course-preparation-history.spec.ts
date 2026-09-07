@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures/teacherApp';
 
-test('overview retains the preparation topic and resumes it from the bottom action', async ({ teacherPage: page }) => {
+test('overview retains the preparation topic and resumes it from the primary action', async ({ teacherPage: page }) => {
   await page.addInitScript(() => localStorage.setItem('edu-ai-resume:v1:teacher:teacher-a', JSON.stringify({
     version: 1, courseId: 'course-physics', route: 'ai',
     params: { scopeType: 'knowledge_point', scopeId: 'mechanics' }, visitedAt: '2026-09-07T08:00:00Z',
