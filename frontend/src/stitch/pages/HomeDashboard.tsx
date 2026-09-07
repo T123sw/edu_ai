@@ -121,8 +121,7 @@ export function HomeDashboardPage() {
       <main className="teacher-home__main">
         <section className="teacher-home__intro">
           <div>
-            <p className="teacher-home__eyebrow">教学工作台</p>
-            <h1>我的课程<span>每一堂好课，从这里开始。</span></h1>
+            <h1>我的课程</h1>
           </div>
           <div className="teacher-home__actions">
             {user?.role !== "student" ? (
