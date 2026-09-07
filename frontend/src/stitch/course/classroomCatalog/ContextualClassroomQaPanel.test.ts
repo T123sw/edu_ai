@@ -4,12 +4,12 @@ import test from "node:test";
 
 const source = (relativePath: string) => readFile(new URL(relativePath, import.meta.url), "utf8");
 
-test("contextual QA names the active resource and full context scope", async () => {
+test("contextual QA keeps resource binding without displaying a scope banner", async () => {
   const [contextPanel, panel] = await Promise.all([
     source("./ContextualClassroomQaPanel.tsx"),
     source("../../classroomQa/ClassroomQaPanel.tsx"),
   ]);
-  assert.match(contextPanel, /正在围绕/);
+  assert.doesNotMatch(contextPanel, /正在围绕/);
   assert.match(contextPanel, /已读取完整文档/);
   assert.match(contextPanel, /已读取完整习题/);
   assert.match(contextPanel, /已读取完整课堂/);

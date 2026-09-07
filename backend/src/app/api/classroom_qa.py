@@ -57,11 +57,22 @@ async def submit_classroom_qa_turn(
     service: ClassroomQaService = Depends(get_classroom_qa_service),
 ):
     try:
+        material_args = {}
+        if request.resource_version is not None:
+            # Use the same version and authorization as the player, never latest draft.
+            from app.api.courses import get_classroom
+            import anyio
+            from functools import partial
+            material_args["trusted_material"] = await anyio.to_thread.run_sync(partial(
+                get_classroom, course_id=course_id, classroom_id=classroom_id,
+                resource_version=request.resource_version, principal=principal,
+            ))
         return await service.submit_turn(
             course_id=course_id,
             classroom_id=classroom_id,
             owner_user_id=principal.user_id,
             request=request,
+            **material_args,
         )
     except ClassroomQaError as exc:
         raise _http_error(exc) from exc

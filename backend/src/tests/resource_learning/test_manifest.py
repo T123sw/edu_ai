@@ -130,3 +130,10 @@ def test_practice_manifest_uses_required_questions_without_explanation() -> None
     assert manifest.explanation_total_ms == 0
     assert manifest.required_question_ids == ("q1", "q2")
     assert manifest.scenes[0].kind == "exercise"
+
+
+def test_multiple_choice_scoring_accepts_persisted_letter_formats() -> None:
+    from app.resource_learning.manifest import normalize_question_scoring
+    for values in [("AC",), ("A,C",), ("A、C",), ("A", "C")]:
+        assert normalize_question_scoring(values, "multiple_choice") == ("A", "C")
+    assert normalize_question_scoring(("AC",), "short_answer") == ("AC",)

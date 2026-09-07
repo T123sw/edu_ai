@@ -1,0 +1,966 @@
+{
+  "model": "deepseek-v4-flash",
+  "cases": [
+    {
+      "question": "为当前课程生成一份简短报告，约300字，不配图、不联网。请直接生成。",
+      "scope_id": "array",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "《数据结构》“数组”知识点学习报告\n\n本课程围绕“数组”展开，核心是理解顺序存储结构及其在数据组织中的基础作用。数组使用连续内存空间存放相同类型元素，支持通过下标直接访问，随机访问时间复杂度为 O(1)，这是数组最突出的优势。\n\n课程重点内容包括：一维数组的存储与寻址方式；二维数组的行优先、列优先存储及地址计算公式；数组插入和删除操作因需要移动元素，平均时间复杂度为 O(n)；动态数组扩容机制及均摊分析；特殊矩阵的压缩存储，如对称矩阵、三角矩阵和稀疏矩阵。\n\n学习中的易错点主要有：数组下标越界；混淆数组长度与容量；二维数组遍历顺序不同带来的性能差异；动态扩容均摊复杂度理解不清。数组适合频繁随机访问、元素数量相对稳定的场景；需要频繁插入删除时，应与链表等结构进行比较选择。\n\n总体而言，掌握数组不仅是学习后续栈、队列、串和矩阵运算的基础，也有助于建立“存储结构决定操作效率”的核心认识。建议结合内存模型理解寻址，并多练习二维数组下标转换和稀疏矩阵存储。"
+        },
+        "conversation": {
+          "conversation_id": "b-live-resolved"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "trace_id": "f3d26ac3-d069-4ad2-9819-b93ad80a3ba1",
+          "path": "agent_fallback",
+          "rag_used": false,
+          "web_used": false,
+          "video_used": false,
+          "source_mode": "none",
+          "selected_doc_ids": [],
+          "input_image_count": 0,
+          "input_video_count": 0,
+          "timings": {
+            "prep_ms": 0,
+            "llm_calls": [
+              {
+                "stage": "fast.reply",
+                "duration_ms": 12271,
+                "retry": 0
+              }
+            ],
+            "total_ms": 12271
+          },
+          "agent_steps": [
+            {
+              "step": 0,
+              "tool": "draft_outline",
+              "args": {
+                "subject": "当前课程一份简短 约300字 不、不联网 请直接",
+                "resource_type": "report",
+                "constraints": "{}",
+                "audience": "",
+                "duration_minutes": "45"
+              },
+              "result_summary": "已生成 report 大纲（150 字符）",
+              "ok": true,
+              "duration_ms": 5343
+            }
+          ],
+          "_t_start": 489323.40071981,
+          "needs_planning": true,
+          "intent": "generate_single",
+          "contract_hash": "1cf4ac17d28ce85616aa767d",
+          "tool_decisions": [
+            {
+              "selected_tools": [],
+              "skipped_tools": {
+                "rag_search": "capability_disabled",
+                "web_search": "capability_disabled"
+              },
+              "candidates": [],
+              "estimated_cost_units": 0,
+              "supplemental": false,
+              "query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "plan_step_index": 0
+            },
+            {
+              "selected_tools": [],
+              "skipped_tools": {
+                "rag_search": "capability_disabled",
+                "web_search": "capability_disabled"
+              },
+              "candidates": [],
+              "estimated_cost_units": 0,
+              "supplemental": false,
+              "query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "plan_step_index": 0
+            }
+          ],
+          "fallback_path": "fast",
+          "fallback_reason": "llm_error: 所有模型失败: deepseek-v4-flash: HTTP 400 | deepseek-chat: HTTP 400"
+        },
+        "workspace_context": {
+          "course_id": "b-context-smoke-course",
+          "course_title": "数据结构",
+          "scope_type": "knowledge_point",
+          "scope_id": "array",
+          "scope_title": "数组",
+          "scope_path": [
+            "数据结构",
+            "数组"
+          ],
+          "resolution": "resolved",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "chat",
+          "status_label": "普通对话",
+          "topics": [
+            "为当前课程生成一份简短报告",
+            "约300字"
+          ],
+          "goal": "生成报告",
+          "issues": [],
+          "confirmed_facts": [
+            "不配图、不联网"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "继续提问，或告诉我你想生成什么",
+          "suggested_actions": [
+            "继续提问",
+            "生成报告"
+          ],
+          "length": "300字",
+          "allow_rag": false,
+          "allow_web": false,
+          "summary_hint": "当前围绕为当前课程生成一份简短报告、约300字继续讨论"
+        }
+      },
+      "new_generation_calls": 0
+    },
+    {
+      "question": "确认生成",
+      "scope_id": "array",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "已提交报告生成任务（任务 ID: job_b_context_1）。已完成工具调用与结构化审计，可继续询问任务进度。"
+        },
+        "conversation": {
+          "conversation_id": "b-live-resolved"
+        },
+        "action": {
+          "name": "agent.completed"
+        },
+        "artifacts": [],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "agent_steps": [
+            {
+              "step": 0,
+              "tool": "generate_report",
+              "args": {
+                "subject": "数组",
+                "confirmed_outline": "# 当前课程简短报告大纲\n\n## 课程概述\n- 课程名称与定位\n- 学习目标与总体感受\n\n## 课程核心内容\n- 主要知识模块\n- 关键技能与方法\n- 重点与难点\n\n## 学习过程与体验\n- 学习方式",
+                "focus": "",
+                "length_hint": "",
+                "topic": "数组"
+              },
+              "result_summary": "已提交报告生成任务，task_id=job_b_context_1",
+              "ok": true,
+              "duration_ms": 3,
+              "task_id": "job_b_context_1",
+              "workflow_type": "report"
+            },
+            {
+              "step": 1,
+              "tool": "verify_task",
+              "args": {},
+              "result_summary": "执行自检完成，存在待跟踪项",
+              "ok": true,
+              "duration_ms": 0
+            }
+          ],
+          "trace_id": "66bbffb2-8b8c-413e-845c-e07868bb8eda",
+          "path": "agent",
+          "_t_start": 489341.915107993,
+          "needs_planning": true,
+          "intent": "confirm",
+          "contract_hash": "414ad98604b81eb6d7867ca4",
+          "source_mode": "none",
+          "selected_doc_ids": [],
+          "tool_decisions": [
+            {
+              "selected_tools": [],
+              "skipped_tools": {
+                "rag_search": "capability_disabled",
+                "web_search": "capability_disabled"
+              },
+              "candidates": [],
+              "estimated_cost_units": 0,
+              "supplemental": false,
+              "query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "plan_step_index": 0
+            },
+            {
+              "selected_tools": [],
+              "skipped_tools": {
+                "rag_search": "capability_disabled",
+                "web_search": "capability_disabled"
+              },
+              "candidates": [],
+              "estimated_cost_units": 0,
+              "supplemental": false,
+              "query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "plan_step_index": 1
+            }
+          ]
+        },
+        "verification": {
+          "plan_compliance": true,
+          "required_tools_satisfied": true,
+          "forbidden_tools_absent": true,
+          "tool_order_valid": true,
+          "duplicate_submission_absent": true,
+          "grounding_valid": false,
+          "artifact_contract_valid": true,
+          "artifact_readable": null,
+          "persona_valid": true,
+          "execution_audit": {
+            "valid": true,
+            "required_tools_satisfied": true,
+            "forbidden_tools_absent": true,
+            "tool_order_valid": true,
+            "duplicate_submission_absent": true,
+            "failed_tools": []
+          },
+          "evidence_audit": {
+            "valid": false,
+            "grounding_valid": false,
+            "evidence_count": 0,
+            "missing_aspects": [
+              "concept",
+              "pedagogy",
+              "misconception",
+              "assessment"
+            ]
+          },
+          "artifact_audit": {
+            "valid": null,
+            "readable": null,
+            "assessments": []
+          },
+          "persona_audit": {
+            "valid": true,
+            "issues": []
+          },
+          "repair_directive": {
+            "action": "supplement_evidence",
+            "reason": "只补充缺失证据，不重复生成已成功资源",
+            "failed_audit": "evidence",
+            "target_step_index": null,
+            "target_tool": "rag_search",
+            "max_attempts": 1,
+            "preserve_successful_task_ids": [
+              "job_b_context_1"
+            ],
+            "requires_user_confirmation": false
+          },
+          "warnings": [
+            "检索证据不足或研究问题覆盖不完整",
+            "资源任务已提交，需在任务成功且材料可读后才能宣称完成"
+          ],
+          "decision": "retry"
+        },
+        "tool_exchange": [
+          {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "compiled_step_1_generate_report",
+                "type": "function",
+                "function": {
+                  "name": "generate_report",
+                  "arguments": "{\"subject\": \"当前课程一份简短 约300字 不、不联网 请直接\", \"confirmed_outline\": \"# 当前课程简短报告大纲\\n\\n## 课程概述\\n- 课程名称与定位\\n- 学习目标与总体感受\\n\\n## 课程核心内容\\n- 主要知识模块\\n- 关键技能与方法\\n- 重点与难点\\n\\n## 学习过程与体验\\n- 学习方式与资源运用\\n- 遇到的挑战及解决思路\\n\\n## 课程收获与总结\\n- 知识能力提升\\n- 对后续学习的启发\", \"focus\": \"\", \"length_hint\": \"\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "compiled_step_1_generate_report",
+            "content": "已提交后台任务，task_id=job_b_context_1"
+          },
+          {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "compiled_step_2_verify_task",
+                "type": "function",
+                "function": {
+                  "name": "verify_task",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "compiled_step_2_verify_task",
+            "content": "执行自检完成，存在待跟踪项"
+          }
+        ],
+        "workspace_context": {
+          "course_id": "b-context-smoke-course",
+          "course_title": "数据结构",
+          "scope_type": "knowledge_point",
+          "scope_id": "array",
+          "scope_title": "数组",
+          "scope_path": [
+            "数据结构",
+            "数组"
+          ],
+          "resolution": "resolved",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "chat",
+          "status_label": "普通对话",
+          "topics": [
+            "确认生成",
+            "为当前课程生成一份简短报告",
+            "约300字"
+          ],
+          "goal": "生成报告",
+          "issues": [],
+          "confirmed_facts": [
+            "不配图、不联网"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "继续提问，或告诉我你想生成什么",
+          "suggested_actions": [
+            "继续提问",
+            "生成报告"
+          ],
+          "length": "300字",
+          "allow_rag": false,
+          "allow_web": false,
+          "summary_hint": "当前围绕确认生成、为当前课程生成一份简短报告继续讨论"
+        }
+      },
+      "new_generation_calls": 1
+    },
+    {
+      "question": "为当前课程生成一份简短报告，约300字，不配图、不联网。请直接生成。",
+      "scope_id": null,
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "请指定要使用的知识点；同名知识点请选择完整章节路径。"
+        },
+        "conversation": {
+          "conversation_id": "b-live-clarify"
+        },
+        "action": {
+          "name": "workspace.clarify"
+        },
+        "artifacts": [],
+        "sources": [],
+        "trace": {
+          "path": "fast"
+        },
+        "workspace_context": {
+          "course_id": "b-context-smoke-course",
+          "course_title": "数据结构",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "clarification": {
+          "status": "needs_clarification",
+          "operation_id": "acee59f202d247649dc0c6dd18795415",
+          "question": "请指定要使用的知识点；同名知识点请选择完整章节路径。",
+          "candidates": [
+            {
+              "scope_id": "array",
+              "scope_title": "数组",
+              "scope_path": [
+                "数据结构",
+                "数组"
+              ]
+            },
+            {
+              "scope_id": "list",
+              "scope_title": "链表",
+              "scope_path": [
+                "数据结构",
+                "链表"
+              ]
+            },
+            {
+              "scope_id": "ch1",
+              "scope_title": "章节一",
+              "scope_path": [
+                "数据结构",
+                "章节一"
+              ]
+            },
+            {
+              "scope_id": "t1",
+              "scope_title": "遍历",
+              "scope_path": [
+                "数据结构",
+                "章节一",
+                "遍历"
+              ]
+            },
+            {
+              "scope_id": "ch2",
+              "scope_title": "章节二",
+              "scope_path": [
+                "数据结构",
+                "章节二"
+              ]
+            },
+            {
+              "scope_id": "t2",
+              "scope_title": "遍历",
+              "scope_path": [
+                "数据结构",
+                "章节二",
+                "遍历"
+              ]
+            }
+          ]
+        },
+        "status_card": {
+          "mode": "chat",
+          "status_label": "普通对话",
+          "topics": [
+            "为当前课程生成一份简短报告",
+            "约300字"
+          ],
+          "goal": "生成报告",
+          "issues": [],
+          "confirmed_facts": [
+            "不配图、不联网"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "继续提问，或告诉我你想生成什么",
+          "suggested_actions": [
+            "继续提问",
+            "生成报告"
+          ],
+          "length": "300字",
+          "allow_rag": false,
+          "allow_web": false,
+          "summary_hint": "当前围绕为当前课程生成一份简短报告、约300字继续讨论"
+        }
+      },
+      "new_generation_calls": 0
+    },
+    {
+      "question": "数组",
+      "scope_id": null,
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "# 数组知识点简要报告\n\n数组是线性表的顺序存储实现，使用一组连续内存空间存放相同类型的数据元素。其核心特征是支持按下标随机访问，访问任意元素的时间复杂度为 O(1)。逻辑上相邻的元素在物理存储上也相邻，通过“首地址 + 偏移量”即可计算出目标元素的地址。\n\n教学重点包括：一维数组与多维数组的存储映射，尤其是行优先和列优先的地址计算公式；数组与线性表的关系；基本操作如初始化、取值、赋值、查找和遍历。插入和删除操作因需要移动大量元素，平均时间复杂度为 O(n)，这是数组作为顺序存储结构的主要局限。\n\n常见易错点有：下标越界、地址计算时偏移量错误、多维数组维度顺序混淆，以及数组长度与容量概念不清。\n\n建议教学中结合具体语言示例，说明数组在内存中的连续布局，并与链表对比，帮助学生理解顺序存储的优缺点。本知识点是后续矩阵压缩存储、稀疏矩阵和字符串等内容的基础，应注重建立“连续存储、随机访问、插入删除代价高”的直观认识。"
+        },
+        "conversation": {
+          "conversation_id": "b-live-clarify"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "trace_id": "ff738c77-28b4-4e73-8342-f0a1e6ec73e4",
+          "path": "agent_fallback",
+          "rag_used": false,
+          "web_used": false,
+          "video_used": false,
+          "source_mode": "none",
+          "selected_doc_ids": [],
+          "input_image_count": 0,
+          "input_video_count": 0,
+          "timings": {
+            "prep_ms": 0,
+            "llm_calls": [
+              {
+                "stage": "fast.reply",
+                "duration_ms": 13114,
+                "retry": 0
+              }
+            ],
+            "total_ms": 13115
+          },
+          "agent_steps": [
+            {
+              "step": 0,
+              "tool": "draft_outline",
+              "args": {
+                "subject": "当前课程一份简短 约300字 不、不联网 请直接 用户补充 数组",
+                "resource_type": "report",
+                "constraints": "{}",
+                "audience": "",
+                "duration_minutes": "45"
+              },
+              "result_summary": "已生成 report 大纲（121 字符）",
+              "ok": true,
+              "duration_ms": 4919
+            }
+          ],
+          "_t_start": 489343.248229196,
+          "needs_planning": true,
+          "intent": "generate_single",
+          "contract_hash": "727d665c26fda9b083b492d5",
+          "tool_decisions": [
+            {
+              "selected_tools": [],
+              "skipped_tools": {
+                "rag_search": "capability_disabled",
+                "web_search": "capability_disabled"
+              },
+              "candidates": [],
+              "estimated_cost_units": 0,
+              "supplemental": false,
+              "query": "当前课程一份简短 约300字 不、不联网 请直接 用户补充 数组",
+              "plan_step_index": 0
+            },
+            {
+              "selected_tools": [],
+              "skipped_tools": {
+                "rag_search": "capability_disabled",
+                "web_search": "capability_disabled"
+              },
+              "candidates": [],
+              "estimated_cost_units": 0,
+              "supplemental": false,
+              "query": "当前课程一份简短 约300字 不、不联网 请直接 用户补充 数组",
+              "plan_step_index": 0
+            }
+          ],
+          "fallback_path": "fast",
+          "fallback_reason": "llm_error: 所有模型失败: deepseek-v4-flash: HTTP 400 | deepseek-chat: HTTP 400"
+        },
+        "workspace_context": {
+          "course_id": "b-context-smoke-course",
+          "course_title": "数据结构",
+          "scope_type": "knowledge_point",
+          "scope_id": "array",
+          "scope_title": "数组",
+          "scope_path": [
+            "数据结构",
+            "数组"
+          ],
+          "resolution": "resolved",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "chat",
+          "status_label": "普通对话",
+          "topics": [
+            "为当前课程生成一份简短报告",
+            "约300字"
+          ],
+          "goal": "生成报告",
+          "issues": [
+            "常见易错点有：下标越界、地址计算时偏移量错误、多维数组维度顺序混淆"
+          ],
+          "confirmed_facts": [
+            "不配图、不联网",
+            "用户补充：数组"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "继续提问，或告诉我你想生成什么",
+          "suggested_actions": [
+            "继续提问",
+            "生成报告"
+          ],
+          "length": "300字",
+          "allow_rag": false,
+          "allow_web": false
+        }
+      },
+      "new_generation_calls": 0
+    },
+    {
+      "question": "为遍历生成报告",
+      "scope_id": "array",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "请指定要使用的知识点；同名知识点请选择完整章节路径。"
+        },
+        "conversation": {
+          "conversation_id": "b-live-duplicate"
+        },
+        "action": {
+          "name": "workspace.clarify"
+        },
+        "artifacts": [],
+        "sources": [],
+        "trace": {
+          "path": "fast"
+        },
+        "workspace_context": {
+          "course_id": "b-context-smoke-course",
+          "course_title": "数据结构",
+          "scope_type": "knowledge_point",
+          "scope_id": "array",
+          "scope_title": "数组",
+          "scope_path": [
+            "数据结构",
+            "数组"
+          ],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "clarification": {
+          "status": "needs_clarification",
+          "operation_id": "04bd1850ca6d4ea098cc53e5ffbb3867",
+          "question": "请指定要使用的知识点；同名知识点请选择完整章节路径。",
+          "candidates": [
+            {
+              "scope_id": "t1",
+              "scope_title": "遍历",
+              "scope_path": [
+                "数据结构",
+                "章节一",
+                "遍历"
+              ]
+            },
+            {
+              "scope_id": "t2",
+              "scope_title": "遍历",
+              "scope_path": [
+                "数据结构",
+                "章节二",
+                "遍历"
+              ]
+            }
+          ]
+        },
+        "status_card": {
+          "mode": "chat",
+          "status_label": "普通对话",
+          "topics": [
+            "为遍历生成报告"
+          ],
+          "goal": "生成报告",
+          "issues": [],
+          "confirmed_facts": [],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "继续提问，或告诉我你想生成什么",
+          "suggested_actions": [
+            "继续提问",
+            "生成报告"
+          ],
+          "allow_rag": false,
+          "allow_web": false,
+          "summary_hint": "当前围绕为遍历生成报告继续讨论"
+        }
+      },
+      "new_generation_calls": 0
+    }
+  ],
+  "worker_mode": "production handler invoked in-process after captured submission",
+  "materials": [
+    {
+      "command": {
+        "resource_type": "report",
+        "owner_user_id": "b-context-smoke-teacher",
+        "course_id": "b-context-smoke-course",
+        "scope_type": "knowledge_point",
+        "scope_id": "array",
+        "source_mode": "none",
+        "selected_doc_ids": [],
+        "deadline_seconds": 300,
+        "execution_timeout_seconds": null,
+        "config": {
+          "entrypoint": "agent",
+          "title": "数组",
+          "subject": "数组",
+          "confirmed_outline": "# 当前课程简短报告大纲\n\n## 课程概述\n- 课程名称与定位\n- 学习目标与总体感受\n\n## 课程核心内容\n- 主要知识模块\n- 关键技能与方法\n- 重点与难点\n\n## 学习过程与体验\n- 学习方式与资源运用\n- 遇到的挑战及解决思路\n\n## 课程收获与总结\n- 知识能力提升\n- 对后续学习的启发",
+          "focus": "",
+          "length_hint": "",
+          "allow_rag": false,
+          "accumulated_images": [],
+          "research_context": "",
+          "research_sources": [],
+          "research_bundle": {
+            "schema_version": "2026-08-09.research.v2",
+            "bundle_id": "research-c3fa8d4c7a3b16219e00",
+            "topic": "数组",
+            "source_mode": "none",
+            "course_evidence": [],
+            "web_evidence": [],
+            "visual_assets": [],
+            "citations": [],
+            "queries": [],
+            "quality_summary": "课程证据 0 条，Web 证据 0 条，研究覆盖 0%",
+            "missing_evidence": [],
+            "research_plan": {
+              "schema_version": "2026-08-09.research.v1",
+              "topic": "当前课程一份简短 约300字 不、不联网 请直接",
+              "primary_query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "questions": [
+                {
+                  "question_id": "concept",
+                  "aspect": "concept",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接",
+                  "keywords": [
+                    "当前课程一份简短 约300字 不、不联网 请直接"
+                  ],
+                  "required": true
+                },
+                {
+                  "question_id": "pedagogy",
+                  "aspect": "pedagogy",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接 教学活动 课堂案例",
+                  "keywords": [
+                    "教学",
+                    "课堂",
+                    "活动",
+                    "案例"
+                  ],
+                  "required": true
+                },
+                {
+                  "question_id": "misconception",
+                  "aspect": "misconception",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接 常见错误 易错点 误区",
+                  "keywords": [
+                    "常见错误",
+                    "易错",
+                    "误区",
+                    "错误"
+                  ],
+                  "required": true
+                },
+                {
+                  "question_id": "assessment",
+                  "aspect": "assessment",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接 学习目标 评价 练习",
+                  "keywords": [
+                    "学习目标",
+                    "教学目标",
+                    "评价",
+                    "练习"
+                  ],
+                  "required": true
+                }
+              ],
+              "minimum_coverage": 0.5,
+              "max_supplemental_queries": 1
+            },
+            "coverage": {
+              "coverage_ratio": 0.0,
+              "covered_aspects": [],
+              "missing_aspects": [
+                "concept",
+                "pedagogy",
+                "misconception",
+                "assessment"
+              ],
+              "next_query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "sufficient": false
+            }
+          },
+          "research_bundle_id": "research-c3fa8d4c7a3b16219e00"
+        },
+        "idempotency_key": "agent-report-922691c1ef0bc6a26272dce2383d0bad",
+        "material_id": "report-7ceb6af87731d073"
+      },
+      "result_ref": {
+        "resource_type": "course_material",
+        "course_id": "b-context-smoke-course",
+        "material_type": "report",
+        "material_id": "report-7ceb6af87731d073"
+      },
+      "material": {
+        "title": "数组",
+        "content": "",
+        "generation_state": {
+          "chapter_count": 1,
+          "completed_chapters": 0,
+          "retry_count": 0,
+          "failed_chapters": [],
+          "failed_sections": [],
+          "chapter_snapshots": [],
+          "llm_calls": [
+            {
+              "stage": "report.fast_body",
+              "duration_ms": 85122,
+              "retry": 0
+            }
+          ],
+          "grounding": {
+            "knowledge_base_context_used": false,
+            "retrieval_context_used": false,
+            "research_source_count": 0
+          }
+        },
+        "source": {
+          "selected_doc_ids": [],
+          "rag_index_keys": []
+        },
+        "schema_version": 2,
+        "version": 1,
+        "material_type": "report",
+        "material_id": "report-7ceb6af87731d073",
+        "course_id": "b-context-smoke-course",
+        "scope_type": "knowledge_point",
+        "scope_id": "array",
+        "owner_user_id": "b-context-smoke-teacher",
+        "created_by": "b-context-smoke-teacher",
+        "visibility": "private",
+        "source_job_id": "job_b_context_1",
+        "config_snapshot_id": "cfg_158d7379d9daa74e",
+        "source_snapshot": {
+          "mode": "none",
+          "requested_document_ids": [],
+          "documents": [],
+          "resolved_at": "2026-09-07T05:27:39.203945+00:00"
+        },
+        "config_snapshot": {
+          "entrypoint": "agent",
+          "title": "数组",
+          "subject": "数组",
+          "confirmed_outline": "# 当前课程简短报告大纲\n\n## 课程概述\n- 课程名称与定位\n- 学习目标与总体感受\n\n## 课程核心内容\n- 主要知识模块\n- 关键技能与方法\n- 重点与难点\n\n## 学习过程与体验\n- 学习方式与资源运用\n- 遇到的挑战及解决思路\n\n## 课程收获与总结\n- 知识能力提升\n- 对后续学习的启发",
+          "focus": "",
+          "length_hint": "",
+          "allow_rag": false,
+          "accumulated_images": [],
+          "research_context": "",
+          "research_sources": [],
+          "research_bundle": {
+            "schema_version": "2026-08-09.research.v2",
+            "bundle_id": "research-c3fa8d4c7a3b16219e00",
+            "topic": "数组",
+            "source_mode": "none",
+            "course_evidence": [],
+            "web_evidence": [],
+            "visual_assets": [],
+            "citations": [],
+            "queries": [],
+            "quality_summary": "课程证据 0 条，Web 证据 0 条，研究覆盖 0%",
+            "missing_evidence": [],
+            "research_plan": {
+              "schema_version": "2026-08-09.research.v1",
+              "topic": "当前课程一份简短 约300字 不、不联网 请直接",
+              "primary_query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "questions": [
+                {
+                  "question_id": "concept",
+                  "aspect": "concept",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接",
+                  "keywords": [
+                    "当前课程一份简短 约300字 不、不联网 请直接"
+                  ],
+                  "required": true
+                },
+                {
+                  "question_id": "pedagogy",
+                  "aspect": "pedagogy",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接 教学活动 课堂案例",
+                  "keywords": [
+                    "教学",
+                    "课堂",
+                    "活动",
+                    "案例"
+                  ],
+                  "required": true
+                },
+                {
+                  "question_id": "misconception",
+                  "aspect": "misconception",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接 常见错误 易错点 误区",
+                  "keywords": [
+                    "常见错误",
+                    "易错",
+                    "误区",
+                    "错误"
+                  ],
+                  "required": true
+                },
+                {
+                  "question_id": "assessment",
+                  "aspect": "assessment",
+                  "query": "当前课程一份简短 约300字 不、不联网 请直接 学习目标 评价 练习",
+                  "keywords": [
+                    "学习目标",
+                    "教学目标",
+                    "评价",
+                    "练习"
+                  ],
+                  "required": true
+                }
+              ],
+              "minimum_coverage": 0.5,
+              "max_supplemental_queries": 1
+            },
+            "coverage": {
+              "coverage_ratio": 0.0,
+              "covered_aspects": [],
+              "missing_aspects": [
+                "concept",
+                "pedagogy",
+                "misconception",
+                "assessment"
+              ],
+              "next_query": "当前课程一份简短 约300字 不、不联网 请直接",
+              "sufficient": false
+            }
+          },
+          "research_bundle_id": "research-c3fa8d4c7a3b16219e00"
+        },
+        "status": "ready",
+        "created_at": "2026-09-07T05:29:04.332762",
+        "updated_at": "2026-09-07T05:29:04.332762",
+        "is_pinned": false,
+        "pinned_at": null,
+        "content_hash": "7699101829faa43420a47f3ebe9d8da4bd9eb4705cea033cbe76fab46ff99f95",
+        "artifact_paths": []
+      }
+    }
+  ]
+}

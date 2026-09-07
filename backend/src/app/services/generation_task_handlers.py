@@ -292,6 +292,8 @@ class _AgentReportGenerationAdapter:
             ),
             mode="fast",
         )
+        if not str(body or "").strip():
+            raise ValueError("报告模型未返回正文，未保存空资料")
         checkpoint = dict(checkpoint or {})
         checkpoint["grounding"] = {
             "knowledge_base_context_used": bool(source_context),

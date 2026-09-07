@@ -133,6 +133,9 @@ def extract_task_contract(
     web_policy = "required" if web_required else ("allowed" if allow_web else "disabled")
     image_policy = "required" if requires_images else ("allowed" if allow_images else "disabled")
     topic = _topic(question, resource_types, active_outline)
+    workspace = getattr(request, "workspace_context", None)
+    if workspace is not None and workspace.resolution == "resolved":
+        topic = workspace.scope_title
     question_count = _question_count(lowered)
     audience = _audience(question)
     lesson_duration = _lesson_duration(question)

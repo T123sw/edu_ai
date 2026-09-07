@@ -16,6 +16,7 @@ function getAuthToken(): string | null {
 }
 
 export interface ChatReplyRequestV2 {
+  request_id?: string;
   question: string;
   conversation_id?: string;
   model_id?: string;
@@ -68,7 +69,7 @@ export interface ChatVideoUploadResponseV2 {
 
 export interface ChatArtifactReference {
   artifact_id: string;
-  artifact_type: 'report' | 'report_outline';
+  artifact_type: 'report' | 'report_outline' | 'lesson_plan' | 'blog' | 'quiz' | 'flashcard' | 'graph' | 'game' | 'classroom';
   version_id?: string;
   title?: string;
   source_conversation_id?: string;
@@ -365,7 +366,39 @@ export interface ChatSourceV2 {
   [key: string]: unknown;
 }
 
+export interface ResolvedWorkspaceContext {
+  course_id?: string | null;
+  course_title: string;
+  scope_type: 'course' | 'knowledge_point';
+  scope_id?: string | null;
+  scope_title: string;
+  scope_path: string[];
+  resolution: 'resolved' | 'needs_clarification' | 'invalid';
+  update_workspace: boolean;
+}
+
+export interface ScopeClarification {
+  status: 'needs_clarification';
+  operation_id: string;
+  question: string;
+  candidates: Array<{ scope_id: string; scope_title: string; scope_path: string[] }>;
+}
+
+export interface ArtifactRevisionOutcome {
+  awaiting_clarification?: boolean;
+  operation_id?: string;
+  status: 'not_applicable' | 'answered' | 'needs_clarification' | 'completed' | 'conflict' | 'failed';
+  message: string;
+  artifact_reference?: import('../../stitch/artifactRevision/intent').ArtifactRevisionReference;
+  summary?: string;
+  changes?: Array<{ path: Array<string | number>; before: string; after: string }>;
+  candidates?: import('../../stitch/artifactRevision/intent').ArtifactRevisionReference[];
+}
+
 export interface ChatResponseV2 {
+  artifact_revision?: ArtifactRevisionOutcome | null;
+  workspace_context?: ResolvedWorkspaceContext | null;
+  clarification?: ScopeClarification | null;
   message: {
     role: string;
     content: string;
@@ -818,4 +851,20 @@ export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): Ch
     payload.input_videos = options.inputVideos;
   }
   return payload;
+}
+
+export async function cancelChatPendingOperation(conversationId: string, operationId: string): Promise<void> {
+  const token = getAuthToken();
+  const response = await fetch(`${BACKEND_BASE_URL}/api/chat/v2/operations/${encodeURIComponent(operationId)}/cancel?conversation_id=${encodeURIComponent(conversationId)}`, {
+    method: 'POST', headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  });
+  if (!response.ok && response.status !== 404) throw new Error('取消待处理操作失败');
+}
+
+export function readArtifactRevision(reference: ChatArtifactReference, version: number): Promise<import('../../stitch/api/types').CourseMaterial> {
+  return postV2('/api/chat/v2/artifacts/revisions/read', { reference, version });
+}
+
+export function restoreArtifactRevision(reference: ChatArtifactReference, version: number, operationId: string): Promise<ArtifactRevisionOutcome> {
+  return postV2('/api/chat/v2/artifacts/revisions/restore', { reference, version, operation_id: operationId });
 }

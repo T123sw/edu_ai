@@ -27,6 +27,7 @@ export interface QuizScenePlayerProps {
   actions?: Array<Record<string, unknown>>;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onNarrationChange?: (text: string) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onSubmitAnswers?: (answers: QuizAnswers) => Promise<void>;
@@ -41,6 +42,7 @@ export function QuizScenePlayer({
   actions,
   autoPlay,
   onComplete,
+  onNarrationChange,
   onModeChange,
   onRuntimeReady,
   onSubmitAnswers,
@@ -126,6 +128,7 @@ export function QuizScenePlayer({
       actions={actions}
       autoPlay={autoPlay}
       onComplete={onComplete}
+          onNarrationChange={onNarrationChange}
       onModeChange={onModeChange}
       onRuntimeReady={onRuntimeReady}
     >

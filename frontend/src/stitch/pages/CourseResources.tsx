@@ -1,26 +1,23 @@
 import { RevisionButton } from "../artifactRevision/components";
-import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   backendCourseToSummary,
   deleteCourseMaterial,
   getCourseMaterial,
   getCourseMaterials,
+  getKnowledgeGraph,
   pinCourseMaterial,
   renameCourseMaterial,
 } from "../api/courses";
 import {
-  getCourseMaterialFiltersForRole,
   getCourseMaterialOpenTarget,
   getCourseMaterialTypeMeta,
-  isCourseMaterialInFilter,
-  toCourseMaterialPresentation,
-  type CourseMaterialFilterKey,
 } from "../api/courseMaterialPresentation";
 import {
   courseMaterialKey,
   readCourseMaterialTarget,
 } from "../api/courseMaterialTarget";
-import type { CourseMaterial } from "../api/types";
+import type { CourseMaterial, KnowledgeGraphNode } from "../api/types";
 import {
   AppSurface,
   GlassPanel,
@@ -33,6 +30,8 @@ import { useAuthSession } from "../authSession";
 import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "../course/CourseRouteProvider";
 import { CourseMaterialArtifactPreview } from "./CourseMaterialArtifactPreview";
+import { ResourceKnowledgeDirectory } from "./ResourceKnowledgeDirectory";
+import "./courseResources.css";
 import { MaterialContentEditor } from "./MaterialContentEditor";
 
 type ResourceSort = "recent" | "title";
@@ -41,31 +40,11 @@ const EDITABLE_MATERIAL_TYPES = new Set([
   "report",
   "blog",
   "lesson_plan",
-  "quiz",
-  "flashcard",
   "graph",
-  "classroom",
 ]);
 
-function getKeyboardSelection<T extends string>(
-  key: string,
-  current: T,
-  choices: readonly T[],
-): T | null {
-  const currentIndex = Math.max(choices.indexOf(current), 0);
-  if (key === "ArrowRight" || key === "ArrowDown") {
-    return choices[(currentIndex + 1) % choices.length];
-  }
-  if (key === "ArrowLeft" || key === "ArrowUp") {
-    return choices[(currentIndex - 1 + choices.length) % choices.length];
-  }
-  if (key === "Home") return choices[0];
-  if (key === "End") return choices[choices.length - 1];
-  return null;
-}
-
 function getMaterialTitle(material: CourseMaterial): string {
-  return material.title || material.topic || material.material_id;
+  return material.title || material.topic || "未命名资源";
 }
 
 function getMaterialTimestamp(material: CourseMaterial): number {
@@ -83,14 +62,6 @@ function formatMaterialDate(material: CourseMaterial): string {
   }).format(timestamp);
 }
 
-function getMaterialSummary(material: CourseMaterial): string {
-  if (material.material_type === "classroom") {
-    const scenes = material.scenes_count ?? material.scenes?.length ?? 0;
-    return `${scenes} 个场景 · 更新于 ${formatMaterialDate(material)}`;
-  }
-  return `更新于 ${formatMaterialDate(material)}`;
-}
-
 export function CourseResourcesPage() {
   const { user } = useAuthSession();
   const { selectedCourse } = useAppShell();
@@ -101,12 +72,12 @@ export function CourseResourcesPage() {
       ? selectedCourse
       : { ...defaultCourse, id: courseId || defaultCourse.id };
   const [personalMaterials, setPersonalMaterials] = useState<CourseMaterial[]>([]);
+  const [knowledgeRoot, setKnowledgeRoot] = useState<KnowledgeGraphNode | null>(null);
+  const [directoryError, setDirectoryError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [activeKey, setActiveKey] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] =
-    useState<CourseMaterialFilterKey>("all");
   const [query, setQuery] = useState("");
   const [pinnedOnly, setPinnedOnly] = useState(false);
   const [sort, setSort] = useState<ResourceSort>("recent");
@@ -118,10 +89,15 @@ export function CourseResourcesPage() {
   const [editingContent, setEditingContent] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const materials = personalMaterials;
-  const visibleMaterialFilters = useMemo(
-    () => getCourseMaterialFiltersForRole(user?.role),
-    [user?.role],
-  );
+  useEffect(() => {
+    let cancelled = false;
+    setKnowledgeRoot(null);
+    setDirectoryError(false);
+    void getKnowledgeGraph(course.id).then((data) => {
+      if (!cancelled) setKnowledgeRoot(data.root);
+    }).catch(() => { if (!cancelled) setDirectoryError(true); });
+    return () => { cancelled = true; };
+  }, [course.id, reloadToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,7 +150,6 @@ export function CourseResourcesPage() {
         if (!cancelled) {
           setPersonalMaterials(nextPersonal);
           if (requestedKey) {
-            setActiveFilter("all");
             setActiveKey(requestedKey);
           } else {
             setActiveKey((current) =>
@@ -195,9 +170,9 @@ export function CourseResourcesPage() {
             );
           }
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "资源加载失败");
+          setError("资源加载失败，请稍后重试");
         }
       } finally {
         if (!cancelled) {
@@ -215,7 +190,6 @@ export function CourseResourcesPage() {
   const filteredMaterials = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     const filtered = materials.filter((material) => {
-      if (!isCourseMaterialInFilter(material, activeFilter)) return false;
       if (pinnedOnly && !material.is_pinned) return false;
       if (!normalizedQuery) return true;
       const searchText = [
@@ -230,7 +204,7 @@ export function CourseResourcesPage() {
     });
 
     return filtered;
-  }, [activeFilter, materials, pinnedOnly, query]);
+  }, [materials, pinnedOnly, query]);
 
   useEffect(() => {
     if (
@@ -296,8 +270,8 @@ export function CourseResourcesPage() {
           ? updated
           : item
       )));
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : "置顶操作失败");
+    } catch {
+      setActionError("置顶操作失败，请稍后重试");
     } finally {
       setActionBusy(false);
     }
@@ -326,8 +300,8 @@ export function CourseResourcesPage() {
       )));
       setEditingTitle(false);
       setReloadToken((current) => current + 1);
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : "重命名失败");
+    } catch {
+      setActionError("重命名失败，请稍后重试");
     } finally {
       setActionBusy(false);
     }
@@ -349,8 +323,8 @@ export function CourseResourcesPage() {
         item.material_id === material.material_id
         && item.material_type === material.material_type
       )));
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : "删除资源失败");
+    } catch {
+      setActionError("删除资源失败，请稍后重试");
     } finally {
       setActionBusy(false);
     }
@@ -359,97 +333,30 @@ export function CourseResourcesPage() {
   const activeMeta = activeMaterial
     ? getCourseMaterialTypeMeta(activeMaterial.material_type)
     : null;
-  const activePresentation = activeMaterial
-    ? toCourseMaterialPresentation(activeMaterial)
-    : null;
-
-  function handleFilterKeyDown(
-    event: KeyboardEvent<HTMLButtonElement>,
-    current: CourseMaterialFilterKey,
-  ) {
-    const next = getKeyboardSelection(
-      event.key,
-      current,
-      visibleMaterialFilters.map((filter) => filter.key),
-    );
-    if (!next) return;
-    event.preventDefault();
-    setActiveFilter(next);
-    window.requestAnimationFrame(() => {
-      document.getElementById(`resource-filter-${next}`)?.focus();
-    });
-  }
   const previewSupported =
     activeMaterial
     && activeMaterial.material_type !== "classroom"
     && activeMeta?.known;
 
   return (
-    <AppSurface className="flex min-h-[calc(100vh-var(--course-header-height))] min-[1180px]:h-[calc(100vh-var(--course-header-height))] min-[1180px]:overflow-hidden">
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[1180px]:overflow-y-hidden">
-        <header className="border-b border-(--shell-border) bg-(--app-bg)/88 px-6 py-4 backdrop-blur-xl sm:px-8">
-          <div className="flex min-w-0 flex-nowrap items-center gap-3 overflow-hidden">
-            <div
-              className="resource-type-filter flex min-w-0 flex-1 flex-nowrap gap-2 overflow-x-auto"
-              role="radiogroup"
-              aria-label="资源类型筛选"
-            >
-              {visibleMaterialFilters.map((filter) => (
-                <button
-                  key={filter.key}
-                  id={`resource-filter-${filter.key}`}
-                  type="button"
-                  role="radio"
-                  aria-checked={activeFilter === filter.key}
-                  tabIndex={activeFilter === filter.key ? 0 : -1}
-                  onClick={() => setActiveFilter(filter.key)}
-                  onKeyDown={(event) => handleFilterKeyDown(event, filter.key)}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    activeFilter === filter.key
-                      ? "bg-(--accent) text-white"
-                      : "border border-(--shell-border) bg-white text-(--muted-text) hover:border-(--accent-border)"
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex shrink-0 flex-nowrap items-center justify-end gap-2">
-              <label className="relative">
-                <MaterialIcon
-                  name="search"
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base text-(--muted-text)"
-                />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="搜索资源"
-                  className="h-10 w-52 rounded-full border border-(--shell-border) bg-white pl-10 pr-4 text-sm outline-hidden focus:border-(--accent-border)"
-                />
+    <AppSurface className="course-resources flex min-h-[calc(100vh-var(--course-header-height))] min-[900px]:h-[calc(100vh-var(--course-header-height))] min-[900px]:overflow-hidden">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden min-[900px]:overflow-y-hidden">
+        <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[900px]:grid-cols-[clamp(310px,22vw,360px)_minmax(0,1fr)] min-[900px]:overflow-hidden">
+          <section aria-label="知识点目录" className="resource-directory flex max-h-[360px] min-h-0 min-w-0 flex-col overflow-hidden min-[900px]:max-h-none">
+            <div className="resource-directory-heading"><h1>知识点目录</h1><span>{filteredMaterials.length} 份资源</span></div>
+            <div className="resource-directory-tools">
+              <label className="resource-directory-search">
+                <MaterialIcon name="search" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索资源" aria-label="搜索资源" />
               </label>
-              <select
-                aria-label="资源排序"
-                value={sort}
-                onChange={(event) => setSort(event.target.value as ResourceSort)}
-                className="h-10 rounded-full border border-(--shell-border) bg-white px-4 text-sm text-(--app-text)"
-              >
-                <option value="recent">最近更新</option>
-                <option value="title">按名称</option>
-              </select>
-              <label className="inline-flex h-10 items-center gap-2 rounded-full border border-(--shell-border) bg-white px-4 text-sm text-(--app-text)">
-                <input
-                  type="checkbox"
-                  checked={pinnedOnly}
-                  onChange={(event) => setPinnedOnly(event.target.checked)}
-                />
-                仅看置顶
-              </label>
+              <div className="resource-directory-options">
+                <select aria-label="资源排序" value={sort} onChange={(event) => setSort(event.target.value as ResourceSort)}>
+                  <option value="recent">最近更新</option><option value="title">按名称</option>
+                </select>
+                <label><input type="checkbox" checked={pinnedOnly} onChange={(event) => setPinnedOnly(event.target.checked)} />仅看置顶</label>
+              </div>
             </div>
-          </div>
-        </header>
-
-        <div className="grid min-h-0 min-w-0 flex-1 gap-5 p-5 min-[1180px]:grid-cols-[340px_minmax(0,1fr)] min-[1180px]:overflow-hidden">
-          <section className="flex max-h-[360px] min-h-0 min-w-0 flex-col overflow-hidden min-[1180px]:max-h-none">
+            {directoryError ? <p className="px-3 pb-3 text-xs text-(--muted-text)">目录暂时无法加载，仍可浏览资源。<button type="button" className="ml-2 underline" onClick={() => setReloadToken((value) => value + 1)}>重试</button></p> : null}
             {loading ? (
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6 text-sm text-(--muted-text)">
                 正在加载资源...
@@ -469,14 +376,14 @@ export function CourseResourcesPage() {
               <GlassPanel className="border border-(--shell-border) bg-white/90 p-6">
                 <h2 className="font-bold text-(--app-text)">你还没有个人资源</h2>
                 <p className="mt-2 text-sm leading-6 text-(--muted-text)">
-                  可以前往问答／生成工厂创建内容，生成后默认仅自己可见。
+                  在工作台创建教学内容后，即可在这里查看。
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <a
                     href={buildRoleCourseHash(user?.role, routes.ai, course.id)}
                     className="rounded-full bg-(--accent) px-4 py-2 text-sm font-bold text-white"
                   >
-                    前往生成工厂
+                    前往工作台
                   </a>
                   <a
                     href={buildRoleCourseHash(
@@ -495,62 +402,17 @@ export function CourseResourcesPage() {
                 没有符合当前筛选条件的资源。
               </GlassPanel>
             ) : (
-              <div className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto pr-2">
-                {filteredMaterials.map((material) => {
-                  const meta = getCourseMaterialTypeMeta(
-                    material.material_type,
-                  );
-                  const active =
-                    courseMaterialKey(
-                      material.material_type,
-                      material.material_id,
-                    ) === activeKey;
-                  return (
-                    <button
-                      key={`${material.material_type}:${material.material_id}`}
-                      type="button"
-                      onClick={() => openMaterial(material)}
-                      className={`w-full rounded-[22px] border p-4 text-left transition ${
-                        active
-                          ? "border-(--accent-border) bg-(--accent-soft)"
-                          : "border-(--shell-border) bg-white/90 hover:border-(--accent-border) hover:bg-white"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-(--surface-subtle) text-(--accent-strong)">
-                          <MaterialIcon name={meta.icon} className="text-xl" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-(--accent-strong)">
-                              {meta.label}
-                            </span>
-                            {material.is_pinned ? (
-                              <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-(--accent-strong)">
-                                置顶
-                              </span>
-                            ) : null}
-                          </span>
-                          <span className="mt-1 block truncate text-sm font-bold text-(--app-text)">
-                            {getMaterialTitle(material)}
-                          </span>
-                          <span className="mt-1 block line-clamp-2 text-xs leading-5 text-(--muted-text)">
-                            {getMaterialSummary(material)}
-                          </span>
-                        </span>
-                        <MaterialIcon
-                          name={
-                            material.material_type === "classroom"
-                              ? "play_circle"
-                              : "chevron_right"
-                          }
-                          className="mt-1 shrink-0 text-xl text-(--accent)"
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <ResourceKnowledgeDirectory
+                key={course.id}
+                root={knowledgeRoot}
+                searching={Boolean(query.trim()) || pinnedOnly}
+                materials={filteredMaterials}
+                activeKey={activeKey}
+                onSelect={(material) => {
+                  setRecoveryError(null);
+                  setActiveKey(courseMaterialKey(material.material_type, material.material_id));
+                }}
+              />
             )}
           </section>
 
@@ -564,7 +426,7 @@ export function CourseResourcesPage() {
                       className="text-3xl text-rose-500"
                     />
                     <h2 className="mt-3 font-black text-rose-700">
-                      无法恢复任务结果
+                      无法打开资源
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-rose-600">
                       {recoveryError}
@@ -612,9 +474,7 @@ export function CourseResourcesPage() {
                           {getMaterialTitle(activeMaterial)}
                         </h2>
                       )}
-                      <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
-                        {activePresentation?.statusLabel}
-                      </span>
+                      <p className="mt-2 text-xs text-(--muted-text)">{[activeMaterial.topic, getMaterialTimestamp(activeMaterial) ? `更新于 ${formatMaterialDate(activeMaterial)}` : null].filter(Boolean).join(" · ")}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <RevisionButton material={activeMaterial} disabled={actionBusy} />
@@ -628,6 +488,7 @@ export function CourseResourcesPage() {
                           {editingContent ? "返回预览" : "编辑内容"}
                         </button>
                       ) : null}
+                      <details key={activeKey} className="resource-more"><summary>更多操作</summary><div className="resource-more-menu">
                       <button
                         type="button"
                         disabled={actionBusy}
@@ -655,6 +516,7 @@ export function CourseResourcesPage() {
                       >
                         删除
                       </button>
+                      </div></details>
                       {activeMaterial.material_type === "classroom" ? (
                         <button
                           type="button"
@@ -680,15 +542,7 @@ export function CourseResourcesPage() {
                     </p>
                   ) : null}
 
-                  {activePresentation ? (
-                    <dl className="resource-factual-meta">
-                      {activePresentation.meta.filter((item) => item.label !== "可见范围").map((item) => (
-                        <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>
-                      ))}
-                    </dl>
-                  ) : null}
-
-                  <div className="mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-2">
+                  <div key={activeKey} className="resource-document mt-5 min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-2">
                     {editingContent ? (
                       <MaterialContentEditor
                         courseId={course.id}
@@ -707,41 +561,11 @@ export function CourseResourcesPage() {
                         }}
                       />
                     ) : activeMaterial.material_type === "classroom" ? (
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="rounded-2xl bg-(--surface-subtle) p-5">
-                          <p className="text-xs font-semibold text-(--muted-text)">
-                            场景数量
-                          </p>
-                          <p className="mt-2 text-2xl font-black text-(--accent-strong)">
-                            {activeMaterial.scenes_count
-                              ?? activeMaterial.scenes?.length
-                              ?? 0}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-(--surface-subtle) p-5">
-                          <p className="text-xs font-semibold text-(--muted-text)">
-                            语音状态
-                          </p>
-                          <p className="mt-2 font-bold text-(--app-text)">
-                            {activeMaterial.voice_status || "跟随课堂场景"}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-(--surface-subtle) p-5">
-                          <p className="text-xs font-semibold text-(--muted-text)">
-                            最近视频导出
-                          </p>
-                          <p className="mt-2 font-bold text-(--app-text)">
-                            {activeMaterial.video_status || "尚未导出"}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-(--surface-subtle) p-5">
-                          <p className="text-xs font-semibold text-(--muted-text)">
-                            来源资料
-                          </p>
-                          <p className="mt-2 font-bold text-(--app-text)">
-                            {activeMaterial.source_count ?? "未记录"}
-                          </p>
-                        </div>
+                      <div className="resource-classroom-cover">
+                        <MaterialIcon name="play_circle" className="text-5xl text-(--accent)" />
+                        <h3>{getMaterialTitle(activeMaterial)}</h3>
+                        <p>{activeMaterial.scenes_count ?? activeMaterial.scenes?.length ?? 0} 个教学场景</p>
+                        <button type="button" onClick={() => openMaterial(activeMaterial)}>进入 AI 课堂</button>
                       </div>
                     ) : previewSupported ? (
                       <CourseMaterialArtifactPreview material={activeMaterial} />
@@ -751,7 +575,7 @@ export function CourseResourcesPage() {
                           暂无专用预览
                         </h3>
                         <p className="mt-2 text-sm leading-6 text-(--muted-text)">
-                          此资源类型仍保留在总列表中，但系统不会将它错误地跳转到视频页或其他预览器。
+                          此资源暂时无法在线预览，请选择其他资源。
                         </p>
                         <dl className="mt-5 grid gap-3 text-sm">
                           <div>

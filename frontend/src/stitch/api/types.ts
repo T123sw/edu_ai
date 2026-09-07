@@ -1043,6 +1043,7 @@ export type ClassroomQaCheckpoint = {
 };
 
 export type ClassroomQaTurnRequest = {
+  resource_version?: number;
   client_turn_id: string;
   question: string;
   checkpoint: ClassroomQaCheckpoint;

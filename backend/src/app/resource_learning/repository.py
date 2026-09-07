@@ -21,6 +21,7 @@ from app.database.models import (
 from app.database.session import database_session
 
 from .intervals import coverage_percent, covered_duration_ms, merge_covered_ranges
+from .manifest import normalize_question_scoring
 from .models import (
     ManifestQuestion,
     ManifestScene,
@@ -282,7 +283,7 @@ class ResourceLearningRepository:
                         attempt_number=int(latest_number or 0) + 1,
                         idempotency_key=idempotency_key,
                         answer_payload={"values": list(submitted_values)},
-                        is_correct=submitted_values == tuple(sorted(question.scoring_values)),
+                        is_correct=submitted_values == tuple(sorted(normalize_question_scoring(question.scoring_values, question.question_type))),
                         knowledge_point_ids=list(question.knowledge_point_ids),
                         submitted_at=now,
                     )

@@ -7,6 +7,7 @@
  */
 
 import type { Action, SpeechAction } from '@openmaic/dsl';
+import { narrationSentences, sentenceAtProgress } from './narrationSentences';
 import { widgetMessageForAction } from './interactiveScene';
 
 const DEFAULT_EFFECT_AUTO_CLEAR_MS = 5000;
@@ -28,6 +29,7 @@ export interface ActionEffectsState {
 
 export interface ActionEngineCallbacks {
   onEffectsChange?: (effects: ActionEffectsState) => void;
+  onNarrationChange?: (text: string) => void;
 }
 
 export type ActionMediaResult = 'ended' | 'failed';
@@ -36,6 +38,7 @@ export interface ActionMediaAdapter {
   playAudio(
     url: string,
     onDurationKnown?: (durationMs: number) => void,
+    onProgress?: (fraction: number) => void,
   ): Promise<ActionMediaResult>;
   speak(text: string, speed?: number, voice?: string): Promise<ActionMediaResult>;
   wait(durationMs: number): Promise<void>;
@@ -188,7 +191,10 @@ export class ActionEngine {
 
     try {
       if (action.audioUrl) {
-        const audioResult = await this.media.playAudio(action.audioUrl);
+        this.callbacks.onNarrationChange?.(sentenceAtProgress(action.text, 0));
+        const audioResult = await this.media.playAudio(action.audioUrl, undefined, (fraction) => {
+          if (!this.disposed && cancellationVersion === this.cancellationVersion) this.callbacks.onNarrationChange?.(sentenceAtProgress(action.text, fraction));
+        });
         if (
           audioResult === 'ended' ||
           this.disposed ||
@@ -196,19 +202,15 @@ export class ActionEngine {
         ) return;
       }
 
-      const speechResult = await this.media.speak(
-        action.text,
-        action.speed,
-        action.voice,
-      );
-      if (
-        speechResult === 'ended' ||
-        this.disposed ||
-        cancellationVersion !== this.cancellationVersion
-      ) return;
-
-      await this.media.wait(readingTimeMs(action.text));
+      for (const sentence of narrationSentences(action.text)) {
+        if (this.disposed || cancellationVersion !== this.cancellationVersion) return;
+        this.callbacks.onNarrationChange?.(sentence);
+        const speechResult = await this.media.speak(sentence, action.speed, action.voice);
+        if (this.disposed || cancellationVersion !== this.cancellationVersion) return;
+        if (speechResult !== 'ended') await this.media.wait(readingTimeMs(sentence));
+      }
     } finally {
+      if (cancellationVersion === this.cancellationVersion) this.callbacks.onNarrationChange?.('');
       if (ownsConcurrentFocus) this.clearEffects();
     }
   }
@@ -220,6 +222,7 @@ class BrowserActionMediaAdapter implements ActionMediaAdapter {
   playAudio(
     url: string,
     onDurationKnown?: (durationMs: number) => void,
+    onProgress?: (fraction: number) => void,
   ): Promise<ActionMediaResult> {
     if (typeof Audio === 'undefined') return Promise.resolve('failed');
 
@@ -232,6 +235,7 @@ class BrowserActionMediaAdapter implements ActionMediaAdapter {
         if (settled) return;
         settled = true;
         audio.removeEventListener('loadedmetadata', handleMetadata);
+        audio.removeEventListener('timeupdate', handleProgress);
         audio.removeEventListener('ended', handleEnded);
         audio.removeEventListener('error', handleError);
         if (this.cancelActive === cancel) this.cancelActive = null;
@@ -242,6 +246,7 @@ class BrowserActionMediaAdapter implements ActionMediaAdapter {
           onDurationKnown?.(audio.duration * 1000);
         }
       };
+      const handleProgress = () => { if (audio.duration > 0) onProgress?.(audio.currentTime / audio.duration); };
       const handleEnded = () => settle('ended');
       const handleError = () => settle('failed');
       const cancel = () => {
@@ -251,6 +256,7 @@ class BrowserActionMediaAdapter implements ActionMediaAdapter {
 
       this.cancelActive = cancel;
       audio.addEventListener('loadedmetadata', handleMetadata);
+      audio.addEventListener('timeupdate', handleProgress);
       audio.addEventListener('ended', handleEnded, { once: true });
       audio.addEventListener('error', handleError, { once: true });
       audio.play().catch(handleError);

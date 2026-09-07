@@ -123,6 +123,7 @@ def _persist_report_course_material(*, payload, result: dict, course_storage_man
         course_id=course_id,
         material_type="report",
         material_id=report_id,
+        owner_user_id=getattr(payload, "owner", None),
         scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
         scope_id=getattr(payload, "scope_id", None),
         material_data={

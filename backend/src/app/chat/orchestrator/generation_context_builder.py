@@ -202,6 +202,13 @@ class GenerationContextBuilder:
         )
         referenced_artifact_ids = list(getattr(snapshot, "referenced_artifact_ids", []) or [])
 
+        workspace = getattr(request, "workspace_context", None)
+        if workspace is not None:
+            selected_doc_ids = list(request.capability.selected_doc_ids)
+            active_context["current_course_id"] = workspace.course_id
+            if workspace.resolution == "resolved":
+                memory["current_topics"] = [workspace.scope_title]
+
         return GenerationContext(
             conversation_id=(
                 getattr(snapshot, "conversation_id", "")

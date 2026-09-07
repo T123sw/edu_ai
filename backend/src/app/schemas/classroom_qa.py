@@ -18,6 +18,7 @@ class ClassroomQaCheckpoint(BaseModel):
 
 
 class ClassroomQaTurnRequest(BaseModel):
+    resource_version: int | None = Field(default=None, ge=1)
     client_turn_id: UUID
     question: str = Field(min_length=1, max_length=1000)
     checkpoint: ClassroomQaCheckpoint

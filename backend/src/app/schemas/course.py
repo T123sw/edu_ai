@@ -98,6 +98,10 @@ class CourseUpdateRequest(BaseModel):
     expected_revision: int = Field(..., ge=0)
 
 
+class RenameKnowledgeDocumentRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+
+
 class KnowledgeBaseDocument(BaseModel):
     id: str
     name: str

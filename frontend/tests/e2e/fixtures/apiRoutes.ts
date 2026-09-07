@@ -69,7 +69,7 @@ const materials = [
     created_by: "唐老师",
     source_job_id: "job-report-hostile",
     source_snapshot: { mode: "selected_documents" },
-    visibility: "course",
+    visibility: "private",
     status: "completed",
     created_at: "2026-08-06T09:30:00+08:00",
     updated_at: "2026-08-06T09:35:00+08:00",
@@ -177,10 +177,11 @@ export async function installTeacherApiRoutes(page: Page) {
     }),
   );
 
-  await page.route("http://localhost:8001/**", async (route) => {
+  await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    const path = url.pathname;
+    const path = url.pathname.replace(/^\/backend(?=\/)/, "");
+    if (!path.startsWith("/api/")) return route.continue();
 
     if (path === "/api/auth/verify") {
       return json(route, {

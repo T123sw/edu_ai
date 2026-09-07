@@ -33,6 +33,8 @@ def handle_generate_classroom(name: str, args: dict, ctx) -> dict:
         job = asyncio.run(
             submit_classroom_generation_job(
                 course_id=str(getattr(request, "course_id", None) or ""),
+                scope_type=getattr(request, "scope_type", None),
+                scope_id=getattr(request, "scope_id", None),
                 requirement=requirement,
                 owner=str(getattr(request, "owner", None) or ""),
                 course_storage_manager=storage_manager,

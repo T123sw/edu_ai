@@ -37,6 +37,8 @@ function ancestorKeys(nodes: CurriculumTreeNode[], leafId: string): string[] {
 export function ClassroomStudioPage() {
   const { courseId } = useCourseRoute();
   const [catalog, setCatalog] = useState<ClassroomCatalog | null>(null);
+  const catalogRef = useRef(catalog);
+  catalogRef.current = catalog;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
@@ -62,7 +64,7 @@ export function ClassroomStudioPage() {
   useEffect(() => {
     if (!courseId) { setCatalog(null); setLoading(false); return; }
     let cancelled = false;
-    setLoading(true); setError(null);
+    setLoading(!catalogRef.current || catalogRef.current.course_id !== courseId); setError(null);
     getClassroomCatalog(courseId)
       .then((value) => { if (!cancelled) setCatalog(value); })
       .catch((reason) => { if (!cancelled) setError(reason instanceof Error ? reason.message : "课程目录加载失败"); })
@@ -175,8 +177,8 @@ export function ClassroomStudioPage() {
             qaTargetKey={qaTarget.key}
             onQaControllerChange={handleQaControllerChange}
           /> : <>
-            {selectedResource && selectedLeaf ? <CourseResourceViewer courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} onQaControllerChange={handleQaControllerChange} />
-              : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} onSelectResource={(resourceId) => selectedLeaf && selectResource(selectedLeaf.leaf_id, resourceId)} />}
+            {selectedResource && selectedLeaf ? <CourseResourceViewer key={qaTarget.key} courseId={courseId} nodeId={selectedLeaf.leaf_id} resource={selectedResource} mode={catalog.mode} onChanged={reload} onQaControllerChange={handleQaControllerChange} />
+              : <CurriculumNodeOverview leaf={selectedLeaf} mode={catalog.mode} totalLeafCount={catalog.leaves.length} onGenerate={() => setGenerationOpen(true)} />}
           </>}
         </section>}
         qa={<><button type="button" className="catalog-qa-drawer-close" aria-label="关闭 AI 问答" onClick={() => setQaOpen(false)}><MaterialIcon name="close" /></button><ContextualClassroomQaPanel binding={qaBinding} /></>}

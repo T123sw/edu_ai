@@ -1,0 +1,9 @@
+.workspace-context-bar { display: flex; min-width: 0; max-width: 100%; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; color: #64748b; font-size: 13px; }
+.workspace-context-bar__label { flex-shrink: 0; }
+.workspace-context-bar__select { width: 240px; max-width: 100%; min-width: 0; }
+.workspace-context-bar__select.ant-select .ant-select-selector { border-color: #e5eaf2; border-radius: 8px; background: #f8fafc; font-size: 13px; }
+.workspace-context-bar__error { flex-basis: 100%; color: #b42318; font-size: 12px; }
+
+.workspace-topic-tree-popup { max-width: calc(100vw - 32px); }
+.workspace-topic-tree-popup .ant-select-tree-title { white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
+.workspace-topic-tree-popup .ant-select-tree-node-content-wrapper { min-width: 0; }

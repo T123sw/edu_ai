@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
+import { WorkspaceContextBar } from "../../components/teacher/WorkspaceContextBar";
 import ChatPanel from "../../components/teacher/ChatPanel";
 import StudioPanel from "../../components/teacher/StudioPanel";
 import "./AIWorkspace.css";
-import { useStore } from "../../store/teacher/useStore";
 import {
   AppSurface,
   routes,
   useAppShell,
 } from "../shared";
 import {
-  normalizeWorkspaceScope,
   readWorkspaceScopeFromSearch,
   writeWorkspaceScopeToSearch,
   type WorkspaceScope,
@@ -36,7 +35,6 @@ function writeAiWorkspaceHash(scope: WorkspaceScope, isStudent: boolean) {
 export function AIWorkspacePage() {
   const { user } = useAuthSession();
   const { selectedCourse } = useAppShell();
-  const statusCard = useStore((state) => state.statusCard);
   const [hash, setHash] = useState(() => window.location.hash);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
@@ -45,17 +43,7 @@ export function AIWorkspacePage() {
   const [drawerPanel, setDrawerPanel] = useState<"source" | "studio" | null>(null);
   const { workspaceRef, layoutMode } = useAiStudioLayout<HTMLDivElement>();
 
-  const workspaceScope = useMemo(() => {
-    const current = readWorkspaceScopeFromSearch(getHashSearchParams(hash));
-    const firstTopic = Array.isArray(statusCard?.topics)
-      ? statusCard.topics.map((item) => String(item || "").trim()).find(Boolean)
-      : "";
-
-    return normalizeWorkspaceScope({
-      ...current,
-      scopeLabel: current.scopeLabel || (current.scopeType === "knowledge_point" ? firstTopic : "课程总目录"),
-    });
-  }, [hash, statusCard]);
+  const workspaceScope = useMemo(() => readWorkspaceScopeFromSearch(getHashSearchParams(hash)), [hash]);
   useEffect(() => {
     const syncHash = () => setHash(window.location.hash);
     window.addEventListener("hashchange", syncHash);
@@ -169,8 +157,14 @@ export function AIWorkspacePage() {
             </div>
 
             <div className="ai-studio-content">
-              <div className="ai-panel">
+              <div className="ai-panel" style={{ display: "flex", flexDirection: "column", paddingTop: layoutMode === "drawer" ? 52 : undefined }}>
                 <ChatPanel
+                  topicSelector={<WorkspaceContextBar
+                    courseId={selectedCourse?.id}
+                    courseTitle={selectedCourse?.title || ''}
+                    scope={workspaceScope}
+                    onChange={(nextScope) => writeAiWorkspaceHash(nextScope, user?.role === "student")}
+                  />}
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
                   onWorkspaceScopeChange={(nextScope) => {

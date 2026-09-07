@@ -1,3 +1,4 @@
+import "./curriculumResourceTree.css";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import type { ClassroomCatalogResource } from "../../api/types";
 import { MaterialIcon } from "../../shared";

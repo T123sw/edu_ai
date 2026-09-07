@@ -46,10 +46,16 @@ export function ResumeEntry({ refreshToken = 0 }: { refreshToken?: number }) {
   }
   return (
     <section className="resume-entry" aria-label={action} aria-busy={state.busy}>
+      <span className="resume-entry__icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5.5C9 3.5 5.5 3.5 3 4.5v14c2.5-1 6-1 9 1 3-2 6.5-2 9-1v-14c-2.5-1-6-1-9 1Z" />
+          <path d="M12 5.5v14M6 8h3M6 11h3M15 8h3M15 11h3" />
+        </svg>
+      </span>
       <div className="resume-entry__text">
+        <span className="resume-entry__eyebrow">{user?.role === 'student' ? '接着上次，继续学习' : '接着上次，继续备课'}</span>
         {result && (result.status === 'valid' || result.status === 'fallback') ? <>
           <span className="resume-entry__summary" title={[result.course.title, result.label].filter(Boolean).join(' · ')}>
-            <span>{user?.role === 'student' ? '上次学习：' : '上次备课：'}</span>
             <strong>{result.course.title}</strong>
             {result.label ? <span> · {result.label}</span> : null}
           </span>

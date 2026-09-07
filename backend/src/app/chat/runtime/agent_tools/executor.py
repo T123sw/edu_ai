@@ -16,6 +16,15 @@ def execute_tool(name: str, args: dict, ctx) -> dict:
         actor_role=str(getattr(ctx.request, "actor_role", "teacher") or "teacher"),
     ):
         return error_result(name, "permission_denied", "capability 不允许此工具")
+    if name.startswith("generate_") or name == "draft_outline":
+        from app.chat.application.knowledge_context import validate_generation_scope
+        try:
+            validate_generation_scope(ctx.request)
+        except (ValueError, PermissionError) as exc:
+            return error_result(name, "needs_clarification", str(exc))
+        workspace = getattr(ctx.request, "workspace_context", None)
+        if workspace is not None and workspace.resolution == "resolved":
+            args = {**args, "topic": workspace.scope_title, "subject": workspace.scope_title}
     if name not in NEVER_CACHE and ctx.already_called(name, args):
         return ctx.get_cached_result(name, args)
 

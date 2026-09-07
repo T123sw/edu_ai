@@ -17,6 +17,7 @@ from app.api.course_dependencies import (
     require_course_capability,
 )
 from app.chat.api.schemas_v2 import (
+    ArtifactRevisionVersionRequestV2,
     ChatDirectTaskSubmittedResponseV2,
     ChatQuizPrefillResponseV2,
     ChatLessonPlanCardsRequestV2,
@@ -108,6 +109,12 @@ def _preflight_personal_tool_id(resource_type: str) -> PersonalToolId:
 
 
 def _validate_direct_generation_source(payload, *, owner: str) -> None:
+    from app.chat.application.knowledge_context import resolve_direct_workspace
+    from core.course_storage import storage_manager
+    try:
+        resolve_direct_workspace(payload, storage_manager)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail={"code": "needs_clarification", "message": str(exc)}) from exc
     try:
         _get_generation_source_resolver().validate(
             str(getattr(payload, "course_id", "") or "").strip(),
@@ -477,6 +484,51 @@ async def get_chat_game(
     return FileResponse(path=str(resolved), media_type="text/html", filename=resolved.name)
 
 
+
+
+def _revision_version_service(payload, current_user, access_service):
+    course_id = payload.reference.source_course_id
+    if not course_id:
+        raise HTTPException(status_code=422, detail="资料引用缺少所属课程")
+    require_course_capability(course_id, current_user, "read", access_service)
+    return _get_reply_service().artifact_revision_service
+
+
+@router.post("/artifacts/revisions/read")
+async def read_artifact_revision(payload: ArtifactRevisionVersionRequestV2, current_user: dict = Depends(get_current_user), access_service: CourseAccessService = Depends(get_course_access_service)):
+    service = _revision_version_service(payload, current_user, access_service)
+    try:
+        return service.read_version(owner_user_id=current_user["username"], course_id=payload.reference.source_course_id,
+            artifact_type=payload.reference.artifact_type, artifact_id=payload.reference.artifact_id, version=payload.version)
+    except (KeyError, ValueError, PermissionError):
+        raise HTTPException(status_code=404, detail="此版本不存在或无权访问")
+
+
+@router.post("/artifacts/revisions/restore")
+async def restore_artifact_revision(payload: ArtifactRevisionVersionRequestV2, current_user: dict = Depends(get_current_user), access_service: CourseAccessService = Depends(get_course_access_service)):
+    service = _revision_version_service(payload, current_user, access_service)
+    try:
+        base_version = int(str(payload.reference.version_id or "").removeprefix("v"))
+    except ValueError:
+        raise HTTPException(status_code=422, detail="请提供当前资料基准版本")
+    if not payload.operation_id:
+        raise HTTPException(status_code=422, detail="缺少恢复操作编号")
+    return service.restore(owner_user_id=current_user["username"], course_id=payload.reference.source_course_id,
+        artifact_type=payload.reference.artifact_type, artifact_id=payload.reference.artifact_id,
+        version=payload.version, base_version=base_version, operation_id=payload.operation_id)
+
+
+@router.post("/operations/{operation_id}/cancel")
+async def cancel_pending_operation(operation_id: str, conversation_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        cancelled = _get_reply_service().knowledge_context_service.cancel(
+            owner=str(current_user.get("username") or ""), conversation_id=conversation_id, operation_id=operation_id,
+        )
+        return {"cancelled": cancelled}
+    except KeyError:
+        raise HTTPException(status_code=404, detail="操作不存在")
+
+
 @router.post("/reply", response_model=ChatResponseV2)
 async def reply(
     payload: ChatReplyRequestV2,
@@ -488,6 +540,10 @@ async def reply(
     )
     try:
         return _get_reply_service().reply(_with_owner(payload, current_user))
+    except PermissionError:
+        return JSONResponse(status_code=403, content=build_v2_error_response(
+            code="access_denied", message="无权访问此课程或对话", conversation_id=payload.conversation_id or "", trace_path="fast", retryable=False,
+        ))
     except Exception as exc:
         body = build_v2_error_response(
             code="workflow_failed",
@@ -846,4 +902,3 @@ async def direct_blog(
     )
     job = generation_command_service.submit(command)
     return {"task_id": job.edu_job_id, "status": "pending", "workflow_type": "blog_direct"}
-

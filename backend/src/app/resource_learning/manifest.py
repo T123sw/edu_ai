@@ -74,6 +74,18 @@ def _scene_kind(scene: Mapping[str, Any]) -> SceneKind | None:
     return _SCENE_KIND.get(content_type)
 
 
+def normalize_question_scoring(values: tuple[str, ...], question_type: str) -> tuple[str, ...]:
+    if question_type not in {"multiple_choice", "multi_choice", "multiple", "multi-select", "多选题"}:
+        return values
+    normalized: list[str] = []
+    for value in values:
+        parts = [part for part in re.split(r"[,，、;；\s]+", value.strip()) if part]
+        if len(parts) == 1 and re.fullmatch(r"[A-Z]{2,}", parts[0]):
+            parts = list(parts[0])
+        normalized.extend(parts)
+    return tuple(normalized)
+
+
 def _question_record(question: Mapping[str, Any], *, scene_id: str) -> ManifestQuestion | None:
     question_id = str(question.get("id") or "").strip()
     if not question_id:
@@ -89,7 +101,7 @@ def _question_record(question: Mapping[str, Any], *, scene_id: str) -> ManifestQ
         scene_id=scene_id,
         question_type=str(question.get("type") or "unknown"),
         required=question.get("required") is not False,
-        scoring_values=_string_tuple(scoring),
+        scoring_values=normalize_question_scoring(_string_tuple(scoring), str(question.get("type") or "unknown")),
         knowledge_point_ids=_string_tuple(knowledge_points),
     )
 def _canonical_hash(payload: Mapping[str, Any]) -> str:

@@ -30,10 +30,10 @@ test("home renders one searchable factual course entry", async ({ teacherPage })
   await expect(teacherPage.getByText("没有找到匹配的课程。", { exact: true })).toBeVisible();
 });
 
-test("course overview is compact, factual, and has six stable entries", async ({ teacherPage }) => {
+test("course overview shows resource counts and five stable entries", async ({ teacherPage }) => {
   await teacherPage.goto("/#course-detail?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await expect(teacherPage.locator(".course-overview__facts article")).toHaveCount(4);
-  await expect(teacherPage.locator(".course-overview__entries a")).toHaveCount(6);
+  await expect(teacherPage.locator(".course-overview__facts article")).toHaveCount(2);
+  await expect(teacherPage.locator(".course-overview__entries a")).toHaveCount(5);
   await expect(teacherPage.getByRole("link", { name: "开始问答或生成" })).toBeVisible();
   await expect(teacherPage.locator(".course-overview img")).toHaveCount(0);
   expect(await teacherPage.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);

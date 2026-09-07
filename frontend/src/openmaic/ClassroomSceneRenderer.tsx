@@ -19,6 +19,7 @@ export interface ClassroomSceneRendererProps {
   classroomId: string;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onNarrationChange?: (text: string) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onQuizSubmitAnswers?: (answers: QuizAnswers) => Promise<void>;
@@ -31,6 +32,7 @@ export function ClassroomSceneRenderer({
   classroomId,
   autoPlay = true,
   onComplete,
+  onNarrationChange,
   onModeChange,
   onRuntimeReady,
   onQuizSubmitAnswers,
@@ -51,6 +53,7 @@ export function ClassroomSceneRenderer({
           sceneId={scene.id}
           autoPlay={autoPlay}
           onComplete={onComplete}
+          onNarrationChange={onNarrationChange}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
           onInteraction={onDemoInteraction}
@@ -65,6 +68,7 @@ export function ClassroomSceneRenderer({
           actions={scene.actions}
           autoPlay={autoPlay}
           onComplete={onComplete}
+          onNarrationChange={onNarrationChange}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
           onInteraction={onDemoInteraction}
@@ -81,6 +85,7 @@ export function ClassroomSceneRenderer({
           actions={scene.actions}
           autoPlay={autoPlay}
           onComplete={onComplete}
+          onNarrationChange={onNarrationChange}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
           onSubmitAnswers={onQuizSubmitAnswers}

@@ -1554,9 +1554,11 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
               type="text"
               size="small"
               className="source-panel__tree-node-toggle"
+              aria-label={`${isExpanded ? '收起' : '展开'}${node.label}`}
+              aria-expanded={isExpanded}
               onClick={() => toggleCourseNodeExpanded(node.id)}
             >
-              {isExpanded ? 'v' : '>'}
+              <RightOutlined className="source-panel__tree-chevron" />
             </Button>
           ) : (
             <span className="source-panel__tree-node-spacer" />
@@ -1710,14 +1712,12 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           </span>
           <span className="source-panel__item-copy">
             <span className="source-panel__item-title">{file.title}</span>
-            {file.knowledgeStatus && file.knowledgeStatus !== 'received' ? (
+            {file.knowledgeStatus && file.knowledgeStatus !== 'received'
+              && file.knowledgeStatus !== 'ready' ? (
               <span className="source-panel__item-meta">
                 <Tag color={KNOWLEDGE_STATUS_META[file.knowledgeStatus].color}>
                   {KNOWLEDGE_STATUS_META[file.knowledgeStatus].label}
                 </Tag>
-                {canRetrieve ? (
-                  <span>{file.chunkCount || 0} 个片段</span>
-                ) : null}
               </span>
             ) : null}
           </span>
@@ -2022,7 +2022,6 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         <div className="source-panel__list-toolbar">
           <div className="source-panel__section-heading">
             <span className="source-panel__section-label">资料列表</span>
-            <Text className="source-panel__section-meta">已加载 {fileList.length} 项</Text>
           </div>
           <div className="source-panel__select-all">
             <span className="source-panel__select-all-text">选择所有来源</span>

@@ -27,7 +27,7 @@ export function buildWorkspaceHash(
   courseId: string,
   target: ClassroomWorkspaceTarget,
 ): string {
-  const route = role === "student" ? "student-classroom" : "teacher-classroom-studio";
+  const route = role === "student" ? "student-classroom" : "classroom-studio";
   const params = new URLSearchParams({ course_id: courseId });
 
   if (target.kind === "personal_classroom") {

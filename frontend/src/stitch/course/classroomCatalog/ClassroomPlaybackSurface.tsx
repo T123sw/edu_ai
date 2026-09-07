@@ -99,6 +99,7 @@ export function ClassroomPlaybackSurface({
   const [error, setError] = useState<string | null>(null);
   const [playback, setPlayback] =
     useState<PagePlaybackSnapshot>(INITIAL_PLAYBACK);
+  const [narration, setNarration] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
   const consoleRef = useRef<HTMLElement | null>(null);
   const controllerRef = useRef<ManagedPagePlaybackController | null>(null);
@@ -121,6 +122,7 @@ export function ClassroomPlaybackSurface({
   const qaController = useClassroomInterruption({
     courseId: courseId ?? "",
     classroomId: classroomId ?? "",
+    resourceVersion,
     playback: controller,
     pageRevision: playback.revision,
     enabled: Boolean(courseId && classroomId && material),
@@ -529,6 +531,7 @@ export function ClassroomPlaybackSurface({
                       courseId={courseId}
                       classroomId={classroomId}
                       autoPlay={playback.status === "playing"}
+                      onNarrationChange={setNarration}
                       onComplete={() => {
                         learningTrackerRef.current?.completeScene();
                         void learningTrackerRef.current
@@ -558,10 +561,10 @@ export function ClassroomPlaybackSurface({
                       }}
                     />
                   ) : null}
-                  {currentPresentation?.narration.length &&
+                  {narration &&
                   playback.status === "playing" ? (
                     <div className="classroom-subtitle" aria-live="polite">
-                      {currentPresentation.narration.join(" ")}
+                      {narration}
                     </div>
                   ) : null}
                 </div>

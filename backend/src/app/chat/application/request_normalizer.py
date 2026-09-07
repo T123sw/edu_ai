@@ -42,6 +42,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
 
     return ChatRequestV2(
         question=payload.question,
+        request_id=getattr(payload, "request_id", None),
         actor_role=(
             "student"
             if str(getattr(payload, "actor_role", "") or "").strip().lower() == "student"

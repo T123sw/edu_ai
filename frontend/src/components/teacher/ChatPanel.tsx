@@ -1,6 +1,11 @@
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Alert, Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
 import { SendOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
+import { buildRoleCourseHash } from '../../stitch/shared/routes/roleCourseRouteResolver';
+import { useAuthSession } from '../../stitch/authSession';
+import { subscribeRevisionIntent, clearRevisionIntent, type ArtifactRevisionReference } from '../../stitch/artifactRevision/intent';
+import { RevisionHistoryDialog } from './RevisionHistoryDialog';
+import { EditReference, RevisionResult } from '../../stitch/artifactRevision/components';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
@@ -13,6 +18,7 @@ import {
 } from '../../services/teacher/api';
 import {
   buildChatReplyPayload,
+  cancelChatPendingOperation,
   resolveChatRetrievalDocIds,
   sendChatReplyV2Stream,
   pollChatTask,
@@ -20,18 +26,19 @@ import {
   uploadChatImagesV2,
   uploadChatVideosV2,
   type ChatResponseV2,
+  type ScopeClarification,
+  type ArtifactRevisionOutcome,
   type ChatTaskStatusV2,
   type ChatInputImageV2,
   type ChatInputVideoV2,
   type ChatSourceV2,
 } from '../../services/teacher/chatV2';
 import {
-  AgentActivityPanel,
+  getAgentStepStatusText,
+  getAgentToolStatusText,
   emptyAgentActivity,
   type AgentActivityState,
-  type MergedTimeline,
-  type MergedTimelineStep,
-} from './AgentActivityPanel';
+} from './agentActivity';
 import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
@@ -98,63 +105,11 @@ interface Message {
 }
 
 interface ChatPanelProps {
+  topicSelector?: React.ReactNode;
   courseId?: string;
   workspaceScope?: WorkspaceScope;
   onWorkspaceScopeChange?: (scope: WorkspaceScope) => void;
 }
-
-/**
- * Merge agent plans across consecutive AI messages with the same subject into
- * a single timeline, so the user sees task continuity instead of fragmented
- * single-step plans on turn N+1.
- *
- * Walks back from `currentIndex` while subject matches; all earlier-turn steps
- * are forced to status='done' (we know they finished since this turn started).
- */
-const buildMergedTimeline = (messages: Message[], currentIndex: number): MergedTimeline | undefined => {
-  const current = messages[currentIndex];
-  if (current?.user !== 'AI') return undefined;
-  const activity = current.agentActivity as AgentActivityState | undefined;
-  const subject = activity?.plan?.subject;
-  if (!subject) return undefined;
-
-  const related: AgentActivityState[] = [];
-  for (let i = currentIndex; i >= 0; i--) {
-    const msg = messages[i];
-    if (msg.user !== 'AI') continue;
-    const a = msg.agentActivity as AgentActivityState | undefined;
-    if (!a?.plan) continue;
-    if (a.plan.subject !== subject) break; // different task — stop
-    related.unshift(a);
-  }
-  if (related.length <= 1) return undefined; // single plan — no need to merge
-
-  const seen = new Set<string>();
-  const steps: MergedTimelineStep[] = [];
-  for (let i = 0; i < related.length; i++) {
-    const a = related[i];
-    const isLatest = i === related.length - 1;
-    for (const step of a.plan!.steps) {
-      const key = `${step.user_title}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const status: MergedTimelineStep['status'] = isLatest
-        ? ((a.stepStatus[step.index] || step.status || 'pending') as MergedTimelineStep['status'])
-        : 'done';
-      steps.push({
-        index: step.index,
-        user_title: step.user_title,
-        status,
-        fromPriorTurn: !isLatest,
-      });
-    }
-  }
-  return {
-    subject,
-    resource_type: current.agentActivity?.plan?.resource_type || '',
-    steps,
-  };
-};
 
 const finalizeRunningAgentActivity = (
   activity: AgentActivityState | undefined,
@@ -363,7 +318,8 @@ function buildInlineSourcePlan(markdown: string, sources: ChatSourceV2[]): Inlin
   };
 }
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorkspaceScopeChange }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorkspaceScopeChange, topicSelector }) => {
+  const { user: authenticatedUser } = useAuthSession();
   const {
     messages,
     addMessage,
@@ -397,7 +353,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const { addMaterial } = useCourseMaterialsStore();
   const jobsById = useJobStore((state) => state.jobs);
 
+  const initializedWorkspaceRef = useRef<string | null>(null);
+  const initializationEpochRef = useRef(0);
+  const previousOwnerRef = useRef(authenticatedUser?.username);
+  const pendingOperationRef = useRef<{ conversationId: string; operationId: string } | null>(null);
+  const pendingRevisionIntent = useRef<ArtifactRevisionReference | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [revisionHistory, setRevisionHistory] = useState<ArtifactRevisionReference | null>(null);
+  const [revisionOutcome, setRevisionOutcome] = useState<ArtifactRevisionOutcome | null>(null);
+  const [clarification, setClarification] = useState<ScopeClarification | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [historyList, setHistoryList] = useState<ConversationListItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -431,6 +395,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
   const normalizedWorkspaceScope = useMemo(() => normalizeWorkspaceScope(workspaceScope), [workspaceScope]);
+  const workspaceIdentity = `${authenticatedUser?.username || ''}:${courseId || ''}:${normalizedWorkspaceScope.scopeType}:${normalizedWorkspaceScope.scopeId || ''}`;
+  const workspaceIdentityRef = useRef(workspaceIdentity);
+  workspaceIdentityRef.current = workspaceIdentity;
+  useEffect(() => () => {
+    const pending = pendingOperationRef.current;
+    pendingOperationRef.current = null;
+    if (pending) {
+      void cancelChatPendingOperation(pending.conversationId, pending.operationId).catch(() => {
+        message.info('原操作仍保留在原对话中，请返回原对话处理。');
+      });
+      message.info('讨论范围已切换，正在取消原待处理操作。');
+    }
+  }, [workspaceIdentity]);
   const workspaceScopeApiParams = useMemo(
     () => getWorkspaceScopeApiParams(normalizedWorkspaceScope),
     [normalizedWorkspaceScope],
@@ -468,7 +445,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   );
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const scroller = chatEndRef.current?.closest('.chat-panel__messages-scroll');
+    scroller?.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
@@ -776,6 +754,23 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   };
 
   useEffect(() => {
+    const initializationEpoch = ++initializationEpochRef.current;
+    initializedWorkspaceRef.current = null;
+    if (previousOwnerRef.current !== authenticatedUser?.username) {
+      pendingRevisionIntent.current = null;
+      clearRevisionIntent();
+      previousOwnerRef.current = authenticatedUser?.username;
+    }
+    conversationAsyncGuard.invalidateConversation(null);
+    backgroundTaskTokenRef.current = null;
+    setIsLoading(false);
+    setClarification(null);
+    setRevisionOutcome(null);
+    setRevisionHistory(null);
+    setMessages([]);
+    clearArtifactReference();
+    clearConversationReference();
+    useStore.getState().setSelectedDocs([]);
     const init = async () => {
       const initializationToken = conversationAsyncGuard.startLoad(currentConversationId, {
         invalidateBackgroundTasks: false,
@@ -823,12 +818,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       } catch (error) {
         console.error('加载历史对话失败:', error);
       } finally {
-        setHistoryLoading(false);
+        if (initializationEpoch === initializationEpochRef.current && workspaceIdentityRef.current === workspaceIdentity) {
+          initializedWorkspaceRef.current = workspaceIdentity;
+          setHistoryLoading(false);
+          const pending = pendingRevisionIntent.current;
+          if (pending && courseId === pending.source_course_id) {
+            setArtifactReference(pending);
+            pendingRevisionIntent.current = null;
+            document.querySelector<HTMLTextAreaElement>('.chat-panel textarea')?.focus();
+          }
+        }
       }
     };
 
     void init();
   }, [
+    authenticatedUser?.username,
     courseId,
     conversationMatchesCurrentWorkspace,
     workspaceScopeApiParams.aggregate,
@@ -999,6 +1004,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   };
 
   const handleNewConversation = () => {
+    pendingRevisionIntent.current = null;
+    clearRevisionIntent();
     conversationAsyncGuard.invalidateConversation(null);
     backgroundTaskTokenRef.current = null;
     setIsLoading(false);
@@ -1220,17 +1227,38 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     await handleAddVideos(files);
   };
 
+  useEffect(() => subscribeRevisionIntent((intent) => {
+    if (intent.ownerUserId !== authenticatedUser?.username) return;
+    pendingRevisionIntent.current = intent.reference;
+    setInputValue('');
+    if (initializedWorkspaceRef.current === workspaceIdentity && courseId === intent.reference.source_course_id) {
+      setArtifactReference(intent.reference);
+      pendingRevisionIntent.current = null;
+      document.querySelector<HTMLTextAreaElement>('.chat-panel textarea')?.focus();
+    }
+  }), [authenticatedUser?.username, courseId, workspaceIdentity, setArtifactReference]);
+
+  const handleClearRevisionReference = () => {
+    pendingRevisionIntent.current = null;
+    clearRevisionIntent();
+    const pending = pendingOperationRef.current;
+    pendingOperationRef.current = null;
+    if (pending) void cancelChatPendingOperation(pending.conversationId, pending.operationId).catch(() => message.error('取消待处理操作失败，请重试'));
+    setRevisionOutcome(null);
+    clearArtifactReference();
+  };
+
   const handleSendMessage = async (overrideText?: string, forceSend = false) => {
     const draft = (overrideText ?? inputValue).trim();
     if ((draft === '' && pendingImages.length === 0 && pendingVideos.length === 0) || (isLoading && !forceSend)) return;
     const activeConversationIdAtSend = useStore.getState().currentConversationId;
     conversationAsyncGuard.invalidateLoads(activeConversationIdAtSend);
     const sendToken = conversationAsyncGuard.captureSend(activeConversationIdAtSend);
-    const sendStillCurrent = () => conversationAsyncGuard.isSendCurrent(
+    const sendStillCurrent = () => workspaceIdentityRef.current === workspaceIdentity && conversationAsyncGuard.isSendCurrent(
       sendToken,
       useStore.getState().currentConversationId,
     );
-    const commitSend = (commit: () => void) => conversationAsyncGuard.commitSend(
+    const commitSend = (commit: () => void) => workspaceIdentityRef.current === workspaceIdentity && conversationAsyncGuard.commitSend(
       sendToken,
       useStore.getState().currentConversationId,
       commit,
@@ -1248,7 +1276,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setIsLoading(true);
     setQueuedMessage(null);
 
-    const aiResponse: Message = { user: 'AI', text: '', statusText: 'Thinking...' };
+    const aiResponse: Message = { user: 'AI', text: '', statusText: '正在分析请求...' };
     addMessage(aiResponse);
 
     try {
@@ -1281,12 +1309,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         conversationReference,
       });
       let streamedText = '';
-      let response: ChatResponseV2 | null = null;
+      payload.request_id = crypto.randomUUID();
+      const responseHolder: { value: ChatResponseV2 | null } = { value: null };
       let pendingTaskId: string | null = null;
       const agentActivity: AgentActivityState = emptyAgentActivity();
-      const flushAgentActivity = () => {
+      const flushAgentActivity = (statusText?: string) => {
         // Shallow copy so React detects a change
         updateLastMessage({
+          ...(statusText ? { statusText } : {}),
           agentActivity: {
             plan: agentActivity.plan,
             stepStatus: { ...agentActivity.stepStatus },
@@ -1338,7 +1368,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           });
         },
         onResult: (finalResponse) => {
-          commitSend(() => { response = finalResponse; });
+          commitSend(() => { responseHolder.value = finalResponse; });
         },
         onTaskSubmitted: (taskId) => {
           commitSend(() => {
@@ -1351,31 +1381,32 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         onPlan: (plan) => {
           commitSend(() => {
             agentActivity.plan = plan;
+            agentActivity.stepStatus = {};
             flushAgentActivity();
           });
         },
         onPlanStepUpdate: (update) => {
           commitSend(() => {
             agentActivity.stepStatus[update.step_index] = update.status;
-            flushAgentActivity();
+            flushAgentActivity(getAgentStepStatusText(agentActivity, update));
           });
         },
         onToolCall: (call) => {
           commitSend(() => {
             agentActivity.toolCalls.push(call);
-            flushAgentActivity();
+            flushAgentActivity(getAgentToolStatusText(call.tool));
           });
         },
         onToolResult: (result) => {
           commitSend(() => {
             agentActivity.toolResults.push(result);
-            flushAgentActivity();
+            flushAgentActivity('正在整理结果...');
           });
         },
         onReflect: (reflect) => {
           commitSend(() => {
             agentActivity.reflects.push(reflect);
-            flushAgentActivity();
+            flushAgentActivity('正在核对结果...');
           });
         },
         onError: (error) => {
@@ -1387,6 +1418,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         return;
       }
 
+      const response = responseHolder.value;
       // Background task path: hand off to useEffect poller and release the UI immediately
       if (pendingTaskId) {
         const taskToken = conversationAsyncGuard.bindBackgroundTaskForSend(
@@ -1409,6 +1441,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       if (nextConversationId && nextConversationId !== useStore.getState().currentConversationId) {
         conversationAsyncGuard.adoptConversation(nextConversationId);
         setCurrentConversationId(nextConversationId);
+      }
+      const pendingId = response.clarification?.operation_id || (response.artifact_revision?.status === 'needs_clarification' || response.artifact_revision?.awaiting_clarification ? response.artifact_revision.operation_id : undefined);
+      pendingOperationRef.current = pendingId ? { conversationId: nextConversationId, operationId: pendingId } : null;
+      setClarification(response.clarification || null);
+      setRevisionOutcome(response.artifact_revision || null);
+      if (response.artifact_revision?.artifact_reference) setArtifactReference(response.artifact_revision.artifact_reference);
+      if (response.workspace_context?.update_workspace) {
+        const context = response.workspace_context;
+        onWorkspaceScopeChange?.({ scopeType: context.scope_type, scopeId: context.scope_id || undefined, scopeLabel: context.scope_path.join(' › ') });
       }
       setStatusCard(response.status_card || null);
       setWorkflowType(String(response.workflow?.type || '').trim() || null);
@@ -1784,7 +1825,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           <Title level={5} className="chat-panel__title">
             对话
           </Title>
-          <div className="chat-panel__subtitle">当前知识库：{workspaceKnowledgeBaseLabel}</div>
+          {topicSelector}
+          {clarification && <div role="group" aria-label="知识点澄清" className="flex flex-wrap gap-2" style={{ maxHeight: 150, overflowY: 'auto' }}>
+            {clarification.candidates.map((candidate) => <Button key={candidate.scope_id} size="small" disabled={isLoading}
+              onClick={() => void handleSendMessage(candidate.scope_path.join(' › '))}>{candidate.scope_path.join(' › ')}</Button>)}
+          </div>}
+          {!topicSelector && <div className="chat-panel__subtitle">当前知识库：{workspaceKnowledgeBaseLabel}</div>}
         </div>
 
         <div className="chat-panel__controls">
@@ -1878,16 +1924,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                     </div>
                     <div className="chat-panel__message-content">
                     {item.user === 'AI' && item.statusText && (
-                      <div className="chat-panel__status-text">
+                      <div className="chat-panel__status-text" role="status" aria-live="polite">
                         {item.statusText}
                       </div>
-                    )}
-                    {item.user === 'AI' && Boolean(item.agentActivity) && (
-                      <AgentActivityPanel
-                        activity={item.agentActivity as AgentActivityState}
-                        defaultExpanded={Boolean(item.statusText)}
-                        mergedTimeline={buildMergedTimeline(messages as unknown as Message[], index)}
-                      />
                     )}
                     {item.inputImages && item.inputImages.length > 0 && (
                     <div className="chat-panel__media-strip" style={{ marginBottom: item.text ? 10 : 0 }}>
@@ -2143,24 +2182,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
         ) : null}
 
-        {artifactReference ? (
-          <div className="chat-panel__reference-card">
-            <div className="chat-panel__reference-meta">
-            <Text strong>{getDisplayLabel(artifactReference.title, '未命名产物')}</Text>
-            <div>
-              <Text type="secondary">
-                {artifactReference.artifact_type === 'report_outline'
-                  ? '报告大纲'
-                  : '报告正文'}
-                {artifactReference.version_id ? ` · 版本 ${artifactReference.version_id}` : ''}
-              </Text>
-            </div>
-            </div>
-            <Button size="small" onClick={() => clearArtifactReference()}>
-              移除引用
-            </Button>
-          </div>
-        ) : null}
+        {revisionHistory && <RevisionHistoryDialog reference={revisionHistory} onClose={() => setRevisionHistory(null)}
+          onRestored={outcome => { if (workspaceIdentityRef.current !== workspaceIdentity) return; setRevisionOutcome(outcome); if (outcome.artifact_reference) setArtifactReference(outcome.artifact_reference); }} />}
+        {revisionOutcome?.status === 'completed' && revisionOutcome.artifact_reference && <RevisionResult
+          reference={revisionOutcome.artifact_reference} summary={revisionOutcome.summary || ''} changes={revisionOutcome.changes || []}
+          onView={() => { const ref = revisionOutcome.artifact_reference; if (ref) window.location.hash = buildRoleCourseHash(authenticatedUser?.role, 'resources', ref.source_course_id, { material_type: ref.artifact_type === 'report_outline' ? 'report' : ref.artifact_type, material_id: ref.artifact_id, space: 'mine' }); }}
+          onContinue={() => { if (revisionOutcome.artifact_reference) setArtifactReference(revisionOutcome.artifact_reference); }}
+          onRestore={() => { if (revisionOutcome.artifact_reference) setRevisionHistory(revisionOutcome.artifact_reference); }} />}
+        {revisionOutcome?.status === 'needs_clarification' && <div role="group" aria-label="资料修改澄清">
+          {revisionOutcome.candidates?.map((candidate, index) => <Button key={candidate.artifact_id} disabled={isLoading}
+            onClick={() => void handleSendMessage(String(index + 1))}>{index + 1}. {candidate.title || candidate.artifact_id}</Button>)}
+        </div>}
+        {artifactReference && <EditReference reference={{ ...artifactReference, version_id: artifactReference.version_id || '', source_course_id: artifactReference.source_course_id || courseId || '' }} onClose={handleClearRevisionReference} />}
 
       <input
         ref={imageInputRef}
@@ -2348,7 +2381,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 };
 
 export default ChatPanel;
-
 
 
 

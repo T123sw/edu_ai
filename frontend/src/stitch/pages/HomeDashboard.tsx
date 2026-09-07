@@ -1,3 +1,4 @@
+import { CourseCardContent } from "./CourseCardContent";
 import { ResumeEntry } from "../resume/ResumeEntry";
 import { useEffect, useMemo, useState } from "react";
 
@@ -115,7 +116,6 @@ export function HomeDashboardPage() {
       </header>
 
       <main className="teacher-home__main">
-        <ResumeEntry />
         <section className="teacher-home__intro">
           <div>
             <p className="teacher-home__eyebrow">教师课程工作台</p>
@@ -133,6 +133,8 @@ export function HomeDashboardPage() {
             </label>
           </div>
         </section>
+
+        <ResumeEntry />
 
         <section aria-labelledby="course-grid-title">
           <div className="teacher-home__section-head">
@@ -163,16 +165,7 @@ export function HomeDashboardPage() {
                   aria-label={course.title}
                   onClick={() => setSelectedCourse(backendCourseToSummary(course, index))}
                 >
-                  <h3>{card.title}</h3>
-                  <p className="teacher-course-card__description">{card.description}</p>
-                  <dl className="teacher-course-card__metrics">
-                    {card.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}</dd></div>)}
-                  </dl>
-                  {card.learningStatusLabel ? <p className="teacher-course-card__learning-status">{card.learningStatusLabel}</p> : null}
-                  <div className="teacher-course-card__footer">
-                    <span>{card.updatedLabel}</span>
-                    <strong>进入课程 <MaterialIcon name="arrow_forward" /></strong>
-                  </div>
+                  <CourseCardContent card={card} action="进入课程" />
                 </a>
               );
             })}

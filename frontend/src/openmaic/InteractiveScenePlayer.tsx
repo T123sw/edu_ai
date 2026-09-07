@@ -14,6 +14,7 @@ export interface InteractiveScenePlayerProps {
   actions?: Array<Record<string, unknown>>;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onNarrationChange?: (text: string) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onInteraction?: (actionId?: string) => void;
@@ -32,6 +33,7 @@ export function InteractiveScenePlayer({
   actions,
   autoPlay,
   onComplete,
+  onNarrationChange,
   onModeChange,
   onRuntimeReady,
   onInteraction,
@@ -86,6 +88,7 @@ export function InteractiveScenePlayer({
       widget={widget}
       autoPlay={autoPlay}
       onComplete={onComplete}
+          onNarrationChange={onNarrationChange}
       onModeChange={onModeChange}
       onRuntimeReady={onRuntimeReady}
     >

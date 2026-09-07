@@ -53,7 +53,10 @@ class _ConfiguredFallbackChatModel(Runnable[Any, Any]):
         last_error: Exception | None = None
         for model in self.models:
             try:
-                return model.invoke(input, config=config, **kwargs)
+                response = model.invoke(input, config=config, **kwargs)
+                if hasattr(response, "content") and not response.content and not getattr(response, "tool_calls", None):
+                    raise ValueError("model returned an empty completion")
+                return response
             except Exception as exc:
                 last_error = exc
         assert last_error is not None
@@ -68,7 +71,10 @@ class _ConfiguredFallbackChatModel(Runnable[Any, Any]):
         last_error: Exception | None = None
         for model in self.models:
             try:
-                return await model.ainvoke(input, config=config, **kwargs)
+                response = await model.ainvoke(input, config=config, **kwargs)
+                if hasattr(response, "content") and not response.content and not getattr(response, "tool_calls", None):
+                    raise ValueError("model returned an empty completion")
+                return response
             except Exception as exc:
                 last_error = exc
         assert last_error is not None

@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.chat.application.knowledge_context import ResolvedWorkspaceContext
+
 from .artifact_reference import ArtifactReferencePayload
 from .capability_policy import CapabilityPolicy
 from .conversation_reference import ConversationReferencePayload
@@ -54,6 +56,7 @@ class ChatInputVideoPayload(BaseModel):
 
 class ChatRequestV2(BaseModel):
     question: str
+    request_id: str | None = None
     actor_role: Literal["teacher", "student"] = "teacher"
     conversation_id: str | None = None
     owner: str | None = None
@@ -67,5 +70,6 @@ class ChatRequestV2(BaseModel):
     action_hint: str | None = None
     input_images: list[ChatInputImagePayload] = Field(default_factory=list)
     input_videos: list[ChatInputVideoPayload] = Field(default_factory=list)
+    workspace_context: ResolvedWorkspaceContext | None = None
     capability: CapabilityPolicy = Field(default_factory=CapabilityPolicy)
 

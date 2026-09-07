@@ -4,13 +4,14 @@ from typing import Any, Dict, List, Literal, Optional, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.chat.application.knowledge_context import ResolvedWorkspaceContext, ScopeClarification
 from app.chat.domain.artifact_reference import ArtifactReferencePayload
 from app.chat.domain.contracts import ChatInputImagePayload, ChatInputVideoPayload
 from app.chat.domain.conversation_reference import ConversationReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
 from app.services.generation_source_resolver import GenerationSourceMode
 
-TracePath = Literal["fast", "workflow"]
+TracePath = Literal["fast", "workflow", "agent", "agent_fallback"]
 DirectTracePath = Literal["direct"]
 WorkflowStatus = Literal["running", "awaiting_confirm", "completed", "interrupted", "failed"]
 ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
@@ -125,6 +126,7 @@ class GenerationPreflightResponseV2(BaseModel):
 
 class ChatReplyRequestV2(BaseModel):
     question: str
+    request_id: Optional[str] = Field(default=None, min_length=1, max_length=100)
     conversation_id: Optional[str] = None
     model_id: Optional[str] = None
     course_id: Optional[str] = None
@@ -140,6 +142,12 @@ class ChatReplyRequestV2(BaseModel):
     input_images: List[ChatInputImagePayload] = Field(default_factory=list)
     input_videos: List[ChatInputVideoPayload] = Field(default_factory=list)
     action_hint: Optional[str] = None
+
+
+class ArtifactRevisionVersionRequestV2(BaseModel):
+    reference: ArtifactReferencePayload
+    version: int = Field(ge=1)
+    operation_id: Optional[str] = Field(default=None, min_length=1, max_length=100)
 
 
 class ChatReportRequestV2(BaseModel):
@@ -361,6 +369,9 @@ class DirectTraceMetaV2(BaseModel):
 
 
 class ChatResponseV2(BaseModel):
+    artifact_revision: Optional[Dict[str, Any]] = None
+    workspace_context: Optional[ResolvedWorkspaceContext] = None
+    clarification: Optional[ScopeClarification] = None
     message: Dict[str, Any]
     conversation: Dict[str, Any]
     action: Dict[str, Any]

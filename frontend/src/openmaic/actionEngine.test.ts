@@ -301,3 +301,19 @@ test('falls back to an available Chinese voice when the requested voice is absen
     '中文普通话',
   );
 });
+
+test('narration advances only after each spoken sentence finishes', async () => {
+  const media = new FakeMediaAdapter();
+  media.deferSpeech = true;
+  const captions: string[] = [];
+  const engine = new ActionEngine({ onNarrationChange: (text) => captions.push(text) }, { media });
+  const pending = engine.execute({ id: 'sentences', type: 'speech', text: '第一句。第二句。' });
+  assert.deepEqual(captions, ['第一句。']);
+  media.finishSpeech();
+  await Promise.resolve();
+  assert.deepEqual(captions, ['第一句。', '第二句。']);
+  media.finishSpeech();
+  await pending;
+  assert.deepEqual(captions, ['第一句。', '第二句。', '']);
+  engine.dispose();
+});

@@ -270,3 +270,16 @@ async def test_tts_service_atomically_persists_registered_audio(tmp_path):
     assert mime_type == 'audio/mpeg'
     assert (Path(tmp_path) / 'audio' / filename).read_bytes() == b'ID3-audio'
     assert list((Path(tmp_path) / 'audio').glob('.*.tmp')) == []
+
+async def test_versioned_player_uses_authorized_snapshot_instead_of_latest_draft(tmp_path):
+    service, _, gateway, _, _ = create_service(tmp_path)
+    snapshot = classroom_material()
+    snapshot['scenes'][0]['actions'][0]['text'] = '已发布版本讲解：先比较两组数据。'
+    request = turn_request().model_copy(update={'resource_version': 2})
+    await service.submit_turn(
+        course_id='course-1', classroom_id='classroom-1', owner_user_id='student-a',
+        request=request, trusted_material=snapshot,
+    )
+    prompt = gateway.messages[-1]['content']
+    assert '已发布版本讲解：先比较两组数据。' in prompt
+    assert '先选择一个基准值。' not in prompt

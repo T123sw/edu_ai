@@ -449,6 +449,9 @@ class FastChatRuntime:
             )
             if long_term_prompt:
                 system_content = f"{system_content}\n\n{long_term_prompt}"
+        workspace = getattr(request, "workspace_context", None)
+        if workspace is not None:
+            system_content += "\n服务端校验的讨论范围：" + workspace.model_dump_json()
         model_history_messages = [
             formatted_message
             for formatted_message in (

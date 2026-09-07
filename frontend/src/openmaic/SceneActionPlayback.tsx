@@ -15,6 +15,7 @@ export interface SceneActionPlaybackProps {
   widget?: ActionWidgetController;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onNarrationChange?: (text: string) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   children: ReactNode;
@@ -30,6 +31,7 @@ export function SceneActionPlayback({
   widget,
   autoPlay = true,
   onComplete,
+  onNarrationChange,
   onModeChange,
   onRuntimeReady,
   children,
@@ -37,8 +39,8 @@ export function SceneActionPlayback({
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const widgetRef = useRef(widget);
   widgetRef.current = widget;
-  const callbacksRef = useRef({ onComplete, onModeChange, onRuntimeReady });
-  callbacksRef.current = { onComplete, onModeChange, onRuntimeReady };
+  const callbacksRef = useRef({ onComplete, onModeChange, onRuntimeReady, onNarrationChange });
+  callbacksRef.current = { onComplete, onModeChange, onRuntimeReady, onNarrationChange };
 
   useEffect(() => {
     const playableScene: PlayableScene = {
@@ -51,7 +53,7 @@ export function SceneActionPlayback({
         widgetRef.current?.postMessage(type, payload);
       },
     };
-    const actionEngine = new ActionEngine({}, { widget: widgetController });
+    const actionEngine = new ActionEngine({ onNarrationChange: (text) => callbacksRef.current.onNarrationChange?.(text) }, { widget: widgetController });
     const engine = new PlaybackEngine(
       [playableScene],
       new WallClockSource(),

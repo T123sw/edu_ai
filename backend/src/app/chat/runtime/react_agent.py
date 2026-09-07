@@ -13,6 +13,7 @@ SSE event sequence:
 from __future__ import annotations
 
 import time
+import hashlib
 import uuid
 from typing import Iterator
 
@@ -75,7 +76,11 @@ class ReActAgent:
 
         actor_role = str(getattr(request, "actor_role", "teacher") or "teacher")
         tool_schemas = build_tool_schemas(capability, actor_role=actor_role)
-        thread_config: dict = {"configurable": {"thread_id": conv_id}}
+        runtime_id = conv_id
+        if getattr(request, "workspace_context", None) is not None:
+            identity = f"{username}:{course_id}:{request.scope_type}:{request.scope_id}"
+            runtime_id = conv_id + ":" + hashlib.sha256(identity.encode()).hexdigest()[:20]
+        thread_config: dict = {"configurable": {"thread_id": runtime_id}}
 
         # Read cross-turn working memory from checkpoint
         checkpoint_state: dict = {}
@@ -90,7 +95,7 @@ class ReActAgent:
             pass
         try:
             durable_state = self.agent_run_store.load(
-                conv_id,
+                runtime_id,
                 owner_user_id=username,
                 course_id=course_id,
             )
@@ -216,7 +221,7 @@ class ReActAgent:
             "accumulated_images": prior_accumulated_images,
         }
 
-        config = {"configurable": {"thread_id": conv_id, "runtime": rt}}
+        config = {"configurable": {"thread_id": runtime_id, "runtime": rt}}
 
         try:
             for event in self._graph.stream(initial_input, config, stream_mode="custom"):
@@ -288,6 +293,12 @@ class ReActAgent:
                 ),
             }
         ]
+        workspace = getattr(request, "workspace_context", None)
+        if workspace is not None:
+            system_messages.append({"role": "system", "content":
+                "服务端已校验的讨论范围：" + workspace.model_dump_json() +
+                "。课程是归属；用户说当前课程时，生成主题默认是此知识点。不得扩展为整门课程。"
+                "未明确范围时不得调用生成工具，必须先追问。"})
         learning_context = build_learning_context_prompt(
             getattr(snapshot, "learning_context", {})
         )
@@ -335,7 +346,7 @@ class ReActAgent:
                     {"agent_memory": values["agent_memory"]},
                 )
                 self.agent_run_store.save(
-                    conversation_id, owner_user_id, course_id, values
+                    config["configurable"]["thread_id"], owner_user_id, course_id, values
                 )
         except Exception as exc:
             print(f"[智能体] Agent run 状态持久化失败 | {exc}", flush=True)

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
 // @openmaic/dsl and @openmaic/renderer are npm `file:` deps pointing into
@@ -32,7 +32,14 @@ export const BACKEND_RUNTIME_WATCH_IGNORES = [
   '**/storage/**',
 ];
 
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
+  // Production is served behind Nginx, including when accessed via SSH tunnels.
+  // Keep explicit build configuration, but never default to the browser's localhost.
+  define: command === 'build' ? {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
+      loadEnv(mode, process.cwd(), 'VITE_').VITE_API_BASE_URL || '/backend',
+    ),
+  } : undefined,
   plugins: [react()],
   // This application imports every route from the root shell. Letting Vite
   // crawl that complete graph during startup pulls the renderer, Shiki,
@@ -124,6 +131,6 @@ export default defineConfig({
     proxy: {
     },
   },
-});
+}));
 
 

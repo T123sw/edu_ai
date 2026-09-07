@@ -42,7 +42,7 @@ test('teacher records successful scope changes, ignores home/profile, and resume
   await expect(page).toHaveURL(/#profile/);
   await go(page, '#home');
   await expect(entry(page)).toContainText('数据结构 · 链表');
-  await expect(page.locator('.teacher-home__main > :first-child')).toHaveClass('resume-entry');
+  await expect(page.locator('.teacher-home__intro + .resume-entry + section')).toHaveAttribute('aria-labelledby', 'course-grid-title');
   await expect(entry(page).getByRole('button')).toHaveCount(1);
   await page.reload();
   await expect(entry(page)).toContainText('链表');
@@ -57,7 +57,7 @@ test('student has one compact entry and restores learning scope', async ({ page 
   await recorded(page, student, 'array');
   await go(page, '#student-home');
   await expect(entry(page)).toContainText('数据结构 · 数组');
-  await expect(page.locator('.student-home > :first-child')).toHaveClass('resume-entry');
+  await expect(page.locator('.resume-entry + section')).toHaveAttribute('aria-labelledby', 'my-courses-title');
   await expect(page.getByText('最近学习', { exact: true })).toHaveCount(0);
   await expect(entry(page).getByRole('button')).toHaveCount(1);
   await expect(page.getByRole('button', { name: '加入课程', exact: true })).toBeVisible();

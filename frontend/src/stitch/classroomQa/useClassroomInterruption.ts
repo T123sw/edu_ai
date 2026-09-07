@@ -37,6 +37,7 @@ export type InterruptionPlayback = {
 export type InterruptionDependencies = {
   courseId: string;
   classroomId: string;
+  resourceVersion?: number;
   playback: InterruptionPlayback;
   loadSession: (
     courseId: string,
@@ -183,6 +184,7 @@ export class ClassroomInterruptionCoordinator
           client_turn_id: clientTurnId,
           question,
           checkpoint: toApiCheckpoint(checkpoint),
+          ...(this.dependencies.resourceVersion ? { resource_version: this.dependencies.resourceVersion } : {}),
         },
       );
       if (!this.ownsResult(clientTurnId, token)) return;
@@ -335,6 +337,7 @@ function toApiCheckpoint(
 type UseClassroomInterruptionOptions = {
   courseId: string;
   classroomId: string;
+  resourceVersion?: number;
   playback: InterruptionPlayback;
   pageRevision: number;
   enabled?: boolean;
@@ -343,6 +346,7 @@ type UseClassroomInterruptionOptions = {
 export function useClassroomInterruption({
   courseId,
   classroomId,
+  resourceVersion,
   playback,
   pageRevision,
   enabled = true,
@@ -355,6 +359,7 @@ export function useClassroomInterruption({
       return new ClassroomInterruptionCoordinator({
         courseId,
         classroomId,
+        resourceVersion,
         playback,
         loadSession: getClassroomQaSession,
         submitTurn: submitClassroomQaTurn,
@@ -366,7 +371,7 @@ export function useClassroomInterruption({
         revokeObjectUrl: (url) => URL.revokeObjectURL(url),
       });
     },
-    [classroomId, courseId, pageRevision, playback],
+    [classroomId, courseId, resourceVersion, pageRevision, playback],
   );
   const state = useSyncExternalStore(
     coordinator.subscribe,

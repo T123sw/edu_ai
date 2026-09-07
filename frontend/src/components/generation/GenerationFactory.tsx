@@ -159,8 +159,8 @@ export function GenerationFactory({
   return (
     <div className="generation-factory generation-factory--direct" data-testid="generation-factory">
       <header className="generation-factory__header">
-        <span>生成工具</span>
-        <h2>选择要创建的资源</h2>
+        <h2>生成工厂</h2>
+        <p>选择要创建的资源</p>
       </header>
       <div className="generation-factory__registry">
         {visibleResources.map((item) => (

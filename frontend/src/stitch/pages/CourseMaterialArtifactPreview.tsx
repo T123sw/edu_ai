@@ -81,7 +81,7 @@ function MindMapPreview({ material }: { material: CourseMaterial }) {
   const root = record(payload.root) as MindNode;
   const hasRoot = Boolean(root.title || root.children?.length);
   const [zoom, setZoom] = useState(1);
-  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button><button type="button" disabled={!hasRoot} onClick={() => downloadMindMapJson(material.content, material.title || "思维导图")}>导出 JSON</button></div><div className="resource-mind-map__viewport"><div className="resource-mind-map__canvas" style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ol className="resource-mind-map__tree" role="tree" aria-label={material.title || "思维导图"}><MindBranch node={root} /></ol> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
+  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button><button type="button" disabled={!hasRoot} onClick={() => downloadMindMapJson(material.content, material.title || "思维导图")}>导出导图</button></div><div className="resource-mind-map__viewport"><div className="resource-mind-map__canvas" style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ol className="resource-mind-map__tree" role="tree" aria-label={material.title || "思维导图"}><MindBranch node={root} /></ol> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
 }
 
 function GamePreview({ material }: { material: CourseMaterial }) {
@@ -89,7 +89,7 @@ function GamePreview({ material }: { material: CourseMaterial }) {
   const asset = useAuthenticatedBlobUrl(url);
   if (!url) return <p className="resource-preview-empty">小游戏页面尚未生成，请稍后重试。</p>;
   if (asset.loading) return <p className="resource-preview-empty">小游戏加载中…</p>;
-  if (asset.error || !asset.url) return <p role="alert" className="resource-preview-empty">小游戏加载失败：{asset.error || "未取得页面内容"}</p>;
+  if (asset.error || !asset.url) return <p role="alert" className="resource-preview-empty">小游戏加载失败，请稍后重试。</p>;
   return <div className="resource-game-preview"><iframe title={material.title || "小游戏预览"} src={asset.url} sandbox="allow-scripts allow-forms" /><a href={asset.url} target="_blank" rel="noreferrer">在新窗口打开小游戏</a></div>;
 }
 
@@ -103,5 +103,5 @@ export function CourseMaterialArtifactPreview({ material }: { material: CourseMa
   if (previewKind === "mind-map") return <MindMapPreview material={material} />;
   if (previewKind === "game") return <GamePreview material={material} />;
   if (previewKind === "rich-text") return <><div className="mb-3 flex justify-end">{exportButton}</div><div className="edu-rich-preview"><MarkdownPreview content={markdown} /></div></>;
-  return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>该资源仍保留在个人资源列表中，不会跳转到错误页面。</p></div>;
+  return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>此资源暂时无法在线预览，请选择其他资源。</p></div>;
 }

@@ -409,6 +409,9 @@ def test_build_default_reply_service_v2_wires_course_storage_manager(monkeypatch
     monkeypatch.setattr("app.chat.application.reply_service_v2.default_course_storage_manager", course_storage_marker)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
 
     assert service.course_storage_manager is course_storage_marker
 
@@ -460,6 +463,9 @@ def test_build_default_reply_service_v2_returns_service(monkeypatch):
     monkeypatch.setattr("app.chat.application.reply_service_v2.build_default_gateway", lambda model_id=None: DummyGateway())
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
 
     assert service is not None
 
@@ -506,6 +512,9 @@ def test_build_default_reply_service_v2_uses_request_capability_when_switching_t
     monkeypatch.setattr("app.chat.application.reply_service_v2.build_default_report_engine", fake_build_engine)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="生成报告",
         conversation_id="conv-1",
@@ -568,6 +577,9 @@ def test_build_default_reply_service_v2_uses_request_model_id_for_gateway(monkey
     )
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="hello",
         conversation_id="conv-1",
@@ -644,6 +656,9 @@ def test_build_default_reply_service_v2_wires_react_agent_when_enabled(monkeypat
     monkeypatch.setattr("app.chat.application.reply_service_v2.MainOrchestrator", DummyMainOrchestrator)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="hello",
         conversation_id="conv-1",
@@ -722,6 +737,9 @@ def test_build_default_reply_service_v2_uses_rag_retriever_for_fast_chat(monkeyp
     monkeypatch.setattr("app.chat.application.reply_service_v2.rag_search_tool", fake_rag_search_tool)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="根据知识库总结关羽生平",
         conversation_id="conv-1",
@@ -802,6 +820,9 @@ def test_build_default_reply_service_v2_uses_web_retriever_for_fast_chat(monkeyp
     monkeypatch.setattr("app.chat.application.reply_service_v2.web_search_tool", fake_web_search_tool)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="请联网总结关羽生平",
         conversation_id="conv-1",
@@ -878,6 +899,9 @@ def test_build_default_reply_service_v2_wires_video_retriever_for_fast_chat(monk
     monkeypatch.setattr("app.chat.application.reply_service_v2.FastChatRuntime", DummyFastRuntime)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="根据视频总结关羽生平",
         conversation_id="conv-1",
@@ -951,6 +975,9 @@ def test_build_default_reply_service_v2_wires_generation_context_dependencies(mo
     monkeypatch.setattr("app.chat.application.reply_service_v2.get_fallback_llm", lambda: llm_marker)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="生成报告",
         conversation_id="conv-1",
@@ -1028,6 +1055,9 @@ def test_build_default_reply_service_v2_registers_lesson_plan_workflow(monkeypat
     monkeypatch.setattr("app.chat.application.reply_service_v2.LessonPlanWorkflowRuntime", DummyLessonPlanRuntime)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="根据以上内容，总结为教案",
         conversation_id="conv-lesson-1",
@@ -1104,6 +1134,9 @@ def test_build_default_reply_service_v2_configures_report_runtime(monkeypatch):
     monkeypatch.setattr("app.chat.application.reply_service_v2.get_fallback_llm", lambda: fallback_llm_marker)
 
     service = build_default_reply_service_v2()
+    # These tests isolate gateway/runtime wiring; trusted scope behavior has
+    # dedicated integration tests with an owner-aware conversation store.
+    service.knowledge_context_service = None
     payload = SimpleNamespace(
         question="生成报告",
         conversation_id="conv-2",

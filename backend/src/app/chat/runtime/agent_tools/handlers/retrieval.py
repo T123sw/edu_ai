@@ -15,6 +15,9 @@ def handle_rag_search(name: str, args: dict, ctx) -> dict:
         "owner": getattr(ctx.request, "owner", None),
         "course_id": getattr(ctx.request, "course_id", None),
     }
+    workspace = getattr(ctx.request, "workspace_context", None)
+    if workspace is not None and workspace.resolution == "resolved":
+        call_args["query"] = " › ".join(workspace.scope_path) + "：" + call_args["query"]
     try:
         signature = inspect.signature(ctx.rag_retriever)
         if not any(

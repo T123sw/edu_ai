@@ -74,6 +74,7 @@ from app.schemas.course import (
     MaterialContentUpdateRequest,
     PinMaterialRequest,
     RenameMaterialRequest,
+    RenameKnowledgeDocumentRequest,
 )
 from app.services import course_service as _svc
 from app.services import knowledge_document_service as _knowledge
@@ -1741,6 +1742,29 @@ def get_knowledge_base_document_detail(
     return _knowledge_document_model(document, course_id)
 
 
+@router.patch(
+    "/{course_id}/knowledge-base/documents/{document_id}",
+    response_model=KnowledgeBaseDocument,
+    summary="修改课程知识库资料名称",
+)
+def rename_knowledge_base_document(
+    course_id: str,
+    document_id: str,
+    payload: RenameKnowledgeDocumentRequest,
+    principal: CoursePrincipal = Depends(require_course_edit),
+):
+    manager = _svc._get_manager()
+    document = _knowledge.get_document(manager, course_id, document_id, owner_user_id=principal.user_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="文档不存在或无权访问")
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="资料名称不能为空")
+    # Display title only: preserve filenames, physical files and RAG source keys.
+    updated = _knowledge.patch_document(manager, course_id, document_id, source_title=name)
+    return _knowledge_document_model(updated, course_id)
+
+
 def _knowledge_document_collection_root(course_dir: Path, file_path: Path) -> Path:
     """Return the versioned document collection containing a knowledge file."""
     knowledge_base_root = (course_dir / "knowledge_base").resolve()
@@ -2208,6 +2232,15 @@ async def generate_classroom(
             detail={"code": exc.code, "message": exc.message},
         ) from exc
 
+    from app.chat.application.knowledge_context import resolve_direct_workspace
+    from types import SimpleNamespace
+    scope_payload = SimpleNamespace(course_id=course_id, scope_type=payload.scope_type,
+        scope_id=payload.scope_id, question=payload.requirement, topic=payload.topic)
+    try:
+        resolved_workspace = resolve_direct_workspace(scope_payload, mgr)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail={"code": "needs_clarification", "message": str(exc)}) from exc
+    payload.scope_type, payload.scope_id = resolved_workspace.scope_type, resolved_workspace.scope_id
     owner = principal.user_id
     job = await submit_classroom_generation_job(
         course_id=course_id,

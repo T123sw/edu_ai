@@ -1,3 +1,4 @@
+import { CourseCardContent } from "../../pages/CourseCardContent";
 import { ResumeEntry } from "../../resume/ResumeEntry";
 import { useEffect, useMemo, useState } from "react";
 
@@ -142,7 +143,6 @@ export function StudentHomePage() {
 
   return (
     <div className="student-home">
-      <ResumeEntry refreshToken={loadVersion} />
       <section className="teacher-home__intro student-home__intro">
         <div>
           <p className="teacher-home__eyebrow">学生课程工作台</p>
@@ -182,6 +182,8 @@ export function StudentHomePage() {
         </div>
       </section>
 
+      <ResumeEntry refreshToken={loadVersion} />
+
       <section className="student-home__section" aria-labelledby="my-courses-title">
         <div className="teacher-home__section-head"><div><h2 id="my-courses-title">我的课程</h2><p>{courses.length > 0 ? `${courses.length} 门已加入课程` : "查看已加入的课程"}</p></div></div>
         {loading ? <div className="teacher-home__state">正在加载课程…</div> : null}
@@ -197,17 +199,8 @@ export function StudentHomePage() {
                 className="teacher-course-card"
                 aria-label={course.title}
               >
-                <a href={buildStudentHash("student-course-detail", { courseId: course.id })} onClick={() => enterCourse(course, index)} className="block text-inherit no-underline">
-                <h3>{card.title}</h3>
-                <p className="teacher-course-card__description">{card.description}</p>
-                <dl className="teacher-course-card__metrics">
-                  {card.metrics.map((metric) => <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.value}</dd></div>)}
-                </dl>
-                {card.learningStatusLabel ? <p className="teacher-course-card__learning-status">{card.learningStatusLabel}</p> : null}
-                <div className="teacher-course-card__footer">
-                  <span>{card.updatedLabel}</span>
-                  <strong>进入学习 <MaterialIcon name="arrow_forward" /></strong>
-                </div>
+                <a href={buildStudentHash("student-course-detail", { courseId: course.id })} onClick={() => enterCourse(course, index)} className="teacher-course-card__link">
+                  <CourseCardContent card={card} action="进入学习" />
                 </a>
                 <button type="button" disabled={leavingCourseId === course.id} onClick={() => void handleLeaveCourse(course)} className="mt-3 rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700 disabled:opacity-50">
                   {leavingCourseId === course.id ? "正在退出…" : "退出课程"}

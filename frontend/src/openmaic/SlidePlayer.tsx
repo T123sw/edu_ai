@@ -15,10 +15,12 @@ export interface SlidePlayerProps {
   sceneId?: string;
   autoPlay?: boolean;
   onComplete?: () => void;
+  onNarrationChange?: (text: string) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onTimelineChange?: (timeline: LessonTimeline) => void;
   className?: string;
+  onInteraction?: (actionId?: string) => void;
 }
 
 /**
@@ -46,10 +48,12 @@ export function SlidePlayer({
   sceneId,
   autoPlay = true,
   onComplete,
+  onNarrationChange,
   onModeChange,
   onRuntimeReady,
   onTimelineChange,
   className,
+  onInteraction,
 }: SlidePlayerProps) {
   const [effects, setEffects] = useState<ActionEffectsState>({});
   const [mode, setMode] = useState<PlaybackMode>('idle');
@@ -57,12 +61,14 @@ export function SlidePlayer({
   const videoRegistry = useMemo(() => new VideoRegistry(), []);
   const callbacksRef = useRef({
     onComplete,
+    onNarrationChange,
     onModeChange,
     onRuntimeReady,
     onTimelineChange,
   });
   callbacksRef.current = {
     onComplete,
+    onNarrationChange,
     onModeChange,
     onRuntimeReady,
     onTimelineChange,
@@ -97,7 +103,7 @@ export function SlidePlayer({
     const clock = new WallClockSource();
     const recorder = new TimelineRecorder(timeline);
     const actionEngine = new ActionEngine(
-      { onEffectsChange: setEffects },
+      { onEffectsChange: setEffects, onNarrationChange: (text) => callbacksRef.current.onNarrationChange?.(text) },
       { video: videoRegistry },
     );
     const engine = new PlaybackEngine(scenes, clock, {
@@ -140,6 +146,7 @@ export function SlidePlayer({
   return (
     <div
       className={className}
+      onPointerDown={() => onInteraction?.()}
       style={{ width: '100%', height: '100%' }}
       data-playback-mode={mode}
       data-timeline-version={timeline.version}

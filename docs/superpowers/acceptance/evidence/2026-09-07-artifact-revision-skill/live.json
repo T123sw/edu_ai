@@ -1,0 +1,89 @@
+{
+  "source": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+  "read": {
+    "status": "answered",
+    "message": "这份文档标题是《链表的实现》，内容介绍了链表的基本结构、插入和遍历：每个节点包含 data 和 next，head 指向首节点；头插时先让新节点 next 指向旧 head，再更新 head；遍历从 head 开始沿 next 访问，直到空指针。文末还有保留标记 SKILL-READ-20260907。",
+    "artifact_reference": {
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v1",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    }
+  },
+  "version_after_read": 1,
+  "edit": {
+    "status": "completed",
+    "message": "已保存新版本",
+    "artifact_reference": {
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v2",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    },
+    "artifact": {
+      "title": "链表的实现",
+      "content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+      "schema_version": 2,
+      "version": {
+        "version_id": "v2",
+        "version_number": 2,
+        "root_artifact_id": "linked-list-smoke",
+        "parent_artifact_id": "linked-list-smoke"
+      },
+      "material_type": "report",
+      "material_id": "linked-list-smoke",
+      "course_id": "skill-smoke-course",
+      "scope_type": "knowledge_point",
+      "scope_id": "linked-list",
+      "owner_user_id": "skill-smoke-teacher",
+      "created_by": "skill-smoke-teacher",
+      "visibility": "private",
+      "source_job_id": null,
+      "config_snapshot_id": null,
+      "source_snapshot": {},
+      "config_snapshot": {},
+      "source": {},
+      "status": "ready",
+      "created_at": "2026-09-07T06:56:19.480243",
+      "updated_at": "2026-09-07T06:56:33.272144+00:00",
+      "is_pinned": false,
+      "pinned_at": null,
+      "content_hash": "f9617bddf9c8d9c2dd470169b87ac7bf5cc935c3bfa4c95fe8a11183c5280448",
+      "artifact_paths": [],
+      "file_path": null,
+      "html_url": null,
+      "video_url": null,
+      "pptx_url": null,
+      "sidecar_url": null,
+      "video_status": "not_generated",
+      "revision": {
+        "base_version": 1,
+        "summary": "已修改 1 处内容",
+        "changes": [
+          {
+            "path": [],
+            "before": "头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历",
+            "after": "头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历"
+          }
+        ],
+        "operation_id": "edit-1"
+      },
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "material_version": 2
+    },
+    "summary": "已修改 1 处内容",
+    "changes": [
+      {
+        "path": [],
+        "before": "头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历",
+        "after": "头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历"
+      }
+    ],
+    "base_version_id": "v1"
+  },
+  "final_version": 2,
+  "final_content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。"
+}

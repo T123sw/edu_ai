@@ -1154,6 +1154,10 @@ def _inject_plan_step_hint(messages: list, state: dict) -> list:
         "请专注完成此步骤，不要跳步。"
     )
     note = {"role": "system", "content": hint}
+    # Never insert a system hint between an assistant tool call and its
+    # responses: providers require the entire tool exchange to be contiguous.
+    if messages and messages[-1].get("role") == "tool":
+        return messages + [note]
     if len(messages) >= 2:
         return messages[:-1] + [note, messages[-1]]
     return messages + [note]
@@ -1197,6 +1201,10 @@ def _inject_reflect_hint(messages: list, state: dict) -> list:
     if not hint:
         return messages
     note = {"role": "system", "content": f"【上一步自检提示】{hint}"}
+    # Never insert a system hint between an assistant tool call and its
+    # responses: providers require the entire tool exchange to be contiguous.
+    if messages and messages[-1].get("role") == "tool":
+        return messages + [note]
     if len(messages) >= 2:
         return messages[:-1] + [note, messages[-1]]
     return messages + [note]

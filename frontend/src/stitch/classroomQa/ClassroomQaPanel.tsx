@@ -45,12 +45,12 @@ export function ClassroomQaPanel({
     <aside className="classroom-qa-panel" aria-label="课堂实时问答">
       <header className="classroom-qa-panel__header">
         <div>
-          <p className="classroom-qa-panel__eyebrow">
+          {eyebrow !== "" ? <p className="classroom-qa-panel__eyebrow">
             {eyebrow ??
               (controller.supportsPlaybackInterruption
                 ? '随时提问 · 回答后续讲'
                 : '围绕当前学习资料提问')}
-          </p>
+          </p> : null}
           <h2>{title}</h2>
         </div>
       </header>

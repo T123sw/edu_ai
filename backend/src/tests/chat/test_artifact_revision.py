@@ -348,3 +348,58 @@ def test_legacy_server_file_is_read_and_retained(manager):
     assert result["artifact"]["file_path"] is None
     old = ArtifactRevisionService(manager).read_version(owner_user_id="teacher", course_id="course", artifact_type="report", artifact_id="one", version=1)
     assert (manager.get_course_dir("course") / old["file_path"]).read_text() == "独特段落\n原始案例"
+
+
+def test_skill_read_answer_does_not_create_version(manager):
+    ref = seed(manager)
+    model = Model({'answer': '这份资料介绍数组，包含独特段落和原始案例。'})
+    result = run(ArtifactRevisionService(manager, model), ref, question='这个文档写的什么')
+    assert result['status'] == 'answered'
+    assert result['artifact_reference']['version_id'] == 'v1'
+    assert 'artifact' not in result and 'pending' not in result
+    supplied = json.loads(model.prompts[0][1]['content'])
+    assert supplied['source'] == '# 数组\n\n独特段落不变\n\n原始案例'
+    assert supplied['current_question'] == '这个文档写的什么'
+    assert supplied['reference']['artifact_id'] == 'one'
+    assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
+
+
+def test_skill_read_interlude_preserves_original_pending(manager):
+    ref = seed(manager)
+    model = Model({'question': '第二部分需要简化还是增加案例？'})
+    service = ArtifactRevisionService(manager, model)
+    pending = run(service, ref, question='第二部分不太好')['pending']
+    model.output = {'answer': '第二部分是原始案例。'}
+    answer = run(service, pending=pending, question='先说这个文档写的什么')
+    assert answer['status'] == 'answered'
+    assert answer['pending'] == pending
+    model.output = edit()
+    revised = run(service, pending=answer['pending'], question='增加两个实际案例')
+    assert revised['status'] == 'completed'
+    assert revised['artifact']['material_version'] == 2
+    assert '先说这个文档写的什么' not in json.loads(model.prompts[-1][1]['content'])['instruction']
+
+
+@pytest.mark.parametrize('output', [
+    {'question': '具体追问'}, {'answer': ''},
+    {'answer': '我来解释', 'edits': [{'path': [], 'before': '原始案例', 'after': '替换'}]},
+])
+def test_skill_invalid_or_mixed_action_cannot_write(manager, output):
+    ref = seed(manager)
+    model = Model(output)
+    result = run(ArtifactRevisionService(manager, model), ref)
+    assert result['status'] == 'failed'
+    assert len(model.prompts) == 2
+    assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
+
+
+def test_missing_revision_skill_fails_without_model_or_write(manager, tmp_path):
+    from app.chat.skill_manager import SkillManager
+    ref = seed(manager)
+    model = Model(edit())
+    service = ArtifactRevisionService(manager, model, skill_manager=SkillManager(skills_dir=tmp_path / 'missing'))
+    result = run(service, ref)
+    assert result['status'] == 'failed'
+    assert '技能未加载' in result['message']
+    assert model.prompts == []
+    assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1

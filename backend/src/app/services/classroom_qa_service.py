@@ -108,12 +108,15 @@ class ClassroomQaService:
         classroom_id: str,
         owner_user_id: str,
         request: ClassroomQaTurnRequest,
+        trusted_material: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         started = self.clock()
         client_turn_id = str(request.client_turn_id)
         checkpoint = request.checkpoint.model_dump()
+        if request.resource_version is not None:
+            checkpoint["resource_version"] = request.resource_version
         context_started = self.clock()
-        material = await self._run_sync(
+        material = trusted_material if trusted_material is not None else await self._run_sync(
             self.material_loader,
             course_id=course_id,
             classroom_id=classroom_id,
@@ -165,7 +168,8 @@ class ClassroomQaService:
             context = build_classroom_qa_context(
                 material=material,
                 checkpoint=checkpoint,
-                recent_turns=list(session.get("turns") or []),
+                recent_turns=[turn for turn in session.get("turns") or []
+                              if (turn.get("checkpoint") or {}).get("resource_version") == request.resource_version],
             )
         except StaleClassroomCheckpointError as exc:
             self.store.fail_turn(

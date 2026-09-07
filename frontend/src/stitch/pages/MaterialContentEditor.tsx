@@ -60,7 +60,7 @@ export function MaterialContentEditor({ courseId, material, onCancel, onSaved }:
         <div>
           <h3 className="font-black text-(--app-text)">编辑资源内容</h3>
           <p className="mt-1 text-sm text-(--muted-text)">
-            {textMode ? "支持 Markdown；保存后预览立即更新。" : "结构化资源使用 JSON 编辑，保存前会自动校验。"}
+            {material.material_type === "graph" ? "选择节点修改内容，保存后预览立即更新。" : textMode ? "编辑正文，保存后预览立即更新。" : "结构化资源使用 JSON 编辑，保存前会自动校验。"}
           </p>
         </div>
         <div className="flex gap-2">

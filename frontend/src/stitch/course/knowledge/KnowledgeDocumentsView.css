@@ -1,0 +1,65 @@
+/* Keep browsing primary and knowledge-base management compact. */
+.knowledge-library .knowledge-library__heading { padding: 24px 20px 20px; }
+.knowledge-library .knowledge-library__heading > span { color: #7a889d; font-size: 12px; font-weight: 500; letter-spacing: 0; }
+.knowledge-library .knowledge-library__heading h2 { margin-top: 8px; font-size: 18px; line-height: 1.5; overflow-wrap: anywhere; }
+.knowledge-library .knowledge-library__node-list { padding-top: 14px; }
+.knowledge-library .knowledge-library__node-select { padding-top: 13px; padding-bottom: 13px; }
+.knowledge-library .course-kb-builder { grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 12px 20px; flex: none; margin: 0; padding: 22px 24px; border: 0; border-bottom: 1px solid var(--course-shell-line); border-radius: 0; box-shadow: none; background: transparent; }
+.knowledge-library .course-kb-builder__header { display: flex; align-items: center; gap: 10px; }
+.knowledge-library .course-kb-builder__icon { display: none; }
+.knowledge-library .course-kb-builder__heading h2 { margin: 0; font-size: 20px; white-space: nowrap; }
+.knowledge-library .course-kb-builder__badge { padding: 4px 8px; font-size: 11px; font-weight: 500; }
+.knowledge-library .course-kb-builder__actions { grid-column: 2; grid-row: 1; justify-content: flex-start; gap: 8px; }
+.knowledge-library .course-kb-builder__primary,
+.knowledge-library .course-kb-builder__secondary { border: 1px solid var(--course-shell-line); background: #fff; color: #41516a; font-weight: 600; padding: 9px 12px; cursor: pointer; }
+.knowledge-library .course-kb-builder__primary:hover,
+.knowledge-library .course-kb-builder__secondary:hover { background: #f4f7fc; border-color: #b8c9e6; }
+.knowledge-library .course-kb-builder__progress,
+.knowledge-library .course-kb-builder__notice,
+.knowledge-library .course-kb-builder__error { grid-column: 1 / -1; }
+.knowledge-library .knowledge-library__toolbar { flex-wrap: wrap; gap: 14px; padding: 22px 24px 18px; }
+.knowledge-library__selection { min-width: 0; flex: 1; display: flex; align-items: baseline; gap: 10px; }
+.knowledge-library .knowledge-library__selection h2 { margin: 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+.knowledge-library .knowledge-library__count { color: #8993a3; font-size: 12px; font-weight: 400; letter-spacing: 0; white-space: nowrap; }
+.knowledge-library__search { display: flex; align-items: center; gap: 7px; width: 220px; max-width: 100%; padding: 9px 11px; border: 1px solid #e5eaf2; border-radius: 9px; background: #f8fafc; }
+.knowledge-library .knowledge-library__search .material-symbols-rounded { color: #8993a3; font-size: 18px; font-weight: 400; }
+.knowledge-library__search input { min-width: 0; width: 100%; border: 0; outline: none; background: transparent; color: #334155; font-size: 13px; }
+.knowledge-library__search:focus-within { border-color: #6b92e8; box-shadow: 0 0 0 2px #edf3ff; }
+.knowledge-library .knowledge-library__toolbar > button { border-radius: 9px; padding: 10px 14px; font-size: 13px; font-weight: 600; }
+.knowledge-library .knowledge-library__documents { padding: 0 24px 22px; }
+.knowledge-library .knowledge-library-document { gap: 16px; padding: 18px 0; }
+.knowledge-library .knowledge-library-document:hover { background: #fafcff; }
+.knowledge-library .knowledge-library-document__preview { cursor: pointer; padding: 2px; }
+.knowledge-library .knowledge-library-document strong { font-size: 14px; font-weight: 600; }
+.knowledge-library .knowledge-library-document small { margin-top: 6px; color: #94a0b1; font-size: 12px; }
+.knowledge-library .knowledge-library-document__icon { width: 36px; height: 40px; flex-shrink: 0; border-radius: 8px; background: #f2f5fa; color: #7591ba; }
+.knowledge-library .knowledge-library-document__delete { border-color: transparent; background: transparent; color: #99a3b2; font-weight: 400; cursor: pointer; }
+.knowledge-library .knowledge-library-document__delete:hover,
+.knowledge-library .knowledge-library-document__delete:focus-visible { color: #b42318; background: #fff1f0; }
+.knowledge-library button:focus-visible { outline: 2px solid #5b87dd; outline-offset: 3px; }
+
+.knowledge-library .course-kb-builder__toolbar-end { grid-column: 3; grid-row: 1; display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
+.knowledge-library .course-kb-builder__heading { min-width: 0; }
+.knowledge-library .course-kb-builder__heading h2 { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+.knowledge-library .course-kb-builder__badge { display: none; }
+.knowledge-library .knowledge-library__search { width: 200px; }
+.knowledge-library__upload { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; border: 0; border-radius: 9px; padding: 10px 14px; background: #2460df; color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+.knowledge-library__upload:disabled { opacity: .6; cursor: wait; }
+.knowledge-library .knowledge-library-document__more { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: #64748b; cursor: pointer; }
+.knowledge-library .knowledge-library-document__more:hover { background: #edf3ff; color: #2460df; }
+.knowledge-library .knowledge-library-document__more:disabled { opacity: .5; cursor: wait; }
+@media (max-width: 1200px) {
+  .knowledge-library .course-kb-builder { grid-template-columns: auto minmax(0, 1fr); gap: 14px; }
+  .knowledge-library .course-kb-builder__toolbar-end { grid-column: 1 / -1; grid-row: 2; }
+  .knowledge-library .course-kb-builder__actions { justify-content: flex-end; }
+  .knowledge-library .knowledge-library__search { flex: 1; width: auto; }
+}
+@media (max-width: 680px) {
+  .knowledge-library .course-kb-builder { padding: 18px 16px; grid-template-columns: minmax(0, 1fr); }
+  .knowledge-library .course-kb-builder__actions { grid-column: 1; grid-row: 2; flex-direction: row; align-items: center; justify-content: flex-start; }
+  .knowledge-library .course-kb-builder__toolbar-end { grid-row: 3; flex-wrap: wrap; }
+  .knowledge-library .course-kb-builder__primary { width: auto; }
+  .knowledge-library .knowledge-library__count { display: none; }
+  .knowledge-library .knowledge-library__documents { padding: 0 16px 18px; }
+  .knowledge-library .knowledge-library-document { gap: 8px; }
+}

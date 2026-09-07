@@ -61,6 +61,7 @@ def _persist_quiz_course_material(*, payload, result: dict, course_storage_manag
         course_id=course_id,
         material_type="quiz",
         material_id=material_id,
+        owner_user_id=getattr(payload, "owner", None),
         scope_type=getattr(payload, "scope_type", SCOPE_TYPE_COURSE),
         scope_id=getattr(payload, "scope_id", None),
         material_data={
@@ -84,6 +85,8 @@ class ReplyServiceV2:
         course_storage_manager=None,
         report_edit_runtime=None,
         memory_writer=None,
+        knowledge_context_service=None,
+        artifact_revision_service=None,
     ):
         self.orchestrator = orchestrator
         self.orchestrator_factory = orchestrator_factory
@@ -93,19 +96,26 @@ class ReplyServiceV2:
         self.course_storage_manager = course_storage_manager
         self.report_edit_runtime = report_edit_runtime
         self.memory_writer = memory_writer
+        self.knowledge_context_service = knowledge_context_service
+        self.artifact_revision_service = artifact_revision_service
 
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
-        finalize_report_result(
-            payload=payload,
-            result=result,
-            course_storage_manager=self.course_storage_manager,
-            compact_message=True,
-        )
-        _persist_quiz_course_material(
-            payload=payload,
-            result=result,
-            course_storage_manager=self.course_storage_manager,
-        )
+        if request.workspace_context is not None:
+            result["workspace_context"] = request.workspace_context.model_dump()
+            # Persist the resolved request, never the pre-clarification payload.
+            payload = request
+        if not result.get("artifact_revision"):
+            finalize_report_result(
+                payload=payload,
+                result=result,
+                course_storage_manager=self.course_storage_manager,
+                compact_message=True,
+            )
+            _persist_quiz_course_material(
+                payload=payload,
+                result=result,
+                course_storage_manager=self.course_storage_manager,
+            )
 
         conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "").strip()
         result.setdefault("conversation", {"conversation_id": conversation_id})
@@ -150,6 +160,42 @@ class ReplyServiceV2:
         return result
 
     def _run_artifact_edit(self, *, request, snapshot):
+        if self.artifact_revision_service is not None:
+            storage = self.conversation_store.storage
+            state = storage.get_state(request.conversation_id)
+            pending = state.get("pending_operation") or {}
+            revision_pending = pending.get("revision_pending") if pending.get("kind") == "artifact_revision" else None
+            operation_id = pending.get("id") if revision_pending else (request.request_id or uuid4().hex)
+            source_course = getattr(request.artifact_reference, "source_course_id", None)
+            if source_course and source_course != request.course_id and self.knowledge_context_service:
+                self.knowledge_context_service.authorize(request.model_copy(update={"course_id": source_course}))
+            outcome = self.artifact_revision_service.run(
+                owner_user_id=request.owner, conversation_id=request.conversation_id,
+                course_id=request.course_id, question=request.question,
+                operation_id=operation_id, artifact_reference=request.artifact_reference,
+                pending=revision_pending, scope_id=request.scope_id,
+                session_artifacts=[state.get("active_artifact") or {}],
+            )
+            if outcome["status"] == "not_applicable":
+                return None
+            outcome["operation_id"] = operation_id
+            if outcome.get("pending"):
+                storage.update_state(request.conversation_id, {"pending_operation": {
+                    "id": operation_id, "kind": "artifact_revision", "owner": request.owner,
+                    "course_id": request.course_id, "scope_id": request.scope_id,
+                    "revision_pending": outcome["pending"],
+                }})
+            elif outcome["status"] == "completed":
+                storage.update_state(request.conversation_id, {"pending_operation": None})
+            artifact = outcome.get("artifact") or {}
+            reference = outcome.get("artifact_reference") or {}
+            artifacts = [{**artifact, **reference}] if artifact else []
+            return {
+                "message": {"role": "assistant", "content": outcome.get("message", "")},
+                "conversation": {"conversation_id": request.conversation_id},
+                "action": {"name": "artifact.read" if outcome["status"] == "answered" else "artifact.revise"}, "artifacts": artifacts, "sources": [],
+                "artifact_revision": outcome, "trace": {"path": "fast"},
+            }
         artifact_reference = getattr(request, "artifact_reference", None)
         if artifact_reference is None:
             return None
@@ -167,6 +213,10 @@ class ReplyServiceV2:
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
+        scope_result = self.knowledge_context_service.prepare(request) if self.knowledge_context_service else None
+        if scope_result is not None:
+            return self._finalize_result(payload=payload, request=request, result=scope_result)
+
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
         result = self._run_artifact_edit(request=request, snapshot=snapshot)
         if result is None:
@@ -178,6 +228,12 @@ class ReplyServiceV2:
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
+
+        scope_result = self.knowledge_context_service.prepare(request) if self.knowledge_context_service else None
+        if scope_result is not None:
+            yield {"type": "result", "payload": self._finalize_result(payload=payload, request=request, result=scope_result)}
+            yield {"type": "done", "payload": {"conversation_id": request.conversation_id}}
+            return
 
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
         edit_result = self._run_artifact_edit(request=request, snapshot=snapshot)
@@ -303,6 +359,9 @@ def build_default_reply_service_v2():
             react_agent=react_agent,
         )
 
+    from app.artifact_revision.service import ArtifactRevisionService
+    from app.chat.application.knowledge_context import KnowledgeContextService, authorize_workspace
+
     return ReplyServiceV2(
         orchestrator_factory=build_orchestrator,
         conversation_store=conversation_store,
@@ -311,4 +370,10 @@ def build_default_reply_service_v2():
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
         memory_writer=memory_service,
+        artifact_revision_service=ArtifactRevisionService(default_course_storage_manager, get_fallback_llm()),
+        knowledge_context_service=KnowledgeContextService(
+            course_storage=default_course_storage_manager,
+            conversation_storage=conversation_store.storage,
+            authorize=authorize_workspace,
+        ),
     )

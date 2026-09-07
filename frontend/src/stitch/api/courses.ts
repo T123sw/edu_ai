@@ -248,6 +248,13 @@ export function deleteCourse(courseId: string) {
   );
 }
 
+export function renameKnowledgeBaseDocument(courseId: string, documentId: string, name: string) {
+  return apiRequest<KnowledgeBaseDocument>(
+    `/api/courses/${encodeURIComponent(courseId)}/knowledge-base/documents/${encodeURIComponent(documentId)}`,
+    { method: "PATCH", body: JSON.stringify({ name }) },
+  );
+}
+
 export function deleteKnowledgeBaseDocument(courseId: string, documentId: string) {
   return apiRequest<{ message: string }>(
     `/api/courses/${encodeURIComponent(courseId)}/knowledge-base/documents/${encodeURIComponent(documentId)}`,

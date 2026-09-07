@@ -59,18 +59,11 @@ export function ContextualClassroomQaPanel({
 
   return (
     <aside className="contextual-classroom-qa" aria-label="AI 学习问答">
-      <div className="contextual-classroom-qa__context">
-        <MaterialIcon name="auto_awesome" />
-        <div>
-          <strong>正在围绕《{binding.title}》问答</strong>
-          <span>{binding.kindLabel} · {binding.scopeLabel}</span>
-        </div>
-      </div>
       <ClassroomQaPanel
         controller={binding.controller}
         canAsk={binding.canAsk}
         title="AI 学习问答"
-        eyebrow={`${binding.kindLabel} · ${binding.scopeLabel}`}
+        eyebrow=""
       />
     </aside>
   );

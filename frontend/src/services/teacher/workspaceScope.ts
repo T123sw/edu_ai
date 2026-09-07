@@ -104,3 +104,17 @@ export function getWorkspaceKnowledgeBaseLabel(scope: WorkspaceScope): string {
   }
   return '课程总知识库';
 }
+
+/** Retain chapter paths so duplicate labels never become ambiguous options. */
+export function flattenWorkspaceNodes(root?: { id: string; label: string; children?: Array<{ id: string; label: string; children?: unknown[] }> }): Array<{ value: string; label: string }> {
+  const options: Array<{ value: string; label: string }> = [];
+  function visit(node: unknown, path: string[], isRoot = false) {
+    if (!node || typeof node !== 'object') return;
+    const value = node as { id?: unknown; label?: unknown; children?: unknown };
+    const nextPath = [...path, String(value.label || '')].filter(Boolean);
+    if (!isRoot && value.id && value.label) options.push({ value: String(value.id), label: nextPath.join(' › ') });
+    if (Array.isArray(value.children)) value.children.forEach((child) => visit(child, nextPath));
+  }
+  visit(root, [], true);
+  return options;
+}

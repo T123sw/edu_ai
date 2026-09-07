@@ -27,7 +27,8 @@ export function CourseResourceViewer({ courseId, nodeId, resource, mode, onChang
   const [anchor, setAnchor] = useState<ResourceQaAnchor | undefined>();
   useEffect(() => setAnchor(undefined), [context.key]);
 
-  if (resource.standard_kind === "classroom") return <>
+  if (resource.standard_kind === "classroom") return <div className="catalog-classroom-resource">
+    {mode === "manage" ? <TeacherResourceReviewPanel courseId={courseId} resource={resource} onChanged={onChanged} /> : null}
     <ClassroomPlaybackSurface
       courseId={courseId}
       classroomId={resource.material_id}
@@ -38,22 +39,22 @@ export function CourseResourceViewer({ courseId, nodeId, resource, mode, onChang
       qaTargetKey={context.key}
       onQaControllerChange={onQaControllerChange}
     />
-    {mode === "manage" ? <TeacherResourceReviewPanel courseId={courseId} resource={resource} onChanged={onChanged} /> : null}
-  </>;
+  </div>;
   if (mode === "learn" && resource.standard_kind === "study_guide") return <>
     <StaticResourceQaBridge courseId={courseId} context={context} onChange={onQaControllerChange} />
     <StudentReadingView courseId={courseId} resource={resource} onProgress={() => void onChanged(resource.material_id)} />
   </>;
-  if (mode === "learn" && resource.standard_kind === "practice") return <>
+  if (resource.standard_kind === "practice") return <>
     <StaticResourceQaBridge courseId={courseId} context={context} anchor={anchor} onChange={onQaControllerChange} />
-    <StudentPracticeView courseId={courseId} resource={resource} onProgress={() => void onChanged(resource.material_id)} onQuestionFocus={(questionId) => setAnchor(questionId ? { question_id: questionId } : undefined)} />
+    {mode === "manage" ? <TeacherResourceReviewPanel courseId={courseId} resource={resource} onChanged={onChanged} /> : null}
+    <StudentPracticeView mode={mode} courseId={courseId} resource={resource} onProgress={() => void onChanged(resource.material_id)} onQuestionFocus={(questionId) => setAnchor(questionId ? { question_id: questionId } : undefined)} />
   </>;
   return <>
-    {resource.standard_kind !== "classroom" ? <StaticResourceQaBridge courseId={courseId} context={context} anchor={anchor} onChange={onQaControllerChange} /> : null}
+    <StaticResourceQaBridge courseId={courseId} context={context} anchor={anchor} onChange={onQaControllerChange} />
     <section className="course-resource-viewer"><header><div><p className="curriculum-node-overview__eyebrow">课程资料</p><h2>{catalogResourceLabel(resource)}</h2></div>
     <span className={`catalog-status is-${resource.review_status}`}>{catalogResourceStatus(resource)}</span></header>
+    {mode === "manage" ? <TeacherResourceReviewPanel courseId={courseId} resource={resource} onChanged={onChanged} /> : null}
     {resource.resource ? <CourseMaterialArtifactPreview material={resource.resource} /> : <p className="catalog-panel-message">该资源尚无可预览内容。</p>}
-    <TeacherResourceReviewPanel courseId={courseId} resource={resource} onChanged={onChanged} />
     </section>
   </>;
 }
@@ -70,7 +71,7 @@ function StaticResourceQaBridge({
   onChange?: (targetKey: string, binding: WorkspaceQaRegistration | null) => void;
 }) {
   if (context.kind === "classroom" || !context.resourceVersion) return null;
-  return <ActiveStaticResourceQaBridge courseId={courseId} context={context} anchor={anchor} onChange={onChange} />;
+  return <ActiveStaticResourceQaBridge courseId={courseId} context={{ ...context, kind: context.kind }} anchor={anchor} onChange={onChange} />;
 }
 
 function ActiveStaticResourceQaBridge({
