@@ -2861,6 +2861,59 @@ class RAGSystem:
             "chunk_count": len(documents)
         }
 
+    def retrieve_two_stage(
+        self, question: str, *, allowed_sources: List[str], top_k: int = 5,
+        rewritten_query: Optional[str] = None, use_enhanced_retrieval: bool = False,
+        hyde_weight: float = 0.5, use_rrf: bool = True,
+    ):
+        """Route within an already authorized scope, then retrieve only its chunks."""
+        from modules.rag_v2.document_selector import select_documents, log
+
+        allowed = set(allowed_sources or [])
+        candidates = {
+            key: meta for key, meta in self.document_index.items()
+            if (key in allowed or meta.get("source_key") in allowed)
+            and meta.get("include_in_search", True)
+            and str(meta.get("status") or "ready") in {"ready", "partially_ready"}
+        }
+        effective_query = str(rewritten_query or question).strip()
+        keys, trace = select_documents(
+            effective_query, candidates,
+            lambda messages: self._call_llm(
+                messages=messages,
+                llm_config={"timeout_seconds": Config.RAG_DOCUMENT_SELECTION_TIMEOUT},
+            ),
+            enabled=Config.RAG_DOCUMENT_SELECTION_ENABLED,
+            limit=Config.RAG_DOCUMENT_SELECTION_LIMIT,
+            max_candidates=Config.RAG_DOCUMENT_SELECTION_MAX_CANDIDATES,
+            max_chars=Config.RAG_DOCUMENT_SELECTION_MAX_CHARS,
+        )
+        sources = list(dict.fromkeys(
+            source for key in keys
+            for source in (key, candidates[key].get("source_key")) if source
+        ))
+        trace["effective_source_count"] = len(sources)
+        log.info("rag_document_selection %s", json.dumps(trace, ensure_ascii=False))
+        if not sources or not effective_query:
+            return [], trace
+        if use_enhanced_retrieval:
+            chunks = self.vector_store.enhanced_hybrid_search_with_hyde(
+                query=effective_query,
+                query_embedding=self.embedding_client.embed_query(effective_query),
+                top_k=top_k, distance_threshold=1.5, keyword_weight=0.4,
+                vector_weight=0.6, use_hyde=True, hyde_weight=hyde_weight,
+                use_rrf=use_rrf, allowed_sources=sources, rerank_enabled=True,
+                rag_system=self,
+            )
+        else:
+            chunks = self.retrieve_documents(
+                question, top_k=top_k, allowed_sources=sources,
+                rewritten_query=rewritten_query,
+            )
+        valid_sources = set(sources)
+        return [chunk for chunk in chunks
+                if (chunk.get("metadata") or {}).get("source") in valid_sources], trace
+
     def retrieve_documents(
         self,
         question: str,
@@ -2921,6 +2974,7 @@ class RAGSystem:
         """
         # 构建消息列表（标准 Chat 格式）
         messages = []
+        retrieval_metrics = {}
         
         # 1. 系统提示词
         if use_rag:
@@ -3164,34 +3218,14 @@ class RAGSystem:
             # 这样可以提高对特定关键词的精确匹配能力，同时保持语义理解能力
             # 重要：如果指定了 allowed_sources_for_search，只在这些文档中检索
                         
-            if use_enhanced_retrieval:
-                # 增强检索模式：HyDE + 多路召回 + RRF 融合 + Rerank 精排
-                print(f"[RAG] 使用增强检索模式：HyDE + 多路召回 + RRF")
-                query_embedding = self.embedding_client.embed_query(question)
-                retrieved_docs = self.vector_store.enhanced_hybrid_search_with_hyde(
-                    query=question,
-                    query_embedding=query_embedding,
-                    top_k=top_k,
-                    distance_threshold=1.5,
-                    keyword_weight=0.4,
-                    vector_weight=0.6,
-                    use_hyde=True,  # 启用 HyDE
-                    hyde_weight=hyde_weight,  # HyDE 权重
-                    use_rrf=use_rrf,  # 使用 RRF 融合
-                    allowed_sources=allowed_sources_for_search,
-                    rerank_enabled=True,  # 启用 Rerank
-                    rag_system=self,  # 传入 RAGSystem 实例
-                )
-            else:
-                print(f"[RAG] 使用生产混合检索模式：原问题 + 重写补充 + RRF + Rerank")
-                retrieved_docs = self.retrieve_documents(
-                    question,
-                    top_k=top_k,
-                    allowed_sources=allowed_sources_for_search,  # 限制检索范围
-                    rewritten_query=retrieval_query,
-                )
+            retrieved_docs, selection_trace = self.retrieve_two_stage(
+                question, top_k=top_k,
+                allowed_sources=allowed_sources_for_search,
+                rewritten_query=retrieval_query,
+                use_enhanced_retrieval=use_enhanced_retrieval,
+                hyde_weight=hyde_weight, use_rrf=use_rrf,
+            )
 
-            
             # 构建 allowed_sources 用于后续过滤（双重保险）
             if selected_doc_ids and len(selected_doc_ids) > 0:
                 # 使用之前匹配的 selected_index_keys
@@ -3550,6 +3584,9 @@ class RAGSystem:
                 finally:
                     response.close()
                     session.close()
+        except requests.exceptions.Timeout:
+            session.close()
+            raise
         except Exception as e:
             session.close()
             raise Exception(f"调用LLM失败: {str(e)}")

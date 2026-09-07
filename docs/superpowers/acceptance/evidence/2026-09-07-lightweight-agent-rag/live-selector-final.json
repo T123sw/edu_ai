@@ -1,0 +1,74 @@
+{
+  "kind": "real model, synthetic filenames; not browser E2E",
+  "results": [
+    {
+      "question": "解释二叉树的中序遍历",
+      "expected": [
+        "D1"
+      ],
+      "selected_ids": [
+        "D1"
+      ],
+      "passed": true,
+      "trace": {
+        "enabled": true,
+        "candidate_count": 4,
+        "shortlisted_count": 4,
+        "selector_call_count": 1,
+        "fallback_reason": null,
+        "selected_count": 1,
+        "selected_index_keys": [
+          "D1"
+        ],
+        "selection_elapsed_ms": 5597.79
+      }
+    },
+    {
+      "question": "生成排序算法练习题",
+      "expected": [
+        "D2"
+      ],
+      "selected_ids": [
+        "D2"
+      ],
+      "passed": true,
+      "trace": {
+        "enabled": true,
+        "candidate_count": 4,
+        "shortlisted_count": 4,
+        "selector_call_count": 1,
+        "fallback_reason": null,
+        "selected_count": 1,
+        "selected_index_keys": [
+          "D2"
+        ],
+        "selection_elapsed_ms": 4221.66
+      }
+    },
+    {
+      "question": "对比二叉树遍历与排序算法",
+      "expected": [
+        "D1",
+        "D2"
+      ],
+      "selected_ids": [
+        "D2",
+        "D1"
+      ],
+      "passed": true,
+      "trace": {
+        "enabled": true,
+        "candidate_count": 4,
+        "shortlisted_count": 4,
+        "selector_call_count": 1,
+        "fallback_reason": null,
+        "selected_count": 2,
+        "selected_index_keys": [
+          "D2",
+          "D1"
+        ],
+        "selection_elapsed_ms": 7987.75
+      }
+    }
+  ]
+}

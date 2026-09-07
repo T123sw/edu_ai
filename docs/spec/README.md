@@ -35,3 +35,9 @@
 6. 数字人/唇形同步不属于当前产品范围。
 
 可选视频 B（确定性逐帧渲染）按产品需求单独立项，不影响 Phase 0–6 完成状态。
+
+## 轻量 Agent RAG
+
+- [功能规划](../superpowers/specs/2026-09-07-lightweight-agent-rag-design-cn.md)：先按文档名选择范围，再检索正文；后端已实现，产品验收待完成。
+- [实施计划](../superpowers/plans/2026-09-07-lightweight-agent-rag-implementation-cn.md)
+- [验收文档](../superpowers/acceptance/2026-09-07-lightweight-agent-rag-acceptance-cn.md)：产品验收待执行。

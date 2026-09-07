@@ -1,0 +1,38 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer[asyncio] _
+backend/src/tests/test_classroom_service.py:383: in test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer
+    assert client.submitted_body["research_context"] == (
+E   AssertionError: assert 'web snippet\...\nRAG snippet' == 'web snippet\...rest（课时 2 学时）'
+E
+E       web snippet
+E
+E       [来源: textbook.pdf]
+E     - RAG snippet
+E     ?            -
+E     + RAG snippet
+E     -
+E     - [知识图谱] Finance > Compound interest（课时 2 学时）
+_ test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer[trio] _
+backend/src/tests/test_classroom_service.py:383: in test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer
+    assert client.submitted_body["research_context"] == (
+E   AssertionError: assert 'web snippet\...\nRAG snippet' == 'web snippet\...rest（课时 2 学时）'
+E
+E       web snippet
+E
+E       [来源: textbook.pdf]
+E     - RAG snippet
+E     ?            -
+E     + RAG snippet
+E     -
+E     - [知识图谱] Finance > Compound interest（课时 2 学时）
+=============================== warnings summary ===============================
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/src/tests/test_classroom_service.py::test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer[asyncio]
+FAILED backend/src/tests/test_classroom_service.py::test_generate_classroom_for_course_merges_knowledge_graph_as_third_layer[trio]
+2 failed, 18 deselected, 1 warning in 2.05s

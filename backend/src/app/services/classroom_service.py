@@ -74,7 +74,11 @@ def fetch_course_rag_snippets(
         index = course_storage_manager.get_knowledge_base_index(course_id)
         source_keys: list[str] = []
         for item in index or []:
-            candidate = item.get("path") or item.get("id")
+            if (not item.get("include_in_search", True)
+                    or str(item.get("library_type") or "course") != "course"
+                    or str(item.get("status") or "ready") not in {"ready", "partially_ready"}):
+                continue
+            candidate = item.get("rag_index_key") or item.get("path") or item.get("id")
             if not candidate:
                 continue
             resolved = resolve_rag_document(rag_system, candidate, owner=None)
@@ -84,12 +88,8 @@ def fetch_course_rag_snippets(
         if not source_keys:
             return None
 
-        query_embedding = rag_system.embedding_client.embed_query(query)
-        chunks = rag_system.vector_store.hybrid_search(
-            query=query,
-            query_embedding=query_embedding,
-            top_k=top_k,
-            allowed_sources=source_keys,
+        chunks, _selection_trace = rag_system.retrieve_two_stage(
+            query, top_k=top_k, allowed_sources=source_keys,
         )
         if not chunks:
             return None

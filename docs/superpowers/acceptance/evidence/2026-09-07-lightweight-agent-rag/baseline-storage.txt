@@ -1,0 +1,18 @@
+[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_rag_v2_runtime_system_uses_host_storage_and_host_auth __________
+backend/src/tests/chat/test_rag_v2_runtime_import.py:87: in test_rag_v2_runtime_system_uses_host_storage_and_host_auth
+    assert runtime_api.Config.STORAGE_ROOT == Path(__file__).resolve().parents[2] / "storage"
+E   AssertionError: assert PosixPath('/home/zxqs_ep/data/edu_ai/storage') == (PosixPath('/home/zxqs_ep/Edu_AI/backend/src') / 'storage')
+E    +  where PosixPath('/home/zxqs_ep/data/edu_ai/storage') = <class 'modules.rag_v2.rag_main.core.config.Config'>.STORAGE_ROOT
+E    +    where <class 'modules.rag_v2.rag_main.core.config.Config'> = runtime_api.Config
+=============================== warnings summary ===============================
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/src/tests/chat/test_rag_v2_runtime_import.py::test_rag_v2_runtime_system_uses_host_storage_and_host_auth
+1 failed, 1 warning in 0.19s

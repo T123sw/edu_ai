@@ -339,6 +339,13 @@ async def test_query_stream_scopes_sources_and_emits_guarded_media_urls(monkeypa
         embedding_client = FakeEmbeddingClient()
         vector_store = FakeVectorStore()
 
+        def retrieve_two_stage(self, question, *, allowed_sources, top_k, **kwargs):
+            return self.vector_store.hybrid_search(
+                query=question, query_embedding=[0.1], top_k=top_k,
+                allowed_sources=allowed_sources,
+                distance_threshold=1.5, keyword_weight=0.4, vector_weight=0.6,
+            ), {}
+
         def _rewrite_query(self, question, conversation_history):
             return question
 
@@ -349,12 +356,12 @@ async def test_query_stream_scopes_sources_and_emits_guarded_media_urls(monkeypa
             captured["owner"] = owner
             return [
                 {
-                    "file_path": str(runtime_api.Config.DOCUMENTS_ROOT / owner / "doc1.md"),
+                    "file_path": "user_alice:doc1",
                     "include_in_search": True,
                     "owner": owner,
                 },
                 {
-                    "file_path": str(runtime_api.Config.DOCUMENTS_ROOT / owner / "doc2.md"),
+                    "file_path": "user_alice:doc2",
                     "include_in_search": True,
                     "owner": owner,
                 },

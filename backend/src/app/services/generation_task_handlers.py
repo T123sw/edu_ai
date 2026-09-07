@@ -165,12 +165,8 @@ class _ResolvedDocumentContentReader:
         if not normalized_query or not allowed_sources:
             return ""
         rag_system = get_rag_system()
-        query_embedding = rag_system.embedding_client.embed_query(normalized_query)
-        chunks = rag_system.vector_store.hybrid_search(
-            query=normalized_query,
-            query_embedding=query_embedding,
-            top_k=max(1, int(top_k)),
-            allowed_sources=allowed_sources,
+        chunks, _selection_trace = rag_system.retrieve_two_stage(
+            normalized_query, top_k=max(1, int(top_k)), allowed_sources=allowed_sources,
         )
         blocks: list[str] = []
         for chunk in list(chunks or []):
@@ -205,11 +201,10 @@ def _generation_query(config: Mapping[str, Any], resource_type: str) -> str:
                 nested.get(key)
                 for key in ("topic", "title", "question", "description")
             )
-    query = next(
-        (str(item).strip() for item in candidates if str(item or "").strip()),
-        "",
-    )
-    return query or resource_type
+    # Preserve both topic and requirements; a resource kind alone is not a query.
+    return "\n".join(dict.fromkeys(
+        str(item).strip() for item in candidates if str(item or "").strip()
+    ))
 
 
 def build_default_generation_source_resolver(

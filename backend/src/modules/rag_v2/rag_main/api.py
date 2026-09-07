@@ -631,23 +631,10 @@ def _build_allowed_sources_for_owner(rag_system: RAGSystem, owner: Optional[str]
         return []
 
     allowed_sources: List[str] = []
-    seen: set[str] = set()
     for doc in rag_system.list_documents(owner=owner):
-        if not doc.get("include_in_search", True):
-            continue
-
-        file_path = doc.get("file_path")
-        if not file_path:
-            continue
-
-        for source in (
-            rag_system._make_index_key(file_path, owner),
-            rag_system._make_source_key(file_path, owner),
-        ):
-            if source and source not in seen:
-                seen.add(source)
-                allowed_sources.append(source)
-
+        if doc.get("include_in_search", True) and doc.get("file_path"):
+            # Public index key is already canonical; never prefix it again.
+            allowed_sources.append(doc["file_path"])
     return allowed_sources
 
 
@@ -1056,44 +1043,17 @@ async def rag_query_stream(
     try:
         rag_system = get_rag_system()
 
-        # 先进行检索，获取相关文档
-        from .system import RAGSystem
-
-        # 复用 query 方法的检索逻辑，但不调用 LLM
-        # 我们需要手动执行检索部分
+        # 共用文档选择与片段检索；最终回答仍通过流式模型生成。
         retrieval_query = rag_system._rewrite_query(request.question, request.conversation_history)
-        query_embedding = rag_system.embedding_client.embed_query(retrieval_query)
         owner = current_user.get("username")
         allowed_sources = _build_allowed_sources_for_owner(rag_system, owner)
 
-        # 执行检索
-        if owner and not allowed_sources:
-            retrieved_docs = []
-        elif request.use_enhanced_retrieval:
-            retrieved_docs = rag_system.vector_store.enhanced_hybrid_search_with_hyde(
-                query=retrieval_query,
-                query_embedding=query_embedding,
-                top_k=request.top_k,
-                distance_threshold=1.5,
-                keyword_weight=0.4,
-                vector_weight=0.6,
-                use_hyde=True,
-                hyde_weight=request.hyde_weight,
-                use_rrf=request.use_rrf,
-                allowed_sources=allowed_sources or None,
-                rerank_enabled=True,
-                rag_system=rag_system,
-            )
-        else:
-            retrieved_docs = rag_system.vector_store.hybrid_search(
-                query=retrieval_query,
-                query_embedding=query_embedding,
-                top_k=request.top_k,
-                distance_threshold=1.5,
-                keyword_weight=0.4,
-                vector_weight=0.6,
-                allowed_sources=allowed_sources or None
-            )
+        retrieved_docs, selection_trace = rag_system.retrieve_two_stage(
+            request.question, rewritten_query=retrieval_query,
+            top_k=request.top_k, allowed_sources=allowed_sources,
+            use_enhanced_retrieval=request.use_enhanced_retrieval,
+            hyde_weight=request.hyde_weight, use_rrf=request.use_rrf,
+        )
 
         # 构建上下文（包含多模态资源路径）
         context_parts = []

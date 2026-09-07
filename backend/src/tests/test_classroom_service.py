@@ -63,6 +63,10 @@ class FakeRagSystem:
         self.vector_store = SimpleNamespace(hybrid_search=self._hybrid_search)
         self.hybrid_search_calls = []
 
+    def retrieve_two_stage(self, query, *, top_k, allowed_sources):
+        return self._hybrid_search(query=query, query_embedding=[0.1],
+                                   top_k=top_k, allowed_sources=allowed_sources), {}
+
     def _hybrid_search(self, *, query, query_embedding, top_k, allowed_sources):
         self.hybrid_search_calls.append(
             {"query": query, "top_k": top_k, "allowed_sources": allowed_sources}

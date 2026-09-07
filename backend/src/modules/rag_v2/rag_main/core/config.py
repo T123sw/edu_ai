@@ -11,6 +11,12 @@ from core.config import Config as HostConfig
 
 
 class Config(HostConfig):
+    RAG_DOCUMENT_SELECTION_ENABLED = os.getenv("RAG_DOCUMENT_SELECTION_ENABLED", "1").lower() in {"1", "true", "yes"}
+    RAG_DOCUMENT_SELECTION_LIMIT = max(1, int(os.getenv("RAG_DOCUMENT_SELECTION_LIMIT", "5")))
+    RAG_DOCUMENT_SELECTION_MAX_CANDIDATES = max(1, int(os.getenv("RAG_DOCUMENT_SELECTION_MAX_CANDIDATES", "100")))
+    RAG_DOCUMENT_SELECTION_MAX_CHARS = max(1, int(os.getenv("RAG_DOCUMENT_SELECTION_MAX_CHARS", "12000")))
+    RAG_DOCUMENT_SELECTION_TIMEOUT = max(0.1, float(os.getenv("RAG_DOCUMENT_SELECTION_TIMEOUT", "8")))
+
     BASE_DIR = Path(__file__).resolve().parents[4]
 
     STORAGE_ROOT = Path(os.getenv("STORAGE_ROOT", BASE_DIR / "storage"))
