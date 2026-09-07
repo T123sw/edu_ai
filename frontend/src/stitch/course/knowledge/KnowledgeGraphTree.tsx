@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 
 import { MaterialIcon } from "../../shared";
 import {
@@ -38,12 +38,21 @@ export function KnowledgeGraphTree({
 }: Props) {
   const candidates = visibleGraphNodeIds(model, query, filter);
   const forcedOpen = Boolean(query.trim()) || filter !== "all";
+  const [searchCollapsed, setSearchCollapsed] = useState<{ context: string; ids: Set<string> }>({ context: '', ids: new Set() });
+  const context = `${query}:${filter}`;
+  const collapsed = searchCollapsed.context === context ? searchCollapsed.ids : new Set<string>();
+  const isExpanded = (id: string) => forcedOpen ? !collapsed.has(id) : expandedNodeIds.has(id);
   const visibleIds = candidates.filter((nodeId) => (
-    forcedOpen
-    || ancestorNodeIds(model, nodeId).every((ancestorId) => expandedNodeIds.has(ancestorId))
+    ancestorNodeIds(model, nodeId).every(isExpanded)
   ));
 
   function toggle(nodeId: string) {
+    if (forcedOpen) {
+      const next = new Set(collapsed);
+      if (next.has(nodeId)) next.delete(nodeId); else next.add(nodeId);
+      setSearchCollapsed({ context, ids: next });
+      return;
+    }
     const next = new Set(expandedNodeIds);
     if (next.has(nodeId)) next.delete(nodeId);
     else next.add(nodeId);
@@ -51,20 +60,21 @@ export function KnowledgeGraphTree({
   }
 
   function moveFocus(event: KeyboardEvent<HTMLDivElement>, nodeId: string) {
+    if (event.target !== event.currentTarget) return;
     const index = visibleIds.indexOf(nodeId);
     const current = model.nodesById.get(nodeId);
     let targetId: string | null = null;
     if (event.key === "ArrowDown") targetId = visibleIds[index + 1] || null;
     if (event.key === "ArrowUp") targetId = visibleIds[index - 1] || null;
     if (event.key === "ArrowRight") {
-      if (current?.childCount && !expandedNodeIds.has(nodeId)) toggle(nodeId);
+      if (current?.childCount && !isExpanded(nodeId)) toggle(nodeId);
       else targetId = visibleIds[index + 1] || null;
     }
     if (event.key === "ArrowLeft") {
-      if (current?.childCount && expandedNodeIds.has(nodeId)) toggle(nodeId);
+      if (current?.childCount && isExpanded(nodeId)) toggle(nodeId);
       else targetId = current?.parentId || null;
     }
-    if (event.key === "Enter" || event.key === " ") targetId = nodeId;
+    if (event.key === "Enter" || event.key === " ") { targetId = nodeId; if (current?.childCount) toggle(nodeId); }
     if (!targetId) return;
     event.preventDefault();
     onSelect(targetId);
@@ -79,14 +89,14 @@ export function KnowledgeGraphTree({
           <input value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="输入节点名称" />
         </label>
         <div>
-          <button type="button" onClick={() => onExpandedChange(new Set(model.orderedIds))}>全部展开</button>
-          <button type="button" onClick={() => onExpandedChange(new Set())}>全部折叠</button>
+          <button type="button" onClick={() => { onExpandedChange(new Set(model.orderedIds)); setSearchCollapsed({ context, ids: new Set() }); }}>全部展开</button>
+          <button type="button" onClick={() => { onExpandedChange(new Set()); setSearchCollapsed({ context, ids: new Set(model.orderedIds) }); }}>全部折叠</button>
         </div>
       </div>
       <div className="course-kb-graph__tree-list" role="tree" aria-label="课程知识图谱">
         {visibleIds.map((nodeId) => {
           const item = model.nodesById.get(nodeId)!;
-          const expanded = forcedOpen || expandedNodeIds.has(nodeId);
+          const expanded = isExpanded(nodeId);
           return (
             <div
               id={`graph-tree-${nodeId}`}
@@ -98,7 +108,7 @@ export function KnowledgeGraphTree({
               aria-expanded={item.childCount ? expanded : undefined}
               className={`course-kb-graph__tree-row${nodeId === selectedNodeId ? " is-selected" : ""}`}
               style={{ paddingInlineStart: `${12 + (item.depth - 1) * 20}px` }}
-              onClick={() => onSelect(nodeId)}
+              onClick={() => { onSelect(nodeId); if (item.childCount) toggle(nodeId); }}
               onKeyDown={(event) => moveFocus(event, nodeId)}
             >
               {item.childCount ? (

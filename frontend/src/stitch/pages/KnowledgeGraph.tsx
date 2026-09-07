@@ -529,7 +529,7 @@ export function KnowledgeGraphPage() {
                         )}
                         style={{ left: node.x, top: node.y, width: NODE_WIDTH, minHeight: NODE_HEIGHT }}
                       >
-                        <button type="button" onClick={() => setActiveNodeId(node.id)} className="flex w-full items-center gap-3 text-left">
+                        <button type="button" aria-expanded={node.hasChildren ? expanded : undefined} onClick={() => { setActiveNodeId(node.id); if (node.hasChildren) toggleNode(node.id); }} className="flex w-full items-center gap-3 text-left">
                           <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ${typeStyle(node.type)}`}>
                             <MaterialIcon name="hub" className="text-[15px]" />
                           </div>

@@ -195,7 +195,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
                   onClick={() => {
                     setSelectedNodeId(node.id);
                     setSearch("");
-                    if (hasChildren) setExpandedIds((current) => new Set([...current, node.id]));
+                    if (hasChildren) toggleNode(node);
                   }}
                 >
                   <MaterialIcon name={hasChildren ? "account_tree" : "circle"} />

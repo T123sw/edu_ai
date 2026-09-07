@@ -39,3 +39,18 @@ test("compact classroom keeps the curriculum directory in a usable drawer", asyn
   await expect(directory).not.toHaveClass(/is-open/);
   expect(await teacherPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test("curriculum node toggles open and closed by its label", async ({ teacherPage }) => {
+  await teacherPage.route("**/api/courses/course-physics/classrooms?**", route => route.fulfill({ json: [] }));
+  await teacherPage.setViewportSize({ width: 1440, height: 1000 });
+  await teacherPage.goto("/#classroom-studio?course_id=course-physics");
+  const tree = teacherPage.getByRole("tree", { name: "课程目录" });
+  const node = tree.getByRole("treeitem", { name: /1\.1 力与运动/ });
+  await expect(node).toHaveAttribute('aria-expanded', 'false');
+  await node.getByRole('button').click();
+  await expect(node).toHaveAttribute('aria-expanded', 'true');
+  await node.getByRole('button').click();
+  await expect(node).toHaveAttribute('aria-expanded', 'false');
+  await node.getByRole('button').press('Enter');
+  await expect(node).toHaveAttribute('aria-expanded', 'true');
+});

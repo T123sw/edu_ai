@@ -71,7 +71,7 @@ export function CurriculumResourceTree({ nodes, selectedNodeId, selectedResource
   };
   const activate = (item: Item) => {
     if (item.kind === "branch") onToggle(item.key);
-    else if (item.kind === "leaf" && item.nodeId) onSelectNode(item.nodeId);
+    else if (item.kind === "leaf" && item.nodeId) { onSelectNode(item.nodeId); onToggle(item.key); }
     else if (item.resource && item.nodeId) onSelectResource(item.nodeId, item.resource.material_id);
   };
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, item: Item) => {
@@ -100,7 +100,7 @@ export function CurriculumResourceTree({ nodes, selectedNodeId, selectedResource
         style={{ "--tree-depth": item.depth } as CSSProperties}>
         <button ref={(element) => { if (element) refs.current.set(item.key, element); else refs.current.delete(item.key); }} type="button"
           tabIndex={focusedKey === item.key ? 0 : -1} onFocus={() => setFocusedKey(item.key)} onKeyDown={(event) => handleKeyDown(event, item)}
-          onClick={() => { setFocusedKey(item.key); activate(item); if (item.kind === "leaf" && !openKeys.has(item.key)) onToggle(item.key); }}>
+          onClick={() => { setFocusedKey(item.key); activate(item); }}>
           {expandable
             ? <MaterialIcon name={openKeys.has(item.key) ? "expand_more" : "chevron_right"} className="curriculum-resource-tree__chevron" />
             : <MaterialIcon name={resourceIcon(item.resource!)} className="curriculum-resource-tree__resource-icon" />}

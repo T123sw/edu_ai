@@ -1476,7 +1476,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     const nodeFiles = getCourseFilesForNode(node);
     const subtreeDocumentCount = collectCourseDocumentCountForNode(node);
     const isExpanded = expandedCourseNodeIds.includes(node.id);
-    const showToggle = childNodes.length > 0;
+    const showToggle = childNodes.length > 0 || nodeFiles.length > 0;
 
     return (
       <div
@@ -1484,18 +1484,22 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
         className="source-panel__tree-node"
         style={{ ['--source-tree-depth' as const]: depth } as React.CSSProperties}
       >
-        <div className="source-panel__tree-node-header">
+        <div className="source-panel__tree-node-header"
+          role={showToggle ? 'button' : undefined}
+          tabIndex={showToggle ? 0 : undefined}
+          aria-expanded={showToggle ? isExpanded : undefined}
+          onClick={() => { if (showToggle) toggleCourseNodeExpanded(node.id); }}
+          onKeyDown={(event) => {
+            if (showToggle && (event.key === 'Enter' || event.key === ' ')) {
+              event.preventDefault();
+              toggleCourseNodeExpanded(node.id);
+            }
+          }}
+        >
           {showToggle ? (
-            <Button
-              type="text"
-              size="small"
-              className="source-panel__tree-node-toggle"
-              aria-label={`${isExpanded ? '收起' : '展开'}${node.label}`}
-              aria-expanded={isExpanded}
-              onClick={() => toggleCourseNodeExpanded(node.id)}
-            >
+            <span className="source-panel__tree-node-toggle" aria-hidden="true" aria-expanded={isExpanded}>
               <RightOutlined className="source-panel__tree-chevron" />
-            </Button>
+            </span>
           ) : (
             <span className="source-panel__tree-node-spacer" />
           )}
@@ -1510,7 +1514,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           </div>
         ) : null}
 
-        {nodeFiles.length > 0 ? (
+        {nodeFiles.length > 0 && isExpanded ? (
           <div className="source-panel__tree-node-files" role="group" aria-label={`${node.label}的直接资料`}>
             {nodeFiles.map(renderFileItem)}
           </div>

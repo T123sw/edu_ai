@@ -29,7 +29,8 @@ function nodeTree(
           type="button"
           className="knowledge-map__node"
           aria-pressed={node.id === activeId}
-          onClick={() => onSelect(node)}
+          aria-expanded={hasChildren ? expanded : undefined}
+          onClick={() => { onSelect(node); if (hasChildren) onToggle(node); }}
         >
           <span className="knowledge-map__node-icon"><MaterialIcon name="hub" /></span>
           <span>{node.label}</span>
