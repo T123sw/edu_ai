@@ -67,7 +67,7 @@ class JobCompletionService:
             status=JobStatus.SUCCEEDED,
             step="completed",
             progress=100,
-            message="生成完成，已保存到“我的资源”，仅你可见。",
+            message=str(result.get("completion_message") or "生成完成，已保存到“我的资源”，仅你可见。"),
             result_ref=result_ref,
             error_code=None,
             error_message=None,
@@ -170,6 +170,18 @@ class JobCompletionService:
     ) -> tuple[str | None, str]:
         if not result_ref:
             return "RESOURCE_READBACK_FAILED", "任务没有返回可读取的结果引用"
+        if result_ref.get("resource_type") == "artifact_revision":
+            from app.artifact_revision.storage import RevisionStorage
+            storage = RevisionStorage(self.course_storage_manager)
+            try:
+                identity = (result_ref["course_id"], result_ref["material_type"], result_ref["material_id"], task.owner_user_id)
+                old = storage.version(*identity, int(result_ref["base_version"]))
+                new = storage.version(*identity, int(result_ref["version"]))
+                if int(new["version"]) != int(old["version"]) + 1 or new.get("revision", {}).get("operation_id") != result_ref["operation_id"]:
+                    return "REVISION_VERSION_MISMATCH", "修改结果或原版本副本无法确认"
+            except (ValueError, KeyError, TypeError):
+                return "REVISION_VERSION_MISMATCH", "修改结果或原版本副本无法确认"
+            return None, ""
         if result_ref.get("resource_type") != "course_material":
             return None, ""
 

@@ -1,0 +1,182 @@
+{
+  "jobs": [
+    {
+      "schema_version": 2,
+      "version": 4,
+      "edu_job_id": "revision-cd840c8212af7b61fd9917e36e1e",
+      "kind": "revise_artifact",
+      "status": "succeeded",
+      "step": "completed",
+      "progress": 100,
+      "message": "这份文档标题为《链表的实现》，是一份简短的链表教学资料。内容依次介绍了：链表的结构（每个节点包含 data 和 next，head 指向首节点）、头插法（先让新节点的 next 指向旧 head，再更新 head）以及遍历方式（从 head 开始沿 next 访问，直到空指针）。文末有一行保留标记“SKILL-READ-20260907”。",
+      "owner_user_id": "skill-smoke-teacher",
+      "owner": "skill-smoke-teacher",
+      "course_id": "skill-smoke-course",
+      "scope_type": "knowledge_point",
+      "scope_id": "linked-list",
+      "input_summary": {
+        "title": "链表的实现",
+        "material_id": "linked-list-smoke",
+        "material_type": "report",
+        "base_version": 1,
+        "conversation_id": "skill-smoke"
+      },
+      "result_ref": {
+        "resource_type": "artifact_conversation",
+        "course_id": "skill-smoke-course",
+        "conversation_id": "skill-smoke",
+        "actor_role": "teacher",
+        "outcome_status": "answered"
+      },
+      "retry_of_job_id": null,
+      "parent_job_id": null,
+      "provider_job_ref": null,
+      "sidecar_job_id": null,
+      "error_message": null,
+      "error": null,
+      "error_code": null,
+      "retryable": false,
+      "cancelable": false,
+      "created_at": "2026-09-07T08:36:44.678405+00:00",
+      "started_at": "2026-09-07T08:36:44.755508+00:00",
+      "finished_at": "2026-09-07T08:36:48.114966+00:00",
+      "updated_at": "2026-09-07T08:36:48.114966+00:00"
+    },
+    {
+      "schema_version": 2,
+      "version": 6,
+      "edu_job_id": "revision-ff221156dd61b1d74e9a7387f465",
+      "kind": "revise_artifact",
+      "status": "succeeded",
+      "step": "completed",
+      "progress": 100,
+      "message": "已保存《链表的实现》第 2 版，原第 1 版副本已保留。可在后台任务中打开结果。",
+      "owner_user_id": "skill-smoke-teacher",
+      "owner": "skill-smoke-teacher",
+      "course_id": "skill-smoke-course",
+      "scope_type": "knowledge_point",
+      "scope_id": "linked-list",
+      "input_summary": {
+        "title": "链表的实现",
+        "material_id": "linked-list-smoke",
+        "material_type": "report",
+        "base_version": 1,
+        "conversation_id": "skill-smoke"
+      },
+      "result_ref": {
+        "resource_type": "artifact_revision",
+        "course_id": "skill-smoke-course",
+        "material_type": "report",
+        "material_id": "linked-list-smoke",
+        "version": 2,
+        "base_version": 1,
+        "actor_role": "teacher",
+        "operation_id": "edit-1"
+      },
+      "retry_of_job_id": null,
+      "parent_job_id": null,
+      "provider_job_ref": null,
+      "sidecar_job_id": null,
+      "error_message": null,
+      "error": null,
+      "error_code": null,
+      "retryable": false,
+      "cancelable": false,
+      "created_at": "2026-09-07T08:36:48.161365+00:00",
+      "started_at": "2026-09-07T08:36:48.239685+00:00",
+      "finished_at": "2026-09-07T08:36:57.063868+00:00",
+      "updated_at": "2026-09-07T08:36:57.063868+00:00"
+    }
+  ],
+  "source": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+  "read": {
+    "status": "answered",
+    "message": "这份文档标题为《链表的实现》，是一份简短的链表教学资料。内容依次介绍了：链表的结构（每个节点包含 data 和 next，head 指向首节点）、头插法（先让新节点的 next 指向旧 head，再更新 head）以及遍历方式（从 head 开始沿 next 访问，直到空指针）。文末有一行保留标记“SKILL-READ-20260907”。",
+    "artifact_reference": {
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v1",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    },
+    "operation_id": "read-1",
+    "task_id": "revision-cd840c8212af7b61fd9917e36e1e"
+  },
+  "version_after_read": 1,
+  "edit": {
+    "status": "completed",
+    "message": "已保存《链表的实现》第 2 版，原第 1 版副本已保留。可在后台任务中打开结果。",
+    "artifact_reference": {
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v2",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    },
+    "artifact": {
+      "title": "链表的实现",
+      "content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+      "schema_version": 2,
+      "version": {
+        "version_id": "v2",
+        "version_number": 2,
+        "root_artifact_id": "linked-list-smoke",
+        "parent_artifact_id": "linked-list-smoke"
+      },
+      "material_type": "report",
+      "material_id": "linked-list-smoke",
+      "course_id": "skill-smoke-course",
+      "scope_type": "knowledge_point",
+      "scope_id": "linked-list",
+      "owner_user_id": "skill-smoke-teacher",
+      "created_by": "skill-smoke-teacher",
+      "visibility": "private",
+      "source_job_id": null,
+      "config_snapshot_id": null,
+      "source_snapshot": {},
+      "config_snapshot": {},
+      "source": {},
+      "status": "ready",
+      "created_at": "2026-09-07T08:36:43.196383",
+      "updated_at": "2026-09-07T08:36:56.930431+00:00",
+      "is_pinned": false,
+      "pinned_at": null,
+      "content_hash": "29305e41d30028741f6b3a9857c5a654616fa0799f12e1b76c57a6372342077a",
+      "artifact_paths": [],
+      "file_path": null,
+      "html_url": null,
+      "video_url": null,
+      "pptx_url": null,
+      "sidecar_url": null,
+      "video_status": "not_generated",
+      "revision": {
+        "base_version": 1,
+        "summary": "已修改 1 处内容",
+        "changes": [
+          {
+            "path": [],
+            "before": "头插时先让新节点 next 指向旧 head，再更新 head。",
+            "after": "头插时先让新节点 next 指向旧 head，再更新 head。头插法的时间复杂度为 O(1)。"
+          }
+        ],
+        "operation_id": "edit-1"
+      },
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "material_version": 2
+    },
+    "summary": "已修改 1 处内容",
+    "changes": [
+      {
+        "path": [],
+        "before": "头插时先让新节点 next 指向旧 head，再更新 head。",
+        "after": "头插时先让新节点 next 指向旧 head，再更新 head。头插法的时间复杂度为 O(1)。"
+      }
+    ],
+    "base_version_id": "v1",
+    "operation_id": "edit-1",
+    "task_id": "revision-ff221156dd61b1d74e9a7387f465"
+  },
+  "final_version": 2,
+  "final_content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。"
+}

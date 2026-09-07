@@ -1,3 +1,5 @@
+import { RevisionHistoryDialog } from "../../components/teacher/RevisionHistoryDialog";
+import { createRevisionIntent, type ArtifactRevisionReference } from "../artifactRevision/intent";
 import { RevisionButton } from "../artifactRevision/components";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -71,6 +73,7 @@ export function CourseResourcesPage() {
     : selectedCourse?.id === courseId
       ? selectedCourse
       : { ...defaultCourse, id: courseId || defaultCourse.id };
+  const [revisionHistory, setRevisionHistory] = useState<ArtifactRevisionReference | null>(null);
   const [personalMaterials, setPersonalMaterials] = useState<CourseMaterial[]>([]);
   const [knowledgeRoot, setKnowledgeRoot] = useState<KnowledgeGraphNode | null>(null);
   const [directoryError, setDirectoryError] = useState(false);
@@ -477,6 +480,12 @@ export function CourseResourcesPage() {
                       <p className="mt-2 text-xs text-(--muted-text)">{[activeMaterial.topic, getMaterialTimestamp(activeMaterial) ? `更新于 ${formatMaterialDate(activeMaterial)}` : null].filter(Boolean).join(" · ")}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs">第 {activeMaterial.version || 1} 版</span>
+                      {Number(activeMaterial.version) > 1 && <button type="button" disabled={actionBusy}
+                        onClick={() => { const intent = createRevisionIntent(activeMaterial, user?.username || ''); if (intent) setRevisionHistory(intent.reference); }}
+                        className="rounded-full border border-(--shell-border) bg-white px-4 py-2.5 text-sm font-bold">历史版本与原版副本</button>}
+                      {revisionHistory && <RevisionHistoryDialog reference={revisionHistory} onClose={() => setRevisionHistory(null)}
+                        onRestored={() => { setRevisionHistory(null); setReloadToken(value => value + 1); }} />}
                       <RevisionButton material={activeMaterial} disabled={actionBusy} />
                       {EDITABLE_MATERIAL_TYPES.has(activeMaterial.material_type) ? (
                         <button

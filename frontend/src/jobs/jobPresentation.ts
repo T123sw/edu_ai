@@ -1,6 +1,7 @@
 import { isActiveJob, type JobRecord } from "./types";
 
 const JOB_KIND_LABELS: Record<string, string> = {
+  revise_artifact: "AI 资料修改",
   generate_classroom: "AI 课堂生成",
   render_video: "课堂视频导出",
   generate_report: "报告生成",
@@ -99,6 +100,7 @@ export function presentJobDetail(job: JobRecord): string {
   }
 
   if (job.status === "succeeded") {
+    if (job.kind === "revise_artifact") return job.message;
     return job.kind === "render_video"
       ? "导出完成，可以打开结果。"
       : "生成完成，结果已保存到课程资源。";

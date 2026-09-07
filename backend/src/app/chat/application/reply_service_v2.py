@@ -173,7 +173,7 @@ class ReplyServiceV2:
                 owner_user_id=request.owner, conversation_id=request.conversation_id,
                 course_id=request.course_id, question=request.question,
                 operation_id=operation_id, artifact_reference=request.artifact_reference,
-                pending=revision_pending, scope_id=request.scope_id,
+                pending=revision_pending, scope_id=request.scope_id, actor_role=request.actor_role,
                 session_artifacts=[state.get("active_artifact") or {}],
             )
             if outcome["status"] == "not_applicable":
@@ -244,6 +244,9 @@ class ReplyServiceV2:
                 result=edit_result,
             )
             conversation_id = str(((final_result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "")
+            if (final_result.get("artifact_revision") or {}).get("status") == "queued":
+                yield {"type": "metadata", "payload": {"conversation_id": conversation_id}}
+                yield {"type": "task_submitted", "payload": {"task_id": final_result["artifact_revision"]["task_id"], "workflow_type": "artifact_revision", "conversation_id": conversation_id}}
             yield {"type": "result", "payload": final_result}
             yield {"type": "done", "payload": {"conversation_id": conversation_id}}
             return
@@ -360,6 +363,7 @@ def build_default_reply_service_v2():
         )
 
     from app.artifact_revision.service import ArtifactRevisionService
+    from app.artifact_revision.jobs import ArtifactRevisionCommandService
     from app.chat.application.knowledge_context import KnowledgeContextService, authorize_workspace
 
     return ReplyServiceV2(
@@ -370,7 +374,7 @@ def build_default_reply_service_v2():
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
         memory_writer=memory_service,
-        artifact_revision_service=ArtifactRevisionService(default_course_storage_manager, get_fallback_llm()),
+        artifact_revision_service=ArtifactRevisionService(default_course_storage_manager, submitter=ArtifactRevisionCommandService().submit),
         knowledge_context_service=KnowledgeContextService(
             course_storage=default_course_storage_manager,
             conversation_storage=conversation_store.storage,

@@ -387,7 +387,8 @@ export interface ScopeClarification {
 export interface ArtifactRevisionOutcome {
   awaiting_clarification?: boolean;
   operation_id?: string;
-  status: 'not_applicable' | 'answered' | 'needs_clarification' | 'completed' | 'conflict' | 'failed';
+  task_id?: string;
+  status: 'queued' | 'not_applicable' | 'answered' | 'needs_clarification' | 'completed' | 'conflict' | 'failed';
   message: string;
   artifact_reference?: import('../../stitch/artifactRevision/intent').ArtifactRevisionReference;
   summary?: string;
@@ -507,7 +508,7 @@ export interface ChatReplyStreamHandlersV2 {
 export interface ChatTaskStatusV2 {
   task_id: string;
   workflow_type: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: 'pending' | 'queued' | 'running' | 'succeeded' | 'completed' | 'failed';
   result?: ChatResponseV2 | null;
   error?: string | null;
   created_at: string;

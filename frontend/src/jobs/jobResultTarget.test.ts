@@ -88,3 +88,9 @@ test("opens classroom video results in their classroom", () => {
     "#classroom-player?course_id=course-a&classroom_id=stage-1",
   );
 });
+
+test("revision jobs open the original material identity and read-only turns return to their conversation", () => {
+  const job = makeJob({kind: 'revise_artifact', result_ref: {resource_type:'artifact_revision', course_id:'course-a', material_type:'report', material_id:'report-1', version:2, base_version:1}});
+  assert.equal(getJobResultHash(job), '#resources?course_id=course-a&material_type=report&material_id=report-1');
+  assert.equal(getJobResultHash({...job,result_ref:{resource_type:'artifact_conversation',course_id:'course-a',conversation_id:'conv-1'}}), '#ai?course_id=course-a&conversation_id=conv-1');
+});

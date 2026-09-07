@@ -64,6 +64,8 @@ def build_durable_job_runtime(
         handler=generation_handler,
     )
     register_platform_task_handlers(registry)
+    from app.artifact_revision.jobs import ArtifactRevisionTaskHandler
+    registry.register("artifact_revision", 1, ArtifactRevisionTaskHandler())
     completion = JobCompletionService(
         task_store=store,
         course_storage_manager=manager,

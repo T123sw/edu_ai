@@ -786,6 +786,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           return;
         }
 
+        const requestedConversationId = new URLSearchParams(window.location.hash.split('?')[1] || '').get('conversation_id');
+        if (requestedConversationId) {
+          await loadConversation(requestedConversationId, false);
+          return;
+        }
         const storedConversationId = String(currentConversationId || '').trim();
         const storedConversation = storedConversationId
           ? list.find((item) => item.conversation_id === storedConversationId)
@@ -933,6 +938,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         setWorkflowType(nextWorkflowType || null);
         setWorkflowStatus(nextWorkflowStatus || null);
         replaceConversationGeneratedFiles(restoredFiles);
+        const restoredRevision = detail.state?.latest_revision_outcome as ArtifactRevisionOutcome | undefined;
+        setRevisionOutcome(restoredRevision || null);
+        const pendingRevision = detail.state?.pending_operation;
+        pendingOperationRef.current = pendingRevision?.kind === 'artifact_revision'
+          ? { conversationId: detail.conversation_id, operationId: pendingRevision.id } : null;
         if (stateArtifactReference && typeof stateArtifactReference === 'object') {
           setArtifactReference({
             artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
@@ -1002,6 +1012,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       }
     }
   };
+
+  useEffect(() => {
+    const openRequestedConversation = () => {
+      const hash = window.location.hash;
+      if (!/^#(?:student-)?ai(?:\?|$)/.test(hash)) return;
+      const params = new URLSearchParams(hash.split('?')[1] || '');
+      const target = params.get('conversation_id');
+      if (target && params.get('course_id') === courseId && target !== useStore.getState().currentConversationId) {
+        void loadConversation(target, false);
+      }
+    };
+    window.addEventListener('hashchange', openRequestedConversation);
+    return () => window.removeEventListener('hashchange', openRequestedConversation);
+  // loadConversation follows the current workspace and authenticated account.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId, authenticatedUser?.username]);
 
   const handleNewConversation = () => {
     pendingRevisionIntent.current = null;
@@ -1429,7 +1455,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         if (!taskToken) {
           return;
         }
-        updateLastMessage({ statusText: '正在后台生成，请稍候...' });
+        updateLastMessage({ statusText: '已提交后台任务，可在任务中心查看进度。' });
         backgroundTaskTokenRef.current = taskToken;
         setBackgroundTaskId(pendingTaskId);
         return; // isLoading → false via finally; user can continue chatting
@@ -1569,8 +1595,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
             globalJob.error_message ||
             globalJob.error ||
             (globalJob.status === 'canceled'
-              ? '生成任务已取消。'
-              : '生成失败，请重试。'),
+              ? '任务已取消。'
+              : '任务失败，请重试。'),
           statusText: '',
           status: 'error',
           agentActivity: terminalActivity('failed'),
@@ -1583,12 +1609,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         try {
           const status = await pollChatTask(taskId);
           commitTask(() => {
-            if (status.status === 'completed') {
+            if (status.status === 'completed' || status.status === 'succeeded') {
               if (!status.result) {
                 updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done', agentActivity: terminalActivity('done') });
                 return;
               }
               const result = status.result;
+              if (result.artifact_revision) {
+                setRevisionOutcome(result.artifact_revision);
+                if (result.artifact_revision.artifact_reference) setArtifactReference(result.artifact_revision.artifact_reference);
+                pendingOperationRef.current = result.artifact_revision.status === 'needs_clarification' || result.artifact_revision.awaiting_clarification
+                  ? { conversationId: result.conversation.conversation_id, operationId: result.artifact_revision.operation_id! } : null;
+              }
+
               const activeConversationId = useStore.getState().currentConversationId;
               const nextConversationId = String(result.conversation?.conversation_id || '').trim();
               if (nextConversationId && nextConversationId !== activeConversationId) {
@@ -1629,7 +1662,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                 generatedResourceCount: genFiles.length,
                 fallbackMessage: String(result.message?.content || ''),
               });
-              updateMessageById(taskId, { text: replyText, sources, statusText: '', status: 'done', agentActivity: terminalActivity('done') });
+              updateMessageById(taskId, { text: result.artifact_revision ? result.message.content : replyText, sources, statusText: '', status: 'done', agentActivity: terminalActivity('done') });
               void refreshHistoryList(taskStillCurrent);
             } else if (status.status === 'failed') {
               updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error', agentActivity: terminalActivity('failed') });
@@ -1638,7 +1671,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         } catch {
           commitTask(() => {
             updateMessageById(taskId, {
-              text: buildGenerationSavedMessage({ visibility: 'private' }),
+              text: globalJob.kind === 'revise_artifact' ? globalJob.message : buildGenerationSavedMessage({ visibility: 'private' }),
               statusText: '',
               status: 'done',
               agentActivity: terminalActivity('done'),

@@ -21,6 +21,7 @@ log = logging.getLogger("job_store")
 
 
 class JobKind(str, Enum):
+    REVISE_ARTIFACT = "revise_artifact"
     GENERATE_CLASSROOM = "generate_classroom"
     RENDER_VIDEO = "render_video"
     GENERATE_REPORT = "generate_report"

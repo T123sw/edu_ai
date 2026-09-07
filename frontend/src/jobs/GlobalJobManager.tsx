@@ -164,8 +164,10 @@ function notifyJobTerminal(job: JobRecord) {
       : jobKindLabel(job.kind);
   if (job.status === "succeeded") {
     showJobNotification("success", {
-      message: `${jobKindLabel(job.kind)}已完成`,
-      description: `${title} 已保存，可在任务中心打开结果。`,
+      message: job.result_ref?.resource_type === 'artifact_conversation'
+        ? (job.result_ref.outcome_status === 'needs_clarification' ? '资料修改需要补充信息' : '资料阅读已完成')
+        : `${jobKindLabel(job.kind)}已完成`,
+      description: job.kind === "revise_artifact" ? job.message : `${title} 已保存，可在任务中心打开结果。`,
       placement: "topRight",
     });
   } else if (job.status === "partially_succeeded") {

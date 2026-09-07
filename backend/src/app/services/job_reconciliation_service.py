@@ -18,6 +18,7 @@ from core.course_storage import CourseStorageManager
 
 
 _DURABLE_JOB_KINDS = {
+    JobKind.REVISE_ARTIFACT,
     JobKind.GENERATE_CLASSROOM,
     JobKind.RENDER_VIDEO,
     JobKind.GENERATE_REPORT,

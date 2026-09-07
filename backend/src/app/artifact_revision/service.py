@@ -20,9 +20,12 @@ def reference(material, kind=None):
 
 
 class ArtifactRevisionService:
-    def __init__(self, manager, llm=None, *, skill_manager=None):
+    def __init__(self, manager, llm=None, *, skill_manager=None, submitter=None, is_cancel_requested=None, before_save=None):
         self.manager = manager
         self.llm = llm
+        self.submitter = submitter
+        self.before_save = before_save or (lambda: None)
+        self.is_cancel_requested = is_cancel_requested or (lambda: False)
         self.storage = RevisionStorage(manager)
         self.skills = skill_manager if skill_manager is not None else SkillManager(
             skills_dir=Path(__file__).resolve().parents[3] / "skills"
@@ -33,14 +36,14 @@ class ArtifactRevisionService:
 
     def run(self, *, owner_user_id: str, conversation_id: str, course_id: str | None,
             question: str, operation_id: str, artifact_reference=None, pending=None,
-            scope_id: str | None = None, session_artifacts=None) -> dict:
+            scope_id: str | None = None, session_artifacts=None, frozen_target=False, current_question=None, actor_role="teacher") -> dict:
         if not artifact_reference and not pending and not re.search(r"修改|改写|重写|调整|简化|改一下|删掉", question):
             return {"status": "not_applicable", "message": ""}
         try:
             if not owner_user_id or not conversation_id or not operation_id:
                 raise ValueError("修改需要认证主体、会话和操作编号")
             ref = ArtifactReferencePayload.model_validate(artifact_reference).model_dump(exclude_none=True) if artifact_reference else None
-            state = {"owner_user_id": owner_user_id, "conversation_id": conversation_id, "operation_id": operation_id, "question": question, "reference": ref, "course_id": course_id, "scope_id": scope_id}
+            state = {"actor_role": actor_role, "owner_user_id": owner_user_id, "conversation_id": conversation_id, "operation_id": operation_id, "question": question, "reference": ref, "course_id": course_id, "scope_id": scope_id}
             if pending:
                 if pending.get("owner_user_id") != owner_user_id or pending.get("conversation_id") != conversation_id:
                     raise ValueError("待处理修改不属于当前会话")
@@ -57,7 +60,7 @@ class ArtifactRevisionService:
             # artifact title. Book-title brackets or an explicit edit verb
             # immediately before a quoted title identify a target.
             explicit_title = re.search(r"《([^》]+)》|(?:修改|编辑|重写|改写)\s*[“\"]([^”\"]+)[”\"]", question)
-            if explicit_title:
+            if explicit_title and not frozen_target:
                 named_title = explicit_title[1] or explicit_title[2]
                 matches = [m for m in candidates if named_title in str(m.get("title") or m.get("topic") or "")]
                 if len(matches) == 1:
@@ -127,6 +130,8 @@ class ArtifactRevisionService:
                 raise RevisionConflict("资料已有新版本，请查看变化后使用最新版重试")
             source = self.storage.version(target_course, stored_kind, ref["artifact_id"], owner_user_id, base)
             content = self._content(source, kind)
+            if self.submitter is not None:
+                return self.submitter(state=state, source=source, current_question=question, prior_pending=pending)
             if self.llm is None:
                 raise ValueError("修改模型暂不可用，原资料未改变")
             system_prompt = self.skills.extract_section("edu-artifact-revision", "SYSTEM_PROMPT")
@@ -134,7 +139,7 @@ class ArtifactRevisionService:
                 raise ValueError("资料修改技能未加载，原资料未改变")
             prompt = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": json.dumps({"instruction": full_question, "current_question": question, "artifact_type": kind, "reference": state["reference"], "source": content, "editable_paths": editable_paths(content)}, ensure_ascii=False)},
+                {"role": "user", "content": json.dumps({"instruction": full_question, "current_question": current_question if current_question is not None else question, "artifact_type": kind, "reference": state["reference"], "source": content, "editable_paths": editable_paths(content)}, ensure_ascii=False)},
             ]
             for attempt in range(2):
                 response = self.llm.invoke(prompt)
@@ -182,6 +187,9 @@ class ArtifactRevisionService:
                 summary += "；已清除改动讲解的旧配音，播放时需重新配音"
             if kind == "game":
                 updates = self._render_game(source, updated, operation_id)
+            self.before_save()
+            if self.is_cancel_requested():
+                raise ValueError("任务已取消，原资料未改变")
             saved = self.storage.save(source, updates, owner=owner_user_id, operation_id=operation_id, fingerprint=fingerprint, summary=summary, changes=changes)
             return self._completed(saved, kind)
         except RevisionConflict as exc:
@@ -248,6 +256,9 @@ class ArtifactRevisionService:
             updates = content_updates(source, artifact_type, content)
             if artifact_type == "game":
                 updates = self._render_game(source, content, operation_id)
+            self.before_save()
+            if self.is_cancel_requested():
+                raise ValueError("任务已取消，原资料未改变")
             saved = self.storage.save(source, updates, owner=owner_user_id, operation_id=operation_id, fingerprint=fingerprint, summary=f"恢复第 {version} 版内容", changes=[])
             return self._completed(saved, artifact_type)
         except RevisionConflict as exc:

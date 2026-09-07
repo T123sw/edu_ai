@@ -115,6 +115,8 @@ def cancel_user_job(
     edu_job_id: str, current_user: dict = Depends(get_current_user)
 ):
     job = _owned_job(edu_job_id, current_user)
+    if not job.cancelable:
+        raise HTTPException(status_code=409, detail="任务正在保存或已结束，无法取消")
     task_store = get_task_store()
     durable = task_store.get_durable(edu_job_id)
     if durable is not None and not task_store.request_cancel(
