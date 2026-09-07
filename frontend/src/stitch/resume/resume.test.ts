@@ -1,12 +1,31 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { recordFromHash, resumeHash, resumeKey, readResume, saveResume, parseResume, type ResumeStorage } from './resumeRecord.ts';
+import { recordFromHash, resumeHash, resumeKey, readResume, saveResume, readPreparation, parseResume, type ResumeStorage } from './resumeRecord.ts';
 import { validateResume, type ResumeApi } from './validateResume.ts';
 import type { AuthUser } from '../authSession';
 import type { BackendCourse, CourseMaterial } from '../api/types';
 const teacher: AuthUser = { username: 'T1', role: 'teacher' };
 const student: AuthUser = { username: 'S1', role: 'student' };
 const course = { id: 'c1', title: '数据结构' } as BackendCourse;
+test('preparation history survives overview visits and stays isolated by course and account', () => {
+  const storage = memory();
+  const workspace = recordFromHash(teacher, '#ai?course_id=c1&scopeType=knowledge_point&scopeId=array');
+  saveResume(teacher, workspace, () => storage);
+  saveResume(teacher, recordFromHash(teacher, '#course-detail?course_id=c1'), () => storage);
+  saveResume(teacher, recordFromHash(teacher, '#ai?course_id=c2&scopeType=knowledge_point&scopeId=network'), () => storage);
+  assert.deepEqual(readPreparation(teacher, 'c1', () => storage), workspace);
+  assert.equal(readPreparation(teacher, 'c2', () => storage)?.params.scopeId, 'network');
+  assert.equal(readPreparation({ username: 'other', role: 'teacher' }, 'c1', () => storage), null);
+  assert.equal(readPreparation(student, 'c1', () => storage), null);
+});
+
+test('legacy last workspace migrates before an overview replaces the resume entry', () => {
+  const storage = memory();
+  const workspace = recordFromHash(teacher, '#ai?course_id=c1&scopeType=knowledge_point&scopeId=array');
+  storage.setItem(resumeKey(teacher), JSON.stringify(workspace));
+  saveResume(teacher, recordFromHash(teacher, '#course-detail?course_id=c1'), () => storage);
+  assert.deepEqual(readPreparation(teacher, 'c1', () => storage), workspace);
+});
 function memory(): ResumeStorage {
   const data = new Map<string, string>();
   return { getItem: (key) => data.get(key) ?? null, setItem: (key, value) => { data.set(key, value); }, removeItem: (key) => { data.delete(key); } };

@@ -71,12 +71,29 @@ export function parseResume(user: AuthUser, raw: string | null): ResumeRecord | 
 export function readResume(user: AuthUser, storage: () => ResumeStorage = () => window.localStorage) {
   try { return parseResume(user, storage().getItem(resumeKey(user))); } catch { return null; }
 }
+export const preparationKey = (user: AuthUser, courseId: string) => `${resumeKey(user)}:preparation:${encodeURIComponent(courseId)}`;
+export function readPreparation(user: AuthUser, courseId: string, storage: () => ResumeStorage = () => window.localStorage) {
+  try {
+    const stored = parseResume(user, storage().getItem(preparationKey(user, courseId)));
+    const latest = readResume(user, storage);
+    const candidates = [stored, latest].filter((record): record is ResumeRecord => Boolean(record && record.courseId === courseId && (record.route === 'ai' || record.route === 'student-ai')));
+    return candidates.sort((a, b) => Date.parse(b.visitedAt) - Date.parse(a.visitedAt))[0] ?? null;
+  } catch { return null; }
+}
 export function saveResume(user: AuthUser, record: ResumeRecord | null, storage: () => ResumeStorage = () => window.localStorage) {
   try {
     if (!record) storage().removeItem(resumeKey(user));
     else {
       const clean = parseResume(user, JSON.stringify(record));
-      if (clean) storage().setItem(resumeKey(user), JSON.stringify(clean));
+      if (clean) {
+        const previous = readResume(user, storage);
+        for (const visit of [previous, clean]) {
+          if (visit && (visit.route === 'ai' || visit.route === 'student-ai')) {
+            storage().setItem(preparationKey(user, visit.courseId), JSON.stringify(visit));
+          }
+        }
+        storage().setItem(resumeKey(user), JSON.stringify(clean));
+      }
     }
   } catch { /* History must never prevent navigation. */ }
 }

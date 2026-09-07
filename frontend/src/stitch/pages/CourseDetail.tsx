@@ -3,6 +3,9 @@ import { useAuthSession } from "../authSession";
 import { AppSurface, MaterialIcon, routes } from "../shared";
 import { buildRoleCourseHash } from "../shared/routes/roleCourseRouteResolver";
 import { HomeDashboardPage } from "./HomeDashboard";
+import { useCoursePreparation } from "./useCoursePreparation";
+import { resumeHash } from "../resume/resumeRecord";
+import { getCourseMaterialTypeMeta } from "../api/courseMaterialPresentation";
 import "./CourseDetail.css";
 
 export function CourseListPage() {
@@ -12,8 +15,16 @@ export function CourseListPage() {
 export function CourseDetailPage() {
   const { user } = useAuthSession();
   const { course } = useCourseRoute();
+  const history = useCoursePreparation(user, course?.id);
   if (!course) return <AppSurface><main /></AppSurface>;
   const objectives = course.objectives?.filter((objective) => objective.trim()) ?? [];
+  const previous = history.location?.status === 'valid' ? history.location : null;
+  const workspaceHref = previous && user ? resumeHash(user, previous.record) : buildRoleCourseHash(user?.role, routes.ai, course.id);
+  const locationText = history.loading ? '正在读取上次位置…'
+    : previous ? previous.label || '课程工作台'
+    : history.location?.status === 'retry' ? '暂时无法读取上次位置'
+    : history.location?.status === 'fallback' || history.location?.status === 'invalid' ? '上次位置已不可用'
+    : '尚无备课位置记录';
 
   return (
     <AppSurface className="min-h-screen">
@@ -31,9 +42,6 @@ export function CourseDetailPage() {
                 {course.audience ? <p className="course-overview__audience">适用对象 · {course.audience}</p> : null}
               </div>
             </div>
-            <a className="course-overview__primary" href={buildRoleCourseHash(user?.role, routes.ai, course.id)}>
-              {user?.role === "student" ? "开始学习" : "开始备课"}<MaterialIcon name="arrow_forward" />
-            </a>
           </header>
           <section className="course-overview__introduction" aria-labelledby="course-introduction-title">
             <h2 id="course-introduction-title">课程简介</h2>
@@ -46,6 +54,23 @@ export function CourseDetailPage() {
               <p>{objective}</p>
             </li>)}</ol>
           </section> : null}
+          <footer className="course-overview__continuation">
+            <div className="course-overview__history" aria-busy={history.loading}>
+              <div>
+                <span>上次{user?.role === 'student' ? '学习' : '备课'}位置</span>
+                <strong>{locationText}</strong>
+                {previous ? <small>{new Date(previous.record.visitedAt).toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}</small> : null}
+              </div>
+              <div>
+                <span>最近资料</span>
+                <strong>{history.loading ? '正在读取最近资料…' : history.materialFailed ? '暂时无法读取资料' : history.material?.title || history.material?.topic || (history.material ? '未命名资料' : '还没有生成资料')}</strong>
+                {history.material ? <small>{getCourseMaterialTypeMeta(history.material.material_type).label}{history.material.updated_at && Number.isFinite(Date.parse(history.material.updated_at)) ? ` · 更新于 ${new Date(history.material.updated_at).toLocaleDateString('zh-CN')}` : ''}</small> : null}
+              </div>
+            </div>
+            <a className="course-overview__primary" href={workspaceHref}>
+              {user?.role === "student" ? "开始学习" : "开始备课"}<MaterialIcon name="arrow_forward" />
+            </a>
+          </footer>
         </article>
       </main>
     </AppSurface>
