@@ -1,0 +1,2 @@
+{"type": "report", "status": "completed", "message": "已保存新版本", "version": "v2", "changes": [{"path": [], "before": "## 案例\n使用数组保存成绩。", "after": "## 案例\n使用数组保存成绩。\n\n- 使用数组保存一周气温，计算平均气温。\n- 使用数组保存学生姓名，按顺序打印点名册。"}], "preserved_marker": true}
+{"type": "quiz", "status": "completed", "message": "已保存新版本", "version": "v2", "changes": [{"path": ["questions", 0, "stem"], "before": "数组下标通常从哪个数字开始？", "after": "Python 列表的首个下标是多少？"}], "preserved_marker": null}

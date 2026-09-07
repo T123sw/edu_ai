@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: stable ID and server version are required; ownership is checked
+ok 1 - stable ID and server version are required; ownership is checked
+  ---
+  duration_ms: 3.115749
+  type: 'test'
+  ...
+# Subtest: intent is delivered once across route mount, unsubscribe and account clearing work
+ok 2 - intent is delivered once across route mount, unsubscribe and account clearing work
+  ---
+  duration_ms: 0.505357
+  type: 'test'
+  ...
+# Subtest: report serializes actual knowledge point after definition defaults
+ok 3 - report serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 2.389454
+  type: 'test'
+  ...
+# Subtest: lesson_plan serializes actual knowledge point after definition defaults
+ok 4 - lesson_plan serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.34646
+  type: 'test'
+  ...
+# Subtest: blog serializes actual knowledge point after definition defaults
+ok 5 - blog serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.270427
+  type: 'test'
+  ...
+# Subtest: quiz serializes actual knowledge point after definition defaults
+ok 6 - quiz serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.258316
+  type: 'test'
+  ...
+# Subtest: flashcard serializes actual knowledge point after definition defaults
+ok 7 - flashcard serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.26191
+  type: 'test'
+  ...
+# Subtest: mind_map serializes actual knowledge point after definition defaults
+ok 8 - mind_map serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.249726
+  type: 'test'
+  ...
+# Subtest: game serializes actual knowledge point after definition defaults
+ok 9 - game serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.246099
+  type: 'test'
+  ...
+# Subtest: classroom serializes actual knowledge point after definition defaults
+ok 10 - classroom serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.343637
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 675.120517

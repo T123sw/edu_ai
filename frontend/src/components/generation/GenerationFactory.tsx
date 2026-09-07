@@ -1,3 +1,4 @@
+import { GenerationRevisionButton } from "../../stitch/artifactRevision/components";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -66,6 +67,8 @@ export type GenerationFactoryProps = {
   resultHref: (material: { courseId?: string; materialType?: string; materialId?: string }) => string;
   sourceLibraries: readonly ("personal" | "course")[];
   selectedDocumentIds?: readonly string[];
+  scopeType?: "course" | "knowledge_point";
+  scopeId?: string;
 };
 
 export function GenerationFactory({
@@ -74,6 +77,8 @@ export function GenerationFactory({
   resultHref,
   sourceLibraries,
   selectedDocumentIds = [],
+  scopeType,
+  scopeId,
 }: GenerationFactoryProps) {
   const [resourceType, setResourceType] = useState<GenerationResourceType | null>(null);
   const [source, setSource] = useState<GenerationSourceSelection>(() => initialGenerationSource([]));
@@ -137,12 +142,18 @@ export function GenerationFactory({
     const draft: GenerationDraft = {
       resourceType,
       source,
+      scopeType,
+      scopeId,
       topic: generationConfigTopic(config),
       audience: generationConfigAudience(config),
       requirements: generationConfigRequirements(config),
       config,
     };
-    await submission.submit(draft);
+    try {
+      await submission.submit(draft);
+    } catch {
+      // The submission hook retains the draft and displays the server error.
+    }
   }
 
   return (
@@ -184,7 +195,7 @@ export function GenerationFactory({
                 <span className={`generation-factory__job-state is-${job.status}`}>{statusLabel(job.status)}</span>
               </>
             );
-            return href ? <a key={job.edu_job_id} href={href} className="generation-factory__job">{content}</a> : <article key={job.edu_job_id} className="generation-factory__job">{content}</article>;
+            return href ? <div key={job.edu_job_id} className="flex flex-wrap items-center gap-2"><a href={href} className="generation-factory__job">{content}</a>{courseId && ref?.material_type && ref?.material_id && job.status === "succeeded" && <GenerationRevisionButton courseId={courseId} materialType={ref.material_type} materialId={ref.material_id} />}</div> : <article key={job.edu_job_id} className="generation-factory__job">{content}</article>;
           })}
         </div>
       </section>

@@ -1,0 +1,86 @@
+[WebServer] (node:381806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:381835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:381953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button selects server ID/version without starting a task; close removes reference (1366px) (6.2s)
+(node:382258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button selects server ID/version without starting a task; close removes reference (390px) (7.3s)
+
+
+  1) [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button selects server ID/version without starting a task; close removes reference (1366px)
+
+    Error: expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      25 |   await input.press('Enter');
+      26 |   await expect.poll(() => requests.length).toBe(1);
+    > 27 |   expect(requests[0].artifact_reference).toMatchObject({ artifact_id: 'revision-report', artifact_type: 'report', version_id: 'v2', source_course_id: 'course-physics' });
+         |                                          ^
+      28 |   await expect(page.getByRole('button', { name: '取消资料引用' })).toBeEnabled();
+      29 |   await page.getByRole('button', { name: '取消资料引用' }).click();
+      30 |   await expect(page.getByText('正在修改：《数组基础报告》 · 第 2 版')).toHaveCount(0);
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:27:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-resource-7f209-e-removes-reference-1366px--desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-resource-7f209-e-removes-reference-1366px--desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-resource-7f209-e-removes-reference-1366px--desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-resource-7f209-e-removes-reference-1366px--desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button selects server ID/version without starting a task; close removes reference (390px)
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('正在修改：《数组基础报告》 · 第 2 版')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('正在修改：《数组基础报告》 · 第 2 版')
+
+
+      19 |   await page.getByRole('button', { name: '让 AI 修改', exact: true }).click();
+      20 |   await expect(page).toHaveURL(/#ai/);
+    > 21 |   await expect(page.getByText('正在修改：《数组基础报告》 · 第 2 版')).toBeVisible();
+         |                                                         ^
+      22 |   expect(requests).toHaveLength(0);
+      23 |   const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+      24 |   await input.fill('增加两个案例');
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:21:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-resource-5a979-se-removes-reference-390px--desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-resource-5a979-se-removes-reference-390px--desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-resource-5a979-se-removes-reference-390px--desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-resource-5a979-se-removes-reference-390px--desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button selects server ID/version without starting a task; close removes reference (1366px)
+    [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button selects server ID/version without starting a task; close removes reference (390px)

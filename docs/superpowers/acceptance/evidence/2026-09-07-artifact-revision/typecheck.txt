@@ -1,0 +1,245 @@
+src/components/generation/definitions/generationDefinitions.test.ts(4,34): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/generation/definitions/visualResources.test.ts(20,81): error TS2322: Type '{ topic: string; objectives: string[]; voiceEnabled: boolean; voice: string; sceneCount: number; audience: string; durationMinutes: number; teachingStyle: "guided" | "lecture" | "inquiry"; specialRequirements: string; includeVisuals: boolean; }' is not assignable to type 'ClassroomConfig'.
+  Types of property 'voice' are incompatible.
+    Type 'string' is not assignable to type '"alloy" | "nova" | "shimmer"'.
+src/components/generation/generationJobPresentation.test.ts(5,38): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/generation/generationRegistry.test.ts(4,63): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/generation/generationSourceSelection.test.ts(7,8): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+src/components/shared/MarkdownPreview.tsx(102,16): error TS2339: Property 'inline' does not exist on type 'ClassAttributes<HTMLElement> & HTMLAttributes<HTMLElement> & ExtraProps'.
+src/components/student/studentSourceActions.test.ts(4,41): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/teacher/ChatPanel.tsx(511,61): error TS2339: Property 'metadata' does not exist on type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(512,41): error TS2339: Property 'video_url' does not exist on type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(512,62): error TS2339: Property 'metadata' does not exist on type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(525,61): error TS2339: Property 'metadata' does not exist on type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(526,62): error TS2339: Property 'metadata' does not exist on type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(760,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/components/teacher/ChatPanel.tsx(903,23): error TS2345: Argument of type 'Message[]' is not assignable to parameter of type 'ChatMessage[]'.
+  Type 'Message' is not assignable to type 'ChatMessage'.
+    Types of property 'sources' are incompatible.
+      Type 'ChatSourceV2[] | undefined' is not assignable to type 'RAGSource[] | undefined'.
+        Type 'ChatSourceV2[]' is not assignable to type 'RAGSource[]'.
+          Property 'page' is missing in type 'ChatSourceV2' but required in type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(1242,16): error TS2345: Argument of type 'Message' is not assignable to parameter of type 'ChatMessage'.
+  Types of property 'sources' are incompatible.
+    Type 'ChatSourceV2[] | undefined' is not assignable to type 'RAGSource[] | undefined'.
+      Type 'ChatSourceV2[]' is not assignable to type 'RAGSource[]'.
+        Property 'page' is missing in type 'ChatSourceV2' but required in type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(1248,16): error TS2345: Argument of type 'Message' is not assignable to parameter of type 'ChatMessage'.
+  Types of property 'sources' are incompatible.
+    Type 'ChatSourceV2[] | undefined' is not assignable to type 'RAGSource[] | undefined'.
+      Type 'ChatSourceV2[]' is not assignable to type 'RAGSource[]'.
+        Property 'page' is missing in type 'ChatSourceV2' but required in type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(1308,17): error TS2322: Type 'ChatSourceV2[]' is not assignable to type 'RAGSource[]'.
+  Property 'page' is missing in type 'ChatSourceV2' but required in type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(1444,40): error TS2339: Property 'addedAt' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1446,42): error TS2339: Property 'isPinned' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1447,41): error TS2339: Property 'pinnedAt' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1447,75): error TS2339: Property 'pinnedAt' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1462,9): error TS2322: Type 'ChatSourceV2[]' is not assignable to type 'RAGSource[]'.
+  Property 'page' is missing in type 'ChatSourceV2' but required in type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(1587,48): error TS2339: Property 'addedAt' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1589,50): error TS2339: Property 'isPinned' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1590,49): error TS2339: Property 'pinnedAt' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1590,83): error TS2339: Property 'pinnedAt' does not exist on type '{ origin: string; conversationId: string | null; }'.
+src/components/teacher/ChatPanel.tsx(1600,60): error TS2322: Type 'ChatSourceV2[]' is not assignable to type 'RAGSource[]'.
+  Property 'page' is missing in type 'ChatSourceV2' but required in type 'RAGSource'.
+src/components/teacher/ChatPanel.tsx(1880,52): error TS2345: Argument of type 'RAGSource[]' is not assignable to parameter of type 'ChatSourceV2[]'.
+  Type 'RAGSource' is not assignable to type 'ChatSourceV2'.
+    Index signature for type 'string' is missing in type 'RAGSource'.
+src/components/teacher/ReportArtifactPreview.tsx(155,37): error TS7006: Parameter 'chapter' implicitly has an 'any' type.
+src/components/teacher/ReportArtifactPreview.tsx(155,46): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/teacher/SourcePanel.tsx(268,24): error TS2339: Property 'source_icon_url' does not exist on type 'KnowledgeBaseDocument'.
+src/components/teacher/SourcePanel.tsx(411,69): error TS2339: Property 'source_path' does not exist on type 'KnowledgeDocument'.
+src/components/teacher/SourcePanel.tsx(413,45): error TS2339: Property 'id' does not exist on type 'KnowledgeDocument'.
+src/components/teacher/chatHistoryRecovery.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/teacher/chatHistoryRecovery.test.ts(17,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/teacher/chatHistoryRecovery.test.ts(393,47): error TS2345: Argument of type 'null' is not assignable to parameter of type 'string'.
+src/components/teacher/generationSavedMessage.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/teacher/knowledgeScopeSelection.test.ts(6,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/teacher/studioActions.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/components/teacher/websiteIcon.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/jobs/jobCourseGrouping.test.ts(4,38): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/jobs/jobPolling.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/jobs/jobPresentation.test.ts(9,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/jobs/jobResultTarget.test.ts(4,34): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/jobs/jobStore.test.ts(3,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/ClassroomSceneRenderer.tsx(56,11): error TS2322: Type '{ slide: Slide; actions: never; sceneId: string; autoPlay: boolean; onComplete: (() => void) | undefined; onModeChange: ((mode: PlaybackMode) => void) | undefined; onRuntimeReady: ((runtime: PlaybackRuntimeHandle | null) => void) | undefined; onInteraction: ((actionId?: string | undefined) => void) | undefined; }' is not assignable to type 'IntrinsicAttributes & SlidePlayerProps'.
+  Property 'onInteraction' does not exist on type 'IntrinsicAttributes & SlidePlayerProps'.
+src/openmaic/PptxExportButton.test.ts(6,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/PptxExportButton.tsx(3,38): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/SceneActionPlayback.tsx(47,16): error TS2352: Conversion of type 'Record<string, unknown>[]' to type 'Action[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Record<string, unknown>' is not comparable to type 'Action'.
+    Type 'Record<string, unknown>' is missing the following properties from type 'WbDrawLineAction': type, startX, startY, endX, and 2 more.
+src/openmaic/actionEngine.test.ts(12,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/classroomGenerationFlow.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/classroomGenerationFlow.test.ts(14,3): error TS2322: Type '{ schema_version?: number | undefined; version?: number | undefined; edu_job_id: string; kind: string; status: JobStatus; step: string; progress: number; message: string; ... 16 more ...; updated_at: string; }' is not assignable to type 'JobRecord'.
+  Types of property 'schema_version' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+src/openmaic/classroomGenerationFlow.test.ts(150,47): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/classroomGenerationRecovery.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/classroomGenerationRecovery.test.ts(41,3): error TS2740: Type '{ edu_job_id: string; kind: string; status: "running"; step: string; progress: number; message: string; created_at: string; updated_at: string; }' is missing the following properties from type 'JobRecord': schema_version, version, owner_user_id, scope_type, and 3 more.
+src/openmaic/classroomScene.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/interactiveScene.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/interactiveScene.test.ts(64,54): error TS2345: Argument of type '{ type: string; payload: Record<string, unknown>; }' is not assignable to parameter of type 'never'.
+src/openmaic/interactiveScene.test.ts(80,54): error TS2345: Argument of type '{ type: string; payload: Record<string, unknown>; }' is not assignable to parameter of type 'never'.
+src/openmaic/pagePlaybackController.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/playbackEngine.test.ts(14,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/playbackEngine.test.ts(15,39): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/pptxDownload.ts(31,51): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/pptxExporter.test.ts(5,29): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/pptxExporter.test.ts(9,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/pptxExporter.ts(3,29): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/pptxExporter.ts(199,15): error TS2353: Object literal may only specify known properties, and 'dash' does not exist in type 'ShapeLineProps'.
+src/openmaic/pptxExporter.ts(210,13): error TS2345: Argument of type 'ChartType' is not assignable to parameter of type 'CHART_NAME | IChartMulti[]'.
+src/openmaic/pptxExporter.ts(239,13): error TS2345: Argument of type '{ text: string; options: { bold: boolean | undefined; italic: boolean | undefined; color: string; fill: string | undefined; fontFace: string | undefined; fontSize: number | undefined; align: TextAlign | undefined; colspan: number; rowspan: number; }; }[][]' is not assignable to parameter of type 'TableRow[]'.
+  Type '{ text: string; options: { bold: boolean | undefined; italic: boolean | undefined; color: string; fill: string | undefined; fontFace: string | undefined; fontSize: number | undefined; align: TextAlign | undefined; colspan: number; rowspan: number; }; }[]' is not assignable to type 'TableRow'.
+    Type '{ text: string; options: { bold: boolean | undefined; italic: boolean | undefined; color: string; fill: string | undefined; fontFace: string | undefined; fontSize: number | undefined; align: TextAlign | undefined; colspan: number; rowspan: number; }; }' is not assignable to type 'TableCell'.
+      The types of 'options.fill' are incompatible between these types.
+        Type 'string | undefined' is not assignable to type 'ShapeFillProps | undefined'.
+          Type 'string' has no properties in common with type 'ShapeFillProps'.
+src/openmaic/pptxExporter.ts(412,5): error TS2353: Object literal may only specify known properties, and 'dash' does not exist in type 'ShapeLineProps'.
+src/openmaic/quizScene.test.ts(10,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/quizScene.ts(38,5): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(entries: Iterable<readonly [PropertyKey, any]>): { [k: string]: any; }', gave the following error.
+    Argument of type 'unknown[]' is not assignable to parameter of type 'Iterable<readonly [PropertyKey, any]>'.
+      The types returned by '[Symbol.iterator]().next(...)' are incompatible between these types.
+        Type 'IteratorResult<unknown, undefined>' is not assignable to type 'IteratorResult<readonly [PropertyKey, any], any>'.
+          Type 'IteratorYieldResult<unknown>' is not assignable to type 'IteratorResult<readonly [PropertyKey, any], any>'.
+            Type 'IteratorYieldResult<unknown>' is not assignable to type 'IteratorYieldResult<readonly [PropertyKey, any]>'.
+              Type 'unknown' is not assignable to type 'readonly [PropertyKey, any]'.
+  Overload 2 of 2, '(entries: Iterable<readonly any[]>): any', gave the following error.
+    Argument of type 'unknown[]' is not assignable to parameter of type 'Iterable<readonly any[]>'.
+      The types returned by '[Symbol.iterator]().next(...)' are incompatible between these types.
+        Type 'IteratorResult<unknown, undefined>' is not assignable to type 'IteratorResult<readonly any[], any>'.
+          Type 'IteratorYieldResult<unknown>' is not assignable to type 'IteratorResult<readonly any[], any>'.
+            Type 'IteratorYieldResult<unknown>' is not assignable to type 'IteratorYieldResult<readonly any[]>'.
+              Type 'unknown' is not assignable to type 'readonly any[]'.
+src/openmaic/quizScene.ts(38,23): error TS2345: Argument of type '(this: undefined, question: ClassroomQuizQuestion) => [] | [readonly [string, string]] | [readonly [string, string[]]]' is not assignable to parameter of type '(this: undefined, value: ClassroomQuizQuestion, index: number, array: ClassroomQuizQuestion[]) => readonly [string, string] | readonly (readonly [string, string])[]'.
+  Type '[] | [readonly [string, string]] | [readonly [string, string[]]]' is not assignable to type 'readonly [string, string] | readonly (readonly [string, string])[]'.
+    Type '[readonly [string, string[]]]' is not assignable to type 'readonly [string, string] | readonly (readonly [string, string])[]'.
+      Type '[readonly [string, string[]]]' is not assignable to type 'readonly (readonly [string, string])[]'.
+        Type 'readonly [string, string[]]' is not assignable to type 'readonly [string, string]'.
+          Type at position 1 in source is not compatible with type at position 1 in target.
+            Type 'string[]' is not assignable to type 'string'.
+src/openmaic/timeline.test.ts(4,65): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/timelineRecorder.test.ts(3,39): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/timelineRecorder.test.ts(4,34): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/videoExport.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/videoExport.ts(6,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/videoExportJob.test.ts(4,39): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/videoExportJob.test.ts(10,3): error TS2322: Type '{ schema_version?: number | undefined; version?: number | undefined; edu_job_id: string; kind: string; status: JobStatus; step: string; progress: number; message: string; ... 16 more ...; updated_at: string; }' is not assignable to type 'JobRecord'.
+  Types of property 'schema_version' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+src/openmaic/videoRegistry.test.ts(3,31): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/videoRenderState.test.ts(9,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/openmaic/videoRenderState.ts(3,45): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/services/teacher/chatV2.helpers.ts(37,42): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/services/teacher/knowledgeGraph.ts(156,25): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: { [s: string]: TreeNode; } | ArrayLike<TreeNode>): [string, TreeNode][]', gave the following error.
+    Argument of type 'Record<string, TreeNode> | undefined' is not assignable to parameter of type '{ [s: string]: TreeNode; } | ArrayLike<TreeNode>'.
+      Type 'undefined' is not assignable to type '{ [s: string]: TreeNode; } | ArrayLike<TreeNode>'.
+  Overload 2 of 2, '(o: {}): [string, any][]', gave the following error.
+    Argument of type 'Record<string, TreeNode> | undefined' is not assignable to parameter of type '{}'.
+      Type 'undefined' is not assignable to type '{}'.
+src/services/teacher/materials.helpers.ts(92,58): error TS2352: Conversion of type 'Omit<T & { pinned: boolean; index: number; }, "pinned" | "index">' to type 'T' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  'Omit<T & { pinned: boolean; index: number; }, "pinned" | "index">' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constraint 'CourseMaterialLike'.
+src/services/teacher/materials.helpers.ts(145,81): error TS2352: Conversion of type 'Omit<T & { pinnedAt: string | undefined; addedAt: string | undefined; index: number; }, "index" | "pinnedAt" | "addedAt">' to type 'T' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  'Omit<T & { pinnedAt: string | undefined; addedAt: string | undefined; index: number; }, "index" | "pinnedAt" | "addedAt">' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constraint 'GeneratedFileLike'.
+src/services/teacher/workspaceScope.ts(39,5): error TS2322: Type 'WorkspaceScopeType | null' is not assignable to type 'WorkspaceScopeType | undefined'.
+  Type 'null' is not assignable to type 'WorkspaceScopeType | undefined'.
+src/services/teacher/workspaceScope.ts(44,5): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+src/services/teacher/workspaceScope.ts(49,5): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+src/stitch/api/classroomQa.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/api/courseMaterialPresentation.test.ts(11,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/api/courseMaterialTarget.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/api/courseMaterialsResponse.test.ts(4,39): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/api/courseResourceSpaces.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/api/resourceQa.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/assessment/assessmentAuthoring.test.ts(21,15): error TS2353: Object literal may only specify known properties, and 'code' does not exist in type '{ message: string; }'.
+src/stitch/assessment/assessmentAuthoring.test.ts(22,15): error TS2353: Object literal may only specify known properties, and 'code' does not exist in type '{ message: string; }'.
+src/stitch/classroomQa/ClassroomQaPanel.test.ts(5,44): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/classroomQa/ClassroomQaPanel.test.ts(6,43): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/classroomQa/classroomAutoplay.test.ts(3,36): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/classroomQa/classroomQaState.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/classroomQa/useClassroomInterruption.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/classroomQa/useStaticResourceQa.test.ts(4,45): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/classroomQa/useStaticResourceQa.test.ts(67,87): error TS2322: Type '{ turn_id: string; client_turn_id: string; question: string; answer_text: string; transition_text: string; tts_status: "failed"; audio_url: null; created_at: string; }' is not assignable to type 'never'.
+src/stitch/components/TransparentAvatarCanvas.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/CourseRouteProvider.test.ts(4,41): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/CourseRouteProvider.test.ts(5,27): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx(94,5): error TS2322: Type 'number | undefined' is not assignable to type 'number | null'.
+  Type 'undefined' is not assignable to type 'number | null'.
+src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx(204,7): error TS2322: Type '"classroom" | "personal_classroom"' is not assignable to type '"classroom"'.
+  Type '"personal_classroom"' is not assignable to type '"classroom"'.
+src/stitch/course/classroomCatalog/CourseResourceViewer.tsx(52,6): error TS2367: This comparison appears to be unintentional because the types '"study_guide" | "practice"' and '"classroom"' have no overlap.
+src/stitch/course/classroomCatalog/CourseResourceViewer.tsx(73,60): error TS2322: Type 'ResourceContext' is not assignable to type 'ResourceContext & { kind: "study_guide" | "practice"; }'.
+  Type 'ResourceContext' is not assignable to type '{ kind: "study_guide" | "practice"; }'.
+    Types of property 'kind' are incompatible.
+      Type '"classroom" | ResourceQaKind' is not assignable to type '"study_guide" | "practice"'.
+        Type '"classroom"' is not assignable to type '"study_guide" | "practice"'.
+src/stitch/course/classroomCatalog/catalogPresentation.test.ts(12,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/classroomCatalog/classroomWorkspaceTarget.test.ts(3,57): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/classroomCatalog/myClassroomPresentation.test.ts(3,37): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/classroomCatalog/workspaceQaBinding.test.ts(9,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/courseCreation.test.ts(4,71): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/courseEnrollment.test.ts(4,64): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/courseNavigation.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/course/courseNavigation.test.ts(25,29): error TS2345: Argument of type '"overview"' is not assignable to parameter of type 'CourseNavigationId'.
+src/stitch/course/courseNavigation.test.ts(26,29): error TS2345: Argument of type '"settings"' is not assignable to parameter of type 'CourseNavigationId'.
+src/stitch/pages/CourseLearning.tsx(504,21): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/stitch/pages/CourseLearning.tsx(597,21): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/stitch/pages/RuntimeSettings.tsx(12,25): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/ApiOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/ApiOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/ApiOutlined.js';`
+src/stitch/pages/RuntimeSettings.tsx(13,27): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/AudioOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/AudioOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/AudioOutlined.js';`
+src/stitch/pages/RuntimeSettings.tsx(14,31): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/CheckCircleFilled.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/CheckCircleFilled.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/CheckCircleFilled.js';`
+src/stitch/pages/RuntimeSettings.tsx(15,33): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/CloudServerOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/CloudServerOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/CloudServerOutlined.js';`
+src/stitch/pages/RuntimeSettings.tsx(16,30): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/DatabaseOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/DatabaseOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/DatabaseOutlined.js';`
+src/stitch/pages/RuntimeSettings.tsx(17,32): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/FileSearchOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/FileSearchOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/FileSearchOutlined.js';`
+src/stitch/pages/RuntimeSettings.tsx(18,28): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/GlobalOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/GlobalOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/GlobalOutlined.js';`
+src/stitch/pages/RuntimeSettings.tsx(19,39): error TS7016: Could not find a declaration file for module '@ant-design/icons/es/icons/SafetyCertificateOutlined.js'. '/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@ant-design+icons@5.6.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@ant-design/icons/es/icons/SafetyCertificateOutlined.js' implicitly has an 'any' type.
+  If the '@ant-design/icons' package actually exposes this module, try adding a new declaration (.d.ts) file containing `declare module '@ant-design/icons/es/icons/SafetyCertificateOutlined.js';`
+src/stitch/pages/_dev/ClassroomVideoRender.tsx(229,33): error TS2339: Property 'canvas' does not exist on type 'ClassroomSceneContent'.
+  Property 'canvas' does not exist on type 'InteractiveClassroomContent'.
+src/stitch/pages/_dev/ClassroomVideoRender.tsx(230,19): error TS2352: Conversion of type 'Record<string, unknown>[]' to type 'Action[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Record<string, unknown>' is not comparable to type 'Action'.
+    Type 'Record<string, unknown>' is missing the following properties from type 'WbDrawLineAction': type, startX, startY, endX, and 2 more.
+src/stitch/pages/aiStudioLayout.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/courseCardPresentation.test.ts(5,42): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/courseLearningOverview.test.ts(4,41): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/materialContentEditing.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/materialExport.test.ts(4,36): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/mindMapEditing.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/mindMapExport.test.ts(4,41): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/profilePresentation.test.ts(6,46): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/resourcePreviewConstraints.test.ts(4,46): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/pages/resourcePreviewConstraints.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/resume/resume.test.ts(3,112): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/resume/resume.test.ts(4,48): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/shared/generation/generationCatalog.test.ts(4,43): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/shared/generation/generationCatalog.ts(21,10): error TS1354: 'readonly' type modifier is only permitted on array and tuple literal types.
+src/stitch/shared/routes/roleCourseRouteResolver.test.ts(4,54): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/shared/routes/roleCourseRouteResolver.ts(46,52): error TS2345: Argument of type '{ space?: string | null | undefined; material_type?: string | null | undefined; material_id?: string | null | undefined; resource_version?: string | number | null | undefined; classroom_id?: string | ... 1 more ... | undefined; ... 5 more ...; resource_id?: string | ... 1 more ... | undefined; }' is not assignable to parameter of type 'Readonly<Record<string, string | null | undefined>>'.
+  Property 'resource_version' is incompatible with index signature.
+    Type 'string | number | null' is not assignable to type 'string | null | undefined'.
+      Type 'number' is not assignable to type 'string'.
+src/stitch/shared/routes/roleRouteResolver.test.ts(4,53): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/student/pages/studentKnowledgeActions.test.ts(4,66): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/student/pages/studentRecentLearning.test.ts(3,76): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/student/routes/studentRoutes.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/student/routes/studentRoutes.test.ts(8,40): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/student/shell/StudentShell.tsx(14,7): error TS2741: Property '"student-learning"' is missing in type '{ "student-home": string; "student-course-detail": string; "student-ai": string; "student-course-knowledge": string; "student-personal-knowledge": string; "student-classroom": string; "student-resources": string; }' but required in type 'Record<StudentRoute, string>'.
+src/stitch/student/shell/studentNavigation.test.ts(4,40): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/stitch/teacherRoutes.test.ts(9,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.

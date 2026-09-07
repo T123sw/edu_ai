@@ -23,6 +23,8 @@ export type GenerationDraft = {
   requirements: string;
   source: GenerationSourceSelection;
   config?: Record<string, unknown>;
+  scopeType?: "course" | "knowledge_point";
+  scopeId?: string;
 };
 
 type Submitted = { task_id?: string; edu_job_id?: string; [key: string]: unknown };
@@ -30,13 +32,14 @@ type Submitted = { task_id?: string; edu_job_id?: string; [key: string]: unknown
 function sourcePayload(draft: GenerationDraft, courseId: string) {
   return {
     course_id: courseId,
-    scope_type: "course",
+    scope_type: draft.scopeType || "course",
+    scope_id: draft.scopeType === "knowledge_point" ? draft.scopeId : undefined,
     source_mode: draft.source.mode,
     selected_doc_ids: draft.source.selectedDocumentIds,
   };
 }
 
-export function buildGenerationRequest(draft: GenerationDraft, courseId: string, idempotencyKey = `ui-${draft.resourceType}-${courseId}`): { path: string; body: Record<string, unknown> } {
+function serializeGenerationRequest(draft: GenerationDraft, courseId: string, idempotencyKey = `ui-${draft.resourceType}-${courseId}`): { path: string; body: Record<string, unknown> } {
   const source = { ...sourcePayload(draft, courseId), idempotency_key: idempotencyKey };
   switch (draft.resourceType) {
     case "report": return { path: "/api/chat/v2/report/direct", body: { ...source, ...reportDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
@@ -48,6 +51,12 @@ export function buildGenerationRequest(draft: GenerationDraft, courseId: string,
     case "game": return { path: "/api/chat/v2/game/direct", body: { ...source, ...gameDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }) } };
     case "classroom": return { path: `/api/courses/${encodeURIComponent(courseId)}/classrooms/generate`, body: { source_mode: draft.source.mode, selected_doc_ids: draft.source.selectedDocumentIds, ...classroomDefinition.serialize({ courseId, source: draft.source, config: draft.config as never }), idempotency_key: idempotencyKey } };
   }
+}
+
+export function buildGenerationRequest(draft: GenerationDraft, courseId: string, idempotencyKey?: string): { path: string; body: Record<string, unknown> } {
+  if (draft.scopeType === "knowledge_point" && !draft.scopeId?.trim()) throw new Error("请先选择明确的知识点");
+  const request = serializeGenerationRequest(draft, courseId, idempotencyKey);
+  return { ...request, body: { ...request.body, scope_type: draft.scopeType || "course", scope_id: draft.scopeType === "knowledge_point" ? draft.scopeId : undefined } };
 }
 
 export function useGenerationSubmission(courseId: string | undefined) {

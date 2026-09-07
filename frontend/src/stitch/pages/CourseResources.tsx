@@ -1,3 +1,4 @@
+import { RevisionButton } from "../artifactRevision/components";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import {
   backendCourseToSummary,
@@ -616,6 +617,7 @@ export function CourseResourcesPage() {
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      <RevisionButton material={activeMaterial} disabled={actionBusy} />
                       {EDITABLE_MATERIAL_TYPES.has(activeMaterial.material_type) ? (
                         <button
                           type="button"

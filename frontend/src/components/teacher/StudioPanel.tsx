@@ -16,7 +16,7 @@ type Props = {
   onPreviewStateChange?: (open: boolean) => void;
 };
 
-const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId }) => {
+const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, workspaceScope }) => {
   const { user } = useAuthSession();
   const selectedDocs = useStore((state) => state.selectedDocs);
   const [allowedTools, setAllowedTools] = useState<GenerationToolId[]>([]);
@@ -50,6 +50,8 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId }) => {
   return (
     <GenerationFactory
       courseId={courseId}
+      scopeType={workspaceScope?.scopeType}
+      scopeId={workspaceScope?.scopeId}
       allowedTools={allowedTools}
       selectedDocumentIds={selectedDocs}
       sourceLibraries={["course", "personal"]}
