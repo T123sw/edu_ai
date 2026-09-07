@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: account and role isolation, same-route query changes, and safe versioned fields
+ok 1 - account and role isolation, same-route query changes, and safe versioned fields
+  ---
+  duration_ms: 4.104138
+  type: 'test'
+  ...
+# Subtest: home/settings/login/foreign roles/URLs and corrupt storage cannot create history
+ok 2 - home/settings/login/foreign roles/URLs and corrupt storage cannot create history
+  ---
+  duration_ms: 1.061398
+  type: 'test'
+  ...
+# Subtest: canonical scope aliases are read using the existing workspace parser
+ok 3 - canonical scope aliases are read using the existing workspace parser
+  ---
+  duration_ms: 0.452372
+  type: 'test'
+  ...
+# Subtest: student materials and classroom parameters survive only on supported routes
+ok 4 - student materials and classroom parameters survive only on supported routes
+  ---
+  duration_ms: 2.491106
+  type: 'test'
+  ...
+# Subtest: live metadata validates the exact scope, missing scope falls back within the same course
+ok 5 - live metadata validates the exact scope, missing scope falls back within the same course
+  ---
+  duration_ms: 0.747725
+  type: 'test'
+  ...
+# Subtest: permission loss differs from network failure, including target lookups
+ok 6 - permission loss differs from network failure, including target lookups
+  ---
+  duration_ms: 1.041477
+  type: 'test'
+  ...
+# Subtest: deleted resources are not resolved by title and failed validation does not write history
+ok 7 - deleted resources are not resolved by title and failed validation does not write history
+  ---
+  duration_ms: 0.751643
+  type: 'test'
+  ...
+# Subtest: a page data failure cannot be mistaken for a successful visit
+ok 8 - a page data failure cannot be mistaken for a successful visit
+  ---
+  duration_ms: 0.550265
+  type: 'test'
+  ...
+# Subtest: student home reuses the teacher course catalog presentation
+ok 9 - student home reuses the teacher course catalog presentation
+  ---
+  duration_ms: 6.129991
+  type: 'test'
+  ...
+# Subtest: student personal center follows the shared course header action position
+ok 10 - student personal center follows the shared course header action position
+  ---
+  duration_ms: 2.064041
+  type: 'test'
+  ...
+# Subtest: student learning home omits the global navigation sidebar
+ok 11 - student learning home omits the global navigation sidebar
+  ---
+  duration_ms: 2.91334
+  type: 'test'
+  ...
+# Subtest: legacy unowned history is ignored and student history records verified locations only
+ok 12 - legacy unowned history is ignored and student history records verified locations only
+  ---
+  duration_ms: 4.007042
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 740.837103

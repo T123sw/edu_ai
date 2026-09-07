@@ -1,0 +1,32 @@
+[WebServer] (node:365186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:365229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:365360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop1366] › tests/e2e/home-resume.spec.ts:35:5 › teacher records successful scope changes, ignores home/profile, and resumes after refresh (5.7s)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✓   2 [desktop1366] › tests/e2e/home-resume.spec.ts:54:5 › student has one compact entry and restores learning scope (8.9s)
+  ✓   3 [desktop1366] › tests/e2e/home-resume.spec.ts:69:5 › switching authenticated account never displays the prior account history (1.7s)
+  ✓   4 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › new storage does not produce false history or break the home (838ms)
+  ✓   5 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › corrupt storage does not produce false history or break the home (860ms)
+  ✓   6 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › legacy storage does not produce false history or break the home (854ms)
+  ✓   7 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › blocked storage does not produce false history or break the home (870ms)
+  ✓   8 [desktop1366] › tests/e2e/home-resume.spec.ts:100:5 › course loss clears history, temporary failure preserves it and offers retry (1.2s)
+  ✓   9 [desktop1366] › tests/e2e/home-resume.spec.ts:117:5 › missing scope explicitly falls back to the same course (1.2s)
+  ✓  10 [desktop1366] › tests/e2e/home-resume.spec.ts:125:5 › unsafe stored route is hidden; unknown fields never appear in restored URLs (1.7s)
+  ✓  11 [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › teacher long course name stays readable at 390px and supports keyboard (1.2s)
+  ✓  12 [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › student long course name stays readable at 390px and supports keyboard (7.2s)
+  ✓  13 [desktop1366] › tests/e2e/home-resume.spec.ts:156:5 › resource URL survives refresh and deletion falls back without choosing another material (3.6s)
+  ✓  14 [desktop1366] › tests/e2e/home-resume.spec.ts:175:5 › failed course and failed scope visits never overwrite the prior valid location (5.8s)
+  ✓  15 [desktop1366] › tests/e2e/home-resume.spec.ts:189:5 › classroom replaceState updates are tracked and canonical route restores the exact resource (4.7s)
+
+  15 passed (51.8s)
