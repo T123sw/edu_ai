@@ -28,6 +28,7 @@ class CourseInfo(BaseModel):
     created_by: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+    last_used_at: Optional[str] = None
 
 
 class CourseCreateRequest(BaseModel):
@@ -385,4 +386,3 @@ class KnowledgeGraphHourAllocationRequest(BaseModel):
 
 class KnowledgeGraphHourAllocationResponse(KnowledgeGraphData):
     allocation: Dict[str, Any] = Field(default_factory=dict, description="Hour allocation metadata")
-

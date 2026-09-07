@@ -4,6 +4,7 @@ import { useCourseRoute } from '../course/CourseRouteProvider';
 import { recordFromHash, saveResume } from './resumeRecord';
 import { validateResume } from './validateResume';
 import { resumeApi } from './resumeApi';
+import { recordCourseUsage } from '../api/courses';
 
 export function ResumeTracker() {
   const { user, authenticated } = useAuthSession();
@@ -35,6 +36,22 @@ export function ResumeTracker() {
       if (!cancelled && hash === window.location.hash && result.status === 'valid') saveResume(user, record);
     });
     return () => { cancelled = true; };
+  }, [authenticated, user, course, courseId, loading, error, hash]);
+  useEffect(() => {
+    if (!authenticated || !user || loading || error || !course || course.id !== courseId) return;
+    const record = recordFromHash(user, hash);
+    if (!record || record.courseId !== course.id) return;
+    const syncUsage = () => {
+      if (document.visibilityState !== 'visible' || window.location.hash !== hash) return;
+      void recordCourseUsage(course.id).catch(() => { /* A tracking failure must not interrupt course work. */ });
+    };
+    syncUsage();
+    const interval = window.setInterval(syncUsage, 60_000);
+    document.addEventListener('visibilitychange', syncUsage);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', syncUsage);
+    };
   }, [authenticated, user, course, courseId, loading, error, hash]);
   return null;
 }

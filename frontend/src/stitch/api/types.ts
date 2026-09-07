@@ -15,6 +15,7 @@ export type BackendCourse = {
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  last_used_at?: string | null;
 };
 
 export type CourseMember = {

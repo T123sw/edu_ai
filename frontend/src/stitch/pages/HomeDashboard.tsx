@@ -1,5 +1,6 @@
 import { CourseCardContent } from "./CourseCardContent";
 import { ResumeEntry } from "../resume/ResumeEntry";
+import { readResume } from "../resume/resumeRecord";
 import { useEffect, useMemo, useState } from "react";
 
 import { useJobStore } from "../../jobs/jobStore";
@@ -38,6 +39,7 @@ function getStoredUsername() {
 
 export function HomeDashboardPage() {
   const { user } = useAuthSession();
+  const previousVisit = user ? readResume(user) : null;
   const { setSelectedCourse } = useAppShell();
   const jobs = useJobStore((state) => state.jobs);
   const [courses, setCourses] = useState<BackendCourse[]>([]);
@@ -156,7 +158,7 @@ export function HomeDashboardPage() {
 
           <div className="teacher-course-grid">
             {visibleCourses.map((course, index) => {
-              const card = toCourseCardPresentation(course, cardFacts(course.id), "teacher");
+              const card = toCourseCardPresentation(course, cardFacts(course.id), "teacher", previousVisit);
               return (
                 <a
                   key={course.id}

@@ -20,7 +20,7 @@ test("login is role-neutral and remember-account never persists a password", () 
     "utf8",
   );
 
-  assert.match(loginPage, />平台账号</u);
+  assert.match(loginPage, /label="账号"/u);
   assert.doesNotMatch(loginPage, />教师账号</u);
   assert.match(loginPage, /localStorage\.setItem\(REMEMBERED_USERNAME_KEY, values\.username\)/u);
   assert.doesNotMatch(loginPage, /localStorage\.setItem\([^\n]*(?:password|values\.password)/iu);

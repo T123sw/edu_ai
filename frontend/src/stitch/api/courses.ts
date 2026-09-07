@@ -79,6 +79,10 @@ export function listCourses() {
   return apiRequest<BackendCourse[]>("/api/courses");
 }
 
+export function recordCourseUsage(courseId: string) {
+  return apiRequest<{ last_used_at: string }>(`/api/courses/${encodeURIComponent(courseId)}/usage`, { method: "POST" });
+}
+
 export function createCourse(payload: BackendCourseCreatePayload) {
   return apiRequest<BackendCourse>("/api/courses", {
     method: "POST",

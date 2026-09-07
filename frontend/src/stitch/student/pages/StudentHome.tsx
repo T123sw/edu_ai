@@ -1,5 +1,7 @@
 import { CourseCardContent } from "../../pages/CourseCardContent";
 import { ResumeEntry } from "../../resume/ResumeEntry";
+import { readResume } from "../../resume/resumeRecord";
+import { useAuthSession } from "../../authSession";
 import { useEffect, useMemo, useState } from "react";
 
 import { useJobStore } from "../../../jobs/jobStore";
@@ -32,6 +34,8 @@ const emptyFacts: CourseCardFacts = {
 };
 
 export function StudentHomePage() {
+  const { user } = useAuthSession();
+  const previousVisit = user ? readResume(user) : null;
   const { setSelectedCourse } = useAppShell();
   const jobs = useJobStore((state) => state.jobs);
   const [courses, setCourses] = useState<BackendCourse[]>([]);
@@ -192,7 +196,7 @@ export function StudentHomePage() {
         {!loading && !error && courses.length > 0 && visibleCourses.length === 0 ? <div className="teacher-home__state">没有找到匹配的课程。</div> : null}
         <div className="teacher-course-grid">
           {visibleCourses.map((course, index) => {
-            const card = toCourseCardPresentation(course, cardFacts(course.id), "student");
+            const card = toCourseCardPresentation(course, cardFacts(course.id), "student", previousVisit);
             return (
               <article
                 key={course.id}

@@ -15,7 +15,6 @@ export function LoginPage({ onLogin }: { onLogin: (payload: { username: string; 
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [form] = Form.useForm();
-  const showDemoAccount = import.meta.env.VITE_SHOW_DEMO_ACCOUNT === "true";
 
   useEffect(() => {
     const username = localStorage.getItem(REMEMBERED_USERNAME_KEY);
@@ -67,9 +66,7 @@ export function LoginPage({ onLogin }: { onLogin: (payload: { username: string; 
       <Card className="login-card">
         <div className="login-form-wrapper">
           <div className="login-form-header">
-            <p className="login-form-kicker">平台账号</p>
             <h2 id="login-title" className="login-form-title">登录 Edu AI</h2>
-            <p className="login-form-desc">使用系统分配的账号进入你有权访问的全部课程</p>
           </div>
           {loginError ? <div className="login-error" role="alert"><strong>未能登录</strong><span>{loginError}</span></div> : null}
           <Form layout="vertical" form={form} onFinish={onFinish} requiredMark={false} aria-labelledby="login-title">
@@ -81,11 +78,9 @@ export function LoginPage({ onLogin }: { onLogin: (payload: { username: string; 
             </Form.Item>
             <div className="login-form-options">
               <Form.Item name="rememberMe" valuePropName="checked" noStyle><Checkbox>记住账号</Checkbox></Form.Item>
-              <span>账号或权限有问题，请联系系统管理员</span>
             </div>
             <Button type="primary" htmlType="submit" block size="large" loading={loading}>登录</Button>
           </Form>
-          {showDemoAccount ? <p className="login-demo-hint">开发演示账号已启用，请使用项目运行配置中提供的测试账号。</p> : null}
         </div>
       </Card>
     </main>

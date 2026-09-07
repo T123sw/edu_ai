@@ -58,7 +58,7 @@ test("course card omits developer-facing permission and revision fields", () => 
   });
   assert.equal("roleLabel" in card, false);
   assert.equal("revisionLabel" in card, false);
-  assert.match(card.updatedLabel, /^最近更新 /);
+  assert.equal(card.updatedLabel, "暂无使用记录");
   assert.equal(card.metrics[0]?.value, "—");
   assert.equal(card.learningStatusLabel, "学习任务暂不可用");
 });
@@ -75,4 +75,16 @@ test("student course card prioritizes pending learning", () => {
     { label: "待学习任务", value: 2 },
     { label: "后台生成中", value: 3 },
   ]);
+});
+
+test("course usage comes from user visits, never from content modification", () => {
+  const facts = { documentCount: 0, resourceCount: 0, activeJobCount: 0, learningOverview: null };
+  const visited = { ...courseFixture, last_used_at: "2026-09-07T08:00:00Z" };
+  const card = toCourseCardPresentation(visited, facts);
+  assert.match(card.updatedLabel, /^最近使用 2026\/9\/7 /);
+  assert.equal(toCourseCardPresentation(courseFixture, facts).updatedLabel, "暂无使用记录");
+  assert.equal(toCourseCardPresentation({ ...visited, last_used_at: "invalid" }, facts).updatedLabel, "暂无使用记录");
+  const previousVisit = { courseId: courseFixture.id, visitedAt: "2026-09-08T08:00:00Z" };
+  assert.match(toCourseCardPresentation(visited, facts, "teacher", previousVisit).updatedLabel, /2026\/9\/8/);
+  assert.equal(toCourseCardPresentation(courseFixture, facts, "teacher", { ...previousVisit, courseId: "other" }).updatedLabel, "暂无使用记录");
 });

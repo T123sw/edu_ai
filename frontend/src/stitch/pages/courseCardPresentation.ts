@@ -9,20 +9,24 @@ export type CourseCardFacts = {
 };
 
 export function toCourseCardPresentation(
-  course: Pick<BackendCourse, "id" | "title" | "description" | "updated_at">,
+  course: Pick<BackendCourse, "id" | "title" | "description" | "updated_at" | "last_used_at">,
   facts: CourseCardFacts,
   actor: "teacher" | "student" = "teacher",
+  previousVisit?: { courseId: string; visitedAt: string } | null,
 ) {
-  const updated = course.updated_at ? new Date(course.updated_at) : null;
-  const updatedText = updated && !Number.isNaN(updated.getTime())
-    ? `${updated.getMonth() + 1}月${updated.getDate()}日 ${updated.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false })}`
+  const times = [course.last_used_at, previousVisit?.courseId === course.id ? previousVisit.visitedAt : null]
+    .filter((value): value is string => Boolean(value))
+    .map(Date.parse).filter(Number.isFinite);
+  const used = times.length ? new Date(Math.max(...times)) : null;
+  const usedText = used
+    ? used.toLocaleString("zh-CN", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })
     : null;
 
   return {
     id: course.id,
     title: course.title,
     description: course.description || "暂未填写课程简介",
-    updatedLabel: updatedText ? `最近更新 ${updatedText}` : "暂无更新记录",
+    updatedLabel: usedText ? `最近使用 ${usedText}` : "暂无使用记录",
     metrics: [
       ...toCourseLearningMetrics(actor, facts.learningOverview, facts.activeJobCount),
       { label: "课程资料", value: facts.documentCount },

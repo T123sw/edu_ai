@@ -157,26 +157,11 @@
   text-align: center;
 }
 
-.login-form-kicker {
-  margin: 0 0 8px;
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
 .login-form-title {
-  margin: 0 0 12px;
-  color: #111827;
-  font-size: 26px;
-  font-weight: 600;
-}
-
-.login-form-desc {
   margin: 0;
-  color: #6b7280;
-  font-size: 15px;
-  line-height: 1.6;
+  color: #111827;
+  font-size: 32px;
+  font-weight: 600;
 }
 
 .login-form-wrapper .ant-form-item {
@@ -251,16 +236,6 @@
   font-size: 12px;
 }
 
-.login-demo-hint {
-  margin: 18px 0 0;
-  border-radius: 8px;
-  background: rgba(241, 245, 249, 0.9);
-  padding: 10px;
-  color: #64748b;
-  font-size: 11px;
-  line-height: 1.6;
-}
-
 @media (max-width: 1200px) {
   .login-page { padding: 0 60px 0 40px; }
   .login-card { width: 500px; min-width: 500px; min-height: 560px; margin-right: 0; }
@@ -307,6 +282,6 @@
   .login-slogan { font-size: 14px; }
   .login-card { padding: 32px 24px; }
   .login-form-header { margin-bottom: 28px; }
-  .login-form-title { font-size: 22px; }
+  .login-form-title { font-size: 28px; }
   .login-form-options { align-items: flex-start; flex-direction: column; }
 }

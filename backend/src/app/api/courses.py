@@ -294,6 +294,8 @@ def list_courses(
         item.course_id: item
         for item in membership_store.list_for_user(user_id)
     }
+    from app.services.course_usage import list_course_usage
+    usage = list_course_usage(user_id)
     for info in mgr.list_course_infos():
         course_id = str(info.get("id") or info.get("course_id") or "").strip()
         membership = memberships.get(course_id)
@@ -317,7 +319,7 @@ def list_courses(
         if membership is None:
             continue
         try:
-            results.append(_course_response(info, membership.role))
+            results.append(_course_response({**info, "last_used_at": usage.get(course_id)}, membership.role))
         except Exception:
             continue
 
@@ -339,6 +341,17 @@ def join_course(
     except CourseEnrollmentError as error:
         raise _enrollment_http_error(error) from error
     return _course_response(info, "viewer")
+
+
+@router.post("/{course_id}/usage", summary="记录当前用户使用课程")
+def record_course_visit(
+    course_id: str,
+    principal: CoursePrincipal = Depends(require_course_read),
+) -> dict[str, str]:
+    if not _svc._get_manager().get_course_info(course_id):
+        raise HTTPException(status_code=404, detail="课程不存在")
+    from app.services.course_usage import record_course_usage
+    return {"last_used_at": record_course_usage(principal.user_id, course_id)}
 
 
 @router.get("/{course_id}", response_model=CourseInfo, summary="获取课程详情")
