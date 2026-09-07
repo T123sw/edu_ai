@@ -8,6 +8,7 @@ import { canCourse } from "../coursePermissions";
 import { useCourseRoute } from "../CourseRouteProvider";
 import { KnowledgeDocumentPreviewDialog } from "./KnowledgeDocumentPreviewDialog";
 import { CourseKnowledgeBuildCard } from "./CourseKnowledgeBuildCard";
+import "./KnowledgeDocumentsView.css";
 import {
   defaultExpandedNodeIds,
   descendantNodeIds,
@@ -31,6 +32,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [documents, setDocuments] = useState<KnowledgeBaseDocument[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null);
@@ -60,7 +62,12 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
   );
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? nodes[0] ?? null;
   const isRoot = Boolean(selectedNode && selectedNode.parentId === null);
-  const isLeaf = Boolean(selectedNode && (selectedNode.children?.length ?? 0) === 0);
+  const visibleDocuments = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return documents.filter((document) =>
+      (document.display_name || document.source_title || document.name).toLocaleLowerCase().includes(query),
+    );
+  }, [documents, search]);
 
   useEffect(() => {
     if (!courseId || !selectedNode) return;
@@ -147,8 +154,8 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
     <section className="knowledge-library">
       <aside className="knowledge-library__nodes">
         <div className="knowledge-library__heading">
-          <span>归档位置</span>
-          <h2>选择知识节点</h2>
+          <span>知识目录</span>
+          <h2>{root?.label || "课程知识目录"}</h2>
         </div>
         <div className="knowledge-library__node-list">
           {visibleNodes.map((node) => {
@@ -164,11 +171,10 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
                   type="button"
                   className="knowledge-library__node-select"
                   aria-pressed={node.id === selectedNode?.id}
-                  onClick={() => setSelectedNodeId(node.id)}
+                  onClick={() => { setSelectedNodeId(node.id); setSearch(""); }}
                 >
                   <MaterialIcon name={hasChildren ? "account_tree" : "circle"} />
-                  <span>{node.label}</span>
-                  {!hasChildren && <small>叶子</small>}
+                  <span>{node.depth === 0 ? "全部资料" : node.label}</span>
                 </button>
                 {hasChildren && (
                   <button
@@ -195,11 +201,14 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
           requestedAction={requestedAction}
         />
         <header className="knowledge-library__toolbar">
-          <div>
-            <span>课程知识库</span>
-            <h2>{selectedNode?.label || "课程资料"}</h2>
-            <p>{isLeaf ? "资料将直接归档到该叶子节点。" : "这里同时展示该节点及所有子节点的资料；上传内容归档到当前节点。"}</p>
+          <div className="knowledge-library__selection">
+            <h2>{isRoot ? "全部资料" : selectedNode?.label || "知识库资料"}</h2>
+            {!loading && <span className="knowledge-library__count">{visibleDocuments.length} 份资料</span>}
           </div>
+          <label className="knowledge-library__search">
+            <MaterialIcon name="search" />
+            <input type="search" aria-label="搜索当前目录资料" placeholder="搜索资料标题" value={search} onChange={(event) => setSearch(event.target.value)} />
+          </label>
           {canUpload && (
             <>
               <input ref={fileRef} type="file" multiple hidden onChange={(event) => void upload(event.target.files)} />
@@ -214,9 +223,9 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
         <div className="knowledge-library__documents">
           {loading ? (
             <p className="knowledge-library__empty">正在读取资料…</p>
-          ) : documents.length === 0 ? (
-            <p className="knowledge-library__empty">当前节点暂无资料</p>
-          ) : documents.map((document) => {
+          ) : visibleDocuments.length === 0 ? (
+            <p className="knowledge-library__empty">{search.trim() ? "没有找到匹配的资料" : "当前目录暂无资料"}</p>
+          ) : visibleDocuments.map((document) => {
               const status = statusLabel(document.status);
               return (
                 <article key={document.id} className="knowledge-library-document">
@@ -224,7 +233,7 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
                     <span className="knowledge-library-document__icon"><MaterialIcon name={document.type === "web" ? "language" : "description"} /></span>
                     <span className="knowledge-library-document__copy">
                       <strong>{document.display_name || document.source_title || document.name}</strong>
-                      <small>{document.scope_id === selectedNode?.id || isRoot ? "当前节点" : "子节点资料"} · {document.source_type === "model_generated" ? `AI 审查生成${document.generation_review_score ? `（${document.generation_review_score} 分）` : ""}` : "外部资料"} · {new Date(document.created_at).toLocaleString("zh-CN")}</small>
+                      <small>{document.type === "web" ? "网页" : "文档"} · {new Date(document.created_at).toLocaleDateString("zh-CN")}</small>
                     </span>
                   </button>
                   {status && <span className={`knowledge-library-document__status knowledge-library-document__status--${document.status}`}>{status}</span>}

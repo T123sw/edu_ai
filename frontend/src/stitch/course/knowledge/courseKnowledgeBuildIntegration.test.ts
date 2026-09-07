@@ -20,7 +20,7 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.doesNotMatch(source, /libraryType: "personal"/);
   assert.match(source, /<CourseKnowledgeBuildCard/);
   assert.doesNotMatch(source, /KnowledgeNodeCourseResources/);
-  assert.match(source, /课程知识库/);
+  assert.match(buildCard, /课程知识库/);
   assert.match(nodeResources, /edu-ai:course-material-updated/);
   assert.match(nodeResources, /reviewStandardResource/);
   assert.match(nodeResources, /getStandardResourceDetailTarget/);
@@ -36,7 +36,7 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.doesNotMatch(buildCard, /删除课程知识库/);
   assert.match(buildCard, /createCourseKnowledgeBuildDraft/);
   assert.doesNotMatch(buildCard, /startCourseKnowledgeBuild/);
-  assert.match(buildCard, /rollbackCourseKnowledgeVersion/);
+  assert.doesNotMatch(buildCard, /rollbackCourseKnowledgeVersion/);
   assert.doesNotMatch(buildCard, /buildKnowledgeBaseFromOpenTextbook/);
   assert.match(buildCard, /CourseKnowledgeBuildWizard/);
   assert.match(wizard, /updateCourseKnowledgeBuildDraft/);
@@ -47,7 +47,7 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.match(nodeEditor, /重新生成此模块/);
   assert.match(reviewActions, /确认图谱并开始构建/);
   assert.match(graphStep, /重新生成会丢弃尚未保存的图谱修改/);
-  assert.match(buildCard, /增量更新知识库/);
+  assert.match(buildCard, /更新知识库/);
   assert.match(configStep, /增量追加/);
   assert.match(configStep, /高级设置/);
   assert.match(configStep, /完全重建/);
@@ -116,8 +116,8 @@ test("course knowledge build card keeps the primary experience simple", async ()
   const buildCard = await readFile(new URL("./CourseKnowledgeBuildCard.tsx", import.meta.url), "utf8");
 
   assert.match(buildCard, /一键构建知识库/);
-  assert.match(buildCard, /历史版本与更多信息/);
-  assert.match(buildCard, /<details className="course-kb-builder__details">/);
+  assert.doesNotMatch(buildCard, /历史版本与更多信息/);
+  assert.doesNotMatch(buildCard, /<details className="course-kb-builder__details">/);
   assert.match(buildCard, /createCourseKnowledgeBuildDraft\(courseId\)/);
   assert.doesNotMatch(buildCard, /previewCourseKnowledgeBuild\(courseId\)[\s\S]*startCourseKnowledgeBuild/);
   assert.doesNotMatch(buildCard, /质量门禁已通过/);
