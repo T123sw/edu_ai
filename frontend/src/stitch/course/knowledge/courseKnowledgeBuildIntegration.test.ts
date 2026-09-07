@@ -19,9 +19,8 @@ test("current course knowledge view owns course uploads and embeds the reusable 
   assert.match(source, /libraryType: "course"/);
   assert.doesNotMatch(source, /libraryType: "personal"/);
   assert.match(source, /<CourseKnowledgeBuildCard/);
-  assert.match(source, /<KnowledgeNodeCourseResources/);
-  assert.match(source, /scopeNodeIds=/);
-  assert.match(source, /canManage=\{canUpload\}/);
+  assert.doesNotMatch(source, /KnowledgeNodeCourseResources/);
+  assert.match(source, /课程知识库/);
   assert.match(nodeResources, /edu-ai:course-material-updated/);
   assert.match(nodeResources, /reviewStandardResource/);
   assert.match(nodeResources, /getStandardResourceDetailTarget/);

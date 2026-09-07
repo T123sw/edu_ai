@@ -8,7 +8,6 @@ import { canCourse } from "../coursePermissions";
 import { useCourseRoute } from "../CourseRouteProvider";
 import { KnowledgeDocumentPreviewDialog } from "./KnowledgeDocumentPreviewDialog";
 import { CourseKnowledgeBuildCard } from "./CourseKnowledgeBuildCard";
-import { KnowledgeNodeCourseResources } from "./KnowledgeNodeCourseResources";
 import {
   defaultExpandedNodeIds,
   descendantNodeIds,
@@ -62,12 +61,6 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? nodes[0] ?? null;
   const isRoot = Boolean(selectedNode && selectedNode.parentId === null);
   const isLeaf = Boolean(selectedNode && (selectedNode.children?.length ?? 0) === 0);
-  const scopeNodeIds = useMemo(
-    () => selectedNode
-      ? new Set([selectedNode.id, ...descendantNodeIds(selectedNode)])
-      : new Set<string>(),
-    [selectedNode],
-  );
 
   useEffect(() => {
     if (!courseId || !selectedNode) return;
@@ -200,12 +193,6 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
           documentCount={documents.length}
           canBuild={canUpload}
           requestedAction={requestedAction}
-        />
-        <KnowledgeNodeCourseResources
-          courseId={courseId || ""}
-          nodeLabel={selectedNode?.label || "课程"}
-          scopeNodeIds={scopeNodeIds}
-          canManage={canUpload}
         />
         <header className="knowledge-library__toolbar">
           <div>

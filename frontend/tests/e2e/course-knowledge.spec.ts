@@ -31,25 +31,12 @@ test("course knowledge keeps one document uploader and the resource generation e
   await expect(teacherPage.getByRole("navigation", { name: "课程知识视图" })).toHaveCount(0);
 });
 
-test("teacher opens a generated guide and approves it from the detail dialog", async ({ teacherPage }) => {
+test("course knowledge only displays the knowledge library, without generated course materials", async ({ teacherPage }) => {
   await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await teacherPage.getByRole("button", { name: /力学学习指南/ }).click();
-
-  const dialog = teacherPage.getByRole("dialog", { name: /力学学习指南/ });
-  await expect(dialog).toContainText("# 力学学习指南");
-  await dialog.getByRole("button", { name: "通过审核" }).click();
-
-  await expect(dialog).toHaveCount(0);
-  await expect(teacherPage.getByRole("button", { name: /力学学习指南/ })).toContainText("已发布");
-});
-
-test("generated AI classroom opens the classroom player", async ({ teacherPage }) => {
-  await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await teacherPage.getByRole("button", { name: /力学互动课堂/ }).click();
-
-  await expect(teacherPage).toHaveURL(
-    /#classroom-player\?course_id=course-physics&classroom_id=standard-mechanics-classroom$/,
-  );
+  await expect(teacherPage.getByRole("button", { name: "上传资料" })).toBeVisible();
+  await expect(teacherPage.locator(".knowledge-library__documents")).toBeVisible();
+  await expect(teacherPage.getByRole("region", { name: "课程资料", exact: true })).toHaveCount(0);
+  await expect(teacherPage.locator(".knowledge-node-resources")).toHaveCount(0);
 });
 
 test("legacy knowledge view parameters do not restore the retired graph canvas", async ({ teacherPage }) => {

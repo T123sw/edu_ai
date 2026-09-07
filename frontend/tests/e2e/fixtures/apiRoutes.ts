@@ -177,10 +177,10 @@ export async function installTeacherApiRoutes(page: Page) {
     }),
   );
 
-  await page.route("http://localhost:8001/**", async (route) => {
+  await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    const path = url.pathname;
+    const path = url.pathname.replace(/^\/backend(?=\/)/, "");
 
     if (path === "/api/auth/verify") {
       return json(route, {
