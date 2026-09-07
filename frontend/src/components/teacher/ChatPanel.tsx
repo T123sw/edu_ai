@@ -26,12 +26,11 @@ import {
   type ChatSourceV2,
 } from '../../services/teacher/chatV2';
 import {
-  AgentActivityPanel,
+  getAgentStepStatusText,
+  getAgentToolStatusText,
   emptyAgentActivity,
   type AgentActivityState,
-  type MergedTimeline,
-  type MergedTimelineStep,
-} from './AgentActivityPanel';
+} from './agentActivity';
 import { decodeDisplayText } from '../../services/teacher/displayText.helpers';
 import { resolveSpeechInputError } from '../../services/teacher/speechInput';
 import { extractGeneratedFilesFromV2Response, restoreGeneratedFilesFromConversationDetail } from '../../services/teacher/chatV2.helpers';
@@ -102,59 +101,6 @@ interface ChatPanelProps {
   workspaceScope?: WorkspaceScope;
   onWorkspaceScopeChange?: (scope: WorkspaceScope) => void;
 }
-
-/**
- * Merge agent plans across consecutive AI messages with the same subject into
- * a single timeline, so the user sees task continuity instead of fragmented
- * single-step plans on turn N+1.
- *
- * Walks back from `currentIndex` while subject matches; all earlier-turn steps
- * are forced to status='done' (we know they finished since this turn started).
- */
-const buildMergedTimeline = (messages: Message[], currentIndex: number): MergedTimeline | undefined => {
-  const current = messages[currentIndex];
-  if (current?.user !== 'AI') return undefined;
-  const activity = current.agentActivity as AgentActivityState | undefined;
-  const subject = activity?.plan?.subject;
-  if (!subject) return undefined;
-
-  const related: AgentActivityState[] = [];
-  for (let i = currentIndex; i >= 0; i--) {
-    const msg = messages[i];
-    if (msg.user !== 'AI') continue;
-    const a = msg.agentActivity as AgentActivityState | undefined;
-    if (!a?.plan) continue;
-    if (a.plan.subject !== subject) break; // different task — stop
-    related.unshift(a);
-  }
-  if (related.length <= 1) return undefined; // single plan — no need to merge
-
-  const seen = new Set<string>();
-  const steps: MergedTimelineStep[] = [];
-  for (let i = 0; i < related.length; i++) {
-    const a = related[i];
-    const isLatest = i === related.length - 1;
-    for (const step of a.plan!.steps) {
-      const key = `${step.user_title}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const status: MergedTimelineStep['status'] = isLatest
-        ? ((a.stepStatus[step.index] || step.status || 'pending') as MergedTimelineStep['status'])
-        : 'done';
-      steps.push({
-        index: step.index,
-        user_title: step.user_title,
-        status,
-        fromPriorTurn: !isLatest,
-      });
-    }
-  }
-  return {
-    subject,
-    resource_type: current.agentActivity?.plan?.resource_type || '',
-    steps,
-  };
-};
 
 const finalizeRunningAgentActivity = (
   activity: AgentActivityState | undefined,
@@ -1248,7 +1194,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setIsLoading(true);
     setQueuedMessage(null);
 
-    const aiResponse: Message = { user: 'AI', text: '', statusText: 'Thinking...' };
+    const aiResponse: Message = { user: 'AI', text: '', statusText: '正在分析请求...' };
     addMessage(aiResponse);
 
     try {
@@ -1284,9 +1230,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       let response: ChatResponseV2 | null = null;
       let pendingTaskId: string | null = null;
       const agentActivity: AgentActivityState = emptyAgentActivity();
-      const flushAgentActivity = () => {
+      const flushAgentActivity = (statusText?: string) => {
         // Shallow copy so React detects a change
         updateLastMessage({
+          ...(statusText ? { statusText } : {}),
           agentActivity: {
             plan: agentActivity.plan,
             stepStatus: { ...agentActivity.stepStatus },
@@ -1351,31 +1298,32 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         onPlan: (plan) => {
           commitSend(() => {
             agentActivity.plan = plan;
+            agentActivity.stepStatus = {};
             flushAgentActivity();
           });
         },
         onPlanStepUpdate: (update) => {
           commitSend(() => {
             agentActivity.stepStatus[update.step_index] = update.status;
-            flushAgentActivity();
+            flushAgentActivity(getAgentStepStatusText(agentActivity, update));
           });
         },
         onToolCall: (call) => {
           commitSend(() => {
             agentActivity.toolCalls.push(call);
-            flushAgentActivity();
+            flushAgentActivity(getAgentToolStatusText(call.tool));
           });
         },
         onToolResult: (result) => {
           commitSend(() => {
             agentActivity.toolResults.push(result);
-            flushAgentActivity();
+            flushAgentActivity('正在整理结果...');
           });
         },
         onReflect: (reflect) => {
           commitSend(() => {
             agentActivity.reflects.push(reflect);
-            flushAgentActivity();
+            flushAgentActivity('正在核对结果...');
           });
         },
         onError: (error) => {
@@ -1878,16 +1826,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                     </div>
                     <div className="chat-panel__message-content">
                     {item.user === 'AI' && item.statusText && (
-                      <div className="chat-panel__status-text">
+                      <div className="chat-panel__status-text" role="status" aria-live="polite">
                         {item.statusText}
                       </div>
-                    )}
-                    {item.user === 'AI' && Boolean(item.agentActivity) && (
-                      <AgentActivityPanel
-                        activity={item.agentActivity as AgentActivityState}
-                        defaultExpanded={Boolean(item.statusText)}
-                        mergedTimeline={buildMergedTimeline(messages as unknown as Message[], index)}
-                      />
                     )}
                     {item.inputImages && item.inputImages.length > 0 && (
                     <div className="chat-panel__media-strip" style={{ marginBottom: item.text ? 10 : 0 }}>
