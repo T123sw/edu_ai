@@ -1,0 +1,9 @@
+.resume-entry { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; padding: 12px 16px; margin-bottom: 20px; border: 1px solid var(--border-color, #dbe4ef); border-radius: 12px; background: var(--surface, #fff); color: var(--text-primary, #334155); font-size: 14px; }
+.resume-entry__text { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+.resume-entry__text strong { font-weight: 650; }
+.resume-entry__text small { display: block; margin-top: 4px; }
+.resume-entry button { flex: 0 0 auto; max-width: 100%; padding: 8px 12px; border: 1px solid #2563eb; border-radius: 8px; color: #1d4ed8; background: #eff6ff; cursor: pointer; font: inherit; }
+.resume-entry button:disabled { opacity: .65; cursor: wait; }
+.resume-entry button:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+
+.resume-entry__summary { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }

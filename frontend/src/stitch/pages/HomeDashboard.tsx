@@ -1,3 +1,4 @@
+import { ResumeEntry } from "../resume/ResumeEntry";
 import { useEffect, useMemo, useState } from "react";
 
 import { useJobStore } from "../../jobs/jobStore";
@@ -114,6 +115,7 @@ export function HomeDashboardPage() {
       </header>
 
       <main className="teacher-home__main">
+        <ResumeEntry />
         <section className="teacher-home__intro">
           <div>
             <p className="teacher-home__eyebrow">教师课程工作台</p>

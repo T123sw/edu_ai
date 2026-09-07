@@ -1,3 +1,5 @@
+import { browserStorage } from "./resume/browserStorage";
+import { ResumeTracker } from "./resume/ResumeTracker";
 import {
   Component,
   Suspense,
@@ -159,12 +161,12 @@ function isFixtureVideoRenderRoute(): boolean {
 }
 
 function getStoredTheme(): ThemeName {
-  const stored = window.localStorage.getItem("stitch-theme");
+  const stored = browserStorage.getItem("stitch-theme");
   return stored === "forest" || stored === "sunset" || stored === "dark" ? stored : "ocean";
 }
 
 function getStoredCourse(): CourseSummary | null {
-  const raw = window.localStorage.getItem("stitch-course");
+  const raw = browserStorage.getItem("stitch-course");
 
   if (!raw) return null;
 
@@ -177,10 +179,10 @@ function getStoredCourse(): CourseSummary | null {
 
 function getStoredAuth() {
   const session = parseStoredAuthSession(
-    window.localStorage.getItem(AUTH_STORAGE_KEY),
+    browserStorage.getItem(AUTH_STORAGE_KEY),
   );
   if (!session) {
-    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    browserStorage.removeItem(AUTH_STORAGE_KEY);
   }
   return session;
 }
@@ -232,7 +234,7 @@ export default function App() {
   }, [current]);
 
   useEffect(() => {
-    window.localStorage.setItem("stitch-theme", theme);
+    browserStorage.setItem("stitch-theme", theme);
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
@@ -258,14 +260,14 @@ export default function App() {
             setAuthUser(verifiedUser);
             setAuthenticated(true);
           } else {
-            window.localStorage.removeItem(AUTH_STORAGE_KEY);
+            browserStorage.removeItem(AUTH_STORAGE_KEY);
             setAuthUser(null);
             setAuthenticated(false);
           }
         }
       } catch {
         if (!cancelled) {
-          window.localStorage.removeItem(AUTH_STORAGE_KEY);
+          browserStorage.removeItem(AUTH_STORAGE_KEY);
           setAuthUser(null);
           setAuthenticated(false);
         }
@@ -294,7 +296,7 @@ export default function App() {
     const result = await login(payload.username, payload.password);
     const loggedInUser = normalizeAuthUser(result.user);
     if (!loggedInUser) throw new Error("登录用户角色无效");
-    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(result));
+    browserStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(result));
     window.location.hash = defaultHashForRole(loggedInUser.role);
     setAuthUser(loggedInUser);
     setAuthenticated(true);
@@ -302,7 +304,7 @@ export default function App() {
   }
 
   function handleLogout() {
-    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    browserStorage.removeItem(AUTH_STORAGE_KEY);
     setAuthUser(null);
     setAuthenticated(false);
     setAuthReady(true);
@@ -363,7 +365,7 @@ function AppPresentation({
   useEffect(() => {
     if (!routeCourse.course) return;
     const remembered = backendCourseToSummary(routeCourse.course, 0);
-    window.localStorage.setItem("stitch-course", JSON.stringify(remembered));
+    browserStorage.setItem("stitch-course", JSON.stringify(remembered));
     setRememberedCourse(remembered);
   }, [routeCourse.course, setRememberedCourse]);
 
@@ -387,7 +389,7 @@ function AppPresentation({
   function rememberCourse(course: CourseSummary | null) {
     setRememberedCourse(course);
     if (course) {
-      window.localStorage.setItem("stitch-course", JSON.stringify(course));
+      browserStorage.setItem("stitch-course", JSON.stringify(course));
     }
   }
 
@@ -410,6 +412,7 @@ function AppPresentation({
           <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在进入对应工作区…</div>
         ) : authenticated ? (
           <>
+            <ResumeTracker />
             <DeferredGlobalJobManager
               enabled={!isVideoRenderRoute}
               showLauncher={authUser?.role !== "student" && !isCourseRoute && !isStudentWorkspace}

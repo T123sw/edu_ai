@@ -1,7 +1,6 @@
-import { useEffect, type ComponentType } from "react";
+import { type ComponentType } from "react";
 
 import { CourseShell } from "../course/CourseShell";
-import { useCourseRoute } from "../course/CourseRouteProvider";
 import { AIWorkspacePage } from "../pages/AIWorkspace";
 import { ClassroomStudioPage } from "../pages/ClassroomStudio";
 import { CourseDetailPage } from "../pages/CourseDetail";
@@ -13,7 +12,6 @@ import { StudentPersonalKnowledgePage } from "./pages/StudentPersonalKnowledge";
 import { StudentRouteGuard } from "./routes/StudentRouteGuard";
 import type { StudentRoute } from "./routes/studentRoutes";
 import { StudentShell } from "./shell/StudentShell";
-import { saveRecentLearningVisit } from "./pages/studentRecentLearning";
 
 const studentPages: Record<StudentRoute, ComponentType> = {
   "student-home": StudentHomePage,
@@ -35,14 +33,6 @@ const courseWorkspaceRoutes = new Set<StudentRoute>([
   "student-resources",
 ]);
 
-function RecentLearningTracker({ route }: { route: StudentRoute }) {
-  const { courseId } = useCourseRoute();
-  useEffect(() => {
-    if (courseId) saveRecentLearningVisit(courseId, route);
-  }, [courseId, route]);
-  return null;
-}
-
 export function StudentApp({ current }: { current: StudentRoute }) {
   const ActivePage = studentPages[current];
   const inCourseWorkspace = courseWorkspaceRoutes.has(current);
@@ -50,7 +40,6 @@ export function StudentApp({ current }: { current: StudentRoute }) {
     <StudentRouteGuard>
       {inCourseWorkspace ? (
         <CourseShell activeRoute={current}>
-          <RecentLearningTracker route={current} />
           <ActivePage />
         </CourseShell>
       ) : (

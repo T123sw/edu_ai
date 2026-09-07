@@ -1,3 +1,4 @@
+import { ResumeEntry } from "../../resume/ResumeEntry";
 import { useEffect, useMemo, useState } from "react";
 
 import { useJobStore } from "../../../jobs/jobStore";
@@ -19,7 +20,6 @@ import {
   type CourseCardFacts,
 } from "../../pages/courseCardPresentation";
 import { buildStudentHash } from "../routes/studentRoutes";
-import { loadRecentLearning, saveRecentLearningVisit, serializeRecentLearning, STUDENT_RECENT_LEARNING_KEY } from "./studentRecentLearning";
 import "../../pages/HomeDashboard.css";
 import "../styles/studentHome.css";
 
@@ -29,13 +29,6 @@ const emptyFacts: CourseCardFacts = {
   activeJobCount: 0,
   learningOverview: null,
 };
-
-function formatUpdatedAt(value?: string | null): string {
-  if (!value) return "课程内容可用";
-  const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return "课程内容可用";
-  return `更新于 ${new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "short", day: "numeric" }).format(timestamp)}`;
-}
 
 export function StudentHomePage() {
   const { setSelectedCourse } = useAppShell();
@@ -60,8 +53,6 @@ export function StudentHomePage() {
         const result = await listCourses();
         if (cancelled) return;
         setCourses(result);
-        const validRecent = loadRecentLearning(result.map((course) => course.id));
-        window.localStorage.setItem(STUDENT_RECENT_LEARNING_KEY, serializeRecentLearning(validRecent));
         const factEntries = await Promise.all(result.map(async (course) => {
           const [documents, resources, learning] = await Promise.all([
             getKnowledgeBaseDocuments(course.id, {
@@ -96,16 +87,7 @@ export function StudentHomePage() {
     return courses.filter((course) => `${course.title} ${course.description}`.toLocaleLowerCase().includes(normalized));
   }, [courses, query]);
 
-  const recentCourse = useMemo(() => {
-    const byId = new Map(courses.map((course) => [course.id, course]));
-    const record = loadRecentLearning(courses.map((course) => course.id))[0];
-    if (!record) return null;
-    const course = byId.get(record.courseId);
-    return course ? { record, course } : null;
-  }, [courses]);
-
-  function enterCourse(course: BackendCourse, index: number, route: "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources" = "student-course-detail") {
-    saveRecentLearningVisit(course.id, route);
+  function enterCourse(course: BackendCourse, index: number) {
     setSelectedCourse(backendCourseToSummary(course, index));
   }
 
@@ -149,9 +131,8 @@ export function StudentHomePage() {
         delete next[course.id];
         return next;
       });
-      const validRecent = loadRecentLearning(courses.filter((item) => item.id !== course.id).map((item) => item.id));
-      window.localStorage.setItem(STUDENT_RECENT_LEARNING_KEY, serializeRecentLearning(validRecent));
       setSelectedCourse(null);
+      setLoadVersion((value) => value + 1);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "退出课程失败，请稍后重试。");
     } finally {
@@ -161,6 +142,7 @@ export function StudentHomePage() {
 
   return (
     <div className="student-home">
+      <ResumeEntry refreshToken={loadVersion} />
       <section className="teacher-home__intro student-home__intro">
         <div>
           <p className="teacher-home__eyebrow">学生课程工作台</p>
@@ -199,19 +181,6 @@ export function StudentHomePage() {
           </div>
         </div>
       </section>
-
-      {recentCourse && !query ? (
-        <section className="student-home__section" aria-labelledby="recent-learning-title">
-          <div className="student-home__section-head"><div><h2 id="recent-learning-title">最近学习</h2><p>回到上次使用的课程功能</p></div></div>
-          <div className="student-home__recent-list">
-            <a href={buildStudentHash(recentCourse.record.lastRoute, { courseId: recentCourse.course.id })} onClick={() => enterCourse(recentCourse.course, courses.findIndex((course) => course.id === recentCourse.course.id), recentCourse.record.lastRoute as "student-course-detail" | "student-ai" | "student-course-knowledge" | "student-classroom" | "student-resources")}>
-              <span className="student-home__recent-icon"><MaterialIcon name="menu_book" /></span>
-              <span><strong>{recentCourse.course.title}</strong><small>{formatUpdatedAt(recentCourse.record.visitedAt)}</small></span>
-              <MaterialIcon name="arrow_forward" />
-            </a>
-          </div>
-        </section>
-      ) : null}
 
       <section className="student-home__section" aria-labelledby="my-courses-title">
         <div className="teacher-home__section-head"><div><h2 id="my-courses-title">我的课程</h2><p>{courses.length > 0 ? `${courses.length} 门已加入课程` : "查看已加入的课程"}</p></div></div>

@@ -9,7 +9,8 @@ test("student home reuses the teacher course catalog presentation", async () => 
   assert.match(source, /teacher-home__intro/);
   assert.match(source, /teacher-course-grid/);
   assert.match(source, /teacher-course-card__metrics/);
-  assert.match(source, /最近学习/);
+  assert.match(source, /<ResumeEntry/);
+  assert.doesNotMatch(source, /最近学习|student-home__recent-list/);
   assert.doesNotMatch(source, /student-home__hero/);
 });
 
