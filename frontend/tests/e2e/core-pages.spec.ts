@@ -30,13 +30,17 @@ test("home renders one searchable factual course entry", async ({ teacherPage })
   await expect(teacherPage.getByText("没有找到匹配的课程。", { exact: true })).toBeVisible();
 });
 
-test("course overview shows resource counts and five stable entries", async ({ teacherPage }) => {
+test("course overview presents course information and one workspace entry", async ({ teacherPage }) => {
   await teacherPage.goto("/#course-detail?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await expect(teacherPage.locator(".course-overview__facts article")).toHaveCount(2);
-  await expect(teacherPage.locator(".course-overview__entries a")).toHaveCount(5);
-  await expect(teacherPage.getByRole("link", { name: "开始问答或生成" })).toBeVisible();
+  const overview = teacherPage.locator(".course-overview");
+  await expect(overview.getByRole("heading", { name: physicsCourse.title })).toBeVisible();
+  await expect(overview.getByText(physicsCourse.description, { exact: true })).toBeVisible();
+  await expect(overview.locator("a")).toHaveCount(1);
+  await expect(overview.getByRole("link", { name: "开始备课" })).toHaveAttribute("href", "#ai?course_id=course-physics");
   await expect(teacherPage.locator(".course-overview img")).toHaveCount(0);
   expect(await teacherPage.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await overview.getByRole("link", { name: "开始备课" }).click();
+  await expect(teacherPage).toHaveURL(/#ai\?course_id=course-physics$/);
 });
 
 test("viewer settings is a factual read-only view", async ({ teacherPage }) => {

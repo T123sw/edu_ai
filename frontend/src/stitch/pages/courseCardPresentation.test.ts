@@ -41,12 +41,9 @@ test("course card presentation contains only factual metrics", () => {
   assert.equal(card.learningStatusLabel, null);
 });
 
-test("course overviews count only personal resources", async () => {
-  const courseDetail = await readFile(new URL("./CourseDetail.tsx", import.meta.url), "utf8");
+test("course home counts only personal resources", async () => {
   const homeDashboard = await readFile(new URL("./HomeDashboard.tsx", import.meta.url), "utf8");
-  assert.match(courseDetail, /getCourseMaterials\(course\.id,\s*\{\s*space:\s*["']mine["']/u);
   assert.match(homeDashboard, /getCourseMaterials\(course\.id,\s*\{\s*space:\s*["']mine["']/u);
-  assert.doesNotMatch(courseDetail, /课程资源|资源管理|课程共享/u);
 });
 
 test("course card omits developer-facing permission and revision fields", () => {
