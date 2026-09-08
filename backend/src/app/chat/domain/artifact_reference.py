@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 
 class ArtifactReferencePayload(BaseModel):
+    content_hash: str | None = None
     artifact_id: str
     artifact_type: Literal["report", "report_outline", "lesson_plan", "blog", "quiz", "flashcard", "graph", "game", "classroom"]
     version_id: str | None = None

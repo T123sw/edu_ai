@@ -225,8 +225,8 @@ def test_last_array_report_does_not_select_newer_linked_list(manager):
     seed(manager, artifact_id="arrays", created_at="2026-09-01T00:00:00")
     seed(manager, artifact_id="linked-list", title="链表报告", created_at="2026-09-02T00:00:00")
     result = run(ArtifactRevisionService(manager, Model(edit())), question="将上次生成的数组报告修改一下，增加案例")
-    assert result["status"] == "completed", result
-    assert result["artifact_reference"]["artifact_id"] == "arrays"
+    assert result["status"] == "needs_clarification", result
+    assert [r["artifact_id"] for r in result["candidates"]] == ["arrays"]
 
 
 def test_published_snapshot_and_source_links_unchanged(manager):
@@ -278,6 +278,10 @@ def test_shared_reply_entry_reads_and_saves_for_both_modes(manager, stream, butt
         result = events[0]["payload"]
     else:
         result = service.reply(payload)
+    if not button:
+        assert result["artifact_revision"]["status"] == "needs_clarification", result
+        payload.question = "1"
+        result = list(service.reply_stream(payload))[0]["payload"] if stream else service.reply(payload)
     assert result["artifact_revision"]["status"] == "completed", result
     assert result["artifacts"][0]["version_id"] == "v2"
     assert manager.get_generated_material("course", "report", "one", owner_user_id="teacher")["version"] == 2
@@ -403,3 +407,32 @@ def test_missing_revision_skill_fails_without_model_or_write(manager, tmp_path):
     assert '技能未加载' in result['message']
     assert model.prompts == []
     assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
+
+
+def test_named_single_material_requires_confirmation_then_edits(manager):
+    seed(manager)
+    model = Model(edit())
+    service = ArtifactRevisionService(manager, model)
+    result = run(service, question="帮我修改数组报告，简化案例")
+    assert result["status"] == "needs_clarification"
+    assert len(result["candidates"]) == 1
+    assert not model.prompts
+    result = run(service, question="1", pending=result["pending"])
+    assert result["status"] == "completed"
+
+
+def test_explicit_reference_hash_reads_without_target_confirmation(manager):
+    from app.artifact_revision.service import reference
+    seed(manager)
+    material = manager.get_generated_material("course", "report", "one", owner_user_id="teacher")
+    ref = reference(material)
+    assert ref["content_hash"]
+    model = Model({"answer": "文档包含独特段落和原始案例。"})
+    service = ArtifactRevisionService(manager, model)
+    result = run(service, ref, question="《数组报告》这个文档写了什么")
+    assert result["status"] == "answered", result
+    assert result["artifact_reference"]["content_hash"] == ref["content_hash"]
+    assert manager.get_generated_material("course", "report", "one", owner_user_id="teacher")["version"] == 1
+    mismatch = run(service, {**ref, "content_hash": "wrong"}, question="《数组报告》解释案例", operation_id="op-2")
+    assert mismatch["status"] == "conflict", mismatch
+    assert len(model.prompts) == 1

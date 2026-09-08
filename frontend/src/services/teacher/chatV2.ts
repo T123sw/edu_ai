@@ -69,6 +69,7 @@ export interface ChatVideoUploadResponseV2 {
 
 export interface ChatArtifactReference {
   artifact_id: string;
+  content_hash?: string;
   artifact_type: 'report' | 'report_outline' | 'lesson_plan' | 'blog' | 'quiz' | 'flashcard' | 'graph' | 'game' | 'classroom';
   version_id?: string;
   title?: string;

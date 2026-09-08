@@ -5,7 +5,7 @@ import { buildRoleCourseHash } from '../../stitch/shared/routes/roleCourseRouteR
 import { useAuthSession } from '../../stitch/authSession';
 import { subscribeRevisionIntent, clearRevisionIntent, type ArtifactRevisionReference } from '../../stitch/artifactRevision/intent';
 import { RevisionHistoryDialog } from './RevisionHistoryDialog';
-import { EditReference, RevisionResult } from '../../stitch/artifactRevision/components';
+import { RevisionResult } from '../../stitch/artifactRevision/components';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
@@ -184,6 +184,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const pendingOperationRef = useRef<{ conversationId: string; operationId: string } | null>(null);
   const pendingRevisionIntent = useRef<ArtifactRevisionReference | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [draftReferenceLabel, setDraftReferenceLabel] = useState<string | null>(null);
   const [revisionHistory, setRevisionHistory] = useState<ArtifactRevisionReference | null>(null);
   const [revisionOutcome, setRevisionOutcome] = useState<ArtifactRevisionOutcome | null>(null);
   const [clarification, setClarification] = useState<ScopeClarification | null>(null);
@@ -787,6 +788,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           setArtifactReference({
             artifact_id: String((stateArtifactReference as any).artifact_id || '').trim(),
             artifact_type: normalizeArtifactReferenceType((stateArtifactReference as any).artifact_type),
+            content_hash: (stateArtifactReference as any).content_hash || undefined,
             version_id: String((stateArtifactReference as any).version_id || '').trim() || undefined,
             title: String((stateArtifactReference as any).title || '').trim() || undefined,
             source_conversation_id: String((stateArtifactReference as any).source_conversation_id || detail.conversation_id || '').trim() || undefined,
@@ -879,6 +881,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setCurrentConversationId(null);
     setLoadingConversationId(null);
     setInputValue('');
+    setDraftReferenceLabel(null);
     setStatusCard(null);
     setWorkflowType(null);
     setWorkflowStatus(null);
@@ -1096,17 +1099,20 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   useEffect(() => subscribeRevisionIntent((intent) => {
     if (intent.ownerUserId !== authenticatedUser?.username) return;
     pendingRevisionIntent.current = intent.reference;
-    setInputValue('');
+    const label = `《${intent.reference.title || intent.reference.artifact_id}》`;
+    setInputValue(previous => `${draftReferenceLabel ? previous.replace(draftReferenceLabel, '').trim() : previous.trim()} ${label} `.trimStart());
+    setDraftReferenceLabel(label);
     if (initializedWorkspaceRef.current === workspaceIdentity && courseId === intent.reference.source_course_id) {
       setArtifactReference(intent.reference);
       pendingRevisionIntent.current = null;
       document.querySelector<HTMLTextAreaElement>('.chat-panel textarea')?.focus();
     }
-  }), [authenticatedUser?.username, courseId, workspaceIdentity, setArtifactReference]);
+  }), [authenticatedUser?.username, courseId, workspaceIdentity, setArtifactReference, draftReferenceLabel]);
 
   const handleClearRevisionReference = () => {
     pendingRevisionIntent.current = null;
     clearRevisionIntent();
+    setDraftReferenceLabel(null);
     const pending = pendingOperationRef.current;
     pendingOperationRef.current = null;
     if (pending) void cancelChatPendingOperation(pending.conversationId, pending.operationId).catch(() => message.error('取消待处理操作失败，请重试'));
@@ -1139,6 +1145,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     userMessage.inputVideos = inputVideos;
     addMessage(userMessage);
     setInputValue('');
+    setDraftReferenceLabel(null);
     setIsLoading(true);
     setQueuedMessage(null);
 
@@ -2003,7 +2010,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           {revisionOutcome.candidates?.map((candidate, index) => <Button key={candidate.artifact_id} disabled={isLoading}
             onClick={() => void handleSendMessage(String(index + 1))}>{index + 1}. {candidate.title || candidate.artifact_id}</Button>)}
         </div>}
-        {artifactReference && <EditReference reference={{ ...artifactReference, version_id: artifactReference.version_id || '', source_course_id: artifactReference.source_course_id || courseId || '' }} onClose={handleClearRevisionReference} />}
 
       <input
         ref={imageInputRef}
@@ -2105,7 +2111,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               autoSize={{ minRows: 2, maxRows: 6 }}
               placeholder={isTranscribing ? '正在识别语音...' : '开始输入问题…（Shift + Enter 换行）'}
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setInputValue(value);
+                if (draftReferenceLabel && !value.includes(draftReferenceLabel)) handleClearRevisionReference();
+              }}
               onPaste={(event) => { void handleImagePaste(event); }}
               onPressEnter={(e) => {
                 if (!e.shiftKey) {

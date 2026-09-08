@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from uuid import uuid4
+import re
 
 from app.chat.agents.report_generation import get_fallback_llm
 from app.chat.application.request_normalizer import normalize_chat_request
@@ -167,6 +168,11 @@ class ReplyServiceV2:
             state = storage.get_state(request.conversation_id)
             pending = state.get("pending_operation") or {}
             revision_pending = pending.get("revision_pending") if pending.get("kind") == "artifact_revision" else None
+            incoming = request.artifact_reference
+            old_reference = (revision_pending or {}).get("reference") or {}
+            if incoming and revision_pending and (incoming.artifact_id != old_reference.get("artifact_id") or incoming.source_course_id != old_reference.get("source_course_id")):
+                revision_pending = None
+                storage.update_state(request.conversation_id, {"pending_operation": None})
             operation_id = pending.get("id") if revision_pending else (request.request_id or uuid4().hex)
             source_course = getattr(request.artifact_reference, "source_course_id", None)
             if source_course and source_course != request.course_id and self.knowledge_context_service:
@@ -210,9 +216,15 @@ class ReplyServiceV2:
             )
         return None
 
-    @staticmethod
-    def _model_plans(request):
+    def _model_plans(self, request):
         from app.chat.harness.runtime import HarnessRuntime
+        storage = getattr(self.conversation_store, "storage", None)
+        state = storage.get_state(request.conversation_id) if storage is not None else {}
+        state = state or {}
+        if (state.get("pending_operation") or {}).get("kind") == "artifact_revision":
+            return False
+        if re.search(r"修改|改写|重写|调整|简化|改一下|删掉", request.question) and re.search(r"报告|文档|教案|习题|闪卡|博客|导图|游戏|课堂", request.question) and "大纲" not in request.question:
+            return False
         return bool(Config.USE_DEEPSEEK_HARNESS and HarnessRuntime.supports(request))
 
     def _prepare_workspace(self, request):

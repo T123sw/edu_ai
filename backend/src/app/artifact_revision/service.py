@@ -16,7 +16,7 @@ _LABELS = {"report": "报告", "report_outline": "大纲", "lesson_plan": "教�
 
 
 def reference(material, kind=None):
-    return {"artifact_id": material["material_id"], "artifact_type": kind or material["material_type"], "version_id": f'v{material["version"]}', "title": material.get("title") or material.get("topic") or material["material_id"], "source_course_id": material["course_id"]}
+    return {"content_hash": material.get("content_hash"), "artifact_id": material["material_id"], "artifact_type": kind or material["material_type"], "version_id": f'v{material["version"]}', "title": material.get("title") or material.get("topic") or material["material_id"], "source_course_id": material["course_id"]}
 
 
 class ArtifactRevisionService:
@@ -63,8 +63,9 @@ class ArtifactRevisionService:
             if explicit_title and not frozen_target:
                 named_title = explicit_title[1] or explicit_title[2]
                 matches = [m for m in candidates if named_title in str(m.get("title") or m.get("topic") or "")]
-                if len(matches) == 1:
-                    ref = reference(matches[0])
+                if len(matches) == 1 and (pending or (ref and matches[0]["material_id"] == ref["artifact_id"])):
+                    if not ref or matches[0]["material_id"] != ref["artifact_id"]:
+                        ref = reference(matches[0])
                 elif not ref or named_title not in str(ref.get("title") or ""):
                     state["reference"] = None
                     state["candidate_references"] = [reference(m) for m in matches]
@@ -75,11 +76,6 @@ class ArtifactRevisionService:
                 mentioned = [k for k, label in _LABELS.items() if label in state["question"]]
                 if mentioned:
                     candidates = [m for m in candidates if m["material_type"] in mentioned]
-                    label_pattern = "|".join(re.escape(_LABELS[k]) for k in mentioned)
-                    topic_match = re.search(r"(?:生成的|的)([^，。！？\s]{1,30}?)(?:" + label_pattern + r")", state["question"])
-                    if topic_match:
-                        topic = topic_match[1]
-                        candidates = [m for m in candidates if topic in str(m.get("title") or "") or topic in str(m.get("topic") or "")]
                 # Use known title words rather than a fuzzy top score.
                 matched = [m for m in candidates if str(m.get("title") or "").strip() and str(m["title"]).removesuffix(".md") in question]
                 if matched:
@@ -106,7 +102,7 @@ class ArtifactRevisionService:
                     index = int(choice[1]) - 1
                     if 0 <= index < len(choices):
                         ref = choices[index]
-                if not ref and len(candidates) == 1:
+                if not ref and len(candidates) == 1 and pending:
                     ref = reference(candidates[0])
                 if not ref:
                     refs = [dict(reference(m), created_at=m.get("created_at"), scope_id=m.get("scope_id")) for m in candidates[:20]]
@@ -117,7 +113,7 @@ class ArtifactRevisionService:
             stored_kind = "report" if kind == "report_outline" else kind
             target_course = ref.get("source_course_id") or course_id
             if not target_course:
-                return self._clarify("请提供资料所属课程或从资料预览选择“让 AI 修改”。", state)
+                return self._clarify("请提供资料所属课程或从资料预览选择“引用”。", state)
             material = self.storage.get(target_course, stored_kind, ref["artifact_id"], owner_user_id)
             base = int(str(ref.get("version_id") or f'v{material["version"]}').removeprefix("v"))
             state["reference"] = reference(material, kind) | {"version_id": f"v{base}"}
@@ -129,6 +125,8 @@ class ArtifactRevisionService:
             if material["version"] != base:
                 raise RevisionConflict("资料已有新版本，请查看变化后使用最新版重试")
             source = self.storage.version(target_course, stored_kind, ref["artifact_id"], owner_user_id, base)
+            if ref.get("content_hash") and ref["content_hash"] != source.get("content_hash"):
+                raise RevisionConflict("引用的资料内容已变化，请重新引用当前文档")
             content = self._content(source, kind)
             if self.submitter is not None:
                 return self.submitter(state=state, source=source, current_question=question, prior_pending=pending)

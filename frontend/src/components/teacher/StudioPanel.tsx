@@ -9,6 +9,7 @@ import { MaterialIcon } from "../../stitch/shared";
 import "../../stitch/pages/courseResources.css";
 import "../../stitch/course/classroomCatalog/courseClassroomCatalog.css";
 
+import { createRevisionIntent, dispatchRevisionIntent } from "../../stitch/artifactRevision/intent";
 import { getGenerationTools } from "../../stitch/api/generationTools";
 import type { GenerationToolId } from "../../stitch/shared/generation/generationCatalog";
 import { useAuthSession } from "../../stitch/authSession";
@@ -73,6 +74,8 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
     return () => { cancelled = true; };
   }, [reloadKey]);
 
+  const referenceIntent = material ? createRevisionIntent(material, user?.username || "") : null;
+
   if (collapsed) {
     return <button type="button" className="generation-factory-collapsed" onClick={onToggleCollapsed} aria-label="打开生成工厂">生成</button>;
   }
@@ -87,7 +90,7 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
           <ClassroomPlaybackSurface courseId={activePreview.courseId} classroomId={activePreview.materialId} mode="manage" kind="personal_classroom" />
         </Suspense> : previewError ? <div role="alert"><p>文件暂时无法加载，请重试。</p><button type="button" onClick={() => setPreviewRetry(value => value + 1)}>重新加载</button></div>
           : !material ? <p role="status">正在打开文件…</p>
-          : <CourseMaterialArtifactPreview key={`${material.material_type}:${material.material_id}`} material={material} />}
+          : <CourseMaterialArtifactPreview key={`${material.material_type}:${material.material_id}`} material={material} onReference={referenceIntent ? () => dispatchRevisionIntent(referenceIntent) : undefined} />}
       </div>
     </section>;
   }

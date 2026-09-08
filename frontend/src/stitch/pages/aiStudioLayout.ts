@@ -14,7 +14,7 @@ export type AiStudioGridOptions = AiStudioPanelState & {
 const COLLAPSED_WIDTH = "72px";
 const EXPANDED_WIDTH = "clamp(320px, 24vw, 520px)";
 const PREVIEW_WIDTH = "clamp(420px, 32vw, 720px)";
-const RIGHT_PREVIEW_WIDTH = "clamp(520px, 42vw, 960px)";
+const RIGHT_PREVIEW_WIDTH = "clamp(440px, 34vw, 700px)";
 
 export function getAiStudioLayoutMode(contentWidth: number): AiStudioLayoutMode {
   if (contentWidth >= 1540) return "wide";
@@ -47,7 +47,7 @@ export function getAiStudioGridTemplate(options: AiStudioGridOptions): string {
       : "minmax(320px, 420px)";
     const rightColumn = state.rightCollapsed
       ? COLLAPSED_WIDTH
-      : options.rightPreviewOpen ? "minmax(480px, 52%)" : "minmax(320px, 420px)";
+      : options.rightPreviewOpen ? "minmax(420px, 43%)" : "minmax(320px, 420px)";
     return `${leftColumn} minmax(0, 1fr) ${rightColumn}`;
   }
 

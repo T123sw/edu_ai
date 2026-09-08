@@ -4,6 +4,7 @@ export const ARTIFACT_REVISION_TYPES = ["report", "report_outline", "lesson_plan
 export type ArtifactRevisionType = typeof ARTIFACT_REVISION_TYPES[number];
 export type ArtifactRevisionReference = {
   artifact_id: string;
+  content_hash?: string;
   artifact_type: ArtifactRevisionType;
   version_id: string;
   title?: string;
@@ -23,7 +24,7 @@ export function createRevisionIntent(material: CourseMaterial, ownerUserId: stri
   if (!kind) return null;
   return { ownerUserId, reference: {
     artifact_id: material.material_id, artifact_type: kind,
-    version_id: `v${material.version}`, title: material.title || material.topic || material.material_id,
+    content_hash: material.content_hash, version_id: `v${material.version}`, title: material.title || material.topic || material.material_id,
     source_course_id: material.course_id,
   } };
 }

@@ -458,6 +458,7 @@ class ConversationStoreAdapter:
                     "artifact_id": str(active_reference.get("artifact_id") or next_reference.get("artifact_id") or ""),
                     "artifact_type": str(active_reference.get("artifact_type") or next_reference.get("artifact_type") or ""),
                     "title": active_reference.get("title") or next_reference.get("title"),
+                    "content_hash": active_reference.get("content_hash"),
                     "version_id": str((active_reference.get("version") or {}).get("version_id") or next_reference.get("version_id") or "") or None,
                     "source_conversation_id": str(next_reference.get("source_conversation_id") or conversation_id or "") or None,
                     "source_course_id": str(next_reference.get("source_course_id") or getattr(request, "course_id", None) or "") or None,

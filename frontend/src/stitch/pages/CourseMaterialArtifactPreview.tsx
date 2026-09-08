@@ -93,15 +93,15 @@ function GamePreview({ material }: { material: CourseMaterial }) {
   return <div className="resource-game-preview"><iframe title={material.title || "小游戏预览"} src={asset.url} sandbox="allow-scripts allow-forms" /><a href={asset.url} target="_blank" rel="noreferrer">在新窗口打开小游戏</a></div>;
 }
 
-export function CourseMaterialArtifactPreview({ material }: { material: CourseMaterial }) {
+export function CourseMaterialArtifactPreview({ material, onReference }: { material: CourseMaterial; onReference?: () => void }) {
   const previewKind = getCourseMaterialPreviewKind(material);
   const markdown = useMemo(() => courseMaterialToMarkdown(material), [material]);
-  const exportButton = <button type="button" onClick={() => downloadMaterialFile(material, markdown)} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">导出</button>;
+  const exportButton = <><button type="button" onClick={() => downloadMaterialFile(material, markdown)} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">导出</button>{onReference && <button type="button" onClick={onReference} className="ml-2 rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">引用</button>}</>;
   if (previewKind === "blog") return <><div className="mb-3 flex justify-end">{exportButton}</div><BlogArtifactPreview material={material} markdown={markdown} /></>;
   if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview material={material} /></>;
   if (previewKind === "flashcard") return <><div className="mb-3 flex justify-end">{exportButton}</div><FlashcardPreview material={material} /></>;
-  if (previewKind === "mind-map") return <MindMapPreview material={material} />;
-  if (previewKind === "game") return <GamePreview material={material} />;
+  if (previewKind === "mind-map") return <><div className="mb-3 flex justify-end">{exportButton}</div><MindMapPreview material={material} /></>;
+  if (previewKind === "game") return <><div className="mb-3 flex justify-end">{exportButton}</div><GamePreview material={material} /></>;
   if (previewKind === "rich-text") return <><div className="mb-3 flex justify-end">{exportButton}</div><div className="edu-rich-preview"><MarkdownPreview content={markdown} /></div></>;
   return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>此资源暂时无法在线预览，请选择其他资源。</p></div>;
 }

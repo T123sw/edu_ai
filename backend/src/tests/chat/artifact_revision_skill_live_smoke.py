@@ -23,14 +23,15 @@ def main(output_dir):
     for key in ('TASKS_DB_PATH', 'AGENT_RUNS_DB_PATH', 'AGENT_MEMORY_DB_PATH'):
         os.environ[key] = str(root / (key.lower() + '.db'))
     from core.course_storage import CourseStorageManager
-    from app.artifact_revision.service import ArtifactRevisionService
+    from app.artifact_revision.service import ArtifactRevisionService, reference
     from app.chat.agents.report_generation import get_fallback_llm
     manager = CourseStorageManager(root / 'materials')
     owner, course, mid = 'skill-smoke-teacher', 'skill-smoke-course', 'linked-list-smoke'
     source = '# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。'
     assert manager.save_generated_material(course, 'report', mid, {'title': '链表的实现', 'content': source}, owner_user_id=owner, visibility='private', scope_type='knowledge_point', scope_id='linked-list')
     service = ArtifactRevisionService(manager, get_fallback_llm())
-    ref = {'artifact_id': mid, 'artifact_type': 'report', 'version_id': 'v1', 'source_course_id': course}
+    ref = reference(manager.get_generated_material(course, 'report', mid, owner_user_id=owner))
+    assert ref['content_hash']
     def run(question, operation):
         return service.run(owner_user_id=owner, conversation_id='skill-smoke', course_id=course, question=question, operation_id=operation, artifact_reference=ref)
     read = run('这个文档写的什么', 'read-1')
