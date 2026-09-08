@@ -233,21 +233,29 @@ class HarnessRuntime:
         for item in successful:
             if item["tool"] in {"rag_search", "web_search"}:
                 result["sources"].extend(item["data"]["sources"])
-        actions = [item for item in successful if item["tool"] in {"draft_report_outline", "submit_report", "query_report_job", "cancel_report_job"}]
-        queried = {item['data']['task_id']: item['data'] for item in actions if item['tool'] == 'query_report_job'}
-        if actions and actions[-1]['tool'] == 'query_report_job' and len(queried) > 1:
-            # Inspection of several candidates does not select the final one.
-            lines = []
-            for data in queried.values():
-                passed = (data.get('verification') or {}).get('decision') == 'pass'
-                label = '已生成并通过模型审阅' if passed else {
-                    'succeeded': '已生成，但尚未通过当前交付校验',
-                    'failed': '生成失败', 'canceled': '已取消',
-                    'queued': '排队中', 'running': '生成中',
-                }.get(data['status'], '需要继续核对状态')
-                date = str(data.get('created_at') or '')
-                lines.append(f"- 《{data.get('title') or '报告'}》{('（' + date + '）') if date else ''}：{label}")
-            result['message']['content'] = '查到了多份报告，状态分别是：\n\n' + '\n'.join(lines) + '\n\n你指的是哪一份？'
+        actions = [item for item in successful if item["tool"] in {"draft_report_outline", "submit_report", "cancel_report_job"}]
+        queried = {item['data']['task_id']: item['data'] for item in successful if item['tool'] == 'query_report_job'}
+        if queried and not actions:
+            # Reading an existing report is a conversational answer, not a new job.
+            # Keep the same answer the user saw streamed; attach verified data separately.
+            if len(queried) == 1:
+                data = next(iter(queried.values()))
+                result['verification'] = data.get('verification')
+                if (data.get('verification') or {}).get('decision') == 'pass' and data.get('artifact'):
+                    result['artifacts'] = [data['artifact']]
+            if not str(answer or '').strip():
+                lines = []
+                for data in queried.values():
+                    passed = (data.get('verification') or {}).get('decision') == 'pass'
+                    label = '已生成并通过模型审阅' if passed else {
+                        'succeeded': '已生成，但尚未通过当前交付校验',
+                        'failed': '生成失败', 'canceled': '已取消',
+                        'queued': '排队中', 'running': '生成中',
+                    }.get(data['status'], '需要继续核对状态')
+                    lines.append(f"《{data.get('title') or '报告'}》：{label}")
+                result['message']['content'] = '\n\n'.join(lines)
+                if len(queried) > 1:
+                    result['message']['content'] += '\n\n你指的是哪一份？'
             return result
         if actions:
             last = actions[-1]
@@ -265,21 +273,6 @@ class HarnessRuntime:
             elif last["tool"] == "submit_report":
                 result["message"]["content"] = "正在生成报告，完成后会在这里显示。"
                 result["workflow"] = {"type": "report", "status": "running", "stage": "generating"}
-                result["task_id"] = data["task_id"]
-            elif last["tool"] == "query_report_job":
-                passed = (data.get("verification") or {}).get("decision") == "pass"
-                result["message"]["content"] = "报告已生成并通过模型审阅，可查看正文。" if passed else {"queued": "报告正在排队生成。", "submitted": "报告已提交，正在等待生成。", "running": "正在生成报告。", "failed": "报告生成未完成。", "canceled": "报告生成已取消。", "succeeded": "报告已生成，正在核对结果。"}.get(data["status"], "正在处理报告。")
-                if data.get("failure_reason"):
-                    result["message"]["content"] += data["failure_reason"]
-                if data.get("verification") and not passed:
-                    result["message"]["content"] += "正文尚未通过审阅或审阅版本已失效，暂不作为完成报告交付。"
-                if passed:
-                    result["artifacts"] = [data["artifact"]]
-                status = "completed" if passed else (
-                    "failed" if data.get("verification") or data["status"] in {"failed", "partially_succeeded"}
-                    else "interrupted" if data["status"] == "canceled" else "running")
-                result["workflow"] = {"type": "report", "status": status, "stage": "result_check"}
-                result["verification"] = data.get("verification")
                 result["task_id"] = data["task_id"]
             elif last["tool"] == "cancel_report_job":
                 result["message"]["content"] = "已提交取消请求。"

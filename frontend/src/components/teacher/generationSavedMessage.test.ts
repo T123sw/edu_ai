@@ -39,3 +39,8 @@ test("polled generation keeps ordinary chat replies when no resource was created
     "这是普通问答回复。",
   );
 });
+
+test("reading an existing report keeps the streamed explanation even with an attachment", () => {
+  const answer = "报告已完成。文档中的链表节点包含数据域和指针域。";
+  assert.equal(resolveGenerationReply({ generatedResourceCount: 1, fallbackMessage: answer, preserveAnswer: true }), answer);
+});

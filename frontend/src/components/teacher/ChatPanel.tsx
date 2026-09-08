@@ -1378,6 +1378,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       const replyText = resolveGenerationReply({
         generatedResourceCount: generatedFiles.length,
         fallbackMessage: String(response.message?.content || ''),
+        preserveAnswer: response.action?.name === 'chat.reply' || response.workflow?.stage === 'result_check',
       });
 
       updateLastMessage({

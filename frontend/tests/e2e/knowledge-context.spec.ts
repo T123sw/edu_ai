@@ -243,3 +243,36 @@ test('result-only report task updates the conversation when the job completes', 
   await expect(page.getByText('报告已完成，可查看资料。', { exact: true })).toBeVisible({ timeout: 20000 });
   await expect(page.getByText('正在生成报告，完成后会在这里显示。', { exact: true })).toHaveCount(0);
 });
+
+test('report readback keeps its explanation through final delivery and a follow-up', async ({ teacherPage: page }) => {
+  await page.route('**/api/courses/*/knowledge-graph', route => route.fulfill({ json: graph }));
+  const answer = '报告已经完成。文档中的链表节点包含数据域和指针域，插入时先连接后继节点。';
+  const followUp = '继续刚才的插入操作：先让新节点指向后继，再让前驱指向新节点。';
+  const requests: Array<{ conversation_id?: string }> = [];
+  let taskPolls = 0;
+  await page.route('**/api/chat/tasks/**', route => { taskPolls++; return route.fulfill({ json: {} }); });
+  await page.route('**/api/chat/v2/stream', route => {
+    requests.push(route.request().postDataJSON());
+    const content = requests.length === 1 ? answer : followUp;
+    const payload = { message: { role: 'assistant', content }, conversation: { conversation_id: 'read-existing-report' },
+      action: { name: 'chat.reply' }, workflow: null, verification: { decision: 'pass' },
+      artifacts: [{ artifact_id: 'existing-linked-list-report', artifact_type: 'report', title: '链表的实现', content: '# 链表的实现\n\n这是已经存在的报告正文。' }],
+      sources: [], trace: { path: 'deepseek-harness' } };
+    const events = [
+      { type: 'tool_call', payload: { tool: 'query_report_job', call_id: 'read-only', args: { task_id: 'existing-job' } } },
+      { type: 'delta', payload: { content } },
+      { type: 'result', payload }, { type: 'done', payload: {} },
+    ];
+    return route.fulfill({ contentType: 'text/event-stream', body: events.map(e => `data: ${JSON.stringify(e)}\n\n`).join('') });
+  });
+  await page.goto('/#ai?course_id=course-physics');
+  const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+  await input.fill('现在完成了吗，文档写了什么？'); await input.press('Enter');
+  await expect(page.getByText(answer, { exact: true })).toBeVisible();
+  await input.fill('继续解释插入操作'); await input.press('Enter');
+  await expect(page.getByText(followUp, { exact: true })).toBeVisible();
+  await expect(page.getByText(answer, { exact: true })).toBeVisible();
+  await expect(page.getByText('生成完成，已保存到“我的资源”，仅你可见。', { exact: true })).toHaveCount(0);
+  expect(requests[1].conversation_id).toBe('read-existing-report');
+  expect(taskPolls).toBe(0);
+});

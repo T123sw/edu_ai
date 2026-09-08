@@ -155,9 +155,86 @@ def test_multiple_queries_do_not_replace_completed_report_with_last_failure(tmp_
             {'ok': True, 'tool': 'query_report_job', 'data': {
                 'task_id': 'failed', 'title': '链表旧版', 'status': 'failed'}},
         ]
-        result = HarnessRuntime._result(request(), '还没有完成', tools)
+        result = HarnessRuntime._result(request(), '', tools)
         assert '已生成并通过模型审阅' in result['message']['content']
         assert '生成失败' in result['message']['content']
         assert '哪一份' in result['message']['content']
         assert result['artifacts'] == [] and result['workflow'] is None
         assert 'task_id' not in result
+
+
+@pytest.mark.parametrize('status,verification', [('succeeded', 'pass'), ('succeeded', 'fail'), ('running', None), ('failed', None)])
+def test_read_answer_is_preserved_without_generation_workflow(tmp_path, status, verification):
+    answer = '这份报告讨论了链表节点、插入和删除；下面继续解释插入时指针的更新顺序。'
+    with HarnessStore(tmp_path).session(request()) as state:
+        tools = toolset(request(), state)
+        tools.outcomes = [{'ok': True, 'tool': 'query_report_job', 'data': {
+            'task_id': 'existing', 'title': '链表', 'status': status,
+            'verification': {'decision': verification}, 'artifact': {'artifact_id': 'existing-report'}}}]
+        result = HarnessRuntime._result(request(), answer, tools)
+        assert result['message']['content'] == answer
+        assert result['action']['name'] == 'chat.reply'
+        assert result['workflow'] is None and 'task_id' not in result
+        assert bool(result['artifacts']) == (verification == 'pass')
+
+
+def test_inspecting_multiple_candidates_does_not_replace_model_explanation(tmp_path):
+    answer = '旧任务失败过，但你正在看的《链表》已经完成。文档首先介绍节点的结构。'
+    with HarnessStore(tmp_path).session(request()) as state:
+        tools = toolset(request(), state)
+        tools.outcomes = [{'ok': True, 'tool': 'query_report_job', 'data': {
+            'task_id': task_id, 'status': status}} for task_id, status in [('old', 'failed'), ('current', 'succeeded')]]
+        result = HarnessRuntime._result(request(), answer, tools)
+        assert result['message']['content'] == answer
+        assert result['artifacts'] == [] and 'task_id' not in result
+
+
+def test_stream_final_answer_and_next_turn_history_remain_identical(tmp_path):
+    answer = '报告已经完成。链表节点由数据域和指针域组成，插入时要先连接后继节点。'
+    prompts, instances = [], []
+    class SDK:
+        def __init__(self, **kwargs): pass
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def close(self): pass
+        def run(self, prompt, **kwargs):
+            prompts.append(prompt)
+            instances[-1].call('query_report_job', {'task_id': 'report-job'})
+            for text in [answer[:12], answer[12:]]:
+                kwargs['on_notification'](SimpleNamespace(method='session.event', payload={'event': {
+                    'type': 'assistant/chunk', 'data': {'chunk': {'type': 'text-delta', 'text': text}}}}))
+            return SimpleNamespace(final_response=answer, finish_reason='stop')
+    def factory(request, session, **kwargs):
+        tools = toolset(request, session, get_job=lambda _: job(), read_artifact=lambda *a: reviewed_artifact(), **kwargs)
+        instances.append(tools)
+        return tools
+    runtime = HarnessRuntime(store=HarnessStore(tmp_path), tool_factory=factory, sdk_factory=SDK)
+    events = list(runtime.run_stream(request=request(request_id='read'), snapshot=ConversationSnapshot()))
+    displayed = ''.join(e['payload']['content'] for e in events if e['type'] == 'delta')
+    final = next(e['payload'] for e in events if e['type'] == 'result')
+    assert displayed == final['message']['content'] == answer
+    assert not any(e['type'] == 'task_submitted' for e in events)
+    runtime.run(request=request(request_id='follow-up', question='继续解释插入操作'), snapshot=ConversationSnapshot())
+    data = json.loads(prompts[-1].split('\n', 1)[1])
+    assert data['history_reference'][-1]['content'] == answer
+
+
+def test_history_refresh_preserves_legacy_read_answers_but_updates_submissions(tmp_path):
+    from app.chat.persistence.task_status_projection import project_task_status
+    req = request()
+    answer = '报告已完成。下面解释文档中的节点结构。'
+    with HarnessStore(tmp_path).session(req) as state:
+        state.data['responses']['read'] = {'request': {**req.model_dump(), 'question': '文档写了什么'}, 'result': {
+            'task_id': 'existing', 'workflow': {'stage': 'result_check'}, 'message': {'content': answer}}}
+        state.save()
+    payload = {'conversation_id': req.conversation_id, 'course_id': req.course_id,
+               'state': {'task_messages': {'read-message': 'existing', 'submit-message': 'new'}},
+               'history': [{'role': 'user', 'content': '文档写了什么'},
+                           {'role': 'assistant', 'message_id': 'read-message', 'content': answer},
+                           {'role': 'assistant', 'message_id': 'submit-message', 'content': '正在生成'}]}
+    reads = []
+    tasks = SimpleNamespace(get=lambda task_id, **kw: reads.append(task_id) or {'status': 'succeeded'})
+    projected = project_task_status(payload, req.owner, task_store=tasks, harness_root=tmp_path)
+    assert projected['history'][1]['content'] == answer and 'task_id' not in projected['history'][1]
+    assert '任务已完成' in projected['history'][2]['content']
+    assert reads == ['new'] and payload['history'][2]['content'] == '正在生成'

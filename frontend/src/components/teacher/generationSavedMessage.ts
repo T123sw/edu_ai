@@ -11,7 +11,9 @@ export function buildGenerationSavedMessage(options: {
 export function resolveGenerationReply(options: {
   generatedResourceCount: number;
   fallbackMessage: string;
+  preserveAnswer?: boolean;
 }): string {
+  if (options.preserveAnswer) return options.fallbackMessage;
   if (options.generatedResourceCount > 0) {
     return buildGenerationSavedMessage({ visibility: "private" });
   }

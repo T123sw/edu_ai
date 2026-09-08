@@ -3,6 +3,13 @@ import hashlib
 import json
 
 
+def is_report_read_result(result):
+    if (result.get('workflow') or {}).get('stage') == 'result_check':
+        return True  # Results produced before queries were separated from generation.
+    tools = {item.get('tool') for item in (result.get('trace') or {}).get('tool_events', []) if item.get('ok')}
+    return 'query_report_job' in tools and not tools.intersection({'submit_report', 'cancel_report_job', 'draft_report_outline'})
+
+
 def project_task_status(payload, owner, *, task_store=None, harness_root=None):
     from core.config import Config
     from app.chat.tasks.task_store import get_task_store
@@ -34,7 +41,13 @@ def project_task_status(payload, owner, *, task_store=None, harness_root=None):
                             and history[index - 1].get('content') == request.get('question')):
                         matches.append(message)
                 if len(matches) == 1:
-                    links.setdefault(matches[0].get('message_id'), task_id)
+                    message_id = matches[0].get('message_id')
+                    if is_report_read_result(result):
+                        links.pop(message_id, None)
+                        matches[0].pop('task_id', None)
+                        matches[0].pop('task_status', None)
+                    else:
+                        links.setdefault(message_id, task_id)
         except (OSError, ValueError):
             pass
     for message in payload['history']:
