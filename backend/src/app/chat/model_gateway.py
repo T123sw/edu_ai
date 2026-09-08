@@ -45,9 +45,11 @@ class ChatModelGateway:
         base = str(candidate.get("api_base") or "").rstrip("/")
         if not base.endswith("/v1"):
             base = f"{base}/v1"
+        from app.services.deepseek_key_failover import completion_endpoint
+        base, key = completion_endpoint(base, candidate.get("api_key"))
         return {
             "api_base": base,
-            "api_key": candidate.get("api_key"),
+            "api_key": key,
             "model_name": candidate.get("model_name"),
         }
 

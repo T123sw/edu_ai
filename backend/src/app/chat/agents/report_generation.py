@@ -120,6 +120,8 @@ def _chat_model(
     model: str,
     timeout_seconds: float,
 ) -> ChatOpenAI:
+    from app.services.deepseek_key_failover import completion_endpoint
+    base_url, api_key = completion_endpoint(base_url, api_key)
     extra_body = _thinking_extra_body(model)
     return ChatOpenAI(
         api_key=api_key,

@@ -46,6 +46,7 @@ class Config:
     # 2. 深度纯文本模型（中脑）
     DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
     DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+    DEEPSEEK_API_KEY_BACKUP = os.getenv("DEEPSEEK_API_KEY_BACKUP", "")
     DEEP_MODEL_API_BASE = os.getenv("ANSWER_LLM_API_BASE", os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"))
     DEEP_MODEL_API_KEY = os.getenv("ANSWER_LLM_API_KEY", os.getenv("QWEN_API_KEY", ""))
     LLM_MODEL_DEEP = os.getenv("ANSWER_LLM_MODEL", os.getenv("VISION_MODEL_ID", "qwen3.5-plus"))

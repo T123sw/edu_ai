@@ -76,9 +76,11 @@ class HarnessRuntime:
                         if sdk_factory is None:
                             from deepseek_harness import DeepSeekHarness
                             sdk_factory = DeepSeekHarness
+                        from app.services.deepseek_key_failover import completion_endpoint
+                        endpoint, credential = completion_endpoint(self.base_url, self.api_key)
                         harness = sdk_factory(
                             provider="deepseek-official", model=self.model, max_tokens=16000,
-                            api_key=self.api_key, base_url=self.base_url, profile="sdk-minimal",
+                            api_key=credential, base_url=endpoint, profile="sdk-minimal",
                             cwd=temp, dsh_home=str(Path(temp) / "home"), patches=(str(patch_file),),
                             initialize_timeout_seconds=min(40, self.timeout),
                             request_timeout_seconds=self.timeout, shutdown_timeout_seconds=2,
