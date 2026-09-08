@@ -41,7 +41,10 @@ def main(output_dir):
     proposal = edit
     assert manager.get_generated_material(course, 'report', mid, owner_user_id=owner)['version'] == 1
     edit = run('保存当前修改稿。', 'edit-1', pending=proposal['pending'])
-    current = manager.get_generated_material(course, 'report', mid, owner_user_id=owner)
+    new_id = edit['artifact_reference']['artifact_id']
+    assert new_id != mid
+    assert manager.get_generated_material(course, 'report', mid, owner_user_id=owner)['content'] == source
+    current = manager.get_generated_material(course, 'report', new_id, owner_user_id=owner)
     evidence = {'source': source, 'read': read, 'version_after_read': version_after_read, 'proposal': proposal, 'edit': edit, 'final_version': current['version'], 'final_content': current['content']}
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
@@ -49,7 +52,7 @@ def main(output_dir):
     assert read['status'] == 'answered', read
     assert version_after_read == 1
     assert edit['status'] == 'completed', edit
-    assert current['version'] == 2
+    assert current['version'] == 1
     assert '头插法的时间复杂度为 O(1)。' in current['content']
     assert current['content'].replace('头插法的时间复杂度为 O(1)。', '').replace('\n', '') == source.replace('\n', '')
     print(json.dumps({'read': read['status'], 'version_after_read': version_after_read, 'edit': edit['status'], 'final_version': current['version'], 'unrelated_content_preserved': True}))

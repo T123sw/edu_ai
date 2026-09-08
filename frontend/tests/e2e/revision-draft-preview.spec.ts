@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures/teacherApp';
 const ref = { artifact_id: 'draft-report', artifact_type: 'report', version_id: 'v1', source_course_id: 'course-physics', title: '链表的实现', content_hash: 'original-hash' };
+const savedRef = { ...ref, artifact_id: 'saved-report', title: '链表的实现（修改稿）', content_hash: 'saved-hash' };
 const original = '# 链表的实现\n\n## 动态内存分配\n\n原来的例子。\n\n## 遍历\n\n遍历说明保持不变。';
 
 test('colored draft iterates, restores after refresh and saves the shown revision', async ({ teacherPage: page }, info) => {
@@ -11,16 +12,18 @@ test('colored draft iterates, restores after refresh and saves the shown revisio
     conversation_id: 'draft-conv', course_id: 'course-physics', scope_type: 'course', history: [], message_count: 0,
     state: { artifact_reference: ref, latest_revision_outcome: latest, pending_operation: latest?.draft ? { kind: 'artifact_revision', id: 'draft-op' } : null }
   } }));
-  await page.route('**/api/courses/course-physics/materials/report/draft-report', r => r.fulfill({ json: {
-    material_id: ref.artifact_id, material_type: 'report', course_id: ref.source_course_id, title: ref.title,
-    owner_user_id: 'teacher-a', visibility: 'private', version: saved ? 2 : 1,
-    content: saved ? original.replace('原来的例子。', '简洁的新例子。') : original
-  } }));
+  const originalMaterial = { material_id: ref.artifact_id, material_type: 'report', course_id: ref.source_course_id,
+    title: ref.title, owner_user_id: 'teacher-a', visibility: 'private', version: 1, content: original, created_at: '2026-09-07T00:00:00Z' };
+  const savedMaterial = { ...originalMaterial, material_id: savedRef.artifact_id, title: savedRef.title,
+    content: original.replace('原来的例子。', '简洁的新例子。'), created_at: '2026-09-08T00:00:00Z' };
+  await page.route('**/api/courses/course-physics/materials?**', r => r.fulfill({ json: saved ? [savedMaterial, originalMaterial] : [originalMaterial] }));
+  await page.route('**/api/courses/course-physics/materials/report/draft-report', r => r.fulfill({ json: originalMaterial }));
+  await page.route('**/api/courses/course-physics/materials/report/saved-report', r => r.fulfill({ json: savedMaterial }));
   await page.route('**/api/chat/v2/stream', r => {
     const body = r.request().postDataJSON(); requests.push(body);
     if (body.artifact_draft_action) {
       saved = body.artifact_draft_action.action === 'save';
-      latest = { status: saved ? 'completed' : 'discarded', message: saved ? '已保存第 2 版，原第 1 版已保留。' : '已放弃修改，原文未改变。', artifact_reference: saved ? { ...ref, version_id: 'v2' } : ref, changes: [] };
+      latest = { status: saved ? 'completed' : 'discarded', message: saved ? '已保存为新文档，原文档已保留。' : '已放弃修改，原文未改变。', artifact_reference: saved ? savedRef : ref, changes: [] };
     } else {
       revision++;
       latest = { status: 'preview', operation_id: 'draft-op', message: '补充具体例子帮助学生理解动态内存分配。修改稿尚未保存，要保存还是继续调整？', artifact_reference: ref,
@@ -57,5 +60,17 @@ test('colored draft iterates, restores after refresh and saves the shown revisio
   expect(requests[2].artifact_draft_action).toEqual({ action: 'save', draft_id: 'draft-1', revision: 2 });
   await expect(draft).toHaveCount(0);
   await expect(page.getByRole('region', { name: '生成文件预览' })).toContainText('简洁的新例子');
+  await page.getByRole('button', { name: '返回生成工厂' }).click();
+  const factory = page.getByTestId('generation-factory');
+  await expect(factory.getByRole('button', { name: /链表的实现（修改稿）/ })).toHaveCount(1);
+  await page.reload();
+  if (page.viewportSize()!.width < 1200) await page.getByRole('button', { name: '生成工厂', exact: true }).click();
+  await page.getByRole('button', { name: '返回生成工厂' }).click();
+  await expect(factory.getByRole('button', { name: /链表的实现（修改稿）/ })).toBeVisible();
+  await factory.getByRole('button', { name: /链表的实现（修改稿）/ }).click();
+  await expect(page.getByRole('region', { name: '生成文件预览' })).toContainText('简洁的新例子');
+  await page.getByRole('button', { name: '返回生成工厂' }).click();
+  await factory.locator('button.generation-factory__job').filter({ hasText: '链表的实现' }).filter({ hasNotText: '修改稿' }).click();
+  await expect(page.getByRole('region', { name: '生成文件预览' })).toContainText('原来的例子');
   await expect(page).toHaveURL(/#ai\?course_id=course-physics$/);
 });

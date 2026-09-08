@@ -119,6 +119,45 @@ class RevisionStorage:
                 self.manager._persist_material_manifest(payload)
             return payload
 
+    def save_copy(self, source, updates, *, owner, operation_id, fingerprint, summary, changes):
+        """Publish a draft as an independent private document, leaving its source intact."""
+        self.check_owner(source, owner)
+        key = (source["course_id"], source["material_type"], source["material_id"])
+        identity = json.dumps([owner, *key, operation_id], ensure_ascii=False)
+        material_id = "revision_" + hashlib.sha256(identity.encode()).hexdigest()[:32]
+        with self._exclusive():
+            existing = self.manager.get_generated_material(*key[:2], material_id, owner_user_id=owner)
+            if existing:
+                self.check_owner(existing, owner)
+                if not self.retry(existing, operation_id, fingerprint):
+                    raise RevisionConflict("修改稿标识已被使用，请重新修改")
+                return existing
+            current = self.get(*key, owner)
+            if any(current.get(field) != source.get(field) for field in ("version", "content_hash", "updated_at")):
+                raise RevisionConflict("资料已有新版本，请查看变化后使用最新版重试")
+            payload = deepcopy(source)
+            payload.update(updates)
+            now = datetime.now(timezone.utc).isoformat()
+            title = str(source.get("title") or source.get("topic") or "文档")
+            payload.update(material_id=material_id, version=1, created_at=now, updated_at=now,
+                           title=title + "（修改稿）", is_pinned=False, pinned_at=None,
+                           origin_type="personal", standard_kind=None, current_review_status="not_required",
+                           approved_version=None, source_job_id=None)
+            for field in ("revision_history", "revision_operations", "published_material_id", "published_version",
+                          "published_at", "published_by", "publication_status"):
+                payload.pop(field, None)
+            for field in ("file_path", "html_url", "video_url", "pptx_url", "sidecar_url"):
+                payload[field] = None
+            payload["artifact_paths"] = []
+            payload["video_status"] = "not_generated"
+            payload["revision"] = {"source_material_id": source["material_id"], "base_version": source["version"],
+                                   "source_content_hash": source.get("content_hash"), "summary": summary,
+                                   "changes": changes, "operation_id": operation_id}
+            payload["revision_operations"] = {operation_id: {"fingerprint": fingerprint, "version": 1}}
+            payload["content_hash"] = hashlib.sha256(json.dumps(updates, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+            self.manager._persist_material_manifest(payload)
+            return payload
+
     def _save_database(self, current, payload):
         repository = self.manager._material_repository()
         conditions = (

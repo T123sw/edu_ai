@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { getKnowledgeBaseDocuments } from "../../stitch/api/courses";
+import { getCourseMaterials, getKnowledgeBaseDocuments } from "../../stitch/api/courses";
 import { listPersonalKnowledgeDocuments } from "../../stitch/api/personalKnowledge";
-import type { KnowledgeBaseDocument } from "../../stitch/api/types";
+import type { CourseMaterial, KnowledgeBaseDocument } from "../../stitch/api/types";
 import { MaterialIcon } from "../../stitch/shared";
 import type { GenerationToolId } from "../../stitch/shared/generation/generationCatalog";
 import { useCourseJobs } from "../../jobs/jobStore";
@@ -29,6 +29,9 @@ import { GameForm } from "./forms/GameForm";
 import { MindMapForm } from "./forms/MindMapForm";
 import { ClassroomForm } from "./forms/ClassroomForm";
 import "./generationFactory.css";
+
+import { useAuthSession } from "../../stitch/authSession";
+import { useDraftPreview } from "../../stitch/artifactRevision/draftPreview";
 
 const GENERATION_KINDS = new Set([
   "generate_report", "generate_lesson_plan", "generate_blog", "generate_quiz",
@@ -89,7 +92,33 @@ export function GenerationFactory({
   const [configs, setConfigs] = useState<Partial<Record<GenerationResourceType, Record<string, unknown>>>>({});
   const [showErrors, setShowErrors] = useState(false);
   const submission = useGenerationSubmission(courseId);
-  const jobs = useCourseJobs(courseId).filter((job) => GENERATION_KINDS.has(job.kind)).slice(0, 8);
+  const jobs = useCourseJobs(courseId).filter((job) => GENERATION_KINDS.has(job.kind));
+  const { user } = useAuthSession();
+  const draftEntry = useDraftPreview(state => state.entry);
+  const savedId = draftEntry?.owner === user?.username && draftEntry?.courseId === courseId
+    && draftEntry.outcome.status === "completed" ? draftEntry.outcome.artifact_reference?.artifact_id : undefined;
+  const [materials, setMaterials] = useState<{ owner?: string; courseId?: string; items: CourseMaterial[] }>({ items: [] });
+  const jobsVersion = jobs.map(job => `${job.edu_job_id}:${job.status}`).join("|");
+  useEffect(() => {
+    let cancelled = false;
+    if (!courseId || !user?.username) return;
+    void getCourseMaterials(courseId, { space: "mine", aggregate: true, limit: 8, sort: "created_desc" })
+      .then(items => { if (!cancelled) setMaterials({ owner: user.username, courseId, items }); })
+      .catch(() => { /* Keep the last successful list when a refresh fails. */ });
+    return () => { cancelled = true; };
+  }, [courseId, user?.username, savedId, jobsVersion]);
+  const visibleMaterials = materials.owner === user?.username && materials.courseId === courseId ? materials.items : [];
+  const materialKeys = new Set(visibleMaterials.map(item => `${item.material_type}:${item.material_id}`));
+  const recent = [
+    ...visibleMaterials.map(item => {
+      const resource = getGenerationResource(item.material_type as GenerationResourceType);
+      return { id: `material:${item.material_type}:${item.material_id}`, status: "succeeded", created_at: item.created_at || "",
+        ref: { course_id: item.course_id || courseId, material_type: item.material_type, material_id: item.material_id },
+        presentation: { title: item.title || item.topic || resource.label, icon: resource.icon, accent: resource.accent } };
+    }),
+    ...jobs.filter(job => !materialKeys.has(`${job.result_ref?.material_type}:${job.result_ref?.material_id}`))
+      .map(job => ({ id: job.edu_job_id, status: job.status, created_at: job.created_at, ref: job.result_ref, presentation: presentGenerationJob(job) })),
+  ].sort((a, b) => Date.parse(b.created_at || '1970-01-01') - Date.parse(a.created_at || '1970-01-01')).slice(0, 8);
 
   useEffect(() => {
     let cancelled = false;
@@ -177,9 +206,9 @@ export function GenerationFactory({
       <section className="generation-factory__recent">
         <div className="generation-factory__recent-title"><strong>最近生成</strong><span>按时间排序</span></div>
         <div className="generation-factory__recent-list">
-          {jobs.length === 0 ? <p>暂无生成记录</p> : jobs.map((job) => {
-            const ref = job.result_ref;
-            const presentation = presentGenerationJob(job);
+          {recent.length === 0 ? <p>暂无生成记录</p> : recent.map((job) => {
+            const ref = job.ref;
+            const presentation = job.presentation;
             const href = ref?.material_type && ref?.material_id
               ? resultHref({ courseId, materialType: ref.material_type, materialId: ref.material_id })
               : undefined;
@@ -200,10 +229,10 @@ export function GenerationFactory({
             );
             const targetCourseId = ref?.course_id || courseId;
             if (onOpenResult && targetCourseId && ref?.material_type && ref?.material_id) {
-              return <button key={job.edu_job_id} type="button" className="generation-factory__job generation-factory__job--open"
+              return <button key={job.id} type="button" className="generation-factory__job generation-factory__job--open"
                 onClick={() => onOpenResult({ courseId: targetCourseId, materialType: ref.material_type!, materialId: ref.material_id!, title: presentation.title })}>{content}</button>;
             }
-            return href ? <a key={job.edu_job_id} href={href} className="generation-factory__job">{content}</a> : <article key={job.edu_job_id} className="generation-factory__job">{content}</article>;
+            return href ? <a key={job.id} href={href} className="generation-factory__job">{content}</a> : <article key={job.id} className="generation-factory__job">{content}</article>;
           })}
         </div>
       </section>

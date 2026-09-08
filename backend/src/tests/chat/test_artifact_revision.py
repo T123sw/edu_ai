@@ -293,8 +293,9 @@ def test_shared_reply_entry_reads_and_saves_for_both_modes(manager, stream, butt
     payload.question = "保存当前修改稿"
     result = list(service.reply_stream(payload))[0]["payload"] if stream else service.reply(payload)
     assert result["artifact_revision"]["status"] == "completed", result
-    assert result["artifacts"][0]["version_id"] == "v2"
-    assert manager.get_generated_material("course", "report", "one", owner_user_id="teacher")["version"] == 2
+    assert result["artifacts"][0]["version_id"] == "v1"
+    assert result["artifact_revision"]["artifact_reference"]["artifact_id"] != ref["artifact_id"]
+    assert manager.get_generated_material("course", "report", "one", owner_user_id="teacher")["version"] == 1
 
 
 def test_classroom_changed_speech_does_not_play_old_audio(manager):

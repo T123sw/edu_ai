@@ -1,4 +1,4 @@
-"""Private iterative previews. Only saving a shown draft writes a material version."""
+"""Private iterative previews. Only saving a shown draft creates a new document."""
 from copy import deepcopy
 from difflib import SequenceMatcher
 import json
@@ -123,10 +123,10 @@ def run_draft_turn(service, *, state, source, original, kind, question, pending,
         if service.is_cancel_requested():
             raise ValueError('操作已取消，原文未改变')
         changes = [{'path': [], 'before': readable_content(original), 'after': readable_content(current)}]
-        saved = service.storage.save(source, updates, owner=state['owner_user_id'], operation_id=state['operation_id'],
+        saved = service.storage.save_copy(source, updates, owner=state['owner_user_id'], operation_id=state['operation_id'],
                                      fingerprint=fingerprint, summary=previous['reason'], changes=changes)
         result = service._completed(saved, kind)
-        result['message'] = f'已保存《{state["reference"].get("title", "文档")}》第 {saved["version"]} 版，原第 {source["version"]} 版已保留。'
+        result['message'] = f'已将修改稿保存为新文档《{saved["title"]}》，原文档已保留。'
         return result
     if 'edits' in output:
         state['draft'] = {'draft_id': previous['draft_id'] if previous else uuid4().hex,

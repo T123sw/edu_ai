@@ -55,9 +55,20 @@ def test_iterate_read_and_save_exact_preview_with_original_copy(manager):
     fresh_service = ArtifactRevisionService(manager)
     saved = turn(fresh_service, ref, '保存当前修改稿', restored, action(second))
     assert saved['status'] == 'completed', saved
-    assert saved['artifact']['version']['version_number'] == 2
+    assert saved['artifact']['version']['version_number'] == 1
     assert saved['artifact']['content'].endswith('更简洁的例子')
     assert fresh_service.read_version(owner_user_id='teacher',course_id='course',artifact_type='report',artifact_id='one',version=1)['content'].endswith('原始案例')
+    new_id = saved['artifact_reference']['artifact_id']
+    assert new_id != 'one'
+    original = manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')
+    assert original['version'] == 1 and original['content'].endswith('原始案例')
+    copy = manager.get_generated_material('course', 'report', new_id, owner_user_id='teacher')
+    assert copy['title'].endswith('（修改稿）')
+    assert copy['revision']['source_material_id'] == 'one'
+    listed = manager.list_generated_materials('course', aggregate=True, owner_user_id='teacher')
+    assert {item['material_id'] for item in listed} == {'one', new_id}
+    repeated = turn(fresh_service, ref, '保存当前修改稿', restored, action(second))
+    assert repeated['artifact_reference']['artifact_id'] == new_id
     assert len(model.inputs) == 3
 
 
@@ -143,4 +154,4 @@ def test_save_button_contract_restores_pending_and_updates_history_reference(man
     assert second['artifact_revision']['status'] == 'completed'
     assert second['artifact_revision']['artifact']['content'].endswith('按钮保存的例子')
     assert storage.get_state('conv')['pending_operation'] is None
-    assert storage.get_state('conv')['artifact_reference']['version_id'] == 'v2'
+    assert storage.get_state('conv')['artifact_reference']['version_id'] == 'v1'
