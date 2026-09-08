@@ -240,13 +240,13 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
   return (
     <div className="course-kb-wizard" role="dialog" aria-modal="false" aria-labelledby="kb-wizard-title">
       <header className="course-kb-wizard__header">
-        <div><span>构建方案 · 修订 {build.revision}</span><h2 id="kb-wizard-title">{build.baseline_graph ? "课程知识库增量更新向导" : "课程知识库构建向导"}</h2></div>
+        <div><h2 id="kb-wizard-title">{build.baseline_graph ? "更新课程知识库" : "创建课程知识库"}</h2></div>
         <button type="button" aria-label="关闭构建向导" onClick={onClose}><MaterialIcon name="close" /></button>
       </header>
       <nav className="course-kb-wizard__steps" aria-label="构建步骤">
-        <span className={step === "config" ? "is-active" : "is-done"}>1 配置</span>
+        <span className={step === "config" ? "is-active" : "is-done"}>1 选择规模</span>
         <span className={step === "textbooks" ? "is-active" : step === "graph" ? "is-done" : ""}>2 教材（可选）</span>
-        <span className={step === "graph" ? "is-active" : build.graph_draft ? "is-done" : ""}>3 图谱审核</span>
+        <span className={step === "graph" ? "is-active" : build.graph_draft ? "is-done" : ""}>3 确认目录</span>
       </nav>
 
       {step === "config" ? (
@@ -278,7 +278,7 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
         />
       ) : null}
 
-      {build.graph_draft && step !== "graph" ? <div className="course-kb-wizard__ready"><MaterialIcon name="account_tree" /><div><strong>模型图谱草案已生成</strong><span>进入图谱审核后可编辑并确认，确认前不会搜索网络或正式入库。</span></div><button type="button" onClick={() => setStep("graph")}>开始审核</button></div> : null}
+      {build.graph_draft && step !== "graph" ? <div className="course-kb-wizard__ready"><MaterialIcon name="account_tree" /><div><strong>课程目录已准备好</strong><span>请检查课程目录，确认后开始补充学习资料。</span></div><button type="button" onClick={() => setStep("graph")}>开始审核</button></div> : null}
       {build.graph_generation_error?.message ? <div className="course-kb-wizard__error" role="alert">{build.graph_generation_error.message}</div> : null}
       {error ? <div className="course-kb-wizard__error" role="alert">{error}</div> : null}
     </div>

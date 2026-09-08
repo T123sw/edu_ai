@@ -246,10 +246,10 @@ export async function installCourseKnowledgeBuildRoutes(
     };
   }
 
-  await page.route("http://localhost:8001/**", async (route) => {
+  await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    const path = url.pathname;
+    const path = url.pathname.replace(/^\/backend(?=\/api\/)/, "");
     const method = request.method();
 
     if (path === `/api/courses/${COURSE_ID}/knowledge-builds` && method === "POST") {

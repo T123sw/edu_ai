@@ -1393,3 +1393,30 @@
     transition: none;
   }
 }
+
+/* Keep the update form on its own row within the library toolbar grid. */
+.course-kb-builder > .course-kb-wizard {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  padding: 24px;
+  background: var(--course-shell-nav);
+}
+.course-kb-wizard__header h2 { font-size: 21px; }
+.course-kb-wizard__step-heading h3 { font-size: 17px; }
+.course-kb-wizard__step-heading p { font-size: 13px; }
+.course-kb-wizard__presets button { padding: 18px; text-align: left; }
+.course-kb-wizard__presets strong { font-size: 16px; }
+.course-kb-wizard__presets span { font-size: 13px; line-height: 1.6; }
+.course-kb-wizard__strategy-note { margin: 0; color: var(--course-shell-muted); font-size: 14px; line-height: 1.7; }
+.course-kb-wizard__advanced { border-top: 1px solid var(--course-shell-line); padding-top: 14px; font-size: 13px; }
+.course-kb-wizard__advanced summary { cursor: pointer; color: var(--course-shell-muted); }
+.course-kb-wizard__advanced .course-kb-wizard__fields { margin: 18px 0; }
+.course-kb-wizard__advanced > label { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.course-kb-wizard__advanced > label select { padding: 8px 12px; border: 1px solid var(--course-shell-line); border-radius: 8px; background: var(--course-shell-nav); }
+.course-kb-wizard__estimate span { font-size: 13px; }
+.course-kb-wizard__footer { justify-content: flex-end; }
+@media (max-width: 640px) {
+  .course-kb-builder > .course-kb-wizard { padding: 16px; }
+  .course-kb-wizard__header h2 { font-size: 18px; }
+}
