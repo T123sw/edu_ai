@@ -48,9 +48,10 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
 
   useEffect(() => { setPreview(null); }, [courseId, user?.username]);
   useEffect(() => {
+    if (!draftEntry?.autoOpen) return;
     const ref = draft?.reference || (outcome?.status === 'completed' || outcome?.status === 'discarded' ? outcome.artifact_reference : null);
     if (ref) setPreview({courseId: ref.source_course_id, materialType: ref.artifact_type, materialId: ref.artifact_id, title: ref.title || '文档'});
-  }, [draft, outcome]);
+  }, [draft, outcome, draftEntry?.autoOpen]);
   useEffect(() => {
     onPreviewStateChange?.(previewOpen);
     return () => onPreviewStateChange?.(false);

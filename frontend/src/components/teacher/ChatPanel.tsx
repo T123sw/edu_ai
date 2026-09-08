@@ -185,6 +185,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const [inputValue, setInputValue] = useState('');
   const [draftReferenceLabel, setDraftReferenceLabel] = useState<string | null>(null);
   const [revisionOutcome, setRevisionOutcome] = useState<ArtifactRevisionOutcome | null>(null);
+  const restoredRevisionRef = useRef<ArtifactRevisionOutcome | null>(null);
   const [clarification, setClarification] = useState<ScopeClarification | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [historyList, setHistoryList] = useState<ConversationListItem[]>([]);
@@ -777,7 +778,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         setWorkflowStatus(nextWorkflowStatus || null);
         replaceConversationGeneratedFiles(restoredFiles);
         const restoredRevision = detail.state?.latest_revision_outcome as ArtifactRevisionOutcome | undefined;
-        setRevisionOutcome(restoredRevision?.draft && detail.state?.pending_operation?.kind !== 'artifact_revision' ? null : restoredRevision || null);
+        const recoveredOutcome = restoredRevision?.draft && detail.state?.pending_operation?.kind !== 'artifact_revision' ? null : restoredRevision || null;
+        restoredRevisionRef.current = recoveredOutcome;
+        setRevisionOutcome(recoveredOutcome);
         const pendingRevision = detail.state?.pending_operation;
         pendingOperationRef.current = pendingRevision?.kind === 'artifact_revision'
           ? { conversationId: detail.conversation_id, operationId: pendingRevision.id } : null;
@@ -871,7 +874,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   useEffect(() => {
     useDraftPreview.getState().setEntry(revisionOutcome && courseId && currentConversationId ? {
       outcome: revisionOutcome, owner: authenticatedUser?.username || '', courseId,
-      conversationId: currentConversationId, busy: isLoading,
+      conversationId: currentConversationId, busy: isLoading, autoOpen: revisionOutcome !== restoredRevisionRef.current,
     } : null);
   }, [revisionOutcome, courseId, currentConversationId, authenticatedUser?.username, isLoading]);
   useEffect(() => () => useDraftPreview.getState().setEntry(null), []);

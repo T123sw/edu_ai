@@ -39,7 +39,7 @@ export function AIWorkspacePage() {
   const [hash, setHash] = useState(() => window.location.hash);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
-  const activeDraft = useDraftPreview(state => state.entry?.outcome.draft);
+  const activeDraft = useDraftPreview(state => state.entry?.autoOpen ? state.entry.outcome.draft : undefined);
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
   const [drawerPanel, setDrawerPanel] = useState<"source" | "studio" | null>(null);

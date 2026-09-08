@@ -4,7 +4,7 @@ import type { ArtifactRevisionOutcome, ArtifactDraftAction } from '../../service
 import { MarkdownPreview } from '../components/MarkdownPreview';
 import './draftPreview.css';
 
-type Entry = { owner: string; courseId: string; conversationId: string; outcome: ArtifactRevisionOutcome; busy: boolean };
+type Entry = { owner: string; courseId: string; conversationId: string; outcome: ArtifactRevisionOutcome; busy: boolean; autoOpen: boolean };
 export const useDraftPreview = create<{ entry: Entry | null; setEntry: (entry: Entry | null) => void }>(set => ({
   entry: null, setEntry: entry => set({ entry }),
 }));

@@ -53,6 +53,10 @@ test('colored draft iterates, restores after refresh and saves the shown revisio
   await expect(draft.locator('del[aria-label="拟删除内容"]')).toContainText('原来的例子');
   expect(saved).toBe(false);
   await page.reload();
+  const factory = page.getByTestId('generation-factory');
+  await expect(page.getByRole('region', { name: '生成文件预览' })).toHaveCount(0);
+  if (page.viewportSize()!.width < 1200) await page.getByRole('button', { name: '生成工厂', exact: true }).click();
+  await factory.getByRole('button', { name: /链表的实现/ }).click();
   await expect(draft).toBeVisible();
   await expect(draft).toContainText('简洁的新例子');
   await draft.getByRole('button', { name: '保存修改', exact: true }).click();
@@ -61,11 +65,10 @@ test('colored draft iterates, restores after refresh and saves the shown revisio
   await expect(draft).toHaveCount(0);
   await expect(page.getByRole('region', { name: '生成文件预览' })).toContainText('简洁的新例子');
   await page.getByRole('button', { name: '返回生成工厂' }).click();
-  const factory = page.getByTestId('generation-factory');
   await expect(factory.getByRole('button', { name: /链表的实现（修改稿）/ })).toHaveCount(1);
   await page.reload();
+  await expect(page.getByRole('region', { name: '生成文件预览' })).toHaveCount(0);
   if (page.viewportSize()!.width < 1200) await page.getByRole('button', { name: '生成工厂', exact: true }).click();
-  await page.getByRole('button', { name: '返回生成工厂' }).click();
   await expect(factory.getByRole('button', { name: /链表的实现（修改稿）/ })).toBeVisible();
   await factory.getByRole('button', { name: /链表的实现（修改稿）/ }).click();
   await expect(page.getByRole('region', { name: '生成文件预览' })).toContainText('简洁的新例子');
