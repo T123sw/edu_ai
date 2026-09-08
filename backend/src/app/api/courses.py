@@ -1321,6 +1321,17 @@ def update_knowledge_base_graph_draft(
     graph = copy.deepcopy(payload.root)
     repository = get_postgres_knowledge_repository()
     _incremental_graph_guard(repository, build, graph)
+    graph_changes = {"graph_draft": graph}
+    if build.get("knowledge_proposal") and build.get("selected_topic_ids") is not None:
+        from app.services.course_knowledge_proposals import nodes
+        leaf_ids = {n["id"] for n in nodes(graph) if not n.get("children")}
+        if build["knowledge_proposal"]["mode"] == "create":
+            graph_changes["selected_topic_ids"] = sorted(leaf_ids)
+        else:
+            if not set(build["selected_topic_ids"]).issubset(leaf_ids):
+                raise HTTPException(status_code=422, detail="已选补充知识点不能移除或改为章节，请返回补充清单调整")
+            prior_ids = {n["id"] for n in nodes(build["graph_draft"]) if not n.get("children")}
+            graph_changes["selected_topic_ids"] = sorted(set(build["selected_topic_ids"]) | (leaf_ids - prior_ids))
     issues, metrics = validate_graph_draft_for_build(build, graph)
     if issues:
         raise HTTPException(
@@ -1342,7 +1353,7 @@ def update_knowledge_base_graph_draft(
         return repository.update_build_draft(
             build_id,
             expected_revision=payload.expected_revision,
-            changes={"graph_draft": graph},
+            changes=graph_changes,
             phase="graph_review",
         )
     except KnowledgeBuildRevisionConflict as exc:
@@ -1464,6 +1475,7 @@ def start_knowledge_base_build(
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
     build = _get_course_knowledge_build_or_404(course_id, build_id)
+    _incremental_graph_guard(get_postgres_knowledge_repository(), build, build.get("graph_draft") or {})
     revision = int(build.get("revision") or 0)
     if (
         not build.get("graph_confirmed_at")
@@ -2469,3 +2481,33 @@ def get_classroom_video_artifact(
     if not path.is_file():
         raise HTTPException(status_code=404, detail="视频导出文件不存在")
     return FileResponse(path=path, filename=filename, media_type=media_type)
+
+
+from app.services.course_knowledge_proposals import (
+    ProposalRequest, ProposalSelection, generate_proposal, select_proposal,
+)
+
+
+@router.post("/{course_id}/knowledge-builds/{build_id}/proposal")
+def plan_knowledge_proposal(course_id: str, build_id: str, payload: ProposalRequest,
+                            principal: CoursePrincipal = Depends(require_course_generate)):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return generate_proposal(course_id, build_id, expected_revision=payload.expected_revision,
+                                 requirements=payload.requirements, owner_user_id=principal.user_id)
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/{course_id}/knowledge-builds/{build_id}/proposal/select")
+def select_knowledge_proposal(course_id: str, build_id: str, payload: ProposalSelection,
+                              principal: CoursePrincipal = Depends(require_course_generate)):
+    _get_course_knowledge_build_or_404(course_id, build_id)
+    try:
+        return select_proposal(course_id, build_id, payload)
+    except KnowledgeBuildRevisionConflict as exc:
+        _raise_build_revision_conflict(exc)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

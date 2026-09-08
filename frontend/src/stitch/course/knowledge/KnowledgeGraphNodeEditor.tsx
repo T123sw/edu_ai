@@ -17,7 +17,7 @@ type Props = {
   maxDepth: number;
   busy: boolean;
   onChange: (root: KnowledgeGraphNode) => void;
-  onRegenerate: (moduleId: string) => void;
+  onRegenerate?: (moduleId: string) => void;
 };
 
 function typeLabel(value: string | undefined) {
@@ -126,7 +126,7 @@ export function KnowledgeGraphNodeEditor({
               <MaterialIcon name="add" />添加子节点
             </button>
           ) : null}
-          {depth === 2 ? (
+          {depth === 2 && onRegenerate ? (
             <button type="button" disabled={busy} onClick={() => onRegenerate(node.id)}>
               <MaterialIcon name="refresh" />重新生成此模块
             </button>

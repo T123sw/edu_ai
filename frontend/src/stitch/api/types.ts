@@ -530,6 +530,7 @@ export type CourseKnowledgeTextbookInput = {
 };
 
 export type CourseKnowledgeBuild = {
+  knowledge_proposal?: CourseKnowledgeProposal | null;
   build_id: string;
   library_id?: string;
   course_id: string;
@@ -1107,4 +1108,12 @@ export type ResourceQaSession = {
 export type ResourceQaTurnSubmission = {
   session_id: string;
   turn: ResourceQaTurn;
+};
+
+export type CourseKnowledgeProposal = {
+  mode: 'create' | 'supplement'; summary: string; requirements: string;
+  core_topics?: string[];
+  options: Array<{ id: string; level: 'brief' | 'standard' | 'complete'; description: string; root: KnowledgeGraphNode; metrics: { leaf_count: number } }>;
+  items: Array<{ id: string; kind: 'materials' | 'add_node'; target_id: string; title: string; reason: string; materials: string[]; evidence_document_ids: string[] }>;
+  document_snapshot?: Array<{ id: string; name: string }>;
 };

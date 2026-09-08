@@ -104,7 +104,11 @@ def calculate_leaf_coverage(
     target_units = max(1, int(target_units))
     minimum_external_sources = max(0, int(minimum_external_sources))
     maximum_ai = max(0, int(maximum_ai))
+    targets = {str(t.get("topic_id")): int(t.get("target_units") or target_units) for t in topics}
+    limits = {str(t.get("topic_id")): int(t.get("ai_limit", maximum_ai)) for t in topics}
     for topic_id, item in coverage.items():
+        target_units = targets[topic_id]
+        maximum_ai = limits[topic_id]
         item["external_sources"] = len(external_ids[topic_id])
         if item["effective_units"] < target_units:
             item["unmet"].append(f"有效覆盖 {item['effective_units']}/{target_units}")

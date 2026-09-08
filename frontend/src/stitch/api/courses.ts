@@ -763,3 +763,14 @@ export function courseMaterialToMarkdown(material: CourseMaterial) {
 
   return `# ${material.title || material.material_id}\n\n当前资源暂无可直接渲染的 Markdown 内容。`;
 }
+
+export function generateCourseKnowledgeProposal(courseId: string, buildId: string, expectedRevision: number, requirements: string) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}/proposal`, {
+    method: 'POST', body: JSON.stringify({ expected_revision: expectedRevision, requirements }),
+  });
+}
+export function selectCourseKnowledgeProposal(courseId: string, buildId: string, expectedRevision: number, selection: { option_id?: string; item_ids?: string[] }) {
+  return apiRequest<CourseKnowledgeBuild>(`/api/courses/${courseId}/knowledge-builds/${buildId}/proposal/select`, {
+    method: 'POST', body: JSON.stringify({ expected_revision: expectedRevision, ...selection }),
+  });
+}

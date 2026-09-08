@@ -6,7 +6,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-from app.services.course_knowledge_source_discovery import confirmed_graph_topics
+from app.services.course_knowledge_source_discovery import execution_topics
 
 
 MINIMUM_MAPPING_CONFIDENCE = 0.25
@@ -26,7 +26,7 @@ def _terms(value: str) -> set[str]:
 
 def map_textbook_chunks_to_graph(build: Mapping[str, Any]) -> dict[str, Any]:
     graph = dict(build.get("graph_draft") or {})
-    topics = confirmed_graph_topics(graph)
+    topics = execution_topics(build)
     refs_by_leaf: dict[str, set[str]] = {}
 
     def visit(node: Mapping[str, Any]) -> None:

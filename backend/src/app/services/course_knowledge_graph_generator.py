@@ -433,6 +433,8 @@ def validate_graph_draft_for_build(
         unmapped_outline_items=unmapped,
         enforce_scale=not (strategy == "incremental" and bool(baseline_graph)),
     )
+    if build.get("knowledge_proposal"):
+        issues = [i for i in issues if i["code"] not in {"DEPTH_MISMATCH", "LEAF_DEPTH_MISMATCH", "MODULE_SCALE_MISMATCH", "LEAF_SCALE_MISMATCH", "TEXTBOOK_OUTLINE_UNACCOUNTED"}]
     if strategy == "incremental":
         issues.extend(incremental_graph_issues(baseline_graph, graph))
     return issues, metrics

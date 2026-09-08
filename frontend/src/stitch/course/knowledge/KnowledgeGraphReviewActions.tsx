@@ -22,7 +22,7 @@ export function KnowledgeGraphReviewActions({
   return (
     <footer className="course-kb-graph__actions course-kb-wizard__footer">
       <button type="button" className="course-kb-wizard__secondary" disabled={busy} onClick={onBack}>
-        返回教材步骤
+        返回方案
       </button>
       <div className="course-kb-graph__actions-main">
         <button type="button" className="course-kb-wizard__secondary" disabled={busy || !dirty} onClick={onSave}>
@@ -35,10 +35,10 @@ export function KnowledgeGraphReviewActions({
             disabled={busy || issueCount > 0}
             onChange={(event) => onImpactAcceptedChange(event.target.checked)}
           />
-          我已审核图谱，确认现有节点均已保留且新增节点内容正确
+          我已检查课程目录和本次更新内容
         </label>
         <button type="button" className="course-kb-wizard__primary" disabled={busy || !impactAccepted || issueCount > 0} onClick={onConfirm}>
-          {busy ? "正在处理…" : "确认图谱并开始构建"}
+          {busy ? "正在处理…" : "确认并更新知识库"}
         </button>
       </div>
     </footer>

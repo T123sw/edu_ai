@@ -1,0 +1,56 @@
+--- a/backend/src/app/chat/harness/tools.py
++++ b/backend/src/app/chat/harness/tools.py
+@@ -106,8 +106,12 @@
+
+ TOOLS.update(PLANNING_TOOLS)
+
+-
+-class ReportTools(PlanningToolsMixin):
++from app.chat.harness.knowledge_tools import KnowledgeToolsMixin, KNOWLEDGE_TOOLS
++
++TOOLS.update(KNOWLEDGE_TOOLS)
++
++
++class ReportTools(PlanningToolsMixin, KnowledgeToolsMixin):
+     def __init__(self, *, request, session, gateway, emit, submit, get_job,
+                  read_artifact, cancel_job, validate_scope, rag=None, web=None,
+                  cancelled=None, max_calls=16, authorize=None, course_storage=None):
+@@ -125,6 +129,8 @@
+     def schemas(self):
+         result = []
+         for name, (schema, description) in TOOLS.items():
++            if name in KNOWLEDGE_TOOLS and (self.request.actor_role not in {"teacher", "admin"} or not self.request.course_id):
++                continue
+             if name == "rag_search" and not (self.request.capability.allow_rag and self.rag):
+                 continue
+             if name == "web_search" and not (self.request.capability.allow_web and self.web):
+--- a/backend/src/app/chat/harness/runtime.py
++++ b/backend/src/app/chat/harness/runtime.py
+@@ -100,7 +100,7 @@
+                             if event.get("type") in {"tool/call", "tool/result", "turn/end", "step/end"}:
+                                 session.event({"request_id": request.request_id, "harness_event": event})
+                             if event.get("type") == "tool/call" and (event.get("data") or {}).get("name") == "skill":
+-                                events.put({"type": "status", "payload": {"stage": "skill", "label": "正在加载报告工作流程"}})
++                                events.put({"type": "status", "payload": {"stage": "skill", "label": "正在加载任务流程"}})
+
+                         try:
+                             with harness:
+@@ -193,6 +193,7 @@
+             "summary_reference": snapshot.summary[:4000],
+             "current_outline": session.data["outlines"].get(active),
+             "report_jobs": session.data["jobs"],
++            "knowledge_plan": session.data.get("knowledge_plan"),
+             "action_hint": request.action_hint,
+             "current_user_message": request.question,
+         }
+--- a/backend/src/app/chat/harness/root-role.md
++++ b/backend/src/app/chat/harness/root-role.md
+@@ -12,7 +12,7 @@
+
+ ## 当前任务如何判断
+
+-普通概念解释、比较和追问直接回答，不擅自生成报告。明确要求报告、报告大纲、修改现有报告流程时加载 edu-report Skill。当前先支持普通对话与报告，不假称已经创建其他资源。
++普通概念解释、比较和追问直接回答，不擅自生成报告。明确要求报告、报告大纲、修改现有报告流程时加载 edu-report Skill。支持普通对话、报告以及课程知识库方案；创建或补充正式课程知识库时加载 edu-course-knowledge，不能把课程目录与报告大纲混淆。知识库执行需教师在方案页面确认当前版本，不假称规划已经入库。
+ 利用当前请求、可信工作区和已有约束，确定主题、受众、交付层级与资料范围。信息缺失会实质影响正确性才澄清；可合理假设时说明后推进。新请求、否定、暂停和取消优先于旧待办。
+
+ ## 规划权与工作记忆

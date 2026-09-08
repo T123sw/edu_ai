@@ -80,6 +80,18 @@ def confirmed_graph_topics(graph: Mapping[str, Any]) -> list[dict[str, str]]:
     return topics
 
 
+
+def execution_topics(build):
+    topics = confirmed_graph_topics(dict(build.get("graph_draft") or {}))
+    selected = build.get("selected_topic_ids")
+    if selected is None:
+        return topics
+    allowed = set(selected)
+    if not allowed.issubset({t["topic_id"] for t in topics}):
+        raise ValueError("补充清单与目录不一致，请重新确认")
+    requirements = build.get("topic_requirements") or {}
+    return [{**topic, "material_namespace": build.get("build_id", ""), **requirements.get(topic["topic_id"], {})} for topic in topics if topic["topic_id"] in allowed]
+
 def _semantic_terms(topic: Mapping[str, Any]) -> set[str]:
     text = f"{_clean(topic.get('title'))} {_clean(topic.get('objective'))}".casefold()
     terms = {item for item in re.findall(r"[a-z0-9+#.-]{2,}", text) if len(item) >= 2}
@@ -241,7 +253,7 @@ def discover_course_knowledge_sources(
     now: Callable[[], datetime] | None = None,
 ) -> dict[str, Any]:
     graph = dict(build.get("graph_draft") or {})
-    topics = confirmed_graph_topics(graph)
+    topics = execution_topics(build)
     if not topics:
         raise ValueError("已确认知识图谱没有叶级知识点")
     config = dict(build.get("config") or {})
@@ -371,7 +383,7 @@ def discover_leaf_gap_sources(
     """Run one new query intent only for leaves that still have a coverage gap."""
     topics = [
         topic
-        for topic in confirmed_graph_topics(dict(build.get("graph_draft") or {}))
+        for topic in execution_topics(build)
         if topic["topic_id"] in topic_ids
     ]
     config = dict(build.get("config") or {})

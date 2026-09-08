@@ -26,6 +26,7 @@ type Props = {
   config: CourseKnowledgeBuildConfig;
   textbooks: CourseKnowledgeTextbookInput[];
   busy: boolean;
+  flexiblePlanning?: boolean;
   onChange: (root: KnowledgeGraphNode) => void;
   onBack: () => void;
   onSave: (root: KnowledgeGraphNode) => Promise<KnowledgeGraphNode>;
@@ -40,6 +41,7 @@ export function CourseKnowledgeGraphReviewStep({
   config,
   textbooks,
   busy,
+  flexiblePlanning = false,
   onChange,
   onBack,
   onSave,
@@ -61,7 +63,7 @@ export function CourseKnowledgeGraphReviewStep({
   const selectedNode = findGraphNode(root, selectedNodeId) || root;
   const readyTextbooks = textbooks.filter((item) => item.status === "ready");
   const targetLeaves = config.target_module_count * config.target_points_per_module;
-  const scaleWarnings = [
+  const scaleWarnings = flexiblePlanning ? [] : [
     stats.maxDepth !== config.graph_depth ? `当前深度 ${stats.maxDepth}，目标深度 ${config.graph_depth}` : "",
     stats.moduleCount < Math.ceil(config.target_module_count * .8)
       || stats.moduleCount > Math.floor(config.target_module_count * 1.2)
@@ -165,10 +167,10 @@ export function CourseKnowledgeGraphReviewStep({
             node={selectedNode}
             root={root}
             baseline={baselineRoot}
-            maxDepth={config.graph_depth}
+            maxDepth={flexiblePlanning ? 8 : config.graph_depth}
             busy={busy}
             onChange={onChange}
-            onRegenerate={(moduleId) => requestRegenerate(moduleId)}
+            onRegenerate={flexiblePlanning ? undefined : (moduleId) => requestRegenerate(moduleId)}
           />
         </div>
       </div>

@@ -7,6 +7,7 @@ type Props = {
   textbooks: CourseKnowledgeTextbookInput[];
   uploading: boolean;
   generating: boolean;
+  generateLabel?: string;
   onBack: () => void;
   onUpload: (files: File[]) => void;
   onRetry: (textbookId: string) => void;
@@ -30,6 +31,7 @@ export function CourseKnowledgeTextbookStep({
   textbooks,
   uploading,
   generating,
+  generateLabel = "生成课程方案",
   onBack,
   onUpload,
   onRetry,
@@ -43,8 +45,8 @@ export function CourseKnowledgeTextbookStep({
   return (
     <section className="course-kb-wizard__step" aria-labelledby="kb-textbook-title">
       <div className="course-kb-wizard__step-heading">
-        <div><span>步骤 2 / 3</span><h3 id="kb-textbook-title">添加教材（可跳过）</h3></div>
-        <p>教材会先在当前方案中解析，确认图谱前不会进入课程公共知识库或 RAG。</p>
+        <div><h3 id="kb-textbook-title">添加教材（可跳过）</h3></div>
+        <p>教材用于帮助规划。确认目录后才会更新课程知识库。</p>
       </div>
 
       <div className="course-kb-wizard__upload">
@@ -84,14 +86,14 @@ export function CourseKnowledgeTextbookStep({
             </li>
           ))}
         </ul>
-      ) : <div className="course-kb-wizard__empty">不上传教材也可以生成知识图谱，模型会依据课程信息和规模配置设计结构。</div>}
+      ) : <div className="course-kb-wizard__empty">没有教材也可以继续，系统会结合课程介绍和已有资料进行规划。</div>}
 
       {pending ? <p className="course-kb-wizard__hint">请等待已上传教材解析完成，再生成图谱草案。</p> : null}
       {failed ? <p className="course-kb-wizard__hint is-error">请重试或移除解析失败的教材。</p> : null}
       <div className="course-kb-wizard__footer is-split">
-        <button type="button" className="course-kb-wizard__secondary" disabled={uploading || generating} onClick={onBack}>返回配置</button>
+        <button type="button" className="course-kb-wizard__secondary" disabled={uploading || generating} onClick={onBack}>返回</button>
         <button type="button" className="course-kb-wizard__primary" disabled={uploading || generating || pending || failed} onClick={onGenerate}>
-          {generating ? "模型正在生成图谱…" : textbooks.length ? "生成知识图谱草案" : "跳过教材并生成图谱"}
+          {generating ? "正在分析，请稍候…" : textbooks.length ? generateLabel : generateLabel}
         </button>
       </div>
     </section>

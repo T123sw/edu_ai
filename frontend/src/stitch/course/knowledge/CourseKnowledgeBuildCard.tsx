@@ -63,18 +63,21 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
     cardRef.current?.focus({ preventScroll: true });
   }, [requestedAction]);
 
+  const linkedBuildId = new URLSearchParams(window.location.hash.split("?")[1] || "").get("build_id");
+
   useEffect(() => {
-    const buildId = window.localStorage.getItem(storageKey(courseId));
+    const buildId = linkedBuildId || window.localStorage.getItem(storageKey(courseId));
+    if (linkedBuildId) setWizardOpen(true);
     if (!buildId) {
       setPlan(null);
       return;
     }
     let canceled = false;
     void getCourseKnowledgeBuild(courseId, buildId)
-      .then((value) => { if (!canceled) setPlan(value); })
+      .then((value) => { if (!canceled) { setPlan(value); window.localStorage.setItem(storageKey(courseId), value.build_id); } })
       .catch(() => { window.localStorage.removeItem(storageKey(courseId)); });
     return () => { canceled = true; };
-  }, [courseId, latestJob?.status, latestJob?.updated_at]);
+  }, [courseId, linkedBuildId, latestJob?.status, latestJob?.updated_at]);
 
   useEffect(() => {
     let canceled = false;
@@ -82,7 +85,7 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
       .then((value) => { if (!canceled) setVersions(value); })
       .catch(() => { if (!canceled) setVersions([]); });
     return () => { canceled = true; };
-  }, [courseId, latestJob?.status, latestJob?.updated_at]);
+  }, [courseId, linkedBuildId, latestJob?.status, latestJob?.updated_at]);
 
   async function buildKnowledgeBase() {
     if (!canBuild || planning || activeJob) return;

@@ -7,7 +7,7 @@ from typing import Any
 
 from app.services.course_knowledge_coverage import calculate_leaf_coverage
 from app.services.course_knowledge_graph_generator import validate_graph_draft_for_build
-from app.services.course_knowledge_source_discovery import confirmed_graph_topics
+from app.services.course_knowledge_source_discovery import execution_topics
 
 
 _SCALE_CODES = {"DEPTH_MISMATCH", "LEAF_DEPTH_MISMATCH", "MODULE_SCALE_MISMATCH", "LEAF_SCALE_MISMATCH"}
@@ -22,11 +22,13 @@ def evaluate_course_knowledge_quality(
     publication_atomicity: bool = True,
 ) -> dict[str, Any]:
     graph = dict(build.get("graph_draft") or {})
-    topics = confirmed_graph_topics(graph)
+    topics = execution_topics(build)
     config = dict(build.get("config") or {})
     target_total = max(1, int(config.get("target_materials_per_leaf") or 3))
     minimum_web = max(0, int(config.get("minimum_web_materials_per_leaf") or 0))
     maximum_ai = max(0, int(config.get("maximum_ai_materials_per_leaf") or 0))
+    targets = {t["topic_id"]: int(t.get("target_units") or target_total) for t in topics}
+    ai_limits = {t["topic_id"]: int(t.get("ai_limit", maximum_ai)) for t in topics}
     coverage = calculate_leaf_coverage(
         topics,
         persisted,
@@ -73,12 +75,12 @@ def evaluate_course_knowledge_quality(
         ),
         (
             "content_sufficiency",
-            bool(coverage) and all(item["effective_units"] >= target_total for item in coverage.values()),
+            bool(coverage) and all(item["effective_units"] >= targets[key] for key, item in coverage.items()),
             {"target_per_leaf": target_total, "coverage": coverage},
         ),
         (
             "ai_fallback_policy",
-            all(item["ai_units"] <= maximum_ai for item in coverage.values())
+            all(item["ai_units"] <= ai_limits[key] for key, item in coverage.items())
             and not unaudited_ai,
             {
                 "maximum_per_leaf": maximum_ai,

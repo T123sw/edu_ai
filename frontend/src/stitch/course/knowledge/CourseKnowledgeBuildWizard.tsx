@@ -4,19 +4,19 @@ import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
 import { isActiveJob } from "../../../jobs/types";
 import {
   confirmCourseKnowledgeGraph,
-  generateCourseKnowledgeGraphDraft,
+  generateCourseKnowledgeProposal,
+  selectCourseKnowledgeProposal,
   getCourseKnowledgeBuild,
   removeCourseKnowledgeTextbook,
   retryCourseKnowledgeTextbook,
   saveCourseKnowledgeGraphDraft,
   startCourseKnowledgeBuild,
-  updateCourseKnowledgeBuildDraft,
   uploadCourseKnowledgeTextbook,
 } from "../../api/courses";
 import { ApiError } from "../../api/client";
-import type { CourseKnowledgeBuild, CourseKnowledgeBuildConfig, KnowledgeGraphNode } from "../../api/types";
+import type { CourseKnowledgeBuild, KnowledgeGraphNode } from "../../api/types";
 import { MaterialIcon } from "../../shared";
-import { CourseKnowledgeBuildConfigStep } from "./CourseKnowledgeBuildConfigStep";
+import { CourseKnowledgeProposalView } from "./CourseKnowledgeProposalView";
 import { CourseKnowledgeGraphReviewStep } from "./CourseKnowledgeGraphReviewStep";
 import { CourseKnowledgeTextbookStep } from "./CourseKnowledgeTextbookStep";
 import { DEFAULT_COURSE_KNOWLEDGE_CONFIG } from "./courseKnowledgeBuildState";
@@ -30,10 +30,11 @@ type Props = {
 };
 
 export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onClose }: Props) {
-  const [step, setStep] = useState<"config" | "textbooks" | "graph">(
-    build.graph_draft ? "graph" : build.textbooks?.length ? "textbooks" : "config",
+  const [step, setStep] = useState<"proposal" | "textbooks" | "graph">(
+    build.graph_draft ? "graph" : build.knowledge_proposal ? "proposal" : "textbooks",
   );
-  const [config, setConfig] = useState<CourseKnowledgeBuildConfig>(build.config || DEFAULT_COURSE_KNOWLEDGE_CONFIG);
+  const config = build.config || DEFAULT_COURSE_KNOWLEDGE_CONFIG;
+  const [requirements, setRequirements] = useState(build.knowledge_proposal?.requirements || "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [submittingGraph, setSubmittingGraph] = useState(false);
@@ -49,9 +50,6 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
   const activeGraphJob = relevantJobs.find((job) => job.kind === "generate_graph" && isActiveJob(job));
   const latestRelevantJob = relevantJobs[0];
 
-  useEffect(() => {
-    if (build.config) setConfig(build.config);
-  }, [build.config]);
 
   useEffect(() => {
     if (!build.graph_draft) return;
@@ -91,24 +89,13 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
     return reason instanceof Error ? reason.message : fallback;
   }
 
-  async function saveAndContinue() {
-    setSaving(true);
-    setError("");
+  async function chooseProposal(selection: { option_id?: string; item_ids?: string[] }) {
+    setSaving(true); setError("");
     try {
-      const latest = await getCourseKnowledgeBuild(courseId, build.build_id);
-      const updated = await updateCourseKnowledgeBuildDraft(
-        courseId,
-        build.build_id,
-        latest.revision,
-        config,
-      );
-      onBuildChange(updated);
-      setStep("textbooks");
-    } catch (reason) {
-      setError(explain(reason, "保存构建配置失败"));
-    } finally {
-      setSaving(false);
-    }
+      const updated = await selectCourseKnowledgeProposal(courseId, build.build_id, build.revision, selection);
+      onBuildChange(updated); setGraphDraft(updated.graph_draft || null); setStep("graph");
+    } catch (reason) { setError(explain(reason, "选择方案失败")); }
+    finally { setSaving(false); }
   }
 
   async function upload(files: File[]) {
@@ -165,34 +152,23 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
     }
   }
 
-  async function generateGraph(targetModuleId?: string) {
-    setSubmittingGraph(true);
-    setError("");
+  async function generateGraph() {
+    setSubmittingGraph(true); setError("");
     try {
-      const latest = await getCourseKnowledgeBuild(courseId, build.build_id);
-      onBuildChange(latest);
-      const job = await generateCourseKnowledgeGraphDraft(
-        courseId,
-        build.build_id,
-        latest.revision,
-        targetModuleId,
-      );
-      registerCreatedJob(job);
-    } catch (reason) {
-      setSubmittingGraph(false);
-      setError(explain(reason, "生成知识图谱草案失败"));
-    }
+      const updated = await generateCourseKnowledgeProposal(courseId, build.build_id, build.revision, requirements);
+      onBuildChange(updated); setGraphDraft(null); setStep("proposal");
+    } catch (reason) { setError(explain(reason, "生成方案失败")); }
+    finally { setSubmittingGraph(false); }
   }
 
   async function saveGraph(root: KnowledgeGraphNode) {
     setGraphBusy(true);
     setError("");
     try {
-      const latest = await getCourseKnowledgeBuild(courseId, build.build_id);
       const updated = await saveCourseKnowledgeGraphDraft(
         courseId,
         build.build_id,
-        latest.revision,
+        build.revision,
         root,
       );
       onBuildChange(updated);
@@ -210,7 +186,7 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
     setGraphBusy(true);
     setError("");
     try {
-      let latest = await getCourseKnowledgeBuild(courseId, build.build_id);
+      let latest = build;
       if (!latest.graph_draft || !graphDraftEqual(root, latest.graph_draft)) {
         latest = await saveCourseKnowledgeGraphDraft(
           courseId,
@@ -243,27 +219,32 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
         <div><h2 id="kb-wizard-title">{build.baseline_graph ? "更新课程知识库" : "创建课程知识库"}</h2></div>
         <button type="button" aria-label="关闭构建向导" onClick={onClose}><MaterialIcon name="close" /></button>
       </header>
-      <nav className="course-kb-wizard__steps" aria-label="构建步骤">
-        <span className={step === "config" ? "is-active" : "is-done"}>1 选择规模</span>
-        <span className={step === "textbooks" ? "is-active" : step === "graph" ? "is-done" : ""}>2 教材（可选）</span>
-        <span className={step === "graph" ? "is-active" : build.graph_draft ? "is-done" : ""}>3 确认目录</span>
+      <nav className="course-kb-wizard__steps" aria-label="更新步骤">
+        <span className={step === "textbooks" ? "is-active" : ""}>1 需求与教材</span>
+        <span className={step === "proposal" ? "is-active" : ""}>2 {build.baseline_graph ? "补充清单" : "大纲对比"}</span>
+        <span className={step === "graph" ? "is-active" : ""}>3 确认目录</span>
       </nav>
-
-      {step === "config" ? (
-        <CourseKnowledgeBuildConfigStep config={config} saving={saving} onChange={setConfig} onContinue={() => void saveAndContinue()} />
-      ) : step === "textbooks" ? (
+      {step === "proposal" && build.knowledge_proposal ? (
+        <CourseKnowledgeProposalView key={build.revision} proposal={build.knowledge_proposal} busy={saving} onSelect={selection => void chooseProposal(selection)} onBack={() => setStep("textbooks")} />
+      ) : step === "textbooks" ? (<>
+        <label className="course-kb-proposal__requirements">{build.baseline_graph ? "这次想补充什么？" : "这门课面向谁，希望覆盖哪些内容？"}
+          <textarea value={requirements} onChange={event => setRequirements(event.target.value)} maxLength={4000}
+            placeholder={build.baseline_graph ? "例如：检查现有资料，只补充循环结构的练习。留空则检查整体缺口。" : "可填写授课对象、学时或重点。留空则根据课程介绍和教学目标规划。"} />
+        </label>
         <CourseKnowledgeTextbookStep
           textbooks={build.textbooks || []}
           uploading={uploading}
           generating={generating}
-          onBack={() => setStep("config")}
+          generateLabel={build.baseline_graph ? "分析补充建议" : "生成三份大纲"}
+          onBack={onClose}
           onUpload={(files) => void upload(files)}
           onRetry={(id) => void retry(id)}
           onRemove={(id) => void remove(id)}
           onGenerate={() => void generateGraph()}
         />
-      ) : graphDraft && build.graph_draft ? (
+      </>) : graphDraft && build.graph_draft ? (
         <CourseKnowledgeGraphReviewStep
+          flexiblePlanning={Boolean(build.knowledge_proposal)}
           root={graphDraft}
           savedRoot={build.graph_draft}
           baselineRoot={build.baseline_graph || null}
@@ -271,9 +252,9 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
           textbooks={build.textbooks || []}
           busy={graphBusy || generating}
           onChange={setGraphDraft}
-          onBack={() => setStep("textbooks")}
+          onBack={() => setStep(build.knowledge_proposal ? "proposal" : "textbooks")}
           onSave={saveGraph}
-          onRegenerate={(moduleId) => void generateGraph(moduleId)}
+          onRegenerate={() => void generateGraph()}
           onConfirmAndStart={(root) => void confirmAndStart(root)}
         />
       ) : null}

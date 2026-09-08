@@ -22,7 +22,7 @@ from app.services.course_knowledge_builder import _canonical_path, _robots_allow
 from app.services.course_knowledge_coverage import calculate_leaf_coverage
 from app.services.course_knowledge_source_discovery import (
     canonical_source_url,
-    confirmed_graph_topics,
+    execution_topics,
     discover_course_knowledge_sources,
     discover_course_textbook_sources,
     discover_leaf_gap_sources,
@@ -50,6 +50,9 @@ def submit_course_knowledge_plan_build_job(
     build = repository.get_build(build_id)
     if build is None or str(build.get("library_id") or "") != course_id:
         raise ValueError("知识库构建计划不存在")
+    if build.get("knowledge_proposal"):
+        from app.services.course_knowledge_proposals import check_baseline
+        check_baseline(repository, build)
     revision = int(build.get("revision") or 0)
     if (
         not build.get("graph_confirmed_at")
@@ -265,11 +268,14 @@ def _generate_and_persist_supplement(
     }
     supplement = generate_reviewed_supplement(
         course_title=course_title,
-        leaf_title=leaf_title,
+        leaf_title=leaf_title + ("；本次补充要求：" + str(topic["requested_materials"]) if topic.get("requested_materials") else ""),
         sequence=sequence,
         call_model=lambda prompt: str(rag_system._call_llm(prompt, llm_config=llm_config)),
     )
-    filename = _safe_material_filename("generated", supplement.title, f"{course_id}:{scope_id}:{sequence}")
+    identity = f"{course_id}:{scope_id}:{sequence}"
+    if topic.get("material_namespace"):
+        identity += ":" + str(topic["material_namespace"])
+    filename = _safe_material_filename("generated", supplement.title, identity)
     body = (
         f"> **AI 生成补充资料**：本资料由系统模型生成，用于补齐“{leaf_title}”的课程知识库覆盖；"
         f"未附带外部来源、引用或许可证。独立质量审查得分：{supplement.review_score}/100。\n\n"
@@ -572,7 +578,7 @@ def _published_graph(build: Mapping[str, Any], persisted: list[Mapping[str, Any]
         node_count += 1
         children = node.get("children") or []
         if not children and (node.get("data") or {}).get("type") == "knowledge_point":
-            node.setdefault("data", {})["document_ids"] = documents_by_topic.get(str(node.get("id") or ""), [])
+            node.setdefault("data", {})["document_ids"] = list(dict.fromkeys([*node.get("data", {}).get("document_ids", []), *documents_by_topic.get(str(node.get("id") or ""), [])]))
         for child in children:
             attach(child)
     attach(graph)
@@ -640,10 +646,10 @@ def _run_textbook_first_build(
     progress: Callable[[int, str, str], None] | None,
 ) -> dict[str, Any]:
     config = dict(build.get("config") or {})
-    topics = confirmed_graph_topics(dict(build.get("graph_draft") or {}))
+    topics = execution_topics(build)
     if not topics:
         raise ValueError("构建计划没有叶级知识点")
-    persisted: list[dict[str, Any]] = []
+    persisted: list[dict[str, Any]] = list(build.get("existing_materials") or [])
     failures: list[dict[str, str]] = []
     warnings: list[dict[str, str]] = []
     all_candidates: list[dict[str, Any]] = []
@@ -726,8 +732,8 @@ def _run_textbook_first_build(
         )
 
     max_rounds = min(3, max(1, int(config.get("max_search_rounds_per_leaf") or 2)))
-    seen_final_urls: set[str] = set()
-    seen_content_hashes: set[str] = set()
+    seen_final_urls: set[str] = {str(d["final_url"]) for d in persisted if d.get("final_url")}
+    seen_content_hashes: set[str] = {str(d["content_hash"]) for d in persisted if d.get("content_hash")}
     attempted_urls: set[str] = set()
     leaf_search_rounds: dict[str, int] = {str(item["topic_id"]): 0 for item in topics}
     for round_index in range(max_rounds):
@@ -841,13 +847,15 @@ def _run_textbook_first_build(
         topic_id = str(topic.get("topic_id") or "")
         missing_units = max(
             0,
-            int(config.get("target_materials_per_leaf") or 3)
+            int(topic.get("target_units") or config.get("target_materials_per_leaf") or 3)
             - int(before_ai[topic_id]["effective_units"]),
         )
         ai_budget = min(maximum_ai, missing_units) if ai_enabled else 0
         resumed = _reviewed_generated_documents(
             manager, course_id=course_id, scope_id=topic_id, limit=ai_budget
         )
+        if build.get("knowledge_proposal"):
+            resumed = []
         persisted.extend(resumed)
         deficits.extend(
             (topic, sequence)
@@ -1039,13 +1047,13 @@ def run_course_knowledge_plan_build_job(
         repository.update_build(build_id, status="running", phase="source_audit", progress=5)
         if progress:
             progress(5, "source_audit", "正在抓取中文优先、配置语言补充的网页正文")
-        persisted: list[dict[str, Any]] = []
+        persisted: list[dict[str, Any]] = list(build.get("existing_materials") or [])
         failures: list[dict[str, str]] = []
         total_steps = max(1, len(selected) + len(topics) * MIN_DOCUMENTS_PER_LEAF)
         completed_steps = 0
         web_success_by_leaf: dict[str, int] = {}
-        seen_final_urls: set[str] = set()
-        seen_content_hashes: set[str] = set()
+        seen_final_urls: set[str] = {str(d["final_url"]) for d in persisted if d.get("final_url")}
+        seen_content_hashes: set[str] = {str(d["content_hash"]) for d in persisted if d.get("content_hash")}
         for candidate in selected:
             topic_id = str(candidate.get("topic_id") or "")
             if web_success_by_leaf.get(topic_id, 0) >= desired_web_per_leaf:
@@ -1135,13 +1143,15 @@ def run_course_knowledge_plan_build_job(
         for topic in topics:
             topic_id = str(topic.get("topic_id") or "")
             existing_count = len({str(item.get("document_id") or "") for item in persisted if str(item.get("scope_id") or "") == topic_id and item.get("document_id")})
-            ai_budget = min(maximum_ai, max(0, target_per_leaf - existing_count)) if ai_enabled else 0
+            ai_budget = min(maximum_ai, max(0, int(topic.get("target_units") or target_per_leaf) - existing_count)) if ai_enabled else 0
             resumed = _reviewed_generated_documents(
                 manager,
                 course_id=course_id,
                 scope_id=topic_id,
                 limit=ai_budget,
             )
+            if build.get("knowledge_proposal"):
+                resumed = []
             persisted.extend(resumed)
             remaining = max(0, ai_budget - len(resumed))
             deficits.extend((topic, sequence) for sequence in range(1, remaining + 1))
