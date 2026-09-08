@@ -182,6 +182,7 @@ class ReplyServiceV2:
                 course_id=request.course_id, question=request.question,
                 operation_id=operation_id, artifact_reference=request.artifact_reference,
                 pending=revision_pending, scope_id=request.scope_id, actor_role=request.actor_role,
+                draft_action=request.artifact_draft_action,
                 session_artifacts=[state.get("active_artifact") or {}],
             )
             if outcome["status"] == "not_applicable":
@@ -193,8 +194,10 @@ class ReplyServiceV2:
                     "course_id": request.course_id, "scope_id": request.scope_id,
                     "revision_pending": outcome["pending"],
                 }})
-            elif outcome["status"] == "completed":
+            elif outcome["status"] in {"completed", "discarded"}:
                 storage.update_state(request.conversation_id, {"pending_operation": None})
+            storage.update_state(request.conversation_id, {"latest_revision_outcome": {k: v for k, v in outcome.items() if k not in {"pending", "artifact"}},
+                                                           "artifact_reference": outcome.get("artifact_reference") or state.get("artifact_reference")})
             artifact = outcome.get("artifact") or {}
             reference = outcome.get("artifact_reference") or {}
             artifacts = [{**artifact, **reference}] if artifact else []
@@ -218,6 +221,8 @@ class ReplyServiceV2:
 
     def _model_plans(self, request):
         from app.chat.harness.runtime import HarnessRuntime
+        if request.artifact_draft_action is not None:
+            return False
         if not Config.USE_DEEPSEEK_HARNESS:
             return False
         storage = getattr(self.conversation_store, "storage", None)

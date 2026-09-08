@@ -1,18 +1,13 @@
-"""Discussion is a non-writing stage; only later approval can enqueue edits."""
+"""Iterative preview is private conversation state; only approval saves it."""
 import json
 from types import SimpleNamespace
 
 from app.artifact_revision.service import ArtifactRevisionService
+from app.chat.domain.artifact_reference import ArtifactDraftAction
 from tests.chat.test_artifact_revision import manager, seed
-from tests.chat.test_artifact_revision_jobs import runtime
 
 
-def proposal(*changes):
-    return {"scope": "动态内存分配", "changes": list(changes or ["增加节点分配与释放示例"]),
-            "reason": "衔接原文，帮助学生理解内存生命周期。", "question": "按此方案修改可以吗？"}
-
-
-class SequenceModel:
+class Model:
     def __init__(self, *outputs):
         self.outputs = iter(outputs)
         self.inputs = []
@@ -21,85 +16,131 @@ class SequenceModel:
         return SimpleNamespace(content=json.dumps(next(self.outputs), ensure_ascii=False))
 
 
-def test_discussion_revises_plan_and_preserves_read_interlude_before_approval(manager):
+def change(before, after):
+    return {'edits': [{'path': [], 'before': before, 'after': after}], 'focus': '案例段落',
+            'reason': '用具体操作替代笼统描述。', 'benefit': '便于初学者理解。'}
+
+
+def turn(service, ref, question, pending=None, action=None, owner='teacher'):
+    return service.run(owner_user_id=owner, conversation_id='conv', course_id='course',
+                       question=question, operation_id='draft-op', artifact_reference=ref,
+                       pending=pending, draft_action=action)
+
+
+def action(result, operation='save', **kwargs):
+    draft = result['draft']
+    return ArtifactDraftAction(action=operation, draft_id=draft['draft_id'], revision=draft['revision'], **kwargs)
+
+
+def test_iterate_read_and_save_exact_preview_with_original_copy(manager):
     ref = seed(manager)
-    first = proposal('增加三个分配、失败处理和释放示例')
-    revised = proposal('只增加一个节点分配与释放的入门示例')
-    model = SequenceModel({'proposal': first}, {'proposal': revised}, {'answer': '一个入门示例更适合初学者。'}, {'confirm': True})
-    queued = []
-    service = ArtifactRevisionService(manager, model, submitter=lambda **kw: queued.append(kw) or {'status': 'queued'})
-    def turn(text, pending=None):
-        return service.run(owner_user_id='teacher', conversation_id='conv', course_id='course',
-                           question=text, operation_id='op', artifact_reference=ref, pending=pending)
-    one = turn('修改动态内存分配，加几个例子')
-    assert one['status'] == 'needs_clarification'
-    assert first['reason'] in one['message'] and first['changes'][0] in one['message']
-    assert queued == []
-    two = turn('同意方向，但只要一个入门例子', one['pending'])
-    assert two['pending']['proposal'] == revised and queued == []
-    read = turn('为什么只加一个？', two['pending'])
-    assert read['status'] == 'answered' and read['pending'] == two['pending'] and queued == []
-    final = turn('可以，按这个方案修改', read['pending'])
-    assert final['status'] == 'queued' and len(queued) == 1
-    assert queued[0]['state']['approved_plan'] == revised
-    assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
-    assert '原始案例' in model.inputs[0]['source']
-
-
-def test_initial_edits_and_confirmation_without_shown_plan_are_rejected(manager):
-    ref = seed(manager)
-    for invalid in ({'confirm': True}, {'edits': [{'path': [], 'before': '原始案例', 'after': '改了'}]}):
-        queued = []
-        service = ArtifactRevisionService(manager, SequenceModel(invalid, invalid), submitter=lambda **kw: queued.append(kw))
-        result = service.run(owner_user_id='teacher', conversation_id='conv', course_id='course',
-                             question='直接修改，不用问', operation_id='op', artifact_reference=ref)
-        assert result['status'] == 'failed' and queued == []
-        assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
-
-
-def test_missing_information_can_take_multiple_turns_without_writes(manager):
-    ref = seed(manager)
-    plan = proposal('为初学者补充一个分配和释放例子')
-    model = SequenceModel({'question': '面向初学者还是有 C 语言基础的学生？'},
-                          {'question': '希望课堂演示还是课后练习？'}, {'proposal': plan})
+    model = Model(change('原始案例', '第一个例子'), change('第一个例子', '更简洁的例子'), {'answer': '当前修改稿的例子更简洁。'})
     service = ArtifactRevisionService(manager, model)
-    pending = None
-    for question in ('加几个例子', '初学者', '课堂演示'):
-        result = service.run(owner_user_id='teacher', conversation_id='conv', course_id='course',
-                             question=question, operation_id='op', artifact_reference=ref, pending=pending)
-        assert result['status'] == 'needs_clarification'
-        pending = result['pending']
-        assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
-    assert pending['proposal'] == plan
+    first = turn(service, ref, '加个例子')
+    assert first['status'] == 'preview' and '尚未保存' in first['message']
+    assert first['draft']['reason'] in first['message'] and first['draft']['benefit'] in first['message']
+    second = turn(service, ref, '再简洁一点', first['pending'])
+    assert second['draft']['revision'] == 2
+    assert '第一个例子' in model.inputs[1]['source']
+    colored = second['draft']['segments']
+    assert any(s['kind'] == 'delete' and '原始案例' in s['text'] for s in colored)
+    assert any(s['kind'] == 'insert' and '更简洁的例子' in s['text'] for s in colored)
+    assert all('第一个例子' not in s['text'] for s in colored)
+    assert any(s['kind'] == 'focus' for s in colored)
+    assert manager.get_generated_material('course','report','one',owner_user_id='teacher')['version'] == 1
+    read = turn(service, ref, '为什么这样修改？', second['pending'])
+    assert read['pending'] == second['pending'] and read['draft'] == second['draft']
+    # Simulate restart: draft is restored only from serialized server conversation state.
+    restored = json.loads(json.dumps(read['pending']))
+    fresh_service = ArtifactRevisionService(manager)
+    saved = turn(fresh_service, ref, '保存当前修改稿', restored, action(second))
+    assert saved['status'] == 'completed', saved
+    assert saved['artifact']['version']['version_number'] == 2
+    assert saved['artifact']['content'].endswith('更简洁的例子')
+    assert fresh_service.read_version(owner_user_id='teacher',course_id='course',artifact_type='report',artifact_id='one',version=1)['content'].endswith('原始案例')
+    assert len(model.inputs) == 3
 
 
-def test_approved_plan_survives_real_queue_and_worker(runtime):
-    r = runtime
-    plan = proposal('把旧案例替换为新案例')
-    r.service.llm = SequenceModel({'proposal': plan}, {'confirm': True})
-    args = dict(owner_user_id='teacher', conversation_id='conv', course_id='course', operation_id='discussion-op', artifact_reference=r.ref)
-    first = r.service.run(question='更新案例', **args)
-    assert first['status'] == 'needs_clarification'
-    assert not r.executor.run_once()
-    final = r.service.run(question='同意，开始修改', pending=first['pending'], **args)
-    assert final['status'] == 'queued'
-    assert r.store.get_durable(final['task_id']).command['state']['approved_plan'] == plan
-    assert r.executor.run_once()
-    assert r.manager.get_generated_material('course','report','report1',owner_user_id='teacher')['version'] == 2
+def test_discard_never_writes_and_stale_action_is_rejected(manager):
+    ref = seed(manager)
+    service = ArtifactRevisionService(manager, Model(change('原始案例', '例子一'), change('例子一', '例子二')))
+    first = turn(service, ref, '增加例子')
+    second = turn(service, ref, '换一个', first['pending'])
+    stale = turn(service, ref, '保存', second['pending'], action(first))
+    assert stale['status'] == 'conflict'
+    other = turn(service, ref, '保存', second['pending'], action(second), owner='other')
+    assert other['status'] == 'failed'
+    discarded = turn(service, ref, '放弃', second['pending'], action(second, 'discard'))
+    assert discarded['status'] == 'discarded' and not discarded.get('pending')
+    assert manager.get_generated_material('course','report','one',owner_user_id='teacher')['version'] == 1
+
+
+def test_first_turn_cannot_save_and_natural_confirmation_saves_existing_draft(manager):
+    ref = seed(manager)
+    bad = ArtifactRevisionService(manager, Model({'save': True}, {'save': True}))
+    assert turn(bad, ref, '直接改完保存')['status'] == 'failed'
+    service = ArtifactRevisionService(manager, Model(change('原始案例', '新例子'), {'save': True}))
+    draft = turn(service, ref, '加个例子')
+    saved = turn(service, ref, '可以，保存吧', draft['pending'])
+    assert saved['status'] == 'completed' and saved['artifact']['content'].endswith('新例子')
+
+
+def test_external_version_change_blocks_save(manager):
+    ref = seed(manager)
+    service = ArtifactRevisionService(manager, Model(change('原始案例', '新例子')))
+    draft = turn(service, ref, '加个例子')
+    original = service.storage.get('course','report','one','teacher')
+    service.storage.save(original, {'content': '其他编辑者的新版本'}, owner='teacher', operation_id='external', fingerprint='external', summary='外部修改', changes=[])
+    result = turn(service, ref, '保存', draft['pending'], action(draft))
+    assert result['status'] == 'conflict'
+    assert manager.get_generated_material('course','report','one',owner_user_id='teacher')['content'] == '其他编辑者的新版本'
+    assert turn(service, ref, '放弃', draft['pending'], action(draft, 'discard'))['status'] == 'discarded'
+
+
+def test_invalid_iteration_preserves_last_usable_preview(manager):
+    ref = seed(manager)
+    invalid = change('不存在的原文', '替换')
+    service = ArtifactRevisionService(manager, Model(change('原始案例', '新例子'), invalid, invalid))
+    first = turn(service, ref, '加个例子')
+    failed = turn(service, ref, '再调整', first['pending'])
+    assert failed['status'] == 'failed' and failed['draft'] == first['draft']
+    assert manager.get_generated_material('course','report','one',owner_user_id='teacher')['version'] == 1
+
+
+def test_critical_ambiguity_asks_before_preview(manager):
+    ref = seed(manager)
+    service = ArtifactRevisionService(manager, Model({'question': '你指的是插入还是删除一节？'}))
+    result = turn(service, ref, '把那个部分重写')
+    assert result['status'] == 'needs_clarification' and 'draft' not in result
 
 
 def test_provider_failure_logs_status_without_leaking_details(manager, caplog):
     ref = seed(manager)
-    class ProviderError(Exception):
-        status_code = 402
+    class ProviderError(Exception): status_code = 402
     class Unavailable:
-        def invoke(self, prompt):
-            raise ProviderError('Insufficient Balance with private provider details')
-    service = ArtifactRevisionService(manager, Unavailable())
-    result = service.run(owner_user_id='teacher', conversation_id='conv', course_id='course',
-                         question='增加例子', operation_id='diagnostic-op', artifact_reference=ref)
-    assert result['status'] == 'failed'
-    assert '暂时不可用' in result['message']
-    assert 'status=402' in caplog.text and 'operation=diagnostic-op' in caplog.text
-    assert 'private provider details' not in caplog.text + result['message']
-    assert manager.get_generated_material('course','report','one',owner_user_id='teacher')['version'] == 1
+        def invoke(self, prompt): raise ProviderError('private provider details')
+    result = turn(ArtifactRevisionService(manager, Unavailable()), ref, '增加例子')
+    assert result['status'] == 'failed' and '暂时不可用' in result['message']
+    assert 'status=402' in caplog.text and 'private provider details' not in caplog.text + result['message']
+
+
+def test_save_button_contract_restores_pending_and_updates_history_reference(manager):
+    from app.chat.application.reply_service_v2 import ReplyServiceV2
+    from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
+    from tests.chat.test_reply_service_v2_artifact_reference import DummyStorage
+    ref = seed(manager)
+    storage = DummyStorage()
+    service = ReplyServiceV2(conversation_store=ConversationStoreAdapter(storage=storage),
+        artifact_revision_service=ArtifactRevisionService(manager, Model(change('原始案例', '按钮保存的例子'))), course_storage_manager=manager)
+    payload = SimpleNamespace(owner='teacher', conversation_id='conv', course_id='course', question='增加例子', artifact_reference=ref)
+    first = service.reply(payload)
+    draft = first['artifact_revision']['draft']
+    assert storage.get_state('conv')['latest_revision_outcome']['draft'] == draft
+    # UI sends only draft identity/action, never replacement content.
+    payload.question = '保存当前修改稿'
+    payload.artifact_draft_action = {'action': 'save', 'draft_id': draft['draft_id'], 'revision': draft['revision']}
+    second = service.reply(payload)
+    assert second['artifact_revision']['status'] == 'completed'
+    assert second['artifact_revision']['artifact']['content'].endswith('按钮保存的例子')
+    assert storage.get_state('conv')['pending_operation'] is None
+    assert storage.get_state('conv')['artifact_reference']['version_id'] == 'v2'

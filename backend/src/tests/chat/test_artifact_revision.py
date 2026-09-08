@@ -17,8 +17,8 @@ class Model:
     def invoke(self, prompt):
         self.prompts.append(prompt)
         supplied = json.loads(prompt[1]["content"])
-        if "previous_proposal" in supplied and "edits" in self.output:
-            output = {"confirm": True} if supplied["previous_proposal"] else {"proposal": {"scope": "案例", "changes": ["增加案例"], "reason": "帮助理解数组", "question": "按此修改可以吗？"}}
+        if supplied.get('draft_mode') and 'edits' in self.output:
+            output = {'save': True} if supplied['draft_revision'] and '保存' in supplied['current_question'] else {**self.output, 'focus': '案例', 'reason': '调整案例便于理解', 'benefit': '帮助学生理解数组'}
         else:
             output = self.output
         return SimpleNamespace(content=json.dumps(output, ensure_ascii=False))
@@ -289,8 +289,8 @@ def test_shared_reply_entry_reads_and_saves_for_both_modes(manager, stream, butt
         assert result["artifact_revision"]["status"] == "needs_clarification", result
         payload.question = "1"
         result = list(service.reply_stream(payload))[0]["payload"] if stream else service.reply(payload)
-    assert result["artifact_revision"]["status"] == "needs_clarification", result
-    payload.question = "同意这个方案，开始修改"
+    assert result["artifact_revision"]["status"] == "preview", result
+    payload.question = "保存当前修改稿"
     result = list(service.reply_stream(payload))[0]["payload"] if stream else service.reply(payload)
     assert result["artifact_revision"]["status"] == "completed", result
     assert result["artifacts"][0]["version_id"] == "v2"

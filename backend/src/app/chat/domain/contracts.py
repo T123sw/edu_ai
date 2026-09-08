@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from app.chat.application.knowledge_context import ResolvedWorkspaceContext
 
-from .artifact_reference import ArtifactReferencePayload
+from .artifact_reference import ArtifactReferencePayload, ArtifactDraftAction
 from .capability_policy import CapabilityPolicy
 from .conversation_reference import ConversationReferencePayload
 
@@ -65,6 +65,7 @@ class ChatRequestV2(BaseModel):
     scope_type: str | None = None
     scope_id: str | None = None
     artifact_id: str | None = None
+    artifact_draft_action: ArtifactDraftAction | None = None
     artifact_reference: ArtifactReferencePayload | None = None
     conversation_reference: ConversationReferencePayload | None = None
     action_hint: str | None = None

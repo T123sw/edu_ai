@@ -39,7 +39,9 @@ class ArtifactRevisionService:
 
     def run(self, *, owner_user_id: str, conversation_id: str, course_id: str | None,
             question: str, operation_id: str, artifact_reference=None, pending=None,
-            scope_id: str | None = None, session_artifacts=None, frozen_target=False, current_question=None, actor_role="teacher", execution_plan=None) -> dict:
+            scope_id: str | None = None, session_artifacts=None, frozen_target=False, current_question=None, actor_role="teacher", execution_plan=None, draft_action=None) -> dict:
+        if draft_action is not None and not pending:
+            return {"status": "conflict", "message": "没有当前修改稿，请先打开修改预览"}
         if not artifact_reference and not pending and not re.search(r"修改|改写|重写|调整|简化|改一下|删掉", question):
             return {"status": "not_applicable", "message": ""}
         try:
@@ -55,6 +57,11 @@ class ArtifactRevisionService:
                 ref = state.get("reference")
                 course_id, scope_id = state.get("course_id"), state.get("scope_id")
                 operation_id = state["operation_id"]
+            if draft_action is not None and draft_action.action == "discard":
+                draft = state.get("draft") or {}
+                if draft_action.draft_id != draft.get("draft_id") or draft_action.revision != draft.get("revision"):
+                    raise RevisionConflict("修改稿已变化，请查看当前修改稿后再操作")
+                return {"status": "discarded", "message": "已放弃本次修改稿，原文保持不变。", "artifact_reference": ref}
             # An explicitly named competing title supersedes a selected reference only
             # when unique among authorized candidates; otherwise ask, never guess.
             candidates = self.manager.list_generated_materials(course_id, owner_user_id=owner_user_id, space="mine", sort="updated_desc") if course_id and (not ref or re.search(r'[《“"]', question)) else []
@@ -131,14 +138,14 @@ class ArtifactRevisionService:
             if ref.get("content_hash") and ref["content_hash"] != source.get("content_hash"):
                 raise RevisionConflict("引用的资料内容已变化，请重新引用当前文档")
             content = self._content(source, kind)
-            if self.llm is None and execution_plan is None and self.submitter is not None:
+            if self.llm is None and execution_plan is None and self.submitter is not None and draft_action is None:
                 from app.chat.agents.report_generation import get_fallback_llm
                 self.llm = get_fallback_llm()
             if execution_plan is None:
-                planned = self._plan(state=state, content=content, kind=kind, question=current_question or question, pending=pending)
-                if planned is not None:
-                    return planned
-                execution_plan = state["proposal"]
+                from .drafts import run_draft_turn
+                return run_draft_turn(self, state=state, source=source, original=content, kind=kind,
+                                      question=current_question or question, pending=pending,
+                                      fingerprint=fingerprint, draft_action=draft_action)
             state["approved_plan"] = deepcopy(execution_plan)
             if self.submitter is not None:
                 return self.submitter(state=state, source=source, current_question=question, prior_pending=pending)
@@ -208,61 +215,14 @@ class ArtifactRevisionService:
             # Keep diagnostic identifiers, never provider bodies, source text or credentials.
             logger.error("artifact_revision failed operation=%s exception=%s status=%s", operation_id, type(exc).__name__, getattr(exc, "status_code", None))
             if getattr(exc, "status_code", None) == 402:
-                return {"status": "failed", "message": "资料处理服务暂时不可用，原文未改变。请稍后重试。", "pending": locals().get("state")}
-            message = str(exc) if type(exc) is ValueError else "修改失败，原资料未改变，请重试"
-            return {"status": "failed", "message": message, "pending": locals().get("state")}
-
-    def _plan(self, *, state, content, kind, question, pending):
-        system = self.skills.extract_section("edu-artifact-revision", "PLANNING_PROMPT")
-        if not system or self.llm is None:
-            raise ValueError("资料修改讨论暂不可用，原文未改变")
-        previous = (pending or {}).get("proposal")
-        prompt = [
-            {"role": "system", "content": system},
-            {"role": "user", "content": json.dumps({"reference": state["reference"], "artifact_type": kind,
-                "source": content, "instruction": state["question"], "current_question": question,
-                "previous_proposal": previous}, ensure_ascii=False)},
-        ]
-        for attempt in range(2):
-            response = self.llm.invoke(prompt)
-            raw = getattr(response, "content", response)
-            try:
-                output = json.loads(re.sub(r"^```(?:json)?\s*|\s*```$", "", raw.strip()))
-                actions = [key for key in ("answer", "question", "proposal", "confirm") if key in output]
-                if not isinstance(output, dict) or len(actions) != 1 or "edits" in output:
-                    raise ValueError("讨论阶段只能返回 answer/question/proposal/confirm，不能生成修改补丁")
-                action = actions[0]
-                if action == "confirm":
-                    if output["confirm"] is not True or not previous:
-                        raise ValueError("尚未向用户展示具体修改方案，不能执行；请先提出方案和理由")
-                    state["proposal"] = deepcopy(previous)
-                    return None
-                if action == "proposal":
-                    proposal = output[action]
-                    if not isinstance(proposal, dict) or not all(isinstance(proposal.get(k), str) and proposal[k].strip() for k in ("scope", "reason", "question")):
-                        raise ValueError("方案需要具体位置 scope、理由 reason 和确认问题 question")
-                    changes = proposal.get("changes")
-                    if not isinstance(changes, list) or not changes or not all(isinstance(c, str) and c.strip() for c in changes):
-                        raise ValueError("方案 changes 必须列出具体改动")
-                    state["proposal"] = deepcopy(proposal)
-                    message = "建议修改“" + proposal["scope"] + "”：\n\n" + "\n".join("- " + c for c in changes)
-                    message += "\n\n" + proposal["reason"] + "\n\n" + proposal["question"]
-                    return self._clarify(message, state)
-                text = output[action]
-                if not isinstance(text, str) or not text.strip():
-                    raise ValueError("回答或问题不能为空")
-                if action == "question":
-                    # Further clarification invalidates the previous proposal's approval opportunity.
-                    state.pop("proposal", None)
-                    return self._clarify(text, state)
-                result = {"status": "answered", "message": text, "artifact_reference": state["reference"]}
-                if pending:
-                    result.update(pending=deepcopy(pending), awaiting_clarification=True)
-                return result
-            except (ValueError, TypeError, AttributeError) as exc:
-                if attempt:
-                    raise ValueError("暂时未能整理修改方案，原文未改变，请重新说明修改方向") from exc
-                prompt.extend([{"role": "assistant", "content": str(raw)}, {"role": "user", "content": str(exc)}])
+                message = "资料处理服务暂时不可用，原文未改变。请稍后重试。"
+            else:
+                message = str(exc) if type(exc) is ValueError else "修改失败，原资料未改变，请重试"
+            result = {"status": "failed", "message": message, "pending": locals().get("state")}
+            if locals().get("state", {}).get("draft") and "content" in locals():
+                from .drafts import preview
+                result["draft"] = preview(state, content)
+            return result
 
     def _content(self, material, kind):
         # Legacy text exports can have a server file pointer instead of inline text.

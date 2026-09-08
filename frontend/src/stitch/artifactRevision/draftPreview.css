@@ -1,0 +1,19 @@
+.revision-draft__toolbar { position:sticky; top:-22px; z-index:2; background:white; display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 0 12px; border-bottom:1px solid #e2e8f0; }
+.revision-draft__toolbar > span { flex:1; color:#64748b; font-size:13px; }
+.revision-draft__toolbar button { border:1px solid #cbd5e1; border-radius:9px; background:white; padding:7px 12px; cursor:pointer; }
+.revision-draft__toolbar button:last-child { color:white; background:#3157d5; border-color:#3157d5; }
+.revision-draft__toolbar button:disabled { opacity:.5; cursor:default; }
+.revision-draft__legend { display:flex; flex-wrap:wrap; gap:10px; margin:12px 0; font-size:12px; }
+.revision-draft__legend > * { padding:3px 7px; border-radius:5px; }
+.revision-draft .is-focus, .revision-draft__focus { background:#fff4bf; color:#705900; }
+.revision-draft__focus { padding:8px 12px; border-left:3px solid #d4aa00; border-radius:5px; }
+.revision-draft .is-delete { background:#fff0f0; color:#a61c29; }
+.revision-draft .is-insert { background:#eaf2ff; color:#164aa8; }
+.revision-draft__document { margin-top:16px; }
+.revision-draft__block { padding:4px 10px; overflow-wrap:anywhere; }
+.revision-draft__block.is-delete { border-left:3px solid #d94c5b; }
+.revision-draft__block.is-insert { border-left:3px solid #477fe0; }
+.revision-draft__block del, .revision-draft__block ins { display:block; }
+.revision-draft__block.is-delete .markdown-preview { color:#a61c29; text-decoration:line-through; }
+.revision-draft__block.is-insert .markdown-preview { color:#164aa8; text-decoration:underline; text-underline-offset:3px; }
+.revision-draft__block.is-focus .markdown-preview { color:#705900; }

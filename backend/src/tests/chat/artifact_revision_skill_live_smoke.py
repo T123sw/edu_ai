@@ -37,10 +37,10 @@ def main(output_dir):
     read = run('这个文档写的什么', 'read-1')
     version_after_read = manager.get_generated_material(course, 'report', mid, owner_user_id=owner)['version']
     edit = run('只在“插入”一节末尾增加一句“头插法的时间复杂度为 O(1)。”，其他文字完全保留。', 'edit-1')
-    assert edit['status'] == 'needs_clarification', edit
+    assert edit['status'] == 'preview', edit
     proposal = edit
     assert manager.get_generated_material(course, 'report', mid, owner_user_id=owner)['version'] == 1
-    edit = run('同意，按刚才的方案执行修改。', 'edit-1', pending=proposal['pending'])
+    edit = run('保存当前修改稿。', 'edit-1', pending=proposal['pending'])
     current = manager.get_generated_material(course, 'report', mid, owner_user_id=owner)
     evidence = {'source': source, 'read': read, 'version_after_read': version_after_read, 'proposal': proposal, 'edit': edit, 'final_version': current['version'], 'final_content': current['content']}
     destination = Path(output_dir)

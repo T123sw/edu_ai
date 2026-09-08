@@ -55,6 +55,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         scope_type=getattr(payload, "scope_type", None),
         scope_id=getattr(payload, "scope_id", None),
         artifact_id=getattr(payload, "artifact_id", None),
+        artifact_draft_action=getattr(payload, "artifact_draft_action", None),
         artifact_reference=getattr(payload, "artifact_reference", None),
         conversation_reference=getattr(payload, "conversation_reference", None),
         action_hint=getattr(payload, "action_hint", None),

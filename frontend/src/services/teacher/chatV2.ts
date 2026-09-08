@@ -31,6 +31,7 @@ export interface ChatReplyRequestV2 {
   input_images?: ChatInputImageV2[];
   input_videos?: ChatInputVideoV2[];
   action_hint?: string;
+  artifact_draft_action?: ArtifactDraftAction;
   artifact_reference?: ChatArtifactReference;
   conversation_reference?: ChatConversationReference;
 }
@@ -385,11 +386,14 @@ export interface ScopeClarification {
   candidates: Array<{ scope_id: string; scope_title: string; scope_path: string[] }>;
 }
 
+export interface ArtifactDraftAction { action: 'save' | 'discard'; draft_id: string; revision: number; }
 export interface ArtifactRevisionOutcome {
+  draft?: { draft_id: string; revision: number; reference: import('../../stitch/artifactRevision/intent').ArtifactRevisionReference;
+    focus: string; reason: string; benefit: string; segments: Array<{ kind: 'same' | 'focus' | 'delete' | 'insert'; text: string }> };
   awaiting_clarification?: boolean;
   operation_id?: string;
   task_id?: string;
-  status: 'queued' | 'not_applicable' | 'answered' | 'needs_clarification' | 'completed' | 'conflict' | 'failed';
+  status: 'preview' | 'discarded' | 'queued' | 'not_applicable' | 'answered' | 'needs_clarification' | 'completed' | 'conflict' | 'failed';
   message: string;
   artifact_reference?: import('../../stitch/artifactRevision/intent').ArtifactRevisionReference;
   summary?: string;

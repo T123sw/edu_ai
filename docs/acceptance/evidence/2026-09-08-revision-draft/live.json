@@ -1,0 +1,169 @@
+{
+  "source": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+  "read": {
+    "status": "answered",
+    "message": "这篇文档简要说明链表的实现，内容包括：每个节点由 data 和 next 组成，head 指向首节点；头插法插入时先让新节点 next 指向旧 head，再更新 head；遍历时从 head 沿 next 访问，直到空指针。文末保留了一个标记：SKILL-READ-20260907。",
+    "artifact_reference": {
+      "content_hash": "e130e0b61426fc2c91d16d61f0e6a9992c2d9705e7f7b119e220bb90193f747e",
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v1",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    }
+  },
+  "version_after_read": 1,
+  "proposal": {
+    "status": "preview",
+    "pending": {
+      "actor_role": "teacher",
+      "owner_user_id": "skill-smoke-teacher",
+      "conversation_id": "skill-smoke",
+      "operation_id": "edit-1",
+      "question": "只在“插入”一节末尾增加一句“头插法的时间复杂度为 O(1)。”，其他文字完全保留。",
+      "reference": {
+        "content_hash": "e130e0b61426fc2c91d16d61f0e6a9992c2d9705e7f7b119e220bb90193f747e",
+        "artifact_id": "linked-list-smoke",
+        "artifact_type": "report",
+        "version_id": "v1",
+        "title": "链表的实现",
+        "source_course_id": "skill-smoke-course"
+      },
+      "course_id": "skill-smoke-course",
+      "scope_id": null,
+      "draft": {
+        "draft_id": "eb542e2377004ae09058d1a11e582f6d",
+        "revision": 1,
+        "content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+        "focus": "“插入”一节末尾",
+        "reason": "按用户要求仅在“插入”一节末尾补充头插法时间复杂度，其他文字保持不变。",
+        "benefit": "明确头插法的时间复杂度结论，便于学生对照实现记忆复杂度特征。"
+      }
+    },
+    "draft": {
+      "draft_id": "eb542e2377004ae09058d1a11e582f6d",
+      "revision": 1,
+      "reference": {
+        "content_hash": "e130e0b61426fc2c91d16d61f0e6a9992c2d9705e7f7b119e220bb90193f747e",
+        "artifact_id": "linked-list-smoke",
+        "artifact_type": "report",
+        "version_id": "v1",
+        "title": "链表的实现",
+        "source_course_id": "skill-smoke-course"
+      },
+      "focus": "“插入”一节末尾",
+      "reason": "按用户要求仅在“插入”一节末尾补充头插法时间复杂度，其他文字保持不变。",
+      "benefit": "明确头插法的时间复杂度结论，便于学生对照实现记忆复杂度特征。",
+      "segments": [
+        {
+          "kind": "same",
+          "text": "# 链表的实现\n\n"
+        },
+        {
+          "kind": "focus",
+          "text": "## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n"
+        },
+        {
+          "kind": "delete",
+          "text": "## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n"
+        },
+        {
+          "kind": "insert",
+          "text": "## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n"
+        },
+        {
+          "kind": "focus",
+          "text": "## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n"
+        },
+        {
+          "kind": "same",
+          "text": "保留标记 SKILL-READ-20260907。"
+        }
+      ]
+    },
+    "artifact_reference": {
+      "content_hash": "e130e0b61426fc2c91d16d61f0e6a9992c2d9705e7f7b119e220bb90193f747e",
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v1",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    },
+    "message": "按用户要求仅在“插入”一节末尾补充头插法时间复杂度，其他文字保持不变。\n\n明确头插法的时间复杂度结论，便于学生对照实现记忆复杂度特征。\n\n修改稿已在右侧标出，尚未保存。要保存当前修改稿，还是继续调整？"
+  },
+  "edit": {
+    "status": "completed",
+    "message": "已保存《链表的实现》第 2 版，原第 1 版已保留。",
+    "artifact_reference": {
+      "content_hash": "f9617bddf9c8d9c2dd470169b87ac7bf5cc935c3bfa4c95fe8a11183c5280448",
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "version_id": "v2",
+      "title": "链表的实现",
+      "source_course_id": "skill-smoke-course"
+    },
+    "artifact": {
+      "title": "链表的实现",
+      "content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+      "schema_version": 2,
+      "version": {
+        "version_id": "v2",
+        "version_number": 2,
+        "root_artifact_id": "linked-list-smoke",
+        "parent_artifact_id": "linked-list-smoke"
+      },
+      "material_type": "report",
+      "material_id": "linked-list-smoke",
+      "course_id": "skill-smoke-course",
+      "scope_type": "knowledge_point",
+      "scope_id": "linked-list",
+      "owner_user_id": "skill-smoke-teacher",
+      "created_by": "skill-smoke-teacher",
+      "visibility": "private",
+      "source_job_id": null,
+      "config_snapshot_id": null,
+      "source_snapshot": {},
+      "config_snapshot": {},
+      "source": {},
+      "status": "ready",
+      "created_at": "2026-09-08T09:18:04.240752",
+      "updated_at": "2026-09-08T09:18:22.517192+00:00",
+      "is_pinned": false,
+      "pinned_at": null,
+      "content_hash": "f9617bddf9c8d9c2dd470169b87ac7bf5cc935c3bfa4c95fe8a11183c5280448",
+      "artifact_paths": [],
+      "file_path": null,
+      "html_url": null,
+      "video_url": null,
+      "pptx_url": null,
+      "sidecar_url": null,
+      "video_status": "not_generated",
+      "revision": {
+        "base_version": 1,
+        "summary": "按用户要求仅在“插入”一节末尾补充头插法时间复杂度，其他文字保持不变。",
+        "changes": [
+          {
+            "path": [],
+            "before": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+            "after": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。"
+          }
+        ],
+        "operation_id": "edit-1"
+      },
+      "artifact_id": "linked-list-smoke",
+      "artifact_type": "report",
+      "material_version": 2
+    },
+    "summary": "按用户要求仅在“插入”一节末尾补充头插法时间复杂度，其他文字保持不变。",
+    "changes": [
+      {
+        "path": [],
+        "before": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。",
+        "after": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。"
+      }
+    ],
+    "base_version_id": "v1"
+  },
+  "final_version": 2,
+  "final_content": "# 链表的实现\n\n## 结构\n每个节点包含 data 和 next，head 指向首节点。\n\n## 插入\n头插时先让新节点 next 指向旧 head，再更新 head。\n头插法的时间复杂度为 O(1)。\n\n## 遍历\n从 head 开始沿 next 访问，直到空指针。\n\n保留标记 SKILL-READ-20260907。"
+}

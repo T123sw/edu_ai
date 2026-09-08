@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.chat.application.knowledge_context import ResolvedWorkspaceContext, ScopeClarification
-from app.chat.domain.artifact_reference import ArtifactReferencePayload
+from app.chat.domain.artifact_reference import ArtifactReferencePayload, ArtifactDraftAction
 from app.chat.domain.contracts import ChatInputImagePayload, ChatInputVideoPayload
 from app.chat.domain.conversation_reference import ConversationReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
@@ -133,6 +133,7 @@ class ChatReplyRequestV2(BaseModel):
     scope_type: Optional[str] = None
     scope_id: Optional[str] = None
     artifact_id: Optional[str] = None
+    artifact_draft_action: ArtifactDraftAction | None = None
     artifact_reference: Optional[ArtifactReferencePayload] = None
     conversation_reference: Optional[ConversationReferencePayload] = None
     allow_rag: bool = False

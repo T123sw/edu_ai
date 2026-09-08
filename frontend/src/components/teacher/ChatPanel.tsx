@@ -1,3 +1,5 @@
+import { useDraftPreview, subscribeDraftAction } from '../../stitch/artifactRevision/draftPreview';
+import type { ArtifactDraftAction } from '../../services/teacher/chatV2';
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Alert, Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
 import { SendOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
@@ -780,7 +782,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         setWorkflowStatus(nextWorkflowStatus || null);
         replaceConversationGeneratedFiles(restoredFiles);
         const restoredRevision = detail.state?.latest_revision_outcome as ArtifactRevisionOutcome | undefined;
-        setRevisionOutcome(restoredRevision || null);
+        setRevisionOutcome(restoredRevision?.draft && detail.state?.pending_operation?.kind !== 'artifact_revision' ? null : restoredRevision || null);
         const pendingRevision = detail.state?.pending_operation;
         pendingOperationRef.current = pendingRevision?.kind === 'artifact_revision'
           ? { conversationId: detail.conversation_id, operationId: pendingRevision.id } : null;
@@ -871,7 +873,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId, authenticatedUser?.username]);
 
+  useEffect(() => {
+    useDraftPreview.getState().setEntry(revisionOutcome && courseId && currentConversationId ? {
+      outcome: revisionOutcome, owner: authenticatedUser?.username || '', courseId,
+      conversationId: currentConversationId, busy: isLoading,
+    } : null);
+  }, [revisionOutcome, courseId, currentConversationId, authenticatedUser?.username, isLoading]);
+  useEffect(() => () => useDraftPreview.getState().setEntry(null), []);
+
   const handleNewConversation = () => {
+    setRevisionOutcome(null);
     pendingRevisionIntent.current = null;
     clearRevisionIntent();
     conversationAsyncGuard.invalidateConversation(null);
@@ -1120,7 +1131,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     clearArtifactReference();
   };
 
-  const handleSendMessage = async (overrideText?: string, forceSend = false) => {
+  const handleSendMessage = async (overrideText?: string, forceSend = false, draftAction?: ArtifactDraftAction) => {
     const draft = (overrideText ?? inputValue).trim();
     if ((draft === '' && pendingImages.length === 0 && pendingVideos.length === 0) || (isLoading && !forceSend)) return;
     const activeConversationIdAtSend = useStore.getState().currentConversationId;
@@ -1179,6 +1190,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         artifactReference,
         conversationReference,
       });
+      if (draftAction) payload.artifact_draft_action = draftAction;
       let streamedText = '';
       let awaitingSavedOutline = false;
       payload.request_id = crypto.randomUUID();
@@ -1344,7 +1356,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         conversationAsyncGuard.adoptConversation(nextConversationId);
         setCurrentConversationId(nextConversationId);
       }
-      const pendingId = response.clarification?.operation_id || (response.artifact_revision?.status === 'needs_clarification' || response.artifact_revision?.awaiting_clarification ? response.artifact_revision.operation_id : undefined);
+      const pendingId = response.clarification?.operation_id || (response.artifact_revision?.status === 'preview' || response.artifact_revision?.status === 'needs_clarification' || response.artifact_revision?.awaiting_clarification ? response.artifact_revision.operation_id : undefined);
       pendingOperationRef.current = pendingId ? { conversationId: nextConversationId, operationId: pendingId } : null;
       setClarification(response.clarification || null);
       setRevisionOutcome(response.artifact_revision || null);
@@ -1419,6 +1431,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       }
     }
   };
+
+  useEffect(() => subscribeDraftAction(action => {
+    void handleSendMessage(action.action === 'save' ? '保存当前修改稿' : '放弃当前修改稿', false, action);
+  }));
 
   useEffect(() => {
     if (!queuedMessage || isLoading) return;

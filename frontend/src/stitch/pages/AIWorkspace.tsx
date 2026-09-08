@@ -1,3 +1,4 @@
+import { useDraftPreview } from "../artifactRevision/draftPreview";
 import { useEffect, useMemo, useState } from "react";
 import SourcePanel from "../../components/teacher/SourcePanel";
 import { WorkspaceContextBar } from "../../components/teacher/WorkspaceContextBar";
@@ -38,6 +39,7 @@ export function AIWorkspacePage() {
   const [hash, setHash] = useState(() => window.location.hash);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const activeDraft = useDraftPreview(state => state.entry?.outcome.draft);
   const [kbPreviewOpen, setKbPreviewOpen] = useState(false);
   const [studioPreviewOpen, setStudioPreviewOpen] = useState(false);
   const [drawerPanel, setDrawerPanel] = useState<"source" | "studio" | null>(null);
@@ -55,6 +57,12 @@ export function AIWorkspacePage() {
       setDrawerPanel(null);
     }
   }, [layoutMode]);
+
+  useEffect(() => {
+    if (!activeDraft || activeDraft.reference.source_course_id !== selectedCourse?.id) return;
+    setRightCollapsed(false);
+    if (layoutMode === 'drawer') setDrawerPanel('studio');
+  }, [activeDraft?.draft_id, activeDraft?.revision, selectedCourse?.id, layoutMode]);
 
   const pageStyle = useMemo<React.CSSProperties>(() => {
     const effectiveState =

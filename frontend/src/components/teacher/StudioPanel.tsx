@@ -1,3 +1,4 @@
+import { DraftDocumentPreview, useDraftPreview } from "../../stitch/artifactRevision/draftPreview";
 import { lazy, Suspense, useEffect, useState, type FC } from "react";
 
 import type { WorkspaceScope } from "../../services/teacher/workspaceScope";
@@ -29,6 +30,10 @@ type Props = {
 
 const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, workspaceScope, onPreviewStateChange }) => {
   const { user } = useAuthSession();
+  const draftEntry = useDraftPreview(state => state.entry);
+  const conversationId = useStore(state => state.currentConversationId);
+  const outcome = draftEntry?.owner === user?.username && draftEntry?.courseId === courseId && draftEntry?.conversationId === conversationId ? draftEntry.outcome : null;
+  const draft = outcome?.draft;
   const selectedDocs = useStore((state) => state.selectedDocs);
   const [allowedTools, setAllowedTools] = useState<GenerationToolId[]>([]);
   const [catalogError, setCatalogError] = useState<string | null>(null);
@@ -41,7 +46,11 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
   const activePreview = preview?.courseId === courseId ? preview : null;
   const previewOpen = Boolean(activePreview) && !collapsed;
 
-  useEffect(() => { setPreview(null); }, [courseId]);
+  useEffect(() => { setPreview(null); }, [courseId, user?.username]);
+  useEffect(() => {
+    const ref = draft?.reference || (outcome?.status === 'completed' || outcome?.status === 'discarded' ? outcome.artifact_reference : null);
+    if (ref) setPreview({courseId: ref.source_course_id, materialType: ref.artifact_type, materialId: ref.artifact_id, title: ref.title || '文档'});
+  }, [draft, outcome]);
   useEffect(() => {
     onPreviewStateChange?.(previewOpen);
     return () => onPreviewStateChange?.(false);
@@ -86,7 +95,7 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
         <h2>{activePreview.title}</h2>
       </header>
       <div className="generation-factory__preview-body">
-        {activePreview.materialType === "classroom" ? <Suspense fallback={<p role="status">正在打开课堂…</p>}>
+        {draft && draft.reference.artifact_id === activePreview.materialId ? <DraftDocumentPreview draft={draft} busy={draftEntry?.busy || false} /> : activePreview.materialType === "classroom" ? <Suspense fallback={<p role="status">正在打开课堂…</p>}>
           <ClassroomPlaybackSurface courseId={activePreview.courseId} classroomId={activePreview.materialId} mode="manage" kind="personal_classroom" />
         </Suspense> : previewError ? <div role="alert"><p>文件暂时无法加载，请重试。</p><button type="button" onClick={() => setPreviewRetry(value => value + 1)}>重新加载</button></div>
           : !material ? <p role="status">正在打开文件…</p>

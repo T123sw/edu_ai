@@ -14,3 +14,9 @@ class ArtifactReferencePayload(BaseModel):
     source_conversation_id: str | None = None
     source_course_id: str | None = None
 
+
+
+class ArtifactDraftAction(BaseModel):
+    action: Literal["save", "discard"]
+    draft_id: str
+    revision: int
