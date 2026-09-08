@@ -32,13 +32,17 @@ def main(output_dir):
     service = ArtifactRevisionService(manager, get_fallback_llm())
     ref = reference(manager.get_generated_material(course, 'report', mid, owner_user_id=owner))
     assert ref['content_hash']
-    def run(question, operation):
-        return service.run(owner_user_id=owner, conversation_id='skill-smoke', course_id=course, question=question, operation_id=operation, artifact_reference=ref)
+    def run(question, operation, pending=None):
+        return service.run(owner_user_id=owner, conversation_id='skill-smoke', course_id=course, question=question, operation_id=operation, artifact_reference=ref, pending=pending)
     read = run('这个文档写的什么', 'read-1')
     version_after_read = manager.get_generated_material(course, 'report', mid, owner_user_id=owner)['version']
     edit = run('只在“插入”一节末尾增加一句“头插法的时间复杂度为 O(1)。”，其他文字完全保留。', 'edit-1')
+    assert edit['status'] == 'needs_clarification', edit
+    proposal = edit
+    assert manager.get_generated_material(course, 'report', mid, owner_user_id=owner)['version'] == 1
+    edit = run('同意，按刚才的方案执行修改。', 'edit-1', pending=proposal['pending'])
     current = manager.get_generated_material(course, 'report', mid, owner_user_id=owner)
-    evidence = {'source': source, 'read': read, 'version_after_read': version_after_read, 'edit': edit, 'final_version': current['version'], 'final_content': current['content']}
+    evidence = {'source': source, 'read': read, 'version_after_read': version_after_read, 'proposal': proposal, 'edit': edit, 'final_version': current['version'], 'final_content': current['content']}
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
     (destination / 'live.json').write_text(json.dumps(evidence, ensure_ascii=False, indent=2))

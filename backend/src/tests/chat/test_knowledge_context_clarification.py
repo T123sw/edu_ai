@@ -289,6 +289,7 @@ def test_quoted_edit_content_does_not_replace_explicit_artifact_target(tmp_path,
     model = SimpleNamespace(invoke=lambda *args: SimpleNamespace(content=json.dumps({'edits': [{'path': [], 'before': '原文', 'after': '原文\n验收标记'}]})))
     result = ArtifactRevisionService(manager, model).run(owner_user_id='teacher', conversation_id='conv', course_id='data',
         question='只在最后增加一句“验收标记”，其他内容不变', operation_id='quoted-edit',
+        execution_plan={'scope': '末尾', 'changes': ['追加验收标记'], 'reason': '已确认的修改'},
         artifact_reference={'artifact_id': 'report1', 'artifact_type': 'report', 'version_id': 'v1', 'source_course_id': 'data'})
     assert result['status'] == 'completed'
     assert result['artifact_reference']['version_id'] == 'v2'

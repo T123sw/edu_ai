@@ -16,7 +16,12 @@ class Model:
 
     def invoke(self, prompt):
         self.prompts.append(prompt)
-        return SimpleNamespace(content=json.dumps(self.output, ensure_ascii=False))
+        supplied = json.loads(prompt[1]["content"])
+        if "previous_proposal" in supplied and "edits" in self.output:
+            output = {"confirm": True} if supplied["previous_proposal"] else {"proposal": {"scope": "案例", "changes": ["增加案例"], "reason": "帮助理解数组", "question": "按此修改可以吗？"}}
+        else:
+            output = self.output
+        return SimpleNamespace(content=json.dumps(output, ensure_ascii=False))
 
 
 @pytest.fixture(params=["json", "postgres"])
@@ -44,7 +49,9 @@ def seed(manager, kind="report", content=None, artifact_id="one", **extra):
 
 
 def run(service, ref=None, **kwargs):
-    return service.run(**{"owner_user_id": "teacher", "conversation_id": "conversation", "course_id": "course", "question": "增加两个实际案例", "operation_id": "op-1", "artifact_reference": ref, **kwargs})
+    # Storage/patch tests start at execution of an approved plan. Discussion
+    # and unapproved requests are covered through the public entry separately.
+    return service.run(**{"owner_user_id": "teacher", "conversation_id": "conversation", "course_id": "course", "question": "增加两个实际案例", "operation_id": "op-1", "artifact_reference": ref, "execution_plan": {"scope": "案例", "changes": ["按已确认要求修改案例"], "reason": "教学示例"}, **kwargs})
 
 
 def edit(path=None, before="原始案例", after="新案例"):
@@ -282,6 +289,9 @@ def test_shared_reply_entry_reads_and_saves_for_both_modes(manager, stream, butt
         assert result["artifact_revision"]["status"] == "needs_clarification", result
         payload.question = "1"
         result = list(service.reply_stream(payload))[0]["payload"] if stream else service.reply(payload)
+    assert result["artifact_revision"]["status"] == "needs_clarification", result
+    payload.question = "同意这个方案，开始修改"
+    result = list(service.reply_stream(payload))[0]["payload"] if stream else service.reply(payload)
     assert result["artifact_revision"]["status"] == "completed", result
     assert result["artifacts"][0]["version_id"] == "v2"
     assert manager.get_generated_material("course", "report", "one", owner_user_id="teacher")["version"] == 2

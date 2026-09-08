@@ -218,12 +218,17 @@ class ReplyServiceV2:
 
     def _model_plans(self, request):
         from app.chat.harness.runtime import HarnessRuntime
+        if not Config.USE_DEEPSEEK_HARNESS:
+            return False
         storage = getattr(self.conversation_store, "storage", None)
-        state = storage.get_state(request.conversation_id) if storage is not None else {}
+        try:
+            state = storage.get_state(request.conversation_id) if storage is not None else {}
+        except KeyError:
+            state = {}
         state = state or {}
         if (state.get("pending_operation") or {}).get("kind") == "artifact_revision":
             return False
-        if re.search(r"修改|改写|重写|调整|简化|改一下|删掉", request.question) and re.search(r"报告|文档|教案|习题|闪卡|博客|导图|游戏|课堂", request.question) and "大纲" not in request.question:
+        if self.artifact_revision_service is not None and re.search(r"修改|改写|重写|调整|简化|改一下|删掉", request.question) and re.search(r"报告|文档|教案|习题|闪卡|博客|导图|游戏|课堂", request.question) and "大纲" not in request.question:
             return False
         return bool(Config.USE_DEEPSEEK_HARNESS and HarnessRuntime.supports(request))
 

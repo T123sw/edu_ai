@@ -64,6 +64,8 @@ class ArtifactRevisionTaskHandler:
         from app.chat.domain.contracts import ChatRequestV2
         from app.chat.agents.report_generation import get_fallback_llm
         state = deepcopy(command['state'])
+        if not state.get('approved_plan'):
+            raise DurableTaskExecutionError('REVISION_NOT_CONFIRMED', '修改方案尚未确认，请返回对话讨论后再修改。')
         if state['owner_user_id'] != context.owner_user_id:
             raise DurableTaskExecutionError('REVISION_FORBIDDEN', '任务不属于当前账号')
         manager = self.manager or CourseStorageManager()
@@ -79,7 +81,7 @@ class ArtifactRevisionTaskHandler:
         outcome = service.run(owner_user_id=state['owner_user_id'], conversation_id=state['conversation_id'],
             course_id=state['course_id'], question=state['question'], operation_id=state['operation_id'],
             artifact_reference=state['reference'], scope_id=state.get('scope_id'), frozen_target=True,
-            current_question=command['current_question'])
+            current_question=command['current_question'], execution_plan=state['approved_plan'])
         outcome['operation_id'] = state['operation_id']
         outcome['task_id'] = context.task_id
         if outcome['status'] in {'failed', 'conflict', 'not_applicable'}:

@@ -43,7 +43,7 @@ def runtime(tmp_path, monkeypatch):
     ref = {'artifact_type': 'report', 'artifact_id': 'report1', 'version_id': 'v1', 'source_course_id': 'course'}
     def submit(question='将旧案例替换为新案例', operation='op1', pending=None):
         return service.run(owner_user_id='teacher', conversation_id='conv', course_id='course',
-            question=question, operation_id=operation, artifact_reference=ref, pending=pending)
+            question=question, operation_id=operation, artifact_reference=ref, pending=pending, execution_plan={'scope': '案例', 'changes': ['替换旧案例'], 'reason': '已确认的示例'})
     yield SimpleNamespace(**locals())
     store.close()
 
@@ -103,7 +103,8 @@ def test_shared_stream_returns_task_before_model_runs(runtime):
     from app.chat.application.reply_service_v2 import ReplyServiceV2
     from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
     r=runtime
-    service=ReplyServiceV2(conversation_store=ConversationStoreAdapter(storage=r.conversations), artifact_revision_service=r.service)
+    confirmed_service = SimpleNamespace(run=lambda **kwargs: r.service.run(**kwargs, execution_plan={'scope':'案例','changes':['替换旧案例'],'reason':'已确认'}))
+    service=ReplyServiceV2(conversation_store=ConversationStoreAdapter(storage=r.conversations), artifact_revision_service=confirmed_service)
     events=list(service.reply_stream(SimpleNamespace(owner='teacher', actor_role='teacher', course_id='course', conversation_id='conv', question='替换旧案例', artifact_reference=r.ref)))
     submitted=next(e['payload'] for e in events if e['type']=='task_submitted')
     assert submitted['workflow_type']=='artifact_revision'
@@ -129,7 +130,7 @@ def test_queued_target_version_conflict_does_not_overwrite_newer_copy(runtime):
     r=runtime
     queued=r.submit()
     original=ArtifactRevisionService(r.manager,r.model)
-    manual=original.run(owner_user_id='teacher',conversation_id='other',course_id='course',question='修改案例',operation_id='other-op',artifact_reference=r.ref)
+    manual=original.run(owner_user_id='teacher',conversation_id='other',course_id='course',question='修改案例',operation_id='other-op',artifact_reference=r.ref, execution_plan={'scope':'案例','changes':['替换旧案例'],'reason':'已确认'})
     assert manual['status']=='completed'
     assert r.executor.run_once()
     assert get_job(queued['task_id']).error_code=='REVISION_CONFLICT'
