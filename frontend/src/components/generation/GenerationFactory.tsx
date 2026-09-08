@@ -1,4 +1,3 @@
-import { GenerationRevisionButton } from "../../stitch/artifactRevision/components";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -61,6 +60,8 @@ function statusLabel(status: string) {
   return "未完成";
 }
 
+export type GenerationResultTarget = { courseId: string; materialType: string; materialId: string; title: string };
+
 export type GenerationFactoryProps = {
   courseId?: string;
   allowedTools: readonly GenerationToolId[];
@@ -69,6 +70,7 @@ export type GenerationFactoryProps = {
   selectedDocumentIds?: readonly string[];
   scopeType?: "course" | "knowledge_point";
   scopeId?: string;
+  onOpenResult?: (target: GenerationResultTarget) => void;
 };
 
 export function GenerationFactory({
@@ -79,6 +81,7 @@ export function GenerationFactory({
   selectedDocumentIds = [],
   scopeType,
   scopeId,
+  onOpenResult,
 }: GenerationFactoryProps) {
   const [resourceType, setResourceType] = useState<GenerationResourceType | null>(null);
   const [source, setSource] = useState<GenerationSourceSelection>(() => initialGenerationSource([]));
@@ -195,7 +198,12 @@ export function GenerationFactory({
                 <span className={`generation-factory__job-state is-${job.status}`}>{statusLabel(job.status)}</span>
               </>
             );
-            return href ? <div key={job.edu_job_id} className="flex flex-wrap items-center gap-2"><a href={href} className="generation-factory__job">{content}</a>{courseId && ref?.material_type && ref?.material_id && job.status === "succeeded" && <GenerationRevisionButton courseId={courseId} materialType={ref.material_type} materialId={ref.material_id} />}</div> : <article key={job.edu_job_id} className="generation-factory__job">{content}</article>;
+            const targetCourseId = ref?.course_id || courseId;
+            if (onOpenResult && targetCourseId && ref?.material_type && ref?.material_id) {
+              return <button key={job.edu_job_id} type="button" className="generation-factory__job generation-factory__job--open"
+                onClick={() => onOpenResult({ courseId: targetCourseId, materialType: ref.material_type!, materialId: ref.material_id!, title: presentation.title })}>{content}</button>;
+            }
+            return href ? <a key={job.edu_job_id} href={href} className="generation-factory__job">{content}</a> : <article key={job.edu_job_id} className="generation-factory__job">{content}</article>;
           })}
         </div>
       </section>

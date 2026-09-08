@@ -174,14 +174,14 @@ export function AIWorkspacePage() {
               </div>
             </div>
 
-            <div className={`ai-studio-sider ai-studio-sider--right${drawerPanel === "studio" ? " is-open" : ""}`}>
+            <div className={`ai-studio-sider ai-studio-sider--right${drawerPanel === "studio" ? " is-open" : ""}${studioPreviewOpen ? " is-previewing" : ""}`}>
               <div className="ai-panel">
                 <StudioPanel
                   collapsed={layoutMode === "drawer" ? false : effectivePanelState.rightCollapsed}
                   onToggleCollapsed={toggleRightPanel}
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
-                  onPreviewStateChange={(open) => setStudioPreviewOpen(open)}
+                  onPreviewStateChange={setStudioPreviewOpen}
                 />
               </div>
             </div>

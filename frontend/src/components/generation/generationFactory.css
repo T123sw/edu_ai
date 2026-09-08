@@ -78,6 +78,16 @@
 .generation-factory__recent-list { min-height: 0; flex: 1; overflow-y: auto; }
 .generation-factory__recent-list > p { border-radius: 12px; background: #f5f7fa; padding: 16px; color: #78869a; font-size: 11px; text-align: center; }
 .generation-factory__job { display: flex; align-items: center; gap: 9px; border-bottom: 1px solid #edf1f6; padding: 11px 2px; color: inherit; }
+.generation-factory__job--open { width: 100%; border-top: 0; border-left: 0; border-right: 0; background: transparent; text-align: left; cursor: pointer; }
+.generation-factory__job--open:hover { background: #f5f8fc; }
+.generation-factory__job--open:focus-visible { outline: 2px solid #3157d5; outline-offset: -2px; }
+.generation-factory__preview { display: flex; height: 100%; min-height: 0; min-width: 0; flex-direction: column; background: #fff; }
+.generation-factory__preview > header { flex: none; border-bottom: 1px solid #e8edf5; padding: 16px 22px; }
+.generation-factory__preview > header button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 4px 0; color: #52627a; cursor: pointer; font-size: 13px; }
+.generation-factory__preview h2 { margin: 12px 0 0; font-size: 19px; font-weight: 700; overflow-wrap: anywhere; }
+.generation-factory__preview-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 22px; }
+.generation-factory__preview-body > [role="status"],.generation-factory__preview-body > [role="alert"] { padding: 24px 0; color: #64748b; text-align: center; }
+.generation-factory__preview-body > [role="alert"] button { margin-top: 12px; border: 1px solid #d5ddea; border-radius: 8px; padding: 8px 14px; background: white; cursor: pointer; }
 .generation-factory__job-icon { display: grid; width: 32px; height: 32px; flex: none; place-items: center; border-radius: 10px; background: #edf3ff; color: #3157d5; }
 .generation-factory__job > div { min-width: 0; flex: 1; }
 .generation-factory__job strong { display: block; overflow: hidden; color: #26344d; font-size: 13px; font-weight: 780; text-overflow: ellipsis; white-space: nowrap; }

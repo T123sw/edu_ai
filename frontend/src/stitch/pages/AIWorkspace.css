@@ -243,6 +243,10 @@
   transform: translateX(calc(100% + 16px));
 }
 
+.ai-studio-page--drawer .ai-studio-sider--right.is-previewing {
+  width: min(760px, calc(100% - 24px));
+}
+
 .ai-studio-page--drawer .ai-studio-sider.is-open {
   display: flex;
   transform: translateX(0);
