@@ -18,11 +18,11 @@ test('scope bar resolves server labels and selection preserves hash contract', a
   await expect(bar).toBeVisible({ timeout: 15000 });
   await expect(bar).toContainText('数组');
   await expect(bar).not.toContainText('伪造名称');
-  const select = page.getByRole('combobox', { name: '选择讨论知识点' });
+  await bar.getByRole('button', { name: '调整', exact: true }).click();
+  const select = page.getByRole('combobox', { name: '选择备课知识点' });
   await select.focus();
   await select.fill('链表');
-  await select.press('ArrowDown');
-  await select.press('Enter');
+  await page.locator('.workspace-topic-tree-popup .ant-select-tree-title').getByText('链表', { exact: true }).click();
   await expect(page).toHaveURL(/scopeId=list/);
   await page.screenshot({ path: testInfo.outputPath('knowledge-context-1366.png') });
   await page.setViewportSize({ width: 390, height: 844 });

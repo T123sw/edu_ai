@@ -7,3 +7,11 @@
 .workspace-topic-tree-popup { max-width: calc(100vw - 32px); }
 .workspace-topic-tree-popup .ant-select-tree-title { white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
 .workspace-topic-tree-popup .ant-select-tree-node-content-wrapper { min-width: 0; }
+
+.workspace-context-bar__current { min-width: 0; overflow-wrap: anywhere; color: #334155; font-size: 14px; font-weight: 600; }
+.workspace-context-bar__adjust { border: 0; border-radius: 6px; padding: 3px 8px; background: transparent; color: #4263a8; cursor: pointer; font: inherit; }
+.workspace-context-bar__adjust:hover { background: #eef3fb; }
+.workspace-context-bar__adjust:focus-visible, .workspace-context-bar__course:focus-visible { outline: 2px solid #4263a8; outline-offset: 2px; }
+.workspace-context-bar__adjustment { display: flex; flex-direction: column; gap: 10px; width: min(280px, calc(100vw - 64px)); }
+.workspace-context-bar__adjustment .workspace-context-bar__select { width: 100%; }
+.workspace-context-bar__course { text-align: left; padding: 8px 10px; border: 1px solid #e5eaf2; border-radius: 8px; background: #f8fafc; color: #334155; font: inherit; cursor: pointer; }

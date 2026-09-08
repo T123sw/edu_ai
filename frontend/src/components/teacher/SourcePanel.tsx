@@ -274,24 +274,7 @@ const toKnowledgeBaseFileItem = (
   };
 };
 
-const findKnowledgeGraphNode = (
-  node: KnowledgeGraphNode | null | undefined,
-  targetId?: string,
-): KnowledgeGraphNode | null => {
-  if (!node || !targetId) {
-    return null;
-  }
-  if (node.id === targetId) {
-    return node;
-  }
-  for (const child of node.children || []) {
-    const matchedNode = findKnowledgeGraphNode(child, targetId);
-    if (matchedNode) {
-      return matchedNode;
-    }
-  }
-  return null;
-};
+
 
 const isRenderableImageChunk = (chunk: DocumentContent['chunks'][number] | null | undefined): boolean => {
   return String(chunk?.metadata?.modality || '').toLowerCase() === 'image' && Boolean(chunk?.metadata?.image_url);
@@ -378,22 +361,18 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
   const loadRequestSequenceRef = useRef(0);
 
   const loadDocumentsForCurrentScope = React.useCallback(async () => {
-    const shouldLoadLegacyRagDocuments = workspaceScope?.scopeType !== 'knowledge_point';
     if (courseId && token) {
-      const scopeType = workspaceScope?.scopeType || 'course';
-      const scopeId = workspaceScope?.scopeId;
       const [courseDocuments, personalDocuments, legacyRagDocuments] = await Promise.all([
         getKnowledgeBaseDocuments(courseId, token, {
-          scopeType,
-          scopeId,
-          aggregate: scopeType === 'course',
+          scopeType: 'course',
+          aggregate: true,
           libraryType: COURSE_LIBRARY_TYPE,
           includeDescendants: true,
           sort: 'created_desc',
           limit: 500,
         }),
         listPersonalKnowledgeDocuments({ limit: 500 }),
-        shouldLoadLegacyRagDocuments ? listDocuments() : Promise.resolve([]),
+        listDocuments(),
       ]);
       return {
         courseFiles: courseDocuments.map((doc) => toKnowledgeBaseFileItem(doc, COURSE_LIBRARY_TYPE)),
@@ -419,7 +398,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
       courseFiles: [],
       personalFiles: documents.map((doc) => toFileItem(doc, PERSONAL_LIBRARY_TYPE)),
     };
-  }, [courseId, token, workspaceScope?.scopeId, workspaceScope?.scopeType]);
+  }, [courseId, token]);
 
   const applyScopedFileList = React.useCallback((formattedFiles: {
     courseFiles: FileItem[];
@@ -455,15 +434,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
           return;
         }
         setCourseKnowledgeGraphRoot(graphData.root);
-        setExpandedCourseNodeIds((current) => {
-          if (current.length > 0) {
-            return current;
-          }
-          const defaultNodeId = workspaceScope?.scopeType === 'knowledge_point' && workspaceScope.scopeId
-            ? workspaceScope.scopeId
-            : graphData.root.id;
-          return defaultNodeId ? [defaultNodeId] : [];
-        });
+        setExpandedCourseNodeIds(graphData.root?.id ? [graphData.root.id] : []);
       } catch (error) {
         if (!cancelled) {
           console.error('Failed to load knowledge graph for source panel:', error);
@@ -477,19 +448,8 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     return () => {
       cancelled = true;
     };
-  }, [courseId, workspaceScope?.scopeId, workspaceScope?.scopeType]);
+  }, [courseId]);
 
-  useEffect(() => {
-    const activeNodeId = workspaceScope?.scopeType === 'knowledge_point' && workspaceScope.scopeId
-      ? workspaceScope.scopeId
-      : courseKnowledgeGraphRoot?.id;
-    if (!activeNodeId) {
-      return;
-    }
-    setExpandedCourseNodeIds((current) => (
-      current.includes(activeNodeId) ? current : [...current, activeNodeId]
-    ));
-  }, [courseKnowledgeGraphRoot?.id, workspaceScope?.scopeId, workspaceScope?.scopeType]);
 
 
   useEffect(() => {
@@ -1523,13 +1483,7 @@ const SourcePanel: React.FC<Props> = ({ collapsed, onToggleCollapsed, courseId, 
     );
   };
 
-  const courseLibraryTreeRoot = courseKnowledgeGraphRoot
-    ? (
-      workspaceScope?.scopeType === 'knowledge_point' && workspaceScope.scopeId
-        ? findKnowledgeGraphNode(courseKnowledgeGraphRoot, workspaceScope.scopeId) || courseKnowledgeGraphRoot
-        : courseKnowledgeGraphRoot
-    )
-    : null;
+  const courseLibraryTreeRoot = courseKnowledgeGraphRoot;
 
   const handleKnowledgeAction = async (
     file: FileItem,

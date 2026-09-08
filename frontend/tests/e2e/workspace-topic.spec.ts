@@ -16,8 +16,9 @@ test('chat title precedes its topic subtitle and the picker expands chapters to 
   const titleBox = await page.locator('.chat-panel__title').boundingBox();
   const barBox = await bar.boundingBox();
   expect(barBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
-  const select = page.getByRole('combobox', {name:'选择讨论知识点'});
-  await bar.locator('.ant-select-selector').click();
+  const select = page.getByRole('combobox', {name:'选择备课知识点'});
+  await bar.getByRole('button', { name: '调整', exact: true }).click();
+  await page.locator('.workspace-context-bar__adjustment .ant-select-selector').click();
   const popup = page.locator('.workspace-topic-tree-popup');
   const titles = popup.locator('.ant-select-tree-title');
   await expect(titles).toHaveText(['计算思维', '数据组织']);
@@ -30,7 +31,8 @@ test('chat title precedes its topic subtitle and the picker expands chapters to 
   await titles.filter({hasText: '链表'}).click();
   await expect(page).toHaveURL(/scopeId=linked-list/);
   await expect(bar).toContainText('链表');
-  await bar.locator('.ant-select-selector').click();
+  await bar.getByRole('button', { name: '调整', exact: true }).click();
+  await page.locator('.workspace-context-bar__adjustment .ant-select-selector').click();
   await expect(titles).toHaveText(['计算思维', '数据组织', '数组', '链表']);
   await select.fill('数组');
   await expect(titles).toHaveText(['计算思维', '数据组织', '数组']);
