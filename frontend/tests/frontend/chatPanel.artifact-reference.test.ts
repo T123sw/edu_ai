@@ -37,12 +37,13 @@ const payload = buildChatReplyPayload({
   artifactReference: reference,
 });
 
-assert.deepEqual(payload, {
+assert.deepEqual(JSON.parse(JSON.stringify(payload)), {
   question: '保留结构，重写结论',
   conversation_id: 'conv-1',
   course_id: 'course-1',
-  allow_rag: false,
+  allow_rag: true,
   allow_web: false,
+  source_mode: 'selected_documents',
   selected_doc_ids: ['doc-1'],
   artifact_reference: {
     artifact_id: 'report-1',

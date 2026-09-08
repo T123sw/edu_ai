@@ -11,7 +11,7 @@ from app.chat.domain.conversation_reference import ConversationReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
 from app.services.generation_source_resolver import GenerationSourceMode
 
-TracePath = Literal["fast", "workflow", "agent", "agent_fallback"]
+TracePath = Literal["fast", "workflow", "agent", "agent_fallback", "deepseek-harness"]
 DirectTracePath = Literal["direct"]
 WorkflowStatus = Literal["running", "awaiting_confirm", "completed", "interrupted", "failed"]
 ReportEntryMode = Literal["knowledge_base_report", "chat_report"]
@@ -369,6 +369,9 @@ class DirectTraceMetaV2(BaseModel):
 
 
 class ChatResponseV2(BaseModel):
+    task_id: Optional[str] = None
+    harness_outline: Optional[Dict[str, Any]] = None
+    verification: Optional[Dict[str, Any]] = None
     artifact_revision: Optional[Dict[str, Any]] = None
     workspace_context: Optional[ResolvedWorkspaceContext] = None
     clarification: Optional[ScopeClarification] = None

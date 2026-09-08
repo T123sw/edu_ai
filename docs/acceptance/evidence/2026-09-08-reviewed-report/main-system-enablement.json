@@ -1,0 +1,34 @@
+{
+  "enabled": true,
+  "service": "edu-ai-backend-session.service",
+  "port": 8001,
+  "sdk": "0.1.2rc1",
+  "model": "deepseek-v4-flash",
+  "timeout_seconds": 300,
+  "authenticated_stream_checks": [
+    {
+      "conversation_id": "harness-main-check-cba9d5ba65f4",
+      "trace_path": "deepseek-harness",
+      "action": "chat.reply",
+      "tools": [],
+      "outline_saved": false
+    },
+    {
+      "conversation_id": "harness-main-check-6077f0a5f99b",
+      "trace_path": "deepseek-harness",
+      "action": "generate.report",
+      "tools": [
+        {
+          "tool": "organize_report_content",
+          "ok": true
+        },
+        {
+          "tool": "draft_report_outline",
+          "ok": true
+        }
+      ],
+      "outline_saved": true
+    }
+  ],
+  "report_body_submitted_in_main_check": false
+}

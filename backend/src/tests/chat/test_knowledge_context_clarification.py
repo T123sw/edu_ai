@@ -21,7 +21,10 @@ class Conversations:
 
 
 @pytest.fixture
-def harness():
+def harness(monkeypatch):
+    # These cases exercise the legacy resolver; model-planning cases opt in below.
+    from core.config import Config
+    monkeypatch.setattr(Config, 'USE_DEEPSEEK_HARNESS', False)
     storage = Conversations()
     graph = {'root': {'id': 'root', 'label': '数据结构', 'children': [
         {'id': 'array', 'label': '数组'}, {'id': 'list', 'label': '链表'},
@@ -360,3 +363,54 @@ def test_read_answer_uses_shared_entry_without_generation_or_artifact(harness, s
     assert result['message']['content'] == outcome['message']
     assert result['artifacts'] == []
     assert result['artifact_revision']['status'] == 'answered'
+
+
+@pytest.mark.parametrize("question", ["数组如何实现？", "我接下来要对数组进行备课", "帮我生成一份有关于数组的实现的报告"])
+def test_combined_course_node_recognizes_natural_topic(harness, question):
+    resolver, storage = harness
+    resolver.courses.get_knowledge_graph = lambda cid: {"root": {"id": "root", "label": "课程", "children": [
+        {"id": "array-linked-list", "label": "数组与链表"}]}}
+    request = req(question, scope_type="course")
+    assert resolver.prepare(request) is None
+    assert request.scope_id == "array-linked-list"
+    assert request.workspace_context.update_workspace is True
+    assert storage.get_state("conv")["discussion_workspace"]["context"]["scope_id"] == "array-linked-list"
+    assert request.question == question
+
+
+def test_topic_correction_prefers_new_topic(harness):
+    resolver, _ = harness
+    request = req("链表讲完了，接下来讲数组如何实现", scope_type="knowledge_point", scope_id="list")
+    assert resolver.prepare(request) is None
+    assert request.scope_id == "array"
+    assert request.workspace_context.update_workspace is True
+
+
+def test_normal_unknown_question_does_not_force_topic_selection(harness):
+    resolver, _ = harness
+    assert resolver.prepare(req("如何给学生提供有效反馈？", scope_type="course")) is None
+
+
+@pytest.mark.parametrize('question', ['开始', 'go ahead', '换到数组', '为当前课程生成报告', '取消', '修改报告'])
+def test_model_preparation_never_interprets_user_text(harness, question):
+    resolver, storage = harness
+    request = req(question, scope_type='course')
+    assert resolver.prepare_model(request) is None
+    assert request.scope_type == 'course' and request.scope_id is None
+    assert not storage.get_state('conv').get('pending_operation')
+
+
+def test_harness_main_entry_skips_legacy_scope_and_edit_decisions(harness, monkeypatch):
+    from core.config import Config
+    monkeypatch.setattr(Config, 'USE_DEEPSEEK_HARNESS', True)
+    resolver, _ = harness
+    monkeypatch.setattr(resolver, 'prepare', lambda req: pytest.fail('legacy text classifier ran'))
+    def dispatch(request):
+        assert request.question == '修改一下数组报告'
+        return {'message': {'role': 'assistant', 'content': '模型决定下一步'}, 'conversation': {'conversation_id': 'conv'},
+                'action': {'name': 'chat.reply'}, 'trace': {'path': 'deepseek-harness'}}
+    service = ReplyServiceV2(orchestrator=SimpleNamespace(dispatch=dispatch),
+        conversation_store=SimpleNamespace(write_v2_result=lambda *a: None), knowledge_context_service=resolver)
+    monkeypatch.setattr(service, '_run_artifact_edit', lambda **kw: pytest.fail('legacy edit classifier ran'))
+    response = service.reply(SimpleNamespace(question='修改一下数组报告', owner='teacher', course_id='data', conversation_id='conv'))
+    assert response['trace']['path'] == 'deepseek-harness'

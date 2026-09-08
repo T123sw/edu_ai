@@ -38,7 +38,12 @@ RETRY_ACCEPTED_STATUSES = {
 
 
 def _public_job(job: EduJob) -> dict:
-    return job.model_dump(mode="json", exclude=PUBLIC_JOB_EXCLUDES)
+    from core.embedding_errors import public_legacy_embedding_error
+    data = job.model_dump(mode="json", exclude=PUBLIC_JOB_EXCLUDES)
+    for key in ('message', 'error_message'):
+        if data.get(key):
+            data[key] = public_legacy_embedding_error(data[key])
+    return data
 
 
 def _owner(current_user: dict) -> str:

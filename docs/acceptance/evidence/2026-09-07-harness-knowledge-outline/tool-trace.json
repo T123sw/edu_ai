@@ -1,0 +1,72 @@
+[
+  {
+    "event": "tool_call",
+    "tool": "web_search",
+    "ok": null,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_result",
+    "tool": "web_search",
+    "ok": false,
+    "error": "no_sources_found",
+    "issues": null
+  },
+  {
+    "event": "tool_call",
+    "tool": "web_search",
+    "ok": null,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_result",
+    "tool": "web_search",
+    "ok": false,
+    "error": "no_sources_found",
+    "issues": null
+  },
+  {
+    "event": "tool_call",
+    "tool": "web_search",
+    "ok": null,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_result",
+    "tool": "web_search",
+    "ok": true,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_call",
+    "tool": "organize_report_content",
+    "ok": null,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_result",
+    "tool": "organize_report_content",
+    "ok": true,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_call",
+    "tool": "draft_report_outline",
+    "ok": null,
+    "error": null,
+    "issues": null
+  },
+  {
+    "event": "tool_result",
+    "tool": "draft_report_outline",
+    "ok": true,
+    "error": null,
+    "issues": null
+  }
+]

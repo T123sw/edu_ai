@@ -23,6 +23,10 @@
 
 ## 文档边界
 
+DeepSeek Harness 接入准备：[功能拆分审查](architecture/deepseek-harness-capability-decomposition-cn.md)、[Agent 与 Skills 设计](architecture/deepseek-harness-agent-skills-design-cn.md)、[记忆设计](architecture/deepseek-harness-memory-design-cn.md)。三份均为待实施的目标设计，包含源码复用位置、改造边界和验收条件。
+
+已完成[普通对话与报告首版代码接入](architecture/deepseek-harness-pilot-integration-cn.md)及[隔离验证](acceptance/2026-09-07-deepseek-harness-report-dialogue-acceptance-cn.md)，当前运行服务尚未切换。
+
 近期设计记录：[前端体验优化：对话纪要与交互设计](superpowers/specs/2026-09-07-frontend-experience-conversation-design-cn.md)。涵盖首页继续按钮、课程与知识点对话上下文、Agent 修改已有资料；实现及分层验证已落地，完整端到端待验项见各验收记录。
 
 1. 当前运行事实以源码、根目录 [`项目总览地图.md`](../项目总览地图.md) 和本目录索引为准。

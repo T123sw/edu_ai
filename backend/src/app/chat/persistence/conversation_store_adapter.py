@@ -353,6 +353,10 @@ class ConversationStoreAdapter:
         recent_messages = self.storage.get_messages(conversation_id, limit=8)
 
         state_patch = {}
+        if result.get("task_id") and answer and recent_messages:
+            task_messages = dict(existing_state.get("task_messages") or {})
+            task_messages[recent_messages[-1]["message_id"]] = result["task_id"]
+            state_patch["task_messages"] = task_messages
         state_patch["course_id"] = getattr(request, "course_id", None) or existing_state.get("course_id")
         state_patch["scope_type"] = (
             getattr(request, "scope_type", None)

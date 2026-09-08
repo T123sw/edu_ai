@@ -15,6 +15,7 @@ class ScopeCandidate(BaseModel):
     scope_id: str
     scope_title: str
     scope_path: list[str]
+    aliases: list[str] = Field(default_factory=list)
 
 
 class ResolvedWorkspaceContext(BaseModel):
@@ -44,11 +45,33 @@ def knowledge_candidates(graph: dict | None) -> list[ScopeCandidate]:
         title = str(node.get("label") or node.get("title") or "").strip()
         path = [*path, title] if title else path
         if not root and node.get("id") and title:
-            result.append(ScopeCandidate(scope_id=str(node["id"]), scope_title=title, scope_path=path))
+            aliases = node.get("aliases") or []
+            if isinstance(aliases, str):
+                aliases = [aliases]
+            result.append(ScopeCandidate(scope_id=str(node["id"]), scope_title=title, scope_path=path, aliases=aliases))
         for child in node.get("children") or []:
             visit(child, path)
     visit((graph or {}).get("root", graph), [], True)
     return result
+
+
+def topic_aliases(candidate: ScopeCandidate) -> list[str]:
+    # Course nodes often combine related concepts: 数组与链表 / 迭代、递归与终止条件.
+    parts = re.split(r"[、，,/与和及]|(?:以及)", candidate.scope_title)
+    return [word.strip() for word in [candidate.scope_title, *candidate.aliases, *parts]
+            if len(word.strip()) >= 2]
+
+
+def match_knowledge_topics(question: str, candidates: list[ScopeCandidate]) -> list[ScopeCandidate]:
+    explicit = [c for c in candidates if question == c.scope_id or " › ".join(c.scope_path) == question]
+    if explicit:
+        return explicit
+    # A correction or next-topic statement takes precedence over its old topic.
+    focus = re.split(r"(?:接下来|改讲|换成|切换到|换到|切到|转而|改为)", question)[-1]
+    matches = [c for c in candidates if any(alias in focus for alias in topic_aliases(c))]
+    # Prefer a named child to its containing chapter; same-name siblings remain ambiguous.
+    return [c for c in matches if not any(c.scope_id != d.scope_id and
+            c.scope_path == d.scope_path[:len(c.scope_path)] for d in matches)]
 
 
 def requires_generation(request) -> bool:
@@ -97,6 +120,23 @@ class KnowledgeContextService:
                 context.scope_path = target.scope_path
                 context.resolution = "resolved"
         return context, candidates
+
+    def prepare_model(self, request):
+        """Validate supplied context without interpreting the user's language."""
+        try:
+            self.conversations.get_conversation(request.conversation_id, owner=request.owner)
+        except KeyError:
+            try:
+                self.conversations.get_conversation(request.conversation_id)
+            except KeyError:
+                self.conversations.ensure_conversation(request.conversation_id, request.question, owner=request.owner)
+            else:
+                raise PermissionError("conversation access denied")
+        context, _ = self.resolve(request)
+        request.workspace_context = context
+        if context.resolution == "invalid":
+            return self._result(request, "当前讨论范围已失效，请调整范围后继续。", "workspace.invalid")
+        return None
 
     def prepare(self, request) -> dict | None:
         # Check ownership before reading either history or pending state. Never
@@ -150,14 +190,19 @@ class KnowledgeContextService:
             request.workspace_context = context
             if context.resolution == "invalid":
                 return self._result(request, "原任务的知识点已失效，请重新选择。", "workspace.invalid")
-        if not generating and not switching:
+        matches = match_knowledge_topics(question, candidates)
+        # Resolve topics during ordinary explanation and lesson preparation too.
+        # Do not turn a greeting or a comparison into a forced scope picker.
+        if not matches and not switching and not re.search(r"整门课程|整个课程|全课程|关于|针对|围绕", question):
+            remembered = state.get("discussion_workspace") or {}
+            if (context.scope_type == "course" and remembered.get("owner") == request.owner
+                    and remembered.get("course_id") == request.course_id):
+                previous = remembered.get("context") or {}
+                target = next((c for c in candidates if c.scope_id == previous.get("scope_id")), None)
+                if target and request.scope_type != "course":
+                    matches = [target]
+        if not generating and not switching and len(matches) != 1:
             return None
-        matches = [c for c in candidates if question == c.scope_id or " › ".join(c.scope_path) == question]
-        if not matches:
-            matches = [c for c in candidates if c.scope_title in question]
-            # Prefer a mentioned child over its chapter name, but never choose
-            # the first of two same-name nodes.
-            matches = [c for c in matches if not any(c.scope_id != d.scope_id and c.scope_path == d.scope_path[:len(c.scope_path)] for d in matches)]
         whole_course = bool(re.search(r"整门课程|全课程|整个课程|所有知识点|全课", question))
         if whole_course:
             context.scope_type, context.scope_id = "course", None
@@ -177,7 +222,7 @@ class KnowledgeContextService:
                 "request": request.model_dump(mode="json", exclude={"workspace_context"}),
             }
             storage.update_state(request.conversation_id, {"pending_operation": operation})
-            prompt = "请指定要使用的知识点；同名知识点请选择完整章节路径。"
+            prompt = "你指的是哪一部分：" + "、".join(" › ".join(c.scope_path[-2:]) for c in matches) + "？" if matches else "这份资料要聚焦哪个主题？可以直接告诉我知识点名称。"
             result = self._result(request, prompt, "workspace.clarify")
             result["clarification"] = ScopeClarification(operation_id=operation["id"], question=prompt, candidates=(matches or candidates)[:30]).model_dump()
             return result
@@ -196,7 +241,11 @@ class KnowledgeContextService:
                 "page_scope_type": request.scope_type, "page_scope_id": request.scope_id,
                 "context": context.model_dump(),
             }})
-        context.update_workspace = switching or bool(pending)
+        context.update_workspace = switching or bool(pending) or (
+            context.scope_type != request.scope_type or context.scope_id != request.scope_id)
+        storage.update_state(request.conversation_id, {"discussion_workspace": {
+            "owner": request.owner, "course_id": request.course_id, "context": context.model_dump(),
+        }})
         request.scope_type, request.scope_id = context.scope_type, context.scope_id
         if switching and not generating:
             return self._result(request, "已切换到 " + " › ".join(context.scope_path), "workspace.changed")

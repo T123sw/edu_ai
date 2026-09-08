@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "turns": 5,
+  "live_sdk": true,
+  "live_outline_model": true,
+  "real_durable_report_pipeline": true,
+  "storage": "isolated",
+  "report_characters": 1685,
+  "turns_detail": [
+    {
+      "turn": 1,
+      "seconds": 2.44,
+      "action": "chat.reply",
+      "tools": []
+    },
+    {
+      "turn": 2,
+      "seconds": 3.46,
+      "action": "chat.reply",
+      "tools": []
+    },
+    {
+      "turn": 3,
+      "seconds": 19.86,
+      "action": "generate.report",
+      "tools": [
+        {
+          "name": "draft_report_outline",
+          "ok": false
+        },
+        {
+          "name": "draft_report_outline",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "seconds": 6.99,
+      "action": "generate.report",
+      "tools": [
+        {
+          "name": "submit_report",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "seconds": 6.55,
+      "action": "generate.report",
+      "tools": [
+        {
+          "name": "query_report_job",
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "native_harness_tool_calls": [
+    "skill",
+    "mcp__edu__draft_report_outline",
+    "mcp__edu__draft_report_outline",
+    "skill",
+    "mcp__edu__submit_report",
+    "mcp__edu__query_report_job"
+  ],
+  "isolated_job_file_count": 1,
+  "isolated_material_file_count": 1,
+  "sdk_version": "0.1.2rc1",
+  "prior_smoke_database_records_removed": true
+}

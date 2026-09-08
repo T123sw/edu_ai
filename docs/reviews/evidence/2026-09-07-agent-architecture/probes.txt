@@ -1,0 +1,9 @@
+INTENT [{"question": "不要生成报告，只解释报告的结构", "intent": "qa", "resources": ["report"], "actions": ["answer_question", "verify", "report_result"]}, {"question": "请生成十道递归练习题，不要报告", "intent": "generate_single", "resources": ["quiz", "report"], "actions": ["draft_outline", "confirm_outline"]}, {"question": "解释一下学生学习进度的定义", "intent": "status", "resources": [], "actions": ["learning_status", "report_result"]}, {"question": "写一篇递归教学博客", "intent": "qa", "resources": ["blog"], "actions": ["answer_question", "verify", "report_result"]}, {"question": "生成递归教案", "intent": "generate_single", "resources": ["lesson_plan"], "actions": ["draft_outline", "confirm_outline"]}]
+[智能体] 第1轮 | ttft 0ms
+[智能体] 第1轮 | 0ms  直接回答  总耗时=1ms
+QA_TERMINATION {"route": "__end__", "plan_actions": ["answer_question", "verify", "report_result"], "executed_tools": [], "result_types": ["plan_step_update", "delta", "result"]}
+RETRY_CACHE {"provider_calls": 1, "first_ok": false, "second_ok": false, "trace_count": 1}
+VERIFICATION {"tool_ok": true, "decision": "fail", "repair": "retry_step", "action": {"name": "agent.completed"}, "message": "已完成任务的工具调用与结构化审计。"}
+RECOVERED_AUDIT {"decision": "fail", "failed_tools": ["rag_search"]}
+STALE_OUTLINE {"topic": "递归", "resources": ["lesson_plan"], "confirmation_policy": "required", "actions": ["generate_resource", "verify", "report_result"], "outline_subject": "链表"}
+CONSTRAINTS {"question": "生成十二道递归练习题，难度高，只要选择题", "constraints": {"question_count": 2}}

@@ -1,0 +1,52 @@
+{
+  "integration_turns": [
+    {
+      "turn": 1,
+      "seconds": 2.94,
+      "action": "chat.reply",
+      "tools": []
+    },
+    {
+      "turn": 2,
+      "seconds": 2.42,
+      "action": "chat.reply",
+      "tools": []
+    },
+    {
+      "turn": 3,
+      "seconds": 34.79,
+      "action": "generate.report",
+      "tools": [
+        "organize_report_content",
+        "draft_report_outline"
+      ]
+    },
+    {
+      "turn": 4,
+      "seconds": 6.12,
+      "action": "generate.report",
+      "tools": [
+        "submit_report"
+      ]
+    },
+    {
+      "turn": 5,
+      "seconds": 13.55,
+      "action": "generate.report",
+      "tools": [
+        "query_report_job"
+      ]
+    }
+  ],
+  "durable_report_succeeded": true,
+  "persisted_report_read_back_and_hash_verified": true,
+  "final_revision": "generated and reviewed from explicit external feedback; not hand-edited",
+  "final_revision_in_course_storage": false,
+  "sample_code_checks": {
+    "factorial_inputs": 21,
+    "countdown_inputs": 6,
+    "passed": true
+  },
+  "content_sha256": "328221a06337487e4fbda42b7ee194b0203380ba94d74dee87d4e5e05a711c94",
+  "model_review_can_miss_errors": true
+}

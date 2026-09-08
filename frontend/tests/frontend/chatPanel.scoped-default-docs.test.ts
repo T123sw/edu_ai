@@ -31,8 +31,8 @@ assert.match(
 
 assert.match(
   chatPanel,
-  /selectedDocs\.length > 0 \? selectedDocs : scopedSourceDocIds/,
-  'ChatPanel should use visible scoped documents as the default RAG document set when nothing is manually selected',
+  /resolveChatRetrievalDocIds\(\{[\s\S]*selectedDocIds: selectedDocs,[\s\S]*scopedDocIds: scopedSourceDocIds/,
+  'ChatPanel should use the shared retrieval policy, which keeps explicit personal selections separate from automatic course retrieval',
 );
 
 console.log('chatPanel.scoped-default-docs tests passed');

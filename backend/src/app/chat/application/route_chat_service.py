@@ -234,6 +234,8 @@ class RouteChatService:
         return normalized_scope
 
     def _persist_new_result(self, payload, result: dict) -> None:
+        if (result.get("trace") or {}).get("response_replayed"):
+            return
         conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or getattr(payload, "conversation_id", "") or "").strip()
         if not conversation_id:
             return
@@ -578,7 +580,7 @@ class RouteChatService:
             # before the generator closes. A client that consumed the complete
             # stream can therefore reopen the conversation without a race.
             # Workflow results remain persisted via on_workflow_complete.
-            if not task_submitted and final_result:
+            if final_result and (not task_submitted or (final_result.get("trace") or {}).get("path") == "deepseek-harness"):
                 service._persist_new_result(payload, final_result)
 
         return preliminary_meta, _stream()

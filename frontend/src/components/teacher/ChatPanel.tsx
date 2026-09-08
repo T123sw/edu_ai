@@ -198,6 +198,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const [workflowType, setWorkflowType] = useState<string | null>(null);
   const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
   const [backgroundTaskId, setBackgroundTaskId] = useState<string | null>(null);
+  const [taskResultRetry, setTaskResultRetry] = useState(0);
   const [historyRecoveryError, setHistoryRecoveryError] = useState<ConversationRecoveryError | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -221,9 +222,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const videoInputRef = useRef<HTMLInputElement | null>(null);
   const normalizedWorkspaceScope = useMemo(() => normalizeWorkspaceScope(workspaceScope), [workspaceScope]);
   const workspaceIdentity = `${authenticatedUser?.username || ''}:${courseId || ''}:${normalizedWorkspaceScope.scopeType}:${normalizedWorkspaceScope.scopeId || ''}`;
+  const agentWorkspaceTransitionRef = useRef<string | null>(null);
   const workspaceIdentityRef = useRef(workspaceIdentity);
   workspaceIdentityRef.current = workspaceIdentity;
   useEffect(() => () => {
+    if (agentWorkspaceTransitionRef.current === workspaceIdentityRef.current) return;
     const pending = pendingOperationRef.current;
     pendingOperationRef.current = null;
     if (pending) {
@@ -238,11 +241,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     [normalizedWorkspaceScope],
   );
 
-  useEffect(() => {
-    if (workspaceScopeApiParams.scopeType === 'knowledge_point') {
-      setAllowRag(true);
-    }
-  }, [setAllowRag, workspaceScopeApiParams.scopeType]);
   const workspaceKnowledgeBaseLabel = useMemo(
     () => getWorkspaceKnowledgeBaseLabel(normalizedWorkspaceScope),
     [normalizedWorkspaceScope],
@@ -580,6 +578,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
   useEffect(() => {
     const initializationEpoch = ++initializationEpochRef.current;
+    if (agentWorkspaceTransitionRef.current === workspaceIdentity) {
+      agentWorkspaceTransitionRef.current = null;
+      setIsLoading(false);
+      initializedWorkspaceRef.current = workspaceIdentity;
+      void loadHistoryPage({ offset: 0, append: false }, () =>
+        initializationEpoch === initializationEpochRef.current && workspaceIdentityRef.current === workspaceIdentity,
+      ).catch((error) => console.error('刷新历史对话失败:', error));
+      return;
+    }
     initializedWorkspaceRef.current = null;
     if (previousOwnerRef.current !== authenticatedUser?.username) {
       pendingRevisionIntent.current = null;
@@ -730,6 +737,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           return true;
         })
         .map((msg: any) => ({
+          id: msg.task_id || msg.message_id,
           user: msg.role === 'assistant' ? 'AI' : 'You',
           text: msg.content || '',
           sources: (msg.sources || []) as any[],
@@ -757,6 +765,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           setMessages(mapped);
         }
         conversationAsyncGuard.adoptConversation(detail.conversation_id);
+        const pendingTask = [...(detail.history || [])].reverse().find((msg: any) =>
+          msg.task_id && ['pending', 'queued', 'running'].includes(msg.task_status));
+        if (pendingTask?.task_id) {
+          backgroundTaskTokenRef.current = conversationAsyncGuard.bindBackgroundTask(pendingTask.task_id, detail.conversation_id);
+          setBackgroundTaskId(pendingTask.task_id);
+          requestJobRefresh(pendingTask.task_id);
+        }
         setCurrentConversationId(detail.conversation_id);
         setHistoryRecoveryError(null);
         setStatusCard(detail.status_card || null);
@@ -1158,6 +1173,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         conversationReference,
       });
       let streamedText = '';
+      let awaitingSavedOutline = false;
       payload.request_id = crypto.randomUUID();
       const responseHolder: { value: ChatResponseV2 | null } = { value: null };
       let pendingTaskId: string | null = null;
@@ -1208,6 +1224,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           });
         },
         onDelta: (content) => {
+          if (pendingTaskId || awaitingSavedOutline) return;
           commitSend(() => {
             streamedText += content;
             updateLastMessage({
@@ -1224,7 +1241,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
             pendingTaskId = taskId;
             requestJobRefresh(taskId);
             // Tag the AI message with the task ID so the background poller can find and update it
-            updateLastMessage({ id: taskId });
+            updateLastMessage({ id: taskId, text: '任务正在进行，完成后会在这里显示。', statusText: '' });
           });
         },
         onPlan: (plan) => {
@@ -1242,6 +1259,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         },
         onToolCall: (call) => {
           commitSend(() => {
+            if (call.tool === 'draft_report_outline') {
+              awaitingSavedOutline = true;
+              streamedText = '';
+              updateLastMessage({ text: '', statusText: '正在整理大纲...' });
+            }
             agentActivity.toolCalls.push(call);
             flushAgentActivity(getAgentToolStatusText(call.tool));
           });
@@ -1268,6 +1290,26 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       }
 
       const response = responseHolder.value;
+      // Replays and result-only transports may omit task_submitted.
+      if (!pendingTaskId && response?.task_id && response.workflow?.status === 'running') {
+        pendingTaskId = response.task_id;
+        updateLastMessage({ id: pendingTaskId });
+        requestJobRefresh(pendingTaskId);
+      }
+      const responseConversationId = String(response?.conversation?.conversation_id || '').trim();
+      if (responseConversationId && responseConversationId !== useStore.getState().currentConversationId) {
+        conversationAsyncGuard.adoptConversation(responseConversationId);
+        setCurrentConversationId(responseConversationId);
+      }
+      if (response?.workspace_context?.update_workspace) {
+        const context = response.workspace_context;
+        const targetIdentity = `${authenticatedUser?.username || ''}:${courseId || ''}:${context.scope_type}:${context.scope_id || ''}`;
+        if (onWorkspaceScopeChange && targetIdentity !== workspaceIdentityRef.current) {
+          agentWorkspaceTransitionRef.current = targetIdentity;
+        }
+        onWorkspaceScopeChange?.({ scopeType: context.scope_type, scopeId: context.scope_id || undefined, scopeLabel: context.scope_path.join(' › ') });
+      }
+
       // Background task path: hand off to useEffect poller and release the UI immediately
       if (pendingTaskId) {
         const taskToken = conversationAsyncGuard.bindBackgroundTaskForSend(
@@ -1278,7 +1320,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         if (!taskToken) {
           return;
         }
-        updateLastMessage({ statusText: '已提交后台任务，可在任务中心查看进度。' });
+        updateLastMessage({
+          text: String(response?.message?.content || '正在生成报告，完成后会在这里显示。'),
+          statusText: '',
+          agentActivity: finalizeRunningAgentActivity(agentActivity, 'done'),
+        });
         backgroundTaskTokenRef.current = taskToken;
         setBackgroundTaskId(pendingTaskId);
         return; // isLoading → false via finally; user can continue chatting
@@ -1296,10 +1342,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       setClarification(response.clarification || null);
       setRevisionOutcome(response.artifact_revision || null);
       if (response.artifact_revision?.artifact_reference) setArtifactReference(response.artifact_revision.artifact_reference);
-      if (response.workspace_context?.update_workspace) {
-        const context = response.workspace_context;
-        onWorkspaceScopeChange?.({ scopeType: context.scope_type, scopeId: context.scope_id || undefined, scopeLabel: context.scope_path.join(' › ') });
-      }
       setStatusCard(response.status_card || null);
       setWorkflowType(String(response.workflow?.type || '').trim() || null);
       setWorkflowStatus(String(response.workflow?.status || '').trim() || null);
@@ -1402,8 +1444,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       setBackgroundTaskId(null);
       return undefined;
     }
-    backgroundTaskTokenRef.current = null;
-    setBackgroundTaskId(null);
     const terminalActivity = (status: 'done' | 'failed') => {
       const messageWithTask = useStore.getState().messages.find((item) => item.id === taskId);
       return finalizeRunningAgentActivity(
@@ -1413,6 +1453,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     };
     if (globalJob.status !== 'succeeded') {
       commitTask(() => {
+        backgroundTaskTokenRef.current = null;
+        setBackgroundTaskId(null);
         updateMessageById(taskId, {
           text:
             globalJob.error_message ||
@@ -1433,6 +1475,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           const status = await pollChatTask(taskId);
           commitTask(() => {
             if (status.status === 'completed' || status.status === 'succeeded') {
+              backgroundTaskTokenRef.current = null;
+              setBackgroundTaskId(null);
               if (!status.result) {
                 updateMessageById(taskId, { text: '生成完成，但未返回内容。', statusText: '', status: 'done', agentActivity: terminalActivity('done') });
                 return;
@@ -1488,11 +1532,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               updateMessageById(taskId, { text: result.artifact_revision ? result.message.content : replyText, sources, statusText: '', status: 'done', agentActivity: terminalActivity('done') });
               void refreshHistoryList(taskStillCurrent);
             } else if (status.status === 'failed') {
+              backgroundTaskTokenRef.current = null;
+              setBackgroundTaskId(null);
               updateMessageById(taskId, { text: status.error || '生成失败，请重试。', statusText: '', status: 'error', agentActivity: terminalActivity('failed') });
+            } else {
+              // The job ledger can finish just before the result transaction commits.
+              setTimeout(() => commitTask(() => setTaskResultRetry(value => value + 1)), 1000);
             }
           });
         } catch {
           commitTask(() => {
+            backgroundTaskTokenRef.current = null;
+            setBackgroundTaskId(null);
             updateMessageById(taskId, {
               text: globalJob.kind === 'revise_artifact' ? globalJob.message : buildGenerationSavedMessage({ visibility: 'private' }),
               statusText: '',
@@ -1505,7 +1556,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     })();
     return undefined;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backgroundTaskId, jobsById]);
+  }, [backgroundTaskId, jobsById, taskResultRetry]);
 
   const handleSourceClick = (source: any) => {
     const path =
@@ -2084,7 +2135,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               </Popover>
 
               <div className="chat-panel__composer-toggle-group">
-                <Tooltip title="开启后允许检索当前课程知识库；勾选的个人资料作为指定来源">
+                <Tooltip title="开启：本轮必须检索知识库；未开启：由 AI 判断是否检索。勾选的个人资料作为指定来源。">
                   <Button
                     size="large"
                     className={`chat-panel__composer-mode-button ${allowRag ? 'chat-panel__composer-mode-button--active' : ''}`}
@@ -2095,7 +2146,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                     RAG知识库
                   </Button>
                 </Tooltip>
-                <Tooltip title="开启后，本轮强制进行联网搜索">
+                <Tooltip title="开启：本轮必须联网搜索；未开启：由 AI 判断是否联网。">
                   <Button
                     size="large"
                     className={`chat-panel__composer-mode-button ${allowWeb ? 'chat-panel__composer-mode-button--active' : ''}`}
@@ -2140,5 +2191,3 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 };
 
 export default ChatPanel;
-
-

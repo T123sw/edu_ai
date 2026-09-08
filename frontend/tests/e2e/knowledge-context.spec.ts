@@ -118,3 +118,128 @@ test('shared revision result reads history and restores with the current base ve
   expect(restoreRequest?.version).toBe(1);
   expect(restoreRequest?.reference.version_id).toBe('v2');
 });
+
+test('recognized topic updates scope without clearing conversation or opening adjustment', async ({ teacherPage: page }) => {
+  await page.route('**/api/courses/*/knowledge-graph', route => route.fulfill({ json: graph }));
+  const requests: Array<{ conversation_id?: string; scope_id?: string; allow_rag?: boolean }> = [];
+  await page.route('**/api/chat/v2/stream', route => {
+    requests.push(route.request().postDataJSON());
+    const payload = { message: { role: 'assistant', content: requests.length === 1 ? '数组使用连续内存存储元素。' : '可以用下标访问演示。' },
+      conversation: { conversation_id: 'auto-topic-conv' }, action: { name: 'chat.reply' }, artifacts: [], sources: [], trace: { path: 'deepseek-harness' },
+      workspace_context: { course_id: 'course-physics', course_title: '数据结构', scope_type: 'knowledge_point', scope_id: 'array', scope_title: '数组', scope_path: ['数据结构', '数组'], resolution: 'resolved', explicit_course: false, update_workspace: requests.length === 1 } };
+    return route.fulfill({ contentType: 'text/event-stream', body: `data: ${JSON.stringify({ type: 'result', payload })}\n\ndata: ${JSON.stringify({ type: 'done', payload: {} })}\n\n` });
+  });
+  await page.goto('/#ai?course_id=course-physics');
+  const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+  await input.fill('数组如何实现？');
+  await input.press('Enter');
+  await expect(page).toHaveURL(/scopeId=array/);
+  await expect(page.getByTestId('workspace-context-bar')).toContainText('数组');
+  await expect(page.getByText('数组使用连续内存存储元素。', { exact: true })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: '选择备课知识点' })).not.toBeVisible();
+  await input.fill('怎样给学生演示？');
+  await input.press('Enter');
+  await expect(page.getByText('可以用下标访问演示。', { exact: true })).toBeVisible();
+  expect(requests[1].conversation_id).toBe('auto-topic-conv');
+  expect(requests[1].scope_id).toBe('array');
+  expect(requests[1].allow_rag).toBe(requests[0].allow_rag);
+  await expect(page.getByText('数组使用连续内存存储元素。', { exact: true })).toBeVisible();
+});
+
+test('submitted job uses final user-facing message instead of streamed internal identifiers', async ({ teacherPage: page }) => {
+  await page.route('**/api/courses/*/knowledge-graph', route => route.fulfill({ json: graph }));
+  await page.route('**/api/chat/v2/stream', route => {
+    const payload = { message: { role: 'assistant', content: '正在生成报告，完成后会在这里显示。' },
+      conversation: { conversation_id: 'progress-conv' }, action: { name: 'generate.report' }, artifacts: [], sources: [],
+      task_id: 'job_private_123', trace: { path: 'deepseek-harness' } };
+    const events = [
+      { type: 'metadata', payload: { conversation_id: 'progress-conv' } },
+      { type: 'task_submitted', payload: { task_id: 'job_private_123', workflow_type: 'report' } },
+      { type: 'delta', payload: { content: '大纲 outline_private_456，任务 job_private_123，状态 submitted' } },
+      { type: 'result', payload }, { type: 'done', payload: {} },
+    ];
+    return route.fulfill({ contentType: 'text/event-stream', body: events.map(e => `data: ${JSON.stringify(e)}\n\n`).join('') });
+  });
+  await page.goto('/#ai?course_id=course-physics');
+  const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+  await input.fill('可以');
+  await input.press('Enter');
+  await expect(page.getByText('正在生成报告，完成后会在这里显示。', { exact: true })).toBeVisible();
+  await expect(page.locator('.chat-panel__bubble').filter({ hasText: /outline_private|job_private|submitted/ })).toHaveCount(0);
+  await expect(input).toBeEnabled();
+});
+
+test('outline uses saved content and ordinary dialogue typography', async ({ teacherPage: page }, testInfo) => {
+  await page.route('**/api/courses/*/knowledge-graph', route => route.fulfill({ json: graph }));
+  let turn = 0;
+  const outline = '链表报告大纲\n\n## 1. 节点结构\n### 1.1 数据域\n#### 1.1.1 元素类型\n### 1.2 指针域\n\n请确认是否按此结构继续。';
+  await page.route('**/api/chat/v2/stream', route => {
+    turn++;
+    const payload = { message: { role: 'assistant', content: turn === 1 ? outline : '正在生成报告，完成后会在这里显示。' },
+      conversation: { conversation_id: 'outline-consistency' }, action: { name: 'generate.report' }, artifacts: [], sources: [],
+      trace: { path: 'deepseek-harness' } };
+    const events = turn === 1 ? [
+      { type: 'tool_call', payload: { tool: 'draft_report_outline', call_id: 'outline-call', args: {} } },
+      { type: 'delta', payload: { content: '# 模型另写的大纲\n## 不同章节' } },
+      { type: 'result', payload }, { type: 'done', payload: {} },
+    ] : [{ type: 'result', payload }, { type: 'done', payload: {} }];
+    return route.fulfill({ contentType: 'text/event-stream', body: events.map(e => `data: ${JSON.stringify(e)}\n\n`).join('') });
+  });
+  await page.goto('/#ai?course_id=course-physics');
+  const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+  await input.fill('生成链表报告'); await input.press('Enter');
+  const chapter = page.getByRole('heading', { name: '1. 节点结构', exact: true });
+  await expect(chapter).toBeVisible();
+  await expect(page.getByText('模型另写的大纲')).toHaveCount(0);
+  const styles = await chapter.evaluate(el => {
+    const paragraph = el.parentElement!.querySelector('p')!;
+    const a = getComputedStyle(el), b = getComputedStyle(paragraph);
+    return { heading: [a.fontFamily, a.fontSize, a.fontWeight], paragraph: [b.fontFamily, b.fontSize, b.fontWeight] };
+  });
+  expect(styles.heading).toEqual(styles.paragraph);
+  const section = page.getByRole('heading', { name: '1.1 数据域', exact: true });
+  const detail = page.getByRole('heading', { name: '1.1.1 元素类型', exact: true });
+  const chapterBox = (await chapter.boundingBox())!;
+  const sectionBox = (await section.boundingBox())!;
+  const detailBox = (await detail.boundingBox())!;
+  expect(sectionBox.x - chapterBox.x).toBeGreaterThanOrEqual(20);
+  expect(detailBox.x - sectionBox.x).toBeGreaterThanOrEqual(20);
+  await page.screenshot({ path: testInfo.outputPath('outline-indent-desktop.png') });
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileChapter = (await chapter.boundingBox())!;
+  const mobileSection = (await section.boundingBox())!;
+  expect(mobileSection.x - mobileChapter.x).toBeGreaterThanOrEqual(20);
+  await page.screenshot({ path: testInfo.outputPath('outline-indent-mobile.png') });
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await input.fill('可以'); await input.press('Enter');
+  await expect(page.getByText('正在生成报告，完成后会在这里显示。', { exact: true })).toBeVisible();
+  await expect(chapter).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1.1 数据域', exact: true })).toBeVisible();
+});
+
+test('result-only report task updates the conversation when the job completes', async ({ teacherPage: page }) => {
+  await page.route('**/api/courses/*/knowledge-graph', route => route.fulfill({ json: graph }));
+  let submitted = false;
+  const job = { schema_version: 1, version: 2, edu_job_id: 'job_sync', kind: 'generate_report', status: 'succeeded',
+    step: 'completed', progress: 100, message: '已完成', owner_user_id: 'teacher-a', course_id: 'course-physics',
+    scope_type: 'course', input_summary: {}, retryable: false, cancelable: false,
+    created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+  await page.route('**/api/jobs**', route => route.fulfill({ json: route.request().url().includes('/api/jobs/job_sync') ? job : {
+    items: submitted ? [job] : [], next_cursor: null, server_time: new Date().toISOString() } }));
+  let resultPolls = 0;
+  await page.route('**/api/chat/tasks/job_sync', route => route.fulfill({ json: ++resultPolls === 1 ? { task_id: 'job_sync', status: 'running' } : {
+    task_id: 'job_sync', status: 'succeeded', result: { message: { role: 'assistant', content: '报告已完成，可查看资料。' },
+      conversation: { conversation_id: 'task-sync-conv' }, artifacts: [], sources: [] } } }));
+  await page.route('**/api/chat/v2/stream', route => {
+    submitted = true;
+    const payload = { message: { role: 'assistant', content: '正在生成报告，完成后会在这里显示。' },
+      conversation: { conversation_id: 'task-sync-conv' }, task_id: 'job_sync', workflow: { type: 'report', status: 'running' },
+      action: { name: 'generate.report' }, artifacts: [], sources: [], trace: { path: 'deepseek-harness' } };
+    return route.fulfill({ contentType: 'text/event-stream', body: `data: ${JSON.stringify({ type: 'result', payload })}\n\ndata: ${JSON.stringify({ type: 'done', payload: {} })}\n\n` });
+  });
+  await page.goto('/#ai?course_id=course-physics');
+  const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+  await input.fill('可以'); await input.press('Enter');
+  await expect(page.getByText('报告已完成，可查看资料。', { exact: true })).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText('正在生成报告，完成后会在这里显示。', { exact: true })).toHaveCount(0);
+});

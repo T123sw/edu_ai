@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from starlette.concurrency import run_in_threadpool
 
 from app.auth import get_current_user
 from app.api.course_dependencies import (
@@ -539,7 +540,7 @@ async def reply(
         payload, current_user=current_user, access_service=access_service
     )
     try:
-        return _get_reply_service().reply(_with_owner(payload, current_user))
+        return await run_in_threadpool(_get_reply_service().reply, _with_owner(payload, current_user))
     except PermissionError:
         return JSONResponse(status_code=403, content=build_v2_error_response(
             code="access_denied", message="无权访问此课程或对话", conversation_id=payload.conversation_id or "", trace_path="fast", retryable=False,
@@ -583,9 +584,25 @@ async def stream_reply(
 
 
 @router.post("/report", response_model=ChatResponseV2)
-async def report(payload: ChatReportRequestV2, current_user: dict = Depends(get_current_user)):
+async def report(payload: ChatReportRequestV2, current_user: dict = Depends(get_current_user),
+                 access_service: CourseAccessService = Depends(get_course_access_service)):
     try:
+        from core.config import Config
+        if Config.USE_DEEPSEEK_HARNESS and payload.entry_mode != "knowledge_base_report":
+            question = payload.final_user_prompt or payload.question
+            if payload.report_config:
+                question += "\n报告要求：" + json.dumps(payload.report_config, ensure_ascii=False)
+            unified = ChatReplyRequestV2(
+                question=question, conversation_id=payload.conversation_id,
+                course_id=payload.course_id, scope_type=payload.scope_type, scope_id=payload.scope_id,
+                model_id=payload.model_id, allow_rag=payload.allow_rag, allow_web=payload.allow_web,
+                selected_doc_ids=payload.selected_doc_ids, action_hint="generate.report",
+            )
+            _require_reply_course_read(unified, current_user=current_user, access_service=access_service)
+            return await run_in_threadpool(_get_reply_service().reply, _with_owner(unified, current_user))
         return _get_report_service().report(_with_owner(payload, current_user))
+    except HTTPException:
+        raise
     except Exception as exc:
         body = build_v2_error_response(
             code="workflow_failed",

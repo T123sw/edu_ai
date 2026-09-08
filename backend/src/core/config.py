@@ -229,6 +229,9 @@ class Config:
 
     # ReAct 行为参数（可动态调整）
     USE_REACT_AGENT: bool = os.getenv("USE_REACT_AGENT", "true").lower() == "true"
+    USE_DEEPSEEK_HARNESS: bool = _env_bool("USE_DEEPSEEK_HARNESS", False)
+    DSH_MODEL = os.getenv("DSH_MODEL", "deepseek-v4-flash")
+    DSH_TIMEOUT_SECONDS = int(os.getenv("DSH_TIMEOUT_SECONDS", "180"))
     REACT_MAX_STEPS: int = int(os.getenv("REACT_MAX_STEPS", "6"))
     REACT_TIMEOUT_SECONDS: float = float(os.getenv("REACT_TIMEOUT_SECONDS", "40"))
 

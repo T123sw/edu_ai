@@ -100,11 +100,13 @@ class ReplyServiceV2:
         self.artifact_revision_service = artifact_revision_service
 
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
+        if (result.get("trace") or {}).get("response_replayed"):
+            return result
         if request.workspace_context is not None:
             result["workspace_context"] = request.workspace_context.model_dump()
             # Persist the resolved request, never the pre-clarification payload.
             payload = request
-        if not result.get("artifact_revision"):
+        if not result.get("artifact_revision") and (result.get("trace") or {}).get("path") != "deepseek-harness":
             finalize_report_result(
                 payload=payload,
                 result=result,
@@ -208,17 +210,29 @@ class ReplyServiceV2:
             )
         return None
 
+    @staticmethod
+    def _model_plans(request):
+        from app.chat.harness.runtime import HarnessRuntime
+        return bool(Config.USE_DEEPSEEK_HARNESS and HarnessRuntime.supports(request))
+
+    def _prepare_workspace(self, request):
+        if not self.knowledge_context_service:
+            return None
+        if self._model_plans(request):
+            return self.knowledge_context_service.prepare_model(request)
+        return self.knowledge_context_service.prepare(request)
+
     def reply(self, payload):
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
-        scope_result = self.knowledge_context_service.prepare(request) if self.knowledge_context_service else None
+        scope_result = self._prepare_workspace(request)
         if scope_result is not None:
             return self._finalize_result(payload=payload, request=request, result=scope_result)
 
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
-        result = self._run_artifact_edit(request=request, snapshot=snapshot)
+        result = None if self._model_plans(request) else self._run_artifact_edit(request=request, snapshot=snapshot)
         if result is None:
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
@@ -229,14 +243,14 @@ class ReplyServiceV2:
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
 
-        scope_result = self.knowledge_context_service.prepare(request) if self.knowledge_context_service else None
+        scope_result = self._prepare_workspace(request)
         if scope_result is not None:
             yield {"type": "result", "payload": self._finalize_result(payload=payload, request=request, result=scope_result)}
             yield {"type": "done", "payload": {"conversation_id": request.conversation_id}}
             return
 
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
-        edit_result = self._run_artifact_edit(request=request, snapshot=snapshot)
+        edit_result = None if self._model_plans(request) else self._run_artifact_edit(request=request, snapshot=snapshot)
         if edit_result is not None:
             final_result = self._finalize_result(
                 payload=payload,

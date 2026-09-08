@@ -40,7 +40,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
     explicit_image_search = getattr(payload, "allow_image_search", None)
     allow_image_search = True if explicit_image_search is None else bool(explicit_image_search)
 
-    return ChatRequestV2(
+    request = ChatRequestV2(
         question=payload.question,
         request_id=getattr(payload, "request_id", None),
         actor_role=(
@@ -69,3 +69,14 @@ def normalize_chat_request(payload) -> ChatRequestV2:
             selected_doc_ids=selected_doc_ids,
         ),
     )
+
+    from core.config import Config
+    from app.chat.harness.runtime import HarnessRuntime
+    if Config.USE_DEEPSEEK_HARNESS and HarnessRuntime.supports(request):
+        request.capability.retrieval_buttons_are_requirements = True
+        request.capability.require_rag = bool(getattr(payload, 'allow_rag', getattr(payload, 'use_rag', False)))
+        request.capability.require_web = bool(getattr(payload, 'allow_web', False))
+        request.capability.allow_rag = True
+        request.capability.allow_web = True
+        request.capability.allow_tools = True
+    return request

@@ -397,6 +397,9 @@ export interface ArtifactRevisionOutcome {
 }
 
 export interface ChatResponseV2 {
+  task_id?: string | null;
+  harness_outline?: { outline_id: string; revision: number; subject: string } | null;
+  verification?: Record<string, unknown> | null;
   artifact_revision?: ArtifactRevisionOutcome | null;
   workspace_context?: ResolvedWorkspaceContext | null;
   clarification?: ScopeClarification | null;

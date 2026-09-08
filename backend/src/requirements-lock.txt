@@ -10,6 +10,8 @@ alembic==1.19.1
 psycopg[binary]==3.3.4
 python-multipart==0.0.20
 python-dotenv==1.2.1
+deepseek-harness-sdk==0.1.2rc1
+filelock==3.32.5
 baidu-aip==4.16.13
 chardet==5.2.0
 ffmpeg-python==0.2.0

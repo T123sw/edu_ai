@@ -282,7 +282,12 @@ class EmbeddingClient:
                     time.sleep(wait_sec)
                     continue
 
-                raise Exception(f"Embedding API错误: HTTP {response.status_code} - {response.text}")
+                from core.embedding_errors import embedding_response_error
+                try:
+                    error_payload = response.json()
+                except ValueError:
+                    error_payload = {}
+                raise embedding_response_error(response.status_code, error_payload)
             except requests.exceptions.RequestException as e:
                 last_error = str(e)
                 if attempt < self.max_retries:

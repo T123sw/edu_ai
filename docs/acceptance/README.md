@@ -1,5 +1,7 @@
 # OpenMAIC 迁移验收索引
 
+[跨对话报告查询验证](2026-09-08-cross-conversation-report-cn.md)：用户与课程权限边界、旧会话查询已完成报告、只读关联及回归证据。
+
 最近更新：2026-08-31
 
 状态：Phase 0–6、AI 课堂实时问答与 AI 课堂课程目录化已签收；连续授课与常驻问答体验优化、课程知识库可配置图谱先行构建待最终签收；Agent Memory V2 待实施、待验收
@@ -31,3 +33,11 @@
 ## 轻量 Agent RAG
 
 [验收标准与记录模板](../superpowers/acceptance/2026-09-07-lightweight-agent-rag-acceptance-cn.md)：覆盖两阶段检索、问答与资源生成、权限及降级；当前后端已实现，产品验收待完成、待验收。
+
+## DeepSeek Harness 首版
+
+[普通对话与报告接入验证](2026-09-07-deepseek-harness-report-dialogue-acceptance-cn.md)：代码接入、隔离回归与真实五轮报告链路通过；当前运行服务未切换，完整生产验收待完成。
+
+- [Harness 知识点大纲优化验收](2026-09-07-harness-knowledge-outline-acceptance-cn.md)：五项能力、真实链路、最终审阅版大纲与自动质量限制。
+
+- [根角色与完整报告审阅流程](2026-09-08-reviewed-report-acceptance-cn.md)：正文生成、审阅、修订、版本交付门槛和真实样例。

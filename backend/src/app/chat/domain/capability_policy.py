@@ -7,6 +7,9 @@ from pydantic import BaseModel, Field
 
 class CapabilityPolicy(BaseModel):
     source_mode: Literal["course_auto", "selected_documents", "none"] = "none"
+    retrieval_buttons_are_requirements: bool = False
+    require_rag: bool = False
+    require_web: bool = False
     allow_rag: bool = False
     allow_web: bool = False
     allow_image_search: bool = False

@@ -21,14 +21,29 @@ _HINT_TO_WORKFLOW = {
 
 class MainOrchestrator:
     def __init__(self, *, fast_runtime, workflow_registry, context_builder,
-                 react_agent=None):
+                 react_agent=None, harness_runtime=None):
         self.fast_runtime = fast_runtime
         self.workflow_registry = workflow_registry
         self.context_builder = context_builder
         self.react_agent = react_agent
+        self.harness_runtime = harness_runtime
+
+    def _harness_for(self, request):
+        if self.harness_runtime is None and not getattr(Config, "USE_DEEPSEEK_HARNESS", False):
+            return None
+        from app.chat.harness.runtime import HarnessRuntime
+        if not HarnessRuntime.supports(request):
+            return None
+        if self.harness_runtime is None and getattr(Config, "USE_DEEPSEEK_HARNESS", False):
+            from app.chat.harness.runtime import build_harness_runtime
+            self.harness_runtime = build_harness_runtime()
+        return self.harness_runtime
 
     def dispatch(self, request):
         snapshot = self.context_builder.build(request)
+        harness = self._harness_for(request)
+        if harness is not None:
+            return harness.run(request=request, snapshot=snapshot)
         decision = decide_route(
             request=request,
             snapshot=snapshot,
@@ -42,6 +57,10 @@ class MainOrchestrator:
 
     def dispatch_stream(self, request, *, on_workflow_complete: Optional[Callable] = None):
         snapshot = self.context_builder.build(request)
+        harness = self._harness_for(request)
+        if harness is not None:
+            yield from harness.run_stream(request=request, snapshot=snapshot)
+            return
         action_hint = str(getattr(request, "action_hint", "") or "")
 
         # Level 1: action_hint explicitly set → full workflow path (unchanged behaviour)

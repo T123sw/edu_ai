@@ -224,6 +224,15 @@ class _AgentReportGenerationAdapter:
         job_id: str,
         config_snapshot_id: str,
     ) -> dict[str, Any]:
+        if getattr(payload, "harness_outline_id", None):
+            from app.chat.harness.reviewed_report import generate_reviewed_report, ReportReviewFailed
+            from app.services.durable_task_handlers import DurableTaskExecutionError
+            try:
+                body, checkpoint = generate_reviewed_report(payload)
+            except ReportReviewFailed as exc:
+                raise DurableTaskExecutionError("REPORT_REVIEW_FAILED", str(exc)) from exc
+            return {"status": "completed", "artifacts": [{"artifact_type": "report",
+                    "title": payload.subject, "content": body, "generation_state": checkpoint}]}
         from app.chat.agents.report_generation import build_report_markdown
         from app.chat.runtime.agent_tools.handlers.outline_parser import (
             parse_report_outline,
@@ -534,12 +543,19 @@ class GenerationTaskHandler:
         )
         if "owner" in resolve_signature.parameters:
             resolve_kwargs["owner"] = context.owner_user_id
-        source = self.source_resolver.resolve(
-            course_id,
-            source_mode,
-            selected_doc_ids,
-            **resolve_kwargs,
-        )
+        try:
+            source = self.source_resolver.resolve(
+                course_id,
+                source_mode,
+                selected_doc_ids,
+                **resolve_kwargs,
+            )
+        except Exception as exc:
+            from core.embedding_errors import EmbeddingServiceError
+            if isinstance(exc, EmbeddingServiceError):
+                from app.services.durable_task_handlers import DurableTaskExecutionError
+                raise DurableTaskExecutionError(exc.code, str(exc)) from exc
+            raise
         execution_context = GenerationExecutionContext(
             job_id=context.task_id,
             course_id=course_id,
@@ -759,6 +775,10 @@ class GenerationTaskHandler:
                 "result_ref": {},
             }
         artifact = dict(artifacts[0])
+        if resource_type == "report" and (command.get("config") or {}).get("harness_outline_id"):
+            from app.chat.harness.reviewed_report import verified_review
+            if not verified_review(artifact):
+                raise ValueError("harness_report_review_missing_or_stale_before_publish")
         material_id = str(command.get("material_id") or "").strip()
         course_id = str(command.get("course_id") or context.course_id or "").strip()
         standard_metadata = dict(

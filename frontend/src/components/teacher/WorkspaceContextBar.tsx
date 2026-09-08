@@ -43,7 +43,7 @@ export function WorkspaceContextBar({ courseId, courseTitle, scope, onChange }: 
   const label = scope.scopeType === 'course' ? '课程整体' : current?.label || scope.scopeLabel || '当前知识点';
   const changeScope = (next: WorkspaceScope) => { onChange(next); setAdjusting(false); };
   return <div className="workspace-context-bar" data-testid="workspace-context-bar">
-    <span className="workspace-context-bar__label">当前备课范围</span>
+    <span className="workspace-context-bar__label">当前讨论范围</span>
     <strong className="workspace-context-bar__current" title={current?.title || courseTitle}>{label}</strong>
     <Popover trigger="click" placement="bottomLeft" open={adjusting} onOpenChange={setAdjusting}
       content={<div className="workspace-context-bar__adjustment">

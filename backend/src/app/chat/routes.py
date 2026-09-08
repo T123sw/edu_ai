@@ -274,6 +274,8 @@ async def list_conversations(
 async def get_conversation(conversation_id: str, current_user: dict = Depends(get_current_user)):
     try:
         payload = conversation_storage.get_conversation(conversation_id, owner=current_user.get("username"))
+        from app.chat.persistence.task_status_projection import project_task_status
+        payload = project_task_status(payload, current_user.get("username"))
         payload["status_card"] = _build_status_card_for_conversation(
             conversation_id,
             current_user.get("username"),

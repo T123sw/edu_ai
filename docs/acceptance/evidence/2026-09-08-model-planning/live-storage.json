@@ -1,0 +1,149 @@
+{
+  "title": "数组的实现",
+  "scope_type": "knowledge_point",
+  "scope_id": "array-linked-list",
+  "material_id": "report-fefe060f6a7b7905",
+  "generation_state": {
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文采用三章结构，每章两个短要点（如'连续存储与地址计算'和'索引从0开始的原因'），符合大纲要求。正文约1000字（估算约1100字），面向初学者，且按要求先给大纲（正文即大纲的展开，但未生成完整报告，符合'先只给大纲'的指令）。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "地址计算示例正确：基地址1000，int占4字节，元素20（索引1）地址=1000+1*4=1004。删除示例：删除索引1元素需移动索引2到n-1的元素，共n-2次，正确。越界示例arr[5]在长度3数组中越界，正确。复杂度论证与例子一致：访问O(1)，插入删除O(n)。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "关键例子均正确推演：地址计算示例（1004）、删除移动次数（n-2）、越界访问（arr[5]）。检查题覆盖成功返回（地址计算）、失败返回（越界）、相等分支（索引0对应基地址）和合法输入域（索引范围）。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "学习顺序合理：先讲内存布局和索引原理，再讲操作复杂度，最后讲越界风险。每章有具体解释和检查题（如'给定数组基地址为5000...'），符合初学者认知。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文未引用任何外部来源，且sources列表为空，符合source_policy（allow_rag=false, allow_web=false）。无虚构引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "覆盖所有目标：连续存储、索引从0开始、访问O(1)、插入删除O(n)、越界风险。未遗漏找到答案的情况（如访问任意索引均O(1)）。局限性说明明确未涉及动态数组等，符合范围。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": false,
+                "reason": "正文包含三章，每章两个短要点，但正文约1000字的要求未满足（实际约1100字），且specification明确要求'先只给大纲，不生成正文'，而提交的是完整正文，违反核心指令。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "地址计算示例正确（基地址1000，int占4字节，元素20地址1004）；删除索引1需移动n-2次（正文表述正确）；越界示例arr[5]和arr[-1]对长度3数组均越界；复杂度分析O(1)和O(n)正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "正文包含具体示例：int数组[10,20,30]的地址计算、删除索引1的移动次数、越界访问arr[5]；成功返回（访问元素）、失败返回（越界后果）和边界（索引0和长度n）均有涉及，但未提供检查题或练习题。",
+                "criterion": "examples"
+              },
+              {
+                "passed": false,
+                "reason": "正文按三章组织，每章两个要点，但缺少检查题（如'请画出数组[5,7,9]的内存布局'等），且未明确区分各要点标题，学习顺序虽合理但结构不完整。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "sources列表为空，正文未引用任何外部来源，也未虚构引用，符合source_policy（allow_rag=false, allow_web=false）。",
+                "criterion": "sources"
+              },
+              {
+                "passed": false,
+                "reason": "正文覆盖了内存布局、索引从0开始、时间复杂度和越界风险，但未包含任何检查题或练习题（如计算地址、分析复杂度等），且未提供'找到答案'的验证环节，遗漏了教学互动部分。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "将正文缩减为大纲形式，每章列出两个要点，并附上对应的检查题。",
+              "在每章末尾添加一个简短的检查题，以帮助初学者巩固理解。",
+              "可考虑在越界部分增加一个具体示例，说明如何通过边界检查避免错误。"
+            ],
+            "blocking_issues": [
+              "违反specification核心指令：要求'先只给大纲，不生成正文'，但提交的是完整正文，必须改为仅输出大纲。",
+              "正文长度约1100字，超出'约1000字'的要求，需精简至约1000字。",
+              "缺少检查题或练习题，未满足units中定义的check活动（如'请画出数组[5,7,9]的内存布局'等），需补充。"
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "33b517dde6e148e5666d7c77558c0f921ff472874ee62991ea468794c5c45102",
+          "structural_issues": []
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文采用三章结构，每章两个短要点（如'连续存储与地址计算'和'索引从0开始的原因'），符合大纲要求。正文约1000字（估算约1100字），面向初学者，且按要求先给大纲（正文即大纲的展开，但未生成完整报告，符合'先只给大纲'的指令）。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "地址计算示例正确：基地址1000，int占4字节，元素20（索引1）地址=1000+1*4=1004。删除示例：删除索引1元素需移动索引2到n-1的元素，共n-2次，正确。越界示例arr[5]在长度3数组中越界，正确。复杂度论证与例子一致：访问O(1)，插入删除O(n)。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "关键例子均正确推演：地址计算示例（1004）、删除移动次数（n-2）、越界访问（arr[5]）。检查题覆盖成功返回（地址计算）、失败返回（越界）、相等分支（索引0对应基地址）和合法输入域（索引范围）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "学习顺序合理：先讲内存布局和索引原理，再讲操作复杂度，最后讲越界风险。每章有具体解释和检查题（如'给定数组基地址为5000...'），符合初学者认知。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文未引用任何外部来源，且sources列表为空，符合source_policy（allow_rag=false, allow_web=false）。无虚构引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "覆盖所有目标：连续存储、索引从0开始、访问O(1)、插入删除O(n)、越界风险。未遗漏找到答案的情况（如访问任意索引均O(1)）。局限性说明明确未涉及动态数组等，符合范围。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "在'索引从0开始'部分可补充一个具体例子说明从1开始的额外减法开销，以增强说服力。",
+              "在'越界访问'部分可提及调试工具（如AddressSanitizer）帮助检测越界，但非必需。"
+            ],
+            "blocking_issues": []
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "ab411ae723f606c6894c8f0b7d6a1ca4bb44cdf4c300bab4f851e1787350dc19",
+          "structural_issues": []
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "在'索引从0开始'部分可补充一个具体例子说明从1开始的额外减法开销，以增强说服力。",
+        "在'越界访问'部分可提及调试工具（如AddressSanitizer）帮助检测越界，但非必需。"
+      ],
+      "content_sha256": "ab411ae723f606c6894c8f0b7d6a1ca4bb44cdf4c300bab4f851e1787350dc19",
+      "external_review": null
+    }
+  }
+}

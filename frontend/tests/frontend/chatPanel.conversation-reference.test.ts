@@ -19,7 +19,7 @@ const chatPanelFile = readFileSync(new URL('../../src/components/teacher/ChatPan
 assert.match(storeFile, /conversationReference:\s*ConversationReference \| null;/, 'store should expose conversationReference state');
 assert.match(storeFile, /setConversationReference:\s*\(reference:\s*ConversationReference \| null\)\s*=>\s*void;/, 'store should expose setConversationReference action');
 assert.match(storeFile, /clearConversationReference:\s*\(\)\s*=>\s*void;/, 'store should expose clearConversationReference action');
-assert.match(chatPanelFile, /setConversationReference\(\{[\s\S]*conversation_id:\s*item\.conversation_id/, 'ChatPanel should allow referencing a history conversation without switching to it');
+assert.match(chatPanelFile, /setConversationReference\(\{[\s\S]*conversation_id:\s*String\(\(stateConversationReference as any\)\.conversation_id/, 'ChatPanel should restore the referenced conversation independently from the active conversation');
 assert.match(chatPanelFile, /conversationReference\s*,/, 'ChatPanel should read conversationReference from the store');
 assert.match(chatPanelFile, /clearConversationReference\(\)/, 'ChatPanel should allow clearing a referenced conversation');
 
@@ -34,12 +34,13 @@ const payload = buildChatReplyPayload({
   conversationReference: reference,
 });
 
-assert.deepEqual(payload, {
+assert.deepEqual(JSON.parse(JSON.stringify(payload)), {
   question: '基于我引用的历史对话继续分析',
   conversation_id: 'conv-current',
   course_id: 'course-1',
-  allow_rag: false,
+  allow_rag: true,
   allow_web: false,
+  source_mode: 'selected_documents',
   selected_doc_ids: ['doc-1'],
   conversation_reference: {
     conversation_id: 'conv-ref-1',

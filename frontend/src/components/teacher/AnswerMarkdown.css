@@ -1,10 +1,11 @@
 .answer-markdown { width: 100%; min-width: 0; font-size: 15px; line-height: 1.8; color: inherit; overflow-wrap: anywhere; }
 .answer-markdown p { margin: 0 0 1em; }
-.answer-markdown :is(h1,h2,h3,h4,h5,h6) { color: inherit; font-weight: 650; line-height: 1.45; margin: 1.5em 0 .65em; padding: 0; }
-.answer-markdown h1 { font-size: 1.5em; }
-.answer-markdown h2 { font-size: 1.3em; }
-.answer-markdown h3 { font-size: 1.15em; }
-.answer-markdown :is(h4,h5,h6) { font-size: 1em; }
+.answer-markdown :is(h1,h2,h3,h4,h5,h6) { color: inherit; font: inherit; margin: 1em 0 .35em; padding: 0; }
+.answer-markdown h2 { margin-top: 1.15em; }
+.answer-markdown h3 { margin-inline-start: 1.5em; margin-top: .3em; }
+.answer-markdown h4 { margin-inline-start: 3em; margin-top: .3em; }
+.answer-markdown h5 { margin-inline-start: 4.5em; margin-top: .3em; }
+.answer-markdown h6 { margin-inline-start: 6em; margin-top: .3em; }
 .answer-markdown > :first-child { margin-top: 0; }
 .answer-markdown > :last-child { margin-bottom: 0; }
 .answer-markdown :is(ul,ol) { margin: .75em 0 1em; padding-left: 1.6em; list-style-position: outside; }

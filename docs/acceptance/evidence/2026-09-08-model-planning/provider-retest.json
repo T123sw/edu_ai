@@ -1,0 +1,17 @@
+[
+  {
+    "test": "embedding",
+    "http": 200,
+    "model": "gemini-embedding-2-preview",
+    "dimension": 3072,
+    "error_code": null,
+    "success": true
+  },
+  {
+    "test": "deepseek",
+    "http": 200,
+    "model": "deepseek-v4-flash",
+    "success": true,
+    "error_code": null
+  }
+]

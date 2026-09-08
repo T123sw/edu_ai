@@ -144,7 +144,10 @@ def rag_search_tool(
             {"answer": answer, "sources": sources},
         )
     except Exception as exc:
-        return _err("rag_search_tool", str(exc))
+        from core.embedding_errors import EmbeddingServiceError
+        result = _err("rag_search_tool", str(exc) if isinstance(exc, EmbeddingServiceError) else "知识库检索服务暂时不可用。")
+        result['error_code'] = exc.code if isinstance(exc, EmbeddingServiceError) else 'RETRIEVAL_UNAVAILABLE'
+        return result
 
 
 
