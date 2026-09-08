@@ -48,11 +48,8 @@ import {
   normalizeWorkspaceScope,
   type WorkspaceScope,
 } from '../../services/teacher/workspaceScope';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { AnswerMarkdown, type InlineSourceEntry } from './AnswerMarkdown';
 import 'katex/dist/katex.min.css';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
 import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../../services/rag';
 import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
 import { isTerminalJob } from '../../jobs/types';
@@ -144,179 +141,7 @@ const normalizeArtifactReferenceType = (
   return 'report';
 };
 
-type InlineSourceBlock = {
-  markdown: string;
-  normalizedText: string;
-  sources: InlineSourceEntry[];
-};
-
-type InlineSourcePlan = {
-  blocks: InlineSourceBlock[];
-  unmatchedSources: InlineSourceEntry[];
-};
-
-type InlineSourceEntry = {
-  source: ChatSourceV2;
-  order: number;
-};
-
-const FENCE_PATTERN = /^(```|~~~)/;
 const HISTORY_PAGE_SIZE = 20;
-
-function normalizeSourceComparableText(value: unknown): string {
-  return String(value || '')
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/!\[[^\]]*]\(([^)]+)\)/g, ' ')
-    .replace(/\[[^\]]*]\(([^)]+)\)/g, ' ')
-    .replace(/[*_>#-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .toLowerCase()
-    .trim();
-}
-
-function buildCharacterBigrams(value: string): string[] {
-  const compact = value.replace(/\s+/g, '');
-  if (compact.length <= 2) {
-    return compact ? [compact] : [];
-  }
-
-  const result: string[] = [];
-  for (let index = 0; index < compact.length - 1; index += 1) {
-    result.push(compact.slice(index, index + 2));
-  }
-  return result;
-}
-
-function scoreSourceBlockMatch(blockText: string, sourceText: string): number {
-  const normalizedBlock = normalizeSourceComparableText(blockText);
-  const normalizedSource = normalizeSourceComparableText(sourceText);
-
-  if (!normalizedBlock || !normalizedSource) {
-    return 0;
-  }
-
-  const sourceProbe = normalizedSource.slice(0, Math.min(normalizedSource.length, 36));
-  if (sourceProbe && normalizedBlock.includes(sourceProbe)) {
-    return 1;
-  }
-
-  const sourceBigrams = Array.from(new Set(buildCharacterBigrams(normalizedSource.slice(0, 240))));
-  if (sourceBigrams.length === 0) {
-    return 0;
-  }
-
-  const blockBigramSet = new Set(buildCharacterBigrams(normalizedBlock));
-  let overlapCount = 0;
-  for (const token of sourceBigrams) {
-    if (blockBigramSet.has(token)) {
-      overlapCount += 1;
-    }
-  }
-
-  return overlapCount / sourceBigrams.length;
-}
-
-function splitMarkdownIntoSourceBlocks(markdown: string): InlineSourceBlock[] {
-  const normalized = String(markdown || '').replace(/\r\n/g, '\n');
-  const lines = normalized.split('\n');
-  const blocks: InlineSourceBlock[] = [];
-  let inFence = false;
-  let currentLines: string[] = [];
-
-  const flushCurrentLines = () => {
-    const markdownBlock = currentLines.join('\n').trim();
-    currentLines = [];
-    if (!markdownBlock) {
-      return;
-    }
-    blocks.push({
-      markdown: markdownBlock,
-      normalizedText: normalizeSourceComparableText(markdownBlock),
-      sources: [],
-    });
-  };
-
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-    if (FENCE_PATTERN.test(trimmedLine)) {
-      if (inFence) {
-        currentLines.push(line);
-        flushCurrentLines();
-        inFence = false;
-      } else {
-        flushCurrentLines();
-        inFence = true;
-        currentLines.push(line);
-      }
-      continue;
-    }
-
-    if (inFence) {
-      currentLines.push(line);
-      continue;
-    }
-
-    if (!trimmedLine) {
-      flushCurrentLines();
-      continue;
-    }
-
-    currentLines.push(line);
-  }
-
-  flushCurrentLines();
-  return blocks;
-}
-
-function buildInlineSourcePlan(markdown: string, sources: ChatSourceV2[]): InlineSourcePlan {
-  const blocks = splitMarkdownIntoSourceBlocks(markdown);
-  if (blocks.length === 0 || sources.length === 0) {
-    return {
-      blocks,
-      unmatchedSources: sources.map((source, index) => ({ source, order: index + 1 })),
-    };
-  }
-
-  const unmatchedSources: InlineSourceEntry[] = [];
-
-  sources.forEach((source, sourceIndex) => {
-    const sourceContent = String(source?.content || '').trim();
-    const entry: InlineSourceEntry = {
-      source,
-      order: sourceIndex + 1,
-    };
-    if (!sourceContent) {
-      unmatchedSources.push(entry);
-      return;
-    }
-
-    let bestBlockIndex = -1;
-    let bestScore = 0;
-
-    blocks.forEach((block, index) => {
-      if (!block.normalizedText || FENCE_PATTERN.test(block.markdown.trim())) {
-        return;
-      }
-      const score = scoreSourceBlockMatch(block.markdown, sourceContent);
-      if (score > bestScore) {
-        bestScore = score;
-        bestBlockIndex = index;
-      }
-    });
-
-    if (bestBlockIndex >= 0 && bestScore >= 0.16) {
-      blocks[bestBlockIndex].sources.push(entry);
-    } else {
-      unmatchedSources.push(entry);
-    }
-  });
-
-  return {
-    blocks,
-    unmatchedSources,
-  };
-}
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorkspaceScopeChange, topicSelector }) => {
   const { user: authenticatedUser } = useAuthSession();
@@ -1940,10 +1765,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
               ),
             }}
             renderItem={(item, index) => {
-              const inlineSourcePlan = item.user === 'AI'
-                ? buildInlineSourcePlan(item.text, item.sources || [])
-                : null;
-
               return (
                 <List.Item
                   key={index}
@@ -2078,109 +1899,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
                   )}
                     {item.text ? (
                       <div className={`chat-panel__bubble chat-panel__bubble--${item.user === 'You' ? 'user' : 'ai'}`}>
-                        {item.user === 'AI' && inlineSourcePlan ? (
-                          <div className="chat-panel__inline-answer">
-                            {inlineSourcePlan.blocks.map((block, blockIndex) => (
-                              <div key={`message-${index}-block-${blockIndex}`} className="chat-panel__inline-answer-block">
-                                <ReactMarkdown
-                                  remarkPlugins={[remarkGfm, remarkMath]}
-                                  rehypePlugins={[rehypeKatex]}
-                                  components={{
-                                    p: ({ children }) => (
-                                      <p className="chat-panel__markdown-paragraph">
-                                        {children}
-                                      </p>
-                                    ),
-                                  }}
-                                >
-                                  {block.markdown}
-                                </ReactMarkdown>
-                                {renderInlineSourceTags(block.sources, `message-${index}-block-${blockIndex}`)}
-                              </div>
-                            ))}
-                          </div>
-                        ) : item.user === 'AI' ? (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm, remarkMath]}
-                            rehypePlugins={[rehypeKatex]}
-                            components={{
-                              p: ({ children }) => (
-                                <p className="chat-panel__markdown-paragraph">
-                                  {children}
-                                </p>
-                              ),
-                              h1: ({ children }) => (
-                                <h1 style={{
-                                  fontSize: 18,
-                                  fontWeight: 700,
-                                  margin: '16px 0 8px',
-                                  paddingBottom: 4,
-                                  borderBottom: '1px solid #e8e8e8',
-                                }}>{children}</h1>
-                              ),
-                              h2: ({ children }) => (
-                                <h2 style={{
-                                  fontSize: 16,
-                                  fontWeight: 600,
-                                  margin: '12px 0 6px',
-                                  color: '#1677ff',
-                                }}>{children}</h2>
-                              ),
-                              h3: ({ children }) => (
-                                <h3 style={{
-                                  fontSize: 14,
-                                  fontWeight: 600,
-                                  margin: '8px 0 4px',
-                                  paddingLeft: 12,
-                                  borderLeft: '2px solid #91caff',
-                                }}>{children}</h3>
-                              ),
-                              h4: ({ children }) => (
-                                <h4 style={{
-                                  fontSize: 13,
-                                  fontWeight: 500,
-                                  margin: '6px 0 2px',
-                                  paddingLeft: 24,
-                                  color: '#555',
-                                }}>{children}</h4>
-                              ),
-                              h5: ({ children }) => (
-                                <h5 style={{
-                                  fontSize: 13,
-                                  fontWeight: 500,
-                                  margin: '4px 0',
-                                  paddingLeft: 36,
-                                  color: '#777',
-                                }}>{children}</h5>
-                              ),
-                              ul: ({ children }) => (
-                                <ul style={{ paddingLeft: 24, margin: '4px 0' }}>{children}</ul>
-                              ),
-                              ol: ({ children }) => (
-                                <ol style={{ paddingLeft: 24, margin: '4px 0' }}>{children}</ol>
-                              ),
-                              li: ({ children }) => (
-                                <li style={{ margin: '2px 0', lineHeight: 1.7 }}>{children}</li>
-                              ),
-                            }}
-                          >
-                            {item.text}
-                          </ReactMarkdown>
+                        {item.user === 'AI' ? (
+                          <AnswerMarkdown text={item.text} sources={item.sources || []}
+                            renderSources={(entries, blockIndex) => renderInlineSourceTags(entries, `message-${index}-block-${blockIndex}`)} />
                         ) : (
                           <div className="chat-panel__user-text">{item.text}</div>
                         )}
                       </div>
                     ) : null}
 
-                    {item.user === 'AI' && inlineSourcePlan && inlineSourcePlan.unmatchedSources.length > 0 && (
-                      <div className="chat-panel__sources">
-                        <Space wrap size={[0, 8]}>
-                          {inlineSourcePlan.unmatchedSources.map((source, sourceIndex) =>
-                            renderSourceTag(source, sourceIndex, `message-${index}-unmatched`),
-                          )}
-                        </Space>
-                      </div>
-                    )}
                     </div>
                   </div>
                 </List.Item>

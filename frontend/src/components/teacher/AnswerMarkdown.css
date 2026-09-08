@@ -1,0 +1,40 @@
+.answer-markdown { width: 100%; min-width: 0; font-size: 15px; line-height: 1.8; color: inherit; overflow-wrap: anywhere; }
+.answer-markdown p { margin: 0 0 1em; }
+.answer-markdown :is(h1,h2,h3,h4,h5,h6) { color: inherit; font-weight: 650; line-height: 1.45; margin: 1.5em 0 .65em; padding: 0; }
+.answer-markdown h1 { font-size: 1.5em; }
+.answer-markdown h2 { font-size: 1.3em; }
+.answer-markdown h3 { font-size: 1.15em; }
+.answer-markdown :is(h4,h5,h6) { font-size: 1em; }
+.answer-markdown > :first-child { margin-top: 0; }
+.answer-markdown > :last-child { margin-bottom: 0; }
+.answer-markdown :is(ul,ol) { margin: .75em 0 1em; padding-left: 1.6em; list-style-position: outside; }
+.answer-markdown ul { list-style-type: disc; }
+.answer-markdown ol { list-style-type: decimal; }
+.answer-markdown ul ul { list-style-type: circle; }
+.answer-markdown ul ul ul { list-style-type: square; }
+.answer-markdown li { margin: .35em 0; padding-left: .2em; }
+.answer-markdown li > :is(ul,ol) { margin: .3em 0; }
+.answer-markdown li > p { margin: .45em 0; }
+.answer-markdown .contains-task-list { list-style: none; padding-left: .35em; }
+.answer-markdown .task-list-item > input { margin-right: .6em; }
+.answer-markdown strong { font-weight: 700; }
+.answer-markdown em { font-style: italic; }
+.answer-markdown a { color: #315fc2; text-decoration: underline; text-underline-offset: 3px; }
+.answer-markdown blockquote { margin: 1em 0; padding: .7em 1em; border-left: 3px solid #a9bce6; background: #f5f7fc; color: #475569; }
+.answer-markdown blockquote > :last-child { margin-bottom: 0; }
+.answer-markdown hr { margin: 1.6em 0; border: 0; border-top: 1px solid #dce3ed; }
+.answer-markdown code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; background: #f0f3f8; border-radius: 4px; padding: .15em .35em; }
+.answer-markdown pre { max-width: 100%; overflow-x: auto; margin: 1em 0; padding: 16px; border: 1px solid #dce3ed; border-radius: 10px; background: #f6f8fb; line-height: 1.65; white-space: pre; overflow-wrap: normal; word-break: normal; tab-size: 4; }
+.answer-markdown pre code { padding: 0; background: transparent; border: 0; white-space: inherit; }
+.answer-markdown__table-scroll { max-width: 100%; overflow-x: auto; margin: 1em 0; border: 1px solid #dce3ed; border-radius: 8px; }
+.answer-markdown table { width: 100%; border-collapse: collapse; font-size: .95em; }
+.answer-markdown :is(th,td) { min-width: 100px; padding: 10px 14px; border: 1px solid #dce3ed; vertical-align: top; }
+.answer-markdown th { background: #edf2fa; font-weight: 650; }
+.answer-markdown tr:nth-child(even) td { background: #f8fafc; }
+.answer-markdown img { display: block; max-width: 100%; height: auto; margin: 1em 0; border-radius: 8px; }
+.answer-markdown .katex-display { max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: .3em 0; }
+.answer-markdown__citations { margin: -.4em 0 1em; line-height: 1.5; }
+.answer-markdown__citations .chat-panel__inline-sources { margin-left: 0; }
+.answer-markdown :is(pre,.answer-markdown__table-scroll):focus-visible { outline: 2px solid #6a8bd0; outline-offset: 2px; }
+.chat-panel__message-shell--ai .chat-panel__message-content { max-width: calc(100% - 46px); flex: 1; }
+.chat-panel__bubble--ai { width: 100%; max-width: 100%; min-width: 0; }
