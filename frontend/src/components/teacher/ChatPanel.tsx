@@ -3,11 +3,8 @@ import type { ArtifactDraftAction } from '../../services/teacher/chatV2';
 ﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Alert, Input, Button, List, Space, Typography, Tooltip, message, Empty, Spin, Modal, Popover } from 'antd';
 import { SendOutlined, HistoryOutlined, DeleteOutlined, AudioOutlined, PictureOutlined, VideoCameraOutlined, PlusOutlined } from '@ant-design/icons';
-import { buildRoleCourseHash } from '../../stitch/shared/routes/roleCourseRouteResolver';
 import { useAuthSession } from '../../stitch/authSession';
 import { subscribeRevisionIntent, clearRevisionIntent, type ArtifactRevisionReference } from '../../stitch/artifactRevision/intent';
-import { RevisionHistoryDialog } from './RevisionHistoryDialog';
-import { RevisionResult } from '../../stitch/artifactRevision/components';
 import { useStore } from '../../store/teacher/useStore';
 import { useCourseMaterialsStore } from '../../store/teacher/useCourseMaterialsStore';
 import {
@@ -187,7 +184,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const pendingRevisionIntent = useRef<ArtifactRevisionReference | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [draftReferenceLabel, setDraftReferenceLabel] = useState<string | null>(null);
-  const [revisionHistory, setRevisionHistory] = useState<ArtifactRevisionReference | null>(null);
   const [revisionOutcome, setRevisionOutcome] = useState<ArtifactRevisionOutcome | null>(null);
   const [clarification, setClarification] = useState<ScopeClarification | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -601,7 +597,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setIsLoading(false);
     setClarification(null);
     setRevisionOutcome(null);
-    setRevisionHistory(null);
     setMessages([]);
     clearArtifactReference();
     clearConversationReference();
@@ -2015,13 +2010,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
         ) : null}
 
-        {revisionHistory && <RevisionHistoryDialog reference={revisionHistory} onClose={() => setRevisionHistory(null)}
-          onRestored={outcome => { if (workspaceIdentityRef.current !== workspaceIdentity) return; setRevisionOutcome(outcome); if (outcome.artifact_reference) setArtifactReference(outcome.artifact_reference); }} />}
-        {revisionOutcome?.status === 'completed' && revisionOutcome.artifact_reference && <RevisionResult
-          reference={revisionOutcome.artifact_reference} summary={revisionOutcome.summary || ''} changes={revisionOutcome.changes || []}
-          onView={() => { const ref = revisionOutcome.artifact_reference; if (ref) window.location.hash = buildRoleCourseHash(authenticatedUser?.role, 'resources', ref.source_course_id, { material_type: ref.artifact_type === 'report_outline' ? 'report' : ref.artifact_type, material_id: ref.artifact_id, space: 'mine' }); }}
-          onContinue={() => { if (revisionOutcome.artifact_reference) setArtifactReference(revisionOutcome.artifact_reference); }}
-          onRestore={() => { if (revisionOutcome.artifact_reference) setRevisionHistory(revisionOutcome.artifact_reference); }} />}
         {revisionOutcome?.status === 'needs_clarification' && <div role="group" aria-label="资料修改澄清">
           {revisionOutcome.candidates?.map((candidate, index) => <Button key={candidate.artifact_id} disabled={isLoading}
             onClick={() => void handleSendMessage(String(index + 1))}>{index + 1}. {candidate.title || candidate.artifact_id}</Button>)}
